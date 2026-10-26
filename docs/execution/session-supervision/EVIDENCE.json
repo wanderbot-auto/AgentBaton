@@ -1,63 +1,71 @@
 {
-  "unit": "session-schema4-local-Git-guard-integration",
+  "unit": "session-schema4-pr9-main-actor-teardown-integration",
   "authorization": "AB-START-001",
-  "recorded_at_utc": "2026-10-26T21:20:39.147357+00:00",
-  "tested_commit": "3bd37e614047c7b3a33616cdfdab0c4c4d895061",
+  "recorded_at_utc": "2026-10-26T22:08:09.179700+00:00",
+  "tested_commit": "17b71d5b6cd046ecaad3777cdefbd3f3cac0174a",
   "merge_parents": [
-    "b85a64d77e740d0fb7d325f8f89965005573968d",
-    "32ca76eb9670925c53e97de52d258cc9282622eb"
+    "a763d895e420fa0b25a5d546ad744c93c57d216c",
+    "eb115e0915a4dd0ac46c8c188101b64b89e9d35f"
   ],
   "schema_version": 4,
-  "owner_inbox": "Latest fetched protectedmain at integration boundary dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7; OWNER001/002 re-read and ACK, no newowner instruction",
+  "owner_inbox": "Latest fetched protectedmain eb115e0 OWNER001/002 re-read and ACK; no additionalowner instruction",
   "previous_session_checkpoint": {
-    "commit": "cf00c849e39977eb5bcbc83532866168da663d82",
-    "archive": "EVIDENCE.fifo-cf00.json",
-    "sha256": "d320f704bb6060f3358f2ca0b04c6be7658ce3e9c6ea79b5d0d1c33aa7eb2ae7"
+    "commit": "334d71eedb5a89822d7f71b1e924d526529cbfb1",
+    "archive": "EVIDENCE.guard-334.json",
+    "sha256": "bf458e13711a56d8dd5b8300074aac2acfced92f5ebcd167806e21a089df27cf"
   },
-  "incoming_guard_evidence": {
-    "path": "docs/execution/workspace-fetch-guard/EVIDENCE.json",
-    "sha256": "09419b78bbcc22fba300eeffef6ed1b2d884b727c4b681fb34c344d0e1b2c317",
-    "status": "preserved byte-identical to32ca76; its130tests and independentreview are historical guardbranch evidence, separate from this199test Session candidate"
+  "main_prerequisite": "Protectedmain Gitcommit records PR9 merged at eb115e0 after lead verified exact34 allseven checks and both same-checkout development DMGs; prerequisite evidence is not currentSession nativeacceptance.",
+  "changes": "Preserve both first-frame tests and incoming main duplicateFD unit. Factor existing SupervisorDrop cancel/join/probe-join body verbatim into pub(crate)reap_owned_workers with no DBmutation. DaemonDrop calls it FIRST, then unlinksownsocket, then explicitly unlocksownFile. SupervisorDrop also calls same now-idempotent drain.",
+  "root_reference": "Only selected reap_owned_workers/install_drop_fixture/SupervisorDrop and actorcleanup unit from Root573acac; matched existing WorkerReceipt fields including never_started, no data/API/schema/native/profile changes.",
+  "test_fixture": "cfg(test)-only cancellation-observing generatedworker callback asserts competingDaemonbind staysWORKSPACE_BUSY and ownsocket exists DURINGcleanup. No Providerprocess/model/privateidentity spawned. AfterfullDrop with olddupheld newbind succeeds and olddupclose cannotunlockreplacement.",
+  "bad_order_control": {
+    "command": "cargo test --locked -p agentbaton-core --lib ipc::frame_tests::daemon_retains_its_writer_lock_until_owned_worker_cleanup_finishes -- --exact",
+    "exit_code": 101,
+    "state": "Main explicitunlock merged; SupervisorDrop body factored equivalently; missing earlyDaemonDrop reap call, so cleanup occurs afterwriterunlock."
   },
-  "merge_resolution": "Only conflict was WorkspaceError Display. Keep general UnsafeRepository description plus existing UnverifiedIndex arm. Keep all hidden-index/stat overrides/filter/path guards and18old safetytests. Merge6 new guard tests(unitgraft1+security5) without schema5/adoption/profile modules/dependencies.",
-  "preservation_proof": {
-    "raw_harness_results": {
-      "workspaces": 24,
-      "workspace-tests": 200
+  "causation_limit": "Badorder control proves ownership ordering; duplicateFD control proves lockdescription mechanics. Historical nativeWORKSPACE_BUSY causation remainsunproven.",
+  "preservation": {
+    "workspaces_raw_count": 24,
+    "workspace-tests_raw_count": 202,
+    "workspace_top_level": 201,
+    "extra_fifo_child_excluded": 1,
+    "unchanged_files": {
+      "Cargo.toml": "5dc88c14683dc23feac5ee1d6076ee96fc8f4a8eb149fa62cf35818553522c29",
+      "Cargo.lock": "3f518d6cfeb5cdf126a24708120b4ec8349c5aab1d80ff4512b8296efcd5a33c",
+      "crates/core/src/storage.rs": "905de3f02f01465c07690d3f88c5940e52e68531ad82acb13090bf91096a2c5a",
+      "crates/core/src/policy.rs": "77a775f2befa7c70afa9ba5e8928ecb28d490da9de2c9bdef67b79469b4ca449",
+      "crates/workspaces/src/lib.rs": "796e8cf7b2f92052f01b4140ac7f76fa47631959190138fbaa755ff7b682491e",
+      "crates/workspaces/tests/lazy_fetch.rs": "8f4de1e700b317e9e100a8bff3ec9f4feb9402b9a86f218992a020b577dcf711",
+      "crates/workspaces/tests/safety.rs": "aea419fc8d4f4640d1522170063b034a958c2be2951714cbe1cf2cf8bc990420",
+      "docs/execution/session-supervision/FINAL_GUARD_REVIEW.md": "92ca0f372e1749f77b659242d91c45fe9a5cb7bd4410541370e9f4d4b9e2778c",
+      "docs/execution/session-supervision/FIFO_REVIEW.md": "dd6d4354eb814bf0f4d9c0c0876242f9bdd66d9d0b68fceca8d1d546b9b63f6f"
     },
-    "top_level_workspace_tests": 199,
-    "nested_core_fifo_child_excluded": 1,
-    "hidden_index_function_unchanged": true,
-    "guard_test_file_identical": true,
+    "tracked_desktop": "all byte-identical to a763d89",
+    "selected_root_573_function_block_sha256": "d47a031de8f251374645a5da384b2b0a58ab874158ad9734633634f5e3e6bd18",
+    "selected_root_functions_exact": true,
+    "old_supervisor_drop_body_moved_verbatim": true,
     "incoming_guard_docs": {
-      "docs/execution/workspace-fetch-guard/CHECKPOINT.md": "5110c74caa0147e3e9991779c8be0f1fe12c385fcac2622840083c89faa847ab",
+      "docs/execution/workspace-fetch-guard/CHECKPOINT.md": "9b6c62d7e5bb44f22a40b7e023bd686ca114941d1bfe4f70f24995262fe8dfac",
       "docs/execution/workspace-fetch-guard/EVIDENCE.fetch-only-943.json": "602c16a305d98dcd5049759ff2ab0f24f45cd5aca0373dba0f5f1c15e2a3e8ec",
-      "docs/execution/workspace-fetch-guard/EVIDENCE.json": "09419b78bbcc22fba300eeffef6ed1b2d884b727c4b681fb34c344d0e1b2c317",
+      "docs/execution/workspace-fetch-guard/EVIDENCE.include-32.json": "09419b78bbcc22fba300eeffef6ed1b2d884b727c4b681fb34c344d0e1b2c317",
+      "docs/execution/workspace-fetch-guard/EVIDENCE.json": "d693de8acaac9b8fcd81c0c0e377886bb81d22fe6cfae1cab7959214330b5e3f",
       "docs/execution/workspace-fetch-guard/EVIDENCE.raw-guard-851.json": "9415af4a627a355e6f9b0d35ba2169f105589b7e56d262cdb62a533ec52b3775",
-      "docs/execution/workspace-fetch-guard/PLAN.md": "4a37e3ffb5468049ea8f8cf17a670e6e7faa8736fabae3e983b0cd21b3c75313",
-      "docs/execution/workspace-fetch-guard/PROGRESS.md": "44b77deccd11938946c4bcc56802913cb623aada91b1dffb9ea836268588c0d6",
-      "docs/execution/workspace-fetch-guard/REVIEW.md": "79aac68f9a3f2ff214c21e8bb9ea8b9ec65e893347cd8e7b80c0f5cb5227d3c2"
-    }
-  },
-  "preserved_source": {
-    "crates/workspaces/tests/safety.rs": "aea419fc8d4f4640d1522170063b034a958c2be2951714cbe1cf2cf8bc990420",
-    "Cargo.toml": "5dc88c14683dc23feac5ee1d6076ee96fc8f4a8eb149fa62cf35818553522c29",
-    "Cargo.lock": "3f518d6cfeb5cdf126a24708120b4ec8349c5aab1d80ff4512b8296efcd5a33c",
-    "crates/core/src/ipc.rs": "b2f8de10fffd5f67b1380002fcae874a99e2363e1c08282077d58b7768f3fa51",
-    "crates/core/src/storage.rs": "905de3f02f01465c07690d3f88c5940e52e68531ad82acb13090bf91096a2c5a",
-    "crates/core/src/policy.rs": "77a775f2befa7c70afa9ba5e8928ecb28d490da9de2c9bdef67b79469b4ca449",
-    "crates/core/src/sessions.rs": "56ca698c6a6b02f626e79aa820d9a3f95a9f595808b2a905f1753ce60a177700",
-    "docs/execution/session-supervision/FIFO_REVIEW.md": "dd6d4354eb814bf0f4d9c0c0876242f9bdd66d9d0b68fceca8d1d546b9b63f6f",
-    "desktop_tracked_files": "all byte-identical to b85a64d"
-  },
-  "environment": {
-    "os": "Linux local cloud",
-    "umask": "022",
-    "CARGO_BUILD_JOBS": "2",
-    "CARGO_HOME": "/workspace/.toolchains/cargo",
-    "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+      "docs/execution/workspace-fetch-guard/PLAN.md": "26d5d4dcb71459ecfe685020f6aaa00e16f3ac31981e4e0ee9ab74b887bca922",
+      "docs/execution/workspace-fetch-guard/PROGRESS.md": "641e6402277eceab2b049c9ff7a8163292c2086b7e5c6a25d91e6ad35f5c2d9a",
+      "docs/execution/workspace-fetch-guard/REVIEW.md": "df9ced965c13886c2806651ae6bb6ad729de9425d09be9ba9c73f21e82816ea0",
+      "docs/execution/workspace-fetch-guard/WRITER_LOCK.md": "1b2a4cef7ecadcff0ec3c099fa3deaae45a7ada07f91cc626760a05fab3252e4"
+    },
+    "STATUS.before-main-a763d89.md": "7d07a0aee122ebd947cc494ebb9a40b7e5bc909e514793209f6c99cd39ba55ca",
+    "STATUS.incoming-main-eb115e0.md": "dc713692626373273531c9f8a2a62e22098349feb2aa09da225c4efe0ef3bfb0",
+    "ipc_run_dispatch_prefix_unchanged": true,
+    "session_worker_receipt_dispatch_and_shutdown_code_unchanged": true
   },
   "checks": [
+    {
+      "name": "owned-cleanup",
+      "command": "cargo test --locked -p agentbaton-core --lib ipc::frame_tests::daemon_retains_its_writer_lock_until_owned_worker_cleanup_finishes -- --exact",
+      "exit_code": 0
+    },
     {
       "name": "workspaces",
       "command": "cargo test --locked -p agentbaton-workspaces",
@@ -104,78 +112,92 @@
       "exit_code": 0
     },
     {
-      "name": "manifest",
       "command": "python3 scripts/verify_bootstrap_manifest.py",
       "exit_code": 0,
       "files": 92
     }
   ],
   "counts": {
-    "all_workspace_top_level": 199,
-    "core": 70,
+    "full_workspace_top_level": 201,
+    "core": 72,
     "config": 45,
     "providers": 58,
     "workspaces": 24,
     "daemon_signals": 2,
-    "nested_fifo_child": "one additional childharness result excluded from top-level total",
+    "extra_nested_fifo_child_excluded": 1,
     "ui": 35
+  },
+  "environment": {
+    "os": "Linux localcloud",
+    "umask": "022",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup"
   },
   "logs": {
     "bins.log": {
-      "path": "artifacts/session-fetch-guard-integration/bins.log",
+      "path": "artifacts/session-pr9-writer-integration/bins.log",
       "sha256": "6cbebdedfe068754652b11eb9569b0362142dcb6587b116ffdf025f915fa1677"
     },
     "checks.json": {
-      "path": "artifacts/session-fetch-guard-integration/checks.json",
-      "sha256": "25e9024dd5c3290555b9cd6ce775d9817dc941c70bee5183dda654d45746b154"
+      "path": "artifacts/session-pr9-writer-integration/checks.json",
+      "sha256": "99153d4bf9332fba7388b19a350bce8b78b188555f206d2331c64a85046a1a16"
     },
     "clippy.log": {
-      "path": "artifacts/session-fetch-guard-integration/clippy.log",
-      "sha256": "8858f06de130fd3af350541cc5e056a69a2c085a07687a2f0db722734fc466d4"
+      "path": "artifacts/session-pr9-writer-integration/clippy.log",
+      "sha256": "fbb09f80f96b9a2db497ca3c6fa0992d7920ba77119fbd48187dc167e8fda7d7"
     },
     "fmt.log": {
-      "path": "artifacts/session-fetch-guard-integration/fmt.log",
+      "path": "artifacts/session-pr9-writer-integration/fmt.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
+    "late-reap-control.json": {
+      "path": "artifacts/session-pr9-writer-integration/late-reap-control.json",
+      "sha256": "aefa8a72b5ae24b6b72fca1debd432030d5815560a0078c44700b887b8bdd63f"
+    },
+    "late-reap-control.log": {
+      "path": "artifacts/session-pr9-writer-integration/late-reap-control.log",
+      "sha256": "49cb0914d9d1bc9b960d7b9422ee2fd5e2869837e35b9116b95e116511c1c861"
+    },
     "manifest.log": {
-      "path": "artifacts/session-fetch-guard-integration/manifest.log",
+      "path": "artifacts/session-pr9-writer-integration/manifest.log",
       "sha256": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f"
     },
-    "merge-preservation.json": {
-      "path": "artifacts/session-fetch-guard-integration/merge-preservation.json",
-      "sha256": "7006033de5a0abe323bff78d0274fef2579465b618dea39b8e6739e2acf7417c"
+    "owned-cleanup.log": {
+      "path": "artifacts/session-pr9-writer-integration/owned-cleanup.log",
+      "sha256": "a198eb56821651fa8c593ca7186ae9bff4dd5dd04c6479fc43ffd87961d29e69"
     },
-    "preserved-source.json": {
-      "path": "artifacts/session-fetch-guard-integration/preserved-source.json",
-      "sha256": "c1fd5ef6cae4764447c0749bb06648257242012516c2e9a0130712d11f72028e"
+    "preservation.json": {
+      "path": "artifacts/session-pr9-writer-integration/preservation.json",
+      "sha256": "3e50ab00122f606eb19851e27ab4833f7e37e84d3333fff5759fc770fb873fc8"
     },
     "restart-smoke.log": {
-      "path": "artifacts/session-fetch-guard-integration/restart-smoke.log",
+      "path": "artifacts/session-pr9-writer-integration/restart-smoke.log",
       "sha256": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805"
     },
     "ui-build.log": {
-      "path": "artifacts/session-fetch-guard-integration/ui-build.log",
-      "sha256": "803ee0a6339eef16a1c50aa521855d569283daa6059f60b475db5d27ba3348aa"
+      "path": "artifacts/session-pr9-writer-integration/ui-build.log",
+      "sha256": "cee6684148e45877be1449d703d2fbf80f2454d517bb04fc148bda8da0d00f29"
     },
     "ui-checks.json": {
-      "path": "artifacts/session-fetch-guard-integration/ui-checks.json",
+      "path": "artifacts/session-pr9-writer-integration/ui-checks.json",
       "sha256": "4abe3e2784518382bba6fcf0d5181cb2428ff127a93275cc813a36b1fd087f4d"
     },
     "ui-tests.log": {
-      "path": "artifacts/session-fetch-guard-integration/ui-tests.log",
-      "sha256": "cc9dd49eca8c9ab5ca8b2d7dbe5861e398189d9ff5d3e216d53edb66c11b98e1"
+      "path": "artifacts/session-pr9-writer-integration/ui-tests.log",
+      "sha256": "0f238550b632a06ea69116f6abe3c198cc51ac62e1062b3e370ab5fba9b16713"
     },
     "ui-typecheck.log": {
-      "path": "artifacts/session-fetch-guard-integration/ui-typecheck.log",
+      "path": "artifacts/session-pr9-writer-integration/ui-typecheck.log",
       "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
     },
     "workspace-tests.log": {
-      "path": "artifacts/session-fetch-guard-integration/workspace-tests.log",
-      "sha256": "2da73006e0a286ea31b7925eb7234db5f71d50a025c79587e5d2ef0ae799f8ac"
+      "path": "artifacts/session-pr9-writer-integration/workspace-tests.log",
+      "sha256": "23cd98c1588bfe20a7291b2d14f3bbf5a98feac8de57164b541ce014958e8ac0"
     },
     "workspaces.log": {
-      "path": "artifacts/session-fetch-guard-integration/workspaces.log",
-      "sha256": "3612d513f11f3f9f030a36289f2052158f6b20118cd4c494186fbcacb9deeac4"
+      "path": "artifacts/session-pr9-writer-integration/workspaces.log",
+      "sha256": "1bfeea28cff3862157dd1435e44d9273c64f8e29a410646cf20b2e75fbde13b5"
     }
   },
   "source_hashes": {
@@ -213,11 +235,11 @@
     "crates/config/tests/transactions.rs": "efb15cab097e5751557e665e3d846e31641a813adbe1604ec39e5318cb768212",
     "crates/core/Cargo.toml": "e5debd15030a5e2c49b28d5c4c9fc061b18a39fd0b90d08225f946e0d5c3e323",
     "crates/core/src/execution.rs": "8ca281e755206dae172299892c65299b884383961ff4af2219141f4353f841b5",
-    "crates/core/src/ipc.rs": "b2f8de10fffd5f67b1380002fcae874a99e2363e1c08282077d58b7768f3fa51",
+    "crates/core/src/ipc.rs": "5e836853bdeafe960c896ed1d60491f520f951b85cbf6952c4de8e39a4c1b11e",
     "crates/core/src/lib.rs": "26db2de6d9015c40d2c2bfbed65ce53ba334b87d82eb4c398b3fc5d7a93ab53f",
     "crates/core/src/policy.rs": "77a775f2befa7c70afa9ba5e8928ecb28d490da9de2c9bdef67b79469b4ca449",
     "crates/core/src/registry.rs": "4c339c794bdf2cb67e3320bafa81ae789eb9b5b34b4da9ca65ab650b3065d27d",
-    "crates/core/src/sessions.rs": "56ca698c6a6b02f626e79aa820d9a3f95a9f595808b2a905f1753ce60a177700",
+    "crates/core/src/sessions.rs": "d4b00faaa200be458d9528c611fe037827b81501cb6e43ba66c171bf9568c0f8",
     "crates/core/src/storage.rs": "905de3f02f01465c07690d3f88c5940e52e68531ad82acb13090bf91096a2c5a",
     "crates/core/tests/execution.rs": "70f4121685c332562ee92632eaebbb4fdb440692d7dd0b89b5aecea5c73ecc06",
     "crates/core/tests/ipc.rs": "26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28",
@@ -248,18 +270,14 @@
     "crates/workspaces/tests/safety.rs": "aea419fc8d4f4640d1522170063b034a958c2be2951714cbe1cf2cf8bc990420",
     "scripts/smoke-local-product.py": "5f05c2c074f30966cba029f8e80faf7ca4b96e7c17c2fcbab1fb0f1d606c23f4"
   },
-  "reviews": {
-    "fifo": "FIFO_REVIEW.md committed alone at b85a64d; content unchanged",
-    "guard": "incoming focusedguard independent reviews preserved unchanged; aggregate Session merge requires its own review",
-    "current_merge": "pending primary independentreview"
-  },
   "remaining_limits": {
-    "current_macos_native_remote_ci": "not_run_this_candidate; firstARM FIFOcompile failure remains a failure in archivedevidence",
-    "main_dependency": "parent requires guardedPR9 freshCI/merge first, then latestmain ancestry integration and oneSession exactcandidateCI retry",
-    "desktop": "trackeddesktop code unchanged;35UI mockedtransport tests are not nativeMac acceptance",
-    "schema5_profiles_adoption": "not_imported",
+    "independent_actor_composition_review": "pending primaryreview of this exactmerge",
+    "current_session_macos_native_remoteCI": "not_run; requires fresh PR6 exactcandidate checks",
+    "old_native_failures": "retained as failures in archivedSessionFIFO and incomingguard evidence",
+    "root_schema5_profile_adoption": "not_imported",
+    "desktop": "sourceunchanged35UI mocks; no nativeMac acceptance inferred",
     "real_vendor_models_accounts": "not_run_not_authorized",
-    "push_main_merge": "not_performed",
+    "push_main_merge": "not_performed by this isolatedtask; only merged protectedmain locally",
     "full_product": "incomplete"
   }
 }

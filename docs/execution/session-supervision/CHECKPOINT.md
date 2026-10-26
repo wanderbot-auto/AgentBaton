@@ -1,3 +1,18 @@
+# Current Session protectedmain/actor teardown checkpoint
+
+
+## Protectedmain PR9 and actor writerlock integration
+
+Tested merge17b71d5b6cd046ecaad3777cdefbd3f3cac0174a combines reviewedSessiona763d89 (FINAL_GUARD_REVIEW committed alone) with actualprotectedmain eb115e0915a4dd0ac46c8c188101b64b89e9d35f. PR9 is nowactuallymerged; lead reports allseven exact34 checks and both samecheckout developmentDMGs verified. OWNER001/002 re-read/ACK; no newauthority. These prerequisite checks are not Sessionnativeacceptance.
+
+Only IPCadjacenttest conflict: retain workerfirstframe +main duplicateFD tests, plus existingauthenticatedfirstframe. Add selectedRoot573 actorcleanup unit. Existing SupervisorDrop cancel/join/probejoin body is movedverbatim into noDBmutation pub(crate)reap_owned_workers; DaemonDrop invokesit FIRST, thenunlinkownsocket, thenFileExtunlock. SupervisorfieldDrop can safelycallagain afterdrain. ExistingWorkerReceipt alreadyhad matching fields, so no model/schema/binding changes. No native/profile/adoption/UI sourcecopied.
+
+The intermediate badport (mainunlock with cleanup deferred toSupervisorfieldDrop) actuallyFAILS101: a newbind succeeds duringoldownedworker cleanup and checkedflag fails. CorrectedportPASS asserts BUSY+oldsocket duringcleanup, then immediatebind afterfullDrop despiteolddupFD, and olddupclose cannotunlocknewowner. Testfixture is cfg(test) only anddoesnot journalfakeprocess acceptance; production reaping makes noDBmutation, leaving unpersisted ambiguousoutcomes fenced forrestart. Nativehistoricalcause remainsunproven.
+
+Under022:201top-level Rust(core72/config45/providers58/workspaces24/daemon signal2; extraFIFOchild excluded),24workspace,35UI/typecheck/build,Clippy/fmt,binaries+realdaemonCLIrestart pass. Guardmainunitdocs/EVIDENCE retained byte-identicaleb; previous199-test Sessionevidence archivedverbatim EVIDENCE.guard-334.json. Existingstorage/policy/locks/desktop and dispatch/normalshutdown/run_worker source remain unchanged. Parentindependentactorcompositionreview and freshSessionPR6 exactcandidate/nativeCI stillrequired. No push/mainmerge/model/account action by this localintegration; authorized repositoryfetch recorded.
+
+## Previous checkpoint
+
 # Current Session Git guard integration checkpoint
 
 
