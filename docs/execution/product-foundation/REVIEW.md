@@ -140,3 +140,8 @@ Independent reviewer approved removing the remaining useful-progress sched_yield
 
 - `crates/providers/src/transport.rs`: `1923a62ba3ae3f610d1fee8bb0fb9cc9dad2f8cfe13477fc8d7bab7feec1b59e`
 - `crates/providers/tests/stdio.rs`: `0d28ec392aef59d09e39b1a11e2c5895144666073c126b225579fc227b8c9fa4`
+
+
+## Latest protected-main integration
+
+Independentreview verified PR#5 merged2d9361d and OWNER-002 UI-onlyoverlay without scope/credential/resource expansion.23de87e parents e5e0ec1+2d9361d; no crates/apps/scripts/workflow/infra/spec difference relativeto e5e. Manifest92filesverify passes; union keys and both sides reviewed hashes preserved. Actual API4Product+3Environment checks allsuccess on e5e. MergeandACKdocs may be pushed for fresh exact-newhead CI; oldgreen does not waive checks. Main downloaded bothsame-candidate DMGs andverified archive/DMGchecksums; nativeGUI remainsunrun.

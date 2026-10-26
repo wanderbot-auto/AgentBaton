@@ -16,3 +16,8 @@ External gates remain closed for real Provider identities/model calls, additiona
 
 
 Latest prerequisite CI:7521b38 ARM now passes nativehost/build/package (artifact12676265263; checkout5c539035c57abab5077cfa0252343dbdee90669a), but Intel times out in two unchangedstderrstress tests. Reviewed useful-progress scheduler fix prepared with32 provider tests/Clippy and synthetic oldFAIL/newPASS evidence; neither historical cause nor next native success presumed. Both architectures have produced real snapshots on different candidates, not a jointly passing complete-product candidate.
+
+
+OWNER-002 ACK: actually fetched/read protected main2d9361d (mergedPR#5) and full Quiet Canvas implementation/reference. Dedicated realUI branch codex/quiet-canvas retains runtime/API and excludes prototype records. UI presentation amendment does not widen any runtime/resource gate. Safely merged latestmain into foundation23de87e; independentreview confirms no product/source/CI/spec changes, only approved docs/reference plus92-file union manifest.
+
+At e5e0ec1 run40378120708 all4 Product and run40378120759 all3 Environment checks pass on the same candidate. Both realDMGs at checkout e5dcc89e1d978a1fd526fd102a4bc9e66b34d4ad downloaded/APIarchivehash/DMGhash/UDIFfooter verified. Intel artifact12677033828 unsigned DMG e8b03e04acc3814b8eca36ed7af2a5d083c32931f3f2be6281badff615c8c263; ARM artifact12676662574 linker-ad-hoc DMG ffb99f548cb00fb2ab4e1bca35d46d84e44aa43350f93d8998bbe5e993d32a3b. No trustedpublisher/notarization, visibleGUI/manual acceptance or completeproduct claim. Latestmain merge requires fresh exact-head CI before any guardedmerge; old checks are not carried over.
