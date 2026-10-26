@@ -1076,7 +1076,16 @@
         "crates/core/tests/ipc.rs",
         "crates/core/tests/execution.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "durable_connection_approval_followed_by_probe_preparation_failure",
+          "source_commit": "32b2dc58d23205350aa54878463b8f824997dc02",
+          "evidence": "docs/execution/approval-outcome-guard/EVIDENCE.json",
+          "review": "docs/execution/approval-outcome-guard/REVIEW.md",
+          "verification": "actualgeneratedfixtureUnixIPC andfault/retrycontrols passed; notfullrequirement/nativeaccountacceptance"
+        }
+      ]
     },
     {
       "id": "AB-TSK-005",
@@ -1197,7 +1206,16 @@
         "crates/core/tests/policy.rs",
         "apps/daemon/tests/signals.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "durable_connection_approval_followed_by_probe_preparation_failure",
+          "source_commit": "32b2dc58d23205350aa54878463b8f824997dc02",
+          "evidence": "docs/execution/approval-outcome-guard/EVIDENCE.json",
+          "review": "docs/execution/approval-outcome-guard/REVIEW.md",
+          "verification": "actualgeneratedfixtureUnixIPC andfault/retrycontrols passed; notfullrequirement/nativeaccountacceptance"
+        }
+      ]
     },
     {
       "id": "AB-TSK-009",
@@ -2188,7 +2206,16 @@
         "crates/core/tests/policy.rs",
         "apps/daemon/tests/signals.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "durable_connection_approval_followed_by_probe_preparation_failure",
+          "source_commit": "32b2dc58d23205350aa54878463b8f824997dc02",
+          "evidence": "docs/execution/approval-outcome-guard/EVIDENCE.json",
+          "review": "docs/execution/approval-outcome-guard/REVIEW.md",
+          "verification": "actualgeneratedfixtureUnixIPC andfault/retrycontrols passed; notfullrequirement/nativeaccountacceptance"
+        }
+      ]
     },
     {
       "id": "AB-DOM-006",

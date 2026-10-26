@@ -11,3 +11,9 @@ PR10 https://github.com/wanderbot-auto/AgentBaton/pull/10 已建立draft，源3c
 隔离codex/data-contract-validation基于PR10。独立reviewed JSON数据合同库cbd5509/文档a088529已整合f59e748/8da2bee，当前共享守卫组合63库单元/集成+2compilefail文档测试/Clippy/fmt通过；不执行复现脚本或证明算法。Core agent正在schema7独立data policy/receipt+namespace、UI agent正在默认折叠数据合同表单/结果、主代理在真实Tauri/native批准桥与只读browser验证接线；这些未提交修改尚未全组合/审查，不冒称已验收。Native批准将固定owner所声明population/units/timezone及schema/range，不把它们升级为独立科学事实。
 
 仍持续推进完整正确性检查/精确head采纳/计划与路由委派工作流、完整配置/历史留存导出/远程主机/登录睡眠等桌面生命周期。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE、requirements-progress分开记录实施/验证/受阻；不写虚构百分比、不以阶段切片替代完整Goal。真实Provider/模型/私人身份、新增费用资源、未批准远程、正式签名/公证、最终许可证和生产发布继续关闭；无凭据复制/计费切换，缺项仅阻塞相关验证。原三个必需Environment/保护规则保留，无直接/强推main或绕过检查。
+
+Root当前基线b994的Product40418995061/Environment40418995472全部七项已实际成功；独立双Mac原生/6units/defaultreleaseaudit及双DMG下载核验完成。Product实际checkout b994，Environment实际合成checkout5fbbf1ec36929e3514e7cc69093c70ed5e9f019a；严格分开head关联与实际测试commit。成功记录见SUCCESS_B994_REVIEW/DEVELOPMENT_PACKAGES_B994。
+
+随后实际认证IPC故障测试发现：审批/连接已持久化，但版本probe因不安全环境拒绝准备，旧错误误报not_started。原before2PASS/1FAIL101保留；确认日志trigger故障本来就unknown，不捏造另一缺陷。Root已整合独立审查的最小32b2dc5/证据83f0d88，只在post-finalization probe Err映射confirmed+原connection引用/sameproposal指引；不改权限、原错误code、事务、sessions/storage/锁。3新回归及完整Core83/fmt/Clippy通过，独立3回归和源码审查通过。新的准确PR8候选须全部新CI；不继承b994成功，不在未处理新故障时合入。
+
+Data schema7 WIP已normalpush d0c714b并建draft PR11，瞬态环境unavailable后实际shell恢复，同任务已继续。UI129/type/build及独立129审查通过；Core108和初步全workspace已通过，最终补真实IPC/边界断言仍在运行，主代理native第一窗口脚本已增加真实data readonly列表/默认fold/停止会话缺失时不可审批/无隐式journal写检查（只有Node/shell语法通过，真实native尚待）；Core/原生/Browser组合仍未完成，所有active修改保留独立树，不冒称完整Goal。

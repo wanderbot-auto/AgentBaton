@@ -762,5 +762,25 @@
     "ui_packages": "docs/execution/quiet-canvas/DEVELOPMENT_PACKAGES_A9FB.json",
     "root_merge": "pureancestry; zero product/native/UI/lock delta frombe647",
     "fresh_candidate_ci": "pending aftercommit/push/mainready; no inherited9edf acceptance"
+  },
+  "actual_ci_b994": {
+    "head_sha": "b9942d319b70dab22bf723d9f03230ebae08689a",
+    "product_run": 40418995061,
+    "environment_run": 40418995472,
+    "all_checks": "7success",
+    "product_actual_checkout": "b9942d319b70dab22bf723d9f03230ebae08689a",
+    "environment_actual_merge_checkout": "5fbbf1ec36929e3514e7cc69093c70ed5e9f019a",
+    "native_review": "docs/execution/native-gui/SUCCESS_B994_REVIEW.md",
+    "packages": "docs/execution/provider-adapters/DEVELOPMENT_PACKAGES_B994.json",
+    "scope": "historicalcandidate; notinheritedafterapprovalprobe14linefix"
+  },
+  "approval_outcome_guard": {
+    "source_commit": "32b2dc58d23205350aa54878463b8f824997dc02",
+    "evidence_commit": "83f0d8896040d7ade85067344602d4e84c477262",
+    "evidence": "docs/execution/approval-outcome-guard/EVIDENCE.json",
+    "independent_review": "docs/execution/approval-outcome-guard/REVIEW.md",
+    "author_core_tests": 83,
+    "independent_regressions": 3,
+    "new_candidate_ci": "pending; oldb994notinherited"
   }
 }
