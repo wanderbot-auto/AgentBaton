@@ -152,3 +152,47 @@ describe('Task workspace using mocked Tauri transport', () => {
   });
 
 });
+
+it('bounds accumulated history by bytes and explains that records remain in the local journal', async () => {
+  const user = userEvent.setup();
+  const text = 'x'.repeat(3 * 1024 * 1024);
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 500, api_version: 1 });
+  vi.mocked(api.events).mockImplementation(async cursor => ({
+    events: [{ sequence: cursor + 100, event_id: `large-${cursor + 100}`, aggregate_id: task.id, revision: 1, kind: `large.${cursor + 100}`, occurred_at: task.created_at, source: 'generated_fixture', payload: { text } }],
+    next_cursor: cursor + 100, sequence: 500, gap: false, page_bytes: 3 * 1024 * 1024,
+  }));
+  render(<App />);
+  await screen.findByText('Local daemon connected');
+  await user.click(screen.getByRole('button', { name: 'History' }));
+  expect(await screen.findByText('large.500')).toBeVisible();
+  await user.click(screen.getByRole('button', { name: 'Load earlier events' }));
+  expect(await screen.findByText('large.400')).toBeVisible();
+  expect(screen.getByText('large.500')).toBeVisible();
+  await user.click(screen.getByRole('button', { name: 'Load earlier events' }));
+  expect(await screen.findByText('large.300')).toBeVisible();
+  expect(screen.getByText(/8 MiB budget/)).toHaveTextContent('Other events remain in the local journal');
+  expect(screen.queryByText('large.400')).not.toBeInTheDocument();
+  expect(screen.queryByText('large.500')).not.toBeInTheDocument();
+  expect(api.events).toHaveBeenNthCalledWith(3, 200);
+}, 10_000);
+
+it('labels byte-limited backend pages without claiming complete displayed history', async () => {
+  const user = userEvent.setup();
+  vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 10, gap: false, page_bytes: 4 * 1024 * 1024, byte_limited: true });
+  render(<App />);
+  await screen.findByText('Local daemon connected');
+  await user.click(screen.getByRole('button', { name: 'History' }));
+  expect(screen.getByText('This is a byte-limited page. Additional events remain in the local journal.')).toBeVisible();
+});
+
+it('keeps authenticated task controls available when a single oversized journal record is refused', async () => {
+  const user = userEvent.setup();
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version: 1 });
+  vi.mocked(api.events).mockRejectedValue(new DaemonError('RESOURCE_LIMIT', 'One journal record exceeds the bounded event page; it was not skipped', 'not_started'));
+  render(<App />);
+  expect(await screen.findByRole('alert')).toHaveTextContent('it was not skipped');
+  expect(screen.getByText('Local daemon connected')).toBeVisible();
+  await user.click(screen.getByText(task.goal));
+  await user.click(screen.getByRole('tab', { name: 'Details' }));
+  expect(screen.getByRole('button', { name: 'Request cancellation' })).toBeEnabled();
+});

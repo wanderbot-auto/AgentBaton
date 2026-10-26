@@ -1,0 +1,19 @@
+# Current PR4 CI portability follow-up
+
+PR4 run40387527063 failures retained and locally investigated. Sourceeef1e95: fresh managed fixture roots explicitly0700 and accepted sockets explicitly blocking before deadlines. Original permission/NOT_FOUND assertions remain. Fullumask022124 Rust+15 UI/typecheck/build/fmt/Clippy+realrestart/manifest92 pass. Native Apple source supports the inherited-flag mechanism; fresh actual macOSCI is pending and historicalARM causality is not claimed. No push/mainmerge or source mutation outside this registry worktree. Full product remains incomplete. Details in project-registry/CI_FOLLOWUP.md and EVIDENCE.json.
+
+## Prior registry integration status retained as history
+
+# AgentBaton execution status
+
+AB-START-001: full Design v0.2 and all130 requirements remain the goal; no completion shortcut. OWNER-001 and OWNER-002 actually read/ACK from protected main, latest1f34b444821640bf88f32a8bb39c6434d4ca26cc. Quiet Canvas changes presentation only; no credential/resource/production authority expansion. No native Goal or task URL is exposed by this entry.
+
+Foundation PR#3 https://github.com/wanderbot-auto/AgentBaton/pull/3 merged after exact222aafd all3 Environment+4 Product checks and independent review; guarded API merge1f34b444821640bf88f32a8bb39c6434d4ca26cc. Both real development DMGs at checkout8117fd58def2f05662e59b2069a84390c5dac257 downloaded and archive/DMG hashes verified. Intel unsigned; ARM linker ad hoc/no TeamIdentifier; no Developer ID/notarization or GUI/manual/full-product acceptance. No branch-protection bypass/directmain/forcepush performed.
+
+Active registry branch codex/project-registry, PR#4 https://github.com/wanderbot-auto/AgentBaton/pull/4 retargeting protectedmain after prerequisite integration. Includes reviewed foundation222a and currentmain1f without product-source differences in the latter. Persistent project/workspace identity, exact-head isolated Git worktrees, archive/reassociate, crash-unknown creation, leases/fences and real draft binding/UI remain implemented partial scope. Capability/connection contracts are libraries, not full runtime vendor support in this branch.
+
+Local registry integration123 Rust tests(core34/config26/providers50/workspaces13),15 UI mock tests, typecheck/build/fmt/Clippy and actual daemon/CLI SIGKILL restart pass.28 Python+4 Node+2 Rust infrastructure fixtures and92-file bootstrap validation pass. Minimal versionprobe readiness backport retains original4MiB/500ms test; old fixed-sleep production actually fails the added smallpipe regression, corrected production passes. Independent review/source+log hashes in project-registry/INTEGRATION_REVIEW.md. Exact final registrycandidate remote CI/macOS/native acceptance remains pending; foundation green is not inherited.
+
+Later preserved work: session supervision draftPR#6 and dedicated OWNER-002 QuietCanvas draftPR#7, latter actual frontend screenshots+realUnixIPC browser evidence, not nativeMac. Current adapter/config/nativeGUI unit continues separately and must be independently integrated/tested. Scope remains incomplete: full vendor/profile/capability integration, router/delegation/workflows, validation/adoption, history/retention/export, remote hosts and complete desktop lifecycle/native acceptance.
+
+Real Provider identities/model calls, extra spend, final license, formal signing/notarization and production release remain separately gated. Continue other dependency-ready implementation. No inactive/background continuation is promised. Reusable Cloud configuration remains an unpublished draft, not proven restored/applied to a new environment.

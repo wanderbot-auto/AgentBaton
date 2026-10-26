@@ -1081,12 +1081,16 @@ mod live_workspace_tests {
                     .join("repository.git/worktrees/managed")
                     .join(name);
                 fs::remove_file(&path).unwrap();
-                rustix::fs::mkfifoat(
-                    rustix::fs::CWD,
-                    &path,
-                    rustix::fs::Mode::RUSR | rustix::fs::Mode::WUSR,
-                )
-                .unwrap();
+                // The portable POSIX fixture utility also exists on macOS,
+                // where rustix deliberately does not expose mkfifoat.
+                assert!(std::process::Command::new("/usr/bin/mkfifo")
+                    .args(["-m", "600"])
+                    .arg(&path)
+                    .status()
+                    .unwrap()
+                    .success());
+                use std::os::unix::fs::FileTypeExt;
+                assert!(fs::symlink_metadata(&path).unwrap().file_type().is_fifo());
                 assert!(live_workspace_matches(&pinned.canonical_root, &pinned).is_err());
             }
             return;

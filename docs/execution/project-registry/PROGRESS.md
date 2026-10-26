@@ -9,3 +9,13 @@ Final local integration:121 Rust tests pass (core34/config26/providers48/workspa
 Review fixes: new/renewed leases recheck actual canonical directory/Git identity; capability evidence rejects empty/malformed session association; source binding IDs must be Baton-global. Lease TTL/fencing cannot stop a stale Provider writer, and future dispatch must reconcile/stop before reuse. No OS sandbox or full scheduler acceptance claimed.
 
 Prerequisite PR#3 remains unmerged pending actual macOS checks. Three recorded fixture failure variants led to independently reviewed transport-correct parser/integration assertions; fourth candidate30a70d8 pending CI. No native application/DMG artifact exists yet. Full remainder preserved; next is persisted connection/policy/session supervision and live daemon wiring with fixture-only external processes.
+
+
+## Foundation integration checkpoint
+
+Local merge57f4665 retains registry plus approved foundation222aafd/OWNER002, preserving92 manifest paths and both historical STATUS reports. Production backportaa258a6 fixes version-probe idle scheduling with no timeout/volume relaxation. Local123 Rust/15 mocked UI tests, fmt/Clippy/typecheck/build, actual daemon/CLI restart, design/infrastructure28 tests and integrity pass. See INTEGRATION.md/EVIDENCE.json for exact source/log binding and the deliberately failing old-production control. No push/main merge or registry native CI acceptance.
+
+
+## PR4 CI portability follow-up
+
+Preserved real run40387527063 failures. Local originalumask022 registry4pass/6fail reproduced; explicit fresh managed fixture0700 corrects10/10 without weakening production checks or changing source directory permissions. Deterministic inherited-nonblocking accepted socket control reproduces PROVIDER_DISCONNECTED; explicit blocking+deadlines returns strictNOT_FOUND. Sourceeef1e95 has124 Rust+15 UI checks, fmt/Clippy/typecheck/build, actual restart and integrity92 PASS underumask022. See CI_FOLLOWUP/EVIDENCE for native references, controls and freshMacCI still pending.
