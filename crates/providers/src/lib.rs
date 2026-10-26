@@ -129,6 +129,7 @@ pub enum UpdateKind {
     AgentThought { text: String },
     ToolCall { tool_call_id: String },
     ToolCallUpdate { tool_call_id: String },
+    PermissionDenied { tool_call_id: String },
     Opaque { native_kind: String },
 }
 #[derive(Debug, Clone, Serialize)]

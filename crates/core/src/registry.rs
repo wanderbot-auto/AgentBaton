@@ -53,6 +53,7 @@ pub struct WorkspaceLease {
 
 fn workspace_error(error: WorkspaceError) -> CoreError {
     match error {
+        WorkspaceError::UnverifiedIndex=>CoreError::new("INPUT_CHANGED","Git index has assume-unchanged, skip-worktree or sparse checkout; owner review is required before admission"),
         WorkspaceError::InvalidPath | WorkspaceError::NotRepository => CoreError::new(
             "INVALID_REQUEST",
             "Select a valid existing canonical workspace root or exact commit",

@@ -182,22 +182,33 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/installation.rs",
-        "crates/providers/src/connections.rs"
+        "crates/providers/src/connections.rs",
+        "crates/core/src/sessions.rs",
+        "apps/desktop/src/Connections.tsx",
+        "apps/desktop/src/ManagedSessions.tsx"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge.",
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/sessions_ipc.rs",
+        "apps/desktop/src/SessionWorkbench.test.tsx"
+      ]
     },
     {
       "id": "AB-PRO-002",
@@ -300,32 +311,62 @@
     {
       "id": "AB-SES-002",
       "work_package": "WP10",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/sessions.rs",
+        "apps/desktop/src/Connections.tsx",
+        "apps/desktop/src/ManagedSessions.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
+      ],
+      "limitations": [
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/sessions_ipc.rs",
+        "apps/desktop/src/SessionWorkbench.test.tsx"
+      ]
     },
     {
       "id": "AB-SES-003",
       "work_package": "WP10",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/sessions.rs",
+        "apps/desktop/src/Connections.tsx",
+        "apps/desktop/src/ManagedSessions.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
+      ],
+      "limitations": [
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/sessions_ipc.rs",
+        "apps/desktop/src/SessionWorkbench.test.tsx"
+      ]
     },
     {
       "id": "AB-SES-006",
@@ -377,110 +418,150 @@
       "work_package": "WP06",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/capabilities.rs"
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/capabilities/native.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/native_sources.rs"
+      ]
     },
     {
       "id": "AB-CAP-002",
       "work_package": "WP06",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/capabilities.rs"
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/capabilities/native.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/native_sources.rs"
+      ]
     },
     {
       "id": "AB-CAP-003",
       "work_package": "WP06",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/capabilities.rs"
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/capabilities/native.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/native_sources.rs"
+      ]
     },
     {
       "id": "AB-CAP-004",
       "work_package": "WP06",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/capabilities.rs"
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/capabilities/native.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/native_sources.rs"
+      ]
     },
     {
       "id": "AB-CAP-005",
       "work_package": "WP06",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/capabilities.rs"
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/capabilities/native.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/native_sources.rs"
+      ]
     },
     {
       "id": "AB-CAP-006",
@@ -524,22 +605,30 @@
       "work_package": "WP06",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/capabilities.rs"
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/capabilities/native.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/native_sources.rs"
+      ]
     },
     {
       "id": "AB-CFG-001",
@@ -711,22 +800,34 @@
       "work_package": "WP07",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/capabilities.rs"
+        "crates/config/src/capabilities.rs",
+        "crates/core/src/policy.rs",
+        "apps/desktop/src-tauri/src/approval.rs",
+        "crates/config/src/capabilities/native.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
+        "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/policy.rs",
+        "apps/desktop/src-tauri/src/approval.rs",
+        "crates/config/tests/native_sources.rs"
+      ]
     },
     {
       "id": "AB-TSK-001",
@@ -761,17 +862,32 @@
     {
       "id": "AB-TSK-003",
       "work_package": "WP08",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
+      ],
+      "limitations": [
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
+      ]
     },
     {
       "id": "AB-TSK-004",
@@ -805,17 +921,32 @@
     {
       "id": "AB-TSK-005",
       "work_package": "WP08",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
+      ],
+      "limitations": [
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
+      ]
     },
     {
       "id": "AB-TSK-006",
@@ -839,25 +970,34 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
       ],
       "coverage": "partial"
     },
@@ -868,25 +1008,34 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
       ],
       "coverage": "partial"
     },
@@ -912,25 +1061,34 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
       ],
       "coverage": "partial"
     },
@@ -1084,17 +1242,32 @@
     {
       "id": "AB-UX-002",
       "work_package": "WP11",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/sessions.rs",
+        "apps/desktop/src/Connections.tsx",
+        "apps/desktop/src/ManagedSessions.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
+      ],
+      "limitations": [
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/sessions_ipc.rs",
+        "apps/desktop/src/SessionWorkbench.test.tsx"
+      ]
     },
     {
       "id": "AB-UX-003",
@@ -1145,23 +1318,32 @@
       "implementation_refs": [
         "apps/desktop/src/App.tsx",
         "apps/desktop/src/api.ts",
-        "apps/desktop/src-tauri/src/main.rs"
+        "apps/desktop/src-tauri/src/main.rs",
+        "crates/core/src/sessions.rs",
+        "apps/desktop/src/Connections.tsx",
+        "apps/desktop/src/ManagedSessions.tsx"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
       ],
       "verification_refs": [
-        "apps/desktop/src/App.test.tsx"
+        "apps/desktop/src/App.test.tsx",
+        "crates/core/tests/sessions_ipc.rs",
+        "apps/desktop/src/SessionWorkbench.test.tsx"
       ],
       "coverage": "partial"
     },
@@ -1199,23 +1381,32 @@
       "implementation_refs": [
         "apps/desktop/src/App.tsx",
         "apps/desktop/src/api.ts",
-        "apps/desktop/src-tauri/src/main.rs"
+        "apps/desktop/src-tauri/src/main.rs",
+        "crates/core/src/sessions.rs",
+        "apps/desktop/src/Connections.tsx",
+        "apps/desktop/src/ManagedSessions.tsx"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
       ],
       "verification_refs": [
-        "apps/desktop/src/App.test.tsx"
+        "apps/desktop/src/App.test.tsx",
+        "crates/core/tests/sessions_ipc.rs",
+        "apps/desktop/src/SessionWorkbench.test.tsx"
       ],
       "coverage": "partial"
     },
@@ -1237,32 +1428,64 @@
     {
       "id": "AB-SEC-001",
       "work_package": "WP12",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/policy.rs",
+        "apps/desktop/src-tauri/src/approval.rs",
+        "crates/config/src/capabilities/native.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
+      ],
+      "limitations": [
+        "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/policy.rs",
+        "apps/desktop/src-tauri/src/approval.rs",
+        "crates/config/tests/native_sources.rs"
+      ]
     },
     {
       "id": "AB-SEC-002",
       "work_package": "WP12",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/policy.rs",
+        "apps/desktop/src-tauri/src/approval.rs",
+        "crates/config/src/capabilities/native.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
+      ],
+      "limitations": [
+        "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/policy.rs",
+        "apps/desktop/src-tauri/src/approval.rs",
+        "crates/config/tests/native_sources.rs"
+      ]
     },
     {
       "id": "AB-SEC-003",
@@ -1641,25 +1864,34 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
       ],
       "coverage": "partial"
     },
@@ -1685,25 +1917,34 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
       ],
       "coverage": "partial"
     },
@@ -1787,25 +2028,34 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
       ],
       "coverage": "partial"
     },
@@ -1841,32 +2091,62 @@
     {
       "id": "AB-COR-005",
       "work_package": "WP02",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
+      ],
+      "limitations": [
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
+      ]
     },
     {
       "id": "AB-COR-006",
       "work_package": "WP02",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
+      ],
+      "limitations": [
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
+      ]
     },
     {
       "id": "AB-COR-007",
@@ -1907,41 +2187,61 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/lib.rs",
-        "crates/providers/src/transport.rs"
+        "crates/providers/src/transport.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration."
+        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration.",
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
       ],
       "verification_refs": [
         "crates/providers/tests/contracts.rs",
-        "crates/providers/tests/stdio.rs"
+        "crates/providers/tests/stdio.rs",
+        "crates/core/tests/sessions_ipc.rs"
       ],
       "coverage": "partial"
     },
     {
       "id": "AB-ACP-002",
       "work_package": "WP03",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/transport.rs",
+        "crates/core/src/sessions.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
+      ],
+      "limitations": [
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/providers/tests/stdio.rs",
+        "crates/core/tests/sessions_ipc.rs"
+      ]
     },
     {
       "id": "AB-ACP-003",
@@ -1949,24 +2249,30 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/lib.rs",
-        "crates/providers/src/transport.rs"
+        "crates/providers/src/transport.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration."
+        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration.",
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
       ],
       "verification_refs": [
         "crates/providers/tests/contracts.rs",
-        "crates/providers/tests/stdio.rs"
+        "crates/providers/tests/stdio.rs",
+        "crates/core/tests/sessions_ipc.rs"
       ],
       "coverage": "partial"
     },
@@ -1976,24 +2282,30 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/lib.rs",
-        "crates/providers/src/transport.rs"
+        "crates/providers/src/transport.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration."
+        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration.",
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
       ],
       "verification_refs": [
         "crates/providers/tests/contracts.rs",
-        "crates/providers/tests/stdio.rs"
+        "crates/providers/tests/stdio.rs",
+        "crates/core/tests/sessions_ipc.rs"
       ],
       "coverage": "partial"
     },
@@ -2003,24 +2315,30 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/lib.rs",
-        "crates/providers/src/transport.rs"
+        "crates/providers/src/transport.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration."
+        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration.",
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
       ],
       "verification_refs": [
         "crates/providers/tests/contracts.rs",
-        "crates/providers/tests/stdio.rs"
+        "crates/providers/tests/stdio.rs",
+        "crates/core/tests/sessions_ipc.rs"
       ],
       "coverage": "partial"
     },
@@ -2030,24 +2348,30 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/lib.rs",
-        "crates/providers/src/transport.rs"
+        "crates/providers/src/transport.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration."
+        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration.",
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
       ],
       "verification_refs": [
         "crates/providers/tests/contracts.rs",
-        "crates/providers/tests/stdio.rs"
+        "crates/providers/tests/stdio.rs",
+        "crates/core/tests/sessions_ipc.rs"
       ],
       "coverage": "partial"
     },
@@ -2057,22 +2381,33 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/installation.rs",
-        "crates/providers/src/connections.rs"
+        "crates/providers/src/connections.rs",
+        "crates/core/src/sessions.rs",
+        "apps/desktop/src/Connections.tsx",
+        "apps/desktop/src/ManagedSessions.tsx"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge.",
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/sessions_ipc.rs",
+        "apps/desktop/src/SessionWorkbench.test.tsx"
+      ]
     },
     {
       "id": "AB-PRO-010",
@@ -2080,22 +2415,33 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/installation.rs",
-        "crates/providers/src/connections.rs"
+        "crates/providers/src/connections.rs",
+        "crates/core/src/sessions.rs",
+        "apps/desktop/src/Connections.tsx",
+        "apps/desktop/src/ManagedSessions.tsx"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge.",
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/sessions_ipc.rs",
+        "apps/desktop/src/SessionWorkbench.test.tsx"
+      ]
     },
     {
       "id": "AB-PRO-011",
@@ -2291,25 +2637,34 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
       ],
       "coverage": "partial"
     },
@@ -2565,27 +2920,36 @@
         "crates/core/src/ipc.rs",
         "crates/core/src/execution.rs",
         "crates/providers/src/installation.rs",
-        "crates/providers/src/connections.rs"
+        "crates/providers/src/connections.rs",
+        "crates/core/src/sessions.rs",
+        "crates/core/src/policy.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/session-supervision/EVIDENCE.json",
+        "docs/execution/session-supervision/REVIEW.md"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
-        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge.",
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/policy.rs",
+        "apps/daemon/tests/signals.rs"
       ],
       "coverage": "partial"
     },

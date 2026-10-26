@@ -46,7 +46,10 @@ selection does not establish a filesystem/network sandbox or prevent native
 Provider code from accessing external configuration on its own.
 
 Nonblocking Unix pipes enforce bounded frames and read/write deadlines. Stderr is
-drained fairly but only its byte count is retained. Raw protocol evidence is capped
+drained fairly but only its byte count is retained. Idle waiting uses pipe
+readiness, so a small stderr pipe does not impose a fixed sleep on every refill.
+Linux fixtures explicitly shrink that pipe to 4096 bytes while retaining the
+4 MiB flood volume and original 500 ms process deadline. Raw protocol evidence is capped
 at 1 MiB/128 records with an explicit dropped-record count; this diagnostic buffer
 is not a durable control-event journal. On transport failure, active outcomes become
 unknown and the owned process group is killed before its direct child is reaped.
@@ -54,13 +57,31 @@ Processes that deliberately escape that group require separate OS supervision.
 Session associations from a disconnected transport cannot be reused after a new
 initialize, even if the prior turn was idle or completed. Permission requests are
 cancelled until a trusted application-policy callback is implemented. Transport
-supports one outstanding prompt; this is not full concurrent-session scheduling.
+supports one outstanding prompt per owned process; this is not full orchestration
+scheduling. Separate owned processes maintain separate local bindings, even if
+Providers reuse the same native session ID.
+
+Workers can call `begin_prompt`, then `poll_prompt(session, quantum)` while checking
+their cancellation/budget state between quanta. Quantum expiry returns `None` and
+retains the process. A turn keeps its original monotonic deadline; repeated polls
+cannot extend it. `set_io_timeout` configures only the next operation and rejects
+pending-turn extensions. `cancel` queues one notification and remains a request
+until a correlated native stop result. Bounded nonblocking outbound queues avoid
+blocking the worker when the child stops reading stdin.
+
+`take_updates` yields raw-free typed summaries with local binding. These summaries
+can still contain private user text: downstream storage must apply privacy and
+retention rules. Text/opaque overflow increments explicit dropped-record counters;
+a critical permission-decision overflow fails closed instead of silently dropping
+it. `PermissionDenied` records the local decision to send a cancelled permission
+response; it does not assert that native tools are OS-sandboxed or that external
+side effects stopped. The diagnostic update buffer is not a durable journal.
 
 See [installation provenance and connection contracts](PROVENANCE.md) for canonical
 selection, drift rejection, bounded version probes and immutable named bindings.
 
 Verification dimensions: 20 protocol contracts, 8 connection contracts, 9 actual
-selected fixture executable version probes and 11 actual Unix stdio fixture
+selected fixture executable version probes and 19 actual Unix stdio fixture
 subprocess tests. The latter exercise real pipe I/O/processes, without calling a
 model or claiming real Provider compatibility. Session/load, MCP/host tools,
 Provider authentication/model calls, daemon dispatch wiring, trusted approval-store

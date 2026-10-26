@@ -7,6 +7,8 @@ use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+mod approval;
 
 struct Runtime {
     directory: PathBuf,
@@ -26,6 +28,27 @@ async fn call(runtime: &Runtime, command: Value, connect: bool) -> Result<Value,
     })
     .await
     .map_err(|e| e.to_string())?
+}
+
+async fn confirm_proposed(
+    runtime: &Runtime,
+    app: tauri::AppHandle,
+    kind: approval::ApprovalKind,
+    params: Value,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let proposal = ipc::call(&directory, json!({"method":kind.proposal_method(),"params":params,"idempotency_key":idempotency_key})).map_err(|error| error.to_string())?;
+        approval::confirm_and_finalize(proposal, kind, |message| {
+            // This is a Rust-native dialog. No dialog plugin permission, receipt
+            // or approvals.finalize command is granted to the web renderer.
+            app.dialog().message(message).title("AgentBaton — Native owner approval")
+                .kind(MessageDialogKind::Warning)
+                .buttons(MessageDialogButtons::OkCancel)
+                .blocking_show()
+        }, |command| ipc::call(&directory, command).map_err(|error| error.to_string()))
+    }).await.map_err(|error| error.to_string())?
 }
 
 #[tauri::command]
@@ -121,6 +144,131 @@ async fn workspaces_list(
         false,
     )
     .await
+}
+
+#[tauri::command]
+async fn connections_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"connections.list","params":{}}),
+        false,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn connections_register(
+    runtime: tauri::State<'_, Runtime>,
+    app: tauri::AppHandle,
+    name: String,
+    executable: String,
+    arguments: Vec<String>,
+    provider: String,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    confirm_proposed(
+        &runtime,
+        app,
+        approval::ApprovalKind::Connection,
+        json!({"name":name,"executable":executable,"arguments":arguments,"provider":provider}),
+        idempotency_key,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn grants_list(
+    runtime: tauri::State<'_, Runtime>,
+    project_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"grants.list","params":{"project_id":project_id}}),
+        false,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn grants_create(
+    runtime: tauri::State<'_, Runtime>,
+    app: tauri::AppHandle,
+    project_id: String,
+    workspace_id: String,
+    connection_id: String,
+    max_attempts: u32,
+    max_concurrency: u32,
+    max_duration_ms: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    confirm_proposed(&runtime, app, approval::ApprovalKind::Grant, json!({"project_id":project_id,"workspace_id":workspace_id,"connection_id":connection_id,"max_attempts":max_attempts,"max_concurrency":max_concurrency,"max_duration_ms":max_duration_ms}), idempotency_key).await
+}
+
+#[tauri::command]
+async fn grants_revoke(
+    runtime: tauri::State<'_, Runtime>,
+    grant_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"grants.revoke","params":{"grant_id":grant_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+
+#[tauri::command]
+async fn sessions_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"sessions.list","params":{}}),
+        false,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn sessions_get(
+    runtime: tauri::State<'_, Runtime>,
+    session_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"sessions.get","params":{"session_id":session_id}}),
+        false,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn sessions_create(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    expected_revision: u64,
+    workspace_id: String,
+    connection_id: String,
+    grant_id: String,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"sessions.create","params":{"task_id":task_id,"workspace_id":workspace_id,"connection_id":connection_id,"grant_id":grant_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+
+#[tauri::command]
+async fn sessions_send(
+    runtime: tauri::State<'_, Runtime>,
+    session_id: String,
+    expected_revision: u64,
+    text: String,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"sessions.send","params":{"session_id":session_id,"text":text},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+
+#[tauri::command]
+async fn sessions_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    session_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"sessions.cancel","params":{"session_id":session_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
 }
 
 #[tauri::command]
@@ -257,6 +405,7 @@ fn main() {
         }
     };
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .manage(Runtime { directory })
         .invoke_handler(tauri::generate_handler![
             system_snapshot,
@@ -268,7 +417,17 @@ fn main() {
             projects_archive,
             projects_reassociate,
             workspaces_create,
-            workspaces_list
+            workspaces_list,
+            connections_list,
+            connections_register,
+            grants_list,
+            grants_create,
+            grants_revoke,
+            sessions_list,
+            sessions_get,
+            sessions_create,
+            sessions_send,
+            sessions_cancel
         ])
         .run(tauri::generate_context!())
         .expect("Desktop runtime failed");

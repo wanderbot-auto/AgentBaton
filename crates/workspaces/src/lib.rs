@@ -20,6 +20,7 @@ pub enum WorkspaceError {
     InvalidPath,
     NotRepository,
     UnsafeRepository,
+    UnverifiedIndex,
     Git(String),
     Dirty,
     StaleHead,
@@ -38,6 +39,7 @@ impl fmt::Display for WorkspaceError {
                 f,
                 "repository requires unapproved configuration indirection, executable filters or external object access"
             ),
+            Self::UnverifiedIndex => write!(f, "repository index hides tracked paths through assume-unchanged, skip-worktree or sparse checkout; explicit owner review is required"),
             Self::Git(_) => write!(f, "Git operation failed; inspect repository state"),
             Self::Dirty => write!(f, "target has uncommitted or untracked files"),
             Self::StaleHead => write!(f, "target HEAD changed; validate the new candidate"),
@@ -108,6 +110,12 @@ fn git_command(root: &Path) -> Command {
             "protocol.allow=never",
             "-c",
             "protocol.file.allow=never",
+            "-c",
+            "core.ignoreStat=false",
+            "-c",
+            "core.trustctime=true",
+            "-c",
+            "core.checkStat=default",
         ])
         .arg("-C")
         .arg(root);
@@ -212,6 +220,39 @@ fn reject_checkout_filters(root: &Path) -> Result<(), WorkspaceError> {
     Ok(())
 }
 
+fn reject_hidden_index_entries(root: &Path) -> Result<(), WorkspaceError> {
+    // `-v` renders assume-unchanged entries with lowercase status letters; `S` denotes
+    // skip-worktree (including sparse-directory index entries). Read only: never clear flags.
+    let entries = bounded_output(git_command(root).args(["ls-files", "--cached", "-v", "-z"]))?;
+    if !entries.status.success() {
+        return Err(WorkspaceError::NotRepository);
+    }
+    for entry in entries.stdout.split(|b| *b == 0).filter(|e| !e.is_empty()) {
+        if entry.len() < 3 || entry[1] != b' ' {
+            return Err(WorkspaceError::UnverifiedIndex);
+        }
+        if entry[0].is_ascii_lowercase() || entry[0] == b'S' {
+            return Err(WorkspaceError::UnverifiedIndex);
+        }
+    }
+    // Even if all files currently happen to be present, sparse configuration can change the
+    // next checkout's coverage. Do not inherit it silently into a supposedly complete workspace.
+    let sparse = bounded_output(git_command(root).args([
+        "config",
+        "--bool",
+        "--get",
+        "core.sparseCheckout",
+    ]))?;
+    if sparse.status.success() {
+        if sparse.stdout != b"false\n" {
+            return Err(WorkspaceError::UnverifiedIndex);
+        }
+    } else if sparse.status.code() != Some(1) {
+        return Err(WorkspaceError::UnverifiedIndex);
+    }
+    Ok(())
+}
+
 /// Import is read-only and does not initialize Git or execute repository scripts/hooks.
 /// An unborn or corrupt repository is an error rather than silently treated as a data directory.
 pub fn inspect(root: &Path) -> Result<WorkspaceIdentity, WorkspaceError> {
@@ -237,6 +278,7 @@ pub fn inspect(root: &Path) -> Result<WorkspaceIdentity, WorkspaceError> {
         }
         reject_partial_clones(&canonical_root)?;
         reject_checkout_filters(&canonical_root)?;
+        reject_hidden_index_entries(&canonical_root)?;
         let head = git_text(&canonical_root, &["rev-parse", "--verify", "HEAD^{commit}"])?;
         let common_dir = fs::canonicalize(git_text(
             &canonical_root,

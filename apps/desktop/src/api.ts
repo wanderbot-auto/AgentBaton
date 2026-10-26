@@ -46,7 +46,7 @@ export interface JournalEvent {
   source: string;
 }
 export interface Snapshot { tasks: Task[]; sequence: number; api_version: number }
-export interface EventBatch { events: JournalEvent[]; next_cursor: number; sequence: number; gap: boolean }
+export interface EventBatch { events: JournalEvent[]; next_cursor: number; sequence: number; gap: boolean; page_bytes?: number; byte_limited?: boolean }
 interface Envelope<T> {
   result?: T;
   error?: { code: string; message: string; retryable: boolean; side_effect_state: string };
@@ -57,7 +57,7 @@ export class DaemonError extends Error {
     super(message);
   }
 }
-async function request<T>(command: string, args?: Record<string, unknown>): Promise<T> {
+export async function request<T>(command: string, args?: Record<string, unknown>): Promise<T> {
   const envelope = await invoke<Envelope<T>>(command, args);
   if (envelope.error) {
     throw new DaemonError(envelope.error.code, envelope.error.message, envelope.error.side_effect_state);

@@ -330,3 +330,128 @@ fn gitlinks_block_adoption_without_inspecting_nested_repository_code() {
         Err(WorkspaceError::Dirty)
     ));
 }
+
+#[test]
+fn assumed_unchanged_files_cannot_hide_dirty_work_from_inspection_or_adoption() {
+    hidden_index_flag_is_rejected("--assume-unchanged");
+}
+
+#[test]
+fn skip_worktree_files_cannot_hide_dirty_work_from_inspection_or_adoption() {
+    hidden_index_flag_is_rejected("--skip-worktree");
+}
+
+fn hidden_index_flag_is_rejected(flag: &str) {
+    let (root, head) = repository();
+    let managed = tempfile::tempdir().unwrap();
+    git(root.path(), &["update-index", flag, "source.txt"]);
+    fs::write(root.path().join("source.txt"), "hidden user changes\n").unwrap();
+    assert!(git(root.path(), &["status", "--porcelain=v1"]).is_empty());
+    let index_before = fs::read(root.path().join(".git/index")).unwrap();
+    let flags_before = git(root.path(), &["ls-files", "-v"]);
+    assert!(matches!(
+        inspect(root.path()),
+        Err(WorkspaceError::UnverifiedIndex)
+    ));
+    assert!(matches!(
+        check_adoption(root.path(), &head),
+        Err(WorkspaceError::UnverifiedIndex)
+    ));
+    assert!(matches!(
+        create_isolated(root.path(), managed.path(), "attempt", &head),
+        Err(WorkspaceError::UnverifiedIndex)
+    ));
+    assert_eq!(
+        fs::read(root.path().join(".git/index")).unwrap(),
+        index_before
+    );
+    assert_eq!(git(root.path(), &["ls-files", "-v"]), flags_before);
+    assert_eq!(
+        fs::read_to_string(root.path().join("source.txt")).unwrap(),
+        "hidden user changes\n"
+    );
+    assert_eq!(fs::read_dir(managed.path()).unwrap().count(), 0);
+}
+
+#[test]
+fn sparse_checkout_is_rejected_without_repopulating_or_mutating_index() {
+    let (root, head) = repository();
+    // Sparse configuration is rejected even when no entry currently carries skip-worktree.
+    git(root.path(), &["config", "core.sparseCheckout", "true"]);
+    let index_before = fs::read(root.path().join(".git/index")).unwrap();
+    assert!(matches!(
+        inspect(root.path()),
+        Err(WorkspaceError::UnverifiedIndex)
+    ));
+    assert!(matches!(
+        check_adoption(root.path(), &head),
+        Err(WorkspaceError::UnverifiedIndex)
+    ));
+    assert_eq!(
+        fs::read(root.path().join(".git/index")).unwrap(),
+        index_before
+    );
+    assert_eq!(
+        git(root.path(), &["config", "--get", "core.sparseCheckout"]),
+        "true"
+    );
+}
+
+#[test]
+fn index_flags_are_rejected_even_before_any_file_is_modified() {
+    let (root, _) = repository();
+    git(
+        root.path(),
+        &["update-index", "--assume-unchanged", "source.txt"],
+    );
+    assert!(matches!(
+        inspect(root.path()),
+        Err(WorkspaceError::UnverifiedIndex)
+    ));
+    git(
+        root.path(),
+        &["update-index", "--no-assume-unchanged", "source.txt"],
+    );
+    // A normal full index becomes inspectable after an explicit owner action outside Baton.
+    assert!(matches!(
+        inspect(root.path()).unwrap().kind,
+        WorkspaceKind::Git { dirty: false, .. }
+    ));
+}
+
+#[test]
+fn inspection_overrides_weakened_stat_trust_without_changing_repository_config() {
+    let (root, head) = repository();
+    git(root.path(), &["config", "core.ignoreStat", "true"]);
+    git(root.path(), &["config", "core.trustctime", "false"]);
+    git(root.path(), &["config", "core.checkStat", "minimal"]);
+    let source = root.path().join("source.txt");
+    let original_time = fs::metadata(&source).unwrap().modified().unwrap();
+    fs::write(&source, "modified\n").unwrap(); // same byte length as committed original
+    fs::File::options()
+        .write(true)
+        .open(&source)
+        .unwrap()
+        .set_times(fs::FileTimes::new().set_modified(original_time))
+        .unwrap();
+    assert!(matches!(
+        inspect(root.path()).unwrap().kind,
+        WorkspaceKind::Git { dirty: true, .. }
+    ));
+    assert!(matches!(
+        check_adoption(root.path(), &head),
+        Err(WorkspaceError::Dirty)
+    ));
+    assert_eq!(
+        git(root.path(), &["config", "--get", "core.ignoreStat"]),
+        "true"
+    );
+    assert_eq!(
+        git(root.path(), &["config", "--get", "core.trustctime"]),
+        "false"
+    );
+    assert_eq!(
+        git(root.path(), &["config", "--get", "core.checkStat"]),
+        "minimal"
+    );
+}
