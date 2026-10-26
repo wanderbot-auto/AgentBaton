@@ -7,6 +7,7 @@ import sys
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[4]
 spec = importlib.util.spec_from_file_location('native_run', ROOT / 'scripts/native-run.py')
@@ -76,6 +77,52 @@ class NativeRunnerTests(unittest.TestCase):
         self.assertEqual(status, 1)
         self.assertTrue(report['timeout'])
         self.assertEqual(report['exit_code'], -9)
+
+    def test_permission_denied_on_only_owned_zombies_preserves_valid_evidence(self):
+        # Synthetic syscall outcome on a real Linux child/group. This exercises
+        # the Darwin failure contract, not actual macOS/native GUI acceptance.
+        with mock.patch.object(native_run.os, 'killpg', side_effect=PermissionError(1, 'controlled denial')):
+            status, report, _ = self.run_fixture('WRITE_GOOD;pass')
+        self.assertEqual(status, 0)
+        self.assertTrue(report['owned_group_cleanup'])
+        self.assertEqual([item['result'] for item in report['group_signals']],
+                         ['observed_quiescent', 'observed_quiescent'])
+
+    def test_permission_denied_without_quiescence_proof_cannot_pass(self):
+        with mock.patch.object(native_run.os, 'killpg', side_effect=PermissionError(1, 'controlled denial')):
+            with mock.patch.object(native_run, 'owned_group_is_quiescent', return_value=False):
+                status, report, native = self.run_fixture('WRITE_GOOD;pass')
+        self.assertEqual(status, 1)
+        self.assertFalse(report['owned_group_cleanup'])
+        self.assertEqual(report['exit_code'], 0)
+        self.assertEqual(len(report['cleanup_errors']), 2)
+        self.assertEqual(native['status'], 'failed')
+
+    def test_unexpected_permission_error_cannot_use_the_eperm_exception(self):
+        with mock.patch.object(native_run.os, 'killpg', side_effect=PermissionError(13, 'controlled denial')):
+            with mock.patch.object(native_run, 'owned_group_is_quiescent', return_value=True) as proof:
+                status, report, _ = self.run_fixture('WRITE_GOOD;pass')
+        self.assertEqual(status, 1)
+        self.assertFalse(report['owned_group_cleanup'])
+        proof.assert_not_called()
+
+    def test_observation_failure_still_reaps_child_and_writes_failed_report(self):
+        with mock.patch.object(native_run, 'owned_child_exited', side_effect=OSError(22, 'controlled observation failure')):
+            status, report, _ = self.run_fixture('import time;time.sleep(20)')
+        self.assertEqual(status, 1)
+        self.assertEqual(report['status'], 'failed')
+        self.assertIn('OSError:22', report['observation_error'])
+        self.assertTrue(report['owned_group_cleanup'])
+
+    def test_group_query_requires_the_original_zombie_leader_and_no_live_members(self):
+        for output in ['', '99 99 Z\n', '42 42 S\n', '42 42 Z\n43 42 S\n', 'malformed\n']:
+            with self.subTest(output=output):
+                result = subprocess.CompletedProcess([], 0, stdout=output, stderr='')
+                with mock.patch.object(native_run.subprocess, 'run', return_value=result):
+                    self.assertFalse(native_run.owned_group_is_quiescent(42))
+        result = subprocess.CompletedProcess([], 0, stdout='42 42 Zs\n43 42 Z\n', stderr='')
+        with mock.patch.object(native_run.subprocess, 'run', return_value=result):
+            self.assertTrue(native_run.owned_group_is_quiescent(42))
 
 
 class NativeArtifactAuditTests(unittest.TestCase):

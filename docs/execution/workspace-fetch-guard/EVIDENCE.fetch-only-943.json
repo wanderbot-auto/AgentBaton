@@ -1,0 +1,110 @@
+{
+  "unit": "workspace-fetch-guard",
+  "authorization": "AB-START-001",
+  "requirements": [
+    "AB-PRJ-001",
+    "AB-PRJ-002",
+    "AB-PRJ-004"
+  ],
+  "recorded_at_utc": "2026-10-26T20:56:24.929789+00:00",
+  "base_commit": "dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7",
+  "tested_commit": "4d43989febad667ee251a351a6529aab86267787",
+  "branch": "codex/workspace-fetch-guard",
+  "owner_inbox": "Protectedmain OWNER001/002 read and ACK; UI amendment retained elsewhere; full goal unchanged",
+  "implementation": "Minimal config-agent guard backport: GIT_NO_LAZY_FETCH=1, protocol.allow=never, failclosed extensions.partialclone/remote.*.promisor config refusal before object/status operations and again before checkout. Existing filter/path protections/publicAPI unchanged. UnsafeRepository display now describes externalobject access too.",
+  "coordination": "Reused /root/config focused guard design and generated missingblob/ext-helper fixtures from validation-adoption; adapted only older main context. No adoption modules/dependencies copied. Fixture Git strips inheritedGIT_* and nulls global/system config/hooks to stay local/generated.",
+  "environment": {
+    "os": "Linux local cloud",
+    "git": "2.52.0",
+    "umask": "022",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+  },
+  "checks": [
+    {
+      "name": "lazy-fetch",
+      "command": "cargo test --locked -p agentbaton-workspaces --test lazy_fetch",
+      "exit_code": 0
+    },
+    {
+      "name": "workspaces",
+      "command": "cargo test --locked -p agentbaton-workspaces",
+      "exit_code": 0
+    },
+    {
+      "name": "workspace-tests",
+      "command": "cargo test --workspace --locked",
+      "exit_code": 0
+    },
+    {
+      "name": "clippy",
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "name": "fmt",
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0
+    }
+  ],
+  "counts": {
+    "new_lazy_fetch_tests": 2,
+    "all_workspaces_tests": 15,
+    "all_workspace_tests": 126,
+    "core": 35,
+    "config": 26,
+    "providers": 50,
+    "workspaces": 15
+  },
+  "assertions": [
+    "generated trackedblob removed from objectdb; local ext helper would only create a generatedmarker andexit1",
+    "remote protocol.ext.allow=always deliberately enabled in fixture",
+    "inspect and create_isolated reject promisor repo without helpermarker or checkoutdestination",
+    "sourcefile andindex bytes unchanged",
+    "partialclone extension refused without rewriting config"
+  ],
+  "logs": {
+    "checks.json": {
+      "path": "artifacts/workspace-fetch-guard/checks.json",
+      "sha256": "7cf5dccf2bdb4b5701bfc2cf515d4c21ef050c178875f12247c8fdefe3ae4012"
+    },
+    "clippy.log": {
+      "path": "artifacts/workspace-fetch-guard/clippy.log",
+      "sha256": "e4f79cb934d1d4c1f4f5922fde216f374ee24c520a45fef6b16d4d09f2f76a0e"
+    },
+    "fmt.log": {
+      "path": "artifacts/workspace-fetch-guard/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "lazy-fetch.log": {
+      "path": "artifacts/workspace-fetch-guard/lazy-fetch.log",
+      "sha256": "ca8a15bff1ed937464e27bfb3fa172e15032e10d6de4234b1bf6078e456bf1fa"
+    },
+    "workspace-tests.log": {
+      "path": "artifacts/workspace-fetch-guard/workspace-tests.log",
+      "sha256": "b5144d9ef6a33f9398137a262eca585db61010233694339216b848a324ffa60d"
+    },
+    "workspaces.log": {
+      "path": "artifacts/workspace-fetch-guard/workspaces.log",
+      "sha256": "aa191e55cb715b17360a0efacc101e5be4d2b4084d57be6de471280b96429bfe"
+    }
+  },
+  "source_hashes": {
+    "crates/workspaces/src/lib.rs": "05575ae759cf56cf72464b3e899876ee2ff47c43c952b2a3cc51e8c60a2b5365",
+    "crates/workspaces/tests/lazy_fetch.rs": "803c5078e1c3b335ab665f620010d1cd8daf6db1d51f856874cf625d033f6ada"
+  },
+  "prior_failure_evidence": "Config implementer and independent reviewer reported controlled old-source missingblob/localext-helper reproduction. No duplicate old-code investigation executed by this backport task; their evidence will be referenced when returned.",
+  "remaining_limits": {
+    "independent_review": "requested/pending",
+    "macos_current_candidate": "not_run",
+    "remote_ci": "not_run",
+    "ui_native_smoke": "not_run_library_only_scope",
+    "real_vendor_models_accounts_network": "not_run_not_authorized",
+    "partialclone_support": "deliberately unsupported and refused; no automatic fetch or config repair",
+    "os_sandbox": "not_claimed",
+    "product": "incomplete",
+    "push_main_merge": "not_performed",
+    "globalSTATUS_manifest": "unchanged_per_focused_parent_scope"
+  }
+}

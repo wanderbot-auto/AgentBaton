@@ -1,0 +1,21 @@
+{
+  "head": "4f4415fa62c142fd9ffd5b809f13b1bfbedf3967",
+  "run": 40407799679,
+  "overall": "failed_missing_reopened_report",
+  "screenshots": [
+    {
+      "artifact": 12690344299,
+      "architecture": "arm64",
+      "path": "docs/execution/native-gui/screenshots/arm64-first-window-4f4415f.png",
+      "sha256": "4375fe2eb4327a9d7895aea0e10680e39639aef01c484ac066dc1d689146a746",
+      "scope": "actualfirstnativeappwindow; overallreopenlaneFAILED"
+    },
+    {
+      "artifact": 12693170268,
+      "architecture": "x86_64",
+      "path": "docs/execution/native-gui/screenshots/x86_64-first-window-4f4415f.png",
+      "sha256": "9e7aa1c0d45e08dc5af423108b4ba98c84004f9bd72d9df9ea9cc0bc7d2d4df5",
+      "scope": "actualfirstnativeappwindow; overallreopenlaneFAILED"
+    }
+  ]
+}

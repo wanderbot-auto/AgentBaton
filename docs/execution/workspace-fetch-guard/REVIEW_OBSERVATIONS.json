@@ -1,0 +1,83 @@
+{
+  "recorded_at_utc": "2026-10-26T21:05:32.382122+00:00",
+  "provenance": "Transcribed from actual independent reviewer tool outputs in this context. This write did not rerun Git controls.",
+  "execution_dimension": "Controlled direct Git commands reproducing implicit semantics, not an execution of an old compiled Baton library/API.",
+  "original_fixture_retention": "Python TemporaryDirectory fixtures were automatically removed; original random pathnames and full process logs were not retained.",
+  "private_or_external_access": "Generated local repositories and helper only; no network, credentials, vendor/model, real signing or production action.",
+  "cases": [
+    {
+      "id": "promisor-implicit-helper",
+      "temporary_prefix": "ab-review-lazy-fetch-",
+      "inputs": {
+        "tracked_file": "file",
+        "tracked_bytes": "baseline blob for local generated fixture",
+        "missing_object": "HEAD:file loose blob removed after commit",
+        "git_config": {
+          "core.repositoryformatversion": "1",
+          "extensions.partialClone": "origin",
+          "remote.origin.promisor": "true",
+          "remote.origin.url": "ext::<temporary>/generated-remote-helper",
+          "protocol.ext.allow": "always"
+        },
+        "helper_behavior": "Python helper writes literal executed to <temporary>/repository-helper-executed then exits1"
+      },
+      "git_operation": [
+        "-c",
+        "core.fsmonitor=false",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "-c",
+        "submodule.recurse=false",
+        "-c",
+        "protocol.file.allow=never",
+        "worktree",
+        "add",
+        "--detach",
+        "<temporary>/new-worktree",
+        "<generated-head>"
+      ],
+      "actual_tool_result": {
+        "exit": 128,
+        "repository_helper_executed": true,
+        "stderr": "Preparing worktree (detached HEAD 0c164f0)\nfatal: Could not read from remote repository.\n\nPlease make sure you have the correct access rights\nand the repository exists.\nfatal: Could not read from remote repository.\n\nPlease make sure you have the correct access rights\nand the repository exists.\nfatal: Could not read from remote repository.\n\nPlease make sure you have the correct access rights\nand the repository exists.\nerror: unable to read sha1 file of file (8bd75be69adbe1c9ca4c0186169ac093e9e400a6)\nfatal: Could not reset index file to revision 'HEAD'.\n"
+      }
+    },
+    {
+      "id": "replace-object-identity",
+      "temporary_prefix": "ab-review-replace-",
+      "inputs": {
+        "commit_A_artifact": "approved",
+        "commit_B_artifact": "replacement",
+        "operations": [
+          "git replace A B",
+          "git checkout --detach A"
+        ]
+      },
+      "actual_tool_result": {
+        "head": "c300fb66682f00e8519891efb6edf846a35d7840",
+        "requested_head": "c300fb66682f00e8519891efb6edf846a35d7840",
+        "dirty": false,
+        "artifact": "replacement",
+        "tree_with_ambient_replace": "94c8fdd81568f13633fb32208497be24940a4d3f",
+        "raw_approved_tree": "9db526114d3379ce4d06142114fa44d287eb5fe0",
+        "tree_with_replacements_disabled": "9db526114d3379ce4d06142114fa44d287eb5fe0"
+      }
+    },
+    {
+      "id": "conditional-gitdir-config-visibility",
+      "temporary_prefix": "ab-review-git-context-",
+      "inputs": {
+        "root": "linked detached worktree of generated repo",
+        "includeIf": "gitdir:<temporary>/repo/.git",
+        "included_value": "merge.generated.driver /tmp/generated-never-executed-during-config-read"
+      },
+      "actual_tool_result": {
+        "working_root_config_status": 1,
+        "working_root_merge_config": "",
+        "bound_common_config_status": 0,
+        "bound_common_merge_config": "merge.generated.driver /tmp/generated-never-executed-during-config-read\n"
+      },
+      "limitation": "This case proves config visibility differs between linked-root and explicitly bound common-dir commands. It did not run the configured driver."
+    }
+  ]
+}

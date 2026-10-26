@@ -1297,8 +1297,10 @@ impl Supervisor {
         Ok(())
     }
 }
-impl Drop for Supervisor {
-    fn drop(&mut self) {
+impl Supervisor {
+    /// No database mutation: after a fatal actor error, stop/join owned IO before
+    /// releasing daemon authority; persisted ambiguous outcomes remain fenced.
+    pub(crate) fn reap_owned_workers(&mut self) {
         for w in self.workers.values() {
             w.cancel.store(true, Ordering::Relaxed);
         }
@@ -1309,7 +1311,38 @@ impl Drop for Supervisor {
             let _ = probe.join();
         }
     }
+    #[cfg(test)]
+    pub(crate) fn install_drop_fixture(&mut self, check: impl FnOnce() + Send + 'static) {
+        let cancel = Arc::new(AtomicBool::new(false));
+        let worker_cancel = cancel.clone();
+        let (commands, _receiver) = mpsc::sync_channel(1);
+        let thread = std::thread::spawn(move || {
+            while !worker_cancel.load(Ordering::Relaxed) {
+                std::thread::sleep(Duration::from_millis(1));
+            }
+            check();
+            WorkerReceipt {
+                reason: "generated_drop_fixture".into(),
+                process_reaped: true,
+                never_started: true,
+            }
+        });
+        self.workers.insert(
+            "generated-drop-fixture".into(),
+            Worker {
+                commands,
+                cancel,
+                thread,
+            },
+        );
+    }
 }
+impl Drop for Supervisor {
+    fn drop(&mut self) {
+        self.reap_owned_workers();
+    }
+}
+
 struct WorkerLaunch {
     route: ProtocolRoute,
     installation: ApprovedInstallation,

@@ -682,6 +682,18 @@ fn conditional_common_git_config_cannot_hide_executable_drivers_from_a_linked_ro
             &repo.source,
         ],
     );
+    // Pin the legitimate authorization before repository configuration drifts.
+    // The shared include guard now rejects inspection itself, while adoption
+    // must still independently reject a previously authorized linked root.
+    let grant = AuthorizedIntegration::from_verified_grant(
+        &inspect(&approved).unwrap(),
+        "refs/heads/integration".into(),
+        repo.base.clone(),
+        repo.source.clone(),
+        "owner:conditional".into(),
+        1_700_000_000,
+    )
+    .unwrap();
     let marker = repo.managed.path().join("driver-executed");
     let included = repo.managed.path().join("conditional-config");
     fs::write(
@@ -719,15 +731,15 @@ fn conditional_common_git_config_cannot_hide_executable_drivers_from_a_linked_ro
     assert!(common.status.success());
     let index_path = git(&approved, &["rev-parse", "--git-path", "index"]);
     let index = fs::read(&index_path).unwrap();
-    let grant = AuthorizedIntegration::from_verified_grant(
-        &inspect(&approved).unwrap(),
-        "refs/heads/integration".into(),
-        repo.base.clone(),
-        repo.source.clone(),
-        "owner:conditional".into(),
-        1_700_000_000,
-    )
-    .unwrap();
+    let source_index = fs::read(repo.root.join(".git/index")).unwrap();
+    let source_bytes = fs::read(repo.root.join("file.txt")).unwrap();
+    let approved_bytes = fs::read(approved.join("file.txt")).unwrap();
+    let config = fs::read(repo.root.join(".git/config")).unwrap();
+    let included_bytes = fs::read(&included).unwrap();
+    assert!(matches!(
+        inspect(&approved),
+        Err(WorkspaceError::UnsafeRepository)
+    ));
     assert!(matches!(
         prepare_candidate(
             grant,
@@ -738,6 +750,15 @@ fn conditional_common_git_config_cannot_hide_executable_drivers_from_a_linked_ro
     ));
     assert!(!marker.exists());
     assert_eq!(fs::read(index_path).unwrap(), index);
+    assert_eq!(
+        fs::read(repo.root.join(".git/index")).unwrap(),
+        source_index
+    );
+    assert_eq!(fs::read(repo.root.join("file.txt")).unwrap(), source_bytes);
+    assert_eq!(fs::read(approved.join("file.txt")).unwrap(), approved_bytes);
+    assert_eq!(fs::read(repo.root.join(".git/config")).unwrap(), config);
+    assert_eq!(fs::read(included).unwrap(), included_bytes);
+    assert_eq!(git(&repo.root, &["rev-parse", "HEAD"]), repo.source);
     assert_eq!(git(&repo.root, &["rev-parse", "integration"]), repo.base);
     assert!(!repo.managed.path().join("conditional").exists());
 }

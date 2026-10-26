@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api, DaemonError, type Project, type ManagedWorkspace, type Task } from './api';
@@ -29,18 +29,33 @@ beforeEach(() => {
   vi.mocked(sessionApi.sessionsList).mockResolvedValue([session]);
   vi.mocked(sessionApi.sessionsGet).mockResolvedValue(session);
 });
-function showSessions() {
-  return render(<ManagedSessions language="en" connected projects={[project]} tasks={[task]} projectId={project.id} onProjectChange={vi.fn()} refreshTasks={refreshTasks} />);
+async function showSessions() {
+  // Resolve the fixture's initial promises and React effects before querying its
+  // ready controls. Slow first jsdom setup is not an application IO deadline.
+  await act(async () => {
+    render(<ManagedSessions language="en" connected projects={[project]} tasks={[task]} projectId={project.id} onProjectChange={vi.fn()} refreshTasks={refreshTasks} />);
+  });
 }
 async function selectSession(user: ReturnType<typeof userEvent.setup>) {
   await user.click(await screen.findByRole('button', { name: /Selected local agent.*Ready.*session-1/ }));
   await waitFor(() => expect(screen.getByLabelText('Message to this connection')).toBeEnabled());
 }
 describe('Named connection and managed-session UI using mocked transport', () => {
+  it('keeps grant controls unavailable until the actual scope response resolves', async () => {
+    let finishScope!: (records: ManagedWorkspace[]) => void;
+    vi.mocked(api.workspacesList).mockImplementation(() => new Promise(resolve => { finishScope = resolve; }));
+    await showSessions();
+    expect(screen.queryByRole('option', { name: '/managed/workspace (ready)' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create bounded execution grant' })).toBeDisabled();
+    expect(sessionApi.grantsCreate).not.toHaveBeenCalled();
+    await act(async () => { finishScope([workspace]); });
+    expect(screen.getByRole('option', { name: '/managed/workspace (ready)' })).toBeVisible();
+  });
+
   it('rejects execution durations beyond the core one-hour limit and submits the exact accepted boundary', async () => {
     const user = userEvent.setup();
     vi.mocked(sessionApi.grantsCreate).mockResolvedValue({ ...grant, expires_at_ms: Date.now() + 3_600_000, scope: { ...grant.scope, max_duration_ms: 3_600_000 } });
-    showSessions();
+    await showSessions();
     await screen.findByRole('option', { name: '/managed/workspace (ready)' });
     await user.selectOptions(screen.getByLabelText('Managed workspace'), workspace.id);
     await user.selectOptions(screen.getByLabelText('Named connection'), connection.id);
@@ -99,7 +114,7 @@ describe('Named connection and managed-session UI using mocked transport', () =>
   it('requires explicit acknowledgement after showing exact recipient and writable scope', async () => {
     const user = userEvent.setup();
     vi.mocked(sessionApi.grantsCreate).mockResolvedValue(grant);
-    showSessions();
+    await showSessions();
     await screen.findByRole('option', { name: '/managed/workspace (ready)' });
     await user.selectOptions(screen.getByLabelText('Managed workspace'), workspace.id);
     await user.selectOptions(screen.getByLabelText('Named connection'), connection.id);
@@ -113,7 +128,7 @@ describe('Named connection and managed-session UI using mocked transport', () =>
   it('creates a session bound to an existing task and backend grant without sending a prompt', async () => {
     const user = userEvent.setup();
     vi.mocked(sessionApi.sessionsCreate).mockResolvedValue({ ...session, state: 'starting', revision: 1 });
-    showSessions();
+    await showSessions();
     await screen.findByRole('option', { name: '/managed/workspace (ready)' });
     await user.selectOptions(screen.getByLabelText('Task binding'), task.id);
     await user.selectOptions(screen.getByLabelText('Managed workspace'), workspace.id);
@@ -125,7 +140,7 @@ describe('Named connection and managed-session UI using mocked transport', () =>
   });
   it('keeps sent prompts, completion and cancellation request semantics separate', async () => {
     const user = userEvent.setup();
-    showSessions();
+    await showSessions();
     await selectSession(user);
     await user.type(screen.getByLabelText('Message to this connection'), 'Only this chosen message');
     vi.mocked(sessionApi.sessionsSend).mockResolvedValue({ ...session, state: 'running', revision: 3 });
@@ -142,7 +157,7 @@ describe('Named connection and managed-session UI using mocked transport', () =>
   it('blocks replay after an uncertain send and retains the unsent draft for review', async () => {
     const user = userEvent.setup();
     vi.mocked(sessionApi.sessionsSend).mockRejectedValue(new DaemonError('OUTCOME_UNKNOWN', 'Connection lost during write', 'unknown'));
-    showSessions(); await selectSession(user);
+    await showSessions(); await selectSession(user);
     await user.type(screen.getByLabelText('Message to this connection'), 'Do not replay');
     await user.click(screen.getByRole('button', { name: 'Send message' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('side effects may be unknown');
@@ -153,7 +168,7 @@ describe('Named connection and managed-session UI using mocked transport', () =>
   it('does not offer expired, revoked or differently scoped grants for session creation', async () => {
     const user = userEvent.setup();
     vi.mocked(sessionApi.grantsList).mockResolvedValue([{ ...grant, expires_at_ms: 1 }, { ...grant, id: 'revoked', revoked: true }, { ...grant, id: 'wrong', scope: { ...grant.scope, connection_ids: ['other'] } }]);
-    showSessions();
+    await showSessions();
     await screen.findByRole('option', { name: '/managed/workspace (ready)' });
     await user.selectOptions(screen.getByLabelText('Managed workspace'), workspace.id);
     await user.selectOptions(screen.getByLabelText('Named connection'), connection.id);
@@ -166,7 +181,7 @@ describe('Named connection and managed-session UI using mocked transport', () =>
   });
   it('keeps observing an idle ready process and disables sending after the daemon stops it', async () => {
     const user = userEvent.setup();
-    showSessions(); await selectSession(user);
+    await showSessions(); await selectSession(user);
     vi.mocked(sessionApi.sessionsGet).mockResolvedValue({ ...session, state: 'stopped', revision: 3, turn_state: 'cancelled' });
     expect((await screen.findAllByText('Stopped (confirmed)', {}, { timeout: 2500 })).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();

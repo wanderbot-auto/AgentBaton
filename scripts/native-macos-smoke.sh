@@ -14,6 +14,8 @@ export CARGO_BUILD_JOBS="${CARGO_BUILD_JOBS:-2}"
 # Caller builds actual frontend and sidecars before this lane, as for production.
 test -f apps/desktop/dist/index.html
 cargo build --locked --bin batond --bin baton
+cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml \
+  --features native-smoke,custom-protocol --bin agentbaton-native-smoke
 cargo build --locked --manifest-path apps/desktop/src-tauri/Cargo.toml \
   --features native-smoke,custom-protocol --bin agentbaton-native-smoke
 root_target="$(cargo metadata --offline --no-deps --format-version 1 | python3 -c 'import json,sys;print(json.load(sys.stdin)["target_directory"])')"
