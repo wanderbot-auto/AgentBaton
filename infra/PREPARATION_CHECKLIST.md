@@ -1,25 +1,15 @@
-# AgentBaton environment preparation — public repository update
+# 环境准备完成与研发交接
 
-**Product development remains on hold. Repository and Cloud preparation do not authorize product work.**
+环境准备阶段已结束，用户明确批准完整研发，见 `docs/execution/launch/APPROVAL.md` 和当前 gate。先前记录中的“未授权开工”是历史状态。
 
-| Item | Verified state / evidence |
+| 项目 | 已有证据与边界 |
 |---|---|
-| Repository | `wanderbot-auto/AgentBaton`; public, confirmed through GitHub API after the user's visibility change |
-| Design baseline | Design v0.2, 27 questionnaire answers and 130 requirements preserved |
-| Prior three-platform CI | Run `40336413916`, tested commit `02508d4eb1c32d35cc9deda546f334938abdd357`; Linux, macOS arm64 and Intel succeeded |
-| Cloud preparation | User-reported setup success: Python 11, Node 4, Rust 2 tests plus design/infrastructure/integrity/Clippy; cloud EVIDENCE.json not independently read |
-| Cloud publication | User screenshot shows published, Only me, no network keys or environment variables; environment ID not independently retrieved |
-| PR CI | This change adds checks to every main-targeting PR; success must be read from the new PR's actual run, not inferred from previous CI |
-| codesign diagnostic | This change checks executable presence only; it no longer runs unsupported `codesign --version`; signing remains untested |
-| Main protection | API returned an empty ruleset list and `protected=false`; importable active policy is prepared, not applied |
-| Execution authorization | `infra/execution-gate.json` unchanged; product, real Provider calls, production release and paid resource authorization remain false |
+| 仓库 | wanderbot-auto/AgentBaton，用户已公开 |
+| 设计 | v0.2，27题，130项需求，14个依赖工作包；仍不等于产品实现 |
+| 三平台准备 CI | run 40352221818，PR #1 对应提交与合并候选通过；不冒充本次或未来提交已测 |
+| Cloud 安装与发布 | 用户报告安装检查成功并提供已发布截图；规划会话没有独立获取 Cloud 内 EVIDENCE.json |
+| 主分支保护 | 前轮 API 验证 ruleset 25893455 active、main protected，无 bypass；新执行应复查 |
+| 产品开发 | 用户本轮已批准；实际 Cloud 任务尚待启动并登记 |
+| Provider / 费用 / 生产 | 真实产品 Provider 测试调用、私人身份、额外付费、正式签名及生产发布另行授权 |
 
-## Remaining activation
-
-Import `infra/github-main-ruleset.json` in GitHub Settings > Rules > Rulesets, review and Create. Verify the resulting active rules via API before declaring this item complete. The current connector has no Administration-write/ruleset creation operation; public visibility removes the plan restriction, not this tool limitation.
-
-## Evidence boundaries
-
-Preparation smoke tests are not product tests or minimum-macOS validation. There is no Tauri application build, signed installer, real Agent integration or production credential setup. Failed or unrun checks remain visible. The original CI evidence is tied to its exact commit; the new PR must have its own check results.
-
-The publicly visible repository still has no final approved open-source license. Keep the existing license-review decision; do not silently select a license.
+此前准备报告保留在 Git 历史。当前权威入口是 AGENTS、execution-gate、MASTER_PROMPT 与 docs/execution/STATUS.md。

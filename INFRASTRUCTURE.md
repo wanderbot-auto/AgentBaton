@@ -1,13 +1,17 @@
-# AgentBaton — environment preparation only
+# AgentBaton — authorized development handoff
 
-Repository: `wanderbot-auto/AgentBaton`. The owner changed visibility to public on 2026-10-26 and authorized continuing environment preparation. Product implementation remains NOT authorized.
+The owner has approved full Design v0.2 development in `wanderbot-auto/AgentBaton` after readiness review. The previous preparation-only boundary is superseded by `infra/execution-gate.json` and `docs/execution/launch/APPROVAL.md`, without expanding production, real Provider test credentials/calls, or paid-resource permissions.
 
-Read `AGENTS.md` and `infra/execution-gate.json` first. The gate is a workflow/instruction check, not an OS sandbox or GitHub branch protection. Do not change execution authorization without separate user approval.
+Start with AGENTS.md and codex/MASTER_PROMPT.md. The active launch goal and runbook are in codex/GOAL.md and codex/RUNBOOK.md. Product implementation progress belongs in docs/execution/, not immutable design-baseline status fields.
 
-## Verification
+## Existing evidence
+
+PR #1 prepared public-repository PR CI; run 40352221818 passed on Linux, macOS ARM64 and Intel before merge. Ruleset 25893455 was verified active in the preceding readiness check. Cloud publication/setup results were supplied by the owner. Recheck relevant live state before integration; these records do not prove product tests or current-commit tests have passed.
+
+## Checks
 
 ```bash
-python3 scripts/check_gate.py --scope preparation
+python3 scripts/check_gate.py --scope product
 python3 scripts/verify_bootstrap_manifest.py
 python3 scripts/validate_design.py
 python3 scripts/validate_infrastructure.py
@@ -17,18 +21,8 @@ cargo test --locked --manifest-path tools/environment-smoke/Cargo.toml
 cargo clippy --locked --manifest-path tools/environment-smoke/Cargo.toml --all-targets -- -D warnings
 ```
 
-The design v0.2 baseline is preserved. Original design hashes are separate from preparation-file integrity hashes. Update preparation hashes only for reviewed changes; do not weaken tests or alter product requirements to make checks pass.
+These are infrastructure/baseline checks. Add actual product checks and commands with implementation; never relabel fixtures as product coverage. Preserve the three required Environment check names and add product CI through reviewed PRs. The validator may evolve with new workflows only while retaining security guarantees and regression tests.
 
-## Repository and CI
+Do not recreate the repository, use legacy bootstrap --apply, force-push, bypass rules or overwrite unknown changes. Preparation hashes may be updated for deliberately reviewed file changes; the original Design v0.2 manifest and approved requirements remain intact. Rehashing files is integrity bookkeeping, not correctness or authorization proof.
 
-Do not recreate the repository or use legacy `bootstrap-github.sh --apply`. That script is historical bootstrap test coverage, not a deployment command. Do not force-push or overwrite other work.
-
-The preflight runs on PRs targeting main, manual dispatch, and an explicit `infra/ci-request.json` change on main. It has read-only contents permission, no secrets, pinned actions and bounded GitHub-hosted jobs. Public PR code is untrusted; do not use privileged PR events or personal runners. The three check names match `infra/github-main-ruleset.json`.
-
-`infra/BRANCH_PROTECTION.md` explains activation. A committed ruleset JSON is NOT an active ruleset. The current integration has repository content write operations but no ruleset write operation.
-
-## Cloud and authorization
-
-The user reported all Cloud preparation checks passing, with no repository changes or injected credentials, and supplied a screenshot showing the AgentBaton environment published and private to the user. This is user-provided evidence; the cloud EVIDENCE.json and published environment identifier have not been directly retrieved here.
-
-No product work packages, real Provider calls, production publication or paid resource creation are authorized. No app or installer has been built. Stop after the environment readiness/blocker report and wait for a separate product-development confirmation.
+Setup/startup hooks only prepare environments; they must not autonomously begin product work on every environment launch. Actual development starts from the user's task. No Cloud task has been directly launched by this handoff.

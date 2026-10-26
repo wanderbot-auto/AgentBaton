@@ -1,10 +1,12 @@
-# Current execution boundary — PREPARATION ONLY
+# Execution boundary — OWNER-AUTHORIZED PRODUCT DEVELOPMENT
 
-The latest user instruction authorizes repository and development/test environment preparation only. Product implementation is NOT authorized. Read `infra/execution-gate.json` and `INFRASTRUCTURE.md` before any work.
+Read `infra/execution-gate.json`, `docs/execution/launch/APPROVAL.md`, `codex/MASTER_PROMPT.md`, `codex/GOAL.md` and `codex/RUNBOOK.md` first. The owner explicitly approved full Design v0.2 implementation after environment readiness. Earlier PREPARATION ONLY statements in historical reports are superseded for this execution, not deleted from history.
 
-Allowed now: validate the design, prepare safe repository/CI/bootstrap scripts, inspect available tools, and run infrastructure smoke tests. Stop after reporting readiness or concrete blockers. Do not start Codex product tasks, implement work packages, call real Agent accounts, deploy, publish releases, create paid resources, copy credentials, or pick a final open-source license. Do not open this gate yourself.
+Proceed on dependency-ready work without asking permission after each package. Use supported native subagents and Goal when useful; their absence does not block ordinary execution. No fabricated autonomous continuation or unverified Cloud launch.
 
-The gate is an explicit instruction/automation check, not a security sandbox. It does not replace GitHub permissions or protected environments. The user must separately authorize product development after reviewing the setup report.
+Use feature branches/PRs; never directly push or force-update main, bypass required checks, weaken tests, or expand permissions. Product Provider test accounts/calls, paid provisioning, production publishing and signing credentials remain separately gated. The development agent's existing Cloud execution is authorized; nested paid model calls are not.
+
+Consult `docs/execution/OWNER_INBOX.md` and update `docs/execution/STATUS.md` at safe integration/checkpoint boundaries. Independently review changes and verify evidence before acceptance. Work-package authorization in the immutable design file is historical; use the current execution gate. Historical environment reports are evidence, not current launch instructions.
 
 # AgentBaton repository instructions
 
@@ -16,7 +18,7 @@ Default to Baton-managed isolated runtime environments. Program source, configur
 
 ## Source of truth
 
-Read README.md, docs/12-decisions.md, specs/decisions.json, specs/requirements.json, docs/11-engineering-program.md and codex/RUNBOOK.md. Read linked chapters as needed. Questionnaire choices are confirmed product behavior, not real execution authorization. D07 is deferred optional scope, not a reason to block the product. Exact minimum macOS, versions and license require the validation gates in docs/15-validation-gates.md.
+Read README.md, docs/12-decisions.md, specs/decisions.json, specs/requirements.json, docs/11-engineering-program.md and codex/RUNBOOK.md. Read linked chapters as needed. Questionnaire choices define product behavior; actual execution is now authorized by AB-START-001 within infra/execution-gate.json. D07 is deferred optional scope, not a reason to block the product. Exact minimum macOS, versions and license require the validation gates in docs/15-validation-gates.md.
 
 ## Non-negotiable behavior
 
@@ -33,12 +35,12 @@ Read README.md, docs/12-decisions.md, specs/decisions.json, specs/requirements.j
 
 ## Evidence and long-horizon work
 
-All active requirements are specified, not implemented. Do not downgrade full scope to a mock demo. Select dependency-ready authorized work; establish actual build/test commands, implement real error paths, independently review, record exact commit/environment/commands/results. Unknown, unsupported, untested and blocked are separate. Mock tests do not prove real Provider integration; browser tests do not prove macOS native support; both Apple Silicon and Intel need evidence.
+The immutable design baseline labels requirements specified. Track real implementation and verification separately in docs/execution/. Do not downgrade full scope to a mock demo. Select dependency-ready authorized work; establish actual build/test commands, implement real error paths, independently review, record exact commit/environment/commands/results. Unknown, unsupported, untested and blocked are separate. Mock tests do not prove real Provider integration; browser tests do not prove macOS native support; both Apple Silicon and Intel need evidence.
 
 Save per-task PLAN, PROGRESS, CHECKPOINT and EVIDENCE. New cloud runs must verify real repository state; do not assume they inherit uncommitted changes. Do not promise work continues without an actual executor. Do not ask users about routine reversible engineering choices; use ADRs. Escalate only scope, privacy, authority, licensing, production release or unresolved material risk. At most three short product questions per escalation.
 
 ## Execution authority
 
-A real task must supply repository/base branch, authorized packages, credentials via approved secret mechanisms, network/resources and budget. Before then, review only. Product approval does not grant access to a real production system, code signing key or paid service. Never choose an unapproved license or claim fictitious CI, binaries, tests or deployments.
+Repository, target, package scope and resource boundaries are supplied by infra/execution-gate.json and docs/execution/launch/APPROVAL.md. Do not ask the owner to repeat that approval. Missing access blocks only the affected operations. Product approval does not grant access to a real production system, code signing key or paid service. Never choose an unapproved license or claim fictitious CI, binaries, tests or deployments.
 
 Use typed interfaces, parameterized argv, restricted IPC, contract tests, pinned dependencies and safe migrations. Preserve failed test evidence; never weaken tests to turn a build green. Production artifacts must contain no embedded test-control server or test-only permissions.
