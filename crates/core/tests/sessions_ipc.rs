@@ -115,7 +115,7 @@ for line in sys.stdin:
   send({'jsonrpc':'2.0','id':i,'result':{'sessionId':'native-fixture'}})
  elif m=='session/prompt':
   text=r['params']['prompt'][0]['text'];pending=i
-  if text=='hang':continue
+  if text=='hang':open('fixture-hang','w').write(str(os.getpid()));continue
   if text=='malformed':print('invalid-json',flush=True);continue
   if text=='stream':
    for chunk in range(200):
@@ -288,28 +288,201 @@ fn cancel_live_prompt_does_not_block_daemon_or_claim_stop_early() {
 }
 #[test]
 fn runtime_timeout_and_revocation_stop_only_owned_process() {
+    use agentbaton_core::{sessions::Supervisor, storage::Store};
+
+    struct Unrelated(std::process::Child);
+    impl Drop for Unrelated {
+        fn drop(&mut self) {
+            let _ = self.0.kill();
+            let _ = self.0.wait();
+        }
+    }
+    let mut unrelated = Unrelated(Command::new("/bin/sleep").arg("60").spawn().unwrap());
+    let hang_pid = |workspace: &Path| {
+        let start = Instant::now();
+        loop {
+            if let Ok(pid) = std::fs::read_to_string(workspace.join("fixture-hang")) {
+                if let Ok(pid) = pid.parse::<libc::pid_t>() {
+                    return pid;
+                }
+            }
+            assert!(
+                start.elapsed() < Duration::from_secs(10),
+                "hang not received"
+            );
+            std::thread::sleep(Duration::from_millis(10));
+        }
+    };
+    let reaped = |pid| {
+        let start = Instant::now();
+        loop {
+            // This is the generated child's actual PID, not a session projection.
+            if unsafe { libc::kill(pid, 0) } == -1 {
+                assert_eq!(
+                    std::io::Error::last_os_error().raw_os_error(),
+                    Some(libc::ESRCH)
+                );
+                break;
+            }
+            assert!(
+                start.elapsed() < Duration::from_secs(10),
+                "owned child alive"
+            );
+            std::thread::sleep(Duration::from_millis(10));
+        }
+    };
+    let receipt = |events: Value, id: &Value| {
+        let event = events["events"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|event| event["aggregate_id"] == *id && event["kind"] == "session.stopped")
+            .cloned()
+            .expect("durable supervisor stop receipt");
+        assert!(
+            event["payload"]["process_reaped"] == true
+                || event["payload"]["no_process_started"] == true
+        );
+        assert_eq!(event["payload"]["task_accepted"], false);
+        event["payload"].clone()
+    };
+
+    // The absolute grant deadline starts at approval, before session admission
+    // and Provider initialization. A late observer need not ever see ready.
     let f = Scenario::new(1200);
     let s = f.create();
-    let ready = f.ready(&s["id"]);
-    f.send(&ready, "hang", "hang");
-    let stopped = wait(
-        &f.server,
-        "sessions.get",
-        json!({"session_id":s["id"]}),
-        |s| s["state"] == "stopped",
-    );
-    assert!(stopped["last_error"].is_string());
-    let f = Scenario::new(10_000);
-    let s = f.create();
-    let ready = f.ready(&s["id"]);
-    f.send(&ready, "hang", "hang");
-    result(f.server.request(json!({"method":"grants.revoke","params":{"grant_id":f.grant["id"]},"expected_revision":f.grant["revision"],"idempotency_key":"revoke"})));
     wait(
         &f.server,
         "sessions.get",
         json!({"session_id":s["id"]}),
         |s| s["state"] == "stopped",
     );
+    // Deliberately begin observation only after real deadline enforcement.
+    let stopped = wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |s| s["state"] == "ready" || s["state"] == "stopped",
+    );
+    assert_eq!(stopped["state"], "stopped");
+    assert!(stopped["last_error"].is_string());
+    assert!(matches!(
+        stopped["last_error"].as_str(),
+        Some("grant_revoked_or_expired" | "launch_cancelled_or_timeout" | "duration_limit")
+    ));
+    receipt(
+        result(
+            f.server
+                .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":500}})),
+        ),
+        &s["id"],
+    );
+    assert!(unrelated.0.try_wait().unwrap().is_none());
+
+    // Separately prove a running, hung worker enforces its own runtime budget.
+    // Drive the public Supervisor directly, so no policy tick can cancel it
+    // for the absolute grant deadline while waiting for the actual child exit.
+    // The normal 10s fixture budget and all 10s wait bounds remain unchanged.
+    let Scenario {
+        _dir,
+        root,
+        server,
+        workspace,
+        connection,
+        grant,
+        task,
+        ..
+    } = Scenario::new(10_000);
+    drop(server);
+    let runtime = root.join("runtime");
+    let mut store = Store::open(&runtime.join("baton.sqlite3")).unwrap();
+    let session = store
+        .create_session(
+            task["id"].as_str().unwrap(),
+            workspace["id"].as_str().unwrap(),
+            connection["id"].as_str().unwrap(),
+            grant["id"].as_str().unwrap(),
+            1,
+            "runtime-budget",
+        )
+        .unwrap();
+    let mut supervisor = Supervisor::new(&runtime);
+    let worker_started = Instant::now();
+    supervisor.launch(&mut store, &session.id).unwrap();
+    let start = Instant::now();
+    let ready = loop {
+        supervisor.tick(&mut store).unwrap();
+        let current = store.get_session(&session.id).unwrap();
+        if current.state == "ready" {
+            break current;
+        }
+        assert!(
+            start.elapsed() < Duration::from_secs(10),
+            "not ready: {current:?}"
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    };
+    let (running, fresh) = store
+        .send_session(&ready.id, "hang", ready.revision, "hang-runtime")
+        .unwrap();
+    assert!(fresh);
+    assert_eq!(running.state, "running");
+    supervisor.send(&ready.id, "hang").unwrap();
+    let pid = hang_pid(Path::new(workspace["root"].as_str().unwrap()));
+    reaped(pid); // No Supervisor::tick/cancel/revoke until the child is reaped.
+    assert!(worker_started.elapsed() >= Duration::from_millis(10_000));
+    let start = Instant::now();
+    let stopped = loop {
+        supervisor.tick(&mut store).unwrap();
+        let current = store.get_session(&session.id).unwrap();
+        if current.state == "stopped" {
+            break current;
+        }
+        assert!(
+            start.elapsed() < Duration::from_secs(10),
+            "not stopped: {current:?}"
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    };
+    assert!(stopped.last_error.is_some());
+    // The remaining-runtime turn deadline and outer worker budget expire at
+    // the same boundary; either existing timeout diagnostic is valid here.
+    assert!(matches!(
+        stopped.last_error.as_deref(),
+        Some("duration_limit" | "provider_protocol_or_timeout_failure")
+    ));
+    let proof = receipt(store.events(0, 500).unwrap(), &json!(session.id));
+    assert_eq!(proof["process_reaped"], true);
+    assert_eq!(proof["no_process_started"], false);
+    assert!(!supervisor.owns(&session.id));
+    assert!(unrelated.0.try_wait().unwrap().is_none());
+
+    // Revocation still starts from an actually ready worker which consumed hang.
+    let f = Scenario::new(10_000);
+    let s = f.create();
+    let ready = f.ready(&s["id"]);
+    let running = f.send(&ready, "hang", "hang");
+    assert_eq!(running["state"], "running");
+    let pid = hang_pid(Path::new(f.workspace["root"].as_str().unwrap()));
+    result(f.server.request(json!({"method":"grants.revoke","params":{"grant_id":f.grant["id"]},"expected_revision":f.grant["revision"],"idempotency_key":"revoke"})));
+    let stopped = wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |s| s["state"] == "stopped",
+    );
+    assert_eq!(stopped["last_error"], "grant_revoked_or_expired");
+    let proof = receipt(
+        result(
+            f.server
+                .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":500}})),
+        ),
+        &s["id"],
+    );
+    assert_eq!(proof["process_reaped"], true);
+    assert_eq!(proof["no_process_started"], false);
+    reaped(pid);
+    assert!(unrelated.0.try_wait().unwrap().is_none());
 }
 #[test]
 fn binary_drift_unknown_grant_and_unknown_provider_label_never_spawn() {
