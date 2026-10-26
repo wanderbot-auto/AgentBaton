@@ -1,7 +1,7 @@
-# Quiet Canvas final integration checkpoint
+# Quiet Canvas actor integration checkpoint
 
-Source frozen at `bf042ec39bb49820cbac5704d5b12707067e040b`, with conditional Git guard merge `5fcfd698` from `32ca76eb`. All 18 older workspace protections and the raw-object identity guards remain. Composite library SHA is `796e8cf7b2f92052f01b4140ac7f76fa47631959190138fbaa755ff7b682491e`.
+Source frozen9ea5a4d784846de494ba7cda6fcc184ce5469555, merging reviewed Sessioncd7fb7b into independently reviewedUI6111037 after retaining that review in e0d369f. Sourceipc/sessions match Session; all dedicated UI/frontend/locks remain unchanged611. Both delayed first-frame tests, duplicateFD and actual ownedworker cleanup checks retained. Worker/probe reap precedes socket unlink and writer unlock.
 
-Actual local checks: 24 workspace tests, 199 top-level Rust tests, 47 UI tests, typecheck/build/fmt/Clippy, and 22 real browser/UnixIPC checks with 8 fresh screenshots. The new UI test uses asynchronous act for initial mocked responses and verifies truly deferred scope responses cannot enable grants; no timeout or old assertion was relaxed. Prior evidence is archived in EVIDENCE.before-include-ee6.json and earlier histories.
+Actual checks:201top-levelRust/24workspace/47UI/types/build/fmt/Clippy,newbinaryCLIrestart,22realbrowserUnixIPC+8fresh screenshots,28Python/4Node infra,design130/27,bootstrap92. New evidence points to this exactsource; older199/47logs retained. Sourcehashes and all8PNGhashes recorded. The smoke-launch path failure and correction are documented without changing assertions.
 
-Primary must arrange quiet_canvas_review independent review, push the dedicated UI branch/update PR#7, and execute actual exact-head macOS CI. No adoption/profile/schema5, later native-provider choices or lock changes were added. Old F3 CI and prior native failures remain evidence, not proof of this candidate. Full remaining product scope and external model/account/signing/release gates remain unchanged.
+Primary must arrange independent final composition review, then updateUI PR7 and run actual exacthead protectedCI/macOS after SessionPR6 succeeds/merges. No push by this child, no fakeCI/nativeGUI/packages/fullgoal acceptance. External Provider/spend/signing/release gates unchanged.
