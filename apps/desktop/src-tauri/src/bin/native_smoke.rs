@@ -7,7 +7,7 @@ use agentbaton_core::ipc;
 use serde_json::{json, Value};
 use std::{
     fs,
-    os::unix::fs::DirBuilderExt,
+    os::unix::fs::{DirBuilderExt, PermissionsExt},
     path::{Path, PathBuf},
     process::{Child, Command, Stdio},
     sync::{
@@ -43,8 +43,10 @@ impl OwnedDaemon {
     fn ready(&mut self) -> Result<Value, String> {
         let deadline = Instant::now() + Duration::from_secs(8);
         loop {
-            if self.child.try_wait().map_err(|e| e.to_string())?.is_some() {
-                return Err("owned daemon exited before authentication".into());
+            if let Some(status) = self.child.try_wait().map_err(|e| e.to_string())? {
+                return Err(format!(
+                    "owned daemon exited before authentication ({status})"
+                ));
             }
             if let Ok(value) = ipc::call(
                 &self.runtime,
@@ -345,6 +347,12 @@ fn reopen(app: &tauri::AppHandle) -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     Ok(())
 }
+fn private_fixture_runtime() -> std::io::Result<tempfile::TempDir> {
+    tempfile::Builder::new()
+        .prefix("baton-native-")
+        .permissions(fs::Permissions::from_mode(0o700))
+        .tempdir()
+}
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let output = std::env::args_os()
         .nth(1)
@@ -353,7 +361,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if !output.is_dir() {
         return Err("evidence directory is not a directory".into());
     }
-    let temporary = tempfile::Builder::new().prefix("baton-native-").tempdir()?;
+    let temporary = private_fixture_runtime()?;
     let runtime = temporary.path().canonicalize()?;
     // Keep toolkit caches/settings inside this test's disposable namespace.
     // HOME and native Provider configuration/authentication are never changed.
@@ -481,4 +489,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("native smoke failed; inspect native-smoke.json".into());
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod fixture_tests {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt;
+
+    #[test]
+    fn fixture_runtime_allows_the_real_private_daemon_authority() {
+        let directory = private_fixture_runtime().unwrap();
+        let canonical = directory.path().canonicalize().unwrap();
+        // This is actual core admission and storage initialization, not a
+        // simulated GUI or a relaxed production permission check.
+        let daemon = ipc::Daemon::bind(&canonical).unwrap();
+        assert_eq!(
+            fs::metadata(&canonical).unwrap().permissions().mode() & 0o777,
+            0o700
+        );
+        assert!(canonical.join("batond.sock").exists());
+        drop(daemon);
+        assert!(!canonical.join("batond.sock").exists());
+    }
 }

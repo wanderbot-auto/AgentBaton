@@ -7,3 +7,10 @@ Fetch source4d43989: older-main context adaptation approved; inheritedGit/global
 Raw object source8dcb4a3: two fixedenvselectors restore raw object/tree/ancestry without mutating refs/graft/index. Actual ordinaryGit controls and newraw tests are meaningful. Independent command cargo test --locked -p agentbaton-workspaces:17PASS(unitgraft1+fetch/replace3+existing13). Aggregate fetch/raw-object guard has no unresolved source blocker.
 
 This is source/Linux fixture review, not a claim that currentcandidate macOS CI or full native/product acceptance passed. Primary integration and exacthead CI remain required before merge.
+
+
+## Conditional-include follow-up b112185
+
+Independent /root/review read exactsource b11218506e835554b2d08600e8cc1ab25e4fe7e9 and ran cargo test --locked -p agentbaton-workspaces:19PASS(graft1+security5+existing13). Immediate --no-includes audit rejects direct/futureconditional indirection before repositoryprobe/status/checkout. Fatal→NotRepository preserves existing malformedrepository rejection without changing its assertion. Actualfuturechild control observes config without checkout/filterexecution; not oldBatonexecution evidence.
+
+Finalverdict: approved, no unresolved focusedsource blocker; exactfinalhead CI stillrequired. Reviewer made no filesource/doc edits in this worktree.
