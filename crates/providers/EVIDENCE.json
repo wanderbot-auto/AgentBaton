@@ -1,0 +1,74 @@
+{
+  "scope": "ACP contracts and actual Unix stdio fixture subprocesses only",
+  "requirements_partial": [
+    "AB-ACP-001",
+    "AB-ACP-003",
+    "AB-ACP-004",
+    "AB-ACP-005",
+    "AB-ACP-006"
+  ],
+  "base_commit": "e158ade1a99e063ddce703ce4c0748febe449b43",
+  "tested_tree": "uncommitted crates/providers files identified by SHA-256; integration commit must rerun checks",
+  "recorded_at_utc": "2026-10-26T16:43:34.918799+00:00",
+  "checks": [
+    {
+      "command": "cargo test --locked -p agentbaton-providers",
+      "cwd": "/workspace/AgentBaton",
+      "exit_code": 0,
+      "contract_tests_passed": 20,
+      "stdio_fixture_tests_passed": 11,
+      "real_provider_model_calls": false
+    },
+    {
+      "command": "cargo clippy --locked -p agentbaton-providers --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "rustfmt --edition 2021 --check crates/providers/src/lib.rs crates/providers/src/framing.rs crates/providers/src/transport.rs crates/providers/tests/contracts.rs crates/providers/tests/stdio.rs",
+      "exit_code": 0
+    }
+  ],
+  "initial_failure": {
+    "command": "cargo test -p agentbaton-providers",
+    "exit_code": 101,
+    "reason": "parallel integration had not yet created crates/workspaces/Cargo.toml; retried after manifest existed"
+  },
+  "real_provider_calls_executed": false,
+  "native_platform_tests_executed": false,
+  "implemented": "bounded JSON-RPC contracts and Unix nonblocking stdio initialize/session-new/prompt/cancel, unknown outcomes, owned process-group termination/reap, explicit approved installation descriptor, env_clear, bounded evidence/stderr draining",
+  "not_implemented": [
+    "daemon dispatch integration",
+    "trusted approval store/binary digest verification",
+    "session/load",
+    "multi-outstanding-prompt scheduling",
+    "trusted permission policy callback (all transport requests cancelled)",
+    "Provider-specific adapters and authentication",
+    "live Provider compatibility and model calls",
+    "raw-event durable storage/redaction"
+  ],
+  "file_hashes": {
+    "crates/providers/Cargo.toml": "4f9e973c693f7f979e907f433d2f193bb5bc370c0f821ceccfa8fdf7950de209",
+    "crates/providers/README.md": "4d4ca39917ae6278e445bf0e523629e5e66b6ac3b47c62d5648b0601b1bf3a33",
+    "crates/providers/src/lib.rs": "cf443f52971696bdafa44f196fe8c2082aeb3a3ac1e0f959d6a9c6e7bab7c6c1",
+    "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+    "crates/providers/src/transport.rs": "5476cf03ae4035201b2c25e31a84cd05bc103710b9f602592127bc537ddd4e92",
+    "crates/providers/tests/contracts.rs": "9a4d3f1a5f5a059e7b446b2d143b5f4ba990deb1bc8c49b399ff5ee31c734c38",
+    "crates/providers/tests/stdio.rs": "db1525d7cb3e6dd29b531069ea5a2081b03e34ab63b1d962b6870992b597460a"
+  },
+  "failures_preserved": [
+    {
+      "command": "cargo test -p agentbaton-providers",
+      "exit_code": 101,
+      "reason": "parallel integration had not yet created crates/workspaces/Cargo.toml; retried after manifest existed"
+    },
+    {
+      "command": "cargo test --locked -p agentbaton-providers",
+      "exit_code": 101,
+      "test": "malformed_partial_and_oversized_stdout_are_isolated_and_reaped",
+      "observed": "Timeout instead of Protocol on oversized newline-free stream",
+      "diagnosis": "scanning entire accumulated frame for newline on every 4096-byte read was quadratic",
+      "correction": "incremental newline scan cursor; retained oversize assertion and reran unchanged timeout budget; all tests passed"
+    }
+  ],
+  "review_fix": "Invalidated all old session associations on disconnect, including idle/completed, so reinitialize cannot silently resume stale native IDs. Added regression test. Also reject delayed old prompt results after transport reinitialization and terminate/reap malformed session-new responses, with regression tests."
+}

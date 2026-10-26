@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "AgentBaton",
+  "version": "0.1.0",
+  "identifier": "dev.agentbaton",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "AgentBaton",
+        "width": 1180,
+        "height": 800,
+        "minWidth": 760,
+        "minHeight": 580
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost; object-src 'none'; frame-src 'none'; base-uri 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "app"
+    ],
+    "externalBin": [
+      "binaries/batond",
+      "binaries/baton"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    },
+    "shortDescription": "Local task workspace with durable evidence",
+    "longDescription": "AgentBaton development build. No formal signing or notarization is claimed.",
+    "icon": [
+      "icons/icon.png",
+      "icons/icon.icns"
+    ]
+  }
+}

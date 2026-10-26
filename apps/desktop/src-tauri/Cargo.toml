@@ -1,0 +1,19 @@
+[package]
+name = "agentbaton-desktop"
+version = "0.1.0"
+edition = "2021"
+publish = false
+build = "build.rs"
+
+[workspace]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+agentbaton-core = { path = "../../../crates/core" }
+serde_json = "1"
+tauri = { version = "2", features = [] }
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]

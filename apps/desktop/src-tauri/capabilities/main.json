@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main",
+  "description": "Main window uses only the registered typed task commands. No shell or filesystem plugins.",
+  "windows": ["main"],
+  "permissions": []
+}

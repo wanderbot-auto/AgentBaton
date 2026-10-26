@@ -4,6 +4,8 @@ The owner has approved complete Design v0.2 development. Read [the execution pro
 
 [Development status](docs/execution/STATUS.md) · [Owner instructions](docs/execution/OWNER_INBOX.md) · [Current execution permissions](infra/execution-gate.json)
 
+[Product development commands](docs/DEVELOPMENT.md) cover the current Rust daemon/CLI, desktop frontend, product tests and development packaging. Exact implemented and unverified scope remains in the execution status and requirement ledger.
+
 This handoff is not evidence that a Cloud task has started or that the product is implemented. Preserve main protection; use branches/PRs and real CI. Production release, extra paid resources, signing and product Provider test accounts/calls still require separate approval. Do not rerun the historical repository-creation script.
 
 ---

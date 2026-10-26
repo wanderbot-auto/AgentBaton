@@ -1,14 +1,23 @@
-# AgentBaton · 研发状态
+# AgentBaton execution status
 
-- 授权：AB-START-001，完整 Design v0.2 范围已获研发授权。
-- 执行状态：`authorized_awaiting_executor`。本次仓库交接没有从规划会话直接启动 Codex Cloud。
-- 产品已实现：尚未登记。需求基线 130 项，不能由环境预检推导产品完成。
-- 起始主分支（授权交接前）：`d2d0bf71e7c289fa0c3f2c6a7f2595515bc1ef24`；实际执行者启动前重新获取最新获批 SHA。
-- Cloud 任务 ID/入口：未取得；启动后填写真实值。
-- 环境证据：原准备 CI `40352221818` 三平台成功；Cloud 发布与准备检查依据用户报告/截图。均不是产品验证。
-- 仓库保护：规则集 `25893455` 已在前轮 API 核验 active；新执行应复查，不绕过。
-- 已处理负责人指令：尚未由研发执行者 ACK `OWNER-001`。
-- 下一步：实际 Cloud 执行者读取 MASTER_PROMPT/GOAL/RUNBOOK，检查授权与工作区，建立需求进度表，然后实施依赖 ready 工作。
-- 外部验证限制：真实 Provider 身份/调用、额外费用、正式签名/公证、生产发布及最终许可证尚未批准。继续其余工作。
+AB-START-001 authorizes full Design v0.2; OWNER-001 ACK, in progress. All130 baseline requirements and codex/GOAL.md remain the completion contract. No native Goal capability is exposed; real independent implementation/review contexts are used. No Cloud task URL is exposed by this entry.
 
-更新时分别列出：实现；验证命令/精确提交/证据；待验证；失败；外部阻塞；当前分支/PR；下一步。不得用虚构百分比或“全部完成”覆盖未执行测试。
+Protected main remains e158ade1; PR#2 authorization verified. Foundation branch codex/product-foundation, PR#3 https://github.com/wanderbot-auto/AgentBaton/pull/3. Project registry is on stacked draft PR#4 https://github.com/wanderbot-auto/AgentBaton/pull/4, base foundation, and session supervision is active on codex/session-supervision. No main merge has occurred; no force push, protection bypass, credential copying or product Provider call performed.
+
+Foundation implements authenticated private Unix IPC/daemon/CLI, durable tasks/journal/migrations/bindings/budgets, bounded ACP transport, safe Git/config primitives and connected bilingual Tauri task UI. Local foundation78 Rust tests, fmt/Clippy,6 mocked UI tests/typecheck/build and actual daemon/CLI restart smoke pass. Project-registry branch separately has121 Rust/15 mocked UI checks; later session work is not covered by foundation CI.
+
+Actual foundation d64d57cd59ca34aeb4a63e68bc1a6ceaac0c9a11: Product run40368611277 Rust/UI and Intel native tests/build/package pass. ARM fails a socket task-create assertion before native host build; the original assertion omitted the underlying error. Environment run40368611069 all three contexts pass. A known SQLite same-inode fd-close hazard is corrected and safe numeric error diagnostics added, with19 core tests/Clippy and30 socket/restart repetitions passing locally. The historical ARM cause remains unproven; fresh native checks are required before merge.
+
+Real Intel development artifact12673060778 was downloaded; API ZIP digest and DMG checksum verified. Checkout merge a88643778946bee9796730d99608c95bf5315572; DMG SHA-256 a91d4105aa0fd8b04358897e126c74823cd337874d534187d169c30ad580b105. Build record reports unsigned and no notarization. Native host unit tests/build/package do not prove GUI/window/lifecycle or manual acceptance. This is an incomplete foundation snapshot; no Apple Silicon package or complete product acceptance claimed.
+
+Existing three required Environment checks remain intact. Product checks are additive; merge only after all exact-candidate checks and independent review pass. Read docs/execution/product-foundation/EVIDENCE.json and REVIEW.md for failed runs and follow-ups; later unit evidence remains separate.
+
+External gates remain closed for real Provider identities/model calls, additional spend, formal signing/notarization, final license and production release. These block corresponding validation only. Continue session/policy/config/runtime integration, vendor adapters, workflow/validation/adoption, capabilities, retention, remote hosts and desktop lifecycle until the full goal is handled. Reusable environment configuration is saved as a review draft, not published or applied to a fresh runtime.
+
+
+Latest prerequisite CI:7521b38 ARM now passes nativehost/build/package (artifact12676265263; checkout5c539035c57abab5077cfa0252343dbdee90669a), but Intel times out in two unchangedstderrstress tests. Reviewed useful-progress scheduler fix prepared with32 provider tests/Clippy and synthetic oldFAIL/newPASS evidence; neither historical cause nor next native success presumed. Both architectures have produced real snapshots on different candidates, not a jointly passing complete-product candidate.
+
+
+OWNER-002 ACK: actually fetched/read protected main2d9361d (mergedPR#5) and full Quiet Canvas implementation/reference. Dedicated realUI branch codex/quiet-canvas retains runtime/API and excludes prototype records. UI presentation amendment does not widen any runtime/resource gate. Safely merged latestmain into foundation23de87e; independentreview confirms no product/source/CI/spec changes, only approved docs/reference plus92-file union manifest.
+
+At e5e0ec1 run40378120708 all4 Product and run40378120759 all3 Environment checks pass on the same candidate. Both realDMGs at checkout e5dcc89e1d978a1fd526fd102a4bc9e66b34d4ad downloaded/APIarchivehash/DMGhash/UDIFfooter verified. Intel artifact12677033828 unsigned DMG e8b03e04acc3814b8eca36ed7af2a5d083c32931f3f2be6281badff615c8c263; ARM artifact12676662574 linker-ad-hoc DMG ffb99f548cb00fb2ab4e1bca35d46d84e44aa43350f93d8998bbe5e993d32a3b. No trustedpublisher/notarization, visibleGUI/manual acceptance or completeproduct claim. Latestmain merge requires fresh exact-head CI before any guardedmerge; old checks are not carried over.

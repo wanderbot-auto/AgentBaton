@@ -16,4 +16,4 @@ cargo fetch --locked --manifest-path tools/environment-smoke/Cargo.toml
 .venv/bin/python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v
 npm test
 cargo test --locked --manifest-path tools/environment-smoke/Cargo.toml
-printf '\nInfrastructure checks finished. STOP: product development is NOT authorized.\n'
+printf '\nInfrastructure checks finished. Current product authority is recorded in infra/execution-gate.json and its approval reference.\n'

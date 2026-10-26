@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 import json
 import re
+import subprocess
 from pathlib import Path
 from datetime import datetime, timezone
 try:
@@ -98,8 +99,18 @@ bad_cases.append(("execution-envelope", x))
 for name, data in bad_cases:
     check(bool(list(validators[name].iter_errors(data))), f"Invalid example accepted: {name}")
 
+# Check every repository-authored Markdown document, including new unstaged
+# files, without traversing installed dependency/build trees. npm distributions
+# commonly omit documentation linked by their packaged README files.
+markdown_paths = subprocess.check_output(
+    ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "*.md"],
+    cwd=ROOT,
+).decode("utf-8").split("\0")
+markdown_files = sorted({ROOT / name for name in markdown_paths if name})
+for md in markdown_files:
+    check(not md.is_symlink() and md.resolve().is_relative_to(ROOT), f"Unsafe document path: {md}")
 link_count = 0
-for md in ROOT.rglob("*.md"):
+for md in markdown_files:
     text = md.read_text(encoding="utf-8")
     for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", text):
         if target.startswith(("https://", "http://", "#", "mailto:")): continue
@@ -108,7 +119,7 @@ for md in ROOT.rglob("*.md"):
         link_count += 1
 source_text = (ROOT / "docs/13-references.md").read_text(encoding="utf-8")
 source_ids = set(re.findall(r"\bS\d{2}\b", source_text))
-for md in ROOT.rglob("*.md"):
+for md in markdown_files:
     for sid in re.findall(r"\[(S\d{2})\]", md.read_text(encoding="utf-8")):
         check(sid in source_ids, f"Unknown source {sid} in {md}")
 

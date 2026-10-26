@@ -1,0 +1,2456 @@
+{
+  "design_version": "0.2",
+  "approval_id": "AB-START-001",
+  "requirements": [
+    {
+      "id": "AB-PRJ-001",
+      "work_package": "WP05",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/workspaces/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain."
+      ],
+      "verification_refs": [
+        "crates/workspaces/tests/safety.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-PRJ-002",
+      "work_package": "WP05",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/workspaces/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain."
+      ],
+      "verification_refs": [
+        "crates/workspaces/tests/safety.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-PRJ-003",
+      "work_package": "WP05",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/workspaces/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain."
+      ],
+      "verification_refs": [
+        "crates/workspaces/tests/safety.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-PRJ-004",
+      "work_package": "WP05",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/workspaces/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain."
+      ],
+      "verification_refs": [
+        "crates/workspaces/tests/safety.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-PRJ-005",
+      "work_package": "WP05",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/workspaces/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain."
+      ],
+      "verification_refs": [
+        "crates/workspaces/tests/safety.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-PRJ-006",
+      "work_package": "WP05",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-PRO-001",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-PRO-002",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-PRO-003",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-PRO-004",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-PRO-005",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-PRO-006",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-PRO-007",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SES-002",
+      "work_package": "WP10",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SES-003",
+      "work_package": "WP10",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SES-006",
+      "work_package": "WP10",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SES-007",
+      "work_package": "WP10",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SES-008",
+      "work_package": "WP10",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CAP-001",
+      "work_package": "WP06",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CAP-002",
+      "work_package": "WP06",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CAP-003",
+      "work_package": "WP06",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CAP-004",
+      "work_package": "WP06",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CAP-005",
+      "work_package": "WP06",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CAP-006",
+      "work_package": "WP06",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CAP-007",
+      "work_package": "WP06",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CAP-008",
+      "work_package": "WP06",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CFG-001",
+      "work_package": "WP07",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
+      ],
+      "verification_refs": [
+        "crates/config/tests/transactions.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-CFG-002",
+      "work_package": "WP07",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
+      ],
+      "verification_refs": [
+        "crates/config/tests/transactions.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-CFG-003",
+      "work_package": "WP07",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
+      ],
+      "verification_refs": [
+        "crates/config/tests/transactions.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-CFG-004",
+      "work_package": "WP07",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
+      ],
+      "verification_refs": [
+        "crates/config/tests/transactions.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-CFG-005",
+      "work_package": "WP07",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
+      ],
+      "verification_refs": [
+        "crates/config/tests/transactions.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-CFG-006",
+      "work_package": "WP07",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/lib.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
+      ],
+      "verification_refs": [
+        "crates/config/tests/transactions.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-CFG-007",
+      "work_package": "WP07",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CFG-008",
+      "work_package": "WP07",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-TSK-001",
+      "work_package": "WP08",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-TSK-002",
+      "work_package": "WP08",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-TSK-003",
+      "work_package": "WP08",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-TSK-004",
+      "work_package": "WP08",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-TSK-005",
+      "work_package": "WP08",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-TSK-006",
+      "work_package": "WP08",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-TSK-007",
+      "work_package": "WP08",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-TSK-008",
+      "work_package": "WP08",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-TSK-009",
+      "work_package": "WP08",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-TSK-010",
+      "work_package": "WP08",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-VAL-001",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-VAL-002",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-VAL-003",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-VAL-004",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-VAL-005",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-VAL-006",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-VAL-007",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-VAL-008",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-UX-001",
+      "work_package": "WP11",
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/api.ts",
+        "apps/desktop/src-tauri/src/main.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+      ],
+      "verification_refs": [
+        "apps/desktop/src/App.test.tsx"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-UX-002",
+      "work_package": "WP11",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-UX-003",
+      "work_package": "WP11",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-UX-004",
+      "work_package": "WP11",
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/api.ts",
+        "apps/desktop/src-tauri/src/main.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+      ],
+      "verification_refs": [
+        "apps/desktop/src/App.test.tsx"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-UX-005",
+      "work_package": "WP11",
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/api.ts",
+        "apps/desktop/src-tauri/src/main.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+      ],
+      "verification_refs": [
+        "apps/desktop/src/App.test.tsx"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-UX-006",
+      "work_package": "WP11",
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/api.ts",
+        "apps/desktop/src-tauri/src/main.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+      ],
+      "verification_refs": [
+        "apps/desktop/src/App.test.tsx"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-UX-007",
+      "work_package": "WP11",
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/api.ts",
+        "apps/desktop/src-tauri/src/main.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+      ],
+      "verification_refs": [
+        "apps/desktop/src/App.test.tsx"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-UX-008",
+      "work_package": "WP11",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SEC-001",
+      "work_package": "WP12",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SEC-002",
+      "work_package": "WP12",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SEC-003",
+      "work_package": "WP12",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SEC-004",
+      "work_package": "WP12",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SEC-005",
+      "work_package": "WP12",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SEC-006",
+      "work_package": "WP12",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SEC-007",
+      "work_package": "WP12",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SEC-008",
+      "work_package": "WP12",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-REL-001",
+      "work_package": "WP13",
+      "status": "implementing",
+      "implementation_refs": [
+        ".github/workflows/product.yml",
+        "scripts/package-development-macos.sh"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release."
+      ],
+      "verification_refs": [],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-REL-002",
+      "work_package": "WP13",
+      "status": "implementing",
+      "implementation_refs": [
+        ".github/workflows/product.yml",
+        "scripts/package-development-macos.sh"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release."
+      ],
+      "verification_refs": [],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-REL-003",
+      "work_package": "WP13",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-REL-004",
+      "work_package": "WP13",
+      "status": "implementing",
+      "implementation_refs": [
+        ".github/workflows/product.yml",
+        "scripts/package-development-macos.sh"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release."
+      ],
+      "verification_refs": [],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-REL-005",
+      "work_package": "WP13",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-REL-006",
+      "work_package": "WP13",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-REL-007",
+      "work_package": "WP13",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-001",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-002",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-003",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-004",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-005",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-006",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-DOM-001",
+      "work_package": "WP01",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-DOM-002",
+      "work_package": "WP01",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-DOM-003",
+      "work_package": "WP01",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-DOM-004",
+      "work_package": "WP01",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-DOM-005",
+      "work_package": "WP01",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-DOM-006",
+      "work_package": "WP01",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-COR-001",
+      "work_package": "WP02",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-COR-002",
+      "work_package": "WP02",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-COR-003",
+      "work_package": "WP02",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-COR-004",
+      "work_package": "WP02",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-COR-005",
+      "work_package": "WP02",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-COR-006",
+      "work_package": "WP02",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-COR-007",
+      "work_package": "WP02",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-ACP-001",
+      "work_package": "WP03",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/lib.rs",
+        "crates/providers/src/transport.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration."
+      ],
+      "verification_refs": [
+        "crates/providers/tests/contracts.rs",
+        "crates/providers/tests/stdio.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-ACP-002",
+      "work_package": "WP03",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-ACP-003",
+      "work_package": "WP03",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/lib.rs",
+        "crates/providers/src/transport.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration."
+      ],
+      "verification_refs": [
+        "crates/providers/tests/contracts.rs",
+        "crates/providers/tests/stdio.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-ACP-004",
+      "work_package": "WP03",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/lib.rs",
+        "crates/providers/src/transport.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration."
+      ],
+      "verification_refs": [
+        "crates/providers/tests/contracts.rs",
+        "crates/providers/tests/stdio.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-ACP-005",
+      "work_package": "WP03",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/lib.rs",
+        "crates/providers/src/transport.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration."
+      ],
+      "verification_refs": [
+        "crates/providers/tests/contracts.rs",
+        "crates/providers/tests/stdio.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-ACP-006",
+      "work_package": "WP03",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/lib.rs",
+        "crates/providers/src/transport.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration."
+      ],
+      "verification_refs": [
+        "crates/providers/tests/contracts.rs",
+        "crates/providers/tests/stdio.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-PRO-009",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-PRO-010",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-PRO-011",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-PRO-012",
+      "work_package": "WP04",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SES-009",
+      "work_package": "WP10",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SES-010",
+      "work_package": "WP10",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SES-011",
+      "work_package": "WP10",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CFG-009",
+      "work_package": "WP07",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CFG-010",
+      "work_package": "WP07",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CFG-011",
+      "work_package": "WP07",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CFG-012",
+      "work_package": "WP07",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-CFG-013",
+      "work_package": "WP07",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-TSK-011",
+      "work_package": "WP08",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-TSK-012",
+      "work_package": "WP08",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-VAL-009",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-VAL-010",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-VAL-011",
+      "work_package": "WP09",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-UX-009",
+      "work_package": "WP11",
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/api.ts",
+        "apps/desktop/src-tauri/src/main.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+      ],
+      "verification_refs": [
+        "apps/desktop/src/App.test.tsx"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-UX-010",
+      "work_package": "WP11",
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/api.ts",
+        "apps/desktop/src-tauri/src/main.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+      ],
+      "verification_refs": [
+        "apps/desktop/src/App.test.tsx"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-SEC-009",
+      "work_package": "WP12",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-SEC-010",
+      "work_package": "WP12",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-REL-008",
+      "work_package": "WP13",
+      "status": "implementing",
+      "implementation_refs": [
+        ".github/workflows/product.yml",
+        "scripts/package-development-macos.sh"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release."
+      ],
+      "verification_refs": [],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-REL-009",
+      "work_package": "WP13",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-007",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-008",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-009",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-010",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-EXT-011",
+      "work_package": "WP14",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "AB-DOM-007",
+      "work_package": "WP01",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs",
+        "crates/core/src/ipc.rs",
+        "crates/core/src/execution.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [
+        "docs/execution/product-foundation/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+      ],
+      "verification_refs": [
+        "crates/core/tests/storage.rs",
+        "crates/core/tests/ipc.rs",
+        "crates/core/tests/execution.rs"
+      ],
+      "coverage": "partial"
+    },
+    {
+      "id": "AB-DOM-008",
+      "work_package": "WP01",
+      "status": "not_started",
+      "implementation_refs": [],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run"
+      },
+      "evidence": [],
+      "limitations": []
+    }
+  ]
+}
