@@ -1,0 +1,296 @@
+{
+  "authorization": "AB-START-001 and trusted OWNER-002 read from protectedmain2d9361d",
+  "base_commit": "14e86902e4b0172892595af81a3895f667c73c1b",
+  "source_commit": "88b0a4d5f1164740f04a5bc11f894a3ba1a87aaf",
+  "recorded_at_utc": "2026-10-26T19:10:21.417729+00:00",
+  "state": "implemented_partial_design_locally_verified",
+  "checks": [
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run typecheck",
+      "exit_code": 0
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm test",
+      "exit_code": 0,
+      "tests": 35,
+      "dimension": "component/wire using mocked Tauri transport; original28 preserved plus7meaningful UI/contract regressions"
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run build",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo build --locked --bin batond --bin baton",
+      "exit_code": 0,
+      "environment": "separate CARGO_TARGET_DIR=/workspace/.toolchains/quiet-canvas-target; Rust source unchanged from compatiblebase14e8690"
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "python3 tests/quiet-canvas-real-ipc.py --batond /workspace/.toolchains/quiet-canvas-target/debug/batond --output /workspace/.onboarding/quiet-canvas-browser",
+      "exit_code": 0,
+      "checks": 22,
+      "screenshots": 8,
+      "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "python scripts/validate_design.py",
+      "exit_code": 0,
+      "dimension": "design baseline/document validation only;130 requirements and27answers preserved"
+    },
+    {
+      "command": "python scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "files": 92,
+      "dimension": "bootstrap integrity only"
+    }
+  ],
+  "browser_checks": [
+    {
+      "name": "empty state contains no demonstration task",
+      "status": "passed"
+    },
+    {
+      "name": "five actual UI drafts persisted through Unix IPC",
+      "status": "passed",
+      "task_ids": [
+        "0e4a96de-f42c-4a9b-bcf3-d3e59fb64308",
+        "6204d050-852f-4fe3-869b-edda229742b0",
+        "17cd9246-a1ea-47e8-aa28-f42798bb4e83",
+        "09ba793a-2d90-45be-8f73-e15b6e25ff02",
+        "0e6a2b79-8dfe-4232-b9bf-8cc4d93bb970"
+      ]
+    },
+    {
+      "name": "reviewed quick-context summary converts to actual draft, standalone model send unavailable",
+      "status": "passed"
+    },
+    {
+      "name": "truthful recorded-state filtering",
+      "status": "passed"
+    },
+    {
+      "name": "real core rejects oversized UTF-8 goal without inserting a task",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 1488x981",
+      "status": "passed",
+      "columns": 2,
+      "overflow": false,
+      "sidebar": 232,
+      "fonts": [
+        "18px",
+        "14px",
+        "24px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 1488x981",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 1440x900",
+      "status": "passed",
+      "columns": 2,
+      "overflow": false,
+      "sidebar": 232,
+      "fonts": [
+        "18px",
+        "14px",
+        "24px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 1440x900",
+      "status": "passed"
+    },
+    {
+      "name": "collapsed rail controls retain accessible localized names",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 1024x768",
+      "status": "passed",
+      "columns": 2,
+      "overflow": false,
+      "sidebar": 64,
+      "fonts": [
+        "18px",
+        "14px",
+        "24px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 1024x768",
+      "status": "passed"
+    },
+    {
+      "name": "mobile navigation exposes named controls and44px toggle target",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 390x844",
+      "status": "passed",
+      "columns": 1,
+      "overflow": false,
+      "sidebar": 0,
+      "fonts": [
+        "18px",
+        "24px",
+        "14px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 390x844",
+      "status": "passed"
+    },
+    {
+      "name": "keyboard command search, Escape and focus restore",
+      "status": "passed"
+    },
+    {
+      "name": "actual closed-details summary is included in dialog focus trap",
+      "status": "passed"
+    },
+    {
+      "name": "actual grant duration input enforces3600second core boundary; no unsupported grant sent",
+      "status": "passed"
+    },
+    {
+      "name": "reduced motion disables product transitions",
+      "status": "passed"
+    },
+    {
+      "name": "actual never-dispatched draft cancellation is confirmed by core evidence",
+      "status": "passed"
+    },
+    {
+      "name": "history uses actual journal events",
+      "status": "passed"
+    },
+    {
+      "name": "no browser runtime errors",
+      "status": "passed"
+    }
+  ],
+  "daemon_sha256": "1eac57eb48a06b13ce28b204a542febbfaa0e01103c66e45b7ceeddc9fcce7aa",
+  "source_sha256": {
+    "apps/desktop/src/App.tsx": "41ed36c134e8d6bdf483ac90c81418b9e37c083987c92ccc5890e6e06f7eeaaf",
+    "apps/desktop/src/App.test.tsx": "e4b52e25515d4c6c7a12779efeb4d6858c732c66336e50963b3cdeba44ff7e9d",
+    "apps/desktop/src/Connections.tsx": "7f07e3f9a7086fd220a68ac4d6a5c6f9d760509a481ff80db576acf45be0c8d4",
+    "apps/desktop/src/ManagedSessions.tsx": "d726d817f189f2df319d14584736ecdcfa46946ae3667b263aca1ed2c4b1d83b",
+    "apps/desktop/src/style.css": "df5f17eb3a8b6de467b2f79800e185f44e67f32b5be71f2dc1c7ee4efaa8bb3b",
+    "apps/desktop/src/ContextDialog.tsx": "50bcc2b64659f71f26a3df028b718d958c5077f573e5f506ec80f4a21be9863d",
+    "apps/desktop/src/Icons.tsx": "d0140b87ad60a761313b563a4d037d142d4725c5436f2888cc22d7af18e8e82d",
+    "apps/desktop/src/QuietCanvas.test.tsx": "f0443fa817decc9f40ccfb0aeda67f5faa329f54f44347c516d557081a0e3219",
+    "apps/desktop/src/canvas-i18n.ts": "0d94f7015e3a588af97136db89dc03f04af45232b85db54ffa627a9a04cefd0d",
+    "apps/desktop/tests/quiet-canvas-real-ipc.py": "549a88e79801acd6730e8bb24f5752b1f8452562fbff060b979d8ba61d98324b",
+    "apps/desktop/src/SessionWorkbench.test.tsx": "7ab854c464753372ffe318ab42c85113b7d8bb7ce0dc1a6dfc5cb57c8d7e4cd3"
+  },
+  "screenshots": {
+    "home-1488x981.png": "0f41dcdf9b60933179954360a25f37a84bed279758f6f76da806837cce86a6f8",
+    "task-1488x981.png": "c1ccd266b97af54580a921d597b3a8e77092e10250b5da67318626233d39aa7d",
+    "home-1440x900.png": "3091f851abc7dd88f10d381794a66cd040a65e1dfce79089c994943294491cb4",
+    "task-1440x900.png": "4ce6e4bcc83506614b165bed48837f66455520845b79844b6aa6880e9ad08d78",
+    "home-1024x768.png": "65673c8c0e14f43e7571f1a16ddf4ec86dbabd887277063a1754ca00a672c68b",
+    "task-1024x768.png": "c4ea2e63b4770e7f455e8af2d901bdd7c67f75bb447b37b66416e7fa9e25fe76",
+    "home-390x844.png": "67adaee0bc59101aab7bb8e9b2516228ae2710e055b8cae310af3b40bddf988a",
+    "task-390x844.png": "c29a355c9a0fb53e9081cf72218c63276c537ecb4dd5e86514f4e5bc1abb2116"
+  },
+  "local_log_sha256": {
+    "quiet-canvas-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "quiet-canvas-tests.log": "779ee8e6a7f7d8eda91f4749c6d556a186d0802226151163b31acf0538969a77",
+    "quiet-canvas-build.log": "9dfb833a315796a64fd3d05c1fa5a9f382dfb64c857a0ed0df9be9c421cec49a",
+    "quiet-canvas-daemon-build.log": "05ff017f43e960b125bba901ccf55d2242a1128af91214e79f05e04e1d733e88",
+    "quiet-canvas-browser.log": "40beb62e098ab38b33090f7131c0bc09af741761f216b25463a470ba48c1535f",
+    "quiet-canvas-tests-first-dialog-failure.log": "b56a3b4476e59372d9546c1c5ee7e979e6e91ce43087031fa9514207805c8a09",
+    "quiet-canvas-tests-focus-restore-failure.log": "24098df60d8ead2d8743a801fe53b14791c656b7c28dec06ed4c5b3adf88cf71",
+    "quiet-canvas-browser-startup-failure.log": "3e778289d46169b6bc348aed4fb744d7a19b4aa47832456335390b949aa38da3",
+    "quiet-canvas-browser-invalid-fixture-failure.log": "af02f74eb2ac522a4177389b4b6c20c7f5e70060dd3797b82a92c2a7a1b3c3ea",
+    "quiet-canvas-browser-composer-overlap-failure.log": "ebf551fa1de1596f6c7c8cfddfa7e87125de2b2d8e7a30e10e4a57ac5a913e52",
+    "quiet-canvas-browser-scroll-rounding-failure.log": "b30a852012faf34dd0beac996e8c2582058f8b64db1aa50ceea6898fc250de78",
+    "quiet-canvas-design.log": "59c0707100f3323426da9fe48b65f6e2d76428ceb80084f3095f416e98e0e60d",
+    "quiet-canvas-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f"
+  },
+  "environment": {
+    "node": "24.19.0",
+    "python": "3.12.14",
+    "chromium": "154.0.8037.57 Debian13",
+    "dependencies": "Reused existing repository-lock-aligned installed Node dependencies through an uncommitted temporary symlink; no Node dependency or lockfile change, no npmci claimed in this worktree."
+  },
+  "failed_attempts": [
+    {
+      "issue": "Initial role query matched both background card and dialog item",
+      "resolution": "Modal background made inert/aria-hidden and queries preserve actual semantics; not a weakened assertion"
+    },
+    {
+      "issue": "Native autofocus moved focus before opener capture",
+      "resolution": "Explicit dialog focus target applied after opener capture; focus restoration regression passes"
+    },
+    {
+      "issue": "Initial browser harness tried unsupported daemon CLI runtime flag",
+      "resolution": "Use documented BATON_RUNTIME_DIR private temp runtime; no system runtime created; startup failure preserved"
+    },
+    {
+      "issue": "Initial oversize fixture12000UTF8bytes was valid under16384byte bound",
+      "resolution": "Correct invalid fixture18000bytes within UIcharacterlimit; actualINVALID_REQUEST and noinsertverified"
+    },
+    {
+      "issue": "Composer covered last card at1440viewport",
+      "resolution": "Reserve composer as a flex sibling of scrollpane; strict last-card-above-composer assertions retained"
+    },
+    {
+      "issue": "scrollIntoView fractional rounding left0.39pixel at boundary",
+      "resolution": "2pixel scroll padding; strict no-overlap assertion retained"
+    },
+    {
+      "issue": "Independent review found missing icon-rail accessible names and summary focus-boundary coverage",
+      "resolution": "Localized explicit names and real1024/390 assertions; summaryfilter and closedsummaryunit/browsertrap regression pass"
+    },
+    {
+      "issue": "Independent review found inherited duration UI86400seconds exceeded core3600second grant bound",
+      "resolution": "Separate fix commit88b0a4d caps visible/input/submit3600;3601never submits evenwithack,3600submits exact3600000ms;35UI and22browserchecks pass"
+    }
+  ],
+  "not_run_or_blocked": [
+    "This UI branch has no macOS native WebView/window/lifecycle run or current-UI signed installation proof yet",
+    "Real vendor/account/model calls remain unrun and unauthorized",
+    "Current daemon API lacks artifact registration/read/preview; UI states unavailable without fabricated files",
+    "Standalone managed quick-chat persistence/model send is not exposed by current daemon; summary-to-real-task conversion is implemented, no simulated assistant reply",
+    "Automatic routing and file-reference attachment remain explicitly unavailable; existing bounded task/session/grant operations remain connected",
+    "Browser native-owner approval cannot be verified via the test adapter; production continues Rust-native owner confirmation and the test harness never finalizes it",
+    "Complete Design v0.2 scope remains unfinished; no requirement-wide acceptance is inferred from this UI unit"
+  ],
+  "production_test_hooks": "No test adapter/server/control permission added to product source or native capabilities; localhost adapter exists only in manually invoked tests/quiet-canvas-real-ipc.py",
+  "prior_ui_commit": "c06595f497e9457a374c464816c525c308394bed",
+  "reference_use": "Read owner reference HTML/CSS/JS locally. Browser file navigation was blocked by administrator; permitted inline rendering of the selected authorized reference was used only for visual comparison, never as product evidence or demo data.",
+  "independent_review": {
+    "state": "passed_partial_unit_no_unresolved_source_blocker",
+    "source_commit": "88b0a4d5f1164740f04a5bc11f894a3ba1a87aaf",
+    "evidence": "docs/execution/quiet-canvas/REVIEW.md",
+    "scope": "Independent34UI+21browser baseline and final duration-diff typecheck/build+10sessionUI tests; final35UI/22browser logs and11source hashes audited. No native/full-product acceptance."
+  }
+}
