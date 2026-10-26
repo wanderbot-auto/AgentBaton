@@ -1,0 +1,558 @@
+//! Real generated fixture child only. No vendor executable, identity, model or network is invoked.
+use agentbaton_core::ipc::{call, Daemon};
+use serde_json::{json, Value};
+use std::{
+    os::unix::fs::PermissionsExt,
+    path::{Path, PathBuf},
+    process::Command,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+    thread::JoinHandle,
+    time::{Duration, Instant},
+};
+struct Server {
+    runtime: PathBuf,
+    stop: Arc<AtomicBool>,
+    thread: Option<JoinHandle<()>>,
+}
+impl Server {
+    fn start(runtime: &Path) -> Self {
+        let daemon = Daemon::bind(runtime).unwrap();
+        let stop = Arc::new(AtomicBool::new(false));
+        let run = stop.clone();
+        let thread = std::thread::spawn(move || daemon.run(run).unwrap());
+        Self {
+            runtime: runtime.into(),
+            stop,
+            thread: Some(thread),
+        }
+    }
+    fn request(&self, v: Value) -> Value {
+        call(&self.runtime, v).unwrap()
+    }
+}
+impl Drop for Server {
+    fn drop(&mut self) {
+        self.stop.store(true, Ordering::Relaxed);
+        self.thread.take().unwrap().join().unwrap();
+    }
+}
+fn result(v: Value) -> Value {
+    assert!(v.get("error").is_none(), "{v}");
+    v["result"].clone()
+}
+fn git(path: &Path, args: &[&str]) -> String {
+    let o = Command::new("git")
+        .arg("-C")
+        .arg(path)
+        .args([
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "-c",
+            "core.hooksPath=/dev/null",
+        ])
+        .args(args)
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    String::from_utf8(o.stdout).unwrap().trim().into()
+}
+fn fixture(root: &Path) -> PathBuf {
+    let python = Command::new("python3")
+        .args(["-c", "import sys;print(sys.executable)"])
+        .output()
+        .unwrap();
+    assert!(python.status.success());
+    let python = String::from_utf8(python.stdout).unwrap();
+    let script = root.join("fixture-acp");
+    let body = r#"
+import json,sys,os,time
+if '--version' in sys.argv:
+ print('AgentBaton generated fixture 1.0');sys.exit(0)
+def send(v): print(json.dumps(v),flush=True)
+open('fixture-started','w').write('owned fixture')
+pending=None
+for line in sys.stdin:
+ r=json.loads(line);m=r.get('method');i=r.get('id')
+ if m=='initialize':send({'jsonrpc':'2.0','id':i,'result':{'protocolVersion':1,'agentCapabilities':{}}})
+ elif m=='session/new':send({'jsonrpc':'2.0','id':i,'result':{'sessionId':'native-fixture'}})
+ elif m=='session/prompt':
+  text=r['params']['prompt'][0]['text'];pending=i
+  if text=='hang':continue
+  if text=='malformed':print('invalid-json',flush=True);continue
+  if text=='stream':
+   for chunk in range(200):
+    send({'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'native-fixture','update':{'sessionUpdate':'agent_message_chunk','content':{'type':'text','text':'chunk-'+str(chunk)}}}});time.sleep(.005)
+   continue
+  if text=='edit':open('file','w').write('fixture writer changed file')
+  output=','.join(sorted(os.environ)) if text=='env' else 'fixture:'+text
+  send({'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'native-fixture','update':{'sessionUpdate':'agent_message_chunk','content':{'type':'text','text':output}}}})
+  send({'jsonrpc':'2.0','id':i,'result':{'stopReason':'end_turn'}});pending=None
+ elif m=='session/cancel' and pending is not None:
+  send({'jsonrpc':'2.0','id':pending,'result':{'stopReason':'cancelled'}});pending=None
+"#;
+    std::fs::write(&script, format!("#!{}\n{}", python.trim(), body)).unwrap();
+    std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o700)).unwrap();
+    script
+}
+fn wait(server: &Server, method: &str, params: Value, check: impl Fn(&Value) -> bool) -> Value {
+    let start = Instant::now();
+    loop {
+        let value = result(server.request(json!({"method":method,"params":params})));
+        if check(&value) {
+            return value;
+        }
+        assert!(
+            start.elapsed() < Duration::from_secs(10),
+            "timed out {method}: {value}"
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    }
+}
+fn approve(server: &Server, proposal: Value) -> Value {
+    result(server.request(json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":format!("proposal:{}",proposal["id"])})))
+}
+struct Scenario {
+    _dir: tempfile::TempDir,
+    root: PathBuf,
+    server: Server,
+    project: Value,
+    workspace: Value,
+    connection: Value,
+    grant: Value,
+    task: Value,
+}
+impl Scenario {
+    fn new(duration: u64) -> Self {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        let source = root.join("source");
+        std::fs::create_dir(&source).unwrap();
+        git(&source, &["init", "-q"]);
+        std::fs::write(source.join("file"), "baseline").unwrap();
+        git(&source, &["add", "file"]);
+        git(&source, &["commit", "-qm", "baseline"]);
+        let head = git(&source, &["rev-parse", "HEAD"]);
+        let script = fixture(&root);
+        let server = Server::start(&root.join("runtime"));
+        let project=result(server.request(json!({"method":"projects.import","params":{"path":source,"name":"Fixture Project"},"idempotency_key":"project"})));
+        let workspace=result(server.request(json!({"method":"workspaces.create","params":{"project_id":project["id"],"expected_head":head},"expected_revision":1,"idempotency_key":"workspace"})));
+        let p=result(server.request(json!({"method":"connections.propose","params":{"name":"Generated fixture only","provider":"custom_acp","executable":script,"arguments":[]},"idempotency_key":"connection-proposal"})));
+        assert_eq!(p["snapshot"]["scope"], "version_probe_only");
+        let connection = approve(&server, p);
+        let connections = wait(&server, "connections.list", json!({}), |v| {
+            v.as_array()
+                .unwrap()
+                .iter()
+                .any(|c| c["id"] == connection["id"] && c["probe_state"] == "ready")
+        });
+        let connection = connections
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["id"] == connection["id"])
+            .unwrap()
+            .clone();
+        let gp=result(server.request(json!({"method":"grants.propose","params":{"project_id":project["id"],"workspace_id":workspace["id"],"connection_id":connection["id"],"max_attempts":2,"max_concurrency":1,"max_duration_ms":duration},"idempotency_key":"grant-proposal"})));
+        let grant = approve(&server, gp);
+        let task=result(server.request(json!({"method":"tasks.create","params":{"project_id":project["id"],"goal":"Run generated local fixture only"},"idempotency_key":"task"})));
+        Self {
+            _dir: dir,
+            root,
+            server,
+            project,
+            workspace,
+            connection,
+            grant,
+            task,
+        }
+    }
+    fn create(&self) -> Value {
+        result(self.server.request(json!({"method":"sessions.create","params":{"task_id":self.task["id"],"workspace_id":self.workspace["id"],"connection_id":self.connection["id"],"grant_id":self.grant["id"]},"expected_revision":1,"idempotency_key":"session"})))
+    }
+    fn ready(&self, id: &Value) -> Value {
+        wait(
+            &self.server,
+            "sessions.get",
+            json!({"session_id":id}),
+            |s| s["state"] == "ready",
+        )
+    }
+    fn send(&self, session: &Value, text: &str, key: &str) -> Value {
+        result(self.server.request(json!({"method":"sessions.send","params":{"session_id":session["id"],"text":text},"expected_revision":session["revision"],"idempotency_key":key})))
+    }
+    fn cancel(&self, session: &Value) -> Value {
+        result(self.server.request(json!({"method":"sessions.cancel","params":{"session_id":session["id"]},"expected_revision":session["revision"],"idempotency_key":"cancel"})))
+    }
+}
+#[test]
+fn real_session_turns_survive_ui_requests_and_never_imply_acceptance() {
+    let f = Scenario::new(10_000);
+    assert_eq!(f.connection["identity_status"], "unknown");
+    let s = f.create();
+    let ready = f.ready(&s["id"]);
+    let sent = f.send(&ready, "edit", "turn-1");
+    assert_eq!(sent["state"], "running");
+    let ready = f.ready(&s["id"]);
+    assert_eq!(ready["turn_state"], "completed");
+    let path = PathBuf::from(f.workspace["root"].as_str().unwrap());
+    assert_eq!(
+        std::fs::read_to_string(path.join("file")).unwrap(),
+        "fixture writer changed file"
+    );
+    // Further turns accept this same writer's edits; clean initial admission checks are not rerun.
+    f.send(&ready, "env", "turn-2");
+    let ready = f.ready(&s["id"]);
+    let events = result(
+        f.server
+            .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":500}})),
+    );
+    let encoded = events.to_string();
+    assert!(encoded.contains("fixture:edit"));
+    assert!(!encoded.contains("GH_TOKEN"));
+    assert!(!encoded.contains("OPENAI_API_KEY"));
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    assert_ne!(task["state"], "accepted");
+    f.cancel(&ready);
+    let stopped = wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |s| s["state"] == "stopped",
+    );
+    assert_eq!(stopped["last_error"], Value::Null);
+}
+#[test]
+fn cancel_live_prompt_does_not_block_daemon_or_claim_stop_early() {
+    let f = Scenario::new(10_000);
+    let s = f.create();
+    let ready = f.ready(&s["id"]);
+    let running = f.send(&ready, "hang", "hang");
+    let before = Instant::now();
+    let requested = f.cancel(&running);
+    assert_eq!(requested["state"], "cancel_requested");
+    assert!(before.elapsed() < Duration::from_secs(2));
+    result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    );
+    wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |s| s["state"] == "stopped",
+    );
+}
+#[test]
+fn runtime_timeout_and_revocation_stop_only_owned_process() {
+    let f = Scenario::new(1200);
+    let s = f.create();
+    let ready = f.ready(&s["id"]);
+    f.send(&ready, "hang", "hang");
+    let stopped = wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |s| s["state"] == "stopped",
+    );
+    assert!(stopped["last_error"].is_string());
+    let f = Scenario::new(10_000);
+    let s = f.create();
+    let ready = f.ready(&s["id"]);
+    f.send(&ready, "hang", "hang");
+    result(f.server.request(json!({"method":"grants.revoke","params":{"grant_id":f.grant["id"]},"expected_revision":f.grant["revision"],"idempotency_key":"revoke"})));
+    wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |s| s["state"] == "stopped",
+    );
+}
+#[test]
+fn binary_drift_unknown_grant_and_native_route_never_spawn() {
+    let f = Scenario::new(10_000);
+    let response=f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":"missing"},"expected_revision":1,"idempotency_key":"no-grant"}));
+    assert!(response["error"].is_object());
+    let executable = PathBuf::from(f.connection["executable"].as_str().unwrap());
+    std::fs::write(&executable, "#!/bin/sh\nprintf changed\n").unwrap();
+    let response=f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":1,"idempotency_key":"changed"}));
+    assert_eq!(response["error"]["code"], "INPUT_CHANGED");
+    assert!(!Path::new(f.workspace["root"].as_str().unwrap())
+        .join("fixture-started")
+        .exists());
+    assert_eq!(f.server.request(json!({"method":"connections.propose","params":{"name":"No fallback","provider":"codex_app_server","executable":executable,"arguments":[]},"idempotency_key":"native"}))["error"]["code"],"CAPABILITY_UNSUPPORTED");
+}
+#[test]
+fn owner_proposal_rejects_changed_binary_and_direct_registration() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().canonicalize().unwrap();
+    let script = fixture(&root);
+    let server = Server::start(&root.join("runtime"));
+    let params =
+        json!({"name":"Fixture","provider":"custom_acp","executable":script,"arguments":[]});
+    assert_eq!(
+        server.request(
+            json!({"method":"connections.register","params":params,"idempotency_key":"bypass"})
+        )["error"]["code"],
+        "AUTH_REQUIRED"
+    );
+    let p = result(server.request(
+        json!({"method":"connections.propose","params":params,"idempotency_key":"proposal"}),
+    ));
+    std::fs::write(&script, "#!/bin/sh\necho changed\n").unwrap();
+    assert_eq!(server.request(json!({"method":"approvals.finalize","params":{"proposal_id":p["id"]},"expected_revision":1}))["error"]["code"],"INPUT_CHANGED");
+    assert!(
+        result(server.request(json!({"method":"connections.list","params":{}})))
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+}
+#[test]
+fn cancellation_uses_immutable_session_identity_despite_stream_revision_growth() {
+    let f = Scenario::new(10_000);
+    let s = f.create();
+    let old = f.ready(&s["id"]);
+    f.send(&old, "stream", "stream");
+    let changed = wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |v| {
+            v["revision"].as_u64().unwrap() > old["revision"].as_u64().unwrap() + 2
+                || v["state"] == "stopped"
+        },
+    );
+    assert!(changed["revision"].as_u64().unwrap() > old["revision"].as_u64().unwrap());
+    let cancelled = f.cancel(&old);
+    assert!(cancelled["state"] == "cancel_requested" || cancelled["state"] == "stopped");
+    wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |v| v["state"] == "stopped",
+    );
+}
+#[test]
+fn malformed_provider_is_reaped_and_records_failure_without_fabricating_success() {
+    let f = Scenario::new(10_000);
+    let s = f.create();
+    let ready = f.ready(&s["id"]);
+    f.send(&ready, "malformed", "malformed");
+    let stopped = wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |v| v["state"] == "stopped",
+    );
+    assert_eq!(
+        stopped["last_error"],
+        "provider_protocol_or_timeout_failure"
+    );
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    assert_eq!(task["state"], "outcome_unknown");
+}
+#[test]
+fn another_named_connection_cannot_borrow_account_config_or_grant() {
+    let f = Scenario::new(10_000);
+    let proposal=result(f.server.request(json!({"method":"connections.propose","params":{"name":"Other account label","provider":"custom_acp","executable":f.connection["executable"],"arguments":["--account-B-fixture"]},"idempotency_key":"other-connection"})));
+    let other = approve(&f.server, proposal);
+    let list = wait(&f.server, "connections.list", json!({}), |v| {
+        v.as_array()
+            .unwrap()
+            .iter()
+            .any(|c| c["id"] == other["id"] && c["probe_state"] == "ready")
+    });
+    let other = list
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["id"] == other["id"])
+        .unwrap();
+    assert_ne!(other["environment_id"], f.connection["environment_id"]);
+    assert_ne!(other["identity_ref"], f.connection["identity_ref"]);
+    assert_eq!(other["identity_status"], "unknown");
+    let response=f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":other["id"],"grant_id":f.grant["id"]},"expected_revision":1,"idempotency_key":"wrong-connection"}));
+    assert_eq!(response["error"]["code"], "PERMISSION_DENIED");
+    assert!(!Path::new(f.workspace["root"].as_str().unwrap())
+        .join("fixture-started")
+        .exists());
+}
+#[test]
+fn crash_window_persistence_is_unknown_and_expired_lease_does_not_allow_replay() {
+    use agentbaton_core::storage::Store;
+    let f = Scenario::new(10_000);
+    let Scenario {
+        _dir,
+        root,
+        server,
+        project,
+        workspace,
+        connection,
+        grant,
+        task,
+    } = f;
+    drop(server);
+    let runtime = root.join("runtime");
+    let db = runtime.join("baton.sqlite3");
+    let mut store = Store::open(&db).unwrap();
+    let session = store
+        .create_session(
+            task["id"].as_str().unwrap(),
+            workspace["id"].as_str().unwrap(),
+            connection["id"].as_str().unwrap(),
+            grant["id"].as_str().unwrap(),
+            1,
+            "crash-window",
+        )
+        .unwrap();
+    store
+        .mark_dispatch_started(&session.intent_id, &session.id)
+        .unwrap();
+    drop(store);
+    // Simulates the durable sent marker immediately before a crash; there is no provider child to replay.
+    let server = Server::start(&runtime);
+    let unknown =
+        result(server.request(json!({"method":"sessions.get","params":{"session_id":session.id}})));
+    assert_eq!(unknown["state"], "outcome_unknown");
+    let response=server.request(json!({"method":"sessions.cancel","params":{"session_id":session.id},"expected_revision":unknown["revision"],"idempotency_key":"cancel-unknown"}));
+    assert_eq!(response["error"]["code"], "OUTCOME_UNKNOWN");
+    assert_eq!(
+        result(server.request(json!({"method":"sessions.get","params":{"session_id":session.id}})))
+            ["state"],
+        "outcome_unknown"
+    );
+    let c = rusqlite::Connection::open(&db).unwrap();
+    c.execute(
+        "UPDATE workspace_leases SET expires_at=0 WHERE resource=?1",
+        [workspace["id"].as_str().unwrap()],
+    )
+    .unwrap();
+    drop(c);
+    let other=result(server.request(json!({"method":"tasks.create","params":{"project_id":project["id"],"goal":"must not race unknown writer"},"idempotency_key":"other-task"})));
+    let response=server.request(json!({"method":"sessions.create","params":{"task_id":other["id"],"workspace_id":workspace["id"],"connection_id":connection["id"],"grant_id":grant["id"]},"expected_revision":1,"idempotency_key":"must-not-replay"}));
+    assert_eq!(response["error"]["code"], "WORKSPACE_BUSY");
+    assert!(!Path::new(workspace["root"].as_str().unwrap())
+        .join("fixture-started")
+        .exists());
+    drop(server);
+    drop(_dir);
+}
+#[test]
+fn slow_socket_and_heavy_registry_request_cannot_starve_owned_session_cancellation() {
+    use std::{io::Write, os::unix::net::UnixStream};
+    let f = Scenario::new(10_000);
+    let s = f.create();
+    let ready = f.ready(&s["id"]);
+    let running = f.send(&ready, "hang", "hang");
+    let mut slow = UnixStream::connect(f.server.runtime.join("batond.sock")).unwrap();
+    slow.write_all(b"{").unwrap();
+    let before = Instant::now();
+    let refused=f.server.request(json!({"method":"projects.import","params":{"path":f.root.join("source"),"name":"would require Git"},"idempotency_key":"heavy"}));
+    assert_eq!(refused["error"]["code"], "WORKSPACE_BUSY");
+    let requested = f.cancel(&running);
+    assert_eq!(requested["state"], "cancel_requested");
+    assert!(
+        before.elapsed() < Duration::from_secs(2),
+        "Slow peer or Git admission must not block cancellation actor"
+    );
+    drop(slow);
+    wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |s| s["state"] == "stopped",
+    );
+}
+#[test]
+fn strict_native_enforcement_requires_evidence_and_no_process_is_launched() {
+    let f = Scenario::new(10_000);
+    let response=f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"],"require_enforcement":{"identity":true}},"expected_revision":1,"idempotency_key":"strict-identity"}));
+    assert_eq!(response["error"]["code"], "ENFORCEMENT_UNAVAILABLE");
+    assert!(!Path::new(f.workspace["root"].as_str().unwrap())
+        .join("fixture-started")
+        .exists());
+}
+#[test]
+fn proven_no_process_started_releases_reservations_without_replaying_an_unknown_effect() {
+    let f = Scenario::new(10_000);
+    let exe = Path::new(f.connection["executable"].as_str().unwrap());
+    std::fs::set_permissions(exe, std::fs::Permissions::from_mode(0o600)).unwrap();
+    let s = f.create();
+    let stopped = wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":s["id"]}),
+        |v| v["state"] == "stopped",
+    );
+    assert_eq!(stopped["last_error"], "initialization_failed");
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    assert_eq!(task["state"], "draft");
+    let events = result(
+        f.server
+            .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":500}})),
+    );
+    assert!(events["events"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|e| e["aggregate_id"] == s["id"]
+            && e["kind"] == "session.stopped"
+            && e["payload"]["no_process_started"] == true));
+    std::fs::set_permissions(exe, std::fs::Permissions::from_mode(0o700)).unwrap();
+    let retry=result(f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":task["revision"],"idempotency_key":"explicit-new-attempt"})));
+    let ready = f.ready(&retry["id"]);
+    f.cancel(&ready);
+    wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":retry["id"]}),
+        |v| v["state"] == "stopped",
+    );
+}
+#[test]
+fn malicious_git_metadata_fifo_cannot_block_live_admission_status_or_owned_stop() {
+    use std::{ffi::CString, os::unix::ffi::OsStrExt};
+    let f = Scenario::new(10_000);
+    let session = f.create();
+    let ready = f.ready(&session["id"]);
+    let root = Path::new(f.workspace["root"].as_str().unwrap());
+    let gitfile = std::fs::read_to_string(root.join(".git")).unwrap();
+    let gitdir = PathBuf::from(gitfile.trim().strip_prefix("gitdir: ").unwrap());
+    let common = gitdir.join("commondir");
+    std::fs::remove_file(&common).unwrap();
+    let fifo = CString::new(common.as_os_str().as_bytes()).unwrap();
+    assert_eq!(unsafe { libc::mkfifo(fifo.as_ptr(), 0o600) }, 0);
+    let before = Instant::now();
+    let refused=f.server.request(json!({"method":"sessions.send","params":{"session_id":session["id"],"text":"must not hang on FIFO"},"expected_revision":ready["revision"],"idempotency_key":"fifo-send"}));
+    assert_eq!(refused["error"]["code"], "INPUT_CHANGED");
+    let current = result(
+        f.server
+            .request(json!({"method":"sessions.get","params":{"session_id":session["id"]}})),
+    );
+    assert_eq!(current["state"], "ready");
+    f.cancel(&current);
+    assert!(
+        before.elapsed() < Duration::from_secs(2),
+        "Filesystem admission must never block actor cancellation"
+    );
+    wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":session["id"]}),
+        |s| s["state"] == "stopped",
+    );
+}

@@ -31,6 +31,8 @@ if mode=='timeout': time.sleep(60)
 if mode=='nonzero': print('private failure',file=sys.stderr); sys.exit(7)
 if mode=='flood': os.write(1,b'x'*2000000); sys.exit(0)
 if mode=='stderr':
+    import fcntl
+    if hasattr(fcntl,'F_SETPIPE_SZ'): fcntl.fcntl(2,fcntl.F_SETPIPE_SZ,4096)
     for _ in range(1024): os.write(2,b'x'*4096)
 if mode=='invalid': os.write(1,b'\xff'); sys.exit(0)
 if mode=='multiline': print('one\ntwo'); sys.exit(0)

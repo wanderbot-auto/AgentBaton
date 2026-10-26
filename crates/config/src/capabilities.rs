@@ -1,6 +1,8 @@
 //! Static capability inventories and evidence-aware snapshots. Source content is
 //! untrusted data; caller-supplied precedence/evidence never grants authority.
 //! Only trusted adapter/registry code may provide roots, policies and observations.
+pub mod native;
+
 use super::{
     error, io_error, open_dir_at, sha256, validate_relative, ConfigError, ErrorCode, MAX_BYTES,
 };

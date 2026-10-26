@@ -37,12 +37,16 @@ pub struct Event {
     pub payload: Value,
     pub source: String,
 }
-pub(crate) fn db_error(_: rusqlite::Error) -> CoreError {
+pub(crate) fn db_error(error: rusqlite::Error) -> CoreError {
     let mut e = CoreError::new(
         "INTERNAL_ERROR",
         "Local database operation failed; reconcile before retrying writes",
     );
     e.side_effect_state = "unknown".into();
+    // Numeric diagnostics only; no SQL, paths, parameter values or engine text.
+    if let rusqlite::Error::SqliteFailure(code, _) = error {
+        e.details_ref = Some(format!("sqlite-code:{}", code.extended_code));
+    }
     e
 }
 pub(crate) fn now() -> Result<String> {
@@ -73,7 +77,7 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 3 {
+        if version > 4 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
@@ -93,8 +97,8 @@ impl Store {
         }
         conn.execute_batch("PRAGMA foreign_keys=ON;")
             .map_err(db_error)?;
-        if version > 0 && version < 3 {
-            let backup = path.with_extension(format!("pre-v3-{}.sqlite3", Uuid::new_v4()));
+        if version > 0 && version < 4 {
+            let backup = path.with_extension(format!("pre-v4-{}.sqlite3", Uuid::new_v4()));
             OpenOptions::new()
                 .create_new(true)
                 .write(true)
@@ -108,6 +112,7 @@ impl Store {
         }
         crate::execution::migrate(&mut conn, version)?;
         migrate_registry(&mut conn, version)?;
+        migrate_sessions(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -115,6 +120,7 @@ impl Store {
         let mut store = Self { conn };
         store.recover_dispatches()?;
         store.recover_workspace_creations()?;
+        store.recover_sessions()?;
         Ok(store)
     }
     /// Authenticated entry point: new tasks require an active registered project or legacy local scope.
@@ -344,6 +350,20 @@ fn migrate_registry(conn: &mut Connection, original_version: u32) -> Result<()> 
         CREATE TABLE managed_workspaces(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id),document TEXT NOT NULL,state TEXT NOT NULL CHECK(state IN('creating','ready','outcome_unknown')),idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,root TEXT UNIQUE NOT NULL,UNIQUE(project_id,idempotency_key));
         CREATE TABLE workspace_leases(resource TEXT PRIMARY KEY REFERENCES managed_workspaces(id),holder TEXT NOT NULL,fencing_token INTEGER NOT NULL,expires_at INTEGER NOT NULL);
         PRAGMA user_version=3;").map_err(db_error)?;
+        tx.commit().map_err(db_error)?;
+    }
+    Ok(())
+}
+
+fn migrate_sessions(conn: &mut Connection, version: u32) -> Result<()> {
+    if version < 4 {
+        let tx = conn.transaction().map_err(db_error)?;
+        tx.execute_batch("CREATE TABLE approval_proposals(id TEXT PRIMARY KEY,document TEXT NOT NULL,result TEXT);
+        CREATE TABLE connections(id TEXT PRIMARY KEY,document TEXT NOT NULL);
+        CREATE TABLE execution_grants(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id),parent_id TEXT REFERENCES execution_grants(id),document TEXT NOT NULL);
+        CREATE TABLE sessions(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),project_id TEXT NOT NULL REFERENCES projects(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),connection_id TEXT NOT NULL REFERENCES connections(id),grant_id TEXT NOT NULL REFERENCES execution_grants(id),root_grant_id TEXT NOT NULL REFERENCES execution_grants(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(task_id,idempotency_key));
+        CREATE TABLE session_turns(id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES sessions(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(session_id,idempotency_key));
+        PRAGMA user_version=4;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
     Ok(())

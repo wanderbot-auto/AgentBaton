@@ -1,5 +1,5 @@
 //! Versioned, authenticated local IPC. No TCP listener, shell, SQL, or arbitrary file API.
-use crate::{storage::Store, CoreError, Result};
+use crate::{sessions::Supervisor, storage::Store, CoreError, Result};
 use fs2::FileExt;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -13,9 +13,10 @@ use std::{
     path::{Path, PathBuf},
     sync::{
         atomic::{AtomicBool, Ordering},
+        mpsc::{self, Receiver, SyncSender},
         Arc,
     },
-    time::Duration,
+    time::{Duration, Instant},
 };
 use uuid::Uuid;
 
@@ -62,6 +63,68 @@ struct ReassociateProject {
 struct CreateWorkspace {
     project_id: String,
     expected_head: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RegisterConnection {
+    name: String,
+    provider: String,
+    executable: String,
+    #[serde(default)]
+    arguments: Vec<String>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CreateGrant {
+    project_id: String,
+    workspace_id: String,
+    connection_id: String,
+    max_attempts: u32,
+    max_concurrency: u32,
+    max_duration_ms: u64,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct GrantId {
+    grant_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ProposalId {
+    proposal_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CreateSession {
+    task_id: String,
+    workspace_id: String,
+    connection_id: String,
+    grant_id: String,
+    #[serde(default)]
+    require_enforcement: Option<RequiredEnforcement>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RequiredEnforcement {
+    #[serde(default)]
+    filesystem: bool,
+    #[serde(default)]
+    network: bool,
+    #[serde(default)]
+    identity: bool,
+    #[serde(default)]
+    configuration: bool,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SessionId {
+    session_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SendSession {
+    session_id: String,
+    text: String,
 }
 fn default_project() -> String {
     "local".into()
@@ -196,6 +259,38 @@ fn private_file(path: &Path) -> Result<File> {
         .open(path)
         .map_err(|_| CoreError::new("PERMISSION_DENIED", "Cannot open private runtime state"))
 }
+struct ReadyRequest {
+    raw: String,
+    reply: SyncSender<Value>,
+    deadline: Instant,
+}
+fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
+    let _ = stream.set_read_timeout(Some(Duration::from_secs(3)));
+    let _ = stream.set_write_timeout(Some(Duration::from_secs(3)));
+    let response = match read_frame(&stream, MAX_FRAME) {
+        Ok(raw) => {
+            let (reply, receive): (_, Receiver<Value>) = mpsc::sync_channel(1);
+            let job = ReadyRequest {
+                raw,
+                reply,
+                deadline: Instant::now() + Duration::from_secs(60),
+            };
+            if requests.try_send(job).is_err() {
+                json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Local request queue is unavailable"),"revision":0,"warnings":[]})
+            } else {
+                receive.recv_timeout(Duration::from_secs(60)).unwrap_or_else(|_|json!({"request_id":null,"error":CoreError::transport(),"revision":0,"warnings":[]}))
+            }
+        }
+        Err(error) => json!({"request_id":null,"error":error,"revision":0,"warnings":[]}),
+    };
+    if let Ok(mut output) = serde_json::to_vec(&response) {
+        if output.len() as u64 > 32 * MAX_FRAME {
+            output=serde_json::to_vec(&json!({"request_id":response["request_id"],"error":CoreError::new("RESOURCE_LIMIT","Response exceeds local IPC limit; request a smaller batch"),"revision":0,"warnings":[]})).unwrap_or_default();
+        }
+        output.push(b'\n');
+        let _ = stream.write_all(&output);
+    }
+}
 pub struct Daemon {
     listener: UnixListener,
     store: Store,
@@ -203,6 +298,7 @@ pub struct Daemon {
     _lock: File,
     socket: PathBuf,
     managed_root: PathBuf,
+    supervisor: Supervisor,
 }
 impl Daemon {
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
@@ -211,7 +307,9 @@ impl Daemon {
         FileExt::try_lock_exclusive(&lock)
             .map_err(|_| CoreError::new("WORKSPACE_BUSY", "A daemon already owns this runtime"))?;
         let db = runtime_dir.join("baton.sqlite3");
-        let _db_handle = private_file(&db)?;
+        // Closing another fd for this inode after SQLite opens can release process-scoped
+        // POSIX locks. Finish permission preparation before SQLite owns any connection.
+        drop(private_file(&db)?);
         let store = Store::open(&db)?;
         let managed_root = runtime_dir.join("workspaces");
         ensure_runtime(&managed_root)?;
@@ -252,34 +350,49 @@ impl Daemon {
             _lock: lock,
             socket,
             managed_root,
+            supervisor: Supervisor::new(runtime_dir),
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
+        let (requests, ready) = mpsc::sync_channel::<ReadyRequest>(16);
+        let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {
+            self.supervisor.tick(&mut self.store)?;
+            for _ in 0..16 {
+                let Ok(job) = ready.try_recv() else {
+                    break;
+                };
+                let response = if Instant::now() > job.deadline {
+                    json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before execution"),"revision":0,"warnings":[]})
+                } else {
+                    self.handle(&job.raw)
+                };
+                let _ = job.reply.try_send(response);
+                self.supervisor.tick(&mut self.store)?;
+            }
+            readers.retain(|reader| !reader.is_finished());
             match self.listener.accept() {
-                Ok((mut stream, _)) => {
-                    let _ = stream.set_read_timeout(Some(Duration::from_secs(3)));
-                    let _ = stream.set_write_timeout(Some(Duration::from_secs(3)));
-                    let response = match read_frame(&stream, MAX_FRAME) {
-                        Ok(raw) => self.handle(&raw),
-                        Err(error) => {
-                            json!({"request_id":null,"error":error,"revision":0,"warnings":[]})
-                        }
-                    };
-                    // Per-client IO errors do not terminate the business authority.
-                    if let Ok(mut output) = serde_json::to_vec(&response) {
-                        if output.len() as u64 > 32 * MAX_FRAME {
-                            output=serde_json::to_vec(&json!({"request_id":response["request_id"],"error":CoreError::new("RESOURCE_LIMIT","Response exceeds the local IPC limit; request a smaller event batch"),"revision":0,"warnings":[]})).unwrap_or_default();
-                        }
-                        output.push(b'\n');
-                        let _ = stream.write_all(&output);
+                Ok((stream, _)) if readers.len() < 8 => {
+                    let sender = requests.clone();
+                    if let Ok(reader) = std::thread::Builder::new()
+                        .name("baton-local-client".into())
+                        .spawn(move || socket_worker(stream, sender))
+                    {
+                        readers.push(reader);
                     }
                 }
-                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
-                    std::thread::sleep(Duration::from_millis(10))
+                Ok((stream, _)) => drop(stream),
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                    std::thread::sleep(Duration::from_millis(5))
                 }
                 Err(_) => return Err(CoreError::new("INTERNAL_ERROR", "Daemon socket failed")),
             }
+        }
+        drop(ready);
+        drop(requests);
+        self.supervisor.shutdown(&mut self.store)?;
+        for reader in readers {
+            let _ = reader.join();
         }
         Ok(())
     }
@@ -316,7 +429,155 @@ impl Daemon {
         if r.request_id.is_empty() || r.request_id.len() > 128 {
             return Err(invalid());
         }
+        if self.supervisor.has_workers()
+            && matches!(
+                r.method.as_str(),
+                "projects.import"
+                    | "projects.reassociate"
+                    | "workspaces.create"
+                    | "connections.propose"
+                    | "grants.propose"
+                    | "approvals.finalize"
+                    | "sessions.create"
+            )
+        {
+            let replay=match r.method.as_str(){
+                "sessions.create"=>r.idempotency_key.as_ref().is_some_and(|key|self.store.conn.query_row("SELECT EXISTS(SELECT 1 FROM sessions WHERE task_id=?1 AND idempotency_key=?2)",rusqlite::params![r.params["task_id"].as_str().unwrap_or(""),key],|row|row.get::<_,bool>(0)).unwrap_or(false)),
+                "approvals.finalize"=>self.store.conn.query_row("SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",[r.params["proposal_id"].as_str().unwrap_or("")],|row|row.get::<_,bool>(0)).unwrap_or(false),
+                _=>false,
+            };
+            if !replay {
+                return Err(CoreError::new("WORKSPACE_BUSY","Stop active sessions before adding projects, workspaces, connections, grants or sessions. Concurrent setup is not yet supported"));
+            }
+        }
         match r.method.as_str() {
+            "connections.propose" => {
+                let p: RegisterConnection = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.propose_connection(
+                    &p.name,
+                    &p.provider,
+                    Path::new(&p.executable),
+                    &p.arguments,
+                    &key
+                )?))
+            }
+            "approvals.finalize" => {
+                let p: ProposalId = params(r.params)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                let result = self.store.finalize_proposal(&p.proposal_id, revision)?;
+                if result.get("provider").is_some() {
+                    if let Some(id) = result["id"].as_str() {
+                        self.supervisor.probe(&self.store, id)?;
+                    }
+                }
+                Ok(result)
+            }
+            "connections.register" | "grants.create" => Err(CoreError::new(
+                "AUTH_REQUIRED",
+                "Server proposal and trusted native owner confirmation are required",
+            )),
+            "connections.list" => {
+                empty(&r.params)?;
+                Ok(json!(self.store.list_connections()?))
+            }
+            "grants.propose" => {
+                let p: CreateGrant = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.propose_grant(
+                    &p.project_id,
+                    &p.workspace_id,
+                    &p.connection_id,
+                    p.max_attempts,
+                    p.max_concurrency,
+                    p.max_duration_ms,
+                    &key
+                )?))
+            }
+            "grants.list" => {
+                let p: ProjectId = params(r.params)?;
+                Ok(json!(self.store.list_grants(&p.project_id)?))
+            }
+            "grants.revoke" => {
+                let p: GrantId = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                Ok(json!(self.store.revoke_grant(
+                    &p.grant_id,
+                    revision,
+                    &key
+                )?))
+            }
+            "sessions.create" => {
+                let p: CreateSession = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                if let Some(required) = p.require_enforcement {
+                    let grant = self.store.get_grant(&p.grant_id)?;
+                    crate::policy::require_enforcement(
+                        &grant,
+                        required.filesystem,
+                        required.network,
+                        required.identity,
+                    )?;
+                    if required.configuration {
+                        return Err(CoreError::new(
+                            "ENFORCEMENT_UNAVAILABLE",
+                            "Native configuration isolation has not been verified",
+                        ));
+                    }
+                }
+                let s = self.store.create_session(
+                    &p.task_id,
+                    &p.workspace_id,
+                    &p.connection_id,
+                    &p.grant_id,
+                    revision,
+                    &key,
+                )?;
+                if let Err(error) = self.supervisor.launch(&mut self.store, &s.id) {
+                    self.store.record_launch_failure(&s.id)?;
+                    return Err(error);
+                }
+                Ok(json!(s))
+            }
+            "sessions.list" => {
+                empty(&r.params)?;
+                Ok(json!(self.store.list_sessions()?))
+            }
+            "sessions.get" => {
+                let p: SessionId = params(r.params)?;
+                Ok(json!(self.store.get_session(&p.session_id)?))
+            }
+            "sessions.send" => {
+                let p: SendSession = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                let (s, dispatch) =
+                    self.store
+                        .send_session(&p.session_id, &p.text, revision, &key)?;
+                if dispatch {
+                    if let Err(error) = self.supervisor.send(&s.id, &p.text) {
+                        self.supervisor.cancel(&s.id);
+                        self.store.record_launch_failure(&s.id)?;
+                        return Err(error);
+                    }
+                }
+                Ok(json!(s))
+            }
+            "sessions.cancel" => {
+                let p: SessionId = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                let s = self.store.cancel_session(
+                    &p.session_id,
+                    revision,
+                    &key,
+                    self.supervisor.owns(&p.session_id),
+                )?;
+                self.supervisor.cancel(&s.id);
+                Ok(json!(s))
+            }
             "projects.import" => {
                 let p: ImportProject = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;

@@ -65,6 +65,12 @@ These are recorded as documentation, not automatically adopted capabilities or
 permission to call models. No automatic `npx`, preview installation, browser login,
 API fallback or billing switch is implemented by this slice.
 
+The session-supervision worker in Core is responsible for converting persisted,
+validated connection/workspace/grant records into `ApprovedInstallation`. The
+descriptor has no deserialization path for renderer authority. Raw contract strings
+or a nonempty approval reference do not establish a grant. No second generic
+authorization wrapper or duplicate registry is introduced by this transport slice.
+
 Current test dimensions: local contract fixtures, actual selected fixture
 executables for version probes, and actual ACP fixture subprocess I/O. Vendor
 model calls, real authentication, native macOS verification, persistent connection

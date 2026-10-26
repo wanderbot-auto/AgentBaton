@@ -8,6 +8,8 @@ publish = false
 serde = { workspace = true }
 serde_json = { workspace = true }
 sha2 = "0.10"
+toml = "0.8"
+serde_yaml_ng = "0.10"
 fs2 = "0.4"
 rustix = { version = "1", features = ["fs", "process"] }
 uuid = { version = "1", features = ["v4"] }

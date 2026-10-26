@@ -297,6 +297,7 @@ mod version_probe {
                 evidence.state = VersionProbeState::TimedOut;
                 break;
             }
+            let mut io_progress = false;
             for (stream, is_stdout) in [
                 (&mut stdout as &mut dyn Read, true),
                 (&mut stderr as &mut dyn Read, false),
@@ -313,6 +314,7 @@ mod version_probe {
                             break;
                         }
                         Ok(n) => {
+                            io_progress = true;
                             if is_stdout {
                                 evidence.stdout_bytes =
                                     evidence.stdout_bytes.saturating_add(n as u64);
@@ -358,7 +360,15 @@ mod version_probe {
                 }
                 break;
             }
-            std::thread::sleep(Duration::from_millis(2));
+            if !io_progress {
+                crate::transport::wait_for_io(
+                    (!stdout_eof).then(|| stdout.as_raw_fd()),
+                    (!stderr_eof).then(|| stderr.as_raw_fd()),
+                    None,
+                    deadline,
+                )
+                .map_err(|_| InstallationError::Io)?;
+            }
         }
         if !owned.reaped {
             let _ = owned.stop()?;

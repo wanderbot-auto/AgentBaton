@@ -1,0 +1,117 @@
+{
+  "base_commit": "4e1efd378e03cbfeddf11351299da88e911df85c",
+  "candidate_commit": null,
+  "tested_source": "50 source fingerprints in REVIEW.md; no mismatches at integration",
+  "recorded_at_utc": "2026-10-26T18:30:29.508311+00:00",
+  "state": "local_integration_verified_partial_scope",
+  "checks": [
+    {
+      "command": "cargo test --workspace --locked",
+      "exit_code": 0,
+      "top_level_tests": 186,
+      "breakdown": {
+        "core": 65,
+        "config": 45,
+        "providers": 56,
+        "workspaces": 18,
+        "daemon_signals": 2
+      },
+      "note": "Nested killable FIFO child harness is not counted twice; generated fixture processes only."
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo build --locked --bin batond --bin baton && python3 scripts/smoke-local-product.py",
+      "exit_code": 0,
+      "scope": "Actual daemon/CLI restart and SIGKILL; signal tests above spawn actual batond and fixture Provider."
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run typecheck; npm test; npm run build",
+      "exit_code": 0,
+      "tests": 28,
+      "scope": "UI and wire tests use mocked IPC transport; not native window acceptance."
+    },
+    {
+      "command": "cargo check --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "platform": "Linux Debian13.6 with private signed-package sysroot"
+    },
+    {
+      "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "tests": 7,
+      "platform": "Linux native bridge/helper tests, not GUI/dialog/macOS"
+    },
+    {
+      "command": "bash scripts/setup-dev.sh; python3 scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "python_infrastructure": 28,
+      "node_infrastructure": 4,
+      "rust_environment_fixture": 2,
+      "bootstrap_files": 87,
+      "scope": "Infrastructure evidence distinct from product tests"
+    }
+  ],
+  "logs": {
+    "session-integration-rust.log": "dcefbe428c15e23bb83d7c63a12ead1a0aae8bc1ac2023767cd204e03a7b7014",
+    "session-integration-clippy.log": "93925753178dab1c32a00c736b201be037259a69a7fa8fb0f22279deee53ac1e",
+    "session-integration-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "session-integration-build.log": "ebd3229417c2279961d0ec3144fc4c78954bd520ae4210a3c86d4d089821fc08",
+    "session-integration-smoke.log": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805",
+    "session-ui-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "session-ui-tests.log": "1d929c612410a012ff3c7f2eb4e1b383a4118834263c7e91787afd2b44af887a",
+    "session-ui-build.log": "a04c11c7eabb7743b571dda92ebca70853874f59877d404a0a64e7d25d5de245",
+    "linux-native-check-final.log": "c0fa7b2f72186d49b8286785edaa9c7d2d8a726753c89ceeeaf56f03ae829da0",
+    "linux-native-tests-final.log": "bc7b0938db973ab7c3a9c07b24b46464b99b2b4ac4e62ee685bcca2f675b7108",
+    "linux-native-tests-link-missing.log": "ee9dfa57b3147b0235e50270af6ac182f937520ed7ad3f20eec5f610a8e161f5",
+    "linux-ui-apt-download.log": "81e1bddf7564926e4868f64f60df4b8c0283209a68061b9e7e651c861fabddce",
+    "session-infrastructure.log": "0b4385bd7aaf0cef711097fe1f811ba033ebf75169828f5237e5d977584dfc23",
+    "session-bootstrap.log": "8e979e6f8e41701e7d1eb710c01fc0edca8cdf8408e213fd3daf5ea3f24d4120"
+  },
+  "failed_attempts": [
+    {
+      "issue": "SKILL YAMLalias expansion OOM",
+      "evidence": "REVIEW.md independent before/after identical128MiB fixture",
+      "fix": "bounded manual deserializer;45 config tests and exact OOM regression pass"
+    },
+    {
+      "issue": "Live Git pointer FIFO could block open",
+      "discovery": "static independent review, no pre-fix dynamic repro claimed",
+      "fix": "O_NONBLOCK|O_NOFOLLOW regular-fd checks; bounded child regression and real IPC status/cancel regression pass"
+    },
+    {
+      "issue": "Native first check missing sidecars",
+      "fix": "build actual release daemon/CLI and prepare sidecars"
+    },
+    {
+      "issue": "Native initial test linker missing runtime .so targets in private dev-header sysroot",
+      "log": "linux-native-tests-link-missing.log",
+      "fix": "88 missing relative library targets linked to already-installed system runtime libraries;7 final native-host tests pass"
+    },
+    {
+      "issue": "Sidecar build raced in-progress signal dependency edit",
+      "log": "linux-native-sidecars.log",
+      "fix": "after manifest/lock freeze rebuilt actual release successfully"
+    }
+  ],
+  "limitations": [
+    "custom ACP runtime only; Codex/Qoder/Claude native paths remain unsupported until next adapter unit",
+    "Runtime config digest does not cover fully materialized effective native source files yet",
+    "Private HOME/env and Git worktrees are not OS/network/native account enforcement; strict unsupported policies fail closed",
+    "Heavy Git/new-admission setup operations return WORKSPACE_BUSY while owned sessions active; general parallel setup/scheduler remains incomplete",
+    "Available normalized journal history is partial: raw protocol/stderr not retained, privacy/retention/export still incomplete",
+    "Native UI/dialog/window/background lifecycle not verified by Linux host tests",
+    "No current-unit remote CI or native macOS artifact yet; prerequisites PR3/PR4 unmerged",
+    "All remaining130-requirement scope retained; this is not full product acceptance"
+  ],
+  "live_provider_models": "not_run_not_authorized",
+  "native_macos_current_unit": "not_run",
+  "production_release": "not_run_not_authorized"
+}

@@ -12,29 +12,33 @@
     "AB-PRO-010",
     "AB-PRO-012",
     "AB-DOM-007",
-    "AB-CFG-001"
+    "AB-CFG-001",
+    "AB-COR-005",
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-010"
   ],
-  "base_commit": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
+  "base_commit": "4e1efd378e03cbfeddf11351299da88e911df85c",
   "tested_tree": "uncommitted crates/providers files identified by SHA-256; integration commit must rerun checks",
-  "recorded_at_utc": "2026-10-26T16:59:36.272038+00:00",
+  "recorded_at_utc": "2026-10-26T17:23:23.016079+00:00",
   "checks": [
     {
       "command": "cargo test --locked -p agentbaton-providers",
       "cwd": "/workspace/AgentBaton",
       "exit_code": 0,
       "contract_tests_passed": 20,
-      "stdio_fixture_tests_passed": 11,
+      "stdio_fixture_tests_passed": 19,
       "real_provider_model_calls": false,
       "installation_probe_tests_passed": 9,
       "connection_contract_tests_passed": 8,
-      "total_passed": 48
+      "total_passed": 56
     },
     {
       "command": "cargo clippy --locked -p agentbaton-providers --all-targets -- -D warnings",
       "exit_code": 0
     },
     {
-      "command": "rustfmt --edition 2021 --check crates/providers/src/lib.rs crates/providers/src/framing.rs crates/providers/src/transport.rs crates/providers/tests/contracts.rs crates/providers/tests/stdio.rs",
+      "command": "rustfmt --edition 2021 --check crates/providers/src/*.rs crates/providers/tests/*.rs",
       "exit_code": 0
     }
   ],
@@ -45,9 +49,8 @@
   },
   "real_provider_calls_executed": false,
   "native_platform_tests_executed": false,
-  "implemented": "bounded JSON-RPC contracts and Unix nonblocking stdio initialize/session-new/prompt/cancel, unknown outcomes, owned process-group termination/reap, explicit approved installation descriptor, env_clear, bounded evidence/stderr draining; canonical selected executable SHA-256 pin before spawn; exact --version probe with bounded nonblocking pipes/deadline/reap and env isolation; explicit Provider route/config/identity/host connection binding and source/version/time evidence",
+  "implemented": "bounded JSON-RPC contracts and Unix nonblocking stdio initialize/session-new/prompt/cancel, unknown outcomes, owned process-group termination/reap, explicit approved installation descriptor, env_clear, bounded evidence/stderr draining; canonical selected executable SHA-256 pin before spawn; exact --version probe with bounded nonblocking pipes/deadline/reap and env isolation; explicit Provider route/config/identity/host connection binding and source/version/time evidence; worker poll quanta with fixed original turn deadline, idempotent cancel-once, bounded nonblocking outbound queue, raw-free typed stream and critical control backpressure failure; readiness-based idle waits for small pipes in both transport and version probe, preserving bounded fairness and deadlines",
   "not_implemented": [
-    "daemon dispatch integration",
     "trusted approval store resolution and binary vendor authenticity",
     "session/load",
     "multi-outstanding-prompt scheduling",
@@ -59,18 +62,18 @@
   ],
   "file_hashes": {
     "crates/providers/Cargo.toml": "ebcef2dbe3294cf341990be4843da8e9e20fe2f4f65501f90fff06e038ef37c0",
-    "crates/providers/README.md": "5335ac7340c48e4a77aa9b0adfff3d183025b0b692f238e7bf6efd645a525e97",
-    "crates/providers/PROVENANCE.md": "8aca242a321a0a512e2dbe09722b991fac0f59b08922e6530e7462df0d44e818",
+    "crates/providers/README.md": "81a74c60f119fab99d6e763a5102ec1c12a119558200c7439da758187769eaa2",
+    "crates/providers/PROVENANCE.md": "9a5134d403e39060b28b5678797c16bbed17f10f02f6ceb4354ba7836c1bc455",
     "crates/providers/documentation-evidence.json": "d97e8c6040900c542ba3c2e579d6f53b74aa005938a0cf1ceb8aef5a55b05c52",
     "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
-    "crates/providers/src/lib.rs": "d7c4772de18ee6c802c2d29bcda09415a36d67e3664c5fe65dceba532dc8cac1",
+    "crates/providers/src/lib.rs": "9237c5a3f765a71dd97d7f49897c24cc06db85926e36b5579af0c4ca47de2fd5",
     "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
-    "crates/providers/src/installation.rs": "0710fbe74027bc2dfe812a99a53052a40af842b09200d8c74c827f28970da889",
-    "crates/providers/src/transport.rs": "e8b140c850e8141a3ec5783d685a43c9943b27d84ed3161f6253c4a126dbbc76",
+    "crates/providers/src/installation.rs": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+    "crates/providers/src/transport.rs": "68a953ad51567ec9570f72c1d3c5893dba69d814e7b8352d75d3e9a38f1b0dc4",
     "crates/providers/tests/connections.rs": "31aa177dff7ad010fa147c68f3e338ef5c33f1fdb430322a95cde9b65d4199c3",
     "crates/providers/tests/contracts.rs": "9a4d3f1a5f5a059e7b446b2d143b5f4ba990deb1bc8c49b399ff5ee31c734c38",
-    "crates/providers/tests/stdio.rs": "ec2d71a9092eae0f3792dafa2ee3a1bb8cf6343e600a2caf3edbafb34247eeb5",
-    "crates/providers/tests/installation.rs": "2d7d4a6ebe2663c624b9b56992359611efb40d4e6f75b4561dd5d38825ffaf52"
+    "crates/providers/tests/stdio.rs": "1a00673951b2f30c362c0f5a1e020d10d0ddb7afce11294bc317fa590fd38991",
+    "crates/providers/tests/installation.rs": "cd6c75e9c5320938b4ba3b50529773f7494a806c51253091449a486547f10e9b"
   },
   "failures_preserved": [
     {
@@ -85,7 +88,23 @@
       "observed": "Timeout instead of Protocol on oversized newline-free stream",
       "diagnosis": "scanning entire accumulated frame for newline on every 4096-byte read was quadratic",
       "correction": "incremental newline scan cursor; retained oversize assertion and reran unchanged timeout budget; all tests passed"
+    },
+    {
+      "command": "cargo test --locked -p agentbaton-providers --test stdio",
+      "exit_code": 101,
+      "observed": "workspace Cargo.lock transiently stale from parallel core manifest changes",
+      "diagnosis": "no provider dependency change; root lock single writer had not refreshed active manifest yet",
+      "correction": "validated isolated provider copy offline without touching root lock; reran exact shared-root locked suite after core refreshed root lock; all56 tests passed"
+    },
+    {
+      "command": "cargo test --locked -p agentbaton-providers stderr_flood -- --nocapture",
+      "exit_code": 101,
+      "observed": "Version probe returns TimedOut instead of Succeeded with a 4096-byte stderr pipe, original 4MiB volume and 500ms deadline",
+      "diagnosis": "Even skipping sleep immediately after progress leaves an idle-race fixed2ms delay between small-pipe producer wakeups",
+      "correction": "Readiness-based libc::poll idle wait for stdout/stderr and queued stdin writes; EOF descriptors disabled; same16-read fairness, bytevolume and deadline retained. Focused versionprobe passes about50ms; full56 tests pass."
     }
   ],
-  "review_fix": "Invalidated all old session associations on disconnect, including idle/completed, so reinitialize cannot silently resume stale native IDs. Added regression test. Also reject delayed old prompt results after transport reinitialization and terminate/reap malformed session-new responses, with regression tests."
+  "review_fix": "Invalidated all old session associations on disconnect, including idle/completed, so reinitialize cannot silently resume stale native IDs. Added regression test. Also reject delayed old prompt results after transport reinitialization and terminate/reap malformed session-new responses, with regression tests.",
+  "fixture_platform_fix": "Canonicalized approved fixture workspace path so Darwin /var versus /private/var alias does not contradict Python os.getcwd; exact cwd + mcpServers assertion preserved; native evidence remains CI-specific. Linux stderr fixtures additionally shrink the actual pipe to4096 bytes (asserted for stdio) to reproduce small-pipe scheduling without weakening volume/deadline assertions.",
+  "integration_scope": "Core supervised-session integration is separately owned and requires its own evidence. This record covers provider crate tests only; it does not claim Core IPC/native/live Provider verification."
 }

@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { api, DaemonError, type Task, type Project } from './api';
+import { sessionApi } from './session-api';
+vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn() } }));
 
 // These tests mock only the Tauri transport. They are not native IPC evidence.
 vi.mock('./api', async importOriginal => {
@@ -16,6 +18,7 @@ beforeEach(() => {
   localStorage.setItem('agentbaton.language', 'en');
   vi.mocked(api.projectsList).mockResolvedValue([]);
   vi.mocked(api.workspacesList).mockResolvedValue([]);
+  vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);
   vi.mocked(api.snapshot).mockResolvedValue({ tasks: [], sequence: 0, api_version: 1 });
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
 });
@@ -81,7 +84,7 @@ describe('Task workspace using mocked Tauri transport', () => {
     fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'zh' } });
     expect(screen.getByRole('navigation', { name: '主导航' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '能力' }));
-    expect(screen.getByRole('heading', { name: '尚无已验证的 Provider 连接' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: '具名连接' })).toBeVisible();
     expect(document.documentElement.lang).toEqual('zh-CN');
   });
   it('renders native event payload as text without interpreting injected markup', async () => {

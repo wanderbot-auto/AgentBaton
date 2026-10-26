@@ -5,3 +5,10 @@ edition = "2021"
 publish = false
 [dependencies]
 agentbaton-core = { path = "../../crates/core" }
+
+signal-hook = "0.3"
+
+[dev-dependencies]
+serde_json.workspace = true
+tempfile = "3"
+libc = "0.2"

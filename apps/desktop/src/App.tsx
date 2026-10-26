@@ -2,12 +2,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, DaemonError, type JournalEvent, type Task, type Project } from './api';
 import { initialLanguage, messages, type Language } from './i18n';
 import { Projects } from './Projects';
+import { Connections } from './Connections';
+import { ManagedSessions } from './ManagedSessions';
+import { sessionMessages } from './session-i18n';
 
 type View = 'work' | 'tasks' | 'capabilities' | 'history';
 export function App() {
   const [language, setLanguage] = useState<Language>(initialLanguage);
   const t = messages[language];
   const [view, setView] = useState<View>('work');
+  const [sessionsOpen, setSessionsOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState('');
@@ -97,6 +101,7 @@ export function App() {
       {status === 'disconnected' && <section className="empty"><h2>{t.disconnected}</h2><p>{t.disconnectedHelp}</p><button onClick={() => void refresh()}>{t.reconnect}</button></section>}
       {(view === 'work' || view === 'tasks') && <>
         {view === 'work' && <Projects projects={projects} selectedId={projectId} onSelect={id => { setProjectId(id); createKey.current = null; }} refresh={refresh} connected={status === 'connected'} language={language} />}
+        {view === 'work' && <section><button aria-expanded={sessionsOpen} aria-controls="session-workbench" onClick={() => setSessionsOpen(open => !open)}>{sessionMessages[language].sessions}</button>{sessionsOpen && <div id="session-workbench"><ManagedSessions language={language} connected={status === 'connected'} projects={projects} tasks={tasks} projectId={projectId} onProjectChange={id => { setProjectId(id); createKey.current = null; }} refreshTasks={refresh} /></div>}</section>}
         <form onSubmit={createTask} className="create-task">
           <label htmlFor="task-project">{t.project}</label><select id="task-project" disabled={busy} value={projectId} onChange={event => { setProjectId(event.target.value); createKey.current = null; }} aria-describedby="project-help"><option value="">{t.localDrafts}</option>{projects.map(project => <option key={project.id} value={project.id} disabled={project.archived}>{project.name}{project.archived ? ` (${t.archived})` : ''}</option>)}</select><p id="project-help">{t.projectHelp}</p>
           <label htmlFor="goal">{t.goal}</label><textarea id="goal" disabled={busy} value={goal} maxLength={8192} onChange={event => { setGoal(event.target.value); createKey.current = null; }} aria-describedby="create-help" required rows={3} />
@@ -106,7 +111,7 @@ export function App() {
           <section className="inspector">{selected ? <><h2>{selected.goal}</h2><p className="state">{stateText(selected.state)}</p><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.project}</dt><dd>{projects.find(project => project.id === selected.project_id)?.name ?? selected.project_id ?? t.localDrafts}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || ['cancel_requested', 'cancelled', 'accepted', 'failed'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><EventList events={events.filter(event => event.aggregate_id === selected.id)} title={t.evidence} empty={t.noEvents} />{earliestCursor > 0 && <p>{t.moreEvents}</p>}</> : <p>{t.select}</p>}</section>
         </div>
       </>}
-      {view === 'capabilities' && <section className="empty"><h2>{t.capabilityEmpty}</h2><p>{t.capabilityHelp}</p></section>}
+      {view === 'capabilities' && <Connections language={language} connected={status === 'connected'} />}
       {view === 'history' && <><EventList events={events} title={t.evidence} empty={t.noEvents} />{earliestCursor > 0 && <><p>{events.length >= 500 ? t.windowLimit : t.moreEvents}</p><button onClick={() => void loadEarlier()} disabled={busy || events.length >= 500 || status !== 'connected'}>{t.earlier}</button></>}</>}
     </main>
   </div>;

@@ -69,6 +69,10 @@ pub struct BudgetStatus {
 /// Evidence is accepted only from a trusted supervisor; not from renderer or provider text.
 pub enum StopEvidence {
     NeverDispatched,
+    ConfirmedNotStarted {
+        executor_instance: String,
+        receipt_ref: String,
+    },
     ConfirmedStopped {
         executor_instance: String,
         receipt_ref: String,
@@ -301,6 +305,18 @@ impl Store {
             StopEvidence::NeverDispatched if intent.state == IntentState::Prepared => {
                 json!({"kind":"never_dispatched"})
             }
+            StopEvidence::ConfirmedNotStarted {
+                executor_instance,
+                receipt_ref,
+            } if matches!(
+                intent.state,
+                IntentState::Sent | IntentState::OutcomeUnknown
+            ) && intent.executor_instance.as_deref() == Some(&executor_instance)
+                && !receipt_ref.trim().is_empty()
+                && receipt_ref.len() <= 512 =>
+            {
+                json!({"kind":"executor_not_started","executor_instance":executor_instance,"receipt_ref":receipt_ref})
+            }
             StopEvidence::ConfirmedStopped {
                 executor_instance,
                 receipt_ref,
@@ -342,6 +358,8 @@ impl Store {
         intent.state = IntentState::Stopped;
         task.state = if task.state == TaskState::CancelRequested {
             TaskState::Cancelled
+        } else if receipt["kind"] == "executor_not_started" {
+            TaskState::Draft
         } else {
             TaskState::OutcomeUnknown
         };

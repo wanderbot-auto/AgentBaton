@@ -1,0 +1,131 @@
+{
+  "recorded_at_utc": "2026-10-26T17:18:47.325809+00:00",
+  "sources": [
+    {
+      "id": "codex-config-schema",
+      "url": "https://raw.githubusercontent.com/openai/codex/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/core/config.schema.json",
+      "git_commit": "970111f6cb62cc02fe36a82ea7d71b37a2889c97",
+      "sha256": "d98f7bbe84dfe375d05ad5a8249a5368d82989551e38c6a4babe35356b92c14e",
+      "bytes": 253474,
+      "supports": "RawMcpServerConfig TOML source fields; static subset only.",
+      "provider_runtime_tested": false
+    },
+    {
+      "id": "codex-skill-parser",
+      "url": "https://raw.githubusercontent.com/openai/codex/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/skills/src/parser.rs",
+      "git_commit": "970111f6cb62cc02fe36a82ea7d71b37a2889c97",
+      "sha256": "f3532df1cc16f4da423b8e5c813269940c90317bcd211b6659cad449fd877e89",
+      "bytes": 7250,
+      "supports": "YAML frontmatter; optional directory fallback name, required description, 64-character name bound, metadata short-description.",
+      "provider_runtime_tested": false
+    },
+    {
+      "id": "claude-mcp",
+      "url": "https://code.claude.com/docs/en/mcp.md",
+      "git_commit": null,
+      "sha256": "191eb66024fcd502afcc304747b84a25e0531a3d9fbdb89c71147f713ec76ba6",
+      "bytes": 150533,
+      "supports": "mcpServers JSON at explicit project/user sources; type/url shape and invalid missing remote type.",
+      "provider_runtime_tested": false
+    },
+    {
+      "id": "claude-settings",
+      "url": "https://code.claude.com/docs/en/settings-reference.md",
+      "git_commit": null,
+      "sha256": "312fa9bab67ab75cf80d75b30e20bda143632b3acd52b08f40fd37da10635954",
+      "bytes": 441930,
+      "supports": "Project MCP approval declarations and rejection lists; not AgentBaton authorization.",
+      "provider_runtime_tested": false
+    },
+    {
+      "id": "claude-skills",
+      "url": "https://code.claude.com/docs/en/skills.md",
+      "git_commit": null,
+      "sha256": "acb1f1388ee96a516f707c42bac1e834b22df90081e5c2eccb90a2f76a5430f6",
+      "bytes": 118172,
+      "supports": "SKILL.md YAML frontmatter; optional name fallback; scripts are untrusted content.",
+      "provider_runtime_tested": false
+    },
+    {
+      "id": "qoder-mcp",
+      "url": "https://docs.qoder.com/cli/mcp-servers.md",
+      "git_commit": null,
+      "sha256": "8ac88edde9d105c30136c87c030dda117a62d1fd5978fd22613124dea7535cf2",
+      "bytes": 4019,
+      "supports": "CLI transports and source file locations confirmed; no JSON wire/schema shape on reviewed page, therefore parser unsupported.",
+      "provider_runtime_tested": false
+    },
+    {
+      "id": "qoder-skills",
+      "url": "https://docs.qoder.com/cli/Skills",
+      "git_commit": null,
+      "sha256": "8c8e0fb80ab4b59b218e534f1e3aa2583a20e9e970b973207cf083423f446cbc",
+      "bytes": 1328392,
+      "supports": "SKILL.md YAML name and description documented; source precedence not generalized across Providers.",
+      "provider_runtime_tested": false
+    }
+  ],
+  "limitations": [
+    "Unversioned official documentation is pinned here by response content SHA-256, not an invented release commit.",
+    "Fixture parsing does not prove native runtime loading, current session connection or installed Provider compatibility.",
+    "Bounded discovery intentionally rejects symlinks even where a native Provider may follow them.",
+    "Codex source evidence includes fallback name semantics; malformed YAML repair behavior is not implemented and remains diagnostic unknown."
+  ],
+  "setup_failures": [
+    {
+      "operation": "cargo check --locked -p agentbaton-config",
+      "result": "blocked until single-writer core agent refreshed Cargo.lock for approved new dependencies; subsequently tests and clippy passed"
+    },
+    {
+      "operation": "official source lookup at old codex config/types.rs and skills/index.md paths",
+      "result": "404; corrected using pinned official repository tree and parser.rs, without bypassing verification"
+    },
+    {
+      "operation": "cargo test --locked -p agentbaton-config after adding pinned Codex parser regression",
+      "result": "new name-length regression failed: expected Malformed for65-character Codex name but gotParsed; fixed missing dialect-specific64-character validation and reran unchanged test"
+    }
+  ],
+  "validation": {
+    "base_commit": "4e1efd378e03cbfeddf11351299da88e911df85c",
+    "code_state": "uncommitted feature-branch changes pending independent review and integration",
+    "working_directory": "/workspace/AgentBaton",
+    "commands": [
+      {
+        "command": "cargo test --locked -p agentbaton-config",
+        "exit_code": 0,
+        "tests_passed": 45,
+        "tests_failed": 0,
+        "tests_skipped": 0
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-config --all-targets -- -D warnings",
+        "exit_code": 0
+      },
+      {
+        "command": "cargo fmt --manifest-path crates/config/Cargo.toml",
+        "exit_code": 0
+      }
+    ],
+    "dimensions": {
+      "local_filesystem_and_parser_fixtures": "verified",
+      "real_personal_config_scan": "not_run",
+      "native_provider_runtime_loading": "not_run",
+      "mcp_diagnostics": "not_run",
+      "macos_native": "not_run"
+    }
+  },
+  "independent_review_fixes": [
+    {
+      "finding": "Codex64-character bound incorrectly coupled to generic128-byte UTF8 gate",
+      "fix": "Use pinned provider character-count bound; exact64 and65 CJK regressions pass"
+    },
+    {
+      "finding": "Claude settings env object permitted non-string values",
+      "fix": "Require string values; malformed diagnostics expose no value snippets; regression passes"
+    },
+    {
+      "finding": "Generic YAML Value expanded a30KB anchored scalar through5levels8way aliases to OOM under reviewer128MiB process RLIMIT_AS (reported exit-6)",
+      "fix": "Replace Value with manual scalar/metadata visitors; known scalar allocation4096bytes max, key256bytes/max256fields, unknown nested trees consumed by IgnoredAny without following aliases. Subprocess regression under128MiB passes; known alias-sequences unsupported, quoted literal*/& text preserved. Exact independent helper replay requested."
+    }
+  ]
+}

@@ -53,7 +53,16 @@ fn event_failure_rolls_back_task_and_idempotency_record() {
     let mut store = Store::open(&db).unwrap();
     let conn = Connection::open(&db).unwrap();
     conn.execute_batch("CREATE TRIGGER reject_events BEFORE INSERT ON events BEGIN SELECT RAISE(ABORT,'simulated disk failure'); END;").unwrap();
-    assert!(store.create("p", "goal", "k").is_err());
+    let error = store.create("p", "goal", "k").unwrap_err();
+    let diagnostic = error.details_ref.as_deref().unwrap();
+    assert!(diagnostic
+        .strip_prefix("sqlite-code:")
+        .unwrap()
+        .parse::<i32>()
+        .is_ok());
+    let serialized = serde_json::to_string(&error).unwrap();
+    assert!(!serialized.contains("simulated disk failure"));
+    assert!(!serialized.contains("reject_events"));
     assert!(store.list().unwrap().is_empty());
     assert_eq!(store.sequence().unwrap(), 0);
     conn.execute_batch("DROP TRIGGER reject_events").unwrap();
@@ -64,7 +73,7 @@ fn future_and_unknown_database_are_not_modified() {
     let dir = tempfile::tempdir().unwrap();
     let db = dir.path().join("store.db");
     let conn = Connection::open(&db).unwrap();
-    conn.execute_batch("PRAGMA user_version=4; CREATE TABLE sentinel(value TEXT);")
+    conn.execute_batch("PRAGMA user_version=5; CREATE TABLE sentinel(value TEXT);")
         .unwrap();
     drop(conn);
     let before = std::fs::read(&db).unwrap();
