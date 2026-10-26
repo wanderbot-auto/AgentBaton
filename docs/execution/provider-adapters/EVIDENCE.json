@@ -721,5 +721,36 @@
       "fullDesignv0.2",
       "production/signing/notarization"
     ]
+  },
+  "post_quiet_composition": {
+    "tested_source_commit": "234db83",
+    "main_ancestor": "65f223cc05277435fe2caecfa140708de8bc9a52",
+    "quiet_source": "da4dda032bbb73d9ac484a71c5f0f99c1f5684e1",
+    "runtime_native_ui_locks_unchanged_from_ci_9edf": true,
+    "only_code_delta": [
+      "crates/core/tests/sessions_ipc.rs"
+    ],
+    "checks": [
+      {
+        "command": "umask022; cargo test -p agentbaton-core --locked --test sessions_ipc",
+        "exit_code": 0,
+        "tests": 17
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "exit_code": 0
+      },
+      {
+        "command": "cargo clippy -p agentbaton-core --all-targets --locked -- -D warnings",
+        "exit_code": 0
+      }
+    ],
+    "logs": {
+      "provider-post-quiet-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "provider-post-quiet-sessions.log": "88673fada4e737724c11d0cee2096fac48e57cd86c1918274ed090bc8eb6951a",
+      "provider-post-quiet-clippy.log": "80f43654ab05ea7a92208470996e04da74819857e57931cba2484160346ae8f2"
+    },
+    "review": "docs/execution/quiet-canvas/TIMEOUT_FIXTURE_REVIEW.md",
+    "new_head_ci": "not_run; afterprotectedUImerge syncmain andfresh exactchecks"
   }
 }
