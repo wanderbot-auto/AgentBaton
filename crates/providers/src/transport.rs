@@ -553,3 +553,51 @@ impl std::fmt::Debug for ApprovedInstallation {
             .finish_non_exhaustive()
     }
 }
+
+/// Readiness-based idle wait. The two-millisecond cap bounds exit/deadline
+/// observation, but a producer wakeup returns immediately instead of imposing a
+/// two-millisecond throughput floor on every small pipe refill.
+pub(crate) fn wait_for_io(
+    stdout: Option<RawFd>,
+    stderr: Option<RawFd>,
+    stdin: Option<RawFd>,
+    deadline: Instant,
+) -> std::io::Result<()> {
+    let mut descriptors = [
+        libc::pollfd {
+            fd: stdout.unwrap_or(-1),
+            events: libc::POLLIN,
+            revents: 0,
+        },
+        libc::pollfd {
+            fd: stderr.unwrap_or(-1),
+            events: libc::POLLIN,
+            revents: 0,
+        },
+        libc::pollfd {
+            fd: stdin.unwrap_or(-1),
+            events: libc::POLLOUT,
+            revents: 0,
+        },
+    ];
+    let nanos = deadline
+        .saturating_duration_since(Instant::now())
+        .as_nanos();
+    let timeout_ms = nanos.div_ceil(1_000_000).min(2) as libc::c_int;
+    // SAFETY: the supplied file descriptors are borrowed from live owned pipes;
+    // poll only observes readiness and writes within the descriptors array.
+    let result = unsafe {
+        libc::poll(
+            descriptors.as_mut_ptr(),
+            descriptors.len() as libc::nfds_t,
+            timeout_ms,
+        )
+    };
+    if result < 0 {
+        let error = std::io::Error::last_os_error();
+        if error.kind() != ErrorKind::Interrupted {
+            return Err(error);
+        }
+    }
+    Ok(())
+}

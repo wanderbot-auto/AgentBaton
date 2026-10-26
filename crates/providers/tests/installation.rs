@@ -30,7 +30,10 @@ assert sys.argv[1:]==['--version']
 if mode=='timeout': time.sleep(60)
 if mode=='nonzero': print('private failure',file=sys.stderr); sys.exit(7)
 if mode=='flood': os.write(1,b'x'*2000000); sys.exit(0)
-if mode=='stderr':
+if mode in ('stderr','stderr_small'):
+    if mode=='stderr_small' and sys.platform.startswith('linux'):
+        import fcntl
+        fcntl.fcntl(2,fcntl.F_SETPIPE_SZ,4096)
     for _ in range(1024): os.write(2,b'x'*4096)
 if mode=='invalid': os.write(1,b'\xff'); sys.exit(0)
 if mode=='multiline': print('one\ntwo'); sys.exit(0)
@@ -201,4 +204,19 @@ fn missing_approval_cannot_execute_selected_binary() {
         InstallationError::InvalidApproval
     );
     assert!(!dir.path().join("probe.pid").exists());
+}
+
+#[test]
+fn small_pipe_version_probe_preserves_volume_and_original_deadline() {
+    let (dir, request) = fixture("stderr_small");
+    assert_eq!(request.timeout, Duration::from_millis(500));
+    let result = probe_version(request).unwrap();
+    assert_eq!(result.state, VersionProbeState::Succeeded);
+    assert_eq!(result.stderr_bytes, 4 * 1024 * 1024);
+    assert_eq!(
+        result.version_line.as_deref(),
+        Some("fixture-provider 1.2.3")
+    );
+    assert!(result.process_reaped);
+    assert_reaped(&dir);
 }
