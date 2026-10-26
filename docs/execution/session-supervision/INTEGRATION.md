@@ -45,3 +45,12 @@ PR6 head3b94d1c run40398801631 ARMjob121838837098 failed compiling the lib-test 
 Test-only source5e4771de4992fe58bdcc612a583b9448f510ab32 replaces that single unavailable helper with absolute /usr/bin/mkfifo -m600 and direct path argument, asserts utility success and actual FIFO type. Both gitdir/commondir malicious pointers, original rejection assertions and killable3s child deadline remain. Production prefix is byte-identical to3b94; no dependency, lock or other-worktree change. rg crates/apps finds no remaining mkfifoat.
 
 Under022: dedicated parent+child FIFO regression, all70 core tests(lib9; extra nested child not double-counted), workspace-all-targets Clippy andfmt pass. Previous193Rust/35UI/restart evidence is archived verbatim in EVIDENCE.pre-first-ci-3b94.json; those broader tests were not rerun for this test-only delta. Fresh macOS candidate CI and independent review remain required. No push or live vendor/model/account invocation.
+
+
+## Reviewed Git guard integration
+
+Merge3bd37e614047c7b3a33616cdfdab0c4c4d895061 integrates guard32ca76 into sessionb85a64d (which committed only the pre-existing independentFIFO_REVIEW). Sole sourceconflict was WorkspaceError Display; retain incoming generalUnsafe text and existingUnverifiedIndex arm. All18oldworkspace safetytests/stat/hidden-index/filter/path guards remain byte-identical;6newraw/fetch/include guardtests add to24. Actor/schema4/policyFIFO/locks/CLI/daemon and all trackeddesktop source bytes unchanged. No profiles/schema5/adoption/dependency import.
+
+Under022:24workspaces and199top-level fullworkspaceRust(core70/config45/providers58/workspaces24/daemon signal2; extraFIFOchild excluded),35UI/typecheck/build,fmt/Clippy,binaries+actualdaemonCLIrestart pass. IncomingguardunitEVIDENCE/docs are preserved byte-identical32; priorSessionFIFO evidence archived verbatim as EVIDENCE.fifo-cf00.json, including realARMcompilefailure and originalreviews. Each candidate's evidence remains separate.
+
+Latestmain fetched dc5aea0; OWNER001/002 re-read and ACK. Parent will mergeguardPR9 only after its exactcandidate checks/review, then integrate latestmain ancestry and run onefreshSessionCI. That futuresequence is not claimed performed here. CurrentSessionmerge still awaits independentreview and native/remoteCI; no push/mainmerge or realmodel/account/remote-helper call by this unit; the authorized repository fetch is recorded separately.

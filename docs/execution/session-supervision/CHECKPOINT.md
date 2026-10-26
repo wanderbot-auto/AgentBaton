@@ -1,3 +1,16 @@
+# Current Session Git guard integration checkpoint
+
+
+## Reviewed Git guard integration
+
+Merge3bd37e614047c7b3a33616cdfdab0c4c4d895061 integrates guard32ca76 into sessionb85a64d (which committed only the pre-existing independentFIFO_REVIEW). Sole sourceconflict was WorkspaceError Display; retain incoming generalUnsafe text and existingUnverifiedIndex arm. All18oldworkspace safetytests/stat/hidden-index/filter/path guards remain byte-identical;6newraw/fetch/include guardtests add to24. Actor/schema4/policyFIFO/locks/CLI/daemon and all trackeddesktop source bytes unchanged. No profiles/schema5/adoption/dependency import.
+
+Under022:24workspaces and199top-level fullworkspaceRust(core70/config45/providers58/workspaces24/daemon signal2; extraFIFOchild excluded),35UI/typecheck/build,fmt/Clippy,binaries+actualdaemonCLIrestart pass. IncomingguardunitEVIDENCE/docs are preserved byte-identical32; priorSessionFIFO evidence archived verbatim as EVIDENCE.fifo-cf00.json, including realARMcompilefailure and originalreviews. Each candidate's evidence remains separate.
+
+Latestmain fetched dc5aea0; OWNER001/002 re-read and ACK. Parent will mergeguardPR9 only after its exactcandidate checks/review, then integrate latestmain ancestry and run onefreshSessionCI. That futuresequence is not claimed performed here. CurrentSessionmerge still awaits independentreview and native/remoteCI; no push/mainmerge or realmodel/account/remote-helper call by this unit; the authorized repository fetch is recorded separately.
+
+## Preserved prior checkpoint
+
 # Current Session first-CI portability checkpoint
 
 
