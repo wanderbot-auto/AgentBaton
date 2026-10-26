@@ -4,10 +4,13 @@ on:
   push:
     branches: [main]
     paths: ['infra/ci-request.json']
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
 permissions:
   contents: read
 concurrency:
-  group: environment-preflight-${{ github.ref }}
+  group: environment-preflight-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   preflight:

@@ -16,8 +16,9 @@ def main():
     for f in files:
         # BaseLoader avoids YAML 1.1 treating the Actions key "on" as a boolean.
         d=yaml.load(f.read_text(),Loader=yaml.BaseLoader)
-        check(set(d['on'])=={'workflow_dispatch','push'},'Only explicit preparation triggers allowed')
-        check(d['on']['push']=={'branches':['main'],'paths':['infra/ci-request.json']},'Automatic runs require the preparation request file on main')
+        check(set(d['on'])=={'workflow_dispatch','push','pull_request'},'Only preparation triggers allowed')
+        check(d['on']['push']=={'branches':['main'],'paths':['infra/ci-request.json']},'Main runs require an explicit preparation request')
+        check(d['on']['pull_request']=={'branches':['main'],'types':['opened','synchronize','reopened','ready_for_review']},'Every main-targeting PR needs the checks, without a path filter')
         check(d['permissions']=={'contents':'read'},'Preflight permissions must be read only')
         check(d['jobs']['preflight']['strategy']['matrix']['os']==['ubuntu-24.04','macos-15','macos-15-intel'],'Dual-architecture hosts missing')
         for job in d['jobs'].values():
