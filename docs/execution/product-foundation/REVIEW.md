@@ -111,3 +111,7 @@ Independent reviewer approved the test-only correction after inspecting both fai
 The newline-only correction did not eliminate Darwin early-close EPIPE. Independent review approved separating the direct size-parser RESOURCE_LIMIT assertion from best-effort socket error delivery. Integration still rejects timeout/unexpected IO and checks a subsequent authenticated snapshot. Targeted19 core tests and Clippy passed on Linux; fresh native CI required.
 
 Reviewed source hashes: ipc.rs=5ab59b07bdeea4595637e7c1d26073959ba70993cc20a65ceb1758eaf254416c; tests/ipc.rs=2dde36f7ce925bb53b725d7c3aa5b6d55284af5803d66eb3f24fc9f58bf3e453.
+
+## Follow-up: interrupted versus complete oversized input
+
+Independent reviewer approved4096-byte writes with delivery tracking and write-half shutdown. A delivered transport error is accepted only for a known interrupted send; fully sent frames still require RESOURCE_LIMIT when response delivered. Fresh authenticated snapshot also requires tasks=[] and sequence0. Direct parser bound test retained;19 local core tests and Clippy passed. Reviewed test hash: 44e59d276006628543b0579c3ffb17e6bd2f9a491f2ede95cca1fed1e1aa8711. Fresh native CI remains required.

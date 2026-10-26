@@ -158,7 +158,23 @@ fn oversized_frame_does_not_kill_daemon() {
     // sender's large write returns. Darwin can report EPIPE even when all bytes
     // reached the bounded reader. Error delivery is best effort; parser tests
     // assert RESOURCE_LIMIT directly, independently of socket delivery.
-    if let Err(error) = socket.write_all(&payload) {
+    let mut fully_written = true;
+    for chunk in payload.chunks(4096) {
+        if let Err(error) = socket.write_all(chunk) {
+            assert!(
+                matches!(
+                    error.kind(),
+                    std::io::ErrorKind::BrokenPipe
+                        | std::io::ErrorKind::ConnectionReset
+                        | std::io::ErrorKind::NotConnected
+                ),
+                "unexpected oversized write error: {error}"
+            );
+            fully_written = false;
+            break;
+        }
+    }
+    if let Err(error) = socket.shutdown(std::net::Shutdown::Write) {
         assert!(
             matches!(
                 error.kind(),
@@ -166,16 +182,25 @@ fn oversized_frame_does_not_kill_daemon() {
                     | std::io::ErrorKind::ConnectionReset
                     | std::io::ErrorKind::NotConnected
             ),
-            "unexpected oversized write error: {error}"
+            "unexpected shutdown error: {error}"
         );
     }
     let mut response = String::new();
     match BufReader::new(socket).read_line(&mut response) {
         Ok(0) => {} // Peer rejected and closed without an error frame.
-        Ok(_) => assert_eq!(
-            serde_json::from_str::<Value>(&response).unwrap()["error"]["code"],
-            "RESOURCE_LIMIT"
-        ),
+        Ok(_) => {
+            let response: Value = serde_json::from_str(&response).unwrap();
+            if fully_written {
+                assert_eq!(response["error"]["code"], "RESOURCE_LIMIT");
+            } else {
+                // An interrupted write may leave a truncated transport,
+                // rather than deliver the full oversized frame.
+                assert!(
+                    response["error"]["code"] == "RESOURCE_LIMIT"
+                        || response["error"]["code"] == "PROVIDER_DISCONNECTED"
+                );
+            }
+        }
         Err(error) => assert!(
             matches!(
                 error.kind(),
@@ -186,8 +211,7 @@ fn oversized_frame_does_not_kill_daemon() {
             "unexpected oversized read error: {error}"
         ),
     }
-    assert!(server
-        .request(json!({"method":"system.snapshot","params":{}}))
-        .get("result")
-        .is_some());
+    let snapshot = server.request(json!({"method":"system.snapshot","params":{}}));
+    assert_eq!(snapshot["result"]["sequence"], 0);
+    assert_eq!(snapshot["result"]["tasks"], json!([]));
 }

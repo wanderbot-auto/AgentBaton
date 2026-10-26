@@ -69,6 +69,11 @@
       "command": "Product / macos-15-intel at8dd441c",
       "reason": "Darwin still permits EPIPE during oversized write even when exact bounded-reader bytes were sent; initial newline-only correction was insufficient",
       "resolution": "direct parser RESOURCE_LIMIT test plus close-aware integration test retaining authenticated liveness;19 Linux core tests and Clippy passed;independent review approved;fresh native CI pending"
+    },
+    {
+      "command": "Product / macos-15-intel at84adc45",
+      "reason": "known interrupted oversized send yielded truthful PROVIDER_DISCONNECTED while direct bound parser test passed",
+      "resolution": "4096-byte writes track full delivery;permit transport error only for known interrupted send;requireRESOURCE_LIMIT after complete delivery;assert tasks/journal unchanged and authenticated liveness;independent review approved,19 local core tests/Clippy passed;fresh Mac pending"
     }
   ],
   "native_arm64": "not_run",
