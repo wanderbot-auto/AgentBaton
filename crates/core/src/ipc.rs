@@ -563,6 +563,29 @@ impl Daemon {
                 }
                 Ok(json!(s))
             }
+            "data_validation_policies.propose" => {
+                let selection: crate::data_validation::DataValidationSelection = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.propose_data_validation_policy(&selection,&key)?))
+            }
+            "data_validation_policies.list" => {
+                let p: ValidationTaskId = params(r.params)?;
+                Ok(json!(self.store.list_data_validation_policies(&p.task_id)?))
+            }
+            "data_validation_policies.revoke" => {
+                let p: ValidationPolicyId = params(r.params)?;
+                Ok(json!(self.store.revoke_data_validation_policy(&p.policy_id,r.expected_revision.ok_or_else(invalid)?)?))
+            }
+            "data_validations.list" => {
+                let p: ValidationTaskId = params(r.params)?;
+                Ok(json!(self.store.list_data_validation_records(&p.task_id)?))
+            }
+            "data_validations.run" => {
+                let p: ValidationPolicyId = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                if self.supervisor.has_workers() { return Err(CoreError::new("WORKSPACE_BUSY","Stop active owned sessions before this bounded data-validation operation")); }
+                Ok(json!(self.store.run_data_validation(&p.policy_id,r.expected_revision.ok_or_else(invalid)?,&key)?))
+            }
             "validation_policies.propose" => {
                 let selection: crate::validation::ValidationSelection = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
@@ -762,7 +785,7 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
     let mut object = command.as_object().cloned().ok_or_else(invalid)?;
     let read_timeout = if matches!(
         object.get("method").and_then(Value::as_str),
-        Some("projects.import" | "projects.reassociate" | "workspaces.create" | "validations.run")
+        Some("projects.import" | "projects.reassociate" | "workspaces.create" | "validations.run" | "data_validations.run")
     ) {
         Duration::from_secs(60)
     } else {

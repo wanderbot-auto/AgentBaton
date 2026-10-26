@@ -1,0 +1,84 @@
+{
+  "unit": "data-contract-validation-frontend",
+  "base_commit": "f59e74800e108f3997418daa5adf6a9199dfc8ab",
+  "state": "uncommitted_owned_frontend_ready_for_independent_review",
+  "recorded_at_utc": "2026-10-26T23:22:07.720002+00:00",
+  "authorization": "AB-START-001; OWNER-001/002 ACK; parent owns integration/core/native/locks and later real-backend browser evidence",
+  "requirements": [
+    "AB-VAL-003",
+    "AB-VAL-004",
+    "AB-VAL-006",
+    "AB-VAL-009",
+    "AB-VAL-010",
+    "AB-VAL-011",
+    "AB-DOM-004",
+    "AB-DOM-008"
+  ],
+  "owned_files": [
+    "apps/desktop/src/DataContractValidation.tsx",
+    "apps/desktop/src/data-validation-api.ts",
+    "apps/desktop/src/data-validation-i18n.ts",
+    "apps/desktop/src/DataContractValidation.test.tsx",
+    "apps/desktop/src/data-validation-api.test.ts",
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/src/QuietCanvas.test.tsx",
+    "apps/desktop/src/style.css"
+  ],
+  "source_sha256": {
+    "apps/desktop/src/DataContractValidation.tsx": "6baa6fab529327597da6467462c9732b3a7c679cb3251f5924af6208b6b73721",
+    "apps/desktop/src/data-validation-api.ts": "18d9b4ee9096ce9628964331cf2f646d58a0edb375dd63ade0da4579f3710ce4",
+    "apps/desktop/src/data-validation-i18n.ts": "96160edfb341b04237d3483f1c3f75b7c8e92d386c4c442271f5afbeb289f123",
+    "apps/desktop/src/DataContractValidation.test.tsx": "27255002e65611f0caa4c16e1b2de6118fa71c6ea14de9968036d1da66ca9798",
+    "apps/desktop/src/data-validation-api.test.ts": "3baaba560995820394324e1000414d26ed0905b11c130ddea3e1ef66d356cf92",
+    "apps/desktop/src/App.tsx": "92fc3f5a70f1322663047aec2e2869e329a8461a441651c571ed5a254c2b095a",
+    "apps/desktop/src/QuietCanvas.test.tsx": "fd5361c142365db06c5c0e4c67f734771281e8f43ceb407bf1406ea31343c1e3",
+    "apps/desktop/src/style.css": "0beaa70ea841aef88b65fca6dc486cd21885031f49e9f1f13fe1f7cc489693f3"
+  },
+  "checks": [
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run typecheck",
+      "exit_code": 0
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm test",
+      "exit_code": 0,
+      "tests": 129,
+      "files": 11,
+      "dimension": "jsdom/mocked Tauri-facing transport, not native Rust owner confirmation or real daemon"
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run build",
+      "exit_code": 0
+    }
+  ],
+  "local_log_sha256": {
+    "data-validation-ui-build.log": "7f165feff1341917cde3626e657cf84e76b2d771297f14c9d5da21627520366b",
+    "data-validation-ui-tests-initial.log": "894f6660fcf83ad69c5ad4915c57cef001d8d028eea5ca005d019b6c84b4fe62",
+    "data-validation-ui-tests.log": "c8f70ea4344f69f069ce43252f4ff69c6e05cf54c5361c7709fc1f540945ec99",
+    "data-validation-ui-typecheck-initial.log": "e72e482d3e161eea103371ddbe57c10a8010791ab7e7c3ef814f68dac8dd8b06",
+    "data-validation-ui-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+  },
+  "retained_failure": {
+    "log": "data-validation-ui-typecheck-initial.log",
+    "observed": "TS1117 duplicate i18n property column used both for error and failure column label; renamed display label failureColumn. No assertion or type requirement weakened."
+  },
+  "not_run": [
+    "New exact-source real backend browser/native owner confirmation handled by integration lead after core/native assembly",
+    "Current-source macOS/dual-architecture packages/desktop installation",
+    "Live Provider/model calls (not authorized)",
+    "Independent review pending; no task acceptance/algorithm correctness/script execution established"
+  ],
+  "boundaries": [
+    "Dedicated five data namespaces; roots, subject, stopped receipts and file identities always resolved on server",
+    "Selection DTO is not authority; only Rust native data_validation confirmation approves",
+    "Selection size preflight16KiB does not establish full native approval snapshot fit; Rust final guard remains authoritative",
+    "Safe decimal integer/count/seed UI only; finite binary64 number ranges; no u64/i64 rounding roundtrip",
+    "Default closed contextual panel under Artifacts; original integrity component/API/tests unchanged",
+    "Unknown intents preserve exact payload/key/revision across tab/task unmount with successful latest reconciliation required and no automatic mutation; at most32pending",
+    "No source changes/staging/commit/push outside parent-owned path agreement; only UI source files above written by this worker"
+  ],
+  "temporary_dependencies": "Worker-created exact symlink to existing locked main installation was removed after checks; actual dependencies untouched."
+}

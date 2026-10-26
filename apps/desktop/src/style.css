@@ -11,3 +11,21 @@
 .connection-registration>summary{cursor:pointer;color:var(--ink);padding:8px 0}.connection-evidence>summary{display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;color:var(--ink);padding:8px 0}.connection-evidence>summary>span:first-child{font-weight:500;overflow-wrap:anywhere}.connection-evidence[open]>summary{margin-bottom:12px}.connection-evidence>summary::marker{color:var(--muted)}
 
 .artifact-validation{padding-top:6px;font-size:var(--fs-body)}.artifact-validation h3{font-size:var(--fs-body);font-weight:500;margin:18px 0 10px}.integrity-warning{color:var(--ink);max-width:82ch}.integrity-policy-form,.integrity-policy,.integrity-record{border-top:1px solid var(--line);padding:14px 0}.artifact-validation summary{cursor:pointer;overflow-wrap:anywhere}.integrity-policy-form>form{margin-top:14px}.integrity-policy-form fieldset{display:grid;gap:10px;border:0;padding:0;margin:0 0 14px;min-width:0}.integrity-policy-form fieldset>p{margin:0 0 4px}.integrity-policy-form textarea{width:100%}.integrity-policy-form input[type=number]{max-width:120px}.integrity-policy-form details textarea{margin-top:10px}.integrity-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.integrity-policy time,.integrity-record time{color:var(--muted)}.integrity-policy p{margin:10px 0}.integrity-record[open]>summary{margin-bottom:14px}.integrity-table-scroll{overflow-x:auto;margin-top:14px}.integrity-table-scroll table{border-collapse:collapse;width:100%;font-size:var(--fs-body);text-align:left}.integrity-table-scroll caption{text-align:left;padding:8px 0;font-weight:500}.integrity-table-scroll th,.integrity-table-scroll td{border-bottom:1px solid var(--line-light);vertical-align:top;padding:10px 14px 10px 0;overflow-wrap:anywhere;max-width:30ch;font-weight:400}.integrity-table-scroll thead th{color:var(--muted)}.integrity-table-scroll code{font-size:var(--fs-body)}
+
+/* Data checks stay contextual; no shared canvas/layout rules change. */
+.data-validation { margin-top: 24px; min-width: 0; border-top: 1px solid var(--line); padding-top: 18px; overflow-wrap: anywhere; }
+.data-validation h2 { display: inline; font-size: 18px; font-weight: 500; }
+.data-validation details { margin: 14px 0; }
+.data-validation details > summary { cursor: pointer; }
+.data-validation fieldset { min-width: 0; margin: 18px 0; border: 1px solid var(--line); border-radius: 6px; padding: 14px; }
+.data-validation label { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; min-width: 0; }
+.data-validation input, .data-validation select, .data-validation textarea { width: 100%; min-width: 0; max-width: 100%; }
+.data-validation textarea { resize: vertical; }
+.data-validation .data-validation-fields, .data-validation .data-validation-column { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
+.data-validation .data-validation-column { border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 14px; }
+.data-validation .data-validation-checkbox { flex-direction: row; align-items: center; }
+.data-validation .data-validation-checkbox input { width: auto; }
+.data-validation .data-validation-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.data-validation dd { margin: 4px 0 14px; }
+.data-validation code { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 759px) { .data-validation .data-validation-fields, .data-validation .data-validation-column { grid-template-columns: minmax(0, 1fr); } .data-validation button, .data-validation input, .data-validation select { min-height: 44px; } }

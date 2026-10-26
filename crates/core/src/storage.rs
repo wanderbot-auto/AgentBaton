@@ -87,7 +87,7 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 6 {
+        if version > 7 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
@@ -107,8 +107,8 @@ impl Store {
         }
         conn.execute_batch("PRAGMA foreign_keys=ON;")
             .map_err(db_error)?;
-        if version > 0 && version < 6 {
-            let backup = path.with_extension(format!("pre-v6-{}.sqlite3", Uuid::new_v4()));
+        if version > 0 && version < 7 {
+            let backup = path.with_extension(format!("pre-v7-{}.sqlite3", Uuid::new_v4()));
             OpenOptions::new()
                 .create_new(true)
                 .write(true)
@@ -125,6 +125,7 @@ impl Store {
         migrate_sessions(&mut conn, version)?;
         migrate_runtime_snapshots(&mut conn, version)?;
         migrate_validations(&mut conn, version)?;
+        migrate_data_validations(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -434,6 +435,18 @@ fn migrate_validations(conn: &mut Connection, version: u32) -> Result<()> {
         tx.execute_batch("CREATE TABLE validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL);
         CREATE TABLE validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),state TEXT NOT NULL CHECK(state IN('integrity_passed','failed')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key));
         PRAGMA user_version=6;").map_err(db_error)?;
+        tx.commit().map_err(db_error)?;
+    }
+    Ok(())
+}
+
+// Data contract policies and receipts never share the integrity-only namespace.
+fn migrate_data_validations(conn: &mut Connection, version: u32) -> Result<()> {
+    if version < 7 {
+        let tx = conn.transaction().map_err(db_error)?;
+        tx.execute_batch("CREATE TABLE data_validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL);
+        CREATE TABLE data_validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES data_validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),state TEXT NOT NULL CHECK(state IN('contract_passed','contract_failed')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key));
+        PRAGMA user_version=7;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
     Ok(())

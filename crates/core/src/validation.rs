@@ -657,7 +657,7 @@ fn validation_event(
 
 // Bound stored/raw JSON bytes before decoding any record. This Vec API refuses
 // an oversized listing explicitly; it never silently drops history or contracts.
-fn bounded_documents<T: for<'de> Deserialize<'de>>(
+pub(crate) fn bounded_documents<T: for<'de> Deserialize<'de>>(
     connection: &rusqlite::Connection,
     table: &str,
     task_id: &str,
@@ -666,6 +666,8 @@ fn bounded_documents<T: for<'de> Deserialize<'de>>(
     let (metadata_sql, document_sql) = match table {
         "validation_policies" => ("SELECT id,octet_length(document) FROM validation_policies WHERE task_id=?1 ORDER BY rowid DESC LIMIT 101", "SELECT document FROM validation_policies WHERE id=?1 AND task_id=?2 AND octet_length(document)<=?3"),
         "validation_runs" => ("SELECT id,octet_length(document) FROM validation_runs WHERE task_id=?1 ORDER BY rowid DESC LIMIT 101", "SELECT document FROM validation_runs WHERE id=?1 AND task_id=?2 AND octet_length(document)<=?3"),
+        "data_validation_policies" => ("SELECT id,octet_length(document) FROM data_validation_policies WHERE task_id=?1 ORDER BY rowid DESC LIMIT 101", "SELECT document FROM data_validation_policies WHERE id=?1 AND task_id=?2 AND octet_length(document)<=?3"),
+        "data_validation_runs" => ("SELECT id,octet_length(document) FROM data_validation_runs WHERE task_id=?1 ORDER BY rowid DESC LIMIT 101", "SELECT document FROM data_validation_runs WHERE id=?1 AND task_id=?2 AND octet_length(document)<=?3"),
         _ => return Err(CoreError::new("INTERNAL_ERROR", "Unknown validation record collection")),
     };
     let limited = || {
@@ -714,7 +716,7 @@ fn bounded_documents<T: for<'de> Deserialize<'de>>(
 }
 
 impl Store {
-    fn validation_workspace(
+    pub(crate) fn validation_workspace(
         &self,
         session_id: &str,
     ) -> Result<(
