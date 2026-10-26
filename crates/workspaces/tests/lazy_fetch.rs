@@ -9,7 +9,7 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
 };
-fn git(root: &Path, args: &[&str]) -> String {
+fn git_output(root: &Path, args: &[&str]) -> std::process::Output {
     let mut command = Command::new("git");
     for (key, _) in std::env::vars_os() {
         if key.as_bytes().starts_with(b"GIT_") {
@@ -30,6 +30,10 @@ fn git(root: &Path, args: &[&str]) -> String {
         .env("GIT_CONFIG_NOSYSTEM", "1")
         .output()
         .unwrap();
+    output
+}
+fn git(root: &Path, args: &[&str]) -> String {
+    let output = git_output(root, args);
     assert!(
         output.status.success(),
         "fixture Git: {}",
@@ -168,4 +172,116 @@ fn replacement_refs_cannot_change_the_approved_commit_content() {
     assert_eq!(fs::read(&replacement_ref).unwrap(), ref_before);
     assert_eq!(fs::read(root.join(".git/index")).unwrap(), index_before);
     assert_eq!(fs::read(root.join("file.txt")).unwrap(), b"replacement\n");
+}
+
+#[test]
+fn future_worktree_conditional_config_cannot_activate_an_unchecked_filter() {
+    let repository = tempfile::tempdir().unwrap();
+    let root = repository.path().canonicalize().unwrap();
+    let managed = tempfile::tempdir().unwrap();
+    git(&root, &["init", "-b", "fixture"]);
+    git(&root, &["config", "user.name", "Fixture"]);
+    git(&root, &["config", "user.email", "fixture@example.invalid"]);
+    fs::write(root.join("file.txt"), b"approved\n").unwrap();
+    fs::write(root.join(".gitattributes"), b"file.txt filter=generated\n").unwrap();
+    git(&root, &["add", "file.txt", ".gitattributes"]);
+    git(&root, &["commit", "-m", "fixture"]);
+    let head = git(&root, &["rev-parse", "HEAD"]);
+    let marker = managed.path().join("filter-executed");
+    let helper = managed.path().join("generated-filter");
+    fs::write(
+        &helper,
+        format!("#!/bin/sh\n: > '{}'\ncat\n", marker.display()),
+    )
+    .unwrap();
+    fs::set_permissions(&helper, fs::Permissions::from_mode(0o700)).unwrap();
+    let included = managed.path().join("conditional-config");
+    fs::write(
+        &included,
+        format!(
+            "[filter \"generated\"]\n smudge = {}\n required = true\n",
+            helper.display()
+        ),
+    )
+    .unwrap();
+    let condition = format!(
+        "includeIf.gitdir:{}/.git/worktrees/future-*.path",
+        root.display()
+    );
+    git(&root, &["config", &condition, included.to_str().unwrap()]);
+    let control = managed.path().join("future-control");
+    // No checkout: this control only observes configuration in a genuine child
+    // gitdir and must not run the smudge command or materialize source content.
+    git(
+        &root,
+        &[
+            "worktree",
+            "add",
+            "--no-checkout",
+            "--detach",
+            control.to_str().unwrap(),
+            &head,
+        ],
+    );
+    let source_config = git_output(
+        &root,
+        &["config", "--includes", "--get-regexp", "^filter\\."],
+    );
+    assert_eq!(source_config.status.code(), Some(1));
+    let child_config = git_output(
+        &control,
+        &["config", "--includes", "--get-regexp", "^filter\\."],
+    );
+    assert!(child_config.status.success());
+    assert!(String::from_utf8(child_config.stdout)
+        .unwrap()
+        .contains("filter.generated.smudge"));
+    assert!(!marker.exists());
+    assert!(!control.join("file.txt").exists());
+    let config_before = fs::read(root.join(".git/config")).unwrap();
+    let included_before = fs::read(&included).unwrap();
+    let index_before = fs::read(root.join(".git/index")).unwrap();
+    assert!(matches!(
+        inspect(&root),
+        Err(WorkspaceError::UnsafeRepository)
+    ));
+    assert!(matches!(
+        create_isolated(&root, managed.path(), "future-negative", &head),
+        Err(WorkspaceError::UnsafeRepository)
+    ));
+    assert!(!marker.exists());
+    assert!(!managed.path().join("future-negative").exists());
+    assert!(!root.join(".git/worktrees/future-negative").exists());
+    assert_eq!(fs::read(root.join(".git/config")).unwrap(), config_before);
+    assert_eq!(fs::read(&included).unwrap(), included_before);
+    assert_eq!(fs::read(root.join(".git/index")).unwrap(), index_before);
+    assert_eq!(fs::read(root.join("file.txt")).unwrap(), b"approved\n");
+}
+
+#[test]
+fn direct_include_is_refused_without_repairing_repository_configuration() {
+    let repository = tempfile::tempdir().unwrap();
+    let root = repository.path().canonicalize().unwrap();
+    let external = tempfile::tempdir().unwrap();
+    git(&root, &["init", "-b", "fixture"]);
+    git(&root, &["config", "user.name", "Fixture"]);
+    git(&root, &["config", "user.email", "fixture@example.invalid"]);
+    fs::write(root.join("file.txt"), b"approved\n").unwrap();
+    git(&root, &["add", "file.txt"]);
+    git(&root, &["commit", "-m", "fixture"]);
+    let included = external.path().join("safe-config");
+    fs::write(&included, b"[core]\n bare = false\n").unwrap();
+    git(
+        &root,
+        &["config", "include.path", included.to_str().unwrap()],
+    );
+    let config_before = fs::read(root.join(".git/config")).unwrap();
+    let index_before = fs::read(root.join(".git/index")).unwrap();
+    assert!(matches!(
+        inspect(&root),
+        Err(WorkspaceError::UnsafeRepository)
+    ));
+    assert_eq!(fs::read(root.join(".git/config")).unwrap(), config_before);
+    assert_eq!(fs::read(root.join(".git/index")).unwrap(), index_before);
+    assert_eq!(fs::read(&included).unwrap(), b"[core]\n bare = false\n");
 }

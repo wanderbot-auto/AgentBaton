@@ -36,7 +36,7 @@ impl fmt::Display for WorkspaceError {
             Self::NotRepository => write!(f, "not a Git working tree"),
             Self::UnsafeRepository => write!(
                 f,
-                "repository requires unapproved executable filters or external object access"
+                "repository requires unapproved configuration indirection, executable filters or external object access"
             ),
             Self::Git(_) => write!(f, "Git operation failed; inspect repository state"),
             Self::Dirty => write!(f, "target has uncommitted or untracked files"),
@@ -169,6 +169,26 @@ fn git_text(root: &Path, args: &[&str]) -> Result<String, WorkspaceError> {
         .map_err(|_| WorkspaceError::InvalidPath)
 }
 
+fn reject_config_indirection(root: &Path) -> Result<(), WorkspaceError> {
+    // A future worktree gitdir can activate rules invisible in the source
+    // context. Audit declarations without following them; do not rewrite them.
+    let includes = bounded_output(git_command(root).args([
+        "config",
+        "--no-includes",
+        "--get-regexp",
+        "^include(if\\..*)?\\.path$",
+    ]))?;
+    if includes.status.success() {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    if includes.status.code() != Some(1) {
+        // Preserve malformed/unreadable repository rejection before probing it;
+        // a failed audit must never permit a later object or checkout operation.
+        return Err(WorkspaceError::NotRepository);
+    }
+    Ok(())
+}
+
 fn reject_partial_clones(root: &Path) -> Result<(), WorkspaceError> {
     // Older Git versions may not honor GIT_NO_LAZY_FETCH. Refuse external object
     // sources before status/checkout/object inspection can invoke their helpers.
@@ -200,6 +220,7 @@ pub fn inspect(root: &Path) -> Result<WorkspaceIdentity, WorkspaceError> {
     if !metadata.is_dir() {
         return Err(WorkspaceError::InvalidPath);
     }
+    reject_config_indirection(&canonical_root)?;
     let probe = output(
         &canonical_root,
         &[OsStr::new("rev-parse"), OsStr::new("--show-toplevel")],
@@ -315,6 +336,7 @@ pub fn create_isolated(
     }
     // Checkout can invoke named clean/smudge/process filters. Reject their configuration rather
     // than running owner-unapproved code during worktree creation.
+    reject_config_indirection(&source.canonical_root)?;
     reject_partial_clones(&source.canonical_root)?;
     reject_checkout_filters(&source.canonical_root)?;
     let verified = git_text(
