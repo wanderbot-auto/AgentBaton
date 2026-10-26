@@ -1,9 +1,24 @@
 use agentbaton_core::storage::Store;
 use rusqlite::Connection;
 use std::fs;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use tempfile::TempDir;
+
+fn private_managed_root() -> TempDir {
+    // Only fresh test-owned execution roots are made private. Imported source
+    // fixtures retain their ordinary directory permissions.
+    let root = tempfile::Builder::new()
+        .permissions(fs::Permissions::from_mode(0o700))
+        .tempdir()
+        .unwrap();
+    assert_eq!(
+        fs::metadata(root.path()).unwrap().permissions().mode() & 0o777,
+        0o700
+    );
+    root
+}
 
 fn git(root: &Path, args: &[&str]) -> String {
     let result = Command::new("git")
@@ -160,7 +175,7 @@ fn workspace_creation_protects_source_head_dirty_edits_and_retries() {
     let project = store
         .import_project(source.path(), "Coding", "import")
         .unwrap();
-    let managed = tempfile::tempdir().unwrap();
+    let managed = private_managed_root();
     assert_eq!(
         store
             .create_workspace(&project.id, 2, &head, managed.path(), "stale")
@@ -222,7 +237,7 @@ fn replaced_root_or_shared_managed_root_cannot_receive_new_writes() {
     let project = store
         .import_project(source.path(), "Coding", "import")
         .unwrap();
-    let managed = tempfile::tempdir().unwrap();
+    let managed = private_managed_root();
     fs::set_permissions(managed.path(), fs::Permissions::from_mode(0o755)).unwrap();
     assert_eq!(
         store
@@ -250,7 +265,7 @@ fn failed_final_persistence_recovers_unknown_and_never_replays_checkout() {
     let project = store
         .import_project(source.path(), "Coding", "import")
         .unwrap();
-    let managed = tempfile::tempdir().unwrap();
+    let managed = private_managed_root();
     let db = Connection::open(&path).unwrap();
     db.execute_batch("CREATE TRIGGER fail_workspace_commit BEFORE UPDATE ON managed_workspaces WHEN NEW.state='ready' BEGIN SELECT RAISE(ABORT,'injected final persistence failure'); END;").unwrap();
     let error = store
@@ -293,7 +308,7 @@ fn leases_survive_restart_and_stale_fences_cannot_write_or_renew() {
     let project = store
         .import_project(source.path(), "Coding", "import")
         .unwrap();
-    let managed = tempfile::tempdir().unwrap();
+    let managed = private_managed_root();
     let workspace = store
         .create_workspace(&project.id, 1, &head, managed.path(), "workspace")
         .unwrap();
@@ -379,7 +394,7 @@ fn lease_state_and_journal_rollback_together() {
     let project = store
         .import_project(source.path(), "Coding", "import")
         .unwrap();
-    let managed = tempfile::tempdir().unwrap();
+    let managed = private_managed_root();
     let workspace = store
         .create_workspace(&project.id, 1, &head, managed.path(), "workspace")
         .unwrap();
@@ -410,7 +425,7 @@ fn lease_grants_and_renewals_reject_replaced_managed_directory() {
     let project = store
         .import_project(source.path(), "Coding", "import")
         .unwrap();
-    let managed = tempfile::tempdir().unwrap();
+    let managed = private_managed_root();
     let workspace = store
         .create_workspace(&project.id, 1, &head, managed.path(), "workspace")
         .unwrap();
@@ -462,7 +477,7 @@ fn new_lease_requires_pinned_base_but_existing_writer_can_commit() {
     let project = store
         .import_project(source.path(), "Coding", "import")
         .unwrap();
-    let managed = tempfile::tempdir().unwrap();
+    let managed = private_managed_root();
     let workspace = store
         .create_workspace(&project.id, 1, &head, managed.path(), "workspace")
         .unwrap();

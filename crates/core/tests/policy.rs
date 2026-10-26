@@ -6,6 +6,7 @@ use agentbaton_core::storage::Store;
 use rusqlite::{params, Connection};
 use serde_json::json;
 use std::fs;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use tempfile::TempDir;
@@ -52,7 +53,10 @@ fn fixture() -> Fixture {
     let project = store
         .import_project(source.path(), "Project", "import")
         .unwrap();
-    let managed = tempfile::tempdir().unwrap();
+    let managed = tempfile::Builder::new()
+        .permissions(fs::Permissions::from_mode(0o700))
+        .tempdir()
+        .unwrap();
     let workspace = store
         .create_workspace(&project.id, 1, &head, managed.path(), "workspace")
         .unwrap();

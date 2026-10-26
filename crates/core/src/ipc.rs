@@ -265,6 +265,11 @@ struct ReadyRequest {
     deadline: Instant,
 }
 fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
+    // Accepted sockets can inherit O_NONBLOCK from the nonblocking listener on
+    // Darwin. Establish bounded blocking client IO before any first-frame read.
+    if stream.set_nonblocking(false).is_err() {
+        return;
+    }
     let _ = stream.set_read_timeout(Some(Duration::from_secs(3)));
     let _ = stream.set_write_timeout(Some(Duration::from_secs(3)));
     let response = match read_frame(&stream, MAX_FRAME) {
@@ -724,6 +729,26 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
 #[cfg(test)]
 mod frame_tests {
     use super::*;
+
+    #[test]
+    fn inherited_nonblocking_stream_waits_for_the_delayed_complete_first_frame() {
+        let (receiver, mut sender) = UnixStream::pair().unwrap();
+        receiver.set_nonblocking(true).unwrap();
+        let (requests, ready) = mpsc::sync_channel(1);
+        let worker = std::thread::spawn(move || socket_worker(receiver, requests));
+        std::thread::sleep(Duration::from_millis(30));
+        sender.write_all(b"{}\n").unwrap();
+        let request = ready.recv_timeout(Duration::from_secs(2)).unwrap();
+        assert_eq!(request.raw, "{}\n");
+        request
+            .reply
+            .send(json!({"result":"delayed-frame-read"}))
+            .unwrap();
+        let response: Value =
+            serde_json::from_str(&read_frame(&sender, MAX_FRAME).unwrap()).unwrap();
+        assert_eq!(response["result"], "delayed-frame-read");
+        worker.join().unwrap();
+    }
 
     #[test]
     fn oversized_parser_returns_resource_limit_without_relying_on_error_delivery() {
