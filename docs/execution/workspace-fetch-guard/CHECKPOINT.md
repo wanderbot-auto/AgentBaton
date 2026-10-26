@@ -1,5 +1,7 @@
-# Focused guard checkpoint
+# Focused fetch/raw-object guard checkpoint
 
-Branch codex/workspace-fetch-guard from protectedmain dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7. Tested source4d43989;126 fullworkspaceRust tests,15 workspace tests(including2new negatives),Clippy/fmt PASS under022. No source/dependency change outsideowned library/testpaths. Config/adoption/native/session work remains separate.
+Branch codex/workspace-fetch-guard, base protectedmain dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7. Final testedsource8dcb4a3f951ca9223c5eb7b803e7de72340de64c includes source4d43989(fetchguard) and8dcb4a3(rawobjectguard); middle9430a1d is documentation only. No dependency/lock/database/UI or otherworktree code changes. OWNER001/002 ACK; complete Designv0.2 goal remains.
 
-Independentreview is requested. Parent should cherry-pick only the focused reviewed sourceguard into root/session/QuietCanvas as appropriate, resolve later stat/index/adoption context without replacing newer library features, then run exactcandidate CI. No push/mainmerge performed here. No Mac/native/runtime/fullproduct acceptance claimed. See PLAN/PROGRESS/EVIDENCE for scope,commands and hashes.
+128 fullworkspaceRust tests(core35/config26/providers50/workspaces17),17 librarytests,Clippy/fmt PASS under022. Independent /root/review source review and17-test rerun APPROVED, no unresolved aggregate blocker. Actual local controls prove replacement/graft redirection while safehelper reads raw committed bytes/parents and preserves repository metadata. Earlier fetch126-test evidence remains archived.
+
+Parent may cherry-pick the two sourcecommits(4d43989 then8dcb4a3), or the whole focusedbranch including unitdocs. Preserve later hidden-index/stat/adoption guards when resolving context. Run exactcandidate CI on each integration; no current Mac/native/remote CI claimed here. No push/mainmerge/vendor/model/account/network action performed by this focused unit. Full product remains incomplete.

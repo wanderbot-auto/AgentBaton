@@ -7,3 +7,6 @@ Requirement AB-PRJ-001: importing owner-selected projects must not execute their
 1. Apply minimal GIT_NO_LAZY_FETCH=1, protocol.allow=never, fail-closed partialclone/promisor config guard before status/object work and checkout. Keep public types/API and existing filter/path guards.
 2. Exercise generated missing-blob/ext-helper cases; no network/private identity/source execution. Verify unchanged config/index/content and no managed checkout on refusal. Run full workspace regression, fmt and Clippy.
 3. Preserve source/log hashes and exact outcomes for independent review. Only workspaces lib/tests and this unit docs may change; no Cargo/locks/DB/UI, pushes or main merges. Parent integrates the reviewed focused commit into dependent branches.
+
+
+Owner integration lead added the same read-boundary raw-object requirement after independent refs/replace reproduction: disable replacement objects and legacy grafts in Git command env, and verify committed bytes/parents with generated fixtures. This closes exact-SHA interpretation, not a new adoption engine.
