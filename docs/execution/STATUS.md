@@ -1,19 +1,13 @@
 # AgentBaton 执行状态
 
-完整目标：Design v0.2 全130项需求、27项已定决定与WP01–WP14。AB-START-001有效；OWNER-001/002 ACK，实际最新保护main65f223cc05277435fe2caecfa140708de8bc9a52收件箱无新序号。原生Goal工具/Cloud任务URL当前未提供；实际使用原生子代理和独立审查，不虚构后台续跑。
+完整目标仍是Design v0.2全部130项需求、27项决定与WP01–WP14。AB-START-001有效；在本次集成边界实际fetch保护main c4e72c641e3edc3f3c0f665ffde5217933c2895f并读取OWNER_INBOX，仅OWNER001/002继续ACK，无新指令。无原生Goal工具/Cloud任务URL；实际使用原生子代理与独立审查，不虚构停止后的续跑。
 
-已按独立审查、准确候选七项CI与双架构DMG核验依次合入PR3、4、9、6。最新Session合入65f223c，守卫与actor写者交接均在main。原三个必需Environment与分支保护保留，不直接/强推main。
+已按准确候选七项CI、独立审查和双架构真实DMG核验合入PR3、4、9、6、7。PR7准确a9fb0d11b884283e0efb325a93bacbcc01b18769的Product40416546545/Environment40416546428全部七项成功后保护合入c4e72c6；两个DMG同实际测试checkout5ed49f632d3a8872bc1903a2bd449d96da9bc928，下载ZIP/DMG摘要、UDIF、构建架构/签名均核对。Intel未签名，ARM linker ad hoc无TeamIdentifier；未Developer ID/公证。会话fixture原两Mac失败/控制复现/首修诊断断言失败完整保留，独立13会话修复审查通过。Quiet Canvas落实冷白两列卡片、单目标输入和聚焦任务/折叠能力配置，真实连接原产品IPC；并非全功能验收。
 
-PR7专用Quiet Canvas：fcfea的Rust/UI+三Environment成功，两Mac因共享核心测试强求短暂ready而失败。隔离修复da4dda0/文档ef825不改生产/UI/锁/阈值，分开验证1200绝对到期、真实挂起进程10k运行预算与明确撤销，均有实际PID/停止receipt和无关进程存活断言；13sessions/fmt/Clippy通过，旧失败及控制复现保留。独立13项会话审查已通过；准确新候选a9fb0d11b884283e0efb325a93bacbcc01b18769已正常推送，等待真实CI，不可提前合入。
+PR8连接四种明确Provider路线、受批准私有默认RuntimePlan、schema5 immutableattempt配置与发起前绑定检查，含共享Git/actor与原生harness修复。准确9edf的Product40412628973/Environment40412633797全部七项成功，ARM/Intel实际WebView首窗与重开、同一任务持久化/取消、后台存活/第二写者拒绝/受控重启/owned清理及实际默认release测试控制审计，报告级独立核验通过；两个真实DMG已下载核验，详见native-gui/SUCCESS_9EDF_REVIEW与provider-adapters/DEVELOPMENT_PACKAGES_9EDF。此前失败仍是失败。Root234db83/be647已合专用UI全部ancestry与共享fixture，生产/native/UI/locks对9edf逐字不变，唯一代码差异是更强会话测试；Root17sessions/fmt/CoreClippy通过。本次再合main c4e为纯ancestry，无产品差异，正在保存新准确候选、转PR8 main/ready并新跑全部检查；不继承9edf为新head通过。
 
-PR8仍叠加PR7：精确9edf14e152e59f98971ffce925814a520a33a0a7的Product40412628973与Environment40412633797全部七项成功；ARM/Intel真实WebView首窗与重开、同一任务持久化/取消、关窗后台存活/第二写者拒绝/受控重启/owned清理均通过独立报告核验。两Mac实际默认release包测试控制审计通过。双架构真实DMG已下载核验ZIP API摘要、SHA256SUMS、UDIF、准确checkout与架构；Intel未签名，ARM linker ad hoc无TeamIdentifier，均非Developer ID/公证。详见native-gui/SUCCESS_9EDF_REVIEW.md和provider-adapters/DEVELOPMENT_PACKAGES_9EDF.json。历史4f两架构重开失败等原证据保留。
+PR10 https://github.com/wanderbot-auto/AgentBaton/pull/10 已建立draft，源3c1cd1a26b99350f13d14645118bb0a72f87b1de，叠加PR8；实际Product40417144235/Environment40417148162新CI已启动，后者三项通过，Product仍需读取最终真实结果。该功能接通schema6文件完整性策略/原生负责人批准/真实认证IPC/Artifacts UI，仅integrity，不建立代码/科学正确性、TaskAccepted或采纳权限。本地283Rust/79mockUI/26实际浏览器IPC+12图、7Linux宿主/6native单元/15runner/fmt/Clippy/真实重启，以及最终17会话测试增量通过；完整性Core/UI/组合与私有DB夹具独立审查通过。新候选MacGUI/DMG/原生批准对话框和人工安装尚未据此验收。
 
-PR8连接四种明确Provider路线、受批准私有默认RuntimePlan、schema5不可变attempt配置与启动前绑定检查。实际本地254Rust/49UI/22浏览器IPC+8图、7Linux宿主/6native单元/15runner、fmt/Clippy/重启通过；这些与MacGUI分别记录。真实Provider、原生批准对话框、人工安装、最低OS、登录/睡眠/完整产品仍未验收。
+隔离codex/data-contract-validation基于PR10。独立reviewed JSON数据合同库cbd5509/文档a088529已整合f59e748/8da2bee，当前共享守卫组合63库单元/集成+2compilefail文档测试/Clippy/fmt通过；不执行复现脚本或证明算法。Core agent正在schema7独立data policy/receipt+namespace、UI agent正在默认折叠数据合同表单/结果、主代理在真实Tauri/native批准桥与只读browser验证接线；这些未提交修改尚未全组合/审查，不冒称已验收。Native批准将固定owner所声明population/units/timezone及schema/range，不把它们升级为独立科学事实。
 
-隔离codex/validation-integration已提交9895ba6 schema6/文件完整性原生负责人策略/真实IPC/Artifacts UI，runtime9edf与main65f ancestry集成已提交815db46/280c92a。新增组合实际283Rust/79UI/26浏览器IPC+12图、7Linux宿主/6native单元/15runner/fmt/Clippy/真实重启通过，独立组合审查完成，private fixture0600增量独立单测/审查通过。仅文件完整性，不是代码/数值正确性、全TaskAccepted或采纳授权；功能PR/准确MacCI未运行。codex/deterministic-validators正在实现受批准的有界数据JSON合同验证库；不是已接线或已验收功能。
-
-继续依赖就绪研发：修复与准确CI/保护合入PR7/8，保存schema6功能PR，连接确定性正确性检查、精确head采纳、计划/路由/委派/工作流、完整配置/历史留存/远程主机/桌面生命周期。各单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和requirements-progress.json保留未完成范围；阶段成功不是全产品完成。
-
-真实产品Provider身份/模型调用、新增费用/资源、未批准远程主机、正式签名/公证、最终许可证和生产发布继续单独关闭；无私人认证/密钥复制或计费切换。缺项仅阻塞相关验证。磁盘曾98%，仅清理本次旧可重建target/incremental后72%，源码/日志/截图/安装包证据保留。
-
-Root已合入Quiet ef825/保护main65f ancestry为234db83，唯一代码差异是审查通过的共享会话测试；实际Root全部17sessions、fmt、CoreClippy通过。原9edf成功检查/双DMG仍绑定9edf；新的准确候选等待PR7保护合入后同步main再运行，不冒称新head已过CI。
+仍持续推进完整正确性检查/精确head采纳/计划与路由委派工作流、完整配置/历史留存导出/远程主机/登录睡眠等桌面生命周期。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE、requirements-progress分开记录实施/验证/受阻；不写虚构百分比、不以阶段切片替代完整Goal。真实Provider/模型/私人身份、新增费用资源、未批准远程、正式签名/公证、最终许可证和生产发布继续关闭；无凭据复制/计费切换，缺项仅阻塞相关验证。原三个必需Environment/保护规则保留，无直接/强推main或绕过检查。

@@ -752,5 +752,15 @@
     },
     "review": "docs/execution/quiet-canvas/TIMEOUT_FIXTURE_REVIEW.md",
     "new_head_ci": "not_run; afterprotectedUImerge syncmain andfresh exactchecks"
+  },
+  "main_ui_integration": {
+    "protected_main": "c4e72c641e3edc3f3c0f665ffde5217933c2895f",
+    "owner_inbox": "read atboundary;001/002ACK no newsequence",
+    "ui_head": "a9fb0d11b884283e0efb325a93bacbcc01b18769",
+    "ui_product_run": 40416546545,
+    "ui_environment_run": 40416546428,
+    "ui_packages": "docs/execution/quiet-canvas/DEVELOPMENT_PACKAGES_A9FB.json",
+    "root_merge": "pureancestry; zero product/native/UI/lock delta frombe647",
+    "fresh_candidate_ci": "pending aftercommit/push/mainready; no inherited9edf acceptance"
   }
 }
