@@ -1,30 +1,34 @@
 # AgentBaton — environment preparation only
 
-The user authorized preparation of the private `wanderbot-auto/AgentBaton` repository and development/test environments. The user has not approved starting product development.
+Repository: `wanderbot-auto/AgentBaton`. The owner changed visibility to public on 2026-10-26 and authorized continuing environment preparation. Product implementation remains NOT authorized.
 
-Read `AGENTS.md` and `infra/execution-gate.json` first. The gate is an explicit workflow/instruction check, not an OS sandbox or a substitute for GitHub branch protection. Do not change it without new user approval.
+Read `AGENTS.md` and `infra/execution-gate.json` first. The gate is a workflow/instruction check, not an OS sandbox or GitHub branch protection. Do not change execution authorization without separate user approval.
 
 ## Verification
 
 ```bash
 python3 scripts/check_gate.py --scope preparation
+python3 scripts/verify_bootstrap_manifest.py
 python3 scripts/validate_design.py
 python3 scripts/validate_infrastructure.py
 python3 -m unittest discover -s tests/infrastructure -p 'test_*.py' -v
 npm test
 cargo test --locked --manifest-path tools/environment-smoke/Cargo.toml
+cargo clippy --locked --manifest-path tools/environment-smoke/Cargo.toml --all-targets -- -D warnings
 ```
 
-The source design text and JSON are preserved from v0.2. The original ZIP remains in conversation/local backups; immutable baseline files are checked against the original SHA-256 manifest. Repository and environment metadata may be updated as actual evidence arrives.
+The design v0.2 baseline is preserved. Original design hashes are separate from preparation-file integrity hashes. Update preparation hashes only for reviewed changes; do not weaken tests or alter product requirements to make checks pass.
 
-## Existing repository
+## Repository and CI
 
-The remote repository has been created by the user. Do not run the legacy `bootstrap-github.sh --apply` creation command against it. That script remains for historical bootstrap dry-run/owner-guard tests only. Do not force-push, overwrite unknown content or recreate the repository.
+Do not recreate the repository or use legacy `bootstrap-github.sh --apply`. That script is historical bootstrap test coverage, not a deployment command. Do not force-push or overwrite other work.
 
-## Execution scopes
+The preflight runs on PRs targeting main, manual dispatch, and an explicit `infra/ci-request.json` change on main. It has read-only contents permission, no secrets, pinned actions and bounded GitHub-hosted jobs. Public PR code is untrusted; do not use privileged PR events or personal runners. The three check names match `infra/github-main-ruleset.json`.
 
-`environment-preflight.yml` is restricted to environment smoke checks. It may run manually or when an explicit `infra/ci-request.json` request is committed on main. Product features, real Agent calls, production publishing and paid resource provisioning are not authorized.
+`infra/BRANCH_PROTECTION.md` explains activation. A committed ruleset JSON is NOT an active ruleset. The current integration has repository content write operations but no ruleset write operation.
 
-Codex Cloud instructions are in `codex/ENVIRONMENT_SETUP.md`. Having a setup script is not a published Cloud environment. Record actual environment identity, tested commit and successful published state before marking it ready.
+## Cloud and authorization
 
-Do not claim macOS product builds, GUI tests or signed installers from these infrastructure fixtures. Stop after reporting verified readiness or concrete remaining blockers and await the user's product-development confirmation.
+The user reported all Cloud preparation checks passing, with no repository changes or injected credentials, and supplied a screenshot showing the AgentBaton environment published and private to the user. This is user-provided evidence; the cloud EVIDENCE.json and published environment identifier have not been directly retrieved here.
+
+No product work packages, real Provider calls, production publication or paid resource creation are authorized. No app or installer has been built. Stop after the environment readiness/blocker report and wait for a separate product-development confirmation.
