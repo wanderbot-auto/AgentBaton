@@ -5,3 +5,6 @@ Current branch `codex/project-registry`; original registry base4e1efd3, local fo
 Local123 Rust tests+15 transport-mocked UI tests/typecheck/build+fmt/Clippy+actual SIGKILL restart smoke+design/infrastructure28+92-file integrity passed. Docs-only evidence update follows the tested code commit. Existing draftPR4 has not been pushed or retargeted by this unit. Main not merged; full product incomplete. Parent next independently reviews source+evidence, reads prerequisite exact-candidate CI, then handles guarded push/retarget/merge.
 
 No vendor/account/model, production, signing or paid resource action. Remaining requirements unchanged. Historical reports remain nested in EVIDENCE and STATUS rather than overwritten as current facts.
+
+
+PR3 now actually merged1f34b44 after222a all7checks+verifiedDMGs. Registry locally mergedmain dfe3d735 with no source changes; independent review in INTEGRATION_REVIEW.md. Next push finalregistry candidate, retargetPR4main and require allfresh exact-candidate CI/native checks before merge. SessionPR6 and UI PR7 remain stacked; completegoal remainsopen. OWNER001/002 ACK; no later sequence in latest mergedinbox.
