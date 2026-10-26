@@ -68,15 +68,30 @@ export function App() {
     const request = ++refreshSequence.current;
     if (!silent) setStatus('connecting');
     try {
-      const [snapshot, projectRecords] = await Promise.all([api.snapshot(), api.projectsList()]);
+      const snapshot = await api.snapshot();
       if (request !== refreshSequence.current) return;
-      setTasks(snapshot.tasks); setProjects(projectRecords); setStatus('connected');
+      setTasks(snapshot.tasks); setStatus('connected');
       const cursor = eventRequestCursor.current ?? Math.max(0, snapshot.sequence - 100);
-      const [batch, nextConnections, nextSessions] = await Promise.all([api.events(cursor), sessionApi.connectionsList(), sessionApi.sessionsList()]);
+      const [history, projectRecords, nextConnections, nextSessions] = await Promise.allSettled([api.events(cursor), api.projectsList(), sessionApi.connectionsList(), sessionApi.sessionsList()]);
       if (request !== refreshSequence.current) return;
-      setEvents(batch.events); setEarliestCursor(cursor); setConnections(nextConnections); setSessions(nextSessions);
-      setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence);
-      setError(batch.gap ? messages[language].eventGap : '');
+      const failures: string[] = [];
+      for (const result of [history, projectRecords, nextConnections, nextSessions]) {
+        if (result.status === 'rejected') {
+          const error: unknown = result.reason;
+          failures.push(error instanceof Error ? error.message : String(error));
+          if (!(error instanceof DaemonError) || ['AUTH_REQUIRED', 'PROVIDER_DISCONNECTED'].includes(error.code)) setStatus('disconnected');
+        }
+      }
+      if (history.status === 'fulfilled') {
+        const batch = history.value;
+        setEvents(batch.events); setEarliestCursor(cursor);
+        setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence);
+        if (batch.gap) failures.push(messages[language].eventGap);
+      }
+      if (projectRecords.status === 'fulfilled') setProjects(projectRecords.value);
+      if (nextConnections.status === 'fulfilled') setConnections(nextConnections.value);
+      if (nextSessions.status === 'fulfilled') setSessions(nextSessions.value);
+      setError(failures.join(' '));
     } catch (e) {
       if (request !== refreshSequence.current) return;
       setStatus('disconnected'); setError(e instanceof Error ? e.message : String(e));

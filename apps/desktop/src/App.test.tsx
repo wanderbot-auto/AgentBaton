@@ -135,4 +135,20 @@ describe('Task workspace using mocked Tauri transport', () => {
     expect(screen.queryByText('record.131')).not.toBeInTheDocument();
   });
 
+  it('keeps authenticated task cancellation available when only history is resource-limited', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version: 1 });
+    vi.mocked(api.cancel).mockResolvedValue({ ...task, state: 'cancelled', revision: 2 });
+    vi.mocked(api.events).mockRejectedValue(new DaemonError('RESOURCE_LIMIT', 'Journal page unavailable', 'not_started'));
+    render(<App />);
+    await user.click(await screen.findByRole('button', { name: `Open task: ${task.goal}` }));
+    await user.click(screen.getByRole('tab', { name: 'Details' }));
+    expect(screen.getByText('Local daemon connected')).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('Journal page unavailable');
+    const cancel = screen.getByRole('button', { name: 'Request cancellation' });
+    expect(cancel).toBeEnabled();
+    await user.click(cancel);
+    await waitFor(() => expect(api.cancel).toHaveBeenCalled());
+  });
+
 });
