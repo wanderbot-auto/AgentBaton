@@ -1,0 +1,9 @@
+# OWNER-002 implementation progress
+
+OWNER-002 is implemented over the actual React/Tauri API: shared light tokens, two-column task cards, a single goal/message composer, focused Conversation/Artifacts/Details tabs, folded plan/raw events, contextual project/session/grant dialogs, secondary Capabilities/History and bilingual resources. Existing project and bounded session controls remain connected. Approval finalization still requires native owner confirmation. Cards contain real daemon records, with no imported prototype records or fabricated progress.
+
+Local verification: 35 UI component/wire tests, typecheck and build; 22 browser checks against an actual temporary daemon/SQLite through a test-only localhost adapter; 8 actual frontend screenshots. Tests cover real UI draft creation, selected-summary conversion, core rejection without insert, state filtering, draft cancellation/journal, four viewport layouts, typography, horizontal overflow, last-card access, named rail/mobile controls, dialog summary focus and reduced motion. Browser evidence does not establish native macOS acceptance.
+
+Independent review found missing rail names, a summary focus-boundary gap and the inherited grant-duration mismatch. The final code uses explicit accessible names, a closed-summary keyboard regression and the core's 3600-second upper bound. The contract test proves 3601 seconds cannot submit even with acknowledgement, while 3600 sends exactly 3600000 milliseconds. Actual browser range validation passes too. See REVIEW.md for the independent verdict.
+
+Artifact preview and standalone quick-chat runtime APIs are not present in this daemon. The UI reports them as unavailable; summary-to-real-draft conversion works. Automatic routing/file attachment remain disabled with explanations. Full product scope remains for later units.

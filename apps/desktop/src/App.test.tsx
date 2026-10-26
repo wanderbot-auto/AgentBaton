@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { api, DaemonError, type Task, type Project } from './api';
 import { sessionApi } from './session-api';
-vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn() } }));
+vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn() } }));
 
 // These tests mock only the Tauri transport. They are not native IPC evidence.
 vi.mock('./api', async importOriginal => {
@@ -19,6 +19,7 @@ beforeEach(() => {
   vi.mocked(api.projectsList).mockResolvedValue([]);
   vi.mocked(api.workspacesList).mockResolvedValue([]);
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);
+  vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);
   vi.mocked(api.snapshot).mockResolvedValue({ tasks: [], sequence: 0, api_version: 1 });
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
 });
@@ -57,9 +58,10 @@ describe('Task workspace using mocked Tauri transport', () => {
     expect(screen.getByText('No execution evidence yet. This task has not been dispatched to a Provider.')).toBeVisible();
     vi.mocked(api.cancel).mockResolvedValue({ ...task, state: 'cancel_requested', revision: 2 });
     vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'cancel_requested', revision: 2 }], sequence: 2, api_version: 1 });
+    await user.click(screen.getByRole('tab', { name: 'Details' }));
     await user.click(screen.getByRole('button', { name: 'Request cancellation' }));
     await waitFor(() => expect(api.cancel).toHaveBeenCalledWith(task, expect.any(String)));
-    expect(await screen.findAllByText('Cancellation requested')).toHaveLength(2);
+    expect(await screen.findByText('Cancellation requested')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Request cancellation' })).toBeDisabled();
     expect(screen.queryByText('Stopped (confirmed)')).not.toBeInTheDocument();
   });

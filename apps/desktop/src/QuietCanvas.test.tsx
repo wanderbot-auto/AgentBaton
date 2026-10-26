@@ -1,0 +1,114 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { App } from './App';
+import { api, DaemonError, type Task } from './api';
+import { sessionApi, type ManagedSession } from './session-api';
+vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { snapshot: vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), workspacesList: vi.fn() } }));
+vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn(), sessionsSend: vi.fn() } }));
+const date = '2026-10-26T00:00:00Z';
+const draft: Task = { id: 'draft-id', goal: 'A recorded local draft', state: 'draft', revision: 1, created_at: date, updated_at: date };
+const running: Task = { ...draft, id: 'running-id', goal: 'A recorded running task', state: 'running' };
+beforeEach(() => {
+  vi.resetAllMocks(); localStorage.clear(); localStorage.setItem('agentbaton.language', 'en');
+  vi.mocked(api.snapshot).mockResolvedValue({ tasks: [draft, running], sequence: 1, api_version: 1 });
+  vi.mocked(api.projectsList).mockResolvedValue([]);
+  vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 1, sequence: 1, gap: false });
+  vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);
+  vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);
+});
+describe('Quiet Canvas product UI with mocked transport', () => {
+  it('includes a closed details summary at the dialog focus boundary and excludes its hidden content', async () => {
+    const user = userEvent.setup(); render(<App />);
+    await screen.findAllByTestId('task-card');
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
+    const close = screen.getByRole('button', { name: 'Close' });
+    const summary = screen.getByText('Connection evidence');
+    expect(summary.closest('details')).not.toHaveAttribute('open');
+    expect(close).toHaveFocus();
+    await user.tab({ shift: true }); expect(summary).toHaveFocus();
+    await user.tab(); expect(close).toHaveFocus();
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('button', { name: 'Settings' })).toHaveFocus();
+  });
+
+  it('renders unknown prototype-named states as data without interpreting inherited object properties', async () => {
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...draft, state: 'constructor' }], sequence: 0, api_version: 1 });
+    render(<App />);
+    expect(await screen.findByText('Unknown status: constructor')).toBeVisible();
+    expect(screen.getAllByTestId('task-card')).toHaveLength(1);
+  });
+
+  it('filters actual records and opens a focused task instead of a permanent inspector', async () => {
+    const user = userEvent.setup(); render(<App />);
+    expect(await screen.findAllByTestId('task-card')).toHaveLength(2);
+    expect(screen.queryByTestId('task-thread')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Drafts' }));
+    expect(screen.getAllByTestId('task-card')).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: `Open task: ${running.goal}` })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: `Open task: ${draft.goal}` }));
+    expect(screen.getByTestId('task-thread')).toHaveAttribute('data-task-id', draft.id);
+    expect(screen.queryByTestId('task-card')).not.toBeInTheDocument();
+    expect(screen.getByText('Raw observable events').closest('details')).not.toHaveAttribute('open');
+    await user.click(screen.getByRole('tab', { name: 'Artifacts' }));
+    expect(screen.getByText('No verified artifacts are available for this task.')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Artifacts · Unavailable' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Back to tasks' }));
+    expect(screen.getAllByTestId('task-card')).toHaveLength(1);
+  });
+  it('traps dialog keyboard focus, closes with Escape and restores its opener', async () => {
+    const user = userEvent.setup(); render(<App />);
+    await screen.findAllByTestId('task-card');
+    const opener = screen.getByRole('button', { name: 'Search' });
+    await user.click(opener);
+    const dialog = screen.getByRole('dialog', { name: 'Search tasks' });
+    const close = screen.getByRole('button', { name: 'Close' });
+    expect(screen.getByRole('textbox', { name: 'Search tasks' })).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(close).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(screen.getByRole('button', { name: /A recorded running task/ })).toHaveFocus();
+    await user.tab(); expect(close).toHaveFocus();
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(opener).toHaveFocus();
+    fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
+    expect(screen.getByRole('dialog', { name: 'Search tasks' })).toBeVisible();
+  });
+  it('previews only a chosen quick-context summary then creates a real draft without model replies', async () => {
+    const user = userEvent.setup(); render(<App />);
+    await screen.findAllByTestId('task-card');
+    await user.click(screen.getByRole('button', { name: 'Quick chat' }));
+    expect(screen.getByRole('button', { name: 'Send message · Unavailable' })).toBeDisabled();
+    await user.type(screen.getByLabelText('Draft context'), 'Selected context <script>unsafe()</script>');
+    await user.click(screen.getByRole('button', { name: 'Turn into task' }));
+    expect(screen.getByRole('dialog', { name: 'Create a task from this summary' })).toBeVisible();
+    expect(api.create).not.toHaveBeenCalled();
+    await user.clear(screen.getByLabelText('Selected summary'));
+    await user.type(screen.getByLabelText('Selected summary'), 'Only this reviewed summary');
+    vi.mocked(api.create).mockResolvedValue({ ...draft, goal: 'Only this reviewed summary' });
+    await user.click(screen.getByRole('button', { name: 'Create task' }));
+    await waitFor(() => expect(api.create).toHaveBeenCalledWith('Only this reviewed summary', expect.any(String)));
+    expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
+    expect(document.querySelector('script')).toBeNull();
+  });
+  it('keeps an uncertain task-composer send blocked and preserves the exact user text', async () => {
+    const session: ManagedSession = { id: 'session-ready', task_id: draft.id, project_id: 'project', workspace_id: 'workspace', connection_id: 'connection', grant_id: 'grant', state: 'ready', revision: 2, native_session_id: 'native', created_at: date, updated_at: date, last_error: null, turn_state: null };
+    vi.mocked(sessionApi.sessionsList).mockResolvedValue([session]);
+    vi.mocked(sessionApi.sessionsSend).mockRejectedValue(new DaemonError('OUTCOME_UNKNOWN', 'Write outcome is unknown', 'unknown'));
+    const user = userEvent.setup(); render(<App />);
+    await user.click(await screen.findByRole('button', { name: `Open task: ${draft.goal}` }));
+    await user.type(screen.getByLabelText('Task message'), 'Do not replay this text');
+    await user.click(screen.getByRole('button', { name: 'Send message' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Write outcome is unknown');
+    expect(screen.getByLabelText('Task message')).toHaveValue('Do not replay this text');
+    expect(screen.getByLabelText('Task message')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
+    vi.mocked(sessionApi.sessionsList).mockResolvedValue([{ ...session, state: 'running', revision: 3 }]);
+    await user.click(screen.getByRole('button', { name: 'Refresh' }));
+    expect(await screen.findByText('Message outcome unknown. Reconcile the session before sending again.')).toBeVisible();
+    expect(screen.getByLabelText('Task message')).toHaveValue('Do not replay this text');
+    expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
+    expect(sessionApi.sessionsSend).toHaveBeenCalledExactlyOnceWith(session, 'Do not replay this text', expect.any(String));
+  });
+});
