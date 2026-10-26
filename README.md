@@ -1,6 +1,8 @@
-# Preparation status: ON HOLD FOR ENVIRONMENT READINESS
+# Preparation status: REPOSITORY + CI VERIFIED; CLOUD SETUP PENDING
 
-See [infrastructure scope](INFRASTRUCTURE.md) and [execution gate](infra/execution-gate.json). This repository preparation does not authorize product development. Remote repository, Codex Cloud publication and native CI runs require verified external setup. The immutable design source text and reference hashes are included; the original ZIP is retained in the conversation/local backup.
+Private repository preparation and Linux / macOS arm64 / macOS x64 environment checks passed. See [verified checklist](infra/PREPARATION_CHECKLIST.md), [Cloud setup](codex/ENVIRONMENT_SETUP.md), and [execution gate](infra/execution-gate.json).
+
+**Codex Cloud has not been created/published by this session. Product development remains unauthorized.** No application build, real Agent integration or signed installer is claimed. CI evidence is bound to commit `02508d4eb1c32d35cc9deda546f334938abdd357`; this later report update does not claim another remote run.
 
 ---
 

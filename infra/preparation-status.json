@@ -1,14 +1,54 @@
 {
   "phase": "environment_preparation",
+  "overall_status": "repository_and_ci_verified_cloud_setup_pending",
   "repository_created": true,
-  "baseline_upload": "in_progress",
-  "local_python_tests": {
-    "passed": 11,
-    "failed": 0
+  "baseline_upload": "verified",
+  "baseline_commit": "02508d4eb1c32d35cc9deda546f334938abdd357",
+  "baseline_tree": "8aa9ca3b9e55d6a78b5a56c5b1229e3158fdeb46",
+  "baseline_file_count": 80,
+  "remote_preflight": {
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 40336413916,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40336413916",
+    "tested_commit": "02508d4eb1c32d35cc9deda546f334938abdd357",
+    "jobs": [
+      {
+        "label": "ubuntu-24.04",
+        "job_id": 121619083247,
+        "conclusion": "success"
+      },
+      {
+        "label": "macos-15",
+        "architecture": "arm64",
+        "job_id": 121619083685,
+        "conclusion": "success"
+      },
+      {
+        "label": "macos-15-intel",
+        "architecture": "x86_64",
+        "job_id": 121619083747,
+        "conclusion": "success"
+      }
+    ],
+    "checks_per_platform": {
+      "python_infrastructure_tests": 11,
+      "node_infrastructure_tests": 4,
+      "rust_fixture_tests": 2,
+      "rust_clippy": "passed",
+      "design_requirements": 130,
+      "schemas": 7,
+      "negative_examples_rejected": 10
+    },
+    "scope": "infrastructure_only_not_product_or_real_provider_tests"
   },
-  "remote_preflight": "not_yet_verified",
-  "codex_cloud_environment": "not_published",
+  "codex_cloud_environment": "not_created_or_published_by_this_session",
   "branch_protection": "not_configured",
   "product_development_authorized": false,
-  "product_implementation_started": false
+  "product_implementation_started": false,
+  "limitations": [
+    "No Tauri app build, native GUI test, real Provider call or signed installer was produced.",
+    "The macOS codesign --version diagnostic is unsupported and is not signing validation.",
+    "This status-only update is locally revalidated; the remote CI result belongs to the tested_commit, not every later commit."
+  ]
 }

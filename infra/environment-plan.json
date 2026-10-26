@@ -33,8 +33,7 @@
   "product_dependency_lockfiles": "not_created_product_implementation_not_authorized",
   "required_preparation_credentials": [],
   "blocked_until_confirmed": [
-    "codex_cloud_environment_publish",
-    "successful_remote_preflight"
+    "codex_cloud_environment_publish"
   ],
   "future_protected_secrets": [
     "dedicated_provider_test_credentials",
@@ -49,5 +48,10 @@
   ],
   "target_repository": "wanderbot-auto/AgentBaton",
   "repository_owner_type": "User",
-  "repository_owner_authorization": "confirmed_by_user; private_repository_created_by_user; connector_write_verified"
+  "repository_owner_authorization": "confirmed_by_user; private_repository_created_by_user; connector_write_verified",
+  "remote_preflight_evidence": {
+    "run_id": 40336413916,
+    "conclusion": "success",
+    "tested_commit": "02508d4eb1c32d35cc9deda546f334938abdd357"
+  }
 }
