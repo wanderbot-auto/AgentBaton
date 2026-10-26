@@ -10,3 +10,12 @@ Requirement AB-PRJ-001: importing owner-selected projects must not execute their
 
 
 Owner integration lead added the same read-boundary raw-object requirement after independent refs/replace reproduction: disable replacement objects and legacy grafts in Git command env, and verify committed bytes/parents with generated fixtures. This closes exact-SHA interpretation, not a new adoption engine.
+
+
+## Conditional-include follow-up
+
+Sourceb112185 adds explicit --no-includes audit of ANY include/includeIf.path before the first Git repository probe and again before checkout. Inactive rules are refused too, because futurechildGitdir may activate new executable configuration. Match→UnsafeRepository, no-match1→continue, fatal→NotRepository; IO/resource errors remain failures. No config is rewritten.
+
+Two generatedtests show actualconfigurationvisibility: sourcefilterquery exits1, genuine no-checkoutfuture-control childquery sees filter.generated.smudge. This control executes no filter and is not oldBatonexecution evidence. Then inspect/create_isolated refuse future-negative with no helpermarker/destination/newworktree metadata and unchanged source/index/commonconfig/includedconfig. Even a benign unconditional include is refused unchanged.
+
+All19 librarytests(previous17 plus2new),130 fullworkspaceRust(core35/config26/providers50/workspaces19),workspaceClippy/fmt pass under022. Initial18pass/1fail errorclassification result is preserved: malformed.git must remain NotRepository, fixed without modifying its originalassertion. Previous851 evidence archived verbatim as EVIDENCE.raw-guard-851.json. Independent /root/review inspected exactb112185 and independently reran all19testsPASS; no unresolved sourceblocker. Exactcandidate CI remains required; no currentcandidate Mac/native/remote CI or fullproduct claim. Followup performed no push and noRoot/session/QuietCanvas source access.
