@@ -1,125 +1,73 @@
 {
-  "authorization": "AB-START-001; OWNER-001/002 ACK through reviewed Session cd7fb7b including protected main eb115e0",
-  "unit": "quiet-canvas-session-actor-writer-handoff-integration",
-  "base_ui_commit": "6111037630e76e0009c79de7d158f2a157452390",
-  "source_commit": "9ea5a4d784846de494ba7cda6fcc184ce5469555",
-  "recorded_at_utc": "2026-10-26T22:25:24.754101+00:00",
-  "state": "local_combined_verification_passed_partial_goal",
-  "prior_evidence": "docs/execution/quiet-canvas/EVIDENCE.before-actor-611.json",
-  "incoming_guard_evidence": "docs/execution/workspace-fetch-guard/EVIDENCE.json",
+  "authorization": "AB-START-001; OWNER-001/002 ACK; primary explicitly authorized only shared core sessions_ipc.rs fixture/synchronization correction in Quiet Canvas worktree",
+  "unit": "quiet-canvas-pr7-real-macos-test-readiness-failure",
+  "base_commit": "fcfea0ee53556e99a60b59c4251a7401876fbc89",
+  "source_commit": "da4dda032bbb73d9ac484a71c5f0f99c1f5684e1",
+  "recorded_at_utc": "2026-10-26T22:51:42.508952+00:00",
+  "state": "targeted_local_regression_passed_not_new_ci_or_full_goal_acceptance",
+  "prior_evidence": "docs/execution/quiet-canvas/EVIDENCE.before-pr7-ci-fcfea.json",
+  "actual_failure": {
+    "product_run": 40414179289,
+    "head": "fcfea0ee53556e99a60b59c4251a7401876fbc89",
+    "arm_job": 121892188791,
+    "intel_job": 121892189219,
+    "stage": "Core and native host tests; cargo test --workspace --locked",
+    "test": "runtime_timeout_and_revocation_stop_only_owned_process",
+    "location": "crates/core/tests/sessions_ipc.rs:109",
+    "arm_observation": "stopped, launch_cancelled_or_timeout, native_session_id=null",
+    "intel_observation": "stopped, grant_revoked_or_expired, native_session_id=native-fixture",
+    "result": "Both12pass1fail sessions_ipc; Product/Rust and Product/UI successful. Failed Mac runs remain failed, no retry pass or installer claimed."
+  },
+  "cause": "The1200ms absolute grant deadline begins at approval before task creation/admission/initialization. The worker runtime timer also includes initialization. The original test demanded an observable transient ready state after a legitimate deadline stop; a deliberately late observer reproduces the same Intel failure. No claim that host performance or stale binaries caused the historical run.",
+  "control": {
+    "command": "cargo test --locked -p agentbaton-core --test sessions_ipc runtime_timeout_and_revocation_stop_only_owned_process -- --exact --nocapture",
+    "temporary_change": "Only wait for actual stopped before the original unchanged f.ready call",
+    "exit_code": 101,
+    "observed": "Original10s ready wait fails against durable stopped/grant_revoked_or_expired; raw log retained",
+    "final_source": "Temporary failing-control insertion removed; late-observer deadline regression retained"
+  },
+  "changes": [
+    "Generated hang fixture additionally acknowledges receipt with its actual PID in a local marker; request still hangs and does not fabricate a completion.",
+    "Keep1200ms grant boundary and10s waits. Deliberately late observation validates actual terminal state, bounded deadline diagnostic and durable stop evidence, without requiring a transient ready state.",
+    "Separately drive the existing public Store/Supervisor with the normal existing10k fixture budget: require realready, actualrunning/hang receipt, then no actor policytick/revoke until the owned PID exits. Require actual elapsed>=10k, persisted stopped timeout diagnostic and process_reaped=true/no_process_started=false.",
+    "The pending-turn remaining-runtime deadline and outer elapsed budget share a boundary; existing duration_limit or provider_protocol_or_timeout_failure is accepted only after real>=10k expiry with an actually hung child and no actor cancellation.",
+    "Separate normal10k realready/hang/revoke case requires exact policy-stop diagnostic, actual child PID reaped and durable process receipt. A separately spawned unrelated child must survive all three phases and is cleaned by a test RAII guard.",
+    "Only crates/core/tests/sessions_ipc.rs changed; production code, all deadlines/1200&10k budgets, locks, UI, native bridge and public contracts unchanged."
+  ],
   "checks": [
     {
-      "command": "umask 022; cargo fmt --all -- --check",
+      "command": "cargo test --locked -p agentbaton-core --test sessions_ipc -- --nocapture",
+      "exit_code": 0,
+      "tests": 13,
+      "duration_seconds": 17.76,
+      "scope": "Real generated child/Unix IPC and public supervisor fixtures on Linux, no vendor/nativeMac"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
       "exit_code": 0
     },
     {
-      "command": "umask 022; cargo test -p agentbaton-workspaces --locked",
-      "exit_code": 0,
-      "tests": 24,
-      "scope": "All 18 prior protections plus 6 focused raw Git, lazy-fetch and include guards"
-    },
-    {
-      "command": "umask 022; cargo test --workspace --locked",
-      "exit_code": 0,
-      "tests": 201,
-      "breakdown": {
-        "core": 72,
-        "config": 45,
-        "providers": 58,
-        "workspaces": 24,
-        "daemon_signals": 2
-      },
-      "note": "202 harness results include one nested FIFO child, not double counted"
-    },
-    {
-      "command": "umask 022; cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "command": "cargo clippy --locked -p agentbaton-core --tests -- -D warnings",
       "exit_code": 0
     },
     {
-      "command": "cargo build --locked --bin batond --bin baton",
+      "command": "python3 scripts/verify_bootstrap_manifest.py",
       "exit_code": 0,
-      "target_dir": "/workspace/.toolchains/quiet-canvas-target"
+      "files": 92
     },
     {
-      "cwd": "apps/desktop",
-      "command": "npm run typecheck",
-      "exit_code": 0
-    },
-    {
-      "cwd": "apps/desktop",
-      "command": "npm test",
-      "exit_code": 0,
-      "tests": 47,
-      "scope": "All 47 reviewed Quiet Canvas UI tests retained byte-identical to6111037; mocked Tauri transport"
-    },
-    {
-      "cwd": "apps/desktop",
-      "command": "npm run build",
-      "exit_code": 0
-    },
-    {
-      "cwd": "apps/desktop",
-      "command": "python3 tests/quiet-canvas-real-ipc.py --batond /workspace/.toolchains/quiet-canvas-target/debug/batond --output /workspace/.onboarding/quiet-canvas-actor-browser",
-      "exit_code": 0,
-      "checks": 22,
-      "screenshots": 8,
-      "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider"
-    },
-    {
-      "command": "python scripts/verify_bootstrap_manifest.py",
-      "exit_code": 0,
-      "files": 92,
-      "scope": "bootstrap integrity only"
-    },
-    {
-      "command": "python scripts/validate_design.py",
+      "command": "python3 scripts/validate_design.py",
       "exit_code": 0,
       "requirements": 130,
       "answered_questions": 27,
-      "scope": "design baseline validation only"
-    },
-    {
-      "command": "runpy.run_path(scripts/smoke-local-product.py); main.__globals__[BINARIES]=Path(/workspace/.toolchains/quiet-canvas-target/debug); main()",
-      "exit_code": 0,
-      "scope": "unchanged real daemon/CLI smoke: Unicode create, idempotency, evidenced cancellation, journal, SIGKILL/restart persistence"
-    },
-    {
-      "command": "python3 -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
-      "exit_code": 0,
-      "tests": 28,
-      "scope": "infrastructure only"
-    },
-    {
-      "command": "node --test tests/infrastructure/node-smoke.test.mjs",
-      "exit_code": 0,
-      "tests": 4,
-      "scope": "infrastructure only"
-    },
-    {
-      "command": "python3 scripts/validate_infrastructure.py",
-      "exit_code": 0,
-      "scope": "infrastructure only"
+      "scope": "Design baseline only"
     }
   ],
-  "changes": [
-    "Safely merge reviewed Session cd7fb7b with protected-main eb115e0 ancestry; no source conflict, only STATUS/manifest integration.",
-    "Daemon Drop reaps owned workers and probes, then unlinks its socket, then explicitly releases its own writer File. Supervisor Drop repeats an empty drained cleanup without DB mutation.",
-    "Retain both delayed first-frame tests and add duplicate-FD handoff plus actual owned-worker cleanup/WORKSPACE_BUSY ordering regressions.",
-    "All dedicated frontend files and package/Node/native/root locks remain byte-identical to reviewed6111037; no native-choice/profile/schema5/artifact UI copied."
-  ],
-  "upstream_ui_failure": {
-    "run_id": 40401378109,
-    "job": 121847819047,
-    "head_sha": "f3eb83ebf9022544730e8ad6be578f5bfaf3efa1",
-    "name": "Product / macos-15-intel",
-    "conclusion": "failure",
-    "observed": "The actual primary Intel F3 suite had 47 passing tests and one failure: the first duration test could not find the ready workspace option while the captured DOM showed Loading.",
-    "mechanism": "The test now flushes initial mocked promises and React effects before the ready query, and separately verifies an unresolved scope response still blocks grants.",
-    "not_claimed": "This does not prove that an old Baton binary, application IO deadline or host performance caused the historical failure; no product timeouts were raised.",
-    "raw_log": "quiet-canvas-final-upstream-intel-ui-failure.log"
+  "retained_development_failure": {
+    "log": "quiet-canvas-pr7-runtime-regression.log",
+    "exit_code": 101,
+    "observed": "First test patch demanded duration_limit exclusively, but actual remaining-runtime turn timeout reported provider_protocol_or_timeout_failure. Added real elapsed>=10k assertion and accepted both actual boundary diagnostics; no production timeout changed."
   },
-  "library_sha256": "796e8cf7b2f92052f01b4140ac7f76fa47631959190138fbaa755ff7b682491e",
-  "primary_library_comparison": "Byte-identical to primary include-guard composite796e8cf7b2f92052f01b4140ac7f76fa47631959190138fbaa755ff7b682491e",
   "source_sha256": {
     "Cargo.lock": "3f518d6cfeb5cdf126a24708120b4ec8349c5aab1d80ff4512b8296efcd5a33c",
     "apps/daemon/src/main.rs": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
@@ -165,265 +113,38 @@
     "apps/desktop/src/session-api.test.ts": "6072418acd558b80b0000e51d3739b4feee56b188f8036dd32fcc3f6fb77818a",
     "apps/desktop/src/session-api.ts": "9bcf228b9ff9db2f44407355ba8d43ab2bc5809e510429d735c3428cd3c11de8",
     "apps/desktop/src/test-setup.ts": "ae4b6b92c8c0f06526032b2dedeb4fb0e93b85af2a138a423386f2e36894a685",
-    "crates/core/src/sessions.rs": "d4b00faaa200be458d9528c611fe037827b81501cb6e43ba66c171bf9568c0f8"
+    "crates/core/src/sessions.rs": "d4b00faaa200be458d9528c611fe037827b81501cb6e43ba66c171bf9568c0f8",
+    "crates/core/tests/sessions_ipc.rs": "87e9719bbcc6cb85847e7a3bc3eb8c98a05b0f9f10c716f69bef0e1a119d58d8"
   },
-  "local_log_sha256": {
-    "quiet-canvas-actor-browser.log": "88a759384d9904c07000ce7c87c9217f5efed7bd97f0fa22048485dc45985d1b",
-    "quiet-canvas-actor-build.log": "2ddcb8baf19553b0a51b8e2e3ac5b33e02a9f413c66a13430c6eeff014d8272b",
-    "quiet-canvas-actor-clippy.log": "1d5cccf9cb7f8b641e5380ddae75af43118002c27a8bcab28e2a16ca0c0dc4f5",
-    "quiet-canvas-actor-daemon-build.log": "7d76db21f2d30eb6454395d5abdf41d5146c769a1b69e92250c59118a477998c",
-    "quiet-canvas-actor-design.log": "1ee4d39aa440b0ca1c0d6ca85f736a84b621e123ae42647214a6e0a1538aaac3",
-    "quiet-canvas-actor-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "quiet-canvas-actor-infra-validation.log": "46e4ac329e7e80c107a211f612239b8ef43487f11156a26fafcd0507d7cee4b5",
-    "quiet-canvas-actor-infrastructure.log": "0e51ae5861889380620ab0d2acafe3918126f6355bb348816be4ef55255bc52e",
-    "quiet-canvas-actor-node.log": "1f1554635a3d61210dc2baf8a9ae43d373b770b96560e28ce09a14c137446ffc",
-    "quiet-canvas-actor-rust.log": "2043caeca7d5d6655d5fbd26a6d1f8091e9db10ff54d15946a2d2a8445d73bed",
-    "quiet-canvas-actor-smoke-initial-failure.log": "672b866571b29314954bd9b89a657b384a3b65cf4bf1044c906484d414d6ec3e",
-    "quiet-canvas-actor-smoke.log": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805",
-    "quiet-canvas-actor-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
-    "quiet-canvas-actor-ui.log": "c0cdd619def0162d44b1de33cc0eaea19bb01429b96d01be6989b2390e4c6069",
-    "quiet-canvas-actor-workspaces.log": "15ebe3f7e4641872832191af420ad8b0292ce87e16cd4f1f853692f866e68935",
-    "quiet-canvas-actor-browser/evidence.json": "a5b8755bf492f7e776c9c01098024f81287c8f262fe8e6430e57c17457594a65",
-    "quiet-canvas-actor-browser/daemon.log": "b374ab4caa2ce600913e926d3eaf61e52de42d301f4fc47e6e94c96708a40feb",
-    "quiet-canvas-actor-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f",
-    "quiet-canvas-main65-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f",
-    "quiet-canvas-main65-design.log": "13f7f0a4ea8113d427d4c84258e66ab63015735ae5532a74e2446a1be5dcb4e4"
-  },
-  "browser_checks": [
-    {
-      "name": "empty state contains no demonstration task",
-      "status": "passed"
-    },
-    {
-      "name": "five actual UI drafts persisted through Unix IPC",
-      "status": "passed",
-      "task_ids": [
-        "c72e25d9-7e5f-4eb0-ba5d-02328d25a20d",
-        "04af397f-f03d-469b-9a33-9c382789a0b9",
-        "5ecbfbb3-1f95-4119-93dd-91efb9a3cf1d",
-        "bd987ac1-d885-4c50-a339-179666189716",
-        "37cfd207-5b91-4a77-a6c3-cac6a063c655"
-      ]
-    },
-    {
-      "name": "reviewed quick-context summary converts to actual draft, standalone model send unavailable",
-      "status": "passed"
-    },
-    {
-      "name": "truthful recorded-state filtering",
-      "status": "passed"
-    },
-    {
-      "name": "real core rejects oversized UTF-8 goal without inserting a task",
-      "status": "passed"
-    },
-    {
-      "name": "home layout 1488x981",
-      "status": "passed",
-      "columns": 2,
-      "overflow": false,
-      "sidebar": 232,
-      "fonts": [
-        "18px",
-        "14px",
-        "24px"
-      ],
-      "weights": [
-        500,
-        400
-      ]
-    },
-    {
-      "name": "last card remains accessible above composer 1488x981",
-      "status": "passed"
-    },
-    {
-      "name": "home layout 1440x900",
-      "status": "passed",
-      "columns": 2,
-      "overflow": false,
-      "sidebar": 232,
-      "fonts": [
-        "18px",
-        "14px",
-        "24px"
-      ],
-      "weights": [
-        500,
-        400
-      ]
-    },
-    {
-      "name": "last card remains accessible above composer 1440x900",
-      "status": "passed"
-    },
-    {
-      "name": "collapsed rail controls retain accessible localized names",
-      "status": "passed"
-    },
-    {
-      "name": "home layout 1024x768",
-      "status": "passed",
-      "columns": 2,
-      "overflow": false,
-      "sidebar": 64,
-      "fonts": [
-        "18px",
-        "14px",
-        "24px"
-      ],
-      "weights": [
-        500,
-        400
-      ]
-    },
-    {
-      "name": "last card remains accessible above composer 1024x768",
-      "status": "passed"
-    },
-    {
-      "name": "mobile navigation exposes named controls and44px toggle target",
-      "status": "passed"
-    },
-    {
-      "name": "home layout 390x844",
-      "status": "passed",
-      "columns": 1,
-      "overflow": false,
-      "sidebar": 0,
-      "fonts": [
-        "18px",
-        "24px",
-        "14px"
-      ],
-      "weights": [
-        500,
-        400
-      ]
-    },
-    {
-      "name": "last card remains accessible above composer 390x844",
-      "status": "passed"
-    },
-    {
-      "name": "keyboard command search, Escape and focus restore",
-      "status": "passed"
-    },
-    {
-      "name": "actual closed-details summary is included in dialog focus trap",
-      "status": "passed"
-    },
-    {
-      "name": "actual grant duration input enforces3600second core boundary; no unsupported grant sent",
-      "status": "passed"
-    },
-    {
-      "name": "reduced motion disables product transitions",
-      "status": "passed"
-    },
-    {
-      "name": "actual never-dispatched draft cancellation is confirmed by core evidence",
-      "status": "passed"
-    },
-    {
-      "name": "history uses actual journal events",
-      "status": "passed"
-    },
-    {
-      "name": "no browser runtime errors",
-      "status": "passed"
-    }
-  ],
-  "daemon_sha256": "7585016b7f3c72887051966a28e1dcd5209d7876e44f525b366cc00b28bdedac",
-  "screenshots": {
-    "home-1024x768.png": "65673c8c0e14f43e7571f1a16ddf4ec86dbabd887277063a1754ca00a672c68b",
-    "home-1440x900.png": "7bc8e19e9a7b78fc44ef4ef0df1b8886aa38783841d7418aad6f717777212941",
-    "home-1488x981.png": "cc8fe3e38dcef52742cac26c8e629d347fa3ed44d97d64b85eb746e7762da533",
-    "home-390x844.png": "67adaee0bc59101aab7bb8e9b2516228ae2710e055b8cae310af3b40bddf988a",
-    "task-1024x768.png": "c4ea2e63b4770e7f455e8af2d901bdd7c67f75bb447b37b66416e7fa9e25fe76",
-    "task-1440x900.png": "df363222400d60e36796c324830311aaa98fa32c339cc41e77891a2042805505",
-    "task-1488x981.png": "c1ccd266b97af54580a921d597b3a8e77092e10250b5da67318626233d39aa7d",
-    "task-390x844.png": "e3e44a5d8010b81ef83059ce751f62240a5a58d655d6daa203d11feb1334cb0c"
+  "unchanged_frontend_evidence": {
+    "source": "9ea5a4d784846de494ba7cda6fcc184ce5469555",
+    "evidence": "docs/execution/quiet-canvas/EVIDENCE.before-pr7-ci-fcfea.json",
+    "ui_tests": 47,
+    "rust_top_level": 201,
+    "browser_checks": 22,
+    "screenshots": 8,
+    "note": "Prior results retained, not rerun at this test-only correction; latest targeted13 sessions tests are above"
   },
   "independent_review": {
-    "state": "composition_reviewed",
-    "document": "docs/execution/quiet-canvas/ACTOR_COMPOSITION_REVIEW.md",
-    "scope": "Reviewed5e9/source9ea, no product delta introduced by main65 ancestry merge; exacthead dedicatedUI CI/native installation still pending"
-  },
-  "scope_guards": {
-    "retained_workspace_protections": 18,
-    "schema": "4; no profile/schema5/adoption/nativeProviderChoice added",
-    "locks": "No root/native/Node lock change",
-    "test_hook": "Browser localhost adapter remains test-only and is not shipped in product"
-  },
-  "retained_native_failure": {
-    "upstream_run": 40398801631,
-    "head": "3b94d1c06dfabf656a5ce315483f16276212913d",
-    "intel_job": 121838836847,
-    "arm_job": 121838837098,
-    "observed_failure": "Both actual macOS jobs E0425: rustix::fs::mkfifoat unavailable at crates/core/src/policy.rs:1066",
-    "evidence": "Independently downloaded actual job logs; hashes below. No corrected Mac run claimed.",
-    "correction": "Only cfg(test) FIFO creation changed to /usr/bin/mkfifo -m600 plus FIFOtypeassert; both gitdir/commondir cases, no-writer setup and3second killablechilddeadline retained",
-    "local_result": "All193Rust tests pass; no productionpolicy behavior change"
+    "state": "required_for_new_test_delta",
+    "prior_reviews": "ACTOR_COMPOSITION_REVIEW and FINAL_INTEGRATION_REVIEW retained; no new review claimed"
   },
   "not_run_or_blocked": [
-    "Corrected currentcandidate macOS CI/native GUI/installation acceptance not run here",
-    "Real vendor identities/modelcalls remain unrun and unauthorized",
-    "No complete artifact/standalonechat/router/workflow/retention/remotehost or fullgoal acceptance",
-    "Existing prerequisite macOS DMGs and previousLinuxhost checks do not validate this exact mergedUIcandidate"
+    "Fresh exact-head protected CI, both Mac jobs and UI candidate packages still needed",
+    "Full201Rust/UI47/browser22 were not redundantly rerun for one test-only delta; prior evidence is separately retained",
+    "Native installation/manual acceptance, realProvider/fullGOAL/signing/production release remain separate"
   ],
-  "incoming_session_commit": "cd7fb7b325902c5f04c01cf8e00a0c8f249c1d41",
-  "incoming_session_review": "docs/execution/session-supervision/ACTOR_HANDOFF_REVIEW.md",
-  "frontend_unchanged": {
-    "base_commit": "6111037630e76e0009c79de7d158f2a157452390",
-    "selected_files": 26,
-    "all_desktop_tracked_diff_from_base": [],
-    "fingerprints": {
-      "apps/desktop/index.html": "9ee1d18aa84bf8ea7f8e8e080580c698ce38d17de139a16b58fe7f972ea167b8",
-      "apps/desktop/package-lock.json": "58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d",
-      "apps/desktop/package.json": "62b1f3ad51ffbedd2dafd7ed30ad3848740d22c74fc4ad1e1dea291ec257e60b",
-      "apps/desktop/src/App.test.tsx": "1e957d2689f305195d9a1edc7af7a5d9d8a33ab31a8db9e2f0ef20ff45bde376",
-      "apps/desktop/src/App.tsx": "18b829334b9e451f79aa35beb1151cdaf4abeb14628df709e62b70dd4ecf47d9",
-      "apps/desktop/src/Connections.tsx": "7f07e3f9a7086fd220a68ac4d6a5c6f9d760509a481ff80db576acf45be0c8d4",
-      "apps/desktop/src/ContextDialog.tsx": "50bcc2b64659f71f26a3df028b718d958c5077f573e5f506ec80f4a21be9863d",
-      "apps/desktop/src/Icons.tsx": "d0140b87ad60a761313b563a4d037d142d4725c5436f2888cc22d7af18e8e82d",
-      "apps/desktop/src/ManagedSessions.tsx": "5dcd061742a80316e8ddfdbc99f4d9c68aaa4c44978a6c9404f00ae79c0f4e59",
-      "apps/desktop/src/Projects.test.tsx": "409b00cfd1621c8f8cbffe2f86d278e8069077a0404947f606ff5e0d4709dfa8",
-      "apps/desktop/src/Projects.tsx": "64cc627ac2275f1f7b21ab6018db6f5d64688bd6becdee18faf62f208f69d75a",
-      "apps/desktop/src/QuietCanvas.test.tsx": "f0443fa817decc9f40ccfb0aeda67f5faa329f54f44347c516d557081a0e3219",
-      "apps/desktop/src/SessionWorkbench.test.tsx": "ada5c815648b215c9130a71588bc5c0888fa4d6990ae4f43c07832442e191539",
-      "apps/desktop/src/api.test.ts": "3321a66e98bfbd4e264756cd1d34e7c84ab00c5c80709ac443e5821a3993278c",
-      "apps/desktop/src/api.ts": "0db92cc42f718c0cfbc2653ad6499c9ff462d24f91e4593c0033eb354addc8c5",
-      "apps/desktop/src/canvas-i18n.ts": "0d94f7015e3a588af97136db89dc03f04af45232b85db54ffa627a9a04cefd0d",
-      "apps/desktop/src/event-window.test.ts": "b66baa960f3e5c3354328e0ac194c744c6a99cb49d573fdee10586a8256b1e89",
-      "apps/desktop/src/event-window.ts": "73074b1d53281d6f738614f292b3f8a7cbfd95f3694c3ed3491cda9d637ad7a2",
-      "apps/desktop/src/i18n.ts": "d5f8fc94d8343f8934df3f4206965fe000cfa3a845b366c3c79aca289a8e995f",
-      "apps/desktop/src/main.tsx": "47bbb595a850847154dcb069ad195c21151fa6393059c1a0b7c25d9e46fd8498",
-      "apps/desktop/src/session-api.test.ts": "6072418acd558b80b0000e51d3739b4feee56b188f8036dd32fcc3f6fb77818a",
-      "apps/desktop/src/session-api.ts": "9bcf228b9ff9db2f44407355ba8d43ab2bc5809e510429d735c3428cd3c11de8",
-      "apps/desktop/src/session-i18n.ts": "db9f1ee6bd62feef350a0108c69864f848df28137bf2377e4d67ae7d1b928566",
-      "apps/desktop/src/style.css": "df5f17eb3a8b6de467b2f79800e185f44e67f32b5be71f2dc1c7ee4efaa8bb3b",
-      "apps/desktop/src/test-setup.ts": "ae4b6b92c8c0f06526032b2dedeb4fb0e93b85af2a138a423386f2e36894a685",
-      "apps/desktop/tests/quiet-canvas-real-ipc.py": "549a88e79801acd6730e8bb24f5752b1f8452562fbff060b979d8ba61d98324b"
-    }
-  },
-  "launch_failure": {
-    "command": "python3 scripts/smoke-local-product.py --help",
-    "exit_code": 1,
-    "observed": "Script has no argument parser and fixed repository target/debug/batond was absent; binary is actually built in external CARGO_TARGET_DIR.",
-    "correction": "Use unchanged imported script with BINARIES explicitly set to actual built target; no assertion or product change.",
-    "record": "quiet-canvas-actor-smoke-initial-failure.log",
-    "record_kind": "preserved failure summary and captured exception; original complete traceback remains tool transcript"
-  },
-  "main_integration": {
-    "protected_main": "65f223cc05277435fe2caecfa140708de8bc9a52",
-    "merge_commit": "274345f21e4ef58962e2e87a296c85f682be353a",
-    "prior_reviewed_head": "5e9db51ec2a48338a51fdbf401cada6f8d2cd251",
-    "review_document_commit": "9e7b3ee7ed097cb0bded6747a79a45f9716ef86e",
-    "owner_inbox": "Re-read main65 OWNER-001/002; ACK, no new sequence",
-    "product_diff_from_reviewed_head": [],
-    "tests_reused": "All201 Rust/47UI/22realbrowser+8screenshots refer to unchanged source9ea5a4d; not rerun at documentation-only integration",
-    "prerequisite_ci": "Integration lead verified SessionPR6 exactcd7 all7checks and same-checkout5b629769 ARM/IntelDMGs before main65 merge. Not this dedicated UI candidate acceptance.",
-    "recorded_at_utc": "2026-10-26T22:38:22.987211+00:00"
+  "local_log_sha256": {
+    "quiet-canvas-pr7-ci-121892188791.log": "92d976c962dba5f28bf6fba6204d6c35d6cd221e7c766af970f212f03502d429",
+    "quiet-canvas-pr7-ci-121892189219.log": "dafc3d37cd45b914f1c8ce6e6200a67085887e80af4a79e230bcf750fe8d31bb",
+    "quiet-canvas-pr7-clippy.log": "ebaa342aca188dbd448afc2b0311fd524fa24d6489f71a889c42102a9fe59d0f",
+    "quiet-canvas-pr7-controlled-old-ready-failure.log": "7cf8275fade71e8cd4bd5da91598011b7961c37a8e77b76ed2cfb5357d011c83",
+    "quiet-canvas-pr7-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "quiet-canvas-pr7-runtime-regression.log": "8720a3b17d3b45bf2d064f81fc2c4a1abdf37d6f098c4668b533dc8322fdb7f8",
+    "quiet-canvas-pr7-sessions13.log": "cfd4b80ef9b23b8a47818c29379b5ebeaeae2be95f3c376acd87cf3808590b60",
+    "quiet-canvas-pr7-run40414179289-jobs.json": "f083fffb0bb9e51c704c3af343fc0115ff5044cc8c0566b8f020bda8602de34c",
+    "quiet-canvas-pr7-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f",
+    "quiet-canvas-pr7-design.log": "e8aded4d287c2bb6a9ef59288c8e08ed6ce742d9b49b329b805481e9e38a0585",
+    "quiet-canvas-pr7-controlled-old-ready.patch": "db91ac9ef3a50d9ee6c746f7895a8253a75e8f44cadcd887d0f0ddc09141f1eb"
   }
 }

@@ -49,3 +49,8 @@ Actual local results:201 top-level Rust,24workspace,47UI,types/build/fmt/Clippy,
 ## Protected main Session prerequisite integration
 
 Session PR6 actually merged to protected main65f223c after the integration lead verified exactcd7 all7required checks plus same-checkout5b629769 ARM/Intel development DMGs. Read main65 OWNER_INBOX again, ACK001/002, no new sequence. Separately committed ACTOR_COMPOSITION_REVIEW9e7b3ee, then safely merged origin/main as274345f. No merge conflict or product-file delta from5e9; all source/tests/locks unchanged. Previous/incoming STATUS preserved verbatim. Updated only unit documentation/current STATUS and its single manifest fingerprint. Reused unchanged-source201Rust/47UI/22browser+8screenshots honestly; reran bootstrap92/design130/27. This is not new dedicated-UI exacthead CI/native installation proof or completion of the full GOAL. Primary owns push/retargetPR7/requiredCI; no push here.
+
+
+## Actual PR7 macOS CI readiness failure
+
+Both exactfcfea Product40414179289 Macjobs failed shared sessions_ipc ready observation after a valid1200ms deadline stop, while Rust/UI passed. Actual logs retained. Primary authorized this single test file correction. A deliberately late observer reproduces old failure (exit101); final three-phase test separately preserves absolute-deadline, actualready/hung-worker runtime, and explicit revoke/ownedprocess coverage. All13sessions tests pass17.76s plusfmt/coretestsClippy. First patch's diagnostic-only assertion failure retained; no production or timing threshold change. See MACOS_CI_READINESS.md and current EVIDENCE; prior full checks archived. Independent delta review/newMacCI required; no push here.
