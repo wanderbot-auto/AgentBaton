@@ -4,6 +4,8 @@ AB-START-001 remains the complete Designv0.2 development authority. OWNER-001/00
 
 Current local branch `codex/session-supervision`: fast-forwarded from d7acacb to independently audited remote7a6a46b, then integrating registrydfe3d735 with its foundation222aafd and version-probe readiness backport. Preserve schema4/session actor/owner-confirmation/signal functionality; do not import primary-tree schema5/native-provider work. OWNER-002 visual implementation remains its dedicated branch.
 
+Current tested sourcebc47ea1:189 top-level Rust tests,28 UI mocked tests/typecheck/build, workspace fmt/Clippy, actual daemon/CLI SIGKILL restart and design/infrastructure28/manifest92 pass. The native-owner proposal now identifies the registered program/argv/route/digest/status and project name, with finalization drift rejection. Source/log evidence in session-supervision/INTEGRATION.md and EVIDENCE.json. Current-candidate native/macOS/remoteCI and independentreview remain pending; prior foundation or session native results are historical. No push/main merge performed by this integration unit.
+
 The source reports below retain their historical context. Their older branch/main/CI observations are not statements about the current integration candidate.
 
 ## Session source report at 7a6a46b

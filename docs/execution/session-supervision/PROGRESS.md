@@ -3,3 +3,8 @@ Implemented real named custom-ACP connection registration, native-owner-confirme
 Native source adapters now parse selected Codex TOML, Claude settings/MCP JSON and SKILL catalogs without executing content or exposing private values in preview. They are not yet wired to complete runtime materialization. Hidden Git-index state is rejected for clean-input admission. YAMLalias OOM and FIFO pointer hazards found by independent review were fixed with preserved evidence.
 
 Integration:186 top-level Rust tests,28 mocked-transport UI tests, typecheck/build, fmt/Clippy and actual daemon/CLI restart smoke pass. Linux Tauri check and7 native-host tests now actually pass with private signed-package dependencies. These are not macOS GUI/dialog acceptance or real vendor compatibility.50 independently reviewed source hashes match. See EVIDENCE.json and REVIEW.md for precise limits. Continue full remaining goal after this checkpoint.
+
+
+## PR6 prerequisite and recipient integration
+
+Fast-forwarded audited7a6a46b; local mergesa159aed/8f94696 retain registrya429cb3, protected main1f and foundation/readiness fixes. OWNER001/002 read/ACK. Narrow readable-recipient proposal backportbc47ea1 stays schema4/customACP. Local189 Rust,28 UI mocks/typecheck/build, fmt/Clippy, actual daemonrestart, design/infrastructure28 and integrity92 pass. See INTEGRATION.md/EVIDENCE.json for conflicts/exact source and remaining native/review gates. No push/main merge/full product acceptance.
