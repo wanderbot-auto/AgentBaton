@@ -2,9 +2,13 @@
 
 AB-START-001 remains the authority for the complete Design v0.2 goal. OWNER-001 and OWNER-002 ACK: the executor read protected main `2d9361df71aed03cde47c363b8c575636d177c1a` and the Quiet Canvas implementation reference. This unit preserves the project/workspace registry and its real IPC/UI; the approved Quiet Canvas redesign belongs to its dedicated UI branch.
 
-Current local branch `codex/project-registry`: original registry base `4e1efd378e03cbfeddf11351299da88e911df85c`, integrating foundation `222aafd1089701946fc77e477764ab8ee4bc367c`. No push, main merge or complete-product acceptance is claimed. Fresh local validation and the version-probe readiness backport are being recorded in `docs/execution/project-registry/`.
+Current local branch `codex/project-registry`: original registry base `4e1efd378e03cbfeddf11351299da88e911df85c`, integrating foundation `222aafd1089701946fc77e477764ab8ee4bc367c`. No push, main merge or complete-product acceptance is claimed. Fresh local validation and the version-probe readiness backport are recorded in `docs/execution/project-registry/`.
 
 The following source reports are retained with their original context. Their earlier branch/main/CI observations are historical, not assertions about this integration candidate.
+
+## Current local registry validation
+
+Tested source `aa258a6`:123 Rust tests (core34/config26/providers50/workspaces13),15 mocked UI tests/typecheck/frontend build, workspace fmt/Clippy, actual daemon/CLI SIGKILL restart smoke, design/infrastructure validation with28 Python tests, and92-file integrity pass. Version-probe backport retains the original500ms/4MiB bounds; old production failed the new small-pipe regression, corrected production passed. See project-registry/INTEGRATION.md and EVIDENCE.json. Fresh remote/native registry CI and independent acceptance remain pending; no push or main merge performed here.
 
 ## Foundation source report at 222aafd
 

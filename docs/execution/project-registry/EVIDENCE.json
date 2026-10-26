@@ -1,17 +1,24 @@
 {
-  "base_commit": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
-  "tested_commit": null,
-  "tested_tree": "uncommitted source hashes in REVIEW.md; candidate CI required",
-  "recorded_at_utc": "2026-10-26T17:04:37.509254+00:00",
+  "unit": "project-registry/foundation-integration",
+  "recorded_at_utc": "2026-10-26T19:09:39.667026+00:00",
+  "authorization": "AB-START-001",
+  "owner_inbox_ack": {
+    "OWNER-001": true,
+    "OWNER-002": "read origin/main 2d9361df71aed03cde47c363b8c575636d177c1a and docs/ui/quiet-canvas/IMPLEMENTATION.md; UI redesign remains dedicated branch"
+  },
+  "registry_base": "4e1efd378e03cbfeddf11351299da88e911df85c",
+  "foundation_merged": "222aafd1089701946fc77e477764ab8ee4bc367c",
+  "local_merge_commit": "57f4665",
+  "tested_commit": "aa258a6a80da7642c063ef2f2e014d9439508338",
   "checks": [
     {
       "command": "cargo test --workspace --locked",
       "exit_code": 0,
-      "passed": 121,
+      "passed": 123,
       "breakdown": {
         "core": 34,
         "config": 26,
-        "providers": 48,
+        "providers": 50,
         "workspaces": 13
       }
     },
@@ -24,32 +31,232 @@
       "exit_code": 0
     },
     {
-      "command": "cargo build --locked --bin batond --bin baton && python3 scripts/smoke-local-product.py",
-      "exit_code": 0,
-      "dimension": "real local daemon/CLI, SIGKILL/restart"
-    },
-    {
       "cwd": "apps/desktop",
-      "command": "npm run typecheck && npm test && npm run build",
+      "command": "npm ci --ignore-scripts --no-audit --no-fund; npm run typecheck; npm test; npm run build",
       "exit_code": 0,
       "passed": 15,
-      "dimension": "UI mocked transport"
+      "dimension": "UI mocked transport; not native desktop"
     },
     {
-      "command": ".venv/bin/python -m unittest discover -s tests/infrastructure -p test_*.py -v",
+      "command": "cargo build --locked --bin batond --bin baton; python3 scripts/smoke-local-product.py",
       "exit_code": 0,
-      "passed": 28
+      "dimension": "real local authenticated daemon/CLI SIGKILL/restart persistence; no provider calls"
+    },
+    {
+      "command": "python scripts/validate_design.py; python scripts/validate_infrastructure.py; python -m unittest discover -s tests/infrastructure -p test_*.py -v",
+      "python": "/workspace/AgentBaton/.venv/bin/python",
+      "exit_code": 0,
+      "unittest_passed": 28
+    },
+    {
+      "command": "python3 scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "files": 92
     }
   ],
-  "logs": {
-    "rust-final.log": "ada3091458ae9180a8e5eb07eddec2c1a0174923df01b7fe1da87789ed17f155",
-    "clippy-final.log": "be4dbb83ed31246e73d6f362b1a877cfdcb0dd79fca1b828dd8995e0349bd8a2",
-    "core-tests.log": "a0b7a37bf8afd1b7f397e09c4f8cb6873bd0c82ececfeaaff73917ebd22ad1e7",
-    "infrastructure-tests.log": "6b845f84e7b4ca7a92850b54f3bde48c01650518300e35b4f83792f21faa6a75",
-    "design.log": "a6484a799a144eedeb7c585fe02ead402c411552df58b861ec1a3e486396a265"
+  "old_production_control": {
+    "source": "HEAD:crates/providers/src/installation.rs",
+    "command": "cargo test --locked -p agentbaton-providers --test installation small_pipe_version_probe_preserves_volume_and_original_deadline -- --exact",
+    "exit_code": 101,
+    "unchanged_deadline_ms": 500,
+    "stderr_volume_bytes": 4194304,
+    "source_commit": "57f4665",
+    "interpretation": "Same new regression, original 500ms/4MiB bounds: old fixed-sleep production timed out (exit101); corrected readiness production passed. Original control ran before rustfmt-only formatting of the new test."
   },
-  "native_macos": "not_run_pending_prerequisite_CI",
-  "live_provider": "not_run_not_authorized",
-  "full_product": "incomplete",
-  "external_side_effects": "temp fixture Git/processes only; no real Provider calls"
+  "logs": {
+    "build.log": {
+      "sha256": "cd99f6cdf46d3e5fdff068bdd2abc33724430cbfed07d5fdb5e9ddb161fd96f0",
+      "path": "artifacts/registry-integration/build.log"
+    },
+    "clippy.log": {
+      "sha256": "e0e771b3c8840b2eccfd78afc1fa8782dbcf6ebc2ea6dfe536610278ea37a380",
+      "path": "artifacts/registry-integration/clippy.log"
+    },
+    "design.log": {
+      "sha256": "236ab377fc10114e43c3a5ed32bd48d3dd9559e68000f182d6482db409f1b0bd",
+      "path": "artifacts/registry-integration/design.log"
+    },
+    "fmt-initial.log": {
+      "sha256": "a1ed142eb42a9ca20f30f1ff8f3ee972289b0a7c45dcc889b5e820857da3fe55",
+      "path": "artifacts/registry-integration/fmt-initial.log"
+    },
+    "fmt.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "artifacts/registry-integration/fmt.log"
+    },
+    "infrastructure-tests.log": {
+      "sha256": "6b92cedb4802485f44485c1b7cb8ff62466b49b6e9b5b139203d790fb57bbd64",
+      "path": "artifacts/registry-integration/infrastructure-tests.log"
+    },
+    "infrastructure-validation.log": {
+      "sha256": "46e4ac329e7e80c107a211f612239b8ef43487f11156a26fafcd0507d7cee4b5",
+      "path": "artifacts/registry-integration/infrastructure-validation.log"
+    },
+    "manifest.log": {
+      "sha256": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f",
+      "path": "artifacts/registry-integration/manifest.log"
+    },
+    "restart-smoke.log": {
+      "sha256": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805",
+      "path": "artifacts/registry-integration/restart-smoke.log"
+    },
+    "rust-tests.log": {
+      "sha256": "a55aaf47c730e9e5422df91ef8f02665e9fe7b55470290465ae2ef0cbb70b66c",
+      "path": "artifacts/registry-integration/rust-tests.log"
+    },
+    "ui-build.log": {
+      "sha256": "dbbeace8b7d236a99dada6d73b0dc1a401abf6460d84266bb704cbd167d2aaf0",
+      "path": "artifacts/registry-integration/ui-build.log"
+    },
+    "ui-install.log": {
+      "sha256": "76a7072bfde653be824b52f2d769d6c3771165e8b51dcbcdad0fe23658f938c9",
+      "path": "artifacts/registry-integration/ui-install.log"
+    },
+    "ui-tests.log": {
+      "sha256": "1b862f9b67a7934e77c217b0d364d1529d08b1e1fc76912dab074e7cd5c39297",
+      "path": "artifacts/registry-integration/ui-tests.log"
+    },
+    "ui-typecheck.log": {
+      "sha256": "81a908ca176d0b18d9dd2470e07fabb394420707cf4a00e9b2f28551bdcdc175",
+      "path": "artifacts/registry-integration/ui-typecheck.log"
+    },
+    "version-probe-old-control.log": {
+      "sha256": "c41cd1ab24cf36af48749914f5316f871fdcd475e0cc0755b1ca718148562b8e",
+      "path": "artifacts/registry-integration/version-probe-old-control.log"
+    }
+  },
+  "tested_product_source_hashes": {
+    "Cargo.lock": "0a5e18a75333e4a068d9c63d43fe5ac176ebf6247ff1c0a12eb91d6b859d0557",
+    "Cargo.toml": "5dc88c14683dc23feac5ee1d6076ee96fc8f4a8eb149fa62cf35818553522c29",
+    "apps/cli/Cargo.toml": "279e279bd616d2e034f11808fb9db0020cab9276afe78de8f23c935f7d43fed1",
+    "apps/cli/src/main.rs": "a2701f6ea5a377cca6a542df4eea4dd67b6314476dbb421d6e423d1f4801f67c",
+    "apps/daemon/Cargo.toml": "2e4e4352ec1011281766ffd65af22de4a65220b14b57c2a4dd1a1c098912934c",
+    "apps/daemon/src/main.rs": "6e8beced1b16efd3a548e01a93bcd115c2719aebd28e5d40a16c12ea755e211b",
+    "apps/desktop/.gitignore": "5479e45ae49f8c0127f6d9a24d5bfae1ab1b919a53588d137ebd852fb0679572",
+    "apps/desktop/README.md": "af8a2b187e8379536ae63a1aba38883eaf63ee869906f94b341e859ffed86fed",
+    "apps/desktop/index.html": "9ee1d18aa84bf8ea7f8e8e080580c698ce38d17de139a16b58fe7f972ea167b8",
+    "apps/desktop/package-lock.json": "58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d",
+    "apps/desktop/package.json": "62b1f3ad51ffbedd2dafd7ed30ad3848740d22c74fc4ad1e1dea291ec257e60b",
+    "apps/desktop/src-tauri/Cargo.lock": "61cb7b8cbb02b15cf7b6d72a49c2fecaac291a2f3e037599e68e496d7538ff3d",
+    "apps/desktop/src-tauri/Cargo.toml": "06e94023ef2bd51b2b67dc33411e64f3adde7b5bc4b018230adf1ca0ad25b8ca",
+    "apps/desktop/src-tauri/build.rs": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f",
+    "apps/desktop/src-tauri/capabilities/main.json": "090491e6dce371a7853acf44c4a65c38e2e372ac50df6a5e313a36a5ec8acf9a",
+    "apps/desktop/src-tauri/icons/icon.icns": "c06b01170670fb61780e9b79b6e4c2a3bb54834649d2eb5ccd2888086fe5fa32",
+    "apps/desktop/src-tauri/icons/icon.png": "a952c1ccc3361e9737a3be643ac4010b4200b6f8adf151fec86fac55778cb145",
+    "apps/desktop/src-tauri/icons/source.svg": "b4b06b7cfef74e286db54d8896538f81fd47d862b03fe6127ffa3406360f515d",
+    "apps/desktop/src-tauri/src/main.rs": "100b33b06394d93df1d6e5245461f85d4602d574ff92031e6c23c42b0c1113aa",
+    "apps/desktop/src-tauri/tauri.conf.json": "ef186a4ea2196f98306259c85577fae86dea20044cb448c16a2eabf336c42ed9",
+    "apps/desktop/src/App.test.tsx": "079afe463dc56e79dfc7e3c3c90fdcae15d98aef2627c1b89beb0af69540852c",
+    "apps/desktop/src/App.tsx": "4e1f9334efc513715fcb3d2e50f05dd12ec3af762077a2b6a4d5d2d45a9ba023",
+    "apps/desktop/src/Projects.test.tsx": "409b00cfd1621c8f8cbffe2f86d278e8069077a0404947f606ff5e0d4709dfa8",
+    "apps/desktop/src/Projects.tsx": "64cc627ac2275f1f7b21ab6018db6f5d64688bd6becdee18faf62f208f69d75a",
+    "apps/desktop/src/api.test.ts": "3321a66e98bfbd4e264756cd1d34e7c84ab00c5c80709ac443e5821a3993278c",
+    "apps/desktop/src/api.ts": "b626501476e73480d15cda5655f691aa702e66867009c3272f41ea26e8ff47cd",
+    "apps/desktop/src/i18n.ts": "e3623d51040dbbecfb7633abea4838a26415800893b7d245357cd816fe9aa8f3",
+    "apps/desktop/src/main.tsx": "47bbb595a850847154dcb069ad195c21151fa6393059c1a0b7c25d9e46fd8498",
+    "apps/desktop/src/style.css": "cb62f42aa003d7e1244f7187eeaee48750b0ae08738cc515a9236e32a83da265",
+    "apps/desktop/src/test-setup.ts": "ae4b6b92c8c0f06526032b2dedeb4fb0e93b85af2a138a423386f2e36894a685",
+    "apps/desktop/tsconfig.json": "1926d10768671b06cebccef9170ad9fd808f9507d5da2c6c859da223589d9a46",
+    "apps/desktop/vite.config.ts": "24034b497fe996d776c30c5cdb4329eb4c29d0971e2e37962c1fb553cd7f5046",
+    "crates/config/Cargo.toml": "c8ed7e937b0e4f498fac85f682faab9e2a810d37b2a02fc83c6694be823a7cc7",
+    "crates/config/README.md": "96009bbd83d2aadcec190814bdb37edb48667005ede1b278c2165c90ea7b96ff",
+    "crates/config/src/capabilities.rs": "2c8975a02d2183354c2e2a55426bb9ccf80eb431b73c8089ed2754db9bf69a13",
+    "crates/config/src/lib.rs": "da5b00909547862fff1583b6593a40b874e5f7eb36b04ed27f925069e7a2df13",
+    "crates/config/tests/capabilities.rs": "b27c0a7460acd0433734aed8db3ad7a99b577ca003c1a6a270d44416df576acc",
+    "crates/config/tests/transactions.rs": "efb15cab097e5751557e665e3d846e31641a813adbe1604ec39e5318cb768212",
+    "crates/core/Cargo.toml": "7b8bf9c6ae3912ae744c26cdb08dc9b9378506aecd10eebc88d554271e9127eb",
+    "crates/core/src/execution.rs": "3d1992d1a0ae2d0b4484ec8faf44dee612970c75e63db37c9e6254b82106f9df",
+    "crates/core/src/ipc.rs": "b2c58282a10b802e2b4cc1338a75464bce85b77436fed2a230b082c778c0ddce",
+    "crates/core/src/lib.rs": "968df12fe9fe65569775f4fb6531e037c9e31e2da1c8d626b57a941cfe9d6907",
+    "crates/core/src/registry.rs": "6574e4dad21094279da3069ce6659c5c7d8a070205f06fd61b8ae0f247da2bff",
+    "crates/core/src/storage.rs": "f39e817cdb5ff2496d46510fe9b6cd52b18ebc1c08792d976052fb3e389997b4",
+    "crates/core/tests/execution.rs": "e322291303da63d5ef04f0094c7a38e333b1c69ccc44cf9f998b9c33cb391e8d",
+    "crates/core/tests/ipc.rs": "26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28",
+    "crates/core/tests/migration_v3.rs": "c3cb5af07f7e48abd8bf63d2885108d68ce196fd7ff60e20f5e39f3cd47fcd7b",
+    "crates/core/tests/project_ipc.rs": "9b38de8f283a706730edb49060c11124ad6341111ac0e76abdb07930884205f8",
+    "crates/core/tests/registry.rs": "7a35c34e4557cad8e350b6ebade5b880dd9e4c0cb320c3101468b9155acc3041",
+    "crates/core/tests/storage.rs": "492b192a251c15c5a1f5210e07cf957b4618115074c664139006bdae09d2cbf6",
+    "crates/providers/Cargo.toml": "ebcef2dbe3294cf341990be4843da8e9e20fe2f4f65501f90fff06e038ef37c0",
+    "crates/providers/EVIDENCE.json": "0f10199ea3ab61d10f11fe566b6caca0d4c9ecdda97f35f58e7dbe9dcf7340b3",
+    "crates/providers/PROVENANCE.md": "8aca242a321a0a512e2dbe09722b991fac0f59b08922e6530e7462df0d44e818",
+    "crates/providers/README.md": "5335ac7340c48e4a77aa9b0adfff3d183025b0b692f238e7bf6efd645a525e97",
+    "crates/providers/documentation-evidence.json": "d97e8c6040900c542ba3c2e579d6f53b74aa005938a0cf1ceb8aef5a55b05c52",
+    "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+    "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+    "crates/providers/src/installation.rs": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+    "crates/providers/src/lib.rs": "d7c4772de18ee6c802c2d29bcda09415a36d67e3664c5fe65dceba532dc8cac1",
+    "crates/providers/src/transport.rs": "6b5c96580e3cbe4e8ee0e950b301d3bc8d1074dcd9c42290bfba253cb723860b",
+    "crates/providers/tests/connections.rs": "31aa177dff7ad010fa147c68f3e338ef5c33f1fdb430322a95cde9b65d4199c3",
+    "crates/providers/tests/contracts.rs": "9a4d3f1a5f5a059e7b446b2d143b5f4ba990deb1bc8c49b399ff5ee31c734c38",
+    "crates/providers/tests/installation.rs": "2eeafe3f388b9cd5d1c1e63af174cd87c166e18f4909cac8f09064d00e450205",
+    "crates/providers/tests/stdio.rs": "abf342abed507734e4d3ffec4cbc7a93f959f51551b01b38abf430620adb9799",
+    "crates/workspaces/Cargo.toml": "599abfb08517918c7322380d2279a87a45d8b596ba321fd2ae65056b4fff3448",
+    "crates/workspaces/README.md": "129c3d96e8342a3a8c577f488e76fe06c0584b0f94d7b350ceb8dd1894f168df",
+    "crates/workspaces/src/lib.rs": "d441ae6b9d8747b228871097f2031dbb8b6674a1de208f5f63ef94ca2c96b99f",
+    "crates/workspaces/tests/safety.rs": "733b25d5a1c8e242595bd676a8cf90ffb066e4cabe7d41290cc336bbccdc42fe",
+    "scripts/smoke-local-product.py": "5f05c2c074f30966cba029f8e80faf7ca4b96e7c17c2fcbab1fb0f1d606c23f4"
+  },
+  "scope_limits": {
+    "native_registry_macos": "not_run on this local candidate; fresh exact-candidate CI required",
+    "live_provider": "not_run_not_authorized",
+    "full_product": "incomplete",
+    "push": "not_performed",
+    "main_merge": "not_performed",
+    "ui_owner002": "read and retained; implementation separate dedicated branch"
+  },
+  "preserved_historical_checkpoint": {
+    "base_commit": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
+    "tested_commit": null,
+    "tested_tree": "uncommitted source hashes in REVIEW.md; candidate CI required",
+    "recorded_at_utc": "2026-10-26T17:04:37.509254+00:00",
+    "checks": [
+      {
+        "command": "cargo test --workspace --locked",
+        "exit_code": 0,
+        "passed": 121,
+        "breakdown": {
+          "core": 34,
+          "config": 26,
+          "providers": 48,
+          "workspaces": 13
+        }
+      },
+      {
+        "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+        "exit_code": 0
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "exit_code": 0
+      },
+      {
+        "command": "cargo build --locked --bin batond --bin baton && python3 scripts/smoke-local-product.py",
+        "exit_code": 0,
+        "dimension": "real local daemon/CLI, SIGKILL/restart"
+      },
+      {
+        "cwd": "apps/desktop",
+        "command": "npm run typecheck && npm test && npm run build",
+        "exit_code": 0,
+        "passed": 15,
+        "dimension": "UI mocked transport"
+      },
+      {
+        "command": ".venv/bin/python -m unittest discover -s tests/infrastructure -p test_*.py -v",
+        "exit_code": 0,
+        "passed": 28
+      }
+    ],
+    "logs": {
+      "rust-final.log": "ada3091458ae9180a8e5eb07eddec2c1a0174923df01b7fe1da87789ed17f155",
+      "clippy-final.log": "be4dbb83ed31246e73d6f362b1a877cfdcb0dd79fca1b828dd8995e0349bd8a2",
+      "core-tests.log": "a0b7a37bf8afd1b7f397e09c4f8cb6873bd0c82ececfeaaff73917ebd22ad1e7",
+      "infrastructure-tests.log": "6b845f84e7b4ca7a92850b54f3bde48c01650518300e35b4f83792f21faa6a75",
+      "design.log": "a6484a799a144eedeb7c585fe02ead402c411552df58b861ec1a3e486396a265"
+    },
+    "native_macos": "not_run_pending_prerequisite_CI",
+    "live_provider": "not_run_not_authorized",
+    "full_product": "incomplete",
+    "external_side_effects": "temp fixture Git/processes only; no real Provider calls"
+  }
 }
