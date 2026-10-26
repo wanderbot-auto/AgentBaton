@@ -91,6 +91,9 @@ fn git_command(root: &Path) -> Command {
         // Local inspection/isolation never authorizes promisor lazy fetches or
         // repository-configured remote helpers (including ext/SSH helpers).
         .env("GIT_NO_LAZY_FETCH", "1")
+        // Approved commit IDs refer to raw objects and their recorded ancestry.
+        .env("GIT_NO_REPLACE_OBJECTS", "1")
+        .env("GIT_GRAFT_FILE", "/dev/null")
         .arg("--no-optional-locks")
         .args([
             "-c",
@@ -454,4 +457,45 @@ fn open_root_without_symlinks(root: &Path) -> Result<File, WorkspaceError> {
         current = unsafe { File::from_raw_fd(fd) };
     }
     Ok(current)
+}
+
+#[cfg(test)]
+mod raw_ancestry_tests {
+    use super::*;
+
+    #[test]
+    fn legacy_grafts_cannot_replace_raw_commit_parents() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        git_text(&root, &["init", "-b", "fixture"]).unwrap();
+        git_text(&root, &["config", "user.name", "Fixture"]).unwrap();
+        git_text(&root, &["config", "user.email", "fixture@example.invalid"]).unwrap();
+        let mut commits = Vec::new();
+        for content in ["A", "B", "C"] {
+            fs::write(root.join("file.txt"), content).unwrap();
+            git_text(&root, &["add", "file.txt"]).unwrap();
+            git_text(&root, &["commit", "-m", content]).unwrap();
+            commits.push(git_text(&root, &["rev-parse", "HEAD"]).unwrap());
+        }
+        let graft = root.join(".git/info/grafts");
+        fs::write(&graft, format!("{} {}\n", commits[2], commits[0])).unwrap();
+        let graft_before = fs::read(&graft).unwrap();
+        let index_before = fs::read(root.join(".git/index")).unwrap();
+        // Establish that the fixture actually changes ordinary Git ancestry.
+        let mut ordinary = git_command(&root);
+        ordinary.env("GIT_GRAFT_FILE", &graft);
+        let altered =
+            bounded_output(ordinary.args(["show", "-s", "--format=%P", &commits[2]])).unwrap();
+        assert!(altered.status.success());
+        assert_eq!(
+            String::from_utf8(altered.stdout).unwrap().trim(),
+            commits[0]
+        );
+        assert_eq!(
+            git_text(&root, &["show", "-s", "--format=%P", &commits[2]]).unwrap(),
+            commits[1]
+        );
+        assert_eq!(fs::read(&graft).unwrap(), graft_before);
+        assert_eq!(fs::read(root.join(".git/index")).unwrap(), index_before);
+    }
 }
