@@ -108,5 +108,66 @@
     "No real Provider/model/account/native GUI/macOS/installer/remote system/production test",
     "No full-workspace repeat, CI run, push or merge by this unit",
     "No historical CI fault causation inference"
-  ]
+  ],
+  "ci_fixture_followup": {
+    "source_commit": "8441fe6e509283c904e70ffc0a65767e3ffe5412",
+    "baseline": "83f0d8896040d7ade85067344602d4e84c477262",
+    "recorded_at_utc": "2026-10-26T23:51:24.143451+00:00",
+    "only_source_file": "crates/core/tests/approval_outcomes.rs",
+    "source_sha256": "dbc6adc0de7e2c086e31a022f52df374cf7fc3c7c6d3f71e1ccc53e3acf96a67",
+    "actual_remote_failure": {
+      "run_id": 40421813961,
+      "job_id": 121917839562,
+      "head_sha": "2da7da2d5fd24bc46b0c39967b2118b2bf975181",
+      "run_status_observed": "in_progress",
+      "failed_scope": "ARM product job, three fixture propose/register canonical-executable rejections, before outcome assertions",
+      "run_overall_conclusion_not_claimed": true
+    },
+    "old_helper_control": {
+      "platform": "Linux",
+      "controlled_input": "Existing connection case passes a generated selected-root symlink alias to helper; original helper returned that noncanonical path",
+      "command": "umask 022; CARGO_TARGET_DIR=/workspace/.toolchains/quiet-canvas-target CARGO_BUILD_JOBS=2 cargo test --locked -p agentbaton-core --test approval_outcomes connection_confirmation_fault_is_already_unknown_and_same_proposal_replays_original_effect -- --exact --nocapture",
+      "exit_code": 101,
+      "failed": 1,
+      "filtered": 2,
+      "actual_error": "INVALID_REQUEST Select an existing canonical executable"
+    },
+    "change": "Fixture helper returns path.canonicalize().unwrap(); existing connection case permanently uses controlled symlink alias. No production guard, outcome assertion, timeout or file permission changes.",
+    "checks": [
+      {
+        "command": "cargo test --locked -p agentbaton-core --test approval_outcomes -- --nocapture",
+        "umask": "022",
+        "exit_code": 0,
+        "tests": 3,
+        "test_seconds": 1.22
+      },
+      {
+        "command": "cargo fmt --all --check",
+        "exit_code": 0
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ],
+    "logs": {
+      "/workspace/.onboarding/provider-2da7-job-121917839562.log": "a0d6729503530ef816413cb9ebe0614c6bcb2533a8c52b35bebc14e93914cc9b",
+      "/workspace/.onboarding/approval-outcome-guard/alias-before.log": "1f29a82cf941858aaca30d9e29e353413fa2d0e8de7e4c557ae9edc11376de24",
+      "/workspace/.onboarding/approval-outcome-guard/alias-after.log": "44ffa4db2b000059a3513567320b2481a613e1a02b0e7a136af546d2bbf5e575",
+      "/workspace/.onboarding/approval-outcome-guard/alias-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "/workspace/.onboarding/approval-outcome-guard/alias-clippy.log": "dcfb54745bfeb86d5469232b57cb45b251a17b7217730acc72d6e04be431e256"
+    },
+    "production_byte_identical_to_83f": true,
+    "full_core_83_status": "Historical previous source production regression retained above; not mechanically rerun for this test-only adaptation",
+    "review_status": "Independent reviewer integration_review assigned by parent; implementation notes here are self-review",
+    "not_run": [
+      "Fresh macOS exact-head retry",
+      "Current full-workspace/native GUI/installer runs",
+      "Any Provider or generated fixture executable invocation"
+    ]
+  }
 }
