@@ -419,6 +419,10 @@ impl Daemon {
 impl Drop for Daemon {
     fn drop(&mut self) {
         let _ = fs::remove_file(&self.socket);
+        // `run` has finished before self is dropped. Release this ownership
+        // explicitly: duplicated/inherited descriptors can outlive this File.
+        // Unlink first so a successor's socket is never removed after unlock.
+        let _ = FileExt::unlock(&self._lock);
     }
 }
 fn read_frame(stream: &UnixStream, max_frame: u64) -> Result<String> {
@@ -473,6 +477,31 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
 #[cfg(test)]
 mod frame_tests {
     use super::*;
+
+    #[test]
+    fn daemon_drop_releases_its_lock_even_with_an_old_duplicate_descriptor() {
+        let directory = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = directory.path().canonicalize().unwrap().join("runtime");
+        let original = Daemon::bind(&runtime).unwrap();
+        let old_duplicate = original._lock.try_clone().unwrap();
+        assert_eq!(Daemon::bind(&runtime).err().unwrap().code, "WORKSPACE_BUSY");
+        drop(original);
+        assert!(!runtime.join("batond.sock").exists());
+        // No retry or waiting: an old open-file-description duplicate must not
+        // retain a stopped daemon's single-writer ownership.
+        let replacement = Daemon::bind(&runtime).unwrap();
+        assert_eq!(Daemon::bind(&runtime).err().unwrap().code, "WORKSPACE_BUSY");
+        drop(old_duplicate);
+        // Closing that old description must not release the new owner's lock.
+        assert_eq!(Daemon::bind(&runtime).err().unwrap().code, "WORKSPACE_BUSY");
+        assert!(runtime.join("batond.sock").exists());
+        drop(replacement);
+        let final_owner = Daemon::bind(&runtime).unwrap();
+        drop(final_owner);
+    }
 
     #[test]
     fn oversized_parser_returns_resource_limit_without_relying_on_error_delivery() {
