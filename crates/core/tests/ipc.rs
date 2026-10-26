@@ -146,12 +146,46 @@ fn credential_symlink_is_not_read_or_overwritten() {
 fn oversized_frame_does_not_kill_daemon() {
     let (_dir, path) = root();
     let server = Server::new(&path);
-    // Exactly MAX_FRAME+1 bytes exhaust the bounded reader. An additional
-    // newline would remain unread when the server closes, which legitimately
-    // yields EPIPE/reset on macOS instead of a guaranteed response frame.
     let payload = vec![b'x'; 1_048_577];
-    let response = raw(&path, &payload);
-    assert_eq!(response["error"]["code"], "RESOURCE_LIMIT");
+    let mut socket = UnixStream::connect(path.join("batond.sock")).unwrap();
+    socket
+        .set_write_timeout(Some(std::time::Duration::from_secs(3)))
+        .unwrap();
+    socket
+        .set_read_timeout(Some(std::time::Duration::from_secs(3)))
+        .unwrap();
+    // Rejecting an oversized peer is allowed to close the socket before the
+    // sender's large write returns. Darwin can report EPIPE even when all bytes
+    // reached the bounded reader. Error delivery is best effort; parser tests
+    // assert RESOURCE_LIMIT directly, independently of socket delivery.
+    if let Err(error) = socket.write_all(&payload) {
+        assert!(
+            matches!(
+                error.kind(),
+                std::io::ErrorKind::BrokenPipe
+                    | std::io::ErrorKind::ConnectionReset
+                    | std::io::ErrorKind::NotConnected
+            ),
+            "unexpected oversized write error: {error}"
+        );
+    }
+    let mut response = String::new();
+    match BufReader::new(socket).read_line(&mut response) {
+        Ok(0) => {} // Peer rejected and closed without an error frame.
+        Ok(_) => assert_eq!(
+            serde_json::from_str::<Value>(&response).unwrap()["error"]["code"],
+            "RESOURCE_LIMIT"
+        ),
+        Err(error) => assert!(
+            matches!(
+                error.kind(),
+                std::io::ErrorKind::BrokenPipe
+                    | std::io::ErrorKind::ConnectionReset
+                    | std::io::ErrorKind::NotConnected
+            ),
+            "unexpected oversized read error: {error}"
+        ),
+    }
     assert!(server
         .request(json!({"method":"system.snapshot","params":{}}))
         .get("result")

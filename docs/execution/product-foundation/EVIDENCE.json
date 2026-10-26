@@ -64,6 +64,11 @@
       "command": "Product validation / macOS core tests",
       "reason": "oversized fixture trailing newline caused platform-valid peer-close write errors",
       "resolution": "send exactly MAX_FRAME+1 bytes; resource-limit and authenticated liveness assertions retained; independent review approved;5 Linux IPC tests passed;Mac rerun pending"
+    },
+    {
+      "command": "Product / macos-15-intel at8dd441c",
+      "reason": "Darwin still permits EPIPE during oversized write even when exact bounded-reader bytes were sent; initial newline-only correction was insufficient",
+      "resolution": "direct parser RESOURCE_LIMIT test plus close-aware integration test retaining authenticated liveness;19 Linux core tests and Clippy passed;independent review approved;fresh native CI pending"
     }
   ],
   "native_arm64": "not_run",
@@ -81,6 +86,8 @@
     "product_macos_x86_64": "failed",
     "failure": "oversized fixture extra unread newline allowed macOS BrokenPipe/NotConnected during write; server boundary remained correct",
     "native_host_build": "not_run_due_to_earlier_test_failure",
-    "artifact_delivery": "not_run"
+    "artifact_delivery": "not_run",
+    "followup_head": "8dd441c1fbaa1342e546291ab3a69ec94defe32f",
+    "followup_intel": "failed_same_fixture_peer_close"
   }
 }

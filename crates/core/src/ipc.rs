@@ -370,3 +370,30 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
     let raw = read_frame(&stream, 32 * MAX_FRAME)?;
     serde_json::from_str(&raw).map_err(|_| CoreError::transport())
 }
+
+#[cfg(test)]
+mod frame_tests {
+    use super::*;
+
+    #[test]
+    fn oversized_parser_returns_resource_limit_without_relying_on_error_delivery() {
+        let (receiver, mut sender) = UnixStream::pair().unwrap();
+        let writer = std::thread::spawn(move || {
+            // The parser may reject before the writer completes; that socket
+            // scheduling detail does not change the parser's required error.
+            let result = sender.write_all(&[b'x'; 1025]);
+            if let Err(error) = result {
+                assert!(matches!(
+                    error.kind(),
+                    std::io::ErrorKind::BrokenPipe
+                        | std::io::ErrorKind::ConnectionReset
+                        | std::io::ErrorKind::NotConnected
+                ));
+            }
+        });
+        let error = read_frame(&receiver, 1024).unwrap_err();
+        assert_eq!(error.code, "RESOURCE_LIMIT");
+        drop(receiver);
+        writer.join().unwrap();
+    }
+}

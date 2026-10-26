@@ -105,3 +105,9 @@ SHA-256 hashes are from the reviewed working tree. Review evidence does not cove
 ## Follow-up: macOS oversized-frame fixture
 
 Independent reviewer approved the test-only correction after inspecting both failed CI job logs: send exactly MAX_FRAME+1 bytes without an unread trailing newline. RESOURCE_LIMIT and authenticated daemon liveness assertions remain. Five local IPC tests passed; new native CI required. Reviewed ipc test SHA-256: cd84c80bc4b66dfa59b4b3d3814a4251b4f47026dd102b9aa3501ed755e81118.
+
+## Follow-up: parser versus socket delivery
+
+The newline-only correction did not eliminate Darwin early-close EPIPE. Independent review approved separating the direct size-parser RESOURCE_LIMIT assertion from best-effort socket error delivery. Integration still rejects timeout/unexpected IO and checks a subsequent authenticated snapshot. Targeted19 core tests and Clippy passed on Linux; fresh native CI required.
+
+Reviewed source hashes: ipc.rs=5ab59b07bdeea4595637e7c1d26073959ba70993cc20a65ceb1758eaf254416c; tests/ipc.rs=2dde36f7ce925bb53b725d7c3aa5b6d55284af5803d66eb3f24fc9f58bf3e453.
