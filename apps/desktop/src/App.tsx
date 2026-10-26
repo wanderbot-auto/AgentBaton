@@ -5,6 +5,7 @@ import { Projects } from './Projects';
 import { Connections } from './Connections';
 import { ManagedSessions } from './ManagedSessions';
 import { sessionMessages } from './session-i18n';
+import { earlierEventWindow, type WindowReplacement } from './event-window';
 
 type View = 'work' | 'tasks' | 'capabilities' | 'history';
 export function App() {
@@ -17,6 +18,8 @@ export function App() {
   const [projectId, setProjectId] = useState('');
   const [events, setEvents] = useState<JournalEvent[]>([]);
   const [earliestCursor, setEarliestCursor] = useState(0);
+  const [windowReplacement, setWindowReplacement] = useState<WindowReplacement>(null);
+  const [byteLimitedPage, setByteLimitedPage] = useState(false);
   const [selectedId, setSelectedId] = useState<string>();
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
   const [error, setError] = useState('');
@@ -37,9 +40,17 @@ export function App() {
       setProjects(projectRecords);
       setStatus('connected');
       const cursor = Math.max(0, snapshot.sequence - 100);
-      const batch = await api.events(cursor);
-      if (request !== refreshSequence.current) return;
-      setEvents(batch.events);
+      const batch = await api.events(cursor).catch((eventError: unknown) => {
+        if (eventError instanceof DaemonError && eventError.code === 'RESOURCE_LIMIT') {
+          if (request === refreshSequence.current) setError(eventError.message);
+          return null; // A bounded-history refusal does not disconnect authenticated task controls.
+        }
+        throw eventError;
+      });
+      if (request !== refreshSequence.current || !batch) return;
+      setEvents(earlierEventWindow(batch.events, []).events);
+      setWindowReplacement(null);
+      setByteLimitedPage(!!batch.byte_limited);
       setEarliestCursor(cursor);
       setError(batch.gap ? messages[language].eventGap : '');
     } catch (e) {
@@ -81,7 +92,10 @@ export function App() {
       const cursor = Math.max(0, earliestCursor - 100);
       const batch = await api.events(cursor);
       if (batch.gap) { setError(t.eventGap); return; }
-      setEvents(current => [...batch.events.filter(event => event.sequence <= earliestCursor), ...current].slice(-500));
+      const window = earlierEventWindow(batch.events.filter(event => event.sequence <= earliestCursor), events);
+      setEvents(window.events);
+      if (window.replaced) setWindowReplacement(window.reason);
+      setByteLimitedPage(!!batch.byte_limited);
       setEarliestCursor(cursor);
     } catch (e) { showError(e); }
     finally { setBusy(false); }
@@ -112,7 +126,7 @@ export function App() {
         </div>
       </>}
       {view === 'capabilities' && <Connections language={language} connected={status === 'connected'} />}
-      {view === 'history' && <><EventList events={events} title={t.evidence} empty={t.noEvents} />{earliestCursor > 0 && <><p>{events.length >= 500 ? t.windowLimit : t.moreEvents}</p><button onClick={() => void loadEarlier()} disabled={busy || events.length >= 500 || status !== 'connected'}>{t.earlier}</button></>}</>}
+      {view === 'history' && <>{windowReplacement && <p role="status">{windowReplacement === 'bytes' ? t.windowBudget : t.windowLimit}</p>}{byteLimitedPage && <p role="status">{t.bytePageLimit}</p>}<EventList events={events} title={t.evidence} empty={t.noEvents} />{earliestCursor > 0 && <><p>{events.length >= 500 ? t.windowLimit : t.moreEvents}</p><button onClick={() => void loadEarlier()} disabled={busy || events.length >= 500 || status !== 'connected'}>{t.earlier}</button></>}</>}
     </main>
   </div>;
 }
