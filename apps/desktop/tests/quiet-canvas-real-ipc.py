@@ -87,6 +87,8 @@ def main():
                             'projects_list': ('projects.list', {}, set()),
                             'connections_list': ('connections.list', {}, set()),
                             'sessions_list': ('sessions.list', {}, set()),
+                            'workspaces_list': ('workspaces.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
+                            'grants_list': ('grants.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
                             'events_subscribe': ('events.subscribe', {'cursor': values.get('cursor', 0), 'limit': values.get('limit', 100)}, {'cursor', 'limit'}),
                             'tasks_create': ('tasks.create', {'goal': values.get('goal', ''), **({'project_id': values['projectId']} if values.get('projectId') else {})}, {'goal', 'projectId', 'idempotencyKey'}),
                             'tasks_cancel': ('tasks.cancel', {'task_id': values.get('taskId', '')}, {'taskId', 'expectedRevision', 'idempotencyKey'}),
@@ -227,6 +229,19 @@ def main():
                 page.keyboard.press('Escape')
                 assert page.get_by_role('button', name='设置', exact=True).evaluate('(e)=>e===document.activeElement')
                 passed('actual closed-details summary is included in dialog focus trap')
+                page.get_by_test_id('task-card').first.click()
+                page.get_by_role('button', name='执行与授权', exact=True).click()
+                execution = page.get_by_role('dialog', name='执行与授权', exact=True)
+                duration = execution.locator('#grant-duration')
+                assert duration.get_attribute('max') == '3600'
+                duration.fill('3601')
+                assert duration.evaluate('(e)=>e.validity.rangeOverflow')
+                assert execution.get_by_role('button', name='创建有界执行授权', exact=True).is_disabled()
+                duration.fill('3600')
+                assert duration.evaluate('(e)=>e.validity.valid')
+                page.keyboard.press('Escape')
+                page.get_by_role('button', name='返回任务', exact=True).click()
+                passed('actual grant duration input enforces3600second core boundary; no unsupported grant sent')
                 page.emulate_media(reduced_motion='reduce')
                 assert page.get_by_test_id('task-card').first.evaluate('(e)=>getComputedStyle(e).transitionDuration') == '0s'
                 passed('reduced motion disables product transitions')

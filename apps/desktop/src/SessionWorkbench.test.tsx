@@ -37,6 +37,28 @@ async function selectSession(user: ReturnType<typeof userEvent.setup>) {
   await waitFor(() => expect(screen.getByLabelText('Message to this connection')).toBeEnabled());
 }
 describe('Named connection and managed-session UI using mocked transport', () => {
+  it('rejects execution durations beyond the core one-hour limit and submits the exact accepted boundary', async () => {
+    const user = userEvent.setup();
+    vi.mocked(sessionApi.grantsCreate).mockResolvedValue({ ...grant, expires_at_ms: Date.now() + 3_600_000, scope: { ...grant.scope, max_duration_ms: 3_600_000 } });
+    showSessions();
+    await screen.findByRole('option', { name: '/managed/workspace (ready)' });
+    await user.selectOptions(screen.getByLabelText('Managed workspace'), workspace.id);
+    await user.selectOptions(screen.getByLabelText('Named connection'), connection.id);
+    const duration = screen.getByLabelText('Execution duration limit (seconds)');
+    expect(duration).toHaveAttribute('max', '3600');
+    await user.clear(duration); await user.type(duration, '3601');
+    await user.click(screen.getByLabelText('I authorize this exact recipient, workspace and bounded execution scope.'));
+    const submit = screen.getByRole('button', { name: 'Create bounded execution grant' });
+    expect(submit).toBeDisabled();
+    await user.click(submit);
+    expect(sessionApi.grantsCreate).not.toHaveBeenCalled();
+    await user.clear(duration); await user.type(duration, '3600');
+    await user.click(screen.getByLabelText('I authorize this exact recipient, workspace and bounded execution scope.'));
+    expect(submit).toBeEnabled();
+    await user.click(submit);
+    expect(sessionApi.grantsCreate).toHaveBeenCalledWith({ project_id: project.id, workspace_id: workspace.id, connection_id: connection.id, max_attempts: 1, max_concurrency: 1, max_duration_ms: 3_600_000 }, expect.any(String));
+  });
+
   it('preserves the selection and does not register again when native owner confirmation is declined', async () => {
     const user = userEvent.setup();
     vi.mocked(sessionApi.connectionsRegister).mockRejectedValue(new DaemonError('PERMISSION_DENIED', 'Native owner confirmation was declined', 'not_started'));

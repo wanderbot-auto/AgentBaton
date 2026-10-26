@@ -150,12 +150,12 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
       <label htmlFor="session-connection">{t.connection}</label><select id="session-connection" value={connectionId} onChange={event => setConnectionId(event.target.value)}><option value="">{t.choose}</option>{connections.map(record => <option key={record.id} value={record.id} disabled={record.probe_state !== 'ready'}>{record.name} ({record.probe_state})</option>)}</select>
       <label htmlFor="grant-attempts">{t.attempts}</label><input id="grant-attempts" type="number" min={1} max={100} value={attempts} onChange={event => setAttempts(Number(event.target.value))} />
       <label htmlFor="grant-concurrency">{t.concurrency}</label><input id="grant-concurrency" type="number" min={1} max={attempts} value={concurrency} onChange={event => setConcurrency(Number(event.target.value))} />
-      <label htmlFor="grant-duration">{t.duration}</label><input id="grant-duration" type="number" min={1} max={86400} value={duration} onChange={event => setDuration(Number(event.target.value))} />
+      <label htmlFor="grant-duration">{t.duration}</label><input id="grant-duration" type="number" min={1} max={3600} value={duration} onChange={event => setDuration(Number(event.target.value))} />
     </fieldset>
     <dl><dt>{t.recipient}</dt><dd>{connection ? `${connection.name} · ${connection.provider} · ${connection.identity_ref} (${connection.identity_status})` : t.choose}</dd><dt>{t.writable}</dt><dd>{workspace?.root ?? t.choose}</dd><dt>{t.host}</dt><dd>{connection?.host_id ?? t.unknown}</dd></dl>
     <p>{t.grantHelp}</p><p>{t.advisory}</p><p>{t.nativeConfirmation}</p><p className="hint">{t.noCredentials}</p>
     <label className="acknowledgement"><input type="checkbox" checked={acknowledged} disabled={busy || !canGrant} onChange={event => setAcknowledged(event.target.checked)} />{t.acknowledgement}</label>
-    <button disabled={busy || !canGrant || !acknowledged || !Number.isSafeInteger(attempts) || attempts < 1 || !Number.isSafeInteger(concurrency) || concurrency < 1 || concurrency > attempts || !Number.isSafeInteger(duration) || duration < 1 || duration > 86400} onClick={() => {
+    <button disabled={busy || !canGrant || !acknowledged || !Number.isSafeInteger(attempts) || attempts < 1 || !Number.isSafeInteger(concurrency) || concurrency < 1 || concurrency > attempts || !Number.isSafeInteger(duration) || duration < 1 || duration > 3600} onClick={() => {
       const scope = { project_id: projectId, workspace_id: workspaceId, connection_id: connectionId, max_attempts: attempts, max_concurrency: concurrency, max_duration_ms: duration * 1000 };
       void mutate(JSON.stringify(['grant', scope]), key => sessionApi.grantsCreate(scope, key), record => { setGrants(current => [...current, record]); setGrantId(record.id); setAcknowledged(false); });
     }}>{t.grant}</button>
