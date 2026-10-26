@@ -79,6 +79,12 @@
       "command": "Product validation both macOS at30a70d8",
       "reason": "IPC bounds pass;9 stdio fixtures abort at exact session/new cwd assertion due Darwin tempdir /var vs Python getcwd /private/var",
       "resolution": "canonicalize owner-approved fixture workspace;exact requestparams assertion retained;independent symlink-cwd reproduction confirms cause;11 Linux stdio tests+Clippy passed;fresh native CI pending"
+    },
+    {
+      "command": "Product / macos-15 at e732be1 stderr flood",
+      "reason": "10/11 stdio tests pass; unchanged4MiB stderr/500ms times out because fixed2ms idle sleeps impose throughputfloor on small Darwin pipes",
+      "resolution": "preserve fairness/deadline, use libc::poll readiness on truly idle pipes;disableEOFstderrHUPspin;new4096Linuxpipe reproduction initially failsprogress-onlyfix and passesreadinessfix;32 provider tests and Clippy passed;independent review approved;fresh native CI pending",
+      "observed_local_failure_excerpt": "small_stderr_pipe_progress_does_not_spend_the_response_deadline_sleeping: TransportFailure { kind: Timeout, side_effect_state: Unknown, protocol_error: None }"
     }
   ],
   "native_arm64": "not_run",

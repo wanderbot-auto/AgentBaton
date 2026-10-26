@@ -37,7 +37,10 @@ for line in sys.stdin:
         if mode=='oversized': sys.stdout.write('x'*2097152); sys.stdout.flush(); continue
         if mode=='malformed': print('not JSON',flush=True); continue
         if mode=='cancel': continue
-        if mode=='stderr':
+        if mode in ('stderr','stderr_small'):
+            if mode=='stderr_small' and sys.platform.startswith('linux'):
+                import fcntl
+                fcntl.fcntl(2,fcntl.F_SETPIPE_SZ,4096)
             for _ in range(1024): os.write(2,b'x'*4096)
         if mode=='flood':
             for n in range(400): emit({'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'fixture-native','update':{'sessionUpdate':'vendor/future','sequence':n,'body':'x'*5000}}})
@@ -192,6 +195,17 @@ fn stderr_flood_cannot_deadlock_or_leak_credential_text_in_diagnostics() {
     assert_eq!(process.wait_prompt(&session).unwrap(), TurnState::Completed);
     assert!(process.diagnostics().stderr_bytes_observed >= 4 * 1024 * 1024);
     assert!(process.diagnostics().stderr_discarded);
+}
+
+#[test]
+fn small_stderr_pipe_progress_does_not_spend_the_response_deadline_sleeping() {
+    // Linux explicitly shrinks the child pipe to reproduce Darwin backpressure;
+    // on Darwin the same workload uses its naturally small pipe capacity.
+    let (_dir, mut process) = start("stderr_small");
+    let session = process.new_session("binding").unwrap();
+    process.begin_prompt(&session, "work").unwrap();
+    assert_eq!(process.wait_prompt(&session).unwrap(), TurnState::Completed);
+    assert!(process.diagnostics().stderr_bytes_observed >= 4 * 1024 * 1024);
 }
 
 #[test]

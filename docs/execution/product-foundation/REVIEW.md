@@ -119,3 +119,7 @@ Independent reviewer approved4096-byte writes with delivery tracking and write-h
 ## Follow-up: canonical temporary workspace in stdio fixture
 
 Both actual macOS jobs at30a70d8 pass IPC size/parser tests and next fail9 fixture sessions at their exact cwd assertion. Independent reviewer reproduced alias cwd failure versus canonical cwd success with the same Python fixture and verified corrected roundtrip under a TMPDIR symlink. Approved fixture-only canonicalization; exact session/new params assertion unchanged, no production transport modified.11 Linux stdio tests and Clippy passed; both native checks pending. Test source hash: fdadd2442ce7c92f1b469395fc64c429f84cd9de27ed069b746b9d4b02f843d8.
+
+## Follow-up: actual small-pipe stderr backpressure
+
+Actual e732be1 ARM stdio10/11 pass; unchanged4MiB/500ms stderr stress exposed unconditional2ms sleep throughput loss. Independent reviewer approved deadline-capped libc::poll readiness,16read fairness and disabled closed-stderr descriptor, retaining original volumes/timeouts. New Linux4096-byte pipe regression reproduces failure with progress-only sleeping and passes corrected readiness. All32 provider tests and Clippy pass locally; actual Mac rerun stillrequired. Source hashes: transport=83ea578094102bfc4f16359a40d0291502319daf49a3e4a43a55e372f2c215e6,stdio=4c1f01f56ca5c6ea9b3852867b0f465565e3cafd9262a71d8f97876ec784f5ef.
