@@ -1,0 +1,9 @@
+[package]
+name = "baton"
+version = "0.1.0"
+edition = "2021"
+publish = false
+[dependencies]
+agentbaton-core = { path = "../../crates/core" }
+serde_json.workspace = true
+uuid = { version = "1", features = ["v4"] }

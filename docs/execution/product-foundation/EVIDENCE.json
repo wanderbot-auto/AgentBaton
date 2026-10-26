@@ -1,0 +1,69 @@
+{
+  "base_commit": "e158ade1a99e063ddce703ce4c0748febe449b43",
+  "candidate_commit": null,
+  "scope": "partial product foundation, integration candidate not yet committed",
+  "recorded_at_utc": "2026-10-26T16:43:04.829410+00:00",
+  "checks": [
+    {
+      "command": "cargo test --workspace --locked",
+      "exit_code": 0,
+      "tests_passed": 76,
+      "dimension": "unit and local process/integration fixtures"
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo build --locked --bin batond --bin baton && python3 scripts/smoke-local-product.py",
+      "exit_code": 0,
+      "dimension": "real local IPC and process restart"
+    },
+    {
+      "command": "npm run typecheck && npm test && npm run build",
+      "cwd": "apps/desktop",
+      "exit_code": 0,
+      "tests_passed": 6,
+      "dimension": "frontend with mocked IPC transport"
+    },
+    {
+      "command": "bash scripts/setup-dev.sh",
+      "exit_code": 0,
+      "python_tests": 28,
+      "node_tests": 4,
+      "rust_infrastructure_fixture_tests": 2
+    }
+  ],
+  "failed_attempts": [
+    {
+      "command": "python scripts/validate_design.py",
+      "reason": "scanned packaged npm README links with omitted docs",
+      "resolution": "authored Git document discovery; regression passing"
+    },
+    {
+      "command": "cargo build --locked --bin batond --bin baton",
+      "reason": "parallel config manifest incomplete, later new lock requirements",
+      "resolution": "valid targets and single-writer lock refresh"
+    },
+    {
+      "command": "cargo test --workspace --locked",
+      "reason": "in-progress transport ProtocolError Serialize mismatch",
+      "log": "artifacts/product-foundation/rust-tests.log",
+      "resolution": "provider fix;74-test rerun passed"
+    },
+    {
+      "command": "cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml",
+      "reason": "missing glib-2.0 on Linux",
+      "resolution": "native macOS CI pending; not passed"
+    }
+  ],
+  "native_arm64": "not_run",
+  "native_x86_64": "not_run",
+  "live_provider": "not_run_not_authorized",
+  "production_release": "not_run_not_authorized",
+  "artifact_delivery": "pending_actual_ci"
+}

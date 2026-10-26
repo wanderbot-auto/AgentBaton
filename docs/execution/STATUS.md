@@ -1,14 +1,17 @@
-# AgentBaton · 研发状态
+# AgentBaton execution status
 
-- 授权：AB-START-001，完整 Design v0.2 范围已获研发授权。
-- 执行状态：`authorized_awaiting_executor`。本次仓库交接没有从规划会话直接启动 Codex Cloud。
-- 产品已实现：尚未登记。需求基线 130 项，不能由环境预检推导产品完成。
-- 起始主分支（授权交接前）：`d2d0bf71e7c289fa0c3f2c6a7f2595515bc1ef24`；实际执行者启动前重新获取最新获批 SHA。
-- Cloud 任务 ID/入口：未取得；启动后填写真实值。
-- 环境证据：原准备 CI `40352221818` 三平台成功；Cloud 发布与准备检查依据用户报告/截图。均不是产品验证。
-- 仓库保护：规则集 `25893455` 已在前轮 API 核验 active；新执行应复查，不绕过。
-- 已处理负责人指令：尚未由研发执行者 ACK `OWNER-001`。
-- 下一步：实际 Cloud 执行者读取 MASTER_PROMPT/GOAL/RUNBOOK，检查授权与工作区，建立需求进度表，然后实施依赖 ready 工作。
-- 外部验证限制：真实 Provider 身份/调用、额外费用、正式签名/公证、生产发布及最终许可证尚未批准。继续其余工作。
+Authorization: AB-START-001, full Design v0.2; OWNER-001 ACK and in progress. Full goal remains codex/GOAL.md, all130 requirements retained without acceptance shortcuts.
 
-更新时分别列出：实现；验证命令/精确提交/证据；待验证；失败；外部阻塞；当前分支/PR；下一步。不得用虚构百分比或“全部完成”覆盖未执行测试。
+Branch: `codex/product-foundation`; authorized base `e158ade1a99e063ddce703ce4c0748febe449b43` (PR#2 confirmed merged). No initial user modifications. Cloud task URL/ID unavailable through this entry. Native core/desktop/protocol/workspace/config workers and independent reviewer used; no Goal tool exposed.
+
+Implemented, partial: persistent draft tasks, authenticated Unix daemon/CLI, narrow Tauri bridge and bilingual task UI; SQLite atomic journal and v1→v2 backup migration; immutable dispatch bindings, durable intent/restart reconciliation and root/project attempt budgets; ACP contract+bounded stdio transport; safe Git worktree/artifact and managed configuration transaction primitives. See requirements-progress.json for per-ID scope. Libraries for Provider/workspace/config are not yet connected through the complete policy/session/router/UI workflow.
+
+Local verified:76 Rust tests (core18/config14/providers31/workspaces13), workspace fmt/Clippy, real daemon/CLI SIGKILL restart smoke;6 UI transport-mock tests, typecheck/frontend build;28 Python infrastructure +4 Node +2 Rust environment fixture tests. Native host Linux compilation cannot proceed without GTK/glib; it is not claimed passed. macOS product host/tests/build/runtime, real Provider compatibility and installation acceptance remain unrun.
+
+Independent review: findings and source hashes in product-foundation/REVIEW.md. Corrections include stale sockets, bounded readiness, configured Git filter execution, cross-root configuration approval binding, snapshot truncation and stale ACP session/response reuse. No full package acceptance implied.
+
+Repository protection: ruleset25893455 active with strict PR checks; existing three Environment contexts preserved. Additive Product CI and dual-architecture development DMG jobs implemented, actual PR/CI/artifacts pending. Do not merge until all applicable exact-candidate checks pass and review fixes verified.
+
+External gates: no real Provider identities/model calls, extra paid resources, final license, formal signing/notarization or production release authorized. These block only corresponding validation/delivery.
+
+Next: push reviewed candidate as PR, inspect exact-SHA CI and development artifacts, fix failures, guarded integration; continue persistent project registry/policy bindings and connect existing protocol/config/workspace primitives to the real session/task workflow. Full capability management, orchestration, validation/adoption, retention, remote Hosts and desktop lifecycle remain incomplete.

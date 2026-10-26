@@ -1,0 +1,53 @@
+export type Language = 'en' | 'zh';
+export const messages = {
+  en: {
+    work: 'Work', tasks: 'Tasks', capabilities: 'Capabilities', history: 'History',
+    language: 'Language', title: 'Your work, with evidence.', subtitle: 'Tasks stay with the local daemon when this window closes.',
+    refresh: 'Refresh', connecting: 'Connecting to local daemon…', connected: 'Local daemon connected',
+    disconnected: 'Local daemon unavailable', reconnect: 'Retry connection',
+    disconnectedHelp: 'Open the desktop application with its bundled daemon, or start batond for this user, then retry. A browser alone cannot connect to local IPC.',
+    goal: 'Task goal', create: 'Create task', creating: 'Creating…',
+    createHelp: 'Creates a local draft. No Provider receives your goal until execution is explicitly configured and authorized.',
+    empty: 'No tasks yet. Create a task to record your goal.', select: 'Select a task to inspect its state and evidence.',
+    cancel: 'Request cancellation', cancelHelp: 'A request is not proof of a stopped process.',
+    noExecution: 'No execution evidence yet. This task has not been dispatched to a Provider.',
+    taskId: 'Task ID', revision: 'Revision', updated: 'Last recorded update', evidence: 'Recorded events',
+    noEvents: 'No recorded events.', eventGap: 'Event cursor is no longer available. Refresh to obtain a new snapshot.',
+    capabilityEmpty: 'No verified Provider connections',
+    capabilityHelp: 'Provider discovery, configuration and execution are not available in this build. No account or capability is assumed to be connected.',
+    recorded: 'Task records', unknown: 'Unknown status', error: 'Operation failed', working: 'Working…',
+    draft: 'Draft', cancel_requested: 'Cancellation requested', queued: 'Queued', running: 'Running',
+    cancelled: 'Stopped (confirmed)', failed: 'Failed', execution_succeeded: 'Execution succeeded',
+    validation_passed: 'Validation passed', accepted: 'Accepted',
+    sideEffectUnknown: 'The outcome may be unknown. Refresh the task before retrying this operation.',
+    earlier: 'Load earlier events', windowLimit: 'Event view is limited to 500 entries. Earlier events remain in the local journal.',
+    moreEvents: 'Earlier journal events are not displayed yet.', noAttempt: 'No attempt evidence is available in this view.',
+  },
+  zh: {
+    work: '工作台', tasks: '任务', capabilities: '能力', history: '历史',
+    language: '语言', title: '以证据，推进工作。', subtitle: '关闭此窗口后，任务记录仍由本地后台保存。',
+    refresh: '刷新', connecting: '正在连接本地后台…', connected: '本地后台已连接',
+    disconnected: '本地后台不可用', reconnect: '重试连接',
+    disconnectedHelp: '请打开包含后台程序的桌面应用，或为当前用户启动 batond，然后重试。单独的浏览器无法连接本地 IPC。',
+    goal: '任务目标', create: '创建任务', creating: '正在创建…',
+    createHelp: '仅创建本地草稿。明确配置并授权执行前，不会将目标发给 Provider。',
+    empty: '尚无任务。创建任务，记录你的目标。', select: '选择任务，查看状态与证据。',
+    cancel: '请求取消', cancelHelp: '请求取消不代表进程已经停止。',
+    noExecution: '尚无执行证据。本任务尚未派发给 Provider。',
+    taskId: '任务 ID', revision: '修订版本', updated: '最近记录时间', evidence: '已记录事件',
+    noEvents: '尚无事件记录。', eventGap: '事件游标已失效，请刷新以获取新快照。',
+    capabilityEmpty: '尚无已验证的 Provider 连接',
+    capabilityHelp: '此版本尚未提供 Provider 发现、配置及执行功能。不会假定任何账号或能力已连接。',
+    recorded: '任务记录', unknown: '未知状态', error: '操作失败', working: '正在处理…',
+    draft: '草稿', cancel_requested: '已请求取消', queued: '已排队', running: '运行中',
+    cancelled: '已停止（已确认）', failed: '失败', execution_succeeded: '执行成功',
+    validation_passed: '验证通过', accepted: '已验收',
+    sideEffectUnknown: '操作结果可能未知，请先刷新任务再重试。',
+    earlier: '加载更早事件', windowLimit: '事件视图最多显示 500 条，更早事件仍保存在本地日志中。',
+    moreEvents: '更早的日志事件尚未显示。', noAttempt: '当前视图尚无尝试记录。',
+  },
+} as const;
+export function initialLanguage(): Language {
+  const saved = localStorage.getItem('agentbaton.language');
+  return saved === 'en' || saved === 'zh' ? saved : navigator.language.startsWith('zh') ? 'zh' : 'en';
+}

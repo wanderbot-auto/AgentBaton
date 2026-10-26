@@ -1,0 +1,1 @@
+Execution active on codex/product-foundation based on e158ade. OWNER-001 ACK. Native Goal unavailable. Parallel workers own core/daemon/CLI, desktop, providers respectively. Main owns integration/CI/evidence. Do not run historical preparation-only startup instructions as current execution authority.
