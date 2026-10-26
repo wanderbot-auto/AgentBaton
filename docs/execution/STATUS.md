@@ -17,3 +17,5 @@ Session PR #6已ready/main，远程3b94d1c仍是已失败旧候选；本地334d7
 另外隔离分支codex/validation-integration基于30f466d，已本地整合独立审查通过的validation/adoption库c856e46：40库测试通过，文件完整性和本地CAS机制不等于代码正确或全局TaskAccepted。主代理正在连接schema6、独立原生批准策略、真实IPC和Artifacts UI；14迁移/存储与6核心策略测试已实际通过，尚未完整集成/审查/推送。已实现内容不会据此标全需求完成。
 
 真实Provider身份/模型测试、未批准远程主机、额外费用、正式签名/公证、最终许可证与生产发布继续单独关闭；无私人凭据/认证目录复制或真实模型调用。缺项只阻塞相关验证。继续修复精确CI、按保护合入已验证单元并接通后续获批功能；不承诺无活动执行器的后台续跑。可恢复分支、命令、限制和下一步见各CHECKPOINT。
+
+当前组合修复已实际完成完整回归：254顶层Rust（core80/config67/providers81/workspaces24/真实daemon信号2），49UI/typecheck，15runner/audit，1真实Daemon私有夹具，当前Linux宿主7项，以及当前新daemon的22浏览器IPC/8图；fmt/Clippy/真实重启/设计检查通过。Actor版明确先取消并join owned workers/probes，再unlink旧socket并释放自身flock，错误/展开路径亦不提前交接authority；独立33项目标测试通过。源码与证据正保存到PR8功能分支并将启动新的精确提交MacCI。它仍不含另一个分支的schema6/ArtifactValidation，且不是MacGUI或全产品通过。

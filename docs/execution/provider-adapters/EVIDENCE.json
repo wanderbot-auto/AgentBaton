@@ -1,5 +1,5 @@
 {
-  "recorded_at_utc": "2026-10-26T21:05:26.473947+00:00",
+  "recorded_at_utc": "2026-10-26T21:50:42.098531+00:00",
   "approval": "AB-START-001",
   "owner_inbox": "OWNER-001/002 ACK; protectedmain dc5aea0 actuallyread no newersequence",
   "branch": "codex/provider-runtime-adapters",
@@ -10,9 +10,9 @@
     "session": "b39ae1edeb2d450af4557386e4527ac9d9fd6f9b",
     "includes_main": "dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7",
     "fixture_fix": "ec77dfc pluspolicyFIFOtest-onlycorrection",
-    "focused_guard": "851fa073512326deacd24d8918fa1f8261134c68"
+    "focused_guard": "34dc5f0f14585512a73c612e14a885c9b33ca074"
   },
-  "tested_source": "39 preserved integration fingerprints MERGE_REVIEW plus2guard sources GUARD_REVIEW; currentcomposite lib retainsall18existingworkspace safetytests",
+  "tested_source": "88adbb9 plus reviewed34dc5 writer-lock merge and actor-specific reap-before-unlock; frozen per UI_CI_REVIEW/NATIVE_CI_REVIEW/WRITER_LIFECYCLE_REVIEW (older reviews remain historical)",
   "candidate_commit": null,
   "previous_checkpoint": {
     "path": "docs/execution/provider-adapters/EVIDENCE.pre-stack-5eba.json",
@@ -23,21 +23,15 @@
     {
       "command": "umask022; cargo test --workspace --locked",
       "exit_code": 0,
-      "top_level_tests": 250,
+      "top_level_tests": 254,
       "breakdown": {
-        "core": 78,
+        "core": 80,
         "config": 67,
         "providers": 81,
-        "workspaces": 22,
+        "workspaces": 24,
         "daemon_signals": 2
       },
-      "note": "Currentguardedfullworkspaceunder022 afterbothPOSIXFIFOfixturecorrections;251harnesspassesminusnestedFIFOchild1; generatedchildrennotvendors"
-    },
-    {
-      "command": "cargo test -p agentbaton-core --locked --lib; cargo clippy -p agentbaton-core --all-targets --locked -- -D warnings",
-      "exit_code": 0,
-      "top_level_lib_tests": 11,
-      "note": "After final policyFIFOfixture correction; nestedchildextra notcounted"
+      "note": "255harness includingone nestedFIFOchild; no vendors/models"
     },
     {
       "command": "cargo fmt --all -- --check; cargo clippy --workspace --all-targets --locked -- -D warnings",
@@ -46,38 +40,49 @@
     {
       "command": "cargo build --locked --bin batond --bin baton; python3 scripts/smoke-local-product.py",
       "exit_code": 0,
-      "scope": "actual daemonCLI SIGKILLrestart withmergedIPChelper"
+      "scope": "actual daemonCLI/SIGKILLrestart"
     },
     {
       "cwd": "apps/desktop",
-      "command": "npm run typecheck; npm test; npm run build",
+      "command": "npm run typecheck; npm test",
       "exit_code": 0,
-      "tests": 48,
-      "scope": "mockedTauri transport UI/wire; allincomingandoldtests retained"
+      "tests": 49,
+      "scope": "mockedTauriUI; asyncfixture act notincreasedtimeout"
     },
     {
-      "command": "artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond target/debug/batond --output /workspace/.onboarding/provider-runtime-guarded-browser --chromium /usr/bin/chromium",
+      "command": "artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond target/debug/batond --output /workspace/.onboarding/provider-runtime-final-candidate-browser --chromium /usr/bin/chromium",
       "exit_code": 0,
       "checks": 22,
       "screenshots": 8,
-      "scope": "Actualmergedfrontend/testonlylocalhostadapter/currentguardeddaemonUnixIPC; notnativeMac"
+      "scope": "actual unchangedbuiltfrontend/testonlyadapter/currentfinaldaemonUnixIPC, notnativeGUI"
+    },
+    {
+      "command": "python3 apps/desktop/src-tauri/tests/test_native_runner.py",
+      "exit_code": 0,
+      "tests": 15,
+      "scope": "runner/auditcontracts; syntheticEPERMnotDarwin"
+    },
+    {
+      "command": "umask022; cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-smoke fixture_tests::fixture_runtime_allows_the_real_private_daemon_authority -- --exact",
+      "exit_code": 0,
+      "tests": 1,
+      "scope": "realDaemonbind/privatefixture, notwindow"
     },
     {
       "command": "cargo check/test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
       "exit_code": 0,
       "tests": 7,
-      "scope": "Linuxnativehost compile/helpers only"
+      "scope": "Linuxhostcheck/helpers afteractorwriterfix"
     },
     {
       "command": "python3 scripts/validate_design.py; python3 scripts/verify_bootstrap_manifest.py",
       "exit_code": 0,
-      "manifest_files": 92,
-      "note": "aftermergebeforefinalcheckpointdocshashrefresh"
+      "manifest_files": 92
     }
   ],
   "browser": {
     "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider",
-    "daemon_sha256": "a31f0c1943e44c98a4b919610022a4b2ccc1c57d7d63bcdc5e801a812cf6ebad",
+    "daemon_sha256": "f802e63f287312495154fc4d2af013255bfcc8ccc0adf8d0ae59c362438a2500",
     "checks": [
       {
         "name": "empty state contains no demonstration task",
@@ -87,11 +92,11 @@
         "name": "five actual UI drafts persisted through Unix IPC",
         "status": "passed",
         "task_ids": [
-          "3330b867-4bcf-4d18-809c-abc64e522f5a",
-          "46a8de66-cd99-44c2-bf41-f6277aee9537",
-          "874995cd-0ffd-47f3-83e4-ca4d9f32d14f",
-          "819b5bc5-9643-4087-87aa-2b6b59c80feb",
-          "44ca72a9-09c5-4dd9-9d41-c7405b22871e"
+          "27bc3191-f19f-4db1-aae0-e9472d48265c",
+          "a306cd08-f88a-4ed4-a999-f2680a08f4f1",
+          "1a480483-9514-4bc6-b03f-ef91f1b62ec1",
+          "2aef23cd-675b-4cb1-ad34-6ec9d2494eae",
+          "384346c0-f343-493b-b8d6-d4f4515c689c"
         ]
       },
       {
@@ -224,14 +229,14 @@
       }
     ],
     "screenshots": [
-      "/workspace/.onboarding/provider-runtime-guarded-browser/home-1488x981.png",
-      "/workspace/.onboarding/provider-runtime-guarded-browser/task-1488x981.png",
-      "/workspace/.onboarding/provider-runtime-guarded-browser/home-1440x900.png",
-      "/workspace/.onboarding/provider-runtime-guarded-browser/task-1440x900.png",
-      "/workspace/.onboarding/provider-runtime-guarded-browser/home-1024x768.png",
-      "/workspace/.onboarding/provider-runtime-guarded-browser/task-1024x768.png",
-      "/workspace/.onboarding/provider-runtime-guarded-browser/home-390x844.png",
-      "/workspace/.onboarding/provider-runtime-guarded-browser/task-390x844.png"
+      "/workspace/.onboarding/provider-runtime-final-candidate-browser/home-1488x981.png",
+      "/workspace/.onboarding/provider-runtime-final-candidate-browser/task-1488x981.png",
+      "/workspace/.onboarding/provider-runtime-final-candidate-browser/home-1440x900.png",
+      "/workspace/.onboarding/provider-runtime-final-candidate-browser/task-1440x900.png",
+      "/workspace/.onboarding/provider-runtime-final-candidate-browser/home-1024x768.png",
+      "/workspace/.onboarding/provider-runtime-final-candidate-browser/task-1024x768.png",
+      "/workspace/.onboarding/provider-runtime-final-candidate-browser/home-390x844.png",
+      "/workspace/.onboarding/provider-runtime-final-candidate-browser/task-390x844.png"
     ],
     "requests": [
       {
@@ -240,97 +245,7 @@
         "side_effect_state": null
       },
       {
-        "method": "projects.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "sessions.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
         "method": "connections.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "events.subscribe",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "tasks.create",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "system.snapshot",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "projects.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "events.subscribe",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "connections.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "sessions.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "tasks.create",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "system.snapshot",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "connections.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "sessions.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "projects.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "events.subscribe",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "tasks.create",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "system.snapshot",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
-        "method": "projects.list",
         "error": null,
         "side_effect_state": null
       },
@@ -345,7 +260,7 @@
         "side_effect_state": null
       },
       {
-        "method": "connections.list",
+        "method": "projects.list",
         "error": null,
         "side_effect_state": null
       },
@@ -390,6 +305,11 @@
         "side_effect_state": null
       },
       {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
         "method": "events.subscribe",
         "error": null,
         "side_effect_state": null
@@ -400,7 +320,62 @@
         "side_effect_state": null
       },
       {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
         "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
         "error": null,
         "side_effect_state": null
       },
@@ -436,6 +411,36 @@
       },
       {
         "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
         "error": null,
         "side_effect_state": null
       },
@@ -460,17 +465,12 @@
         "side_effect_state": null
       },
       {
-        "method": "connections.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
         "method": "events.subscribe",
         "error": null,
         "side_effect_state": null
       },
       {
-        "method": "sessions.list",
+        "method": "connections.list",
         "error": null,
         "side_effect_state": null
       },
@@ -488,6 +488,11 @@
         "method": "grants.list",
         "error": "NOT_FOUND",
         "side_effect_state": "not_started"
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
       },
       {
         "method": "workspaces.list",
@@ -510,11 +515,6 @@
         "side_effect_state": null
       },
       {
-        "method": "connections.list",
-        "error": null,
-        "side_effect_state": null
-      },
-      {
         "method": "sessions.list",
         "error": null,
         "side_effect_state": null
@@ -523,22 +523,27 @@
         "method": "projects.list",
         "error": null,
         "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
       }
     ],
     "browser_version": "154.0.8037.57",
     "playwright_version": "1.62.0",
     "screenshot_sha256": {
-      "home-1488x981.png": "bed1687a149c4d172eee3cf7bf12d81443bc2d25ac4b9d54ddb7aceea5dac843",
+      "home-1488x981.png": "b03acef7d69ad227759b02dd60bfd38e26d23046d0b0c0a0baad8f7d8ffc9d2d",
       "task-1488x981.png": "c1ccd266b97af54580a921d597b3a8e77092e10250b5da67318626233d39aa7d",
       "home-1440x900.png": "3091f851abc7dd88f10d381794a66cd040a65e1dfce79089c994943294491cb4",
-      "task-1440x900.png": "df363222400d60e36796c324830311aaa98fa32c339cc41e77891a2042805505",
+      "task-1440x900.png": "4ce6e4bcc83506614b165bed48837f66455520845b79844b6aa6880e9ad08d78",
       "home-1024x768.png": "65673c8c0e14f43e7571f1a16ddf4ec86dbabd887277063a1754ca00a672c68b",
       "task-1024x768.png": "c4ea2e63b4770e7f455e8af2d901bdd7c67f75bb447b37b66416e7fa9e25fe76",
-      "home-390x844.png": "ef0a9dbbbf80d29e04193cb13c7b17bbeb89d4477a562f0de5c003cb2e6e5ad9",
-      "task-390x844.png": "6ac3713a90b6f3b5643f4197663bd0ac60a010ebed59e6ef36a0d0c0b401e515"
+      "home-390x844.png": "67adaee0bc59101aab7bb8e9b2516228ae2710e055b8cae310af3b40bddf988a",
+      "task-390x844.png": "93acd30774874c8e8b3312b5a35054adae39edf8edec0ddc9c8566f0828831a2"
     }
   },
-  "browser_evidence_sha256": "d644e9a71ba8354a91b010704808fa0ce5b0040a7cc1cc01727d7e039d61e6bd",
+  "browser_evidence_sha256": "fbe7cfed32f4f3b642e90a6edccc73119ad95ae4e46e82e43523132e6226e03b",
   "logs_sha256": {
     "provider-runtime-merged-rust.log": "ac6acb3dbf8d531127988246286c0cab0481c184130749bcd11be7a11fe92c9f",
     "provider-runtime-merged-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -564,13 +569,31 @@
     "provider-runtime-guarded-clippy.log": "1a33a2e9fb62c5b2af130a5c2604273119403ee36cdd80bb0a5f22eff092bfcd",
     "provider-runtime-guarded-browser.log": "5a51054731f14cac7c8aa3fcae8b83d42e5c3fcb27bd48566d12fb2dc60b0678",
     "provider-runtime-guarded-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "provider-runtime-guarded-rust.log": "0fa7c8b6856ac22d49e2e38d29a6e008b43f7cb9dd3c5b28395398ccb367504c"
+    "provider-runtime-guarded-rust.log": "0fa7c8b6856ac22d49e2e38d29a6e008b43f7cb9dd3c5b28395398ccb367504c",
+    "provider-runtime-final-candidate-smoke.log": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805",
+    "provider-runtime-final-candidate-browser.log": "918a33e247994fb1cd447e0fa9ed416ecdee660db5e296ab099a754d1f0f1588",
+    "provider-runtime-final-candidate-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f",
+    "provider-runtime-final-candidate-design.log": "eec2acec7c0160c1b5f869d118567e77d697e9358d23aca246672e890d67191d",
+    "provider-runtime-final-candidate-clippy.log": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc",
+    "provider-runtime-final-candidate-native-check.log": "488badc6460f0a3adf8f7ffb82fd2f0d03b234aa72848f07b1b96a30f8e9caef",
+    "provider-runtime-final-candidate-build.log": "ebd3229417c2279961d0ec3144fc4c78954bd520ae4210a3c86d4d089821fc08",
+    "provider-runtime-final-candidate-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "provider-runtime-final-candidate-native-tests.log": "a30137da0d77cbecd867131c563b56f55ebc21652ced19e91d6948f6bdf620a0",
+    "provider-runtime-final-candidate-rust.log": "439febf6dddcf1b56ee6b5e3ae9fe6383f537b31ed537d5319b556b07c3b9cdf",
+    "provider-runtime-intel-ui-readiness-tests-accepted.log": "a3cc741b1c2295999bee8741bcc0ca10fba684d6950cb82006ceb8208e0715b7",
+    "provider-runtime-intel-ui-readiness-typecheck-accepted.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "provider-runtime-writer-lifecycle-lib.log": "b1d89a8f92a64211052f57dcf6f93b447ed018a0980d7b0079ee0b0079403e76",
+    "provider-runtime-writer-lifecycle-ipc.log": "58b623abb6702816392c2425d3f3d3be4167aee04bb385a6d6e3b6ded8db53d9",
+    "provider-runtime-writer-lifecycle-clippy.log": "29b50adeec5e8928073cd3f6bd5cadb350fafb583243fedeb6e36460c08d462d"
   },
   "reviews": [
     "docs/execution/provider-adapters/FINAL_REVIEW.md",
     "docs/execution/provider-adapters/CI_FOLLOWUP.md",
     "docs/execution/provider-adapters/MERGE_REVIEW.md",
-    "docs/execution/provider-adapters/GUARD_REVIEW.md"
+    "docs/execution/provider-adapters/GUARD_REVIEW.md",
+    "docs/execution/provider-adapters/UI_CI_REVIEW.md",
+    "docs/execution/provider-adapters/NATIVE_CI_REVIEW.md",
+    "docs/execution/provider-adapters/WRITER_LIFECYCLE_REVIEW.md"
   ],
   "failed_evidence": [
     {
@@ -597,20 +620,41 @@
       "source": "Independent reviewer controlledsyntheticlocalmarker reproduction invalidation-adoption worktree",
       "status": "closed_source: focusedrawobject/fetchguardreviewedandbackported;250Rust+22workspaceindependentPASS; actualMacCIpending",
       "next": "ReadfreshMacCI, preserveallstrictchecks"
+    },
+    {
+      "issue": "Actualf3IntelinitialreadyoptionmissingwhileDOMLoading",
+      "job": 121847819047,
+      "log": "/workspace/.onboarding/provider-runtime-ci-121847819047.log",
+      "sha256": "e7561c7c3fe935a5eef5700a7c081d20c8c05f8454ca61b8efe3dbf0b49e8cef",
+      "resolution": "mockedinitialeffectsawaitReactact; deferredrealpromisesverifycontrolsnotpremature; unchangedassertions/timeouts49PASS; causebeyondobservedDOMnotasserted"
+    },
+    {
+      "issue": "Actualf3ARMnativefixturestartupfailureandcleanupEPERM",
+      "job": 121847819111,
+      "artifact": 12689352960,
+      "zip_sha256": "f4324ed37e6981d55fce03033d35285fb45a8ce84aa748d67e13f0f39102294d",
+      "resolution": "realDaemonoldfixture022controlFAIL101/privateguard; explicit700PASS1;15runnercontracttests; nohistoricalcauseorDarwinpassclaim",
+      "evidence": "docs/execution/native-gui/CI_FOLLOWUP.md"
+    },
+    {
+      "issue": "ActualPR9ARM32restartWORKSPACE_BUSY",
+      "run": 40403211132,
+      "job": 121854191652,
+      "resolution": "sameoriginaldupFDregressionoldFAIL/newPASS; explicitunlockafterownedworkerreapingandsocketunlink; historiccausationunproven; oldliveownerassertionsretained",
+      "evidence": "docs/execution/workspace-fetch-guard/WRITER_LOCK.md"
     }
   ],
   "remote_ci": {
-    "head": "5eba068e7772eddc45b9a6289bd38adac047c78f",
-    "product_run": 40397829141,
-    "environment_run": 40397834035,
+    "head": "f3eb83ebf9022544730e8ad6be578f5bfaf3efa1",
+    "product_run": 40401378109,
+    "environment_run": 40401383150,
     "environment_all3": "passed",
-    "product_rust": "passed",
-    "product_ui_including_real_browser": "passed",
-    "product_arm_and_intel": "failed_testcompile_rustix_mkfifoat_Apple_excluded",
-    "native_window": "not_reached",
-    "correction": "FixedPOSIXFIFOcreation withrealFIFOtypeassert, originalnotwaitingassertions retained; independently22runtime/fmtpass, macOSretry pending"
+    "rust_and_ui_includingactualbrowserandschema": "passed",
+    "intel": "failedinitialreadyquery47pass1fail",
+    "arm": "failednativefixturestartupthenrunnercleanupEPERM; artifact12689352960 onlytwofailurelogs noGUIreport",
+    "current_repaired_candidate": "pending_fresh_exactCI"
   },
-  "current_merged_native_ci": "not_run_yet; freshdispatchrequiredafterthisguardedmerge; nofailednativeclaim",
+  "current_merged_native_ci": "not_run_yet_after_this_repair; alloldfailuresretained; freshdispatchnext",
   "limitations": [
     "Only explicitly approved generated defaultRuntimePlans are connected; nondefaultSkill/MCP/model profiles rejectedratherthanignored",
     "Nativeconfigurationloading/accountidentity/hiddeninheritance/OSenforcement remainunknown; strictrequirementsfailclosed",
@@ -630,5 +674,11 @@
     "path": "docs/execution/provider-adapters/EVIDENCE.pre-guard-30f.json",
     "sha256": "cdb6c52dbb5850b7b0d8356541f71692be349bed7b8689a2ec59ddcc366bd798",
     "note": "Preserves exact246/48 stackcheckpoint and guardfindingbeforebackport"
-  }
+  },
+  "previous_ci_repair_checkpoint": {
+    "path": "docs/execution/provider-adapters/EVIDENCE.pre-ci-repair-f3.json",
+    "sha256": "33657058a3dc1b272acb1aa9f4b78aeb4ecfbdd09731c98482bc20c04dfb520a",
+    "note": "Preserved250test/48UIhistoricalcheckpoint andfirstguardfinding"
+  },
+  "remaining_integration": "DedicatedUI47/sourcebf pendingindependentreview; PR9current34 exactCIpending; session334 synchronizemainafterPR9. FullvalidationUI/core distinctisolatedinprogressnotinthiscandidate."
 }
