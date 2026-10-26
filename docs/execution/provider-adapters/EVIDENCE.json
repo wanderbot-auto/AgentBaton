@@ -782,5 +782,30 @@
     "author_core_tests": 83,
     "independent_regressions": 3,
     "new_candidate_ci": "pending; oldb994notinherited"
+  },
+  "approval_outcome_fixture_ci": {
+    "failed_head": "2da7da2d5fd24bc46b0c39967b2118b2bf975181",
+    "failed_product_run": 40421813961,
+    "failed_jobs": [
+      {
+        "id": 121917839562,
+        "name": "Product / macos-15",
+        "log_sha256": "a0d6729503530ef816413cb9ebe0614c6bcb2533a8c52b35bebc14e93914cc9b",
+        "canonical_guard_errors": 3,
+        "result": "failed in test fixture proposal/registration before outcome assertions"
+      },
+      {
+        "id": 121917839588,
+        "name": "Product / macos-15-intel",
+        "log_sha256": "7af047e15caa331c940e63bf1fc30dbd99f4bdc06aa76208747ebf4c8150c82f",
+        "canonical_guard_errors": 3,
+        "result": "failed in test fixture proposal/registration before outcome assertions"
+      }
+    ],
+    "test_only_source": "8441fe6e509283c904e70ffc0a65767e3ffe5412",
+    "evidence_commit": "eb60472513885582ed1aeef64489cdb575e22319",
+    "production_unchanged_from_32b2": true,
+    "independent_linux_regressions": 3,
+    "new_macos_ci": "not_run_yet; exactnewcandidate required"
   }
 }

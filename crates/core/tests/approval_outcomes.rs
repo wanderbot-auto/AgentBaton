@@ -8,7 +8,7 @@ use rusqlite::Connection;
 use serde_json::json;
 use std::{
     fs,
-    os::unix::fs::PermissionsExt,
+    os::unix::fs::{symlink, PermissionsExt},
     path::Path,
     process::Command,
     sync::{
@@ -28,7 +28,7 @@ fn executable(root: &Path) -> std::path::PathBuf {
     )
     .unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o700)).unwrap();
-    path
+    path.canonicalize().unwrap()
 }
 fn refuse_confirmation(db: &Connection) {
     db.execute_batch("CREATE TRIGGER refuse_approval_confirmation BEFORE INSERT ON events WHEN json_extract(NEW.document,'$.kind')='approval.confirmed' BEGIN SELECT RAISE(ABORT,'generated confirmation fault'); END;").unwrap();
@@ -62,11 +62,17 @@ fn connection_confirmation_fault_is_already_unknown_and_same_proposal_replays_or
     let directory = tempfile::tempdir().unwrap();
     let database = directory.path().join("state.sqlite3");
     let mut store = Store::open(&database).unwrap();
+    // Exercise a selected-directory alias on Linux as well as Darwin's common
+    // /var -> /private/var temporary-directory alias. Only the fixture resolves
+    // it; the production canonical-executable requirement remains unchanged.
+    let alias = directory.path().join("selected-root-alias");
+    symlink(directory.path().canonicalize().unwrap(), &alias).unwrap();
+    assert_ne!(alias, alias.canonicalize().unwrap());
     let proposal = store
         .propose_connection(
             "Generated never-run",
             "custom_acp",
-            &executable(directory.path()),
+            &executable(&alias),
             &[],
             "owner-selection",
         )

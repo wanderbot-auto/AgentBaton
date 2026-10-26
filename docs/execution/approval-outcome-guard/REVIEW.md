@@ -36,3 +36,21 @@ Logs are `/workspace/.onboarding/approval-outcome-guard/independent-{tests,fmt,c
 | `ab-approval-outcomes-core.log` — 83 top-level pass | `52f65709578b15fe7f0ed6fb056a6c38e9a9815ede991eded95aab39d8b7f843` |
 
 No real Provider/model/account, native dialog, macOS app, installer or production action was tested. The generated executable never ran in these three tests. The earlier b994 seven successful CI jobs/native artifacts do not validate this new source or a later Root/PR10/Data composition. Integrate with exact-source regression/review and fresh accurate CI before claiming those candidates accepted; full Design v0.2 remains incomplete.
+
+## Independent CI fixture follow-up — 8441fe6
+
+Reviewed `8441fe6e509283c904e70ffc0a65767e3ffe5412` against the documented `83f0d88` source. No blocking finding in this test-only portability correction. The only changed source file is `crates/core/tests/approval_outcomes.rs`: the generated executable helper returns `path.canonicalize().unwrap()` after creating/chmodding the same file, and the existing connection control now supplies a controlled selected-root symlink (with an assertion that it differs from its canonical path). This exercises aliases on Linux as well as Darwin's usual `/var` alias. No production canonical-path guard, permission, outcome assertion, test count, timeout or other threshold was relaxed. IPC remains SHA-256 `8d12f952c123d209a7d70e5380bea9aa212908aea65981bbead67dce86ef9025`; the new test SHA-256 is `dbc6adc0de7e2c086e31a022f52df374cf7fc3c7c6d3f71e1ccc53e3acf96a67`.
+
+The reviewer read the actual ARM failure log for Product run `40421813961`, job `121917839562`, at `/workspace/.onboarding/provider-2da7-job-121917839562.log`. Its actual checkout is synthetic PR8 merge `ed0dda05d9813f5db8b7cb180aa2e9bb4c51cbef` (2da7da2 into c4e72c6), not the raw head checkout. All three new tests failed before their intended outcomes, with INVALID_REQUEST/canonical executable rejection, and the job exited 101. This failure is retained; it is not evidence that the production outcome mapping regressed. The separately saved Linux `alias-before.log` adds the controlled alias while retaining the old helper and actually fails 1 test/exit 101 with the same canonical-selection rejection. It supports the path-alias mechanism; it does not by itself prove the precise Darwin path selected in that earlier CI.
+
+Independent reruns used the same Linux `umask 022`/toolchain/quiet-canvas-target setup as above, with separate new logs so earlier evidence remains unchanged:
+
+| Actual command | Result | Log under `/workspace/.onboarding/approval-outcome-guard/` | SHA-256 |
+| --- | --- | --- | --- |
+| `cargo test --locked -p agentbaton-core --test approval_outcomes -- --nocapture` | 3 pass, zero failed/ignored/filtered | `independent-alias-tests.log` | `cdfb548d4ee7c3a476eafab08633c66a21aaf24ecf4c9e4a6d5f71a794394ef5` |
+| `cargo fmt --all -- --check` | exit 0 | `independent-alias-fmt.log` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings` | exit 0 | `independent-alias-clippy.log` | `8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc` |
+
+The three tests still verify the two original unknown controls, the post-approval confirmed probe refusal, original IDs/keys and single confirmation, pre-effect refusal and no generated-executable execution. Final source hashes matched after testing and `git diff --check` passed. The implementer's alias-before log SHA-256 is `1f29a82cf941858aaca30d9e29e353413fa2d0e8de7e4c557ae9edc11376de24`; alias-after (3 pass) is `44ffa4db2b000059a3513567320b2481a613e1a02b0e7a136af546d2bbf5e575`. The original ARM job log SHA-256 is `a0d6729503530ef816413cb9ebe0614c6bcb2533a8c52b35bebc14e93914cc9b`.
+
+No macOS rerun result, Intel failure log, new native screenshot or fresh seven-check success was inspected/claimed in this follow-up. The primary must run accurate CI on the actual integrated candidate. The earlier b994 native success and this Linux alias regression cannot be inherited as a passing Mac result for the new fixture/source. The reviewer appended only this section, without staging or modifying source/locks.
