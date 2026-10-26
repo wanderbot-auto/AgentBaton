@@ -1,8 +1,10 @@
-# Preparation status: REPOSITORY + CI VERIFIED; CLOUD SETUP PENDING
+# Development authorized · Codex Cloud handoff
 
-Private repository preparation and Linux / macOS arm64 / macOS x64 environment checks passed. See [verified checklist](infra/PREPARATION_CHECKLIST.md), [Cloud setup](codex/ENVIRONMENT_SETUP.md), and [execution gate](infra/execution-gate.json).
+The owner has approved complete Design v0.2 development. Read [the execution prompt](codex/MASTER_PROMPT.md), [the goal](codex/GOAL.md), [the runbook](codex/RUNBOOK.md) and [the approval record](docs/execution/launch/APPROVAL.md).
 
-**Codex Cloud has not been created/published by this session. Product development remains unauthorized.** No application build, real Agent integration or signed installer is claimed. CI evidence is bound to commit `02508d4eb1c32d35cc9deda546f334938abdd357`; this later report update does not claim another remote run.
+[Development status](docs/execution/STATUS.md) · [Owner instructions](docs/execution/OWNER_INBOX.md) · [Current execution permissions](infra/execution-gate.json)
+
+This handoff is not evidence that a Cloud task has started or that the product is implemented. Preserve main protection; use branches/PRs and real CI. Production release, extra paid resources, signing and product Provider test accounts/calls still require separate approval. Do not rerun the historical repository-creation script.
 
 ---
 
@@ -23,13 +25,11 @@ Private repository preparation and Linux / macOS arm64 / macOS x64 environment c
 5. [工程工作包](docs/11-engineering-program.md)、[Codex主指令](codex/MASTER_PROMPT.md)、[执行规范](codex/RUNBOOK.md)。
 6. [修改清单](CHANGELOG.md)、[机器规范](specs/README.md)、[验证待办](docs/15-validation-gates.md)。
 
-## 当前交付状态
+## 当前状态与使用方式
 
-v0.2设计基线、需求、设计schema与静态示例已纳入环境准备。私有GitHub仓库已创建；基础设施测试与CI单独记录。**没有产品功能实现、真实Agent集成、macOS应用测试、安装包或Codex产品长程任务**。当前状态见 `infra/PREPARATION_CHECKLIST.md`。原资料索引是实施时需要重新核验的参考，不将设计或环境预检冒充产品测试。
+GitHub 仓库、环境准备和主分支保护已完成核验；用户已明确批准研发。当前尚未登记真实 Cloud 开发任务、应用实现、产品级测试或安装包，不把基础设施预检当作产品通过。
 
-## 使用方式
-
-将本包纳入真实项目仓库，读取`AGENTS.md`和`codex/MASTER_PROMPT.md`，提供执行授权、仓库/分支、资源范围及预算后再实施。不要因缺少某项实机或认证而删需求；标记阻塞并继续独立可推进的获批工作。
+从 `AGENTS.md`、`codex/MASTER_PROMPT.md` 和当前执行授权开始，实时状态见 `docs/execution/STATUS.md`。保留完整需求；缺少实机或认证仅阻塞相关验证。原设计文档中的初始化状态属于历史快照，不替代当前授权和执行记录。具体许可证、依赖兼容和最低系统版本仍按验证程序确定。
 
 文档校验命令（需要Python与jsonschema）：
 

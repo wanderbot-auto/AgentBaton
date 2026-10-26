@@ -1,67 +1,57 @@
-# Codex 长程执行规范
+# Codex 长程执行规范 · 已获开发授权
 
-## 工作区准备
+## 权威与恢复
 
-由用户在Codex Cloud选定真实GitHub仓库与环境。安装脚本只配置已批准的工具链/依赖，记录版本和锁文件。网络仅开所需来源；测试账号由环境秘密机制注入，个人CLI认证目录不进入仓库。macOS构建使用独立CI环境，不能将Linux成功直接等同桌面交付。
+读取 AGENTS、infra/execution-gate.json、docs/execution/launch/APPROVAL.md、GOAL、MASTER_PROMPT、最近 CHECKPOINT。AB-START-001 替代历史准备阶段的等待指令；具体许可证/真实 Provider 测试身份/生产发布仍未授权。不得改变产品语义或把设计中允许的远程功能当作实际远程主机凭据。
 
-本设计包没有自动执行的workflow或应用代码。若仓库还没有测试命令，先建立命令与实现，再实际运行；不可将命令名称当作已通过证据。
+读取 Git 状态、remote、base/head、已存在分支/PR、CI/产物与未确认的外部操作，再开始任何写入。保存已有改动；新 Cloud 任务从环境快照产生，不假设继承未提交文件。不要 reset、stash 覆盖、强推或绕过保护。
 
-## 恢复步骤
+## 执行与需求追踪
 
-读取AGENTS、决策、最近checkpoint；核对Git状态、base/head、工具版本、依赖和产物；重新验证必要基线。检查上次是否有尚未确认的派发、发布、写入和配置变更。确认前不重放。
+1. 用 130 项 baseline 需求与 14 个工作包建立可执行依赖计划。保持基线文件和 ID；在 docs/execution/requirements-progress.json 记录实际状态、实现文件、测试维度、失败/阻塞、证据提交，不改 specified 基线制造完成率。
+2. 初始化状态并执行环境基线检查；随后真正建立应用和测试工程。已有 preparation fixture 不是产品。新增产品 CI 时通过 reviewed PR 演进检查器，不能删除仍有效的检查或变更 required-check 名称。
+3. 选择依赖 ready 的任务贯穿契约、核心、接口、界面与验证；新任务不反复重读全部设计。发现接口误差按官方文档与实际版本写 ADR。
+4. 每个变更运行针对性测试；集成前运行完整适用回归。没有凭据的真实集成单列 blocked，允许先实现适配器与契约测试，不声称已完成真实联通。
+5. reviewer 检查代码、测试断言、需求覆盖、安全与 UI 真实接线。主代理处理 review，运行必要测试，再开/更新 PR、读取 CI、遵守 main 保护后合并。
+6. 每个闭环继续下一 ready 工作，不要求用户批准每一步。阶段分解用于验证，不缩小总体目标。
 
-## 任务文件布局
+## Subagent 协作合同
 
-建议每次工作写 `docs/execution/<task-id>/PLAN.md`、`PROGRESS.md`、`CHECKPOINT.md`、`EVIDENCE.json`。每个worker只写自己的文件；集成者更新需求总状态。模板在 `templates/`。
+检测运行时工具而非猜测名称。默认采用少量独立子任务；主代理保持集成权，避免子代理等父代理、父代理又阻塞等待全部子代理的死锁。无工具时使用串行执行和明确自审，不把虚构身份当多代理审查。
 
-## 规划原则
+子任务输入：需求 ID、基准 SHA、明确目标、允许修改文件/独立 worktree、接口契约、必需测试、禁止事项、可用预算。返回：更改文件和 commit/patch、命令及结果、证据路径、遗留问题、集成注意。不要返回全部原始日志污染主上下文，不允许修改其他人的未提交内容。共享 schema/lockfile/迁移只有一个 writer。停止任务要核对进程与副作用，而不只发 cancel。
 
-计划包含需求ID、依赖、预期实现、正常/失败验收、允许修改范围、兼容风险和回退方式。没有时间倒计时或人为短期目标；只采用依赖与完成证据。设计变化先记录ADR或产品决定，不能悄悄改测试让实现符合新含义。
+## 测试维度与安装包
 
-## 检查登记
+区分 design_validated、implemented、mock_verified、integration_verified、native_verified、accepted；N/A 有理由，blocked/not_run 不算 passed。产品完备度由需求证据决定，不由模型自述决定。
 
-工程实现应提供统一命令入口，覆盖 format/lint、typecheck、Rust tests、schema、provider contracts、core integration、UI、macOS desktop、security和build。每个命令记录 working directory、所需环境、超时、预期退出码和产物。
+为每个适用需求登记：工作目录、命令、工具/依赖版本、基准提交、输入 fixture、起止记录、退出码、测试计数、失败日志、artifact 哈希与路径。重点覆盖取消/超时/重启/重连、重复派发、权限扩大、配置竞态、跨账号污染、符号链接/路径穿越、恶意产物、日志清理和数据库升级恢复。
 
-在这些命令真实存在之前，模板中的名字仅为测试类别，不是可运行脚本。CI失败保存原始日志，重试后仍保留第一次失败。
+UI 必须连接真实核心；以 fixture 为后端的浏览器测试另行标注。macOS 应用需在真 macOS 上构建和验证 Tauri/IPC/窗口/后台生命周期；两种架构分别有证据。缺少测试环境不能把浏览器或 Linux 通过冒充桌面通过。测试控制端口与测试权限不能进入给用户的生产构建。
 
-## 验证门
+开发安装包可作为 GitHub Actions artifact 交付，不触发正式 Release。记录架构、commit、校验值、签名状态与已知限制。尚无 Developer ID 时明确未正式签名；代码签名、公证及公开正式发布需独立授权。最低 macOS 按依赖和实测决定，不自行放弃 Intel。
 
-契约门：状态/类型/边界明确。
+## 文件与沟通
 
-实现门：业务路径与错误处理真正接线，无演示数据冒充。
+- docs/execution/STATUS.md：单一主代理维护的总览、当前 PR/SHA、已验证、阻塞、下一步。
+- docs/execution/OWNER_INBOX.md：负责人已批准指令和序号；主代理在安全边界检查增量并登记 ACK。
+- docs/execution/<work-id>/PLAN.md、PROGRESS.md、CHECKPOINT.md、EVIDENCE.json：每个工作单元自己的记录。
+- docs/execution/requirements-progress.json：实时需求覆盖与证据映射，由集成者维护。
 
-模拟门：可重复fixture和异常测试。
+在开始、接口确定、集成完成、失败阻塞及任务停止前更新。不要持续无意义提交日志或对 main 直接推送。状态先在活动分支/PR可见，随已审阅 PR 合入。与负责人通信不需要额外研发平台或常驻轮询服务。文件修改不会自动启动/唤醒 Codex；没有活跃任务时需真实用户或获批调度器启动。
 
-真实Provider门：锁定版本与测试账号实际执行。
+## 资源与停止
 
-平台门：实际macOS构建与桌面测试，必要人工验收。
+遵守既有 Cloud/CI 限额，不自动充值或更换 API 计费。CI 保持托管 runner、只读 PR token、无私人凭据、无 privileged PR 触发器；禁止在公开 fork PR 上使用个人 self-hosted runner。现有并发/超时保持有界。子代理不自行继续递归。
 
-交付门：版本、证据、安装包、已知问题和安全发布。
+没有环境级 Goal 能力时记录事实，使用连续计划循环，不承诺无限运行。子代理与 Goal 不授予新权限。局部受阻时继续其他 ready 项；全部剩余工作受真实外部约束或达到平台限制时保存可恢复检查点并报告，不标全产品完成。
 
-这些门不必在每个纯文档需求上全执行；每个需求要声明适用维度，N/A有原因且不等于passed。
+## 核验来源（平台能力需按当前执行入口再次确认）
 
-## 批准与自动推进
+- https://developers.openai.com/codex/cloud
+- https://developers.openai.com/codex/long-running-work
+- https://developers.openai.com/codex/agent-configuration/subagents
+- https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex
+- https://developers.openai.com/blog/run-long-horizon-tasks-with-codex
 
-仅在已授权范围连续工作。用户决定产品语义、隐私、授权、费用与发布，工程师决定可逆实现细节。重大依赖或许可改变必须上报。不要为每个小函数反复提问；也不要因用户希望托管而假设所有权限均已授予。
-
-## 人工介入最小化
-
-阻塞请求写清事实、影响、备选、推荐和继续条件。缺少Qoder认证只阻塞真实Qoder验收，不阻塞无关schema测试。缺少macOS签名只阻塞正式签名发布，不等于可以用假dmg顶替。
-
-## 可见进度
-
-Codex任务展示当前工作；GitHubPR记录真实diff；Actions记录测试；产物携带commit和校验值。是否能触发/读取取决于真实权限，文档不能代替工具接入。不要自行开发第二套研发管理平台来管理AgentBaton。
-
-## 收尾
-
-检查所有声明与证据一致；列出implemented、verified和not_run；保存变更到批准分支或可下载patch；补上checkpoint。未完成的完整目标保留在需求表。禁止承诺本次会话结束后无需真实执行器仍持续工作。
-
-## v0.2决策对齐门
-
-开始和每次上下文恢复先运行文档一致性校验，并读取decisions与退休需求。不得重新引入外部终端观察器、默认只读托管配置、人工逐步接力或待批准远程支持等旧行为。独立安装与配置分离，多连接绑定稳定。
-
-产品自动化与研发授权分开：获批完整范围下尽量连续实施，不为小函数问许可；真实推送/CI/测试部署须有目标资源授权。生产发布始终另确认。开源回馈政策并非已指定某一种许可证，公开发布前完成审定。
-
-## 最低系统技术核验
-
-由工程依赖表、双架构构建与原生测试确定最低macOS，形成ADR，不让用户猜版本。缺少Intel真实验证不能删除既定支持或把结果标passed。文档校验不等于该技术核验已经完成。
+这些来源说明平台机制，不是本项目已有测试结果。/goal 在支持它的入口使用；网页 Cloud 不因提示词出现 /goal 就必然创建持久目标。

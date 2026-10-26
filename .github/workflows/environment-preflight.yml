@@ -76,7 +76,7 @@ jobs:
         shell: bash
         run: |
           echo '## Infrastructure preflight only' >> "$GITHUB_STEP_SUMMARY"
-          echo 'No AgentBaton application was built. No real Provider was called. No product implementation or production release was authorized.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No AgentBaton application was built. No real Provider was called. This workflow does not test product features or authorize production release. Current development authority is recorded separately in infra/execution-gate.json.' >> "$GITHUB_STEP_SUMMARY"
           echo "Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
           echo "Runner: $RUNNER_OS / $RUNNER_ARCH" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

@@ -4,8 +4,9 @@ R=Path(__file__).resolve().parents[2]
 spec=importlib.util.spec_from_file_location('gate',R/'scripts/check_gate.py')
 gate_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(gate_module)
 class PreparationTests(unittest.TestCase):
-    def test_gate_is_closed(self):
+    def test_explicitly_closed_gate_still_blocks(self):
         gate=json.loads((R/'infra/execution-gate.json').read_text())
+        gate['product_development_authorized']=False
         with self.assertRaises(PermissionError):gate_module.assert_product_approval(gate)
     def test_boolean_without_provenance_does_not_unlock(self):
         with self.assertRaises(PermissionError):gate_module.assert_product_approval({'product_development_authorized':True})
@@ -25,14 +26,16 @@ class PreparationTests(unittest.TestCase):
     def test_original_questions_preserved(self):
         q=json.loads((R/'specs/questionnaire.json').read_text())['questions']
         self.assertEqual(sorted(v['number'] for v in q),list(range(1,28)))
-    def test_confirmed_target_does_not_unlock_product(self):
+    def test_confirmed_target_still_requires_explicit_approval(self):
         plan=json.loads((R/'infra/environment-plan.json').read_text())
         gate=json.loads((R/'infra/execution-gate.json').read_text())
         self.assertEqual(plan['repository_owner'], 'wanderbot-auto')
         self.assertEqual(gate['target_repository'], 'wanderbot-auto/AgentBaton')
         self.assertTrue(gate['repository_owner_confirmed'])
-        self.assertFalse(gate['product_development_authorized'])
+        self.assertTrue(gate['product_development_authorized'])
         self.assertEqual(gate['remote_repository'], 'wanderbot-auto/AgentBaton')
+        gate['approval_reference']=None
+        with self.assertRaises(PermissionError):gate_module.assert_product_approval(gate)
     def test_bootstrap_rejects_previously_mistyped_owner(self):
         p=subprocess.run(['bash',str(R/'scripts/bootstrap-github.sh'),'--owner','wanderauto-bot'],text=True,capture_output=True,timeout=10)
         self.assertEqual(p.returncode,2,p.stdout+p.stderr)

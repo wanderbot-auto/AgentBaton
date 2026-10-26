@@ -1,24 +1,53 @@
 {
   "schema_version": 1,
-  "phase": "environment_preparation",
-  "product_development_authorized": false,
+  "phase": "product_development",
+  "product_development_authorized": true,
   "real_provider_calls_authorized": false,
   "production_release_authorized": false,
   "paid_resource_creation_authorized": false,
   "remote_repository": "wanderbot-auto/AgentBaton",
   "repository_owner_confirmed": true,
-  "approval_reference": null,
+  "approval_reference": "docs/execution/launch/APPROVAL.md",
+  "approval_id": "AB-START-001",
+  "base_design": "v0.2",
+  "integration_branch": "main",
+  "authorized_work_packages": [
+    "WP01",
+    "WP02",
+    "WP03",
+    "WP04",
+    "WP05",
+    "WP06",
+    "WP07",
+    "WP08",
+    "WP09",
+    "WP10",
+    "WP11",
+    "WP12",
+    "WP13",
+    "WP14"
+  ],
   "allowed_scope": [
-    "local_repository_bootstrap",
     "design_validation",
     "infrastructure_smoke_tests",
-    "prepare_ci_configuration",
-    "create_confirmed_private_repository",
-    "upload_preparation_baseline",
-    "run_environment_preflight"
+    "product_implementation",
+    "project_dependency_installation",
+    "product_test_implementation_and_execution",
+    "native_subagents_and_goal_when_available",
+    "repository_feature_branches_and_pull_requests",
+    "merge_after_required_checks_and_review",
+    "existing_github_hosted_ci",
+    "unsigned_development_artifacts",
+    "execution_status_and_checkpoint_updates"
   ],
-  "note": "This metadata/instruction gate is not an OS security boundary. Do not change it without a new explicit user approval.",
+  "resource_policy": {
+    "account_spending": "existing_approved_plan_and_ci_quotas_only",
+    "automatic_topups": false,
+    "new_paid_resources": false,
+    "provider_test_credentials": "separate_approval_required",
+    "subagent_parallelism": "bounded_by_available_resources; prefer_few_independent_workers"
+  },
   "repository_owner": "wanderbot-auto",
   "target_repository": "wanderbot-auto/AgentBaton",
-  "preparation_approval_reference": "User authorized repository and environment preparation; repository URL supplied by user. Product development still awaits separate confirmation."
+  "note": "Owner explicitly authorized full development after readiness review. This is an instruction/automation check, not a security sandbox. Do not expand production, paid-resource, credential or real Provider-test authority."
 }
