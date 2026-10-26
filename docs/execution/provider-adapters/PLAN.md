@@ -1,0 +1,7 @@
+# Provider runtime/config integration
+
+Base14e8690 includes preserved session d7acacb/independent audit7a6a46b and latest protected main2d9361d OWNER-002. OWNER-001/002 ACK. Complete130 requirement goal remains. Real vendor/model credentials/calls, production/signing/extra spend remain gated.
+
+Parallel independent worktrees: Provider codecs/owned process for native Codex and documented ACP routes; bounded managed effective config materialization; dedicated Quiet Canvas UI; primary integrates persisted connection/runtime snapshot/contracts. Native GUI/IPC tests are separate evidence work. Public contract: provider ManagedProviderProcess mirrors existing owned ACP methods, route explicitly selected with no fallback, only native correlated turn completion proves turn end. Config RuntimeSnapshot materializes a private managed namespace from approved selected nonsecret inputs with stable manifest/digest and before-launch verification. Native owner proposals bind all changed execution/config fields. Single writer for central DB/schema/locks remains primary.
+
+Run official pinned-schema contract fixtures, actual generated child integration/fault/cancel/backpressure tests, config conflict/symlink/secret-source tests, real IPC end-to-end and complete local regression; independent review then stackedPR/CI. Live vendor compatibility and macOS UI remain explicitly separate. Continue workflow/validation/adoption/history/remote/lifecycle after this unit.

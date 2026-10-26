@@ -1,0 +1,1 @@
+Active codex/provider-runtime-adapters based14e8690; integration source clean after OWNER-002 ACK docs. PR3 e5e0ec1 nativeCI pending, PR4/PR6 stacked drafts. NativeGoal absent. Next implement real codecs/privateconfig and integrate new owner UI. Do not replace source with prototype data or cross real-provider/production gates.

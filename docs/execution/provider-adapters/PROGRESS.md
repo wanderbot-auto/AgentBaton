@@ -1,0 +1,1 @@
+Starting actual adapter/config integration after preserved reviewed session checkpoint. OWNER-002 UI work uses a dedicated branch/PR, preserving existing API. No current-unit tests or compatibility claimed yet.
