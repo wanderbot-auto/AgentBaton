@@ -1,0 +1,347 @@
+{
+  "authorization": "AB-START-001 and trusted OWNER-002 read from protectedmain2d9361d",
+  "base_commit": "14e86902e4b0172892595af81a3895f667c73c1b",
+  "source_commit": "d4672ce4e3aa8256a4bce2f974e6cc4af1b6472e",
+  "recorded_at_utc": "2026-10-26T20:08:39.643660+00:00",
+  "state": "implemented_partial_design_locally_verified",
+  "checks": [
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run typecheck",
+      "exit_code": 0
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm test",
+      "exit_code": 0,
+      "tests": 39,
+      "dimension": "mocked Tauri/component contracts, preserving35priorUItests plus byte-page navigation,2byte/count-window regressions and authenticated-cancel/history-failure regression"
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run build",
+      "exit_code": 0
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "python3 tests/quiet-canvas-real-ipc.py --batond /workspace/.toolchains/quiet-canvas-target/debug/batond --output /workspace/.onboarding/quiet-canvas-pagination-browser",
+      "exit_code": 0,
+      "checks": 22,
+      "screenshots": 8,
+      "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "python scripts/validate_design.py",
+      "exit_code": 0,
+      "requirements": 130,
+      "answered_questions": 27,
+      "dimension": "design baseline validation only"
+    },
+    {
+      "command": "python scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "files": 92,
+      "dimension": "bootstrap integrity only"
+    }
+  ],
+  "browser_checks": [
+    {
+      "name": "empty state contains no demonstration task",
+      "status": "passed"
+    },
+    {
+      "name": "five actual UI drafts persisted through Unix IPC",
+      "status": "passed",
+      "task_ids": [
+        "e11501bd-2c14-4401-9049-41406d92143b",
+        "7c0faef0-bc59-473f-b98f-cdb0c997a057",
+        "c342f21b-f7ff-4dcc-bde4-c67b390a2902",
+        "8dc7b122-a3f4-4c1b-81fe-125583918c38",
+        "63dcb77b-2ba2-479c-96ed-0f60dcb8a46b"
+      ]
+    },
+    {
+      "name": "reviewed quick-context summary converts to actual draft, standalone model send unavailable",
+      "status": "passed"
+    },
+    {
+      "name": "truthful recorded-state filtering",
+      "status": "passed"
+    },
+    {
+      "name": "real core rejects oversized UTF-8 goal without inserting a task",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 1488x981",
+      "status": "passed",
+      "columns": 2,
+      "overflow": false,
+      "sidebar": 232,
+      "fonts": [
+        "18px",
+        "14px",
+        "24px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 1488x981",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 1440x900",
+      "status": "passed",
+      "columns": 2,
+      "overflow": false,
+      "sidebar": 232,
+      "fonts": [
+        "18px",
+        "14px",
+        "24px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 1440x900",
+      "status": "passed"
+    },
+    {
+      "name": "collapsed rail controls retain accessible localized names",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 1024x768",
+      "status": "passed",
+      "columns": 2,
+      "overflow": false,
+      "sidebar": 64,
+      "fonts": [
+        "18px",
+        "14px",
+        "24px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 1024x768",
+      "status": "passed"
+    },
+    {
+      "name": "mobile navigation exposes named controls and44px toggle target",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 390x844",
+      "status": "passed",
+      "columns": 1,
+      "overflow": false,
+      "sidebar": 0,
+      "fonts": [
+        "18px",
+        "24px",
+        "14px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 390x844",
+      "status": "passed"
+    },
+    {
+      "name": "keyboard command search, Escape and focus restore",
+      "status": "passed"
+    },
+    {
+      "name": "actual closed-details summary is included in dialog focus trap",
+      "status": "passed"
+    },
+    {
+      "name": "actual grant duration input enforces3600second core boundary; no unsupported grant sent",
+      "status": "passed"
+    },
+    {
+      "name": "reduced motion disables product transitions",
+      "status": "passed"
+    },
+    {
+      "name": "actual never-dispatched draft cancellation is confirmed by core evidence",
+      "status": "passed"
+    },
+    {
+      "name": "history uses actual journal events",
+      "status": "passed"
+    },
+    {
+      "name": "no browser runtime errors",
+      "status": "passed"
+    }
+  ],
+  "daemon_sha256": "1eac57eb48a06b13ce28b204a542febbfaa0e01103c66e45b7ceeddc9fcce7aa",
+  "source_sha256": {
+    "apps/desktop/src/App.tsx": "c8dd45e3daa830d3daeb5788fb7ace0574ad0f757c2f8a8035f79174b21fcc01",
+    "apps/desktop/src/App.test.tsx": "93e12a2f1c7ec27ca9fa78033cb6e4010fda84db2281567a28117ef0a6f8424f",
+    "apps/desktop/src/Connections.tsx": "7f07e3f9a7086fd220a68ac4d6a5c6f9d760509a481ff80db576acf45be0c8d4",
+    "apps/desktop/src/ManagedSessions.tsx": "ca0a6b4e31a58813aea9b783e879efa93edb8cfbb15de7af7a147de5f401e38a",
+    "apps/desktop/src/style.css": "df5f17eb3a8b6de467b2f79800e185f44e67f32b5be71f2dc1c7ee4efaa8bb3b",
+    "apps/desktop/src/ContextDialog.tsx": "50bcc2b64659f71f26a3df028b718d958c5077f573e5f506ec80f4a21be9863d",
+    "apps/desktop/src/Icons.tsx": "d0140b87ad60a761313b563a4d037d142d4725c5436f2888cc22d7af18e8e82d",
+    "apps/desktop/src/QuietCanvas.test.tsx": "f0443fa817decc9f40ccfb0aeda67f5faa329f54f44347c516d557081a0e3219",
+    "apps/desktop/src/canvas-i18n.ts": "0d94f7015e3a588af97136db89dc03f04af45232b85db54ffa627a9a04cefd0d",
+    "apps/desktop/tests/quiet-canvas-real-ipc.py": "549a88e79801acd6730e8bb24f5752b1f8452562fbff060b979d8ba61d98324b",
+    "apps/desktop/src/SessionWorkbench.test.tsx": "7ab854c464753372ffe318ab42c85113b7d8bb7ce0dc1a6dfc5cb57c8d7e4cd3",
+    "apps/desktop/src/api.ts": "0db92cc42f718c0cfbc2653ad6499c9ff462d24f91e4593c0033eb354addc8c5",
+    "apps/desktop/src/i18n.ts": "02cb9744b0a775b9f2fcbfbdc9a7b7ef55573a2b3096164c432d78f94d34d318",
+    "apps/desktop/src/session-i18n.ts": "db9f1ee6bd62feef350a0108c69864f848df28137bf2377e4d67ae7d1b928566",
+    "apps/desktop/src/event-window.ts": "28a838dc7a12a86c3a941f19bd070aafac4b3f87385f1c3cb841c58598964775",
+    "apps/desktop/src/event-window.test.ts": "413ba3065526250d9fdd6df066f55c941ee81dd847553232da6076ee09af3be4"
+  },
+  "screenshots": {
+    "home-1488x981.png": "0f41dcdf9b60933179954360a25f37a84bed279758f6f76da806837cce86a6f8",
+    "task-1488x981.png": "c1ccd266b97af54580a921d597b3a8e77092e10250b5da67318626233d39aa7d",
+    "home-1440x900.png": "7bc8e19e9a7b78fc44ef4ef0df1b8886aa38783841d7418aad6f717777212941",
+    "task-1440x900.png": "4ce6e4bcc83506614b165bed48837f66455520845b79844b6aa6880e9ad08d78",
+    "home-1024x768.png": "65673c8c0e14f43e7571f1a16ddf4ec86dbabd887277063a1754ca00a672c68b",
+    "task-1024x768.png": "c4ea2e63b4770e7f455e8af2d901bdd7c67f75bb447b37b66416e7fa9e25fe76",
+    "home-390x844.png": "ef0a9dbbbf80d29e04193cb13c7b17bbeb89d4477a562f0de5c003cb2e6e5ad9",
+    "task-390x844.png": "6ac3713a90b6f3b5643f4197663bd0ac60a010ebed59e6ef36a0d0c0b401e515"
+  },
+  "local_log_sha256": {
+    "quiet-canvas-pagination-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "quiet-canvas-pagination-tests.log": "a6cf68a1c902f1b8c6731166fd6112e87442db7972cadc66b37aaca20d753178",
+    "quiet-canvas-pagination-build.log": "c094cc4fb9f05914c6dee5ed058038d56bb1e4e1f03a340239e9592cef6aadc8",
+    "quiet-canvas-pagination-browser.log": "760e99674f43a68a760303fd04a4541092124df6a682b366f1d34dfb64b1cff5",
+    "quiet-canvas-pagination-design.log": "031bb05c9393b86a2f7352ef9e597123dd2199a9f64a99bb905954849d3a2ba8",
+    "quiet-canvas-pagination-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f"
+  },
+  "environment": {
+    "node": "24.19.0",
+    "python": "3.12.14",
+    "chromium": "154.0.8037.57 Debian13",
+    "dependencies": "Reused existing repository-lock-aligned installed Node dependencies through an uncommitted temporary symlink; no Node dependency or lockfile change, no npmci claimed in this worktree."
+  },
+  "failed_attempts": [
+    {
+      "issue": "Initial role query matched both background card and dialog item",
+      "resolution": "Modal background made inert/aria-hidden and queries preserve actual semantics; not a weakened assertion"
+    },
+    {
+      "issue": "Native autofocus moved focus before opener capture",
+      "resolution": "Explicit dialog focus target applied after opener capture; focus restoration regression passes"
+    },
+    {
+      "issue": "Initial browser harness tried unsupported daemon CLI runtime flag",
+      "resolution": "Use documented BATON_RUNTIME_DIR private temp runtime; no system runtime created; startup failure preserved"
+    },
+    {
+      "issue": "Initial oversize fixture12000UTF8bytes was valid under16384byte bound",
+      "resolution": "Correct invalid fixture18000bytes within UIcharacterlimit; actualINVALID_REQUEST and noinsertverified"
+    },
+    {
+      "issue": "Composer covered last card at1440viewport",
+      "resolution": "Reserve composer as a flex sibling of scrollpane; strict last-card-above-composer assertions retained"
+    },
+    {
+      "issue": "scrollIntoView fractional rounding left0.39pixel at boundary",
+      "resolution": "2pixel scroll padding; strict no-overlap assertion retained"
+    },
+    {
+      "issue": "Independent review found missing icon-rail accessible names and summary focus-boundary coverage",
+      "resolution": "Localized explicit names and real1024/390 assertions; summaryfilter and closedsummaryunit/browsertrap regression pass"
+    },
+    {
+      "issue": "Independent review found inherited duration UI86400seconds exceeded core3600second grant bound",
+      "resolution": "Separate fix commit88b0a4d caps visible/input/submit3600;3601never submits evenwithack,3600submits exact3600000ms;35UI and22browserchecks pass"
+    }
+  ],
+  "not_run_or_blocked": [
+    "This UI branch has no macOS native WebView/window/lifecycle run or current-UI signed installation proof yet",
+    "Real vendor/account/model calls remain unrun and unauthorized",
+    "Current daemon API lacks artifact registration/read/preview; UI states unavailable without fabricated files",
+    "Standalone managed quick-chat persistence/model send is not exposed by current daemon; summary-to-real-task conversion is implemented, no simulated assistant reply",
+    "Automatic routing and file-reference attachment remain explicitly unavailable; existing bounded task/session/grant operations remain connected",
+    "Browser native-owner approval cannot be verified via the test adapter; production continues Rust-native owner confirmation and the test harness never finalizes it",
+    "Complete Design v0.2 scope remains unfinished; no requirement-wide acceptance is inferred from this UI unit"
+  ],
+  "production_test_hooks": "No test adapter/server/control permission added to product source or native capabilities; localhost adapter exists only in manually invoked tests/quiet-canvas-real-ipc.py",
+  "prior_ui_commit": "c06595f497e9457a374c464816c525c308394bed",
+  "reference_use": "Read owner reference HTML/CSS/JS locally. Browser file navigation was blocked by administrator; permitted inline rendering of the selected authorized reference was used only for visual comparison, never as product evidence or demo data.",
+  "independent_review": {
+    "state": "pending_primary_arranged_difference_review_for_d4672ce",
+    "prior_review": "Original Quiet Canvas/duration review retained in REVIEW.md and EVIDENCE-pre-pagination.json. Parent independently reviewed upstream pagination source separately; no new independent UI-delta execution is claimed here.",
+    "evidence": "docs/execution/quiet-canvas/REVIEW.md"
+  },
+  "prior_evidence": "docs/execution/quiet-canvas/EVIDENCE-pre-pagination.json",
+  "verification_unit": "Quiet Canvas frontend journal byte/count pagination backport only",
+  "pagination_scope": {
+    "server_metadata": "Optional page_bytes/byte_limited remains compatible with prior daemon envelopes",
+    "frontend_bounds": "At most500 visible entries and8MiB encoded event JSON when merging older history; if exceeding either, display the requested older page alone and preserve the forward cursor",
+    "navigation": "Follow returned next_cursor; retain ordinary earlier31+newer230records when merged window fits; do not disable older-page navigation at500",
+    "session_evidence": "Empty filtered session page is explicitly partial if the global page has unread records",
+    "not_included": "No native route/provider choices, adapter API migration, Rust/core/native lock/workflow changes",
+    "verification_limit": "Large Unicode/count-page behavior is exercised by frontend contract tests. The22actualbrowserchecks use ordinary real daemon drafts/journal and do not prove the separately backported4MiB backend or macOS/native GUI.",
+    "history_failure": "A successful authenticated snapshot remains connected when a history-only RESOURCE_LIMIT occurs; preserve the history error and keep valid cancellation available. Authentication/transport failures still mark disconnected."
+  },
+  "normal_screenshot_parity": {
+    "unchanged": 5,
+    "measured_changes": {
+      "home-1440x900.png": 14,
+      "home-390x844.png": 1926,
+      "task-390x844.png": 1932
+    },
+    "scope": "Pixel counts only; all8viewport/layout/typography checks pass and no CSS was changed.",
+    "changed_regions": {
+      "home-1440x900.png": [
+        340,
+        383,
+        343,
+        411
+      ],
+      "home-390x844.png": [
+        150,
+        2,
+        194,
+        46
+      ],
+      "task-390x844.png": [
+        150,
+        2,
+        194,
+        46
+      ]
+    },
+    "observation": "Mobile differences are confined to the44px navigation toggle hover region; no page-layout or typography change. Actual screenshots are retained without image modification."
+  },
+  "prior_evidence_commit": "f1978b810f6caf3f42028fe92f028fec8530639a",
+  "pagination_source_commit": "325a375d98e5cec0dd4696de9c051c8075360f7c",
+  "upstream_review_equivalence": {
+    "matching_reviewed_source_files": [
+      "apps/desktop/src/App.tsx",
+      "apps/desktop/src/App.test.tsx",
+      "apps/desktop/src/ManagedSessions.tsx",
+      "apps/desktop/src/api.ts",
+      "apps/desktop/src/i18n.ts",
+      "apps/desktop/src/event-window.ts",
+      "apps/desktop/src/event-window.test.ts"
+    ],
+    "upstream_review_sha256": "0e332ed9fb1076fc6c41e19fa0dc9fbe61211902fde93be5ba03c70cbd722797",
+    "location": "Parent unmerged adapter integration worktree docs/execution/provider-adapters/FINAL_REVIEW.md; not a file in this UI PR",
+    "translation_difference": "session-i18n intentionally copies only eventWindow/partialEvents, excludes native generatedArguments fields."
+  }
+}

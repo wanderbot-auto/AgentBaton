@@ -15,3 +15,11 @@ Source325a375 ports the reviewed byte/count paging behavior into the dedicated U
 The original35UI/22browser evidence remains in EVIDENCE-pre-pagination.json. Current39UI/typecheck/build and22actualbrowser/8screenshots pass. Large-page handling here is frontend contract evidence; the separate4MiB daemon change and macOS/native validation remain the primary integration responsibility. No prototype/layout/route scope was added.
 
 The follow-up d4672ce also ports the reviewed history-read connectivity correction: an authenticated task snapshot remains connected when only history returns RESOURCE_LIMIT, so cancellation is not disabled by a log-read failure. The error stays visible; actual authentication/transport failures still disconnect. The new behavior assertion passes alongside all previous UI assertions. Independent review of this UI-branch delta is left explicitly to the primary after this checkpoint.
+
+## Session/main integration
+
+Safely merged reviewed session3b94d1c into UI4871ae4 as source d9e328a. Kept QuietCanvas, all existing UI assertions and real task/session APIs while adding the session's explicit accepted-stream setup, authenticated delayed-frame case, bounded journal data and server-resolved approval recipients. Stronger8MiB/500record validation and byte/count explanations coexist with forward/older page navigation. Incoming older-dashboard cancellation tests now open the real Details tab before retaining the original enabled assertion.
+
+Actual local regression passes:193top-level Rust,46UI,fmt/Clippy/typecheck/build and22realbrowser/UnixIPC checks with8screenshots. Only the existing FIFO fixture needed a test-only portability correction; both actual upstream macOS jobs failed to compile Rustix mkfifoat. The fix retains both no-writer pointer cases and the killablechilddeadline. Corrected Mac/native/current-package validation is still not claimed.
+
+Core/native/locks match incoming session except thatcfg(test) fixture correction. No schema5/profile/native-provider choices or later primary-worktree scope was imported. Prior evidence is archived before this update; combined-source independent review and exact protected CI remain required.

@@ -1,9 +1,7 @@
-# Quiet Canvas checkpoint
+# Quiet Canvas session integration checkpoint
 
-Source frozen at `d4672ce4e3aa8256a4bce2f974e6cc4af1b6472e` on `codex/quiet-canvas`, based on `14e8690` (compatible session source plus protected main `2d9361d` OWNER-002). No core/native/root/Node lock changes. 39 mocked-transport UI tests and 22 real browser/UnixIPC checks pass. Eight screenshots are preserved under `screenshots/`.
+Current source freeze `d9e328a6d1537b131757dd529c4ae219780d562c` safely merges session `3b94d1c` into UI `4871ae4`. Protected main `dc5aea0` includes prerequisite PR#3/#4. Keep all old history in EVIDENCE.before-session-4871.json, EVIDENCE-pre-pagination.json, REVIEW.md and PAGINATION_REVIEW.md.
 
-The reviewer owns REVIEW.md. Merge requires independent source review and exact protected PR checks. The primary must push this dedicated UI branch, create its PR, preserve later runtime changes during integration and execute combined CI/native GUI tests. Native macOS GUI acceptance is separate from this browser run.
+193 top-level Rust tests, 46 UI tests, formatting/Clippy/typecheck/build and 22 actual browser/UnixIPC checks pass. Eight current frontend screenshots are preserved. This is local combined-source evidence, not macOS GUI or complete product acceptance. The upstream Mac compile failure is recorded and only its FIFO test fixture is corrected; current Mac checks remain necessary.
 
-The remaining full design, current-source macOS packages, artifact/standalone-chat/router APIs and real Provider authorization are explicit unfinished scope. This checkpoint does not end the overall task or promise continuation without a live executor.
-
-Pagination update: preserve prior evidence in EVIDENCE-pre-pagination.json, obtain independent diff review and let the primary push/update UI PR#7. This branch has not changed core/native/locks or imported later vendor-route changes. Combined backend byte-budget validation is separate from the22ordinarybrowserchecks.
+The primary must arrange independent review, push/update the dedicated UI PR and read exact-candidate CI before guarded integration. No schema5/profile/native choices or later adapter locks were imported. Actual product Provider identities/model calls, additional spend, formal signing/notarization and production release remain closed. Continue the remaining complete design after this increment.
