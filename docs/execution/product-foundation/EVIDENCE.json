@@ -74,13 +74,24 @@
       "command": "Product / macos-15-intel at84adc45",
       "reason": "known interrupted oversized send yielded truthful PROVIDER_DISCONNECTED while direct bound parser test passed",
       "resolution": "4096-byte writes track full delivery;permit transport error only for known interrupted send;requireRESOURCE_LIMIT after complete delivery;assert tasks/journal unchanged and authenticated liveness;independent review approved,19 local core tests/Clippy passed;fresh Mac pending"
+    },
+    {
+      "command": "Product validation both macOS at30a70d8",
+      "reason": "IPC bounds pass;9 stdio fixtures abort at exact session/new cwd assertion due Darwin tempdir /var vs Python getcwd /private/var",
+      "resolution": "canonicalize owner-approved fixture workspace;exact requestparams assertion retained;independent symlink-cwd reproduction confirms cause;11 Linux stdio tests+Clippy passed;fresh native CI pending"
+    },
+    {
+      "command": "Product / macos-15 at e732be1 stderr flood",
+      "reason": "10/11 stdio tests pass; unchanged4MiB stderr/500ms times out because fixed2ms idle sleeps impose throughputfloor on small Darwin pipes",
+      "resolution": "preserve fairness/deadline, use libc::poll readiness on truly idle pipes;disableEOFstderrHUPspin;new4096Linuxpipe reproduction initially failsprogress-onlyfix and passesreadinessfix;32 provider tests and Clippy passed;independent review approved;fresh native CI pending",
+      "observed_local_failure_excerpt": "small_stderr_pipe_progress_does_not_spend_the_response_deadline_sleeping: TransportFailure { kind: Timeout, side_effect_state: Unknown, protocol_error: None }"
     }
   ],
-  "native_arm64": "not_run",
-  "native_x86_64": "not_run",
+  "native_arm64": "workspace_native_host_tests_build_package_passed_at7521b38_GUI_unrun",
+  "native_x86_64": "workspace_and_native_host_tests_build_package_passed_at_d64d57c_GUI_unrun",
   "live_provider": "not_run_not_authorized",
   "production_release": "not_run_not_authorized",
-  "artifact_delivery": "pending_actual_ci",
+  "artifact_delivery": "verified_unsigned_Intel_foundation_snapshot_not_complete_product",
   "remote_ci": {
     "head_sha": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
     "product_run": 40362148029,
@@ -94,5 +105,146 @@
     "artifact_delivery": "not_run",
     "followup_head": "8dd441c1fbaa1342e546291ab3a69ec94defe32f",
     "followup_intel": "failed_same_fixture_peer_close"
+  },
+  "remote_ci_history": [
+    {
+      "head_sha": "d64d57cd59ca34aeb4a63e68bc1a6ceaac0c9a11",
+      "product_run": 40368611277,
+      "environment_run": 40368611069,
+      "environment_all_three": "passed",
+      "product_rust": "passed",
+      "product_ui": "passed",
+      "product_macos_x86_64": "passed_workspace_native_host_build_package",
+      "product_macos_arm64": "failed_before_native_host_build",
+      "failure": "socket_workflow_single_writer_and_restart_history create response lacked expected task; previous assertion did not print error; root cause unproven",
+      "intel_artifact": {
+        "id": 12673060778,
+        "checkout_merge_sha": "a88643778946bee9796730d99608c95bf5315572",
+        "zip_sha256": "85752a08096276cbea876d6434c00278a24483187bd8fd89002666037d3ccd59",
+        "dmg_sha256": "a91d4105aa0fd8b04358897e126c74823cd337874d534187d169c30ad580b105",
+        "signature": "unsigned",
+        "notarization": "not_configured",
+        "gui_acceptance": "not_run",
+        "download_digest_and_dmg_checksum": "verified"
+      }
+    },
+    {
+      "head_sha": "7521b38d509facccd081d25dc1ed0009c98b3038",
+      "product_run": 40376998625,
+      "environment_all_three": "passed",
+      "product_rust": "passed",
+      "product_ui": "passed",
+      "product_macos_arm64": "passed_workspace_native_host_build_package",
+      "product_macos_x86_64": "failed_stdio_2_of_12_timeout",
+      "failure": "Both unchanged4MiB/500ms stderr tests timed out on Intel; all IPC passed. ARM same-run stdio12 and nativehost3 passed.",
+      "arm_artifact": {
+        "id": 12676265263,
+        "checkout_merge_sha": "5c539035c57abab5077cfa0252343dbdee90669a",
+        "zip_sha256": "328fb6cc85d81a940f8fad98723e52fd22ceb81ed694ec7588e38a5b16ec1f63",
+        "gui_acceptance": "not_run"
+      }
+    },
+    {
+      "head_sha": "e5e0ec1f56660cc1c322af59e82d9dbb0bc3e48b",
+      "product_run": 40378120708,
+      "environment_run": 40378120759,
+      "environment_all_three": "passed",
+      "product_all_four": "passed",
+      "artifacts": [
+        {
+          "id": 12677033828,
+          "name": "development-macos-15-intel-e5dcc89e1d978a1fd526fd102a4bc9e66b34d4ad",
+          "zip_digest": "sha256:8658a382abcd75b99bf61a483a17994a41597a702e5abbdedd492d904799e449",
+          "dmg_name": "AgentBaton-x86_64-e5dcc89e1d978a1fd526fd102a4bc9e66b34d4ad-development.dmg",
+          "dmg_sha256": "e8b03e04acc3814b8eca36ed7af2a5d083c32931f3f2be6281badff615c8c263",
+          "build_record": "commit=e5dcc89e1d978a1fd526fd102a4bc9e66b34d4ad\narchitecture=x86_64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.19.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\napps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app: code object is not signed at all\n",
+          "signature": "unsigned",
+          "notarization": "not_configured",
+          "native_gui_acceptance": "not_run"
+        },
+        {
+          "id": 12676662574,
+          "name": "development-macos-15-e5dcc89e1d978a1fd526fd102a4bc9e66b34d4ad",
+          "zip_digest": "sha256:90473950692ab4d48de88d7149119bb49cd5a1214b652b123da666a66a40abc7",
+          "dmg_name": "AgentBaton-arm64-e5dcc89e1d978a1fd526fd102a4bc9e66b34d4ad-development.dmg",
+          "dmg_sha256": "ffb99f548cb00fb2ab4e1bca35d46d84e44aa43350f93d8998bbe5e993d32a3b",
+          "build_record": "commit=e5dcc89e1d978a1fd526fd102a4bc9e66b34d4ad\narchitecture=arm64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: aarch64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.20.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\nExecutable=/Users/runner/work/AgentBaton/AgentBaton/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop\nIdentifier=agentbaton_desktop-6cae1a0112e8bf7e\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=87752 flags=0x20002(adhoc,linker-signed) hashes=2738+0 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=984320\nHash type=sha256 size=32\nCandidateCDHash sha256=f06cbc56d6e943b42fe6c468e9b2feded716e632\nCandidateCDHashFull sha256=f06cbc56d6e943b42fe6c468e9b2feded716e6321197c331062631e12149067a\nHash choices=sha256\nCMSDigest=f06cbc56d6e943b42fe6c468e9b2feded716e6321197c331062631e12149067a\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=7389184\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=f06cbc56d6e943b42fe6c468e9b2feded716e632\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements=none\n",
+          "signature": "linker_adhoc_no_TeamIdentifier",
+          "notarization": "not_configured",
+          "native_gui_acceptance": "not_run"
+        }
+      ],
+      "limitation": "Complete foundation candidate passes both nativehost/build/package architectures; not full product or native GUI/manual acceptance."
+    }
+  ],
+  "sqlite_followup": {
+    "historical_failure_cause": "unproven",
+    "fix": "Close non-SQLite precreation fd before Store::open to avoid documented POSIX SQLite same-inode close hazard",
+    "diagnostic": "Only numeric SQLite extended error code; test asserts error absent before task state",
+    "local_tests": "19 core tests, Clippy and30 actual socket/restart repetitions passed",
+    "native": "new_run_required"
+  },
+  "updated_at_utc": "2026-10-26T18:19:50.235910+00:00",
+  "stderr_scheduler_followup": {
+    "recorded_at_utc": "2026-10-26T18:26:11.331445+00:00",
+    "baseline": "7521b38d509facccd081d25dc1ed0009c98b3038",
+    "scope": "Only production transport scheduling and failure-only test numeric diagnostics; no timeout/byte/assertion weakening",
+    "native_failed_run": 40376998625,
+    "native_failed_job": 121762663775,
+    "observed_native_failure": "Intel original 4MiB stderr and Linux-small-pipe-compatible tests both Timeout at unchanged500ms; ARM result not inspected by this agent",
+    "change": "Remove sched_yield after useful stderr progress. Every loop still bounds stderr to16 reads, checks stdout and monotonic deadline; no-progress poll waits on actual pipe readiness.",
+    "synthetic_experiment": {
+      "purpose": "Demonstrate sensitivity to scheduler handoff latency on the same unchanged small-pipe workload; this is not a Darwin implementation/runtime reproduction",
+      "shim": "scheduler-yield-latency.c compiled cc -shared -fPIC to ignored .so; sched_yield waits2ms; fixture child env_clear prevents inheritance",
+      "command": "LD_PRELOAD=/workspace/.onboarding/pr3-ci/scheduler-yield-latency.so cargo test --locked -p agentbaton-providers --test stdio small_stderr_pipe_progress_does_not_spend_the_response_deadline_sleeping -- --exact --nocapture",
+      "before": {
+        "exit_code": 101,
+        "test_result": "0 passed;1 failed; Timeout;0.53s",
+        "log": "yield-latency-before.log"
+      },
+      "after": {
+        "exit_code": 0,
+        "test_result": "1 passed;0 failed;0.05s",
+        "log": "yield-latency-after.log"
+      }
+    },
+    "validation": [
+      {
+        "command": "cargo test --locked -p agentbaton-providers",
+        "exit_code": 0,
+        "tests_passed": 32,
+        "log": "no-progress-yield-providers-tests.log"
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-providers --all-targets -- -D warnings",
+        "exit_code": 0,
+        "log": "no-progress-yield-providers-clippy.log"
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ],
+    "source_sha256": {
+      "crates/providers/src/transport.rs": "1923a62ba3ae3f610d1fee8bb0fb9cc9dad2f8cfe13477fc8d7bab7feec1b59e",
+      "crates/providers/tests/stdio.rs": "0d28ec392aef59d09e39b1a11e2c5895144666073c126b225579fc227b8c9fa4"
+    },
+    "limitations": [
+      "Native historical cause not conclusively established by synthetic scheduling experiment.",
+      "Fresh actual macOS Intel/ARM checks remain required.",
+      "No vendor executable, credentials or model calls performed.",
+      "No changes committed or pushed by this worker."
+    ]
+  },
+  "latest_integration": {
+    "protected_main": "2d9361d",
+    "local_merge": "23de87e",
+    "owner_002": "read_and_ACK_UI_overlay_only",
+    "independent_merge_review": "zero_product_source_diff;manifest92filesverified;key_union_preserved",
+    "exact_new_head_ci": "required_after_push"
   }
 }

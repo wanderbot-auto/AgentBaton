@@ -115,3 +115,33 @@ Reviewed source hashes: ipc.rs=5ab59b07bdeea4595637e7c1d26073959ba70993cc20a65ce
 ## Follow-up: interrupted versus complete oversized input
 
 Independent reviewer approved4096-byte writes with delivery tracking and write-half shutdown. A delivered transport error is accepted only for a known interrupted send; fully sent frames still require RESOURCE_LIMIT when response delivered. Fresh authenticated snapshot also requires tasks=[] and sequence0. Direct parser bound test retained;19 local core tests and Clippy passed. Reviewed test hash: 44e59d276006628543b0579c3ffb17e6bd2f9a491f2ede95cca1fed1e1aa8711. Fresh native CI remains required.
+
+## Follow-up: canonical temporary workspace in stdio fixture
+
+Both actual macOS jobs at30a70d8 pass IPC size/parser tests and next fail9 fixture sessions at their exact cwd assertion. Independent reviewer reproduced alias cwd failure versus canonical cwd success with the same Python fixture and verified corrected roundtrip under a TMPDIR symlink. Approved fixture-only canonicalization; exact session/new params assertion unchanged, no production transport modified.11 Linux stdio tests and Clippy passed; both native checks pending. Test source hash: fdadd2442ce7c92f1b469395fc64c429f84cd9de27ed069b746b9d4b02f843d8.
+
+## Follow-up: actual small-pipe stderr backpressure
+
+Actual e732be1 ARM stdio10/11 pass; unchanged4MiB/500ms stderr stress exposed unconditional2ms sleep throughput loss. Independent reviewer approved deadline-capped libc::poll readiness,16read fairness and disabled closed-stderr descriptor, retaining original volumes/timeouts. New Linux4096-byte pipe regression reproduces failure with progress-only sleeping and passes corrected readiness. All32 provider tests and Clippy pass locally; actual Mac rerun stillrequired. Source hashes: transport=83ea578094102bfc4f16359a40d0291502319daf49a3e4a43a55e372f2c215e6,stdio=4c1f01f56ca5c6ea9b3852867b0f465565e3cafd9262a71d8f97876ec784f5ef.
+
+
+## Follow-up: SQLite fd lifetime and failure diagnostics
+
+Independent reviewer approved dropping the private precreation fd before Store::open, avoiding the documented POSIX same-inode non-SQLite-close locking hazard. SqliteFailure exports only numeric extended_code; no SQL, paths or bound values. IPC now asserts no error before task state, strengthening diagnosis. Reviewer independently ran19 core tests successfully. Main reran core tests/Clippy and bootstrap integrity. Historical ARM Null root cause remains unproven; no native success asserted until fresh CI.
+
+- `crates/core/src/ipc.rs`: `431e0cae09f5b157708c67640b502032060108630d1dd26a2c7973b834df8da1`
+- `crates/core/src/storage.rs`: `00da6e57cdf1da2d4b638a1787fc3f0bc3a80350f50e1df74b6bbf1e7a6ae6cd`
+- `crates/core/tests/ipc.rs`: `26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28`
+
+
+## Follow-up: useful progress scheduling
+
+Independent reviewer approved removing the remaining useful-progress sched_yield in write/read loops. Bounded16-read stderr batch, stdout checks and monotonic deadline remain; idle paths still poll. Both original4MiB/500ms workloads and assertions unchanged; failure-only numeric diagnostics added. All32 provider tests/Clippy/fmt pass; reviewer independently ran12 stdio tests. Synthetic2ms scheduler handoff shim reproduces oldsmallpipe timeout and newpass; it is not a Darwin runtime reproduction or proof of historical root cause. Fresh dualarchitecture CI required.
+
+- `crates/providers/src/transport.rs`: `1923a62ba3ae3f610d1fee8bb0fb9cc9dad2f8cfe13477fc8d7bab7feec1b59e`
+- `crates/providers/tests/stdio.rs`: `0d28ec392aef59d09e39b1a11e2c5895144666073c126b225579fc227b8c9fa4`
+
+
+## Latest protected-main integration
+
+Independentreview verified PR#5 merged2d9361d and OWNER-002 UI-onlyoverlay without scope/credential/resource expansion.23de87e parents e5e0ec1+2d9361d; no crates/apps/scripts/workflow/infra/spec difference relativeto e5e. Manifest92filesverify passes; union keys and both sides reviewed hashes preserved. Actual API4Product+3Environment checks allsuccess on e5e. MergeandACKdocs may be pushed for fresh exact-newhead CI; oldgreen does not waive checks. Main downloaded bothsame-candidate DMGs andverified archive/DMGchecksums; nativeGUI remainsunrun.

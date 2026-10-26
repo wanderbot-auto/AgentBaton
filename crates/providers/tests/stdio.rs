@@ -52,7 +52,7 @@ for line in sys.stdin:
             sys.stdout.write(wire[middle:]);sys.stdout.flush()
         if mode=='account_env':
             emit({'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'fixture-native','update':{'sessionUpdate':'agent_message_chunk','content':{'type':'text','text':os.environ.get('FIXTURE_ACCOUNT','missing')}}}})
-        if mode=='stderr':
+        if mode in ('stderr','stderr_small'):
             import fcntl
             if hasattr(fcntl,'F_SETPIPE_SZ'):
                 fcntl.fcntl(2,fcntl.F_SETPIPE_SZ,4096)
@@ -92,6 +92,7 @@ fn installation(mode: &str) -> (TempDir, ApprovedInstallation) {
             .unwrap(),
         executable,
         arguments: vec!["-u".into(), script.into(), mode.into()],
+        // Preserve Darwin getcwd()/approved workspace canonical identity.
         workspace: dir.path().canonicalize().unwrap(),
         approval_reference: "test-fixture-approval".into(),
         environment: BTreeMap::new(),
@@ -232,6 +233,25 @@ fn stderr_flood_cannot_deadlock_or_leak_credential_text_in_diagnostics() {
     );
     #[cfg(not(target_os = "linux"))]
     let _ = dir;
+}
+
+#[test]
+fn small_stderr_pipe_progress_does_not_spend_the_response_deadline_sleeping() {
+    // Linux explicitly shrinks the child pipe to reproduce Darwin backpressure;
+    // on Darwin the same workload uses its naturally small pipe capacity.
+    let (_dir, mut process) = start("stderr_small");
+    let session = process.new_session("binding").unwrap();
+    process.begin_prompt(&session, "work").unwrap();
+    let started = Instant::now();
+    let state = process.wait_prompt(&session).unwrap_or_else(|failure| {
+        panic!(
+            "small-pipe flood failed after {:?}: {failure:?}; numeric-only diagnostics: {:?}",
+            started.elapsed(),
+            process.diagnostics()
+        )
+    });
+    assert_eq!(state, TurnState::Completed);
+    assert!(process.diagnostics().stderr_bytes_observed >= 4 * 1024 * 1024);
 }
 
 #[test]
