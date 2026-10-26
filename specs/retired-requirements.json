@@ -1,0 +1,76 @@
+{
+  "design_version": "0.2",
+  "note": "Historical IDs are not reassigned. These are not pending implementation.",
+  "requirements": [
+    {
+      "id": "AB-PRO-008",
+      "title": "ZCode身份核验",
+      "status": "retired",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [
+        "D07"
+      ],
+      "acceptance": {
+        "given": "ZCode发行方和版本未定",
+        "when": "请求正式支持",
+        "then": "阻塞支持承诺并请求确切产品信息"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "retired_in": "0.2",
+      "retirement_reason": "D06 defines three formal providers and custom ACP; named ZCode support is not required."
+    },
+    {
+      "id": "AB-SES-001",
+      "title": "外部观察模式",
+      "status": "retired",
+      "work_package": "WP10",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Ghostty已有TUI会话",
+        "when": "发现进程",
+        "then": "标外部观察，显示证据来源与控制限制"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "retired_in": "0.2",
+      "retirement_reason": "D01 excludes external terminal session observation."
+    },
+    {
+      "id": "AB-SES-004",
+      "title": "终端导航等级",
+      "status": "retired",
+      "work_package": "WP10",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "只支持应用激活",
+        "when": "用户点击跳转",
+        "then": "不声称精确Tab跳转，说明实际能力"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "retired_in": "0.2",
+      "retirement_reason": "D01 removes external-session/tab navigation; simple workspace opening has new ID."
+    },
+    {
+      "id": "AB-SES-005",
+      "title": "可选包装器",
+      "status": "retired",
+      "work_package": "WP10",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "用户选择注册原生CLI",
+        "when": "启动包装会话",
+        "then": "登记必要元数据并保持原生交互，不抓取全部按键"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "retired_in": "0.2",
+      "retirement_reason": "D01 excludes native CLI registration wrappers."
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "task_id": "example-task-002",
+  "idempotency_key": "example-parent001-analysis01",
+  "parent_task_id": "example-task-001",
+  "goal": "对固定示例数据集检查异常并提交可复现报告；不修改原数据。",
+  "task_type": "data_analysis",
+  "workspace_id": "example-workspace-data",
+  "target": {
+    "provider_id": "qoder",
+    "required_capabilities": [
+      "structured_execution"
+    ]
+  },
+  "inputs": [
+    {
+      "resource_ref": "resource://example/dataset-v1",
+      "integrity": {
+        "kind": "immutable_version",
+        "value": "example-v1"
+      },
+      "access": "read",
+      "purpose": "仅作示例数据源"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "analysis",
+      "relative_path": "analysis.json",
+      "media_type": "application/json",
+      "required": true,
+      "registered_schema_id": "analysis-output.v1"
+    },
+    {
+      "name": "reproduce",
+      "relative_path": "reproduce.py",
+      "media_type": "text/x-python",
+      "required": true
+    }
+  ],
+  "context": {
+    "summary": "这是合同示例，不是真实分析任务或运行结果。",
+    "included_refs": [],
+    "excluded_refs": [
+      "personal_credentials"
+    ]
+  },
+  "policy": {
+    "policy_ref": "example-policy-data",
+    "input_access": "read",
+    "output_access": "artifact_root_write",
+    "network_request": "deny",
+    "require_enforcement": [
+      "input_read_only",
+      "output_root_only",
+      "network_policy"
+    ],
+    "allowed_mcp_ids": [],
+    "side_effect_class": "artifact_only"
+  },
+  "limits": {
+    "max_attempts": 3,
+    "max_child_tasks": 0,
+    "max_delegation_depth": 0,
+    "max_duration_seconds": 3600,
+    "max_output_bytes": 10485760
+  },
+  "acceptance": {
+    "validator_ids": [
+      "analysis-schema-v1",
+      "approved-reproduction-check"
+    ],
+    "mode": "manual"
+  }
+}

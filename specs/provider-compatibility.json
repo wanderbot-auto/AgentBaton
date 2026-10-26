@@ -1,0 +1,75 @@
+{
+  "design_version": "0.2",
+  "note": "Formal support targets approved, implementation and real tests have not run. Original external documentation must be rechecked at implementation.",
+  "providers": [
+    {
+      "id": "codex",
+      "route": "ACP adapter and/or native App Server",
+      "documentation_refs": [
+        "S05",
+        "S06"
+      ],
+      "pinned_version": null,
+      "implementation_status": "not_implemented",
+      "test_status": "not_run",
+      "evidence_refs": [],
+      "support_scope": "formal_target",
+      "config_modes": [
+        "baton_managed",
+        "native_connected"
+      ],
+      "named_connections": true
+    },
+    {
+      "id": "qoder",
+      "route": "native ACP",
+      "documentation_refs": [
+        "S09"
+      ],
+      "pinned_version": null,
+      "implementation_status": "not_implemented",
+      "test_status": "not_run",
+      "evidence_refs": [],
+      "support_scope": "formal_target",
+      "config_modes": [
+        "baton_managed",
+        "native_connected"
+      ],
+      "named_connections": true
+    },
+    {
+      "id": "claude-code",
+      "route": "ACP adapter using Claude Agent SDK",
+      "documentation_refs": [
+        "S10"
+      ],
+      "pinned_version": null,
+      "implementation_status": "not_implemented",
+      "test_status": "not_run",
+      "evidence_refs": [],
+      "support_scope": "formal_target",
+      "config_modes": [
+        "baton_managed",
+        "native_connected"
+      ],
+      "named_connections": true
+    },
+    {
+      "id": "custom-acp",
+      "route": "capability-negotiated adapter",
+      "documentation_refs": [
+        "S03"
+      ],
+      "pinned_version": null,
+      "implementation_status": "not_implemented",
+      "test_status": "not_run",
+      "evidence_refs": [],
+      "support_scope": "capability_negotiated_extension",
+      "config_modes": [
+        "baton_managed",
+        "native_connected"
+      ],
+      "named_connections": true
+    }
+  ]
+}

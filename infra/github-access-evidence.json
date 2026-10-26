@@ -1,0 +1,17 @@
+{
+  "repository": "wanderbot-auto/AgentBaton",
+  "repository_id": 1434422493,
+  "visibility": "private",
+  "default_branch": "main",
+  "reported_permissions": {
+    "admin": true,
+    "push": true,
+    "pull": true
+  },
+  "initial_commit": "ef951fc685563931b8005aa462d0cba47a1e67bc",
+  "manual_workflow_commit": "3d5feb7bb946859bedd3cbddb768cd8948d44e84",
+  "actual_write_verified": true,
+  "workflow_file_write_verified": true,
+  "product_implementation_started": false,
+  "note": "Permissions reported by repository metadata do not establish availability of administration or Cloud environment tools."
+}

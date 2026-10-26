@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "dataset_ref": "resource://example/dataset-v1",
+  "scope": "sample",
+  "sample_description": "仅结构示例，无真实采样数据。",
+  "methods": [
+    "示例方法占位；真实方法必须在执行后记录。"
+  ],
+  "findings": [],
+  "reproduction_ref": "artifact://example/reproduce.py",
+  "limitations": [
+    "尚未运行，无实测结论。"
+  ]
+}

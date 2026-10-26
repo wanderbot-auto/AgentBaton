@@ -1,0 +1,6 @@
+[package]
+name = "agentbaton-environment-smoke"
+version = "0.0.0"
+edition = "2021"
+publish = false
+# This is an infrastructure fixture, not AgentBaton product code.

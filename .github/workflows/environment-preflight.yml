@@ -1,6 +1,9 @@
 name: Environment preflight (not product tests)
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['infra/ci-request.json']
 permissions:
   contents: read
 concurrency:
@@ -26,6 +29,9 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
+      - name: Create evidence directory
+        shell: bash
+        run: mkdir -p artifacts
       - name: Install preparation-only dependencies
         shell: bash
         run: |
@@ -39,12 +45,13 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/check_gate.py --scope preparation
-          python scripts/doctor.py --strict
+          python scripts/doctor.py --strict | tee artifacts/toolchain-versions.json
       - name: Validate design and infrastructure
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts
+          python scripts/verify_bootstrap_manifest.py | tee artifacts/integrity-validation.log
           python scripts/validate_design.py | tee artifacts/design-validation.log
           python scripts/validate_infrastructure.py | tee artifacts/infrastructure-validation.log
           python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v 2>&1 | tee artifacts/python-tests.log

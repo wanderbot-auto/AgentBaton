@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "event_id": "example-event-001",
+  "aggregate_id": "example-task-002",
+  "sequence": 1,
+  "kind": "task.specified",
+  "occurred_at": "2026-10-26T00:00:00Z",
+  "recorded_at": "2026-10-26T00:00:00Z",
+  "source": {
+    "type": "user",
+    "evidence_level": "observed"
+  },
+  "payload": {
+    "example": true,
+    "note": "静态契约示例；并非真实用户操作记录。"
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentbaton.invalid/schemas/project-policy.v1.json",
+  "title": "AgentBaton project-policy v1 design draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy_id",
+    "project_id",
+    "revision",
+    "approval_ref",
+    "authorized_connection_ids",
+    "authorized_host_ids",
+    "data_transfers",
+    "budget_ref",
+    "workspace_mode",
+    "development_delivery",
+    "production_release",
+    "retention",
+    "experience_publish"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "policy_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "approval_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authorized_connection_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+      },
+      "uniqueItems": true
+    },
+    "authorized_host_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+      },
+      "uniqueItems": true
+    },
+    "data_transfers": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "resource_scope_ref",
+          "recipient_ref"
+        ],
+        "properties": {
+          "resource_scope_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "recipient_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "uniqueItems": true
+    },
+    "budget_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workspace_mode": {
+      "const": "isolated"
+    },
+    "development_delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grant_ref",
+        "target_branch_ref",
+        "actions"
+      ],
+      "properties": {
+        "grant_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_branch_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "actions": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "enum": [
+              "merge",
+              "push",
+              "create_pr",
+              "deploy_test"
+            ]
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "production_release": {
+      "const": "separate_artifact_bound_approval"
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "complete_local_history",
+        "detail_ttl_days",
+        "allow_project_override",
+        "allow_pin",
+        "delete_source_files"
+      ],
+      "properties": {
+        "complete_local_history": {
+          "const": true
+        },
+        "detail_ttl_days": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "allow_project_override": {
+          "const": true
+        },
+        "allow_pin": {
+          "const": true
+        },
+        "delete_source_files": {
+          "const": false
+        }
+      }
+    },
+    "experience_publish": {
+      "const": "review_before_activation"
+    }
+  },
+  "description": "Internal design only; authorization, ownership, identity, effect classification and effective provider constraints need server-side semantic validation."
+}

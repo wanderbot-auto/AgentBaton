@@ -1,0 +1,433 @@
+{
+  "design_version": "0.2",
+  "state": "product_decisions_consolidated",
+  "recorded_date": "2026-10-26",
+  "decision_approval_is_not_execution_authorization": true,
+  "decisions": [
+    {
+      "id": "D01",
+      "title": "单一主入口",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [],
+      "decision": "AgentBaton 是受管任务唯一主交互入口，App 内完成对话、执行过程、审批、接力与验收。不内嵌通用终端，不观察/接管 Ghostty 等外部 Agent 会话；仅提供在外部终端打开工作区等辅助操作。",
+      "remaining_validation": [],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "没问题，对齐设计：只保留一个主入口",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D02",
+      "title": "托管环境与配置所有权",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [],
+      "decision": "默认独立托管环境＋选择性导入原生配置。程序来源与配置来源独立；Baton 管理版本或复用本机程序均可。正式保留高级原生配置连接，外部配置只读、不默认写回或双向同步；身份与程序、项目、配置分开，不擅自复制认证。",
+      "remaining_validation": [],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "认可。（确认独立托管＋选择性导入，并保留原生配置连接）",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D03",
+      "title": "目标驱动自动执行",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        1
+      ],
+      "decision": "用户批准目标、权限、预算和验收条件后，自动规划、拆解、选择执行者、接力、验证与返工；范围内尽量不打断用户。超范围、重大不可逆变更或实际阻塞才请求决策。",
+      "remaining_validation": [],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "目标驱动自动执行，尽量减少用户干预，目标是较为自动化的任务执行能力",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D04",
+      "title": "完整本地历史与清理",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        7,
+        26
+      ],
+      "decision": "完整会话、工具事件、执行日志与结果保存在本地；按项目保留期限或永久保留，敏感项目可关闭正文。到期清理详细正文/日志，不删除源文件、采纳成果、单独报告；摘要和验收记录另行保留。",
+      "remaining_validation": [
+        "默认90天为第26题B及后续回复采用的可调整工程默认；用户明确批准的是到期清理机制，不声称其逐字批准了90这个数值。",
+        "完整历史不等于可以获得厂商未暴露的事件或保留已识别凭据；原生流缺口必须标明。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "完整历史保存在本地；到期清理详细正文与日志，可按项目调整或标记永久保留",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D05",
+      "title": "执行主机与自动路由",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        6,
+        20,
+        22
+      ],
+      "decision": "支持本机及用户配置的远程 macOS/Linux 主机，不自动创建云资源。新任务按授权、数据位置、Agent可用性和负载选主机；运行中不擅自迁移。",
+      "remaining_validation": [
+        "SSH/传输/远程守护方式等由工程ADR和验证确定；不把远程Windows纳入正式范围。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "本机＋你配置的远程主机；20B；在授权范围内自动选择",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D06",
+      "title": "正式Provider与扩展",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        15
+      ],
+      "decision": "正式维护Codex、Qoder、Claude Code；支持自定义ACP Agent接入，按实际兼容能力开放。正式目标不等于当前已验证成功。",
+      "remaining_validation": [
+        "确切CLI/adapter/协议版本及认证路径需要真实测试。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "上述三种＋自定义 ACP Agent 接入",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D07",
+      "title": "ZCode命名专用支持",
+      "status": "deferred_optional",
+      "revision": 2,
+      "question_numbers": [],
+      "decision": "不额外承诺未明确发行方的ZCode专用驱动；用户可通过自定义ACP路径接入符合要求的实现。该项作为扩展候选归档，不阻塞既定完整产品。",
+      "remaining_validation": [
+        "将来决定正式支持时再核验产品身份、发行方和许可。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "第15题选择三种正式Agent＋自定义ACP，不增加未核验专用Provider",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": null,
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D08",
+      "title": "桌面平台与最低版本",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        16,
+        27
+      ],
+      "decision": "macOS桌面正式支持Apple Silicon和Intel；最低macOS版本由依赖和真实测试确定，不为旧系统牺牲核心功能。不据此承诺Windows/Linux桌面客户端。",
+      "remaining_validation": [
+        "精确最低版本及可用双架构CI需验证；任何架构无法满足须报告，不得静默删除Intel。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "Apple Silicon＋Intel；由技术验证确定",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D09",
+      "title": "开源与商业政策",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        17,
+        24
+      ],
+      "decision": "本地核心开源且独立可用，增值能力可以商业化。强调开源核心修改/分发的改进回馈；商业模块边界单独划定。",
+      "remaining_validation": [
+        "未选择具体许可证，不自动生成MIT/Apache/GPL/AGPL等LICENSE；公开分发前完成许可证兼容审查及所有者批准。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "本地核心开源，增值能力可商业化；强调改进回馈",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D10",
+      "title": "语言与界面",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        18,
+        19,
+        25
+      ],
+      "decision": "中英文切换，默认随系统；代码、命令及原始日志保留原文。专业开发工具风格、分层呈现，默认显示目标/关键进度/注意事项，详情按需展开。",
+      "remaining_validation": [
+        "具体视觉tokens/布局由设计实现验证，不追加大批产品选项。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "18C、19C；专业开发工具风格",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D11",
+      "title": "预算",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        10
+      ],
+      "decision": "项目默认预算＋任务覆盖，限制运行时长、并发、返工/子任务等，达硬上限保存进度、暂停并通知，不自动突破。",
+      "remaining_validation": [
+        "数值默认尚未批准；以工程基线、可解释默认及项目审批配置，不把schema示例数值当默认。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "项目默认预算＋任务可覆盖",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D12",
+      "title": "工作流编辑",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        9
+      ],
+      "decision": "目标自动生成流程与执行图，允许调整步骤、执行者和验收条件，并保存模板。完整自由拖拽设计器不是已批准需求。",
+      "remaining_validation": [],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "自动生成＋可调整",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D13",
+      "title": "后台与登录启动",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        8,
+        23
+      ],
+      "decision": "任务独立后台运行；关闭/退出界面不中止已授权执行，另设停止任务并完全退出。登录Mac后自动启动后台，不强开UI，恢复连接先对账。",
+      "remaining_validation": [
+        "登录后启动不是开机未登录即运行；本机休眠关机不保证持续执行。安装须走系统允许的后台注册与透明开关。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "任务独立后台运行；自动启动后台服务",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D14",
+      "title": "兼容程序更新",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        13
+      ],
+      "decision": "在用户批准的更新策略内自动维护Baton独立安装的兼容版本，新版本用于新任务，活跃任务固定原版本；不改用户原生安装。",
+      "remaining_validation": [
+        "供应链、下载/再分发许可、版本回退和状态迁移须验证。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "自动维护兼容版本",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D15",
+      "title": "项目数据授权",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        14
+      ],
+      "decision": "按项目预先设定允许数据和接收方；范围内最小必要交接自动进行。新增接收方或扩大数据范围需要批准，继承不等于无限外传。",
+      "remaining_validation": [],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "按项目预先授权",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D16",
+      "title": "经验提炼",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        11
+      ],
+      "decision": "自动提炼Skill、模板和规则候选，可批量审查；确认后才启用，不直接更新项目或全局生效规则。",
+      "remaining_validation": [],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "自动提炼，确认后生效",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D17",
+      "title": "任务与快捷对话",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        2
+      ],
+      "decision": "任务为主，保留与指定Agent的快捷对话；讨论可转为正式任务，转化时按既定策略解析任务合同，不擅自扩大权限。",
+      "remaining_validation": [],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "C",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D18",
+      "title": "独立工作区",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        3
+      ],
+      "decision": "编码任务默认在独立工作区开发与测试，并行写任务各自隔离，通过验证后按授权合入目标分支，不直接改用户当前工作树。",
+      "remaining_validation": [],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "B",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D19",
+      "title": "验收、合入与发布",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        4,
+        21
+      ],
+      "decision": "达到批准验收条件自动验收并合入授权目标分支，失败自主返工、无法解决冲突再问。按项目授权自动推送、创建PR和部署测试环境；生产发布单独确认。",
+      "remaining_validation": [
+        "批准产品自动化行为不等于此文档已授权访问任何真实仓库、账号、生产环境或付费资源。"
+      ],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "C；开发交付自动化，生产发布需确认",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D20",
+      "title": "多个具名连接",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        12
+      ],
+      "decision": "同种Agent支持个人/工作等多个具名连接，项目绑定默认连接；任务运行中不静默切换账号、配置所有者或计费方式。",
+      "remaining_validation": [],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "支持多个具名连接",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    },
+    {
+      "id": "D21",
+      "title": "项目配置导入与继承",
+      "status": "approved",
+      "revision": 2,
+      "question_numbers": [
+        5
+      ],
+      "decision": "首次导入时检查、合并项目Skills/MCP/Hooks并一次性确认，随后按批准规则托管运行；仅新增高风险能力、扩大授权或无法解决冲突时询问。项目内容和Agent输出不是新的授权来源。",
+      "remaining_validation": [],
+      "approval_source": {
+        "type": "conversation",
+        "user_selection_or_summary": "C",
+        "exact_timestamp_available": false
+      },
+      "approved_at": null,
+      "approved_option": "confirmed_narrative",
+      "note": "null approved_at means exact approval timestamp not recorded, not absence of approval; D07 is not a blocking product choice."
+    }
+  ]
+}

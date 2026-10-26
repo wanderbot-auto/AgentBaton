@@ -1,0 +1,2199 @@
+{
+  "design_version": "0.2",
+  "state": "decision_aligned_specification",
+  "requirements": [
+    {
+      "id": "AB-PRJ-001",
+      "title": "项目导入不执行内容",
+      "status": "specified",
+      "work_package": "WP05",
+      "document": "docs/01-prd.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "目录含未知脚本",
+        "when": "导入项目",
+        "then": "只登记批准目录，不执行脚本或自动初始化Git"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRJ-002",
+      "title": "Git与非Git工作区",
+      "status": "specified",
+      "work_package": "WP05",
+      "document": "docs/01-prd.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "仓库和独立数据目录",
+        "when": "分别导入",
+        "then": "两者均成为可追踪workspace并保留路径/host身份"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRJ-003",
+      "title": "工作区移动与身份",
+      "status": "specified",
+      "work_package": "WP05",
+      "document": "docs/01-prd.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "项目路径变化",
+        "when": "重新关联目录",
+        "then": "验证身份并保留历史，不把相同路径文本当唯一身份"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRJ-004",
+      "title": "dirty工作树保护",
+      "status": "specified",
+      "work_package": "WP05",
+      "document": "docs/01-prd.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "用户有未提交改动",
+        "when": "采纳Agent变更",
+        "then": "提示冲突，不自动stash/reset或覆盖"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRJ-005",
+      "title": "所有写代码任务默认隔离",
+      "status": "specified",
+      "work_package": "WP05",
+      "document": "docs/01-prd.md",
+      "decisions": [
+        "D18"
+      ],
+      "acceptance": {
+        "given": "单个或多个写代码任务",
+        "when": "解析工作区并启动",
+        "then": "单任务与并行任务均使用独立工作区，写入不直接影响原项目；不以提示风险替代默认隔离"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRJ-006",
+      "title": "归档与删除分离",
+      "status": "specified",
+      "work_package": "WP05",
+      "document": "docs/01-prd.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "项目有任务和原始文件",
+        "when": "删除Baton记录",
+        "then": "不默认删除用户仓库和数据"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRO-001",
+      "title": "安装与版本发现",
+      "status": "specified",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "CLI可能不在GUI PATH",
+        "when": "执行发现",
+        "then": "允许明确路径并记录版本/架构/来源"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRO-002",
+      "title": "能力协商",
+      "status": "specified",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Agent提供部分ACP能力",
+        "when": "建立连接",
+        "then": "按声明与实测展示支持矩阵，不假定所有方法"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRO-003",
+      "title": "认证状态最小读取",
+      "status": "specified",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "CLI已经登录或已过期",
+        "when": "探测认证",
+        "then": "保留原生凭据，不输出或复制token"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRO-004",
+      "title": "Codex真实兼容",
+      "status": "specified",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "锁定Codex与adapter版本",
+        "when": "运行真实用例",
+        "then": "保存环境和真实产物证据，不以mock代替"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRO-005",
+      "title": "Qoder真实兼容",
+      "status": "specified",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "锁定Qoder版本",
+        "when": "运行真实用例",
+        "then": "校验事件/审批/取消/产物并报告差异"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRO-006",
+      "title": "Claude与自定义驱动",
+      "status": "specified",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [
+        "D06"
+      ],
+      "acceptance": {
+        "given": "批准的驱动版本",
+        "when": "进行接入",
+        "then": "能力分项认证，不把adapter存在当已兼容"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRO-007",
+      "title": "未知版本降级",
+      "status": "specified",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Provider升级至未测版本",
+        "when": "再次启动",
+        "then": "标记未测，运行兼容检查或提示限制"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SES-002",
+      "title": "单一主入口受管交互",
+      "status": "specified",
+      "work_package": "WP10",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [
+        "D01"
+      ],
+      "acceptance": {
+        "given": "ACP或原生接口可用",
+        "when": "启动会话",
+        "then": "App内完整发送、查看过程、审批、取消和验收；不新增外部TUI主入口"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SES-003",
+      "title": "状态与注意事项分离",
+      "status": "specified",
+      "work_package": "WP10",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "只有进程存活证据",
+        "when": "刷新会话",
+        "then": "不推断为正在推理或等待审批"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SES-006",
+      "title": "会话恢复有条件",
+      "status": "specified",
+      "work_package": "WP10",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "原生恢复未声明或工作区变化",
+        "when": "恢复会话",
+        "then": "拒绝或创建新attempt并解释，不能伪装续接"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SES-007",
+      "title": "通知聚合",
+      "status": "specified",
+      "work_package": "WP10",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "同任务大量重复事件",
+        "when": "通知展示",
+        "then": "以需要处理事项聚合并保留来源"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SES-008",
+      "title": "界面退出不终止后台任务",
+      "status": "specified",
+      "work_package": "WP10",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [
+        "D13"
+      ],
+      "acceptance": {
+        "given": "有活动受管任务",
+        "when": "关闭/退出应用",
+        "then": "关闭窗口/退出UI后授权任务仍由daemon管理；停止全部为独立可解释操作"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CAP-001",
+      "title": "来源与覆盖关系",
+      "status": "specified",
+      "work_package": "WP06",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "全局/项目/插件存在同名能力",
+        "when": "查询能力",
+        "then": "保留源记录与胜出规则，不简单去重"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CAP-002",
+      "title": "解析版本固定",
+      "status": "specified",
+      "work_package": "WP06",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "不同版本配置行为可能不同",
+        "when": "解析有效配置",
+        "then": "记录版本与解析证据，不套通用优先级"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CAP-003",
+      "title": "Skill状态细分",
+      "status": "specified",
+      "work_package": "WP06",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "发现Skill索引但无加载事件",
+        "when": "展示Skill",
+        "then": "区分可发现/可用/加载证据/执行证据"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CAP-004",
+      "title": "MCP连接来源",
+      "status": "specified",
+      "work_package": "WP06",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "独立诊断成功",
+        "when": "展示状态",
+        "then": "不把诊断成功标成原session连接成功"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CAP-005",
+      "title": "静态扫描无执行",
+      "status": "specified",
+      "work_package": "WP06",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Skill/MCP含命令",
+        "when": "扫描配置",
+        "then": "不执行脚本、不启动server"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CAP-006",
+      "title": "主动诊断有授权",
+      "status": "specified",
+      "work_package": "WP06",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "MCP需要启动或联网",
+        "when": "用户执行诊断",
+        "then": "显示范围并只做批准检查"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CAP-007",
+      "title": "能力快照固定",
+      "status": "specified",
+      "work_package": "WP06",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "运行中配置被外部修改",
+        "when": "新配置解析",
+        "then": "新旧快照并列，未重载不谎报当前会话已生效"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CAP-008",
+      "title": "来源不可信内容",
+      "status": "specified",
+      "work_package": "WP06",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "工具描述或Skill带诱导指令",
+        "when": "读取详情",
+        "then": "只作内容显示，不扩大授权"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CFG-001",
+      "title": "托管与原生配置归属",
+      "status": "specified",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [
+        "D02"
+      ],
+      "acceptance": {
+        "given": "用户添加具名连接",
+        "when": "选择托管或原生配置环境",
+        "then": "默认Baton管理隔离配置；高级原生连接只读外部配置，不隐式写回或双向同步"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CFG-002",
+      "title": "变更预览",
+      "status": "specified",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "用户提交配置意图",
+        "when": "生成ChangeSet",
+        "then": "展示各Provider实际diff、影响和重载要求"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CFG-003",
+      "title": "并发写入检测",
+      "status": "specified",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "预览后原文件变化",
+        "when": "应用修改",
+        "then": "比较hash并冲突停止，不覆盖新内容"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CFG-004",
+      "title": "保留未知字段",
+      "status": "specified",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "原文件含注释/扩展",
+        "when": "编辑受管字段",
+        "then": "保留其他内容或明确拒绝无法安全写入"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CFG-005",
+      "title": "多文件部分失败",
+      "status": "specified",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "两个文件写入第二个失败",
+        "when": "恢复",
+        "then": "记录每文件状态，不宣称跨文件原子事务"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CFG-006",
+      "title": "冲突安全回滚",
+      "status": "specified",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "变更后又有外部编辑",
+        "when": "请求回滚",
+        "then": "仅对匹配版本补偿，不覆盖后来修改"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CFG-007",
+      "title": "必需与可选能力适配",
+      "status": "specified",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [
+        "D02"
+      ],
+      "acceptance": {
+        "given": "目标Provider不支持部分意图",
+        "when": "应用Profile",
+        "then": "必需能力不兼容则阻塞/选择已批准兼容连接；可选降级明确，禁止静默忽略"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-CFG-008",
+      "title": "秘密不进入diff",
+      "status": "specified",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "配置含秘密",
+        "when": "预览/导出/记录",
+        "then": "使用secret refs和脱敏，不泄露原始值"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-TSK-001",
+      "title": "自然语言目标到可执行合同",
+      "status": "specified",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [
+        "D03",
+        "D17"
+      ],
+      "acceptance": {
+        "given": "只有自然语言目标",
+        "when": "创建正式Task",
+        "then": "自动补齐可推导字段，合同关联项目已批准范围；只对实质缺失/扩权请求确认"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-TSK-002",
+      "title": "双向委派",
+      "status": "specified",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Codex和Qoder均已真实接入",
+        "when": "双向发起批准任务",
+        "then": "统一Router记录父子关系和返回产物"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-TSK-003",
+      "title": "委派无扩权",
+      "status": "specified",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "子任务请求更大目录或工具权限",
+        "when": "处理请求",
+        "then": "拒绝或需明确追加批准，不继承daemon全权"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-TSK-004",
+      "title": "幂等提交",
+      "status": "specified",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "同caller重复提交同key",
+        "when": "任务请求重试",
+        "then": "返回同一请求结果；不同payload报冲突"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-TSK-005",
+      "title": "循环与fanout限制",
+      "status": "specified",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "互相委派形成环或超预算",
+        "when": "排队",
+        "then": "拒绝或阻塞并解释，不无限执行"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-TSK-006",
+      "title": "父子等待无死锁",
+      "status": "specified",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "父任务占用并发槽等待子任务",
+        "when": "调度",
+        "then": "释放/保留必要子任务容量并检测循环等待"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-TSK-007",
+      "title": "取消请求与停止确认",
+      "status": "specified",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Provider未确认cancel",
+        "when": "取消任务",
+        "then": "显示cancel_requested或unknown，不直接cancelled"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-TSK-008",
+      "title": "未知副作用恢复",
+      "status": "specified",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "断线时可能已外部写入",
+        "when": "重连",
+        "then": "先对账，不盲目重放"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-TSK-009",
+      "title": "目标驱动自主推进",
+      "status": "specified",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [
+        "D03"
+      ],
+      "acceptance": {
+        "given": "目标、验收、权限、预算已经批准",
+        "when": "执行和修订计划",
+        "then": "范围内自主规划、委派、验证返工；不逐步弹确认，超范围与关键阻塞才询问"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-TSK-010",
+      "title": "预算计量诚实",
+      "status": "specified",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [
+        "D11"
+      ],
+      "acceptance": {
+        "given": "无Provider token/成本数据",
+        "when": "展示预算",
+        "then": "标未知，仅执行可靠的时间/并发/次数约束"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-VAL-001",
+      "title": "产物与执行分离",
+      "status": "specified",
+      "work_package": "WP09",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Agent回复已完成但文件缺失",
+        "when": "验收",
+        "then": "判定缺交付，不接受自然语言作为文件证据"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-VAL-002",
+      "title": "输入输出版本绑定",
+      "status": "specified",
+      "work_package": "WP09",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "数据或代码变更",
+        "when": "重用旧验证",
+        "then": "使旧验证过期或明确不适用"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-VAL-003",
+      "title": "确定性验证",
+      "status": "specified",
+      "work_package": "WP09",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Agent提出自有检查",
+        "when": "验证结果",
+        "then": "仅用批准validator或独立审核后执行"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-VAL-004",
+      "title": "数据可复现",
+      "status": "specified",
+      "work_package": "WP09",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "分析任务输出结论",
+        "when": "登记产物",
+        "then": "包含脚本/环境/单位/输入版本和适用范围"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-VAL-005",
+      "title": "抽样标识",
+      "status": "specified",
+      "work_package": "WP09",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "只分析部分数据",
+        "when": "生成报告",
+        "then": "不标成全量分析，并记录抽样方法"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-VAL-006",
+      "title": "产物路径安全",
+      "status": "specified",
+      "work_package": "WP09",
+      "document": "docs/06-orchestration.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "结果引用越界或symlink",
+        "when": "读取结果",
+        "then": "拒绝越界，不执行预览内容"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-VAL-007",
+      "title": "自动规则验收与执行状态分离",
+      "status": "specified",
+      "work_package": "WP09",
+      "document": "docs/06-orchestration.md",
+      "decisions": [
+        "D19"
+      ],
+      "acceptance": {
+        "given": "验证通过",
+        "when": "任务结束",
+        "then": "按预批准确定性规则生成可追溯acceptance记录，不把Agent完成自述当验收"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-VAL-008",
+      "title": "经验提案需确认",
+      "status": "specified",
+      "work_package": "WP09",
+      "document": "docs/06-orchestration.md",
+      "decisions": [
+        "D16"
+      ],
+      "acceptance": {
+        "given": "任务成功产生总结",
+        "when": "保存模板/Skill",
+        "then": "生成提案，不自动改全局长期指令"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-UX-001",
+      "title": "四类主导航",
+      "status": "specified",
+      "work_package": "WP11",
+      "document": "docs/02-experience.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "完整功能集合",
+        "when": "展示工作台",
+        "then": "按工作/任务/能力/历史组织，不按底层模块堆导航"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-UX-002",
+      "title": "统一App交互入口",
+      "status": "specified",
+      "work_package": "WP11",
+      "document": "docs/02-experience.md",
+      "decisions": [
+        "D01"
+      ],
+      "acceptance": {
+        "given": "受管session可发送消息",
+        "when": "用户操作",
+        "then": "消息/事件/命令输出/Diff/审批在Baton内展示，原生配置连接也不跳转终端操控"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-UX-003",
+      "title": "自动交接透明且少打断",
+      "status": "specified",
+      "work_package": "WP11",
+      "document": "docs/02-experience.md",
+      "decisions": [
+        "D03",
+        "D15"
+      ],
+      "acceptance": {
+        "given": "将输入交给另一个Agent",
+        "when": "按项目策略执行交接",
+        "then": "范围内自动进行并留可查看记录；新增数据接收方或扩权才确认"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-UX-004",
+      "title": "证据驱动进度",
+      "status": "specified",
+      "work_package": "WP11",
+      "document": "docs/02-experience.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "任务执行中",
+        "when": "查看详情",
+        "then": "状态带证据，不生成虚构完成百分比"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-UX-005",
+      "title": "未知状态解释",
+      "status": "specified",
+      "work_package": "WP11",
+      "document": "docs/02-experience.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "无可靠运行事件",
+        "when": "查看卡片",
+        "then": "显示未知/过期/来源时间，不强行绿色"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-UX-006",
+      "title": "键盘与可访问性",
+      "status": "specified",
+      "work_package": "WP11",
+      "document": "docs/02-experience.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "读屏或纯键盘用户",
+        "when": "操作主要流程",
+        "then": "焦点可达、状态可读、不只靠颜色"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-UX-007",
+      "title": "错误与空状态",
+      "status": "specified",
+      "work_package": "WP11",
+      "document": "docs/02-experience.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "无CLI/未登录/断线/配置坏",
+        "when": "使用工作台",
+        "then": "有可解释下一步，不用演示数据伪装正常"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-UX-008",
+      "title": "本地完整历史与到期清理",
+      "status": "specified",
+      "work_package": "WP11",
+      "document": "docs/02-experience.md",
+      "decisions": [
+        "D04"
+      ],
+      "acceptance": {
+        "given": "用户选择保留策略",
+        "when": "保存/清理记录",
+        "then": "完整正文和日志本地保存、按项目TTL/永久保留，源文件/采纳成果/独立报告不随正文清理"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SEC-001",
+      "title": "请求权限与落实分离",
+      "status": "specified",
+      "work_package": "WP12",
+      "document": "docs/08-security.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Provider无法网络隔离",
+        "when": "严格模式启动",
+        "then": "拒绝或换执行器，不把prompt当enforcement"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SEC-002",
+      "title": "IPC无通用执行",
+      "status": "specified",
+      "work_package": "WP12",
+      "document": "docs/08-security.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "不可信WebView内容",
+        "when": "尝试shell/SQL",
+        "then": "受限命令和参数校验拒绝"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SEC-003",
+      "title": "scoped委派凭据",
+      "status": "specified",
+      "work_package": "WP12",
+      "document": "docs/08-security.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "过期或跨session句柄",
+        "when": "调用MCP bridge",
+        "then": "拒绝访问且不暴露秘密"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SEC-004",
+      "title": "数据不默认上云",
+      "status": "specified",
+      "work_package": "WP12",
+      "document": "docs/08-security.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "本地任务与日志",
+        "when": "使用核心功能",
+        "then": "不上传Baton云；Provider网络去向明确"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SEC-005",
+      "title": "不可信产物隔离",
+      "status": "specified",
+      "work_package": "WP12",
+      "document": "docs/08-security.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "恶意HTML/ANSI/工具描述",
+        "when": "预览/交接",
+        "then": "不执行脚本、不成为高权限指令"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SEC-006",
+      "title": "故障恢复与磁盘满",
+      "status": "specified",
+      "work_package": "WP12",
+      "document": "docs/08-security.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "journal写失败",
+        "when": "任务状态更新",
+        "then": "停止新副作用或进入可解释错误，不报成功"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SEC-007",
+      "title": "数据库迁移保护",
+      "status": "specified",
+      "work_package": "WP12",
+      "document": "docs/08-security.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "新旧schema不兼容",
+        "when": "升级/回滚",
+        "then": "备份/拒绝危险写入，给恢复路径"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-SEC-008",
+      "title": "数据导出删除",
+      "status": "specified",
+      "work_package": "WP12",
+      "document": "docs/08-security.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "用户请求导出或清理",
+        "when": "执行操作",
+        "then": "范围可预览，不删原仓库，不泄露凭据"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-REL-001",
+      "title": "测试层级明确",
+      "status": "specified",
+      "work_package": "WP13",
+      "document": "docs/09-testing-release.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "mock与真实测试混合",
+        "when": "生成报告",
+        "then": "逐层记录passed/failed/blocked/not_run"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-REL-002",
+      "title": "原生macOS验证",
+      "status": "specified",
+      "work_package": "WP13",
+      "document": "docs/09-testing-release.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "浏览器UI已通过",
+        "when": "发布桌面声明",
+        "then": "需实际原生桌面证据，不以浏览器替代"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-REL-003",
+      "title": "生产无测试后门",
+      "status": "specified",
+      "work_package": "WP13",
+      "document": "docs/09-testing-release.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "启用了embedded UI测试服务",
+        "when": "构建发行包",
+        "then": "测试feature和入口被移除并检测"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-REL-004",
+      "title": "可追溯安装包",
+      "status": "specified",
+      "work_package": "WP13",
+      "document": "docs/09-testing-release.md",
+      "decisions": [
+        "D08"
+      ],
+      "acceptance": {
+        "given": "批准交付候选",
+        "when": "构建dmg/app",
+        "then": "关联commit/架构/测试/校验值和签名状态"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-REL-005",
+      "title": "发布秘密隔离",
+      "status": "specified",
+      "work_package": "WP13",
+      "document": "docs/09-testing-release.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "签名或真实账户CI",
+        "when": "执行任务",
+        "then": "受保护环境最小secret，不给普通PR"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-REL-006",
+      "title": "CI修复触发明确",
+      "status": "specified",
+      "work_package": "WP13",
+      "document": "docs/09-testing-release.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "CI失败",
+        "when": "期待自动修复",
+        "then": "仅有配置触发器才执行，否则显示需继续"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-REL-007",
+      "title": "更新与活跃任务",
+      "status": "specified",
+      "work_package": "WP13",
+      "document": "docs/09-testing-release.md",
+      "decisions": [
+        "D13"
+      ],
+      "acceptance": {
+        "given": "存在运行任务",
+        "when": "应用更新",
+        "then": "不无声中断，数据库迁移和回滚有说明"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-EXT-001",
+      "title": "远程Host身份与目录",
+      "status": "specified",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D05"
+      ],
+      "acceptance": {
+        "given": "批准远程执行",
+        "when": "连接Host",
+        "then": "明确身份/工作区/权限，非本机路径直接复用"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-EXT-002",
+      "title": "项目批准的数据传输",
+      "status": "specified",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D05",
+        "D15"
+      ],
+      "acceptance": {
+        "given": "输入在本地",
+        "when": "远端任务需要数据",
+        "then": "范围内自动最小必要传输并核对版本；新接收方/新数据范围再次批准"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-EXT-003",
+      "title": "插件信任等级",
+      "status": "specified",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "导入扩展",
+        "when": "启用",
+        "then": "区分声明型与代码型权限，不自动执行"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-EXT-004",
+      "title": "兼容性矩阵维护",
+      "status": "specified",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Provider或OS升级",
+        "when": "发布支持说明",
+        "then": "更新实际测试证据，未测即标未测"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-EXT-005",
+      "title": "团队服务非依赖",
+      "status": "specified",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "用户不创建云账户",
+        "when": "使用本地核心",
+        "then": "个人功能不因团队后台缺失不可用"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-EXT-006",
+      "title": "改进回馈与许可证审定",
+      "status": "specified",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D09"
+      ],
+      "acceptance": {
+        "given": "计划公开产品",
+        "when": "发布",
+        "then": "记录回馈改进政策，具体许可证及分发条款经审定后发布，不擅自选默认许可"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-DOM-001",
+      "title": "领域实体不混用",
+      "status": "specified",
+      "work_package": "WP01",
+      "document": "docs/07-data-contracts.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "任务可有多个尝试和会话",
+        "when": "定义契约",
+        "then": "Task/Attempt/Session/Handoff/Artifact身份和关系独立"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-DOM-002",
+      "title": "Schema版本与错误",
+      "status": "specified",
+      "work_package": "WP01",
+      "document": "docs/07-data-contracts.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "无效/未知字段请求",
+        "when": "校验",
+        "then": "返回明确错误，不静默吞掉误拼字段"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-DOM-003",
+      "title": "状态机转移",
+      "status": "specified",
+      "work_package": "WP01",
+      "document": "docs/07-data-contracts.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "所有正常与异常终态",
+        "when": "运行穷举测试",
+        "then": "禁止无证据accepted/cancelled等非法转移"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-DOM-004",
+      "title": "验证绑定对象",
+      "status": "specified",
+      "work_package": "WP01",
+      "document": "docs/07-data-contracts.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "代码/数据存在多个版本",
+        "when": "写Validation",
+        "then": "精确绑定attempt、输入、产物和validator版本"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-DOM-005",
+      "title": "错误副作用语义",
+      "status": "specified",
+      "work_package": "WP01",
+      "document": "docs/07-data-contracts.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "请求超时",
+        "when": "序列化错误",
+        "then": "包含retryable和side_effect_state，超时不等于未执行"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-DOM-006",
+      "title": "需求可追溯",
+      "status": "specified",
+      "work_package": "WP01",
+      "document": "docs/07-data-contracts.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "所有批准功能",
+        "when": "生成覆盖报告",
+        "then": "每项有稳定ID与适用验证层级，不用页面数替代"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-COR-001",
+      "title": "单daemon与连接身份",
+      "status": "specified",
+      "work_package": "WP02",
+      "document": "docs/03-architecture.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "多个UI/CLI启动",
+        "when": "连接本地Core",
+        "then": "单写入权威、版本握手和连接认证生效"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-COR-002",
+      "title": "原子状态与事件",
+      "status": "specified",
+      "work_package": "WP02",
+      "document": "docs/03-architecture.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "一次业务状态改变",
+        "when": "持久化",
+        "then": "状态与domain event同事务，不丢关键控制事件"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-COR-003",
+      "title": "Outbox对账",
+      "status": "specified",
+      "work_package": "WP02",
+      "document": "docs/03-architecture.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "派发前后Core崩溃",
+        "when": "重启",
+        "then": "读取intent并确认结果，不盲目重复执行"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-COR-004",
+      "title": "事件重连与缺口",
+      "status": "specified",
+      "work_package": "WP02",
+      "document": "docs/03-architecture.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "UI断线后cursor过期",
+        "when": "重新订阅",
+        "then": "补发或要求snapshot，缺口可见"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-COR-005",
+      "title": "大日志背压",
+      "status": "specified",
+      "work_package": "WP02",
+      "document": "docs/03-architecture.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "多个Agent大量输出",
+        "when": "持续运行",
+        "then": "控制事件不丢，日志限流/分片/截断可见"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-COR-006",
+      "title": "进程身份校验",
+      "status": "specified",
+      "work_package": "WP02",
+      "document": "docs/03-architecture.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "PID复用或进程退出",
+        "when": "恢复/终止",
+        "then": "检查启动身份，不能杀错外部进程"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-COR-007",
+      "title": "本地CLI一致入口",
+      "status": "specified",
+      "work_package": "WP02",
+      "document": "docs/03-architecture.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "CLI/UI/MCP调用相同动作",
+        "when": "执行任务",
+        "then": "共用Core权限和状态机，不各建私有规则"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-ACP-001",
+      "title": "ACP版本和能力",
+      "status": "specified",
+      "work_package": "WP03",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "不同协议实现",
+        "when": "initialize",
+        "then": "先协商后调用，不假定草案与稳定版本一致"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-ACP-002",
+      "title": "Host能力真实实现",
+      "status": "specified",
+      "work_package": "WP03",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "向Agent声明fs/terminal能力",
+        "when": "Agent调用",
+        "then": "有受控实现与错误处理，不空声明支持"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-ACP-003",
+      "title": "原始与归一化事件",
+      "status": "specified",
+      "work_package": "WP03",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Provider出现扩展消息",
+        "when": "消费事件",
+        "then": "保留原始引用并安全降级，不随意丢失含义"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-ACP-004",
+      "title": "原生审批映射与预授权",
+      "status": "specified",
+      "work_package": "WP03",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [
+        "D03"
+      ],
+      "acceptance": {
+        "given": "原生审批请求",
+        "when": "界面确认",
+        "then": "按原生可表达语义匹配已有授权，合法范围内自动应答；新增范围/强制当次人工确认不绕过"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-ACP-005",
+      "title": "取消与恢复契约",
+      "status": "specified",
+      "work_package": "WP03",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "Agent只确认收到取消",
+        "when": "状态归一化",
+        "then": "区分请求/停止/未知并仅按支持恢复"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-ACP-006",
+      "title": "Provider故障隔离",
+      "status": "specified",
+      "work_package": "WP03",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [],
+      "acceptance": {
+        "given": "adapter崩溃或输出畸形",
+        "when": "Core运行",
+        "then": "不拖垮整个工作台，产生有来源错误"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-PRO-009",
+      "title": "多个具名连接",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [
+        "D20"
+      ],
+      "acceptance": {
+        "given": "同Provider有个人与工作连接",
+        "when": "创建/恢复任务",
+        "then": "固定identity/environment引用，不静默换账号或计费"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-PRO-010",
+      "title": "程序与配置来源正交",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [
+        "D02"
+      ],
+      "acceptance": {
+        "given": "复用本机程序或独立安装",
+        "when": "创建托管环境",
+        "then": "程序来源不决定配置来源，无隐式共享"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-PRO-011",
+      "title": "托管兼容更新",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [
+        "D14"
+      ],
+      "acceptance": {
+        "given": "更新策略批准且版本验证通过",
+        "when": "准备新任务",
+        "then": "新版本仅用于新任务，活跃进程不替换，不修改原生安装"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-PRO-012",
+      "title": "身份隔离与认证复用",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP04",
+      "document": "docs/04-providers-sessions.md",
+      "decisions": [
+        "D02",
+        "D20"
+      ],
+      "acceptance": {
+        "given": "连接引用原生认证",
+        "when": "登录/断开/远程执行",
+        "then": "仅使用厂商支持机制，不拷贝认证目录、不全局退出其他连接"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-SES-009",
+      "title": "外部工具只打开工作区",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP10",
+      "document": "docs/02-experience.md",
+      "decisions": [
+        "D01"
+      ],
+      "acceptance": {
+        "given": "用户选择外部终端",
+        "when": "打开工作区",
+        "then": "只定位目录，不启动另一Agent、不转移会话、不同步审批"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-SES-010",
+      "title": "登录启动与安全恢复",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP10",
+      "document": "docs/03-architecture.md",
+      "decisions": [
+        "D13"
+      ],
+      "acceptance": {
+        "given": "登录Mac且后台注册已开启",
+        "when": "服务启动",
+        "then": "单实例，不强开UI，恢复前对账；可显式禁用后台注册"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-SES-011",
+      "title": "快捷对话转任务",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP10",
+      "document": "docs/02-experience.md",
+      "decisions": [
+        "D17"
+      ],
+      "acceptance": {
+        "given": "用户有讨论上下文",
+        "when": "转换正式任务",
+        "then": "显示/记录采用上下文，生成合同，不无声扩大原权限"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-CFG-009",
+      "title": "首次项目配置检查托管",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [
+        "D21"
+      ],
+      "acceptance": {
+        "given": "项目含Skills/MCP/Hooks",
+        "when": "首次导入",
+        "then": "扫描不执行，经检查合并与一次确认后托管"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-CFG-010",
+      "title": "配置后续变化审批最小化",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [
+        "D21",
+        "D03"
+      ],
+      "acceptance": {
+        "given": "项目源变化",
+        "when": "计算新revision",
+        "then": "批准规则内自动处理，新增高风险能力/扩权/不可解冲突才询问"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-CFG-011",
+      "title": "选择性导入不复制秘密",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [
+        "D02"
+      ],
+      "acceptance": {
+        "given": "已有原生能力配置",
+        "when": "创建托管副本",
+        "then": "重解析相对路径/依赖、记录来源，不复制认证文件或默认双向同步"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-CFG-012",
+      "title": "托管运行无隐藏能力继承",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [
+        "D02"
+      ],
+      "acceptance": {
+        "given": "多处原生用户/项目/插件来源",
+        "when": "准备受管环境",
+        "then": "排除未批准来源或报告无法隔离并阻止严格任务，保留组织强制规则"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-CFG-013",
+      "title": "活动配置快照与撤销",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP07",
+      "document": "docs/05-capabilities.md",
+      "decisions": [
+        "D02"
+      ],
+      "acceptance": {
+        "given": "新配置或高风险权限撤销",
+        "when": "应用变化",
+        "then": "一般变更固定旧任务版本；安全撤销停止新副作用并核验，不能假称抹除上下文"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-TSK-011",
+      "title": "自主计划有版本",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [
+        "D03",
+        "D12"
+      ],
+      "acceptance": {
+        "given": "已授权目标",
+        "when": "自动生成/修订流程",
+        "then": "固定plan revision，UI可改步骤/执行者/验收，Agent不自降验收"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-TSK-012",
+      "title": "根预算与任务覆盖",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP08",
+      "document": "docs/06-orchestration.md",
+      "decisions": [
+        "D11"
+      ],
+      "acceptance": {
+        "given": "子任务与父任务共享项目预算",
+        "when": "达到硬上限",
+        "then": "不通过拆子任务重置预算，保存进度并停止新派发/安全暂停"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-VAL-009",
+      "title": "验证后自动合入授权分支",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP09",
+      "document": "docs/06-orchestration.md",
+      "decisions": [
+        "D18",
+        "D19"
+      ],
+      "acceptance": {
+        "given": "候选通过规定检查",
+        "when": "采纳代码",
+        "then": "隔离集成候选验证＋expected target head检查；target变化重新验证，不覆盖dirty用户文件"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-VAL-010",
+      "title": "开发交付自动化",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP09",
+      "document": "docs/06-orchestration.md",
+      "decisions": [
+        "D19"
+      ],
+      "acceptance": {
+        "given": "仓库/分支/测试环境已授权",
+        "when": "push/PR/测试部署",
+        "then": "自动执行并记副作用与结果，遵守分支保护及secret边界"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-VAL-011",
+      "title": "生产发布当次确认",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP09",
+      "document": "docs/08-security.md",
+      "decisions": [
+        "D19"
+      ],
+      "acceptance": {
+        "given": "开发流程已全部通过",
+        "when": "准备生产发布",
+        "then": "仍需绑定确定产物/commit/环境的批准，改变任何绑定使批准失效"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-UX-009",
+      "title": "专业分层任务界面",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP11",
+      "document": "docs/02-experience.md",
+      "decisions": [
+        "D10",
+        "D17"
+      ],
+      "acceptance": {
+        "given": "多任务多Agent",
+        "when": "查看工作台",
+        "then": "默认关键事件/待处理项，详情可展开，不只聊天列表或满屏监控"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-UX-010",
+      "title": "中英文资源",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP11",
+      "document": "docs/02-experience.md",
+      "decisions": [
+        "D10"
+      ],
+      "acceptance": {
+        "given": "系统或用户切换语言",
+        "when": "呈现界面",
+        "then": "界面切换，代码命令与原始日志不翻译；支持访问性"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-SEC-009",
+      "title": "到期与衍生数据一致清理",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP12",
+      "document": "docs/07-data-contracts.md",
+      "decisions": [
+        "D04"
+      ],
+      "acceptance": {
+        "given": "日志/正文到期或项目关闭留存",
+        "when": "清理",
+        "then": "相关检索索引/缓存同步处理，不误删pin/源文件/独立报告"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-SEC-010",
+      "title": "接收方与数据策略",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP12",
+      "document": "docs/08-security.md",
+      "decisions": [
+        "D15"
+      ],
+      "acceptance": {
+        "given": "存在已批准ProjectPolicy",
+        "when": "任务/委派/远程传输",
+        "then": "由Core验证资源与接收方关系，模型或前端不能自报授权"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-REL-008",
+      "title": "双架构真实验证",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP13",
+      "document": "docs/09-testing-release.md",
+      "decisions": [
+        "D08"
+      ],
+      "acceptance": {
+        "given": "macOS候选包",
+        "when": "构建/发行",
+        "then": "Apple Silicon和Intel分别有测试证据，缺失不删除范围或冒称已测"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-REL-009",
+      "title": "最低系统验证定案",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP13",
+      "document": "docs/15-validation-gates.md",
+      "decisions": [
+        "D08"
+      ],
+      "acceptance": {
+        "given": "依赖版本锁定",
+        "when": "确定最低macOS",
+        "then": "记录构建/运行/核心Provider/后台与更新验证，缺证据保留待验"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-EXT-007",
+      "title": "远程macOS/Linux正式范围",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D05"
+      ],
+      "acceptance": {
+        "given": "用户注册Host",
+        "when": "启用",
+        "then": "验证身份、目录、连接能力；不创建云资源、不默认Windows"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-EXT-008",
+      "title": "授权内自动主机选择",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D05",
+        "D15"
+      ],
+      "acceptance": {
+        "given": "新任务有多个候选Host",
+        "when": "路由",
+        "then": "先过数据/权限/能力过滤再按数据与负载选择，记录原因，活动attempt不迁移"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-EXT-009",
+      "title": "远程断线对账",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D05",
+        "D13"
+      ],
+      "acceptance": {
+        "given": "远端可能继续运行",
+        "when": "断线与重连",
+        "then": "连接状态不当任务失败；先对账再续接，不重复派发，不丢取消未确认状态"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-EXT-010",
+      "title": "远程日志边界",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D04",
+        "D05"
+      ],
+      "acceptance": {
+        "given": "远端暂存执行事件",
+        "when": "同步主历史",
+        "then": "本机为主历史库、远端有透明缓存/保留规则；不宣称所有字节从不离开Mac"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-EXT-011",
+      "title": "离线授权截止",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D05",
+        "D11"
+      ],
+      "acceptance": {
+        "given": "远端与控制端断连",
+        "when": "继续执行",
+        "then": "只在现有有期限授权与预算内，不扩权或生产发布；到期停新副作用并记录"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-DOM-007",
+      "title": "运行绑定实体",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP01",
+      "document": "docs/07-data-contracts.md",
+      "decisions": [
+        "D02",
+        "D20"
+      ],
+      "acceptance": {
+        "given": "安装、配置、身份、Host可独立选择",
+        "when": "建模",
+        "then": "Connection和RuntimeEnvironment单独建模，Attempt绑定解析后的快照"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-DOM-008",
+      "title": "集成与发布记录独立",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP01",
+      "document": "docs/07-data-contracts.md",
+      "decisions": [
+        "D19"
+      ],
+      "acceptance": {
+        "given": "任务已accepted",
+        "when": "推送或发布",
+        "then": "Integration/Release单独状态与证据，不能从accepted推导deployed"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    }
+  ]
+}

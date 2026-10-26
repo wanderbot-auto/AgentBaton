@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "connection_id": "example-codex-work",
+  "label": "合成示例：工作Codex",
+  "provider_id": "codex",
+  "host_id": "example-local-mac",
+  "installation": {
+    "source": "external_executable",
+    "installation_id": "example-installation",
+    "version_ref": "example-not-a-real-release"
+  },
+  "environment": {
+    "ownership": "baton_managed",
+    "environment_id": "example-managed-env",
+    "config_snapshot_ref": "example-config-r1",
+    "writeback_external": false
+  },
+  "identity_ref": "example-identity-handle-not-a-token",
+  "support_manifest_ref": "example-untested-support",
+  "silent_identity_fallback": false
+}

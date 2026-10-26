@@ -1,0 +1,168 @@
+{
+  "design_version": "0.2",
+  "questions": [
+    {
+      "number": 1,
+      "selected_option": "C",
+      "summary": "目标驱动自动执行",
+      "decision_id": "D03"
+    },
+    {
+      "number": 2,
+      "selected_option": "C",
+      "summary": "任务为主＋快捷对话",
+      "decision_id": "D17"
+    },
+    {
+      "number": 3,
+      "selected_option": "B",
+      "summary": "独立工作区",
+      "decision_id": "D18"
+    },
+    {
+      "number": 4,
+      "selected_option": "C",
+      "summary": "自动验收并合入授权分支",
+      "decision_id": "D19"
+    },
+    {
+      "number": 5,
+      "selected_option": "C",
+      "summary": "检查导入后统一托管项目配置",
+      "decision_id": "D21"
+    },
+    {
+      "number": 6,
+      "selected_option": "B",
+      "summary": "本机＋用户配置远程主机",
+      "decision_id": "D05"
+    },
+    {
+      "number": 7,
+      "selected_option": "B",
+      "summary": "完整历史本地保存",
+      "decision_id": "D04"
+    },
+    {
+      "number": 8,
+      "selected_option": "C",
+      "summary": "独立后台执行",
+      "decision_id": "D13"
+    },
+    {
+      "number": 9,
+      "selected_option": "B",
+      "summary": "工作流自动生成＋可调整",
+      "decision_id": "D12"
+    },
+    {
+      "number": 10,
+      "selected_option": "B",
+      "summary": "项目默认预算＋任务覆盖",
+      "decision_id": "D11"
+    },
+    {
+      "number": 11,
+      "selected_option": "B",
+      "summary": "经验提炼后审查启用",
+      "decision_id": "D16"
+    },
+    {
+      "number": 12,
+      "selected_option": "B",
+      "summary": "多个具名连接",
+      "decision_id": "D20"
+    },
+    {
+      "number": 13,
+      "selected_option": "B",
+      "summary": "自动维护兼容程序版本",
+      "decision_id": "D14"
+    },
+    {
+      "number": 14,
+      "selected_option": "B",
+      "summary": "项目预先授权数据交接",
+      "decision_id": "D15"
+    },
+    {
+      "number": 15,
+      "selected_option": "B",
+      "summary": "三种正式Agent＋自定义ACP",
+      "decision_id": "D06"
+    },
+    {
+      "number": 16,
+      "selected_option": "B",
+      "summary": "Apple Silicon＋Intel",
+      "decision_id": "D08"
+    },
+    {
+      "number": 17,
+      "selected_option": "B",
+      "summary": "本地核心开源＋商业增值",
+      "decision_id": "D09"
+    },
+    {
+      "number": 18,
+      "selected_option": "C",
+      "summary": "中英文",
+      "decision_id": "D10"
+    },
+    {
+      "number": 19,
+      "selected_option": "C",
+      "summary": "分层信息呈现",
+      "decision_id": "D10"
+    },
+    {
+      "number": 20,
+      "selected_option": "B",
+      "summary": "远程macOS＋Linux",
+      "decision_id": "D05"
+    },
+    {
+      "number": 21,
+      "selected_option": "B",
+      "summary": "开发自动交付、生产确认",
+      "decision_id": "D19"
+    },
+    {
+      "number": 22,
+      "selected_option": "C",
+      "summary": "授权内自动选执行主机",
+      "decision_id": "D05"
+    },
+    {
+      "number": 23,
+      "selected_option": "B",
+      "summary": "登录启动后台",
+      "decision_id": "D13"
+    },
+    {
+      "number": 24,
+      "selected_option": "B",
+      "summary": "强调改进回馈",
+      "decision_id": "D09"
+    },
+    {
+      "number": 25,
+      "selected_option": "B",
+      "summary": "专业开发工具视觉",
+      "decision_id": "D10"
+    },
+    {
+      "number": 26,
+      "selected_option": "B",
+      "summary": "到期清理，可覆盖与永久保留",
+      "decision_id": "D04"
+    },
+    {
+      "number": 27,
+      "selected_option": "C",
+      "summary": "最低macOS由技术验证确定",
+      "decision_id": "D08"
+    }
+  ],
+  "note": "Q26 affirms expiry policy; 90 days is the recorded configurable working default from option B, not a separately verbatim approved numeric requirement."
+}

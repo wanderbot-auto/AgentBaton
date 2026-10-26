@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "phase": "environment_preparation",
+  "product_development_authorized": false,
+  "real_provider_calls_authorized": false,
+  "production_release_authorized": false,
+  "paid_resource_creation_authorized": false,
+  "remote_repository": "wanderbot-auto/AgentBaton",
+  "repository_owner_confirmed": true,
+  "approval_reference": null,
+  "allowed_scope": [
+    "local_repository_bootstrap",
+    "design_validation",
+    "infrastructure_smoke_tests",
+    "prepare_ci_configuration",
+    "create_confirmed_private_repository",
+    "upload_preparation_baseline",
+    "run_environment_preflight"
+  ],
+  "note": "This metadata/instruction gate is not an OS security boundary. Do not change it without a new explicit user approval.",
+  "repository_owner": "wanderbot-auto",
+  "target_repository": "wanderbot-auto/AgentBaton",
+  "preparation_approval_reference": "User authorized repository and environment preparation; repository URL supplied by user. Product development still awaits separate confirmation."
+}

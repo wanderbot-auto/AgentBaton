@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "task_id": "example-task-002",
+  "attempt_id": "example-attempt-001",
+  "execution_status": "blocked",
+  "artifacts": [],
+  "validations": [
+    {
+      "validator_id": "analysis-schema-v1",
+      "status": "not_run",
+      "subject_refs": [],
+      "evidence_refs": [],
+      "reason": "示例未执行"
+    }
+  ],
+  "acceptance_status": "not_ready",
+  "side_effect_state": "none",
+  "limitations": [
+    "本示例仅验证结构；未执行Qoder或分析脚本。"
+  ],
+  "next_action": "实际运行前核验Provider能否落实required enforcement；不支持则拒绝启动。"
+}

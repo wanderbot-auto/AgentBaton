@@ -1,0 +1,321 @@
+{
+  "design_version": "0.2",
+  "packages": [
+    {
+      "id": "WP01",
+      "dependencies": [],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-DOM-001",
+        "AB-DOM-002",
+        "AB-DOM-003",
+        "AB-DOM-004",
+        "AB-DOM-005",
+        "AB-DOM-006",
+        "AB-DOM-007",
+        "AB-DOM-008"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP02",
+      "dependencies": [
+        "WP01"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-COR-001",
+        "AB-COR-002",
+        "AB-COR-003",
+        "AB-COR-004",
+        "AB-COR-005",
+        "AB-COR-006",
+        "AB-COR-007"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP03",
+      "dependencies": [
+        "WP01",
+        "WP02"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-ACP-001",
+        "AB-ACP-002",
+        "AB-ACP-003",
+        "AB-ACP-004",
+        "AB-ACP-005",
+        "AB-ACP-006"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP04",
+      "dependencies": [
+        "WP03"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-PRO-001",
+        "AB-PRO-002",
+        "AB-PRO-003",
+        "AB-PRO-004",
+        "AB-PRO-005",
+        "AB-PRO-006",
+        "AB-PRO-007",
+        "AB-PRO-009",
+        "AB-PRO-010",
+        "AB-PRO-011",
+        "AB-PRO-012"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP05",
+      "dependencies": [
+        "WP01",
+        "WP02"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-PRJ-001",
+        "AB-PRJ-002",
+        "AB-PRJ-003",
+        "AB-PRJ-004",
+        "AB-PRJ-005",
+        "AB-PRJ-006"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP06",
+      "dependencies": [
+        "WP03",
+        "WP04",
+        "WP05"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-CAP-001",
+        "AB-CAP-002",
+        "AB-CAP-003",
+        "AB-CAP-004",
+        "AB-CAP-005",
+        "AB-CAP-006",
+        "AB-CAP-007",
+        "AB-CAP-008"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP07",
+      "dependencies": [
+        "WP06"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-CFG-001",
+        "AB-CFG-002",
+        "AB-CFG-003",
+        "AB-CFG-004",
+        "AB-CFG-005",
+        "AB-CFG-006",
+        "AB-CFG-007",
+        "AB-CFG-008",
+        "AB-CFG-009",
+        "AB-CFG-010",
+        "AB-CFG-011",
+        "AB-CFG-012",
+        "AB-CFG-013"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP08",
+      "dependencies": [
+        "WP02",
+        "WP03",
+        "WP05",
+        "WP06",
+        "WP07"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-TSK-001",
+        "AB-TSK-002",
+        "AB-TSK-003",
+        "AB-TSK-004",
+        "AB-TSK-005",
+        "AB-TSK-006",
+        "AB-TSK-007",
+        "AB-TSK-008",
+        "AB-TSK-009",
+        "AB-TSK-010",
+        "AB-TSK-011",
+        "AB-TSK-012"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP09",
+      "dependencies": [
+        "WP08"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-VAL-001",
+        "AB-VAL-002",
+        "AB-VAL-003",
+        "AB-VAL-004",
+        "AB-VAL-005",
+        "AB-VAL-006",
+        "AB-VAL-007",
+        "AB-VAL-008",
+        "AB-VAL-009",
+        "AB-VAL-010",
+        "AB-VAL-011"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP10",
+      "dependencies": [
+        "WP02",
+        "WP04"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-SES-002",
+        "AB-SES-003",
+        "AB-SES-006",
+        "AB-SES-007",
+        "AB-SES-008",
+        "AB-SES-009",
+        "AB-SES-010",
+        "AB-SES-011"
+      ],
+      "release_dependencies": [],
+      "note": "v0.2: managed sessions, quick chat, lifecycle, workspace open; external-terminal observer and wrapper retired."
+    },
+    {
+      "id": "WP11",
+      "dependencies": [
+        "WP01",
+        "WP06",
+        "WP08",
+        "WP10"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-UX-001",
+        "AB-UX-002",
+        "AB-UX-003",
+        "AB-UX-004",
+        "AB-UX-005",
+        "AB-UX-006",
+        "AB-UX-007",
+        "AB-UX-008",
+        "AB-UX-009",
+        "AB-UX-010"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP12",
+      "dependencies": [
+        "WP07",
+        "WP09",
+        "WP10",
+        "WP11"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-SEC-001",
+        "AB-SEC-002",
+        "AB-SEC-003",
+        "AB-SEC-004",
+        "AB-SEC-005",
+        "AB-SEC-006",
+        "AB-SEC-007",
+        "AB-SEC-008",
+        "AB-SEC-009",
+        "AB-SEC-010"
+      ],
+      "release_dependencies": [],
+      "note": ""
+    },
+    {
+      "id": "WP13",
+      "dependencies": [
+        "WP01"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-REL-001",
+        "AB-REL-002",
+        "AB-REL-003",
+        "AB-REL-004",
+        "AB-REL-005",
+        "AB-REL-006",
+        "AB-REL-007",
+        "AB-REL-008",
+        "AB-REL-009"
+      ],
+      "release_dependencies": [
+        "WP12",
+        "WP11"
+      ],
+      "note": "CI基础可基于WP01建设；签名发布仍须所有相关release gates通过。"
+    },
+    {
+      "id": "WP14",
+      "dependencies": [
+        "WP03",
+        "WP08",
+        "WP12"
+      ],
+      "status": "specified",
+      "authorization": "not_granted",
+      "requirement_ids": [
+        "AB-EXT-001",
+        "AB-EXT-002",
+        "AB-EXT-003",
+        "AB-EXT-004",
+        "AB-EXT-005",
+        "AB-EXT-006",
+        "AB-EXT-007",
+        "AB-EXT-008",
+        "AB-EXT-009",
+        "AB-EXT-010",
+        "AB-EXT-011"
+      ],
+      "release_dependencies": [],
+      "note": "v0.2: personal macOS/Linux remote execution and custom ACP are approved complete-product scope, not speculative optional work."
+    }
+  ]
+}

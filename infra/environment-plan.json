@@ -1,0 +1,53 @@
+{
+  "name": "agentbaton-development",
+  "visibility": "private",
+  "default_branch": "main",
+  "repository_owner": "wanderbot-auto",
+  "repository_name": "AgentBaton",
+  "github_accounts_available": [
+    "W4nde3",
+    "wanderbot-auto"
+  ],
+  "runtime_preferences": {
+    "node_major": "24",
+    "python_minor": "3.12",
+    "rust_channel": "stable"
+  },
+  "runtime_pinning_status": "pending_first_networked_install_and_verification",
+  "ci_hosts": [
+    {
+      "label": "ubuntu-24.04",
+      "purpose": "Linux environment preflight"
+    },
+    {
+      "label": "macos-15",
+      "purpose": "Apple Silicon environment preflight"
+    },
+    {
+      "label": "macos-15-intel",
+      "purpose": "Intel environment preflight"
+    }
+  ],
+  "minimum_supported_macos": null,
+  "runner_os_is_not_minimum_supported_macos": true,
+  "product_dependency_lockfiles": "not_created_product_implementation_not_authorized",
+  "required_preparation_credentials": [],
+  "blocked_until_confirmed": [
+    "codex_cloud_environment_publish",
+    "successful_remote_preflight"
+  ],
+  "future_protected_secrets": [
+    "dedicated_provider_test_credentials",
+    "Apple_Developer_ID_signing",
+    "Apple_notarization",
+    "updater_signing"
+  ],
+  "notes": [
+    "Core/provider/macOS product tests remain not_run until implementations exist.",
+    "No API billing is enabled. No personal CLI credential directories are copied.",
+    "Exact frontend, Rust and SDK dependency versions will be resolved and locked in an explicitly approved implementation work package, not fabricated offline."
+  ],
+  "target_repository": "wanderbot-auto/AgentBaton",
+  "repository_owner_type": "User",
+  "repository_owner_authorization": "confirmed_by_user; private_repository_created_by_user; connector_write_verified"
+}

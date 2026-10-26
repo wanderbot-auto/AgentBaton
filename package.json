@@ -1,0 +1,16 @@
+{
+  "name": "agentbaton-infrastructure",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Preparation-only checks; not the AgentBaton product implementation.",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "test": "node --test tests/infrastructure/node-smoke.test.mjs",
+    "test:infra": "python3 -m unittest discover -s tests/infrastructure -p test_*.py -v",
+    "check:design": "python3 scripts/validate_design.py",
+    "check:infra": "python3 scripts/validate_infrastructure.py"
+  },
+  "license": "UNLICENSED"
+}

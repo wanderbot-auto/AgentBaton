@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "policy_id": "example-policy",
+  "project_id": "example-project",
+  "revision": 1,
+  "approval_ref": "example-approval-not-granted-in-real-life",
+  "authorized_connection_ids": [
+    "example-codex-work"
+  ],
+  "authorized_host_ids": [
+    "example-local-mac"
+  ],
+  "data_transfers": [
+    {
+      "resource_scope_ref": "example-minimal-input",
+      "recipient_ref": "example-approved-model-service"
+    }
+  ],
+  "budget_ref": "example-project-budget-not-default",
+  "workspace_mode": "isolated",
+  "development_delivery": {
+    "grant_ref": "example-development-grant",
+    "target_branch_ref": "refs/heads/example-integration",
+    "actions": [
+      "merge",
+      "push",
+      "create_pr",
+      "deploy_test"
+    ]
+  },
+  "production_release": "separate_artifact_bound_approval",
+  "retention": {
+    "complete_local_history": true,
+    "detail_ttl_days": 90,
+    "allow_project_override": true,
+    "allow_pin": true,
+    "delete_source_files": false
+  },
+  "experience_publish": "review_before_activation"
+}

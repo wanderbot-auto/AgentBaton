@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentbaton.invalid/schemas/execution-envelope.v1.json",
+  "title": "AgentBaton execution-envelope v1 design draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "attempt_id",
+    "task_request_ref",
+    "plan_revision",
+    "project_policy_ref",
+    "policy_revision",
+    "binding",
+    "input_manifest_ref",
+    "validator_manifest_ref",
+    "budget_snapshot_ref",
+    "dispatch_idempotency_key",
+    "lease_ref",
+    "execution_authorization_ref",
+    "replay_rule",
+    "active_attempt_migration"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "attempt_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "task_request_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plan_revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "project_policy_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "host_id",
+        "connection_id",
+        "installation_version_ref",
+        "identity_ref",
+        "config_snapshot_ref",
+        "workspace_id",
+        "workspace_mode"
+      ],
+      "properties": {
+        "host_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "connection_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "installation_version_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identity_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "config_snapshot_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workspace_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "workspace_mode": {
+          "const": "isolated"
+        }
+      }
+    },
+    "input_manifest_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "validator_manifest_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "budget_snapshot_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dispatch_idempotency_key": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "lease_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "execution_authorization_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "replay_rule": {
+      "const": "reconcile_unknown_effects_first"
+    },
+    "active_attempt_migration": {
+      "const": false
+    }
+  },
+  "description": "Internal design only; authorization, ownership, identity, effect classification and effective provider constraints need server-side semantic validation."
+}

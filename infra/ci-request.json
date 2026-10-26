@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "request": "environment-preflight-001",
+  "scope": "environment_preparation_only",
+  "product_development_authorized": false,
+  "real_provider_calls_authorized": false,
+  "maximum_jobs": 3,
+  "maximum_minutes_per_job": 25,
+  "note": "Explicit environment checks only. Does not start Codex development, releases or deployments."
+}

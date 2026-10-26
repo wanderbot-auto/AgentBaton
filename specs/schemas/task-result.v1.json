@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentbaton.invalid/schemas/task-result.v1.json",
+  "title": "AgentBaton TaskResult v1 (design draft)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "attempt_id",
+    "execution_status",
+    "artifacts",
+    "validations",
+    "acceptance_status",
+    "side_effect_state",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "attempt_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "execution_status": {
+      "enum": [
+        "succeeded",
+        "failed",
+        "cancelled",
+        "blocked",
+        "outcome_unknown"
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact_id",
+          "media_type",
+          "locator",
+          "integrity"
+        ],
+        "properties": {
+          "artifact_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+          },
+          "media_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 1
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sensitivity": {
+            "enum": [
+              "public",
+              "internal",
+              "sensitive",
+              "unknown"
+            ]
+          },
+          "integrity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "value"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "sha256",
+                  "immutable_version",
+                  "mutable_unverified"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "provenance_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "validations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "validator_id",
+          "status",
+          "subject_refs",
+          "evidence_refs"
+        ],
+        "properties": {
+          "validator_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "blocked",
+              "not_run"
+            ]
+          },
+          "subject_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "acceptance_status": {
+      "enum": [
+        "not_ready",
+        "pending",
+        "accepted",
+        "rejected"
+      ]
+    },
+    "side_effect_state": {
+      "enum": [
+        "none",
+        "confirmed",
+        "unknown"
+      ]
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "next_action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "acceptance_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "acceptance_status": {
+            "const": "accepted"
+          }
+        },
+        "required": [
+          "acceptance_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "acceptance_ref"
+        ]
+      }
+    }
+  ]
+}

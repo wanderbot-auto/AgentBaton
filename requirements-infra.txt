@@ -1,0 +1,4 @@
+# Tested in this preparation container; Python direct dependency pins.
+# Transitive hash lock must be generated during an authorized networked setup.
+jsonschema==4.26.0
+PyYAML==6.0.3

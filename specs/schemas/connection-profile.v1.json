@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentbaton.invalid/schemas/connection-profile.v1.json",
+  "title": "AgentBaton connection-profile v1 design draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "connection_id",
+    "label",
+    "provider_id",
+    "host_id",
+    "installation",
+    "environment",
+    "identity_ref",
+    "support_manifest_ref",
+    "silent_identity_fallback"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "connection_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "host_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "installation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "installation_id",
+        "version_ref"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "baton_managed",
+            "external_executable"
+          ]
+        },
+        "installation_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "version_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ownership",
+        "environment_id",
+        "config_snapshot_ref",
+        "writeback_external"
+      ],
+      "properties": {
+        "ownership": {
+          "enum": [
+            "baton_managed",
+            "native_connected"
+          ]
+        },
+        "environment_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "config_snapshot_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "writeback_external": {
+          "const": false
+        }
+      }
+    },
+    "identity_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "support_manifest_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "silent_identity_fallback": {
+      "const": false
+    }
+  },
+  "description": "Internal design only; authorization, ownership, identity, effect classification and effective provider constraints need server-side semantic validation."
+}

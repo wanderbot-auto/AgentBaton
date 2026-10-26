@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "attempt_id": "example-attempt-1",
+  "task_request_ref": "example-task-002",
+  "plan_revision": "example-plan-r1",
+  "project_policy_ref": "example-policy",
+  "policy_revision": 1,
+  "binding": {
+    "host_id": "example-local-mac",
+    "connection_id": "example-qoder-analysis",
+    "installation_version_ref": "example-not-a-real-release",
+    "identity_ref": "example-qoder-identity-handle",
+    "config_snapshot_ref": "example-config-r1",
+    "workspace_id": "example-isolated-workspace",
+    "workspace_mode": "isolated"
+  },
+  "input_manifest_ref": "example-inputs-r1",
+  "validator_manifest_ref": "example-approved-validators",
+  "budget_snapshot_ref": "example-budget-not-default",
+  "dispatch_idempotency_key": "example-dispatch-1",
+  "lease_ref": "example-expiring-lease",
+  "execution_authorization_ref": "example-not-an-actual-authorization",
+  "replay_rule": "reconcile_unknown_effects_first",
+  "active_attempt_migration": false
+}
