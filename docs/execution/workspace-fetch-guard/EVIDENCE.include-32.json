@@ -1,0 +1,160 @@
+{
+  "unit": "workspace-fetch-guard",
+  "authorization": "AB-START-001",
+  "requirements": [
+    "AB-PRJ-001",
+    "AB-PRJ-002",
+    "AB-PRJ-004"
+  ],
+  "recorded_at_utc": "2026-10-26T21:13:32.736988+00:00",
+  "base_commit": "dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7",
+  "tested_commit": "b11218506e835554b2d08600e8cc1ab25e4fe7e9",
+  "branch": "codex/workspace-fetch-guard",
+  "owner_inbox": "Protectedmain OWNER001/002 read and ACK; UI amendment retained elsewhere; full goal unchanged",
+  "implementation": "Minimal config-agent guard backport: GIT_NO_LAZY_FETCH=1, protocol.allow=never, failclosed extensions.partialclone/remote.*.promisor config refusal before object/status operations and again before checkout. Existing filter/path protections/publicAPI unchanged. UnsafeRepository display now describes externalobject access too. Git commands also use GIT_NO_REPLACE_OBJECTS=1 and GIT_GRAFT_FILE=/dev/null: exact approved hashes mean raw committed tree and ancestry. No replacement/graft metadata is deleted or rewritten. Before the first repository probe, audit local include/includeIf.path declarations using git config --no-includes; reject matches. Repeat before checkout. Non-match exit1 permits continuation, matches reject UnsafeRepository, fatal audit rejects NotRepository; IO/output/timeout errors propagate. No unsafe audit result permits another Git operation.",
+  "coordination": "Reused /root/config focused guard design and generated missingblob/ext-helper fixtures from validation-adoption; adapted only older main context. No adoption modules/dependencies copied. Fixture Git strips inheritedGIT_* and nulls global/system config/hooks to stay local/generated.",
+  "environment": {
+    "os": "Linux local cloud",
+    "git": "2.52.0",
+    "umask": "022",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+  },
+  "checks": [
+    {
+      "name": "workspace-tests",
+      "command": "cargo test --workspace --locked",
+      "exit_code": 0
+    },
+    {
+      "name": "clippy",
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "name": "fmt",
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0
+    }
+  ],
+  "counts": {
+    "existing_guard_tests": 17,
+    "new_include_tests": 2,
+    "all_workspaces_tests": 19,
+    "all_workspace_tests": 130,
+    "core": 35,
+    "config": 26,
+    "providers": 50,
+    "workspaces": 19
+  },
+  "assertions": [
+    "generated trackedblob removed from objectdb; local ext helper would only create a generatedmarker andexit1",
+    "remote protocol.ext.allow=always deliberately enabled in fixture",
+    "inspect and create_isolated reject promisor repo without helpermarker or checkoutdestination",
+    "sourcefile andindex bytes unchanged",
+    "partialclone extension refused without rewriting config",
+    "ordinary Git control HEAD==A/statusclean while refsreplace reads tree/contentB; rawhelper inspectdirty/adoptionDirty and exactA isolatedapprovedbytes",
+    "refsreplace, sourcefileB and sourceindex unchanged",
+    "genuine legacygraft changes Cparent toA in control; guarded read yields rawparentB with graftfile/index unchanged",
+    "actual generated no-checkout child future-control: source configfilter query exits1, child configfilter query succeeds; this is configuration visibility only, no smudge command executed",
+    "inspect/create_isolated refuse inactive futuregitdir includeIf before helpermarker/destination/newchildmetadata and preserve source/index/mainconfig/includedconfig bytes",
+    "even benign unconditional include is refused without rewriting configuration",
+    "all previous17 library assertions unchanged"
+  ],
+  "logs": {
+    "checks.json": {
+      "path": "artifacts/workspace-fetch-guard-include/checks.json",
+      "sha256": "f9d8119c966c03d686afa3fd8fe6befc53c8b3c453fe8405f3679b41168bb72b"
+    },
+    "clippy.log": {
+      "path": "artifacts/workspace-fetch-guard-include/clippy.log",
+      "sha256": "44c83f920c75ab2511fb595fd85013222d4ccf19e81906158a4bb809708fcc64"
+    },
+    "fmt.log": {
+      "path": "artifacts/workspace-fetch-guard-include/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "targeted-fixed.log": {
+      "path": "artifacts/workspace-fetch-guard-include/targeted-fixed.log",
+      "sha256": "a127f47c72ab519a59b4de97d22761bfb86aeb079b3d7e4a5c3961acaa3e704a"
+    },
+    "targeted.log": {
+      "path": "artifacts/workspace-fetch-guard-include/targeted.log",
+      "sha256": "3760eb7ba5a576ef53dc1a8e8da9e7689729bae3670e14508bd6d90f449ec8eb"
+    },
+    "workspace-tests.log": {
+      "path": "artifacts/workspace-fetch-guard-include/workspace-tests.log",
+      "sha256": "f5c4070dd0f640bfb5f5a6c513b0d8f84d97e3a1bf951ee006ce640c575f7f8d"
+    }
+  },
+  "source_hashes": {
+    "crates/workspaces/src/lib.rs": "d14806fcb06faa784a6a4f1b97f21ca83a9159960e600160298d0aa8fa72da65",
+    "crates/workspaces/tests/lazy_fetch.rs": "8f4de1e700b317e9e100a8bff3ec9f4feb9402b9a86f218992a020b577dcf711"
+  },
+  "prior_failure_evidence": "Reviewer reported actual-tool transcript/directGit semantics controls for missingblob promisor helper, replacement refs and conditional configvisibility. Supplied observations JSON is a transcription, not an originalrawlog and not proof of executing oldBatoncrate API. This task did not replay oldBaton code. Generated replacement/graft/futurecontext controls run directly in currentregressions; current guardedAPI behavior is asserted separately.",
+  "remaining_limits": {
+    "independent_review": "include followup and aggregate guard independently approved; primaryintegration/exactcandidate CI stillrequired",
+    "macos_current_candidate": "not_run",
+    "remote_ci": "not_run",
+    "ui_native_smoke": "not_run_library_only_scope",
+    "real_vendor_models_accounts_network": "not_run_not_authorized",
+    "partialclone_support": "deliberately unsupported and refused; no automatic fetch or config repair",
+    "os_sandbox": "not_claimed",
+    "product": "incomplete",
+    "push_main_merge": "no push/mainmerge performed by this followup; parent reports existing PR9/head851 pushed and CI running, not inherited by thiscandidate",
+    "globalSTATUS_manifest": "unchanged_per_focused_parent_scope",
+    "raw_object_semantics": "replacement refs and legacy grafts intentionally ignored; files left intact",
+    "config_includes": "all includes deliberately refused including benign/inactive rules; no auto repair/flattening"
+  },
+  "previous_fetch_checkpoint": {
+    "commit": "9430a1ddeb84dad4340342c4dadfe65320500a16",
+    "archive": "EVIDENCE.fetch-only-943.json",
+    "sha256": "602c16a305d98dcd5049759ff2ab0f24f45cd5aca0373dba0f5f1c15e2a3e8ec"
+  },
+  "targeted_check": {
+    "command": "cargo test --locked -p agentbaton-workspaces",
+    "exit_code": 0,
+    "tests": 19,
+    "log": "artifacts/workspace-fetch-guard-include/targeted-fixed.log"
+  },
+  "independent_review": {
+    "agent": "/root/review",
+    "fetch_source": "4d43989",
+    "raw_object_source": "8dcb4a3",
+    "result": "approved; no unresolved aggregate fetch/raw-object source blocker",
+    "actual_independent_command": "cargo test --locked -p agentbaton-workspaces",
+    "actual_independent_tests": 17,
+    "source_edits_by_reviewer": false,
+    "verdict_received": "Native parent exact-head CI still required."
+  },
+  "previous_raw_checkpoint": {
+    "commit": "851fa073512326deacd24d8918fa1f8261134c68",
+    "archive": "EVIDENCE.raw-guard-851.json",
+    "sha256": "9415af4a627a355e6f9b0d35ba2169f105589b7e56d262cdb62a533ec52b3775"
+  },
+  "development_failure": {
+    "command": "cargo test --locked -p agentbaton-workspaces",
+    "log": "artifacts/workspace-fetch-guard-include/targeted.log",
+    "exit_code": 101,
+    "passed": 18,
+    "failed": 1,
+    "cause": "pre-probe configfatal mapped toUnsafe rather than existing malformedrepository NotRepository; preserved original assertion and corrected fatalclassification. No assertion changed."
+  },
+  "reviewer_control_observations": {
+    "path_reported_by_reviewer": "/workspace/AgentBaton/artifacts/workspace-fetch-guard/reviewer-original-observations.json",
+    "sha256_reported_by_reviewer": "f7f884d2e910aeacb1dcaac14590150dd635e836e215d3583e2ba66bd61f9885",
+    "kind": "reviewer persisted actual-tool transcript/directGit semantics control; NOT originalrawlog, NOT oldBatoncrate APIexecution",
+    "read_by_this_task": false,
+    "reason": "Rootworktree access excluded by focusedfollowup scope"
+  },
+  "independent_include_review": {
+    "agent": "/root/review",
+    "source": "b11218506e835554b2d08600e8cc1ab25e4fe7e9",
+    "status": "approved; no unresolved focused source blocker",
+    "actual_independent_command": "cargo test --locked -p agentbaton-workspaces",
+    "actual_independent_tests": 19,
+    "reviewer_edits": false,
+    "limit": "exact finalhead CI still required"
+  }
+}

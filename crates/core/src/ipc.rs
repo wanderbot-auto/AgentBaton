@@ -677,7 +677,14 @@ impl Daemon {
 }
 impl Drop for Daemon {
     fn drop(&mut self) {
+        // Error/unwind paths also retain authority until every owned worker is
+        // cancelled and joined. Unpersisted outcomes are reconciled on restart.
+        self.supervisor.reap_owned_workers();
         let _ = fs::remove_file(&self.socket);
+        // `run` has finished before self is dropped. Release this ownership
+        // explicitly: duplicated/inherited descriptors can outlive this File.
+        // Unlink first so a successor's socket is never removed after unlock.
+        let _ = FileExt::unlock(&self._lock);
     }
 }
 fn read_frame(stream: &UnixStream, max_frame: u64) -> Result<String> {
@@ -751,6 +758,59 @@ mod frame_tests {
             serde_json::from_str(&read_frame(&sender, MAX_FRAME).unwrap()).unwrap();
         assert_eq!(response["result"], "delayed-frame-read");
         worker.join().unwrap();
+    }
+
+    #[test]
+    fn daemon_drop_releases_its_lock_even_with_an_old_duplicate_descriptor() {
+        let directory = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = directory.path().canonicalize().unwrap().join("runtime");
+        let original = Daemon::bind(&runtime).unwrap();
+        let old_duplicate = original._lock.try_clone().unwrap();
+        assert_eq!(Daemon::bind(&runtime).err().unwrap().code, "WORKSPACE_BUSY");
+        drop(original);
+        assert!(!runtime.join("batond.sock").exists());
+        // No retry or waiting: an old open-file-description duplicate must not
+        // retain a stopped daemon's single-writer ownership.
+        let replacement = Daemon::bind(&runtime).unwrap();
+        assert_eq!(Daemon::bind(&runtime).err().unwrap().code, "WORKSPACE_BUSY");
+        drop(old_duplicate);
+        // Closing that old description must not release the new owner's lock.
+        assert_eq!(Daemon::bind(&runtime).err().unwrap().code, "WORKSPACE_BUSY");
+        assert!(runtime.join("batond.sock").exists());
+        drop(replacement);
+        let final_owner = Daemon::bind(&runtime).unwrap();
+        drop(final_owner);
+    }
+
+    #[test]
+    fn daemon_retains_its_writer_lock_until_owned_worker_cleanup_finishes() {
+        let directory = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = directory.path().canonicalize().unwrap().join("runtime");
+        let mut original = Daemon::bind(&runtime).unwrap();
+        let old_duplicate = original._lock.try_clone().unwrap();
+        let checked = Arc::new(AtomicBool::new(false));
+        let worker_checked = checked.clone();
+        let worker_runtime = runtime.clone();
+        original.supervisor.install_drop_fixture(move || {
+            assert_eq!(
+                Daemon::bind(&worker_runtime).err().unwrap().code,
+                "WORKSPACE_BUSY"
+            );
+            assert!(worker_runtime.join("batond.sock").exists());
+            worker_checked.store(true, Ordering::SeqCst);
+        });
+        drop(original);
+        assert!(checked.load(Ordering::SeqCst));
+        let replacement = Daemon::bind(&runtime).unwrap();
+        drop(old_duplicate);
+        assert_eq!(Daemon::bind(&runtime).err().unwrap().code, "WORKSPACE_BUSY");
+        drop(replacement);
     }
 
     #[test]
