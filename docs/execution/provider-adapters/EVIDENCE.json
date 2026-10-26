@@ -10,7 +10,7 @@
     "native_harness_slice": "9862456ed25dfc63075b0c9123811a7cec67ed53",
     "quiet_canvas_initial": "f1978b810f6caf3f42028fe92f028fec8530639a"
   },
-  "candidate_commit": null,
+  "candidate_commit": "5eba068e7772eddc45b9a6289bd38adac047c78f",
   "tested_source": "35 frozen integration fingerprints in FINAL_REVIEW.md; component snapshots separately retained",
   "checks": [
     {
@@ -582,7 +582,8 @@
     "provider-runtime-portability-smoke.log": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805",
     "provider-runtime-portability-browser.log": "a60d1ae4d141b3c20b01b9d2b040ddac43ec0f24487447d6bd71c26e846a92b9",
     "provider-runtime-final-design.log": "4f9172b946f8325995c3013d2f35256e62539dbb602a298798843d997204c77b",
-    "provider-runtime-final-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f"
+    "provider-runtime-final-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f",
+    "provider-runtime-portable-fifo.log": "f53df1b1bfe8be8df4b143bb6196bfc5f8f935ec38d9b49968fea4c403bfdf7c"
   },
   "failed_evidence": [
     {
@@ -624,6 +625,20 @@
       "issue": "NativeLinuxWebKithelperpaths preventactualwindow execution",
       "evidence": "docs/execution/native-gui/EVIDENCE.json",
       "resolution": "blocked not bypassed; actualMacCI laneimplemented, not yetrun"
+    },
+    {
+      "issue": "BothactualMacCI lanes failRusttestcompile onApple-excludedrustixmkfifoat",
+      "run": 40397829141,
+      "jobs": [
+        121835580552,
+        121835580576
+      ],
+      "logs_sha256": {
+        "/workspace/.onboarding/provider-runtime-ci-121835580552.log": "64ed204991100de5753870e92c37010cbd164e33b6ddae3e3daf5201dec6cc21",
+        "/workspace/.onboarding/provider-runtime-ci-121835580576.log": "b633f47191c50947654dde53e84b5cce91c3dd37f5d150dbad8ff816c93ab60b"
+      },
+      "review": "docs/execution/provider-adapters/CI_FOLLOWUP.md",
+      "resolution": "actualPOSIXFIFOutilityfixture, no skippedtest/productionchange; retry pending"
     }
   ],
   "limitations": [
@@ -637,7 +652,17 @@
     "Fullrouter/delegation/goalplanning/workflows/validation/adoption/remotehosts/lifecycle remainunfinished",
     "Full130requirementgoal remainsopen; no acceptance/fullproductclaim"
   ],
-  "remote_ci_current_candidate": "not_run_beforecandidatecommit",
+  "remote_ci_current_candidate": {
+    "head": "5eba068e7772eddc45b9a6289bd38adac047c78f",
+    "product_run": 40397829141,
+    "environment_run": 40397834035,
+    "environment_all3": "passed",
+    "product_rust": "passed",
+    "product_ui_including_real_browser": "passed",
+    "product_arm_and_intel": "failed_testcompile_rustix_mkfifoat_Apple_excluded",
+    "native_window": "not_reached",
+    "correction": "FixedPOSIXFIFOcreation withrealFIFOtypeassert, originalnotwaitingassertions retained; independently22runtime/fmtpass, macOSretry pending"
+  },
   "real_provider_models": "not_run_not_authorized",
   "production_release": "not_run_not_authorized",
   "signing_keys": "not_configured",

@@ -128,3 +128,13 @@ The final browser rerun at `provider-runtime-portability-browser/evidence.json` 
 STATUS/checkpoint record the integrator's guarded PR4 merge `dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7` after its seven checks/artifact review, and continue to mark this root candidate's remote/macOS GUI checks and full product scope unfinished. This reviewer did not infer a native GUI pass from Linux or browser tests, nor independently rerun PR4 macOS CI. Root source remains frozen with no further source blocker identified.
 
 Final EVIDENCE.json SHA-256 at this documentation check: `e76dc2436485ba1f874d51df36f4edb0e657c971eeabf0c6b604d2f7169de9a2`. ADR 0002 SHA-256: `9b4dfec2cef56191f9ab7088261de86e7256700efdda261bcbe737a45d9cac07`.
+
+## Apple-target FIFO test compilation follow-up
+
+At 2026-10-26T20:44:04.110523+00:00, reviewed the only source delta after committed `5eba068`: `crates/config/tests/runtime.rs` now creates its real private FIFO using `/usr/bin/mkfifo -m 600` and explicitly asserts FIFO file type. Original no-writer/bounded rejection assertions are unchanged; no production behavior or test skip changed. Independently reran all 22 runtime tests and workspace fmt: PASS. Current reviewed root source set is now 36 files (the prior 35 remain unchanged plus this test file). The frozen config-library source is unchanged, while its earlier test-file fingerprint is superseded by this fixture correction.
+
+Actual first root CI ARM job 121835580552 failed with rustix mkfifoat E0425; failure is preserved in `/workspace/.onboarding/provider-runtime-ci-121835580552.log`. This correction is ready for exact-candidate CI retry, not evidence of macOS compilation success. `CI_FOLLOWUP.md` records scope, commands and failure provenance.
+
+| New reviewed fixture file | SHA-256 |
+| --- | --- |
+| `crates/config/tests/runtime.rs` | `f9d3446916a0ec4961c077a2dc9cd85fe39d2eb9cbc7059cce3a90a1c09821ae` |

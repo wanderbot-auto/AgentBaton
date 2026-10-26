@@ -4,7 +4,7 @@ use agentbaton_config::{sha256, ErrorCode, Ownership};
 use serde_json::{json, Value};
 use std::{
     fs,
-    os::unix::fs::{symlink, MetadataExt, PermissionsExt},
+    os::unix::fs::{symlink, FileTypeExt, MetadataExt, PermissionsExt},
     path::{Path, PathBuf},
 };
 use tempfile::TempDir;
@@ -303,12 +303,16 @@ fn fifo_config_file_is_rejected_without_waiting_for_a_writer() {
     let snapshot = codex(&root);
     let file = snapshot.provider_configuration_root().join("config.toml");
     fs::remove_file(&file).unwrap();
-    rustix::fs::mkfifoat(
-        rustix::fs::CWD,
-        &file,
-        rustix::fs::Mode::RUSR | rustix::fs::Mode::WUSR,
-    )
-    .unwrap();
+    // rustix intentionally excludes mkfifoat on Apple targets. The POSIX fixture
+    // utility is present on both supported desktop/test hosts; retain the same
+    // real FIFO and no-writer assertion rather than skipping this regression.
+    assert!(std::process::Command::new("/usr/bin/mkfifo")
+        .args(["-m", "600"])
+        .arg(&file)
+        .status()
+        .unwrap()
+        .success());
+    assert!(fs::symlink_metadata(&file).unwrap().file_type().is_fifo());
     let started = std::time::Instant::now();
     assert!(root
         .verify_before_launch(&snapshot.descriptor(), RuntimeRequirements::default())
