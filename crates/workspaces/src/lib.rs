@@ -34,7 +34,10 @@ impl fmt::Display for WorkspaceError {
             Self::Io(e) => write!(f, "workspace I/O: {e}"),
             Self::InvalidPath => write!(f, "invalid or non-contained workspace path"),
             Self::NotRepository => write!(f, "not a Git working tree"),
-            Self::UnsafeRepository => write!(f, "repository uses unapproved checkout filters"),
+            Self::UnsafeRepository => write!(
+                f,
+                "repository requires unapproved configuration indirection, executable filters or external object access"
+            ),
             Self::Git(_) => write!(f, "Git operation failed; inspect repository state"),
             Self::Dirty => write!(f, "target has uncommitted or untracked files"),
             Self::StaleHead => write!(f, "target HEAD changed; validate the new candidate"),
@@ -85,6 +88,12 @@ fn git_command(root: &Path) -> Command {
         .env("GIT_CONFIG_GLOBAL", "/dev/null")
         .env("GIT_CONFIG_NOSYSTEM", "1")
         .env("GIT_TERMINAL_PROMPT", "0")
+        // Local inspection/isolation never authorizes promisor lazy fetches or
+        // repository-configured remote helpers (including ext/SSH helpers).
+        .env("GIT_NO_LAZY_FETCH", "1")
+        // Approved commit IDs refer to raw objects and their recorded ancestry.
+        .env("GIT_NO_REPLACE_OBJECTS", "1")
+        .env("GIT_GRAFT_FILE", "/dev/null")
         .arg("--no-optional-locks")
         .args([
             "-c",
@@ -95,6 +104,8 @@ fn git_command(root: &Path) -> Command {
             "core.attributesFile=/dev/null",
             "-c",
             "submodule.recurse=false",
+            "-c",
+            "protocol.allow=never",
             "-c",
             "protocol.file.allow=never",
         ])
@@ -158,6 +169,40 @@ fn git_text(root: &Path, args: &[&str]) -> Result<String, WorkspaceError> {
         .map_err(|_| WorkspaceError::InvalidPath)
 }
 
+fn reject_config_indirection(root: &Path) -> Result<(), WorkspaceError> {
+    // A future worktree gitdir can activate rules invisible in the source
+    // context. Audit declarations without following them; do not rewrite them.
+    let includes = bounded_output(git_command(root).args([
+        "config",
+        "--no-includes",
+        "--get-regexp",
+        "^include(if\\..*)?\\.path$",
+    ]))?;
+    if includes.status.success() {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    if includes.status.code() != Some(1) {
+        // Preserve malformed/unreadable repository rejection before probing it;
+        // a failed audit must never permit a later object or checkout operation.
+        return Err(WorkspaceError::NotRepository);
+    }
+    Ok(())
+}
+
+fn reject_partial_clones(root: &Path) -> Result<(), WorkspaceError> {
+    // Older Git versions may not honor GIT_NO_LAZY_FETCH. Refuse external object
+    // sources before status/checkout/object inspection can invoke their helpers.
+    let partial = bounded_output(git_command(root).args([
+        "config",
+        "--get-regexp",
+        "^(extensions\\.partialclone|remote\\..*\\.promisor)$",
+    ]))?;
+    if partial.status.success() || partial.status.code() != Some(1) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    Ok(())
+}
+
 fn reject_checkout_filters(root: &Path) -> Result<(), WorkspaceError> {
     // Even `status` can invoke clean/process filters when comparing a modified file.
     let filters = bounded_output(git_command(root).args(["config", "--get-regexp", "^filter\\."]))?;
@@ -175,6 +220,7 @@ pub fn inspect(root: &Path) -> Result<WorkspaceIdentity, WorkspaceError> {
     if !metadata.is_dir() {
         return Err(WorkspaceError::InvalidPath);
     }
+    reject_config_indirection(&canonical_root)?;
     let probe = output(
         &canonical_root,
         &[OsStr::new("rev-parse"), OsStr::new("--show-toplevel")],
@@ -189,6 +235,7 @@ pub fn inspect(root: &Path) -> Result<WorkspaceIdentity, WorkspaceError> {
         if top != canonical_root {
             return Err(WorkspaceError::InvalidPath);
         }
+        reject_partial_clones(&canonical_root)?;
         reject_checkout_filters(&canonical_root)?;
         let head = git_text(&canonical_root, &["rev-parse", "--verify", "HEAD^{commit}"])?;
         let common_dir = fs::canonicalize(git_text(
@@ -289,6 +336,8 @@ pub fn create_isolated(
     }
     // Checkout can invoke named clean/smudge/process filters. Reject their configuration rather
     // than running owner-unapproved code during worktree creation.
+    reject_config_indirection(&source.canonical_root)?;
+    reject_partial_clones(&source.canonical_root)?;
     reject_checkout_filters(&source.canonical_root)?;
     let verified = git_text(
         &source.canonical_root,
@@ -430,4 +479,45 @@ fn open_root_without_symlinks(root: &Path) -> Result<File, WorkspaceError> {
         current = unsafe { File::from_raw_fd(fd) };
     }
     Ok(current)
+}
+
+#[cfg(test)]
+mod raw_ancestry_tests {
+    use super::*;
+
+    #[test]
+    fn legacy_grafts_cannot_replace_raw_commit_parents() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        git_text(&root, &["init", "-b", "fixture"]).unwrap();
+        git_text(&root, &["config", "user.name", "Fixture"]).unwrap();
+        git_text(&root, &["config", "user.email", "fixture@example.invalid"]).unwrap();
+        let mut commits = Vec::new();
+        for content in ["A", "B", "C"] {
+            fs::write(root.join("file.txt"), content).unwrap();
+            git_text(&root, &["add", "file.txt"]).unwrap();
+            git_text(&root, &["commit", "-m", content]).unwrap();
+            commits.push(git_text(&root, &["rev-parse", "HEAD"]).unwrap());
+        }
+        let graft = root.join(".git/info/grafts");
+        fs::write(&graft, format!("{} {}\n", commits[2], commits[0])).unwrap();
+        let graft_before = fs::read(&graft).unwrap();
+        let index_before = fs::read(root.join(".git/index")).unwrap();
+        // Establish that the fixture actually changes ordinary Git ancestry.
+        let mut ordinary = git_command(&root);
+        ordinary.env("GIT_GRAFT_FILE", &graft);
+        let altered =
+            bounded_output(ordinary.args(["show", "-s", "--format=%P", &commits[2]])).unwrap();
+        assert!(altered.status.success());
+        assert_eq!(
+            String::from_utf8(altered.stdout).unwrap().trim(),
+            commits[0]
+        );
+        assert_eq!(
+            git_text(&root, &["show", "-s", "--format=%P", &commits[2]]).unwrap(),
+            commits[1]
+        );
+        assert_eq!(fs::read(&graft).unwrap(), graft_before);
+        assert_eq!(fs::read(root.join(".git/index")).unwrap(), index_before);
+    }
 }
