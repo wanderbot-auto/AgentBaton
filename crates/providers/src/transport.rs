@@ -106,6 +106,7 @@ pub struct ProviderProcess {
     stdin: Option<ChildStdin>,
     stdout: ChildStdout,
     stderr: ChildStderr,
+    stderr_eof: bool,
     buffered: Vec<u8>,
     scan_from: usize,
     eof: bool,
@@ -166,6 +167,7 @@ impl ProviderProcess {
             stdin: Some(stdin),
             stdout,
             stderr,
+            stderr_eof: false,
             buffered: Vec::new(),
             scan_from: 0,
             eof: false,
@@ -214,14 +216,22 @@ impl ProviderProcess {
         self.diagnostics.evidence_bytes += bytes;
         self.evidence.push(value.clone());
     }
-    fn drain_stderr(&mut self) -> Result<(), TransportFailure> {
+    fn drain_stderr(&mut self) -> Result<bool, TransportFailure> {
+        if self.stderr_eof {
+            return Ok(false);
+        }
         let mut chunk = [0u8; 4096];
+        let mut progressed = false;
         // Bound work per loop: an infinite stderr producer cannot starve stdout
         // parsing, timeout checks or cancellation.
         for _ in 0..16 {
             match self.stderr.read(&mut chunk) {
-                Ok(0) => break,
+                Ok(0) => {
+                    self.stderr_eof = true;
+                    break;
+                }
                 Ok(n) => {
+                    progressed = true;
                     self.diagnostics.stderr_bytes_observed = self
                         .diagnostics
                         .stderr_bytes_observed
@@ -232,6 +242,56 @@ impl ProviderProcess {
                 Err(e) if e.kind() == ErrorKind::Interrupted => continue,
                 Err(_) => return Err(TransportFailure::unknown(FailureKind::Io)),
             }
+        }
+        Ok(progressed)
+    }
+    fn wait_ready(&self, deadline: Instant, writing: bool) -> Result<(), TransportFailure> {
+        let remaining = deadline.saturating_duration_since(Instant::now());
+        if remaining.is_zero() {
+            return Err(TransportFailure::unknown(FailureKind::Timeout));
+        }
+        let (fd, events) = if writing {
+            (
+                self.stdin
+                    .as_ref()
+                    .ok_or(TransportFailure::unknown(FailureKind::Closed))?
+                    .as_raw_fd(),
+                libc::POLLOUT,
+            )
+        } else {
+            (self.stdout.as_raw_fd(), libc::POLLIN)
+        };
+        let mut descriptors = [
+            libc::pollfd {
+                fd,
+                events,
+                revents: 0,
+            },
+            libc::pollfd {
+                // poll ignores a negative descriptor; EOF must not produce
+                // an always-ready HUP loop while stdout is still idle.
+                fd: if self.stderr_eof {
+                    -1
+                } else {
+                    self.stderr.as_raw_fd()
+                },
+                events: libc::POLLIN,
+                revents: 0,
+            },
+        ];
+        // Wake when a small pipe refills instead of imposing a 2ms throughput
+        // floor on every producer/consumer scheduling handoff.
+        let timeout = remaining.min(Duration::from_millis(2)).as_millis().max(1) as i32;
+        // SAFETY: both descriptors are borrowed from live owned process pipes.
+        let result = unsafe {
+            libc::poll(
+                descriptors.as_mut_ptr(),
+                descriptors.len() as libc::nfds_t,
+                timeout,
+            )
+        };
+        if result < 0 && std::io::Error::last_os_error().kind() != ErrorKind::Interrupted {
+            return Err(TransportFailure::unknown(FailureKind::Io));
         }
         Ok(())
     }
@@ -247,7 +307,7 @@ impl ProviderProcess {
             if Instant::now() >= deadline {
                 return Err(TransportFailure::unknown(FailureKind::Timeout));
             }
-            self.drain_stderr()?;
+            let stderr_progress = self.drain_stderr()?;
             match self
                 .stdin
                 .as_mut()
@@ -257,7 +317,9 @@ impl ProviderProcess {
                 Ok(0) => return Err(TransportFailure::unknown(FailureKind::Closed)),
                 Ok(n) => offset += n,
                 Err(e) if e.kind() == ErrorKind::WouldBlock => {
-                    std::thread::sleep(Duration::from_millis(2))
+                    if !stderr_progress {
+                        self.wait_ready(deadline, true)?;
+                    }
                 }
                 Err(e) if e.kind() == ErrorKind::Interrupted => continue,
                 Err(_) => return Err(TransportFailure::unknown(FailureKind::Io)),
@@ -270,7 +332,7 @@ impl ProviderProcess {
             if Instant::now() >= deadline {
                 return Err(TransportFailure::unknown(FailureKind::Timeout));
             }
-            self.drain_stderr()?;
+            let stderr_progress = self.drain_stderr()?;
             if let Some(end) = self.buffered[self.scan_from..]
                 .iter()
                 .position(|b| *b == b'\n')
@@ -297,7 +359,14 @@ impl ProviderProcess {
                 Ok(0) => self.eof = true,
                 Ok(n) => self.buffered.extend_from_slice(&chunk[..n]),
                 Err(e) if e.kind() == ErrorKind::WouldBlock => {
-                    std::thread::sleep(Duration::from_millis(2))
+                    // A scheduler yield after useful work can wait for a full
+                    // scheduling handoff on every small-pipe refill. Continue
+                    // immediately: the bounded stderr batch, stdout read and
+                    // monotonic deadline already ensure per-loop fairness.
+                    // With no progress, poll sleeps until real readiness.
+                    if !stderr_progress {
+                        self.wait_ready(deadline, false)?;
+                    }
                 }
                 Err(e) if e.kind() == ErrorKind::Interrupted => continue,
                 Err(_) => return Err(TransportFailure::unknown(FailureKind::Io)),

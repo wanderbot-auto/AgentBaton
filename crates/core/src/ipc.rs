@@ -211,7 +211,9 @@ impl Daemon {
         FileExt::try_lock_exclusive(&lock)
             .map_err(|_| CoreError::new("WORKSPACE_BUSY", "A daemon already owns this runtime"))?;
         let db = runtime_dir.join("baton.sqlite3");
-        let _db_handle = private_file(&db)?;
+        // A non-SQLite close after Store::open can release this process's POSIX
+        // SQLite locks. Finish the private creation check before SQLite opens.
+        drop(private_file(&db)?);
         let store = Store::open(&db)?;
         let managed_root = runtime_dir.join("workspaces");
         ensure_runtime(&managed_root)?;
