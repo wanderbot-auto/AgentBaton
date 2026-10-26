@@ -1,5 +1,5 @@
 {
-  "recorded_at_utc": "2026-10-26T22:27:50.555245+00:00",
+  "recorded_at_utc": "2026-10-26T22:55:43.137937+00:00",
   "approval": "AB-START-001",
   "owner_inbox": "OWNER-001/002 ACK; protectedmain dc5aea0 actuallyread no newersequence",
   "branch": "codex/provider-runtime-adapters",
@@ -703,5 +703,23 @@
     "historical_stall_cause": "unproven; SDKsourcecorroboratesreentrancyrisk",
     "fresh_mac_ci": "not_run_yet",
     "worker_evidence_sha256": "6fa30236a0cdc37655100d2968dfa4f1b7de83fb56def50197040346f522297a"
+  },
+  "actual_ci_9edf": {
+    "head_sha": "9edf14e152e59f98971ffce925814a520a33a0a7",
+    "product_run": 40412628973,
+    "environment_run": 40412633797,
+    "checks": "all4Product+3Environment success at exact9edf",
+    "native": "ARMandIntel first/reopenedactualwindow+samepersistedtask/daemonlifecyclereport verified independently",
+    "native_review": "docs/execution/native-gui/SUCCESS_9EDF_REVIEW.md",
+    "native_verification_sha256": "e58178a9ee4f5a19280e95f228c3e5746f9ca5d93a9b853844887ac904902eae",
+    "development_packages": "docs/execution/provider-adapters/DEVELOPMENT_PACKAGES_9EDF.json",
+    "release_audit": "both actual default-release marker audit jobs/steps/logs passed",
+    "not_run": [
+      "nativeownerconfirmationdialog",
+      "realproductProvider/model/account",
+      "manualDMGinstall/minimumOS/sleep/login",
+      "fullDesignv0.2",
+      "production/signing/notarization"
+    ]
   }
 }
