@@ -11,3 +11,8 @@ Failures preserved: nested package docs broke recursive design link discovery; f
 Independent review corrected Git clean-filter execution, stale-socket restart, snapshot truncation, old-session reuse after reconnect, daemon readiness deadline and cross-root configuration journal binding. Final review and candidate commit pending.
 
 Not wired yet: Provider execution/session router, project registry, capability/profile workflows, full orchestration, validators/acceptance, history retention, remote Hosts and full desktop lifecycle. These remain in the complete requirement ledger; no MVP substitution or whole-product completion claim.
+
+
+At d64d57c actual Product run40368611277: Rust/UI and Intel native tests/build/package pass; ARM fails IPC create-state assertion before native host build. Environment run40368611069 all three pass. Error-first assertion and numeric-only SQLite diagnostic added for the previously unprinted error. A concrete same-inode non-SQLite fd close hazard is corrected before Store::open; this does not prove the historical ARM root cause.19 core tests/Clippy and30 socket/restart repetitions pass locally; fresh native CI required.
+
+Intel artifact12673060778 downloaded and API ZIP digest plus DMG SHA-256 verified. Checkout merge a88643778946bee9796730d99608c95bf5315572; DMG a91d4105aa0fd8b04358897e126c74823cd337874d534187d169c30ad580b105. Build record explicitly unsigned/no notarization, no GUI/manual acceptance. This foundation snapshot is not the complete product.

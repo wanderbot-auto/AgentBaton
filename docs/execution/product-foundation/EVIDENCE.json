@@ -87,11 +87,11 @@
       "observed_local_failure_excerpt": "small_stderr_pipe_progress_does_not_spend_the_response_deadline_sleeping: TransportFailure { kind: Timeout, side_effect_state: Unknown, protocol_error: None }"
     }
   ],
-  "native_arm64": "not_run",
-  "native_x86_64": "not_run",
+  "native_arm64": "failed_workspace_test_at_d64d57c_no_native_host_claim",
+  "native_x86_64": "workspace_and_native_host_tests_build_package_passed_at_d64d57c_GUI_unrun",
   "live_provider": "not_run_not_authorized",
   "production_release": "not_run_not_authorized",
-  "artifact_delivery": "pending_actual_ci",
+  "artifact_delivery": "verified_unsigned_Intel_foundation_snapshot_not_complete_product",
   "remote_ci": {
     "head_sha": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
     "product_run": 40362148029,
@@ -105,5 +105,36 @@
     "artifact_delivery": "not_run",
     "followup_head": "8dd441c1fbaa1342e546291ab3a69ec94defe32f",
     "followup_intel": "failed_same_fixture_peer_close"
-  }
+  },
+  "remote_ci_history": [
+    {
+      "head_sha": "d64d57cd59ca34aeb4a63e68bc1a6ceaac0c9a11",
+      "product_run": 40368611277,
+      "environment_run": 40368611069,
+      "environment_all_three": "passed",
+      "product_rust": "passed",
+      "product_ui": "passed",
+      "product_macos_x86_64": "passed_workspace_native_host_build_package",
+      "product_macos_arm64": "failed_before_native_host_build",
+      "failure": "socket_workflow_single_writer_and_restart_history create response lacked expected task; previous assertion did not print error; root cause unproven",
+      "intel_artifact": {
+        "id": 12673060778,
+        "checkout_merge_sha": "a88643778946bee9796730d99608c95bf5315572",
+        "zip_sha256": "85752a08096276cbea876d6434c00278a24483187bd8fd89002666037d3ccd59",
+        "dmg_sha256": "a91d4105aa0fd8b04358897e126c74823cd337874d534187d169c30ad580b105",
+        "signature": "unsigned",
+        "notarization": "not_configured",
+        "gui_acceptance": "not_run",
+        "download_digest_and_dmg_checksum": "verified"
+      }
+    }
+  ],
+  "sqlite_followup": {
+    "historical_failure_cause": "unproven",
+    "fix": "Close non-SQLite precreation fd before Store::open to avoid documented POSIX SQLite same-inode close hazard",
+    "diagnostic": "Only numeric SQLite extended error code; test asserts error absent before task state",
+    "local_tests": "19 core tests, Clippy and30 actual socket/restart repetitions passed",
+    "native": "new_run_required"
+  },
+  "updated_at_utc": "2026-10-26T18:19:50.235910+00:00"
 }

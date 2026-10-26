@@ -123,3 +123,12 @@ Both actual macOS jobs at30a70d8 pass IPC size/parser tests and next fail9 fixtu
 ## Follow-up: actual small-pipe stderr backpressure
 
 Actual e732be1 ARM stdio10/11 pass; unchanged4MiB/500ms stderr stress exposed unconditional2ms sleep throughput loss. Independent reviewer approved deadline-capped libc::poll readiness,16read fairness and disabled closed-stderr descriptor, retaining original volumes/timeouts. New Linux4096-byte pipe regression reproduces failure with progress-only sleeping and passes corrected readiness. All32 provider tests and Clippy pass locally; actual Mac rerun stillrequired. Source hashes: transport=83ea578094102bfc4f16359a40d0291502319daf49a3e4a43a55e372f2c215e6,stdio=4c1f01f56ca5c6ea9b3852867b0f465565e3cafd9262a71d8f97876ec784f5ef.
+
+
+## Follow-up: SQLite fd lifetime and failure diagnostics
+
+Independent reviewer approved dropping the private precreation fd before Store::open, avoiding the documented POSIX same-inode non-SQLite-close locking hazard. SqliteFailure exports only numeric extended_code; no SQL, paths or bound values. IPC now asserts no error before task state, strengthening diagnosis. Reviewer independently ran19 core tests successfully. Main reran core tests/Clippy and bootstrap integrity. Historical ARM Null root cause remains unproven; no native success asserted until fresh CI.
+
+- `crates/core/src/ipc.rs`: `431e0cae09f5b157708c67640b502032060108630d1dd26a2c7973b834df8da1`
+- `crates/core/src/storage.rs`: `00da6e57cdf1da2d4b638a1787fc3f0bc3a80350f50e1df74b6bbf1e7a6ae6cd`
+- `crates/core/tests/ipc.rs`: `26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28`

@@ -37,12 +37,16 @@ pub struct Event {
     pub payload: Value,
     pub source: String,
 }
-pub(crate) fn db_error(_: rusqlite::Error) -> CoreError {
+pub(crate) fn db_error(error: rusqlite::Error) -> CoreError {
     let mut e = CoreError::new(
         "INTERNAL_ERROR",
         "Local database operation failed; reconcile before retrying writes",
     );
     e.side_effect_state = "unknown".into();
+    // Numeric diagnostics only: never expose SQL, paths or bound values.
+    if let rusqlite::Error::SqliteFailure(code, _) = error {
+        e.details_ref = Some(format!("sqlite-code:{}", code.extended_code));
+    }
     e
 }
 pub(crate) fn now() -> Result<String> {

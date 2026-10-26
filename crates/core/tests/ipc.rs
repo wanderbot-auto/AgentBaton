@@ -58,6 +58,10 @@ fn socket_workflow_single_writer_and_restart_history() {
     let server = Server::new(&path);
     assert_eq!(Daemon::bind(&path).err().unwrap().code, "WORKSPACE_BUSY");
     let response=server.request(json!({"method":"tasks.create","params":{"goal":"real persistent task"},"idempotency_key":"k"}));
+    assert!(
+        response.get("error").is_none(),
+        "tasks.create failed: {response}"
+    );
     let task = response["result"].clone();
     assert_eq!(task["state"], "draft");
     assert_eq!(
