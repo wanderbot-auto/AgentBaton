@@ -1,6 +1,6 @@
 # Actual frontend screenshots
 
-These are the implemented React product, connected to a real temporary daemon/SQLite through the test-only localhost invoke adapter. The six displayed draft goals were entered through actual UI operations; no Provider executed them. These are not the supplied prototype, native macOS screenshots, real agent results or full-product acceptance. Sourced9e328a; exactPNG hashes and commands are in EVIDENCE.json.
+These are the implemented React product, connected to a real temporary daemon/SQLite through the test-only localhost invoke adapter. The six displayed draft goals were entered through actual UI operations; no Provider executed them. These are not the supplied prototype, native macOS screenshots, real agent results or full-product acceptance. Sourcebf042ec; exactPNG hashes and commands are in EVIDENCE.json.
 
 | Viewport | Home | Focused task |
 | --- | --- | --- |

@@ -29,3 +29,11 @@ Core/native/locks match incoming session except thatcfg(test) fixture correction
 Merged851fa073 into UI4edd6c4 as sourcef720a65. The only conflict was the library error display; the broader incoming UnsafeRepository message and existing UnverifiedIndex branch are both retained. Existing hidden-index/stat protections remain alongside partial-clone/lazy-fetch refusal and raw replacement/graft identity flags. The final library is byte-identical to the primary composite reference9fe2cae. No adoption/profile/schema or lock scope is added.
 
 Actual verification:22workspace tests and197top-level Rust tests, formatting, Clippy and92file integrity pass. All frontend source/test files are byte-identical to4edd6c4; prior46UI/typecheck/build and22actualbrowser/8screenshot evidence is retained rather than falsely reported as rerun. Incoming focused17/128 evidence and prior193/46 histories remain separate. Final combined review and actual newheadmacOS CI are still necessary.
+
+## Conditional configuration and asynchronous fixture follow-up
+
+Merged `32ca76eb` into `ee6` as `5fcfd698`, retaining all 18 prior workspace protections. Any include/includeIf declaration is now refused before the first status/revparse and before child checkout; raw-object identity flags remain. The composite library matches the primary SHA `796e8cf7`. No adoption, profile, schema5 or dependency scope was added.
+
+Source `bf042ec` also ports only the common SessionWorkbench asynchronous act helper, awaits all callers and adds a deferred scope-response test. Actual primary F3 Intel CI run `40401378109`, job `121847819047`, captured Loading when the first ready-option query failed. This fixture correction does not establish an old Baton, product deadline or performance root cause. No production timeout, test timeout or previous assertion changed.
+
+Actual local passes: 24 workspace tests, 199 top-level Rust tests, 47 UI tests, typecheck/build/fmt/Clippy, and 22 actual browser/UnixIPC checks with 8 fresh screenshots from the current compiled daemon. Previous 197/46 histories and the actual failed CI log remain preserved. Independent combined review and actual new-head macOS CI remain required.
