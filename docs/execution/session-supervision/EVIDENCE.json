@@ -1,13 +1,23 @@
 {
-  "unit": "session-schema4-portability-followup",
+  "unit": "session-schema4-protected-main-registry-integration",
   "authorization": "AB-START-001",
-  "recorded_at_utc": "2026-10-26T20:35:43.780727+00:00",
-  "tested_commit": "e261740f9e102142f3be47219dc495d26909a8b1",
+  "recorded_at_utc": "2026-10-26T20:42:45.938226+00:00",
+  "tested_commit": "60715b9137e89ed20659094c9308e52b06b94956",
+  "merge_parents": [
+    "7124256326d94efb55e184613fa93865316aecc9",
+    "dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7"
+  ],
   "schema_version": 4,
+  "owner_inbox": "OWNER001/002 read at protected-main dc5aea0; ACK; no new authority",
   "previous_checkpoint": {
-    "commit": "80e6431b99c24bc2f86f83dc9a7eabd70b3ef23b",
-    "evidence": "EVIDENCE.history-bounds-80e.json",
-    "sha256": "88fcfc4eaa7c9e4732dba7727bbf37e2a81ebb2a89d396c50ce1356f8f789772"
+    "commit": "51ed39d0402fdc16d7d8683f592e3708870e9445",
+    "evidence": "EVIDENCE.portability-51ed.json",
+    "sha256": "a2e7d58d850666e1ba309a4fd6320565cfe0ec3c2f8da223256260f61973cf06"
+  },
+  "conflicts": {
+    "ipc": "Complete session actor retained; main shared blocking/deadline helper used by worker; both delayed-frame regressions retained; authenticated NOT_FOUND and no-journal assertions unchanged.",
+    "status": "Both stage2/stage3 blobs archived byte-for-byte; currentSTATUS reflects latestmain and session scope.",
+    "manifest": "Both parents have identical92 paths and all hashes exceptSTATUS; onlySTATUS hash recomputed."
   },
   "environment": {
     "os": "Linux local cloud",
@@ -15,51 +25,6 @@
     "CARGO_BUILD_JOBS": "2",
     "CARGO_HOME": "/workspace/.toolchains/cargo",
     "RUSTUP_HOME": "/workspace/.toolchains/rustup"
-  },
-  "changes": {
-    "production": "socket_worker explicitly resets accepted UnixStream to blocking before bounded first-frame read; on reset failure only the owned client worker returns. Actor/schema4/session/native-owner APIs unchanged.",
-    "fixtures": "Only fresh test-owned policy/registry managed roots use explicit Builder permissions0700. Ordinary source directories and production private-root checks unchanged; rejection assertions preserved.",
-    "regression": "Delayed complete first frame on inherited nonblocking stream; existing NOT_FOUND integration assertions unchanged."
-  },
-  "old_controls": {
-    "base": "80e6431b99c24bc2f86f83dc9a7eabd70b3ef23b",
-    "checks": [
-      {
-        "name": "socket-old-control",
-        "command": [
-          "cargo",
-          "test",
-          "--locked",
-          "-p",
-          "agentbaton-core",
-          "--lib",
-          "ipc::frame_tests::inherited_nonblocking_stream_waits_for_the_delayed_complete_first_frame",
-          "--",
-          "--exact"
-        ],
-        "exit_code": 101
-      },
-      {
-        "name": "policy-umask022-old-control",
-        "command": [
-          "bash",
-          "-c",
-          "umask 022; cargo test --locked -p agentbaton-core --test policy"
-        ],
-        "exit_code": 101
-      }
-    ],
-    "note": "Only added the identical delayed-frame regression before production blocking reset; no production change during controls."
-  },
-  "test_counts": {
-    "rust_top_level": 192,
-    "core": 69,
-    "config": 45,
-    "providers": 58,
-    "workspaces": 18,
-    "daemon_signals": 2,
-    "nested_child_harness": "one extra child result excluded from total",
-    "ui": 35
   },
   "checks": [
     {
@@ -103,106 +68,107 @@
       "exit_code": 0
     },
     {
-      "name": "design",
       "command": "python3 scripts/validate_design.py",
       "exit_code": 0
     },
     {
-      "name": "infrastructure",
       "command": "python3 scripts/validate_infrastructure.py",
       "exit_code": 0
     },
     {
-      "name": "infrastructure-tests",
       "command": "python3 -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
       "exit_code": 0,
       "tests": 28
     },
     {
-      "name": "node-infrastructure",
       "command": "node --test tests/infrastructure/node-smoke.test.mjs",
       "exit_code": 0,
       "tests": 4
     },
     {
-      "name": "manifest",
       "command": "python3 scripts/verify_bootstrap_manifest.py",
       "exit_code": 0,
       "files": 92
     }
   ],
+  "test_counts": {
+    "rust_top_level": 193,
+    "core": 70,
+    "config": 45,
+    "providers": 58,
+    "workspaces": 18,
+    "daemon_signals": 2,
+    "nested_child_harness": "one extra nested child result excluded from total",
+    "ui": 35
+  },
   "logs": {
     "bins.log": {
-      "path": "artifacts/session-portability/bins.log",
-      "sha256": "70e6105dfcc005749dc8a74e1b0a39d82d1eabb40caf10eb1b09cb97cf5b8eda"
+      "path": "artifacts/session-main-integration/bins.log",
+      "sha256": "0254d76f4f88cc0d8b230fb73a897dd403bb4257eaf6ff6a3e6afef2102da08d"
     },
     "clippy.log": {
-      "path": "artifacts/session-portability/clippy.log",
-      "sha256": "785aa97b783dce270208aa47aecf7058c98ab7d77fea68e249ee6f55002b3ff7"
+      "path": "artifacts/session-main-integration/clippy.log",
+      "sha256": "01753a681357b46ac5d4bd40990437a44f348675c652a0b029ecd1aa0ce9cb9b"
     },
     "design.log": {
-      "path": "artifacts/session-portability/design.log",
-      "sha256": "13f3ba39b74002504ef5eaa0c79373f3ab89ab93867a0dd3f7857a38f29d5b41"
+      "path": "artifacts/session-main-integration/design.log",
+      "sha256": "da2d9f87a7c0feccd5ad4d099e1412c89864c3250a9e94a816000fa09c838f1a"
     },
     "fmt.log": {
-      "path": "artifacts/session-portability/fmt.log",
+      "path": "artifacts/session-main-integration/fmt.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     "infrastructure-tests.log": {
-      "path": "artifacts/session-portability/infrastructure-tests.log",
-      "sha256": "bde849db28391d3df5e53a875ddbfb1d02cd4c9317db47ab75e1be45ad0de9c1"
+      "path": "artifacts/session-main-integration/infrastructure-tests.log",
+      "sha256": "a3b20e4121f30f45ab015f702843b8061af474fcab09fb957c6b1be8370df8d1"
     },
     "infrastructure-validation.log": {
-      "path": "artifacts/session-portability/infrastructure-validation.log",
+      "path": "artifacts/session-main-integration/infrastructure-validation.log",
       "sha256": "46e4ac329e7e80c107a211f612239b8ef43487f11156a26fafcd0507d7cee4b5"
     },
+    "manifest.log": {
+      "path": "artifacts/session-main-integration/manifest.log",
+      "sha256": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f"
+    },
     "node-infrastructure.log": {
-      "path": "artifacts/session-portability/node-infrastructure.log",
-      "sha256": "4822e4178dfb53b7a8f0b9d235ba25ad763dffe0f973a44079d4b8de08350585"
+      "path": "artifacts/session-main-integration/node-infrastructure.log",
+      "sha256": "7388c5356e137555b690c910d4b05e875631fd985436bec72182b7eb896b8492"
     },
-    "old-controls.json": {
-      "path": "artifacts/session-portability/old-controls.json",
-      "sha256": "a6e14e5bf71c4a8090fe185df028bb28116eb0a63182c6815ecc11a580d875d4"
-    },
-    "policy-umask022-old-control.log": {
-      "path": "artifacts/session-portability/policy-umask022-old-control.log",
-      "sha256": "1ffee488e9c57231471e010556056f0e9c2303cf99c3aa7824baf43c8fe19491"
+    "preserved-reviews.json": {
+      "path": "artifacts/session-main-integration/preserved-reviews.json",
+      "sha256": "6bb6efd921299520a1845268f87f68c798f4dfad90d00b22457a49ab1d856d65"
     },
     "restart-smoke.log": {
-      "path": "artifacts/session-portability/restart-smoke.log",
+      "path": "artifacts/session-main-integration/restart-smoke.log",
       "sha256": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805"
     },
     "rust-checks.json": {
-      "path": "artifacts/session-portability/rust-checks.json",
+      "path": "artifacts/session-main-integration/rust-checks.json",
       "sha256": "6d4069a1b0b58d2d0226b80a2395545291c3a72fac49e903ed6bc10cee36e3eb"
     },
     "rust-tests.log": {
-      "path": "artifacts/session-portability/rust-tests.log",
-      "sha256": "e4cbc915067114e91b6e788f7a31f4b1b40c80930bcb27de4dfc2884b722feef"
+      "path": "artifacts/session-main-integration/rust-tests.log",
+      "sha256": "8ab5fa524a7d300527b4ec20890381e8575ea8c5da3a4c9fe7ac91dbd4386189"
     },
-    "socket-old-control.log": {
-      "path": "artifacts/session-portability/socket-old-control.log",
-      "sha256": "b608ac580c123ab869e56d93e805f33bb9cf2295ef8adbb6cdef17073f795775"
+    "status-archives.json": {
+      "path": "artifacts/session-main-integration/status-archives.json",
+      "sha256": "5dd099f70bb8cc1eff3ffe810558d4a25ffd5d6dc1bf10ee393c6008223191c5"
     },
     "ui-build.log": {
-      "path": "artifacts/session-portability/ui-build.log",
-      "sha256": "f8898ad6d152e15f1f4cc721032c22aa535fec8525eff910b822a5bc787d0d36"
+      "path": "artifacts/session-main-integration/ui-build.log",
+      "sha256": "6deceb27693287fc87c17a0bbcb22430422fa878b3f233578c79619aa9947b05"
     },
     "ui-checks.json": {
-      "path": "artifacts/session-portability/ui-checks.json",
+      "path": "artifacts/session-main-integration/ui-checks.json",
       "sha256": "4abe3e2784518382bba6fcf0d5181cb2428ff127a93275cc813a36b1fd087f4d"
     },
     "ui-tests.log": {
-      "path": "artifacts/session-portability/ui-tests.log",
-      "sha256": "459167c715b9a90b87e543306a5860c4efe0bfcfb18762a763374c9e8c81a89a"
+      "path": "artifacts/session-main-integration/ui-tests.log",
+      "sha256": "179397cae45c9830b3780123e0e4a47ae94c7e53eb9711b3716e3396db1493ce"
     },
     "ui-typecheck.log": {
-      "path": "artifacts/session-portability/ui-typecheck.log",
+      "path": "artifacts/session-main-integration/ui-typecheck.log",
       "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
-    },
-    "manifest.log": {
-      "path": "artifacts/session-portability/manifest.log",
-      "sha256": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f"
     }
   },
   "source_hashes": {
@@ -240,7 +206,7 @@
     "crates/config/tests/transactions.rs": "efb15cab097e5751557e665e3d846e31641a813adbe1604ec39e5318cb768212",
     "crates/core/Cargo.toml": "e5debd15030a5e2c49b28d5c4c9fc061b18a39fd0b90d08225f946e0d5c3e323",
     "crates/core/src/execution.rs": "8ca281e755206dae172299892c65299b884383961ff4af2219141f4353f841b5",
-    "crates/core/src/ipc.rs": "7e11083700413641bdafa8d375162c468540ea5357ad0495d04b6df33f73bf02",
+    "crates/core/src/ipc.rs": "b2f8de10fffd5f67b1380002fcae874a99e2363e1c08282077d58b7768f3fa51",
     "crates/core/src/lib.rs": "26db2de6d9015c40d2c2bfbed65ce53ba334b87d82eb4c398b3fc5d7a93ab53f",
     "crates/core/src/policy.rs": "d604dd00946ea1d2ffdfe09dfadefea48d1d9e34af3a134adc227e61a528c386",
     "crates/core/src/registry.rs": "4c339c794bdf2cb67e3320bafa81ae789eb9b5b34b4da9ca65ab650b3065d27d",
@@ -274,17 +240,20 @@
     "crates/workspaces/tests/safety.rs": "aea419fc8d4f4640d1522170063b034a958c2be2951714cbe1cf2cf8bc990420",
     "scripts/smoke-local-product.py": "5f05c2c074f30966cba029f8e80faf7ca4b96e7c17c2fcbab1fb0f1d606c23f4"
   },
-  "independent_review_file": {
-    "path": "docs/execution/session-supervision/INTEGRATION_REVIEW.md",
-    "sha256": "cca900cf1aad333f97d76bbbe5b5e79798ce50dbe932b4c0c17e408c5d70e493",
-    "status": "pre-existing untracked reviewer file preserved unchanged, not included in this unit commit"
+  "preserved_reviews": {
+    "docs/execution/session-supervision/INTEGRATION_REVIEW.md": "cca900cf1aad333f97d76bbbe5b5e79798ce50dbe932b4c0c17e408c5d70e493",
+    "docs/execution/session-supervision/PORTABILITY_REVIEW.md": "98d7be460ba1362d50c76d43075610d8f2ea6df8b4f2cba2529ef2b3dd812243"
+  },
+  "preserved_status_snapshots": {
+    "STATUS.before-main-7124256.md": "c89e60e4d0b784ee9a19ddeb94d3a22c0254502dab83e194aab126b1f0aee263",
+    "STATUS.incoming-main-dc5aea0.md": "dc713692626373273531c9f8a2a62e22098349feb2aa09da225c4efe0ef3bfb0"
   },
   "remaining_limits": {
-    "historical_arm_ci_root_cause": "accepted-socket O_NONBLOCK inheritance is supported by Apple/XNU references in registry CI_FOLLOWUP; the historical CI process flag itself was not captured, so exact prior ARM cause remains unproven",
-    "current_macos_native_ci": "not_run",
-    "native_host_current_candidate": "not_run",
-    "remote_ci": "not_run_current_candidate",
+    "independent_merge_review": "pending",
+    "current_macos_native_remote_ci": "not_run",
+    "prior_pr3_pr4_acceptance": "historical prerequisite evidence, not sessioncandidate acceptance",
     "real_vendor_models_accounts": "not_run_not_authorized",
+    "primary_worktree_schema5": "not_modified_or_imported",
     "push_main_merge": "not_performed",
     "full_product": "incomplete"
   }

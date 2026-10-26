@@ -1,3 +1,16 @@
+# Current protected-main session integration checkpoint
+
+
+## Protected-main registry merge
+
+Source `60715b9137e89ed20659094c9308e52b06b94956` merges reviewed session7124256 with protected-main dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7, whose commit records PR#4 merged. OWNER001/002 re-read and ACK. IPC conflict resolution retains the complete session actor/run loop and existing worker delayed-frame regression, takes incoming configure_accepted_stream and authenticated delayed-frame/NOT_FOUND regression, and calls that helper from socket_worker. This preserves explicit blocking mode and3s deadlines; a configuration failure returns only that client worker. Source change relative712 is only this IPC consolidation/new regression. No schema5/native-provider code or dependency change.
+
+STATUS is current session scope with PR3/4 merged; previous session and incoming-main STATUS bytes are archived verbatim in STATUS.before-main-7124256.md and STATUS.incoming-main-dc5aea0.md. Manifest path set and every hash exceptSTATUS are identical between both parents. Both committed INTEGRATION_REVIEW and PORTABILITY_REVIEW bytes are unchanged.
+
+Under022,193 top-level Rust tests(core70/config45/providers58/workspaces18/daemon signal2; nested child excluded),35 UI/typecheck/build, Clippy/fmt, real daemon/CLI SIGKILL restart, design/infrastructure28 Python+4 Node andmanifest92 pass. EVIDENCE binds exact source/log hashes. Currentcandidate Mac/native/remote CI and independent merge review remain pending. Previous portability51ed evidence is preserved verbatim; previous failure logs remain failures. No push/main merge/live vendor/account/model action by this isolated integration task. Full product remains incomplete.
+
+## Preserved previous checkpoint
+
 # Current session portability checkpoint
 
 ## CI portability follow-up
