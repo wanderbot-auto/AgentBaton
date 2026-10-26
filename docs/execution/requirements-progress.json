@@ -1283,6 +1283,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     },
     {
@@ -1316,6 +1329,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     },
     {
@@ -1349,6 +1375,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     },
     {
@@ -1382,6 +1421,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     },
     {
@@ -1448,6 +1500,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     },
     {
@@ -1481,6 +1546,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     },
     {
@@ -2324,6 +2402,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     },
     {
@@ -3237,6 +3328,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     },
     {
@@ -3270,6 +3374,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     },
     {
@@ -3303,6 +3420,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     },
     {
@@ -3608,6 +3738,19 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "280c92a",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete"
+        }
       ]
     }
   ]

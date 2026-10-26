@@ -33,7 +33,7 @@ mod tests {
     use crate::sessions::ManagedSession;
     use std::{
         fs,
-        os::unix::fs::{symlink, PermissionsExt},
+        os::unix::fs::{symlink, OpenOptionsExt, PermissionsExt},
         path::{Path, PathBuf},
         process::Command,
     };
@@ -81,6 +81,18 @@ mod tests {
             .tempdir()
             .unwrap();
         let database = directory.path().join("baton.sqlite3");
+        // Match the daemon's private-file preparation even with umask022;
+        // Store itself also serves explicitly selected non-runtime databases.
+        fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(&database)
+            .unwrap();
+        assert_eq!(
+            fs::metadata(&database).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
         let source = directory.path().join("source");
         fs::create_dir(&source).unwrap();
         git(&source, &["init", "--initial-branch=main"]);
