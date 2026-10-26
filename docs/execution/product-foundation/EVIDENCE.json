@@ -1,6 +1,6 @@
 {
   "base_commit": "e158ade1a99e063ddce703ce4c0748febe449b43",
-  "candidate_commit": null,
+  "candidate_commit": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
   "scope": "partial product foundation, integration candidate not yet committed",
   "recorded_at_utc": "2026-10-26T16:43:04.829410+00:00",
   "checks": [
@@ -59,11 +59,40 @@
       "command": "cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml",
       "reason": "missing glib-2.0 on Linux",
       "resolution": "native macOS CI pending; not passed"
+    },
+    {
+      "command": "Product validation / macOS core tests",
+      "reason": "oversized fixture trailing newline caused platform-valid peer-close write errors",
+      "resolution": "send exactly MAX_FRAME+1 bytes; resource-limit and authenticated liveness assertions retained; independent review approved;5 Linux IPC tests passed;Mac rerun pending"
+    },
+    {
+      "command": "Product / macos-15-intel at8dd441c",
+      "reason": "Darwin still permits EPIPE during oversized write even when exact bounded-reader bytes were sent; initial newline-only correction was insufficient",
+      "resolution": "direct parser RESOURCE_LIMIT test plus close-aware integration test retaining authenticated liveness;19 Linux core tests and Clippy passed;independent review approved;fresh native CI pending"
+    },
+    {
+      "command": "Product / macos-15-intel at84adc45",
+      "reason": "known interrupted oversized send yielded truthful PROVIDER_DISCONNECTED while direct bound parser test passed",
+      "resolution": "4096-byte writes track full delivery;permit transport error only for known interrupted send;requireRESOURCE_LIMIT after complete delivery;assert tasks/journal unchanged and authenticated liveness;independent review approved,19 local core tests/Clippy passed;fresh Mac pending"
     }
   ],
   "native_arm64": "not_run",
   "native_x86_64": "not_run",
   "live_provider": "not_run_not_authorized",
   "production_release": "not_run_not_authorized",
-  "artifact_delivery": "pending_actual_ci"
+  "artifact_delivery": "pending_actual_ci",
+  "remote_ci": {
+    "head_sha": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
+    "product_run": 40362148029,
+    "environment_run": 40362147943,
+    "product_rust": "passed",
+    "product_ui": "passed",
+    "product_macos_arm64": "failed",
+    "product_macos_x86_64": "failed",
+    "failure": "oversized fixture extra unread newline allowed macOS BrokenPipe/NotConnected during write; server boundary remained correct",
+    "native_host_build": "not_run_due_to_earlier_test_failure",
+    "artifact_delivery": "not_run",
+    "followup_head": "8dd441c1fbaa1342e546291ab3a69ec94defe32f",
+    "followup_intel": "failed_same_fixture_peer_close"
+  }
 }

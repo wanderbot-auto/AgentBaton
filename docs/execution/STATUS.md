@@ -21,3 +21,9 @@ Next: push reviewed candidate as PR, inspect exact-SHA CI and development artifa
 Active branch `codex/project-registry`, based03878121, prerequisite PR#3 pending. Persistent project/workspace and draft binding are now real IPC/UI workflows; capability/provenance libraries remain unintegrated. Local121 Rust tests,15 mocked UI tests, typecheck/build/fmt/Clippy, real restart smoke and28 Python infrastructure checks passed. Independent review in project-registry/REVIEW.md. PR#3 macOS builds still have no success/artifact evidence; current reviewed test candidate30a70d8 awaits CI. Next: persist verified connections/grants and connect actual owned session supervision, preserving all remaining full-product scope.
 
 Reusable environment install_script/start_skill updated to consult current product authorization and reproduce Rust/frontend workflows; saved draft requires environment-settings review/save/publication, and has not applied runtime or published anything.
+
+## Foundation CI follow-up record
+
+PR: https://github.com/wanderbot-auto/AgentBaton/pull/3, head03878121. Remote Rust/UI passed; both macOS product jobs failed on an oversized-test fixture peer-close race before native host compilation. Test-only correction independently reviewed and5 local IPC tests passed; fresh exact-SHA checks pending. No native artifact delivered yet.
+
+Latest prerequisite candidate:30a70d8; fourth causal fixture revision awaiting native CI. No main merge or artifact delivery claimed.

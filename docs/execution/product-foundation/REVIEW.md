@@ -101,3 +101,17 @@ SHA-256 hashes are from the reviewed working tree. Review evidence does not cove
 | `scripts/smoke-local-product.py` | `5f05c2c074f30966cba029f8e80faf7ca4b96e7c17c2fcbab1fb0f1d606c23f4` |
 | `scripts/validate_design.py` | `23427936c31e292b46ea6596d0523873e31e26962a71ca27041654ed3965b850` |
 | `tests/infrastructure/test_design_discovery.py` | `077925c8da41255a42b60b8f91d15daed3e3f6702635ce227bf90f10677cad64` |
+
+## Follow-up: macOS oversized-frame fixture
+
+Independent reviewer approved the test-only correction after inspecting both failed CI job logs: send exactly MAX_FRAME+1 bytes without an unread trailing newline. RESOURCE_LIMIT and authenticated daemon liveness assertions remain. Five local IPC tests passed; new native CI required. Reviewed ipc test SHA-256: cd84c80bc4b66dfa59b4b3d3814a4251b4f47026dd102b9aa3501ed755e81118.
+
+## Follow-up: parser versus socket delivery
+
+The newline-only correction did not eliminate Darwin early-close EPIPE. Independent review approved separating the direct size-parser RESOURCE_LIMIT assertion from best-effort socket error delivery. Integration still rejects timeout/unexpected IO and checks a subsequent authenticated snapshot. Targeted19 core tests and Clippy passed on Linux; fresh native CI required.
+
+Reviewed source hashes: ipc.rs=5ab59b07bdeea4595637e7c1d26073959ba70993cc20a65ceb1758eaf254416c; tests/ipc.rs=2dde36f7ce925bb53b725d7c3aa5b6d55284af5803d66eb3f24fc9f58bf3e453.
+
+## Follow-up: interrupted versus complete oversized input
+
+Independent reviewer approved4096-byte writes with delivery tracking and write-half shutdown. A delivered transport error is accepted only for a known interrupted send; fully sent frames still require RESOURCE_LIMIT when response delivered. Fresh authenticated snapshot also requires tasks=[] and sequence0. Direct parser bound test retained;19 local core tests and Clippy passed. Reviewed test hash: 44e59d276006628543b0579c3ffb17e6bd2f9a491f2ede95cca1fed1e1aa8711. Fresh native CI remains required.
