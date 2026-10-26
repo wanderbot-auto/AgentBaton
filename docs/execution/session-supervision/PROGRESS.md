@@ -13,3 +13,10 @@ Fast-forwarded audited7a6a46b; local mergesa159aed/8f94696 retain registrya429cb
 ## Byte-bounded journal and display history
 
 Source695144b bounds raw event pages at4MiB before document fetch/decode, preserving cursors and exact oversized-record error. The legacy frontend has8MiB/500-record display bounds with explicit local-retention/page notices and keeps task controls usable when history alone is refused.191 top-level Rust+35 UI/helper tests, typecheck/build/fmt/Clippy, actual restart smoke and infrastructure/integrity pass. No schema5/QuietCanvas/native-route copy; full pagination remains UI7 work. Original8302 checkpoint/evidence is preserved as history.
+
+
+## CI portability follow-up
+
+Tested source `e261740f9e102142f3be47219dc495d26909a8b1` minimally adds explicit blocking reset before socket-worker first-frame reads and a bounded delayed-frame regression. Only fresh test-owned policy/registry managed roots get explicit Builder0700 permissions; imported sources, production root guards and all original negative assertions remain unchanged. No schema5/native-provider or primary-tree source copied.
+
+The old-code controls failed101 as expected: the new delayed-frame test hits BrokenPipe; under022 all13 policy tests fail on private managed-root checks. These original failures remain in artifacts/session-portability. The corrected source passes under022:192 top-level Rust tests(core69/config45/providers58/workspaces18/daemon signal2; nested child not double-counted),35 UI tests, typecheck/build/fmt/Clippy, actual daemon/CLI SIGKILL restart, design and28 Python/4 Node infrastructure tests. Prior80e evidence is archived verbatim as EVIDENCE.history-bounds-80e.json. Current Mac/native/remote CI is not run and the historical ARM CI root cause is not claimed proven. No push/main merge or live vendor/account/model calls.

@@ -8,6 +8,13 @@ Historical integration sourcebc47ea1:189 top-level Rust tests,28 UI mocked tests
 
 Current history resource source695144b:191 top-level Rust tests and35 UI/helper tests plus typecheck/build/fmt/Clippy, real daemon/CLI restart, design/infrastructure28/manifest92 pass. Raw event pages are4MiB before document read/decode; visible legacy history is8MiB/500 records with local-retention notices. Oversized records are refused, never skipped/deleted. Full UI7 cursor navigation, independent review and current-candidate native/remote CI remain pending. Schema stays4; no primary runtime/schema5 or QuietCanvas layout copied. Prior8302 evidence is archived verbatim.
 
+
+## CI portability follow-up
+
+Tested source `e261740f9e102142f3be47219dc495d26909a8b1` minimally adds explicit blocking reset before socket-worker first-frame reads and a bounded delayed-frame regression. Only fresh test-owned policy/registry managed roots get explicit Builder0700 permissions; imported sources, production root guards and all original negative assertions remain unchanged. No schema5/native-provider or primary-tree source copied.
+
+The old-code controls failed101 as expected: the new delayed-frame test hits BrokenPipe; under022 all13 policy tests fail on private managed-root checks. These original failures remain in artifacts/session-portability. The corrected source passes under022:192 top-level Rust tests(core69/config45/providers58/workspaces18/daemon signal2; nested child not double-counted),35 UI tests, typecheck/build/fmt/Clippy, actual daemon/CLI SIGKILL restart, design and28 Python/4 Node infrastructure tests. Prior80e evidence is archived verbatim as EVIDENCE.history-bounds-80e.json. Current Mac/native/remote CI is not run and the historical ARM CI root cause is not claimed proven. No push/main merge or live vendor/account/model calls.
+
 The source reports below retain their historical context. Their older branch/main/CI observations are not statements about the current integration candidate.
 
 ## Session source report at 7a6a46b
