@@ -1,0 +1,104 @@
+{
+  "approval": "AB-START-001",
+  "base_commit": "d7acacbcc826f71386bec046946eb2010c0f1052",
+  "worktree": "/workspace/.worktrees/config-materialization",
+  "branch": "codex/config-materialization",
+  "recorded_at_utc": "2026-10-26T18:55:30.026899+00:00",
+  "state": "locally_verified_library_pending_independent_review_and_core_integration",
+  "requirements_partial": [
+    "AB-CFG-001",
+    "AB-CFG-002",
+    "AB-CFG-008",
+    "AB-CFG-009",
+    "AB-CFG-011",
+    "AB-CFG-012",
+    "AB-CFG-013",
+    "AB-CAP-002",
+    "AB-CAP-003",
+    "AB-CAP-004",
+    "AB-CAP-005",
+    "AB-CAP-007",
+    "AB-CAP-008"
+  ],
+  "implementation": [
+    "crates/config/src/runtime.rs",
+    "crates/config/tests/runtime.rs",
+    "crates/config/src/lib.rs"
+  ],
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/openai/codex/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/core/config.schema.json",
+      "sha256": "d98f7bbe84dfe375d05ad5a8249a5368d82989551e38c6a4babe35356b92c14e",
+      "reviewed_fields": [
+        "cli_auth_credentials_store:file",
+        "mcp_oauth_credentials_store:file",
+        "log_dir",
+        "sqlite_home/CODEX_SQLITE_HOME",
+        "sandbox_mode",
+        "approval_policy"
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/agentclientprotocol/claude-agent-acp/782e463ff418a6093e09cef3f3f5ce813f4ee270/src/acp-agent.ts",
+      "sha256": "e7f0e6d6783c33dbf7c8b5b2a6b8bfd35a0df4909a1667e716a01fbfab320fcd",
+      "reviewed_lines": [
+        1707,
+        1708,
+        1710,
+        11506,
+        11586,
+        11658,
+        11723,
+        11728
+      ],
+      "scope": "Accepted SDK options and programmatic settings object flow only; initialize itself can probe auth and was not executed"
+    }
+  ],
+  "validation": [
+    {
+      "command": "cargo test --locked -p agentbaton-config",
+      "exit_code": 0,
+      "tests_passed": 67,
+      "existing_tests": 45,
+      "new_runtime_tests": 22,
+      "scope": "Synthetic data/filesystem fixtures only"
+    },
+    {
+      "command": "cargo clippy --locked -p agentbaton-config --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo fmt --manifest-path crates/config/Cargo.toml",
+      "exit_code": 0
+    }
+  ],
+  "logs_sha256": {
+    "tests-first.log": "582b1cf7ef34327745515dfd66c25d8f1181393709398699b620009ee4f71688",
+    "tests-final.log": "69760092d6f64e9f3d9a7690c0cfb42126db18d9a9938d33ae5c424db4390b41",
+    "clippy-first.log": "2546acee0c6b6cca9c05d324ed2669b4e4bd6b8983603720ae5b0a69c3a5db5e",
+    "clippy-final.log": "54e756a03de97fc8eaed946662bbcdb5acdd633092b1a6a2e9e7bcb91e22542f"
+  },
+  "source_sha256": {
+    "crates/config/src/lib.rs": "1611d7511c10b45ba6099ddc30e09ecb080967a3745993137272868e62f47411",
+    "crates/config/src/runtime.rs": "3f88a355dae50ca2ed53e5414d93d5230b67596781310ec348c01c7cb606bfcb",
+    "crates/config/tests/runtime.rs": "88ba4890de61c2b725b7bf1090bcb372868281828fd18c762d0428cb12e75e28",
+    "crates/config/README.md": "6bc727262fd239896aa5ada66daed260d728f68583fb68f399d92fdf12bc1bf6"
+  },
+  "limitations": [
+    "Trusted approval/classification remains daemon responsibility; wrappers and deserialization do not detect arbitrary secrets or confer authority.",
+    "Selected native parsing, approval, materialization and actual session runtime loading are different evidence dimensions; core binding is pending integration.",
+    "Private directories and file backend selection are not proof of native account or OS isolation.",
+    "Mutable runtime-state contents are excluded from configuration hashing; unknown native inheritance still blocks strict requests.",
+    "Codex still mixes some native state/auth with CODEX_HOME; no authentication directory is imported and a reused namespace with unlisted files may fail launch verification.",
+    "Claude SettingsManager can inspect native/project sources before SDK options; private config/settingSources=[] requests are not proof all inheritance is excluded.",
+    "Qoder native MCP/Skill materialization is unsupported because a published verified settings schema was unavailable.",
+    "Native-connected mode remains read-only, no silent ownership switch.",
+    "No actual Provider executable, model, account, login command or MCP server was invoked; macOS native tests unrun.",
+    "Full configuration UI/transactions/reload/capability runtime evidence remain broader unfinished goal scope."
+  ],
+  "failed_checks": [],
+  "native_provider": "not_run_not_authorized",
+  "macos": "not_run",
+  "full_product": "incomplete",
+  "materializer_revision": "agentbaton-managed-runtime-v1; bound with pinned provider contract hashes in logical plan digest"
+}
