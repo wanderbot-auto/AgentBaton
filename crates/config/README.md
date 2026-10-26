@@ -48,3 +48,78 @@ Pinned official evidence, response hashes, supported-shape claims and corrected 
 
 
 Skill frontmatter is deserialized with bounded scalar/metadata visitors rather than a generic YAML value tree. Known scalar fields are limited to 4096 bytes, field names to 256 bytes and mappings to 256 fields; unknown nested values are consumed without expanding YAML aliases. Known scalar aliases are subject to the same size bounds, while sequence/mapping metadata where a scalar is required stays unsupported. Ordinary quoted `*`/`&` characters are preserved. This prevents a small source-byte budget from hiding a large alias-expanded heap. An isolated Linux test recreates a 30KB scalar with five levels of eight-way aliases under a 128MiB address-space limit; the main test process is never exposed to an OOM fixture.
+
+## Approved managed runtime materialization
+
+`runtime::RuntimeRoot` pins an existing canonical owner-private directory. The
+trusted daemon constructs an approved `RuntimePlan`, then calls
+`materialize(plan, Ownership::BatonManaged)`. Native-connected ownership is
+rejected before writes; selected external source adapters remain read-only.
+This API does not discover HOME, copy authentication directories, resolve secret
+handles, install dependencies, start MCP servers, execute Skill scripts or launch
+native agents. `NonSecretText` / `NonSecretBytes` mark a trusted caller's explicit
+classification, not automatic secret detection. Restore approved private database
+records with bounded `RuntimePlan::decode_record`; JSON is never consent.
+
+The new namespace is staged privately, files are fsynced and the complete
+namespace is published using no-replace directory rename. A staged failure is
+retained privately with a correlation ID; it is not published as a complete
+snapshot. Generated files are 0600 and directories 0700. Before dispatch,
+`verify_before_launch` checks the bound root/snapshot identities, private ownership,
+regular-file/link constraints, bounded full configuration tree, manifest digest
+and actual file hashes. Symlinks, FIFO/hardlinked config files, changed bytes,
+unlisted config files and replaced roots fail closed. This is a point-in-time
+check and does not stop another same-UID process modifying files afterwards.
+
+Two identities are deliberately distinct:
+
+- `RuntimePlan::plan_digest()` and `snapshot.plan_digest()` identify the approved
+  typed plan, selected nonsecret content, immutable source revisions and pinned
+  materializer/native-contract revision. They do
+  not include generated UUIDs, inode/device IDs or machine-specific state paths.
+- `snapshot.digest()` / `descriptor.digest` cover the actual materialized manifest
+  and its file hashes. Codex `log_dir` contains a generated absolute state path,
+  so this identity can differ between attempts sharing the same approved plan.
+  Persist `SnapshotDescriptor` alongside the attempt; never substitute a caller's
+  descriptor for trusted stored approval or expected plan identity.
+
+Runtime-owned HOME, temporary files, XDG cache/data, logs and SQLite state have
+separate private directories. Their contents are excluded from immutable config
+hashing; their directory roots must still be private and cannot be symlinks.
+Materialize a fresh namespace per attempt under the same approved plan. An active
+turn keeps its existing runtime; file verification is not an account-migration or
+process-replay mechanism. Native agents may still write additional state beside
+their config (notably CODEX_HOME), so reusing a namespace for a new launch can
+correctly fail if new unlisted files appear there.
+
+Provider-specific generated/requested settings are limited:
+
+- Codex uses the pinned TOML fields `sandbox_mode`, `approval_policy`, optional
+  model and selected MCP declarations. `cli_auth_credentials_store` and
+  `mcp_oauth_credentials_store` are explicitly `file`, not `auto`/keyring. The
+  private CODEX_HOME exists; CODEX_SQLITE_HOME and log_dir point to private state.
+  No auth file is populated. `codex_settings()` returns the verified typed subset
+  so a driver must not override a more restrictive approved profile silently.
+- Claude receives a private configuration directory and whitelisted settings.
+  Client-owned ACP metadata requests `settingSources: []`, the same programmatic
+  settings object, `allowDangerouslySkipPermissions: false` and
+  `strictMcpConfig: true`. These keys and object flow are present in the pinned
+  adapter source. SettingsManager can still read native/project configuration
+  before SDK query creation; these requests do not prove hidden inheritance or
+  identity isolation is eliminated. The driver must transmit the owned options,
+  never arbitrary renderer `_meta`.
+- Qoder receives only an empty private namespace and an explicit unsupported
+  native-settings schema. The caller may use its documented config-dir selector;
+  this module invents no JSON schema or environment variable. Selected Qoder
+  native MCP/Skill materialization remains unsupported.
+- Custom ACP receives explicit standard ACP MCP request data; it has no invented
+  vendor configuration file. Configured, connected and invoked remain distinct.
+
+Selected Skills and assets retain hashes/provenance without execution; scripts
+are written non-executable. Credentialed MCP configuration is not resolved by this
+module. URL userinfo/query credentials and unsupported fields are rejected;
+trusted classification is still required for every string/content value.
+All native runtime-loading, identity and hidden-inheritance evidence remains
+unknown, and strict requirements for those guarantees fail closed. The 22 new
+runtime tests use generated filesystem/data fixtures; they do not establish real
+Provider, authentication, MCP connectivity, macOS or OS-sandbox compatibility.
