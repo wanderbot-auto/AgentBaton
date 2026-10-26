@@ -36,3 +36,12 @@ Source `60715b9137e89ed20659094c9308e52b06b94956` merges reviewed session7124256
 STATUS is current session scope with PR3/4 merged; previous session and incoming-main STATUS bytes are archived verbatim in STATUS.before-main-7124256.md and STATUS.incoming-main-dc5aea0.md. Manifest path set and every hash exceptSTATUS are identical between both parents. Both committed INTEGRATION_REVIEW and PORTABILITY_REVIEW bytes are unchanged.
 
 Under022,193 top-level Rust tests(core70/config45/providers58/workspaces18/daemon signal2; nested child excluded),35 UI/typecheck/build, Clippy/fmt, real daemon/CLI SIGKILL restart, design/infrastructure28 Python+4 Node andmanifest92 pass. EVIDENCE binds exact source/log hashes. Currentcandidate Mac/native/remote CI and independent merge review remain pending. Previous portability51ed evidence is preserved verbatim; previous failure logs remain failures. No push/main merge/live vendor/account/model action by this isolated integration task. Full product remains incomplete.
+
+
+## First real Session CI: FIFO fixture portability
+
+PR6 head3b94d1c run40398801631 ARMjob121838837098 failed compiling the lib-test fixture: rustix::fs::mkfifoat unavailable on Darwin (E0425, policy.rs1066, exit101). Raw log copied to artifacts/session-fifo-portability/ci-arm-121838837098.log and hashed in EVIDENCE. This failure is preserved, not a test pass.
+
+Test-only source5e4771de4992fe58bdcc612a583b9448f510ab32 replaces that single unavailable helper with absolute /usr/bin/mkfifo -m600 and direct path argument, asserts utility success and actual FIFO type. Both gitdir/commondir malicious pointers, original rejection assertions and killable3s child deadline remain. Production prefix is byte-identical to3b94; no dependency, lock or other-worktree change. rg crates/apps finds no remaining mkfifoat.
+
+Under022: dedicated parent+child FIFO regression, all70 core tests(lib9; extra nested child not double-counted), workspace-all-targets Clippy andfmt pass. Previous193Rust/35UI/restart evidence is archived verbatim in EVIDENCE.pre-first-ci-3b94.json; those broader tests were not rerun for this test-only delta. Fresh macOS candidate CI and independent review remain required. No push or live vendor/model/account invocation.
