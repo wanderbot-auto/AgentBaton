@@ -119,7 +119,7 @@ impl BoundArtifact {
         }
         Ok(binding)
     }
-    fn read(&self) -> Result<Vec<u8>, WorkspaceError> {
+    pub(crate) fn read(&self) -> Result<Vec<u8>, WorkspaceError> {
         read_pinned_artifact(
             &self.root,
             &self.requirement.relative_path,
