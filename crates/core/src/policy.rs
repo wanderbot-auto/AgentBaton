@@ -987,7 +987,7 @@ impl Store {
 #[cfg(test)]
 mod live_workspace_tests {
     use super::*;
-    use std::os::unix::fs::symlink;
+    use std::os::unix::fs::{symlink, FileTypeExt};
 
     fn fixture() -> (tempfile::TempDir, WorkspaceIdentity) {
         let dir = tempfile::tempdir().unwrap();
@@ -1063,12 +1063,13 @@ mod live_workspace_tests {
                     .join("repository.git/worktrees/managed")
                     .join(name);
                 fs::remove_file(&path).unwrap();
-                rustix::fs::mkfifoat(
-                    rustix::fs::CWD,
-                    &path,
-                    rustix::fs::Mode::RUSR | rustix::fs::Mode::WUSR,
-                )
-                .unwrap();
+                let status = std::process::Command::new("/usr/bin/mkfifo")
+                    .args(["-m", "600"])
+                    .arg(&path)
+                    .status()
+                    .unwrap();
+                assert!(status.success(), "FIFO fixture creation failed: {status}");
+                assert!(fs::symlink_metadata(&path).unwrap().file_type().is_fifo());
                 assert!(live_workspace_matches(&pinned.canonical_root, &pinned).is_err());
             }
             return;
