@@ -1,0 +1,20 @@
+{
+  "head": "2da7da2d5fd24bc46b0c39967b2118b2bf975181",
+  "product_run": 40421813961,
+  "jobs": [
+    {
+      "id": 121917839562,
+      "name": "Product / macos-15",
+      "log_sha256": "a0d6729503530ef816413cb9ebe0614c6bcb2533a8c52b35bebc14e93914cc9b",
+      "canonical_guard_errors": 3,
+      "result": "failed in test fixture proposal/registration before outcome assertions"
+    },
+    {
+      "id": 121917839588,
+      "name": "Product / macos-15-intel",
+      "log_sha256": "7af047e15caa331c940e63bf1fc30dbd99f4bdc06aa76208747ebf4c8150c82f",
+      "canonical_guard_errors": 3,
+      "result": "failed in test fixture proposal/registration before outcome assertions"
+    }
+  ]
+}

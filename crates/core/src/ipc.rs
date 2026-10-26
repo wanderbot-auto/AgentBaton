@@ -486,7 +486,19 @@ impl Daemon {
                 let result = self.store.finalize_proposal(&p.proposal_id, revision)?;
                 if result.get("provider").is_some() {
                     if let Some(id) = result["id"].as_str() {
-                        self.supervisor.probe(&self.store, id)?;
+                        if let Err(mut error) = self.supervisor.probe(&self.store, id) {
+                            // The owner-approved connection and confirmation
+                            // receipt already committed; only probe scheduling
+                            // failed. Never report the approval as not started.
+                            error.side_effect_state = "confirmed".into();
+                            error.details_ref =
+                                Some(format!("connection-approved-probe-not-scheduled:{id}"));
+                            error.message = format!(
+                                "{}; connection approval is recorded, but its version probe was not scheduled. Reconcile using the same proposal and existing connection",
+                                error.message
+                            );
+                            return Err(error);
+                        }
                     }
                 }
                 Ok(result)

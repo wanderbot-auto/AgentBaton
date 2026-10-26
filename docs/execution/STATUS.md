@@ -1,13 +1,13 @@
 # AgentBaton 执行状态
 
-完整Design v0.2的130需求/27决定/WP01–14继续执行；AB-START-001有效。最近实际保护main c4e72c641e3edc3f3c0f665ffde5217933c2895f，OWNER001/002在集成边界实际读取/ACK，无新序号。原生Goal/Cloud任务URL未提供，不虚构平台状态或无执行器续跑。
+完整Design v0.2全部130需求、27决定与WP01–14继续，AB-START-001有效。最新实际保护main c4e72c641e3edc3f3c0f665ffde5217933c2895f，OWNER001/002集成边界已读/ACK且无新序号。未提供原生Goal工具/Cloud任务URL；不虚构平台状态/停止后续跑。真实Provider/模型/私人身份、新增费用资源/未批准remote/正式签名密钥/最终许可证/生产发布仍单独关闭。
 
-已保护合入PR3/4/9/6/7。专用QuietCanvas PR7准确a9fb经七项CI/独立review/双DMG核验合入c4e72c6；旧Mac时序fixture失败/控制复现和全部保护断言保留。Root PR8已同步main/ready，准确b9942d319b70dab22bf723d9f03230ebae08689a Product40418995061在运行，Environment40418995472通过；原9edf双Mac原生窗口重开/daemon生命周期/defaultreleaseaudit与DMG是准确旧head成功证据，不继承给b994。
+已按准确检查、独立review、双架构DMG核验保护合入PR3/4/9/6/7。PR7为专用QuietCanvas，准确a9fb七项通过后合c4e72c6；保留原Mac时序失败及不削弱保护的fixture纠正。Root PR8最新正常push130f3639cdf20a15acd7a4ab448f6ac400fb8770在main/ready，等待新精确CI。先前b994七项/双Mac窗口重开与daemon lifecycle/defaultreleaseaudit/双DMG独立通过；随后实际故障验证补了postapproval-probe误报not_started窄修32b2、独立Core83/3回归通过。2da7新CI两Mac因新增fixture未canonicalize临时路径而失败；旧ARM/Intel日志和Linux alias失败控制保留，现仅测试helper8441fe6返回canonical路径、独立3回归通过，无生产守卫/权限削弱。130f新Mac结果尚未读取，不继承旧head通过。
 
-Schema6真实文件完整性PR10 draft、head3c1cd1a26b99350f13d14645118bb0a72f87b1de，Product40417144235/Environment40417148162全部七项实际成功。双Mac原生/迁移/真实IPC/defaultreleaseaudit已独立核验，两DMG已下载核对API ZIPdigest/SHA256SUMS/UDIF/准确head/架构/签名；Intel未签名、ARM ad hoc无TeamIdentifier，非DeveloperID/公证。该脚本未自动点击原生Owner审批或完整性approve/run；真实Linux policyIPC与26浏览器readonlyArtifacts/12图分开，不冒称全任务验收。待Root PR8合入后同步main、准确新候选CI再按保护集成。
+PR10 draft当前3c1cd1a：schema6文件完整性/原生批准/真实IPC/Artifacts UI。Product40417144235/Environment40417148162全部七项成功，双Mac原生报告和迁移/真实IPC/defaultreleaseaudit独立核验，双DMG下载/hash/UDIF/准确head/架构/签名核验。脚本未自动点击Owner对话框或integrity approve/run；Linux策略IPC与26browser/12图分开。后续须整合Root新guard/保护main，再准确候选CI/按保护合入。
 
-当前codex/data-contract-validation从PR10+独立reviewed JSON库组成，已提交基线f59e748/8da2bee；本次因环境状态短暂unavailable，实际shell又恢复，先保存整体WIP。库组合63单元/集成+2compilefail/fmt/Clippy实际通过；数据前端8文件已由实现者冻结，129mockUI/11files/type/build通过，独立UIreview在进行。Core/schema7的新data_validation.rs及5接线文件已写入但尚未编译/fmt/测试，新tests及旧迁移断言更新仍缺；Core已先冻结并保存CORE_CHECKPOINT。主代理Native5commands/独立DataValidation批准kind+新语义测试/standalone serde_json锁edge和browser只读两namespace已写，metadata离线解析通过，native编译/测试/真实新browser尚未运行。
+PR11 draft codex/data-contract-validation已保存WIPd0c714避免瞬态环境失效，实际shell恢复后持续实现，当前功能提交0f23ff0。独立JSON库cbd5509/a088529整合，Core/schema7独立data policy/receipt五namespace、原生DataValidation桥、默认折叠表单及幂等/撤销/绑定/故障路径已写实。Core321顶层Rust+2compilefail、Core108/13Data+busy1+迁移7三test、Clippy/fmt/build/真实重启通过；UI129/type/build及独立129审查通过；实际当前Schema7 daemon/builtReact browser30checks/16screens通过，4Data图保存，初次重复文本locator失败保留并仅scope纠正。主代理已查看实际Data页面截图。真实/native/dialog/Mac和科学算法维度不混充。
 
-本次WIP保存仅防瞬态环境中断丢失，既非可合入候选，也非通过的完整产品；不触发假绿CI/自动merge。保存后恢复同任务：Core完成迁移/UnixIPC/正常失败/权限/事务/边界测试，独立UI+Core/native审查，实际组合回归/sidecar/native/browser证据，再建准确候选CI。各所有者与未运行项见data-contract-validation/{PLAN,CHECKPOINT,CORE_CHECKPOINT,UI_CHECKPOINT,EVIDENCE}。
+本次将Root130f的已审postapproval guard与canonical fixture整合进Data。Data/schema7/library/Native/UI/两锁对0f23源码字节不变，只有共享IPC增加已独立审查的probe错误映射和三故障回归。组合Core/guard回归、独立Core审查、实际当前release sidecars/LinuxNative8+6与新FIRST readonlydata断言、最终浏览器及准确CI尚待执行。Native staticreview已通过，不把它当作编译/GUI运行。Native本地预确认oversize ErrString保留unknown请求的恢复UX限制已明确记在NATIVE_REVIEW，未误降finalizer/transport未知。
 
-数据合同只校验固定JSON结构/类型/范围/所批metadata与文件hash，声明population/units/TZ不是独立科学事实，不运行复现脚本/算法，不形成TaskAccepted/采纳权限。完整正确性/采纳/规划路由委派工作流、全配置/留存导出/远程/登录睡眠仍未完成并继续。真实Provider模型/私人身份、新增费用资源/未批准remote/正式签名密钥/最终许可证/生产发布关闭，缺项仅阻塞相关验证。原三Environment/保护规则保留，无直接/强推main或绕过检查。
+Data合同仅固定JSON结构/类型/范围/所批metadata及文件hash；population/units/TZ按负责人声明匹配，不是独立科学事实，不运行复现脚本/算法，不建立TaskAccepted/采纳/生产权限。完整正确性验证与精确head采纳、规划路由委派工作流、全配置/留存导出/远程/登录睡眠等仍未完成并持续推进。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和需求表分开记录通过/失败/未运行/受阻，不写虚构百分比。原三个Environment与main保护保留，无直接/强推main或绕过检查。
