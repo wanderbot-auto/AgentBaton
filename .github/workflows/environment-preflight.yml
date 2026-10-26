@@ -1,0 +1,78 @@
+name: Environment preflight (not product tests)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: environment-preflight-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  preflight:
+    name: Environment / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [ubuntu-24.04, macos-15, macos-15-intel]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install preparation-only dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check -r requirements-infra.txt
+          npm ci --ignore-scripts --no-audit --no-fund
+          rustup toolchain install stable --profile minimal --component rustfmt,clippy
+          rustup default stable
+      - name: Record versions and check preparation gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/check_gate.py --scope preparation
+          python scripts/doctor.py --strict
+      - name: Validate design and infrastructure
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          python scripts/validate_design.py | tee artifacts/design-validation.log
+          python scripts/validate_infrastructure.py | tee artifacts/infrastructure-validation.log
+          python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v 2>&1 | tee artifacts/python-tests.log
+          npm test 2>&1 | tee artifacts/node-tests.log
+          cargo test --locked --manifest-path tools/environment-smoke/Cargo.toml 2>&1 | tee artifacts/rust-smoke.log
+          cargo clippy --locked --manifest-path tools/environment-smoke/Cargo.toml --all-targets -- -D warnings
+      - name: Check macOS native prerequisites (not an app build)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcode-select -p
+          xcodebuild -version
+          xcrun --find clang
+          xcrun --sdk macosx --show-sdk-version
+          uname -m
+      - name: State evidence boundary
+        if: always()
+        shell: bash
+        run: |
+          echo '## Infrastructure preflight only' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No AgentBaton application was built. No real Provider was called. No product implementation or production release was authorized.' >> "$GITHUB_STEP_SUMMARY"
+          echo "Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "Runner: $RUNNER_OS / $RUNNER_ARCH" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: environment-${{ matrix.os }}-${{ github.sha }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 14
