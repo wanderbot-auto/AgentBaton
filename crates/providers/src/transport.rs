@@ -1,24 +1,16 @@
 //! Owned Unix stdio transport. No shell, executable discovery, model credentials
 //! or automatic retries. Process separation and working directories are not a
 //! filesystem/network sandbox. Callers must validate installation approval.
-use crate::installation::{verify_executable, BinaryDigest, InstallationError};
-use crate::{
-    read_frame, AcpClient, PermissionDecision, ProtocolError, TurnState, UpdateKind,
-    MAX_FRAME_BYTES,
-};
+use crate::installation::BinaryDigest;
+use crate::{AcpClient, PermissionDecision, ProtocolError, TurnState, UpdateKind};
 use serde::Serialize;
 use serde_json::{json, Value};
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::BTreeMap;
 use std::ffi::OsString;
-use std::io::{Cursor, ErrorKind, Read, Write};
-use std::os::fd::{AsRawFd, RawFd};
-use std::os::unix::process::CommandExt;
+use std::io::ErrorKind;
+use std::os::fd::RawFd;
 use std::path::PathBuf;
-use std::process::{Child, ChildStderr, ChildStdin, ChildStdout, Command, Stdio};
 use std::time::{Duration, Instant};
-
-const EVIDENCE_LIMIT: usize = MAX_FRAME_BYTES;
-const RECORD_LIMIT: usize = 128;
 
 /// A descriptor supplied after the application's trusted approval and binary
 /// verification flow. A nonempty approval reference is provenance, not a grant:
@@ -63,28 +55,28 @@ impl std::fmt::Display for TransportFailure {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "ACP transport {:?}; effects {:?}",
+            "Provider transport {:?}; effects {:?}",
             self.kind, self.side_effect_state
         )
     }
 }
 impl std::error::Error for TransportFailure {}
 impl TransportFailure {
-    fn local(kind: FailureKind) -> Self {
+    pub(crate) fn local(kind: FailureKind) -> Self {
         Self {
             kind,
             side_effect_state: SideEffectState::None,
             protocol_error: None,
         }
     }
-    fn unknown(kind: FailureKind) -> Self {
+    pub(crate) fn unknown(kind: FailureKind) -> Self {
         Self {
             kind,
             side_effect_state: SideEffectState::Unknown,
             protocol_error: None,
         }
     }
-    fn protocol(error: ProtocolError) -> Self {
+    pub(crate) fn protocol(error: ProtocolError) -> Self {
         Self {
             kind: FailureKind::Protocol,
             side_effect_state: SideEffectState::Unknown,
@@ -121,100 +113,30 @@ struct PendingPrompt {
     deadline: Instant,
     cancel_sent: bool,
 }
-struct PendingFrame {
-    bytes: Vec<u8>,
-    offset: usize,
-}
 pub struct ProviderProcess {
-    child: Child,
-    stdin: Option<ChildStdin>,
-    stdout: ChildStdout,
-    stderr: ChildStderr,
-    buffered: Vec<u8>,
-    scan_from: usize,
-    eof: bool,
-    stderr_eof: bool,
+    io: crate::process_io::OwnedProcessIo,
     client: AcpClient,
     timeout: Duration,
     workspace: PathBuf,
     pending_prompt: Option<PendingPrompt>,
-    outbound: VecDeque<PendingFrame>,
-    updates: Vec<ProviderEvent>,
-    evidence: Vec<Value>,
-    diagnostics: Diagnostics,
+    claude_managed: bool,
+    session_configuration: Value,
 }
 impl ProviderProcess {
     pub fn start(
         installation: ApprovedInstallation,
         timeout: Duration,
     ) -> Result<Self, TransportFailure> {
-        if !installation.executable.is_absolute()
-            || !installation.workspace.is_absolute()
-            || installation.approval_reference.trim().is_empty()
-            || installation.approval_reference.len() > 256
-            || installation.arguments.len() > 128
-            || installation.arguments.iter().any(|s| s.len() > 64 * 1024)
-            || timeout.is_zero()
-            || timeout > Duration::from_secs(60)
-            || !installation.workspace.is_dir()
-            || !installation.executable.is_file()
-        {
-            return Err(TransportFailure::local(FailureKind::InvalidInstallation));
-        }
-        verify_executable(&installation.executable, &installation.expected_sha256).map_err(
-            |error| {
-                TransportFailure::local(match error {
-                    InstallationError::DigestMismatch | InstallationError::FileChanged => {
-                        FailureKind::BinaryChanged
-                    }
-                    _ => FailureKind::InvalidInstallation,
-                })
-            },
-        )?;
-        let mut command = Command::new(&installation.executable);
-        command
-            .args(&installation.arguments)
-            .current_dir(&installation.workspace)
-            .env_clear()
-            .envs(&installation.environment)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .process_group(0);
-        let mut child = command
-            .spawn()
-            .map_err(|_| TransportFailure::local(FailureKind::StartupFailed))?;
-        // All three pipes are guaranteed by the explicit Stdio::piped settings.
-        let stdin = child.stdin.take().expect("piped stdin");
-        let stdout = child.stdout.take().expect("piped stdout");
-        let stderr = child.stderr.take().expect("piped stderr");
+        let workspace = installation.workspace.clone();
         let mut process = Self {
-            child,
-            stdin: Some(stdin),
-            stdout,
-            stderr,
-            buffered: Vec::new(),
-            scan_from: 0,
-            eof: false,
-            stderr_eof: false,
+            io: crate::process_io::OwnedProcessIo::spawn(installation, timeout)?,
             client: AcpClient::new(),
             timeout,
-            workspace: installation.workspace,
+            workspace,
             pending_prompt: None,
-            outbound: VecDeque::new(),
-            updates: Vec::new(),
-            evidence: Vec::new(),
-            diagnostics: Diagnostics::default(),
+            claude_managed: false,
+            session_configuration: crate::session_configuration::default_configuration(false),
         };
-        for fd in [
-            process.stdin.as_ref().unwrap().as_raw_fd(),
-            process.stdout.as_raw_fd(),
-            process.stderr.as_raw_fd(),
-        ] {
-            if nonblocking(fd).is_err() {
-                return process.fail(TransportFailure::unknown(FailureKind::Io));
-            }
-        }
         let request = process
             .client
             .initialize()
@@ -225,179 +147,34 @@ impl ProviderProcess {
         }
         Ok(process)
     }
+    pub(crate) fn start_claude(
+        installation: ApprovedInstallation,
+        timeout: Duration,
+    ) -> Result<Self, TransportFailure> {
+        let mut process = Self::start(installation, timeout)?;
+        process.claude_managed = true;
+        process.session_configuration = crate::session_configuration::default_configuration(true);
+        Ok(process)
+    }
     fn fail<T>(&mut self, failure: TransportFailure) -> Result<T, TransportFailure> {
         self.client.disconnected();
         self.terminate();
         Err(failure)
-    }
-    fn evidence(&mut self, value: &Value) {
-        let bytes = serde_json::to_vec(value)
-            .map(|v| v.len())
-            .unwrap_or(EVIDENCE_LIMIT + 1);
-        if self.evidence.len() >= RECORD_LIMIT
-            || self.diagnostics.evidence_bytes.saturating_add(bytes) > EVIDENCE_LIMIT
-        {
-            self.diagnostics.evidence_records_dropped =
-                self.diagnostics.evidence_records_dropped.saturating_add(1);
-            return;
-        }
-        self.diagnostics.evidence_bytes += bytes;
-        self.evidence.push(value.clone());
-    }
-    fn drain_stderr(&mut self) -> Result<bool, TransportFailure> {
-        if self.stderr_eof {
-            return Ok(false);
-        }
-        let mut progressed = false;
-        let mut chunk = [0u8; 4096];
-        // Bound work per loop: an infinite stderr producer cannot starve stdout
-        // parsing, timeout checks or cancellation.
-        for _ in 0..16 {
-            match self.stderr.read(&mut chunk) {
-                Ok(0) => {
-                    self.stderr_eof = true;
-                    break;
-                }
-                Ok(n) => {
-                    progressed = true;
-                    self.diagnostics.stderr_bytes_observed = self
-                        .diagnostics
-                        .stderr_bytes_observed
-                        .saturating_add(n as u64);
-                    self.diagnostics.stderr_discarded = true;
-                }
-                Err(e) if e.kind() == ErrorKind::WouldBlock => break,
-                Err(e) if e.kind() == ErrorKind::Interrupted => continue,
-                Err(_) => return Err(TransportFailure::unknown(FailureKind::Io)),
-            }
-        }
-        Ok(progressed)
-    }
-    fn enqueue_frame(&mut self, message: &Value) -> Result<(), TransportFailure> {
-        let mut bytes = serde_json::to_vec(message)
-            .map_err(|_| TransportFailure::protocol(ProtocolError::MalformedFrame))?;
-        bytes.push(b'\n');
-        if bytes.len() > MAX_FRAME_BYTES {
-            return Err(TransportFailure::protocol(ProtocolError::FrameTooLarge));
-        }
-        if self.outbound.len() >= 32
-            || self.diagnostics.outbound_bytes.saturating_add(bytes.len()) > MAX_FRAME_BYTES
-        {
-            return Err(TransportFailure::protocol(ProtocolError::ResourceLimit));
-        }
-        self.diagnostics.outbound_bytes += bytes.len();
-        self.outbound.push_back(PendingFrame { bytes, offset: 0 });
-        Ok(())
-    }
-    fn flush_outbound(&mut self) -> Result<(), TransportFailure> {
-        for _ in 0..16 {
-            let Some(frame) = self.outbound.front_mut() else {
-                return Ok(());
-            };
-            let end = frame.bytes.len().min(frame.offset + 4096);
-            match self
-                .stdin
-                .as_mut()
-                .ok_or(TransportFailure::unknown(FailureKind::Closed))?
-                .write(&frame.bytes[frame.offset..end])
-            {
-                Ok(0) => return Err(TransportFailure::unknown(FailureKind::Closed)),
-                Ok(n) => {
-                    frame.offset += n;
-                    self.diagnostics.outbound_bytes -= n;
-                }
-                Err(e) if e.kind() == ErrorKind::WouldBlock => return Ok(()),
-                Err(e) if e.kind() == ErrorKind::Interrupted => continue,
-                Err(_) => return Err(TransportFailure::unknown(FailureKind::Io)),
-            }
-            if frame.offset == frame.bytes.len() {
-                self.outbound.pop_front();
-            }
-        }
-        Ok(())
-    }
-    fn update(&mut self, event: ProviderEvent) -> Result<(), TransportFailure> {
-        let bytes = serde_json::to_vec(&event)
-            .map(|v| v.len())
-            .unwrap_or(EVIDENCE_LIMIT + 1);
-        if self.updates.len() >= RECORD_LIMIT
-            || self.diagnostics.update_bytes.saturating_add(bytes) > EVIDENCE_LIMIT
-        {
-            if matches!(&event.kind, UpdateKind::PermissionDenied { .. }) {
-                return Err(TransportFailure::protocol(ProtocolError::ResourceLimit));
-            }
-            self.diagnostics.update_records_dropped =
-                self.diagnostics.update_records_dropped.saturating_add(1);
-            return Ok(());
-        }
-        self.diagnostics.update_bytes += bytes;
-        self.updates.push(event);
-        Ok(())
-    }
-    fn next_frame(&mut self, deadline: Instant) -> Result<Value, TransportFailure> {
-        loop {
-            if Instant::now() >= deadline {
-                return Err(TransportFailure::unknown(FailureKind::Timeout));
-            }
-            let stderr_progress = self.drain_stderr()?;
-            let outbound_before = self.diagnostics.outbound_bytes;
-            self.flush_outbound()?;
-            let outbound_progress = self.diagnostics.outbound_bytes < outbound_before;
-            if let Some(end) = self.buffered[self.scan_from..]
-                .iter()
-                .position(|b| *b == b'\n')
-                .map(|offset| self.scan_from + offset)
-            {
-                if end + 1 > MAX_FRAME_BYTES {
-                    return Err(TransportFailure::protocol(ProtocolError::FrameTooLarge));
-                }
-                let frame: Vec<_> = self.buffered.drain(..=end).collect();
-                self.scan_from = 0;
-                return read_frame(&mut Cursor::new(frame))
-                    .map_err(TransportFailure::protocol)?
-                    .ok_or(TransportFailure::unknown(FailureKind::Closed));
-            }
-            self.scan_from = self.buffered.len();
-            if self.buffered.len() > MAX_FRAME_BYTES {
-                return Err(TransportFailure::protocol(ProtocolError::FrameTooLarge));
-            }
-            if self.eof {
-                return Err(TransportFailure::unknown(FailureKind::Closed));
-            }
-            let mut chunk = [0u8; 4096];
-            match self.stdout.read(&mut chunk) {
-                Ok(0) => self.eof = true,
-                Ok(n) => self.buffered.extend_from_slice(&chunk[..n]),
-                Err(e) if e.kind() == ErrorKind::WouldBlock => {
-                    if !stderr_progress && !outbound_progress {
-                        wait_for_io(
-                            Some(self.stdout.as_raw_fd()),
-                            (!self.stderr_eof).then(|| self.stderr.as_raw_fd()),
-                            (!self.outbound.is_empty())
-                                .then(|| self.stdin.as_ref().unwrap().as_raw_fd()),
-                            deadline,
-                        )
-                        .map_err(|_| TransportFailure::unknown(FailureKind::Io))?;
-                    }
-                }
-                Err(e) if e.kind() == ErrorKind::Interrupted => continue,
-                Err(_) => return Err(TransportFailure::unknown(FailureKind::Io)),
-            }
-        }
     }
     fn handle_frame(
         &mut self,
         frame: Value,
         request_id: u64,
     ) -> Result<Option<Value>, TransportFailure> {
-        self.evidence(&frame);
+        crate::validate_envelope(&frame).map_err(TransportFailure::protocol)?;
+        self.io.evidence(&frame);
         if let Some(method) = frame.get("method").and_then(Value::as_str) {
             if method == "session/update" {
                 let event = self
                     .client
                     .normalize_update(frame)
                     .map_err(TransportFailure::protocol)?;
-                self.update(ProviderEvent {
+                self.io.update(ProviderEvent {
                     session_id: event.session_id,
                     local_binding: event.local_binding,
                     kind: event.kind,
@@ -417,7 +194,7 @@ impl ProviderProcess {
                     .unwrap()
                     .binding
                     .clone();
-                self.update(ProviderEvent {
+                self.io.update(ProviderEvent {
                     session_id: session_id.into(),
                     local_binding,
                     kind: UpdateKind::PermissionDenied {
@@ -427,9 +204,9 @@ impl ProviderProcess {
                             .into(),
                     },
                 })?;
-                self.enqueue_frame(&response)?;
+                self.io.enqueue_frame(&response)?;
             } else if let Some(id) = frame.get("id") {
-                self.enqueue_frame(&json!({"jsonrpc":"2.0","id":id,"error":{"code":-32601,"message":"Client method unsupported"}}))?;
+                self.io.enqueue_frame(&json!({"jsonrpc":"2.0","id":id,"error":{"code":-32601,"message":"Client method unsupported"}}))?;
             }
             return Ok(None);
         }
@@ -444,7 +221,7 @@ impl ProviderProcess {
         deadline: Instant,
     ) -> Result<Value, TransportFailure> {
         loop {
-            let frame = self.next_frame(deadline)?;
+            let frame = self.io.next_frame(deadline)?;
             if let Some(response) = self.handle_frame(frame, request_id)? {
                 return Ok(response);
             }
@@ -456,13 +233,26 @@ impl ProviderProcess {
             .get("id")
             .and_then(Value::as_u64)
             .ok_or(TransportFailure::protocol(ProtocolError::InvalidEnvelope))?;
-        if let Err(error) = self.enqueue_frame(request) {
+        if let Err(error) = self.io.enqueue_frame(request) {
             return self.fail(error);
         }
         match self.receive_response(id, deadline) {
             Ok(value) => Ok(value),
             Err(error) => self.fail(error),
         }
+    }
+    /// Accept only the server-owned immutable snapshot projection before any
+    /// session is opened. This method does not establish consent or authority.
+    pub fn configure_session_configuration(
+        &mut self,
+        configuration: &Value,
+    ) -> Result<(), TransportFailure> {
+        if self.pending_prompt.is_some() || !self.client.sessions.is_empty() {
+            return Err(TransportFailure::protocol(ProtocolError::UnexpectedState));
+        }
+        self.session_configuration =
+            crate::session_configuration::validate(configuration, self.claude_managed)?;
+        Ok(())
     }
     /// Create a session in the explicitly approved workspace, without enabling
     /// arbitrary additional roots or automatically connecting MCP servers.
@@ -482,7 +272,10 @@ impl ProviderProcess {
             .client
             .request_id()
             .map_err(TransportFailure::protocol)?;
-        let response=self.exchange(&json!({"jsonrpc":"2.0","id":id,"method":"session/new","params":{"cwd":cwd,"mcpServers":[]}}))?;
+        let mut params = self.session_configuration.clone();
+        params["cwd"] = json!(cwd);
+        let response = self
+            .exchange(&json!({"jsonrpc":"2.0","id":id,"method":"session/new","params":params}))?;
         if response.get("error").is_some() {
             return Err(TransportFailure::protocol(ProtocolError::ProviderRejected));
         }
@@ -526,8 +319,9 @@ impl ProviderProcess {
             cancel_sent: false,
         });
         if let Err(error) = self
+            .io
             .enqueue_frame(&request)
-            .and_then(|_| self.flush_outbound())
+            .and_then(|_| self.io.flush_outbound())
         {
             return self.fail(error);
         }
@@ -550,7 +344,7 @@ impl ProviderProcess {
         };
         let deadline = turn_deadline.min(Instant::now() + quantum);
         loop {
-            let frame = match self.next_frame(deadline) {
+            let frame = match self.io.next_frame(deadline) {
                 Ok(value) => value,
                 Err(error)
                     if error.kind == FailureKind::Timeout && Instant::now() < turn_deadline =>
@@ -591,8 +385,9 @@ impl ProviderProcess {
             .cancel(native_id)
             .map_err(TransportFailure::protocol)?;
         if let Err(error) = self
+            .io
             .enqueue_frame(&request)
-            .and_then(|_| self.flush_outbound())
+            .and_then(|_| self.io.flush_outbound())
         {
             return self.fail(error);
         }
@@ -600,23 +395,21 @@ impl ProviderProcess {
         Ok(())
     }
     pub fn take_updates(&mut self) -> Vec<ProviderEvent> {
-        self.diagnostics.update_bytes = 0;
-        std::mem::take(&mut self.updates)
+        self.io.take_updates()
     }
     pub fn turn_state(&self, native_id: &str) -> Result<&TurnState, ProtocolError> {
         self.client.state(native_id)
     }
     pub fn process_id(&self) -> u32 {
-        self.child.id()
+        self.io.process_id()
     }
     pub fn diagnostics(&self) -> &Diagnostics {
-        &self.diagnostics
+        &self.io.diagnostics
     }
     /// Raw, untrusted, potentially sensitive protocol evidence. Never forward to
     /// logs/UI without privacy/redaction policy. Truncation is explicit.
     pub fn take_evidence(&mut self) -> Vec<Value> {
-        self.diagnostics.evidence_bytes = 0;
-        std::mem::take(&mut self.evidence)
+        self.io.take_evidence()
     }
     /// Only this transport's owned process group is signalled, before reaping its
     /// leader. Holding the unreaped child prevents PID reuse during signalling.
@@ -624,18 +417,7 @@ impl ProviderProcess {
     /// this implementation does not claim an OS sandbox.
     pub fn terminate(&mut self) {
         self.client.disconnected();
-        self.stdin.take();
-        self.outbound.clear();
-        self.diagnostics.outbound_bytes = 0;
-        if !self.diagnostics.process_reaped {
-            // SAFETY: command.process_group(0) creates a group led by our direct
-            // child; we never reap it before this group signal.
-            unsafe {
-                libc::kill(-(self.child.id() as i32), libc::SIGKILL);
-            }
-            let _ = self.child.kill();
-            self.diagnostics.process_reaped = self.child.wait().is_ok();
-        }
+        self.io.terminate();
     }
 }
 impl Drop for ProviderProcess {
