@@ -55,3 +55,18 @@ No fresh full-workspace, desktop/native GUI, macOS installer or remote exact-hea
 | `/tmp/ab-review-validation-composite-core.log` | `5489f441b21c3262dbb54e3e99f1272b9e9590e423d0eb0896dd397cc922f2d2` |
 | `/tmp/ab-review-validation-composite-clippy.log` | `73e851148f0f72e1293700296c7968129c0216313c52dc06814a04837d2f49b4` |
 | `/tmp/ab-review-validation-composite-fmt.log` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+
+
+## Follow-up — private runtime database fixture under umask022
+
+At the subsequent composite checkpoint, the primary's actual full-Rust run failed `actual_authenticated_ipc_uses_server_policy_and_rejects_forged_result_fields`: Daemon bind correctly returned PERMISSION_DENIED for the existing nonprivate database. That preserved failure is `/workspace/.onboarding/validation-composite-full-rust.log` (SHA-256 `13730e264e71cc9aacbfbbbf109bbbd470ab96170c3a2d9ce627d42d105cf9ac`). The0700 temporary directory alone does not make a Store-created0644 SQLite file private under umask022. Earlier local Core passes above are historical and do not supersede this observed failure.
+
+Independently reviewed the narrow fixture correction: inside cfg(test) only, create a new empty database with create_new+0600, assert the actual0600 mode and close that temporary File before Store::open. This matches Daemon's private-file preparation without changing permissions on existing files, production Store behavior or runtime privacy checks. The import addition is test-only. A mechanical comparison of the production portions of validation.rs against280c92a shows they are byte-identical. The actual Unix IPC normal/forged-field assertions remain unchanged.
+
+Independently executed, explicit umask022, cwd `/workspace/.worktrees/validation-integration`:
+
+`cargo test --locked -p agentbaton-core --lib validation::tests::actual_authenticated_ipc_uses_server_policy_and_rejects_forged_result_fields -- --exact`
+
+Exit0;1 passed,21 filtered,0.77s. No full Core/workspace repeat or native GUI proof is asserted for this follow-up. No remaining blocker in this fixture correction. Primary's broader283-Rust/79-UI/native/browser evidence remains separately attributed to the primary.
+
+Final reviewed `crates/core/src/validation.rs` SHA-256: `b1e507f8c23c8e66c1bed99669bdc2a14578e1e943ebaf179edbf2ba796c3c51`. Independent log `/tmp/ab-review-validation-private-db.log` SHA-256: `570fe062c72ac7db219eebc6cd6d862a16a3a9efcd8bff828967cad2f5a5b4a1`. Primary committed this source while review was completing (current HEAD40457076fb88a45f30c4a7212d00ce9d38aed684); reviewer modified only this document, not source/locks or Git state.
