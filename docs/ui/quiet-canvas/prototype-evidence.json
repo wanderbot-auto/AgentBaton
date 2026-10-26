@@ -1,0 +1,25 @@
+{
+  "scope": "UI prototype interactions only, not product/provider/native-app tests",
+  "results": [
+    "1488x981: 6 sample cards in exactly 2 columns",
+    "Card -> conversation -> artifact preview -> back",
+    "Status filtering and explicit scoped demo approval",
+    "Create draft; user text escaped",
+    "Search + escape modal dismissal",
+    "Quick chat -> explicit summary -> task draft",
+    "Capability details, matrix, and English switch",
+    "1024x768: two-column compact layout, no horizontal overflow",
+    "390x844: single-column fallback, no horizontal overflow",
+    "Self-contained HTML rendered with page.set_content; URL/file navigation restricted by browser policy"
+  ],
+  "page_errors": [],
+  "source_sha256": {
+    "index.html": "9c7e33470cc7730273becfbbaac2f97511acaa32315338843b11263d85b3a333",
+    "styles.css": "ede874f8569d8d3195b9855c339e4be8608b84ffa626f7209322eb177dbf0cd0",
+    "app.js": "53962fc707e678639dec7645d70eb801d746eb39206c0a8f3b98da5b52f5de16"
+  },
+  "limitations": [
+    "URL navigation is blocked by local browser policy; rendering and interactions used page.set_content with the self-contained document.",
+    "No real Agent/provider, backend or native desktop was invoked."
+  ]
+}
