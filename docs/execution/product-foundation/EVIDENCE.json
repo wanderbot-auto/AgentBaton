@@ -87,7 +87,7 @@
       "observed_local_failure_excerpt": "small_stderr_pipe_progress_does_not_spend_the_response_deadline_sleeping: TransportFailure { kind: Timeout, side_effect_state: Unknown, protocol_error: None }"
     }
   ],
-  "native_arm64": "failed_workspace_test_at_d64d57c_no_native_host_claim",
+  "native_arm64": "workspace_native_host_tests_build_package_passed_at7521b38_GUI_unrun",
   "native_x86_64": "workspace_and_native_host_tests_build_package_passed_at_d64d57c_GUI_unrun",
   "live_provider": "not_run_not_authorized",
   "production_release": "not_run_not_authorized",
@@ -127,6 +127,22 @@
         "gui_acceptance": "not_run",
         "download_digest_and_dmg_checksum": "verified"
       }
+    },
+    {
+      "head_sha": "7521b38d509facccd081d25dc1ed0009c98b3038",
+      "product_run": 40376998625,
+      "environment_all_three": "passed",
+      "product_rust": "passed",
+      "product_ui": "passed",
+      "product_macos_arm64": "passed_workspace_native_host_build_package",
+      "product_macos_x86_64": "failed_stdio_2_of_12_timeout",
+      "failure": "Both unchanged4MiB/500ms stderr tests timed out on Intel; all IPC passed. ARM same-run stdio12 and nativehost3 passed.",
+      "arm_artifact": {
+        "id": 12676265263,
+        "checkout_merge_sha": "5c539035c57abab5077cfa0252343dbdee90669a",
+        "zip_sha256": "328fb6cc85d81a940f8fad98723e52fd22ceb81ed694ec7588e38a5b16ec1f63",
+        "gui_acceptance": "not_run"
+      }
     }
   ],
   "sqlite_followup": {
@@ -136,5 +152,60 @@
     "local_tests": "19 core tests, Clippy and30 actual socket/restart repetitions passed",
     "native": "new_run_required"
   },
-  "updated_at_utc": "2026-10-26T18:19:50.235910+00:00"
+  "updated_at_utc": "2026-10-26T18:19:50.235910+00:00",
+  "stderr_scheduler_followup": {
+    "recorded_at_utc": "2026-10-26T18:26:11.331445+00:00",
+    "baseline": "7521b38d509facccd081d25dc1ed0009c98b3038",
+    "scope": "Only production transport scheduling and failure-only test numeric diagnostics; no timeout/byte/assertion weakening",
+    "native_failed_run": 40376998625,
+    "native_failed_job": 121762663775,
+    "observed_native_failure": "Intel original 4MiB stderr and Linux-small-pipe-compatible tests both Timeout at unchanged500ms; ARM result not inspected by this agent",
+    "change": "Remove sched_yield after useful stderr progress. Every loop still bounds stderr to16 reads, checks stdout and monotonic deadline; no-progress poll waits on actual pipe readiness.",
+    "synthetic_experiment": {
+      "purpose": "Demonstrate sensitivity to scheduler handoff latency on the same unchanged small-pipe workload; this is not a Darwin implementation/runtime reproduction",
+      "shim": "scheduler-yield-latency.c compiled cc -shared -fPIC to ignored .so; sched_yield waits2ms; fixture child env_clear prevents inheritance",
+      "command": "LD_PRELOAD=/workspace/.onboarding/pr3-ci/scheduler-yield-latency.so cargo test --locked -p agentbaton-providers --test stdio small_stderr_pipe_progress_does_not_spend_the_response_deadline_sleeping -- --exact --nocapture",
+      "before": {
+        "exit_code": 101,
+        "test_result": "0 passed;1 failed; Timeout;0.53s",
+        "log": "yield-latency-before.log"
+      },
+      "after": {
+        "exit_code": 0,
+        "test_result": "1 passed;0 failed;0.05s",
+        "log": "yield-latency-after.log"
+      }
+    },
+    "validation": [
+      {
+        "command": "cargo test --locked -p agentbaton-providers",
+        "exit_code": 0,
+        "tests_passed": 32,
+        "log": "no-progress-yield-providers-tests.log"
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-providers --all-targets -- -D warnings",
+        "exit_code": 0,
+        "log": "no-progress-yield-providers-clippy.log"
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ],
+    "source_sha256": {
+      "crates/providers/src/transport.rs": "1923a62ba3ae3f610d1fee8bb0fb9cc9dad2f8cfe13477fc8d7bab7feec1b59e",
+      "crates/providers/tests/stdio.rs": "0d28ec392aef59d09e39b1a11e2c5895144666073c126b225579fc227b8c9fa4"
+    },
+    "limitations": [
+      "Native historical cause not conclusively established by synthetic scheduling experiment.",
+      "Fresh actual macOS Intel/ARM checks remain required.",
+      "No vendor executable, credentials or model calls performed.",
+      "No changes committed or pushed by this worker."
+    ]
+  }
 }

@@ -132,3 +132,11 @@ Independent reviewer approved dropping the private precreation fd before Store::
 - `crates/core/src/ipc.rs`: `431e0cae09f5b157708c67640b502032060108630d1dd26a2c7973b834df8da1`
 - `crates/core/src/storage.rs`: `00da6e57cdf1da2d4b638a1787fc3f0bc3a80350f50e1df74b6bbf1e7a6ae6cd`
 - `crates/core/tests/ipc.rs`: `26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28`
+
+
+## Follow-up: useful progress scheduling
+
+Independent reviewer approved removing the remaining useful-progress sched_yield in write/read loops. Bounded16-read stderr batch, stdout checks and monotonic deadline remain; idle paths still poll. Both original4MiB/500ms workloads and assertions unchanged; failure-only numeric diagnostics added. All32 provider tests/Clippy/fmt pass; reviewer independently ran12 stdio tests. Synthetic2ms scheduler handoff shim reproduces oldsmallpipe timeout and newpass; it is not a Darwin runtime reproduction or proof of historical root cause. Fresh dualarchitecture CI required.
+
+- `crates/providers/src/transport.rs`: `1923a62ba3ae3f610d1fee8bb0fb9cc9dad2f8cfe13477fc8d7bab7feec1b59e`
+- `crates/providers/tests/stdio.rs`: `0d28ec392aef59d09e39b1a11e2c5895144666073c126b225579fc227b8c9fa4`

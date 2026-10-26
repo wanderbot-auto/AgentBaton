@@ -304,9 +304,7 @@ impl ProviderProcess {
                 Ok(0) => return Err(TransportFailure::unknown(FailureKind::Closed)),
                 Ok(n) => offset += n,
                 Err(e) if e.kind() == ErrorKind::WouldBlock => {
-                    if stderr_progress {
-                        std::thread::yield_now();
-                    } else {
+                    if !stderr_progress {
                         self.wait_ready(deadline, true)?;
                     }
                 }
@@ -348,12 +346,12 @@ impl ProviderProcess {
                 Ok(0) => self.eof = true,
                 Ok(n) => self.buffered.extend_from_slice(&chunk[..n]),
                 Err(e) if e.kind() == ErrorKind::WouldBlock => {
-                    // Small Darwin pipes need more drain iterations. Sleeping
-                    // after useful stderr work artificially throttles a noisy
-                    // child below its unchanged response deadline.
-                    if stderr_progress {
-                        std::thread::yield_now();
-                    } else {
+                    // A scheduler yield after useful work can wait for a full
+                    // scheduling handoff on every small-pipe refill. Continue
+                    // immediately: the bounded stderr batch, stdout read and
+                    // monotonic deadline already ensure per-loop fairness.
+                    // With no progress, poll sleeps until real readiness.
+                    if !stderr_progress {
                         self.wait_ready(deadline, false)?;
                     }
                 }

@@ -192,7 +192,15 @@ fn stderr_flood_cannot_deadlock_or_leak_credential_text_in_diagnostics() {
     let (_dir, mut process) = start("stderr");
     let session = process.new_session("binding").unwrap();
     process.begin_prompt(&session, "work").unwrap();
-    assert_eq!(process.wait_prompt(&session).unwrap(), TurnState::Completed);
+    let started = Instant::now();
+    let state = process.wait_prompt(&session).unwrap_or_else(|failure| {
+        panic!(
+            "stderr flood failed after {:?}: {failure:?}; numeric-only diagnostics: {:?}",
+            started.elapsed(),
+            process.diagnostics()
+        )
+    });
+    assert_eq!(state, TurnState::Completed);
     assert!(process.diagnostics().stderr_bytes_observed >= 4 * 1024 * 1024);
     assert!(process.diagnostics().stderr_discarded);
 }
@@ -204,7 +212,15 @@ fn small_stderr_pipe_progress_does_not_spend_the_response_deadline_sleeping() {
     let (_dir, mut process) = start("stderr_small");
     let session = process.new_session("binding").unwrap();
     process.begin_prompt(&session, "work").unwrap();
-    assert_eq!(process.wait_prompt(&session).unwrap(), TurnState::Completed);
+    let started = Instant::now();
+    let state = process.wait_prompt(&session).unwrap_or_else(|failure| {
+        panic!(
+            "small-pipe flood failed after {:?}: {failure:?}; numeric-only diagnostics: {:?}",
+            started.elapsed(),
+            process.diagnostics()
+        )
+    });
+    assert_eq!(state, TurnState::Completed);
     assert!(process.diagnostics().stderr_bytes_observed >= 4 * 1024 * 1024);
 }
 
