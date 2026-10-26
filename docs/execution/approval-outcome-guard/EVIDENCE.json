@@ -1,0 +1,112 @@
+{
+  "unit": "approval-outcome-guard",
+  "authorization": "AB-START-001",
+  "requirement_links": [
+    "AB-DOM-005",
+    "AB-TSK-004",
+    "AB-TSK-008"
+  ],
+  "scope": "Narrow local owner-approval/probe-scheduling error semantics; not full requirement acceptance",
+  "recorded_at_utc": "2026-10-26T23:41:44.487800+00:00",
+  "baseline": "b9942d319b70dab22bf723d9f03230ebae08689a",
+  "tested_source_commit": "32b2dc58d23205350aa54878463b8f824997dc02",
+  "branch": "codex/approval-outcome-guard",
+  "owner_inbox_ack": {
+    "latest_main_api_sha": "c4e72c641e3edc3f3c0f665ffde5217933c2895f",
+    "instructions": [
+      "OWNER-001",
+      "OWNER-002"
+    ],
+    "authority_expanded": false
+  },
+  "before_control": {
+    "production": "Unmodified baseline IPC, new regression assertions",
+    "command": "umask 022; CARGO_TARGET_DIR=/workspace/.toolchains/quiet-canvas-target CARGO_BUILD_JOBS=2 cargo test --locked -p agentbaton-core --test approval_outcomes -- --nocapture",
+    "exit_code": 101,
+    "passed": 2,
+    "failed": 1,
+    "actual_fault": "PERMISSION_DENIED/not_started/details_ref=null despite one persisted connection, confirmed owner proposal, confirmation journal and original registration key",
+    "controls_already_safe": "Both confirmation-journal trigger tests already return unknown on baseline. No old metadata not_started bug is claimed. Unused test imports in this first run were removed before the final clean checks."
+  },
+  "production_change": "Only post-success Store::finalize_proposal -> Supervisor::probe Err branch: preserve original code/retryable/reason, set confirmed, identify existing connection-approved-probe-not-scheduled:<id>, and require reconciliation using same proposal. No Store/finalization/schema/API/permission/timeout changes.",
+  "checks": [
+    {
+      "command": "cargo test --locked -p agentbaton-core --test approval_outcomes -- --nocapture",
+      "umask": "022",
+      "exit_code": 0,
+      "tests": 3
+    },
+    {
+      "command": "cargo test --locked -p agentbaton-core",
+      "umask": "022",
+      "exit_code": 0,
+      "top_level_tests": 83,
+      "nested_fifo_child_excluded": 1
+    },
+    {
+      "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo fmt --all --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "environment": {
+    "os": "Linux managed cloud",
+    "target_dir": "/workspace/.toolchains/quiet-canvas-target",
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+    "CARGO_BUILD_JOBS": 2
+  },
+  "new_tests": {
+    "connection_confirmation_fault": "CREATE TRIGGER rejects approval.confirmed; connection+original proposal key persisted, proposal metadata unconsumed; existing error unknown; trigger removed, same proposal returns original ID, receipt once, no new owner proposal/executable call",
+    "grant_confirmation_fault": "Matching stopped/no-Provider synthetic readiness fixture; grant exists after confirmation journal failure; unknown error and safe same-proposal replay preserve original grant, key and confirmation once",
+    "probe_refusal_real_ipc": "Precreate runtime/environments as private regular file; authenticated finalize commits connection+owner receipt then fails environment check before spawn. Old regression fails not_started; final reports confirmed+existing connection. Same proposal repeats original error without new connection/approval/journal; direct Store reconciliation returns original ID. Unknown proposal still NOT_FOUND/not_started. Marker proves generated executable never ran."
+  },
+  "source_sha256": {
+    "crates/core/src/ipc.rs": "8d12f952c123d209a7d70e5380bea9aa212908aea65981bbead67dce86ef9025",
+    "crates/core/tests/approval_outcomes.rs": "01e8bec8066dfed63d2f113709d01dc295682396d39851f33410910020da05e8"
+  },
+  "byte_identical_to_baseline": {
+    "crates/core/src/sessions.rs": "a2cf3b789316221743b2be6c1ab7391c4590fc384eb4390c2eb49c239f611752",
+    "crates/core/src/storage.rs": "9e6e395a74f2362a123ffe2b23e9c0fe2bfe6e2dc0b60484036ffb99d8712026",
+    "crates/core/src/policy.rs": "33b41dff1df5af1ad3de90299a41de9d82f179cd9ee81f4c06dab910d2fa22a0",
+    "Cargo.lock": "de7e34a31a2002f46b482cc597627ca08c152e297abc8e7549778aaa69d1cd43",
+    "apps/desktop/src-tauri/Cargo.lock": "d07cfa2f95293f97be3f073266b50e7034ba68e903392f1a901aaf7594fff3fc"
+  },
+  "logs": {
+    "ab-approval-outcomes-after.log": {
+      "path": "/workspace/.onboarding/approval-outcome-guard/ab-approval-outcomes-after.log",
+      "sha256": "b18d1a20a61cea0f75a61e139608f008df08863c77d831bc043ecb116c467fb8"
+    },
+    "ab-approval-outcomes-before.log": {
+      "path": "/workspace/.onboarding/approval-outcome-guard/ab-approval-outcomes-before.log",
+      "sha256": "90465795bc3d5f2608813b2616c013a12f14dbaa08bd86c854e5f3020c4d6299"
+    },
+    "ab-approval-outcomes-clippy.log": {
+      "path": "/workspace/.onboarding/approval-outcome-guard/ab-approval-outcomes-clippy.log",
+      "sha256": "3378d1aea5167499740ffea99c75a0b10b2c1c1eac109bd3357500e8d18d1706"
+    },
+    "ab-approval-outcomes-core.log": {
+      "path": "/workspace/.onboarding/approval-outcome-guard/ab-approval-outcomes-core.log",
+      "sha256": "52f65709578b15fe7f0ed6fb056a6c38e9a9815ede991eded95aab39d8b7f843"
+    },
+    "ab-approval-outcomes-fmt.log": {
+      "path": "/workspace/.onboarding/approval-outcome-guard/ab-approval-outcomes-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "review_status": "Implementation self-review only; parent independent review required before integration",
+  "not_run_or_claimed": [
+    "Thread-spawn resource exhaustion and four-concurrent-probe failure branches not independently fault-forced",
+    "No generated executable was executed by new tests",
+    "No real Provider/model/account/native GUI/macOS/installer/remote system/production test",
+    "No full-workspace repeat, CI run, push or merge by this unit",
+    "No historical CI fault causation inference"
+  ]
+}
