@@ -10,4 +10,4 @@ Design v0.2 全部130项需求、27项决定与WP01–WP14仍为完整目标。A
 
 真实产品Provider身份/模型调用、额外费用/资源、未批准远程主机、正式签名/公证、最终许可证和生产发布仍关闭。未复制私人认证/密钥，不静默改计费。缺失只阻塞相关验证。磁盘接近上限时仅清理本次旧可重建target/incremental，源码/日志/截图/产物保留，现腾出8.5GiB。阶段检查点不是完成或无执行器后台续跑承诺；各单元CHECKPOINT保留未完成范围与下一步。
 
-当前schema6已整合Root be647（包含main65f/专用Quiet a9fb ancestry、9edf成功原生证据和共享会话fixture修复），产品Core/native/UI/locks与283回归快照逐字相同，仅sessions_ipc测试增加更强断言。新组合17项sessions/fmt/CoreClippy待本地运行，随后保存准确候选/叠加PR/显式CI。PR7准确a9fb的新Environment40416546428通过，Product40416546545运行中，不能提前合入。
+当前schema6已整合Root be647（包含main65f/专用Quiet a9fb ancestry、9edf成功原生证据和共享会话fixture修复），产品Core/native/UI/locks与283回归快照逐字相同，仅sessions_ipc测试增加更强断言。新组合17项sessions/fmt/CoreClippy已实际通过，privateDB fixture增量独立单测/审查通过。正在保存准确候选/叠加PR/显式CI。PR7准确a9fb的新Environment40416546428通过，Product40416546545运行中，不能提前合入。

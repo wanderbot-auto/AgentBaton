@@ -1,5 +1,5 @@
 {
-  "recorded_at_utc": "2026-10-26T22:54:41.386205+00:00",
+  "recorded_at_utc": "2026-10-26T23:03:29.669610+00:00",
   "approval": "AB-START-001",
   "owner_inbox": "OWNER001/002 ACK protectedmain65f223; no later sequence",
   "branch": "codex/validation-integration",
@@ -707,5 +707,43 @@
     "available": false,
     "basis": "currentenabledtoolmetadata inspected; noGoaltool andnoCloudtaskURLprovided",
     "not_a_goal_status": true
+  },
+  "post_quiet_composition": {
+    "source_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+    "includes_runtime": "be647dd",
+    "includes_quiet_reviewed_fixture": "da4dda0/a9fb0d1",
+    "production_core_native_ui_locks_unchanged_from_283_test_snapshot": true,
+    "only_code_delta": "crates/core/tests/sessions_ipc.rs",
+    "test_source_sha256": "7578156baf226cdf507726b2e9bdc19e6fc267d4f8f10579f40181a1459b9208",
+    "checks": [
+      {
+        "command": "umask022; cargo test -p agentbaton-core --locked --test sessions_ipc",
+        "exit_code": 0,
+        "tests": 17
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "exit_code": 0
+      },
+      {
+        "command": "cargo clippy -p agentbaton-core --all-targets --locked -- -D warnings",
+        "exit_code": 0
+      }
+    ],
+    "logs": {
+      "validation-composite-post-quiet-sessions.log": "c3f3a149d11b49bab59bae06729d7a94969d99242b62c22585d12c0bcc8779a0",
+      "validation-composite-post-quiet-clippy.log": "efdf44316067dd5375548c9ebb1ef82401f1e6b8047a4664f86c03b9b83c91dc",
+      "validation-composite-post-quiet-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review": "docs/execution/quiet-canvas/TIMEOUT_FIXTURE_REVIEW.md",
+    "note": "full283/79/browser/nativechecks preceded this sole testdelta; targeted17 rerun currentcomposition. Freshremoteexactcandidatepending."
+  },
+  "private_fixture_independent": {
+    "review": "docs/execution/validation-integration/COMPOSITE_REVIEW.md",
+    "source_sha256": "b1e507f8c23c8e66c1bed99669bdc2a14578e1e943ebaf179edbf2ba796c3c51",
+    "log_sha256": "570fe062c72ac7db219eebc6cd6d862a16a3a9efcd8bff828967cad2f5a5b4a1",
+    "command": "umask022; cargo test --locked -p agentbaton-core --lib actual_authenticated_ipc_uses_server_policy_and_rejects_forged_result_fields",
+    "exit_code": 0,
+    "tests": 1
   }
 }

@@ -13,3 +13,5 @@ Actual Linux nativehost5-command compile/sevenunit tests pass. BrowserrealIPC up
 Runtime9edf composition: shared include/raw/fetch guards, actor reap-before-unlock, native reopen/terminalstate and asyncUI corrections integrated. First workspace41/1fail preserved; independent corrected fixture42workspace/91core and primary79UI/type/build pass. Full integrated regression remains pending.
 
 Post-main composition full283Rust/79UI/7Linuxhost/6nativeunits/15runner/Clippy/fmt/build/actualdaemonrestart PASS; current26realbrowserIPC/12images PASS. First022 fixtureDB0644 correctlyrefused, testonlycreate_new0600 nowmatchesdaemon; productionguarduntouched. Currentevidencearchivedpre-runtimeandrecordsallfailure/source/log/imagehashes; independentdelta review andfreshstackedPR/macCI next.
+
+Rootbe647/Quieta9fb+protectedmain65f ancestry integrated7984b3f. Onlynewcode is reviewedsharedsessionsfixture; current17tests/fmt/CoreClippy PASS, productionCore/native/UI/locks exactly matchfull283snapshot. PrivateDBfixtureindependent1PASSclosed. Saveconcretebranch/stackedPRandrunfreshall7next.
