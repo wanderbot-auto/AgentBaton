@@ -1,3 +1,44 @@
+# Current Session protectedmain/actor teardown checkpoint
+
+
+## Protectedmain PR9 and actor writerlock integration
+
+Tested merge17b71d5b6cd046ecaad3777cdefbd3f3cac0174a combines reviewedSessiona763d89 (FINAL_GUARD_REVIEW committed alone) with actualprotectedmain eb115e0915a4dd0ac46c8c188101b64b89e9d35f. PR9 is nowactuallymerged; lead reports allseven exact34 checks and both samecheckout developmentDMGs verified. OWNER001/002 re-read/ACK; no newauthority. These prerequisite checks are not Sessionnativeacceptance.
+
+Only IPCadjacenttest conflict: retain workerfirstframe +main duplicateFD tests, plus existingauthenticatedfirstframe. Add selectedRoot573 actorcleanup unit. Existing SupervisorDrop cancel/join/probejoin body is movedverbatim into noDBmutation pub(crate)reap_owned_workers; DaemonDrop invokesit FIRST, thenunlinkownsocket, thenFileExtunlock. SupervisorfieldDrop can safelycallagain afterdrain. ExistingWorkerReceipt alreadyhad matching fields, so no model/schema/binding changes. No native/profile/adoption/UI sourcecopied.
+
+The intermediate badport (mainunlock with cleanup deferred toSupervisorfieldDrop) actuallyFAILS101: a newbind succeeds duringoldownedworker cleanup and checkedflag fails. CorrectedportPASS asserts BUSY+oldsocket duringcleanup, then immediatebind afterfullDrop despiteolddupFD, and olddupclose cannotunlocknewowner. Testfixture is cfg(test) only anddoesnot journalfakeprocess acceptance; production reaping makes noDBmutation, leaving unpersisted ambiguousoutcomes fenced forrestart. Nativehistoricalcause remainsunproven.
+
+Under022:201top-level Rust(core72/config45/providers58/workspaces24/daemon signal2; extraFIFOchild excluded),24workspace,35UI/typecheck/build,Clippy/fmt,binaries+realdaemonCLIrestart pass. Guardmainunitdocs/EVIDENCE retained byte-identicaleb; previous199-test Sessionevidence archivedverbatim EVIDENCE.guard-334.json. Existingstorage/policy/locks/desktop and dispatch/normalshutdown/run_worker source remain unchanged. Parentindependentactorcompositionreview and freshSessionPR6 exactcandidate/nativeCI stillrequired. No push/mainmerge/model/account action by this localintegration; authorized repositoryfetch recorded.
+
+## Previous checkpoint
+
+# Current Session Git guard integration checkpoint
+
+
+## Reviewed Git guard integration
+
+Merge3bd37e614047c7b3a33616cdfdab0c4c4d895061 integrates guard32ca76 into sessionb85a64d (which committed only the pre-existing independentFIFO_REVIEW). Sole sourceconflict was WorkspaceError Display; retain incoming generalUnsafe text and existingUnverifiedIndex arm. All18oldworkspace safetytests/stat/hidden-index/filter/path guards remain byte-identical;6newraw/fetch/include guardtests add to24. Actor/schema4/policyFIFO/locks/CLI/daemon and all trackeddesktop source bytes unchanged. No profiles/schema5/adoption/dependency import.
+
+Under022:24workspaces and199top-level fullworkspaceRust(core70/config45/providers58/workspaces24/daemon signal2; extraFIFOchild excluded),35UI/typecheck/build,fmt/Clippy,binaries+actualdaemonCLIrestart pass. IncomingguardunitEVIDENCE/docs are preserved byte-identical32; priorSessionFIFO evidence archived verbatim as EVIDENCE.fifo-cf00.json, including realARMcompilefailure and originalreviews. Each candidate's evidence remains separate.
+
+Latestmain fetched dc5aea0; OWNER001/002 re-read and ACK. Parent will mergeguardPR9 only after its exactcandidate checks/review, then integrate latestmain ancestry and run onefreshSessionCI. That futuresequence is not claimed performed here. CurrentSessionmerge still awaits independentreview and native/remoteCI; no push/mainmerge or realmodel/account/remote-helper call by this unit; the authorized repository fetch is recorded separately.
+
+## Preserved prior checkpoint
+
+# Current Session first-CI portability checkpoint
+
+
+## First real Session CI: FIFO fixture portability
+
+PR6 head3b94d1c run40398801631 ARMjob121838837098 failed compiling the lib-test fixture: rustix::fs::mkfifoat unavailable on Darwin (E0425, policy.rs1066, exit101). Raw log copied to artifacts/session-fifo-portability/ci-arm-121838837098.log and hashed in EVIDENCE. This failure is preserved, not a test pass.
+
+Test-only source5e4771de4992fe58bdcc612a583b9448f510ab32 replaces that single unavailable helper with absolute /usr/bin/mkfifo -m600 and direct path argument, asserts utility success and actual FIFO type. Both gitdir/commondir malicious pointers, original rejection assertions and killable3s child deadline remain. Production prefix is byte-identical to3b94; no dependency, lock or other-worktree change. rg crates/apps finds no remaining mkfifoat.
+
+Under022: dedicated parent+child FIFO regression, all70 core tests(lib9; extra nested child not double-counted), workspace-all-targets Clippy andfmt pass. Previous193Rust/35UI/restart evidence is archived verbatim in EVIDENCE.pre-first-ci-3b94.json; those broader tests were not rerun for this test-only delta. Fresh macOS candidate CI and independent review remain required. No push or live vendor/model/account invocation.
+
+## Preserved prior checkpoint
+
 # Current protected-main session integration checkpoint
 
 

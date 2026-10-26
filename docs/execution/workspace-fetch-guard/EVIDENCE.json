@@ -1,27 +1,73 @@
 {
-  "unit": "workspace-fetch-guard",
+  "unit": "workspace-guard-daemon-writer-lock-release",
   "authorization": "AB-START-001",
-  "requirements": [
-    "AB-PRJ-001",
-    "AB-PRJ-002",
-    "AB-PRJ-004"
+  "related_requirements": [
+    "AB-SEC-006",
+    "AB-SES-010"
   ],
-  "recorded_at_utc": "2026-10-26T21:13:32.736988+00:00",
-  "base_commit": "dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7",
-  "tested_commit": "b11218506e835554b2d08600e8cc1ab25e4fe7e9",
-  "branch": "codex/workspace-fetch-guard",
-  "owner_inbox": "Protectedmain OWNER001/002 read and ACK; UI amendment retained elsewhere; full goal unchanged",
-  "implementation": "Minimal config-agent guard backport: GIT_NO_LAZY_FETCH=1, protocol.allow=never, failclosed extensions.partialclone/remote.*.promisor config refusal before object/status operations and again before checkout. Existing filter/path protections/publicAPI unchanged. UnsafeRepository display now describes externalobject access too. Git commands also use GIT_NO_REPLACE_OBJECTS=1 and GIT_GRAFT_FILE=/dev/null: exact approved hashes mean raw committed tree and ancestry. No replacement/graft metadata is deleted or rewritten. Before the first repository probe, audit local include/includeIf.path declarations using git config --no-includes; reject matches. Repeat before checkout. Non-match exit1 permits continuation, matches reject UnsafeRepository, fatal audit rejects NotRepository; IO/output/timeout errors propagate. No unsafe audit result permits another Git operation.",
-  "coordination": "Reused /root/config focused guard design and generated missingblob/ext-helper fixtures from validation-adoption; adapted only older main context. No adoption modules/dependencies copied. Fixture Git strips inheritedGIT_* and nulls global/system config/hooks to stay local/generated.",
-  "environment": {
-    "os": "Linux local cloud",
-    "git": "2.52.0",
-    "umask": "022",
-    "CARGO_BUILD_JOBS": "2",
-    "CARGO_HOME": "/workspace/.toolchains/cargo",
-    "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+  "recorded_at_utc": "2026-10-26T21:33:25.629961+00:00",
+  "tested_commit": "93ca7eab8a523f7aee06b027a244a1efb3c5579c",
+  "base_commit": "32ca76eb9670925c53e97de52d258cc9282622eb",
+  "previous_guard_checkpoint": {
+    "archive": "EVIDENCE.include-32.json",
+    "sha256": "09419b78bbcc22fba300eeffef6ed1b2d884b727c4b681fb34c344d0e1b2c317",
+    "preservation": "previous130test Gitboundary evidence retained verbatim; no prior workspace source/test change"
   },
+  "actual_ci_failure": {
+    "run_id": "40403211132",
+    "job_id": "121854191652",
+    "platform": "macOS Apple Silicon",
+    "candidate": "32ca76",
+    "result": "project_ipc imported_projects_isolated_workspace_restart_and_archive_use_real_ipc failed on newDaemonbind afterjoin with WORKSPACE_BUSY at project_ipc.rs19; exit101",
+    "raw_log": "artifacts/workspace-writer-lock/ci-arm-121854191652.log",
+    "sha256": "0ff8548d5a55c6e61249923306cff5dce22f882bde7ddd98908f5e0b18d3529a",
+    "causation": "nativeFD/fork timeline notobserved; duplicatedFD mechanism not asserted as historicalcause"
+  },
+  "change": "DaemonDrop unlinks its ownsocket then explicitly unlocks only its own writerlock FileExt::unlock. No bind/retry/run/protocol/schema/workflow/dependency change. Existing guard and all original restart/refusal assertions retained.",
+  "semantics": {
+    "crate": "fs2 0.4.3 as pinned by Cargo.lock",
+    "unix_implementation": {
+      "path": "/workspace/.toolchains/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs2-0.4.3/src/unix.rs",
+      "sha256": "67f0244c118cff918f01b6c164dfe604039ce9160a099ba6e4ff86dcf8ec0097",
+      "behavior": "FileExt::unlock -> flock(file, libc::LOCK_UN); try_lock_exclusive -> LOCK_EX|LOCK_NB"
+    },
+    "documented_duplicate_behavior": {
+      "path": "/workspace/.toolchains/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs2-0.4.3/src/lib.rs",
+      "sha256": "38e0f03bb81d76ac8d71b73b00fae648359aa7e1c1b9ba7159cb1b19eb12b987",
+      "behavior": "Unixflock advisory locks; duplicated files requirecare; Unixlock_duplicate test proves duplicates share lock and eitherdescriptor canunlock"
+    },
+    "rust_drop_order": "CustomDaemonDrop executes before fielddestructors; explicitunlock follows ownsocketunlink afterrun no longerdispatches onthisbaseline. Thisbaseline has noownedSupervisor/providerworker fields.",
+    "integration_requirement": "Actor variants must complete ownedworker shutdown/reaping on all paths BEFORE releasing writerownership; superclass/fieldDrop after unlock is insufficient.",
+    "native_causation": "Not proven; actualARMlog reports WORKSPACE_BUSY afterrunjoin but no FD snapshot. Deterministicdupcontrol establishes a correctness mechanism, notcauseidentity."
+  },
+  "old_control": {
+    "command": "cargo test --locked -p agentbaton-core --lib ipc::frame_tests::daemon_drop_releases_its_lock_even_with_an_old_duplicate_descriptor -- --exact",
+    "exit_code": 101,
+    "production": "unchanged32ca76; only new regression added"
+  },
+  "regression_assertions": [
+    "activeowner refusal remains WORKSPACE_BUSY",
+    "oldowner dropped with old_lock.try_clone FD stillopen: socket removed and replacementbind must succeed immediately",
+    "no sleeps/retries/fork/externalhelper in regression",
+    "closingoldduplicate cannotrelease replacementlock; furtherbind remains WORKSPACE_BUSY and replacementsocket remains",
+    "droppingreplacement allows finalowner immediatebind"
+  ],
   "checks": [
+    {
+      "name": "duplicate-fd",
+      "command": "cargo test --locked -p agentbaton-core --lib ipc::frame_tests::daemon_drop_releases_its_lock_even_with_an_old_duplicate_descriptor -- --exact",
+      "exit_code": 0
+    },
+    {
+      "name": "project-ipc",
+      "command": "cargo test --locked -p agentbaton-core --test project_ipc",
+      "exit_code": 0
+    },
+    {
+      "name": "core-tests",
+      "command": "cargo test --locked -p agentbaton-core",
+      "exit_code": 0
+    },
     {
       "name": "workspace-tests",
       "command": "cargo test --workspace --locked",
@@ -39,122 +85,93 @@
     }
   ],
   "counts": {
-    "existing_guard_tests": 17,
-    "new_include_tests": 2,
-    "all_workspaces_tests": 19,
-    "all_workspace_tests": 130,
-    "core": 35,
+    "new_deterministic_lock_test": 1,
+    "existing_project_ipc": 3,
+    "all_core": 36,
+    "all_workspace": 131,
+    "core": 36,
     "config": 26,
     "providers": 50,
     "workspaces": 19
   },
-  "assertions": [
-    "generated trackedblob removed from objectdb; local ext helper would only create a generatedmarker andexit1",
-    "remote protocol.ext.allow=always deliberately enabled in fixture",
-    "inspect and create_isolated reject promisor repo without helpermarker or checkoutdestination",
-    "sourcefile andindex bytes unchanged",
-    "partialclone extension refused without rewriting config",
-    "ordinary Git control HEAD==A/statusclean while refsreplace reads tree/contentB; rawhelper inspectdirty/adoptionDirty and exactA isolatedapprovedbytes",
-    "refsreplace, sourcefileB and sourceindex unchanged",
-    "genuine legacygraft changes Cparent toA in control; guarded read yields rawparentB with graftfile/index unchanged",
-    "actual generated no-checkout child future-control: source configfilter query exits1, child configfilter query succeeds; this is configuration visibility only, no smudge command executed",
-    "inspect/create_isolated refuse inactive futuregitdir includeIf before helpermarker/destination/newchildmetadata and preserve source/index/mainconfig/includedconfig bytes",
-    "even benign unconditional include is refused without rewriting configuration",
-    "all previous17 library assertions unchanged"
-  ],
+  "environment": {
+    "os": "Linux local cloud",
+    "umask": "022",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+  },
   "logs": {
     "checks.json": {
-      "path": "artifacts/workspace-fetch-guard-include/checks.json",
-      "sha256": "f9d8119c966c03d686afa3fd8fe6befc53c8b3c453fe8405f3679b41168bb72b"
+      "path": "artifacts/workspace-writer-lock/checks.json",
+      "sha256": "a48e80e2a600ab211c2cd16e9cf112b00c466e9e48d5ec740219d9b06b15163f"
+    },
+    "ci-arm-121854191652.log": {
+      "path": "artifacts/workspace-writer-lock/ci-arm-121854191652.log",
+      "sha256": "0ff8548d5a55c6e61249923306cff5dce22f882bde7ddd98908f5e0b18d3529a"
     },
     "clippy.log": {
-      "path": "artifacts/workspace-fetch-guard-include/clippy.log",
-      "sha256": "44c83f920c75ab2511fb595fd85013222d4ccf19e81906158a4bb809708fcc64"
+      "path": "artifacts/workspace-writer-lock/clippy.log",
+      "sha256": "e0f3569962312321fab1d308d929b209a8ef2c3812c867b30f61f22b88855ff9"
+    },
+    "core-tests.log": {
+      "path": "artifacts/workspace-writer-lock/core-tests.log",
+      "sha256": "e5cbc5f5abcefb0013cbbabd0e9fc5b60b6aa7549fa7df94de4893cbbe0bf1f8"
+    },
+    "duplicate-fd.log": {
+      "path": "artifacts/workspace-writer-lock/duplicate-fd.log",
+      "sha256": "d41aaf13829678d9e397bcca665cf91092680c90bc12818bce6a46d3b9e88455"
     },
     "fmt.log": {
-      "path": "artifacts/workspace-fetch-guard-include/fmt.log",
+      "path": "artifacts/workspace-writer-lock/fmt.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
-    "targeted-fixed.log": {
-      "path": "artifacts/workspace-fetch-guard-include/targeted-fixed.log",
-      "sha256": "a127f47c72ab519a59b4de97d22761bfb86aeb079b3d7e4a5c3961acaa3e704a"
+    "old-control.json": {
+      "path": "artifacts/workspace-writer-lock/old-control.json",
+      "sha256": "8561c1d46ad028b8cc8480801372532a5d64ec7b46aae921fa170d444c2fd3e3"
     },
-    "targeted.log": {
-      "path": "artifacts/workspace-fetch-guard-include/targeted.log",
-      "sha256": "3760eb7ba5a576ef53dc1a8e8da9e7689729bae3670e14508bd6d90f449ec8eb"
+    "old-control.log": {
+      "path": "artifacts/workspace-writer-lock/old-control.log",
+      "sha256": "09c7941056b7746ce4149fda42399a04b84b299f5ba31dd1ac275a509d70f8f5"
+    },
+    "project-ipc.log": {
+      "path": "artifacts/workspace-writer-lock/project-ipc.log",
+      "sha256": "669f2c70c5dd54e5e3e1d9e50ade527fba3cf8166a258e5d706a1f6000bcfd51"
+    },
+    "semantics.json": {
+      "path": "artifacts/workspace-writer-lock/semantics.json",
+      "sha256": "81e04abdf5bf1a39ad62bf807f49535e2f7668ecf982368c2cabca6d7fa544ea"
     },
     "workspace-tests.log": {
-      "path": "artifacts/workspace-fetch-guard-include/workspace-tests.log",
-      "sha256": "f5c4070dd0f640bfb5f5a6c513b0d8f84d97e3a1bf951ee006ce640c575f7f8d"
+      "path": "artifacts/workspace-writer-lock/workspace-tests.log",
+      "sha256": "aaa14b0cde45b42b6628dee6b3f831ac4df615850c6171ff1bffb30b3ddb3eb7"
     }
   },
   "source_hashes": {
-    "crates/workspaces/src/lib.rs": "d14806fcb06faa784a6a4f1b97f21ca83a9159960e600160298d0aa8fa72da65",
-    "crates/workspaces/tests/lazy_fetch.rs": "8f4de1e700b317e9e100a8bff3ec9f4feb9402b9a86f218992a020b577dcf711"
-  },
-  "prior_failure_evidence": "Reviewer reported actual-tool transcript/directGit semantics controls for missingblob promisor helper, replacement refs and conditional configvisibility. Supplied observations JSON is a transcription, not an originalrawlog and not proof of executing oldBatoncrate API. This task did not replay oldBaton code. Generated replacement/graft/futurecontext controls run directly in currentregressions; current guardedAPI behavior is asserted separately.",
-  "remaining_limits": {
-    "independent_review": "include followup and aggregate guard independently approved; primaryintegration/exactcandidate CI stillrequired",
-    "macos_current_candidate": "not_run",
-    "remote_ci": "not_run",
-    "ui_native_smoke": "not_run_library_only_scope",
-    "real_vendor_models_accounts_network": "not_run_not_authorized",
-    "partialclone_support": "deliberately unsupported and refused; no automatic fetch or config repair",
-    "os_sandbox": "not_claimed",
-    "product": "incomplete",
-    "push_main_merge": "no push/mainmerge performed by this followup; parent reports existing PR9/head851 pushed and CI running, not inherited by thiscandidate",
-    "globalSTATUS_manifest": "unchanged_per_focused_parent_scope",
-    "raw_object_semantics": "replacement refs and legacy grafts intentionally ignored; files left intact",
-    "config_includes": "all includes deliberately refused including benign/inactive rules; no auto repair/flattening"
-  },
-  "previous_fetch_checkpoint": {
-    "commit": "9430a1ddeb84dad4340342c4dadfe65320500a16",
-    "archive": "EVIDENCE.fetch-only-943.json",
-    "sha256": "602c16a305d98dcd5049759ff2ab0f24f45cd5aca0373dba0f5f1c15e2a3e8ec"
-  },
-  "targeted_check": {
-    "command": "cargo test --locked -p agentbaton-workspaces",
-    "exit_code": 0,
-    "tests": 19,
-    "log": "artifacts/workspace-fetch-guard-include/targeted-fixed.log"
+    "crates/core/src/ipc.rs": "04ab18b762a24e76c3b1deec14727ac0e94e544531a9e0dbff7ea0f5aedd8373"
   },
   "independent_review": {
     "agent": "/root/review",
-    "fetch_source": "4d43989",
-    "raw_object_source": "8dcb4a3",
-    "result": "approved; no unresolved aggregate fetch/raw-object source blocker",
-    "actual_independent_command": "cargo test --locked -p agentbaton-workspaces",
-    "actual_independent_tests": 17,
-    "source_edits_by_reviewer": false,
-    "verdict_received": "Native parent exact-head CI still required."
+    "status": "approved for exact oldbaseline93ca7eab8a523f7aee06b027a244a1efb3c5579c; no unresolved sourceblocker",
+    "actual_independent_command": "cargo test --locked -p agentbaton-core",
+    "actual_independent_tests": 36,
+    "scope": "NoSupervisor/worker baseline only; actor teardownordering is separate review. DuplicatedFD mechanism demonstrated, historicalARMcause unproven.",
+    "reviewer_edits": false
   },
-  "previous_raw_checkpoint": {
-    "commit": "851fa073512326deacd24d8918fa1f8261134c68",
-    "archive": "EVIDENCE.raw-guard-851.json",
-    "sha256": "9415af4a627a355e6f9b0d35ba2169f105589b7e56d262cdb62a533ec52b3775"
+  "remaining_limits": {
+    "native_current_candidate": "not_run",
+    "historic_ARM_failure_cause": "not_proven",
+    "actor_Supervisor_port": "separate integration must reap/shutdown BEFOREunlock, not rely onfieldDrop aftercustomDrop",
+    "real_vendor_model_account": "not_run_not_authorized",
+    "push_main_merge": "not_performed",
+    "full_product": "incomplete"
   },
-  "development_failure": {
-    "command": "cargo test --locked -p agentbaton-workspaces",
-    "log": "artifacts/workspace-fetch-guard-include/targeted.log",
-    "exit_code": 101,
-    "passed": 18,
-    "failed": 1,
-    "cause": "pre-probe configfatal mapped toUnsafe rather than existing malformedrepository NotRepository; preserved original assertion and corrected fatalclassification. No assertion changed."
-  },
-  "reviewer_control_observations": {
-    "path_reported_by_reviewer": "/workspace/AgentBaton/artifacts/workspace-fetch-guard/reviewer-original-observations.json",
-    "sha256_reported_by_reviewer": "f7f884d2e910aeacb1dcaac14590150dd635e836e215d3583e2ba66bd61f9885",
-    "kind": "reviewer persisted actual-tool transcript/directGit semantics control; NOT originalrawlog, NOT oldBatoncrate APIexecution",
-    "read_by_this_task": false,
-    "reason": "Rootworktree access excluded by focusedfollowup scope"
-  },
-  "independent_include_review": {
-    "agent": "/root/review",
-    "source": "b11218506e835554b2d08600e8cc1ab25e4fe7e9",
-    "status": "approved; no unresolved focused source blocker",
-    "actual_independent_command": "cargo test --locked -p agentbaton-workspaces",
-    "actual_independent_tests": 19,
-    "reviewer_edits": false,
-    "limit": "exact finalhead CI still required"
+  "unchanged_guard_and_existing_tests": {
+    "crates/workspaces/src/lib.rs": "d14806fcb06faa784a6a4f1b97f21ca83a9159960e600160298d0aa8fa72da65",
+    "crates/workspaces/tests/lazy_fetch.rs": "8f4de1e700b317e9e100a8bff3ec9f4feb9402b9a86f218992a020b577dcf711",
+    "crates/core/tests/project_ipc.rs": "9b38de8f283a706730edb49060c11124ad6341111ac0e76abdb07930884205f8",
+    "crates/core/tests/ipc.rs": "26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28",
+    "Cargo.toml": "5dc88c14683dc23feac5ee1d6076ee96fc8f4a8eb149fa62cf35818553522c29",
+    "Cargo.lock": "0a5e18a75333e4a068d9c63d43fe5ac176ebf6247ff1c0a12eb91d6b859d0557"
   }
 }

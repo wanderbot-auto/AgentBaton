@@ -1,0 +1,106 @@
+{
+  "unit": "session-schema4-darwin-fifo-test-portability",
+  "authorization": "AB-START-001",
+  "recorded_at_utc": "2026-10-26T20:51:22.256440+00:00",
+  "tested_commit": "5e4771de4992fe58bdcc612a583b9448f510ab32",
+  "base_commit": "3b94d1c",
+  "schema_version": 4,
+  "previous_evidence": {
+    "archive": "EVIDENCE.pre-first-ci-3b94.json",
+    "sha256": "a71acd46efffb488899c47feb12b427e2880ff5d620d37e80272f19782279d43"
+  },
+  "actual_ci_failure": {
+    "run_id": "40398801631",
+    "job_id": "121838837098",
+    "candidate": "3b94d1c",
+    "platform": "macOS Apple Silicon",
+    "result": "failure: compile E0425 cannot find rustix::fs::mkfifoat at crates/core/src/policy.rs:1066; process exit101, before tests",
+    "raw_log": "artifacts/session-fifo-portability/ci-arm-121838837098.log",
+    "sha256": "3dfe65fb33be4cdac79523d0b9a5d64d2559a50917fbe7566be5cac33c6f781a",
+    "status": "original failure preserved; not relabeled passed"
+  },
+  "change": "Only cfg(test) FIFO fixture now invokes absolute /usr/bin/mkfifo with literal -m600 and direct path argument, then asserts successful status and actual is_fifo. Both gitdir/commondir scenarios, all original validation assertions, killable child and3s deadline retained. No production/dependency/lock change.",
+  "production_policy_prefix_sha256": "ee20ebba6daeeaf3c0e2883f532b83919d7add40ad3f5474c66bbde0131d58b5",
+  "checks": [
+    {
+      "name": "fifo-child",
+      "command": "cargo test --locked -p agentbaton-core --lib policy::live_workspace_tests::live_writer_fifo_pointer_cannot_block_actor -- --exact --nocapture",
+      "exit_code": 0
+    },
+    {
+      "name": "core-tests",
+      "command": "cargo test --locked -p agentbaton-core",
+      "exit_code": 0
+    },
+    {
+      "name": "clippy",
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "name": "fmt",
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "files": 92
+    }
+  ],
+  "counts": {
+    "dedicated_fifo_parent": 1,
+    "dedicated_fifo_nested_child": 1,
+    "core_top_level": 70,
+    "core_lib_top_level": 9,
+    "core_nested_child_excluded": 1
+  },
+  "environment": {
+    "os": "Linux local cloud",
+    "umask": "022",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+  },
+  "logs": {
+    "checks.json": {
+      "path": "artifacts/session-fifo-portability/checks.json",
+      "sha256": "a9050e027e7c4652a5ba3e7cf69672224c95f9b043511d30fd3ee5121fe802ed"
+    },
+    "ci-arm-121838837098.log": {
+      "path": "artifacts/session-fifo-portability/ci-arm-121838837098.log",
+      "sha256": "3dfe65fb33be4cdac79523d0b9a5d64d2559a50917fbe7566be5cac33c6f781a"
+    },
+    "clippy.log": {
+      "path": "artifacts/session-fifo-portability/clippy.log",
+      "sha256": "979e85023d86f201f8cdc3bd950b77004f05b9d81459f78da701717ef4166fc1"
+    },
+    "core-tests.log": {
+      "path": "artifacts/session-fifo-portability/core-tests.log",
+      "sha256": "b1e58d4fd7f8f3be5085e8397935a7dcab91c29802de256bebf3e73fee574652"
+    },
+    "fifo-child.log": {
+      "path": "artifacts/session-fifo-portability/fifo-child.log",
+      "sha256": "a7c73491a47175100023587dc593a60a9e339f276926ede9626f534f7e23767d"
+    },
+    "fmt.log": {
+      "path": "artifacts/session-fifo-portability/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "manifest.log": {
+      "path": "artifacts/session-fifo-portability/manifest.log",
+      "sha256": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f"
+    }
+  },
+  "source_hashes": {
+    "crates/core/src/policy.rs": "77a775f2befa7c70afa9ba5e8928ecb28d490da9de2c9bdef67b79469b4ca449"
+  },
+  "remaining_limits": {
+    "independent_review": "pending",
+    "fresh_macos_ci": "not_run",
+    "full_workspace_ui_smoke_this_delta": "not_rerun_test_fixture_only; previous193Rust/35UI/restart evidence retained as historical",
+    "live_vendor_model_account": "not_run_not_authorized",
+    "push": "not_performed",
+    "full_product": "incomplete"
+  }
+}
