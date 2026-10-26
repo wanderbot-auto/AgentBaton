@@ -115,3 +115,7 @@ Reviewed source hashes: ipc.rs=5ab59b07bdeea4595637e7c1d26073959ba70993cc20a65ce
 ## Follow-up: interrupted versus complete oversized input
 
 Independent reviewer approved4096-byte writes with delivery tracking and write-half shutdown. A delivered transport error is accepted only for a known interrupted send; fully sent frames still require RESOURCE_LIMIT when response delivered. Fresh authenticated snapshot also requires tasks=[] and sequence0. Direct parser bound test retained;19 local core tests and Clippy passed. Reviewed test hash: 44e59d276006628543b0579c3ffb17e6bd2f9a491f2ede95cca1fed1e1aa8711. Fresh native CI remains required.
+
+## Follow-up: canonical temporary workspace in stdio fixture
+
+Both actual macOS jobs at30a70d8 pass IPC size/parser tests and next fail9 fixture sessions at their exact cwd assertion. Independent reviewer reproduced alias cwd failure versus canonical cwd success with the same Python fixture and verified corrected roundtrip under a TMPDIR symlink. Approved fixture-only canonicalization; exact session/new params assertion unchanged, no production transport modified.11 Linux stdio tests and Clippy passed; both native checks pending. Test source hash: fdadd2442ce7c92f1b469395fc64c429f84cd9de27ed069b746b9d4b02f843d8.

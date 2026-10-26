@@ -74,6 +74,11 @@
       "command": "Product / macos-15-intel at84adc45",
       "reason": "known interrupted oversized send yielded truthful PROVIDER_DISCONNECTED while direct bound parser test passed",
       "resolution": "4096-byte writes track full delivery;permit transport error only for known interrupted send;requireRESOURCE_LIMIT after complete delivery;assert tasks/journal unchanged and authenticated liveness;independent review approved,19 local core tests/Clippy passed;fresh Mac pending"
+    },
+    {
+      "command": "Product validation both macOS at30a70d8",
+      "reason": "IPC bounds pass;9 stdio fixtures abort at exact session/new cwd assertion due Darwin tempdir /var vs Python getcwd /private/var",
+      "resolution": "canonicalize owner-approved fixture workspace;exact requestparams assertion retained;independent symlink-cwd reproduction confirms cause;11 Linux stdio tests+Clippy passed;fresh native CI pending"
     }
   ],
   "native_arm64": "not_run",

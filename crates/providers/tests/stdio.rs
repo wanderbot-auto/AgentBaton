@@ -64,7 +64,10 @@ fn installation(mode: &str) -> (TempDir, ApprovedInstallation) {
     let descriptor = ApprovedInstallation {
         executable: PathBuf::from(String::from_utf8(python.stdout).unwrap().trim()),
         arguments: vec!["-u".into(), script.into(), mode.into()],
-        workspace: dir.path().to_path_buf(),
+        // Darwin temporary paths may use /var, while getcwd() reports the
+        // /private/var canonical identity. Approve the canonical workspace so
+        // the fixture's exact session/new cwd assertion remains portable.
+        workspace: dir.path().canonicalize().unwrap(),
         approval_reference: "test-fixture-approval".into(),
         environment: BTreeMap::new(),
     };
