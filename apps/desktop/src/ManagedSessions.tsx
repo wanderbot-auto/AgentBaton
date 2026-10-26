@@ -4,8 +4,8 @@ import { sessionApi, type ExecutionGrant, type ManagedSession, type NamedConnect
 import { sessionMessages } from './session-i18n';
 import { messages, type Language } from './i18n';
 
-interface Props { language: Language; connected: boolean; projects: Project[]; tasks: Task[]; projectId: string; onProjectChange: (id: string) => void; refreshTasks: () => Promise<void> }
-export function ManagedSessions({ language, connected, projects, tasks, projectId, onProjectChange, refreshTasks }: Props) {
+interface Props { language: Language; connected: boolean; projects: Project[]; tasks: Task[]; projectId: string; onProjectChange: (id: string) => void; refreshTasks: () => Promise<void>; initialTaskId?: string }
+export function ManagedSessions({ language, connected, projects, tasks, projectId, onProjectChange, refreshTasks, initialTaskId }: Props) {
   const t = sessionMessages[language];
   const [connections, setConnections] = useState<NamedConnection[]>([]);
   const [sessions, setSessions] = useState<ManagedSession[]>([]);
@@ -27,6 +27,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   const [text, setText] = useState('');
   const [uncertainSend, setUncertainSend] = useState<Set<string>>(() => new Set());
   const [events, setEvents] = useState<JournalEvent[]>([]);
+  const [evidenceLimited, setEvidenceLimited] = useState(false);
   const [byteLimitedPage, setByteLimitedPage] = useState(false);
   const [sessionFresh, setSessionFresh] = useState(false);
   const [sessionWorkspace, setSessionWorkspace] = useState<ManagedWorkspace | null>(null);
@@ -42,7 +43,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   const matchingGrants = grants.filter(record => !record.revoked && record.expires_at_ms > Date.now() && record.scope.workspace_ids.includes(workspaceId) && record.scope.connection_ids.includes(connectionId));
   const grantMatches = !!grant && matchingGrants.some(record => record.id === grant.id);
   const canGrant = connected && scopeReady && !project?.archived && !!project && workspace?.state === 'ready' && connection?.probe_state === 'ready';
-  const stateText = (value: string) => value in t ? t[value as keyof typeof t] : `${t.unknown}: ${value}`;
+  const stateText = (value: string) => Object.hasOwn(t, value) ? t[value as keyof typeof t] : `${t.unknown}: ${value}`;
 
   function showError(e: unknown) {
     setError((e instanceof Error ? e.message : String(e)) + (e instanceof DaemonError && e.sideEffectState === 'unknown' ? ` ${t.uncertain}` : ''));
@@ -67,7 +68,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
       setWorkspaces(nextWorkspaces); setGrants(nextGrants); setScopeReady(true);
     } catch (e) { if (request === scopeRequest.current) setError(e instanceof Error ? e.message : String(e)); }
   }, [projectId, connected]);
-  useEffect(() => { setWorkspaceId(''); setGrantId(''); setTaskId(''); setAcknowledged(false); }, [projectId]);
+  useEffect(() => { setWorkspaceId(''); setGrantId(''); setTaskId(initialTaskId ?? ''); setAcknowledged(false); }, [projectId, initialTaskId]);
   useEffect(() => { void refreshScope(); return () => { ++scopeRequest.current; }; }, [refreshScope]);
   useEffect(() => { setAcknowledged(false); setGrantId(''); }, [workspaceId, connectionId, attempts, concurrency, duration]);
 
@@ -75,10 +76,10 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
     const request = ++evidenceRequest.current;
     const snapshot = await api.snapshot();
     const batch = await api.events(Math.max(0, snapshot.sequence - 100));
-    if (request === evidenceRequest.current) { setEvents(batch.events.filter(event => event.aggregate_id === id)); setByteLimitedPage(!!batch.byte_limited); }
+    if (request === evidenceRequest.current) { setEvents(batch.events.filter(event => event.aggregate_id === id)); setEvidenceLimited(batch.next_cursor < batch.sequence); setByteLimitedPage(!!batch.byte_limited); }
   }, []);
   useEffect(() => {
-    ++evidenceRequest.current; setEvents([]); setByteLimitedPage(false); setText(''); setSessionFresh(false);
+    ++evidenceRequest.current; setEvents([]); setEvidenceLimited(false); setByteLimitedPage(false); setText(''); setSessionFresh(false);
     if (sessionId && connected) void refreshEvidence(sessionId).catch(e => setError(e instanceof Error ? e.message : String(e)));
     return () => { ++evidenceRequest.current; };
   }, [sessionId, connected, refreshEvidence]);
@@ -151,12 +152,12 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
       <label htmlFor="session-connection">{t.connection}</label><select id="session-connection" value={connectionId} onChange={event => setConnectionId(event.target.value)}><option value="">{t.choose}</option>{connections.map(record => <option key={record.id} value={record.id} disabled={record.probe_state !== 'ready'}>{record.name} ({record.probe_state})</option>)}</select>
       <label htmlFor="grant-attempts">{t.attempts}</label><input id="grant-attempts" type="number" min={1} max={100} value={attempts} onChange={event => setAttempts(Number(event.target.value))} />
       <label htmlFor="grant-concurrency">{t.concurrency}</label><input id="grant-concurrency" type="number" min={1} max={attempts} value={concurrency} onChange={event => setConcurrency(Number(event.target.value))} />
-      <label htmlFor="grant-duration">{t.duration}</label><input id="grant-duration" type="number" min={1} max={86400} value={duration} onChange={event => setDuration(Number(event.target.value))} />
+      <label htmlFor="grant-duration">{t.duration}</label><input id="grant-duration" type="number" min={1} max={3600} value={duration} onChange={event => setDuration(Number(event.target.value))} />
     </fieldset>
     <dl><dt>{t.recipient}</dt><dd>{connection ? `${connection.name} · ${connection.provider} · ${connection.identity_ref} (${connection.identity_status})` : t.choose}</dd><dt>{t.writable}</dt><dd>{workspace?.root ?? t.choose}</dd><dt>{t.host}</dt><dd>{connection?.host_id ?? t.unknown}</dd></dl>
     <p>{t.grantHelp}</p><p>{t.advisory}</p><p>{t.nativeConfirmation}</p><p className="hint">{t.noCredentials}</p>
     <label className="acknowledgement"><input type="checkbox" checked={acknowledged} disabled={busy || !canGrant} onChange={event => setAcknowledged(event.target.checked)} />{t.acknowledgement}</label>
-    <button disabled={busy || !canGrant || !acknowledged || !Number.isSafeInteger(attempts) || attempts < 1 || !Number.isSafeInteger(concurrency) || concurrency < 1 || concurrency > attempts || !Number.isSafeInteger(duration) || duration < 1 || duration > 86400} onClick={() => {
+    <button disabled={busy || !canGrant || !acknowledged || !Number.isSafeInteger(attempts) || attempts < 1 || !Number.isSafeInteger(concurrency) || concurrency < 1 || concurrency > attempts || !Number.isSafeInteger(duration) || duration < 1 || duration > 3600} onClick={() => {
       const scope = { project_id: projectId, workspace_id: workspaceId, connection_id: connectionId, max_attempts: attempts, max_concurrency: concurrency, max_duration_ms: duration * 1000 };
       void mutate(JSON.stringify(['grant', scope]), key => sessionApi.grantsCreate(scope, key), record => { setGrants(current => [...current, record]); setGrantId(record.id); setAcknowledged(false); });
     }}>{t.grant}</button>
@@ -172,7 +173,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
         <form onSubmit={send}><label htmlFor="session-message">{t.message}</label><textarea id="session-message" value={text} onChange={event => setText(event.target.value)} disabled={busy || !connected || !sessionFresh || selected.state !== 'ready' || uncertainSend.has(selected.id)} maxLength={16384} rows={4} /><p className="hint">{t.promptHelp}</p><button disabled={busy || !connected || !sessionFresh || selected.state !== 'ready' || !text.trim() || uncertainSend.has(selected.id)}>{t.send}</button></form>
         {uncertainSend.has(selected.id) && <div className="error"><p>{t.uncertain}</p><button disabled={busy} onClick={() => { setText(''); setUncertainSend(current => { const next = new Set(current); next.delete(selected.id); return next; }); }}>{t.clearUncertain}</button></div>}
         <button disabled={busy || !connected || !['starting', 'ready', 'running'].includes(selected.state)} onClick={() => void mutate(JSON.stringify(['cancel', selected.id, selected.revision]), key => sessionApi.sessionsCancel(selected, key), record => setSessions(current => mergeSessions(current, [record])))}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><p className="hint">{t.resumeUnsupported}</p>
-        <h3>{t.outputTitle}</h3><p className="hint">{t.eventWindow}</p>{byteLimitedPage && <p role="status">{messages[language].bytePageLimit}</p>}{!events.length && <p>{t.noEvents}</p>}<ol className="session-events">{events.map(event => <li key={event.event_id}>{sessionEventText(event) && <p className="message-text"><strong>{event.kind === 'session.message_queued' ? t.queuedMessage : t.agentMessage}</strong><br />{sessionEventText(event)}</p>}<details><summary>{event.kind} · {event.occurred_at}</summary><pre>{JSON.stringify(event.payload, null, 2)}</pre></details></li>)}</ol>
+        <h3>{t.outputTitle}</h3><p className="hint">{t.eventWindow}</p>{byteLimitedPage && <p role="status">{messages[language].bytePageLimit}</p>}{!events.length && <p>{evidenceLimited ? t.partialEvents : t.noEvents}</p>}<ol className="session-events">{events.map(event => <li key={event.event_id}>{sessionEventText(event) && <p className="message-text"><strong>{event.kind === 'session.message_queued' ? t.queuedMessage : t.agentMessage}</strong><br />{sessionEventText(event)}</p>}<details><summary>{event.kind} · {event.occurred_at}</summary><pre>{JSON.stringify(event.payload, null, 2)}</pre></details></li>)}</ol>
       </> : <p>{t.selected}</p>}</section></div>
   </section>;
 }
