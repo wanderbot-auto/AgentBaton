@@ -265,6 +265,11 @@ struct ReadyRequest {
     deadline: Instant,
 }
 fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
+    // Accepted sockets can inherit O_NONBLOCK from the nonblocking listener on
+    // Darwin. Establish bounded blocking client IO before any first-frame read.
+    if stream.set_nonblocking(false).is_err() {
+        return;
+    }
     let _ = stream.set_read_timeout(Some(Duration::from_secs(3)));
     let _ = stream.set_write_timeout(Some(Duration::from_secs(3)));
     let response = match read_frame(&stream, MAX_FRAME) {
@@ -535,8 +540,12 @@ impl Daemon {
                     revision,
                     &key,
                 )?;
-                if let Err(error) = self.supervisor.launch(&mut self.store, &s.id) {
-                    self.store.record_launch_failure(&s.id)?;
+                if let Err(mut error) = self.supervisor.launch(&mut self.store, &s.id) {
+                    self.supervisor
+                        .record_local_launch_failure(&mut self.store, &s.id)?;
+                    error.side_effect_state = "confirmed".into();
+                    error.details_ref =
+                        Some(format!("local-session-recorded-no-provider-start:{}", s.id));
                     return Err(error);
                 }
                 Ok(json!(s))
@@ -559,7 +568,7 @@ impl Daemon {
                 if dispatch {
                     if let Err(error) = self.supervisor.send(&s.id, &p.text) {
                         self.supervisor.cancel(&s.id);
-                        self.store.record_launch_failure(&s.id)?;
+                        self.store.record_turn_queue_failure(&s.id)?;
                         return Err(error);
                     }
                 }
@@ -724,6 +733,26 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
 #[cfg(test)]
 mod frame_tests {
     use super::*;
+
+    #[test]
+    fn inherited_nonblocking_stream_waits_for_the_delayed_complete_first_frame() {
+        let (receiver, mut sender) = UnixStream::pair().unwrap();
+        receiver.set_nonblocking(true).unwrap();
+        let (requests, ready) = mpsc::sync_channel(1);
+        let worker = std::thread::spawn(move || socket_worker(receiver, requests));
+        std::thread::sleep(Duration::from_millis(30));
+        sender.write_all(b"{}\n").unwrap();
+        let request = ready.recv_timeout(Duration::from_secs(2)).unwrap();
+        assert_eq!(request.raw, "{}\n");
+        request
+            .reply
+            .send(json!({"result":"delayed-frame-read"}))
+            .unwrap();
+        let response: Value =
+            serde_json::from_str(&read_frame(&sender, MAX_FRAME).unwrap()).unwrap();
+        assert_eq!(response["result"], "delayed-frame-read");
+        worker.join().unwrap();
+    }
 
     #[test]
     fn oversized_parser_returns_resource_limit_without_relying_on_error_delivery() {

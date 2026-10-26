@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import http.server
+import importlib.metadata
 import json
 import os
 from pathlib import Path
@@ -27,7 +28,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batond', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--chromium', default='/usr/bin/chromium')
+    parser.add_argument('--chromium', help='Explicit local Chromium, otherwise the pinned Playwright browser')
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -115,6 +116,8 @@ def main():
             url = f'http://127.0.0.1:{server.server_port}'
             with sync_playwright() as playwright:
                 browser = playwright.chromium.launch(executable_path=args.chromium, headless=True, args=['--disable-dev-shm-usage'])
+                report['browser_version'] = browser.version
+                report['playwright_version'] = importlib.metadata.version('playwright')
                 context = browser.new_context(viewport={'width': 1488, 'height': 981}, locale='zh-CN')
                 context.add_init_script("""localStorage.setItem('agentbaton.language','zh');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{const response=await fetch('/__test_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!response.ok)throw new Error('Test adapter transport unavailable');return response.json();}};""")
                 context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(url + '/') else route.abort())

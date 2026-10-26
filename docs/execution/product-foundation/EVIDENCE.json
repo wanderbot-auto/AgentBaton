@@ -94,5 +94,46 @@
     "artifact_delivery": "not_run",
     "followup_head": "8dd441c1fbaa1342e546291ab3a69ec94defe32f",
     "followup_intel": "failed_same_fixture_peer_close"
+  },
+  "remote_ci_history": [
+    {
+      "head_sha": "222aafd1089701946fc77e477764ab8ee4bc367c",
+      "product_run": 40380772032,
+      "environment_run": 40380772936,
+      "environment_all_three": "passed",
+      "product_all_four": "passed",
+      "artifacts": [
+        {
+          "id": 12679597074,
+          "name": "development-macos-15-intel-8117fd58def2f05662e59b2069a84390c5dac257",
+          "zip_digest": "sha256:fdbfe591165eac7148b6bedc013ee9449c1f91cdb9c73753872dafca613281ce",
+          "dmg_name": "AgentBaton-x86_64-8117fd58def2f05662e59b2069a84390c5dac257-development.dmg",
+          "dmg_sha256": "3fbbed9760e98d839a6483199922d7aaaa7417e12258399ec2c335a570d44c18",
+          "build_record": "commit=8117fd58def2f05662e59b2069a84390c5dac257\narchitecture=x86_64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.19.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\napps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app: code object is not signed at all\n",
+          "signature": "unsigned",
+          "notarization": "not_configured",
+          "gui_acceptance": "not_run"
+        },
+        {
+          "id": 12677712960,
+          "name": "development-macos-15-8117fd58def2f05662e59b2069a84390c5dac257",
+          "zip_digest": "sha256:cc05fad9ab48944c49fe9e8fd48785a0422fada935f8ca2679e56f5735fb5e17",
+          "dmg_name": "AgentBaton-arm64-8117fd58def2f05662e59b2069a84390c5dac257-development.dmg",
+          "dmg_sha256": "a7fb47a4fdf59755e20f256458f551681663a85100d40a2623fe430d47e3472e",
+          "build_record": "commit=8117fd58def2f05662e59b2069a84390c5dac257\narchitecture=arm64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: aarch64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.20.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\nExecutable=/Users/runner/work/AgentBaton/AgentBaton/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop\nIdentifier=agentbaton_desktop-6cae1a0112e8bf7e\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=87752 flags=0x20002(adhoc,linker-signed) hashes=2738+0 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=984320\nHash type=sha256 size=32\nCandidateCDHash sha256=f06cbc56d6e943b42fe6c468e9b2feded716e632\nCandidateCDHashFull sha256=f06cbc56d6e943b42fe6c468e9b2feded716e6321197c331062631e12149067a\nHash choices=sha256\nCMSDigest=f06cbc56d6e943b42fe6c468e9b2feded716e6321197c331062631e12149067a\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=7389184\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=f06cbc56d6e943b42fe6c468e9b2feded716e632\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements=none\n",
+          "signature": "linker_adhoc_no_TeamIdentifier",
+          "notarization": "not_configured",
+          "gui_acceptance": "not_run"
+        }
+      ]
+    }
+  ],
+  "integration": {
+    "pull_request": 3,
+    "merged": true,
+    "merge_sha": "1f34b444821640bf88f32a8bb39c6434d4ca26cc",
+    "guarded_head_sha": "222aafd1089701946fc77e477764ab8ee4bc367c",
+    "latest_owner_inbox": "OWNER-001_and_OWNER-002_read_ACK_no_later_sequence",
+    "full_product": "incomplete"
   }
 }

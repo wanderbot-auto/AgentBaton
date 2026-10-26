@@ -78,10 +78,23 @@ describe('Named connection and managed-session UI using mocked transport', () =>
     await user.type(screen.getByLabelText('Canonical executable path'), '/explicit/program');
     await user.type(screen.getByLabelText('Launch arguments (one per line)'), '--acp\n--mode=local');
     await user.click(screen.getByRole('button', { name: 'Register and run version probe' }));
-    expect(sessionApi.connectionsRegister).toHaveBeenCalledWith('Chosen program', '/explicit/program', ['--acp', '--mode=local'], expect.any(String));
+    expect(sessionApi.connectionsRegister).toHaveBeenCalledWith('Chosen program', '/explicit/program', ['--acp', '--mode=local'], expect.any(String), 'custom_acp');
     expect(await screen.findByText('Selected program 1.0')).toBeVisible();
     expect(screen.getByText('identity-unverified (unknown)')).toBeVisible();
     expect(screen.getAllByText(/A version probe does not prove authentication/).length).toBeGreaterThan(0);
+  });
+  it('native selection drops custom argv and requests the selected route without an approval claim', async () => {
+    const user = userEvent.setup();
+    vi.mocked(sessionApi.connectionsRegister).mockResolvedValue(connection);
+    render(<Connections language="en" connected />);
+    await user.type(screen.getByLabelText('Connection name'), 'Chosen native engine');
+    await user.type(screen.getByLabelText('Canonical executable path'), '/selected/native');
+    await user.type(screen.getByLabelText('Launch arguments (one per line)'), '--custom-fixture-only');
+    await user.selectOptions(screen.getByLabelText('Protocol route'), 'codex');
+    expect(screen.getByLabelText('Launch arguments (one per line)')).toBeDisabled();
+    expect(screen.getByLabelText('Launch arguments (one per line)')).toHaveValue('');
+    await user.click(screen.getByRole('button', { name: 'Register and run version probe' }));
+    expect(sessionApi.connectionsRegister).toHaveBeenCalledWith('Chosen native engine', '/selected/native', [], expect.any(String), 'codex');
   });
   it('requires explicit acknowledgement after showing exact recipient and writable scope', async () => {
     const user = userEvent.setup();

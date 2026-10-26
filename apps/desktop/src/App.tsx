@@ -8,6 +8,7 @@ import { ManagedSessions, sessionEventText } from './ManagedSessions';
 import { sessionApi, type ManagedSession, type NamedConnection } from './session-api';
 import { ContextDialog } from './ContextDialog';
 import { Icon, type IconName } from './Icons';
+import { earlierEventWindow } from './event-window';
 
 type View = 'work' | 'tasks' | 'capabilities' | 'history' | 'quick';
 type Filter = 'all' | 'active' | 'attention' | 'drafts' | 'done';
@@ -42,6 +43,9 @@ export function App() {
   const [projectId, setProjectId] = useState('');
   const [events, setEvents] = useState<JournalEvent[]>([]);
   const [earliestCursor, setEarliestCursor] = useState(0);
+  const [nextEventCursor, setNextEventCursor] = useState(0);
+  const [eventPageMore, setEventPageMore] = useState(false);
+  const eventRequestCursor = useRef<number | undefined>(undefined);
   const [selectedId, setSelectedId] = useState<string>();
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
   const [error, setError] = useState('');
@@ -64,14 +68,30 @@ export function App() {
     const request = ++refreshSequence.current;
     if (!silent) setStatus('connecting');
     try {
-      const [snapshot, projectRecords] = await Promise.all([api.snapshot(), api.projectsList()]);
+      const snapshot = await api.snapshot();
       if (request !== refreshSequence.current) return;
-      setTasks(snapshot.tasks); setProjects(projectRecords); setStatus('connected');
-      const cursor = Math.max(0, snapshot.sequence - 100);
-      const [batch, nextConnections, nextSessions] = await Promise.all([api.events(cursor), sessionApi.connectionsList(), sessionApi.sessionsList()]);
+      setTasks(snapshot.tasks); setStatus('connected');
+      const cursor = eventRequestCursor.current ?? Math.max(0, snapshot.sequence - 100);
+      const [history, projectRecords, nextConnections, nextSessions] = await Promise.allSettled([api.events(cursor), api.projectsList(), sessionApi.connectionsList(), sessionApi.sessionsList()]);
       if (request !== refreshSequence.current) return;
-      setEvents(batch.events); setEarliestCursor(cursor); setConnections(nextConnections); setSessions(nextSessions);
-      setError(batch.gap ? messages[language].eventGap : '');
+      const failures: string[] = [];
+      for (const result of [history, projectRecords, nextConnections, nextSessions]) {
+        if (result.status === 'rejected') {
+          const error: unknown = result.reason;
+          failures.push(error instanceof Error ? error.message : String(error));
+          if (!(error instanceof DaemonError) || ['AUTH_REQUIRED', 'PROVIDER_DISCONNECTED'].includes(error.code)) setStatus('disconnected');
+        }
+      }
+      if (history.status === 'fulfilled') {
+        const batch = history.value;
+        setEvents(batch.events); setEarliestCursor(cursor);
+        setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence);
+        if (batch.gap) failures.push(messages[language].eventGap);
+      }
+      if (projectRecords.status === 'fulfilled') setProjects(projectRecords.value);
+      if (nextConnections.status === 'fulfilled') setConnections(nextConnections.value);
+      if (nextSessions.status === 'fulfilled') setSessions(nextSessions.value);
+      setError(failures.join(' '));
     } catch (e) {
       if (request !== refreshSequence.current) return;
       setStatus('disconnected'); setError(e instanceof Error ? e.message : String(e));
@@ -142,15 +162,32 @@ export function App() {
   }
   async function loadEarlier() {
     setBusy(true);
+    const request = ++refreshSequence.current;
     try {
       const cursor = Math.max(0, earliestCursor - 100), batch = await api.events(cursor);
+      if (request !== refreshSequence.current) return;
       if (batch.gap) { setError(t.eventGap); return; }
-      setEvents(current => [...batch.events.filter(event => event.sequence <= earliestCursor), ...current].slice(-500)); setEarliestCursor(cursor);
+      const older = batch.events.filter(event => event.sequence <= earliestCursor);
+      if (!older.length) { setError(t.eventGap); return; }
+      const window = earlierEventWindow(older, events);
+      setEvents(window.events); setEarliestCursor(cursor); eventRequestCursor.current = cursor;
+      if (window.replaced || batch.byte_limited) { setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence); }
     } catch (e) { showError(e); }
     finally { setBusy(false); }
   }
-  function openTask(id: string) { setSelectedId(id); setGoal(''); setTab('conversation'); setView('tasks'); setDialog(null); setMobileNav(false); createKey.current = null; }
-  function navigate(next: View) { setView(next); setSelectedId(undefined); setMobileNav(false); setGoal(''); createKey.current = null; }
+  async function loadNextEvents() {
+    setBusy(true);
+    const request = ++refreshSequence.current;
+    try {
+      const cursor = nextEventCursor, batch = await api.events(cursor);
+      if (request !== refreshSequence.current) return;
+      if (batch.gap || (batch.next_cursor <= cursor && batch.sequence > cursor)) { setError(t.eventGap); return; }
+      setEvents(batch.events); setEarliestCursor(cursor); setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence); eventRequestCursor.current = cursor;
+    } catch (e) { showError(e); }
+    finally { setBusy(false); }
+  }
+  function openTask(id: string) { eventRequestCursor.current = undefined; setSelectedId(id); setGoal(''); setTab('conversation'); setView('tasks'); setDialog(null); setMobileNav(false); createKey.current = null; }
+  function navigate(next: View) { if (next !== 'history') eventRequestCursor.current = undefined; setView(next); setSelectedId(undefined); setMobileNav(false); setGoal(''); createKey.current = null; }
   const filtered = tasks.filter(task => (!projectId || task.project_id === projectId) && (filter === 'all' || (filter === 'active' ? activeStates.has(task.state) : filter === 'attention' ? attentionStates.has(task.state) : filter === 'drafts' ? task.state === 'draft' : finishedStates.has(task.state))));
   const taskEvents = selected ? events.filter(event => event.aggregate_id === selected.id || selectedSessions.some(session => session.id === event.aggregate_id)) : [];
   const conversationEvents = taskEvents.filter(event => sessionEventText(event));
@@ -158,6 +195,7 @@ export function App() {
   const nav: [Exclude<View, 'quick'>, IconName, string][] = [['work', 'grid', c.space], ['tasks', 'task', t.tasks], ['capabilities', 'capabilities', t.capabilities], ['history', 'history', t.history]];
   const projectName = (id: string | undefined) => projects.find(project => project.id === id)?.name ?? t.localDrafts;
   const dialogTitle = dialog === 'projects' ? c.projectSettings : dialog === 'execution' ? c.execution : dialog === 'search' ? c.searchTasks : dialog === 'conversion' ? c.convertTitle : c.settings;
+  const eventPager = eventPageMore && <div className="event-page-controls"><p className="hint">{t.eventPageMore}</p><button onClick={() => void loadNextEvents()} disabled={busy || status !== 'connected'}>{t.nextEvents}</button></div>;
   return <div className={`shell${navCollapsed ? ' nav-collapsed' : ''}${mobileNav ? ' mobile-nav-open' : ''}`}>
     <header className="appbar"><div className="brand"><svg className="brandmark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 19 11 4h5L8 19Zm9 1 7-13h4l-7 13Z" /></svg><span>AgentBaton</span></div><button className="icon-button nav-toggle" aria-label={c.toggleNav} aria-expanded={mobileLayout ? mobileNav : !navCollapsed} onClick={() => { if (mobileLayout) setMobileNav(value => !value); else setNavCollapsed(value => !value); }}><Icon name="panel" /></button><div className="location"><span>{c.personal}</span><span className="location-divider">/</span><button onClick={() => setDialog('projects')}>{projectId ? projectName(projectId) : c.allProjects}</button></div><span className={`connection ${status}`} role="status"><span className="status-dot" />{t[status]}</span><button className="icon-button" aria-label={t.refresh} disabled={busy} onClick={() => void refresh()}><Icon name="refresh" /></button></header>
     {mobileNav && <button className="mobile-nav-dismiss" aria-label={c.close} onClick={() => setMobileNav(false)} />}
@@ -176,12 +214,12 @@ export function App() {
         const next = event.key === 'ArrowRight' ? order[(index + 1) % order.length] : event.key === 'ArrowLeft' ? order[(index + order.length - 1) % order.length] : event.key === 'Home' ? order[0] : event.key === 'End' ? order[order.length - 1] : null;
         if (next) { event.preventDefault(); setTab(next); document.getElementById(`tab-${next}`)?.focus(); }
       }} onClick={() => setTab(item)}>{c[item]}</button>)}</div><div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
-        {tab === 'conversation' && <><div className="conversation"><article className="user-message"><p>{selected.goal}</p></article>{conversationEvents.map(event => <article className={event.kind === 'session.message_queued' ? 'user-message' : 'agent-message'} key={event.event_id}><p>{sessionEventText(event)}</p></article>)}</div>{!selectedSessions.length && <div className="thread-note"><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => setDialog('execution')}>{c.configure}</button></div>}{selectedSessions.map(session => <p className="session-observation" key={session.id}>{c.sessionState}: {stateText(session.state)}{session.turn_state ? ` · ${session.turn_state}` : ''}</p>)}<details className="folded-plan"><summary>{c.plans}</summary><p>{c.noPlan}</p></details><details className="observable-events"><summary>{c.eventDetails}</summary><EventList events={taskEvents} title={t.evidence} empty={t.noEvents} /></details>{earliestCursor > 0 && <p className="hint">{t.moreEvents}</p>}</>}
+        {tab === 'conversation' && <><div className="conversation"><article className="user-message"><p>{selected.goal}</p></article>{conversationEvents.map(event => <article className={event.kind === 'session.message_queued' ? 'user-message' : 'agent-message'} key={event.event_id}><p>{sessionEventText(event)}</p></article>)}</div>{!selectedSessions.length && <div className="thread-note"><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => setDialog('execution')}>{c.configure}</button></div>}{selectedSessions.map(session => <p className="session-observation" key={session.id}>{c.sessionState}: {stateText(session.state)}{session.turn_state ? ` · ${session.turn_state}` : ''}</p>)}<details className="folded-plan"><summary>{c.plans}</summary><p>{c.noPlan}</p></details><details className="observable-events"><summary>{c.eventDetails}</summary><EventList events={taskEvents} title={t.evidence} empty={t.noEvents} /></details>{eventPager}{earliestCursor > 0 && <p className="hint">{t.moreEvents}</p>}</>}
         {tab === 'artifacts' && <div className="empty-panel"><Icon name="file" /><h2>{c.noArtifacts}</h2><p>{c.artifactUnavailable}</p><button disabled>{c.artifacts} · {c.unavailable}</button></div>}
         {tab === 'details' && <div className="task-details"><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.project}</dt><dd>{projectName(selected.project_id)}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{c.retained}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || ['cancel_requested', 'cancelled', 'accepted', 'failed'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p></div>}
       </div></section>}
       {view === 'capabilities' && <><div className="page-heading"><h1>{t.capabilities}</h1></div><Connections language={language} connected={status === 'connected'} compact /><section className="capability-empty"><h2>{c.capabilitySources}</h2><p>{c.noCapabilitySources}</p><p className="hint">{c.provenance}</p></section></>}
-      {view === 'history' && <><div className="page-heading"><h1>{t.history}</h1></div><EventList events={events} title={t.evidence} empty={t.noEvents} />{earliestCursor > 0 && <><p>{events.length >= 500 ? t.windowLimit : t.moreEvents}</p><button onClick={() => void loadEarlier()} disabled={busy || events.length >= 500 || status !== 'connected'}>{t.earlier}</button></>}</>}
+      {view === 'history' && <><div className="page-heading"><h1>{t.history}</h1></div><EventList events={events} title={t.evidence} empty={t.noEvents} />{eventPager}{earliestCursor > 0 && <><p>{events.length >= 500 ? t.windowLimit : t.moreEvents}</p><button onClick={() => void loadEarlier()} disabled={busy || status !== 'connected'}>{t.earlier}</button></>}</>}
       {view === 'quick' && <section className="quick-thread"><h1>{c.quickTitle}</h1><p>{c.quickHelp}</p><label htmlFor="quick-summary">{c.quickContext}</label><textarea id="quick-summary" value={quickSummary} maxLength={8192} rows={6} onChange={event => setQuickSummary(event.target.value)} placeholder={c.quickPlaceholder} /><div className="quick-actions"><button disabled title={c.quickHelp}>{c.send} · {c.unavailable}</button><button className="primary" disabled={busy || status !== 'connected' || !quickSummary.trim()} onClick={() => { setConversionSummary(quickSummary); createKey.current = null; setDialog('conversion'); }}>{c.convert}</button></div></section>}
     </div></div>
     {showingCanvas && <div className="composer-wrap"><form className="composer" data-testid="goal-composer" onSubmit={selected ? sendTaskMessage : createTask}><label className="sr-only" htmlFor="goal">{selected ? c.message : t.goal}</label><textarea ref={composer} data-testid="goal-input" id="goal" disabled={busy || (!!selected && (!readySession || uncertainTaskSend))} value={goal} maxLength={selected ? 16384 : 8192} onChange={event => { setGoal(event.target.value); createKey.current = null; }} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } }} placeholder={selected ? c.messagePlaceholder : c.goalPlaceholder} required rows={2} /><div className="composer-controls"><div className="composer-left"><button className="icon-button" type="button" disabled title={c.attachmentUnavailable} aria-label={c.attachment}><Icon name="plus" /></button><label className="composer-project"><Icon name="folder" /><span className="sr-only">{t.project}</span><select disabled={busy || !!selected} value={selected?.project_id ?? projectId} onChange={event => { setProjectId(event.target.value); createKey.current = null; }}><option value="">{t.localDrafts}</option>{projects.map(project => <option key={project.id} value={project.id} disabled={project.archived}>{project.name}{project.archived ? ` (${t.archived})` : ''}</option>)}</select></label><span className="composer-divider" /><button type="button" className="text-button execution-choice" disabled={!selected} aria-label={c.connectionChoice} title={selected ? c.execution : c.automaticUnavailable} onClick={() => setDialog('execution')}><Icon name="capabilities" /><span>{selectedConnection?.name ?? (selected ? c.selectedConnection : c.automaticUnavailable)}</span></button></div><button type="submit" className="send-button primary" aria-label={selected ? c.send : t.create} disabled={busy || status !== 'connected' || !goal.trim() || (selected ? !readySession || uncertainTaskSend : projects.some(project => project.id === projectId && project.archived))}><Icon name="send" /></button></div></form><div className="composer-foot"><span>{selected ? uncertainTaskSend ? c.unsent : !readySession ? c.sessionRequired : selectedConnection?.name : c.draftHint}</span><span>{c.enterHint}</span></div></div>}

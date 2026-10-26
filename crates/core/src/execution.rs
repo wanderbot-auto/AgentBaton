@@ -358,7 +358,8 @@ impl Store {
         intent.state = IntentState::Stopped;
         task.state = if task.state == TaskState::CancelRequested {
             TaskState::Cancelled
-        } else if receipt["kind"] == "executor_not_started" {
+        } else if receipt["kind"] == "executor_not_started" || receipt["kind"] == "never_dispatched"
+        {
             TaskState::Draft
         } else {
             TaskState::OutcomeUnknown

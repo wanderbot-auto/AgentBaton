@@ -1,1 +1,9 @@
-Starting actual adapter/config integration after preserved reviewed session checkpoint. OWNER-002 UI work uses a dedicated branch/PR, preserving existing API. No current-unit tests or compatibility claimed yet.
+# Progress
+
+Implemented and independently reviewed explicit native Codex and documented ACP routes, bounded owned process codec, private default RuntimePlan materialization, plan/executable/config-bound owner grants, immutable schema5 runtime snapshots and before-launch byte checks. Known-no-start cleanup preserves total-attempt accounting; restart unknown writers are not replayed. Custom ACP remains compatible. Only approved generated default plans are connected; richer Skill/MCP/model/identity flows remain incomplete.
+
+Fixed independently found journal allocation risk using pre-decode4MiB pages; UI uses navigable500-record/8MiB windows. Snapshot connectivity and history read errors are separate so actual cancellation stays available. Owner proposals display server-resolved execution recipients. Added native/browsing evidence lanes without removing any Environment check.
+
+Actual final Linux validation:243 top-level Rust under022;41 UI;22 browser+actual Unix IPC with8 screenshots;7 native host;10 native runner/audit contracts;8 generated wire messages validate against official pinned schema. Applicable fmt/clippy/type/build/restart/infrastructure pass. Full commands/source/log hashes and failed controls are in EVIDENCE.json and FINAL_REVIEW.md. Latest native host portability rerun also passes. Browser22/8 rerun against current post-portability daemon passes; previous browser records remain historical. MacGUI and default Mac release audit have not run at this candidate.
+
+Actual PR3 foundation merged1f34b44 with both same-checkout verified devDMGs after all7 checks. Registry PR4 all7 checks and both verified DMGs passed; merged dc5aea0; session PR6/UI PR7 remain stacked drafts. This is a partial product checkpoint, not full delivery. Continue exact-head CI plus next dependency-ready validation/adoption integration.

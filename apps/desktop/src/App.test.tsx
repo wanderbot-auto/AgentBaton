@@ -117,4 +117,38 @@ describe('Task workspace using mocked Tauri transport', () => {
     expect(await screen.findByText('record.31')).toBeVisible();
     expect(screen.getByText('record.230')).toBeVisible();
   });
+  it('shows byte-limited history honestly and follows the returned cursor without accumulating large pages', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 230, api_version: 1 });
+    vi.mocked(api.events).mockImplementation(async cursor => ({
+      events: [{ sequence: cursor + 1, event_id: `event-${cursor + 1}`, aggregate_id: task.id, revision: 1, kind: `record.${cursor + 1}`, occurred_at: task.created_at, source: 'generated_fixture', payload: {} }],
+      next_cursor: cursor + 1, sequence: 230, gap: false, byte_limited: true, page_bytes: 100,
+    }));
+    render(<App />);
+    await waitFor(() => expect(api.events).toHaveBeenCalledWith(130));
+    await user.click(screen.getByRole('button', { name: 'History' }));
+    expect(await screen.findByText('record.131')).toBeVisible();
+    expect(screen.getByText(/This journal page is incomplete/)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Read next event page' }));
+    await waitFor(() => expect(api.events).toHaveBeenCalledWith(131));
+    expect(await screen.findByText('record.132')).toBeVisible();
+    expect(screen.queryByText('record.131')).not.toBeInTheDocument();
+  });
+
+  it('keeps authenticated task cancellation available when only history is resource-limited', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version: 1 });
+    vi.mocked(api.cancel).mockResolvedValue({ ...task, state: 'cancelled', revision: 2 });
+    vi.mocked(api.events).mockRejectedValue(new DaemonError('RESOURCE_LIMIT', 'Journal page unavailable', 'not_started'));
+    render(<App />);
+    await user.click(await screen.findByRole('button', { name: `Open task: ${task.goal}` }));
+    await user.click(screen.getByRole('tab', { name: 'Details' }));
+    expect(screen.getByText('Local daemon connected')).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('Journal page unavailable');
+    const cancel = screen.getByRole('button', { name: 'Request cancellation' });
+    expect(cancel).toBeEnabled();
+    await user.click(cancel);
+    await waitFor(() => expect(api.cancel).toHaveBeenCalled());
+  });
+
 });

@@ -1,8 +1,10 @@
 """Test external native evidence and fatal/timeout cleanup; no GUI is simulated."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 import unittest
 
@@ -74,6 +76,38 @@ class NativeRunnerTests(unittest.TestCase):
         self.assertEqual(status, 1)
         self.assertTrue(report['timeout'])
         self.assertEqual(report['exit_code'], -9)
+
+
+class NativeArtifactAuditTests(unittest.TestCase):
+    def inspect(self, content, failed_tool=False):
+        with tempfile.TemporaryDirectory(prefix='native-audit-test-') as temporary:
+            root = Path(temporary)
+            candidate = root / 'controlled-audit-fixture'
+            candidate.write_text(content)
+            environment = dict(os.environ)
+            if failed_tool:
+                tools = root / 'tools'
+                tools.mkdir()
+                strings = tools / 'strings'
+                strings.write_text('#!/bin/sh\nexit 23\n')
+                strings.chmod(0o700)
+                environment['PATH'] = str(tools) + os.pathsep + environment['PATH']
+            return subprocess.run(['/bin/bash', str(ROOT / 'scripts/native-audit-release.sh'), str(candidate)], env=environment, capture_output=True, text=True)
+
+    def test_inspection_tool_failure_cannot_report_success(self):
+        result = self.inspect('controlled fixture without test markers', failed_tool=True)
+        self.assertEqual(result.returncode, 23)
+        self.assertNotIn('PASS', result.stdout)
+
+    def test_native_test_marker_is_rejected(self):
+        result = self.inspect('controlled native-smoke-create fixture')
+        self.assertEqual(result.returncode, 1)
+        self.assertNotIn('PASS', result.stdout)
+
+    def test_absent_markers_passes_only_the_marker_inspection(self):
+        result = self.inspect('controlled fixture without test markers')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('PASS', result.stdout)
 
 
 if __name__ == '__main__':

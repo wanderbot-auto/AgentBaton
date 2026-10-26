@@ -5,6 +5,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
+agentbaton-config = { path = "../config" }
 agentbaton-providers = { path = "../providers" }
 sha2 = "0.10"
 agentbaton-workspaces = { path = "../workspaces" }

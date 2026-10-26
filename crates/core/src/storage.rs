@@ -6,6 +6,10 @@ use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt, path::Path};
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 use uuid::Uuid;
 
+/// Bound journal decoding before constructing an IPC response. Count limits
+/// alone do not bound memory when normalized Provider messages are large.
+pub const MAX_EVENT_PAGE_BYTES: usize = 4 * 1024 * 1024;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum TaskState {
@@ -77,7 +81,7 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 4 {
+        if version > 5 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
@@ -97,8 +101,8 @@ impl Store {
         }
         conn.execute_batch("PRAGMA foreign_keys=ON;")
             .map_err(db_error)?;
-        if version > 0 && version < 4 {
-            let backup = path.with_extension(format!("pre-v4-{}.sqlite3", Uuid::new_v4()));
+        if version > 0 && version < 5 {
+            let backup = path.with_extension(format!("pre-v5-{}.sqlite3", Uuid::new_v4()));
             OpenOptions::new()
                 .create_new(true)
                 .write(true)
@@ -113,6 +117,7 @@ impl Store {
         crate::execution::migrate(&mut conn, version)?;
         migrate_registry(&mut conn, version)?;
         migrate_sessions(&mut conn, version)?;
+        migrate_runtime_snapshots(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -303,23 +308,58 @@ impl Store {
         let mut stmt = self
             .conn
             .prepare(
-                "SELECT sequence,document FROM events WHERE sequence>?1 ORDER BY sequence LIMIT ?2",
+                "SELECT sequence,octet_length(document) FROM events WHERE sequence>?1 ORDER BY sequence LIMIT ?2",
             )
             .map_err(db_error)?;
         let rows = stmt
             .query_map(params![cursor as i64, limit], |r| {
-                Ok((r.get::<_, i64>(0)? as u64, r.get::<_, String>(1)?))
+                Ok((r.get::<_, i64>(0)? as u64, r.get::<_, i64>(1)?))
             })
             .map_err(db_error)?;
         let mut events = Vec::new();
+        let mut raw_bytes = 0usize;
+        let mut byte_limited = false;
+        let mut documents = self
+            .conn
+            .prepare_cached("SELECT document FROM events WHERE sequence=?1")
+            .map_err(db_error)?;
         for row in rows {
-            let (seq, raw) = row.map_err(db_error)?;
+            let (seq, bytes) = row.map_err(db_error)?;
+            let bytes = usize::try_from(bytes)
+                .map_err(|_| CoreError::new("INTERNAL_ERROR", "Invalid journal record length"))?;
+            if bytes > MAX_EVENT_PAGE_BYTES.saturating_sub(raw_bytes) {
+                if events.is_empty() {
+                    let mut error = CoreError::new(
+                        "RESOURCE_LIMIT",
+                        "One journal record exceeds the bounded event page; it was not skipped",
+                    );
+                    error.details_ref = Some(format!("event-sequence:{seq}"));
+                    return Err(error);
+                }
+                byte_limited = true;
+                break;
+            }
+            let sequence_id = i64::try_from(seq)
+                .map_err(|_| CoreError::new("INTERNAL_ERROR", "Invalid journal sequence"))?;
+            let raw: String = documents
+                .query_row([sequence_id], |row| row.get(0))
+                .map_err(db_error)?;
+            // Same connection/read snapshot, with a defensive post-read check.
+            if raw.len() != bytes {
+                return Err(CoreError::new(
+                    "INPUT_CHANGED",
+                    "Journal record changed during bounded pagination",
+                ));
+            }
             let mut event: Event = decode(&raw)?;
             event.sequence = seq;
             events.push(event);
+            raw_bytes += bytes;
         }
         let next_cursor = events.last().map_or(cursor, |e| e.sequence);
-        Ok(json!({"events":events,"next_cursor":next_cursor,"sequence":sequence,"gap":false}))
+        Ok(
+            json!({"events":events,"next_cursor":next_cursor,"sequence":sequence,"gap":false,"page_bytes":raw_bytes,"byte_limited":byte_limited}),
+        )
     }
 }
 pub(crate) fn append_event(
@@ -364,6 +404,15 @@ fn migrate_sessions(conn: &mut Connection, version: u32) -> Result<()> {
         CREATE TABLE sessions(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),project_id TEXT NOT NULL REFERENCES projects(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),connection_id TEXT NOT NULL REFERENCES connections(id),grant_id TEXT NOT NULL REFERENCES execution_grants(id),root_grant_id TEXT NOT NULL REFERENCES execution_grants(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(task_id,idempotency_key));
         CREATE TABLE session_turns(id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES sessions(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(session_id,idempotency_key));
         PRAGMA user_version=4;").map_err(db_error)?;
+        tx.commit().map_err(db_error)?;
+    }
+    Ok(())
+}
+
+fn migrate_runtime_snapshots(conn: &mut Connection, version: u32) -> Result<()> {
+    if version < 5 {
+        let tx = conn.transaction().map_err(db_error)?;
+        tx.execute_batch("CREATE TABLE session_runtime_snapshots(session_id TEXT PRIMARY KEY REFERENCES sessions(id),attempt_id TEXT NOT NULL UNIQUE REFERENCES attempts(id),config_revision TEXT NOT NULL,document TEXT NOT NULL);PRAGMA user_version=5;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
     Ok(())

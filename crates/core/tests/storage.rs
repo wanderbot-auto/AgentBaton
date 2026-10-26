@@ -73,7 +73,7 @@ fn future_and_unknown_database_are_not_modified() {
     let dir = tempfile::tempdir().unwrap();
     let db = dir.path().join("store.db");
     let conn = Connection::open(&db).unwrap();
-    conn.execute_batch("PRAGMA user_version=5; CREATE TABLE sentinel(value TEXT);")
+    conn.execute_batch("PRAGMA user_version=6; CREATE TABLE sentinel(value TEXT);")
         .unwrap();
     drop(conn);
     let before = std::fs::read(&db).unwrap();
@@ -135,4 +135,83 @@ fn task_limit_returns_explicit_error_instead_of_incomplete_snapshot() {
     tx.commit().unwrap();
     assert_eq!(store.list().unwrap_err().code, "RESOURCE_LIMIT");
     assert_eq!(store.get(&task.id).unwrap().id, task.id);
+}
+
+#[test]
+fn large_journal_pages_bound_bytes_and_preserve_every_sequence() {
+    use agentbaton_core::storage::{Event, MAX_EVENT_PAGE_BYTES};
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("bounded-journal.db");
+    let store = Store::open(&path).unwrap();
+    let db = Connection::open(&path).unwrap();
+    for sequence in 1..=24 {
+        let event = Event {
+            sequence: 0,
+            event_id: format!("event-{sequence}"),
+            aggregate_id: "fixture".into(),
+            revision: sequence,
+            kind: "session.provider_update".into(),
+            occurred_at: "2026-10-26T00:00:00Z".into(),
+            payload: serde_json::json!({"text":"界".repeat(220_000),"index":sequence}),
+            source: "generated_fixture".into(),
+        };
+        db.execute(
+            "INSERT INTO events(document) VALUES(?1)",
+            [serde_json::to_string(&event).unwrap()],
+        )
+        .unwrap();
+    }
+    let mut cursor = 0;
+    let mut sequences = Vec::new();
+    let mut pages = 0;
+    while cursor < 24 {
+        let page = store.events(cursor, 500).unwrap();
+        assert_eq!(page["sequence"], 24);
+        assert_eq!(page["gap"], false);
+        assert!(page["page_bytes"].as_u64().unwrap() <= MAX_EVENT_PAGE_BYTES as u64);
+        assert!(page.to_string().len() < 2 * MAX_EVENT_PAGE_BYTES);
+        let events = page["events"].as_array().unwrap();
+        assert!(!events.is_empty());
+        for event in events {
+            let sequence = event["sequence"].as_u64().unwrap();
+            assert_eq!(
+                sequence,
+                cursor + 1,
+                "Byte pagination must not skip a sequence"
+            );
+            assert_eq!(event["payload"]["index"], sequence);
+            sequences.push(sequence);
+            cursor = sequence;
+        }
+        assert_eq!(page["next_cursor"], cursor);
+        assert_eq!(page["byte_limited"], cursor < 24);
+        pages += 1;
+    }
+    assert!(pages >= 4);
+    assert_eq!(sequences, (1..=24).collect::<Vec<_>>());
+    assert!(store.events(cursor, 500).unwrap()["events"]
+        .as_array()
+        .unwrap()
+        .is_empty());
+}
+
+#[test]
+fn oversized_single_journal_record_is_rejected_before_decoding_and_not_skipped() {
+    use agentbaton_core::storage::MAX_EVENT_PAGE_BYTES;
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("oversized-journal.db");
+    let store = Store::open(&path).unwrap();
+    let db = Connection::open(&path).unwrap();
+    // Invalid content deliberately proves the byte guard precedes JSON decode.
+    db.execute(
+        "INSERT INTO events(document) VALUES(?1)",
+        ["x".repeat(MAX_EVENT_PAGE_BYTES + 1)],
+    )
+    .unwrap();
+    for limit in [1, 500] {
+        let error = store.events(0, limit).unwrap_err();
+        assert_eq!(error.code, "RESOURCE_LIMIT");
+        assert_eq!(error.details_ref.as_deref(), Some("event-sequence:1"));
+    }
+    assert_eq!(store.sequence().unwrap(), 1);
 }
