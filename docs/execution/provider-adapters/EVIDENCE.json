@@ -13,7 +13,7 @@
     "focused_guard": "34dc5f0f14585512a73c612e14a885c9b33ca074"
   },
   "tested_source": "88adbb9 plus reviewed34dc5 writer-lock merge and actor-specific reap-before-unlock; frozen per UI_CI_REVIEW/NATIVE_CI_REVIEW/WRITER_LIFECYCLE_REVIEW (older reviews remain historical)",
-  "candidate_commit": null,
+  "candidate_commit": "573acacdb6e3cf179638a914b61a83926094d366",
   "previous_checkpoint": {
     "path": "docs/execution/provider-adapters/EVIDENCE.pre-stack-5eba.json",
     "sha256": "ff90ab853b4616ca5700ded4b18c13ac7c6b026514edcc7353959b63e4a2401e",
@@ -680,5 +680,6 @@
     "sha256": "33657058a3dc1b272acb1aa9f4b78aeb4ecfbdd09731c98482bc20c04dfb520a",
     "note": "Preserved250test/48UIhistoricalcheckpoint andfirstguardfinding"
   },
-  "remaining_integration": "DedicatedUI47/sourcebf pendingindependentreview; PR9current34 exactCIpending; session334 synchronizemainafterPR9. FullvalidationUI/core distinctisolatedinprogressnotinthiscandidate."
+  "remaining_integration": "DedicatedUI47/sourcebf pendingindependentreview; PR9current34 exactCIpending; session334 synchronizemainafterPR9. FullvalidationUI/core distinctisolatedinprogressnotinthiscandidate.",
+  "candidate_commit_note": "Actual tested product-source commit; following evidence-only commit has identical product bytes. Workflow run records bind its exact checkout separately."
 }
