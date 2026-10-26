@@ -19,6 +19,7 @@ dependencies = [
 name = "agentbaton-core"
 version = "0.1.0"
 dependencies = [
+ "agentbaton-workspaces",
  "fs2",
  "rusqlite",
  "rustix",
@@ -36,6 +37,7 @@ dependencies = [
  "libc",
  "serde",
  "serde_json",
+ "sha2",
  "tempfile",
 ]
 

@@ -1,0 +1,36 @@
+{
+  "observed_at_utc": "2026-10-26T16:58:33.585590+00:00",
+  "verification": "documentation only; no vendor executable installed or run",
+  "sources": [
+    {
+      "id": "codex",
+      "url": "https://raw.githubusercontent.com/agentclientprotocol/codex-acp/6cce03545eaaf5daef849aa9647d4ccfdc22eb41/README.md",
+      "sha256": "4dcbade129cbe32acfff276b7147a0b365ea894c57479fdf58e75ba3a29dd87d"
+    },
+    {
+      "id": "claude-readme",
+      "url": "https://raw.githubusercontent.com/agentclientprotocol/claude-agent-acp/782e463ff418a6093e09cef3f3f5ce813f4ee270/README.md",
+      "sha256": "ad3e8086954af6a1ce005ffe7cc59d1775188207c84b148455c735ac46d174c9"
+    },
+    {
+      "id": "claude-version",
+      "url": "https://raw.githubusercontent.com/agentclientprotocol/claude-agent-acp/782e463ff418a6093e09cef3f3f5ce813f4ee270/src/index.ts",
+      "sha256": "8798fd99816e9a4d0c4a408de4206736cfe297ff7a2668e6f287c08c571daa98"
+    },
+    {
+      "id": "qoder-acp",
+      "url": "https://docs.qoder.com/cli/acp",
+      "sha256": "89e38ae7d8b492e38a41c943cdb9d36dde626269bf67bed2b253798da98c5947"
+    },
+    {
+      "id": "qoder-flags",
+      "url": "https://docs.qoder.com/cli/cli-reference",
+      "sha256": "9bad1965f7ec25acf0d3a3004a034fe53544632ec3bdee73c98a04f305a48486"
+    },
+    {
+      "id": "codex-native-app-server",
+      "url": "https://raw.githubusercontent.com/openai/codex/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/app-server/README.md",
+      "sha256": "b4a92cfab25bd7b96a16b8f9503a8aeae71fad9bad786ee0662efb2cddd1aeb6"
+    }
+  ]
+}

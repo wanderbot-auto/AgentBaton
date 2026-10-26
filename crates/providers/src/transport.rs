@@ -1,6 +1,7 @@
 //! Owned Unix stdio transport. No shell, executable discovery, model credentials
 //! or automatic retries. Process separation and working directories are not a
 //! filesystem/network sandbox. Callers must validate installation approval.
+use crate::installation::{verify_executable, BinaryDigest, InstallationError};
 use crate::{read_frame, AcpClient, PermissionDecision, ProtocolError, TurnState, MAX_FRAME_BYTES};
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -20,9 +21,10 @@ const RECORD_LIMIT: usize = 128;
 /// verification flow. A nonempty approval reference is provenance, not a grant:
 /// the caller must resolve it against its authorization store. No discovery
 /// result is automatically converted into this descriptor.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ApprovedInstallation {
     pub executable: PathBuf,
+    pub expected_sha256: BinaryDigest,
     pub arguments: Vec<OsString>,
     pub workspace: PathBuf,
     pub approval_reference: String,
@@ -36,6 +38,7 @@ pub struct ApprovedInstallation {
 pub enum FailureKind {
     InvalidInstallation,
     StartupFailed,
+    BinaryChanged,
     Timeout,
     Io,
     Protocol,
@@ -132,6 +135,16 @@ impl ProviderProcess {
         {
             return Err(TransportFailure::local(FailureKind::InvalidInstallation));
         }
+        verify_executable(&installation.executable, &installation.expected_sha256).map_err(
+            |error| {
+                TransportFailure::local(match error {
+                    InstallationError::DigestMismatch | InstallationError::FileChanged => {
+                        FailureKind::BinaryChanged
+                    }
+                    _ => FailureKind::InvalidInstallation,
+                })
+            },
+        )?;
         let mut command = Command::new(&installation.executable);
         command
             .args(&installation.arguments)
@@ -518,11 +531,73 @@ impl Drop for ProviderProcess {
         self.terminate();
     }
 }
-fn nonblocking(fd: RawFd) -> std::io::Result<()> {
+pub(crate) fn nonblocking(fd: RawFd) -> std::io::Result<()> {
     // SAFETY: each fd belongs to a live owned pipe for this process.
     let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
     if flags < 0 || unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0 {
         return Err(std::io::Error::last_os_error());
+    }
+    Ok(())
+}
+
+impl std::fmt::Debug for ApprovedInstallation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ApprovedInstallation")
+            .field("executable", &self.executable)
+            .field("expected_sha256", &self.expected_sha256)
+            .field("argument_count", &self.arguments.len())
+            .field(
+                "environment_names",
+                &self.environment.keys().collect::<Vec<_>>(),
+            )
+            .finish_non_exhaustive()
+    }
+}
+
+/// Readiness-based idle wait. The two-millisecond cap bounds exit/deadline
+/// observation, but a producer wakeup returns immediately instead of imposing a
+/// two-millisecond throughput floor on every small pipe refill.
+pub(crate) fn wait_for_io(
+    stdout: Option<RawFd>,
+    stderr: Option<RawFd>,
+    stdin: Option<RawFd>,
+    deadline: Instant,
+) -> std::io::Result<()> {
+    let mut descriptors = [
+        libc::pollfd {
+            fd: stdout.unwrap_or(-1),
+            events: libc::POLLIN,
+            revents: 0,
+        },
+        libc::pollfd {
+            fd: stderr.unwrap_or(-1),
+            events: libc::POLLIN,
+            revents: 0,
+        },
+        libc::pollfd {
+            fd: stdin.unwrap_or(-1),
+            events: libc::POLLOUT,
+            revents: 0,
+        },
+    ];
+    let nanos = deadline
+        .saturating_duration_since(Instant::now())
+        .as_nanos();
+    let timeout_ms = nanos.div_ceil(1_000_000).min(2) as libc::c_int;
+    // SAFETY: the supplied file descriptors are borrowed from live owned pipes;
+    // poll only observes readiness and writes within the descriptors array.
+    let result = unsafe {
+        libc::poll(
+            descriptors.as_mut_ptr(),
+            descriptors.len() as libc::nfds_t,
+            timeout_ms,
+        )
+    };
+    if result < 0 {
+        let error = std::io::Error::last_os_error();
+        if error.kind() != ErrorKind::Interrupted {
+            return Err(error);
+        }
     }
     Ok(())
 }

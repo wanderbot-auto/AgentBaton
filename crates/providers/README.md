@@ -39,7 +39,8 @@ with an absolute executable, argv, workspace and explicit environment. It clears
 inherited environment variables, uses no shell or RC files, negotiates ACP, creates
 sessions with `session/new`, and sends/awaits prompt and cancellation messages.
 The approval reference is provenance only; the application's authorization store
-must validate it and verify the selected binary before constructing the descriptor.
+must validate it before constructing the descriptor. The required expected SHA-256
+is checked against the selected canonical executable immediately before spawn.
 There is no auto-discovery-to-execution path and no automatic retry. Executable
 selection does not establish a filesystem/network sandbox or prevent native
 Provider code from accessing external configuration on its own.
@@ -55,11 +56,15 @@ initialize, even if the prior turn was idle or completed. Permission requests ar
 cancelled until a trusted application-policy callback is implemented. Transport
 supports one outstanding prompt; this is not full concurrent-session scheduling.
 
-Verification dimensions: 20 local contract fixtures and 11 actual Unix stdio fixture
+See [installation provenance and connection contracts](PROVENANCE.md) for canonical
+selection, drift rejection, bounded version probes and immutable named bindings.
+
+Verification dimensions: 20 protocol contracts, 8 connection contracts, 9 actual
+selected fixture executable version probes and 11 actual Unix stdio fixture
 subprocess tests. The latter exercise real pipe I/O/processes, without calling a
 model or claiming real Provider compatibility. Session/load, MCP/host tools,
-Provider authentication/model calls, daemon dispatch wiring, binary approval/digest
-verification, durable raw-event storage/redaction and native Provider compatibility
+Provider authentication/model calls, daemon dispatch wiring, trusted approval-store
+integration, durable raw-event storage/redaction and native Provider compatibility
 remain unimplemented/unverified here.
 
 Run from the repository root:

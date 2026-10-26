@@ -2,6 +2,8 @@
 //! authorization authority. The daemon must validate the owner, grants, scope and
 //! content classification before constructing a managed root or accepting edits.
 //! Native configurations remain read-only; this crate never imports credentials.
+pub mod capabilities;
+
 use fs2::FileExt;
 use rustix::fs::{self as rfs, AtFlags, FileType, Mode, OFlags};
 use serde::{Deserialize, Serialize};

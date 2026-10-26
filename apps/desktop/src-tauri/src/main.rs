@@ -43,10 +43,81 @@ async fn tasks_create(
     runtime: tauri::State<'_, Runtime>,
     goal: String,
     idempotency_key: String,
+    project_id: Option<String>,
+) -> Result<Value, String> {
+    let mut params = json!({"goal":goal});
+    if let Some(project_id) = project_id {
+        params["project_id"] = json!(project_id);
+    }
+    call(
+        &runtime,
+        json!({"method":"tasks.create","params":params,"idempotency_key":idempotency_key}),
+        false,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn projects_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"projects.list","params":{}}),
+        false,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn projects_import(
+    runtime: tauri::State<'_, Runtime>,
+    path: String,
+    name: String,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"projects.import","params":{"path":path,"name":name},"idempotency_key":idempotency_key}), false).await
+}
+
+#[tauri::command]
+async fn projects_archive(
+    runtime: tauri::State<'_, Runtime>,
+    project_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"projects.archive","params":{"project_id":project_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+
+#[tauri::command]
+async fn projects_reassociate(
+    runtime: tauri::State<'_, Runtime>,
+    project_id: String,
+    path: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"projects.reassociate","params":{"project_id":project_id,"path":path},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+
+#[tauri::command]
+async fn workspaces_create(
+    runtime: tauri::State<'_, Runtime>,
+    project_id: String,
+    expected_head: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    // Destination is deliberately absent. Only the daemon chooses managed roots.
+    call(&runtime, json!({"method":"workspaces.create","params":{"project_id":project_id,"expected_head":expected_head},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
+}
+
+#[tauri::command]
+async fn workspaces_list(
+    runtime: tauri::State<'_, Runtime>,
+    project_id: String,
 ) -> Result<Value, String> {
     call(
         &runtime,
-        json!({"method":"tasks.create","params":{"goal":goal},"idempotency_key":idempotency_key}),
+        json!({"method":"workspaces.list","params":{"project_id":project_id}}),
         false,
     )
     .await
@@ -191,7 +262,13 @@ fn main() {
             system_snapshot,
             tasks_create,
             tasks_cancel,
-            events_subscribe
+            events_subscribe,
+            projects_list,
+            projects_import,
+            projects_archive,
+            projects_reassociate,
+            workspaces_create,
+            workspaces_list
         ])
         .run(tauri::generate_context!())
         .expect("Desktop runtime failed");

@@ -40,6 +40,29 @@ struct Create {
     #[serde(default = "default_project")]
     project_id: String,
 }
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ImportProject {
+    path: String,
+    name: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ProjectId {
+    project_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ReassociateProject {
+    project_id: String,
+    path: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CreateWorkspace {
+    project_id: String,
+    expected_head: String,
+}
 fn default_project() -> String {
     "local".into()
 }
@@ -173,12 +196,20 @@ fn private_file(path: &Path) -> Result<File> {
         .open(path)
         .map_err(|_| CoreError::new("PERMISSION_DENIED", "Cannot open private runtime state"))
 }
+fn configure_accepted_stream(stream: &UnixStream) -> std::io::Result<()> {
+    // BSD/Darwin can inherit O_NONBLOCK from the listener. Deadline-based frame
+    // IO requires a blocking accepted descriptor; do not depend on accept flags.
+    stream.set_nonblocking(false)?;
+    stream.set_read_timeout(Some(Duration::from_secs(3)))?;
+    stream.set_write_timeout(Some(Duration::from_secs(3)))
+}
 pub struct Daemon {
     listener: UnixListener,
     store: Store,
     token: String,
     _lock: File,
     socket: PathBuf,
+    managed_root: PathBuf,
 }
 impl Daemon {
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
@@ -191,6 +222,8 @@ impl Daemon {
         // SQLite locks. Finish the private creation check before SQLite opens.
         drop(private_file(&db)?);
         let store = Store::open(&db)?;
+        let managed_root = runtime_dir.join("workspaces");
+        ensure_runtime(&managed_root)?;
         let socket = runtime_dir.join("batond.sock");
         if socket.exists() {
             let meta = fs::symlink_metadata(&socket)
@@ -227,14 +260,16 @@ impl Daemon {
             token,
             _lock: lock,
             socket,
+            managed_root,
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
         while !stop.load(Ordering::Relaxed) {
             match self.listener.accept() {
                 Ok((mut stream, _)) => {
-                    let _ = stream.set_read_timeout(Some(Duration::from_secs(3)));
-                    let _ = stream.set_write_timeout(Some(Duration::from_secs(3)));
+                    if configure_accepted_stream(&stream).is_err() {
+                        continue; // Configuration failure closes this client, not the daemon.
+                    }
                     let response = match read_frame(&stream, MAX_FRAME) {
                         Ok(raw) => self.handle(&raw),
                         Err(error) => {
@@ -292,10 +327,64 @@ impl Daemon {
             return Err(invalid());
         }
         match r.method.as_str() {
+            "projects.import" => {
+                let p: ImportProject = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.import_project(
+                    Path::new(&p.path),
+                    &p.name,
+                    &key
+                )?))
+            }
+            "projects.list" => {
+                empty(&r.params)?;
+                Ok(json!(self.store.list_projects()?))
+            }
+            "projects.archive" => {
+                let p: ProjectId = params(r.params)?;
+                let rev = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.archive_project(
+                    &p.project_id,
+                    rev,
+                    &key
+                )?))
+            }
+            "projects.reassociate" => {
+                let p: ReassociateProject = params(r.params)?;
+                let rev = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.reassociate_project(
+                    &p.project_id,
+                    Path::new(&p.path),
+                    rev,
+                    &key
+                )?))
+            }
+            "workspaces.create" => {
+                let p: CreateWorkspace = params(r.params)?;
+                let rev = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.create_workspace(
+                    &p.project_id,
+                    rev,
+                    &p.expected_head,
+                    &self.managed_root,
+                    &key
+                )?))
+            }
+            "workspaces.list" => {
+                let p: ProjectId = params(r.params)?;
+                Ok(json!(self.store.list_workspaces(&p.project_id)?))
+            }
             "tasks.create" => {
                 let p: Create = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                Ok(json!(self.store.create(&p.project_id, &p.goal, &key)?))
+                Ok(json!(self.store.create_registered(
+                    &p.project_id,
+                    &p.goal,
+                    &key
+                )?))
             }
             "tasks.list" => {
                 empty(&r.params)?;
@@ -354,13 +443,21 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
     let token = fs::read_to_string(runtime_dir.join("session.token"))
         .map_err(|_| CoreError::transport())?;
     let mut object = command.as_object().cloned().ok_or_else(invalid)?;
+    let read_timeout = if matches!(
+        object.get("method").and_then(Value::as_str),
+        Some("projects.import" | "projects.reassociate" | "workspaces.create")
+    ) {
+        Duration::from_secs(60)
+    } else {
+        Duration::from_secs(5)
+    };
     object.insert("api_version".into(), json!(API_VERSION));
     object.insert("request_id".into(), json!(Uuid::new_v4().to_string()));
     object.insert("token".into(), json!(token));
     let mut stream =
         UnixStream::connect(runtime_dir.join("batond.sock")).map_err(|_| CoreError::transport())?;
     stream
-        .set_read_timeout(Some(Duration::from_secs(5)))
+        .set_read_timeout(Some(read_timeout))
         .map_err(|_| CoreError::transport())?;
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
@@ -397,5 +494,45 @@ mod frame_tests {
         assert_eq!(error.code, "RESOURCE_LIMIT");
         drop(receiver);
         writer.join().unwrap();
+    }
+    #[test]
+    fn nonblocking_accepted_stream_waits_for_a_delayed_authenticated_first_frame() {
+        use std::sync::mpsc;
+        let dir = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = dir.path().canonicalize().unwrap().join("runtime");
+        let mut daemon = Daemon::bind(&runtime).unwrap();
+        let mut client = UnixStream::connect(runtime.join("batond.sock")).unwrap();
+        client
+            .set_write_timeout(Some(Duration::from_secs(2)))
+            .unwrap();
+        let (accepted, _) = daemon.listener.accept().unwrap();
+        // Linux accept does not inherit this flag; explicitly simulate the BSD
+        // accepted descriptor state to make the portability regression deterministic.
+        accepted.set_nonblocking(true).unwrap();
+        let (ready, receive) = mpsc::sync_channel(1);
+        let reader = std::thread::spawn(move || {
+            configure_accepted_stream(&accepted).unwrap();
+            ready.send(()).unwrap();
+            let result = read_frame(&accepted, MAX_FRAME);
+            (result, accepted)
+        });
+        receive.recv_timeout(Duration::from_secs(2)).unwrap();
+        // Connection setup is complete before the peer starts sending its first
+        // request; a nonblocking read must not fabricate a transport disconnect.
+        std::thread::sleep(Duration::from_millis(50));
+        let token = fs::read_to_string(runtime.join("session.token")).unwrap();
+        let mut request=serde_json::to_vec(&json!({"api_version":API_VERSION,"request_id":"delayed","token":token,"method":"tasks.create","params":{"goal":"unknown project","project_id":"not-registered"},"idempotency_key":"delayed"})).unwrap();
+        request.push(b'\n');
+        client.write_all(&request).unwrap();
+        let (frame, _accepted) = reader.join().unwrap();
+        let response = daemon.handle(&frame.unwrap());
+        assert_eq!(response["error"]["code"], "NOT_FOUND");
+        assert_eq!(daemon.store.sequence().unwrap(), 0);
+        assert!(
+            matches!(daemon.listener.accept(),Err(error) if error.kind()==std::io::ErrorKind::WouldBlock)
+        );
     }
 }

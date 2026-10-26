@@ -1,6 +1,7 @@
 //! AgentBaton's single business authority, shared by every local client.
 pub mod execution;
 pub mod ipc;
+pub mod registry;
 pub mod storage;
 
 use serde::{Deserialize, Serialize};
