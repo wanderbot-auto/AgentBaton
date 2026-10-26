@@ -2,22 +2,37 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
-import { api, DaemonError, type Task } from './api';
+import { api, DaemonError, type Task, type Project } from './api';
 
 // These tests mock only the Tauri transport. They are not native IPC evidence.
 vi.mock('./api', async importOriginal => {
   const actual = await importOriginal<typeof import('./api')>();
-  return { ...actual, api: { snapshot: vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn() } };
+  return { ...actual, api: { snapshot: vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), projectsImport: vi.fn(), projectsArchive: vi.fn(), projectsReassociate: vi.fn(), workspacesCreate: vi.fn(), workspacesList: vi.fn() } };
 });
 const task: Task = { id: 'task-1', goal: 'Check cancellation evidence', state: 'draft', revision: 1, created_at: '2026-10-27T00:00:00Z', updated_at: '2026-10-27T00:00:00Z' };
 beforeEach(() => {
   vi.resetAllMocks();
   localStorage.clear();
   localStorage.setItem('agentbaton.language', 'en');
+  vi.mocked(api.projectsList).mockResolvedValue([]);
+  vi.mocked(api.workspacesList).mockResolvedValue([]);
   vi.mocked(api.snapshot).mockResolvedValue({ tasks: [], sequence: 0, api_version: 1 });
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
 });
 describe('Task workspace using mocked Tauri transport', () => {
+  it('binds task drafts to an explicitly selected active project and disables archived projects', async () => {
+    const user = userEvent.setup();
+    const project: Project = { id: 'project-1', name: 'Product repository', identity: { canonical_root: '/source', device: 1, inode: 2, kind: { kind: 'directory' } }, archived: false, revision: 1, created_at: task.created_at, updated_at: task.updated_at };
+    vi.mocked(api.projectsList).mockResolvedValue([project, { ...project, id: 'archived', name: 'Archive', archived: true }]);
+    vi.mocked(api.create).mockResolvedValue({ ...task, project_id: project.id });
+    render(<App />);
+    await screen.findByText('Local daemon connected');
+    await user.selectOptions(screen.getByLabelText('Project'), project.id);
+    expect(screen.getByRole('option', { name: 'Archive (Archived)' })).toBeDisabled();
+    await user.type(screen.getByLabelText('Task goal'), task.goal);
+    await user.click(screen.getByRole('button', { name: 'Create task' }));
+    await waitFor(() => expect(api.create).toHaveBeenCalledWith(task.goal, expect.any(String), project.id));
+  });
   it('shows a disconnected error and never inserts demonstration tasks', async () => {
     vi.mocked(api.snapshot).mockRejectedValue(new Error('AUTH_REQUIRED'));
     render(<App />);

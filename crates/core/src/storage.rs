@@ -2,7 +2,7 @@ use crate::{CoreError, Result};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::path::Path;
+use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt, path::Path};
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 use uuid::Uuid;
 
@@ -73,7 +73,7 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 2 {
+        if version > 3 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
@@ -93,14 +93,62 @@ impl Store {
         }
         conn.execute_batch("PRAGMA foreign_keys=ON;")
             .map_err(db_error)?;
-        crate::execution::migrate(&mut conn, path, version)?;
+        if version > 0 && version < 3 {
+            let backup = path.with_extension(format!("pre-v3-{}.sqlite3", Uuid::new_v4()));
+            OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .mode(0o600)
+                .open(&backup)
+                .map_err(|_| {
+                    CoreError::new("INTERNAL_ERROR", "Cannot create pre-migration backup")
+                })?;
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
+        }
+        crate::execution::migrate(&mut conn, version)?;
+        migrate_registry(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
         .map_err(db_error)?;
         let mut store = Self { conn };
         store.recover_dispatches()?;
+        store.recover_workspace_creations()?;
         Ok(store)
+    }
+    /// Authenticated entry point: new tasks require an active registered project or legacy local scope.
+    /// Replay returns its original result even after archive, avoiding ambiguity about an earlier write.
+    pub fn create_registered(&mut self, project_id: &str, goal: &str, key: &str) -> Result<Task> {
+        if project_id != "local" {
+            let scope = format!("local:{project_id}:tasks.create");
+            let old: Option<(String, String)> = self
+                .conn
+                .query_row(
+                    "SELECT payload,result FROM idempotency WHERE scope=?1 AND key=?2",
+                    params![scope, key],
+                    |r| Ok((r.get(0)?, r.get(1)?)),
+                )
+                .optional()
+                .map_err(db_error)?;
+            if let Some((payload, result)) = old {
+                if payload != encode(&json!({"project_id":project_id,"goal":goal}))? {
+                    return Err(CoreError::new(
+                        "CONFIG_CONFLICT",
+                        "Idempotency key already used with a different request",
+                    ));
+                }
+                return decode(&result);
+            }
+            let project = self.get_project(project_id)?;
+            if project.archived {
+                return Err(CoreError::new(
+                    "PERMISSION_DENIED",
+                    "Archived project cannot accept new tasks",
+                ));
+            }
+        }
+        self.create(project_id, goal, key)
     }
     pub fn create(&mut self, project_id: &str, goal: &str, key: &str) -> Result<Task> {
         if goal.trim().is_empty()
@@ -286,5 +334,17 @@ pub(crate) fn append_event(
     };
     tx.execute("INSERT INTO events(document) VALUES(?1)", [encode(&event)?])
         .map_err(db_error)?;
+    Ok(())
+}
+
+fn migrate_registry(conn: &mut Connection, original_version: u32) -> Result<()> {
+    if original_version < 3 {
+        let tx = conn.transaction().map_err(db_error)?;
+        tx.execute_batch("CREATE TABLE projects(id TEXT PRIMARY KEY,document TEXT NOT NULL,device TEXT NOT NULL,inode TEXT NOT NULL,root TEXT UNIQUE NOT NULL,UNIQUE(device,inode));
+        CREATE TABLE managed_workspaces(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id),document TEXT NOT NULL,state TEXT NOT NULL CHECK(state IN('creating','ready','outcome_unknown')),idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,root TEXT UNIQUE NOT NULL,UNIQUE(project_id,idempotency_key));
+        CREATE TABLE workspace_leases(resource TEXT PRIMARY KEY REFERENCES managed_workspaces(id),holder TEXT NOT NULL,fencing_token INTEGER NOT NULL,expires_at INTEGER NOT NULL);
+        PRAGMA user_version=3;").map_err(db_error)?;
+        tx.commit().map_err(db_error)?;
+    }
     Ok(())
 }

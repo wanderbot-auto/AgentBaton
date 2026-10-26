@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { api, DaemonError, type JournalEvent, type Task } from './api';
+import { api, DaemonError, type JournalEvent, type Task, type Project } from './api';
 import { initialLanguage, messages, type Language } from './i18n';
+import { Projects } from './Projects';
 
 type View = 'work' | 'tasks' | 'capabilities' | 'history';
 export function App() {
@@ -8,6 +9,8 @@ export function App() {
   const t = messages[language];
   const [view, setView] = useState<View>('work');
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectId, setProjectId] = useState('');
   const [events, setEvents] = useState<JournalEvent[]>([]);
   const [earliestCursor, setEarliestCursor] = useState(0);
   const [selectedId, setSelectedId] = useState<string>();
@@ -24,8 +27,10 @@ export function App() {
     setStatus('connecting');
     try {
       const snapshot = await api.snapshot();
+      const projectRecords = await api.projectsList();
       if (request !== refreshSequence.current) return;
       setTasks(snapshot.tasks);
+      setProjects(projectRecords);
       setStatus('connected');
       const cursor = Math.max(0, snapshot.sequence - 100);
       const batch = await api.events(cursor);
@@ -53,7 +58,7 @@ export function App() {
     setBusy(true); setError('');
     createKey.current ??= crypto.randomUUID();
     try {
-      const task = await api.create(goal.trim(), createKey.current);
+      const task = projectId ? await api.create(goal.trim(), createKey.current, projectId) : await api.create(goal.trim(), createKey.current);
       createKey.current = null;
       setGoal(''); setSelectedId(task.id); setView('tasks');
       await refresh();
@@ -91,12 +96,14 @@ export function App() {
       {error && <div className="error" role="alert"><strong>{t.error}</strong><p>{error}</p></div>}
       {status === 'disconnected' && <section className="empty"><h2>{t.disconnected}</h2><p>{t.disconnectedHelp}</p><button onClick={() => void refresh()}>{t.reconnect}</button></section>}
       {(view === 'work' || view === 'tasks') && <>
+        {view === 'work' && <Projects projects={projects} selectedId={projectId} onSelect={id => { setProjectId(id); createKey.current = null; }} refresh={refresh} connected={status === 'connected'} language={language} />}
         <form onSubmit={createTask} className="create-task">
-          <label htmlFor="goal">{t.goal}</label><textarea id="goal" value={goal} maxLength={8192} onChange={event => { setGoal(event.target.value); createKey.current = null; }} aria-describedby="create-help" required rows={3} />
-          <p id="create-help">{t.createHelp}</p><button type="submit" className="primary" disabled={busy || status !== 'connected' || !goal.trim()}>{busy ? t.working : t.create}</button>
+          <label htmlFor="task-project">{t.project}</label><select id="task-project" disabled={busy} value={projectId} onChange={event => { setProjectId(event.target.value); createKey.current = null; }} aria-describedby="project-help"><option value="">{t.localDrafts}</option>{projects.map(project => <option key={project.id} value={project.id} disabled={project.archived}>{project.name}{project.archived ? ` (${t.archived})` : ''}</option>)}</select><p id="project-help">{t.projectHelp}</p>
+          <label htmlFor="goal">{t.goal}</label><textarea id="goal" disabled={busy} value={goal} maxLength={8192} onChange={event => { setGoal(event.target.value); createKey.current = null; }} aria-describedby="create-help" required rows={3} />
+          <p id="create-help">{t.createHelp}</p><button type="submit" className="primary" disabled={busy || status !== 'connected' || !goal.trim() || projects.some(project => project.id === projectId && project.archived)}>{busy ? t.working : t.create}</button>
         </form>
         <div className="workspace"><section><h2>{t.recorded} <span>{tasks.length}</span></h2>{tasks.length === 0 ? <p className="empty">{t.empty}</p> : <ul className="task-list">{tasks.map(task => <li key={task.id}><button onClick={() => setSelectedId(task.id)} aria-pressed={selectedId === task.id}><strong>{task.goal}</strong><span>{stateText(task.state)}</span></button></li>)}</ul>}</section>
-          <section className="inspector">{selected ? <><h2>{selected.goal}</h2><p className="state">{stateText(selected.state)}</p><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || ['cancel_requested', 'cancelled', 'accepted', 'failed'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><EventList events={events.filter(event => event.aggregate_id === selected.id)} title={t.evidence} empty={t.noEvents} />{earliestCursor > 0 && <p>{t.moreEvents}</p>}</> : <p>{t.select}</p>}</section>
+          <section className="inspector">{selected ? <><h2>{selected.goal}</h2><p className="state">{stateText(selected.state)}</p><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.project}</dt><dd>{projects.find(project => project.id === selected.project_id)?.name ?? selected.project_id ?? t.localDrafts}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || ['cancel_requested', 'cancelled', 'accepted', 'failed'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><EventList events={events.filter(event => event.aggregate_id === selected.id)} title={t.evidence} empty={t.noEvents} />{earliestCursor > 0 && <p>{t.moreEvents}</p>}</> : <p>{t.select}</p>}</section>
         </div>
       </>}
       {view === 'capabilities' && <section className="empty"><h2>{t.capabilityEmpty}</h2><p>{t.capabilityHelp}</p></section>}

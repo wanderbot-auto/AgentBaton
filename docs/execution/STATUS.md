@@ -15,3 +15,9 @@ Repository protection: ruleset25893455 active with strict PR checks; existing th
 External gates: no real Provider identities/model calls, extra paid resources, final license, formal signing/notarization or production release authorized. These block only corresponding validation/delivery.
 
 Next: push reviewed candidate as PR, inspect exact-SHA CI and development artifacts, fix failures, guarded integration; continue persistent project registry/policy bindings and connect existing protocol/config/workspace primitives to the real session/task workflow. Full capability management, orchestration, validation/adoption, retention, remote Hosts and desktop lifecycle remain incomplete.
+
+## Project registry checkpoint
+
+Active branch `codex/project-registry`, based03878121, prerequisite PR#3 pending. Persistent project/workspace and draft binding are now real IPC/UI workflows; capability/provenance libraries remain unintegrated. Local121 Rust tests,15 mocked UI tests, typecheck/build/fmt/Clippy, real restart smoke and28 Python infrastructure checks passed. Independent review in project-registry/REVIEW.md. PR#3 macOS builds still have no success/artifact evidence; current reviewed test candidate30a70d8 awaits CI. Next: persist verified connections/grants and connect actual owned session supervision, preserving all remaining full-product scope.
+
+Reusable environment install_script/start_skill updated to consult current product authorization and reproduce Rust/frontend workflows; saved draft requires environment-settings review/save/publication, and has not applied runtime or published anything.

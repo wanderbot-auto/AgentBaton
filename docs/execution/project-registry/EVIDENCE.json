@@ -1,0 +1,55 @@
+{
+  "base_commit": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
+  "tested_commit": null,
+  "tested_tree": "uncommitted source hashes in REVIEW.md; candidate CI required",
+  "recorded_at_utc": "2026-10-26T17:04:37.509254+00:00",
+  "checks": [
+    {
+      "command": "cargo test --workspace --locked",
+      "exit_code": 0,
+      "passed": 121,
+      "breakdown": {
+        "core": 34,
+        "config": 26,
+        "providers": 48,
+        "workspaces": 13
+      }
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo build --locked --bin batond --bin baton && python3 scripts/smoke-local-product.py",
+      "exit_code": 0,
+      "dimension": "real local daemon/CLI, SIGKILL/restart"
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run typecheck && npm test && npm run build",
+      "exit_code": 0,
+      "passed": 15,
+      "dimension": "UI mocked transport"
+    },
+    {
+      "command": ".venv/bin/python -m unittest discover -s tests/infrastructure -p test_*.py -v",
+      "exit_code": 0,
+      "passed": 28
+    }
+  ],
+  "logs": {
+    "rust-final.log": "ada3091458ae9180a8e5eb07eddec2c1a0174923df01b7fe1da87789ed17f155",
+    "clippy-final.log": "be4dbb83ed31246e73d6f362b1a877cfdcb0dd79fca1b828dd8995e0349bd8a2",
+    "core-tests.log": "a0b7a37bf8afd1b7f397e09c4f8cb6873bd0c82ececfeaaff73917ebd22ad1e7",
+    "infrastructure-tests.log": "6b845f84e7b4ca7a92850b54f3bde48c01650518300e35b4f83792f21faa6a75",
+    "design.log": "a6484a799a144eedeb7c585fe02ead402c411552df58b861ec1a3e486396a265"
+  },
+  "native_macos": "not_run_pending_prerequisite_CI",
+  "live_provider": "not_run_not_authorized",
+  "full_product": "incomplete",
+  "external_side_effects": "temp fixture Git/processes only; no real Provider calls"
+}

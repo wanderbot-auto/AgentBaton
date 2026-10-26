@@ -61,8 +61,14 @@ fn installation(mode: &str) -> (TempDir, ApprovedInstallation) {
         .output()
         .unwrap();
     assert!(python.status.success());
+    let executable = std::fs::canonicalize(PathBuf::from(
+        String::from_utf8(python.stdout.clone()).unwrap().trim(),
+    ))
+    .unwrap();
     let descriptor = ApprovedInstallation {
-        executable: PathBuf::from(String::from_utf8(python.stdout).unwrap().trim()),
+        expected_sha256: agentbaton_providers::installation::executable_digest(&executable)
+            .unwrap(),
+        executable,
         arguments: vec!["-u".into(), script.into(), mode.into()],
         workspace: dir.path().to_path_buf(),
         approval_reference: "test-fixture-approval".into(),
@@ -231,6 +237,8 @@ fn absent_approval_nonabsolute_paths_and_nonexecutable_selection_never_run() {
     );
     let invalid = descriptor.workspace.join("not-executable");
     std::fs::write(&invalid, "not an executable").unwrap();
+    descriptor.expected_sha256 =
+        agentbaton_providers::installation::executable_digest(&invalid).unwrap();
     descriptor.executable = invalid;
     let error = ProviderProcess::start(descriptor, Duration::from_secs(1))
         .err()

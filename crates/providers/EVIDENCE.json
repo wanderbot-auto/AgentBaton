@@ -1,15 +1,22 @@
 {
-  "scope": "ACP contracts and actual Unix stdio fixture subprocesses only",
+  "scope": "ACP contracts, selected executable provenance/version probes, connection contracts, actual Unix stdio fixture subprocesses only",
   "requirements_partial": [
     "AB-ACP-001",
     "AB-ACP-003",
     "AB-ACP-004",
     "AB-ACP-005",
-    "AB-ACP-006"
+    "AB-ACP-006",
+    "AB-PRO-001",
+    "AB-PRO-007",
+    "AB-PRO-009",
+    "AB-PRO-010",
+    "AB-PRO-012",
+    "AB-DOM-007",
+    "AB-CFG-001"
   ],
-  "base_commit": "e158ade1a99e063ddce703ce4c0748febe449b43",
+  "base_commit": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
   "tested_tree": "uncommitted crates/providers files identified by SHA-256; integration commit must rerun checks",
-  "recorded_at_utc": "2026-10-26T16:43:34.918799+00:00",
+  "recorded_at_utc": "2026-10-26T16:59:36.272038+00:00",
   "checks": [
     {
       "command": "cargo test --locked -p agentbaton-providers",
@@ -17,7 +24,10 @@
       "exit_code": 0,
       "contract_tests_passed": 20,
       "stdio_fixture_tests_passed": 11,
-      "real_provider_model_calls": false
+      "real_provider_model_calls": false,
+      "installation_probe_tests_passed": 9,
+      "connection_contract_tests_passed": 8,
+      "total_passed": 48
     },
     {
       "command": "cargo clippy --locked -p agentbaton-providers --all-targets -- -D warnings",
@@ -35,25 +45,32 @@
   },
   "real_provider_calls_executed": false,
   "native_platform_tests_executed": false,
-  "implemented": "bounded JSON-RPC contracts and Unix nonblocking stdio initialize/session-new/prompt/cancel, unknown outcomes, owned process-group termination/reap, explicit approved installation descriptor, env_clear, bounded evidence/stderr draining",
+  "implemented": "bounded JSON-RPC contracts and Unix nonblocking stdio initialize/session-new/prompt/cancel, unknown outcomes, owned process-group termination/reap, explicit approved installation descriptor, env_clear, bounded evidence/stderr draining; canonical selected executable SHA-256 pin before spawn; exact --version probe with bounded nonblocking pipes/deadline/reap and env isolation; explicit Provider route/config/identity/host connection binding and source/version/time evidence",
   "not_implemented": [
     "daemon dispatch integration",
-    "trusted approval store/binary digest verification",
+    "trusted approval store resolution and binary vendor authenticity",
     "session/load",
     "multi-outstanding-prompt scheduling",
     "trusted permission policy callback (all transport requests cancelled)",
-    "Provider-specific adapters and authentication",
+    "Provider-specific live authentication/adapters",
     "live Provider compatibility and model calls",
-    "raw-event durable storage/redaction"
+    "raw-event durable storage/redaction",
+    "persistent named connection registry and managed configuration materialization"
   ],
   "file_hashes": {
-    "crates/providers/Cargo.toml": "4f9e973c693f7f979e907f433d2f193bb5bc370c0f821ceccfa8fdf7950de209",
-    "crates/providers/README.md": "4d4ca39917ae6278e445bf0e523629e5e66b6ac3b47c62d5648b0601b1bf3a33",
-    "crates/providers/src/lib.rs": "cf443f52971696bdafa44f196fe8c2082aeb3a3ac1e0f959d6a9c6e7bab7c6c1",
+    "crates/providers/Cargo.toml": "ebcef2dbe3294cf341990be4843da8e9e20fe2f4f65501f90fff06e038ef37c0",
+    "crates/providers/README.md": "5335ac7340c48e4a77aa9b0adfff3d183025b0b692f238e7bf6efd645a525e97",
+    "crates/providers/PROVENANCE.md": "8aca242a321a0a512e2dbe09722b991fac0f59b08922e6530e7462df0d44e818",
+    "crates/providers/documentation-evidence.json": "d97e8c6040900c542ba3c2e579d6f53b74aa005938a0cf1ceb8aef5a55b05c52",
+    "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+    "crates/providers/src/lib.rs": "d7c4772de18ee6c802c2d29bcda09415a36d67e3664c5fe65dceba532dc8cac1",
     "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
-    "crates/providers/src/transport.rs": "5476cf03ae4035201b2c25e31a84cd05bc103710b9f602592127bc537ddd4e92",
+    "crates/providers/src/installation.rs": "0710fbe74027bc2dfe812a99a53052a40af842b09200d8c74c827f28970da889",
+    "crates/providers/src/transport.rs": "e8b140c850e8141a3ec5783d685a43c9943b27d84ed3161f6253c4a126dbbc76",
+    "crates/providers/tests/connections.rs": "31aa177dff7ad010fa147c68f3e338ef5c33f1fdb430322a95cde9b65d4199c3",
     "crates/providers/tests/contracts.rs": "9a4d3f1a5f5a059e7b446b2d143b5f4ba990deb1bc8c49b399ff5ee31c734c38",
-    "crates/providers/tests/stdio.rs": "db1525d7cb3e6dd29b531069ea5a2081b03e34ab63b1d962b6870992b597460a"
+    "crates/providers/tests/stdio.rs": "ec2d71a9092eae0f3792dafa2ee3a1bb8cf6343e600a2caf3edbafb34247eeb5",
+    "crates/providers/tests/installation.rs": "2d7d4a6ebe2663c624b9b56992359611efb40d4e6f75b4561dd5d38825ffaf52"
   },
   "failures_preserved": [
     {

@@ -7,7 +7,6 @@ use crate::{
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt, path::Path};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -79,18 +78,7 @@ fn budget_key(project: bool, id: &str) -> String {
     format!("{}:{id}", if project { "project" } else { "root" })
 }
 
-pub(crate) fn migrate(conn: &mut Connection, path: &Path, original_version: u32) -> Result<()> {
-    if original_version == 1 {
-        let backup = path.with_extension(format!("pre-v2-{}.sqlite3", Uuid::new_v4()));
-        OpenOptions::new()
-            .create_new(true)
-            .write(true)
-            .mode(0o600)
-            .open(&backup)
-            .map_err(|_| CoreError::new("INTERNAL_ERROR", "Cannot create pre-migration backup"))?;
-        conn.backup(rusqlite::MAIN_DB, &backup, None)
-            .map_err(db_error)?;
-    }
+pub(crate) fn migrate(conn: &mut Connection, original_version: u32) -> Result<()> {
     if original_version < 2 {
         let tx = conn.transaction().map_err(db_error)?;
         tx.execute_batch("CREATE TABLE budgets(scope TEXT PRIMARY KEY,total_limit INTEGER NOT NULL CHECK(total_limit>0),parallel_limit INTEGER NOT NULL CHECK(parallel_limit>0),consumed INTEGER NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 0);

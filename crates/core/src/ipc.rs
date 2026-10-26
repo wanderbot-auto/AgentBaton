@@ -40,6 +40,29 @@ struct Create {
     #[serde(default = "default_project")]
     project_id: String,
 }
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ImportProject {
+    path: String,
+    name: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ProjectId {
+    project_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ReassociateProject {
+    project_id: String,
+    path: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CreateWorkspace {
+    project_id: String,
+    expected_head: String,
+}
 fn default_project() -> String {
     "local".into()
 }
@@ -179,6 +202,7 @@ pub struct Daemon {
     token: String,
     _lock: File,
     socket: PathBuf,
+    managed_root: PathBuf,
 }
 impl Daemon {
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
@@ -189,6 +213,8 @@ impl Daemon {
         let db = runtime_dir.join("baton.sqlite3");
         let _db_handle = private_file(&db)?;
         let store = Store::open(&db)?;
+        let managed_root = runtime_dir.join("workspaces");
+        ensure_runtime(&managed_root)?;
         let socket = runtime_dir.join("batond.sock");
         if socket.exists() {
             let meta = fs::symlink_metadata(&socket)
@@ -225,6 +251,7 @@ impl Daemon {
             token,
             _lock: lock,
             socket,
+            managed_root,
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
@@ -290,10 +317,64 @@ impl Daemon {
             return Err(invalid());
         }
         match r.method.as_str() {
+            "projects.import" => {
+                let p: ImportProject = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.import_project(
+                    Path::new(&p.path),
+                    &p.name,
+                    &key
+                )?))
+            }
+            "projects.list" => {
+                empty(&r.params)?;
+                Ok(json!(self.store.list_projects()?))
+            }
+            "projects.archive" => {
+                let p: ProjectId = params(r.params)?;
+                let rev = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.archive_project(
+                    &p.project_id,
+                    rev,
+                    &key
+                )?))
+            }
+            "projects.reassociate" => {
+                let p: ReassociateProject = params(r.params)?;
+                let rev = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.reassociate_project(
+                    &p.project_id,
+                    Path::new(&p.path),
+                    rev,
+                    &key
+                )?))
+            }
+            "workspaces.create" => {
+                let p: CreateWorkspace = params(r.params)?;
+                let rev = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.create_workspace(
+                    &p.project_id,
+                    rev,
+                    &p.expected_head,
+                    &self.managed_root,
+                    &key
+                )?))
+            }
+            "workspaces.list" => {
+                let p: ProjectId = params(r.params)?;
+                Ok(json!(self.store.list_workspaces(&p.project_id)?))
+            }
             "tasks.create" => {
                 let p: Create = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                Ok(json!(self.store.create(&p.project_id, &p.goal, &key)?))
+                Ok(json!(self.store.create_registered(
+                    &p.project_id,
+                    &p.goal,
+                    &key
+                )?))
             }
             "tasks.list" => {
                 empty(&r.params)?;
@@ -352,13 +433,21 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
     let token = fs::read_to_string(runtime_dir.join("session.token"))
         .map_err(|_| CoreError::transport())?;
     let mut object = command.as_object().cloned().ok_or_else(invalid)?;
+    let read_timeout = if matches!(
+        object.get("method").and_then(Value::as_str),
+        Some("projects.import" | "projects.reassociate" | "workspaces.create")
+    ) {
+        Duration::from_secs(60)
+    } else {
+        Duration::from_secs(5)
+    };
     object.insert("api_version".into(), json!(API_VERSION));
     object.insert("request_id".into(), json!(Uuid::new_v4().to_string()));
     object.insert("token".into(), json!(token));
     let mut stream =
         UnixStream::connect(runtime_dir.join("batond.sock")).map_err(|_| CoreError::transport())?;
     stream
-        .set_read_timeout(Some(Duration::from_secs(5)))
+        .set_read_timeout(Some(read_timeout))
         .map_err(|_| CoreError::transport())?;
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
@@ -369,4 +458,31 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
         .map_err(|_| CoreError::transport())?;
     let raw = read_frame(&stream, 32 * MAX_FRAME)?;
     serde_json::from_str(&raw).map_err(|_| CoreError::transport())
+}
+
+#[cfg(test)]
+mod frame_tests {
+    use super::*;
+
+    #[test]
+    fn oversized_parser_returns_resource_limit_without_relying_on_error_delivery() {
+        let (receiver, mut sender) = UnixStream::pair().unwrap();
+        let writer = std::thread::spawn(move || {
+            // The parser may reject before the writer completes; that socket
+            // scheduling detail does not change the parser's required error.
+            let result = sender.write_all(&[b'x'; 1025]);
+            if let Err(error) = result {
+                assert!(matches!(
+                    error.kind(),
+                    std::io::ErrorKind::BrokenPipe
+                        | std::io::ErrorKind::ConnectionReset
+                        | std::io::ErrorKind::NotConnected
+                ));
+            }
+        });
+        let error = read_frame(&receiver, 1024).unwrap_err();
+        assert_eq!(error.code, "RESOURCE_LIMIT");
+        drop(receiver);
+        writer.join().unwrap();
+    }
 }

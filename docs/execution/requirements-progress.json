@@ -7,7 +7,10 @@
       "work_package": "WP05",
       "status": "implementing",
       "implementation_refs": [
-        "crates/workspaces/src/lib.rs"
+        "crates/workspaces/src/lib.rs",
+        "crates/core/src/registry.rs",
+        "crates/core/src/ipc.rs",
+        "apps/desktop/src/Projects.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -17,10 +20,12 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/project-registry/EVIDENCE.json"
       ],
       "limitations": [
-        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain."
+        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
+        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
       ],
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
@@ -32,7 +37,10 @@
       "work_package": "WP05",
       "status": "implementing",
       "implementation_refs": [
-        "crates/workspaces/src/lib.rs"
+        "crates/workspaces/src/lib.rs",
+        "crates/core/src/registry.rs",
+        "crates/core/src/ipc.rs",
+        "apps/desktop/src/Projects.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -42,10 +50,12 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/project-registry/EVIDENCE.json"
       ],
       "limitations": [
-        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain."
+        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
+        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
       ],
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
@@ -57,7 +67,10 @@
       "work_package": "WP05",
       "status": "implementing",
       "implementation_refs": [
-        "crates/workspaces/src/lib.rs"
+        "crates/workspaces/src/lib.rs",
+        "crates/core/src/registry.rs",
+        "crates/core/src/ipc.rs",
+        "apps/desktop/src/Projects.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -67,10 +80,12 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/project-registry/EVIDENCE.json"
       ],
       "limitations": [
-        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain."
+        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
+        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
       ],
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
@@ -82,7 +97,10 @@
       "work_package": "WP05",
       "status": "implementing",
       "implementation_refs": [
-        "crates/workspaces/src/lib.rs"
+        "crates/workspaces/src/lib.rs",
+        "crates/core/src/registry.rs",
+        "crates/core/src/ipc.rs",
+        "apps/desktop/src/Projects.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -92,10 +110,12 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/project-registry/EVIDENCE.json"
       ],
       "limitations": [
-        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain."
+        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
+        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
       ],
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
@@ -107,7 +127,10 @@
       "work_package": "WP05",
       "status": "implementing",
       "implementation_refs": [
-        "crates/workspaces/src/lib.rs"
+        "crates/workspaces/src/lib.rs",
+        "crates/core/src/registry.rs",
+        "crates/core/src/ipc.rs",
+        "apps/desktop/src/Projects.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -117,10 +140,12 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/project-registry/EVIDENCE.json"
       ],
       "limitations": [
-        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain."
+        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
+        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
       ],
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
@@ -130,8 +155,12 @@
     {
       "id": "AB-PRJ-006",
       "work_package": "WP05",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/registry.rs",
+        "crates/core/src/ipc.rs",
+        "apps/desktop/src/Projects.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -139,14 +168,22 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-PRO-001",
       "work_package": "WP04",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/installation.rs",
+        "crates/providers/src/connections.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -154,8 +191,13 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-PRO-002",
@@ -235,8 +277,11 @@
     {
       "id": "AB-PRO-007",
       "work_package": "WP04",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/installation.rs",
+        "crates/providers/src/connections.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -244,8 +289,13 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-SES-002",
@@ -325,8 +375,10 @@
     {
       "id": "AB-CAP-001",
       "work_package": "WP06",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -334,14 +386,21 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-CAP-002",
       "work_package": "WP06",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -349,14 +408,21 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-CAP-003",
       "work_package": "WP06",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -364,14 +430,21 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-CAP-004",
       "work_package": "WP06",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -379,14 +452,21 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-CAP-005",
       "work_package": "WP06",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -394,8 +474,13 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-CAP-006",
@@ -415,8 +500,10 @@
     {
       "id": "AB-CAP-007",
       "work_package": "WP06",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -424,14 +511,21 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-CAP-008",
       "work_package": "WP06",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -439,8 +533,13 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-CFG-001",
@@ -610,8 +709,10 @@
     {
       "id": "AB-CFG-008",
       "work_package": "WP07",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -619,8 +720,13 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-TSK-001",
@@ -1769,7 +1875,9 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "crates/core/src/registry.rs",
+        "apps/desktop/src/Projects.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1779,10 +1887,12 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/project-registry/EVIDENCE.json"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
@@ -1944,8 +2054,11 @@
     {
       "id": "AB-PRO-009",
       "work_package": "WP04",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/installation.rs",
+        "crates/providers/src/connections.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -1953,14 +2066,22 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-PRO-010",
       "work_package": "WP04",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/installation.rs",
+        "crates/providers/src/connections.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -1968,8 +2089,13 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-PRO-011",
@@ -1989,8 +2115,11 @@
     {
       "id": "AB-PRO-012",
       "work_package": "WP04",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/installation.rs",
+        "crates/providers/src/connections.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -1998,8 +2127,13 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-SES-009",
@@ -2094,8 +2228,10 @@
     {
       "id": "AB-CFG-012",
       "work_package": "WP07",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -2103,14 +2239,21 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-CFG-013",
       "work_package": "WP07",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -2118,8 +2261,13 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-TSK-011",
@@ -2415,7 +2563,9 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "crates/providers/src/installation.rs",
+        "crates/providers/src/connections.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -2425,10 +2575,12 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/project-registry/EVIDENCE.json"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
