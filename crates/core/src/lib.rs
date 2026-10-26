@@ -8,6 +8,7 @@ mod runtime_config;
 pub use runtime_config::RuntimeBinding;
 pub mod sessions;
 pub mod storage;
+pub mod validation;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

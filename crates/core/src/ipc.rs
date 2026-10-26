@@ -95,6 +95,16 @@ struct ProposalId {
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
+struct ValidationTaskId {
+    task_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ValidationPolicyId {
+    policy_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct CreateSession {
     task_id: String,
     workspace_id: String,
@@ -553,6 +563,43 @@ impl Daemon {
                 }
                 Ok(json!(s))
             }
+            "validation_policies.propose" => {
+                let selection: crate::validation::ValidationSelection = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self
+                    .store
+                    .propose_validation_policy(&selection, &key)?))
+            }
+            "validation_policies.list" => {
+                let p: ValidationTaskId = params(r.params)?;
+                Ok(json!(self.store.list_validation_policies(&p.task_id)?))
+            }
+            "validation_policies.revoke" => {
+                let p: ValidationPolicyId = params(r.params)?;
+                Ok(json!(self.store.revoke_validation_policy(
+                    &p.policy_id,
+                    r.expected_revision.ok_or_else(invalid)?
+                )?))
+            }
+            "validations.list" => {
+                let p: ValidationTaskId = params(r.params)?;
+                Ok(json!(self.store.list_validation_records(&p.task_id)?))
+            }
+            "validations.run" => {
+                let p: ValidationPolicyId = params(r.params)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                if self.supervisor.has_workers() {
+                    return Err(CoreError::new(
+                        "WORKSPACE_BUSY",
+                        "Stop active owned sessions before this bounded file-validation operation",
+                    ));
+                }
+                Ok(json!(self.store.run_artifact_validation(
+                    &p.policy_id,
+                    r.expected_revision.ok_or_else(invalid)?,
+                    &key
+                )?))
+            }
             "sessions.list" => {
                 empty(&r.params)?;
                 Ok(json!(self.store.list_sessions()?))
@@ -708,7 +755,7 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
     let mut object = command.as_object().cloned().ok_or_else(invalid)?;
     let read_timeout = if matches!(
         object.get("method").and_then(Value::as_str),
-        Some("projects.import" | "projects.reassociate" | "workspaces.create")
+        Some("projects.import" | "projects.reassociate" | "workspaces.create" | "validations.run")
     ) {
         Duration::from_secs(60)
     } else {

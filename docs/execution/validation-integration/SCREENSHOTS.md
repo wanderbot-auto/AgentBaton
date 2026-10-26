@@ -1,0 +1,3 @@
+# Artifact integrity screenshots
+
+These four responsive Artifacts-panel images come from the actual built product UI and actual private schema6 Unix daemon through a test-only localhost adapter. A fresh fixture contains no stopped Provider session or approved policy: empty records, selected-scope warning, folded policy form and disabled native review correctly reflect real state. No fabricated artifact or accepted task is inserted. Browser transport does not establish native dialog, macOS window, Provider or full-task acceptance. Full12images and exactdaemon/browser/source hashes are in EVIDENCE.json and the recorded browser artifact path.

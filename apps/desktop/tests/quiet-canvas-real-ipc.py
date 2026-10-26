@@ -88,6 +88,8 @@ def main():
                             'projects_list': ('projects.list', {}, set()),
                             'connections_list': ('connections.list', {}, set()),
                             'sessions_list': ('sessions.list', {}, set()),
+                            'validation_policies_list': ('validation_policies.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
+                            'validations_list': ('validations.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'workspaces_list': ('workspaces.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
                             'grants_list': ('grants.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
                             'events_subscribe': ('events.subscribe', {'cursor': values.get('cursor', 0), 'limit': values.get('limit', 100)}, {'cursor', 'limit'}),
@@ -205,8 +207,23 @@ def main():
                     screenshot = output / f'task-{width}x{height}.png'
                     page.screenshot(path=str(screenshot))
                     report['screenshots'].append(str(screenshot))
+                    before_integrity = ipc('system.snapshot', {})['result']['sequence']
+                    selected_task = page.get_by_test_id('task-thread').get_attribute('data-task-id')
                     page.get_by_role('tab', name='产物', exact=True).click()
-                    assert page.get_by_text('此任务尚无已验证的产物。', exact=True).is_visible()
+                    page.get_by_text('尚无产物完整性记录。', exact=True).wait_for()
+                    page.wait_for_function("()=>[...document.querySelectorAll('button')].some(button=>button.textContent==='刷新完整性记录'&&!button.disabled)")
+                    assert any(request['method'] == 'validation_policies.list' and request['error'] is None for request in report['requests'])
+                    assert any(request['method'] == 'validations.list' and request['error'] is None for request in report['requests'])
+                    page.locator('summary').filter(has_text=re.compile('^审阅文件检查策略$')).click()
+                    assert page.get_by_text('文件完整性检查，不代表代码正确、任务验收或合入授权。', exact=True).is_visible()
+                    assert page.get_by_text('请先停止并对账本任务的已登记会话，再批准文件检查。', exact=True).is_visible()
+                    assert page.get_by_role('button', name='在原生负责人对话框中审阅', exact=True).is_disabled()
+                    artifact_screenshot = output / f'artifacts-{width}x{height}.png'
+                    page.screenshot(path=str(artifact_screenshot))
+                    report['screenshots'].append(str(artifact_screenshot))
+                    assert ipc('system.snapshot', {})['result']['sequence'] == before_integrity
+                    assert not any(request['method'] in ['validation_policies.propose', 'approvals.finalize', 'validations.run'] for request in report['requests'])
+                    passed(f'actual read-only integrity lists and no fabricated validation {width}x{height}', task_id=selected_task)
                     page.get_by_role('button', name='返回任务', exact=True).click()
                 page.set_viewport_size({'width': 1488, 'height': 981})
                 page.get_by_role('button', name='搜索', exact=True).click()

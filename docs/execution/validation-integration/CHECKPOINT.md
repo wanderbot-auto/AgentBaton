@@ -1,0 +1,9 @@
+# Recoverable checkpoint
+
+Worktree /workspace/.worktrees/validation-integration; branch codex/validation-integration, committedbf2ae81 is evidence-only merge after local914ed5f/c856 primitives. Core/schema6/newnativecommands/UI are reviewed uncommitted changes; preserve them, noreset/clean/stash. Primary owns bothlocks/migrations/Core/native; UIworker ownsfinished8UI files only. Separate reviews CORE_REVIEW/UI_REVIEW close findings; sourcehashes precede upcomingprotectionmerge.
+
+Actual279Rust/78UI and localpartialcommands are in EVIDENCE; nativecompile/test cell isrunninginthisworktree. Its node_modules symlink was removedonlybyitscreatingreviewer; realdepsremainat /workspace/AgentBaton/apps/desktop/node_modules. Release sidecars genuinelybuilt underthisworktree target/release andcopiedbycanonicalscript. RootprivateLinuxGTKsysroot remains /workspace/.toolchains/linux-ui/sysroot; use documentedCargo/LD/pkgconfigenvironment.
+
+Next concreteactions: captureactualnativecheck result, savecodecommit+docs/sourcehashes, merge Rootreviewed4f-or-later andprotectedmaineb115e0 ancestry; preserve schema6/spec/model/UI plusnewRoot FIFO/privatefixture/actorretirement/sharedGit guards. Rootcurrentlyhasnewnative-reopen8ebsourceunderreview/CI; don'tcopyuncommittedwork. Allresolverconflicts mustkeepold+newtests. Fullpostmergeregression/review, realbrowserArtifacts readonlylists, exactsourcePR/CInext. Neverlabelintegrity receipts as codequality/globalaccepted/CASpermission. Missing Provider/auth/mac/host/signing blocks onlyrelatedvalidation; all130goalscopecontinues. No inactivebackgroundpromises.
+
+NativeLinuxcheck/test7 PASSED; actual26browserIPC/12screens PASSED. Source279Rust/78UIsnapshotreviewclosed. CommitcheckpointnowthenmergecommittedRoot9edf14e +main65f223c, preservenewschema6/policies/spec/default+alltestassertions andnewArtifactsUI. Bothlocksactuallyrefreshedsha2dep only. NativeRootrepairuncommittedstatusnotcopied; Root9edfcommittedandreviewed.

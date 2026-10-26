@@ -4,18 +4,21 @@ use serde_json::{json, Value};
 pub enum ApprovalKind {
     Connection,
     Grant,
+    Validation,
 }
 impl ApprovalKind {
     pub fn proposal_method(&self) -> &'static str {
         match self {
             Self::Connection => "connections.propose",
             Self::Grant => "grants.propose",
+            Self::Validation => "validation_policies.propose",
         }
     }
     fn kind(&self) -> &'static str {
         match self {
             Self::Connection => "connection",
             Self::Grant => "grant",
+            Self::Validation => "validation",
         }
     }
     fn action(&self) -> &'static str {
@@ -26,6 +29,7 @@ impl ApprovalKind {
             Self::Grant => {
                 "Grant this exact recipient and workspace the bounded execution scope below"
             }
+            Self::Validation => "Approve only the exact local artifact-integrity rule below; this does not accept a task or authorize integration",
         }
     }
 }

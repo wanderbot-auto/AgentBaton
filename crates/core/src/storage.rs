@@ -19,12 +19,18 @@ pub enum TaskState {
     Cancelled,
     OutcomeUnknown,
 }
+fn initial_spec_revision() -> u64 {
+    1
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Task {
     pub id: String,
     pub project_id: String,
     pub goal: String,
+    #[serde(default = "initial_spec_revision")]
+    pub spec_revision: u64,
     pub state: TaskState,
     pub revision: u64,
     pub created_at: String,
@@ -81,7 +87,7 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 5 {
+        if version > 6 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
@@ -101,8 +107,8 @@ impl Store {
         }
         conn.execute_batch("PRAGMA foreign_keys=ON;")
             .map_err(db_error)?;
-        if version > 0 && version < 5 {
-            let backup = path.with_extension(format!("pre-v5-{}.sqlite3", Uuid::new_v4()));
+        if version > 0 && version < 6 {
+            let backup = path.with_extension(format!("pre-v6-{}.sqlite3", Uuid::new_v4()));
             OpenOptions::new()
                 .create_new(true)
                 .write(true)
@@ -118,6 +124,7 @@ impl Store {
         migrate_registry(&mut conn, version)?;
         migrate_sessions(&mut conn, version)?;
         migrate_runtime_snapshots(&mut conn, version)?;
+        migrate_validations(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -200,6 +207,7 @@ impl Store {
             id: Uuid::new_v4().to_string(),
             project_id: project_id.into(),
             goal: goal.into(),
+            spec_revision: 1,
             state: TaskState::Draft,
             revision: 1,
             created_at: timestamp.clone(),
@@ -413,6 +421,19 @@ fn migrate_runtime_snapshots(conn: &mut Connection, version: u32) -> Result<()> 
     if version < 5 {
         let tx = conn.transaction().map_err(db_error)?;
         tx.execute_batch("CREATE TABLE session_runtime_snapshots(session_id TEXT PRIMARY KEY REFERENCES sessions(id),attempt_id TEXT NOT NULL UNIQUE REFERENCES attempts(id),config_revision TEXT NOT NULL,document TEXT NOT NULL);PRAGMA user_version=5;").map_err(db_error)?;
+        tx.commit().map_err(db_error)?;
+    }
+    Ok(())
+}
+
+// Validation policy approval is separate from execution authorization. A passed
+// artifact-integrity record is not task acceptance or permission to integrate.
+fn migrate_validations(conn: &mut Connection, version: u32) -> Result<()> {
+    if version < 6 {
+        let tx = conn.transaction().map_err(db_error)?;
+        tx.execute_batch("CREATE TABLE validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL);
+        CREATE TABLE validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),state TEXT NOT NULL CHECK(state IN('integrity_passed','failed')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key));
+        PRAGMA user_version=6;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
     Ok(())

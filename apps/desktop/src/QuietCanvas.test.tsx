@@ -4,8 +4,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { api, DaemonError, type Task } from './api';
 import { sessionApi, type ManagedSession } from './session-api';
+import { validationApi } from './validation-api';
 vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { snapshot: vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), workspacesList: vi.fn() } }));
 vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn(), sessionsSend: vi.fn() } }));
+vi.mock('./validation-api', async original => ({ ...await original<typeof import('./validation-api')>(), validationApi: { policiesList: vi.fn(), recordsList: vi.fn(), policiesApprove: vi.fn(), run: vi.fn(), revoke: vi.fn() } }));
 const date = '2026-10-26T00:00:00Z';
 const draft: Task = { id: 'draft-id', goal: 'A recorded local draft', state: 'draft', revision: 1, created_at: date, updated_at: date };
 const running: Task = { ...draft, id: 'running-id', goal: 'A recorded running task', state: 'running' };
@@ -16,6 +18,8 @@ beforeEach(() => {
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 1, sequence: 1, gap: false });
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);
   vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);
+  vi.mocked(validationApi.policiesList).mockResolvedValue([]);
+  vi.mocked(validationApi.recordsList).mockResolvedValue([]);
 });
 describe('Quiet Canvas product UI with mocked transport', () => {
   it('includes a closed details summary at the dialog focus boundary and excludes its hidden content', async () => {
@@ -51,8 +55,12 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     expect(screen.queryByTestId('task-card')).not.toBeInTheDocument();
     expect(screen.getByText('Raw observable events').closest('details')).not.toHaveAttribute('open');
     await user.click(screen.getByRole('tab', { name: 'Artifacts' }));
-    expect(screen.getByText('No verified artifacts are available for this task.')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Artifacts · Unavailable' })).toBeDisabled();
+    expect(await screen.findByText('No artifact integrity records yet.')).toBeVisible();
+    expect(screen.getByText('File integrity checks do not establish code correctness, task acceptance or integration authorization.')).toBeVisible();
+    expect(validationApi.policiesList).toHaveBeenCalledWith(draft.id);
+    expect(validationApi.recordsList).toHaveBeenCalledWith(draft.id);
+    expect(validationApi.policiesApprove).not.toHaveBeenCalled();
+    expect(validationApi.run).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: 'Back to tasks' }));
     expect(screen.getAllByTestId('task-card')).toHaveLength(1);
   });

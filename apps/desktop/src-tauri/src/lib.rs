@@ -285,6 +285,27 @@ async fn tasks_cancel(
 }
 
 #[tauri::command]
+async fn validation_policies_list(runtime: tauri::State<'_, Runtime>, task_id: String) -> Result<Value,String> {
+    call(&runtime,json!({"method":"validation_policies.list","params":{"task_id":task_id}}),false).await
+}
+#[tauri::command]
+async fn validation_policy_approve(runtime: tauri::State<'_, Runtime>, app: tauri::AppHandle, selection: Value, idempotency_key: String) -> Result<Value,String> {
+    confirm_proposed(&runtime,app,approval::ApprovalKind::Validation,selection,idempotency_key).await
+}
+#[tauri::command]
+async fn validations_list(runtime: tauri::State<'_, Runtime>, task_id: String) -> Result<Value,String> {
+    call(&runtime,json!({"method":"validations.list","params":{"task_id":task_id}}),false).await
+}
+#[tauri::command]
+async fn validations_run(runtime: tauri::State<'_, Runtime>, policy_id: String, expected_revision: u64, idempotency_key: String) -> Result<Value,String> {
+    call(&runtime,json!({"method":"validations.run","params":{"policy_id":policy_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}),false).await
+}
+#[tauri::command]
+async fn validation_policies_revoke(runtime: tauri::State<'_, Runtime>, policy_id: String, expected_revision: u64) -> Result<Value,String> {
+    call(&runtime,json!({"method":"validation_policies.revoke","params":{"policy_id":policy_id},"expected_revision":expected_revision}),false).await
+}
+
+#[tauri::command]
 async fn events_subscribe(
     runtime: tauri::State<'_, Runtime>,
     cursor: u64,
@@ -401,6 +422,11 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
 
 pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
     let handler: fn(tauri::ipc::Invoke<tauri::Wry>) -> bool = tauri::generate_handler![
+        validation_policies_list,
+        validation_policy_approve,
+        validations_list,
+        validations_run,
+        validation_policies_revoke,
         system_snapshot,
         tasks_create,
         tasks_cancel,
