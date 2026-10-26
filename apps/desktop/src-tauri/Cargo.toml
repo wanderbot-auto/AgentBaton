@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 build = "build.rs"
+default-run = "agentbaton-desktop"
 
 [workspace]
 
@@ -15,6 +16,18 @@ agentbaton-core = { path = "../../../crates/core" }
 serde_json = "1"
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
+tempfile = { version = "3", optional = true }
 
 [features]
+native-smoke = ["dep:tempfile", "dep:objc2"]
 custom-protocol = ["tauri/custom-protocol"]
+
+# Separate main-thread WebView/IPC harness. Not enabled in application bundles.
+[[bin]]
+name = "agentbaton-native-smoke"
+path = "src/bin/native_smoke.rs"
+required-features = ["native-smoke"]
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# Native test screenshot uses only this app window, never the entire desktop.
+objc2 = { version = "0.6", optional = true }
