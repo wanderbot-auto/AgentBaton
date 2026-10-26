@@ -1,60 +1,51 @@
 {
-  "unit": "session-integration-schema4",
+  "unit": "session-schema4-history-byte-bounds",
   "authorization": "AB-START-001",
-  "state": "local_integration_verified_pending_independent_review",
-  "recorded_at_utc": "2026-10-26T19:38:42.541451+00:00",
-  "tested_commit": "bc47ea11ee6386cca311f0ffcc1954fabd831ea2",
-  "base_remote_session": "7a6a46bde8dd88ee7399be8d10b0fb19159497c8",
-  "protected_main_read": "1f34b444821640bf88f32a8bb39c6434d4ca26cc",
-  "owner_inbox_ack": [
-    "OWNER-001",
-    "OWNER-002"
-  ],
-  "local_merge_commits": [
-    "a159aed",
-    "8f94696"
-  ],
-  "registry_integrated": "a429cb3",
+  "recorded_at_utc": "2026-10-26T20:01:29.391174+00:00",
+  "tested_commit": "695144ba9f97886051eb7db54827c72017ecb1c1",
   "schema_version": 4,
-  "recipient_fix": {
-    "source": "minimal server-resolved grant_proposal_refs execution_recipient/project_name from primary; not whole policy or schema5",
-    "protocol_default": "custom_acp",
-    "test": "native_owner_grant_snapshot_identifies_the_exact_registered_recipient",
-    "coverage": "readable program/argv/name/provider/route/digest/status are fixed server data, compared again before finalization; stale recipient rejected"
+  "previous_checkpoint": {
+    "commit": "8302d425a3d38efd8f5d541947a8a250bdecf919",
+    "evidence": "EVIDENCE.integration-8302.json",
+    "sha256": "10fa92fc3c433c072e06903ad85dfb265a2d8dbef8576b3a9f28d1f3fedadf31"
+  },
+  "changes": {
+    "backend": "Minimal MAX_EVENT_PAGE_BYTES and Store.events backport; SQL octet_length checked before Rust document fetch/decode; 4MiB raw-page budget, stable ordered cursors, explicit oversized single-record error, byte_limited/page_bytes response metadata. No schema5/runtime/migration copy.",
+    "frontend": "Old schema4 layout retained. Accumulated visible history has 8MiB UTF-8 JSON budget including array delimiters plus existing500-count bound; overflowing merge shows the requested earlier page with explicit local-retention notice. Oversized incoming display pages are rejected, not appended. Byte-limited backend pages are labeled; history RESOURCE_LIMIT does not disable otherwise authenticated task controls."
   },
   "checks": [
     {
       "command": "cargo test --workspace --locked",
       "exit_code": 0,
-      "top_level_tests": 189,
+      "top_level_tests": 191,
       "breakdown": {
-        "core": 66,
+        "core": 68,
         "config": 45,
         "providers": 58,
         "workspaces": 18,
         "daemon_signals": 2
       },
-      "nested_child_harness": "one additional harness result, not counted twice"
-    },
-    {
-      "command": "cargo fmt --all -- --check",
-      "exit_code": 0
+      "nested_child_harness": "one extra child harness result, not counted twice"
     },
     {
       "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
       "exit_code": 0
     },
     {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
       "cwd": "apps/desktop",
-      "command": "npm ci --ignore-scripts --no-audit --no-fund; npm run typecheck; npm test; npm run build",
+      "command": "npm run typecheck; npm test; npm run build",
       "exit_code": 0,
-      "tests": 28,
-      "dimension": "mocked transport UI/wire; not a native dialog/window"
+      "tests": 35,
+      "dimension": "UI transport mocks and display-window helper tests, not native UI"
     },
     {
       "command": "cargo build --locked --bin batond --bin baton; python3 scripts/smoke-local-product.py",
       "exit_code": 0,
-      "dimension": "actual local authenticated daemon/CLI SIGKILL/restart persistence"
+      "dimension": "actual authenticated local daemon/CLI SIGKILL/restart"
     },
     {
       "command": "python scripts/validate_design.py; python scripts/validate_infrastructure.py; python -m unittest discover -s tests/infrastructure -p test_*.py -v",
@@ -68,65 +59,61 @@
       "files": 92
     }
   ],
+  "targeted_new_tests": {
+    "storage": "24 large Unicode records span several byte-bounded pages without sequence loss; oversized invalidJSON record rejected before decode with exact sequence detail",
+    "frontend": "Large Unicode helper window, incoming-page rejection, count limit, three3MiB display pages triggering replacement/local-retention notice, bounded-page labeling, authenticated cancellation remains available on history resource refusal"
+  },
   "tool_environment": {
     "CARGO_BUILD_JOBS": "2"
   },
   "logs": {
     "build.log": {
-      "path": "artifacts/session-integration/build.log",
-      "sha256": "743cc7bd1da9af190a70d02064c6b0e98cffbf54ade73fa72e5d798a4ff47b89"
+      "path": "artifacts/session-history-bounds/build.log",
+      "sha256": "38a997f3de7b9f955513cf80b8233422ac2fc0919f41cb9e92c4585470f1d0c0"
     },
     "clippy.log": {
-      "path": "artifacts/session-integration/clippy.log",
-      "sha256": "efe00e574aebe54734369dde7116b6b867564840d7a9a3678e87bc342beb89d3"
-    },
-    "conflict-source-hashes.json": {
-      "path": "artifacts/session-integration/conflict-source-hashes.json",
-      "sha256": "b8df8c715d730910d4f938aa68ef7f6428266dd61450b04d080a9602279e622a"
+      "path": "artifacts/session-history-bounds/clippy.log",
+      "sha256": "d7d860f80645735f257aeee5d346dc1b27ea11be9e73a2f219568d84169999fd"
     },
     "design.log": {
-      "path": "artifacts/session-integration/design.log",
-      "sha256": "32f624dd8978f7403dbfe71cc64d974eba878a41f069bcb4419bc0ded29f47b5"
+      "path": "artifacts/session-history-bounds/design.log",
+      "sha256": "fe1fc1e4ae674eead699827e25c87001d558a788b53a9ed1109d6c2d56397384"
     },
     "fmt.log": {
-      "path": "artifacts/session-integration/fmt.log",
+      "path": "artifacts/session-history-bounds/fmt.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     "infrastructure-tests.log": {
-      "path": "artifacts/session-integration/infrastructure-tests.log",
-      "sha256": "aee11f7936e754b6197d2b9023fe42354a1848a3d921e5c8971a41944b47b55e"
+      "path": "artifacts/session-history-bounds/infrastructure-tests.log",
+      "sha256": "8f1c3443a6a65ca60b8b2ec44a35088525500860508440f316c9febdcf7489b3"
     },
     "infrastructure-validation.log": {
-      "path": "artifacts/session-integration/infrastructure-validation.log",
+      "path": "artifacts/session-history-bounds/infrastructure-validation.log",
       "sha256": "46e4ac329e7e80c107a211f612239b8ef43487f11156a26fafcd0507d7cee4b5"
     },
-    "manifest.log": {
-      "path": "artifacts/session-integration/manifest.log",
+    "manifest-before-docs.log": {
+      "path": "artifacts/session-history-bounds/manifest-before-docs.log",
       "sha256": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f"
     },
     "restart-smoke.log": {
-      "path": "artifacts/session-integration/restart-smoke.log",
+      "path": "artifacts/session-history-bounds/restart-smoke.log",
       "sha256": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805"
     },
     "rust-tests.log": {
-      "path": "artifacts/session-integration/rust-tests.log",
-      "sha256": "a0acbf19ac4a863fcba606be3868e3c45200248ac49f2b8ae35f6a8192ff859e"
+      "path": "artifacts/session-history-bounds/rust-tests.log",
+      "sha256": "6d295025a01911d8762659989422daa99eebd43db74096ae5c5ba6b9a48ebe23"
     },
     "ui-build.log": {
-      "path": "artifacts/session-integration/ui-build.log",
-      "sha256": "8607dd0cad5d0165e8a8aad1c600ee63816c943afe01c3922632d695a2a9df33"
-    },
-    "ui-install.log": {
-      "path": "artifacts/session-integration/ui-install.log",
-      "sha256": "76a7072bfde653be824b52f2d769d6c3771165e8b51dcbcdad0fe23658f938c9"
+      "path": "artifacts/session-history-bounds/ui-build.log",
+      "sha256": "98e37093ce9a7c8ed773a4a27e26e3d79bf382efd1cf8bca5ea973fa7ea77e4a"
     },
     "ui-tests.log": {
-      "path": "artifacts/session-integration/ui-tests.log",
-      "sha256": "4ab64d717685772cc210a54d2379d7cb5f69ff64526ff18a9987d0b30b9a0593"
+      "path": "artifacts/session-history-bounds/ui-tests.log",
+      "sha256": "22cbbba8731201276dd97df44db7cbd47354e1ce5a86eee32f3815813672944e"
     },
     "ui-typecheck.log": {
-      "path": "artifacts/session-integration/ui-typecheck.log",
-      "sha256": "81a908ca176d0b18d9dd2470e07fabb394420707cf4a00e9b2f28551bdcdc175"
+      "path": "artifacts/session-history-bounds/ui-typecheck.log",
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
     }
   },
   "tested_product_source_hashes": {
@@ -152,20 +139,22 @@
     "apps/desktop/src-tauri/src/approval.rs": "be13845668be4f3c0ac01ae9adf8bffc850fb22138d143fb906fb2eef58d308c",
     "apps/desktop/src-tauri/src/main.rs": "ed7f60412bc00c11b2e3d48a3dd1bed2c7e1e5b80425e373d9a7573c28ddbeb6",
     "apps/desktop/src-tauri/tauri.conf.json": "ef186a4ea2196f98306259c85577fae86dea20044cb448c16a2eabf336c42ed9",
-    "apps/desktop/src/App.test.tsx": "09ba24e67dff8df253df83d1e5670c593a3deba6234276edf9820988bb38fada",
-    "apps/desktop/src/App.tsx": "dfc49a9c609aef27f7c83ab28a228e1c0376dbf7f58f6be27583356712757b1c",
+    "apps/desktop/src/App.test.tsx": "940ef6fa4aee4791074093f9e472f12ef950e3a0cdc39d65bd4b276c0ffee717",
+    "apps/desktop/src/App.tsx": "6d5eb2ac670900c4ab275de31133d5f5ed14115d56abe3ad4449ffb32a406215",
     "apps/desktop/src/Connections.tsx": "f1be7b4978449b7bc8fcb50e9056b9939bb5abfc2c2384fb9ac104e07003d32e",
-    "apps/desktop/src/ManagedSessions.tsx": "5e2da6e4cd7289eb654f5ac1f73de31b33168e7f99ad4f035c87c72994a1090e",
+    "apps/desktop/src/ManagedSessions.tsx": "7bbf112301e10c40b6ff5bf6222002c75984c641bea2164699dc4badc82387a5",
     "apps/desktop/src/Projects.test.tsx": "409b00cfd1621c8f8cbffe2f86d278e8069077a0404947f606ff5e0d4709dfa8",
     "apps/desktop/src/Projects.tsx": "64cc627ac2275f1f7b21ab6018db6f5d64688bd6becdee18faf62f208f69d75a",
     "apps/desktop/src/SessionWorkbench.test.tsx": "61d6ce4f0fc7546576e2969396615dcc2824a1bdfd7c6889408b08c4f3e48822",
     "apps/desktop/src/api.test.ts": "3321a66e98bfbd4e264756cd1d34e7c84ab00c5c80709ac443e5821a3993278c",
-    "apps/desktop/src/api.ts": "0275296ca30f79089ef83d729f4a111929a5bb42196b3db1775b9c18d858711b",
-    "apps/desktop/src/i18n.ts": "e3623d51040dbbecfb7633abea4838a26415800893b7d245357cd816fe9aa8f3",
+    "apps/desktop/src/api.ts": "0db92cc42f718c0cfbc2653ad6499c9ff462d24f91e4593c0033eb354addc8c5",
+    "apps/desktop/src/event-window.test.ts": "08be8fd17b0b30ab83acbb9c1536d4edf453e034b697a20cf8a04459c0c713cb",
+    "apps/desktop/src/event-window.ts": "73074b1d53281d6f738614f292b3f8a7cbfd95f3694c3ed3491cda9d637ad7a2",
+    "apps/desktop/src/i18n.ts": "e294cf071723a2582096b62c8bdb325fffd1229989bb0da3af3b571d92daa38f",
     "apps/desktop/src/main.tsx": "47bbb595a850847154dcb069ad195c21151fa6393059c1a0b7c25d9e46fd8498",
     "apps/desktop/src/session-api.test.ts": "6072418acd558b80b0000e51d3739b4feee56b188f8036dd32fcc3f6fb77818a",
     "apps/desktop/src/session-api.ts": "9bcf228b9ff9db2f44407355ba8d43ab2bc5809e510429d735c3428cd3c11de8",
-    "apps/desktop/src/session-i18n.ts": "3bb6af5dd2f65371b4990694b8f3a6eaedd285d4d95b80ef5a81da485c6511e7",
+    "apps/desktop/src/session-i18n.ts": "bed0c23eebaebe35ed82680b826e7357a1043d3d9a521a03221ab6833c122646",
     "apps/desktop/src/style.css": "10cccaa8267507a8fdaaa6eacc2e64cc850a6d7cf38d2ba465a47ab9a1330caf",
     "apps/desktop/src/test-setup.ts": "ae4b6b92c8c0f06526032b2dedeb4fb0e93b85af2a138a423386f2e36894a685",
     "apps/desktop/tsconfig.json": "1926d10768671b06cebccef9170ad9fd808f9507d5da2c6c859da223589d9a46",
@@ -186,7 +175,7 @@
     "crates/core/src/policy.rs": "d604dd00946ea1d2ffdfe09dfadefea48d1d9e34af3a134adc227e61a528c386",
     "crates/core/src/registry.rs": "4c339c794bdf2cb67e3320bafa81ae789eb9b5b34b4da9ca65ab650b3065d27d",
     "crates/core/src/sessions.rs": "56ca698c6a6b02f626e79aa820d9a3f95a9f595808b2a905f1753ce60a177700",
-    "crates/core/src/storage.rs": "5179d5da6e6ae2b769a72cbae5de340a1c0409dc03363b7e4006cc16030db43f",
+    "crates/core/src/storage.rs": "905de3f02f01465c07690d3f88c5940e52e68531ad82acb13090bf91096a2c5a",
     "crates/core/tests/execution.rs": "70f4121685c332562ee92632eaebbb4fdb440692d7dd0b89b5aecea5c73ecc06",
     "crates/core/tests/ipc.rs": "26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28",
     "crates/core/tests/migration_v3.rs": "68e45867d5a77b634eb6a7f271008143b52c4e7f5742187cf631d43c0c1691bf",
@@ -194,7 +183,7 @@
     "crates/core/tests/project_ipc.rs": "9b38de8f283a706730edb49060c11124ad6341111ac0e76abdb07930884205f8",
     "crates/core/tests/registry.rs": "7a35c34e4557cad8e350b6ebade5b880dd9e4c0cb320c3101468b9155acc3041",
     "crates/core/tests/sessions_ipc.rs": "512d0bd901ca91fe492b7c63c9589d31a8d8aec5eef06d84ddcae47d38f3c31d",
-    "crates/core/tests/storage.rs": "8a15c63d78e3ba84b5e7e49bed4ee5f6cce985ae5fbe00aefe14b5d4ff3ddee5",
+    "crates/core/tests/storage.rs": "714bfa25bd3c57bb795dce77aa645963e993fbbfd3b15aeaea2aa2773ef5a329",
     "crates/providers/Cargo.toml": "ebcef2dbe3294cf341990be4843da8e9e20fe2f4f65501f90fff06e038ef37c0",
     "crates/providers/EVIDENCE.json": "78d33d6ed5f655d03b7a9e803866c259f12243004bf5df6842587491983b370c",
     "crates/providers/PROVENANCE.md": "9a5134d403e39060b28b5678797c16bbed17f10f02f6ceb4354ba7836c1bc455",
@@ -215,128 +204,12 @@
     "crates/workspaces/tests/safety.rs": "aea419fc8d4f4640d1522170063b034a958c2be2951714cbe1cf2cf8bc990420",
     "scripts/smoke-local-product.py": "5f05c2c074f30966cba029f8e80faf7ca4b96e7c17c2fcbab1fb0f1d606c23f4"
   },
-  "not_run": {
-    "native_host_current_candidate": "not_run; prior7 Linux native-host tests retained only as historical evidence",
-    "current_macos_or_ci": "not_run on this local integration candidate",
-    "live_vendor_identity_or_models": "not_run_not_authorized",
+  "remaining_limits": {
+    "legacy_history_navigation": "Old schema4 navigation remains limited; this does not claim full cursor navigation. The separate UI7 pagination work remains necessary. No local journal record is removed.",
+    "native_or_macos_current_candidate": "not_run",
+    "remote_ci": "not_run_current_candidate",
+    "real_vendor_models_accounts": "not_run_not_authorized",
     "full_product": "incomplete",
     "push_or_main_merge": "not_performed"
-  },
-  "preserved_historical_checkpoint": {
-    "base_commit": "4e1efd378e03cbfeddf11351299da88e911df85c",
-    "candidate_commit": null,
-    "tested_source": "50 source fingerprints in REVIEW.md; no mismatches at integration",
-    "recorded_at_utc": "2026-10-26T18:30:29.508311+00:00",
-    "state": "local_integration_verified_partial_scope",
-    "checks": [
-      {
-        "command": "cargo test --workspace --locked",
-        "exit_code": 0,
-        "top_level_tests": 186,
-        "breakdown": {
-          "core": 65,
-          "config": 45,
-          "providers": 56,
-          "workspaces": 18,
-          "daemon_signals": 2
-        },
-        "note": "Nested killable FIFO child harness is not counted twice; generated fixture processes only."
-      },
-      {
-        "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
-        "exit_code": 0
-      },
-      {
-        "command": "cargo fmt --all -- --check",
-        "exit_code": 0
-      },
-      {
-        "command": "cargo build --locked --bin batond --bin baton && python3 scripts/smoke-local-product.py",
-        "exit_code": 0,
-        "scope": "Actual daemon/CLI restart and SIGKILL; signal tests above spawn actual batond and fixture Provider."
-      },
-      {
-        "cwd": "apps/desktop",
-        "command": "npm run typecheck; npm test; npm run build",
-        "exit_code": 0,
-        "tests": 28,
-        "scope": "UI and wire tests use mocked IPC transport; not native window acceptance."
-      },
-      {
-        "command": "cargo check --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
-        "exit_code": 0,
-        "platform": "Linux Debian13.6 with private signed-package sysroot"
-      },
-      {
-        "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
-        "exit_code": 0,
-        "tests": 7,
-        "platform": "Linux native bridge/helper tests, not GUI/dialog/macOS"
-      },
-      {
-        "command": "bash scripts/setup-dev.sh; python3 scripts/verify_bootstrap_manifest.py",
-        "exit_code": 0,
-        "python_infrastructure": 28,
-        "node_infrastructure": 4,
-        "rust_environment_fixture": 2,
-        "bootstrap_files": 87,
-        "scope": "Infrastructure evidence distinct from product tests"
-      }
-    ],
-    "logs": {
-      "session-integration-rust.log": "dcefbe428c15e23bb83d7c63a12ead1a0aae8bc1ac2023767cd204e03a7b7014",
-      "session-integration-clippy.log": "93925753178dab1c32a00c736b201be037259a69a7fa8fb0f22279deee53ac1e",
-      "session-integration-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "session-integration-build.log": "ebd3229417c2279961d0ec3144fc4c78954bd520ae4210a3c86d4d089821fc08",
-      "session-integration-smoke.log": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805",
-      "session-ui-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
-      "session-ui-tests.log": "1d929c612410a012ff3c7f2eb4e1b383a4118834263c7e91787afd2b44af887a",
-      "session-ui-build.log": "a04c11c7eabb7743b571dda92ebca70853874f59877d404a0a64e7d25d5de245",
-      "linux-native-check-final.log": "c0fa7b2f72186d49b8286785edaa9c7d2d8a726753c89ceeeaf56f03ae829da0",
-      "linux-native-tests-final.log": "bc7b0938db973ab7c3a9c07b24b46464b99b2b4ac4e62ee685bcca2f675b7108",
-      "linux-native-tests-link-missing.log": "ee9dfa57b3147b0235e50270af6ac182f937520ed7ad3f20eec5f610a8e161f5",
-      "linux-ui-apt-download.log": "81e1bddf7564926e4868f64f60df4b8c0283209a68061b9e7e651c861fabddce",
-      "session-infrastructure.log": "0b4385bd7aaf0cef711097fe1f811ba033ebf75169828f5237e5d977584dfc23",
-      "session-bootstrap.log": "8e979e6f8e41701e7d1eb710c01fc0edca8cdf8408e213fd3daf5ea3f24d4120"
-    },
-    "failed_attempts": [
-      {
-        "issue": "SKILL YAMLalias expansion OOM",
-        "evidence": "REVIEW.md independent before/after identical128MiB fixture",
-        "fix": "bounded manual deserializer;45 config tests and exact OOM regression pass"
-      },
-      {
-        "issue": "Live Git pointer FIFO could block open",
-        "discovery": "static independent review, no pre-fix dynamic repro claimed",
-        "fix": "O_NONBLOCK|O_NOFOLLOW regular-fd checks; bounded child regression and real IPC status/cancel regression pass"
-      },
-      {
-        "issue": "Native first check missing sidecars",
-        "fix": "build actual release daemon/CLI and prepare sidecars"
-      },
-      {
-        "issue": "Native initial test linker missing runtime .so targets in private dev-header sysroot",
-        "log": "linux-native-tests-link-missing.log",
-        "fix": "88 missing relative library targets linked to already-installed system runtime libraries;7 final native-host tests pass"
-      },
-      {
-        "issue": "Sidecar build raced in-progress signal dependency edit",
-        "log": "linux-native-sidecars.log",
-        "fix": "after manifest/lock freeze rebuilt actual release successfully"
-      }
-    ],
-    "limitations": [
-      "custom ACP runtime only; Codex/Qoder/Claude native paths remain unsupported until next adapter unit",
-      "Runtime config digest does not cover fully materialized effective native source files yet",
-      "Private HOME/env and Git worktrees are not OS/network/native account enforcement; strict unsupported policies fail closed",
-      "Heavy Git/new-admission setup operations return WORKSPACE_BUSY while owned sessions active; general parallel setup/scheduler remains incomplete",
-      "Available normalized journal history is partial: raw protocol/stderr not retained, privacy/retention/export still incomplete",
-      "Native UI/dialog/window/background lifecycle not verified by Linux host tests",
-      "No current-unit remote CI or native macOS artifact yet; prerequisites PR3/PR4 unmerged",
-      "All remaining130-requirement scope retained; this is not full product acceptance"
-    ],
-    "live_provider_models": "not_run_not_authorized",
-    "native_macos_current_unit": "not_run",
-    "production_release": "not_run_not_authorized"
   }
 }

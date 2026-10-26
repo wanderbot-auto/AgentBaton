@@ -8,3 +8,8 @@ Integration:186 top-level Rust tests,28 mocked-transport UI tests, typecheck/bui
 ## PR6 prerequisite and recipient integration
 
 Fast-forwarded audited7a6a46b; local mergesa159aed/8f94696 retain registrya429cb3, protected main1f and foundation/readiness fixes. OWNER001/002 read/ACK. Narrow readable-recipient proposal backportbc47ea1 stays schema4/customACP. Local189 Rust,28 UI mocks/typecheck/build, fmt/Clippy, actual daemonrestart, design/infrastructure28 and integrity92 pass. See INTEGRATION.md/EVIDENCE.json for conflicts/exact source and remaining native/review gates. No push/main merge/full product acceptance.
+
+
+## Byte-bounded journal and display history
+
+Source695144b bounds raw event pages at4MiB before document fetch/decode, preserving cursors and exact oversized-record error. The legacy frontend has8MiB/500-record display bounds with explicit local-retention/page notices and keeps task controls usable when history alone is refused.191 top-level Rust+35 UI/helper tests, typecheck/build/fmt/Clippy, actual restart smoke and infrastructure/integrity pass. No schema5/QuietCanvas/native-route copy; full pagination remains UI7 work. Original8302 checkpoint/evidence is preserved as history.
