@@ -1,3 +1,9 @@
+# Current PR4 CI portability follow-up
+
+PR4 run40387527063 failures retained and locally investigated. Sourceeef1e95: fresh managed fixture roots explicitly0700 and accepted sockets explicitly blocking before deadlines. Original permission/NOT_FOUND assertions remain. Fullumask022124 Rust+15 UI/typecheck/build/fmt/Clippy+realrestart/manifest92 pass. Native Apple source supports the inherited-flag mechanism; fresh actual macOSCI is pending and historicalARM causality is not claimed. No push/mainmerge or source mutation outside this registry worktree. Full product remains incomplete. Details in project-registry/CI_FOLLOWUP.md and EVIDENCE.json.
+
+## Prior registry integration status retained as history
+
 # AgentBaton execution status
 
 AB-START-001: full Design v0.2 and all130 requirements remain the goal; no completion shortcut. OWNER-001 and OWNER-002 actually read/ACK from protected main, latest1f34b444821640bf88f32a8bb39c6434d4ca26cc. Quiet Canvas changes presentation only; no credential/resource/production authority expansion. No native Goal or task URL is exposed by this entry.

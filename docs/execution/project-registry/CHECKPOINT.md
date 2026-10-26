@@ -1,3 +1,11 @@
+# Current PR4 CI portability checkpoint
+
+Tested sourceeef1e95 on isolated codex/project-registry. Two-file delta: explicit blocking accepted sockets before deadline IO, and privateBuilder0700 for fresh managed test roots. Original NOT_FOUND and private-root rejection assertions retained; production registry.rs and project_ipc.rs byte-identical to a429.
+
+Underumask022:124 Rust(core35/config26/providers50/workspaces13),15 UI/typecheck/build, fmt/Clippy, actual restart smoke and integrity92 pass. Both old-code controls failed as expected, failures retained. Darwin flag mechanism verified in Apple native documentation/source, but currentcandidate native/remoteCI and historical ARM causality remain unproven. No push/mainmerge or otherworktree source changes. Parent next independently reviews and runs exact-candidate CI.
+
+## Preserved integration checkpoint before follow-up
+
 # Registry integration checkpoint
 
 Current branch `codex/project-registry`; original registry base4e1efd3, local foundation merge57f4665 (foundation222aafd), tested production backportaa258a6. OWNER-001/002 ACK from protected main2d9361d; Quiet Canvas stays its dedicated UI branch. Workspace is isolated from the primary session-supervision checkout; preserve both.
