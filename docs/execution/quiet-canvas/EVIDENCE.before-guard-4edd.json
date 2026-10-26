@@ -1,0 +1,314 @@
+{
+  "authorization": "AB-START-001; OWNER-001/002 ACK from protectedmain through session3b94d1c/dc5aea0",
+  "base_ui_commit": "4871ae456e86c3f1c3c665db2f1aa0b2a9222a1e",
+  "incoming_session_commit": "3b94d1c06dfabf656a5ce315483f16276212913d",
+  "source_commit": "d9e328a6d1537b131757dd529c4ae219780d562c",
+  "recorded_at_utc": "2026-10-26T21:01:45.031723+00:00",
+  "state": "local_combined_integration_verified_partial_goal",
+  "prior_evidence": "docs/execution/quiet-canvas/EVIDENCE.before-session-4871.json",
+  "prior_pagination_review": "docs/execution/quiet-canvas/PAGINATION_REVIEW.md",
+  "checks": [
+    {
+      "command": "umask022; cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "umask022; cargo test --workspace --locked",
+      "exit_code": 0,
+      "tests": 193,
+      "breakdown": {
+        "core": 70,
+        "config": 45,
+        "providers": 58,
+        "workspaces": 18,
+        "daemon_signals": 2
+      },
+      "note": "194harness summaries include the one nested FIFO child; do not double count it"
+    },
+    {
+      "command": "umask022; cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo build --locked --bin batond --bin baton",
+      "exit_code": 0,
+      "target_dir": "/workspace/.toolchains/quiet-canvas-target"
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run typecheck",
+      "exit_code": 0
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm test",
+      "exit_code": 0,
+      "tests": 46,
+      "scope": "All original QuietCanvas/session UI assertions retained; no native/provider route additions"
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run build",
+      "exit_code": 0
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "python3 tests/quiet-canvas-real-ipc.py --batond /workspace/.toolchains/quiet-canvas-target/debug/batond --output /workspace/.onboarding/quiet-canvas-session-browser",
+      "exit_code": 0,
+      "checks": 22,
+      "screenshots": 8,
+      "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider"
+    },
+    {
+      "command": "python scripts/validate_design.py",
+      "exit_code": 0,
+      "requirements": 130,
+      "answered_questions": 27,
+      "scope": "design/package validation only"
+    },
+    {
+      "command": "python scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "files": 92,
+      "scope": "bootstrap integrity only"
+    }
+  ],
+  "merge_resolution": [
+    "Keep QuietCanvas layout/context routes and real task/session controls over incoming older dashboard representation",
+    "Retain stronger incoming8MiB/500record page validation/reason plus existing forward/older cursors; show byte/count explanations and keep normal earlier31+newer230assertions",
+    "Treat onlyhistoryRESOURCE_LIMIT as a recorded read failure rather than a false global disconnect; incoming cancellation test opens actualDetails tab before unchanged enabledassertion",
+    "Retain authenticated delayed-frame/NOT_FOUND regression and explicit acceptedstream blocking setup withbounded worker deadlines",
+    "Keep native server-resolved proposal recipient metadata; no renderer assertion becomes approval authority",
+    "Manifest union matches reviewed parent bytes, then refresh only thisbranch STATUS hash; preserve both prior status snapshots"
+  ],
+  "portability_followup": {
+    "upstream_run": 40398801631,
+    "head": "3b94d1c06dfabf656a5ce315483f16276212913d",
+    "intel_job": 121838836847,
+    "arm_job": 121838837098,
+    "observed_failure": "Both actual macOS jobs E0425: rustix::fs::mkfifoat unavailable at crates/core/src/policy.rs:1066",
+    "evidence": "Independently downloaded actual job logs; hashes below. No corrected Mac run claimed.",
+    "correction": "Only cfg(test) FIFO creation changed to /usr/bin/mkfifo -m600 plus FIFOtypeassert; both gitdir/commondir cases, no-writer setup and3second killablechilddeadline retained",
+    "local_result": "All193Rust tests pass; no productionpolicy behavior change"
+  },
+  "source_sha256": {
+    "Cargo.lock": "3f518d6cfeb5cdf126a24708120b4ec8349c5aab1d80ff4512b8296efcd5a33c",
+    "apps/daemon/src/main.rs": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+    "apps/desktop/src-tauri/Cargo.lock": "b8bc038fff4ed7c4f4571a108fe6839cb097fd0660142da7376225ff39c83694",
+    "apps/desktop/src-tauri/src/approval.rs": "be13845668be4f3c0ac01ae9adf8bffc850fb22138d143fb906fb2eef58d308c",
+    "apps/desktop/src-tauri/src/main.rs": "ed7f60412bc00c11b2e3d48a3dd1bed2c7e1e5b80425e373d9a7573c28ddbeb6",
+    "apps/desktop/src/App.test.tsx": "1e957d2689f305195d9a1edc7af7a5d9d8a33ab31a8db9e2f0ef20ff45bde376",
+    "apps/desktop/src/App.tsx": "18b829334b9e451f79aa35beb1151cdaf4abeb14628df709e62b70dd4ecf47d9",
+    "apps/desktop/src/Connections.tsx": "7f07e3f9a7086fd220a68ac4d6a5c6f9d760509a481ff80db576acf45be0c8d4",
+    "apps/desktop/src/ContextDialog.tsx": "50bcc2b64659f71f26a3df028b718d958c5077f573e5f506ec80f4a21be9863d",
+    "apps/desktop/src/Icons.tsx": "d0140b87ad60a761313b563a4d037d142d4725c5436f2888cc22d7af18e8e82d",
+    "apps/desktop/src/ManagedSessions.tsx": "5dcd061742a80316e8ddfdbc99f4d9c68aaa4c44978a6c9404f00ae79c0f4e59",
+    "apps/desktop/src/QuietCanvas.test.tsx": "f0443fa817decc9f40ccfb0aeda67f5faa329f54f44347c516d557081a0e3219",
+    "apps/desktop/src/SessionWorkbench.test.tsx": "7ab854c464753372ffe318ab42c85113b7d8bb7ce0dc1a6dfc5cb57c8d7e4cd3",
+    "apps/desktop/src/api.ts": "0db92cc42f718c0cfbc2653ad6499c9ff462d24f91e4593c0033eb354addc8c5",
+    "apps/desktop/src/canvas-i18n.ts": "0d94f7015e3a588af97136db89dc03f04af45232b85db54ffa627a9a04cefd0d",
+    "apps/desktop/src/event-window.test.ts": "b66baa960f3e5c3354328e0ac194c744c6a99cb49d573fdee10586a8256b1e89",
+    "apps/desktop/src/event-window.ts": "73074b1d53281d6f738614f292b3f8a7cbfd95f3694c3ed3491cda9d637ad7a2",
+    "apps/desktop/src/i18n.ts": "d5f8fc94d8343f8934df3f4206965fe000cfa3a845b366c3c79aca289a8e995f",
+    "apps/desktop/src/session-i18n.ts": "db9f1ee6bd62feef350a0108c69864f848df28137bf2377e4d67ae7d1b928566",
+    "apps/desktop/src/style.css": "df5f17eb3a8b6de467b2f79800e185f44e67f32b5be71f2dc1c7ee4efaa8bb3b",
+    "apps/desktop/tests/quiet-canvas-real-ipc.py": "549a88e79801acd6730e8bb24f5752b1f8452562fbff060b979d8ba61d98324b",
+    "crates/core/src/ipc.rs": "b2f8de10fffd5f67b1380002fcae874a99e2363e1c08282077d58b7768f3fa51",
+    "crates/core/src/lib.rs": "26db2de6d9015c40d2c2bfbed65ce53ba334b87d82eb4c398b3fc5d7a93ab53f",
+    "crates/core/src/policy.rs": "77a775f2befa7c70afa9ba5e8928ecb28d490da9de2c9bdef67b79469b4ca449",
+    "crates/core/src/storage.rs": "905de3f02f01465c07690d3f88c5940e52e68531ad82acb13090bf91096a2c5a",
+    "crates/core/tests/ipc.rs": "26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28",
+    "crates/core/tests/policy.rs": "52eb621f116060ec2e7447d0375de14ebd81f7d6043beeef5e1bf0474fa8ed4f",
+    "crates/core/tests/registry.rs": "97efcad183a1f150bfd7b3273a1ffded1dae3765569f15cde6e0a666eb027aa7",
+    "crates/core/tests/storage.rs": "714bfa25bd3c57bb795dce77aa645963e993fbbfd3b15aeaea2aa2773ef5a329",
+    "crates/providers/tests/installation.rs": "90724f1d9d6c3fe5641ae7076d9c9442293a6550a4b20bb7baecbfcd6e6b1531",
+    "crates/providers/tests/stdio.rs": "1be8c06e63a6107e94fc903bcdbcbddf662f77d4d96cf475f3eddb6485972dfd"
+  },
+  "local_log_sha256": {
+    "quiet-canvas-session-rust.log": "79ca92fe2fb51c800e14986b12a179a0460f625741cde3eb0d134a044bc4af14",
+    "quiet-canvas-session-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "quiet-canvas-session-clippy.log": "f943ecf78d2cfc20a5f231b1c04824c48cb1b22ed05d2c223e110288f3e77791",
+    "quiet-canvas-session-daemon-build.log": "51028f3c41b0836510b2eaad2e534ce500862db73297da8814cf0d9144fecb4f",
+    "quiet-canvas-session-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "quiet-canvas-session-ui.log": "2317a8a0e36c4cc2c4910f710175a9a76d015c21d6d8382fe1ce2b2c41dfd11e",
+    "quiet-canvas-session-build.log": "bd5c5e38f48a601435cff8fb9e08d686a4960be315ee0706dd76aa2661c7fc54",
+    "quiet-canvas-session-browser.log": "02b01bafc208a85aa6bdd57ce89493d4d34484d2d02edc02b8f1a485141b6428",
+    "quiet-canvas-session-upstream-macos-jobs.json": "f0199585e490e8f18c69f19645c7af2748a5ee1dcd43f7e6dc78648b9a41934e",
+    "quiet-canvas-session-upstream-intel-failure.log": "00388efe65678705d24d7f0c8ff2d4399b4887718c8c5b9e59864d554ea3e0f3",
+    "quiet-canvas-session-upstream-arm-failure.log": "3dfe65fb33be4cdac79523d0b9a5d64d2559a50917fbe7566be5cac33c6f781a",
+    "quiet-canvas-session-design.log": "834d97cc261570b86f4bd8846f27815cb20b7084f19738b4807ad0a0d8ea52e4",
+    "quiet-canvas-session-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f"
+  },
+  "browser_checks": [
+    {
+      "name": "empty state contains no demonstration task",
+      "status": "passed"
+    },
+    {
+      "name": "five actual UI drafts persisted through Unix IPC",
+      "status": "passed",
+      "task_ids": [
+        "0e2f15bb-0103-4e08-ad94-cce0afe42681",
+        "c839bf0a-9b48-43e7-86fe-2d78a42d3832",
+        "a14e5ff4-f6fa-4982-8442-9fda8716cd5d",
+        "aa3990e0-bffb-4cf4-a993-7da914d797af",
+        "e45ff8fe-d5fb-400d-9727-afa54c6100e1"
+      ]
+    },
+    {
+      "name": "reviewed quick-context summary converts to actual draft, standalone model send unavailable",
+      "status": "passed"
+    },
+    {
+      "name": "truthful recorded-state filtering",
+      "status": "passed"
+    },
+    {
+      "name": "real core rejects oversized UTF-8 goal without inserting a task",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 1488x981",
+      "status": "passed",
+      "columns": 2,
+      "overflow": false,
+      "sidebar": 232,
+      "fonts": [
+        "18px",
+        "14px",
+        "24px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 1488x981",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 1440x900",
+      "status": "passed",
+      "columns": 2,
+      "overflow": false,
+      "sidebar": 232,
+      "fonts": [
+        "18px",
+        "14px",
+        "24px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 1440x900",
+      "status": "passed"
+    },
+    {
+      "name": "collapsed rail controls retain accessible localized names",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 1024x768",
+      "status": "passed",
+      "columns": 2,
+      "overflow": false,
+      "sidebar": 64,
+      "fonts": [
+        "18px",
+        "14px",
+        "24px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 1024x768",
+      "status": "passed"
+    },
+    {
+      "name": "mobile navigation exposes named controls and44px toggle target",
+      "status": "passed"
+    },
+    {
+      "name": "home layout 390x844",
+      "status": "passed",
+      "columns": 1,
+      "overflow": false,
+      "sidebar": 0,
+      "fonts": [
+        "18px",
+        "24px",
+        "14px"
+      ],
+      "weights": [
+        500,
+        400
+      ]
+    },
+    {
+      "name": "last card remains accessible above composer 390x844",
+      "status": "passed"
+    },
+    {
+      "name": "keyboard command search, Escape and focus restore",
+      "status": "passed"
+    },
+    {
+      "name": "actual closed-details summary is included in dialog focus trap",
+      "status": "passed"
+    },
+    {
+      "name": "actual grant duration input enforces3600second core boundary; no unsupported grant sent",
+      "status": "passed"
+    },
+    {
+      "name": "reduced motion disables product transitions",
+      "status": "passed"
+    },
+    {
+      "name": "actual never-dispatched draft cancellation is confirmed by core evidence",
+      "status": "passed"
+    },
+    {
+      "name": "history uses actual journal events",
+      "status": "passed"
+    },
+    {
+      "name": "no browser runtime errors",
+      "status": "passed"
+    }
+  ],
+  "daemon_sha256": "5aa6c4b25ec0641b893b5f5f0307fe7b1ca3ef5599ae6951b654a02d37d9b984",
+  "screenshots": {
+    "home-1488x981.png": "7712ad169e4ce570b25da1797e41ebc51e2556385cbbf7ca184ebfead34908e2",
+    "task-1488x981.png": "c1ccd266b97af54580a921d597b3a8e77092e10250b5da67318626233d39aa7d",
+    "home-1440x900.png": "3091f851abc7dd88f10d381794a66cd040a65e1dfce79089c994943294491cb4",
+    "task-1440x900.png": "4ce6e4bcc83506614b165bed48837f66455520845b79844b6aa6880e9ad08d78",
+    "home-1024x768.png": "65673c8c0e14f43e7571f1a16ddf4ec86dbabd887277063a1754ca00a672c68b",
+    "task-1024x768.png": "c4ea2e63b4770e7f455e8af2d901bdd7c67f75bb447b37b66416e7fa9e25fe76",
+    "home-390x844.png": "0f44e21055923854bdb4de83b6cc5a91f0adbd8cad7ad4ff813fd88ce2b0478d",
+    "task-390x844.png": "cf78a638691f4c049eec2327d24595840d501c2fd1f26131e291f408c5694136"
+  },
+  "independent_review": {
+    "state": "needed_for_combined_source_after_this_checkpoint",
+    "prior_reviews": "Incoming session MERGE_REVIEW/INTEGRATION_REVIEW and prior UI REVIEW/PAGINATION_REVIEW retained; no new combined review is fabricated"
+  },
+  "scope_guards": {
+    "core_difference_from_incoming_session": "Only cfg(test) FIFO portability correction",
+    "schema": "4; no schema5/profile/native provider route code imported",
+    "locks": "Root/native Cargo locks match incoming session; no new dependency/lock edits",
+    "production_test_hooks": "No test server/control permission added to product; browser adapter remains test-only"
+  },
+  "not_run_or_blocked": [
+    "Corrected currentcandidate macOS CI/native GUI/installation acceptance not run here",
+    "Real vendor identities/modelcalls remain unrun and unauthorized",
+    "No complete artifact/standalonechat/router/workflow/retention/remotehost or fullgoal acceptance",
+    "Existing prerequisite macOS DMGs and previousLinuxhost checks do not validate this exact mergedUIcandidate"
+  ]
+}
