@@ -101,3 +101,7 @@ SHA-256 hashes are from the reviewed working tree. Review evidence does not cove
 | `scripts/smoke-local-product.py` | `5f05c2c074f30966cba029f8e80faf7ca4b96e7c17c2fcbab1fb0f1d606c23f4` |
 | `scripts/validate_design.py` | `23427936c31e292b46ea6596d0523873e31e26962a71ca27041654ed3965b850` |
 | `tests/infrastructure/test_design_discovery.py` | `077925c8da41255a42b60b8f91d15daed3e3f6702635ce227bf90f10677cad64` |
+
+## Follow-up: macOS oversized-frame fixture
+
+Independent reviewer approved the test-only correction after inspecting both failed CI job logs: send exactly MAX_FRAME+1 bytes without an unread trailing newline. RESOURCE_LIMIT and authenticated daemon liveness assertions remain. Five local IPC tests passed; new native CI required. Reviewed ipc test SHA-256: cd84c80bc4b66dfa59b4b3d3814a4251b4f47026dd102b9aa3501ed755e81118.

@@ -1,6 +1,6 @@
 {
   "base_commit": "e158ade1a99e063ddce703ce4c0748febe449b43",
-  "candidate_commit": null,
+  "candidate_commit": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
   "scope": "partial product foundation, integration candidate not yet committed",
   "recorded_at_utc": "2026-10-26T16:43:04.829410+00:00",
   "checks": [
@@ -59,11 +59,28 @@
       "command": "cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml",
       "reason": "missing glib-2.0 on Linux",
       "resolution": "native macOS CI pending; not passed"
+    },
+    {
+      "command": "Product validation / macOS core tests",
+      "reason": "oversized fixture trailing newline caused platform-valid peer-close write errors",
+      "resolution": "send exactly MAX_FRAME+1 bytes; resource-limit and authenticated liveness assertions retained; independent review approved;5 Linux IPC tests passed;Mac rerun pending"
     }
   ],
   "native_arm64": "not_run",
   "native_x86_64": "not_run",
   "live_provider": "not_run_not_authorized",
   "production_release": "not_run_not_authorized",
-  "artifact_delivery": "pending_actual_ci"
+  "artifact_delivery": "pending_actual_ci",
+  "remote_ci": {
+    "head_sha": "03878121b649bcc90d0f35ace740f5bfbc10fe82",
+    "product_run": 40362148029,
+    "environment_run": 40362147943,
+    "product_rust": "passed",
+    "product_ui": "passed",
+    "product_macos_arm64": "failed",
+    "product_macos_x86_64": "failed",
+    "failure": "oversized fixture extra unread newline allowed macOS BrokenPipe/NotConnected during write; server boundary remained correct",
+    "native_host_build": "not_run_due_to_earlier_test_failure",
+    "artifact_delivery": "not_run"
+  }
 }

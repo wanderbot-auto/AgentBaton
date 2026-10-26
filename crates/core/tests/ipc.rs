@@ -146,8 +146,10 @@ fn credential_symlink_is_not_read_or_overwritten() {
 fn oversized_frame_does_not_kill_daemon() {
     let (_dir, path) = root();
     let server = Server::new(&path);
-    let mut payload = vec![b'x'; 1_048_577];
-    payload.push(b'\n');
+    // Exactly MAX_FRAME+1 bytes exhaust the bounded reader. An additional
+    // newline would remain unread when the server closes, which legitimately
+    // yields EPIPE/reset on macOS instead of a guaranteed response frame.
+    let payload = vec![b'x'; 1_048_577];
     let response = raw(&path, &payload);
     assert_eq!(response["error"]["code"], "RESOURCE_LIMIT");
     assert!(server

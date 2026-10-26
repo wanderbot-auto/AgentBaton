@@ -15,3 +15,5 @@ Repository protection: ruleset25893455 active with strict PR checks; existing th
 External gates: no real Provider identities/model calls, extra paid resources, final license, formal signing/notarization or production release authorized. These block only corresponding validation/delivery.
 
 Next: push reviewed candidate as PR, inspect exact-SHA CI and development artifacts, fix failures, guarded integration; continue persistent project registry/policy bindings and connect existing protocol/config/workspace primitives to the real session/task workflow. Full capability management, orchestration, validation/adoption, retention, remote Hosts and desktop lifecycle remain incomplete.
+
+PR: https://github.com/wanderbot-auto/AgentBaton/pull/3, head03878121. Remote Rust/UI passed; both macOS product jobs failed on an oversized-test fixture peer-close race before native host compilation. Test-only correction independently reviewed and5 local IPC tests passed; fresh exact-SHA checks pending. No native artifact delivered yet.
