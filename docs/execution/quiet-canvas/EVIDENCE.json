@@ -185,7 +185,9 @@
     "quiet-canvas-actor-workspaces.log": "15ebe3f7e4641872832191af420ad8b0292ce87e16cd4f1f853692f866e68935",
     "quiet-canvas-actor-browser/evidence.json": "a5b8755bf492f7e776c9c01098024f81287c8f262fe8e6430e57c17457594a65",
     "quiet-canvas-actor-browser/daemon.log": "b374ab4caa2ce600913e926d3eaf61e52de42d301f4fc47e6e94c96708a40feb",
-    "quiet-canvas-actor-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f"
+    "quiet-canvas-actor-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f",
+    "quiet-canvas-main65-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f",
+    "quiet-canvas-main65-design.log": "13f7f0a4ea8113d427d4c84258e66ab63015735ae5532a74e2446a1be5dcb4e4"
   },
   "browser_checks": [
     {
@@ -344,8 +346,9 @@
     "task-390x844.png": "e3e44a5d8010b81ef83059ce751f62240a5a58d655d6daa203d11feb1334cb0c"
   },
   "independent_review": {
-    "state": "needed_for_actor_combined_candidate",
-    "history": "FINAL_INTEGRATION_REVIEW covers6111037/bf042ec UI47/browser22; ACTOR_HANDOFF_REVIEW covers incoming Session actor source. Neither is claimed as final review of this new composition."
+    "state": "composition_reviewed",
+    "document": "docs/execution/quiet-canvas/ACTOR_COMPOSITION_REVIEW.md",
+    "scope": "Reviewed5e9/source9ea, no product delta introduced by main65 ancestry merge; exacthead dedicatedUI CI/native installation still pending"
   },
   "scope_guards": {
     "retained_workspace_protections": 18,
@@ -411,5 +414,16 @@
     "correction": "Use unchanged imported script with BINARIES explicitly set to actual built target; no assertion or product change.",
     "record": "quiet-canvas-actor-smoke-initial-failure.log",
     "record_kind": "preserved failure summary and captured exception; original complete traceback remains tool transcript"
+  },
+  "main_integration": {
+    "protected_main": "65f223cc05277435fe2caecfa140708de8bc9a52",
+    "merge_commit": "274345f21e4ef58962e2e87a296c85f682be353a",
+    "prior_reviewed_head": "5e9db51ec2a48338a51fdbf401cada6f8d2cd251",
+    "review_document_commit": "9e7b3ee7ed097cb0bded6747a79a45f9716ef86e",
+    "owner_inbox": "Re-read main65 OWNER-001/002; ACK, no new sequence",
+    "product_diff_from_reviewed_head": [],
+    "tests_reused": "All201 Rust/47UI/22realbrowser+8screenshots refer to unchanged source9ea5a4d; not rerun at documentation-only integration",
+    "prerequisite_ci": "Integration lead verified SessionPR6 exactcd7 all7checks and same-checkout5b629769 ARM/IntelDMGs before main65 merge. Not this dedicated UI candidate acceptance.",
+    "recorded_at_utc": "2026-10-26T22:38:22.987211+00:00"
   }
 }
