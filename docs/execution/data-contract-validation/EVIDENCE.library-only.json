@@ -1,0 +1,47 @@
+{
+  "approval": "AB-START-001",
+  "branch": "codex/data-contract-validation",
+  "baseline": "3c1cd1a26b99350f13d14645118bb0a72f87b1de",
+  "library_source": "cbd55093d58a95c5876591e1f57f44977f919fe9",
+  "library_composition": "f59e748",
+  "evidence_merge": "8da2bee",
+  "checks": [
+    {
+      "command": "umask022; cargo test --locked -p agentbaton-workspaces",
+      "exit_code": 0,
+      "unit_integration": 63,
+      "compilefail_doctests": 2
+    },
+    {
+      "command": "cargo clippy --locked -p agentbaton-workspaces --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0
+    }
+  ],
+  "source_sha256": {
+    "crates/workspaces/src/deterministic.rs": "44e8feda9a9dbd91d7fb5db1ed0c38424ef380fbb8fc3ec565ea3f1591a97c26",
+    "crates/workspaces/tests/deterministic.rs": "340f91af93a8550712b2c96daa1e890065843e4ddcf09c4c40907073c55cb286",
+    "crates/workspaces/src/validation.rs": "92ea96d82f7711bca1e5112a59fdbd9f0617df0ce887ce9f55e2c8ac25cd4c83",
+    "crates/workspaces/src/lib.rs": "6a055b32e24c99240f578f60d33ab657b96d3ca6efe9e1dc2508dcf051377a8a",
+    "crates/workspaces/Cargo.toml": "303ae03186afbb4da35f45b954efbb91155f6d241c174f130ad89c36df9aa897",
+    "Cargo.lock": "b22c148dd432426f70586093394eeb9f04c0aeca938764be503e1145659f7d42"
+  },
+  "logs": {
+    "data-contract-library-composition.log": "74263bff4fbd7aafa2b01be5a2ed759524c448b601c8563bb0fddff6e676a977",
+    "data-contract-library-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "data-contract-library-clippy.log": "5abc0eb667dea651ce64f15cacc5c84d95d2f769382c0d56dc52013c96a522d9"
+  },
+  "review": "docs/execution/deterministic-validators/REVIEW.md",
+  "scope": "library composition only; active Core/schema7/UI/native edits not yet fully verified",
+  "not_run": [
+    "finalCore/schema7composition",
+    "fullUI/actualbrowsercurrentcomposition",
+    "Linuxnewnativeapprovalunits",
+    "newheadmacOSnative/DMG/manualinstall/dialog",
+    "realProvider/model/remote/signing/production",
+    "wholeTaskAccepted/adoption/algorithm/reproductionscripts"
+  ]
+}

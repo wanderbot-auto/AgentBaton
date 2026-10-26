@@ -14,7 +14,7 @@ fn v5_validation_upgrade_preserves_task_bytes_and_private_reopenable_backup() {
     let connection = Connection::open(&database).unwrap();
     connection
         .execute_batch(
-            "DROP TABLE validation_runs; DROP TABLE validation_policies; PRAGMA user_version=5;",
+            "DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs; DROP TABLE validation_policies; PRAGMA user_version=5;",
         )
         .unwrap();
     // A genuine v5 task document predates the distinct specification revision.
@@ -45,7 +45,7 @@ fn v5_validation_upgrade_preserves_task_bytes_and_private_reopenable_backup() {
         connection
             .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
             .unwrap(),
-        6
+        7
     );
     assert_eq!(
         connection
@@ -71,7 +71,7 @@ fn v5_validation_upgrade_preserves_task_bytes_and_private_reopenable_backup() {
             path.file_name()
                 .unwrap()
                 .to_string_lossy()
-                .contains("pre-v6")
+                .contains("pre-v7")
                 && path
                     .extension()
                     .is_some_and(|extension| extension == "sqlite3")
@@ -115,7 +115,7 @@ fn v5_validation_upgrade_preserves_task_bytes_and_private_reopenable_backup() {
             .unwrap()
             .filter_map(|entry| entry.ok())
             .filter(
-                |entry| entry.file_name().to_string_lossy().contains("pre-v6")
+                |entry| entry.file_name().to_string_lossy().contains("pre-v7")
                     && entry
                         .path()
                         .extension()
@@ -132,7 +132,7 @@ fn failed_validation_upgrade_preserves_old_schema_and_unknown_records() {
     let database = directory.path().join("state.sqlite3");
     drop(Store::open(&database).unwrap());
     let connection = Connection::open(&database).unwrap();
-    connection.execute_batch("DROP TABLE validation_runs; DROP TABLE validation_policies; CREATE TABLE validation_policies(sentinel TEXT); INSERT INTO validation_policies VALUES('do not delete this record'); PRAGMA user_version=5;").unwrap();
+    connection.execute_batch("DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs; DROP TABLE validation_policies; CREATE TABLE validation_policies(sentinel TEXT); INSERT INTO validation_policies VALUES('do not delete this record'); PRAGMA user_version=5;").unwrap();
     drop(connection);
     assert!(Store::open(&database).is_err());
     let connection = Connection::open(&database).unwrap();

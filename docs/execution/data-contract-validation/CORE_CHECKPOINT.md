@@ -1,3 +1,13 @@
+# Current Core data-contract checkpoint
+
+Sourcefrozen uncommitted on shared HEADd0c714b69c9114ab38cbeb702ebf815e9a6a501f; Rootownsnextunifiedcheckpointcommit. ActualCorechanges compiled, formatted andtested;13DataCore+busyguard1+schema7migration3, allCore108 andworkspace321top-level +2compilefaildoctests PASS, Clippy/fmt/bins/realrestart PASS. Sharedtargetreleased. SeeCORE_EVIDENCE.json for exactcommands/sourcehashes/failedcontrols.
+
+No Corecodechanges plannedpendingindependentreview. Rootcanstartnative/browser composition using /workspace/.worktrees/validation-integration/target/debug binaries. Do not infer currentMacCI orrealProviderpass. Keepdata_contract_only scope; do notaccepttask/adoptGit/executeartifacts. Bothnamespacehistoriesremainseparate.
+
+Remaining: independentCore/namespace/migrationreview; nativebridge/backendbrowser/liveIPC composition controlledbyRoot; native/macOS exactcandidateCI; Core/non-Core sourcefingerprints andunifiedcommitbyRoot. UI/native/locks notownedbythisworker. No stage/commit/push/spawn performed. Preserveallunrelatedchanges andoldfailedlogs.
+
+## Preserved emergency interruption checkpoint
+
 # Emergency Core data-validation checkpoint
 
 Execution frozen at the integration lead's environment-unavailable notice. No further coding, staging, commit or push by this worker. This file is the only emergency write.

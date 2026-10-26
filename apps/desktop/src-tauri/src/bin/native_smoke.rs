@@ -413,7 +413,24 @@ const FIRST: &str = r#"
   require(bad.error?.code === 'INVALID_REQUEST', 'real invalid input did not fail');
   const events = result(await invoke('events_subscribe',{cursor:0,limit:100}));
   require(events.events.some(e=>e.aggregate_id===task.id), 'real journal event absent');
-  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,idempotent:true,invalidInputRejected:true,journal:true}});
+  const beforeData=result(await invoke('system_snapshot')).sequence;
+  const dataPolicies=result(await invoke('data_validation_policies_list',{taskId:task.id}));
+  const dataRecords=result(await invoke('data_validations_list',{taskId:task.id}));
+  require(Array.isArray(dataPolicies)&&dataPolicies.length===0&&Array.isArray(dataRecords)&&dataRecords.length===0,'fresh task must have no fabricated data approvals or receipts');
+  const artifacts=document.querySelector('#tab-artifacts');
+  require(artifacts,'actual task Artifacts tab missing');artifacts.click();
+  let dataPanel;
+  while(!(dataPanel=document.querySelector('[data-testid="data-contract-validation"]'))){require(Date.now()<deadline,'actual data contract panel did not mount');await new Promise(r=>setTimeout(r,25));}
+  const folded=dataPanel.querySelector('details');
+  require(folded&&!folded.open,'data contract controls must start folded');folded.querySelector('summary').click();
+  while(dataPanel.querySelector('form>fieldset')?.disabled!==false){require(Date.now()<deadline,'real native data-list read did not reconcile successfully');await new Promise(r=>setTimeout(r,25));}
+  require(!dataPanel.querySelector('[role="alert"]'),'real native data-list read failed');
+  const approve=dataPanel.querySelector('button[type="submit"]');
+  require(approve&&approve.disabled,'draft without stopped session must not enable native data approval');
+  require(result(await invoke('system_snapshot')).sequence===beforeData,'read-only data controls unexpectedly mutated history');
+  document.querySelector('#tab-conversation').click();
+  while(document.querySelector('#tab-conversation')?.getAttribute('aria-selected')!=='true'){require(Date.now()<deadline,'return to conversation did not settle');await new Promise(r=>setTimeout(r,25));}
+  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true}});
  } catch (error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;
