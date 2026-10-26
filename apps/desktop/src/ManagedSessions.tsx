@@ -27,6 +27,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   const [text, setText] = useState('');
   const [uncertainSend, setUncertainSend] = useState<Set<string>>(() => new Set());
   const [events, setEvents] = useState<JournalEvent[]>([]);
+  const [evidenceLimited, setEvidenceLimited] = useState(false);
   const [sessionFresh, setSessionFresh] = useState(false);
   const [sessionWorkspace, setSessionWorkspace] = useState<ManagedWorkspace | null>(null);
   const operationKeys = useRef(new Map<string, string>());
@@ -74,10 +75,10 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
     const request = ++evidenceRequest.current;
     const snapshot = await api.snapshot();
     const batch = await api.events(Math.max(0, snapshot.sequence - 100));
-    if (request === evidenceRequest.current) setEvents(batch.events.filter(event => event.aggregate_id === id));
+    if (request === evidenceRequest.current) { setEvents(batch.events.filter(event => event.aggregate_id === id)); setEvidenceLimited(batch.next_cursor < batch.sequence); }
   }, []);
   useEffect(() => {
-    ++evidenceRequest.current; setEvents([]); setText(''); setSessionFresh(false);
+    ++evidenceRequest.current; setEvents([]); setEvidenceLimited(false); setText(''); setSessionFresh(false);
     if (sessionId && connected) void refreshEvidence(sessionId).catch(e => setError(e instanceof Error ? e.message : String(e)));
     return () => { ++evidenceRequest.current; };
   }, [sessionId, connected, refreshEvidence]);
@@ -171,7 +172,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
         <form onSubmit={send}><label htmlFor="session-message">{t.message}</label><textarea id="session-message" value={text} onChange={event => setText(event.target.value)} disabled={busy || !connected || !sessionFresh || selected.state !== 'ready' || uncertainSend.has(selected.id)} maxLength={16384} rows={4} /><p className="hint">{t.promptHelp}</p><button disabled={busy || !connected || !sessionFresh || selected.state !== 'ready' || !text.trim() || uncertainSend.has(selected.id)}>{t.send}</button></form>
         {uncertainSend.has(selected.id) && <div className="error"><p>{t.uncertain}</p><button disabled={busy} onClick={() => { setText(''); setUncertainSend(current => { const next = new Set(current); next.delete(selected.id); return next; }); }}>{t.clearUncertain}</button></div>}
         <button disabled={busy || !connected || !['starting', 'ready', 'running'].includes(selected.state)} onClick={() => void mutate(JSON.stringify(['cancel', selected.id, selected.revision]), key => sessionApi.sessionsCancel(selected, key), record => setSessions(current => mergeSessions(current, [record])))}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><p className="hint">{t.resumeUnsupported}</p>
-        <h3>{t.outputTitle}</h3><p className="hint">{t.eventWindow}</p>{!events.length && <p>{t.noEvents}</p>}<ol className="session-events">{events.map(event => <li key={event.event_id}>{sessionEventText(event) && <p className="message-text"><strong>{event.kind === 'session.message_queued' ? t.queuedMessage : t.agentMessage}</strong><br />{sessionEventText(event)}</p>}<details><summary>{event.kind} · {event.occurred_at}</summary><pre>{JSON.stringify(event.payload, null, 2)}</pre></details></li>)}</ol>
+        <h3>{t.outputTitle}</h3><p className="hint">{t.eventWindow}</p>{!events.length && <p>{evidenceLimited ? t.partialEvents : t.noEvents}</p>}<ol className="session-events">{events.map(event => <li key={event.event_id}>{sessionEventText(event) && <p className="message-text"><strong>{event.kind === 'session.message_queued' ? t.queuedMessage : t.agentMessage}</strong><br />{sessionEventText(event)}</p>}<details><summary>{event.kind} · {event.occurred_at}</summary><pre>{JSON.stringify(event.payload, null, 2)}</pre></details></li>)}</ol>
       </> : <p>{t.selected}</p>}</section></div>
   </section>;
 }
