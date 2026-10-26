@@ -2,6 +2,7 @@
 //! No API here removes a source directory, executes its scripts, or stashes/resets source edits.
 
 pub mod adoption;
+pub mod deterministic;
 pub mod validation;
 
 use serde::{Deserialize, Serialize};
