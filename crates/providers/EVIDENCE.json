@@ -1,5 +1,5 @@
 {
-  "scope": "ACP contracts, selected executable provenance/version probes, connection contracts, actual Unix stdio fixture subprocesses only",
+  "scope": "Explicit ACP/native Codex codecs, shared owned Unix IO, constrained approved-snapshot session configuration; generated local children and pinned official-schema validation only",
   "requirements_partial": [
     "AB-ACP-001",
     "AB-ACP-003",
@@ -18,28 +18,50 @@
     "AB-TSK-008",
     "AB-TSK-010"
   ],
-  "base_commit": "4e1efd378e03cbfeddf11351299da88e911df85c",
-  "tested_tree": "uncommitted crates/providers files identified by SHA-256; integration commit must rerun checks",
-  "recorded_at_utc": "2026-10-26T17:23:23.016079+00:00",
+  "base_commit": "d7acacbcc826f71386bec046946eb2010c0f1052",
+  "tested_tree": "Frozen crates/providers source/test SHA256 below; parent integration must bind exact merged candidate and rerun checks",
+  "recorded_at_utc": "2026-10-26T19:01:29.912610+00:00",
   "checks": [
     {
       "command": "cargo test --locked -p agentbaton-providers",
-      "cwd": "/workspace/AgentBaton",
+      "cwd": "/workspace/.worktrees/provider-codecs",
       "exit_code": 0,
-      "contract_tests_passed": 20,
-      "stdio_fixture_tests_passed": 19,
-      "real_provider_model_calls": false,
-      "installation_probe_tests_passed": 9,
-      "connection_contract_tests_passed": 8,
-      "total_passed": 56
+      "total_passed": 79,
+      "breakdown": {
+        "configuration_projection_unit": 3,
+        "connection_contracts": 8,
+        "acp_contracts": 20,
+        "installation_probe_fixtures": 9,
+        "native_codex_fixtures": 19,
+        "explicit_acp_route_fixture": 1,
+        "acp_stdio_fixtures": 19
+      },
+      "log": "provider-native-all-final-configuration.log",
+      "dimension": "Linux Rust unit and actual generated subprocess/pipe contracts; no vendor executable/model/account"
     },
     {
       "command": "cargo clippy --locked -p agentbaton-providers --all-targets -- -D warnings",
-      "exit_code": 0
+      "exit_code": 0,
+      "log": "provider-native-clippy-final-configuration.log"
     },
     {
-      "command": "rustfmt --edition 2021 --check crates/providers/src/*.rs crates/providers/tests/*.rs",
-      "exit_code": 0
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log": "provider-native-fmt-final-configuration.log"
+    },
+    {
+      "command": "AGENTBATON_TEST_SCHEMA_CAPTURE=<ignored capture> cargo test --locked -p agentbaton-providers --test native_codex native_roundtrip_has_distinct_envelope_bound_thread_and_no_shell -- --exact",
+      "exit_code": 0,
+      "log": "provider-native-schema-capture-final.log"
+    },
+    {
+      "command": "existing .venv Python crates/providers/tests/validate-native-schema.py <pinned official schema> <actual generated-child capture>",
+      "exit_code": 0,
+      "validated_messages": 8,
+      "official_schema_revision": "970111f6cb62cc02fe36a82ea7d71b37a2889c97",
+      "schema_sha256": "f50e158c34ac55c5cc67c5493df539f1c07b603bd5dd2100a7393eefb62a3e20",
+      "log": "provider-native-official-schema-final.log",
+      "dimension": "Actual captured request/result/notification values validated by official complete JSONSchema; not live vendor compatibility"
     }
   ],
   "initial_failure": {
@@ -49,31 +71,27 @@
   },
   "real_provider_calls_executed": false,
   "native_platform_tests_executed": false,
-  "implemented": "bounded JSON-RPC contracts and Unix nonblocking stdio initialize/session-new/prompt/cancel, unknown outcomes, owned process-group termination/reap, explicit approved installation descriptor, env_clear, bounded evidence/stderr draining; canonical selected executable SHA-256 pin before spawn; exact --version probe with bounded nonblocking pipes/deadline/reap and env isolation; explicit Provider route/config/identity/host connection binding and source/version/time evidence; worker poll quanta with fixed original turn deadline, idempotent cancel-once, bounded nonblocking outbound queue, raw-free typed stream and critical control backpressure failure; readiness-based idle waits for small pipes in both transport and version probe, preserving bounded fairness and deadlines",
+  "implemented": "bounded JSON-RPC contracts and Unix nonblocking stdio initialize/session-new/prompt/cancel, unknown outcomes, owned process-group termination/reap, explicit approved installation descriptor, env_clear, bounded evidence/stderr draining; canonical selected executable SHA-256 pin before spawn; exact --version probe with bounded nonblocking pipes/deadline/reap and env isolation; explicit Provider route/config/identity/host connection binding and source/version/time evidence; worker poll quanta with fixed original turn deadline, idempotent cancel-once, bounded nonblocking outbound queue, raw-free typed stream and critical control backpressure failure; readiness-based idle waits for small pipes in both transport and version probe, preserving bounded fairness and deadlines; Shared codec-independent OwnedProcessIo; separate native Codex initialize/initialized/thread/turn/interrupt/terminal codec with correlation, stale terminal replay rejection, cancellation before turnID and late control ACKs; explicit managed route enum with no fallback; constrained ACP configuration projection, immutable after first session; Claude four approved option fields, no arbitrary SDK metadata; only empty MCP/enabling scopes until trusted transport permissions exist",
   "not_implemented": [
-    "trusted approval store resolution and binary vendor authenticity",
-    "session/load",
-    "multi-outstanding-prompt scheduling",
-    "trusted permission policy callback (all transport requests cancelled)",
-    "Provider-specific live authentication/adapters",
-    "live Provider compatibility and model calls",
-    "raw-event durable storage/redaction",
-    "persistent named connection registry and managed configuration materialization"
+    "live vendor authentication/identity mapping and compatibility/model calls",
+    "native resume or ACP session/load/replay",
+    "positive native permission policy callback (Codex requests denied; ACP requests cancelled)",
+    "nondefault native Codex policy projection beyond current on-request/workspace-write default; higher core must reject nondefault plans rather than silently override",
+    "nonempty ACP MCP connections or enabled project-MCP scopes (explicit unsupported)",
+    "OS/network/account isolation enforcement, native hidden-inheritance proof",
+    "durable raw-event storage/privacy/retention and higher-level full-product workflow acceptance"
   ],
   "file_hashes": {
-    "crates/providers/Cargo.toml": "ebcef2dbe3294cf341990be4843da8e9e20fe2f4f65501f90fff06e038ef37c0",
-    "crates/providers/README.md": "81a74c60f119fab99d6e763a5102ec1c12a119558200c7439da758187769eaa2",
-    "crates/providers/PROVENANCE.md": "9a5134d403e39060b28b5678797c16bbed17f10f02f6ceb4354ba7836c1bc455",
-    "crates/providers/documentation-evidence.json": "d97e8c6040900c542ba3c2e579d6f53b74aa005938a0cf1ceb8aef5a55b05c52",
-    "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
-    "crates/providers/src/lib.rs": "9237c5a3f765a71dd97d7f49897c24cc06db85926e36b5579af0c4ca47de2fd5",
-    "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
-    "crates/providers/src/installation.rs": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
-    "crates/providers/src/transport.rs": "68a953ad51567ec9570f72c1d3c5893dba69d814e7b8352d75d3e9a38f1b0dc4",
-    "crates/providers/tests/connections.rs": "31aa177dff7ad010fa147c68f3e338ef5c33f1fdb430322a95cde9b65d4199c3",
-    "crates/providers/tests/contracts.rs": "9a4d3f1a5f5a059e7b446b2d143b5f4ba990deb1bc8c49b399ff5ee31c734c38",
-    "crates/providers/tests/stdio.rs": "1a00673951b2f30c362c0f5a1e020d10d0ddb7afce11294bc317fa590fd38991",
-    "crates/providers/tests/installation.rs": "cd6c75e9c5320938b4ba3b50529773f7494a806c51253091449a486547f10e9b"
+    "crates/providers/README.md": "13258f3ec576fd5635f8aa37a7ead9bfe8ec6adfb2ea8ce63b87a6a52f452c3a",
+    "crates/providers/src/lib.rs": "a7e778a9da1d121a967d05c6aa1de6f99849477a12df0bb5a4a1624cb48d017f",
+    "crates/providers/src/transport.rs": "035820c4bb2bc3ae8b0aada9acf704354c79b718a18d25474c5492e871f8ee76",
+    "crates/providers/src/codex.rs": "295a0e5ac624e375e0a5cbae7e419594627f657d6485e2f39098e077958099dd",
+    "crates/providers/src/driver.rs": "0355f67a6aced685cc665b827519fdd546d4465c11bdff3a54651ff0c52e83ca",
+    "crates/providers/src/process_io.rs": "ab0ad1edd09f59dd500f1446909f490926e0a2af8d5033fdc403189774973774",
+    "crates/providers/src/session_configuration.rs": "89cd8a8f57f993605904b1fd7250f23fa49a20565a1c771239b397a5763c63a9",
+    "crates/providers/tests/native_codex.rs": "97c7aaa590e284650a839688a6394391a8750be7e0d9b6ddd275964db8a23c0d",
+    "crates/providers/tests/routes.rs": "02b6ee5fee49b883adafb704639f0c6245002b142b5901d902f2fa0b586afb93",
+    "crates/providers/tests/validate-native-schema.py": "2704628709cec5be5cb2cfe2faf082ace8e9938f99bf39574153f8bf9fa92597"
   },
   "failures_preserved": [
     {
@@ -106,5 +124,94 @@
   ],
   "review_fix": "Invalidated all old session associations on disconnect, including idle/completed, so reinitialize cannot silently resume stale native IDs. Added regression test. Also reject delayed old prompt results after transport reinitialization and terminate/reap malformed session-new responses, with regression tests.",
   "fixture_platform_fix": "Canonicalized approved fixture workspace path so Darwin /var versus /private/var alias does not contradict Python os.getcwd; exact cwd + mcpServers assertion preserved; native evidence remains CI-specific. Linux stderr fixtures additionally shrink the actual pipe to4096 bytes (asserted for stdio) to reproduce small-pipe scheduling without weakening volume/deadline assertions.",
-  "integration_scope": "Core supervised-session integration is separately owned and requires its own evidence. This record covers provider crate tests only; it does not claim Core IPC/native/live Provider verification."
+  "integration_scope": "Core supervised-session integration is separately owned and requires its own evidence. This record covers provider crate tests only; it does not claim Core IPC/native/live Provider verification.",
+  "previous_checkpoint": {
+    "base_commit": "4e1efd378e03cbfeddf11351299da88e911df85c",
+    "recorded_at_utc": "2026-10-26T17:23:23.016079+00:00",
+    "checks": [
+      {
+        "command": "cargo test --locked -p agentbaton-providers",
+        "cwd": "/workspace/AgentBaton",
+        "exit_code": 0,
+        "contract_tests_passed": 20,
+        "stdio_fixture_tests_passed": 19,
+        "real_provider_model_calls": false,
+        "installation_probe_tests_passed": 9,
+        "connection_contract_tests_passed": 8,
+        "total_passed": 56
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-providers --all-targets -- -D warnings",
+        "exit_code": 0
+      },
+      {
+        "command": "rustfmt --edition 2021 --check crates/providers/src/*.rs crates/providers/tests/*.rs",
+        "exit_code": 0
+      }
+    ],
+    "file_hashes": {
+      "crates/providers/Cargo.toml": "ebcef2dbe3294cf341990be4843da8e9e20fe2f4f65501f90fff06e038ef37c0",
+      "crates/providers/README.md": "81a74c60f119fab99d6e763a5102ec1c12a119558200c7439da758187769eaa2",
+      "crates/providers/PROVENANCE.md": "9a5134d403e39060b28b5678797c16bbed17f10f02f6ceb4354ba7836c1bc455",
+      "crates/providers/documentation-evidence.json": "d97e8c6040900c542ba3c2e579d6f53b74aa005938a0cf1ceb8aef5a55b05c52",
+      "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+      "crates/providers/src/lib.rs": "9237c5a3f765a71dd97d7f49897c24cc06db85926e36b5579af0c4ca47de2fd5",
+      "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+      "crates/providers/src/installation.rs": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+      "crates/providers/src/transport.rs": "68a953ad51567ec9570f72c1d3c5893dba69d814e7b8352d75d3e9a38f1b0dc4",
+      "crates/providers/tests/connections.rs": "31aa177dff7ad010fa147c68f3e338ef5c33f1fdb430322a95cde9b65d4199c3",
+      "crates/providers/tests/contracts.rs": "9a4d3f1a5f5a059e7b446b2d143b5f4ba990deb1bc8c49b399ff5ee31c734c38",
+      "crates/providers/tests/stdio.rs": "1a00673951b2f30c362c0f5a1e020d10d0ddb7afce11294bc317fa590fd38991",
+      "crates/providers/tests/installation.rs": "cd6c75e9c5320938b4ba3b50529773f7494a806c51253091449a486547f10e9b"
+    }
+  },
+  "owner_inbox_read": "Read actual latest merged origin/main OWNER-001 and OWNER-002; UI amendment does not alter codec authorization",
+  "native_semantics": {
+    "dialect": "No required jsonrpc/protocolVersion; distinct from ACP",
+    "start_ack": "not terminal, including completed field in response",
+    "interrupt_ack": "not stop evidence",
+    "terminal": "matching turn/completed plus correlated submission response; completed is native turn only",
+    "stale_terminals": "completed ID cannot be reused, max4096 tracked per owned process then explicit ResourceLimit",
+    "scope": "declared native policy/home consistency, not OS/account enforcement",
+    "claude_configuration": "Only settingSources[], constrained settings, allowDangerouslySkipPermissions:false and strictMcpConfig:true; no post-session mutation",
+    "mcp": "nonempty request/enabling scopes fail CapabilityUnsupported rather than ignored"
+  },
+  "failed_attempts": [
+    {
+      "command": "first native cross-environment fixture test",
+      "result": "Timeout after first turn was dispatched before expensive second interpreter verification/handshake",
+      "log": "provider-native-env-fixture-order-failure.log",
+      "resolution": "Prepare both verified processes/sessions first, then dispatch both turns. Original500ms and4MiB deadlines/volume unchanged; final test passed"
+    },
+    {
+      "command": "first native Clippy",
+      "result": "cmp_owned in two path comparisons",
+      "log": "provider-native-clippy-first.log",
+      "resolution": "Borrow Path instead of allocating; no lint suppression"
+    },
+    {
+      "command": "intermediate session configuration compile",
+      "result": "Value does not implement Ord for duplicate detection",
+      "log": "provider-native-session-config-check.log",
+      "resolution": "Compare already-validated string names via Option<&str>; final tests andClippy pass"
+    }
+  ],
+  "local_log_hashes": {
+    "provider-native-all-final-configuration.log": "ac8d8a321eeb1e1f2952886af48751e8442985d8b5ee0f7c0457d4999f7589c8",
+    "provider-native-clippy-final-configuration.log": "8a7d69a904cf390af617d169b4c5fff4140fc5d70716495eee1555940e5a14f8",
+    "provider-native-fmt-final-configuration.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "provider-native-schema-capture-final.log": "98da4d4147aeb48d8306356fa6fbc26260d4c0fa7a360f45fe5f90b1065f04b8",
+    "provider-native-official-schema-final.log": "e5c83dab77e4cc97c851cb2298b56c8ded916206f55054cd9c83ae0549ef2e60",
+    "provider-native-env-fixture-order-failure.log": "3203172bd6bbd9b27dd9a54e268ee9c64ffbc94618c233eba17d28f9cc1abbd0",
+    "provider-native-clippy-first.log": "0f285d5ac89cce93ecdcc5c89ab2b2319025ff7ae1ba3f802544bab260672a1b",
+    "provider-native-session-config-check.log": "a7f157200a5902b799464beaee8de9b8881dcb160db66d518b756a600eef2632"
+  },
+  "captured_fixture_wire_sha256": "4deaf28a4dd6288b5eb883f1a0c2a65fa79b263ed474e59b93432e2d87f327a1",
+  "full_product_acceptance": "not_claimed; parent must continue full130 requirements",
+  "independent_review": {
+    "reviewer": "native platform subagent /root/review",
+    "result": "No remaining source blocker after codec and final constrained session-configuration review",
+    "execution": "Reviewer independently ran previous76 suite; final3 configuration unit tests and actualroute child test independently passed; all10source/8log hashes reviewed",
+    "limitations": "Parent integration/core/native/CI checks remain necessary; fixture/schema validation is not live vendor or OS enforcement evidence"
+  }
 }
