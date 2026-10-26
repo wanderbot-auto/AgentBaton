@@ -8,7 +8,7 @@ import { ManagedSessions, sessionEventText } from './ManagedSessions';
 import { sessionApi, type ManagedSession, type NamedConnection } from './session-api';
 import { ContextDialog } from './ContextDialog';
 import { Icon, type IconName } from './Icons';
-import { earlierEventWindow } from './event-window';
+import { earlierEventWindow, type WindowReplacement } from './event-window';
 
 type View = 'work' | 'tasks' | 'capabilities' | 'history' | 'quick';
 type Filter = 'all' | 'active' | 'attention' | 'drafts' | 'done';
@@ -45,6 +45,8 @@ export function App() {
   const [earliestCursor, setEarliestCursor] = useState(0);
   const [nextEventCursor, setNextEventCursor] = useState(0);
   const [eventPageMore, setEventPageMore] = useState(false);
+  const [windowReplacement, setWindowReplacement] = useState<WindowReplacement>(null);
+  const [byteLimitedPage, setByteLimitedPage] = useState(false);
   const eventRequestCursor = useRef<number | undefined>(undefined);
   const [selectedId, setSelectedId] = useState<string>();
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
@@ -84,7 +86,7 @@ export function App() {
       }
       if (history.status === 'fulfilled') {
         const batch = history.value;
-        setEvents(batch.events); setEarliestCursor(cursor);
+        setEvents(earlierEventWindow(batch.events, []).events); setWindowReplacement(null); setByteLimitedPage(!!batch.byte_limited); setEarliestCursor(cursor);
         setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence);
         if (batch.gap) failures.push(messages[language].eventGap);
       }
@@ -170,7 +172,7 @@ export function App() {
       const older = batch.events.filter(event => event.sequence <= earliestCursor);
       if (!older.length) { setError(t.eventGap); return; }
       const window = earlierEventWindow(older, events);
-      setEvents(window.events); setEarliestCursor(cursor); eventRequestCursor.current = cursor;
+      setEvents(window.events); setWindowReplacement(window.reason); setByteLimitedPage(!!batch.byte_limited); setEarliestCursor(cursor); eventRequestCursor.current = cursor;
       if (window.replaced || batch.byte_limited) { setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence); }
     } catch (e) { showError(e); }
     finally { setBusy(false); }
@@ -182,7 +184,7 @@ export function App() {
       const cursor = nextEventCursor, batch = await api.events(cursor);
       if (request !== refreshSequence.current) return;
       if (batch.gap || (batch.next_cursor <= cursor && batch.sequence > cursor)) { setError(t.eventGap); return; }
-      setEvents(batch.events); setEarliestCursor(cursor); setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence); eventRequestCursor.current = cursor;
+      setEvents(earlierEventWindow(batch.events, []).events); setWindowReplacement(null); setByteLimitedPage(!!batch.byte_limited); setEarliestCursor(cursor); setNextEventCursor(batch.next_cursor); setEventPageMore(batch.next_cursor < batch.sequence); eventRequestCursor.current = cursor;
     } catch (e) { showError(e); }
     finally { setBusy(false); }
   }
@@ -195,7 +197,7 @@ export function App() {
   const nav: [Exclude<View, 'quick'>, IconName, string][] = [['work', 'grid', c.space], ['tasks', 'task', t.tasks], ['capabilities', 'capabilities', t.capabilities], ['history', 'history', t.history]];
   const projectName = (id: string | undefined) => projects.find(project => project.id === id)?.name ?? t.localDrafts;
   const dialogTitle = dialog === 'projects' ? c.projectSettings : dialog === 'execution' ? c.execution : dialog === 'search' ? c.searchTasks : dialog === 'conversion' ? c.convertTitle : c.settings;
-  const eventPager = eventPageMore && <div className="event-page-controls"><p className="hint">{t.eventPageMore}</p><button onClick={() => void loadNextEvents()} disabled={busy || status !== 'connected'}>{t.nextEvents}</button></div>;
+  const eventPager = <>{windowReplacement && <p role="status">{windowReplacement === 'bytes' ? t.windowBudget : t.windowLimit}</p>}{byteLimitedPage && <p role="status">{t.bytePageLimit}</p>}{eventPageMore && <div className="event-page-controls"><p className="hint">{t.eventPageMore}</p><button onClick={() => void loadNextEvents()} disabled={busy || status !== 'connected'}>{t.nextEvents}</button></div>}</>;
   return <div className={`shell${navCollapsed ? ' nav-collapsed' : ''}${mobileNav ? ' mobile-nav-open' : ''}`}>
     <header className="appbar"><div className="brand"><svg className="brandmark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 19 11 4h5L8 19Zm9 1 7-13h4l-7 13Z" /></svg><span>AgentBaton</span></div><button className="icon-button nav-toggle" aria-label={c.toggleNav} aria-expanded={mobileLayout ? mobileNav : !navCollapsed} onClick={() => { if (mobileLayout) setMobileNav(value => !value); else setNavCollapsed(value => !value); }}><Icon name="panel" /></button><div className="location"><span>{c.personal}</span><span className="location-divider">/</span><button onClick={() => setDialog('projects')}>{projectId ? projectName(projectId) : c.allProjects}</button></div><span className={`connection ${status}`} role="status"><span className="status-dot" />{t[status]}</span><button className="icon-button" aria-label={t.refresh} disabled={busy} onClick={() => void refresh()}><Icon name="refresh" /></button></header>
     {mobileNav && <button className="mobile-nav-dismiss" aria-label={c.close} onClick={() => setMobileNav(false)} />}

@@ -264,9 +264,17 @@ struct ReadyRequest {
     reply: SyncSender<Value>,
     deadline: Instant,
 }
+fn configure_accepted_stream(stream: &UnixStream) -> std::io::Result<()> {
+    // BSD/Darwin can inherit O_NONBLOCK from the listener. Deadline-based frame
+    // IO requires a blocking accepted descriptor; do not depend on accept flags.
+    stream.set_nonblocking(false)?;
+    stream.set_read_timeout(Some(Duration::from_secs(3)))?;
+    stream.set_write_timeout(Some(Duration::from_secs(3)))
+}
 fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
-    let _ = stream.set_read_timeout(Some(Duration::from_secs(3)));
-    let _ = stream.set_write_timeout(Some(Duration::from_secs(3)));
+    if configure_accepted_stream(&stream).is_err() {
+        return; // Configuration failure closes only this client worker.
+    }
     let response = match read_frame(&stream, MAX_FRAME) {
         Ok(raw) => {
             let (reply, receive): (_, Receiver<Value>) = mpsc::sync_channel(1);
@@ -726,6 +734,26 @@ mod frame_tests {
     use super::*;
 
     #[test]
+    fn inherited_nonblocking_stream_waits_for_the_delayed_complete_first_frame() {
+        let (receiver, mut sender) = UnixStream::pair().unwrap();
+        receiver.set_nonblocking(true).unwrap();
+        let (requests, ready) = mpsc::sync_channel(1);
+        let worker = std::thread::spawn(move || socket_worker(receiver, requests));
+        std::thread::sleep(Duration::from_millis(30));
+        sender.write_all(b"{}\n").unwrap();
+        let request = ready.recv_timeout(Duration::from_secs(2)).unwrap();
+        assert_eq!(request.raw, "{}\n");
+        request
+            .reply
+            .send(json!({"result":"delayed-frame-read"}))
+            .unwrap();
+        let response: Value =
+            serde_json::from_str(&read_frame(&sender, MAX_FRAME).unwrap()).unwrap();
+        assert_eq!(response["result"], "delayed-frame-read");
+        worker.join().unwrap();
+    }
+
+    #[test]
     fn oversized_parser_returns_resource_limit_without_relying_on_error_delivery() {
         let (receiver, mut sender) = UnixStream::pair().unwrap();
         let writer = std::thread::spawn(move || {
@@ -745,5 +773,45 @@ mod frame_tests {
         assert_eq!(error.code, "RESOURCE_LIMIT");
         drop(receiver);
         writer.join().unwrap();
+    }
+    #[test]
+    fn nonblocking_accepted_stream_waits_for_a_delayed_authenticated_first_frame() {
+        use std::sync::mpsc;
+        let dir = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = dir.path().canonicalize().unwrap().join("runtime");
+        let mut daemon = Daemon::bind(&runtime).unwrap();
+        let mut client = UnixStream::connect(runtime.join("batond.sock")).unwrap();
+        client
+            .set_write_timeout(Some(Duration::from_secs(2)))
+            .unwrap();
+        let (accepted, _) = daemon.listener.accept().unwrap();
+        // Linux accept does not inherit this flag; explicitly simulate the BSD
+        // accepted descriptor state to make the portability regression deterministic.
+        accepted.set_nonblocking(true).unwrap();
+        let (ready, receive) = mpsc::sync_channel(1);
+        let reader = std::thread::spawn(move || {
+            configure_accepted_stream(&accepted).unwrap();
+            ready.send(()).unwrap();
+            let result = read_frame(&accepted, MAX_FRAME);
+            (result, accepted)
+        });
+        receive.recv_timeout(Duration::from_secs(2)).unwrap();
+        // Connection setup is complete before the peer starts sending its first
+        // request; a nonblocking read must not fabricate a transport disconnect.
+        std::thread::sleep(Duration::from_millis(50));
+        let token = fs::read_to_string(runtime.join("session.token")).unwrap();
+        let mut request=serde_json::to_vec(&json!({"api_version":API_VERSION,"request_id":"delayed","token":token,"method":"tasks.create","params":{"goal":"unknown project","project_id":"not-registered"},"idempotency_key":"delayed"})).unwrap();
+        request.push(b'\n');
+        client.write_all(&request).unwrap();
+        let (frame, _accepted) = reader.join().unwrap();
+        let response = daemon.handle(&frame.unwrap());
+        assert_eq!(response["error"]["code"], "NOT_FOUND");
+        assert_eq!(daemon.store.sequence().unwrap(), 0);
+        assert!(
+            matches!(daemon.listener.accept(),Err(error) if error.kind()==std::io::ErrorKind::WouldBlock)
+        );
     }
 }

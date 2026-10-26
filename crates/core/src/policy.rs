@@ -437,6 +437,7 @@ pub(crate) fn grant_proposal_refs(
     let (connections, _) = validate_registered(conn, project_id, &scope, true)?;
     let project: Project = read_document(conn, "projects", project_id)?;
     let workspace: ManagedWorkspace = read_document(conn, "managed_workspaces", workspace_id)?;
+    let connection: Value = read_document(conn, "connections", connection_id)?;
     let identity = inspect(&workspace.root).map_err(|_| {
         CoreError::new(
             "INPUT_CHANGED",
@@ -444,7 +445,7 @@ pub(crate) fn grant_proposal_refs(
         )
     })?;
     Ok(
-        json!({"project_revision":project.revision,"workspace_revision":workspace.revision,"workspace_identity":identity,"connection":connections[connection_id]}),
+        json!({"project_revision":project.revision,"project_name":project.name,"workspace_revision":workspace.revision,"workspace_identity":identity,"connection":connections[connection_id],"execution_recipient":{"connection_id":connection_id,"name":connection["name"],"provider":connection["provider"],"protocol_route":connection["protocol_route"].as_str().unwrap_or("custom_acp"),"executable":connection["executable"],"arguments":connection["arguments"],"executable_sha256":connection["executable_sha256"],"identity_status":connection["identity_status"],"config_status":connection["config_status"]}}),
     )
 }
 fn event(tx: &Transaction<'_>, grant: &ExecutionGrant, kind: &str, source: &str) -> Result<()> {
@@ -986,7 +987,7 @@ impl Store {
 #[cfg(test)]
 mod live_workspace_tests {
     use super::*;
-    use std::os::unix::fs::symlink;
+    use std::os::unix::fs::{symlink, FileTypeExt};
 
     fn fixture() -> (tempfile::TempDir, WorkspaceIdentity) {
         let dir = tempfile::tempdir().unwrap();
@@ -1062,12 +1063,13 @@ mod live_workspace_tests {
                     .join("repository.git/worktrees/managed")
                     .join(name);
                 fs::remove_file(&path).unwrap();
-                rustix::fs::mkfifoat(
-                    rustix::fs::CWD,
-                    &path,
-                    rustix::fs::Mode::RUSR | rustix::fs::Mode::WUSR,
-                )
-                .unwrap();
+                let status = std::process::Command::new("/usr/bin/mkfifo")
+                    .args(["-m", "600"])
+                    .arg(&path)
+                    .status()
+                    .unwrap();
+                assert!(status.success(), "FIFO fixture creation failed: {status}");
+                assert!(fs::symlink_metadata(&path).unwrap().file_type().is_fifo());
                 assert!(live_workspace_matches(&pinned.canonical_root, &pinned).is_err());
             }
             return;

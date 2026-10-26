@@ -6,6 +6,8 @@ use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt, path::Path};
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 use uuid::Uuid;
 
+pub const MAX_EVENT_PAGE_BYTES: usize = 4 * 1024 * 1024;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum TaskState {
@@ -303,23 +305,58 @@ impl Store {
         let mut stmt = self
             .conn
             .prepare(
-                "SELECT sequence,document FROM events WHERE sequence>?1 ORDER BY sequence LIMIT ?2",
+                "SELECT sequence,octet_length(document) FROM events WHERE sequence>?1 ORDER BY sequence LIMIT ?2",
             )
             .map_err(db_error)?;
         let rows = stmt
             .query_map(params![cursor as i64, limit], |r| {
-                Ok((r.get::<_, i64>(0)? as u64, r.get::<_, String>(1)?))
+                Ok((r.get::<_, i64>(0)? as u64, r.get::<_, i64>(1)?))
             })
             .map_err(db_error)?;
         let mut events = Vec::new();
+        let mut raw_bytes = 0usize;
+        let mut byte_limited = false;
+        let mut documents = self
+            .conn
+            .prepare_cached("SELECT document FROM events WHERE sequence=?1")
+            .map_err(db_error)?;
         for row in rows {
-            let (seq, raw) = row.map_err(db_error)?;
+            let (seq, bytes) = row.map_err(db_error)?;
+            let bytes = usize::try_from(bytes)
+                .map_err(|_| CoreError::new("INTERNAL_ERROR", "Invalid journal record length"))?;
+            if bytes > MAX_EVENT_PAGE_BYTES.saturating_sub(raw_bytes) {
+                if events.is_empty() {
+                    let mut error = CoreError::new(
+                        "RESOURCE_LIMIT",
+                        "One journal record exceeds the bounded event page; it was not skipped",
+                    );
+                    error.details_ref = Some(format!("event-sequence:{seq}"));
+                    return Err(error);
+                }
+                byte_limited = true;
+                break;
+            }
+            let sequence_id = i64::try_from(seq)
+                .map_err(|_| CoreError::new("INTERNAL_ERROR", "Invalid journal sequence"))?;
+            let raw: String = documents
+                .query_row([sequence_id], |row| row.get(0))
+                .map_err(db_error)?;
+            // Same connection/read snapshot, with a defensive post-read check.
+            if raw.len() != bytes {
+                return Err(CoreError::new(
+                    "INPUT_CHANGED",
+                    "Journal record changed during bounded pagination",
+                ));
+            }
             let mut event: Event = decode(&raw)?;
             event.sequence = seq;
             events.push(event);
+            raw_bytes += bytes;
         }
         let next_cursor = events.last().map_or(cursor, |e| e.sequence);
-        Ok(json!({"events":events,"next_cursor":next_cursor,"sequence":sequence,"gap":false}))
+        Ok(
+            json!({"events":events,"next_cursor":next_cursor,"sequence":sequence,"gap":false,"page_bytes":raw_bytes,"byte_limited":byte_limited}),
+        )
     }
 }
 pub(crate) fn append_event(

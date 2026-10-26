@@ -6,6 +6,7 @@ use agentbaton_core::storage::Store;
 use rusqlite::{params, Connection};
 use serde_json::json;
 use std::fs;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use tempfile::TempDir;
@@ -52,7 +53,10 @@ fn fixture() -> Fixture {
     let project = store
         .import_project(source.path(), "Project", "import")
         .unwrap();
-    let managed = tempfile::tempdir().unwrap();
+    let managed = tempfile::Builder::new()
+        .permissions(fs::Permissions::from_mode(0o700))
+        .tempdir()
+        .unwrap();
     let workspace = store
         .create_workspace(&project.id, 1, &head, managed.path(), "workspace")
         .unwrap();
@@ -694,4 +698,74 @@ fn task_grant_cannot_widen_an_existing_shared_project_budget() {
             "narrow",
         )
         .unwrap();
+}
+
+#[test]
+fn native_owner_grant_snapshot_identifies_the_exact_registered_recipient() {
+    let mut f = fixture();
+    let db = Connection::open(&f.path).unwrap();
+    db.execute("UPDATE connections SET document=json_set(document,'$.name','First selected ACP','$.protocol_route','custom_acp','$.executable','/fixture/first-acp','$.arguments',json('[\"--first\"]')) WHERE id='connection-1'", []).unwrap();
+    let mut second: serde_json::Value = serde_json::from_str(
+        &db.query_row(
+            "SELECT document FROM connections WHERE id='connection-1'",
+            [],
+            |r| r.get::<_, String>(0),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    second["id"] = json!("connection-2");
+    second["name"] = json!("Second selected ACP");
+    second["executable"] = json!("/fixture/second-acp");
+    second["arguments"] = json!(["--second"]);
+    db.execute(
+        "INSERT INTO connections(id,document) VALUES('connection-2',?1)",
+        [second.to_string()],
+    )
+    .unwrap();
+    let first = f
+        .store
+        .grant_proposal_snapshot(&f.project.id, &f.workspace.id, "connection-1")
+        .unwrap();
+    let second = f
+        .store
+        .grant_proposal_snapshot(&f.project.id, &f.workspace.id, "connection-2")
+        .unwrap();
+    assert_eq!(first["execution_recipient"]["name"], "First selected ACP");
+    assert_eq!(
+        first["execution_recipient"]["executable"],
+        "/fixture/first-acp"
+    );
+    assert_eq!(
+        first["execution_recipient"]["arguments"],
+        json!(["--first"])
+    );
+    assert_eq!(second["execution_recipient"]["provider"], "custom_acp");
+    assert_eq!(
+        second["execution_recipient"]["protocol_route"],
+        "custom_acp"
+    );
+    assert_eq!(
+        second["execution_recipient"]["executable"],
+        "/fixture/second-acp"
+    );
+    // Even a changed human-readable recipient field cannot reuse an already
+    // displayed approval snapshot while retaining the older opaque digest refs.
+    db.execute("UPDATE connections SET document=json_set(document,'$.executable','/fixture/replaced-acp') WHERE id='connection-1'", []).unwrap();
+    let error = f
+        .store
+        .create_grant_checked(
+            &f.project.id,
+            &f.workspace.id,
+            "connection-1",
+            4,
+            2,
+            60_000,
+            true,
+            "stale-recipient",
+            Some(&first),
+        )
+        .unwrap_err();
+    assert_eq!(error.code, "INPUT_CHANGED");
+    assert!(f.store.list_grants(&f.project.id).unwrap().is_empty());
 }
