@@ -120,16 +120,37 @@ impl Drop for CleanupGuard {
 }
 struct Smoke {
     phase: Arc<AtomicU8>,
+    injected: AtomicU8,
     daemon: Arc<Mutex<OwnedDaemon>>,
     report: Arc<Mutex<Value>>,
+    failure_reason: Arc<Mutex<Option<String>>>,
+    reopen_worker: Arc<Mutex<Option<std::thread::JoinHandle<()>>>>,
     output: PathBuf,
 }
 impl Smoke {
+    fn stage(&self, stage: &str) -> Result<(), String> {
+        let mut report = self.report.lock().unwrap();
+        let stages = report["stages"]
+            .as_array_mut()
+            .ok_or("missing stage journal")?;
+        if stages.len() >= 32 {
+            return Err("native lifecycle stage limit".into());
+        }
+        stages.push(json!(stage));
+        fs::write(
+            self.output.join("native-smoke.json"),
+            serde_json::to_vec_pretty(&*report).unwrap(),
+        )
+        .map_err(|error| error.to_string())
+    }
     fn fail(&self, app: &tauri::AppHandle, reason: impl ToString) {
-        self.phase.store(4, Ordering::SeqCst);
-        if let Ok(mut report) = self.report.lock() {
-            report["status"] = json!("failed");
-            report["error"] = json!(reason.to_string());
+        record_failure(
+            &self.phase,
+            &self.failure_reason,
+            &self.report,
+            &reason.to_string(),
+        );
+        if let Ok(report) = self.report.lock() {
             let _ = fs::write(
                 self.output.join("native-smoke.json"),
                 serde_json::to_vec_pretty(&*report).unwrap(),
@@ -137,6 +158,97 @@ impl Smoke {
         }
         app.exit(1);
     }
+}
+fn terminal_phase(phase: u8) -> bool {
+    matches!(phase, 3 | 4)
+}
+fn claim_timeout(phase: &AtomicU8, failure_reason: &Mutex<Option<String>>, reason: &str) -> bool {
+    let mut first = failure_reason
+        .lock()
+        .unwrap_or_else(|error| error.into_inner());
+    loop {
+        let current = phase.load(Ordering::SeqCst);
+        if terminal_phase(current) {
+            return false;
+        }
+        if phase
+            .compare_exchange(current, 4, Ordering::SeqCst, Ordering::SeqCst)
+            .is_ok()
+        {
+            if first.is_none() {
+                *first = Some(reason.into());
+            }
+            return true;
+        }
+    }
+}
+fn record_failure(
+    phase: &AtomicU8,
+    failure_reason: &Mutex<Option<String>>,
+    report: &Mutex<Value>,
+    reason: &str,
+) {
+    // Publish failure before waiting for a handler's report lock, so a late
+    // handler cannot commit an old successful phase after the deadline.
+    let reason = {
+        let mut first = failure_reason
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        if first.is_none() {
+            *first = Some(reason.into());
+        }
+        phase.store(4, Ordering::SeqCst);
+        first.as_ref().unwrap().clone()
+    };
+    let mut report = report.lock().unwrap_or_else(|error| error.into_inner());
+    report["status"] = json!("failed");
+    if report.get("error").is_none() {
+        report["error"] = json!(reason);
+    }
+}
+fn commit_native_report(
+    phase: &AtomicU8,
+    report: &mut Value,
+    expected: u8,
+    result: Value,
+) -> Result<(), String> {
+    if report.get("error").is_some() || report["status"] == "failed" {
+        return Err("native failure already recorded".into());
+    }
+    let next = match expected {
+        0 => 1,
+        2 if result["taskId"] == report["first_webview"]["taskId"] => 3,
+        2 => return Err("reopened WebView saw a different task".into()),
+        _ => return Err("unexpected report phase".into()),
+    };
+    phase
+        .compare_exchange(expected, next, Ordering::SeqCst, Ordering::SeqCst)
+        .map_err(|_| "native phase changed before report commit".to_string())?;
+    if expected == 0 {
+        report["first_webview"] = result;
+    } else {
+        report["reopened_webview"] = result;
+        report["status"] = json!("checks_passed_cleanup_pending");
+    }
+    Ok(())
+}
+fn finalize_native_report(
+    code: i32,
+    phase: &AtomicU8,
+    failure_reason: &Mutex<Option<String>>,
+    report: &mut Value,
+) -> bool {
+    let passed = code == 0
+        && phase.load(Ordering::SeqCst) == 3
+        && failure_reason
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .is_none()
+        && report.get("error").is_none()
+        && report["status"] == "checks_passed_cleanup_pending"
+        && report["owned_daemon_cleanup"] == true;
+    report["status"] = json!(if passed { "passed" } else { "failed" });
+    passed
 }
 fn capture_screen(output: &Path, window: &tauri::WebviewWindow) -> &'static str {
     let _ = window;
@@ -221,28 +333,36 @@ fn native_smoke_report(
         state.fail(&app, format!("WebView phase failed: {result}"));
         return Err("WebView phase failed".into());
     }
-    match state.phase.load(Ordering::SeqCst) {
-        0 => {
-            state.report.lock().unwrap()["first_webview"] = result;
-            state.report.lock().unwrap()["screenshot"] =
-                json!(capture_screen(&state.output, &window));
-            state.phase.store(1, Ordering::SeqCst);
+    match (state.phase.load(Ordering::SeqCst), window.label()) {
+        (0, "main") => {
+            let screenshot = capture_screen(&state.output, &window);
+            let committed = (|| {
+                let mut report = state.report.lock().unwrap();
+                commit_native_report(&state.phase, &mut report, 0, result)?;
+                report["screenshot"] = json!(screenshot);
+                Ok::<(), String>(())
+            })();
+            if let Err(error) = committed {
+                state.fail(&app, &error);
+                return Err(error);
+            }
             window.close().map_err(|e| e.to_string())?;
         }
-        2 => {
-            let expected = state.report.lock().unwrap()["first_webview"]["taskId"].clone();
-            if result["taskId"] != expected {
-                state.fail(&app, "reopened WebView saw a different task");
-                return Err("task mismatch".into());
+        (2, "native-reopened") => {
+            state.stage("reopened_report_received")?;
+            let committed = (|| {
+                let mut report = state.report.lock().unwrap();
+                commit_native_report(&state.phase, &mut report, 2, result)?;
+                fs::write(
+                    state.output.join("native-smoke.json"),
+                    serde_json::to_vec_pretty(&*report).unwrap(),
+                )
+                .map_err(|error| error.to_string())
+            })();
+            if let Err(error) = committed {
+                state.fail(&app, &error);
+                return Err(error);
             }
-            state.report.lock().unwrap()["reopened_webview"] = result;
-            state.report.lock().unwrap()["status"] = json!("checks_passed_cleanup_pending");
-            fs::write(
-                state.output.join("native-smoke.json"),
-                serde_json::to_vec_pretty(&*state.report.lock().unwrap()).unwrap(),
-            )
-            .map_err(|e| e.to_string())?;
-            state.phase.store(3, Ordering::SeqCst);
             app.exit(0);
         }
         _ => {
@@ -316,7 +436,7 @@ const SECOND: &str = r#"
  } catch(error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;
-fn reopen(app: &tauri::AppHandle) -> Result<(), String> {
+fn prepare_reopen(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     let state = app.state::<Smoke>();
     let mut daemon = state.daemon.lock().unwrap();
     if daemon
@@ -334,17 +454,88 @@ fn reopen(app: &tauri::AppHandle) -> Result<(), String> {
     daemon.reject_second_writer()?;
     state.report.lock().unwrap()["window_close_daemon_survived"] = json!(true);
     state.report.lock().unwrap()["second_writer_rejected"] = json!(true);
+    state.stage("closed_window_daemon_verified")?;
     daemon.restart()?;
     state.report.lock().unwrap()["owned_daemon_pid"] = json!(daemon.child.id());
     state.report.lock().unwrap()["owned_daemon_restarted"] = json!(true);
-    state.phase.store(2, Ordering::SeqCst);
-    WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
-        .title("AgentBaton — Native integration")
-        .inner_size(1180., 800.)
-        .incognito(true)
-        .data_directory(daemon.runtime.join("webview-cache"))
-        .build()
-        .map_err(|e| e.to_string())?;
+    state.stage("owned_daemon_restart_ready")?;
+    // Release this mutex before the UI thread creates another WebView.
+    Ok(daemon.runtime.join("webview-cache"))
+}
+fn claim_reopen(phase: &AtomicU8) -> Result<(), String> {
+    phase
+        .compare_exchange(1, 2, Ordering::SeqCst, Ordering::SeqCst)
+        .map(|_| ())
+        .map_err(|_| "duplicate or out-of-order reopen".into())
+}
+fn page_script(phase: u8, label: &str, injected: &AtomicU8) -> Option<&'static str> {
+    let (bit, script) = match (phase, label) {
+        (0, "main") => (1, FIRST),
+        (2, "native-reopened") => (2, SECOND),
+        _ => return None,
+    };
+    (injected.fetch_or(bit, Ordering::SeqCst) & bit == 0).then_some(script)
+}
+fn schedule_reopen(app: &tauri::AppHandle) -> Result<(), String> {
+    let state = app.state::<Smoke>();
+    claim_reopen(&state.phase)?;
+    state.stage("reopen_worker_requested")?;
+    let worker = app.clone();
+    let worker_handle = std::thread::Builder::new()
+        .name("native-reopen".into())
+        .spawn(move || {
+            let cache = match prepare_reopen(&worker) {
+                Ok(cache) => cache,
+                Err(error) => {
+                    worker.state::<Smoke>().fail(&worker, error);
+                    return;
+                }
+            };
+            if worker.state::<Smoke>().phase.load(Ordering::SeqCst) != 2 {
+                return;
+            }
+            if let Err(error) = worker
+                .state::<Smoke>()
+                .stage("reopen_main_thread_dispatch_requested")
+            {
+                worker.state::<Smoke>().fail(&worker, error);
+                return;
+            }
+            let main = worker.clone();
+            // This call is deliberately made by the worker, so Tauri queues it
+            // after the current Destroyed callback and old WebView teardown return.
+            if let Err(error) = worker.run_on_main_thread(move || {
+                let state = main.state::<Smoke>();
+                if state.phase.load(Ordering::SeqCst) != 2 {
+                    return;
+                }
+                if let Err(error) = state.stage("reopened_window_build_started") {
+                    state.fail(&main, error);
+                    return;
+                }
+                let result = WebviewWindowBuilder::new(
+                    &main,
+                    "native-reopened",
+                    WebviewUrl::App("index.html".into()),
+                )
+                .title("AgentBaton — Native integration")
+                .inner_size(1180., 800.)
+                .incognito(true)
+                .data_directory(cache)
+                .build();
+                if let Err(error) = result {
+                    state.fail(&main, error);
+                    return;
+                }
+                if let Err(error) = state.stage("reopened_window_build_completed") {
+                    state.fail(&main, error);
+                }
+            }) {
+                worker.state::<Smoke>().fail(&worker, error);
+            }
+        })
+        .map_err(|error| error.to_string())?;
+    *state.reopen_worker.lock().unwrap() = Some(worker_handle);
     Ok(())
 }
 fn private_fixture_runtime() -> std::io::Result<tempfile::TempDir> {
@@ -381,7 +572,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .ok_or("no binary parent")?
         .join("batond");
     let daemon = OwnedDaemon::start(daemon_path, runtime.clone())?;
-    let report = json!({"status":"running","private_fixture_runtime":runtime,"owned_daemon_pid":daemon.child.id(),"dimension":"real_native_webview_production_invoke_private_daemon","os":std::env::consts::OS,"architecture":std::env::consts::ARCH,"commit":std::env::var("AGENTBATON_SMOKE_COMMIT").unwrap_or_else(|_|"unknown".into()),"native_dialog":"not_run_manual_acceptance_required","provider_models":"not_run_not_authorized"});
+    let report = json!({"status":"running","stages":[],"private_fixture_runtime":runtime,"owned_daemon_pid":daemon.child.id(),"dimension":"real_native_webview_production_invoke_private_daemon","os":std::env::consts::OS,"architecture":std::env::consts::ARCH,"commit":std::env::var("AGENTBATON_SMOKE_COMMIT").unwrap_or_else(|_|"unknown".into()),"native_dialog":"not_run_manual_acceptance_required","provider_models":"not_run_not_authorized"});
     fs::write(
         output.join("native-smoke.json"),
         serde_json::to_vec_pretty(&report)?,
@@ -390,10 +581,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _cleanup_guard = CleanupGuard(daemon.clone());
     let report = Arc::new(Mutex::new(report));
     let phase = Arc::new(AtomicU8::new(0));
+    let failure_reason = Arc::new(Mutex::new(None));
+    let reopen_worker = Arc::new(Mutex::new(None));
     let smoke = Smoke {
         phase: phase.clone(),
+        injected: AtomicU8::new(0),
         daemon: daemon.clone(),
         report: report.clone(),
+        failure_reason: failure_reason.clone(),
+        reopen_worker: reopen_worker.clone(),
         output: output.clone(),
     };
     let mut context = tauri::generate_context!();
@@ -421,29 +617,43 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if payload.event() == tauri::webview::PageLoadEvent::Finished {
                 let app = webview.app_handle();
                 let state = app.state::<Smoke>();
-                let script = match state.phase.load(Ordering::SeqCst) {
-                    0 => FIRST,
-                    2 => SECOND,
-                    _ => return,
-                };
-                if let Err(error) = webview.eval(script) {
-                    state.fail(app, error);
+                if let Some(script) = page_script(
+                    state.phase.load(Ordering::SeqCst),
+                    webview.label(),
+                    &state.injected,
+                ) {
+                    if let Err(error) = state.stage(if webview.label() == "main" {
+                        "first_page_finished_script_dispatched"
+                    } else {
+                        "reopened_page_finished_script_dispatched"
+                    }) {
+                        state.fail(app, error);
+                        return;
+                    }
+                    if let Err(error) = webview.eval(script) {
+                        state.fail(app, error);
+                    }
                 }
             }
         })
         .build(context)?;
     let handle = app.handle().clone();
-    std::thread::spawn(move || {
+    let watchdog = std::thread::spawn(move || {
         let deadline = Instant::now() + Duration::from_secs(60);
         while Instant::now() < deadline {
-            if handle.state::<Smoke>().phase.load(Ordering::SeqCst) >= 3 {
+            if terminal_phase(handle.state::<Smoke>().phase.load(Ordering::SeqCst)) {
                 return;
             }
             std::thread::sleep(Duration::from_millis(100));
         }
-        handle
-            .state::<Smoke>()
-            .fail(&handle, "native WebView integration exceeded60s deadline");
+        let state = handle.state::<Smoke>();
+        if claim_timeout(
+            &state.phase,
+            &state.failure_reason,
+            "native WebView integration exceeded60s deadline",
+        ) {
+            state.fail(&handle, "native WebView integration exceeded60s deadline");
+        }
     });
     let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         app.run_return(|app, event| match event {
@@ -452,19 +662,41 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 event: WindowEvent::Destroyed,
                 ..
             } if label == "main" && app.state::<Smoke>().phase.load(Ordering::SeqCst) == 1 => {
-                if let Err(error) = reopen(app) {
+                if let Err(error) = schedule_reopen(app) {
                     app.state::<Smoke>().fail(app, error);
                 }
             }
             RunEvent::ExitRequested {
                 api, code: None, ..
-            } if app.state::<Smoke>().phase.load(Ordering::SeqCst) < 3 => api.prevent_exit(),
+            } if !terminal_phase(app.state::<Smoke>().phase.load(Ordering::SeqCst)) => {
+                api.prevent_exit()
+            }
             _ => {}
         })
     }));
     let code = outcome.unwrap_or(1);
-    if code != 0 {
-        phase.store(4, Ordering::SeqCst);
+    if code != 0 || phase.load(Ordering::SeqCst) != 3 {
+        record_failure(
+            &phase,
+            &failure_reason,
+            &report,
+            "native event loop exited before successful completion",
+        );
+    }
+    // No asynchronous failure publisher may outlive final acceptance/report IO.
+    if watchdog.join().is_err() {
+        record_failure(&phase, &failure_reason, &report, "native watchdog panicked");
+    }
+    let worker = reopen_worker.lock().unwrap().take();
+    if let Some(worker) = worker {
+        if worker.join().is_err() {
+            record_failure(
+                &phase,
+                &failure_reason,
+                &report,
+                "native reopen worker panicked",
+            );
+        }
     }
     let mut daemon = daemon.lock().unwrap_or_else(|error| error.into_inner());
     if daemon.child.try_wait()?.is_none() {
@@ -473,11 +705,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     daemon.child.wait()?;
     let mut report = report.lock().unwrap_or_else(|error| error.into_inner());
     report["owned_daemon_cleanup"] = json!(true);
-    if code == 0 && phase.load(Ordering::SeqCst) == 3 {
-        report["status"] = json!("passed");
-    } else {
-        report["status"] = json!("failed");
-    }
+    let accepted = finalize_native_report(code, &phase, &failure_reason, &mut report);
     fs::write(
         output.join("native-smoke.json"),
         serde_json::to_vec_pretty(&*report)?,
@@ -485,7 +713,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     drop(report);
     drop(daemon);
     drop(temporary);
-    if code != 0 || phase.load(Ordering::SeqCst) != 3 {
+    if !accepted {
         return Err("native smoke failed; inspect native-smoke.json".into());
     }
     Ok(())
@@ -510,5 +738,146 @@ mod fixture_tests {
         assert!(canonical.join("batond.sock").exists());
         drop(daemon);
         assert!(!canonical.join("batond.sock").exists());
+    }
+
+    #[test]
+    fn destroyed_window_can_schedule_exactly_one_reopen_in_the_valid_phase() {
+        let phase = AtomicU8::new(0);
+        assert!(claim_reopen(&phase).is_err());
+        assert_eq!(phase.load(Ordering::SeqCst), 0);
+        phase.store(1, Ordering::SeqCst);
+        claim_reopen(&phase).unwrap();
+        assert_eq!(phase.load(Ordering::SeqCst), 2);
+        assert!(claim_reopen(&phase).is_err());
+        phase.store(4, Ordering::SeqCst);
+        assert!(claim_reopen(&phase).is_err());
+    }
+
+    #[test]
+    fn each_real_window_phase_gets_its_script_once_and_wrong_windows_get_none() {
+        let injected = AtomicU8::new(0);
+        assert!(page_script(2, "main", &injected).is_none());
+        assert!(page_script(0, "native-reopened", &injected).is_none());
+        assert_eq!(page_script(0, "main", &injected), Some(FIRST));
+        assert!(page_script(0, "main", &injected).is_none());
+        assert_eq!(page_script(2, "native-reopened", &injected), Some(SECOND));
+        assert!(page_script(2, "native-reopened", &injected).is_none());
+        assert!(page_script(3, "native-reopened", &AtomicU8::new(0)).is_none());
+    }
+
+    #[test]
+    fn late_success_cannot_erase_failure_published_while_the_report_lock_is_held() {
+        for expected in [0, 2] {
+            let phase = Arc::new(AtomicU8::new(expected));
+            let reason = Arc::new(Mutex::new(None));
+            let report = Arc::new(Mutex::new(
+                json!({"status":"running","first_webview":{"taskId":"original"}}),
+            ));
+            let mut held_report = report.lock().unwrap();
+            let failed_phase = phase.clone();
+            let failed_reason = reason.clone();
+            let failed_report = report.clone();
+            let failure = std::thread::spawn(move || {
+                record_failure(
+                    &failed_phase,
+                    &failed_reason,
+                    &failed_report,
+                    "original watchdog failure",
+                );
+            });
+            let deadline = Instant::now() + Duration::from_secs(2);
+            while phase.load(Ordering::SeqCst) != 4 {
+                assert!(
+                    Instant::now() < deadline,
+                    "failure publication did not arrive"
+                );
+                std::thread::yield_now();
+            }
+            let before = held_report.clone();
+            assert!(commit_native_report(
+                &phase,
+                &mut held_report,
+                expected,
+                json!({"ok":true,"taskId":"original"})
+            )
+            .is_err());
+            assert_eq!(
+                *held_report, before,
+                "late successful report mutated evidence"
+            );
+            drop(held_report);
+            // This may beat the first failure to the report mutex. Its generic
+            // rejection must still retain the already reserved original reason.
+            record_failure(&phase, &reason, &report, "late report rejected");
+            failure.join().unwrap();
+            let mut report = report.lock().unwrap();
+            report["owned_daemon_cleanup"] = json!(true);
+            assert_eq!(phase.load(Ordering::SeqCst), 4);
+            assert_eq!(report["error"], "original watchdog failure");
+            assert_eq!(report["status"], "failed");
+            assert!(report.get("reopened_webview").is_none());
+            assert!(!finalize_native_report(0, &phase, &reason, &mut report));
+            assert_eq!(report["status"], "failed");
+        }
+    }
+
+    #[test]
+    fn completed_report_rejects_a_stale_timeout_and_final_acceptance_requires_no_failure() {
+        let phase = AtomicU8::new(0);
+        let reason = Mutex::new(None);
+        let mut report = json!({"status":"running"});
+        commit_native_report(
+            &phase,
+            &mut report,
+            0,
+            json!({"ok":true,"taskId":"original"}),
+        )
+        .unwrap();
+        claim_reopen(&phase).unwrap();
+        assert!(
+            commit_native_report(&phase, &mut report, 2, json!({"ok":true,"taskId":"wrong"}))
+                .is_err()
+        );
+        assert_eq!(phase.load(Ordering::SeqCst), 2);
+        commit_native_report(
+            &phase,
+            &mut report,
+            2,
+            json!({"ok":true,"taskId":"original"}),
+        )
+        .unwrap();
+        assert!(!claim_timeout(&phase, &reason, "stale timeout"));
+        assert!(reason.lock().unwrap().is_none());
+        report["owned_daemon_cleanup"] = json!(true);
+        let clean = report.clone();
+        assert!(finalize_native_report(0, &phase, &reason, &mut report));
+        let mut errored = clean.clone();
+        errored["error"] = json!("recorded failure");
+        assert!(!finalize_native_report(0, &phase, &reason, &mut errored));
+        let mut failed = clean.clone();
+        failed["status"] = json!("failed");
+        assert!(!finalize_native_report(0, &phase, &reason, &mut failed));
+        *reason.lock().unwrap() = Some("published failure not copied to report yet".into());
+        let mut unpublished = clean;
+        assert!(!finalize_native_report(
+            0,
+            &phase,
+            &reason,
+            &mut unpublished
+        ));
+    }
+
+    #[test]
+    fn only_completed_or_failed_states_stop_the_watchdog() {
+        for phase in [0, 1, 2, 5, 255] {
+            assert!(!terminal_phase(phase));
+            let phase = AtomicU8::new(phase);
+            let reason = Mutex::new(None);
+            assert!(claim_timeout(&phase, &reason, "deadline"));
+            assert_eq!(phase.load(Ordering::SeqCst), 4);
+            assert_eq!(reason.lock().unwrap().as_deref(), Some("deadline"));
+        }
+        assert!(terminal_phase(3));
+        assert!(terminal_phase(4));
     }
 }

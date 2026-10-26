@@ -1,5 +1,5 @@
 {
-  "recorded_at_utc": "2026-10-26T21:50:42.098531+00:00",
+  "recorded_at_utc": "2026-10-26T22:27:50.555245+00:00",
   "approval": "AB-START-001",
   "owner_inbox": "OWNER-001/002 ACK; protectedmain dc5aea0 actuallyread no newersequence",
   "branch": "codex/provider-runtime-adapters",
@@ -13,7 +13,7 @@
     "focused_guard": "34dc5f0f14585512a73c612e14a885c9b33ca074"
   },
   "tested_source": "88adbb9 plus reviewed34dc5 writer-lock merge and actor-specific reap-before-unlock; frozen per UI_CI_REVIEW/NATIVE_CI_REVIEW/WRITER_LIFECYCLE_REVIEW (older reviews remain historical)",
-  "candidate_commit": "573acacdb6e3cf179638a914b61a83926094d366",
+  "candidate_commit": null,
   "previous_checkpoint": {
     "path": "docs/execution/provider-adapters/EVIDENCE.pre-stack-5eba.json",
     "sha256": "ff90ab853b4616ca5700ded4b18c13ac7c6b026514edcc7353959b63e4a2401e",
@@ -63,10 +63,10 @@
       "scope": "runner/auditcontracts; syntheticEPERMnotDarwin"
     },
     {
-      "command": "umask022; cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-smoke fixture_tests::fixture_runtime_allows_the_real_private_daemon_authority -- --exact",
+      "command": "umask022; cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-smoke",
       "exit_code": 0,
-      "tests": 1,
-      "scope": "realDaemonbind/privatefixture, notwindow"
+      "tests": 6,
+      "scope": "realprivateDaemonfixture+phase/terminalconcurrencycontrols; notDarwinwindow"
     },
     {
       "command": "cargo check/test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
@@ -593,7 +593,8 @@
     "docs/execution/provider-adapters/GUARD_REVIEW.md",
     "docs/execution/provider-adapters/UI_CI_REVIEW.md",
     "docs/execution/provider-adapters/NATIVE_CI_REVIEW.md",
-    "docs/execution/provider-adapters/WRITER_LIFECYCLE_REVIEW.md"
+    "docs/execution/provider-adapters/WRITER_LIFECYCLE_REVIEW.md",
+    "docs/execution/provider-adapters/NATIVE_REOPEN_REVIEW.md"
   ],
   "failed_evidence": [
     {
@@ -645,16 +646,17 @@
     }
   ],
   "remote_ci": {
-    "head": "f3eb83ebf9022544730e8ad6be578f5bfaf3efa1",
-    "product_run": 40401378109,
-    "environment_run": 40401383150,
+    "head": "4f4415fa62c142fd9ffd5b809f13b1bfbedf3967",
+    "product_run": 40407799679,
+    "environment_run": 40407804470,
     "environment_all3": "passed",
-    "rust_and_ui_includingactualbrowserandschema": "passed",
-    "intel": "failedinitialreadyquery47pass1fail",
-    "arm": "failednativefixturestartupthenrunnercleanupEPERM; artifact12689352960 onlytwofailurelogs noGUIreport",
-    "current_repaired_candidate": "pending_fresh_exactCI"
+    "product_rust_and_ui": "passed",
+    "product_arm_and_intel": "failed_no_reopened_report_native_watchdog60s",
+    "actual_partial_native": "BothindependentlyverifiedfirstrealWebViewcomposer/render/idempotency/invalidinput/journal; firstscreenshots; windowclosedaemonsurvived/secondwriterrefused/restarted/cleanup; nooverallpass",
+    "arm_artifact": 12690344299,
+    "intel_artifact": 12693170268
   },
-  "current_merged_native_ci": "not_run_yet_after_this_repair; alloldfailuresretained; freshdispatchnext",
+  "current_merged_native_ci": "fresh_exactCIrequiredafterthisreopenrepair; 4foverallfailed",
   "limitations": [
     "Only explicitly approved generated defaultRuntimePlans are connected; nondefaultSkill/MCP/model profiles rejectedratherthanignored",
     "Nativeconfigurationloading/accountidentity/hiddeninheritance/OSenforcement remainunknown; strictrequirementsfailclosed",
@@ -681,5 +683,25 @@
     "note": "Preserved250test/48UIhistoricalcheckpoint andfirstguardfinding"
   },
   "remaining_integration": "DedicatedUI47/sourcebf pendingindependentreview; PR9current34 exactCIpending; session334 synchronizemainafterPR9. FullvalidationUI/core distinctisolatedinprogressnotinthiscandidate.",
-  "candidate_commit_note": "Actual tested product-source commit; following evidence-only commit has identical product bytes. Workflow run records bind its exact checkout separately."
+  "candidate_commit_note": "Actual tested product-source commit; following evidence-only commit has identical product bytes. Workflow run records bind its exact checkout separately.",
+  "previous_reopen_checkpoint": {
+    "path": "docs/execution/provider-adapters/EVIDENCE.pre-reopen-4f.json",
+    "sha256": "300bd23d5b646f76f6d76b8b8866460177c6e0e38ee23f5303747a637b99eed6"
+  },
+  "native_reopen_fix": {
+    "source_sha256": "8eb1d8114d60a86eaabf4d316a9f4d7931b1c463a13b1624dee7ed65af19d31f",
+    "source": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+    "review": "docs/execution/provider-adapters/NATIVE_REOPEN_REVIEW.md",
+    "change": "BoundedowneddaemonworkoffDestroyedcallback thenqueuemainthreadwindowbuildaftermutexrelease; distinctfixedwindowidentity; oneshotphase/scripts; diagnosticstages; successCAS/failurefirstreason+terminalfence; joinedhelperthreads beforeerror-freefinalpredicate",
+    "local_checks": {
+      "native_bin_tests": 6,
+      "python_runner_tests": 15,
+      "native_feature_alltargets_clippy": "passed",
+      "format": "passed"
+    },
+    "old_deadlines": "native60s/external80sunchanged",
+    "historical_stall_cause": "unproven; SDKsourcecorroboratesreentrancyrisk",
+    "fresh_mac_ci": "not_run_yet",
+    "worker_evidence_sha256": "6fa30236a0cdc37655100d2968dfa4f1b7de83fb56def50197040346f522297a"
+  }
 }

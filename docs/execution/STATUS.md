@@ -1,6 +1,6 @@
 # AgentBaton 执行状态
 
-完整目标仍是 Design v0.2 的130项需求、27项已定决定与 WP01–WP14；不以阶段工作、Mock、浏览器或安装包代替完整验收。AB-START-001 有效；OWNER-001/002 已读取并 ACK。最近实际 fetch 的受保护 main 为 dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7，负责人收件箱没有后续序号。当前入口无原生 Goal 工具或 Cloud 任务 URL；正在使用真实原生子代理和独立审查。
+完整目标仍是 Design v0.2 的130项需求、27项已定决定与 WP01–WP14；不以阶段工作、Mock、浏览器或安装包代替完整验收。AB-START-001 有效；OWNER-001/002 已读取并 ACK。最近实际 fetch 的受保护 main 为 eb115e0915a4dd0ac46c8c188101b64b89e9d35f，负责人收件箱没有后续序号。当前入口无原生 Goal 工具或 Cloud 任务 URL；正在使用真实原生子代理和独立审查。
 
 PR #3 已合入1f34b44：精确222aafd的三项Environment与四项Product检查全部通过。PR #4 已合入dc5aea0：精确da28cd9的Product40395281447、Environment40395281545全部通过。原三个必需Environment名称及分支保护保留；无直接/强推main或绕过检查。两单元同一候选的ARM/Intel开发DMG均实际下载，ZIP摘要、DMG SHA256、构建记录与UDIF检查通过；见各单元EVIDENCE及PR描述。ARM为linker ad hoc/no TeamIdentifier，Intel未签名；无Developer ID、公证、原生GUI/人工安装或完整产品验收。
 
@@ -19,3 +19,7 @@ Session PR #6已ready/main，远程3b94d1c仍是已失败旧候选；本地334d7
 真实Provider身份/模型测试、未批准远程主机、额外费用、正式签名/公证、最终许可证与生产发布继续单独关闭；无私人凭据/认证目录复制或真实模型调用。缺项只阻塞相关验证。继续修复精确CI、按保护合入已验证单元并接通后续获批功能；不承诺无活动执行器的后台续跑。可恢复分支、命令、限制和下一步见各CHECKPOINT。
 
 当前组合修复已实际完成完整回归：254顶层Rust（core80/config67/providers81/workspaces24/真实daemon信号2），49UI/typecheck，15runner/audit，1真实Daemon私有夹具，当前Linux宿主7项，以及当前新daemon的22浏览器IPC/8图；fmt/Clippy/真实重启/设计检查通过。Actor版明确先取消并join owned workers/probes，再unlink旧socket并释放自身flock，错误/展开路径亦不提前交接authority；独立33项目标测试通过。源码与证据正保存到PR8功能分支并将启动新的精确提交MacCI。它仍不含另一个分支的schema6/ArtifactValidation，且不是MacGUI或全产品通过。
+
+PR #9 已按精确34dc全部七项检查与双架构产物核验后合入eb115e0。两DMG共享checkout49568d251456174550c4f63cfe746d19f428d7fe：Intel artifact12692320320 SHA2561e2eeb348719cf19108966fbf833740e8774c7dba63e3a8334937b707895ac09（未签名）；ARM12689989948 SHA2563d3bba846c8e58f07336e0ac2f756d8e46657e149ace7947f1f026e119081d4e（linker ad hoc）。Owner收件箱再次读取，仅001/002。Session PR6已推送cd7fb7b、freshProduct40411513840/Environment40411513943在运行；不继承PR9的通过。
+
+PR8实际4f4415f的Product40407799679：Rust/UI与Environment40407804470三项通过，ARM/Intel整体原生检查均失败在reopened report缺失/60秒watchdog。两架构第一窗口真实提交/渲染/幂等/拒绝输入/日志、关窗后台存活/第二写者拒绝/重启/清理与窗口PNG是有效部分证据，均已核对下载；不能作为整体验收。新独立审查通过的排队重开及终态竞态修复6native单元/15runner测试通过，源码与PNG出处已保存，下一步精确提交新MacCI。CoreValidation隔离分支当前279完整Rust/78UI、9策略与14迁移局部检查以及独立审查通过，尚需新保护合入/真实浏览器及native编译/精确CI，不是完整Goal交付。
