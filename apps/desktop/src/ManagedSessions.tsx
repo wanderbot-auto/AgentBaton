@@ -4,8 +4,8 @@ import { sessionApi, type ExecutionGrant, type ManagedSession, type NamedConnect
 import { sessionMessages } from './session-i18n';
 import type { Language } from './i18n';
 
-interface Props { language: Language; connected: boolean; projects: Project[]; tasks: Task[]; projectId: string; onProjectChange: (id: string) => void; refreshTasks: () => Promise<void> }
-export function ManagedSessions({ language, connected, projects, tasks, projectId, onProjectChange, refreshTasks }: Props) {
+interface Props { language: Language; connected: boolean; projects: Project[]; tasks: Task[]; projectId: string; onProjectChange: (id: string) => void; refreshTasks: () => Promise<void>; initialTaskId?: string }
+export function ManagedSessions({ language, connected, projects, tasks, projectId, onProjectChange, refreshTasks, initialTaskId }: Props) {
   const t = sessionMessages[language];
   const [connections, setConnections] = useState<NamedConnection[]>([]);
   const [sessions, setSessions] = useState<ManagedSession[]>([]);
@@ -41,7 +41,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   const matchingGrants = grants.filter(record => !record.revoked && record.expires_at_ms > Date.now() && record.scope.workspace_ids.includes(workspaceId) && record.scope.connection_ids.includes(connectionId));
   const grantMatches = !!grant && matchingGrants.some(record => record.id === grant.id);
   const canGrant = connected && scopeReady && !project?.archived && !!project && workspace?.state === 'ready' && connection?.probe_state === 'ready';
-  const stateText = (value: string) => value in t ? t[value as keyof typeof t] : `${t.unknown}: ${value}`;
+  const stateText = (value: string) => Object.hasOwn(t, value) ? t[value as keyof typeof t] : `${t.unknown}: ${value}`;
 
   function showError(e: unknown) {
     setError((e instanceof Error ? e.message : String(e)) + (e instanceof DaemonError && e.sideEffectState === 'unknown' ? ` ${t.uncertain}` : ''));
@@ -66,7 +66,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
       setWorkspaces(nextWorkspaces); setGrants(nextGrants); setScopeReady(true);
     } catch (e) { if (request === scopeRequest.current) setError(e instanceof Error ? e.message : String(e)); }
   }, [projectId, connected]);
-  useEffect(() => { setWorkspaceId(''); setGrantId(''); setTaskId(''); setAcknowledged(false); }, [projectId]);
+  useEffect(() => { setWorkspaceId(''); setGrantId(''); setTaskId(initialTaskId ?? ''); setAcknowledged(false); }, [projectId, initialTaskId]);
   useEffect(() => { void refreshScope(); return () => { ++scopeRequest.current; }; }, [refreshScope]);
   useEffect(() => { setAcknowledged(false); setGrantId(''); }, [workspaceId, connectionId, attempts, concurrency, duration]);
 

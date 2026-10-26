@@ -4,7 +4,7 @@ import { sessionApi, type NamedConnection } from './session-api';
 import { sessionMessages } from './session-i18n';
 import type { Language } from './i18n';
 
-export function Connections({ language, connected }: { language: Language; connected: boolean }) {
+export function Connections({ language, connected, compact = false }: { language: Language; connected: boolean; compact?: boolean }) {
   const t = sessionMessages[language];
   const [records, setRecords] = useState<NamedConnection[]>([]);
   const [name, setName] = useState('');
@@ -55,18 +55,18 @@ export function Connections({ language, connected }: { language: Language; conne
     <div className="section-heading"><h2 id="connections-title">{t.connections}</h2><button onClick={() => void refresh()} disabled={!connected || busy}>{t.refreshConnections}</button></div>
     {error && <div className="error" role="alert"><strong>{t.error}</strong><p>{error}</p></div>}
     {!connected && <p>{t.unavailable}</p>}
-    <form className="connection-form" onSubmit={register}>
+    <details className="connection-registration" open={!compact}><summary>{t.register}</summary><form className="connection-form" onSubmit={register}>
       <label htmlFor="connection-name">{t.label}</label><input id="connection-name" value={name} onChange={event => setName(event.target.value)} maxLength={128} disabled={busy} required />
       <label htmlFor="connection-executable">{t.executable}</label><input id="connection-executable" value={executable} onChange={event => setExecutable(event.target.value)} maxLength={4096} disabled={busy} required />
       <label htmlFor="connection-route">{t.route}</label><select id="connection-route" defaultValue="custom_acp" disabled><option value="custom_acp">Custom ACP</option><option disabled>Codex App Server — unsupported</option><option disabled>Qoder native ACP — unverified</option><option disabled>Claude adapter — unverified</option></select>
       <label htmlFor="connection-arguments">{t.arguments}</label><textarea id="connection-arguments" value={argumentsText} onChange={event => setArgumentsText(event.target.value)} disabled={busy} maxLength={8192} rows={3} aria-describedby="arguments-help" /><p id="arguments-help" className="hint">{t.argumentsHelp}</p>
       <p>{t.registerHelp}</p><p>{t.nativeConfirmation}</p><p className="hint">{t.noCredentials}</p><button className="primary" disabled={!connected || busy || !name.trim() || !executable.trim()}>{busy ? t.working : t.register}</button>
-    </form>
+    </form></details>
     <p>{t.noFallback}</p><p className="hint">{t.probeOnly}</p>
     {!records.length && <p>{t.emptyConnections}</p>}
     <ul className="connection-list">{records.map(connection => <li key={connection.id}>
-      <h3>{connection.name}</h3><dl><dt>{t.provider}</dt><dd>{connection.provider}</dd><dt>{t.executable}</dt><dd>{connection.executable}</dd><dt>{t.digest}</dt><dd>{connection.executable_sha256}</dd><dt>{t.version}</dt><dd>{connection.version_evidence?.version_line ?? t.unknown}</dd><dt>{t.probeState}</dt><dd>{connection.probe_state}</dd><dt>{t.source}</dt><dd>{connection.version_evidence ? `${connection.version_evidence.source} · ${new Date(connection.version_evidence.observed_at_unix_ms).toISOString()}` : t.unknown}</dd><dt>{t.host}</dt><dd>{connection.host_id}</dd><dt>{t.environment}</dt><dd>{connection.environment_id}</dd><dt>{t.configOwner}</dt><dd>{connection.config_status}</dd><dt>{t.identity}</dt><dd>{connection.identity_ref} ({connection.identity_status})</dd></dl>
-      <p className="hint">{t.probeOnly}</p>
+      <details className="connection-evidence" open={!compact}><summary><span>{connection.name}</span><span className="task-state">{Object.hasOwn(t, connection.probe_state) ? t[connection.probe_state as keyof typeof t] : `${t.unknown}: ${connection.probe_state}`}</span></summary><dl><dt>{t.provider}</dt><dd>{connection.provider}</dd><dt>{t.executable}</dt><dd>{connection.executable}</dd><dt>{t.digest}</dt><dd>{connection.executable_sha256}</dd><dt>{t.version}</dt><dd>{connection.version_evidence?.version_line ?? t.unknown}</dd><dt>{t.probeState}</dt><dd>{connection.probe_state}</dd><dt>{t.source}</dt><dd>{connection.version_evidence ? `${connection.version_evidence.source} · ${new Date(connection.version_evidence.observed_at_unix_ms).toISOString()}` : t.unknown}</dd><dt>{t.host}</dt><dd>{connection.host_id}</dd><dt>{t.environment}</dt><dd>{connection.environment_id}</dd><dt>{t.configOwner}</dt><dd>{connection.config_status}</dd><dt>{t.identity}</dt><dd>{connection.identity_ref} ({connection.identity_status})</dd></dl>
+      <p className="hint">{t.probeOnly}</p></details>
     </li>)}</ul>
   </section>;
 }
