@@ -34,7 +34,10 @@ impl fmt::Display for WorkspaceError {
             Self::Io(e) => write!(f, "workspace I/O: {e}"),
             Self::InvalidPath => write!(f, "invalid or non-contained workspace path"),
             Self::NotRepository => write!(f, "not a Git working tree"),
-            Self::UnsafeRepository => write!(f, "repository uses unapproved checkout filters"),
+            Self::UnsafeRepository => write!(
+                f,
+                "repository requires unapproved executable filters or external object access"
+            ),
             Self::Git(_) => write!(f, "Git operation failed; inspect repository state"),
             Self::Dirty => write!(f, "target has uncommitted or untracked files"),
             Self::StaleHead => write!(f, "target HEAD changed; validate the new candidate"),
@@ -85,6 +88,9 @@ fn git_command(root: &Path) -> Command {
         .env("GIT_CONFIG_GLOBAL", "/dev/null")
         .env("GIT_CONFIG_NOSYSTEM", "1")
         .env("GIT_TERMINAL_PROMPT", "0")
+        // Local inspection/isolation never authorizes promisor lazy fetches or
+        // repository-configured remote helpers (including ext/SSH helpers).
+        .env("GIT_NO_LAZY_FETCH", "1")
         .arg("--no-optional-locks")
         .args([
             "-c",
@@ -95,6 +101,8 @@ fn git_command(root: &Path) -> Command {
             "core.attributesFile=/dev/null",
             "-c",
             "submodule.recurse=false",
+            "-c",
+            "protocol.allow=never",
             "-c",
             "protocol.file.allow=never",
         ])
@@ -158,6 +166,20 @@ fn git_text(root: &Path, args: &[&str]) -> Result<String, WorkspaceError> {
         .map_err(|_| WorkspaceError::InvalidPath)
 }
 
+fn reject_partial_clones(root: &Path) -> Result<(), WorkspaceError> {
+    // Older Git versions may not honor GIT_NO_LAZY_FETCH. Refuse external object
+    // sources before status/checkout/object inspection can invoke their helpers.
+    let partial = bounded_output(git_command(root).args([
+        "config",
+        "--get-regexp",
+        "^(extensions\\.partialclone|remote\\..*\\.promisor)$",
+    ]))?;
+    if partial.status.success() || partial.status.code() != Some(1) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    Ok(())
+}
+
 fn reject_checkout_filters(root: &Path) -> Result<(), WorkspaceError> {
     // Even `status` can invoke clean/process filters when comparing a modified file.
     let filters = bounded_output(git_command(root).args(["config", "--get-regexp", "^filter\\."]))?;
@@ -189,6 +211,7 @@ pub fn inspect(root: &Path) -> Result<WorkspaceIdentity, WorkspaceError> {
         if top != canonical_root {
             return Err(WorkspaceError::InvalidPath);
         }
+        reject_partial_clones(&canonical_root)?;
         reject_checkout_filters(&canonical_root)?;
         let head = git_text(&canonical_root, &["rev-parse", "--verify", "HEAD^{commit}"])?;
         let common_dir = fs::canonicalize(git_text(
@@ -289,6 +312,7 @@ pub fn create_isolated(
     }
     // Checkout can invoke named clean/smudge/process filters. Reject their configuration rather
     // than running owner-unapproved code during worktree creation.
+    reject_partial_clones(&source.canonical_root)?;
     reject_checkout_filters(&source.canonical_root)?;
     let verified = git_text(
         &source.canonical_root,
