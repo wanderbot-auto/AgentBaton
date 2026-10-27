@@ -709,3 +709,40 @@ fn selection_bounds_are_checked_before_source_io_or_sorting() {
     );
     assert!(!absent.exists());
 }
+
+#[test]
+fn managed_and_relative_path_shapes_are_bounded_before_allocation_or_root_io() {
+    let f = Fixture::new();
+    let control = f.managed.join("control\nroot");
+    fs::create_dir(&control).unwrap();
+    fs::set_permissions(&control, Permissions::from_mode(0o700)).unwrap();
+    assert_eq!(
+        ApprovedManagedRoot::from_verified_host(&control).err(),
+        Some(DataWorkspaceError::ManagedRootInvalid)
+    );
+    assert_eq!(mode(&control), 0o700);
+    assert_eq!(fs::read_dir(&control).unwrap().count(), 0);
+    let long = f.managed.join("a".repeat(4097));
+    assert_eq!(
+        ApprovedManagedRoot::from_verified_host(&long).err(),
+        Some(DataWorkspaceError::ManagedRootInvalid)
+    );
+    for path in [
+        "a".repeat(4097),
+        "parent/".repeat(17) + "leaf",
+        "control\nrelative".into(),
+    ] {
+        let mut files = requirements(&["unused"]);
+        files[0].relative_path = path.into();
+        assert_eq!(
+            ApprovedDataSelection::from_verified_host(
+                &f.source,
+                "owner".into(),
+                files,
+                DataLimits::default()
+            )
+            .err(),
+            Some(DataWorkspaceError::InvalidSelection)
+        );
+    }
+}

@@ -70,3 +70,38 @@ Final actual log hashes (earlier evidence/logs retained):
 - `artifacts/data-workspaces/final-fmt.log`: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
 
 Final machine-readable local verification: `artifacts/data-workspaces/verification.json` SHA93422e5cc863f035e60537df22cfb4ba6ef7bbf777c25e48bd62c4a90a0e7602. Historical107+7 verification preserved separately as `verification-0fba.json`. Final independent review is pending; parent controls target access. Existing limits and unimplemented Core/registry/UI integration remain unchanged. No new deps/locks/paid resources/accounts or real Provider calls.
+
+## Final R2 path-order follow-up
+
+Reviewer found two remaining source-level order gaps: relative-path collection preceded its byte-length check; managed checked_root performed canonicalize before a canonical-shape check. Both checks are moved earlier, with no API/permissions/dependencies change. The exact168 module was saved and compiled with the new single integration case using `cargo test --locked -p agentbaton-workspaces --test data_workspace managed_and_relative_path_shapes_are_bounded_before_allocation_or_root_io -- --exact --nocapture`. The existing private control-character root returned an approval token and the assertion failed101, before later test clauses. That is a real old factory observation; not an old Ready acceptance or a runtime allocation/DoS measurement. Relative-path allocation ordering remains source-level evidence backed by new boundary rejection tests.
+
+- `artifacts/data-workspaces/root-bound-old-source.rs`: `3b248f692a3ae34efcb03dfc4d57601be98aac9a22a812a7e64f007b392b94c6`
+- `artifacts/data-workspaces/root-bound-old-source-control`: `be67a5c408db899e81df6c193be80a7eb72ee9f78d33df20733adfe058cce8e1`
+- `artifacts/data-workspaces/root-bound-old-source-control.log`: `582492107b0420041a6e13d9dfb20c802c105c87e994dbd734b795f120d13b02`
+
+Fixed final actual commands, same env/umask022:
+
+- `cargo test --locked -p agentbaton-workspaces`:111 unique unit/integration (4 unit+27 command+19 data+21 JSON+5 Gitguard+18 safety+17 validation),7 compile-fail doctests allPASS;21 new data cases plus3 new doctests, baseline90+4 retained. FIFO child is not an extra unique test. Batches0.16/2.24/0.02/0.03/0.53/0.75/4.74s; docs0.09s.
+- `cargo clippy --locked -p agentbaton-workspaces --all-targets -- -D warnings`:PASS1.68s.
+- `cargo fmt --all -- --check`:PASS.
+- `cargo check --locked -p agentbaton-workspaces --all-targets --target aarch64-apple-darwin`:PASS1.62s.
+- `cargo check --locked -p agentbaton-workspaces --all-targets --target x86_64-apple-darwin`:PASS1.54s. Both remain cross-compilation only.
+
+Final source/unchanged manifest hashes:
+
+- `crates/workspaces/src/data_workspace.rs`: `d98e0d02af175adc035d97822efbd2008a87b61788ee63d4b60be6d762557e40`
+- `crates/workspaces/src/lib.rs`: `438827e89aa1bbcb2cf74d118e76569eb18e6be94fe1b6253da98db513defe25`
+- `crates/workspaces/tests/data_workspace.rs`: `c126f32dc951826e8f24f88496dfa6286e74c751e97c09c85e23cf88d6c210cb`
+- `Cargo.lock`: `b22c148dd432426f70586093394eeb9f04c0aeca938764be503e1145659f7d42`
+- `Cargo.toml`: `5dc88c14683dc23feac5ee1d6076ee96fc8f4a8eb149fa62cf35818553522c29`
+- `crates/workspaces/Cargo.toml`: `303ae03186afbb4da35f45b954efbb91155f6d241c174f130ad89c36df9aa897`
+
+Actual final logs:
+
+- `artifacts/data-workspaces/r2-final-all-tests.log`: `6b0ef31e6ce08c0dc99f24b0984b5625d71b1566c5f4e748bd245f80063a706c`
+- `artifacts/data-workspaces/r2-final-clippy.log`: `e45d8a788816f023cd7868ccb0c3ad2236ffe01afb5b7525d03df4512c6a47a2`
+- `artifacts/data-workspaces/r2-final-darwin-arm.log`: `619918f5ac8267580a70f3d51da11e11f910fc57bca4a81e5f1ad0525be23a12`
+- `artifacts/data-workspaces/r2-final-darwin-intel.log`: `e47dc0b04f9136c9ba8b9965271db44e87b647a6cfb4181e88b7dca96fe75336`
+- `artifacts/data-workspaces/r2-final-fmt.log`: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+
+Final verification manifest `artifacts/data-workspaces/verification.json` SHA4eae9e91df18c9c7c494f406328630a16d9f7a358a70265a6e019442209b5957. Historical manifests0fba/168 are retained separately. Shared Cargo target has formally returned to parent for independent final Data verification. No new Mac runtime/CI or product integration claim; the limits above remain.

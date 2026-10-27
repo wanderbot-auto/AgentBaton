@@ -336,11 +336,11 @@ fn auth_component(name: &OsStr) -> bool {
 }
 fn safe_relative(path: &Path) -> bool {
     !path.as_os_str().is_empty()
-        && path.components().collect::<PathBuf>().as_os_str() == path.as_os_str()
         && path
             .to_str()
             .is_some_and(|v| v.len() <= 4096 && !v.chars().any(char::is_control))
         && path.components().count() <= 16
+        && path.components().collect::<PathBuf>().as_os_str() == path.as_os_str()
         && path
             .components()
             .all(|p| matches!(p,Component::Normal(name) if !auth_component(name)))
@@ -414,8 +414,7 @@ fn validate_selection(c: &DataSelectionContract) -> Result<(), DataWorkspaceErro
     Ok(())
 }
 fn checked_root(path: &Path) -> Result<File, DataWorkspaceError> {
-    if path.to_str().is_none()
-        || !path.is_absolute()
+    if !canonical_shape(path)
         || fs::canonicalize(path)
             .map_err(|_| DataWorkspaceError::SourceUnavailable)?
             .as_os_str()
