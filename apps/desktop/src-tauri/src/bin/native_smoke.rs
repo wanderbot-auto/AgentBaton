@@ -8,7 +8,7 @@ use serde_json::{json, Value};
 use std::{
     fs,
     io::Read,
-    os::unix::fs::{DirBuilderExt, PermissionsExt},
+    os::unix::fs::{DirBuilderExt, OpenOptionsExt, PermissionsExt},
     path::{Path, PathBuf},
     process::{Child, Command, Stdio},
     sync::{
@@ -108,6 +108,16 @@ fn valid_goal_counts(value: &Value) -> bool {
         && value["sequence"].as_u64().is_some()
 }
 fn prepare_readonly_goal_project(runtime: &Path) -> Result<String, String> {
+    // Match the real daemon's private authority under umask 022 as well as 077.
+    // Fresh ownership is mandatory: never chmod, replace or reuse an existing
+    // database merely to make this disposable fixture pass admission.
+    let database = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .mode(0o600)
+        .open(runtime.join("baton.sqlite3"))
+        .map_err(|_| "cannot create a fresh private fixture database")?;
+    drop(database);
     let directory = runtime.join("goal-readonly-project");
     fs::DirBuilder::new()
         .mode(0o700)
@@ -1002,11 +1012,66 @@ mod fixture_tests {
         assert!(valid_goal_counts(
             &goal_database_snapshot(directory.path()).unwrap()
         ));
+        let mode = fs::metadata(directory.path().join("baton.sqlite3"))
+            .unwrap()
+            .permissions()
+            .mode()
+            & 0o777;
+        drop(store);
+        let actual_daemon = ipc::Daemon::bind(directory.path());
+        assert!(
+            actual_daemon.is_ok(),
+            "helper-created DB mode={mode:o}; actual authority rejection={:?}",
+            actual_daemon.as_ref().err()
+        );
+        assert_eq!(mode, 0o600);
+        drop(actual_daemon);
+    }
+
+    #[test]
+    fn project_fixture_refuses_existing_database_without_chmod_or_byte_changes() {
+        let directory = private_fixture_runtime().unwrap();
+        let database = directory.path().join("baton.sqlite3");
+        // Deliberately use the ambient umask for this controlled preexisting
+        // fixture: under CI 022 it is 0644. Subject code must leave it untouched.
+        drop(
+            fs::OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .mode(0o644)
+                .open(&database)
+                .unwrap(),
+        );
+        let mut store = agentbaton_core::storage::Store::open(&database).unwrap();
+        store
+            .create(
+                "local",
+                "Preserve actual existing fixture history",
+                "existing",
+            )
+            .unwrap();
+        drop(store);
+        let bytes = fs::read(&database).unwrap();
+        let mode = fs::metadata(&database).unwrap().permissions().mode() & 0o777;
+        assert!(prepare_readonly_goal_project(directory.path()).is_err());
+        assert_eq!(fs::read(&database).unwrap(), bytes);
+        assert_eq!(
+            fs::metadata(&database).unwrap().permissions().mode() & 0o777,
+            mode
+        );
     }
 
     #[test]
     fn actual_readonly_goal_counts_observe_sequence_changes_without_writes() {
         let directory = private_fixture_runtime().unwrap();
+        drop(
+            fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .mode(0o600)
+                .open(directory.path().join("baton.sqlite3"))
+                .unwrap(),
+        );
         let mut store =
             agentbaton_core::storage::Store::open(&directory.path().join("baton.sqlite3")).unwrap();
         let before = goal_database_snapshot(directory.path()).unwrap();
