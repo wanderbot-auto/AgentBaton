@@ -1,0 +1,70 @@
+{
+  "head": "e3737ccdd9798e3246ebd2083d4c2bdecf74e569",
+  "actual_checkout": "ba437c0dc7e3e55adc4134dd80a0e1543cfe2901",
+  "product": {
+    "id": 40456226726,
+    "conclusion": "failure",
+    "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40456226726"
+  },
+  "environment": {
+    "id": 40456226711,
+    "conclusion": "success"
+  },
+  "jobs": [
+    {
+      "id": 122030062175,
+      "name": "Product / Rust",
+      "conclusion": "failure"
+    },
+    {
+      "id": 122030062312,
+      "name": "Product / UI",
+      "conclusion": "success"
+    },
+    {
+      "id": 122030062437,
+      "name": "Product / macos-15-intel",
+      "conclusion": "success"
+    },
+    {
+      "id": 122030062560,
+      "name": "Product / macos-15",
+      "conclusion": "success"
+    }
+  ],
+  "linux_failure": {
+    "passed": 13,
+    "failed": 1,
+    "suite_seconds": 8.99,
+    "fresh_ttl_remaining_ms": 760,
+    "return_to_request_ms": 0,
+    "session_admission_ms": 946,
+    "state": "correctly_cancelled_after_expiry, does not satisfy intendedUnknown positive fixture",
+    "log_sha256": "06014e87b502af9115ba32a4308c98ec73389bf9f0c7ca60a72c6781d20465f5"
+  },
+  "mac_actual": {
+    "arm64": {
+      "job": 122030062560,
+      "conclusion": "success",
+      "command_cases": 14,
+      "native_host": 11,
+      "harness": 6,
+      "fresh_ttl_ms": 998,
+      "session_admission_ms": 531
+    },
+    "x86_64": {
+      "job": 122030062437,
+      "conclusion": "success",
+      "command_cases": 14,
+      "native_host": 11,
+      "harness": 6,
+      "fresh_ttl_ms": 998,
+      "session_admission_ms": 406
+    },
+    "native_reports": "independentlyAPIsha/safezip/commit/architecture/TaskID/lifecycle/Command3+Data3/defaultreleaseaudit/PNG verified; no OSOwner/models/minOS proof",
+    "review": "docs/execution/command-integration/NATIVE_E373_REVIEW.md",
+    "review_sha256": "f2bfe33787438f4fbbc01d707d4281f3123ed28477bed25c3a20984a77d7493b",
+    "development_packages": "both job packaging completed; not independently accepted as delivery by this failedrun"
+  },
+  "next_only_change": "LinuxRustworkspace test step RUST_TEST_THREADS=1, unchanged complete tests/internalexplicitconcurrency/originalbudgets/25min/actions/Env. ActualLinuxcrossfixture pressure remainsfailed, not claimed satisfied. Newall7 required."
+}
