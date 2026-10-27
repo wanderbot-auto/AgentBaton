@@ -362,6 +362,19 @@ impl Store {
             }
             return decode(&document);
         }
+        let command_fenced: bool = tx
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=?1)",
+                [workspace_id],
+                |r| r.get(0),
+            )
+            .map_err(db_error)?;
+        if command_fenced {
+            return Err(CoreError::new(
+                "OUTCOME_UNKNOWN",
+                "Workspace has an active or unreconciled command writer",
+            ));
+        }
         let raw: Option<String> = tx
             .query_row("SELECT document FROM tasks WHERE id=?1", [task_id], |r| {
                 r.get(0)
@@ -1119,6 +1132,9 @@ impl Supervisor {
             },
         )
     }
+    pub(crate) fn has_owned_io(&self) -> bool {
+        !self.workers.is_empty() || !self.probes.is_empty()
+    }
     pub fn has_workers(&self) -> bool {
         !self.workers.is_empty()
     }
@@ -1644,10 +1660,19 @@ impl Store {
     /// Only the private authenticated CLI or a Rust host following native owner confirmation
     /// calls this method. It is deliberately absent from renderer Tauri commands.
     pub fn finalize_proposal(&mut self, id: &str, revision: u64) -> Result<Value> {
+        let sizes:Option<(i64,i64)>=self.conn.query_row("SELECT octet_length(document),COALESCE(octet_length(result),0) FROM approval_proposals WHERE id=?1",[id],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
+        if sizes.is_some_and(|(document, result)| {
+            !(0..=4_194_304).contains(&document) || !(0..=4_194_304).contains(&result)
+        }) {
+            return Err(CoreError::new(
+                "RESOURCE_LIMIT",
+                "Stored owner proposal exceeds its raw-byte bound",
+            ));
+        }
         let old: Option<(String, Option<String>)> = self
             .conn
             .query_row(
-                "SELECT document,result FROM approval_proposals WHERE id=?1",
+                "SELECT document,result FROM approval_proposals WHERE id=?1 AND octet_length(document)<=4194304 AND (result IS NULL OR octet_length(result)<=4194304)",
                 [id],
                 |r| Ok((r.get(0)?, r.get(1)?)),
             )
@@ -1721,6 +1746,7 @@ impl Store {
             }
             "validation" => self.approve_validation_policy(&proposal)?,
             "data_validation" => self.approve_data_validation_policy(&proposal)?,
+            "command_validation" => self.approve_command_validation_policy(&proposal)?,
             _ => return Err(invalid("Unknown owner proposal kind")),
         };
         proposal.consumed = true;

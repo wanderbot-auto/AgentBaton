@@ -724,7 +724,30 @@ impl Store {
         ManagedWorkspace,
         ExecutionBinding,
     )> {
+        self.validation_workspace_inner(session_id, None)
+    }
+    pub(crate) fn validation_workspace_for_owned_command(
+        &self,
+        session_id: &str,
+        owned: &crate::command_validation::CommandReadAuthority,
+    ) -> Result<(
+        crate::sessions::ManagedSession,
+        ManagedWorkspace,
+        ExecutionBinding,
+    )> {
+        self.validation_workspace_inner(session_id, Some(owned))
+    }
+    fn validation_workspace_inner(
+        &self,
+        session_id: &str,
+        owned: Option<&crate::command_validation::CommandReadAuthority>,
+    ) -> Result<(
+        crate::sessions::ManagedSession,
+        ManagedWorkspace,
+        ExecutionBinding,
+    )> {
         let session = self.get_session(session_id)?;
+        self.check_command_read_fence(&session, owned)?;
         let intent = self.intent(&session.intent_id)?;
         if intent.state != crate::execution::IntentState::Stopped
             || intent.attempt_id != session.attempt_id
