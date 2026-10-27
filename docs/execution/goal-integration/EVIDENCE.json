@@ -1,7 +1,7 @@
 {
   "approval": "AB-START-001",
-  "composition_source": "6c023f0",
-  "backend_source": "1a3236a94b1b6a6346d1ee604bb23b1a595425bc",
+  "composition_source": "21e2ce2",
+  "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
   "frontend_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
   "frontend_actual": {
     "tests": 229,
@@ -9,12 +9,64 @@
     "typecheck_build": "passed",
     "log": "/workspace/.onboarding/goal-integration-ui-tests.log"
   },
-  "workspace": "first composition passed; history contract fix pending, no inherited proof for new source",
-  "integration_gaps": [
-    "empty plan list NOT_FOUND prevents initial UI readiness",
-    "revoked or expired plan history incorrectly requires live authority"
-  ],
-  "actual_goal_browser": "not_run",
+  "workspace": "6c first composition447unique+4docs passed; history delta2cad independently+integratedCore210 passed; no claim new fullworkspace rerun",
+  "integration_gaps": "H1/H2 fixed; R1/R2 remain closed; independent Backend review passed",
+  "actual_goal_browser": {
+    "status": "passed",
+    "checks": [
+      {
+        "name": "actual outside-HTTP Goal approval preserves execution bindings and does not accept task",
+        "status": "passed",
+        "scope_id": "01c88f4e-8358-441c-a114-89b072b8c824",
+        "task_id": "79656452-d1c8-4502-8e27-7ea36ef26633"
+      },
+      {
+        "name": "real UI lazily lists an independently approved Goal and empty immutable plan history",
+        "status": "passed"
+      },
+      {
+        "name": "actual UI stores original raw plan bytes and server-derived scope references without dispatch",
+        "status": "passed",
+        "plan_digest": "9cea322cd8e68f254796a9ce3097f9001b2762db9639322230a6bcde7a217ea2",
+        "raw_sha256": "1c665b7b697239a99cffca894e1ab296355ef9fe585c90e87e21a5d9dac4f0e9"
+      },
+      {
+        "name": "real UI preview and direct repeat leave journal, ledgers, attempts, leases and execution unchanged",
+        "status": "passed"
+      },
+      {
+        "name": "exact-key replay is read-only; whitespace/key conflict, stale CAS and raw nested duplicates are refused by actual Core",
+        "status": "passed"
+      },
+      {
+        "name": "actual UI revises with correct CAS and retains immutable first revision; stale preview is refused",
+        "status": "passed"
+      },
+      {
+        "name": "test HTTP adapter refuses approval, generic IPC, execution, forged scope, extra fields and boolean revisions",
+        "status": "passed"
+      },
+      {
+        "name": "real input drift refuses live preview, clears old observation and disables new UI writes while retaining strict history",
+        "status": "passed"
+      },
+      {
+        "name": "revoked scope permits strict historical reads/exact-key replay while UI and Core deny new plans and previews",
+        "status": "passed"
+      }
+    ],
+    "screenshots": 6,
+    "primary_report": "docs/execution/goal-integration/BROWSER_HISTORY_PRIMARY.json",
+    "primary_report_sha256": "f349971f037f253a2fbdc307888e35791213fd7abd3cfdb2f2937c981b45c6f6",
+    "independent_report": "/workspace/.onboarding/goal-ui-real-ipc-history-independent-capture/report.json",
+    "independent_report_sha256": "7d6f789f3c7fd744f5bc9f502eed6e52c9a5abf5256dac787fa99a67dd1f066e",
+    "review": "docs/execution/goal-ui-real-ipc/REVIEW.md",
+    "review_sha256": "7331dfca04a424042cda8b3b7d620a6f4610a63a8f5c9e26e3271bd1d6bb3d1c",
+    "script_sha256": "f7d13bbbdd378ab4ab8e70c5b85bed1d6f806a36c5ef0eed2c060ba982a09c52",
+    "daemon_sha256": "dcbab69b9d0abcdca8c1da5c80da7ab5d6453a6890cf7ed0cd059df8f16da6bd",
+    "dimension": "actual Linux builtReact/privateUnixIPC; no OS native Owner dialog or actual Goal dispatch",
+    "screenshot_limit": "06 is upper form framing; revoked behavior proven by actual UI/Core checks rather than the PNG alone"
+  },
   "actual_native_owner_dialog": "not_run",
   "actual_macOS": "not_run",
   "goal_dispatch": "not_implemented",
@@ -38,5 +90,21 @@
     },
     "old_daemon": "/workspace/.onboarding/goal-composition-old-binaries/manifest.json",
     "old_daemon_sha256": "66663629d716ec8dbd999aa45b375a9c6100a3392dc80ae9a7f92fa12144f303"
-  }
+  },
+  "history_core_actual": {
+    "unique_tests": 210,
+    "raw_passed_sum": 211,
+    "nested_fifo_child": 1,
+    "clippy_fmt_sidecars": "passed",
+    "source_sha256": "7641899c7289293857fe21d16e08c7422376a319b2ea049be6618e548009f0aa",
+    "logs": {
+      "goal-integration-history-core-tests.log": "b07067bbafdb9a67eccf017e03b3145aea0c1f7766d293147030783ddbc08fe6",
+      "goal-integration-history-clippy.log": "6da8afc11c52ce14ced80f5707acaa910e1837e56c130edabeda64145c2b4eaf",
+      "goal-integration-history-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "goal-integration-history-sidecars.log": "e95b0d4fc32025a7ecd68fb67c28c54abdb6aabeb5ce039fb8e15974c1368dff"
+    },
+    "independent_review_sha256": "d044e277ef5738a86b3b2414ab748a36ad1e963ec72a7e7cc7604b9959772a3c"
+  },
+  "ci": "one existing frontend step adds sameGoalharness; Goal exactMac/current7checks unrun, upstream PR12 admission CI failure retained",
+  "resource_cache_retirement": "/workspace/.onboarding/completed-worktree-cache-retirement.json"
 }

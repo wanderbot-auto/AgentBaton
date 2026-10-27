@@ -1025,7 +1025,10 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/core/src/sessions.rs",
-        "crates/core/src/policy.rs"
+        "crates/core/src/policy.rs",
+        "crates/core/src/goal_plan.rs",
+        "crates/core/src/goal_store.rs",
+        "apps/desktop/src/GoalPlanning.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1033,20 +1036,38 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/goal-integration/EVIDENCE.json",
+        "docs/execution/goal-store/REVIEW.md",
+        "docs/execution/goal-ui-real-ipc/REVIEW.md"
       ],
       "limitations": [
-        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "crates/core/tests/goal_plan.rs",
+        "crates/core/tests/goal_store.rs",
+        "crates/core/tests/goal_store_migration.rs",
+        "apps/desktop/tests/goal-planning-real-ipc.py"
+      ],
+      "verified_slices": [
+        {
+          "slice": "native_confirmed_goal_scope_versioned_plan_readonly_preview_and_historical_recovery",
+          "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
+          "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        }
       ]
     },
     {
@@ -1056,25 +1077,37 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "crates/core/src/goal_plan.rs",
+        "crates/core/src/goal_store.rs",
+        "apps/desktop/src/GoalPlanning.tsx"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/goal-integration/EVIDENCE.json",
+        "docs/execution/goal-store/REVIEW.md",
+        "docs/execution/goal-ui-real-ipc/REVIEW.md"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "crates/core/tests/goal_plan.rs",
+        "crates/core/tests/goal_store.rs",
+        "crates/core/tests/goal_store_migration.rs",
+        "apps/desktop/tests/goal-planning-real-ipc.py"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -1084,6 +1117,13 @@
           "evidence": "docs/execution/approval-outcome-guard/EVIDENCE.json",
           "review": "docs/execution/approval-outcome-guard/REVIEW.md",
           "verification": "actualgeneratedfixtureUnixIPC andfault/retrycontrols passed; notfullrequirement/nativeaccountacceptance"
+        },
+        {
+          "slice": "native_confirmed_goal_scope_versioned_plan_readonly_preview_and_historical_recovery",
+          "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
+          "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
         }
       ]
     },
@@ -1093,7 +1133,10 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/core/src/sessions.rs",
-        "crates/core/src/policy.rs"
+        "crates/core/src/policy.rs",
+        "crates/core/src/goal_plan.rs",
+        "crates/core/src/goal_store.rs",
+        "apps/desktop/src/GoalPlanning.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1101,36 +1144,81 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/goal-integration/EVIDENCE.json",
+        "docs/execution/goal-store/REVIEW.md",
+        "docs/execution/goal-ui-real-ipc/REVIEW.md"
       ],
       "limitations": [
-        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "crates/core/tests/goal_plan.rs",
+        "crates/core/tests/goal_store.rs",
+        "crates/core/tests/goal_store_migration.rs",
+        "apps/desktop/tests/goal-planning-real-ipc.py"
+      ],
+      "verified_slices": [
+        {
+          "slice": "native_confirmed_goal_scope_versioned_plan_readonly_preview_and_historical_recovery",
+          "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
+          "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        }
       ]
     },
     {
       "id": "AB-TSK-006",
       "work_package": "WP08",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/goal_plan.rs",
+        "crates/core/src/goal_store.rs",
+        "apps/desktop/src/GoalPlanning.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/goal-integration/EVIDENCE.json",
+        "docs/execution/goal-store/REVIEW.md",
+        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+      ],
+      "limitations": [
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/goal_plan.rs",
+        "crates/core/tests/goal_store.rs",
+        "crates/core/tests/goal_store_migration.rs",
+        "apps/desktop/tests/goal-planning-real-ipc.py"
+      ],
+      "verified_slices": [
+        {
+          "slice": "native_confirmed_goal_scope_versioned_plan_readonly_preview_and_historical_recovery",
+          "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
+          "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        }
+      ]
     },
     {
       "id": "AB-TSK-007",
@@ -1179,7 +1267,10 @@
         "crates/core/src/ipc.rs",
         "crates/core/src/execution.rs",
         "crates/core/src/sessions.rs",
-        "crates/core/src/policy.rs"
+        "crates/core/src/policy.rs",
+        "crates/core/src/goal_plan.rs",
+        "crates/core/src/goal_store.rs",
+        "apps/desktop/src/GoalPlanning.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1187,16 +1278,21 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/goal-integration/EVIDENCE.json",
+        "docs/execution/goal-store/REVIEW.md",
+        "docs/execution/goal-ui-real-ipc/REVIEW.md"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
-        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
@@ -1204,7 +1300,11 @@
         "crates/core/tests/execution.rs",
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "crates/core/tests/goal_plan.rs",
+        "crates/core/tests/goal_store.rs",
+        "crates/core/tests/goal_store_migration.rs",
+        "apps/desktop/tests/goal-planning-real-ipc.py"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -1214,23 +1314,57 @@
           "evidence": "docs/execution/approval-outcome-guard/EVIDENCE.json",
           "review": "docs/execution/approval-outcome-guard/REVIEW.md",
           "verification": "actualgeneratedfixtureUnixIPC andfault/retrycontrols passed; notfullrequirement/nativeaccountacceptance"
+        },
+        {
+          "slice": "native_confirmed_goal_scope_versioned_plan_readonly_preview_and_historical_recovery",
+          "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
+          "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
         }
       ]
     },
     {
       "id": "AB-TSK-009",
       "work_package": "WP08",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/goal_plan.rs",
+        "crates/core/src/goal_store.rs",
+        "apps/desktop/src/GoalPlanning.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/goal-integration/EVIDENCE.json",
+        "docs/execution/goal-store/REVIEW.md",
+        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+      ],
+      "limitations": [
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/goal_plan.rs",
+        "crates/core/tests/goal_store.rs",
+        "crates/core/tests/goal_store_migration.rs",
+        "apps/desktop/tests/goal-planning-real-ipc.py"
+      ],
+      "verified_slices": [
+        {
+          "slice": "native_confirmed_goal_scope_versioned_plan_readonly_preview_and_historical_recovery",
+          "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
+          "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        }
+      ]
     },
     {
       "id": "AB-TSK-010",
@@ -1241,7 +1375,10 @@
         "crates/core/src/ipc.rs",
         "crates/core/src/execution.rs",
         "crates/core/src/sessions.rs",
-        "crates/core/src/policy.rs"
+        "crates/core/src/policy.rs",
+        "crates/core/src/goal_plan.rs",
+        "crates/core/src/goal_store.rs",
+        "apps/desktop/src/GoalPlanning.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1249,16 +1386,21 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/goal-integration/EVIDENCE.json",
+        "docs/execution/goal-store/REVIEW.md",
+        "docs/execution/goal-ui-real-ipc/REVIEW.md"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
-        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
@@ -1266,9 +1408,22 @@
         "crates/core/tests/execution.rs",
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "crates/core/tests/goal_plan.rs",
+        "crates/core/tests/goal_store.rs",
+        "crates/core/tests/goal_store_migration.rs",
+        "apps/desktop/tests/goal-planning-real-ipc.py"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "native_confirmed_goal_scope_versioned_plan_readonly_preview_and_historical_recovery",
+          "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
+          "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        }
+      ]
     },
     {
       "id": "AB-VAL-001",
@@ -3589,17 +3744,44 @@
     {
       "id": "AB-TSK-011",
       "work_package": "WP08",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/goal_plan.rs",
+        "crates/core/src/goal_store.rs",
+        "apps/desktop/src/GoalPlanning.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/goal-integration/EVIDENCE.json",
+        "docs/execution/goal-store/REVIEW.md",
+        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+      ],
+      "limitations": [
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/goal_plan.rs",
+        "crates/core/tests/goal_store.rs",
+        "crates/core/tests/goal_store_migration.rs",
+        "apps/desktop/tests/goal-planning-real-ipc.py"
+      ],
+      "verified_slices": [
+        {
+          "slice": "native_confirmed_goal_scope_versioned_plan_readonly_preview_and_historical_recovery",
+          "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
+          "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        }
+      ]
     },
     {
       "id": "AB-TSK-012",
@@ -3610,7 +3792,10 @@
         "crates/core/src/ipc.rs",
         "crates/core/src/execution.rs",
         "crates/core/src/sessions.rs",
-        "crates/core/src/policy.rs"
+        "crates/core/src/policy.rs",
+        "crates/core/src/goal_plan.rs",
+        "crates/core/src/goal_store.rs",
+        "apps/desktop/src/GoalPlanning.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -3618,16 +3803,21 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/goal-integration/EVIDENCE.json",
+        "docs/execution/goal-store/REVIEW.md",
+        "docs/execution/goal-ui-real-ipc/REVIEW.md"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
-        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
+        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
@@ -3635,9 +3825,22 @@
         "crates/core/tests/execution.rs",
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "crates/core/tests/goal_plan.rs",
+        "crates/core/tests/goal_store.rs",
+        "crates/core/tests/goal_store_migration.rs",
+        "apps/desktop/tests/goal-planning-real-ipc.py"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "native_confirmed_goal_scope_versioned_plan_readonly_preview_and_historical_recovery",
+          "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
+          "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        }
+      ]
     },
     {
       "id": "AB-VAL-009",

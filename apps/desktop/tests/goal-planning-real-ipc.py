@@ -319,7 +319,7 @@ def main():
                     report['observations']['empty_history_response'] = ipc('goal_plans.list', {'scope_id': scope['id']})
                     screenshot('01-fresh-goal-expanded')
                     assert report['observations']['empty_history_response'].get('result') == [], 'Fresh approved scope must return an empty plan history; no NOT_FOUND translation or preseed permitted'
-                    expect(panel.get_by_label('Selected Goal scope', exact=True)).to_have_value(scope['id'])
+                    expect(panel.get_by_role('combobox', name='Selected Goal scope', exact=True)).to_have_value(scope['id'])
                     plan_detail = panel.locator('details').filter(has=page.get_by_text('Versioned plan proposal', exact=True)).last
                     open_details(plan_detail)
                     passed('real UI lazily lists an independently approved Goal and empty immutable plan history')
@@ -335,7 +335,7 @@ def main():
                             'retry': {'max_attempts': 2, 'max_reworks': 0, 'retry_classes': ['before_dispatch_transient']}, 'idempotency_key': 'report-action', 'external_action_id': None}
                     proposal = {'schema_version': 1, 'plan_id': 'browser-goal-plan', 'goal': scope['goal'], 'scope_revision': scope['authority_revision'], 'revision': 1, 'expected_revision': 0, 'acceptance_rules': scope['required_acceptance_rules'], 'nodes': [node]}
                     original_raw = '\n  ' + json.dumps(proposal, indent=2) + '\n '
-                    textarea = panel.get_by_label('Plan proposal JSON', exact=True)
+                    textarea = panel.get_by_role('textbox', name='Plan proposal JSON', exact=True)
                     textarea.fill(original_raw)
                     panel.get_by_role('button', name='Store initial plan proposal', exact=True).click()
                     first = wait(lambda: ipc('goal_plans.get', {'scope_id': scope['id']}), lambda response: response.get('result', {}).get('proposal', {}).get('revision') == 1)['result']
@@ -363,8 +363,13 @@ def main():
                         assert preview['decision']['requires_atomic_store_commit'] is True
                         assert all(item['node_id'] in {'write-report'} for item in preview['decision']['admissions'])
                     report['observations']['ready_preview'] = preview
+                    preview_heading = panel.get_by_role('heading', name='Read-only readiness observation', exact=True)
+                    preview_heading.scroll_into_view_if_needed()
+                    expect(preview_heading).to_be_visible()
                     screenshot('02-read-only-preview-desktop')
                     page.set_viewport_size({'width': 390, 'height': 844})
+                    preview_heading.scroll_into_view_if_needed()
+                    expect(preview_heading).to_be_visible()
                     screenshot('03-read-only-preview-mobile')
                     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
                     page.set_viewport_size({'width': 1488, 'height': 981})
