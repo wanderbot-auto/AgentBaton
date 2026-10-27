@@ -1032,22 +1032,22 @@ mod fixture_tests {
 
     #[test]
     fn owned_runtime_alias_is_rejected_but_its_canonical_private_database_binds() {
-        let directory = private_fixture_runtime().unwrap();
-        let owned_parent = directory.path().canonicalize().unwrap();
-        let real_parent = owned_parent.join("actual-parent");
-        fs::DirBuilder::new()
-            .mode(0o700)
-            .create(&real_parent)
-            .unwrap();
-        let alias_parent = owned_parent.join("alias-parent");
-        std::os::unix::fs::symlink(&real_parent, &alias_parent).unwrap();
-        let owned_runtime = tempfile::Builder::new()
-            .permissions(fs::Permissions::from_mode(0o700))
-            .tempdir_in(&alias_parent)
-            .unwrap();
-        let alias_runtime = owned_runtime.path();
-        let runtime = alias_runtime.canonicalize().unwrap();
+        // The real runtime has exactly main()'s short owned layout. Put only
+        // the denied alias in a separate namespace: nesting the actual runtime
+        // adds unnecessary bytes to the platform's bounded Unix socket path.
+        let owned_runtime = private_fixture_runtime().unwrap();
+        let runtime = owned_runtime.path().canonicalize().unwrap();
+        let alias_directory = private_fixture_runtime().unwrap();
+        let alias_parent = alias_directory
+            .path()
+            .canonicalize()
+            .unwrap()
+            .join("alias-parent");
+        let real_parent = runtime.parent().unwrap();
+        std::os::unix::fs::symlink(real_parent, &alias_parent).unwrap();
+        let alias_runtime = alias_parent.join(runtime.file_name().unwrap());
         assert_ne!(alias_runtime, runtime);
+        assert_eq!(alias_runtime.canonicalize().unwrap(), runtime);
         prepare_readonly_goal_project(&runtime).unwrap();
         let database = runtime.join("baton.sqlite3");
         let before = fs::read(&database).unwrap();
@@ -1055,19 +1055,25 @@ mod fixture_tests {
             fs::metadata(&database).unwrap().permissions().mode() & 0o777,
             0o600
         );
-        let denied = ipc::Daemon::bind(alias_runtime)
+        let denied = ipc::Daemon::bind(&alias_runtime)
             .err()
             .expect("a symlink alias must never gain daemon authority");
         assert_eq!(denied.code, "PERMISSION_DENIED");
         assert!(denied.message.contains("symbolic links"));
         assert_eq!(fs::read(&database).unwrap(), before);
-        let daemon =
-            ipc::Daemon::bind(&runtime).expect("the same owned canonical runtime must bind");
+        let socket_path_bytes = runtime
+            .join("batond.sock")
+            .as_os_str()
+            .as_encoded_bytes()
+            .len();
+        let daemon = ipc::Daemon::bind(&runtime).unwrap_or_else(|error| {
+            panic!("the same owned canonical runtime must bind; socket_path_bytes={socket_path_bytes}; {error:?}")
+        });
         assert!(valid_goal_counts(
             &goal_database_snapshot(&runtime).unwrap()
         ));
         drop(daemon);
-        assert_eq!(fs::read_link(alias_parent).unwrap(), real_parent);
+        assert_eq!(fs::read_link(&alias_parent).unwrap(), real_parent);
         assert_eq!(
             fs::metadata(database).unwrap().permissions().mode() & 0o777,
             0o600
