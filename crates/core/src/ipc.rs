@@ -428,22 +428,9 @@ impl Daemon {
         let request = serde_json::from_str::<Request>(raw);
         let id = request.as_ref().ok().map(|r| r.request_id.clone());
         let authenticated = request.as_ref().is_ok_and(|r| r.token == self.token);
-        let result = request.map_err(|_| invalid()).and_then(|r| {
-            if r.token == self.token
-                && matches!(
-                    r.method.as_str(),
-                    "goal_plans.propose" | "goal_plans.revise"
-                )
-                && raw.len() > crate::goal_store::MAX_GOAL_PLAN_BYTES
-            {
-                Err(CoreError::new(
-                    "RESOURCE_LIMIT",
-                    "Raw Goal plan IPC frame exceeds its byte bound; nothing was stored",
-                ))
-            } else {
-                self.dispatch(r)
-            }
-        });
+        let result = request
+            .map_err(|_| invalid())
+            .and_then(|r| self.dispatch(r));
         let revision = if authenticated {
             self.store.sequence().unwrap_or(0)
         } else {
@@ -503,9 +490,9 @@ impl Daemon {
             "goal_scopes.get" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.get_goal_scope(&p.scope_id)?))}
             "goal_scopes.revoke" => {let p:GoalScopeId=params(r.params)?;let key=r.idempotency_key.ok_or_else(invalid)?;Ok(json!(self.store.revoke_goal_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&key)?))}
             "goal_plans.propose" | "goal_plans.revise" => {
-                let p:crate::goal_store::GoalPlanSubmission=params(r.params)?;
+                let p:crate::goal_store::GoalPlanRawSubmission=params(r.params)?;
                 let key=r.idempotency_key.ok_or_else(invalid)?;
-                Ok(json!(self.store.submit_goal_plan(&p,&key,r.expected_revision.ok_or_else(invalid)?)?))
+                Ok(json!(self.store.submit_goal_plan_json(&p,&key,r.expected_revision.ok_or_else(invalid)?)?))
             }
             "goal_plans.get" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.get_goal_plan(&p.scope_id)?))}
             "goal_plans.list" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.list_goal_plan_revisions(&p.scope_id)?))}

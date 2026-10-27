@@ -102,7 +102,7 @@ impl BudgetLimits {
             && self.children <= 1000
             && self.reworks <= 1000
     }
-    fn narrower(&self, other: &Self) -> bool {
+    pub(crate) fn narrower(&self, other: &Self) -> bool {
         self.valid()
             && other.valid()
             && self.attempts <= other.attempts

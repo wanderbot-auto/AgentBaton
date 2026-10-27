@@ -19,7 +19,7 @@ use std::path::PathBuf;
 use uuid::Uuid;
 
 pub const MAX_GOAL_PLAN_BYTES: usize = 262_144;
-const MAX_STORED_BYTES: i64 = 524_288;
+const MAX_STORED_BYTES: i64 = 1_048_576;
 const MAX_SCOPES: i64 = 256;
 const MAX_REVISIONS: i64 = 256;
 const OWNER_RULE: &str = "goal-owner-review";
@@ -69,6 +69,9 @@ fn key(v: &str) -> Result<()> {
     } else {
         Err(invalid())
     }
+}
+fn sql_num(value: u64) -> Result<i64> {
+    i64::try_from(value).map_err(|_| invalid())
 }
 fn ms() -> Result<i64> {
     i64::try_from(time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000)
@@ -163,6 +166,13 @@ pub struct GoalPlanSubmission {
     pub scope_id: String,
     pub proposal: GoalPlanProposal,
 }
+/// IPC retains the exact inner text so serde can reject duplicate fields.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct GoalPlanRawSubmission {
+    pub scope_id: String,
+    pub plan_json: String,
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct ResolvedInputFile {
@@ -176,6 +186,8 @@ struct ResolvedValidator {
     rule_id: String,
     digest: String,
     definition: Value,
+    source_runs_started: u32,
+    source_run_states: Vec<String>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -265,6 +277,21 @@ struct MeterLedger {
     cost_microunits: Option<u64>,
 }
 #[derive(Clone, Debug, Serialize)]
+pub struct GoalBudgetUsageView {
+    pub attempts: u32,
+    pub active: u32,
+    pub children: u32,
+    pub runtime_ms: Option<u64>,
+    pub output_bytes: Option<u64>,
+    pub tokens: Option<u64>,
+    pub cost_microunits: Option<u64>,
+}
+#[derive(Clone, Debug, Serialize)]
+pub struct GoalBudgetUsage {
+    pub root: GoalBudgetUsageView,
+    pub project: GoalBudgetUsageView,
+}
+#[derive(Clone, Debug, Serialize)]
 pub struct GoalReadyPreview {
     pub scope_id: String,
     pub plan_id: String,
@@ -276,6 +303,7 @@ pub struct GoalReadyPreview {
     pub unknown_dimensions: Vec<String>,
     pub blocked_reasons: Vec<String>,
     pub decision: Option<ReadyDecision>,
+    pub budget_usage: GoalBudgetUsage,
 }
 
 fn native_confirmation(db: &Connection, id: &str, kind: &str) -> Result<(ApprovalProposal, Value)> {
@@ -323,14 +351,14 @@ fn grant_origin(db: &Connection, grant: &ExecutionGrant) -> Result<String> {
         return Err(changed());
     }
     if grant.revision != original.revision {
-        let (document,approval):(String,String)=db.query_row("SELECT document,goal_approval_id FROM goal_grant_revisions WHERE grant_id=?1 AND revision=?2 AND octet_length(document)<=?3",params![grant.id,grant.revision,MAX_STORED_BYTES],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?.ok_or_else(changed)?;
+        let (document,approval):(String,String)=db.query_row("SELECT document,goal_approval_id FROM goal_grant_revisions WHERE grant_id=?1 AND revision=?2 AND octet_length(document)<=?3",params![grant.id,sql_num(grant.revision)?,MAX_STORED_BYTES],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?.ok_or_else(changed)?;
         if decode::<ExecutionGrant>(&document)? != *grant {
             return Err(changed());
         }
         let (p, result) = native_confirmation(db, &approval, "goal")?;
         if result["root_grant_id"] != grant.id
             || result["root_grant_revision"] != grant.revision
-            || p.snapshot["resolved"]["grant_after"] != json!(grant)
+            || projected_grant(&p.snapshot["resolved"], "grant_after")? != *grant
         {
             return Err(changed());
         }
@@ -353,9 +381,54 @@ fn budget(db: &Connection, project: bool, id: &str) -> Result<Option<BudgetStatu
     .optional()
     .map_err(db_error)
 }
+/// The execution admission path uses these rows directly. Recovered shared
+/// history must therefore reach the durable counters, not only the preview.
+/// Caller holds the Goal approval IMMEDIATE transaction, after snapshot checks.
+fn reconcile_budget(
+    db: &Connection,
+    approval_id: &str,
+    project: bool,
+    id: &str,
+    limits: &BudgetLimits,
+    consumed: u32,
+    active: u32,
+) -> Result<()> {
+    let scope = format!("{}:{id}", if project { "project" } else { "root" });
+    let before = budget(db, project, id)?;
+    let after = match &before {
+        Some(existing) => BudgetStatus {
+            // A Goal override narrows its own policy; it does not rewrite an
+            // already established execution-budget ceiling.
+            total_limit: existing.total_limit,
+            parallel_limit: existing.parallel_limit,
+            consumed: consumed.max(existing.consumed),
+            active: active.max(existing.active),
+        },
+        None => BudgetStatus {
+            total_limit: limits.attempts,
+            parallel_limit: limits.parallel,
+            consumed,
+            active,
+        },
+    };
+    if before.as_ref() == Some(&after) {
+        return Ok(());
+    }
+    db.execute(
+        "INSERT INTO budgets(scope,total_limit,parallel_limit,consumed,active) VALUES(?1,?2,?3,?4,?5) ON CONFLICT(scope) DO UPDATE SET consumed=max(budgets.consumed,excluded.consumed),active=max(budgets.active,excluded.active)",
+        params![scope, after.total_limit, after.parallel_limit, after.consumed, after.active],
+    ).map_err(db_error)?;
+    event(
+        db,
+        approval_id,
+        1,
+        "goal.budget_history_reconciled",
+        json!({"goal_approval_id":approval_id,"budget_scope":scope,"before":before,"after":after,"source":"shared_persisted_attempt_history","reservation_made":false}),
+    )
+}
 fn counts(db: &Connection, task: &Task, grant: &ExecutionGrant) -> Result<(u32, u32, u32, u32)> {
     let (p,pa):(u32,u32)=db.query_row("SELECT count(DISTINCT a.id),count(DISTINCT CASE WHEN d.state!='stopped' THEN a.id END) FROM attempts a JOIN tasks t ON t.id=a.task_id LEFT JOIN dispatch_intents d ON d.attempt_id=a.id WHERE json_extract(t.document,'$.project_id')=?1",[&task.project_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
-    let (g,ga):(u32,u32)=db.query_row("SELECT count(DISTINCT a.id),count(DISTINCT CASE WHEN d.state!='stopped' THEN a.id END) FROM attempts a LEFT JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.root_task_id=?1 OR EXISTS(SELECT 1 FROM sessions s WHERE s.attempt_id=a.id AND s.root_grant_id=?2)",params![task.id,grant.root_grant_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+    let (g,ga):(u32,u32)=db.query_row("SELECT count(DISTINCT a.id),count(DISTINCT CASE WHEN d.state!='stopped' THEN a.id END) FROM attempts a LEFT JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.root_task_id=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':') OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?2)",params![task.id,grant.root_grant_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
     let pb = budget(db, true, &task.project_id)?;
     let gb = budget(db, false, &task.id)?;
     Ok((
@@ -366,15 +439,19 @@ fn counts(db: &Connection, task: &Task, grant: &ExecutionGrant) -> Result<(u32, 
     ))
 }
 fn no_writers(db: &Connection, task: &Task, grant: &ExecutionGrant) -> Result<()> {
-    let active:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE d.state!='stopped' AND (a.root_task_id=?1 OR json_extract(a.binding,'$.workspace_id') IN (SELECT value FROM json_each(?2)) OR EXISTS(SELECT 1 FROM sessions s WHERE s.attempt_id=a.id AND s.root_grant_id=?3)))",params![task.id,encode(&grant.scope.workspace_ids)?,grant.root_grant_id],|r|r.get(0)).map_err(db_error)?;
+    let active:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE d.state!='stopped' AND (a.root_task_id=?1 OR json_extract(a.binding,'$.workspace_id') IN (SELECT value FROM json_each(?2)) OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?3)))",params![task.id,encode(&grant.scope.workspace_ids)?,grant.root_grant_id],|r|r.get(0)).map_err(db_error)?;
     let command:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id IN (SELECT value FROM json_each(?1)))",[encode(&grant.scope.workspace_ids)?],|r|r.get(0)).map_err(db_error)?;
     if active || command {
         return Err(err("WORKSPACE_BUSY","Stop and reconcile all root/workspace intents and command read fences before reviewing Goal authority"));
     }
     Ok(())
 }
+fn unmapped_goal_history(db: &Connection, task_id: &str, grant_id: &str) -> Result<bool> {
+    db.query_row("SELECT EXISTS(SELECT 1 FROM goal_node_evidence e JOIN goal_scopes s ON s.id=e.scope_id WHERE s.root_grant_id=?1 OR s.task_id=?2) OR EXISTS(SELECT 1 FROM goal_external_action_journal WHERE root_grant_id=?1)",params![grant_id,task_id],|r|r.get(0)).map_err(db_error)
+}
 fn limits_fit(s: &GoalScopeSelection, grant: &ExecutionGrant) -> Result<()> {
-    if s.root_budget.attempts == 0
+    if !s.root_budget.narrower(&s.project_budget)
+        || s.root_budget.attempts == 0
         || s.project_budget.attempts == 0
         || s.root_budget.parallel == 0
         || s.project_budget.parallel == 0
@@ -446,13 +523,19 @@ fn resolve_validator(
     }
     let contract = match r.kind {
         GoalValidatorKind::Integrity => {
-            if p.snapshot["contract"] != policy["contract"] {
+            if policy["scope"] != "artifact_integrity_only"
+                || policy["contract"]["validator_id"] != "builtin.artifact-integrity.v1"
+                || p.snapshot["contract"] != policy["contract"]
+            {
                 return Err(changed());
             }
             policy["contract"].clone()
         }
         GoalValidatorKind::Data => {
-            if p.snapshot["file_contract"] != policy["file_contract"]
+            if policy["scope"] != "data_contract_only"
+                || policy["validator_id"] != agentbaton_workspaces::deterministic::VALIDATOR_ID
+                || p.snapshot["validator_id"] != policy["validator_id"]
+                || p.snapshot["file_contract"] != policy["file_contract"]
                 || p.snapshot["table"] != policy["table"]
                 || p.snapshot["contract_digest"] != policy["contract_digest"]
             {
@@ -461,7 +544,12 @@ fn resolve_validator(
             policy["file_contract"].clone()
         }
         GoalValidatorKind::Command => {
-            if p.snapshot["contract"] != policy["contract"]
+            if policy["scope"] != agentbaton_workspaces::command_validation::SCOPE
+                || policy["validator_id"] != agentbaton_workspaces::command_validation::VALIDATOR_ID
+                || policy["max_runs"] != 1
+                || p.snapshot["max_runs"] != policy["max_runs"]
+                || p.snapshot["refs"] != policy["refs"]
+                || p.snapshot["contract"] != policy["contract"]
                 || p.snapshot["contract_digest"] != policy["contract_digest"]
                 || p.snapshot["intent"] != policy["selection"]
             {
@@ -485,11 +573,35 @@ fn resolve_validator(
     {
         return Err(err("CAPABILITY_UNSUPPORTED","Selected validator does not approve this exact output/input version; no policy template or result authority was invented"));
     }
+    let (source_runs_started, source_run_states) = if r.kind == GoalValidatorKind::Command {
+        let count: u32 = db
+            .query_row(
+                "SELECT count(*) FROM command_validation_runs WHERE policy_id=?1",
+                [&r.policy_id],
+                |r| r.get(0),
+            )
+            .map_err(db_error)?;
+        let mut statement=db.prepare("SELECT state FROM command_validation_runs WHERE policy_id=?1 ORDER BY rowid LIMIT 2").map_err(db_error)?;
+        let states = statement
+            .query_map([&r.policy_id], |row| row.get::<_, String>(0))
+            .map_err(db_error)?
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .map_err(db_error)?;
+        let max = policy["max_runs"].as_u64().ok_or_else(changed)?;
+        if u64::from(count) >= max {
+            return Err(err("CAPABILITY_UNSUPPORTED","Selected one-shot command authorization is already used; review a fresh exact command policy. A stored definition or historical receipt never permits another run"));
+        }
+        (count, states)
+    } else {
+        (0, vec![])
+    };
     Ok(ResolvedValidator {
         reference: r.clone(),
         rule_id: format!("{tag}:{}", r.policy_id),
         digest: sha(&policy)?,
         definition: policy,
+        source_runs_started,
+        source_run_states,
     })
 }
 fn resolve_selection(db: &Connection, s: &GoalScopeSelection) -> Result<GoalRefs> {
@@ -533,6 +645,9 @@ fn resolve_selection(db: &Connection, s: &GoalScopeSelection) -> Result<GoalRefs
         return Err(err("CAPABILITY_UNSUPPORTED","Goal approval currently resolves one existing local root grant; arbitrary/remote or multi-connection authority is unsupported"));
     }
     no_writers(db, &task, &g)?;
+    if unmapped_goal_history(db, &task.id, &g.id)? {
+        return Err(err("WORKSPACE_BUSY","Retained Goal evidence/action history requires actual scheduler reconciliation; a new scope cannot reset it"));
+    }
     let grant = crate::policy::validate_grant_from(
         db,
         &g.id,
@@ -650,13 +765,72 @@ fn resolve_selection(db: &Connection, s: &GoalScopeSelection) -> Result<GoalRefs
     })
 }
 
+fn projected_grant(snapshot: &Value, which: &str) -> Result<ExecutionGrant> {
+    let diff = &snapshot[which];
+    if diff["immutable_ref"] != "resolved.grant_immutable" {
+        return Err(changed());
+    }
+    let mut full = snapshot["grant_immutable"].clone();
+    if full["id"] != diff["id"] {
+        return Err(changed());
+    }
+    full["revision"] = diff["revision"].clone();
+    full["scope"]["max_children"] = diff["scope"]["max_children"].clone();
+    full["scope"]["max_depth"] = diff["scope"]["max_depth"].clone();
+    serde_json::from_value(full).map_err(|_| changed())
+}
+/// Complete authorization projection, without repeating the same approved
+/// command selection/refs alongside its full immutable contract. The private
+/// resolved-record digest binds all original metadata as well.
+fn approval_refs(r: &GoalRefs) -> Result<Value> {
+    let mut view = json!(r);
+    let mut shared = json!(r.grant_before);
+    shared
+        .as_object_mut()
+        .ok_or_else(changed)?
+        .remove("revision");
+    shared["scope"]
+        .as_object_mut()
+        .ok_or_else(changed)?
+        .remove("max_children");
+    shared["scope"]
+        .as_object_mut()
+        .ok_or_else(changed)?
+        .remove("max_depth");
+    view["grant_immutable"] = shared;
+    view["grant_projection_format"] = json!("shared_immutable_with_revision_ceilings");
+    for (name, g) in [
+        ("grant_before", &r.grant_before),
+        ("grant_after", &r.grant_after),
+    ] {
+        view[name] = json!({"id":g.id,"revision":g.revision,"scope":{"max_children":g.scope.max_children,"max_depth":g.scope.max_depth},"immutable_ref":"resolved.grant_immutable"});
+    }
+    if projected_grant(&view, "grant_before")? != r.grant_before
+        || projected_grant(&view, "grant_after")? != r.grant_after
+    {
+        return Err(changed());
+    }
+    let connection_id = &r.grant_after.scope.connection_ids[0];
+    let c = &r.connection;
+    view["connection"] = json!({"id":connection_id,"name":c["name"],"provider":c["provider"],"protocol_route":c["protocol_route"],"executable":c["executable"],"arguments":c["arguments"],"identity_status":c["identity_status"],"config_status":c["config_status"],"probe_state":c["probe_state"],"immutable_binding_ref":format!("resolved.grant_immutable.connection_bindings.{connection_id}"),"record_sha256":sha(c)?,"configuration_changed":false});
+    view["workspace"] = json!({"id":r.workspace.id,"project_id":r.workspace.project_id,"root":r.workspace.root,"base_revision":r.workspace.base_revision,"state":r.workspace.state,"revision":r.workspace.revision,"identity_ref":format!("resolved.grant_immutable.workspace_bindings.{}",r.workspace.id)});
+    view["validators"]=Value::Array(r.validators.iter().map(|v| -> Result<Value> {
+        let d=&v.definition;
+        let contract=match v.reference.kind {GoalValidatorKind::Data=>json!({"file_contract":d["file_contract"],"table":d["table"]}),_=>d["contract"].clone()};
+        let full_contract_json=encode(&contract)?;
+        Ok(json!({"reference":v.reference,"rule_id":v.rule_id,"definition_digest":v.digest,"native_approval_id":d["approval_id"],"source_task_id":d["task_id"],"source_session_id":d["session_id"],"source_attempt_id":d["attempt_id"],"source_workspace_id":d["workspace_id"],"source_scope":d["scope"],"validator_id":d["validator_id"],"max_runs":d["max_runs"],"source_runs_started":v.source_runs_started,"source_run_states":v.source_run_states,"existing_command_authorization_reset":false,"approved_contract_json":full_contract_json,"task_acceptance":"not_established","historical_receipts_reused":false}))
+    }).collect::<Result<Vec<_>>>()?);
+    Ok(view)
+}
 fn host_policy(s: &GoalScopeSelection, r: &GoalRefs) -> Result<HostGoalPolicy> {
     if s.writable_prefixes.is_empty()
         || s.writable_prefixes.len() > 32
         || s.writable_prefixes.iter().any(|p| {
             p.len() > 4096
                 || p.is_empty()
-                || p.contains(['\\', '\0', '\n', '\r'])
+                || p.chars().any(char::is_control)
+                || p.contains('\\')
+                || p.split('/').any(|c| c.is_empty() || c == "." || c == "..")
                 || PathBuf::from(p)
                     .components()
                     .any(|c| !matches!(c, std::path::Component::Normal(_)))
@@ -859,10 +1033,10 @@ fn scope_view(record: &ScopeRecord, scope: &ApprovedGoalScope) -> Result<GoalSco
         planning_only: true,
     })
 }
-fn read_scope(db: &Connection, id: &str, live: bool) -> Result<(ScopeRecord, ApprovedGoalScope)> {
+fn read_scope(db: &Connection, id: &str) -> Result<(ScopeRecord, ApprovedGoalScope)> {
     key(id)?;
     let r: ScopeRecord = raw(db, "goal_scopes", id)?;
-    let columns: (u64, bool, String, String) = db
+    let columns: (i64, bool, String, String) = db
         .query_row(
             "SELECT revision,revoked,task_id,root_grant_id FROM goal_scopes WHERE id=?1",
             [id],
@@ -871,7 +1045,7 @@ fn read_scope(db: &Connection, id: &str, live: bool) -> Result<(ScopeRecord, App
         .map_err(db_error)?;
     if columns
         != (
-            r.revision,
+            sql_num(r.revision)?,
             r.revoked,
             r.refs.task_id.clone(),
             r.refs.grant_after.id.clone(),
@@ -884,7 +1058,8 @@ fn read_scope(db: &Connection, id: &str, live: bool) -> Result<(ScopeRecord, App
     }
     let (p, result) = native_confirmation(db, &r.approval_id, "goal")?;
     if p.snapshot["intent"] != json!(r.selection)
-        || p.snapshot["resolved"] != json!(r.refs)
+        || p.snapshot["resolved"] != approval_refs(&r.refs)?
+        || p.snapshot["resolved_digest"] != json!(sha(&r.refs)?)
         || result["id"] != id
         || result["scope_digest"] != r.scope_digest
     {
@@ -902,72 +1077,78 @@ fn read_scope(db: &Connection, id: &str, live: bool) -> Result<(ScopeRecord, App
     if original != r.refs.grant_after {
         return Err(changed());
     }
-    if live {
-        if r.revoked
-            || matches!(
-                task.state,
-                TaskState::Cancelled | TaskState::CancelRequested | TaskState::OutcomeUnknown
-            )
-        {
-            return Err(denied());
-        }
-        let latest: ExecutionGrant = raw(db, "execution_grants", &original.id)?;
-        if latest.revoked || latest.expires_at_ms <= ms()? {
-            return Err(denied());
-        }
-        grant_origin(db, &latest)?;
-        no_writers(db, &task, &latest)?;
-        // Later Goal approvals may increase ceilings; they cannot migrate this
-        // approval's inputs, identity, budget or historical binding revision.
-        let mut same = latest.clone();
-        same.revision = original.revision;
-        same.scope.max_children = original.scope.max_children;
-        same.scope.max_depth = original.scope.max_depth;
-        if same != original {
+    if r.revoked
+        || matches!(
+            task.state,
+            TaskState::Cancelled | TaskState::CancelRequested | TaskState::OutcomeUnknown
+        )
+    {
+        return Err(denied());
+    }
+    let latest: ExecutionGrant = raw(db, "execution_grants", &original.id)?;
+    if latest.revoked || latest.expires_at_ms <= ms()? {
+        return Err(denied());
+    }
+    grant_origin(db, &latest)?;
+    no_writers(db, &task, &latest)?;
+    if unmapped_goal_history(db, &task.id, &latest.id)? {
+        return Err(err("WORKSPACE_BUSY","Retained Goal evidence requires reconciliation before reading inputs or revising plans"));
+    }
+    // Later Goal approvals may increase ceilings; they cannot migrate this
+    // approval's inputs, identity, budget or historical binding revision.
+    let mut same = latest.clone();
+    same.revision = original.revision;
+    same.scope.max_children = original.scope.max_children;
+    same.scope.max_depth = original.scope.max_depth;
+    if same != original {
+        return Err(changed());
+    }
+    let project: Project = raw(db, "projects", &r.refs.project_id)?;
+    if project.archived || project.revision != r.refs.project_revision {
+        return Err(changed());
+    }
+    let workspace: ManagedWorkspace = raw(db, "managed_workspaces", &r.refs.workspace.id)?;
+    if encode(&workspace)? != encode(&r.refs.workspace)?
+        || workspace.state != "ready"
+        || !crate::policy::live_workspace_matches(
+            &workspace.root,
+            workspace.identity.as_ref().ok_or_else(changed)?,
+        )
+        .map_err(|_| changed())?
+    {
+        return Err(changed());
+    }
+    let current_input = agentbaton_workspaces::inspect(&workspace.root).map_err(|_| changed())?;
+    if !matches!(&current_input.kind,agentbaton_workspaces::WorkspaceKind::Git {head,dirty:false,..} if head==&workspace.base_revision)
+    {
+        return Err(changed());
+    }
+    let connection: Value = raw(db, "connections", &original.scope.connection_ids[0])?;
+    if connection != r.refs.connection {
+        return Err(changed());
+    }
+    for i in &r.refs.inputs {
+        let bytes = agentbaton_workspaces::read_artifact(
+            &workspace.root,
+            &i.artifact.relative_path,
+            i.artifact.max_bytes,
+        )
+        .map_err(|_| changed())?;
+        if agentbaton_workspaces::validation::sha256(&bytes) != i.sha256 {
             return Err(changed());
         }
-        let project: Project = raw(db, "projects", &r.refs.project_id)?;
-        if project.archived || project.revision != r.refs.project_revision {
-            return Err(changed());
-        }
-        let workspace: ManagedWorkspace = raw(db, "managed_workspaces", &r.refs.workspace.id)?;
-        if encode(&workspace)? != encode(&r.refs.workspace)?
-            || workspace.state != "ready"
-            || !crate::policy::live_workspace_matches(
-                &workspace.root,
-                workspace.identity.as_ref().ok_or_else(changed)?,
-            )
-            .map_err(|_| changed())?
-        {
-            return Err(changed());
-        }
-        let connection: Value = raw(db, "connections", &original.scope.connection_ids[0])?;
-        if connection != r.refs.connection {
-            return Err(changed());
-        }
-        for i in &r.refs.inputs {
-            let bytes = agentbaton_workspaces::read_artifact(
-                &workspace.root,
-                &i.artifact.relative_path,
-                i.artifact.max_bytes,
-            )
-            .map_err(|_| changed())?;
-            if agentbaton_workspaces::validation::sha256(&bytes) != i.sha256 {
+    }
+    for output in &r.selection.outputs {
+        for v in &output.validators {
+            let current =
+                resolve_validator(db, v, &r.refs.project_id, &workspace, &output.artifact)?;
+            if r.refs
+                .validators
+                .iter()
+                .find(|p| p.reference == *v)
+                .is_none_or(|old| old.digest != current.digest)
+            {
                 return Err(changed());
-            }
-        }
-        for output in &r.selection.outputs {
-            for v in &output.validators {
-                let current =
-                    resolve_validator(db, v, &r.refs.project_id, &workspace, &output.artifact)?;
-                if r.refs
-                    .validators
-                    .iter()
-                    .find(|p| p.reference == *v)
-                    .is_none_or(|old| old.digest != current.digest)
-                {
-                    return Err(changed());
-                }
             }
         }
     }
@@ -978,7 +1159,7 @@ fn read_scope(db: &Connection, id: &str, live: bool) -> Result<(ScopeRecord, App
     Ok((r, scope))
 }
 fn read_grant_revision(db: &Connection, id: &str, revision: u64) -> Result<ExecutionGrant> {
-    let doc:Option<String>=db.query_row("SELECT document FROM goal_grant_revisions WHERE grant_id=?1 AND revision=?2 AND octet_length(document)<=?3",params![id,revision,MAX_STORED_BYTES],|r|r.get(0)).optional().map_err(db_error)?;
+    let doc:Option<String>=db.query_row("SELECT document FROM goal_grant_revisions WHERE grant_id=?1 AND revision=?2 AND octet_length(document)<=?3",params![id,sql_num(revision)?,MAX_STORED_BYTES],|r|r.get(0)).optional().map_err(db_error)?;
     if let Some(doc) = doc {
         let g: ExecutionGrant = decode(&doc)?;
         if g.id != id || g.revision != revision {
@@ -998,15 +1179,17 @@ fn meter(
     limits: &BudgetLimits,
     consumed: u32,
 ) -> Result<MeterLedger> {
-    let old: Option<String> = db
+    let old: Option<Option<String>> = db
         .query_row(
-            "SELECT document FROM goal_ledgers WHERE scope=?1 AND octet_length(document)<=?2",
+            "SELECT CASE WHEN octet_length(document)<=?2 THEN document END FROM goal_ledgers WHERE scope=?1",
             params![scope, MAX_STORED_BYTES],
             |r| r.get(0),
         )
         .optional()
         .map_err(db_error)?;
     if let Some(old) = old {
+        // An over-limit existing row is not evidence of absence/zero history.
+        let old = old.ok_or_else(limited)?;
         let mut record: MeterLedger = decode(&old)?;
         if consumed < record.observed_attempts {
             return Err(changed());
@@ -1079,17 +1262,33 @@ impl Store {
         selection: &GoalScopeSelection,
         idempotency_key: &str,
     ) -> Result<ApprovalProposal> {
+        key(idempotency_key)?;
+        let cached =
+            idempotency_entry(&self.conn, "local:approvals.propose:goal", idempotency_key)?;
+        if let Some((_, raw)) = cached {
+            let proposal: ApprovalProposal = decode(&raw)?;
+            if proposal.kind != "goal" || proposal.snapshot["intent"] != json!(selection) {
+                return Err(err(
+                    "CONFIG_CONFLICT",
+                    "Goal proposal key already identifies another exact selection",
+                ));
+            }
+            // Returning the original proposal recovers a lost finalize response;
+            // it neither refreshes authority nor bypasses finalizer rechecks.
+            return Ok(proposal);
+        }
         let refs = resolve_selection(&self.conn, selection)?;
         let policy = host_policy(selection, &refs)?;
         // Display-only proposed data. No ApprovedGoalScope is constructed until
         // native Goal confirmation has entered the private finalizer below.
-        let snapshot = json!({"intent":selection,"resolved":refs,"goal_policy":policy,"scope":"goal_planning_and_bounded_delegation","execution":"preview_only_in_this_version","warning":"Separate Goal authorization: changes only the displayed root grant delegation ceilings after native confirmation. Exact connection/identity/config/host/workspace/recipients/enforcement and attempt/concurrency/duration ceilings remain unchanged. Existing shared consumed/active counters are retained. Approval defines OwnerGoalReview criteria; it does not mark any check passed, accept a Task, dispatch, call a model, integrate or release. Unknown historical meter data remains unknown. Existing attempts keep their original immutable grant revision."});
-        if serde_json::to_string_pretty(&snapshot)
+        let snapshot = json!({"intent":selection,"resolved":approval_refs(&refs)?,"resolved_digest":sha(&refs)?,"goal_policy":policy,"scope":"goal_planning_and_bounded_delegation","execution":"preview_only_in_this_version","warning":"Only displayed children/depth change; all other root-grant bindings/ceilings and shared counters remain fixed. Goal approval defines rules, never a passed result, Task acceptance, dispatch/model call, integration or release. A validator reference never renews a one-shot command permission or adopts a historical receipt. Attempts retain their grant revision; unknown meters remain unknown."});
+        let snapshot_bytes = serde_json::to_string_pretty(&snapshot)
             .map_err(|_| invalid())?
-            .len()
-            > 16_384
-        {
-            return Err(err("RESOURCE_LIMIT","Goal snapshot exceeds the complete native review bound; reduce selections, no approval was made"));
+            .len();
+        if snapshot_bytes > 16_384 {
+            let mut error=err("RESOURCE_LIMIT","Goal snapshot exceeds the complete native review bound; reduce selections, no approval was made");
+            error.details_ref = Some(format!("goal-snapshot-bytes:{snapshot_bytes}"));
+            return Err(error);
         }
         self.persist_proposal("goal", snapshot, idempotency_key)
     }
@@ -1122,7 +1321,8 @@ impl Store {
         let selection: GoalScopeSelection =
             serde_json::from_value(p.snapshot["intent"].clone()).map_err(|_| invalid())?;
         let refs = resolve_selection(&tx, &selection)?;
-        if p.snapshot["resolved"] != json!(refs)
+        if p.snapshot["resolved"] != approval_refs(&refs)?
+            || p.snapshot["resolved_digest"] != json!(sha(&refs)?)
             || p.snapshot["goal_policy"] != json!(host_policy(&selection, &refs)?)
         {
             return Err(changed());
@@ -1151,20 +1351,32 @@ impl Store {
         ] {
             remember_meter(&tx, &scope, limits, consumed)?;
         }
-        for (project, key_id, limits) in [
-            (true, refs.project_id.as_str(), &selection.project_budget),
-            (false, refs.task_id.as_str(), &selection.root_budget),
+        for (project, key_id, limits, consumed, active) in [
+            (
+                true,
+                refs.project_id.as_str(),
+                &selection.project_budget,
+                refs.project_consumed,
+                refs.project_active,
+            ),
+            (
+                false,
+                refs.task_id.as_str(),
+                &selection.root_budget,
+                refs.root_consumed,
+                refs.root_active,
+            ),
         ] {
-            tx.execute("INSERT OR IGNORE INTO budgets(scope,total_limit,parallel_limit,consumed,active) VALUES(?1,?2,?3,0,0)",params![format!("{}:{key_id}",if project {"project"} else {"root"}),limits.attempts,limits.parallel]).map_err(db_error)?;
+            reconcile_budget(&tx, id, project, key_id, limits, consumed, active)?;
         }
-        tx.execute("INSERT OR IGNORE INTO goal_grant_revisions(grant_id,revision,document,goal_approval_id) VALUES(?1,?2,?3,NULL)",params![refs.grant_before.id,refs.grant_before.revision,encode(&refs.grant_before)?]).map_err(db_error)?;
+        tx.execute("INSERT OR IGNORE INTO goal_grant_revisions(grant_id,revision,document,goal_approval_id) VALUES(?1,?2,?3,NULL)",params![refs.grant_before.id,sql_num(refs.grant_before.revision)?,encode(&refs.grant_before)?]).map_err(db_error)?;
         if read_grant_revision(&tx, &refs.grant_before.id, refs.grant_before.revision)?
             != refs.grant_before
         {
             return Err(changed());
         }
-        if tx.execute("UPDATE execution_grants SET document=?1 WHERE id=?2 AND json_extract(document,'$.revision')=?3 AND document=?4",params![encode(&refs.grant_after)?,refs.grant_before.id,refs.grant_before.revision,encode(&refs.grant_before)?]).map_err(db_error)?!=1 {return Err(err("STALE_REVISION","Root execution grant changed at Goal approval CAS"));}
-        tx.execute("INSERT INTO goal_grant_revisions(grant_id,revision,document,goal_approval_id) VALUES(?1,?2,?3,?4)",params![refs.grant_after.id,refs.grant_after.revision,encode(&refs.grant_after)?,id]).map_err(db_error)?;
+        if tx.execute("UPDATE execution_grants SET document=?1 WHERE id=?2 AND json_extract(document,'$.revision')=?3 AND document=?4",params![encode(&refs.grant_after)?,refs.grant_before.id,sql_num(refs.grant_before.revision)?,encode(&refs.grant_before)?]).map_err(db_error)?!=1 {return Err(err("STALE_REVISION","Root execution grant changed at Goal approval CAS"));}
+        tx.execute("INSERT INTO goal_grant_revisions(grant_id,revision,document,goal_approval_id) VALUES(?1,?2,?3,?4)",params![refs.grant_after.id,sql_num(refs.grant_after.revision)?,encode(&refs.grant_after)?,id]).map_err(db_error)?;
         let mut record = ScopeRecord {
             id: id.into(),
             revision: 1,
@@ -1267,7 +1479,7 @@ impl Store {
         if !r.revoked {
             r.revoked = true;
             r.revision = r.revision.checked_add(1).ok_or_else(limited)?;
-            if tx.execute("UPDATE goal_scopes SET revoked=1,revision=?1,document=?2 WHERE id=?3 AND revision=?4",params![r.revision,encode(&r)?,id,revision]).map_err(db_error)?!=1 {return Err(changed());}
+            if tx.execute("UPDATE goal_scopes SET revoked=1,revision=?1,document=?2 WHERE id=?3 AND revision=?4",params![sql_num(r.revision)?,encode(&r)?,id,sql_num(revision)?]).map_err(db_error)?!=1 {return Err(changed());}
             event(
                 &tx,
                 id,
@@ -1291,7 +1503,8 @@ fn stored_scope_view(db: &Connection, id: &str) -> Result<GoalScopeView> {
     let (p, result) = native_confirmation(db, &r.approval_id, "goal")?;
     if r.id != id
         || p.snapshot["intent"] != json!(r.selection)
-        || p.snapshot["resolved"] != json!(r.refs)
+        || p.snapshot["resolved"] != approval_refs(&r.refs)?
+        || p.snapshot["resolved_digest"] != json!(sha(&r.refs)?)
     {
         return Err(changed());
     }
@@ -1306,13 +1519,25 @@ fn stored_scope_view(db: &Connection, id: &str) -> Result<GoalScopeView> {
     view.revoked = r.revoked;
     Ok(view)
 }
+fn idempotency_entry(db: &Connection, scope: &str, key: &str) -> Result<Option<(String, String)>> {
+    // CASE bounds the bytes materialized by this statement and distinguishes a
+    // missing row from an existing over-limit payload/result without a second
+    // read that could observe a different record.
+    let old: Option<(Option<String>, Option<String>)> = db.query_row(
+        "SELECT CASE WHEN octet_length(payload)<=?3 THEN payload END, CASE WHEN octet_length(result)<=?3 THEN result END FROM idempotency WHERE scope=?1 AND key=?2",
+        params![scope, key, MAX_STORED_BYTES],
+        |r| Ok((r.get(0)?, r.get(1)?)),
+    ).optional().map_err(db_error)?;
+    old.map(|(payload, result)| Ok((payload.ok_or_else(limited)?, result.ok_or_else(limited)?)))
+        .transpose()
+}
 fn replay<T: for<'a> Deserialize<'a>>(
     db: &Connection,
     scope: &str,
     key: &str,
     payload: &str,
 ) -> Result<Option<T>> {
-    let old:Option<(String,String)>=db.query_row("SELECT payload,result FROM idempotency WHERE scope=?1 AND key=?2 AND octet_length(payload)<=?3 AND octet_length(result)<=?3",params![scope,key,MAX_STORED_BYTES],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
+    let old = idempotency_entry(db, scope, key)?;
     if let Some((p, v)) = old {
         if p != payload {
             return Err(err(
@@ -1345,7 +1570,7 @@ fn current_plan(
     scope_id: &str,
     scope: &ApprovedGoalScope,
 ) -> Result<(ValidatedPlan, GoalPlanView)> {
-    let (plan_id, head, head_digest): (String, u64, String) = db
+    let (plan_id, head, head_digest): (String, i64, String) = db
         .query_row(
             "SELECT plan_id,revision,digest FROM goal_plan_heads WHERE scope_id=?1",
             [scope_id],
@@ -1354,6 +1579,7 @@ fn current_plan(
         .optional()
         .map_err(db_error)?
         .ok_or_else(|| err("NOT_FOUND", "Goal has no persisted plan"))?;
+    let head = u64::try_from(head).map_err(|_| changed())?;
     let count: i64 = db
         .query_row(
             "SELECT count(*) FROM goal_plan_revisions WHERE scope_id=?1",
@@ -1375,7 +1601,8 @@ fn current_plan(
         if !(0..=MAX_GOAL_PLAN_BYTES as i64).contains(&bytes) {
             return Err(limited());
         }
-        let revision: u64 = row.get(0).map_err(db_error)?;
+        let revision =
+            u64::try_from(row.get::<_, i64>(0).map_err(db_error)?).map_err(|_| changed())?;
         let previous: Option<String> = row.get(1).map_err(db_error)?;
         let digest: String = row.get(2).map_err(db_error)?;
         let document: String = row.get(3).map_err(db_error)?;
@@ -1412,16 +1639,46 @@ fn current_plan(
     Ok((validated.ok_or_else(changed)?, view))
 }
 impl Store {
+    pub fn submit_goal_plan_json(
+        &mut self,
+        submission: &GoalPlanRawSubmission,
+        key_id: &str,
+        revision: u64,
+    ) -> Result<GoalPlanView> {
+        if submission.plan_json.len() > MAX_GOAL_PLAN_BYTES {
+            return Err(limited());
+        }
+        let proposal: GoalPlanProposal =
+            serde_json::from_str(&submission.plan_json).map_err(|_| invalid())?;
+        let typed = GoalPlanSubmission {
+            scope_id: submission.scope_id.clone(),
+            proposal,
+        };
+        self.submit_goal_plan_payload(&typed, key_id, revision, encode(submission)?)
+    }
+    /// Trusted Core typed convenience path. Renderer/Agent IPC always uses the
+    /// raw-string path above; its idempotency binds the original plan text.
     pub fn submit_goal_plan(
         &mut self,
         submission: &GoalPlanSubmission,
         key_id: &str,
         revision: u64,
     ) -> Result<GoalPlanView> {
+        self.submit_goal_plan_payload(submission, key_id, revision, encode(submission)?)
+    }
+    fn submit_goal_plan_payload(
+        &mut self,
+        submission: &GoalPlanSubmission,
+        key_id: &str,
+        revision: u64,
+        payload: String,
+    ) -> Result<GoalPlanView> {
         key(key_id)?;
         key(&submission.scope_id)?;
-        let payload = encode(submission)?;
-        if payload.len() > MAX_GOAL_PLAN_BYTES || submission.proposal.nodes.len() > 256 {
+        if encode(&submission.proposal)?.len() > MAX_GOAL_PLAN_BYTES
+            || payload.len() > MAX_STORED_BYTES as usize
+            || submission.proposal.nodes.len() > 256
+        {
             return Err(limited());
         }
         if revision != submission.proposal.expected_revision {
@@ -1434,11 +1691,13 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        let (_, scope) = read_scope(&tx, &submission.scope_id, true)?;
         let idem = format!("goal:{}:plan", submission.scope_id);
         if let Some(view) = replay(&tx, &idem, key_id, &payload)? {
+            // Recover an already committed immutable proposal even if later
+            // authority is revoked. This data is never a new ready/dispatch grant.
             return Ok(view);
         }
+        let (_, scope) = read_scope(&tx, &submission.scope_id)?;
         let exists: bool = tx
             .query_row(
                 "SELECT EXISTS(SELECT 1 FROM goal_plan_heads WHERE scope_id=?1)",
@@ -1468,7 +1727,7 @@ impl Store {
             dispatched: false,
         };
         if let Some(old) = &previous {
-            if tx.execute("UPDATE goal_plan_heads SET revision=?1,digest=?2 WHERE scope_id=?3 AND plan_id=?4 AND revision=?5 AND digest=?6",params![view.proposal.revision,view.digest,view.scope_id,view.proposal.plan_id,revision,old.digest()]).map_err(db_error)?!=1 {return Err(err("STALE_REVISION","Plan head changed at atomic compare-and-swap"));}
+            if tx.execute("UPDATE goal_plan_heads SET revision=?1,digest=?2 WHERE scope_id=?3 AND plan_id=?4 AND revision=?5 AND digest=?6",params![sql_num(view.proposal.revision)?,view.digest,view.scope_id,view.proposal.plan_id,sql_num(revision)?,old.digest()]).map_err(db_error)?!=1 {return Err(err("STALE_REVISION","Plan head changed at atomic compare-and-swap"));}
         } else {
             if revision != 0 {
                 return Err(err(
@@ -1481,14 +1740,14 @@ impl Store {
                 params![
                     view.scope_id,
                     view.proposal.plan_id,
-                    view.proposal.revision,
+                    sql_num(view.proposal.revision)?,
                     view.digest
                 ],
             )
             .map_err(db_error)?;
         }
-        tx.execute("INSERT INTO goal_plan_proposals(id,scope_id,plan_id,revision,document,digest) VALUES(?1,?2,?3,?4,?5,?6)",params![Uuid::new_v4().to_string(),view.scope_id,view.proposal.plan_id,view.proposal.revision,payload,view.digest]).map_err(db_error)?;
-        tx.execute("INSERT INTO goal_plan_revisions(scope_id,plan_id,revision,previous_digest,digest,document,created_at) VALUES(?1,?2,?3,?4,?5,?6,?7)",params![view.scope_id,view.proposal.plan_id,view.proposal.revision,previous.as_ref().map(|p|p.digest()),view.digest,encode(&view.proposal)?,view.created_at]).map_err(db_error)?;
+        tx.execute("INSERT INTO goal_plan_proposals(id,scope_id,plan_id,revision,document,digest) VALUES(?1,?2,?3,?4,?5,?6)",params![Uuid::new_v4().to_string(),view.scope_id,view.proposal.plan_id,sql_num(view.proposal.revision)?,payload,view.digest]).map_err(db_error)?;
+        tx.execute("INSERT INTO goal_plan_revisions(scope_id,plan_id,revision,previous_digest,digest,document,created_at) VALUES(?1,?2,?3,?4,?5,?6,?7)",params![view.scope_id,view.proposal.plan_id,sql_num(view.proposal.revision)?,previous.as_ref().map(|p|p.digest()),view.digest,encode(&view.proposal)?,view.created_at]).map_err(db_error)?;
         event(
             &tx,
             &view.proposal.plan_id,
@@ -1501,11 +1760,11 @@ impl Store {
         Ok(view)
     }
     pub fn get_goal_plan(&self, scope_id: &str) -> Result<GoalPlanView> {
-        let (_, scope) = read_scope(&self.conn, scope_id, true)?;
+        let (_, scope) = read_scope(&self.conn, scope_id)?;
         Ok(current_plan(&self.conn, scope_id, &scope)?.1)
     }
     pub fn list_goal_plan_revisions(&self, scope_id: &str) -> Result<Vec<GoalPlanView>> {
-        let (_, scope) = read_scope(&self.conn, scope_id, true)?;
+        let (_, scope) = read_scope(&self.conn, scope_id)?;
         current_plan(&self.conn, scope_id, &scope)?;
         let mut q=self.conn.prepare("SELECT document,digest,created_at FROM goal_plan_revisions WHERE scope_id=?1 AND octet_length(document)<=?2 ORDER BY revision LIMIT 256").map_err(db_error)?;
         let rows = q
@@ -1539,7 +1798,12 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Deferred)
             .map_err(db_error)?;
-        let (record, scope) = read_scope(&tx, scope_id, true)?;
+        let retained: ScopeRecord = raw(&tx, "goal_scopes", scope_id)?;
+        stored_scope_view(&tx, scope_id)?;
+        if unmapped_goal_history(&tx, &retained.refs.task_id, &retained.refs.grant_after.id)? {
+            return blocked_history_preview(&tx, &retained, expected_revision);
+        }
+        let (record, scope) = read_scope(&tx, scope_id)?;
         let (plan, view) = current_plan(&tx, scope_id, &scope)?;
         if view.proposal.revision != expected_revision {
             return Err(err(
@@ -1547,23 +1811,12 @@ impl Store {
                 "Ready preview requested for an old plan revision",
             ));
         }
-        let sequence: u64 = tx
+        let sequence: i64 = tx
             .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| {
                 r.get(0)
             })
             .map_err(db_error)?;
-        let mut result = GoalReadyPreview {
-            scope_id: scope_id.into(),
-            plan_id: view.proposal.plan_id,
-            plan_revision: expected_revision,
-            journal_sequence: sequence,
-            read_only: true,
-            reservation_made: false,
-            dispatched: false,
-            unknown_dimensions: vec![],
-            blocked_reasons: vec![],
-            decision: None,
-        };
+        let sequence = u64::try_from(sequence).map_err(|_| changed())?;
         let task: Task = raw(&tx, "tasks", &record.refs.task_id)?;
         let (pc, pa, rc, ra) = counts(&tx, &task, &record.refs.grant_after)?;
         let pm = meter(
@@ -1578,6 +1831,33 @@ impl Store {
             &record.selection.root_budget,
             rc,
         )?;
+        let root_children:u32=tx.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND json_extract(document,'$.root_grant_id')=?1",[&record.refs.grant_after.id],|r|r.get(0)).map_err(db_error)?;
+        let project_children:u32=tx.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND project_id=?1",[&record.refs.project_id],|r|r.get(0)).map_err(db_error)?;
+        let usage_view = |m: &MeterLedger, attempts, active, children| GoalBudgetUsageView {
+            attempts,
+            active,
+            children,
+            runtime_ms: m.runtime_ms,
+            output_bytes: m.output_bytes,
+            tokens: m.tokens,
+            cost_microunits: m.cost_microunits,
+        };
+        let mut result = GoalReadyPreview {
+            scope_id: scope_id.into(),
+            plan_id: view.proposal.plan_id,
+            plan_revision: expected_revision,
+            journal_sequence: sequence,
+            read_only: true,
+            reservation_made: false,
+            dispatched: false,
+            unknown_dimensions: vec![],
+            blocked_reasons: vec![],
+            decision: None,
+            budget_usage: GoalBudgetUsage {
+                root: usage_view(&rm, rc, ra, root_children),
+                project: usage_view(&pm, pc, pa, project_children),
+            },
+        };
         for (name, m) in [("project", &pm), ("root", &rm)] {
             if m.runtime_ms.is_none() {
                 result.unknown_dimensions.push(format!("{name}.runtime_ms"));
@@ -1707,4 +1987,104 @@ impl Store {
         result.decision = Some(decide_ready(&plan, &trusted).map_err(plan_error)?);
         Ok(result)
     }
+}
+
+fn blocked_history_preview(
+    db: &Connection,
+    record: &ScopeRecord,
+    expected: u64,
+) -> Result<GoalReadyPreview> {
+    let task: Task = raw(db, "tasks", &record.refs.task_id)?;
+    let grant: ExecutionGrant = raw(db, "execution_grants", &record.refs.grant_after.id)?;
+    if record.revoked
+        || grant.revoked
+        || grant.expires_at_ms <= ms()?
+        || matches!(
+            task.state,
+            TaskState::Cancelled | TaskState::CancelRequested | TaskState::OutcomeUnknown
+        )
+    {
+        return Err(denied());
+    }
+    let (plan_id, revision): (String, i64) = db
+        .query_row(
+            "SELECT plan_id,revision FROM goal_plan_heads WHERE scope_id=?1",
+            [&record.id],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .optional()
+        .map_err(db_error)?
+        .ok_or_else(|| err("NOT_FOUND", "Goal has no persisted plan"))?;
+    if u64::try_from(revision).ok() != Some(expected) {
+        return Err(err(
+            "STALE_REVISION",
+            "Ready preview requested for an old plan revision",
+        ));
+    }
+    let sequence: i64 = db
+        .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| {
+            r.get(0)
+        })
+        .map_err(db_error)?;
+    let (pc, pa, rc, ra) = counts(db, &task, &grant)?;
+    let pm = meter(
+        db,
+        &format!("project:{}", task.project_id),
+        &record.selection.project_budget,
+        pc,
+    )?;
+    let rm = meter(
+        db,
+        &format!("root-grant:{}", grant.id),
+        &record.selection.root_budget,
+        rc,
+    )?;
+    let root_children=db.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND json_extract(document,'$.root_grant_id')=?1",[&grant.id],|r|r.get(0)).map_err(db_error)?;
+    let project_children = db
+        .query_row(
+            "SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND project_id=?1",
+            [&task.project_id],
+            |r| r.get(0),
+        )
+        .map_err(db_error)?;
+    let view = |m: &MeterLedger, attempts, active, children| GoalBudgetUsageView {
+        attempts,
+        active,
+        children,
+        runtime_ms: m.runtime_ms,
+        output_bytes: m.output_bytes,
+        tokens: m.tokens,
+        cost_microunits: m.cost_microunits,
+    };
+    let mut unknown_dimensions = vec![];
+    for (n, m) in [("root", &rm), ("project", &pm)] {
+        for (d, value) in [
+            ("runtime_ms", m.runtime_ms),
+            ("output_bytes", m.output_bytes),
+            ("tokens", m.tokens),
+            ("cost_microunits", m.cost_microunits),
+        ] {
+            if value.is_none() {
+                unknown_dimensions.push(format!("{n}.{d}"));
+            }
+        }
+    }
+    Ok(GoalReadyPreview {
+        scope_id: record.id.clone(),
+        plan_id,
+        plan_revision: expected,
+        journal_sequence: u64::try_from(sequence).map_err(|_| changed())?,
+        read_only: true,
+        reservation_made: false,
+        dispatched: false,
+        unknown_dimensions,
+        blocked_reasons: vec![
+            "goal_dispatch_evidence_requires_scheduler_reconciliation_not_json_adoption".into(),
+        ],
+        decision: None,
+        budget_usage: GoalBudgetUsage {
+            root: view(&rm, rc, ra, root_children),
+            project: view(&pm, pc, pa, project_children),
+        },
+    })
 }
