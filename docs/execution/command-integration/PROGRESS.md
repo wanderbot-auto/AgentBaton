@@ -30,3 +30,8 @@ Actual full369uniqueRust+4compilefaildocs/Clippy/fmt PASS (raw374 includes exist
 ## PR7ba failure and independently checked correction
 
 Actual Product40446762573 at56ff4227 passed Rust/UI/ARM but failed Intel short-lived grant fixture13/14. Environment40446762718 all3 passed. Intel GUI/build/audit/package were skipped; failure/API/raw SHA retained in CI_7BA_FAILURE.json. Production expiry correctly rejected expired admission. Correctionb1438a9 (locald575f7d) retains1000ms/3s and all original outcomes, moves preparation before approval, adds explicit expired/no-effect and actual generated-process startup/reap controls. Independent old executable EXPECTEDFAIL101; new14/Clippy/fmt PASS. New-head all7 and independent dual Mac/DMGs still required; no merge yet.
+
+
+## Second exact candidate failure and resource-isolation experiment
+
+201f Product40450221736/actual76d7503e failed Intel12/14, despite successful3Environment/Rust/UI: freshTTL992/request0 but sessions.create1232ms expired1000; second revoke round startup-marker1sec failed at1177, not2sec thread cleanup (firsttask_cancel fully passed). Raw failure/APIs/precisephases in CI_201F_FAILURE.json. The prior ordering repair alone did not prove Mac closure. Only the Mac Core/native step now setsRUST_TEST_THREADS=1 to avoid independentfixture contention; allcase inventory, internal realconcurrency, production, testlimits/job30min/Env untouched. Independent static review accepts the experiment. LinuxGoal9 frozen same-test/schema9 serial14 passed28.75s/admission227ms, explicitly notCore8 orMac proof. Need fresh exact dualMac/all7/native/DMG acceptance, no unchanged retry or inference of cause.

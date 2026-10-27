@@ -1068,5 +1068,13 @@
     "review": "docs/execution/command-ci-fixture/REVIEW.md",
     "new_exact_ci": "pending; no inherited Mac acceptance",
     "review_sha256": "faeb93addbf230c4ad4b1542d7eecc84c92cdd481a6b3a605df91b0c2c277750"
+  },
+  "pr_201f_failure": "docs/execution/command-integration/CI_201F_FAILURE.json",
+  "mac_fixture_resource_isolation": {
+    "change": "Mac Core/native step RUST_TEST_THREADS=1 only",
+    "case_timeouts_checks_production": "unchanged",
+    "independent_review": "docs/execution/command-integration/NATIVE_201F_REVIEW.md",
+    "new_exact_mac_ci": "pending; hypothesis not established rootcause",
+    "mac_cross_fixture_parallel_stress": "not_verified; explicit intra-test concurrency and Linuxparallel retained"
   }
 }

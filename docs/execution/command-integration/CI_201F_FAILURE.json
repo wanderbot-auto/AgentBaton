@@ -1,0 +1,128 @@
+{
+  "head": "201fba91597d475d4ecce0c64f15106e17382d27",
+  "actual_checkout": "76d7503e1b834bca70a5abbb397efd25c5a796f7",
+  "product_run": 40450221736,
+  "product_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40450221736",
+  "product_status": "in_progress",
+  "product_conclusion": null,
+  "jobs": [
+    {
+      "id": 122010945047,
+      "name": "Product / macos-15-intel",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 122010945186,
+      "name": "Product / Rust",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 122010945218,
+      "name": "Product / UI",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 122010945256,
+      "name": "Product / macos-15",
+      "status": "in_progress",
+      "conclusion": null
+    }
+  ],
+  "failed_intel_job": {
+    "id": 122010945047,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40450221736/job/122010945047",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "conclusion": "success"
+      },
+      {
+        "name": "Toolchain",
+        "conclusion": "success"
+      },
+      {
+        "name": "Frontend dependencies and validation",
+        "conclusion": "success"
+      },
+      {
+        "name": "Core and native host tests",
+        "conclusion": "failure"
+      },
+      {
+        "name": "Actual macOS WebView and daemon lifecycle acceptance",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build desktop UI and application",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Audit the actual default release application for test controls",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Package development application and evidence",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "raw_log": "/workspace/.onboarding/command-201f-intel-job-122010945047.log",
+  "raw_log_sha256": "d8db5e19561f2af8c2b82df36eda538b8614dac49944efbde62d3e4847fbfa6d",
+  "actual_command_suite": {
+    "passed": 12,
+    "failed": 2,
+    "elapsed_seconds": 49.09,
+    "failures": [
+      "actual_reaped_failed_acp_lifecycle: freshTTL992ms/request0, sessions.create1232ms exceeds1000 grant; TaskCancelled instead of requiredOutcomeUnknown",
+      "committed_revoke/task_cancel: first task_cancel operation fully joined/validated/printed CONTROL; second revoke operation did not create startup marker within1second atline1177; NOT2second cleanup timeout"
+    ]
+  },
+  "downstream_intel": "nativeGUI/11host/6harness/releaseaudit/DMG not reached",
+  "resource_hypothesis": "independent realGit/SQLite/process fixtures may contend under default libtest parallelism; exact uninstrumented host resource cause not established",
+  "next_change": "only Mac Core/native test step RUST_TEST_THREADS=1; preserve all tests/intra-test concurrency/production/per-test limits/jobtimeout30min/Env checks; fresh exactCI required",
+  "local_serial_control": {
+    "source": "6c023f0",
+    "backend_schema": 9,
+    "distinction": "Linux combined Goal9 context, not201fCore8 orMac proof",
+    "core_test_file": "b143 semantics with only exactschema8 to9 sanity update",
+    "binary_sha256": "5927099a0a76edc4dd6913374e7e503e685b35e87b11c9e193b0d3acddf7bb57",
+    "tests": 14,
+    "elapsed_seconds": 28.75,
+    "fresh_ttl_ms": 999,
+    "return_to_request_ms": 0,
+    "admission_ms": 227,
+    "log_sha256": "8a73945dbea15c8dbc95f24a4939d64350e94bea2ca81de2d12d438ebe6f52ee"
+  },
+  "merged": false
+}

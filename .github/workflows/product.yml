@@ -110,6 +110,10 @@ jobs:
           npm test
           npm run build
       - name: Core and native host tests
+        env:
+          # Each fixture owns real Git/SQLite/process work. Keep the original
+          # per-test deadlines while avoiding unrelated fixture contention.
+          RUST_TEST_THREADS: '1'
         run: |
           set -euo pipefail
           cargo test --workspace --locked
