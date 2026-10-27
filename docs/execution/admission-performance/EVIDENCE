@@ -1,0 +1,44 @@
+# Evidence — source cb82ac6, local verification passed, independent/Mac pending
+
+Failure source ada4c81213fcd3e9fed80c86cd33581415b12890, schema8. Actual ARM log /workspace/.onboarding/command-ada4-arm-job-122014868483.log SHA86134be1b6f736a84a0eae3ac194abafc46de4efbb40196cf953a36e673ff4a6: Rust tests serial1 is active; fresh grant TTL999ms/request0; sessions.create1331ms; actual TaskCancelled differs required OutcomeUnknown. Suite13passed/1failed/128.12s. This does not identify which native phase used the time. Existing lifecycle1000ms, protocol/cleanup bounds and state assertions remain unchanged.
+
+Old actual Linux profile uses a generated local Python ACP fixture (only --version and initialize/session-new, no model/network/account), public Core Store/Supervisor and real Git/worktree/SQLite. Diagnostic phase marker environment is read only in the integration-test executable, never the production library. Transparent private shell wrapper logs args and execs the original /usr/local/bin/git; it supplies no fake command output or sleep. Timing includes its instrumentation overhead and does not prove actual macOS latency.
+
+Command: cargo test --locked -p agentbaton-core --test admission_performance --offline -- --nocapture --test-threads=1. Old workspace source SHAe396e03e5fbdf99ee4ffa2016240c1771da2892977651340cef2b4f3afdd45a5. Actual pass1, diagnostic microseconds: readonly104948/reservation105937/drifted_launch105229/launch107866. Git10 calls each. Raw /tmp/ab-admission-old-profile/run.log SHA438405271a4ff1f801e45958ee7fcfa5bc31a7ac0fa976969cb58fa9b16c8a3b; git-calls.tsv SHA6d8e6d664614549ad914664467bca017359749ebb952de11bb74d80802d94f26. First fixture initialization-stage assertion failure remains run-first-fixture-failure.log; corrected generated fixture now really handshakes before malformed session/new. No production fix was made to accommodate it.
+
+No new implementation test, macOS profile or performance improvement has passed yet. Source/actual counters/unsafe matrix/lint results must be recorded before final freeze. Current Cargo target is exclusively held by Core under explicit handoff; no concurrent author writer.
+
+## Actual new-source local comparison
+
+Same integration-test command and transparent delegated /usr/local/bin/git: new passes1; readonly53543us/reservation57845us/drifted_launch53088us/launch58947us versus old104948/105937/105229/107866us. Each named phase has exactly5 actual Git executions versus10 in the old profile. This diagnoses fixed subprocess/polling overhead on Linux and proves work was removed, not that all1.3s on macOS had that cause. Single instrumented observations include shell logger overhead; no latency distribution or deadline guarantee inferred. Old profile includes full original source and exact test snapshot. New logs/source hashes are finalized below after full validation.
+
+Core+workspaces actual suite passed, including unchanged14 command lifecycle cases/1000ms and expired negative, all existing unsafe repository/hidden-index/adoption/linkage scenarios, new config multiline-value/boolean duplicate/path-newline/filename tests and real bounded process tests. Exact15-second owned command timeout completed in15.01s and its actual PID was reaped; each4MiB stream cap and oversized config reject. Current complete workspace/lints remain running, no final freeze claim yet.
+
+## Authored exact-source verification — cb82ac6
+
+Source cb82ac6d1f8072e0b2fc18a90e7e13572fb6d8bb on exact ada4 schema8. Production changes only crates/workspaces/src/lib.rs; existing safety tests were extended, never removed, and one new Core admission regression/profile test was added. Core sessions/policy/registry/IPC, lockfiles, workflow/gate and original1000/1/2/3-second/state assertions are unchanged. No cross-request/transaction cache or new host authority is introduced.
+
+The optional AGENTBATON_TEST_ADMISSION_PROFILE phase marker is confined to the new integration-test executable. Production release code reads no such flag and contains no profiler control server or special admission path. The profile wrapper delegates real commands with original args to original Git and never fabricates output. Lower command counts arise from actual same-inspection batching; both reservation and launch still invoke independent full inspections. A mutation between them is rejected before any fixture process starts. Restored exact bytes allow the single reserved attempt to launch the real generated malformed-ACP child, which is reaped and leaves TaskOutcomeUnknown, no acceptance.
+
+Commands (CARGO_HOME=/workspace/.toolchains/cargo; RUSTUP_HOME=/workspace/.toolchains/rustup; PATH contains toolchain; CARGO_TARGET_DIR=/workspace/.worktrees/validation-integration/target; CARGO_INCREMENTAL=0; CARGO_BUILD_JOBS=2):
+
+- cargo test --locked -p agentbaton-core --test admission_performance --offline -- --nocapture --test-threads=1: old baseline and new source each passed1 using the same test and original Git logger.
+- cargo test --locked -p agentbaton-workspaces -p agentbaton-core --offline: PASS all affected libraries, original command14 and new safety/bounds cases,4 compilefail docs. Log /tmp/admission-performance-libraries-first.log.
+- cargo test --workspace --locked --offline: PASS377 unique top-level tests plus4 compilefail doc tests. Raw382 reports include one preexisting FIFO child counted again; not new coverage.
+- cargo clippy --workspace --all-targets --locked --offline -- -D warnings: PASS.
+- cargo fmt --all -- --check; git diff --check: PASS.
+
+Safety evidence includes all prior include/conditional-future-include, partial/promisor/lazy-fetch, filter/hook/fsmonitor, assume-unchanged/skip-worktree/sparse/gitlink, tracked/head drift, path and validation/adoption tests. New cases prove multiline config values cannot become keys; sparse values/duplicate last-value semantics still use Git's actual boolean parser; inert filenames containing mode-like text/tab/LF are not gitlinks but hidden flags still reject; real source/linked paths with LF preserve exact identity using fallback; raw config beyond4MiB returns ResourceLimit with bytes unchanged. Actual stdout and stderr each exceed4MiB and fail. Static shell writes its real PID then execs sleep30; unchanged15-second command bound kills/reaps that owned PID (ESRCH afterward). No unrelated process is targeted and no original capture/deadline is weakened.
+
+| Frozen file/log | SHA-256 |
+| --- | --- |
+| crates/workspaces/src/lib.rs | 2065213a1eb32be1e2a953adb0c5f0435d55987b4f8d0b40885797f5d11eb6e6 |
+| crates/workspaces/tests/safety.rs | cc5fe6204309fc5a7a678e38830f63e24f30efc1a91faa449ffad6c82afa9b59 |
+| crates/core/tests/admission_performance.rs | 4e1e1427c28cd8ae3b8305bb81a5ca87f8c3dfa225f4ce5539c040713a232c04 |
+| /tmp/ab-admission-new-profile/run.log | 7d283df544268b7b6a42752df37e3bb842b7e00bf6eff07bdb225fb4ed0ad916 |
+| /tmp/ab-admission-new-profile/git-calls.tsv | 47f4f059ca8dd9813a8719c6b34b278bb22cdeb12334a574770b59b5224d459e |
+| /tmp/admission-performance-workspace-final.log | 3085d9c7e7d48ab527dcff7b860ebb0de555a5312a1a6c0a7be5fc7e5d573a62 |
+| /tmp/admission-performance-clippy-final.log | e9cdc623bea25b8445ef7a78d982a2b2066abd583751956b9d8232285f65a419 |
+| /tmp/admission-performance-fmt-final.log | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
+
+Independent safety review and actual fresh ARM/Intel macOS evidence are pending, not inferred from Linux. Primary may run the test-only admission profile with --nocapture in real Mac CI to expose phase times; normal successful cargo output is captured. No author workflow/CI retry/push or claim PR12 repaired remotely. Source is frozen and shared Cargo was formally released to primary for review scheduling; this author has no writer and only completes own metadata.

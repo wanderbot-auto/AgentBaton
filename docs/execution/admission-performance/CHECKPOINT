@@ -1,0 +1,11 @@
+# Checkpoint
+
+Current source freeze cb82ac6d1f8072e0b2fc18a90e7e13572fb6d8bb, branch codex/admission-performance, /workspace/.worktrees/admission-performance. Exact schema8 base ada4c81213fcd3e9fed80c86cd33581415b12890. Source9 Goal worktrees/reviews and root unknown review preserved. OWNER-001/002 ACK/main66061439 gate read; no permission expansion.
+
+Production changes only workspace lib: same-inspection hardened no-includes config audit, unambiguous rev-parse batch with LF-path fallback, combined index flags/modes. Git's actual sparse bool query remains. Both independent reservation and launch inspections are intact; no cross-request snapshot cache, no durability/permission/expiry/capture/time limit change. Core sessions/policy/registry/IPC/locks/workflows/gate and original test thresholds/states untouched. New Core test is test-only instrumentation and real post-reservation-drift/no-start behavior plus actual generated protocol failure/reap.
+
+Actual old/new Linux profile:10→5 Git per phase, reservation105937→57845us/launch107866→58947us. Single instrumented observations, not Mac proof or latency percentile. Actual affected libs and complete workspace377 unique+4 docs/alltarget Clippy/fmt/diff passed. Old first generated fixture failed too early at initialize; log retained, fixture corrected to initialize then malformed session/new, no product workaround. All source/log hashes in EVIDENCE, all oldMac failure and profile bundles preserved.
+
+Target /workspace/.worktrees/validation-integration/target formally released to primary for independent review scheduling; no author writer. CARGOINC0/JOBS2; no new target/dependency/lock/cache deletion. Core previously borrowed15-second Data-only window and returned it explicitly. Author now edits only own4docs/ADR.
+
+Next: independent security review exact cb82ac6, resolve concrete findings, then primary integrates/rebuilds and runs actual Mac admission profile/unchanged1s lifecycle plus required checks. No author CI retry/push. Do not claim PR12 remotely green or1.3s macOS cause proved from Linux. Other full Goal/product work continues separately.

@@ -1,0 +1,7 @@
+# Admission inspection performance repair
+
+AB-START-001 / Design v0.2. Isolated codex/admission-performance at /workspace/.worktrees/admission-performance, exact failing schema8 baseline ada4c81213fcd3e9fed80c86cd33581415b12890. Main66061439 OWNER-001/002 and gate read/ACK. Preserve unknown root changes and all Goal records. No Provider/model/account, extra fees, production, signing, pushes or CI retries by this author.
+
+Actual PR12 Product40451447529 ARM job122014868483 failed the unchanged1000ms lifecycle: fresh TTL999ms/request0, sessions.create1331ms, cancelled instead of outcome_unknown. Static call graph and actual local baseline precede any optimization. Authorize only same-inspection read batching, no cross-request/transaction snapshot cache, no deleted reservation/final launch guard or weaker native configuration/executable/grant/path/budget checks. Primary approved workspace lib/tests scope expansion; Core production need not change if batching is sufficient.
+
+Sequence: profile real Store/Supervisor boundaries with test-only transparent Git delegation; batch readonly config/revision/index queries without executing repository code; retain sparse boolean interpretation in actual Git; run full unsafe repository/hidden index/linkage/dirty/head/output/timeout regressions, original Core lifecycle/expiry cases, complete workspace/Core and independent review; freeze exact source for later actual macOS performance evidence. Linux timing is not Mac proof, and no original1000/1/2/3-second threshold or state assertion changes.
