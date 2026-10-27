@@ -1,0 +1,87 @@
+# Evidence
+
+Baseline 2640e6c9af2568c2731019cab9d16423fd45ceae; isolated codex/goal-plan-contracts. Protected-main authorization snapshot read: afb52be241f7c4cef261f99c04f56caf21f12083. ACK OWNER-001/002: full Design v0.2 continues; this delegated unit only implements the product contract/algorithm layer and leaves the specified private identity, spend, signing and production boundaries closed. Read AGENTS.md, execution gate/approval, Goal/runbook, owner inbox, docs/06-orchestration.md, docs/07-data-contracts.md, the 27 confirmed decisions, execution policy and Task.spec_revision. Primary reports subsequent main updates without product-source differences relevant to this unit; baseline was deliberately not rewritten.
+
+## Requirement evidence and remaining work
+
+| Requirement | Executed unit evidence | Remaining product work |
+| --- | --- | --- |
+| AB-TSK-001 | Strict GoalPlanProposal validates fixed project/task/spec/input, required artifacts/contracts/validators and execution bindings | Natural-language compiler via approved connection, missing-field flow and actual executable host integration |
+| AB-TSK-002 | Validated lineage, typed executors, child output references, waiting-parent readiness | Bidirectional Router dispatch/result integration |
+| AB-TSK-003 | Root-grant narrowing, fixed identity/config/program/host/workspace/recipient, no production or Agent approval fields | Actual host rechecks and enforcement at dispatch |
+| AB-TSK-009 | Real DAG ordering, dependency/input checks, validation candidates, bounded retry/rework and unknown reconciliation barriers | Continuous scheduler, durable recovery and actual owner escalation |
+| AB-TSK-010 | Unknown cost/token counters remain unknown; hard caps fail closed; checked time/output/attempt/concurrency reservations | Actual Provider metering and user-visible estimates |
+| AB-TSK-011 | Expected plan revision/CAS precondition, exact spec/input/scope binding, unchanged approved acceptance rules | Persisted revision transaction and GUI owner editing |
+| AB-TSK-012 | Shared root/project/node-plus-descendants ledgers, sibling aggregation, ancestor caps, no new-key escape from old unknown action | Store reservation/settlement, real safe pause and progress persistence |
+
+## Commands and actual results
+
+Environment: CARGO_HOME=/workspace/.toolchains/cargo; RUSTUP_HOME=/workspace/.toolchains/rustup; PATH includes its bin; CARGO_BUILD_JOBS=2; CARGO_TARGET_DIR=/workspace/.worktrees/validation-integration/target. No dependency changes, install, network/model calls or new target.
+
+- cargo check -p agentbaton-core --offline: exit 0.
+- First cargo test -p agentbaton-core --test goal_plan --offline: exit 101, fixture assumed ProtocolRoute::default; fixed to explicit CodexAppServer.
+- First successful targeted run: 27 passed; subtree expansion run: 33 passed.
+- First all-target Clippy: exit 101, large Executor enum and needless borrow. Fixed with boxed execution binding (same JSON wire shape) and exact reference comparison; no allow/skip flags. Raw failure remains /tmp/goal-plan-contracts-clippy-first.log.
+- Final cargo test -p agentbaton-core --test goal_plan --offline: exit 0; 35 passed, 0 failed, 0 ignored, 0 filtered; /tmp/goal-plan-contracts-targeted-final.log.
+- Final cargo clippy -p agentbaton-core --all-targets --offline -- -D warnings: exit 0; /tmp/goal-plan-contracts-clippy-final.log.
+- rustfmt --edition 2021 --check crates/core/src/goal_plan.rs crates/core/tests/goal_plan.rs: exit 0.
+- git diff --check: exit 0.
+
+Final code after Cargo verification differs only by expanded trusted-host API documentation, then rustfmt/whitespace checks were repeated. Independent reviewer is expected to validate the exact freeze. Full Core test execution, scheduler/Store integration, Provider protocol/model, browser/native/macOS, packages and platform Goal were not run for this unit.
+
+## Initial blocked freeze SHA-256 (4564c5c)
+
+- crates/core/src/goal_plan.rs: 48d39b9c9b9679f9d412407ffef3bfb146a3343bd39e84d3d9a9504bffe47a3d
+- crates/core/src/lib.rs: b1dce56802800f45893405f590f229104bb38e5c3e01efba9049fc2a4ab0d71c
+- crates/core/tests/goal_plan.rs: 8f9622d5c342f120dc86d845a27b66fa26e847687c070c04cc1b3dc66800c646
+- targeted final log: ac307c793e69606185d6229bf91bb7c9e8fc5cac25456e2da610a965e5eb75da
+- Clippy first failure log: 1681146b8d1aefc2924b58f4bbf86c4786dfa2a9c7d05051074b377fa4d3da4a
+- Clippy final log: ebc3f4165e0db8f13634efea95f0b717f3d8f1c2d5b4c08536f7a39f837aae60
+
+## Trust and implementation limits
+
+Synthetic fixtures exercise the actual algorithms and are explicitly host-authored, not real account/provider proof. Non-deserializable constructors separate Agent JSON from trusted Rust callers; they do not authenticate invented labels, receipts or host data. Actual caller must resolve current owner-approved acceptance policies (a partial Integrity/Data check is not automatically Goal/Task acceptance), consistent cumulative journals, pinned identities/paths and actual isolation covering shared Git metadata/subprocess writes. Host-grant enforcement is not claimed to be an OS filesystem/network sandbox.
+
+ReadyDecision is a candidate batch tagged with expected plan and ledger revisions. It reserves nothing and starts nothing. Current unknown/cancelling effects, including older-plan root actions, conservatively block all new dispatch until actual reconciliation. Same workspace serializes even when marked read-only. Different roots need exact plan-bound host isolation and write-set proof, distinct pinned inode identities, no ambiguous case/Unicode root overlap and every shared quota. Unknown physical/alias cases serialize. OwnerApproval nodes wait for trusted owner results; neither Agent prose nor successful execution constitutes acceptance.
+
+## Independent findings and corrected freeze
+
+Initial freeze 4564c5c is blocked by reviewer F1/F2/F3. The reviewer's initial 35 tests/Clippy passing did not cover these cases. Separately written negative controls against that exact initial binary failed as intended: F1/F2 0 passed/2 failed (exit 101), and F3 0 passed/1 failed (exit 101). Keep the original old binary and controls; reviewer owns REVIEW.md and will replay the same semantics using the corrected typed API, without weakening assertions or replacing ExternalWrite/ApprovedExternal with another path.
+
+Preserved original failure logs:
+- /tmp/ab-review-goal-controls-old.log: 53cd19419f742ab84e66ade70288bccd7bd795695be69217ec4457bacff7838b.
+- /tmp/ab-review-goal-input-version-old.log: 9f9decaee20f1763237e1d4d39cb0c8ad30e094010ee15fa7ef260ba775721d7.
+
+Corrected source actual commands (same coordinated shared target environment):
+- First correction run: cargo test --locked -p agentbaton-core --test goal_plan --offline — exit 0, 46 passed. Added canonical action alias and transitive input-freshness cases afterward.
+- Final cargo test --locked -p agentbaton-core --test goal_plan --offline — exit 0, 48 passed, zero failed/ignored/filtered. Original 35 scenarios retained with typed receipt/host-action fixtures; 13 additional regressions cover F1/F2/F3, safe before-dispatch retry, known-effect revision/renaming continuity, exact structured request/target/identity constraints, complete root journals, external owner/check flow, source-kind/hash/scope/contract rejection, consumer-attempt identity and transitive stale-input propagation.
+- Final cargo clippy --locked -p agentbaton-core --all-targets --offline -- -D warnings — exit 0.
+- Final rustfmt --edition 2021 --check on module/tests, git diff --check — exit 0.
+
+Source exactly matches final Cargo-tested code:
+- crates/core/src/goal_plan.rs: 7a6cbb6e56bc565aeae7b790f73200a9756c4fd706bbf8dca4ca6fff40b0cb82.
+- crates/core/src/lib.rs: b1dce56802800f45893405f590f229104bb38e5c3e01efba9049fc2a4ab0d71c.
+- crates/core/tests/goal_plan.rs: 8430aa22a3cf76c5d027a0465d1ef4760192e04b482fc4a5a0d88820e037c0e8.
+- /tmp/goal-plan-contracts-review-fix-targeted.log: 6362bd87eb9c908bdf7c10421bfa520e1f2a063de61df517005a2bc06be3b33d.
+- /tmp/goal-plan-contracts-review-fix-clippy.log: 6b0a45b927523bc523a4909c53791ded283f5a1ccd6d439f994c852bb2103e04.
+
+Current independent replay/review is pending, not represented as passed. No full Core execution, Store/IPC/scheduler, real Provider/receiver/model, native/macOS or product-install evidence was produced by this pure algorithm correction.
+
+Additional trust boundary: canonical external actions are resolved only by the verified host, with exact structured request and exact executor. Agent JSON cannot supply those records, alias identity, NoEffect or EffectConfirmed facts. Key stability does not assert a receiver implements idempotency: dispatch must compare its actual structured request to the approved descriptor/digest; retries require actual no-effect/never-started evidence. Root journal projection includes known effects and unknown actions across old plan versions. New host action IDs for the same canonical operation/recipient/resource-group/payload are rejected conservatively; differing approved requests require distinct explicit host records. Missing roots, scope/hash mismatches and missing journals fail closed.
+
+Input trust boundary: external provenance approval/hash alone does not mean its artifact contract passed. Exact typed external validation receipts establish those checks; ordinary inputs wait for them. Consumed receipts are immutable per consumer attempt, including source kind, contract, producer attempt/hash or approved external scope/hash. Stale history may remain in snapshots but cannot finish the consumer, satisfy acceptance or admit downstream work. This is actual pure-algorithm enforcement, with actual Store transaction and host execution integration still remaining.
+
+## Independent review completed
+
+Reviewer `/root/review` independently closed F1/F2/F3 on exact source commit 9acf86c837217298a29bbd6db6f6c411c3637c47, with no remaining blocking finding in this pure-contract unit. Independently reran 48 targeted tests, four reviewer-written controls preserving the original ExternalWrite/ApprovedExternal/upstream-rework semantics (plus external Owner/Work path), Core all-target Clippy -D warnings, rustfmt and diff checks: all passed. Source fingerprints match the corrected freeze above. No reviewer source change and no author source change followed those checks.
+
+Reviewer-owned untracked REVIEW.md SHA-256: 07f66bccae865caa696d1796a00ba4d279e91c9acd582f47b8169df0a204361f. It is intentionally not staged by this author; primary must include it at integration.
+
+Independent evidence preserved separately:
+- /tmp/ab-review-goal-fixed-targeted.log: 32a88e74438147aa3ad08b2f0e0310f66945a0da851912ff907236ba2e0138da.
+- /tmp/ab-review-goal-fixed-clippy.log: 59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc.
+- /tmp/ab-review-goal-fixed-controls.rs: fa6c6bc5da3cc5d060879fed13fa1adc643713add9ad8a62884359db303b0b96.
+- /tmp/ab-review-goal-fixed-controls.log: bf0cbada985b1549e845044d06eb2703317248cc1e4ed2c097e2252c417c84a7.
+- /tmp/ab-review-goal-fixed-controls binary: 4d9d1d39514b0dc3b61b902037a74c2b81e07c7ca17401955f01bd5d5984c613.
+
+Review approval applies to these pure contracts/decisions. It does not assert Store atomicity, dispatch, TaskAccepted, actual Provider behavior, native/macOS tests or product completion. Structured approved payloads are private host request data, not automatically safe diagnostic/renderer output. Future integration must persist canonical action intent, admission reservations and attempt-owned inputs atomically and recheck actual payload/identity/grant/receiver facts before external dispatch. Shared target is released; do not clear another agent's cache or modify locks.

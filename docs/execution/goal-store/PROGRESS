@@ -1,0 +1,13 @@
+# Progress
+
+Implemented actual server-resolved Goal scope proposals, private separate native-kind finalization, complete immutable grant revisions, schema 9, versioned plans/revocation/CAS/idempotency and typed Unix ready-preview routes. Native Goal confirmation changes only explicit delegation ceilings; all other permissions/bindings and root/project history remain intact. Acceptance criteria are new rule definitions, never passed receipts or TaskAccepted.
+
+Original plan_json survives Unix transport: nested duplicate revision/node keys reject before writes, valid original multi-node JSON passes, and changed whitespace with the same idempotency key conflicts. Restart/replay reconstruct authority from native-confirmed records. Historical replay does not revive revoked permission; old Goal evidence/actions cannot escape through new scope/revision/key. Unknown metering never becomes invented zero.
+
+The complete native snapshot stays within 16KiB using a lossless shared immutable grant projection and full approved_contract_json. Tests reconstruct exact full before/after grants and source Command contracts, reject permission/source drift, and reject reuse of a consumed one-shot command permission. Prior Integrity success remains partial. Original 18,058/16,398-byte failures are retained; actual OS dialog readability is unrun.
+
+Preserved early SQL/type/fault-fixture failures were fixed without dropping assertions. Initial full Core 202 then 204 passed. An80-error shared-target stale-rmeta handoff was separated from product results and fixed by touching this worktree's crate entrypoint, unchanged content, without deleting another writer's cache.
+
+Independent static review found R1 actual new budget rows reset recovered use, and R2 oversize meter became absent/fresh zero. Old-source real controls failed: 23 pass / 2 fail. Corrected finalization seeds actual consumed/active history and only reconciles existing counters upward, preserves established ceilings, and journals within the approval transaction. Single-statement bounded reads distinguish absence from oversize for meter and cached payload/results. New tests prove actual root-limit admission, existing-ceiling preservation, approval-trigger rollback of counters/events and all four oversized idempotency fields.
+
+Latest targeted 48 Goal + 27 Store + 3 migration tests passed. Final source 1a3236a94b1b6a6346d1ee604bb23b1a595425bc passed 207 unique full Core tests, Clippy -Dwarnings, format and diff checks. Source is frozen and shared target formally released to integration_review; its independent final review is pending. This author has not run native Goal dialog/GUI, macOS, Provider/model, Goal dispatch or task acceptance.

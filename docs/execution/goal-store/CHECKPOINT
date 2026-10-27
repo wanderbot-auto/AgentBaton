@@ -1,0 +1,13 @@
+# Checkpoint
+
+Worktree /workspace/.worktrees/goal-store; branch codex/goal-store. Safe merge HEAD fd78d03eb98e4e1d84f4ce0a71aedd038ffd59bb includes reviewed Goal 9acf / docs 3d369 plus Core 8009824 and final 88ca6bc. WIP checkpoint d1a544a saved the first persistence implementation. Subsequent fixes and new tests are frozen in local source commit 1a3236a94b1b6a6346d1ee604bb23b1a595425bc. No push/CI trigger by this author.
+
+Read origin/main 66061439c79fa44b66a33782febc1fb0f31c73df OWNER_INBOX at recovery: ACK 001/002, no new sequence. No native platform Goal capability was available/used; no fictitious Goal/Cloud execution state.
+
+Backend implementation includes separate Owner Goal proposal/private finalizer, schema 9/grant history, original raw-plan IPC, immutable revisions/CAS/replay and read-only ready previews. No dispatch, reservation or TaskAccepted. Sibling UI author owns native/rendering integration.
+
+R1/R2 are corrected and targeted 48+27+3 passed. Old failing source/tests/hash and log are preserved under /tmp/goal-store-review-*. Final 207 unique Core tests, Clippy/fmt/diff passed on source goal_store SHA38bfe1f629831ffd1ae5b951590e89a7b82cc909ac2b825c0daf4f74d1588421. Do not infer final review approval from earlier 204 green.
+
+Shared Cargo target /workspace/.worktrees/validation-integration/target: Core PR12 fixture author formally released it; this agent completed final verification and formally released exclusive ownership to integration_review. No author Cargo writer remains. CARGO_INCREMENTAL=0/CARGO_BUILD_JOBS=2, no new target/cache deletion. Cross-tree handoff may require touching this tree's lib.rs without content changes to rebuild correct metadata.
+
+Next: integration_review verifies exact frozen source 1a3236a and writes its own REVIEW; author completes documentation only until review findings arrive. Preserve failures and other authors' reviews. Parent combines current main/Command fixture/native/UI and obtains fresh integrated CI. Do not call this whole Goal completion.

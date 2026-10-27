@@ -1,0 +1,77 @@
+# Evidence — Backend source freeze 1a3236a
+
+Source commit: 1a3236a94b1b6a6346d1ee604bb23b1a595425bc, codex/goal-store, /workspace/.worktrees/goal-store. Base Goal contracts 9acf86c/docs3d369; Core 8 source 8009824 and final correction 88ca6bc safely merged in fd78d03. WIP checkpoint d1a544a saved earlier work. No source change after final Cargo tests. No push, PR, CI, Provider/model/account call, signing or production action by this author.
+
+Read AGENTS/gate/approval/Goal/runbook, orchestration/data contracts/decisions27, actual registry/grant/Store/execution/approval/validation APIs. At recovery/integration boundary, origin/main 66061439c79fa44b66a33782febc1fb0f31c73df OWNER_INBOX has only OWNER-001/002; ACK both. Main metadata/CI fixture integration remains primary's responsibility. No native platform Goal tool was available/used.
+
+## Requirement evidence
+
+| Requirement | Actually implemented and verified here | Dependent work remaining |
+| --- | --- | --- |
+| AB-TSK-001 | Strict server-resolved Goal selection, fixed real task/spec/input/artifact/acceptance definitions and persisted typed proposals | Natural-language compiler, missing-field experience, real approved planner connection |
+| AB-TSK-002 | Persisted plan lineage and unexpanded executor/binding contracts | Real Router/Provider delegation/results and child lifecycle |
+| AB-TSK-003 | Separate native-kind authority; exact grant CAS/history, immutable capabilities, actual writer/fence checks, private reconstruction | Actual native UI/Owner dialog and runtime dispatch rechecks |
+| AB-TSK-009 | Durable plan/read-only ready decision and retained unknown history barriers | Continuous scheduler, reservations/settlement, reconciliation/rework and escalation |
+| AB-TSK-010 | Real attempt/active/shared child counts; unmetered dimensions nullable/blocked, no fabricated zero or cost enforcement | Actual Provider metering and estimates |
+| AB-TSK-011 | Immutable revisions/head CAS/journal/idempotency, original raw JSON duplicate rejection, unchanged acceptance rules | End-to-end native GUI editing and generated plan integration |
+| AB-TSK-012 | Root/project history seeded into actual admission rows, upward-only reconciliation, preserved ceilings; unknown/history cannot reset through new scope/key/revision | Real scheduler root/child reservation, safe pause and settlement |
+
+This evidence is a Backend dependency, not full requirement acceptance. Existing specs remain immutable specified snapshots. Partial integrity/data/command checks are never Goal acceptance; scope approval supplies no passed result or TaskAccepted.
+
+## Environment and exact commands
+
+Linux cloud. CARGO_HOME=/workspace/.toolchains/cargo; RUSTUP_HOME=/workspace/.toolchains/rustup; PATH includes Cargo bin; CARGO_TARGET_DIR=/workspace/.worktrees/validation-integration/target; CARGO_BUILD_JOBS=2; CARGO_INCREMENTAL=0. Shared target windows were explicitly coordinated with Core/primary/reviewer; no concurrent writer, new target/node_modules/dependency/lock change or another writer's cache deletion.
+
+Fixtures use actual SQLite, private runtime/database modes, generated local Git worktrees and the real private proposal/finalizer/event paths. Registered connection readiness is explicitly synthetic, not real executable/account/provider proof. Owner confirmation is simulated by trusted Core tests, not a claimed OS dialog. Unix IPC uses the actual private daemon/socket; no generic HTTP approve/dispatch path. One generated fixed local shell command is actually run to prove existing one-shot Command use is not reset; it is not a model/Provider call.
+
+- Initial cargo check -p agentbaton-core failed on 9 unchecked SQLite u64 sites; fixed checked i64 conversion. Second check passed.
+- First GoalStore run failed on a nonexistent physical sessions.attempt_id column; corrected actual JSON-owned attempt joins. A later deliberate corrupt-fence injection failed SQLite FK before setup; only its fault injector explicitly disables/re-enables FK to create the dangling row. Real Store FK/read guards stay enforced.
+- Earlier full Core 202 then 204 passed, before final independent R1/R2 controls. These are historical, not final review proof.
+- Complete real Command snapshot initially18,058 then16,398 bytes was correctly rejected by16KiB cap. No cap increase/truncation/path-shortening was used. Lossless shared immutable grant projection/full contract JSON passes, reconstructs exactly, detects permission/source drift and rejects consumed command rights. OS readability is unrun.
+- An80-error old-rmeta failure was a shared-worktree build-cache handoff, not a product test outcome. Touched this tree's lib.rs (unchanged content SHA) and rebuilt correct schema 9 source; no global clean or old metadata treated as valid proof.
+- Old-source reviewer controls: cargo test -p agentbaton-core --test goal_store -- --test-threads=2 — exit 101, 23 passed / 2 failed. R1 actual newly created root consumed0 versus expected1; R2 oversized existing ledger returned Ok decisionSome/known0. Old source/tests/SHA preserved as /tmp/goal-store-review-old.rs, /tmp/goal-store-review-controls-old.rs, /tmp/goal-store-review-old.sha256.
+- Corrected targeted: cargo test -p agentbaton-core --test goal_store --test goal_store_migration --test goal_plan -- --test-threads=2 — exit 0, 48+27+3 passed, zero failed/ignored/filtered. Original 24 Store scenarios retained; new meter/idempotency/history rollback regressions do not change the original External/Command/Integrity semantics.
+- Final cargo test --locked -p agentbaton-core --offline — exit 0, 207 unique tests passed. Raw report 208 includes one existing FIFO nested subtest reported again; not counted as extra coverage. Includes all prior 129 Core tests, 48 Goal contracts, 27 Store tests and 3 schema 9 tests. Core has 0 doc tests.
+- Final cargo clippy --locked -p agentbaton-core --all-targets --offline -- -D warnings — exit 0.
+- cargo fmt --all -- --check and git diff --check — exit 0. No lint allowances/skips/timeouts/assertions weakened.
+
+New regression detail: a real stopped attempt under the same grant but another task is recovered even without session mapping; the new actual root ledger starts consumed1, allows only 7 further attempts under limit 8, and rejects the ninth shared-root use while project still has room. Existing ceilings remain unchanged even when Goal limits are narrower. Simulated low counters reconcile from durable attempts; an approval.confirmed trigger failure rolls counters/events/grant/scope/result back together; committed replay adds no event. Oversize meter and both payload/result fields of both approval/plan idempotency rows return RESOURCE_LIMIT before fallback, authority lookup or history mutation.
+
+Schema 9 tests use actual schema 8 shape after physically removing v9 tables (not merely relabeling a v9 database); verify exact raw task/blob preservation and private reopenable pre-v9 backup, migration failure rollback preserving unknown named table, and future schema 10 refusal without byte changes. Existing legacy pre7/pre8 fixtures remove v9 tables before their old-shape simulation; old assertions remain.
+
+## SHA-256 — source
+
+| File | SHA-256 |
+| --- | --- |
+| crates/core/src/goal_store.rs | 38bfe1f629831ffd1ae5b951590e89a7b82cc909ac2b825c0daf4f74d1588421 |
+| crates/core/src/goal_plan.rs | 243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21 |
+| crates/core/src/storage.rs | 8a7e75de1bf7006672cd32999d48022509497d253cbd84a32ec1d4cd7b078b52 |
+| crates/core/src/sessions.rs | 6bccef078d6f4fa4201fd8cb7405469d6f362f9ff45a28d4650a6e1ae24ebee9 |
+| crates/core/src/ipc.rs | a18e3508921d466db8619e857687a9e11d91bb513754904cd5be9f3d099ae1b2 |
+| crates/core/src/lib.rs | 2d732f787e7e8e416c8473323be922aa1e1fe5fbe70dae8ce5733a5fb9e1ad43 |
+| crates/core/tests/goal_store.rs | 8b2735ca7646a83695461afed0481e4aad80d9f9d2eeaedf7fcf2cafe8102fbb |
+| crates/core/tests/goal_store_migration.rs | 91862b7cb28b1ce7dac88ec3c3befbdad1e05cfa2dec07ae8db072567de65752 |
+
+## SHA-256 — preserved actual logs
+
+All paths are local evidence for this session; no fictitious remote URL is supplied.
+
+| /tmp log | SHA-256 |
+| --- | --- |
+| goal-store-check-first.log | a44697d658f7f867ab3b5eaac098c8ede6bdead2d701d5a124f7aa253cddf723 |
+| goal-store-targeted-first.log | 3cc15fb60c1a00b0d108ae41db7daf3698fdfae23e710b1035f763b0b6486526 |
+| goal-store-targeted-third.log | 088f1e8ecd61aca1fd5a18e0dac41ced78f61d3bc720efe62fd343c056f3a8bd |
+| goal-store-command-snapshot-bound.log | 2bdfdc249527241ebc2244cfb0f77653881fa4cc1cfe3cac4fcb16227b8daeb8 |
+| goal-store-command-snapshot-full-json.log | 8b6f35fb72f6089fc174895a713138f6768ecb5c0ff938620d50e8459490ec6f |
+| goal-store-projection-controls.log (cache failure) | a73bf6380284b91ff9df483dbbda0c9cd2dc1f46c830ae5198f6e908fc63bba3 |
+| goal-store-review-controls-old.log | 83dfdcfc18541c298499bfc35152ca0b753f7aa396d0f14683d19985bff2191f |
+| goal-store-review-controls-fixed.log | 2b3e8bfcb43dd58b8f3f6af9c4b1123eb3b66a79ca01a21ee22216635288bb86 |
+| goal-store-core-review-fixed.log | 4b273c359aaa180e9a6eb0a5cbd923b624567d0ee41a5939458fe61d8667fb4e |
+| goal-store-clippy-review-fixed.log | caf0ca6b206b9f84fee3fd90fc4d698f2f3bbd855aff1d7a9d3a6765b471dc38 |
+| goal-store-fmt-review-fixed.log (empty successful output) | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
+
+Other initial diagnostic/intermediate/success logs remain /tmp/goal-store-*.log; no failure was deleted. Independent review owns REVIEW.md and final replay evidence, not authored or claimed by this implementation agent. Source frozen and shared target formally released to integration_review; only this unit's documentation changes continue.
+
+## Explicit unverified and blocked boundaries
+
+No actual Goal native/Cocoa dialog, browser/GUI, macOS architecture/build/package or Provider/model was exercised by this Backend unit. The complete displayed contract is escaped native JSON; manual readability is still unverified. Local Git/daemon tests are not OS sandbox proof. Multiple/remote connection authorities, reliable monetary/token enforcement, actual Goal node/action runtime receipts and dispatch are unsupported/blocked rather than fabricated. Retained legacy/unmapped runtime/action histories prevent ready decisions until real reconciliation. Real generated planning/scheduler/Router/child settlement and TaskAccepted remain next dependency work, not declared complete.

@@ -1,0 +1,13 @@
+# Goal plan contracts — WP08
+
+Requirements: AB-TSK-001/002/003/009/010/011/012. User AB-START-001; protected-main owner instructions OWNER-001/002 read at afb52be241f7c4cef261f99c04f56caf21f12083. Product implementation gate is open; private identities/model calls, additional spending, signing and production remain outside this unit.
+
+Baseline: 2640e6c9af2568c2731019cab9d16423fd45ceae, branch codex/goal-plan-contracts, isolated worktree /workspace/.worktrees/goal-plan-contracts. Only new pure core module/test, one-line module export and these four documents are in scope.
+
+Implement strict versioned proposal -> host-resolved non-deserializable scope -> validated DAG -> host-evidence admission decision. Bind task/spec/input, approved connection identity/config/program/workspace, acceptance policy and receipts. Reject authority expansion, stale inputs/revisions, invalid DAGs, missing verification, unknown outcomes, unsafe retries and unproven concurrency. Share cumulative root/project/subtree budgets with checked arithmetic.
+
+Decision results require a future atomic Store transaction to compare both plan and ledger revisions, reserve quotas and recheck authority before dispatch. This unit does not implement Store, scheduler, IPC, GUI, generated planner, filesystem isolation or TaskAccepted.
+
+Validation: targeted Rust integration suite for real algorithm success/failure paths, rustfmt, Clippy and independent review. No Provider/model/API calls or new harness/dependencies. Reuse the released shared validation target; avoid new build directories.
+
+Independent review correction scope: preserve safe real ExternalWrite semantics with host-fixed structured request/action identity and complete durable root effect journal; support precise external-input validation rather than deleting the path; bind actual consumed inputs to each consumer attempt and invalidate stale downstream results transitively. Keep original failure logs and existing tests. Independent review must replay the original three negative scenarios against the corrected freeze. This adds no external execution capability, Store persistence, new dependency or authority.

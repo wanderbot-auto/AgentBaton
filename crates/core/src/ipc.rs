@@ -36,6 +36,11 @@ struct Request {
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
+struct GoalScopeId {
+    scope_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct Create {
     goal: String,
     #[serde(default = "default_project")]
@@ -460,6 +465,7 @@ impl Daemon {
                     | "workspaces.create"
                     | "connections.propose"
                     | "grants.propose"
+                    | "goal_scopes.propose"
                     | "approvals.finalize"
                     | "sessions.create"
                     | "command_validation_policies.propose"
@@ -475,6 +481,23 @@ impl Daemon {
             }
         }
         match r.method.as_str() {
+            "goal_scopes.propose" => {
+                let selection:crate::goal_store::GoalScopeSelection=params(r.params)?;
+                let key=r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.propose_goal_scope(&selection,&key)?))
+            }
+            "goal_scopes.list" => {let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_scopes(&p.task_id)?))}
+            "goal_scopes.get" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.get_goal_scope(&p.scope_id)?))}
+            "goal_scopes.revoke" => {let p:GoalScopeId=params(r.params)?;let key=r.idempotency_key.ok_or_else(invalid)?;Ok(json!(self.store.revoke_goal_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&key)?))}
+            "goal_plans.propose" | "goal_plans.revise" => {
+                let p:crate::goal_store::GoalPlanRawSubmission=params(r.params)?;
+                let key=r.idempotency_key.ok_or_else(invalid)?;
+                Ok(json!(self.store.submit_goal_plan_json(&p,&key,r.expected_revision.ok_or_else(invalid)?)?))
+            }
+            "goal_plans.get" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.get_goal_plan(&p.scope_id)?))}
+            "goal_plans.list" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.list_goal_plan_revisions(&p.scope_id)?))}
+            "goal_plans.ready_preview" => {let p:GoalScopeId=params(r.params)?;Ok(json!(self.store.preview_goal_ready(&p.scope_id,r.expected_revision.ok_or_else(invalid)?)?))}
+            "goal_scopes.approve" | "goal_plans.dispatch" | "goal_plans.reserve" | "goal_plans.accept" => Err(CoreError::new("AUTH_REQUIRED","Renderer approval flags, dispatch/reservation and Task acceptance are not Goal preview methods")),
             "connections.propose" => {
                 let p: RegisterConnection = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
