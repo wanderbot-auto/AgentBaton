@@ -2,7 +2,7 @@
 
 Worktree /workspace/.worktrees/goal-plan-contracts; branch codex/goal-plan-contracts. Base 2640e6c9af2568c2731019cab9d16423fd45ceae. Initial source freeze 4564c5cdadd9909240be9b2d87a250905621b5ea is blocked by F1/F2/F3; this checkpoint's local correction commit supersedes it (obtain exact SHA from git log). No push. Primary owns integration after independent review.
 
-Current source hashes/logs are in EVIDENCE. Actual corrected-source checks: 48 goal_plan tests pass, all-target Core Clippy -D warnings passes, rustfmt and whitespace checks pass. Source has not changed after those Cargo checks. Next required action is the same independent reviewer replaying all three original scenarios and reviewing the new typed source/journal boundaries. Do not claim the initial 35 tests covered them.
+Current source hashes/logs are in EVIDENCE. Actual corrected-source checks: 48 goal_plan tests pass, all-target Core Clippy -D warnings passes, rustfmt and whitespace checks pass. Source has not changed after those Cargo checks. Independent review has completed on exact source 9acf86c837217298a29bbd6db6f6c411c3637c47: F1/F2/F3 closed; independent 48 tests + four original-semantic controls + Clippy/fmt/diff passed. Next action belongs to primary: include reviewer-owned report, integrate source and continue actual Store/IPC/scheduler work. Initial 35 tests did not cover these failures. This later commit changes only author records, not reviewed source.
 
 Reviewer owns untracked docs/execution/goal-plan-contracts/REVIEW.md; do not edit or stage it. Author owns only new core module/tests, one-line lib export, and PLAN/PROGRESS/CHECKPOINT/EVIDENCE. Preserve all other files.
 

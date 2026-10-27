@@ -1,6 +1,6 @@
 # Progress
 
-Current correction freeze: actual 48 targeted integration tests pass (0 failed/ignored), Core all-target Clippy -D warnings passes, rustfmt/whitespace pass. This retains the original 35 scenarios and adds 13 review-boundary regressions. No Store, scheduler, IPC, UI, lockfile or migration changes. Independent replay/review of this corrected source is pending; initial 4564c5c is blocked, not approved for integration.
+Current correction freeze: actual 48 targeted integration tests pass (0 failed/ignored), Core all-target Clippy -D warnings passes, rustfmt/whitespace pass. This retains the original 35 scenarios and adds 13 review-boundary regressions. No Store, scheduler, IPC, UI, lockfile or migration changes. Independent review of source 9acf86c837217298a29bbd6db6f6c411c3637c47 is complete: F1/F2/F3 closed, no remaining blocking finding in this unit. Reviewer independently reran 48 integration tests, four original-semantic control cases, Clippy, formatting and whitespace checks. Initial 4564c5c remains blocked historical evidence. Primary integration and actual Store/IPC/scheduler work are still required.
 
 Independent reviewer reproduced three genuine failures on 4564c5c. F1: ExternalWrite validation-failure retry could blindly repeat an effect under a new key. F2: an admitted external-input validator could not represent its completion receipt. F3: downstream old consumption remained accepted after upstream rework. Original failures and logs are retained in EVIDENCE and reviewer-owned REVIEW.md.
 

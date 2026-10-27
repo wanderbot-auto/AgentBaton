@@ -70,3 +70,18 @@ Current independent replay/review is pending, not represented as passed. No full
 Additional trust boundary: canonical external actions are resolved only by the verified host, with exact structured request and exact executor. Agent JSON cannot supply those records, alias identity, NoEffect or EffectConfirmed facts. Key stability does not assert a receiver implements idempotency: dispatch must compare its actual structured request to the approved descriptor/digest; retries require actual no-effect/never-started evidence. Root journal projection includes known effects and unknown actions across old plan versions. New host action IDs for the same canonical operation/recipient/resource-group/payload are rejected conservatively; differing approved requests require distinct explicit host records. Missing roots, scope/hash mismatches and missing journals fail closed.
 
 Input trust boundary: external provenance approval/hash alone does not mean its artifact contract passed. Exact typed external validation receipts establish those checks; ordinary inputs wait for them. Consumed receipts are immutable per consumer attempt, including source kind, contract, producer attempt/hash or approved external scope/hash. Stale history may remain in snapshots but cannot finish the consumer, satisfy acceptance or admit downstream work. This is actual pure-algorithm enforcement, with actual Store transaction and host execution integration still remaining.
+
+## Independent review completed
+
+Reviewer `/root/review` independently closed F1/F2/F3 on exact source commit 9acf86c837217298a29bbd6db6f6c411c3637c47, with no remaining blocking finding in this pure-contract unit. Independently reran 48 targeted tests, four reviewer-written controls preserving the original ExternalWrite/ApprovedExternal/upstream-rework semantics (plus external Owner/Work path), Core all-target Clippy -D warnings, rustfmt and diff checks: all passed. Source fingerprints match the corrected freeze above. No reviewer source change and no author source change followed those checks.
+
+Reviewer-owned untracked REVIEW.md SHA-256: 07f66bccae865caa696d1796a00ba4d279e91c9acd582f47b8169df0a204361f. It is intentionally not staged by this author; primary must include it at integration.
+
+Independent evidence preserved separately:
+- /tmp/ab-review-goal-fixed-targeted.log: 32a88e74438147aa3ad08b2f0e0310f66945a0da851912ff907236ba2e0138da.
+- /tmp/ab-review-goal-fixed-clippy.log: 59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc.
+- /tmp/ab-review-goal-fixed-controls.rs: fa6c6bc5da3cc5d060879fed13fa1adc643713add9ad8a62884359db303b0b96.
+- /tmp/ab-review-goal-fixed-controls.log: bf0cbada985b1549e845044d06eb2703317248cc1e4ed2c097e2252c417c84a7.
+- /tmp/ab-review-goal-fixed-controls binary: 4d9d1d39514b0dc3b61b902037a74c2b81e07c7ca17401955f01bd5d5984c613.
+
+Review approval applies to these pure contracts/decisions. It does not assert Store atomicity, dispatch, TaskAccepted, actual Provider behavior, native/macOS tests or product completion. Structured approved payloads are private host request data, not automatically safe diagnostic/renderer output. Future integration must persist canonical action intent, admission reservations and attempt-owned inputs atomically and recheck actual payload/identity/grant/receiver facts before external dispatch. Shared target is released; do not clear another agent's cache or modify locks.
