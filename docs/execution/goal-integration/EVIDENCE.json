@@ -1,0 +1,42 @@
+{
+  "approval": "AB-START-001",
+  "composition_source": "6c023f0",
+  "backend_source": "1a3236a94b1b6a6346d1ee604bb23b1a595425bc",
+  "frontend_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+  "frontend_actual": {
+    "tests": 229,
+    "files": 15,
+    "typecheck_build": "passed",
+    "log": "/workspace/.onboarding/goal-integration-ui-tests.log"
+  },
+  "workspace": "first composition passed; history contract fix pending, no inherited proof for new source",
+  "integration_gaps": [
+    "empty plan list NOT_FOUND prevents initial UI readiness",
+    "revoked or expired plan history incorrectly requires live authority"
+  ],
+  "actual_goal_browser": "not_run",
+  "actual_native_owner_dialog": "not_run",
+  "actual_macOS": "not_run",
+  "goal_dispatch": "not_implemented",
+  "task_acceptance": "not_established",
+  "first_composition": {
+    "source": "6c023f0",
+    "backend": "1a3236a94b1b6a6346d1ee604bb23b1a595425bc",
+    "workspace_unique": 447,
+    "compilefail_docs": 4,
+    "raw_passed_sum": 452,
+    "nested_fifo_child": 1,
+    "clippy_fmt": "passed",
+    "frontend_229_type_build": "passed",
+    "logs": {
+      "goal-integration-workspace-tests.log": "1af31a63d6112b1ca53c6629e2006c6e4cbbeb98f7632d53366bb0b3eca8d8ca",
+      "goal-integration-workspace-clippy.log": "b3eb772ffd304ae7fc880386b0ffd4a8521178c3bc2879cb5c55b3bf30b886be",
+      "goal-integration-workspace-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "goal-integration-ui-tests.log": "d24f08715eeef6c42eabb1c57ddf9404ddce8805c9e42f2551aee4f10d4c073b",
+      "goal-integration-ui-build.log": "b6bf3116152c85173b1e960f061f74e24d996f2174b4f7e3903f3ad72a4bb7f4",
+      "goal-integration-old-sidecars-build.log": "22c88deca3a0fe8f21e4ec27e0be2871d565b42d5723127a8a020da06cde58f2"
+    },
+    "old_daemon": "/workspace/.onboarding/goal-composition-old-binaries/manifest.json",
+    "old_daemon_sha256": "66663629d716ec8dbd999aa45b375a9c6100a3392dc80ae9a7f92fa12144f303"
+  }
+}
