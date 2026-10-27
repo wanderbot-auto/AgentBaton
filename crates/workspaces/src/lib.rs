@@ -1,7 +1,9 @@
 //! Owner-selected workspace operations. Worktrees organize writes; they are not OS sandboxes.
-//! No API here removes a source directory, executes its scripts, or stashes/resets source edits.
+//! Import/isolation APIs never remove source directories, implicitly execute repository scripts, or stash/reset source edits.
+//! Fixed validator execution is separate and requires a trusted-host-approved command contract.
 
 pub mod adoption;
+pub mod command_validation;
 pub mod deterministic;
 pub mod validation;
 
