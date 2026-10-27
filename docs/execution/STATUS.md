@@ -2,6 +2,8 @@
 
 当前保护main已为bcf10bb802258645c554f37581237a6c0cb3cbe6（PR12）。实际Owner001/002已重读ACK无新序号；源58b5/CI8f19d8f七项、双native与实际双DMG独审/哈希/签名记录全部通过后按expectedhead+clean保护合入。交付链接/完整SHA/实际签名状态/人工清单见command-integration/DEVELOPMENT_DELIVERY_58B5.md。过去Mac/Linux失败和crossfixture压力限制均保留；此是命令纵切，不是完整产品完工。
 
+当前PR13首个准确aeff/checkout1b990：Rust/UI及替代Environment三项全success，但双Mac在新增fixture10/11同因非canonical路径拒绝而失败，真实WebView/默认发布audit/双包均未运行，禁止合入。完整失败/原正常ready事件取消记录见goal-integration/CI_AEFF_FAILURE.json、NATIVE_AEFF_REVIEW.md（0e8f1f51）。已完成cfg(test)限定修8fde，独审13host+12harness/Clippy/fmt通过（830d67fc）；生产no_symlinks、JS、所有时限与CI保留，准备normalpush新准确七检查。
+
 当前Goal新组合f35cdb1已实跑workspace462unique+4compilefail docs、Clippy/fmt/debugsidecars、UI259/type/build及fresh真实UnixIPC/browser38+5+9+10（24+2+6+9图）均PASS；完整日志/新binarySHA见goal-integration/EVIDENCE.json。Nativeee402权限夹具旧真实FAIL已保留，9244窄修已合本地75c7e08且独立13+11/17/38复验关闭，报告6851f051与清单7dc96abc已保存；新的准确Mac/双包CI仍未运行。
 
 当前Goal PR13持续集成：Meta589独立34+旧持久probe修复通过，结构编辑175独审259/typebuild，fresh真实9/10独立通过并保留15截图；本分支已同步main/5Git/双方CI隔离，新的整体Goal/nativeMac检查待跑。Dataa10纯库111+7独审通过，Core schema10域worker/私有当次witness/DB与UI/native接线正在两隔离分支实现；DataCore现已实际跑通4项UnixIPC用例及非Git→预览→Owner确认夹具→Ready复制→grant→生成ACP进程→DataJSON验证链，原source未改、无Git初始化/账户/模型；取消/崩溃/恢复/迁移与全量审查仍在进行，不能据此宣称Data端到端验收。DataUI修复独审F1/F2后作者与独立325/type/build通过，Native17也已独立通过（REVIEW14ffa6a7）；仍仅叶子证据。全130与WP01–14继续，所有extra权限仍关闭。

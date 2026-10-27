@@ -105,7 +105,7 @@
     },
     "independent_review_sha256": "d044e277ef5738a86b3b2414ab748a36ad1e963ec72a7e7cc7604b9959772a3c"
   },
-  "ci": "structured10 remains alongside originalGoal9; PR13 currently stacked draft with no new run; nativeGoal4 readonly assertion extension in independent review; exact wholeGoal/macOS checks not_run",
+  "ci": "PR13 aeff exact Product40471245384 Rust/UI succeeded; full replacement Environment40471315226 all3success; bothMac failed newfixture10/11 beforeWebView; retained CI_AEFF_FAILURE and independent NATIVE_AEFF_REVIEW. cfg(test)-only canonicalfixture fix8fde +13/12/lints author/independent passed; newexact7/native/dualpackages pending",
   "resource_cache_retirement": "/workspace/.onboarding/completed-worktree-cache-retirement.json",
   "protected_main": "bcf10bb802258645c554f37581237a6c0cb3cbe6",
   "upstream_command_acceptance": "docs/execution/command-integration/MERGE_58B5.json",
@@ -147,7 +147,7 @@
     "author_built_ui_png": 24,
     "final_postfixture_clippy_fmt": "passed author and independent",
     "independent_review": "passed; P2 oldactualFAIL101 -> samecontrol actualbindPASS0; unchanged production private permissions",
-    "macOS": "not_run exactnewPRCIpending",
+    "macOS": "aeff bothMac fixture10/11failed beforeGUI, not verified; new8fde canonicalfixture awaits newexactCI",
     "goal_assertions": "3 strict JS boolean flags plus independent fixed readonly DB counts/sequence invariant; no fourth JS flag claimed",
     "review": "docs/execution/goal-native-readonly/REVIEW.md",
     "review_sha256": "6851f0510c0c580045dec63d8301d8e2ddf972a0c918d465d9a74e06187e4bd3",
@@ -288,5 +288,15 @@
       "goal-editor/editor-02-applied-local-draft.png"
     ],
     "screenshot_limit": "Goal readonly1440 capture frames panel heading; below-fold disabled/empty controls proved by actual DOM/IPC assertions, not PNG alone"
+  },
+  "native_fixture_alias_correction": {
+    "source": "8fde8b658bf49d18bd1f88290d16e3adc6278b5c",
+    "source_sha256": "775f355327660a3d21c51ddc317c9ac958c870b58dd7c1ee8c633efba8c12309",
+    "change": "cfg(test) only, production paths/guards/timeouts unchanged; original11 tests retained plus actual ownedalias regression",
+    "author_host_harness_clippy_fmt": "13+12 passed",
+    "independent_host_harness_clippy_fmt": "13+12 passed; source outsidecfg(test) byte-identical, report830d67fc andmanifest3f153c2b independently rehashed",
+    "fresh_macOS": "not_run yet",
+    "review_sha256": "830d67fc2153ded6ce8fd9aac760147655758f2b4a2ebb798b2588395791328c",
+    "verification_manifest_sha256": "3f153c2b19cbca1a05bbfdd9aaf941af1b6e25b5db3476e57b4a87f15bee23b3"
   }
 }
