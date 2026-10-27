@@ -9,3 +9,5 @@ Actual old-order compiled Linux test binary: artifacts/command-ci-fixture/old-or
 Shared target released to Root/Goal/reviewer coordination; no running Cargo from this unit. Next: independent old/new replay, static source/unchanged-budget review, then parent feature-branch push and new exact-candidate required CI. Historical Intel failure is retained and unproven as to exact phase latency. No retry/sleep change in production, no timeout increase, test skip, gate weakening or fake native package result.
 
 Data workspace work remains saved at separate local67b7e40 design checkpoint with no implementation claimed; resume its actual I/O implementation after this urgent CI repair is reviewed.
+
+Latest checkpoint: real201f Intel job122010945047 has2failed/12passed; stage evidence and line correction are in EVIDENCE. Parent owns a CI-only Mac test-runner serialization experiment, not a production timing change; no new Mac success is claimed. This worktree's source remains exactlyb143/5525e892. Data source draft is preserved separatelycacd4ce, no reset. No Cargo from this author while GoalBackend owns the shared target.
