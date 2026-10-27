@@ -1,6 +1,6 @@
 # ADR — Goal authority, persistence and raw evidence
 
-Status: implemented under primary-approved public contract; independent final Backend review pending.
+Status: implemented under primary-approved public contract; independent Backend review passed R1/R2 on source 1a3236a; later H1/H2 correction source 2cad05b passed authored and independent 210 unique Core / 48+30+3 targeted / Clippy / fmt / diff, with no remaining blocking finding.
 
 An existing ExecutionGrant is not Goal approval. Separate native kindgoal binds a complete server-resolved snapshot and authorizes only displayed children/depth changes via same-root CAS. Complete old/new history is retained; existing attempts keep their revisions. Other permissions/bindings/ceilings and shared counts stay intact. Private authority is reconstructed only after actual approval/result/event checks, never from Deserialize or Agent labels. Partial validation is not Goal/Task acceptance.
 
@@ -27,7 +27,7 @@ Authoritative types: crates/core/src/goal_store.rs:135-308; routing: crates/core
 | goal_scopes.get | {scope_id} | none | Historical GoalScopeView; not a dispatch grant |
 | goal_scopes.revoke | {scope_id} | idempotency_key, expected_revision=current scope row revision | Revoked GoalScopeView; does not claim running work stopped |
 | goal_plans.propose / goal_plans.revise | {scope_id,plan_json:string} | idempotency_key, expected_revision=plan expected_revision | GoalPlanView; initial compare0/revision1, revisions compare previous/revision+1 |
-| goal_plans.get / goal_plans.list | {scope_id} | none | Latest GoalPlanView / immutable revision views |
+| goal_plans.get / goal_plans.list | {scope_id} | none | Historical latest GoalPlanView / immutable revision views |
 | goal_plans.ready_preview | {scope_id} | expected_revision=current plan revision | GoalReadyPreview, strictly no reservation/dispatch |
 | goal_scopes.approve / goal_plans.dispatch / reserve / accept | none supported | always rejected AUTH_REQUIRED | No renderer consent/execution path |
 
@@ -71,6 +71,10 @@ GoalBudgetUsageView = {attempts,active,children,runtime_ms:number|null,
 
 Scope row revision starts1 and changes on revoke. It is distinct from authority_revision (the new root grant revision, typically2); plan.scope_revision must use authority_revision. Plan goal/spec/input, executor bindings/program, contracts, acceptance rules, lineage and budgets follow the reviewed goal_plan.rs strict public types. No Agent policy/receipt authority is accepted. UI numeric values must be safe integers before encoding; Core u32/u64/i64 conversions remain checked.
 
-Bounds: raw inner plan256KiB; full native snapshot16KiB; selections at most16 inputs/16 outputs, criterion2048 bytes, max256 nodes, at most256 scopes per task and256 revisions, stored documents1MiB. A real full snapshot may still exceed cap with many/long contracts; rejection is explicit, not truncation. Current reliable enforcement does not support requested token/cost caps: these must be null. Ready missing historical metering or retained unmapped runtime/action evidence returns no decision; unknown values remain null. Ready has no counter mutation/reservation. A ReadyDecision's own requires_atomic_store_commit=true is a future runtime precondition, not proof such a commit happened.
+Bounds: raw inner plan256KiB; full native snapshot16KiB; selections at most16 inputs/16 outputs, criterion2048 bytes, max256 nodes, scope listings bounded at 256 per task and plan histories at 256 revisions, stored documents1MiB. A real full snapshot may still exceed cap with many/long contracts; rejection is explicit, not truncation. Current reliable enforcement does not support requested token/cost caps: these must be null. Ready missing historical metering or retained unmapped runtime/action evidence returns no decision; unknown values remain null. Ready has no counter mutation/reservation. A ReadyDecision's own requires_atomic_store_commit=true is a future runtime precondition, not proof such a commit happened.
 
 Root/project budget usage is readonly live usage. Original baseline counts and unchanged grant bindings appear in native snapshot. Approval only authorizes explicit delegation ceilings on the same root; it does not reissue an old consumed command policy or adopt a historical partial validation result. Final Goal scheduling, generated planner and settlement remain subsequent interfaces.
+
+## Historical plan data is not current authority
+
+A fresh native-approved scope with genuinely no head, revisions, proposals or committed plan journal lists as [], while get remains NOT_FOUND. Orphaned or oversized history rejects and never masquerades as empty. get/list return immutable typed historical data after validating original native scope/result and full saved bindings, immutable grant revision, scope-bound canonical hashes, contiguous previous-digest/revision chain, head, original raw/typed proposal and actual goal_core validated journal. They never construct an ApprovedGoalScope using old timestamps or read current input files. Revocation, expiry, later input/spec/policy changes do not erase history. New revisions and ready_preview continue through unchanged live scope, writer/fence/input/source-policy/one-shot checks and cannot gain authority from a historical DTO. Integrity/Command denial assertions are retained on those real new-action methods; historical reads are now tested positively.
