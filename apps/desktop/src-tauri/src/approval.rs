@@ -7,6 +7,7 @@ pub enum ApprovalKind {
     Validation,
     DataValidation,
     CommandValidation,
+    Goal,
 }
 impl ApprovalKind {
     pub fn proposal_method(&self) -> &'static str {
@@ -16,6 +17,7 @@ impl ApprovalKind {
             Self::Validation => "validation_policies.propose",
             Self::DataValidation => "data_validation_policies.propose",
             Self::CommandValidation => "command_validation_policies.propose",
+            Self::Goal => "goal_scopes.propose",
         }
     }
     fn kind(&self) -> &'static str {
@@ -25,6 +27,7 @@ impl ApprovalKind {
             Self::Validation => "validation",
             Self::DataValidation => "data_validation",
             Self::CommandValidation => "command_validation",
+            Self::Goal => "goal",
         }
     }
     fn action(&self) -> &'static str {
@@ -38,6 +41,7 @@ impl ApprovalKind {
             Self::Validation => "Approve only the exact local artifact-integrity rule below; this does not accept a task or authorize integration",
             Self::DataValidation => "Approve only this exact JSON data-table contract: fixed file hashes, field types, numeric ranges and declared metadata. Dataset population, units and timezone are owner-declared values to match, not independently verified scientific facts. No reproduction script is executed; this does not establish algorithm correctness, accept a task or authorize integration.\n\n仅批准以下固定 JSON 数据表合同。行数总体、单位、时区按负责人声明核对；不运行复现脚本，不证明算法或科学结论，不验收任务、不授权采纳。",
             Self::CommandValidation => "Approve ONE run of this exact server-resolved fixed command, executable/script hashes, literal argv, constant environment, working directory, file contracts and time/capture limits. The program can access this user's resources. No OS filesystem/network sandbox, descendant containment, immutable inputs or scientific correctness is promised. Retained output limits are not filesystem quotas. Strict unsupported requirements must deny before spawn. Command results never accept the task, authorize Git integration or production release.\n\n仅批准该精确固定命令的一次运行。请完整核对程序/脚本哈希、参数、环境、工作目录及限额；不保证系统隔离或后代进程收容，命令结果不代表任务、Git 或生产验收。",
+            Self::Goal => "Approve this separate Goal scope against the EXACT original root grant revision. Review grant_before and grant_after: only the displayed child/depth orchestration ceilings and grant revision change. Connection, environment, identity, host, workspace, recipients and execution ceilings MUST NOT expand. Review real project/root consumed, active and children counters; shared consumption is retained, never reset. Approval requires no active or unknown execution. Historical runtime/output/token/cost may be unknown and must never be advertised as zero. Owner acceptance criteria define a future review rule, NOT a passed receipt or Task acceptance. This version stores and previews plans only: no reservation, dispatch, model call, Git integration or production release occurs.\n\n独立 Goal 原生确认：核对原根授予版本及新增子任务/深度上限，其他连接、身份、主机、工作区、接收方和执行限额不可扩张。真实共享已消耗/活动计数不重置；历史未计量保持未知。验收条件不是通过凭据；本单元仅保存和预览计划，不预留或派发。",
         }
     }
 }
@@ -340,5 +344,49 @@ mod tests {
         )
         .unwrap();
         assert_eq!(result, malformed);
+    }
+    #[test]
+    fn goal_confirmation_is_separate_and_never_reuses_execution_or_validation_authority() {
+        assert_eq!(ApprovalKind::Goal.proposal_method(), "goal_scopes.propose");
+        for kind in [
+            "grant",
+            "validation",
+            "data_validation",
+            "command_validation",
+            "connection",
+        ] {
+            assert_preapproval_refused(proposal(kind), ApprovalKind::Goal);
+        }
+        let mut exact = proposal("goal");
+        exact["result"]["snapshot"] = json!({"resolved":{"grant_before":{"revision":7,"scope":{"max_children":0,"max_depth":0}},"grant_after":{"revision":8,"scope":{"max_children":3,"max_depth":1}},"project_consumed":2,"project_active":0,"root_consumed":1,"root_active":0},"owner_acceptance_criteria":"Review exact outputs"});
+        confirm_and_finalize(
+            exact.clone(),
+            ApprovalKind::Goal,
+            |message| {
+                assert!(message.contains("grant_before"));
+                assert!(message.contains("grant_after"));
+                assert!(message.contains("project_consumed"));
+                assert!(message.contains("root_active"));
+                assert!(message.contains("never reset"));
+                assert!(message.contains("no reservation, dispatch"));
+                assert!(message.contains("NOT a passed receipt"));
+                true
+            },
+            |request| {
+                assert_eq!(request["method"], "approvals.finalize");
+                assert_eq!(request["params"], json!({"proposal_id":"proposal-1"}));
+                assert_eq!(request["expected_revision"], 3);
+                Ok(json!({"result":{}}))
+            },
+        )
+        .unwrap();
+        let denied = confirm_and_finalize(
+            exact,
+            ApprovalKind::Goal,
+            |_| false,
+            |_| panic!("declined Goal cannot finalize"),
+        )
+        .unwrap();
+        assert_eq!(denied["error"]["side_effect_state"], "not_started");
     }
 }

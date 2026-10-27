@@ -481,6 +481,144 @@ async fn command_validations_cancel(
 }
 
 #[tauri::command]
+async fn goal_scope_approve(
+    runtime: tauri::State<'_, Runtime>,
+    app: tauri::AppHandle,
+    selection: Value,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    confirm_proposed(
+        &runtime,
+        app,
+        approval::ApprovalKind::Goal,
+        selection,
+        idempotency_key,
+    )
+    .await
+}
+#[tauri::command]
+async fn goal_scopes_list(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_scopes.list","params":{"task_id":task_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn goal_scopes_get(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_scopes.get","params":{"scope_id":scope_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn goal_scopes_revoke(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime,json!({"method":"goal_scopes.revoke","params":{"scope_id":scope_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}),false).await
+}
+// Raw plan JSON survives this bridge intact. Parsing it into Value first would
+// silently erase duplicate fields before the Core's strict typed deserializer.
+fn goal_plan_frame(
+    revise: bool,
+    scope_id: String,
+    plan_json: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, Value> {
+    if plan_json.len() > 262_144 {
+        return Err(
+            json!({"request_id":null,"error":{"code":"INVALID_REQUEST","message":"Raw Goal plan exceeds256KiB; nothing was submitted","retryable":false,"side_effect_state":"not_started"},"revision":0,"warnings":[]}),
+        );
+    }
+    Ok(
+        json!({"method":if revise{"goal_plans.revise"}else{"goal_plans.propose"},"params":{"scope_id":scope_id,"plan_json":plan_json},"expected_revision":expected_revision,"idempotency_key":idempotency_key}),
+    )
+}
+#[tauri::command]
+async fn goal_plans_propose(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    plan_json: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    match goal_plan_frame(
+        false,
+        scope_id,
+        plan_json,
+        expected_revision,
+        idempotency_key,
+    ) {
+        Ok(frame) => call(&runtime, frame, false).await,
+        Err(refusal) => Ok(refusal),
+    }
+}
+#[tauri::command]
+async fn goal_plans_revise(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    plan_json: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    match goal_plan_frame(
+        true,
+        scope_id,
+        plan_json,
+        expected_revision,
+        idempotency_key,
+    ) {
+        Ok(frame) => call(&runtime, frame, false).await,
+        Err(refusal) => Ok(refusal),
+    }
+}
+#[tauri::command]
+async fn goal_plans_get(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_plans.get","params":{"scope_id":scope_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn goal_plans_list(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_plans.list","params":{"scope_id":scope_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn goal_plans_ready_preview(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    expected_revision: u64,
+) -> Result<Value, String> {
+    call(&runtime,json!({"method":"goal_plans.ready_preview","params":{"scope_id":scope_id},"expected_revision":expected_revision}),false).await
+}
+
+#[tauri::command]
 async fn events_subscribe(
     runtime: tauri::State<'_, Runtime>,
     cursor: u64,
@@ -597,6 +735,15 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
 
 pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
     let handler: fn(tauri::ipc::Invoke<tauri::Wry>) -> bool = tauri::generate_handler![
+        goal_scope_approve,
+        goal_scopes_list,
+        goal_scopes_get,
+        goal_scopes_revoke,
+        goal_plans_propose,
+        goal_plans_revise,
+        goal_plans_get,
+        goal_plans_list,
+        goal_plans_ready_preview,
         command_validation_policies_list,
         command_validation_policy_approve,
         command_validation_policies_revoke,
@@ -692,5 +839,21 @@ mod tests {
         assert!(result.unwrap_err().contains("deadline expired"));
         // Release the simulated stalled probe only after the caller returned.
         release_sender.send(()).unwrap();
+    }
+    #[test]
+    fn goal_plan_bridge_preserves_original_duplicate_fields_whitespace_and_utf8() {
+        let raw = " {\"revision\":1,\"revision\":2,\"goal\":\"目标\"}\n";
+        for revise in [false, true] {
+            let frame =
+                goal_plan_frame(revise, "scope".into(), raw.into(), 0, "same-key".into()).unwrap();
+            assert_eq!(frame["params"], json!({"scope_id":"scope","plan_json":raw}));
+            assert!(frame["params"].get("proposal").is_none());
+            assert_eq!(frame["expected_revision"], 0);
+            assert_eq!(frame["idempotency_key"], "same-key");
+        }
+        let refusal =
+            goal_plan_frame(false, "s".into(), "中".repeat(87_382), 0, "k".into()).unwrap_err();
+        assert_eq!(refusal["error"]["code"], "INVALID_REQUEST");
+        assert_eq!(refusal["error"]["side_effect_state"], "not_started");
     }
 }
