@@ -248,7 +248,7 @@ def main():
                     data_panel.locator('summary').filter(has_text=re.compile('^数据合同验证$')).click()
                     command_panel = page.get_by_test_id('command-validation')
                     command_panel.wait_for()
-                    assert not command_panel.locator('details').evaluate('(e)=>e.open')
+                    assert not command_panel.locator(':scope > details').evaluate('(e)=>e.open')
                     command_panel.locator('summary').filter(has_text=re.compile('^固定命令验证$')).click()
                     command_panel.get_by_text('尚无命令观测记录。', exact=True).wait_for()
                     page.wait_for_function("()=>document.querySelector('[data-testid=\"command-validation\"] form>fieldset')?.disabled===false")
