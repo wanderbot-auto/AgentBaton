@@ -340,7 +340,7 @@ fn timeout_cancel_and_revoke_keep_the_actor_control_path_live() {
                 f.store
                     .revoke_command_validation_policy(&p.id, 1, "revoke")
                     .unwrap();
-                w.cancel_policy(&f.store, &p.id).unwrap();
+                w.cancel_policy(&p.id);
             }
             "task_cancel" => {
                 let task = f.store.get(&f.task).unwrap();
@@ -1050,4 +1050,71 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
     );
     stop.store(true, Ordering::Relaxed);
     thread.join().unwrap();
+}
+
+#[test]
+fn committed_revoke_and_task_cancel_never_become_not_started_errors_from_owned_record_corruption() {
+    for operation in ["task_cancel", "revoke"] {
+        let mut f = Fixture::new("printf started > marker\nwhile :; do :; done\n");
+        let policy = f.approve("owner");
+        let task = f.task.clone();
+        let runtime = f.runtime.clone();
+        let database = f.db.clone();
+        drop(f.store);
+        let daemon = Daemon::bind(&runtime).unwrap();
+        let stop = Arc::new(AtomicBool::new(false));
+        let flag = stop.clone();
+        let thread = std::thread::spawn(move || daemon.run(flag));
+        let response=ipc::call(&runtime,json!({"method":"command_validations.run","params":{"policy_id":policy.id},"expected_revision":1,"idempotency_key":"run"})).unwrap();
+        assert!(response.get("error").is_none(), "{response}");
+        let end = Instant::now() + Duration::from_secs(1);
+        while !f.root.join("marker").exists() {
+            assert!(Instant::now() < end);
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        let connection = Connection::open(&database).unwrap();
+        if operation == "revoke" {
+            connection.execute_batch("CREATE TRIGGER corrupt_owned_after_revoke AFTER INSERT ON idempotency WHEN NEW.scope LIKE 'command-policy-revoke:%' BEGIN UPDATE command_validation_runs SET document=printf('%4194305s','x') WHERE state='running'; END;").unwrap();
+        } else {
+            connection.execute_batch("CREATE TRIGGER corrupt_owned_after_task_cancel AFTER UPDATE ON tasks WHEN json_extract(NEW.document,'$.state')='cancel_requested' BEGIN UPDATE command_validation_runs SET document=printf('%4194305s','x') WHERE task_id=NEW.id AND state='running'; END;").unwrap();
+        }
+        let request = if operation == "revoke" {
+            json!({"method":"command_validation_policies.revoke","params":{"policy_id":policy.id},"expected_revision":1,"idempotency_key":"revoke"})
+        } else {
+            let current = ipc::call(
+                &runtime,
+                json!({"method":"tasks.get","params":{"task_id":task}}),
+            )
+            .unwrap();
+            json!({"method":"tasks.cancel","params":{"task_id":task},"expected_revision":current["result"]["revision"]})
+        };
+        let response = ipc::call(&runtime, request).unwrap();
+        let committed = if operation == "revoke" {
+            connection.query_row("SELECT json_extract(document,'$.revoked') FROM command_validation_policies WHERE id=?1",[&policy.id],|r|r.get::<_,bool>(0)).unwrap()
+        } else {
+            connection.query_row("SELECT json_extract(document,'$.state')='cancel_requested' FROM tasks WHERE id=?1",[&task],|r|r.get::<_,bool>(0)).unwrap()
+        };
+        let end = Instant::now() + Duration::from_secs(2);
+        while !thread.is_finished() {
+            assert!(Instant::now() < end);
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        let actor = thread.join().unwrap();
+        assert_eq!(actor.unwrap_err().code, "RESOURCE_LIMIT");
+        assert!(committed);
+        assert_eq!(
+            connection
+                .query_row("SELECT count(*) FROM command_workspace_fences", [], |r| r
+                    .get::<_, u32>(
+                    0
+                ))
+                .unwrap(),
+            1
+        );
+        println!("CONTROL {operation} committed={committed}, response={response}");
+        assert!(
+            response.get("error").is_none(),
+            "Committed {operation} must not be misreported as not_started: {response}"
+        );
+    }
 }

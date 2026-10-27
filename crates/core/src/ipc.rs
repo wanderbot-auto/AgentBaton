@@ -638,8 +638,7 @@ impl Daemon {
                     r.expected_revision.ok_or_else(invalid)?,
                     &r.idempotency_key.ok_or_else(invalid)?,
                 )?;
-                self.command_workers
-                    .cancel_policy(&self.store, &p.policy_id)?;
+                self.command_workers.cancel_policy(&p.policy_id);
                 Ok(json!(policy))
             }
             "command_validations.list" => {
@@ -870,7 +869,9 @@ impl Daemon {
             "tasks.cancel" => {
                 let p: TaskId = params(r.params)?;
                 let rev = r.expected_revision.ok_or_else(invalid)?;
-                Ok(json!(self.store.cancel(&p.task_id, rev)?))
+                let task = self.store.cancel(&p.task_id, rev)?;
+                self.command_workers.cancel_task(&task.id);
+                Ok(json!(task))
             }
             "events.subscribe" => {
                 let p: Events = params(r.params)?;
