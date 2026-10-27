@@ -1,5 +1,6 @@
 """Test external native evidence and fatal/timeout cleanup; no GUI is simulated."""
 import importlib.util
+import copy
 import json
 import os
 from pathlib import Path
@@ -15,10 +16,12 @@ native_run = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(native_run)
 GOOD = {
     'status': 'passed',
-    'first_webview': dict(domMounted=True, realComposerSubmitted=True, realTaskRendered=True, taskId='fixture', idempotent=True, invalidInputRejected=True, journal=True),
-    'reopened_webview': dict(domMounted=True, taskId='fixture', restartPersisted=True, draftCancelled=True, stopEvidence=True),
+    'first_webview': dict(domMounted=True, realComposerSubmitted=True, realTaskRendered=True, taskId='fixture', projectId='fixture-project', idempotent=True, invalidInputRejected=True, journal=True, goalScopeLists=True, goalScopeEmptyControls=True, readonlyGoalNoMutation=True, goalReadonlySequence=dict(before=2, after=2)),
+    'reopened_webview': dict(domMounted=True, taskId='fixture', projectId='fixture-project', restartPersisted=True, draftCancelled=True, stopEvidence=True),
+    'fixture_project_id': 'fixture-project',
     'window_close_daemon_survived': True, 'second_writer_rejected': True,
     'owned_daemon_restarted': True, 'owned_daemon_cleanup': True,
+    'goal_readonly_database': dict(read_only=True, unchanged=True, before=dict(scope_count=0, plan_count=0, attempt_count=0, sequence=2), after=dict(scope_count=0, plan_count=0, attempt_count=0, sequence=2)),
 }
 
 
@@ -42,6 +45,47 @@ class NativeRunnerTests(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(report['status'], 'passed')
         self.assertTrue(report['owned_group_cleanup'])
+
+    def test_goal_readonly_flags_require_actual_booleans_and_all_fields(self):
+        for field in ['goalScopeLists', 'goalScopeEmptyControls', 'readonlyGoalNoMutation']:
+            missing = copy.deepcopy(GOOD)
+            del missing['first_webview'][field]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+            for value in [False, None, 'true', 'false', 1, 0, [], {}]:
+                with self.subTest(field=field, value=value):
+                    changed = copy.deepcopy(GOOD)
+                    changed['first_webview'][field] = value
+                    self.assertIsNotNone(native_run.native_report_error(changed))
+
+    def test_goal_readonly_database_requires_complete_unchanged_integer_counts(self):
+        for location in ['goal_readonly_database', 'before', 'after']:
+            missing = copy.deepcopy(GOOD)
+            if location == 'goal_readonly_database':
+                del missing[location]
+            else:
+                del missing['goal_readonly_database'][location]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+        for field in ['scope_count', 'plan_count', 'attempt_count', 'sequence']:
+            for value in [True, False, '0', None, -1, 1.0]:
+                with self.subTest(field=field, value=value):
+                    changed = copy.deepcopy(GOOD)
+                    changed['goal_readonly_database']['after'][field] = value
+                    self.assertIsNotNone(native_run.native_report_error(changed))
+            changed = copy.deepcopy(GOOD)
+            changed['goal_readonly_database']['after'][field] += 1
+            self.assertIsNotNone(native_run.native_report_error(changed))
+        for value in [False, 'true', 1, None]:
+            for field in ['read_only', 'unchanged']:
+                changed = copy.deepcopy(GOOD)
+                changed['goal_readonly_database'][field] = value
+                self.assertIsNotNone(native_run.native_report_error(changed))
+        changed = copy.deepcopy(GOOD)
+        changed['first_webview']['goalReadonlySequence']['after'] = 3
+        self.assertIsNotNone(native_run.native_report_error(changed))
+        for section in ['first_webview', 'reopened_webview']:
+            changed = copy.deepcopy(GOOD)
+            changed[section]['projectId'] = 'another-project'
+            self.assertIsNotNone(native_run.native_report_error(changed))
 
     def test_exit_zero_without_native_report_is_failure(self):
         status, report, _ = self.run_fixture('pass')

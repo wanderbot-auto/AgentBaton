@@ -7,6 +7,7 @@ use agentbaton_core::ipc;
 use serde_json::{json, Value};
 use std::{
     fs,
+    io::Read,
     os::unix::fs::{DirBuilderExt, PermissionsExt},
     path::{Path, PathBuf},
     process::{Child, Command, Stdio},
@@ -17,6 +18,158 @@ use std::{
     time::{Duration, Instant},
 };
 use tauri::{Manager, RunEvent, WebviewUrl, WebviewWindowBuilder, WindowEvent};
+
+const GOAL_READONLY_SQL: &str = r#"
+import json,sqlite3,sys
+from pathlib import Path
+db=sqlite3.connect(Path(sys.argv[1]).resolve().as_uri()+'?mode=ro',uri=True,timeout=1,isolation_level=None)
+db.execute('PRAGMA query_only=ON')
+db.execute('BEGIN')
+row=db.execute('SELECT (SELECT count(*) FROM goal_scopes),(SELECT count(*) FROM goal_plan_revisions),(SELECT count(*) FROM attempts),(SELECT COALESCE(max(sequence),0) FROM events)').fetchone()
+print(json.dumps(dict(zip(('scope_count','plan_count','attempt_count','sequence'),row))))
+db.close()
+"#;
+
+/// A private test host query, never a renderer-selected executable, path or SQL.
+/// It uses only Python's isolated standard library and a read-only transaction.
+fn goal_database_snapshot(runtime: &Path) -> Result<Value, String> {
+    let mut command = Command::new("python3");
+    command
+        .args(["-I", "-S", "-c", GOAL_READONLY_SQL])
+        .arg(runtime.join("baton.sqlite3"));
+    let bytes = bounded_goal_query(command)?;
+    let snapshot: Value =
+        serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal counts")?;
+    if !valid_goal_counts(&snapshot) {
+        return Err("Goal fixture counts are not empty bounded integers".into());
+    }
+    Ok(snapshot)
+}
+fn bounded_goal_query(mut command: Command) -> Result<Vec<u8>, String> {
+    struct OwnedQuery(Child);
+    impl Drop for OwnedQuery {
+        fn drop(&mut self) {
+            let _ = self.0.kill();
+            let _ = self.0.wait();
+        }
+    }
+    let mut child = OwnedQuery(
+        command
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
+            .spawn()
+            .map_err(|_| "cannot start readonly Goal query")?,
+    );
+    let stdout = child
+        .0
+        .stdout
+        .take()
+        .ok_or("missing readonly query output")?;
+    let reader = std::thread::Builder::new()
+        .name("native-readonly-goal-query".into())
+        .spawn(move || {
+            let mut bytes = Vec::new();
+            stdout.take(4097).read_to_end(&mut bytes).map(|_| bytes)
+        })
+        .map_err(|_| "cannot observe readonly Goal query")?;
+    let deadline = Instant::now() + Duration::from_secs(2);
+    let outcome: Result<std::process::ExitStatus, String> = (|| loop {
+        if let Some(status) = child
+            .0
+            .try_wait()
+            .map_err(|_| "cannot observe readonly Goal query")?
+        {
+            break Ok(status);
+        }
+        if Instant::now() >= deadline {
+            break Err("readonly Goal query exceeded its bound".into());
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    })();
+    if outcome.is_err() {
+        let _ = child.0.kill();
+        let _ = child.0.wait();
+    }
+    let bytes = reader
+        .join()
+        .map_err(|_| "readonly Goal query reader failed")?
+        .map_err(|_| "readonly Goal query read failed")?;
+    if !outcome?.success() || bytes.len() > 4096 {
+        return Err("readonly Goal query failed or exceeded raw output bound".into());
+    }
+    Ok(bytes)
+}
+fn valid_goal_counts(value: &Value) -> bool {
+    value.as_object().is_some_and(|record| record.len() == 4)
+        && ["scope_count", "plan_count", "attempt_count"]
+            .iter()
+            .all(|key| value[*key].as_u64() == Some(0))
+        && value["sequence"].as_u64().is_some()
+}
+fn prepare_readonly_goal_project(runtime: &Path) -> Result<String, String> {
+    let directory = runtime.join("goal-readonly-project");
+    fs::DirBuilder::new()
+        .mode(0o700)
+        .create(&directory)
+        .map_err(|_| "cannot prepare private project directory")?;
+    fs::write(
+        directory.join("generated.txt"),
+        b"Generated readonly project fixture; no execution authority.\n",
+    )
+    .map_err(|_| "cannot prepare generated project file")?;
+    let mut store = agentbaton_core::storage::Store::open(&runtime.join("baton.sqlite3"))
+        .map_err(|_| "cannot initialize private fixture store")?;
+    let project = store
+        .import_project(
+            &directory,
+            "Native readonly Goal project",
+            "native-smoke-readonly-project",
+        )
+        .map_err(|_| "cannot register generated readonly project")?;
+    if !store
+        .list()
+        .map_err(|_| "cannot inspect private fixture tasks")?
+        .is_empty()
+    {
+        return Err("readonly project setup unexpectedly created a task".into());
+    }
+    Ok(project.id)
+}
+fn record_goal_checkpoint(
+    phase: u8,
+    label: &str,
+    report: &mut Value,
+    checkpoint: &str,
+    snapshot: Value,
+) -> Result<(), String> {
+    if phase != 0
+        || label != "main"
+        || report.get("error").is_some()
+        || report["status"] == "failed"
+        || !valid_goal_counts(&snapshot)
+    {
+        return Err("readonly Goal checkpoint is not valid in this native phase".into());
+    }
+    match checkpoint {
+        "before" if report.get("goal_readonly_database").is_none() => {
+            report["goal_readonly_database"] = json!({"read_only":true,"before":snapshot});
+        }
+        "after"
+            if report["goal_readonly_database"]["before"] == snapshot
+                && report["goal_readonly_database"].get("after").is_none() =>
+        {
+            report["goal_readonly_database"]["after"] = snapshot;
+            report["goal_readonly_database"]["unchanged"] = json!(true);
+        }
+        _ => {
+            return Err(
+                "readonly Goal counts or sequence changed, or checkpoint was replayed".into(),
+            )
+        }
+    }
+    Ok(())
+}
 
 struct OwnedDaemon {
     child: Child,
@@ -333,11 +486,55 @@ fn native_smoke_report(
         state.fail(&app, format!("WebView phase failed: {result}"));
         return Err("WebView phase failed".into());
     }
+    if let Some(checkpoint) = result.get("goalReadonlyCheckpoint") {
+        let checked = (|| {
+            let checkpoint = checkpoint
+                .as_str()
+                .filter(|value| ["before", "after"].contains(value))
+                .ok_or("invalid readonly Goal checkpoint")?;
+            if state.phase.load(Ordering::SeqCst) != 0 || window.label() != "main" {
+                return Err("readonly Goal checkpoint outside first window".into());
+            }
+            let snapshot = {
+                let daemon = state.daemon.lock().unwrap();
+                goal_database_snapshot(&daemon.runtime)?
+            };
+            let mut report = state.report.lock().unwrap();
+            record_goal_checkpoint(
+                state.phase.load(Ordering::SeqCst),
+                window.label(),
+                &mut report,
+                checkpoint,
+                snapshot,
+            )?;
+            fs::write(
+                state.output.join("native-smoke.json"),
+                serde_json::to_vec_pretty(&*report)
+                    .map_err(|_| "cannot encode readonly Goal evidence")?,
+            )
+            .map_err(|_| "cannot persist readonly Goal evidence")?;
+            Ok::<(), String>(())
+        })();
+        if let Err(error) = &checked {
+            state.fail(&app, error);
+        }
+        return checked;
+    }
     match (state.phase.load(Ordering::SeqCst), window.label()) {
         (0, "main") => {
             let screenshot = capture_screen(&state.output, &window);
             let committed = (|| {
                 let mut report = state.report.lock().unwrap();
+                let database = &report["goal_readonly_database"];
+                if database["read_only"] != true
+                    || database["unchanged"] != true
+                    || database["before"] != database["after"]
+                    || result["goalReadonlySequence"]["before"] != database["before"]["sequence"]
+                    || result["goalReadonlySequence"]["after"] != database["after"]["sequence"]
+                    || result["projectId"] != report["fixture_project_id"]
+                {
+                    return Err("missing or inconsistent readonly Goal database evidence".into());
+                }
                 commit_native_report(&state.phase, &mut report, 0, result)?;
                 report["screenshot"] = json!(screenshot);
                 Ok::<(), String>(())
@@ -385,6 +582,13 @@ const FIRST: &str = r#"
   }
   const initial = result(await invoke('system_snapshot'));
   require(initial.tasks.length === 0, 'private runtime must start empty');
+  const projects=result(await invoke('projects_list'));
+  require(Array.isArray(projects)&&projects.length===1&&projects[0].name==='Native readonly Goal project'&&!projects[0].archived,'generated registered readonly project fixture is absent');
+  const fixtureProject=projects[0];
+  let projectSelect;
+  while(!(projectSelect=document.querySelector('.composer-project select'))||![...projectSelect.options].some(option=>option.value===fixtureProject.id)){require(Date.now()<deadline,'real project composer choice did not load');await new Promise(r=>setTimeout(r,25));}
+  Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(projectSelect,fixtureProject.id);
+  projectSelect.dispatchEvent(new Event('change',{bubbles:true}));
   const goal='原生 WebView → IPC persistent task';
   const input=document.querySelector('[data-testid="goal-input"],#goal');
   const form=document.querySelector('[data-testid="goal-composer"],form.create-task');
@@ -402,6 +606,7 @@ const FIRST: &str = r#"
    if(!task)await new Promise(r=>setTimeout(r,25));
   }
   require(task.state === 'draft', 'create falsely marked dispatch');
+  require(task.project_id===fixtureProject.id,'actual UI task did not bind the chosen registered fixture project');
   const rendered=()=>[...document.querySelectorAll('[data-task-id]')].some(node=>node.dataset.taskId===task.id)
    || [...document.querySelectorAll('.task-list strong,.inspector h2')].some(node=>node.textContent===goal);
   while(!rendered()){require(Date.now()<deadline,'UI did not render the real created task');await new Promise(r=>setTimeout(r,25));}
@@ -441,9 +646,31 @@ const FIRST: &str = r#"
   const commandApprove=commandPanel.querySelector('button[type="submit"]');
   require(commandApprove&&commandApprove.disabled,'draft without stopped session must not enable native command approval');
   require(result(await invoke('system_snapshot')).sequence===beforeCommand,'read-only command controls unexpectedly mutated history');
+  const beforeGoal=result(await invoke('system_snapshot')).sequence;
+  require(typeof task.project_id==='string'&&task.project_id.length>0,'real fixture task lacks its Goal project reference');
+  await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'before'}});
+  const goalGrants=result(await invoke('grants_list',{projectId:task.project_id}));
+  const goalScopes=result(await invoke('goal_scopes_list',{taskId:task.id}));
+  require(Array.isArray(goalGrants)&&goalGrants.length===0&&Array.isArray(goalScopes)&&goalScopes.length===0,'fresh task must have no fabricated root grant or Goal scope');
+  const detailsTab=document.querySelector('#tab-details');require(detailsTab,'actual task Details tab missing');detailsTab.click();
+  let goalPanel;
+  while(!(goalPanel=document.querySelector('[data-testid="goal-planning"]'))){require(Date.now()<deadline,'actual Goal panel did not mount');await new Promise(r=>setTimeout(r,25));}
+  const goalFolded=goalPanel.querySelector(':scope > details');
+  require(goalFolded&&!goalFolded.open,'Goal controls must start folded');goalFolded.querySelector('summary').click();
+  while(goalPanel.querySelector('form>fieldset')?.disabled!==false||goalPanel.querySelector('[aria-busy]')?.getAttribute('aria-busy')!=='false'){require(Date.now()<deadline,'real native Goal lists did not reconcile successfully');await new Promise(r=>setTimeout(r,25));}
+  require(!goalPanel.querySelector('[role="alert"]'),'real native Goal scope-list read failed');
+  require(/尚无独立原生批准的 Goal 范围|No native-approved Goal scope yet/.test(goalPanel.textContent),'actual empty Goal-scope state absent');
+  const goalApprove=goalPanel.querySelector('button[type="submit"]');
+  require(goalApprove&&goalApprove.matches(':disabled'),'no eligible root grant must not enable native Goal approval');
+  const goalActionNames=['保存初始计划提议','保存修订计划提议','读取就绪预览','Store initial plan proposal','Store revised plan proposal','Read readiness preview'];
+  require([...goalPanel.querySelectorAll('button')].filter(button=>goalActionNames.includes(button.textContent.trim())).every(button=>button.matches(':disabled')),'empty scope must not enable plan submission or readiness preview');
+  require(!goalPanel.querySelector('textarea[spellcheck="false"]')||goalPanel.querySelector('textarea[spellcheck="false"]').matches(':disabled'),'empty scope must not enable plan JSON editing');
+  const afterGoal=result(await invoke('system_snapshot')).sequence;
+  require(afterGoal===beforeGoal,'read-only Goal controls unexpectedly mutated history');
+  await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'after'}});
   document.querySelector('#tab-conversation').click();
   while(document.querySelector('#tab-conversation')?.getAttribute('aria-selected')!=='true'){require(Date.now()<deadline,'return to conversation did not settle');await new Promise(r=>setTimeout(r,25));}
-  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true}});
+  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal}}});
  } catch (error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;
@@ -462,7 +689,7 @@ const SECOND: &str = r#"
   require(cancelled.state==='cancelled','draft cancellation failed');
   const events=result(await invoke('events_subscribe',{cursor:0,limit:100}));
   require(events.events.at(-1)?.payload.stop_evidence==='no_attempt_dispatched','stop evidence absent');
-  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,taskId:task.id,restartPersisted:true,draftCancelled:true,stopEvidence:true}});
+  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,taskId:task.id,projectId:task.project_id,restartPersisted:true,draftCancelled:true,stopEvidence:true}});
  } catch(error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;
@@ -597,12 +824,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         std::env::set_var(variable, path);
     }
     // Only fixed sibling daemon is allowed; no renderer-selected executable.
+    // Simulate only selecting a generated directory through the real registry;
+    // no OS file dialog, workspace, grant, Goal approval or model is fabricated.
+    let fixture_project_id = prepare_readonly_goal_project(&runtime)?;
     let daemon_path = std::env::current_exe()?
         .parent()
         .ok_or("no binary parent")?
         .join("batond");
     let daemon = OwnedDaemon::start(daemon_path, runtime.clone())?;
-    let report = json!({"status":"running","stages":[],"private_fixture_runtime":runtime,"owned_daemon_pid":daemon.child.id(),"dimension":"real_native_webview_production_invoke_private_daemon","os":std::env::consts::OS,"architecture":std::env::consts::ARCH,"commit":std::env::var("AGENTBATON_SMOKE_COMMIT").unwrap_or_else(|_|"unknown".into()),"native_dialog":"not_run_manual_acceptance_required","provider_models":"not_run_not_authorized"});
+    let report = json!({"status":"running","stages":[],"private_fixture_runtime":runtime,"fixture_project_id":fixture_project_id,"project_selection":"generated directory registered through real Core; OS file dialog not run","owned_daemon_pid":daemon.child.id(),"dimension":"real_native_webview_production_invoke_private_daemon","os":std::env::consts::OS,"architecture":std::env::consts::ARCH,"commit":std::env::var("AGENTBATON_SMOKE_COMMIT").unwrap_or_else(|_|"unknown".into()),"native_dialog":"not_run_manual_acceptance_required","provider_models":"not_run_not_authorized"});
     fs::write(
         output.join("native-smoke.json"),
         serde_json::to_vec_pretty(&report)?,
@@ -753,6 +983,116 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 mod fixture_tests {
     use super::*;
     use std::os::unix::fs::PermissionsExt;
+
+    #[test]
+    fn generated_registered_project_setup_creates_no_goal_or_attempt_authority() {
+        let directory = private_fixture_runtime().unwrap();
+        let id = prepare_readonly_goal_project(directory.path()).unwrap();
+        let store =
+            agentbaton_core::storage::Store::open(&directory.path().join("baton.sqlite3")).unwrap();
+        assert!(store.list().unwrap().is_empty());
+        let project = store.get_project(&id).unwrap();
+        assert_eq!(project.name, "Native readonly Goal project");
+        assert_eq!(
+            serde_json::to_value(&project.identity.kind).unwrap(),
+            json!({"kind":"directory"})
+        );
+        assert!(store.list_workspaces(&id).unwrap().is_empty());
+        assert!(store.list_grants(&id).unwrap().is_empty());
+        assert!(valid_goal_counts(
+            &goal_database_snapshot(directory.path()).unwrap()
+        ));
+    }
+
+    #[test]
+    fn actual_readonly_goal_counts_observe_sequence_changes_without_writes() {
+        let directory = private_fixture_runtime().unwrap();
+        let mut store =
+            agentbaton_core::storage::Store::open(&directory.path().join("baton.sqlite3")).unwrap();
+        let before = goal_database_snapshot(directory.path()).unwrap();
+        assert_eq!(
+            before,
+            json!({"scope_count":0,"plan_count":0,"attempt_count":0,"sequence":0})
+        );
+        assert_eq!(store.sequence().unwrap(), 0);
+        let mut report = json!({"status":"running"});
+        record_goal_checkpoint(0, "main", &mut report, "before", before.clone()).unwrap();
+        record_goal_checkpoint(
+            0,
+            "main",
+            &mut report,
+            "after",
+            goal_database_snapshot(directory.path()).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(report["goal_readonly_database"]["unchanged"], true);
+        assert_eq!(store.sequence().unwrap(), 0);
+        store
+            .create("local", "Generated non-Goal task mutation", "fixture")
+            .unwrap();
+        let changed = goal_database_snapshot(directory.path()).unwrap();
+        assert_eq!(changed["sequence"], store.sequence().unwrap());
+        assert_ne!(changed, before);
+        let mut report = json!({"status":"running"});
+        record_goal_checkpoint(0, "main", &mut report, "before", before).unwrap();
+        assert!(record_goal_checkpoint(0, "main", &mut report, "after", changed).is_err());
+        assert!(report["goal_readonly_database"].get("after").is_none());
+    }
+
+    #[test]
+    fn goal_checkpoints_reject_wrong_window_failure_replay_and_noninteger_counts() {
+        let counts = json!({"scope_count":0,"plan_count":0,"attempt_count":0,"sequence":2});
+        for (phase, label) in [(1, "main"), (2, "native-reopened"), (4, "main")] {
+            let mut report = json!({"status":"running"});
+            let before = report.clone();
+            assert!(
+                record_goal_checkpoint(phase, label, &mut report, "before", counts.clone())
+                    .is_err()
+            );
+            assert_eq!(report, before);
+        }
+        for invalid in [json!(true), json!("0"), json!(-1), json!(0.0)] {
+            let mut malformed = counts.clone();
+            malformed["scope_count"] = invalid;
+            assert!(!valid_goal_counts(&malformed));
+        }
+        let mut report = json!({"status":"running","error":"original failure"});
+        assert!(record_goal_checkpoint(0, "main", &mut report, "before", counts.clone()).is_err());
+        let mut report = json!({"status":"running"});
+        record_goal_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
+        assert!(record_goal_checkpoint(0, "main", &mut report, "before", counts.clone()).is_err());
+        record_goal_checkpoint(0, "main", &mut report, "after", counts.clone()).unwrap();
+        assert!(record_goal_checkpoint(0, "main", &mut report, "after", counts).is_err());
+    }
+
+    #[test]
+    fn readonly_query_capture_and_owned_child_timeout_are_real_bounds() {
+        let mut large = Command::new("/bin/sh");
+        large.args(["-c", "printf '%05000d' 0"]);
+        assert!(bounded_goal_query(large).is_err());
+        let directory = private_fixture_runtime().unwrap();
+        let pid_file = directory.path().join("owned-query.pid");
+        let mut slow = Command::new("/bin/sh");
+        slow.args([
+            "-c",
+            "printf '%s' \"$$\" > \"$1\"; exec /bin/sleep 30",
+            "fixture",
+        ])
+        .arg(&pid_file);
+        assert!(bounded_goal_query(slow)
+            .unwrap_err()
+            .contains("exceeded its bound"));
+        let pid = fs::read_to_string(pid_file).unwrap();
+        assert!(pid.bytes().all(|c| c.is_ascii_digit()));
+        let observed = Command::new("/bin/ps")
+            .args(["-p", &pid, "-o", "stat="])
+            .output()
+            .unwrap();
+        assert!(
+            observed.stdout.is_empty(),
+            "owned query child was not reaped"
+        );
+    }
 
     #[test]
     fn fixture_runtime_allows_the_real_private_daemon_authority() {
