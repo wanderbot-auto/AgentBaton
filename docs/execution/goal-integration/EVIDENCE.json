@@ -105,6 +105,36 @@
     },
     "independent_review_sha256": "d044e277ef5738a86b3b2414ab748a36ad1e963ec72a7e7cc7604b9959772a3c"
   },
-  "ci": "one existing frontend step adds sameGoalharness; Goal exactMac/current7checks unrun, upstream PR12 admission CI failure retained",
-  "resource_cache_retirement": "/workspace/.onboarding/completed-worktree-cache-retirement.json"
+  "ci": "structured10 added to existing frontend step alongside originalGoal9; exactwholeGoal/native Macpending; NativeGoalreadonly3 implementation in isolatedsubtask",
+  "resource_cache_retirement": "/workspace/.onboarding/completed-worktree-cache-retirement.json",
+  "protected_main": "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+  "upstream_command_acceptance": "docs/execution/command-integration/MERGE_58B5.json",
+  "same_model_editor": {
+    "source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+    "ui_tests": 259,
+    "type_build": "passed independently and composed before upstream merge",
+    "review_sha256": "ef1271edc064eb8c4989295e0de34fb445476acbff6882910f560d990edf192a",
+    "known_local_draft_bug": "F1 exactnodeid numeric-cache collision closed; same semantic oldFAIL retained",
+    "actual_structured_flow": {
+      "script_source": "1707ada6a0a11379214af4300c0a23433bc2e807",
+      "script_sha256": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018",
+      "frozen_daemon_sha256": "2b4a302c4e992df9c01cde404c03ba526cf411eb24ecbc7aadc4e85fb8be771e",
+      "independent_default_checks": 9,
+      "independent_structured_checks": 10,
+      "screenshots": 15,
+      "report_default": "docs/execution/goal-integration/BROWSER_EDITOR_DEFAULT.json",
+      "report_structured": "docs/execution/goal-integration/BROWSER_EDITOR_STRUCTURED.json",
+      "review_sha256": "c4fec155aeadd600ccdd50fe4467039c745e915a395f672b075e8c6fdf672e7d",
+      "dimension": "LinuxChromium actualbuiltUI/privateUnixIPC; freshstore, not nativeOwner/Mac/dispatch"
+    }
+  },
+  "editing_context": {
+    "source": "589b1a8",
+    "source_sha256": "1b040978a6de912a69e6c7d5d82588965fc7291a48774b60e0019157f377d539",
+    "actual_store_tests": 34,
+    "independent_original_legacy_probe": "oldactualFAIL101/fixedunchangedprobePASS, fourAPIs read withoutjournalchange",
+    "clippy_fmt": "passed",
+    "review_sha256": "d28756abb6f03a3b428445c2704159222f4094fd505eb947317e0999f108c772",
+    "legacy_cache": "missingnewdisplayfield compatible only, everyoriginalfield/presentorNulltamperstrict; realpersistedcachebyteunchanged"
+  }
 }

@@ -30,7 +30,18 @@
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "explicit_non_git_selected_dataset_copy_private_workspace_restore_library",
+          "source": "a10c573592af85067bd60a7d2f17aff56e6ccb0f",
+          "unit_integration_unique": 111,
+          "compilefail_docs": 7,
+          "cross_compile_darwin": "bothpassed; notMacexecution",
+          "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
+          "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        }
+      ]
     },
     {
       "id": "AB-PRJ-002",
@@ -60,7 +71,18 @@
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "explicit_non_git_selected_dataset_copy_private_workspace_restore_library",
+          "source": "a10c573592af85067bd60a7d2f17aff56e6ccb0f",
+          "unit_integration_unique": 111,
+          "compilefail_docs": 7,
+          "cross_compile_darwin": "bothpassed; notMacexecution",
+          "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
+          "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        }
+      ]
     },
     {
       "id": "AB-PRJ-003",
@@ -90,7 +112,18 @@
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "explicit_non_git_selected_dataset_copy_private_workspace_restore_library",
+          "source": "a10c573592af85067bd60a7d2f17aff56e6ccb0f",
+          "unit_integration_unique": 111,
+          "compilefail_docs": 7,
+          "cross_compile_darwin": "bothpassed; notMacexecution",
+          "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
+          "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        }
+      ]
     },
     {
       "id": "AB-PRJ-004",
@@ -150,7 +183,18 @@
       "verification_refs": [
         "crates/workspaces/tests/safety.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "explicit_non_git_selected_dataset_copy_private_workspace_restore_library",
+          "source": "a10c573592af85067bd60a7d2f17aff56e6ccb0f",
+          "unit_integration_unique": 111,
+          "compilefail_docs": 7,
+          "cross_compile_darwin": "bothpassed; notMacexecution",
+          "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
+          "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        }
+      ]
     },
     {
       "id": "AB-PRJ-006",
@@ -174,7 +218,18 @@
       "limitations": [
         "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "explicit_non_git_selected_dataset_copy_private_workspace_restore_library",
+          "source": "a10c573592af85067bd60a7d2f17aff56e6ccb0f",
+          "unit_integration_unique": 111,
+          "compilefail_docs": 7,
+          "cross_compile_darwin": "bothpassed; notMacexecution",
+          "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
+          "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        }
+      ]
     },
     {
       "id": "AB-PRO-001",
@@ -1764,6 +1819,15 @@
           "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
           "exact_new_mac_ci": "not_run_yet",
           "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
+        },
+        {
+          "slice": "explicit_non_git_selected_dataset_copy_private_workspace_restore_library",
+          "source": "a10c573592af85067bd60a7d2f17aff56e6ccb0f",
+          "unit_integration_unique": 111,
+          "compilefail_docs": 7,
+          "cross_compile_darwin": "bothpassed; notMacexecution",
+          "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
+          "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
         }
       ]
     },
@@ -3748,7 +3812,8 @@
       "implementation_refs": [
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalPlanEditor.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -3761,7 +3826,9 @@
       "evidence": [
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-editing-context/REVIEW.md",
+        "docs/execution/goal-plan-editor-real-ipc/REVIEW.md"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -3771,7 +3838,8 @@
         "crates/core/tests/goal_plan.rs",
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
-        "apps/desktop/tests/goal-planning-real-ipc.py"
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "apps/desktop/src/GoalPlanEditor.test.tsx"
       ],
       "verified_slices": [
         {
@@ -3780,6 +3848,16 @@
           "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "same_model_structured_steps_and_dependency_edit_with_live_IPC_and_legacy_display_metadata",
+          "backend_source": "589b1a8",
+          "frontend_source": "1751558",
+          "ui_unit": 259,
+          "actual_structured_browser": 10,
+          "legacy_persisted_store": 34,
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "dimension": "partial; noNLP/reservation/dispatch/TaskAccepted/nativeOwner/Mac"
         }
       ]
     },

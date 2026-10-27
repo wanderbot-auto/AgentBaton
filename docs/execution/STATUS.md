@@ -1,5 +1,10 @@
 # AgentBaton 执行状态
 
+当前保护main已为bcf10bb802258645c554f37581237a6c0cb3cbe6（PR12）。实际Owner001/002已重读ACK无新序号；源58b5/CI8f19d8f七项、双native与实际双DMG独审/哈希/签名记录全部通过后按expectedhead+clean保护合入。交付链接/完整SHA/实际签名状态/人工清单见command-integration/DEVELOPMENT_DELIVERY_58B5.md。过去Mac/Linux失败和crossfixture压力限制均保留；此是命令纵切，不是完整产品完工。
+
+当前Goal PR13持续集成：Meta589独立34+旧持久probe修复通过，结构编辑175独审259/typebuild，fresh真实9/10独立通过并保留15截图；本分支已同步main/5Git/双方CI隔离，新的整体Goal/nativeMac检查待跑。Dataa10纯库111+7独审通过，Core schema10域worker/私有当次witness/DB与UI/native接线正在两隔离分支实现；目前仅首次Corecheck及UI/native叶子结果，不冒充真实copy。全130与WP01–14继续，所有extra权限仍关闭。
+
+
 最新保护main66061439c79fa44b66a33782febc1fb0f31c73df；本集成边界实际fetch并重读OWNER001/002，ACK且无新序号。完整Designv0.2/130需求/27决定/WP01–14继续，AB-START-001有效；真实Provider账户/模型、新费用/主机、签名、最终许可证、生产仍另行关闭。
 
 PR12最新已推58b5d32，仅Linux Rust步骤补RUST_TEST_THREADS1来隔离实际失败的跨fixture压力，全部case/内部显式并发/1000与其它时限/25min/Env原样。上个e373整体因Linux13/14失败不能合入，但双Mac实际ba437下Core14/native11/harness6/WebView/defaultreleaseaudit已独审通过，admission531/406ms满足原1000；不冒充新head或Linux压力满足。新7检查/双native/双包还待实际结果。
