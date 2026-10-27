@@ -1,0 +1,5 @@
+# Evidence — not yet implemented
+
+Actual setup: created codex/goal-store and /workspace/.worktrees/goal-store from 3d369e9c54d70a88d8e063727ece9e6a13fe87ce. Read origin/main febe7c74f62aad1f767aa60a0eab5e3fc0529dcb OWNER_INBOX and execution-gate, repository AGENTS, orchestration requirements, actual Core native proposal/finalizer, execution binding/ledger, registry/grant and validation policy code. Core schema8 command policy inspected read-only in the author's worktree, not merged or edited prematurely.
+
+No implementation test, native approval/GUI, migration or Unix IPC test for this unit has yet run. Prior Goal contract 48 tests/four independent controls are evidence only for source 9acf86c and do not prove this new persistence work.

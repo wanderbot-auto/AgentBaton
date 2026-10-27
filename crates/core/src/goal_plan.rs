@@ -629,6 +629,17 @@ impl ApprovedGoalScope {
     pub fn digest(&self) -> &str {
         &self.digest
     }
+    /// Product Store only: call after checking its separate native Goal proposal,
+    /// consumed confirmation/result and exact persisted grant revision. This is
+    /// not a renderer approval constructor or a label authentication mechanism.
+    pub(crate) fn bind_native_goal_approval(mut self, approval: &str) -> PlanResult<Self> {
+        if !id(approval) {
+            return Err(PlanError::InvalidContract);
+        }
+        self.digest = digest(&(&self.digest, approval))?;
+        self.approval_id = approval.into();
+        Ok(self)
+    }
     pub fn approval_id(&self) -> &str {
         &self.approval_id
     }

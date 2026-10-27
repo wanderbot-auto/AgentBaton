@@ -87,7 +87,7 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 8 {
+        if version > 9 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
@@ -142,6 +142,22 @@ impl Store {
                 .map_err(db_error)?;
         }
         migrate_command_validations(&mut conn, version)?;
+        if version > 0 && version < 9 {
+            let backup = path.with_extension(format!("pre-v9-{}.sqlite3", Uuid::new_v4()));
+            drop(
+                OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .mode(0o600)
+                    .open(&backup)
+                    .map_err(|_| {
+                        CoreError::new("INTERNAL_ERROR", "Cannot create Goal-migration backup")
+                    })?,
+            );
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
+        }
+        crate::goal_store::migrate(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )

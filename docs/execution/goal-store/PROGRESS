@@ -1,0 +1,13 @@
+# Progress
+
+Created isolated source worktree from 3d369e9, read actual main febe7c7 gate and OWNER-001/002, and inspected real Store, registry, execution grants, native approvals, integrity/data/command policies, attempt/session and budget APIs. No product source changed yet. Public interface brief has been sent to primary and awaits the required contract confirmation before dependent implementation.
+
+Concrete existing-record limits found: current grant creation pins one local connection/workspace and zero delegation depth/children; pure Goal max-node bound follows that authority. Existing integrity/data/command approvals do not establish whole-Goal acceptance. Existing execution budget records provide attempt/concurrency, not reliable historical cumulative runtime/output/token/cost. These cannot be silently widened, reclassified as Goal approval or filled with invented zeros.
+
+Core author still owns schema8 shared storage/IPC/session files. This agent does not edit those until the exact final Core freeze is available and safely merged. No Cargo writer is held. No tests or Goal native GUI validation have run for this unit.
+
+Public contract confirmed by primary: a new native Goal confirmation may explicitly increase only the displayed delegation ceilings through a CAS revision of the same root grant; it must retain full old/new history, unchanged execution bindings/other ceilings and actual shared counters, with no active/unknown writer or command fence. Goal acceptance remains a new owner rule definition, not a passed result. Unknown legacy meters remain blocked.
+
+Safely merged Core schema8 source 8009824eaf2b83b37e65fe63f773bcf59143fc01 in merge ee966c3. Implemented WIP new Goal Store module, schema9 backup/migration hook, native kindgoal atomic finalization, immutable grant revision lookup, strict versioned-plan/head CAS with journal/idempotency, readonly preview and typed Unix IPC routes. No native UI/GUI bridge was added: a later author must wire independent Goal native confirmation kind; generic renderer finalization remains unavailable.
+
+This WIP source has not yet compiled or run tests. Fixtures and real migration/Unix IPC tests are next. Core's post-commit-revoke correction 88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda must be merged before final verification; checkpoint commit permits that safe merge without overwriting WIP shared paths.

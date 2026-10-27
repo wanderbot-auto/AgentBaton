@@ -4,6 +4,7 @@ pub mod command_workers;
 pub mod data_validation;
 pub mod execution;
 pub mod goal_plan;
+pub mod goal_store;
 pub mod ipc;
 pub mod policy;
 pub mod registry;

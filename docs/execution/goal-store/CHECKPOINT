@@ -1,0 +1,9 @@
+# Checkpoint
+
+Branch codex/goal-store at /workspace/.worktrees/goal-store; HEAD/base 3d369e9c54d70a88d8e063727ece9e6a13fe87ce. Only this unit's new records are currently written; product source is unchanged. Main owner snapshot actually read: febe7c74f62aad1f767aa60a0eab5e3fc0529dcb, ACK OWNER-001/002.
+
+Next: receive primary public-contract response, especially how native Goal approval handles existing zero-child grants and unsupported historical ledger dimensions; implement new goal_store.rs/tests, wait for exact Core8 freeze before touching migrations/storage/lib/ipc/sessions. No scope token/host evidence may deserialize from renderer input. Preserve the independent Goal contract review in its previous worktree; do not stage another author's files.
+
+No Cargo or external resource calls held. Coordinate shared target /workspace/.worktrees/validation-integration/target with Core/reviewer before test execution; no new target/node_modules or cache deletion.
+
+Recovery update: primary approved new explicit native Goal orchestration-ceiling authorization (only children/depth, same grant/shared budgets); source WIP now exists in goal_store.rs plus Goal private approval-binding helper, storage/lib/ipc/sessions hooks. No compile/test claim. Core800 was safely merged (ee966c3); next safely merge Core88ca6b post-commit-revoke fix, resolve only overlapping IPC route additions without dropping cached real-policy cleanup, then compile and add fixtures. No Cargo window is held; root is coordinating short build/check/review windows. Keep read fences: Goal never borrows CommandReadAuthority or bypasses an active command fence.

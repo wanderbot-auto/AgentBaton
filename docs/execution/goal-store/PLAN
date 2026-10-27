@@ -1,0 +1,11 @@
+# Goal scope and versioned plan persistence — WP08
+
+Authorization: AB-START-001, Design v0.2; actual protected main febe7c74f62aad1f767aa60a0eab5e3fc0529dcb execution gate and OWNER-001/002 read and ACK. Full product work continues; this unit adds real Core persistence/owner scope proposal and versioned-plan/readonly ready-preview Unix IPC. No Provider/model calls, remote accounts, extra spending, signing, production, push or subagents.
+
+Worktree /workspace/.worktrees/goal-store, branch codex/goal-store, source base 3d369e9c54d70a88d8e063727ece9e6a13fe87ce. Reviewed pure Goal source is 9acf86c; its initial failures remain preserved.
+
+First inspect actual product records and agree the public authority boundary with primary. Strict selections may identify records and requested limits, not provide verified/approved HostPolicy or private tokens. Native Goal confirmation must be distinct from old execution/integrity/data/command approvals. Resolve current actual Task/Project/grant/connection/workspace/validation records and fixed input/acceptance contracts on the server, both before and after confirmation and again on reload. Reject unsupported authority instead of inventing record references.
+
+After Core schema8 final freeze, safely merge it, then implement schema9, atomic/idempotent scope/plan persistence, expected-revision CAS and journal updates, revocation and truthful read-only ready previews. Preserve root/project cumulative ledgers, unresolved external history and per-consumer attempt versions. Preview must not reserve quotas, create attempts, dispatch, run a planner or accept tasks.
+
+Validation: real SQLite normal/failure/restart/migration/rollback tests; raw/ref/authority/revision/retained-ledger adversarial tests; actual private Unix IPC; type/format/lint checks; independent review. Source and actual evidence will freeze locally, no push. Future actual scheduler/Router/generated planner/GUI integration remains a separate dependency unit, not a reduction of the full goal.
