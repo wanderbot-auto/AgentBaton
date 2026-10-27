@@ -37,9 +37,7 @@
   "review": "docs/execution/deterministic-validators/REVIEW.md",
   "scope": "library composition only; active Core/schema7/UI/native edits not yet fully verified",
   "not_run": [
-    "finalRootguardcompositionreview",
-    "Linuxcurrentnativecompile/units+actualrelease sidecars",
-    "newcandidate dualMacnative/packages/manualinstall/nativeowner dialog",
+    "newcandidateMacOSFIRSTreadonlydata/window GUI/DMG/manualinstall/nativeowner dialog",
     "realProvider/model/remote/signing/production",
     "wholeTaskAccepted/adoption/algorithm/reproductionscripts"
   ],
@@ -734,5 +732,92 @@
     "NoNativeowner dialog/actual dataapprove+run GUI acceptanceyet",
     "Noalgorithm/scientific/reproductionscript/TaskAccepted/adoptionclaim",
     "CurrentRootAuthProbeguard+canonicalfixture integrationpending; freshwholecomposition/exactCIrequired"
-  ]
+  ],
+  "integrated_source_commit": "ddd6707e5c67ff66f65f1ab243f868ee35366959",
+  "final_composition_checks": [
+    {
+      "command": "umask022; cargo test --workspace --locked",
+      "exit_code": 0,
+      "top_level_tests": 324,
+      "breakdown": {
+        "core": 111,
+        "config": 67,
+        "providers": 81,
+        "workspaces": 63,
+        "daemon_signals": 2
+      },
+      "compilefail_doctests": 2,
+      "nested_fifo_child_excluded": 1
+    },
+    {
+      "command": "cargo fmt --all -- --check; cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo build --release --locked --bin batond --bin baton",
+      "exit_code": 0,
+      "target_dir": "/workspace/.worktrees/validation-integration/target"
+    },
+    {
+      "command": "bash scripts/prepare-desktop-sidecars.sh",
+      "exit_code": 0,
+      "note": "First hardcodedtarget attemptfailed; scriptnowhonors actualCargo metadata target, byteidentical realreleasebinariesverified"
+    },
+    {
+      "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "tests": 8,
+      "scope": "Linuxnativehost/approvalhelpers; noGUI"
+    },
+    {
+      "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-smoke",
+      "exit_code": 0,
+      "tests": 6,
+      "scope": "Linuxfixture/phase/terminalconcurrencyunits; no actualnewFIRST GUI"
+    },
+    {
+      "command": "cargo clippy --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo clippy --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-smoke -- -D warnings",
+      "exit_code": 0
+    }
+  ],
+  "sidecars": {
+    "batond": {
+      "release": "/workspace/.worktrees/validation-integration/target/release/batond",
+      "sidecar": "apps/desktop/src-tauri/binaries/batond-x86_64-unknown-linux-gnu",
+      "sha256": "d6547a2f917c848d10939242a663e31e66f483b7bbab905e32ae49b3ee2e6602"
+    },
+    "baton": {
+      "release": "/workspace/.worktrees/validation-integration/target/release/baton",
+      "sidecar": "apps/desktop/src-tauri/binaries/baton-x86_64-unknown-linux-gnu",
+      "sha256": "3ec906a134e258e77bb27596e508f6d668c88368ee52d0929e33d07fffb60c6b"
+    }
+  },
+  "composition_logs": {
+    "data-contract-composite-release.log": "f9668d57757f7082eaa0bef2f9d1316723ce1190b9372d6f9712cb5078f2757e",
+    "data-contract-composite-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "data-contract-composite-sidecars-accepted.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "data-contract-composite-clippy.log": "507b112b178d01387f1ae3eb96501a6934a1306b5fc8d23e7d7e27504a2e9ddd",
+    "data-contract-composite-sidecars.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "data-contract-composite-rust.log": "b1da49bbc8680132aaf3744b05172f7150a2f8382376900852780dedd321168e"
+  },
+  "native_logs": {
+    "data-contract-native-host.log": "d83fbf68979d5126fa0e16d071b85b84600b949b75235da61214278d0ba200b7",
+    "data-contract-native-harness-clippy.log": "fe23186925a7e3c91a18fe5fe256201936351c65139d2ed91ba294131438e512",
+    "data-contract-native-units.log": "1cb2beb5e842b44d45c3d2ca6ce13b13143c9e80ddd0e171cdff534cb71f2384",
+    "data-contract-native-clippy.log": "2e82c4fd374de5c6326792d409cdc6320873f82882904677583fd65624eef37d"
+  },
+  "core_independent": {
+    "review": "docs/execution/data-contract-validation/CORE_REVIEW.md",
+    "tests": 17,
+    "scope": "13Data+busy1+3migration7; independently authored AuthProbe portion explicitlyexcluded/referencedotherreview",
+    "logs": {
+      "data-contract-independent-migration.log": "97ba41f0baab989d13217569bcaa42b722dc8a44c04bbd271585be10307b67de",
+      "data-contract-independent-busy.log": "46b848d4818a7e27df1e215772f8cd46f9bd93f8b5123b03fd77ce47a6fdfdcd",
+      "data-contract-independent-data.log": "1eb5571b37de91b9305f47a2228870d91880f6b3109dc3f80c28773a7fe1a389"
+    }
+  }
 }
