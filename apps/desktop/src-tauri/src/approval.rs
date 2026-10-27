@@ -6,6 +6,7 @@ pub enum ApprovalKind {
     Grant,
     Validation,
     DataValidation,
+    CommandValidation,
 }
 impl ApprovalKind {
     pub fn proposal_method(&self) -> &'static str {
@@ -14,6 +15,7 @@ impl ApprovalKind {
             Self::Grant => "grants.propose",
             Self::Validation => "validation_policies.propose",
             Self::DataValidation => "data_validation_policies.propose",
+            Self::CommandValidation => "command_validation_policies.propose",
         }
     }
     fn kind(&self) -> &'static str {
@@ -22,6 +24,7 @@ impl ApprovalKind {
             Self::Grant => "grant",
             Self::Validation => "validation",
             Self::DataValidation => "data_validation",
+            Self::CommandValidation => "command_validation",
         }
     }
     fn action(&self) -> &'static str {
@@ -34,6 +37,7 @@ impl ApprovalKind {
             }
             Self::Validation => "Approve only the exact local artifact-integrity rule below; this does not accept a task or authorize integration",
             Self::DataValidation => "Approve only this exact JSON data-table contract: fixed file hashes, field types, numeric ranges and declared metadata. Dataset population, units and timezone are owner-declared values to match, not independently verified scientific facts. No reproduction script is executed; this does not establish algorithm correctness, accept a task or authorize integration.\n\n仅批准以下固定 JSON 数据表合同。行数总体、单位、时区按负责人声明核对；不运行复现脚本，不证明算法或科学结论，不验收任务、不授权采纳。",
+            Self::CommandValidation => "Approve ONE run of this exact server-resolved fixed command, executable/script hashes, literal argv, constant environment, working directory, file contracts and time/capture limits. The program can access this user's resources. No OS filesystem/network sandbox, descendant containment, immutable inputs or scientific correctness is promised. Retained output limits are not filesystem quotas. Strict unsupported requirements must deny before spawn. Command results never accept the task, authorize Git integration or production release.\n\n仅批准该精确固定命令的一次运行。请完整核对程序/脚本哈希、参数、环境、工作目录及限额；不保证系统隔离或后代进程收容，命令结果不代表任务、Git 或生产验收。",
         }
     }
 }
@@ -257,6 +261,44 @@ mod tests {
         )
         .unwrap();
         assert_eq!(denied["error"]["side_effect_state"], "not_started");
+    }
+    #[test]
+    fn command_confirmation_is_scoped_one_run_and_cannot_reuse_other_approval_kinds() {
+        assert_eq!(
+            ApprovalKind::CommandValidation.proposal_method(),
+            "command_validation_policies.propose"
+        );
+        for kind in ["validation", "data_validation", "grant", "connection"] {
+            assert_preapproval_refused(proposal(kind), ApprovalKind::CommandValidation);
+        }
+        confirm_and_finalize(
+            proposal("command_validation"),
+            ApprovalKind::CommandValidation,
+            |message| {
+                assert!(message.contains("ONE run"));
+                assert!(message.contains("/exact/program"));
+                assert!(message.contains("one\\nsecond-line"));
+                assert!(message.contains("No OS filesystem/network sandbox"));
+                true
+            },
+            |request| {
+                assert_eq!(request["params"], json!({"proposal_id":"proposal-1"}));
+                assert_eq!(request["expected_revision"], 3);
+                Ok(json!({"result":{}}))
+            },
+        )
+        .unwrap();
+        let denied = confirm_and_finalize(
+            proposal("command_validation"),
+            ApprovalKind::CommandValidation,
+            |_| false,
+            |_| panic!("decline cannot execute/finalize"),
+        )
+        .unwrap();
+        assert_eq!(denied["error"]["side_effect_state"], "not_started");
+        let mut large = proposal("command_validation");
+        large["result"]["snapshot"]["arguments"] = json!("x".repeat(20_000));
+        assert_preapproval_refused(large, ApprovalKind::CommandValidation);
     }
     #[test]
     fn malformed_preapproval_errors_never_confirm_and_postfinalize_values_stay_unknown() {

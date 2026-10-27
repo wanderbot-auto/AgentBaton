@@ -401,6 +401,86 @@ async fn data_validation_policies_revoke(
 }
 
 #[tauri::command]
+async fn command_validation_policies_list(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"command_validation_policies.list","params":{"task_id":task_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn command_validation_policy_approve(
+    runtime: tauri::State<'_, Runtime>,
+    app: tauri::AppHandle,
+    selection: Value,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    confirm_proposed(
+        &runtime,
+        app,
+        approval::ApprovalKind::CommandValidation,
+        selection,
+        idempotency_key,
+    )
+    .await
+}
+#[tauri::command]
+async fn command_validation_policies_revoke(
+    runtime: tauri::State<'_, Runtime>,
+    policy_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime,json!({"method":"command_validation_policies.revoke","params":{"policy_id":policy_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}),false).await
+}
+#[tauri::command]
+async fn command_validations_run(
+    runtime: tauri::State<'_, Runtime>,
+    policy_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime,json!({"method":"command_validations.run","params":{"policy_id":policy_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}),false).await
+}
+#[tauri::command]
+async fn command_validations_list(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"command_validations.list","params":{"task_id":task_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn command_validations_get(
+    runtime: tauri::State<'_, Runtime>,
+    run_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"command_validations.get","params":{"run_id":run_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn command_validations_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    run_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime,json!({"method":"command_validations.cancel","params":{"run_id":run_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}),false).await
+}
+
+#[tauri::command]
 async fn events_subscribe(
     runtime: tauri::State<'_, Runtime>,
     cursor: u64,
@@ -517,6 +597,13 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
 
 pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
     let handler: fn(tauri::ipc::Invoke<tauri::Wry>) -> bool = tauri::generate_handler![
+        command_validation_policies_list,
+        command_validation_policy_approve,
+        command_validation_policies_revoke,
+        command_validations_run,
+        command_validations_list,
+        command_validations_get,
+        command_validations_cancel,
         data_validation_policies_list,
         data_validation_policy_approve,
         data_validations_list,
