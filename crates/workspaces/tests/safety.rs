@@ -47,6 +47,116 @@ fn imports_data_without_executing_scripts_or_initializing_git() {
 }
 
 #[test]
+fn inspection_config_records_do_not_confuse_multiline_values_with_executable_keys() {
+    let (root, _) = repository();
+    git(
+        root.path(),
+        &[
+            "config",
+            "fixture.notes",
+            "safe text\nfilter.not-a-key.clean\ninclude.path\n",
+        ],
+    );
+    let before = fs::read(root.path().join(".git/config")).unwrap();
+    assert!(matches!(
+        inspect(root.path()).unwrap().kind,
+        WorkspaceKind::Git { dirty: false, .. }
+    ));
+    assert_eq!(fs::read(root.path().join(".git/config")).unwrap(), before);
+}
+
+#[test]
+fn sparse_false_and_duplicate_values_keep_gits_actual_boolean_semantics() {
+    for value in ["false", "FALSE", "off", "no", "", "0", "00", "0x0", "000k"] {
+        let (root, _) = repository();
+        git(
+            root.path(),
+            &["config", "--add", "core.sparseCheckout", "true"],
+        );
+        git(
+            root.path(),
+            &["config", "--add", "core.sparseCheckout", value],
+        );
+        assert!(
+            matches!(
+                inspect(root.path()).unwrap().kind,
+                WorkspaceKind::Git { dirty: false, .. }
+            ),
+            "{value}"
+        );
+        git(
+            root.path(),
+            &["config", "--add", "core.sparseCheckout", "true"],
+        );
+        assert!(matches!(
+            inspect(root.path()),
+            Err(WorkspaceError::UnverifiedIndex)
+        ));
+    }
+}
+
+#[test]
+fn combined_index_flags_and_modes_preserve_inert_unusual_filenames() {
+    let (root, _) = repository();
+    let name = "160000 inert\tfile\nname";
+    fs::write(root.path().join(name), "ordinary tracked bytes\n").unwrap();
+    git(root.path(), &["add", "--", name]);
+    git(root.path(), &["commit", "-m", "inert unusual filename"]);
+    assert!(matches!(
+        inspect(root.path()).unwrap().kind,
+        WorkspaceKind::Git { dirty: false, .. }
+    ));
+    git(
+        root.path(),
+        &["update-index", "--assume-unchanged", "--", name],
+    );
+    assert!(matches!(
+        inspect(root.path()),
+        Err(WorkspaceError::UnverifiedIndex)
+    ));
+}
+
+#[test]
+fn batched_metadata_falls_back_without_changing_newline_path_identity() {
+    let parent = tempfile::tempdir().unwrap();
+    let root = parent.path().join("repository\nwith-newline");
+    fs::create_dir(&root).unwrap();
+    git(&root, &["init", "--initial-branch=main"]);
+    fs::write(root.join("source.txt"), "generated\n").unwrap();
+    git(&root, &["add", "source.txt"]);
+    git(&root, &["commit", "-m", "initial"]);
+    let original = inspect(&root).unwrap();
+    assert_eq!(original.canonical_root, root.canonicalize().unwrap());
+    let managed = parent.path().join("managed\nwith-newline");
+    fs::create_dir(&managed).unwrap();
+    let head = git(&root, &["rev-parse", "HEAD"]);
+    let isolated = create_isolated(&root, &managed, "attempt", &head).unwrap();
+    assert_eq!(
+        isolated.canonical_root,
+        managed.join("attempt").canonicalize().unwrap()
+    );
+    assert!(
+        matches!((&original.kind,&isolated.kind),(WorkspaceKind::Git {common_dir:a,head:ah,dirty:false},WorkspaceKind::Git {common_dir:b,head:bh,dirty:false}) if a==b && ah==bh)
+    );
+}
+
+#[test]
+fn oversized_config_snapshot_fails_closed_without_mutation() {
+    let (root, _) = repository();
+    let path = root.path().join(".git/config");
+    let mut original = fs::read(&path).unwrap();
+    original.extend_from_slice(b"\n[fixture]\nlarge = ");
+    original.extend(std::iter::repeat_n(b'x', 4 * 1024 * 1024 + 1));
+    original.push(b'\n');
+    fs::write(&path, &original).unwrap();
+    assert!(matches!(
+        inspect(root.path()),
+        Err(WorkspaceError::ResourceLimit)
+    ));
+    assert_eq!(fs::read(path).unwrap(), original);
+}
+
+#[test]
 fn import_does_not_invoke_configured_fsmonitor() {
     let (root, _) = repository();
     let marker = root.path().join("PWNED");

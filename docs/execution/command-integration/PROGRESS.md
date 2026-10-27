@@ -35,3 +35,12 @@ Actual Product40446762573 at56ff4227 passed Rust/UI/ARM but failed Intel short-l
 ## Second exact candidate failure and resource-isolation experiment
 
 201f Product40450221736/actual76d7503e failed Intel12/14, despite successful3Environment/Rust/UI: freshTTL992/request0 but sessions.create1232ms expired1000; second revoke round startup-marker1sec failed at1177, not2sec thread cleanup (firsttask_cancel fully passed). Raw failure/APIs/precisephases in CI_201F_FAILURE.json. The prior ordering repair alone did not prove Mac closure. Only the Mac Core/native step now setsRUST_TEST_THREADS=1 to avoid independentfixture contention; allcase inventory, internal realconcurrency, production, testlimits/job30min/Env untouched. Independent static review accepts the experiment. LinuxGoal9 frozen same-test/schema9 serial14 passed28.75s/admission227ms, explicitly notCore8 orMac proof. Need fresh exact dualMac/all7/native/DMG acceptance, no unchanged retry or inference of cause.
+
+
+## ada4 serial Mac result — failed, not accepted
+
+ActualPRheadada4c812/Product40451447529/checkout6758d6d failed bothMac13/14 despiteserial1 (verifiedlogs): freshadmission1331msARM/1199msIntel exceeds1000ms; correctexpirednegative andsecondmarkercontrolspass. Rust/UI/Env3success. No nativeGUI/harness/audit/DMGs reached or generated; no merged source. ExactAPI/logSHA andindependentfailedreview inCI_ADA4_FAILURE.json/NATIVE_ADA4_REVIEW.md. Currenttrueperformance sourcecb82ac6/docsff8598b batches same-inspection10→5Git commands, preserves2independentguards; author377+4/lints andLinuxphaseprofilespass, independentreview underway. Do not attribute those toMac; nextnewexactCI/dualnative/packages required.
+
+## Ready for actual new source CI
+
+Productionperformance sourcecb82 safelycherry5cea/docs47ab after actual independent227+4/lints/Gitunsafecontrols/profile5calls. Author377+4 fullworkspace preserved separately. CopyexactREVIEW bbe0cef3...; nointroducedauthority/drift/ownedprocessboundweaken. SameMaccargo now --show-output foractualtestphase timestamps, standardflagstaticaudited, no extraexecution or changedlimits. Save/pushnewcandidate then readfresh7exactPRchecks andpairednative/packages; failedada4 neveraccepted.

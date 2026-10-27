@@ -1,5 +1,13 @@
 # AgentBaton 执行状态
 
+最新保护main66061439c79fa44b66a33782febc1fb0f31c73df；本集成边界实际fetch并重读OWNER001/002，ACK且无新序号。完整Designv0.2/130需求/27决定/WP01–14继续，AB-START-001有效；真实Provider账户/模型、新费用/主机、签名、最终许可证、生产仍另行关闭。
+
+PR12最新已推58b5d32，仅Linux Rust步骤补RUST_TEST_THREADS1来隔离实际失败的跨fixture压力，全部case/内部显式并发/1000与其它时限/25min/Env原样。上个e373整体因Linux13/14失败不能合入，但双Mac实际ba437下Core14/native11/harness6/WebView/defaultreleaseaudit已独审通过，admission531/406ms满足原1000；不冒充新head或Linux压力满足。新7检查/双native/双包还待实际结果。
+
+Goal draftPR13（此前head4798a18）同步上游真正10→5Git同次inspect优化，避免后续回退。独立分支589b1a8只读编辑上下文/真实legacy持久缓存兼容已Core34+原样独立probe/lints通过，Editor175独审259/type/build，真实freshdefault9/structured10独立通过；仍待合到本PR后新的完整组合/CI/native验证。Dataa10库111+7及双Darwincrosscheck独审通过，Core/IPC/UI接线未做。NL规划/真实Goal派发/有界委派与采纳及完整其它需求继续，不称MVP或全产品完成；没有平台Goal/已核实CloudURL，不承诺无执行器续跑。
+
+## 已保存的先前检查点（历史事实，不能替代上述当前结果）
+
 完整Design v0.2全部130需求、27决定与WP01–14继续，AB-START-001有效。最新保护main66061439c79fa44b66a33782febc1fb0f31c73df（PR11），本次实际读取OWNER001/002并ACK，无新序号。未提供原生Goal工具/Cloud任务URL；不虚构状态/停止后后台续跑。真实Provider/私人身份、新费用资源/未批准远程、签名密钥、最终许可证和生产发布仍关闭。
 
 已按保护流程合入PR3/4/9/6/7/8/10/11。QuietCanvas为真实单入口UI；schema6完整性策略和schema7固定JSON合同有Core/原生桥/IPC/折叠表单。PR11准确06e7在main/ready，新PR attempt2 Product40432923340/Environment40432923530全七项成功，实际checkout1f2ed513父[febe7c7,06e7]、tree805748与head完全相同，双Native/PNG/新readonlyData三断言/lifecycle/defaultreleaseaudit独立通过，双DMG下载/hash/UDIF/提交/架构/签名核验后expectedhead保护合6606143。此前取消重复PR检查未清GitHub门禁，已恢复原PR检查而非绕过，attempt1取消/blocked→unstable→clean及手动七项均分别保存。
@@ -20,3 +28,6 @@ Goal计划算法source9acf86c/docs3d369已独立48tests+4原语义控制/Clippy/
 完整Goal仍有验收采纳/规划派发/能力配置/历史留存导出/远程/登录睡眠/真实Provider与人工验收等未实现或未验证维度；依赖就绪工作持续推进。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和130需求表保留实际通过/失败/未跑/受阻，不写完成百分比。原三Environment检查、所有主分支保护和产品四检查均保持，不直接/强推main、不跳过失败求绿。
 
 当前Goal组合分支codex/goal-planning-integration：Backend2cad05/history/source21e2，UI98a，最终harnessf7d13；Core210unique/Clippy/fmt/debugsidecars以及实际builtReact+UnixIPC9checks/6captures primary+独立均PASS，原H1/H2/R1/R2独审关闭、旧fail保留。先前6c完整workspace447+4docs/229UI/typebuild保留且不冒充新完整重跑。已补130表的Goal部分证据，所有相关需求仍implementing/partial；不是实际NLP/派发/reservation/TaskAccepted。Goal nativeOwner/Mac/双包未跑。PR12 ada4实际bothMac13/14失败：freshadmission1331/1199ms>1000，串行不足，原deadline/guards保留；真实inspect性能优化在独立分支实施。Goal候选可stacked/draft审查但不合入借绿。非Git数据库原107+7/双Darwincrosschecks通过，marker/前置bounds审查修正仍待实测。OWNER001/002 ACK，所有额外权限仍关闭。
+最新PR12验证对象ada4的Product40451447529已实际bothMac13/14失败、Env三项/Rust/UI成功；真实checkout6758d6d，admission1331/1199ms>1000，所有原时限保留。CI_ADA4_FAILURE.json/NATIVE_ADA4_REVIEW.md精确保留失败与下游未跑。真正Git检查批处理sourcecb82/docsff8598已作者377unique+4docs/lints通过且接受独审，仍未新Mac验证。Goal已远程draftPR13 https://github.com/wanderbot-auto/AgentBaton/pull/13 head4798a18，stackedPR12、实际9browserchecks，不借旧绿合入。Root另5f4b0de只读编辑上下文待Cargo，Editor924/882作者258MockUI通过，独审发现numericnodeid缓存碰撞正窄修；Data168原110+7通过，最后路径前置guard修订待实测。完整130需求继续，extra权限仍关闭。
+
+PR12真实优化sourcecb82（本地cherry5cea，docs47ab）已独审227unique+4compilefail/Clippy/fmt/5Git每phase及额外恶意Git配置控制通过；作者完整377+4另记。生产仅同次inspect批量只读查询，reservation/launch两次独立完整guard与原1000/1/2/3秒不变。Mac同次cargo仅加--show-output显示实际阶段，不额外重复/预热/skip。新候选正常push后仍须新准确7检查、双native与实际双包核验，未将Linux当Mac或完整产品完成。
