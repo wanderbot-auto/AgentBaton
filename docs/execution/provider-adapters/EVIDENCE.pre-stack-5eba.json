@@ -1,0 +1,1134 @@
+{
+  "recorded_at_utc": "2026-10-26T20:39:45.341819+00:00",
+  "approval": "AB-START-001",
+  "owner_inbox": "OWNER-001/002_ACK; protectedmain dc5aea00013af0bf0fdae41d09c83ed0c4dacfd7 read after PR4 merge; no new sequence",
+  "branch": "codex/provider-runtime-adapters",
+  "base_and_merged_components": {
+    "last_merge_commit_before_integrator_source": "636dbdd",
+    "config_slice": "951eb9a89ed4b1eb839fe3e370ec8a47866c3f51",
+    "provider_slice": "0ef3b86e6fd6ce6dbceb2166e8b640054628603b",
+    "native_harness_slice": "9862456ed25dfc63075b0c9123811a7cec67ed53",
+    "quiet_canvas_initial": "f1978b810f6caf3f42028fe92f028fec8530639a"
+  },
+  "candidate_commit": "5eba068e7772eddc45b9a6289bd38adac047c78f",
+  "tested_source": "35 frozen integration fingerprints in FINAL_REVIEW.md; component snapshots separately retained",
+  "checks": [
+    {
+      "command": "umask 022; cargo test --workspace --locked",
+      "exit_code": 0,
+      "top_level_tests": 243,
+      "breakdown": {
+        "core": 77,
+        "config": 67,
+        "providers": 79,
+        "workspaces": 18,
+        "actual_daemon_signals": 2
+      },
+      "note": "NestedFIFOchild harness1 not counted twice; generatedchildren, not realvendors"
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings; cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo build --locked --bin batond --bin baton; python3 scripts/smoke-local-product.py",
+      "exit_code": 0,
+      "scope": "actual private Unix daemon/CLI/SIGKILLrestart"
+    },
+    {
+      "command": "cargo build --release --locked --bin batond --bin baton; bash scripts/prepare-desktop-sidecars.sh",
+      "exit_code": 0
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run typecheck; npm test; npm run build",
+      "exit_code": 0,
+      "tests": 41,
+      "scope": "mockedTauri transport UI/wire tests"
+    },
+    {
+      "command": "artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond target/debug/batond --output /workspace/.onboarding/provider-runtime-portability-browser --chromium /usr/bin/chromium",
+      "exit_code": 0,
+      "checks": 22,
+      "screenshots": 8,
+      "scope": "Actual unchanged builtReact/testonlylocalhostadapter with current post-portability debug daemon bytes over Unix IPC/SQLite; not nativeGUI"
+    },
+    {
+      "command": "cargo check/test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "tests": 7,
+      "scope": "Actual Linux native-host compile/tests rerun after portability correction; not native window/macOS"
+    },
+    {
+      "command": "cargo check --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-smoke",
+      "exit_code": 0,
+      "scope": "Linux testfeature compilation, not windowexecution"
+    },
+    {
+      "command": "python3 apps/desktop/src-tauri/tests/test_native_runner.py",
+      "exit_code": 0,
+      "tests": 10,
+      "scope": "external runner/inspection failure contracts, not GUI"
+    },
+    {
+      "command": "bash scripts/native-audit-release.sh apps/desktop/src-tauri/target/debug/agentbaton-desktop",
+      "exit_code": 0,
+      "scope": "actual defaultdebug executable marker exclusion; actualMacreleaseaudit remainsCIpending"
+    },
+    {
+      "command": ".venv/bin/python crates/providers/tests/validate-native-schema.py artifacts/provider-contract/schema.json artifacts/provider-contract/wire.ndjson",
+      "exit_code": 0,
+      "validated_messages": 8,
+      "schema_sha256": "f50e158c34ac55c5cc67c5493df539f1c07b603bd5dd2100a7393eefb62a3e20",
+      "scope": "actual captured generatedchild frames vs pinnedcompleteofficialschema, not livecompatibility"
+    },
+    {
+      "command": "bash scripts/setup-dev.sh",
+      "exit_code": 0,
+      "python": 28,
+      "node": 4,
+      "rust_environment_fixture": 2,
+      "scope": "infrastructure only; separatefromproduct"
+    }
+  ],
+  "browser": {
+    "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider",
+    "daemon_sha256": "032737aa5aaaa8492426ecdbf900a489f0d3a5dcfbb3d9ba3bbdcc1bef52664c",
+    "checks": [
+      {
+        "name": "empty state contains no demonstration task",
+        "status": "passed"
+      },
+      {
+        "name": "five actual UI drafts persisted through Unix IPC",
+        "status": "passed",
+        "task_ids": [
+          "b2fa3740-f832-4dda-92e2-00d2351aba41",
+          "0b0ddf20-78b6-4cd4-8506-d81925e1f7ac",
+          "cba8ea9d-c0f7-4c72-b9af-6e1609bbe5ca",
+          "7696ba96-571e-470f-8840-fb15e9048b9e",
+          "9f502c28-deda-4cb3-8f26-6f3171716916"
+        ]
+      },
+      {
+        "name": "reviewed quick-context summary converts to actual draft, standalone model send unavailable",
+        "status": "passed"
+      },
+      {
+        "name": "truthful recorded-state filtering",
+        "status": "passed"
+      },
+      {
+        "name": "real core rejects oversized UTF-8 goal without inserting a task",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 1488x981",
+        "status": "passed",
+        "columns": 2,
+        "overflow": false,
+        "sidebar": 232,
+        "fonts": [
+          "18px",
+          "14px",
+          "24px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 1488x981",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 1440x900",
+        "status": "passed",
+        "columns": 2,
+        "overflow": false,
+        "sidebar": 232,
+        "fonts": [
+          "18px",
+          "14px",
+          "24px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 1440x900",
+        "status": "passed"
+      },
+      {
+        "name": "collapsed rail controls retain accessible localized names",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 1024x768",
+        "status": "passed",
+        "columns": 2,
+        "overflow": false,
+        "sidebar": 64,
+        "fonts": [
+          "18px",
+          "14px",
+          "24px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 1024x768",
+        "status": "passed"
+      },
+      {
+        "name": "mobile navigation exposes named controls and44px toggle target",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 390x844",
+        "status": "passed",
+        "columns": 1,
+        "overflow": false,
+        "sidebar": 0,
+        "fonts": [
+          "18px",
+          "24px",
+          "14px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 390x844",
+        "status": "passed"
+      },
+      {
+        "name": "keyboard command search, Escape and focus restore",
+        "status": "passed"
+      },
+      {
+        "name": "actual closed-details summary is included in dialog focus trap",
+        "status": "passed"
+      },
+      {
+        "name": "actual grant duration input enforces3600second core boundary; no unsupported grant sent",
+        "status": "passed"
+      },
+      {
+        "name": "reduced motion disables product transitions",
+        "status": "passed"
+      },
+      {
+        "name": "actual never-dispatched draft cancellation is confirmed by core evidence",
+        "status": "passed"
+      },
+      {
+        "name": "history uses actual journal events",
+        "status": "passed"
+      },
+      {
+        "name": "no browser runtime errors",
+        "status": "passed"
+      }
+    ],
+    "screenshots": [
+      "/workspace/.onboarding/provider-runtime-portability-browser/home-1488x981.png",
+      "/workspace/.onboarding/provider-runtime-portability-browser/task-1488x981.png",
+      "/workspace/.onboarding/provider-runtime-portability-browser/home-1440x900.png",
+      "/workspace/.onboarding/provider-runtime-portability-browser/task-1440x900.png",
+      "/workspace/.onboarding/provider-runtime-portability-browser/home-1024x768.png",
+      "/workspace/.onboarding/provider-runtime-portability-browser/task-1024x768.png",
+      "/workspace/.onboarding/provider-runtime-portability-browser/home-390x844.png",
+      "/workspace/.onboarding/provider-runtime-portability-browser/task-390x844.png"
+    ],
+    "requests": [
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": "INVALID_REQUEST",
+        "side_effect_state": "not_started"
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "workspaces.list",
+        "error": "NOT_FOUND",
+        "side_effect_state": "not_started"
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "grants.list",
+        "error": "NOT_FOUND",
+        "side_effect_state": "not_started"
+      },
+      {
+        "method": "tasks.cancel",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      }
+    ],
+    "browser_version": "154.0.8037.57",
+    "playwright_version": "1.62.0",
+    "screenshot_sha256": {
+      "home-1488x981.png": "6583b0f4dabab1ad29af7320ff95fbc0b64a35c2c2e6b1aed8e49b137cd02539",
+      "task-1488x981.png": "c1ccd266b97af54580a921d597b3a8e77092e10250b5da67318626233d39aa7d",
+      "home-1440x900.png": "7bc8e19e9a7b78fc44ef4ef0df1b8886aa38783841d7418aad6f717777212941",
+      "task-1440x900.png": "4ce6e4bcc83506614b165bed48837f66455520845b79844b6aa6880e9ad08d78",
+      "home-1024x768.png": "65673c8c0e14f43e7571f1a16ddf4ec86dbabd887277063a1754ca00a672c68b",
+      "task-1024x768.png": "c4ea2e63b4770e7f455e8af2d901bdd7c67f75bb447b37b66416e7fa9e25fe76",
+      "home-390x844.png": "67adaee0bc59101aab7bb8e9b2516228ae2710e055b8cae310af3b40bddf988a",
+      "task-390x844.png": "c29a355c9a0fb53e9081cf72218c63276c537ecb4dd5e86514f4e5bc1abb2116"
+    }
+  },
+  "logs_sha256": {
+    "provider-runtime-umask022-accepted.log": "4aad9e5041730e530c50c8ad35a45538d073d4513d98e2cc0b46716ba709d493",
+    "provider-runtime-umask022-control.log": "ea199358f4e33dab4e04a47c7a200c7ab43a8a353f9bcbbeded648a4f821efc3",
+    "nonblocking-first-frame-control.log": "0ae9644a96fe6c55020deba03a39507ff296c16128cae7b21af624abebae5154",
+    "provider-runtime-final-rust.log": "1c911a26a5db69b4c1d13557d5ec05a944a194154cb7f442673561b5f016a648",
+    "provider-runtime-final-official-schema.log": "e5c83dab77e4cc97c851cb2298b56c8ded916206f55054cd9c83ae0549ef2e60",
+    "provider-runtime-portability-clippy.log": "cfcdbe12fef439549e9af4e8d84994ce599ec0f71452ec5b1a7a6663f54a7159",
+    "provider-runtime-portability-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "provider-runtime-final-build.log": "9d342e45462d9d7a0fa3b3e3eca6b5216218d7dfa32438fea3270e83672087a0",
+    "provider-runtime-final-smoke.log": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805",
+    "provider-runtime-final-sidecars.log": "5ded6349ba4d32c33667e5dfd1c5d4e2022bb860b1602e0d09eb4035b021508e",
+    "provider-runtime-final-ui-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "provider-runtime-final-ui-tests.log": "a259985e3e35b5d928d2a0d1c8a8596801a61406c7a64a05e1194e2822e72339",
+    "provider-runtime-final-ui-build.log": "5534e08f7b20a95a4ff5582f0719c1949bb58103975a71967764be750b2e3018",
+    "provider-runtime-final-browser.log": "fbf7eb3ea9a94caf35468c39c0ef889e2dc17fbdbcfbcbcf63fc11b4e33a048f",
+    "provider-runtime-final-infrastructure.log": "53e40697666b825f1b43f205cdbc828fc95d8c33a3194960534b9206f3a4a692",
+    "provider-runtime-final-native-runner.log": "bb5071215fe2ad62fc66b412813774d6f6ffbb932c6893f1730c15f7f00c1a46",
+    "provider-runtime-final-native-check.log": "53da3cab870faf3130a46a4918014d386144ac3eb18168d521589f9324a723bd",
+    "provider-runtime-final-native-tests.log": "c76416cf850fc605e3e57ba8927091d60feac227e2a88d505fc3a52e3c9edffe",
+    "provider-runtime-final-native-feature-check.log": "f63bdb36120855961a6fb042f7ae62d5577c00bcc2e47ba56bfc40573b799aa5",
+    "provider-runtime-final-native-default-audit.log": "8ff1b93356831bc288ee26b9dfbae0dbcddae0bad376b6815370d10ea375cd85",
+    "browser-hashlock-install.log": "ecff59be46252e4e6feff568b6fcfd41bf2e2b04c3e07676b4db987176d1ba92",
+    "provider-runtime-portability-native-check.log": "fa1094c4e4725d8ba11e9f43d4e273fe392ae4e8f477cf7563010aa7328bdfe6",
+    "provider-runtime-portability-native-tests.log": "02c0432debc2a7427710404738b62083124e3e73a39514e4d7765e6284612d18",
+    "provider-runtime-portability-build.log": "56f2ea956334994cc4ed992fa097880323f07fadca5d43eae5f1435a0002702a",
+    "provider-runtime-portability-smoke.log": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805",
+    "provider-runtime-portability-browser.log": "a60d1ae4d141b3c20b01b9d2b040ddac43ec0f24487447d6bd71c26e846a92b9",
+    "provider-runtime-final-design.log": "4f9172b946f8325995c3013d2f35256e62539dbb602a298798843d997204c77b",
+    "provider-runtime-final-bootstrap.log": "116d97a6e9f493a093a6b3c5b04db551781ddf57f0dcc59b4595ebd95603096f",
+    "provider-runtime-portable-fifo.log": "f53df1b1bfe8be8df4b143bb6196bfc5f8f935ec38d9b49968fea4c403bfdf7c"
+  },
+  "failed_evidence": [
+    {
+      "issue": "Historical PR4 a429 CI fails private-managed-root fixtures underhostumask022",
+      "runs": {
+        "product": 40387527063,
+        "environment": 40387527043
+      },
+      "logs": [
+        "pr4-121799645967.log",
+        "pr4-121799646210.log",
+        "pr4-121799646232.log"
+      ],
+      "resolution": "Fresh testowned roots request0700 explicitly; productionprivacycheck and0755refusal unchanged; oldcontrolpolicy13fail, newfull022pass"
+    },
+    {
+      "issue": "Accepted nonblockingstream can reject delayedfirstframe",
+      "control": "636dbdd oldproduction plusidenticalnewtest failsBrokenPipe101; explicitblockingreset passes",
+      "native_historical_cause": "not_proven_untilfreshnativeCI"
+    },
+    {
+      "issue": "Largejournalcountonly page could allocate excessive responsebeforeIPClimit",
+      "resolution": "4MiB beforedecode budget; prefixpagination keepsallsequences; tests24largeUTF8records andsingleoverlimit; UI8MiB/500boundedpages remain navigable"
+    },
+    {
+      "issue": "Native release markerinspection could printPASS aftertoolerror",
+      "resolution": "failclosedinspection; failingtool23/markerpresent/clean controls passed"
+    },
+    {
+      "issue": "Purehistory readRESOURCE_LIMIT previously disabledauthenticatedtaskcancel",
+      "resolution": "Snapshotdeterminesconnection; secondaryreaderrorsvisible withoutdisablingknown taskcontrol; UIbehavior regression passed"
+    },
+    {
+      "issue": "New UI test initially hadmissingtaskfixture",
+      "log": "provider-runtime-ui-history-fixture-failed.log",
+      "resolution": "Supplied actual existing fixturetask/snapshot; all41UI pass"
+    },
+    {
+      "issue": "NativeLinuxWebKithelperpaths preventactualwindow execution",
+      "evidence": "docs/execution/native-gui/EVIDENCE.json",
+      "resolution": "blocked not bypassed; actualMacCI laneimplemented, not yetrun"
+    },
+    {
+      "issue": "BothactualMacCI lanes failRusttestcompile onApple-excludedrustixmkfifoat",
+      "run": 40397829141,
+      "jobs": [
+        121835580552,
+        121835580576
+      ],
+      "logs_sha256": {
+        "/workspace/.onboarding/provider-runtime-ci-121835580552.log": "64ed204991100de5753870e92c37010cbd164e33b6ddae3e3daf5201dec6cc21",
+        "/workspace/.onboarding/provider-runtime-ci-121835580576.log": "b633f47191c50947654dde53e84b5cce91c3dd37f5d150dbad8ff816c93ab60b"
+      },
+      "review": "docs/execution/provider-adapters/CI_FOLLOWUP.md",
+      "resolution": "actualPOSIXFIFOutilityfixture, no skippedtest/productionchange; retry pending"
+    }
+  ],
+  "limitations": [
+    "Only explicitly approved generated defaultRuntimePlans are connected; nondefaultSkill/MCP/model profiles rejectedratherthanignored",
+    "Nativeconfigurationloading/accountidentity/hiddeninheritance/OSenforcement remainunknown; strictrequirementsfailclosed",
+    "NativeCodex andClaude/Qoder contracts validatedwithgeneratedchildren; no realvendor/account/modelcall or authentication test",
+    "Restartunknownwriters remainunreplayed; fullconditionalnative resume/reconciliation stillincomplete",
+    "Initializationerrorsafterownedchildspawn may conservatively retainunknown due unavailable typedstopreceipt",
+    "Available normalizedjournal historyispartial; rawprotocol/stderr retention/privacy/export/purge incomplete",
+    "LinuxactualWebView executionblockedbysystemhelperpath; MacGUI/screenshots/defaultreleaseaudit/manualinstallationnotyetverified",
+    "Fullrouter/delegation/goalplanning/workflows/validation/adoption/remotehosts/lifecycle remainunfinished",
+    "Full130requirementgoal remainsopen; no acceptance/fullproductclaim"
+  ],
+  "remote_ci_current_candidate": {
+    "head": "5eba068e7772eddc45b9a6289bd38adac047c78f",
+    "product_run": 40397829141,
+    "environment_run": 40397834035,
+    "environment_all3": "passed",
+    "product_rust": "passed",
+    "product_ui_including_real_browser": "passed",
+    "product_arm_and_intel": "failed_testcompile_rustix_mkfifoat_Apple_excluded",
+    "native_window": "not_reached",
+    "correction": "FixedPOSIXFIFOcreation withrealFIFOtypeassert, originalnotwaitingassertions retained; independently22runtime/fmtpass, macOSretry pending"
+  },
+  "real_provider_models": "not_run_not_authorized",
+  "production_release": "not_run_not_authorized",
+  "signing_keys": "not_configured",
+  "extra_spend": "not_authorized",
+  "historical_browser_pre_portability": {
+    "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider",
+    "daemon_sha256": "9915bf5b83ada2f569ffb068f96c5e5c3c5a712be10d03640d2030656742523d",
+    "checks": [
+      {
+        "name": "empty state contains no demonstration task",
+        "status": "passed"
+      },
+      {
+        "name": "five actual UI drafts persisted through Unix IPC",
+        "status": "passed",
+        "task_ids": [
+          "747ab0a1-4912-462b-b0f5-0b4f271b3209",
+          "d209c06e-3580-4752-8cd7-3f730294398e",
+          "d1c2e63a-084a-438c-bd12-750d6b5f7f0d",
+          "003d453e-7a9c-4d4d-93be-b6ab8908db4f",
+          "8d567916-ff21-4921-a240-031fd727756f"
+        ]
+      },
+      {
+        "name": "reviewed quick-context summary converts to actual draft, standalone model send unavailable",
+        "status": "passed"
+      },
+      {
+        "name": "truthful recorded-state filtering",
+        "status": "passed"
+      },
+      {
+        "name": "real core rejects oversized UTF-8 goal without inserting a task",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 1488x981",
+        "status": "passed",
+        "columns": 2,
+        "overflow": false,
+        "sidebar": 232,
+        "fonts": [
+          "18px",
+          "14px",
+          "24px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 1488x981",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 1440x900",
+        "status": "passed",
+        "columns": 2,
+        "overflow": false,
+        "sidebar": 232,
+        "fonts": [
+          "18px",
+          "14px",
+          "24px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 1440x900",
+        "status": "passed"
+      },
+      {
+        "name": "collapsed rail controls retain accessible localized names",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 1024x768",
+        "status": "passed",
+        "columns": 2,
+        "overflow": false,
+        "sidebar": 64,
+        "fonts": [
+          "18px",
+          "14px",
+          "24px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 1024x768",
+        "status": "passed"
+      },
+      {
+        "name": "mobile navigation exposes named controls and44px toggle target",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 390x844",
+        "status": "passed",
+        "columns": 1,
+        "overflow": false,
+        "sidebar": 0,
+        "fonts": [
+          "18px",
+          "24px",
+          "14px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 390x844",
+        "status": "passed"
+      },
+      {
+        "name": "keyboard command search, Escape and focus restore",
+        "status": "passed"
+      },
+      {
+        "name": "actual closed-details summary is included in dialog focus trap",
+        "status": "passed"
+      },
+      {
+        "name": "actual grant duration input enforces3600second core boundary; no unsupported grant sent",
+        "status": "passed"
+      },
+      {
+        "name": "reduced motion disables product transitions",
+        "status": "passed"
+      },
+      {
+        "name": "actual never-dispatched draft cancellation is confirmed by core evidence",
+        "status": "passed"
+      },
+      {
+        "name": "history uses actual journal events",
+        "status": "passed"
+      },
+      {
+        "name": "no browser runtime errors",
+        "status": "passed"
+      }
+    ],
+    "screenshots": [
+      "/workspace/.onboarding/provider-runtime-final-browser/home-1488x981.png",
+      "/workspace/.onboarding/provider-runtime-final-browser/task-1488x981.png",
+      "/workspace/.onboarding/provider-runtime-final-browser/home-1440x900.png",
+      "/workspace/.onboarding/provider-runtime-final-browser/task-1440x900.png",
+      "/workspace/.onboarding/provider-runtime-final-browser/home-1024x768.png",
+      "/workspace/.onboarding/provider-runtime-final-browser/task-1024x768.png",
+      "/workspace/.onboarding/provider-runtime-final-browser/home-390x844.png",
+      "/workspace/.onboarding/provider-runtime-final-browser/task-390x844.png"
+    ],
+    "requests": [
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": "INVALID_REQUEST",
+        "side_effect_state": "not_started"
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "grants.list",
+        "error": "NOT_FOUND",
+        "side_effect_state": "not_started"
+      },
+      {
+        "method": "workspaces.list",
+        "error": "NOT_FOUND",
+        "side_effect_state": "not_started"
+      },
+      {
+        "method": "tasks.cancel",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      }
+    ],
+    "browser_version": "154.0.8037.57",
+    "playwright_version": "1.62.0",
+    "screenshot_sha256": {
+      "home-1488x981.png": "3bab8a7d0010802b3602e50f2c2b754722943d10074ac1a64cbb02d2904bbdf7",
+      "task-1488x981.png": "eced957457aded64137222d8218f3e90dc77e8a55ce9edb0f9b99def22e80859",
+      "home-1440x900.png": "7bc8e19e9a7b78fc44ef4ef0df1b8886aa38783841d7418aad6f717777212941",
+      "task-1440x900.png": "4ce6e4bcc83506614b165bed48837f66455520845b79844b6aa6880e9ad08d78",
+      "home-1024x768.png": "65673c8c0e14f43e7571f1a16ddf4ec86dbabd887277063a1754ca00a672c68b",
+      "task-1024x768.png": "c4ea2e63b4770e7f455e8af2d901bdd7c67f75bb447b37b66416e7fa9e25fe76",
+      "home-390x844.png": "0f44e21055923854bdb4de83b6cc5a91f0adbd8cad7ad4ff813fd88ce2b0478d",
+      "task-390x844.png": "cf78a638691f4c049eec2327d24595840d501c2fd1f26131e291f408c5694136"
+    }
+  },
+  "current_browser_evidence_sha256": "2684abd956fb5517984558c0369e431f4af9adad106a058ace93434901bcbd47"
+}

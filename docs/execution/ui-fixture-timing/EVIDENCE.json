@@ -1,0 +1,76 @@
+{
+  "unit": "project-binding-ui-fixture-timing",
+  "base_commit": "130f3639cdf20a15acd7a4ab448f6ac400fb8770",
+  "source_commit": "4e18b72371e395468804406cb3dece34c9a86e7b",
+  "recorded_at_utc": "2026-10-27T00:09:29.473060+00:00",
+  "authorization": "AB-START-001; OWNER001/002 ACK; parent scoped isolated test-only correction, no paid models/production or main push",
+  "actual_failure": {
+    "run_id": 40422958570,
+    "job_id": 121921608984,
+    "name": "Product / macos-15-intel",
+    "pr_head": "130f3639cdf20a15acd7a4ab448f6ac400fb8770",
+    "actual_checkout": "0c1663aec65f94cc95ea8b1a1b8221e29e593ff4",
+    "checkout_description": "Actual CI log says Merge130f into protectedmainc4e72c6, refs/remotes/pull/8/merge",
+    "test": "binds task drafts to an explicitly selected active project and disables archived projects",
+    "location": "src/App.test.tsx:27",
+    "observed_duration_ms": 5164,
+    "unchanged_timeout_ms": 5000,
+    "result": "48passed1failed (49 total)",
+    "limits": "No step-level timing is available; no claim that typing alone consumed the deadline or that the Mac failure was reproduced locally."
+  },
+  "changes": [
+    "Await actual enabled active-project option, then select through userEvent and assert selected project ID. No arbitrary sleep.",
+    "Replace only this project-binding fixture goal input with real userEvent click+paste through input/onChange; assert exact goal value.",
+    "All original archived-disabled and exact api.create(goal,key,project.id) assertions preserved. The other11App tests are byte-identical, including both user.type task creation and uncertain-idempotency cases.",
+    "No product/native/lock/config/timeout changes. No skipped/removed acceptance assertions."
+  ],
+  "checks": [
+    {
+      "command": "npm test -- src/App.test.tsx -t 'binds task drafts to an explicitly selected active project and disables archived projects'",
+      "source": "130f3639cdf20a15acd7a4ab448f6ac400fb8770",
+      "exit_code": 0,
+      "tests": 1,
+      "filtered_out": 11,
+      "dimension": "Original local Linux fixture passed; this is not a Mac performance reproduction."
+    },
+    {
+      "command": "npm test -- src/App.test.tsx",
+      "source": "4e18b72371e395468804406cb3dece34c9a86e7b",
+      "exit_code": 0,
+      "tests": 12
+    },
+    {
+      "command": "npm test",
+      "source": "4e18b72371e395468804406cb3dece34c9a86e7b",
+      "exit_code": 0,
+      "tests": 49,
+      "files": 7
+    },
+    {
+      "command": "npm run typecheck",
+      "source": "4e18b72371e395468804406cb3dece34c9a86e7b",
+      "exit_code": 0
+    },
+    {
+      "command": "npm run build",
+      "source": "4e18b72371e395468804406cb3dece34c9a86e7b",
+      "exit_code": 0
+    }
+  ],
+  "source_sha256": {
+    "apps/desktop/src/App.test.tsx": "194c6c8cc63ed1ab120bde3cdb9283de9d5d263e6198ab674f440d1dc9002e44"
+  },
+  "local_log_sha256": {
+    "ui-fixture-timing-app12.log": "1bfaf675460463ba77bf07310994c4cc6cb893aaac33db34f46e6f63eaabd644",
+    "ui-fixture-timing-build.log": "1187f48c0adbc3c443ee82478c1f53a53abacb74eea79a88bf2708f2b7507c63",
+    "ui-fixture-timing-intel-failure.log": "bc996f66680ab2a679799822d62e970b0d2fe8182c0788bd44a7d022c2f2e2a2",
+    "ui-fixture-timing-original-local.log": "4d96ee4302e8501a3fdcbff2b1ed6ef6ed8ef4e5fd8edb09fdaae059c48818e7",
+    "ui-fixture-timing-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "ui-fixture-timing-ui49.log": "72cbad2e40c2154060d17bcc0cc35db404d5817f0a0b7178d5c659cb2bc57319"
+  },
+  "not_run": [
+    "New exacthead macOS CI and native/browser validation; parent runs after independent review/integration",
+    "No performance subdivision or local Mac reproduction claimed",
+    "No fullproduct completion/model calls/signing/release authority implied"
+  ]
+}

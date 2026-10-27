@@ -185,7 +185,10 @@
         "crates/providers/src/connections.rs",
         "crates/core/src/sessions.rs",
         "apps/desktop/src/Connections.tsx",
-        "apps/desktop/src/ManagedSessions.tsx"
+        "apps/desktop/src/ManagedSessions.tsx",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/providers/src/lib.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -193,37 +196,58 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge.",
-        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
-        "apps/desktop/src/SessionWorkbench.test.tsx"
+        "apps/desktop/src/SessionWorkbench.test.tsx",
+        "crates/providers/tests/native_codex.rs"
       ]
     },
     {
       "id": "AB-PRO-002",
       "work_package": "WP04",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/providers/src/lib.rs",
+        "crates/core/src/sessions.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+      ],
+      "limitations": [
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/providers/tests/native_codex.rs",
+        "crates/core/tests/sessions_ipc.rs"
+      ]
     },
     {
       "id": "AB-PRO-003",
@@ -273,17 +297,33 @@
     {
       "id": "AB-PRO-006",
       "work_package": "WP04",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/providers/src/lib.rs",
+        "crates/core/src/sessions.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+      ],
+      "limitations": [
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/providers/tests/native_codex.rs",
+        "crates/core/tests/sessions_ipc.rs"
+      ]
     },
     {
       "id": "AB-PRO-007",
@@ -291,22 +331,34 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/installation.rs",
-        "crates/providers/src/connections.rs"
+        "crates/providers/src/connections.rs",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/providers/src/lib.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/providers/tests/native_codex.rs",
+        "crates/core/tests/sessions_ipc.rs"
+      ]
     },
     {
       "id": "AB-SES-002",
@@ -419,7 +471,10 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/config/src/capabilities.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/capabilities/native.rs",
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -427,20 +482,27 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
-        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
       ],
       "coverage": "partial",
       "verification_refs": [
-        "crates/config/tests/native_sources.rs"
+        "crates/config/tests/native_sources.rs",
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
       ]
     },
     {
@@ -449,7 +511,10 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/config/src/capabilities.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/capabilities/native.rs",
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -457,20 +522,27 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
-        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
       ],
       "coverage": "partial",
       "verification_refs": [
-        "crates/config/tests/native_sources.rs"
+        "crates/config/tests/native_sources.rs",
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
       ]
     },
     {
@@ -479,7 +551,10 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/config/src/capabilities.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/capabilities/native.rs",
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -487,20 +562,27 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
-        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
       ],
       "coverage": "partial",
       "verification_refs": [
-        "crates/config/tests/native_sources.rs"
+        "crates/config/tests/native_sources.rs",
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
       ]
     },
     {
@@ -509,7 +591,10 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/config/src/capabilities.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/capabilities/native.rs",
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -517,20 +602,27 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
-        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
       ],
       "coverage": "partial",
       "verification_refs": [
-        "crates/config/tests/native_sources.rs"
+        "crates/config/tests/native_sources.rs",
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
       ]
     },
     {
@@ -539,7 +631,10 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/config/src/capabilities.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/capabilities/native.rs",
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -547,20 +642,27 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
-        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
       ],
       "coverage": "partial",
       "verification_refs": [
-        "crates/config/tests/native_sources.rs"
+        "crates/config/tests/native_sources.rs",
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
       ]
     },
     {
@@ -583,30 +685,10 @@
       "work_package": "WP06",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/capabilities.rs"
-      ],
-      "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
-        "provider": "not_run",
-        "native_arm64": "not_run",
-        "native_x86_64": "not_run"
-      },
-      "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
-      ],
-      "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
-      ],
-      "coverage": "partial"
-    },
-    {
-      "id": "AB-CAP-008",
-      "work_package": "WP06",
-      "status": "implementing",
-      "implementation_refs": [
         "crates/config/src/capabilities.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -614,20 +696,62 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+      },
+      "evidence": [
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+      ],
+      "limitations": [
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
+      ]
+    },
+    {
+      "id": "AB-CAP-008",
+      "work_package": "WP06",
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/capabilities/native.rs",
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
+      ],
+      "verification": {
+        "unit": "not_run",
+        "integration": "not_run",
+        "provider": "not_run",
+        "native_arm64": "not_run",
+        "native_x86_64": "not_run",
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
-        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains."
+        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
       ],
       "coverage": "partial",
       "verification_refs": [
-        "crates/config/tests/native_sources.rs"
+        "crates/config/tests/native_sources.rs",
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
       ]
     },
     {
@@ -635,23 +759,33 @@
       "work_package": "WP07",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/lib.rs"
+        "crates/config/src/lib.rs",
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
+        "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
       ],
       "verification_refs": [
-        "crates/config/tests/transactions.rs"
+        "crates/config/tests/transactions.rs",
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
       ],
       "coverage": "partial"
     },
@@ -783,17 +917,33 @@
     {
       "id": "AB-CFG-007",
       "work_package": "WP07",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+      ],
+      "limitations": [
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
+      ]
     },
     {
       "id": "AB-CFG-008",
@@ -803,7 +953,10 @@
         "crates/config/src/capabilities.rs",
         "crates/core/src/policy.rs",
         "apps/desktop/src-tauri/src/approval.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/capabilities/native.rs",
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -811,22 +964,29 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
-        "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
+        "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/policy.rs",
         "apps/desktop/src-tauri/src/approval.rs",
-        "crates/config/tests/native_sources.rs"
+        "crates/config/tests/native_sources.rs",
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
       ]
     },
     {
@@ -916,7 +1076,16 @@
         "crates/core/tests/ipc.rs",
         "crates/core/tests/execution.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "durable_connection_approval_followed_by_probe_preparation_failure",
+          "source_commit": "32b2dc58d23205350aa54878463b8f824997dc02",
+          "evidence": "docs/execution/approval-outcome-guard/EVIDENCE.json",
+          "review": "docs/execution/approval-outcome-guard/REVIEW.md",
+          "verification": "actualgeneratedfixtureUnixIPC andfault/retrycontrols passed; notfullrequirement/nativeaccountacceptance"
+        }
+      ]
     },
     {
       "id": "AB-TSK-005",
@@ -1037,7 +1206,16 @@
         "crates/core/tests/policy.rs",
         "apps/daemon/tests/signals.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "durable_connection_approval_followed_by_probe_preparation_failure",
+          "source_commit": "32b2dc58d23205350aa54878463b8f824997dc02",
+          "evidence": "docs/execution/approval-outcome-guard/EVIDENCE.json",
+          "review": "docs/execution/approval-outcome-guard/REVIEW.md",
+          "verification": "actualgeneratedfixtureUnixIPC andfault/retrycontrols passed; notfullrequirement/nativeaccountacceptance"
+        }
+      ]
     },
     {
       "id": "AB-TSK-009",
@@ -1291,23 +1469,31 @@
       "implementation_refs": [
         "apps/desktop/src/App.tsx",
         "apps/desktop/src/api.ts",
-        "apps/desktop/src-tauri/src/main.rs"
+        "apps/desktop/src-tauri/src/main.rs",
+        "crates/core/src/storage.rs",
+        "apps/desktop/src/event-window.ts"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
+        "Actual byte-bounded journal/browser UI partial checks; full raw history/privacy/export, complete native UI acceptance and remaining requirement semantics remain open."
       ],
       "verification_refs": [
-        "apps/desktop/src/App.test.tsx"
+        "apps/desktop/src/App.test.tsx",
+        "crates/core/tests/storage.rs",
+        "apps/desktop/src/event-window.test.ts"
       ],
       "coverage": "partial"
     },
@@ -1321,7 +1507,9 @@
         "apps/desktop/src-tauri/src/main.rs",
         "crates/core/src/sessions.rs",
         "apps/desktop/src/Connections.tsx",
-        "apps/desktop/src/ManagedSessions.tsx"
+        "apps/desktop/src/ManagedSessions.tsx",
+        "crates/core/src/storage.rs",
+        "apps/desktop/src/event-window.ts"
       ],
       "verification": {
         "unit": "not_run",
@@ -1329,21 +1517,27 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
-        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain.",
+        "Actual byte-bounded journal/browser UI partial checks; full raw history/privacy/export, complete native UI acceptance and remaining requirement semantics remain open."
       ],
       "verification_refs": [
         "apps/desktop/src/App.test.tsx",
         "crates/core/tests/sessions_ipc.rs",
-        "apps/desktop/src/SessionWorkbench.test.tsx"
+        "apps/desktop/src/SessionWorkbench.test.tsx",
+        "crates/core/tests/storage.rs",
+        "apps/desktop/src/event-window.test.ts"
       ],
       "coverage": "partial"
     },
@@ -1354,23 +1548,31 @@
       "implementation_refs": [
         "apps/desktop/src/App.tsx",
         "apps/desktop/src/api.ts",
-        "apps/desktop/src-tauri/src/main.rs"
+        "apps/desktop/src-tauri/src/main.rs",
+        "crates/core/src/storage.rs",
+        "apps/desktop/src/event-window.ts"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
+        "Actual byte-bounded journal/browser UI partial checks; full raw history/privacy/export, complete native UI acceptance and remaining requirement semantics remain open."
       ],
       "verification_refs": [
-        "apps/desktop/src/App.test.tsx"
+        "apps/desktop/src/App.test.tsx",
+        "crates/core/tests/storage.rs",
+        "apps/desktop/src/event-window.test.ts"
       ],
       "coverage": "partial"
     },
@@ -1384,7 +1586,9 @@
         "apps/desktop/src-tauri/src/main.rs",
         "crates/core/src/sessions.rs",
         "apps/desktop/src/Connections.tsx",
-        "apps/desktop/src/ManagedSessions.tsx"
+        "apps/desktop/src/ManagedSessions.tsx",
+        "crates/core/src/storage.rs",
+        "apps/desktop/src/event-window.ts"
       ],
       "verification": {
         "unit": "not_run",
@@ -1392,21 +1596,27 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
-        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain.",
+        "Actual byte-bounded journal/browser UI partial checks; full raw history/privacy/export, complete native UI acceptance and remaining requirement semantics remain open."
       ],
       "verification_refs": [
         "apps/desktop/src/App.test.tsx",
         "crates/core/tests/sessions_ipc.rs",
-        "apps/desktop/src/SessionWorkbench.test.tsx"
+        "apps/desktop/src/SessionWorkbench.test.tsx",
+        "crates/core/tests/storage.rs",
+        "apps/desktop/src/event-window.test.ts"
       ],
       "coverage": "partial"
     },
@@ -1550,17 +1760,29 @@
     {
       "id": "AB-SEC-007",
       "work_package": "WP12",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/storage.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+      ],
+      "limitations": [
+        "Actual schema5 backup/failure/future-version tests pass locally; full upgrade/support matrix remains open."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v5.rs"
+      ]
     },
     {
       "id": "AB-SEC-008",
@@ -1583,22 +1805,30 @@
       "status": "implementing",
       "implementation_refs": [
         ".github/workflows/product.yml",
-        "scripts/package-development-macos.sh"
+        "scripts/package-development-macos.sh",
+        "scripts/native-macos-smoke.sh",
+        "scripts/native-audit-release.sh"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release."
+        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
+        "Foundation dualarchitecture DMGs verified at PR3 only; new integrated macOS GUI/default-release lane pending, manual/native full acceptance not established."
       ],
-      "verification_refs": [],
+      "verification_refs": [
+        "apps/desktop/src-tauri/tests/test_native_runner.py"
+      ],
       "coverage": "partial"
     },
     {
@@ -1607,38 +1837,60 @@
       "status": "implementing",
       "implementation_refs": [
         ".github/workflows/product.yml",
-        "scripts/package-development-macos.sh"
+        "scripts/package-development-macos.sh",
+        "scripts/native-macos-smoke.sh",
+        "scripts/native-audit-release.sh"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release."
+        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
+        "Foundation dualarchitecture DMGs verified at PR3 only; new integrated macOS GUI/default-release lane pending, manual/native full acceptance not established."
       ],
-      "verification_refs": [],
+      "verification_refs": [
+        "apps/desktop/src-tauri/tests/test_native_runner.py"
+      ],
       "coverage": "partial"
     },
     {
       "id": "AB-REL-003",
       "work_package": "WP13",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        ".github/workflows/product.yml",
+        "scripts/native-macos-smoke.sh",
+        "scripts/native-audit-release.sh"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+      ],
+      "limitations": [
+        "Foundation dualarchitecture DMGs verified at PR3 only; new integrated macOS GUI/default-release lane pending, manual/native full acceptance not established."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "apps/desktop/src-tauri/tests/test_native_runner.py"
+      ]
     },
     {
       "id": "AB-REL-004",
@@ -1646,22 +1898,30 @@
       "status": "implementing",
       "implementation_refs": [
         ".github/workflows/product.yml",
-        "scripts/package-development-macos.sh"
+        "scripts/package-development-macos.sh",
+        "scripts/native-macos-smoke.sh",
+        "scripts/native-audit-release.sh"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release."
+        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
+        "Foundation dualarchitecture DMGs verified at PR3 only; new integrated macOS GUI/default-release lane pending, manual/native full acceptance not established."
       ],
-      "verification_refs": [],
+      "verification_refs": [
+        "apps/desktop/src-tauri/tests/test_native_runner.py"
+      ],
       "coverage": "partial"
     },
     {
@@ -1946,7 +2206,16 @@
         "crates/core/tests/policy.rs",
         "apps/daemon/tests/signals.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "durable_connection_approval_followed_by_probe_preparation_failure",
+          "source_commit": "32b2dc58d23205350aa54878463b8f824997dc02",
+          "evidence": "docs/execution/approval-outcome-guard/EVIDENCE.json",
+          "review": "docs/execution/approval-outcome-guard/REVIEW.md",
+          "verification": "actualgeneratedfixtureUnixIPC andfault/retrycontrols passed; notfullrequirement/nativeaccountacceptance"
+        }
+      ]
     },
     {
       "id": "AB-DOM-006",
@@ -2066,25 +2335,33 @@
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "apps/desktop/src/event-window.ts",
+        "apps/desktop/src/App.tsx"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
+        "Actual byte-bounded journal/browser UI partial checks; full raw history/privacy/export, complete native UI acceptance and remaining requirement semantics remain open."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "apps/desktop/src/event-window.test.ts",
+        "apps/desktop/src/App.test.tsx"
       ],
       "coverage": "partial"
     },
@@ -2094,7 +2371,10 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/core/src/sessions.rs",
-        "crates/core/src/policy.rs"
+        "crates/core/src/policy.rs",
+        "crates/core/src/storage.rs",
+        "apps/desktop/src/event-window.ts",
+        "apps/desktop/src/App.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -2102,20 +2382,27 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
+        "Actual byte-bounded journal/browser UI partial checks; full raw history/privacy/export, complete native UI acceptance and remaining requirement semantics remain open."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "crates/core/tests/storage.rs",
+        "apps/desktop/src/event-window.test.ts",
+        "apps/desktop/src/App.test.tsx"
       ]
     },
     {
@@ -2188,7 +2475,9 @@
       "implementation_refs": [
         "crates/providers/src/lib.rs",
         "crates/providers/src/transport.rs",
-        "crates/core/src/sessions.rs"
+        "crates/core/src/sessions.rs",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -2196,21 +2485,26 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration.",
-        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
       "verification_refs": [
         "crates/providers/tests/contracts.rs",
         "crates/providers/tests/stdio.rs",
-        "crates/core/tests/sessions_ipc.rs"
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/providers/tests/native_codex.rs"
       ],
       "coverage": "partial"
     },
@@ -2220,7 +2514,10 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/transport.rs",
-        "crates/core/src/sessions.rs"
+        "crates/core/src/sessions.rs",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/providers/src/lib.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -2228,19 +2525,24 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/providers/tests/stdio.rs",
-        "crates/core/tests/sessions_ipc.rs"
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/providers/tests/native_codex.rs"
       ]
     },
     {
@@ -2283,7 +2585,9 @@
       "implementation_refs": [
         "crates/providers/src/lib.rs",
         "crates/providers/src/transport.rs",
-        "crates/core/src/sessions.rs"
+        "crates/core/src/sessions.rs",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -2291,21 +2595,26 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration.",
-        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
       "verification_refs": [
         "crates/providers/tests/contracts.rs",
         "crates/providers/tests/stdio.rs",
-        "crates/core/tests/sessions_ipc.rs"
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/providers/tests/native_codex.rs"
       ],
       "coverage": "partial"
     },
@@ -2316,7 +2625,9 @@
       "implementation_refs": [
         "crates/providers/src/lib.rs",
         "crates/providers/src/transport.rs",
-        "crates/core/src/sessions.rs"
+        "crates/core/src/sessions.rs",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -2324,21 +2635,26 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration.",
-        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
       "verification_refs": [
         "crates/providers/tests/contracts.rs",
         "crates/providers/tests/stdio.rs",
-        "crates/core/tests/sessions_ipc.rs"
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/providers/tests/native_codex.rs"
       ],
       "coverage": "partial"
     },
@@ -2349,7 +2665,9 @@
       "implementation_refs": [
         "crates/providers/src/lib.rs",
         "crates/providers/src/transport.rs",
-        "crates/core/src/sessions.rs"
+        "crates/core/src/sessions.rs",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -2357,21 +2675,26 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Protocol/owned subprocess fixtures only; not real Provider versions/accounts, no daemon integration.",
-        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified."
+        "Generated ACP child contract/pump/denial/cancel tests; vendor/account/native runtime support remains unverified.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
       "verification_refs": [
         "crates/providers/tests/contracts.rs",
         "crates/providers/tests/stdio.rs",
-        "crates/core/tests/sessions_ipc.rs"
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/providers/tests/native_codex.rs"
       ],
       "coverage": "partial"
     },
@@ -2384,7 +2707,10 @@
         "crates/providers/src/connections.rs",
         "crates/core/src/sessions.rs",
         "apps/desktop/src/Connections.tsx",
-        "apps/desktop/src/ManagedSessions.tsx"
+        "apps/desktop/src/ManagedSessions.tsx",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/providers/src/lib.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -2392,21 +2718,26 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge.",
-        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
-        "apps/desktop/src/SessionWorkbench.test.tsx"
+        "apps/desktop/src/SessionWorkbench.test.tsx",
+        "crates/providers/tests/native_codex.rs"
       ]
     },
     {
@@ -2418,7 +2749,10 @@
         "crates/providers/src/connections.rs",
         "crates/core/src/sessions.rs",
         "apps/desktop/src/Connections.tsx",
-        "apps/desktop/src/ManagedSessions.tsx"
+        "apps/desktop/src/ManagedSessions.tsx",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/providers/src/lib.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -2426,21 +2760,26 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge.",
-        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain."
+        "Version-probed custom ACP connection/session plus mocked UI; other vendor paths and native GUI remain.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
-        "apps/desktop/src/SessionWorkbench.test.tsx"
+        "apps/desktop/src/SessionWorkbench.test.tsx",
+        "crates/providers/tests/native_codex.rs"
       ]
     },
     {
@@ -2464,22 +2803,34 @@
       "status": "implementing",
       "implementation_refs": [
         "crates/providers/src/installation.rs",
-        "crates/providers/src/connections.rs"
+        "crates/providers/src/connections.rs",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/providers/src/lib.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge."
+        "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/providers/tests/native_codex.rs",
+        "crates/core/tests/sessions_ipc.rs"
+      ]
     },
     {
       "id": "AB-SES-009",
@@ -2559,61 +2910,101 @@
     {
       "id": "AB-CFG-011",
       "work_package": "WP07",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+      ],
+      "limitations": [
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
+      ]
     },
     {
       "id": "AB-CFG-012",
       "work_package": "WP07",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/capabilities.rs"
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
+      ]
     },
     {
       "id": "AB-CFG-013",
       "work_package": "WP07",
       "status": "implementing",
       "implementation_refs": [
-        "crates/config/src/capabilities.rs"
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/runtime.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/core/src/sessions.rs"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain."
+        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
+        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/runtime.rs",
+        "crates/core/tests/sessions_ipc.rs",
+        "crates/core/tests/migration_v5.rs"
+      ]
     },
     {
       "id": "AB-TSK-011",
@@ -2720,23 +3111,31 @@
       "implementation_refs": [
         "apps/desktop/src/App.tsx",
         "apps/desktop/src/api.ts",
-        "apps/desktop/src-tauri/src/main.rs"
+        "apps/desktop/src-tauri/src/main.rs",
+        "crates/core/src/storage.rs",
+        "apps/desktop/src/event-window.ts"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
+        "Actual byte-bounded journal/browser UI partial checks; full raw history/privacy/export, complete native UI acceptance and remaining requirement semantics remain open."
       ],
       "verification_refs": [
-        "apps/desktop/src/App.test.tsx"
+        "apps/desktop/src/App.test.tsx",
+        "crates/core/tests/storage.rs",
+        "apps/desktop/src/event-window.test.ts"
       ],
       "coverage": "partial"
     },
@@ -2747,23 +3146,31 @@
       "implementation_refs": [
         "apps/desktop/src/App.tsx",
         "apps/desktop/src/api.ts",
-        "apps/desktop/src-tauri/src/main.rs"
+        "apps/desktop/src-tauri/src/main.rs",
+        "crates/core/src/storage.rs",
+        "apps/desktop/src/event-window.ts"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
+        "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
+        "Actual byte-bounded journal/browser UI partial checks; full raw history/privacy/export, complete native UI acceptance and remaining requirement semantics remain open."
       ],
       "verification_refs": [
-        "apps/desktop/src/App.test.tsx"
+        "apps/desktop/src/App.test.tsx",
+        "crates/core/tests/storage.rs",
+        "apps/desktop/src/event-window.test.ts"
       ],
       "coverage": "partial"
     },
@@ -2803,22 +3210,30 @@
       "status": "implementing",
       "implementation_refs": [
         ".github/workflows/product.yml",
-        "scripts/package-development-macos.sh"
+        "scripts/package-development-macos.sh",
+        "scripts/native-macos-smoke.sh",
+        "scripts/native-audit-release.sh"
       ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
-        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release."
+        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
+        "Foundation dualarchitecture DMGs verified at PR3 only; new integrated macOS GUI/default-release lane pending, manual/native full acceptance not established."
       ],
-      "verification_refs": [],
+      "verification_refs": [
+        "apps/desktop/src-tauri/tests/test_native_runner.py"
+      ],
       "coverage": "partial"
     },
     {
@@ -2922,7 +3337,10 @@
         "crates/providers/src/installation.rs",
         "crates/providers/src/connections.rs",
         "crates/core/src/sessions.rs",
-        "crates/core/src/policy.rs"
+        "crates/core/src/policy.rs",
+        "crates/core/src/routes.rs",
+        "crates/core/src/runtime_config.rs",
+        "crates/providers/src/lib.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -2930,18 +3348,22 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions"
+        "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/provider-adapters/EVIDENCE.json",
+        "docs/execution/provider-adapters/FINAL_REVIEW.md"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
         "Version/digest/connection contract fixtures only; no live vendor authentication/task, no persisted connection/router dispatch bridge.",
-        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains."
+        "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
+        "Explicit route/default-plan generated-child tests only; no real vendor compatibility, authentication/model calls or verified native account isolation."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
@@ -2949,7 +3371,8 @@
         "crates/core/tests/execution.rs",
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "crates/providers/tests/native_codex.rs"
       ],
       "coverage": "partial"
     },

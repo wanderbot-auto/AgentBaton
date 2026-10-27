@@ -1,0 +1,11 @@
+# ADR 0002: Explicit Provider routes and per-attempt runtime evidence
+
+Status: accepted reversible engineering choice under AB-START-001; partial implementation.
+
+A named connection selects one explicit protocol route: custom ACP, native Codex app-server, documented Qoder ACP or selected Claude ACP adapter. Native CLI arguments are fixed by the route and cannot silently switch to another executable, account or billing path. Generated protocol fixtures validate contract bytes; real vendor/version/account compatibility remains separate and currently gated.
+
+Approval binds executable bytes, route, configuration revision and stable RuntimePlan digest. Each attempt materializes a separate private directory and records its actual snapshot descriptor before dispatch. Before launch, reverify path identity, permissions and configuration/Skill file bytes. Mutable cache/state directories have separate identity checks. SQLite schema5 stores immutable session/attempt bindings; upgrades first retain a private backup. Private paths and env_clear do not prove OS isolation or native loading/account identity; strict unproven capabilities fail closed. Only generated approved default plans are currently connected; reject richer unsupported plans instead of ignoring their intent.
+
+One normalized journal page has a4MiB stored/raw-JSON byte budget checked from stored byte length before allocating documents. The cursor advances only over returned records. A single oversized record produces an explicit resource-limit error with its sequence; no skipped sequence. The UI retains bounded500-record/8MiB windows and lets users fetch earlier/later pages. Snapshot connection state is independent of secondary history read failures, preserving available task cancellation. Complete raw history/privacy/retention remains future implementation.
+
+CI evidence stays dimension-specific: mocked UI, generated children, browser+actual daemon, native host, native macOS window and real Provider are distinct. The macOS native smoke binary is test-feature-only, disallowed in release, and the actual default application is audited for test controls before packaging. A failed inspection is an error rather than a clean artifact.

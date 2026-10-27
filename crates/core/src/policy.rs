@@ -4,6 +4,7 @@ use crate::execution::ExecutionBinding;
 use crate::registry::{ManagedWorkspace, Project};
 use crate::storage::{db_error, decode, encode, now, Event, Store};
 use crate::{CoreError, Result};
+use agentbaton_providers::connections::ProtocolRoute;
 use agentbaton_workspaces::{inspect, WorkspaceIdentity, WorkspaceKind};
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::{Deserialize, Serialize};
@@ -46,6 +47,8 @@ pub struct GrantScope {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub struct GrantedConnection {
+    #[serde(default = "crate::routes::default_route")]
+    pub protocol_route: ProtocolRoute,
     pub revision: u64,
     pub environment_id: String,
     pub identity_ref: String,
@@ -212,13 +215,27 @@ fn read_document<T: for<'a> Deserialize<'a>>(
 }
 fn connection_binding(conn: &Connection, id: &str) -> Result<GrantedConnection> {
     let connection: Value = read_document(conn, "connections", id)?;
+    let provider = connection["provider"]
+        .as_str()
+        .ok_or_else(|| denied("Connection Provider is invalid"))?;
+    let expected_route = crate::routes::route_for_provider(provider)?;
+    let actual_route: ProtocolRoute = match connection.get("protocol_route") {
+        Some(route) => serde_json::from_value(route.clone())
+            .map_err(|_| denied("Connection protocol route is invalid"))?,
+        None if provider == "custom_acp" => ProtocolRoute::CustomAcp,
+        None => {
+            return Err(denied(
+                "Native connection must explicitly select its protocol route",
+            ))
+        }
+    };
     if connection["id"] != id
         || connection["probe_state"] != "ready"
         || connection["host_id"] != "local"
-        || connection["provider"] != "custom_acp"
+        || actual_route != expected_route
     {
         return Err(denied(
-            "Connection must be a ready registered local custom ACP connection",
+            "Connection must be a ready registered local connection with an explicit matching protocol route",
         ));
     }
     let text = |name: &str| -> Result<String> {
@@ -234,6 +251,7 @@ fn connection_binding(conn: &Connection, id: &str) -> Result<GrantedConnection> 
             })
     };
     Ok(GrantedConnection {
+        protocol_route: actual_route,
         revision: connection["revision"]
             .as_u64()
             .filter(|v| *v > 0)
@@ -445,7 +463,7 @@ pub(crate) fn grant_proposal_refs(
         )
     })?;
     Ok(
-        json!({"project_revision":project.revision,"project_name":project.name,"workspace_revision":workspace.revision,"workspace_identity":identity,"connection":connections[connection_id],"execution_recipient":{"connection_id":connection_id,"name":connection["name"],"provider":connection["provider"],"protocol_route":connection["protocol_route"].as_str().unwrap_or("custom_acp"),"executable":connection["executable"],"arguments":connection["arguments"],"executable_sha256":connection["executable_sha256"],"identity_status":connection["identity_status"],"config_status":connection["config_status"]}}),
+        json!({"project_revision":project.revision,"project_name":project.name,"workspace_revision":workspace.revision,"workspace_identity":identity,"connection":connections[connection_id],"execution_recipient":{"connection_id":connection_id,"name":connection["name"],"provider":connection["provider"],"protocol_route":connection["protocol_route"],"executable":connection["executable"],"arguments":connection["arguments"],"executable_sha256":connection["executable_sha256"],"identity_status":connection["identity_status"],"config_status":connection["config_status"]}}),
     )
 }
 fn event(tx: &Transaction<'_>, grant: &ExecutionGrant, kind: &str, source: &str) -> Result<()> {
@@ -987,7 +1005,7 @@ impl Store {
 #[cfg(test)]
 mod live_workspace_tests {
     use super::*;
-    use std::os::unix::fs::{symlink, FileTypeExt};
+    use std::os::unix::fs::symlink;
 
     fn fixture() -> (tempfile::TempDir, WorkspaceIdentity) {
         let dir = tempfile::tempdir().unwrap();
@@ -1063,12 +1081,15 @@ mod live_workspace_tests {
                     .join("repository.git/worktrees/managed")
                     .join(name);
                 fs::remove_file(&path).unwrap();
-                let status = std::process::Command::new("/usr/bin/mkfifo")
+                // The portable POSIX fixture utility also exists on macOS,
+                // where rustix deliberately does not expose mkfifoat.
+                assert!(std::process::Command::new("/usr/bin/mkfifo")
                     .args(["-m", "600"])
                     .arg(&path)
                     .status()
-                    .unwrap();
-                assert!(status.success(), "FIFO fixture creation failed: {status}");
+                    .unwrap()
+                    .success());
+                use std::os::unix::fs::FileTypeExt;
                 assert!(fs::symlink_metadata(&path).unwrap().file_type().is_fifo());
                 assert!(live_workspace_matches(&pinned.canonical_root, &pinned).is_err());
             }

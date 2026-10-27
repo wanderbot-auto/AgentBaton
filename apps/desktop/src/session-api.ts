@@ -1,9 +1,11 @@
 import { request } from './api';
+export type ProviderChoice = 'custom_acp' | 'codex' | 'qoder' | 'claude_code';
 
 export interface NamedConnection {
   id: string;
   name: string;
   provider: string;
+  protocol_route?: string;
   executable: string;
   arguments: string[];
   executable_sha256: string;
@@ -69,7 +71,7 @@ export interface GrantRequest {
 }
 export const sessionApi = {
   connectionsList: () => request<NamedConnection[]>('connections_list'),
-  connectionsRegister: (name: string, executable: string, arguments_: string[], idempotencyKey: string) => request<NamedConnection>('connections_register', { name, executable, arguments: arguments_, provider: 'custom_acp', idempotencyKey }),
+  connectionsRegister: (name: string, executable: string, arguments_: string[], idempotencyKey: string, provider: ProviderChoice = 'custom_acp') => request<NamedConnection>('connections_register', { name, executable, arguments: arguments_, provider, idempotencyKey }),
   grantsCreate: (scope: GrantRequest, idempotencyKey: string) => request<ExecutionGrant>('grants_create', { projectId: scope.project_id, workspaceId: scope.workspace_id, connectionId: scope.connection_id, maxAttempts: scope.max_attempts, maxConcurrency: scope.max_concurrency, maxDurationMs: scope.max_duration_ms, idempotencyKey }),
   grantsList: (projectId: string) => request<ExecutionGrant[]>('grants_list', { projectId }),
   grantsRevoke: (grant: ExecutionGrant, idempotencyKey: string) => request<ExecutionGrant>('grants_revoke', { grantId: grant.id, expectedRevision: grant.revision, idempotencyKey }),

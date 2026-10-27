@@ -76,10 +76,43 @@ if '--version' in sys.argv:
 def send(v): print(json.dumps(v),flush=True)
 open('fixture-started','w').write('owned fixture')
 pending=None
+native_turn=0
+native_pending=None
 for line in sys.stdin:
  r=json.loads(line);m=r.get('method');i=r.get('id')
- if m=='initialize':send({'jsonrpc':'2.0','id':i,'result':{'protocolVersion':1,'agentCapabilities':{}}})
- elif m=='session/new':send({'jsonrpc':'2.0','id':i,'result':{'sessionId':'native-fixture'}})
+ if r.get('jsonrpc') is None:
+  if m=='initialize':
+   assert sys.argv[1:]==['app-server','--listen','stdio://']
+   send({'id':i,'result':{'codexHome':os.environ['CODEX_HOME'],'platformFamily':'unix','platformOs':'fixture','userAgent':'generated core native fixture'}})
+  elif m=='initialized':continue
+  elif m=='thread/start':
+   assert r['params']=={'cwd':os.getcwd(),'approvalPolicy':'on-request','sandbox':'workspace-write','ephemeral':True}
+   native_thread={'id':'thread-fixture','cliVersion':'fixture','createdAt':1,'updatedAt':1,'cwd':os.getcwd(),'ephemeral':True,'modelProvider':'fixture','preview':'','projectId':None,'sessionId':'native-fixture','source':'appServer','status':{'type':'idle'},'turns':[]}
+   send({'id':i,'result':{'thread':native_thread,'cwd':os.getcwd(),'approvalPolicy':'on-request','approvalsReviewer':'user','model':'fixture','modelProvider':'fixture','sandbox':{'type':'workspaceWrite','networkAccess':False,'writableRoots':[os.getcwd()]}}})
+  elif m=='turn/start':
+   native_turn+=1;native_pending='turn-'+str(native_turn)
+   assert r['params']['threadId']=='thread-fixture'
+   text=r['params']['input'][0]['text']
+   send({'id':i,'result':{'turn':{'id':native_pending,'items':[],'status':'inProgress'}}})
+   if text in ('hang','ack_only'):continue
+   send({'method':'item/agentMessage/delta','params':{'threadId':'thread-fixture','turnId':native_pending,'itemId':'message-fixture','delta':'native-fixture:'+text}})
+   send({'method':'turn/completed','params':{'threadId':'thread-fixture','turn':{'id':native_pending,'items':[],'status':'completed'}}})
+  elif m=='turn/interrupt':
+   send({'id':i,'result':{}})
+   send({'method':'turn/completed','params':{'threadId':'thread-fixture','turn':{'id':native_pending,'items':[],'status':'interrupted'}}})
+  continue
+ if m=='initialize':
+  if '--acp' in sys.argv:
+   assert len(sys.argv)==4 and sys.argv[1:3]==['--acp','--config-dir'] and os.path.isdir(sys.argv[3])
+  send({'jsonrpc':'2.0','id':i,'result':{'protocolVersion':1,'agentCapabilities':{}}})
+ elif m=='session/new':
+  assert r['params']['cwd']==os.getcwd() and r['params']['mcpServers']==[]
+  if 'CLAUDE_CONFIG_DIR' in os.environ:
+   assert os.path.isdir(os.environ['CLAUDE_CONFIG_DIR'])
+   options=r['params']['_meta']['claudeCode']['options']
+   assert options['settingSources']==[] and options['allowDangerouslySkipPermissions'] is False and options['strictMcpConfig'] is True
+   assert options['settings']['enableAllProjectMcpServers'] is False
+  send({'jsonrpc':'2.0','id':i,'result':{'sessionId':'native-fixture'}})
  elif m=='session/prompt':
   text=r['params']['prompt'][0]['text'];pending=i
   if text=='hang':open('fixture-hang','w').write(str(os.getpid()));continue
@@ -128,6 +161,9 @@ struct Scenario {
 }
 impl Scenario {
     fn new(duration: u64) -> Self {
+        Self::with_provider(duration, "custom_acp")
+    }
+    fn with_provider(duration: u64, provider: &str) -> Self {
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path().canonicalize().unwrap();
         let source = root.join("source");
@@ -141,7 +177,7 @@ impl Scenario {
         let server = Server::start(&root.join("runtime"));
         let project=result(server.request(json!({"method":"projects.import","params":{"path":source,"name":"Fixture Project"},"idempotency_key":"project"})));
         let workspace=result(server.request(json!({"method":"workspaces.create","params":{"project_id":project["id"],"expected_head":head},"expected_revision":1,"idempotency_key":"workspace"})));
-        let p=result(server.request(json!({"method":"connections.propose","params":{"name":"Generated fixture only","provider":"custom_acp","executable":script,"arguments":[]},"idempotency_key":"connection-proposal"})));
+        let p=result(server.request(json!({"method":"connections.propose","params":{"name":"Generated fixture only","provider":provider,"executable":script,"arguments":[]},"idempotency_key":"connection-proposal"})));
         assert_eq!(p["snapshot"]["scope"], "version_probe_only");
         let connection = approve(&server, p);
         let connections = wait(&server, "connections.list", json!({}), |v| {
@@ -449,7 +485,7 @@ fn runtime_timeout_and_revocation_stop_only_owned_process() {
     assert!(unrelated.0.try_wait().unwrap().is_none());
 }
 #[test]
-fn binary_drift_unknown_grant_and_native_route_never_spawn() {
+fn binary_drift_unknown_grant_and_unknown_provider_label_never_spawn() {
     let f = Scenario::new(10_000);
     let response=f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":"missing"},"expected_revision":1,"idempotency_key":"no-grant"}));
     assert!(response["error"].is_object());
@@ -728,4 +764,187 @@ fn malicious_git_metadata_fifo_cannot_block_live_admission_status_or_owned_stop(
         json!({"session_id":session["id"]}),
         |s| s["state"] == "stopped",
     );
+}
+
+#[test]
+fn native_codex_fixture_is_bound_to_verified_runtime_and_real_turn_terminal() {
+    use agentbaton_config::runtime::{RuntimeRequirements, RuntimeRoot, SnapshotDescriptor};
+    let f = Scenario::with_provider(10_000, "codex");
+    assert_eq!(f.connection["protocol_route"], "codex_app_server");
+    assert_eq!(f.connection["identity_status"], "unknown");
+    let starting = f.create();
+    let ready = f.ready(&starting["id"]);
+    let binding = &ready["runtime_snapshot"];
+    assert_eq!(binding["session_id"], ready["id"]);
+    assert_eq!(binding["attempt_id"], ready["attempt_id"]);
+    assert_eq!(
+        binding["connection_config_revision"],
+        f.connection["config_revision"]
+    );
+    let descriptor: SnapshotDescriptor =
+        serde_json::from_value(binding["snapshot"].clone()).unwrap();
+    let root = RuntimeRoot::open(&f.root.join("runtime/runtime-config")).unwrap();
+    let snapshot = root
+        .verify_before_launch(&descriptor, RuntimeRequirements::default())
+        .unwrap();
+    assert_eq!(
+        snapshot.plan_digest(),
+        binding["plan_digest"].as_str().unwrap()
+    );
+    assert!(snapshot
+        .manifest()
+        .files
+        .iter()
+        .any(|file| file.relative_path == Path::new("codex/config.toml")));
+    assert!(snapshot.codex_settings().unwrap().model_name().is_none());
+    assert_eq!(
+        serde_json::to_value(snapshot.manifest().claims.native_runtime_loading).unwrap(),
+        "unknown"
+    );
+    f.send(&ready, "你好 actual owned native fixture", "native-turn");
+    let ready = f.ready(&starting["id"]);
+    assert_eq!(ready["turn_state"], "completed");
+    let events = result(
+        f.server
+            .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":500}})),
+    );
+    assert!(events
+        .to_string()
+        .contains("native-fixture:你好 actual owned native fixture"));
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    assert_eq!(
+        task["state"], "running",
+        "Native turn completion is not task acceptance"
+    );
+    f.send(&ready, "ack_only", "native-ack");
+    std::thread::sleep(Duration::from_millis(30));
+    let active = result(
+        f.server
+            .request(json!({"method":"sessions.get","params":{"session_id":ready["id"]}})),
+    );
+    assert_eq!(
+        active["state"], "running",
+        "Submission ACK is not a terminal notification"
+    );
+    f.cancel(&active);
+    wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":ready["id"]}),
+        |value| value["state"] == "stopped",
+    );
+}
+
+#[test]
+fn unsafe_configuration_namespace_has_truthful_local_commit_and_no_provider_start() {
+    let f = Scenario::new(10_000);
+    let namespace = f.root.join("runtime/runtime-config");
+    std::fs::create_dir(&namespace).unwrap();
+    std::fs::set_permissions(&namespace, std::fs::Permissions::from_mode(0o755)).unwrap();
+    let response=f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":1,"idempotency_key":"unsafe-config"}));
+    assert_eq!(response["error"]["code"], "PERMISSION_DENIED");
+    assert_eq!(response["error"]["side_effect_state"], "confirmed");
+    assert!(response["error"]["details_ref"]
+        .as_str()
+        .unwrap()
+        .starts_with("local-session-recorded-no-provider-start:"));
+    assert_eq!(
+        std::fs::metadata(&namespace).unwrap().permissions().mode() & 0o777,
+        0o755,
+        "Existing user permissions are not changed"
+    );
+    assert!(!Path::new(f.workspace["root"].as_str().unwrap())
+        .join("fixture-started")
+        .exists());
+    let sessions = result(
+        f.server
+            .request(json!({"method":"sessions.list","params":{}})),
+    );
+    assert_eq!(sessions.as_array().unwrap().len(), 1);
+    assert_eq!(sessions[0]["state"], "stopped");
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    assert_eq!(task["state"], "draft");
+    let replay = result(f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":1,"idempotency_key":"unsafe-config"})));
+    assert_eq!(replay["id"], sessions[0]["id"]);
+    assert_eq!(replay["state"], "stopped");
+    let db = rusqlite::Connection::open_with_flags(
+        f.root.join("runtime/baton.sqlite3"),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+    )
+    .unwrap();
+    let (consumed, active): (i64, i64) = db
+        .query_row(
+            "SELECT consumed,active FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!((consumed, active), (1, 0));
+}
+
+#[test]
+fn legacy_connection_without_approved_plan_never_silently_inherits_a_new_profile() {
+    let f = Scenario::new(10_000);
+    // Controlled legacy-record fault injection, not a product SQL endpoint.
+    let db = rusqlite::Connection::open(f.root.join("runtime/baton.sqlite3")).unwrap();
+    db.execute(
+        "UPDATE connections SET document=json_remove(document,'$.runtime_plan') WHERE id=?1",
+        [f.connection["id"].as_str().unwrap()],
+    )
+    .unwrap();
+    let response=f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":1,"idempotency_key":"legacy-config"}));
+    assert_eq!(response["error"]["code"], "INPUT_CHANGED");
+    assert_eq!(response["error"]["side_effect_state"], "confirmed");
+    assert!(!Path::new(f.workspace["root"].as_str().unwrap())
+        .join("fixture-started")
+        .exists());
+    let sessions = result(
+        f.server
+            .request(json!({"method":"sessions.list","params":{}})),
+    );
+    assert_eq!(sessions[0]["state"], "stopped");
+    let snapshots: i64 = db
+        .query_row(
+            "SELECT count(*) FROM session_runtime_snapshots",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(snapshots, 0);
+}
+
+#[test]
+fn documented_acp_routes_deliver_only_their_owned_configuration_to_generated_children() {
+    for (provider, route) in [
+        ("qoder", "qoder_native_acp"),
+        ("claude_code", "claude_agent_acp"),
+    ] {
+        let f = Scenario::with_provider(10_000, provider);
+        assert_eq!(f.connection["protocol_route"], route);
+        let session = f.create();
+        let ready = f.ready(&session["id"]);
+        assert!(ready["runtime_snapshot"]["snapshot"]["digest"].is_string());
+        f.send(&ready, "env", "approved-route-turn");
+        let ready = f.ready(&session["id"]);
+        assert_eq!(ready["turn_state"], "completed");
+        let events = result(
+            f.server
+                .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":500}})),
+        );
+        assert!(!events.to_string().contains("OPENAI_API_KEY"));
+        assert!(!events.to_string().contains("GH_TOKEN"));
+        f.cancel(&ready);
+        wait(
+            &f.server,
+            "sessions.get",
+            json!({"session_id":session["id"]}),
+            |s| s["state"] == "stopped",
+        );
+    }
 }

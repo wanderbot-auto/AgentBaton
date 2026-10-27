@@ -9,6 +9,10 @@ describe('Session transport sends only typed user intent to narrow native comman
     await sessionApi.connectionsRegister('Name', '/explicit/program', ['--acp'], 'key');
     expect(invoke).toHaveBeenCalledWith('connections_register', { name: 'Name', executable: '/explicit/program', arguments: ['--acp'], provider: 'custom_acp', idempotencyKey: 'key' });
   });
+  it('native selection passes only the explicit Provider choice, without inventing adapter flags', async () => {
+    await sessionApi.connectionsRegister('Native', '/selected/codex', [], 'native-key', 'codex');
+    expect(invoke).toHaveBeenCalledWith('connections_register', { name: 'Native', executable: '/selected/codex', arguments: [], provider: 'codex', idempotencyKey: 'native-key' });
+  });
   it('grant creation uses camelCase Tauri arguments and omits renderer authority claims', async () => {
     await sessionApi.grantsCreate({ project_id: 'p', workspace_id: 'w', connection_id: 'c', max_attempts: 2, max_concurrency: 1, max_duration_ms: 9000 }, 'key');
     expect(invoke).toHaveBeenCalledWith('grants_create', { projectId: 'p', workspaceId: 'w', connectionId: 'c', maxAttempts: 2, maxConcurrency: 1, maxDurationMs: 9000, idempotencyKey: 'key' });

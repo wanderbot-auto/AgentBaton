@@ -21,6 +21,7 @@ dependencies = [
 name = "agentbaton-core"
 version = "0.1.0"
 dependencies = [
+ "agentbaton-config",
  "agentbaton-providers",
  "agentbaton-workspaces",
  "fs2",

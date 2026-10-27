@@ -1,0 +1,140 @@
+{
+  "base_commit": "14e86902e4b0172892595af81a3895f667c73c1b",
+  "candidate_commit": null,
+  "recorded_at_utc": "2026-10-26T19:07:58.227332+00:00",
+  "scope": "Implemented native integration harness; actual local GUI lane blocked before WebView by rootless WebKit helper path. Not native acceptance.",
+  "source_sha256": {
+    "apps/desktop/src-tauri/Cargo.toml": "d5f7e9e0246f380400b7698f4d87a14e6452856466e5b68e4bd169150f0a7e48",
+    "apps/desktop/src-tauri/Cargo.lock": "3ba8f5d1d4ffede7f9638a0187e794bffb658000625ab1f789203cddfa02af4b",
+    "apps/desktop/src-tauri/src/main.rs": "61e7a9044505398ae2375a1841897542d99cba6661f3d17d3d41347c54b5bc65",
+    "apps/desktop/src-tauri/src/lib.rs": "03b5c39891618f9b612cfb03edbc6f0456396e055720ce25ddff5a9a82b5a71e",
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "9e04b2e9d3f19230642780c21bdde8f71367da55a5e1901dc911b163f64f9e3a",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "1cefce54af4e7897135ac6c1a89f710c33ad2396691cb527be3ab67f00688847",
+    "scripts/native-run.py": "203ebff715b3e049b97633ac33eddc8be87f0e9ff2a9db7237b09e84f840cfce",
+    "scripts/native-linux-smoke.py": "ee7babae743d205b9b08634f0d576f98c72e5e8018e27b4c7dca1e9d3b6c8e0b",
+    "scripts/native-macos-smoke.sh": "1211d2b2275ebaff363f88d840194e9280089142f7adf78e3110cfb4e1a6147b",
+    "scripts/native-audit-release.sh": "8d2e5acfdb7e291a7be4adf7a5cc22b3a6411782bf0216c6e90e978ff4cfaef6"
+  },
+  "production_command_set_unchanged": 20,
+  "checks": [
+    {
+      "command": "cargo check --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-smoke",
+      "exit_code": 0,
+      "platform": "Linux",
+      "dimension": "real Tauri/native test code compile, not executed WebView"
+    },
+    {
+      "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "tests_passed": 7,
+      "dimension": "actual native-host helper tests, no window"
+    },
+    {
+      "command": "cargo clippy --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -m unittest discover -s apps/desktop/src-tauri/tests -p test_native_runner.py -v",
+      "exit_code": 0,
+      "tests_passed": 7,
+      "dimension": "runner evidence, archive, fatal/timeout cleanup contracts, not simulated GUI acceptance"
+    },
+    {
+      "command": "cargo check --release --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke --lib",
+      "exit_code": 101,
+      "expected": "rejected by debug-only compile_error; assertion wrapper exits0",
+      "dimension": "release feature isolation guard"
+    },
+    {
+      "command": "cargo build --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features custom-protocol --bin agentbaton-desktop; bash scripts/native-audit-release.sh <actual-default-debug-binary>",
+      "exit_code": 0,
+      "dimension": "default-feature actual debug application excludes test identifiers; actual release bundle audit pending CI"
+    },
+    {
+      "command": "bash -n scripts/native-macos-smoke.sh scripts/native-audit-release.sh; python3 -m py_compile scripts/native-run.py scripts/native-linux-smoke.py",
+      "exit_code": 0
+    },
+    {
+      "command": "bash scripts/native-audit-release.sh <actual-native-smoke-debug-binary>",
+      "exit_code": 1,
+      "expected": "test binary rejected; assertion wrapper exits0",
+      "dimension": "negative isolation audit"
+    }
+  ],
+  "failed_attempts": [
+    {
+      "issue": "Direct generate_handler closure invocation type inference E0282",
+      "log": "native-gui-check.log",
+      "resolution": "Explicit typed production dispatcher fn; final compile passes"
+    },
+    {
+      "issue": "Clippy existing grants_create wire handler has9arguments",
+      "resolution": "Preserved typed existing IPC wire shape with a function-local too_many_arguments allowance; no blanket lint/test weakening"
+    },
+    {
+      "issue": "Actual Linux run1 toolkit setup attempted read-only HOME cache and panicked",
+      "log": "native-gui-linux-run/native-run.log",
+      "resolution": "Private XDG and Tauri app-directory/cache context, debug-harness only. Main-scope Child cleanup guard and catch_unwind added. Original orphan166687 safely signalled by parent using pidfd+exact cmdline/UID; only init-owned zombie remained."
+    },
+    {
+      "issue": "Actual Linux run2 WebKit fatal error: compiled helper absolute/usr/lib path missing",
+      "log": "native-gui-linux-run2/native-run.log",
+      "resolution": "Not reclassified passed. Fatal abort bypasses Rust Drop; parent verified private socket SO_PEERCRED for ownedPID174341 then pidfd SIGTERM. External bounded runner added."
+    },
+    {
+      "issue": "Actual Linux run4/5 WebKit still uses missing absolute helper path despite private signed-package WEBKIT_EXEC_PATH",
+      "logs": [
+        "native-gui-linux-run5/native-run.log",
+        "native-gui-linux-run5/native-runner.json"
+      ],
+      "resolution": "Blocked rootless native execution; no shared-library patch, sandbox disable, system path mutation or lowered assertion. Run5 external runner returns failed and reaps5 owned adopted children."
+    },
+    {
+      "issue": "Reviewer dynamically reproduced old runner exit0/no native report => false passing evidence",
+      "original_repro": {
+        "exit": 0,
+        "smoke_report_exists": false,
+        "runner_status": "passed"
+      },
+      "original_log_hash": null,
+      "note": "Original only tool output/reviewer record, no invented log hash",
+      "resolution": "Require fresh complete phase report, archive stale evidence, downgrade nonzero exit even if report says passed;7 runner regressions pass."
+    }
+  ],
+  "logs": {
+    "native-gui-check.log": "c85f6ee347a7b025cc86c7c68390ceb9e1c1f5f88787684874e0ead5b0e4cb44",
+    "native-gui-check-final.log": "201d80efc67b0e106b6930699501ecdb498a56e8581268df1b461508f731ca38",
+    "native-gui-host-tests-freeze.log": "45e4224a30e629ed40a3d4df33582faaf2561d50ac8c38adcb8aec77aabb29d7",
+    "native-gui-check-freeze.log": "f4007dacecef9dda3ba857adc7d66a577eb500aa6493137ef2aa9f9efa932d41",
+    "native-gui-default-app-build-final.log": "f2066ca264b9a8598ecd436c70919e1efe1acea4098ad2a13b5d82d67bc049ec",
+    "native-gui-default-app-audit-final.log": "8ff1b93356831bc288ee26b9dfbae0dbcddae0bad376b6815370d10ea375cd85",
+    "native-gui-clippy-final-source.log": "27b125a6cb499f638645745ab0daef760e22bd105975a78181c56785aad0f53d",
+    "native-gui-runner-tests-freeze.log": "4d418e6dd151ea265ac2db5236c75c4037c4f2fc1a5115a2117472f707652b23",
+    "native-gui-release-guard.log": "0e661f4df8f2f38d0b7501994e3fa47f94501f0c05302009c0d1a15d7f898b13",
+    "native-gui-linux-run/native-run.log": "a6415fefc3ac08906a0eeb44cce3d53fb323de4e8749414d9da72b13e0987df1",
+    "native-gui-linux-run2/native-run.log": "c95069f59a07e404d29c7ddf3031ba45b2213f4db5228105bd1c7ebfab784ca9",
+    "native-gui-linux-run2/native-smoke.json": "a3b5b7641d615a2e83dd7c4fc016f754bdda14c104b3e73d0616f2a45727b473",
+    "native-gui-linux-run4/native-run.log": "94397d09687ee6a377f0ec15f9aa45efac200b62ae36426d23232a08794c48f2",
+    "native-gui-linux-run4/native-smoke.json": "bb8f39638a0d87f2954a9f518f6d88d8ba65ebe74d4bd0752626270dbf282940",
+    "native-gui-linux-run4/native-runner.json": "176247bace8844e1114436a70674f5519dc93b93e6cee65cd89308acab27bb56",
+    "native-gui-linux-run5/native-run.log": "bd9724d0f58b19727bfb9bb13e19a1fcd811bdea0ade0a94973a423b90ba5aa5",
+    "native-gui-linux-run5/native-smoke.json": "29d94013f53bb777ba02fee80518d54d2dda6730e7dba8d7422a0cd1be0c3008",
+    "native-gui-linux-run5/native-runner.json": "bb75a9d59925726f82a465f960911da953af9060307d5c0c89ccd977d6365312",
+    "native-gui-build-freeze.log": "6d95ef2526005da3882abbf65b2462fef19498d885cbfd3928e91d5d70a4a213",
+    "native-gui-release-guard-final.log": "396a54317211fcd9cfd37ca8a8c6c5d302a9310faa91bd529bae1e714b59c423",
+    "native-gui-audit-reject-harness.log": "bba79f2de754dada5064cf8e31a5d8fa771907a53c8eaf765571960483b93183"
+  },
+  "macos_arm64": "not_run_pending_real_CI",
+  "macos_x86_64": "not_run_pending_real_CI",
+  "linux_actual_webview": "blocked_missing_compiled_helper_prefix_before_page_load",
+  "native_screenshots": "not_produced_no_successful_native_page_load",
+  "native_dialog": "not_run_manual",
+  "full_ui_process_quit_background": "not_verified_window_close_check_is_a_narrower_dimension",
+  "sleep_login_installation": "not_run",
+  "live_provider_accounts_models": "not_run_not_authorized",
+  "production_release_signing": "not_run_not_authorized"
+}

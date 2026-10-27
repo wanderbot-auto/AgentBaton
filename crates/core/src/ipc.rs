@@ -476,7 +476,19 @@ impl Daemon {
                 let result = self.store.finalize_proposal(&p.proposal_id, revision)?;
                 if result.get("provider").is_some() {
                     if let Some(id) = result["id"].as_str() {
-                        self.supervisor.probe(&self.store, id)?;
+                        if let Err(mut error) = self.supervisor.probe(&self.store, id) {
+                            // The owner-approved connection and confirmation
+                            // receipt already committed; only probe scheduling
+                            // failed. Never report the approval as not started.
+                            error.side_effect_state = "confirmed".into();
+                            error.details_ref =
+                                Some(format!("connection-approved-probe-not-scheduled:{id}"));
+                            error.message = format!(
+                                "{}; connection approval is recorded, but its version probe was not scheduled. Reconcile using the same proposal and existing connection",
+                                error.message
+                            );
+                            return Err(error);
+                        }
                     }
                 }
                 Ok(result)
@@ -543,8 +555,12 @@ impl Daemon {
                     revision,
                     &key,
                 )?;
-                if let Err(error) = self.supervisor.launch(&mut self.store, &s.id) {
-                    self.store.record_launch_failure(&s.id)?;
+                if let Err(mut error) = self.supervisor.launch(&mut self.store, &s.id) {
+                    self.supervisor
+                        .record_local_launch_failure(&mut self.store, &s.id)?;
+                    error.side_effect_state = "confirmed".into();
+                    error.details_ref =
+                        Some(format!("local-session-recorded-no-provider-start:{}", s.id));
                     return Err(error);
                 }
                 Ok(json!(s))
@@ -567,7 +583,7 @@ impl Daemon {
                 if dispatch {
                     if let Err(error) = self.supervisor.send(&s.id, &p.text) {
                         self.supervisor.cancel(&s.id);
-                        self.store.record_launch_failure(&s.id)?;
+                        self.store.record_turn_queue_failure(&s.id)?;
                         return Err(error);
                     }
                 }

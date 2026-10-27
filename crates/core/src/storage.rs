@@ -6,6 +6,8 @@ use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt, path::Path};
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 use uuid::Uuid;
 
+/// Bound journal decoding before constructing an IPC response. Count limits
+/// alone do not bound memory when normalized Provider messages are large.
 pub const MAX_EVENT_PAGE_BYTES: usize = 4 * 1024 * 1024;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -79,7 +81,7 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 4 {
+        if version > 5 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
@@ -99,8 +101,8 @@ impl Store {
         }
         conn.execute_batch("PRAGMA foreign_keys=ON;")
             .map_err(db_error)?;
-        if version > 0 && version < 4 {
-            let backup = path.with_extension(format!("pre-v4-{}.sqlite3", Uuid::new_v4()));
+        if version > 0 && version < 5 {
+            let backup = path.with_extension(format!("pre-v5-{}.sqlite3", Uuid::new_v4()));
             OpenOptions::new()
                 .create_new(true)
                 .write(true)
@@ -115,6 +117,7 @@ impl Store {
         crate::execution::migrate(&mut conn, version)?;
         migrate_registry(&mut conn, version)?;
         migrate_sessions(&mut conn, version)?;
+        migrate_runtime_snapshots(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -401,6 +404,15 @@ fn migrate_sessions(conn: &mut Connection, version: u32) -> Result<()> {
         CREATE TABLE sessions(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),project_id TEXT NOT NULL REFERENCES projects(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),connection_id TEXT NOT NULL REFERENCES connections(id),grant_id TEXT NOT NULL REFERENCES execution_grants(id),root_grant_id TEXT NOT NULL REFERENCES execution_grants(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(task_id,idempotency_key));
         CREATE TABLE session_turns(id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES sessions(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(session_id,idempotency_key));
         PRAGMA user_version=4;").map_err(db_error)?;
+        tx.commit().map_err(db_error)?;
+    }
+    Ok(())
+}
+
+fn migrate_runtime_snapshots(conn: &mut Connection, version: u32) -> Result<()> {
+    if version < 5 {
+        let tx = conn.transaction().map_err(db_error)?;
+        tx.execute_batch("CREATE TABLE session_runtime_snapshots(session_id TEXT PRIMARY KEY REFERENCES sessions(id),attempt_id TEXT NOT NULL UNIQUE REFERENCES attempts(id),config_revision TEXT NOT NULL,document TEXT NOT NULL);PRAGMA user_version=5;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
     Ok(())

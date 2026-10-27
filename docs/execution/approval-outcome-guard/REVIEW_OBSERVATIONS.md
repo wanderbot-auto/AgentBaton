@@ -1,0 +1,11 @@
+# Implementation self-review observations
+
+This agent authored the patch and tests; these are self-review notes, not an invented independent review. Parent independent review remains mandatory.
+
+Confirmed bug: after a durable local connection/owner confirmation, Supervisor::probe may synchronously fail before spawning its version worker (for example, the private environments namespace is an unexpected file). Propagating that PERMISSION_DENIED with default not_started falsely describes the already persisted approval action. The actual Unix IPC negative test establishes durable records before its expected-confirmed assertion fails on baseline. It does not execute any Provider or the generated marker executable.
+
+Minimal fix: in IPC approvals.finalize, only after Store returns success, remap probe scheduling errors to side_effect_state=confirmed with connection-approved-probe-not-scheduled:<existing id>, preserve original error code/retryable/reason, and explicitly tell the caller to reconcile via the same proposal/connection. This is confirmed local approval, not a claim that a probe/session/model started. All synchronous Err exits in current probe occur before a successful worker spawn. Completed/active probe replay already returns Ok and is unchanged. Errors from Store::finalize_proposal still use their original before-effect/unknown semantics.
+
+Counter-hypothesis rejected: confirmation journal trigger failure does not return not_started on this baseline. storage::db_error already returns unknown. Do not rename codes or refactor transactions just to manufacture a change. New connection and grant trigger controls preserve this behavior and prove the same proposal key replays the original effect, with one confirmation after fault removal and no duplicate owner proposal. No historical CI root cause is inferred.
+
+The single production hunk adds no permissions, schema, DB writes, retry loop, process launch, budget extension, account routing or new renderer/native command. It never automatically creates a fresh approval. New local tests use trusted Store/private authenticated CLI confirmation fixtures, not real native owner clicks. The generated executable has an absolute local marker and must remain unexecuted in all new tests.

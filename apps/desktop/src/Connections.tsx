@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DaemonError } from './api';
-import { sessionApi, type NamedConnection } from './session-api';
+import { sessionApi, type NamedConnection, type ProviderChoice } from './session-api';
 import { sessionMessages } from './session-i18n';
 import type { Language } from './i18n';
 
@@ -10,6 +10,7 @@ export function Connections({ language, connected, compact = false }: { language
   const [name, setName] = useState('');
   const [executable, setExecutable] = useState('');
   const [argumentsText, setArgumentsText] = useState('');
+  const [provider, setProvider] = useState<ProviderChoice>('custom_acp');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const keys = useRef(new Map<string, string>());
@@ -37,13 +38,13 @@ export function Connections({ language, connected, compact = false }: { language
   async function register(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!connected || busy || !name.trim() || !executable.trim()) return;
-    const args = argumentsText.split('\n').map(value => value.trim()).filter(Boolean);
-    const fingerprint = JSON.stringify([name.trim(), executable.trim(), args]);
+    const args = provider === 'custom_acp' ? argumentsText.split('\n').map(value => value.trim()).filter(Boolean) : [];
+    const fingerprint = JSON.stringify([name.trim(), executable.trim(), provider, args]);
     const key = keys.current.get(fingerprint) ?? crypto.randomUUID();
     keys.current.set(fingerprint, key);
     setBusy(true); setError('');
     try {
-      await sessionApi.connectionsRegister(name.trim(), executable.trim(), args, key);
+      await sessionApi.connectionsRegister(name.trim(), executable.trim(), args, key, provider);
       keys.current.delete(fingerprint);
       setName(''); setExecutable(''); setArgumentsText('');
       await refresh();
@@ -58,8 +59,8 @@ export function Connections({ language, connected, compact = false }: { language
     <details className="connection-registration" open={!compact}><summary>{t.register}</summary><form className="connection-form" onSubmit={register}>
       <label htmlFor="connection-name">{t.label}</label><input id="connection-name" value={name} onChange={event => setName(event.target.value)} maxLength={128} disabled={busy} required />
       <label htmlFor="connection-executable">{t.executable}</label><input id="connection-executable" value={executable} onChange={event => setExecutable(event.target.value)} maxLength={4096} disabled={busy} required />
-      <label htmlFor="connection-route">{t.route}</label><select id="connection-route" defaultValue="custom_acp" disabled><option value="custom_acp">Custom ACP</option><option disabled>Codex App Server — unsupported</option><option disabled>Qoder native ACP — unverified</option><option disabled>Claude adapter — unverified</option></select>
-      <label htmlFor="connection-arguments">{t.arguments}</label><textarea id="connection-arguments" value={argumentsText} onChange={event => setArgumentsText(event.target.value)} disabled={busy} maxLength={8192} rows={3} aria-describedby="arguments-help" /><p id="arguments-help" className="hint">{t.argumentsHelp}</p>
+      <label htmlFor="connection-route">{t.route}</label><select id="connection-route" value={provider} onChange={event => setProvider(event.target.value as ProviderChoice)} disabled={busy}><option value="custom_acp">Custom ACP</option><option value="codex">Codex App Server</option><option value="qoder">Qoder ACP</option><option value="claude_code">Claude Agent ACP adapter</option></select>
+      <label htmlFor="connection-arguments">{t.arguments}</label><textarea id="connection-arguments" value={provider === 'custom_acp' ? argumentsText : ''} onChange={event => setArgumentsText(event.target.value)} disabled={busy || provider !== 'custom_acp'} maxLength={8192} rows={3} aria-describedby="arguments-help" /><p id="arguments-help" className="hint">{provider === 'custom_acp' ? t.argumentsHelp : t.generatedArguments}</p>
       <p>{t.registerHelp}</p><p>{t.nativeConfirmation}</p><p className="hint">{t.noCredentials}</p><button className="primary" disabled={!connected || busy || !name.trim() || !executable.trim()}>{busy ? t.working : t.register}</button>
     </form></details>
     <p>{t.noFallback}</p><p className="hint">{t.probeOnly}</p>

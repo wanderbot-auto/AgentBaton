@@ -1,0 +1,9 @@
+# Native WebView/IPC integration evidence unit
+
+Base `14e8690`, branch `codex/native-gui-evidence`. Authority AB-START-001 and OWNER-002 ACK (read protected-main overlay2d9361d). Requirements: AB-REL-002/003/008, AB-SES-008/010, AB-SEC-002, AB-COR-001/007. This unit tests actual native WebView/host/daemon plumbing; it does not replace full desktop, native dialog, sleep/login, vendor or manual installation acceptance.
+
+Extract the exact shipping restricted command dispatcher into a shared host library; keep the application entry point unchanged semantically. A separate required-feature, debug-only integration binary runs Tauri on the main thread and loads the actual built frontend assets. It uses a fresh private disposable runtime and only generated local task goals. No HTTP test server, production test permission or generic executor is introduced.
+
+The first real WebView submits the product's actual goal composer through DOM events, observes the real persisted draft and rendered goal, then uses existing restricted invoke commands for idempotency, invalid-input rejection and journal checks. Close the native window, verify daemon persistence and second-writer rejection, kill/restart only its owned daemon child, reopen a real WebView and verify persisted tasks/cancellation evidence. Keep owned Child objects through all signalling/reaping. Write structured platform/architecture/commit/results separately from screenshots/native-dialog/manual limitations.
+
+Run default host tests, feature-enabled compile/build/Clippy, default release exclusion audit and debug-only release rejection. Exercise actual Linux native window under the session's supported display/sandbox if possible, preserving failures; Linux remains separate from actual macOS. The parent integrates `scripts/native-macos-smoke.sh` into both real macOS CI jobs, records exact commit and artifacts, and performs independent review. Continue the complete approved product goal afterward.

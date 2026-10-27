@@ -8,17 +8,23 @@ use crate::{
     storage::{db_error, decode, encode, now, Event, Store, Task, TaskState},
     CoreError, Result,
 };
+use agentbaton_config::runtime::RuntimePlan;
+use agentbaton_config::{
+    runtime::{RuntimeRequirements, RuntimeRoot},
+    Ownership,
+};
 use agentbaton_providers::{
+    connections::ProtocolRoute,
+    driver::ManagedProviderProcess,
     installation::{
         executable_digest, probe_version, verify_executable, BinaryDigest, VersionEvidence,
         VersionProbeRequest, VersionProbeState,
     },
-    transport::{ApprovedInstallation, ProviderProcess},
+    transport::ApprovedInstallation,
 };
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use sha2::{Digest, Sha256};
 use std::{
     collections::{BTreeMap, HashMap},
     ffi::OsString,
@@ -40,12 +46,16 @@ pub struct ProviderConnection {
     pub id: String,
     pub name: String,
     pub provider: String,
+    #[serde(default = "crate::routes::default_route")]
+    pub protocol_route: ProtocolRoute,
     pub executable: PathBuf,
     pub arguments: Vec<String>,
     pub executable_sha256: String,
     pub environment_id: String,
     pub identity_ref: String,
     pub config_revision: String,
+    #[serde(default)]
+    pub runtime_plan: Option<RuntimePlan>,
     pub host_id: String,
     pub approval_id: String,
     pub probe_state: String,
@@ -75,6 +85,8 @@ pub struct ManagedSession {
     pub attempt_id: String,
     pub intent_id: String,
     pub fencing_token: u64,
+    #[serde(default)]
+    pub runtime_snapshot: Option<crate::RuntimeBinding>,
 }
 fn invalid(message: &str) -> CoreError {
     CoreError::new("INVALID_REQUEST", message)
@@ -146,6 +158,10 @@ fn save_session(
     .map_err(db_error)?;
     event(tx, &s.id, s.revision, kind, payload, source)
 }
+struct ExpectedConnectionSnapshot<'a> {
+    executable_sha256: &'a str,
+    runtime_plan_digest: &'a str,
+}
 impl Store {
     /// A local authenticated registration authorizes only one bounded version probe.
     /// A separate persisted execution grant is mandatory before session launch.
@@ -166,18 +182,29 @@ impl Store {
         executable: &Path,
         arguments: &[String],
         key: &str,
-        expected_digest: Option<&str>,
+        expected: Option<ExpectedConnectionSnapshot<'_>>,
     ) -> Result<ProviderConnection> {
         key_valid(key)?;
+        let protocol_route = crate::routes::validate_route_arguments(provider, arguments)?;
+        let runtime_plan = crate::runtime_config::plan_for_provider(provider)?;
+        let plan_digest = runtime_plan
+            .plan_digest()
+            .map_err(crate::runtime_config::config_error)?;
+        if expected
+            .as_ref()
+            .is_some_and(|expected| expected.runtime_plan_digest != plan_digest)
+        {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Runtime configuration changed since the owner proposal",
+            ));
+        }
         if name.trim().is_empty()
             || name.len() > 256
             || arguments.len() > 32
             || arguments.iter().any(|a| a.len() > 4096)
         {
             return Err(invalid("Connection name and arguments must be bounded"));
-        }
-        if provider != "custom_acp" {
-            return Err(CoreError::new("CAPABILITY_UNSUPPORTED","Only explicitly selected custom ACP executables are wired; native provider routes have no fallback"));
         }
         let payload = encode(
             &json!({"name":name,"provider":provider,"executable":executable,"arguments":arguments}),
@@ -196,24 +223,30 @@ impl Store {
         let digest = executable_digest(executable).map_err(|_| {
             invalid("Select an existing canonical executable; digest verification failed")
         })?;
-        if expected_digest.is_some_and(|expected| expected != digest.as_str()) {
+        if expected
+            .as_ref()
+            .is_some_and(|expected| expected.executable_sha256 != digest.as_str())
+        {
             return Err(CoreError::new(
                 "INPUT_CHANGED",
                 "Selected executable changed since the owner confirmation proposal",
             ));
         }
         let id = Uuid::new_v4().to_string();
-        let config_revision=format!("{:x}",Sha256::digest(encode(&json!({"arguments":arguments,"environment":"private-no-inheritance","host_capabilities":{"fs":false,"terminal":false}}))?.as_bytes()));
+        let config_revision =
+            crate::runtime_config::configuration_revision(arguments, protocol_route, &plan_digest)?;
         let c = ProviderConnection {
             id: id.clone(),
             name: name.into(),
             provider: provider.into(),
+            protocol_route,
             executable: executable.into(),
             arguments: arguments.to_vec(),
             executable_sha256: digest.as_str().into(),
             environment_id: Uuid::new_v4().to_string(),
             identity_ref: format!("unknown:{id}"),
             config_revision,
+            runtime_plan: Some(runtime_plan),
             host_id: "local".into(),
             approval_id: Uuid::new_v4().to_string(),
             probe_state: "pending".into(),
@@ -505,6 +538,7 @@ impl Store {
             attempt_id: intent.attempt_id.clone(),
             intent_id: intent.id.clone(),
             fencing_token: fencing_token as u64,
+            runtime_snapshot: None,
         };
         tx.execute(
             "INSERT INTO sessions VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11)",
@@ -684,8 +718,8 @@ impl Store {
         tx.commit().map_err(db_error)?;
         Ok(s)
     }
-    pub(crate) fn record_launch_failure(&mut self, id: &str) -> Result<()> {
-        self.session_failure(id, "launch_or_queue_failure_requires_reconciliation")
+    pub(crate) fn record_turn_queue_failure(&mut self, id: &str) -> Result<()> {
+        self.session_failure(id, "turn_queue_failure_requires_reconciliation")
     }
     pub(crate) fn recover_sessions(&mut self) -> Result<()> {
         let ids: Vec<String> = {
@@ -846,6 +880,30 @@ impl Supervisor {
             ),
         ]))
     }
+    fn configuration_root(&self) -> Result<RuntimeRoot> {
+        use std::os::unix::fs::{DirBuilderExt, MetadataExt, PermissionsExt};
+        let directory = self.runtime.join("runtime-config");
+        match std::fs::DirBuilder::new().mode(0o700).create(&directory) {
+            Ok(()) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+            Err(_) => {
+                return Err(CoreError::new(
+                    "RESOURCE_LIMIT",
+                    "Cannot create private configuration staging directory",
+                ))
+            }
+        }
+        let meta = std::fs::symlink_metadata(&directory)
+            .map_err(|_| invalid("Configuration namespace is inaccessible"))?;
+        if !meta.is_dir()
+            || meta.file_type().is_symlink()
+            || meta.permissions().mode() & 0o077 != 0
+            || meta.uid() != rustix::process::geteuid().as_raw()
+        {
+            return Err(CoreError::new("PERMISSION_DENIED", "Configuration namespace must be private and owned; existing permissions are not changed"));
+        }
+        RuntimeRoot::open(&directory).map_err(crate::runtime_config::config_error)
+    }
     pub fn probe(&mut self, store: &Store, id: &str) -> Result<()> {
         let c = store.get_connection(id)?;
         if c.probe_state != "pending" || self.probes.contains_key(id) {
@@ -889,6 +947,7 @@ impl Supervisor {
             return Ok(());
         }
         let c = store.get_connection(&s.connection_id)?;
+        let plan = crate::runtime_config::approved_plan(&c)?;
         let grant = store.validate_grant(
             &s.grant_id,
             &s.project_id,
@@ -900,12 +959,81 @@ impl Supervisor {
             .into_iter()
             .find(|w| w.id == s.workspace_id)
             .ok_or_else(|| invalid("Workspace unavailable"))?;
-        let environment = self.environment(&c)?;
+        let root = self.configuration_root()?;
+        let snapshot = if let Some(binding) = store.runtime_binding(id)? {
+            if binding.attempt_id != s.attempt_id
+                || binding.connection_config_revision != c.config_revision
+            {
+                return Err(CoreError::new(
+                    "INPUT_CHANGED",
+                    "Attempt runtime binding changed",
+                ));
+            }
+            root.verify_before_launch(&binding.snapshot, RuntimeRequirements::default())
+                .map_err(crate::runtime_config::config_error)?
+        } else {
+            let snapshot = root
+                .materialize(plan.clone(), Ownership::BatonManaged)
+                .map_err(crate::runtime_config::config_error)?;
+            let binding = crate::RuntimeBinding {
+                session_id: s.id.clone(),
+                attempt_id: s.attempt_id.clone(),
+                connection_config_revision: c.config_revision.clone(),
+                plan_digest: snapshot.plan_digest().into(),
+                snapshot: snapshot.descriptor(),
+            };
+            store.bind_runtime(&binding)?;
+            snapshot
+        };
+        if snapshot.plan_digest()
+            != plan
+                .plan_digest()
+                .map_err(crate::runtime_config::config_error)?
+        {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Materialized runtime differs from the approved plan",
+            ));
+        }
+        // Recheck after the durable binding and immediately before committing
+        // dispatch. This detects drift; it does not claim an OS race-free sandbox.
+        let snapshot = root
+            .verify_before_launch(&snapshot.descriptor(), RuntimeRequirements::default())
+            .map_err(crate::runtime_config::config_error)?;
+        let configuration = if c.protocol_route == ProtocolRoute::CodexAppServer {
+            None
+        } else {
+            Some(
+                snapshot
+                    .acp_configuration()
+                    .map_err(crate::runtime_config::config_error)?,
+            )
+        };
+        let arguments: Vec<OsString> = match c.protocol_route {
+            ProtocolRoute::CustomAcp => c.arguments.iter().map(OsString::from).collect(),
+            ProtocolRoute::CodexAppServer => ["app-server", "--listen", "stdio://"]
+                .into_iter()
+                .map(OsString::from)
+                .collect(),
+            ProtocolRoute::QoderNativeAcp => vec![
+                "--acp".into(),
+                "--config-dir".into(),
+                snapshot.provider_configuration_root().into_os_string(),
+            ],
+            ProtocolRoute::ClaudeAgentAcp => vec![],
+            ProtocolRoute::CodexAcpAdapter => {
+                return Err(CoreError::new(
+                    "CAPABILITY_UNSUPPORTED",
+                    "This connection does not authorize an alternative Codex adapter route",
+                ))
+            }
+        };
+        let environment = snapshot.environment();
         let installation = ApprovedInstallation {
             executable: c.executable,
             expected_sha256: BinaryDigest::parse(&c.executable_sha256)
                 .map_err(|_| invalid("Invalid connection digest"))?,
-            arguments: c.arguments.iter().map(OsString::from).collect(),
+            arguments,
             workspace: workspace.root,
             approval_reference: grant.approval_id,
             environment,
@@ -920,7 +1048,20 @@ impl Supervisor {
         let duration = Duration::from_millis(grant.scope.max_duration_ms);
         let thread = std::thread::Builder::new()
             .name("baton-provider".into())
-            .spawn(move || run_worker(id, installation, duration, receiver, worker_cancel, sender))
+            .spawn(move || {
+                run_worker(
+                    id,
+                    WorkerLaunch {
+                        route: c.protocol_route,
+                        installation,
+                        configuration,
+                        duration,
+                    },
+                    receiver,
+                    worker_cancel,
+                    sender,
+                )
+            })
             .map_err(|_| {
                 CoreError::new(
                     "RESOURCE_LIMIT",
@@ -955,6 +1096,29 @@ impl Supervisor {
                 )
             })
     }
+    /// Only `launch` errors reach this path: no worker was inserted and a
+    /// successful thread spawn has no fallible operation before insertion.
+    pub(crate) fn record_local_launch_failure(
+        &mut self,
+        store: &mut Store,
+        id: &str,
+    ) -> Result<()> {
+        if self.workers.contains_key(id) {
+            return Err(CoreError::new(
+                "OUTCOME_UNKNOWN",
+                "An owned worker exists; local no-start proof is unavailable",
+            ));
+        }
+        self.persist_receipt(
+            store,
+            id,
+            WorkerReceipt {
+                reason: "local_launch_failed_before_worker_start".into(),
+                process_reaped: false,
+                never_started: true,
+            },
+        )
+    }
     pub fn has_workers(&self) -> bool {
         !self.workers.is_empty()
     }
@@ -980,7 +1144,11 @@ impl Supervisor {
             {
                 store.cancel(&task.id, task.revision)?;
             }
-            let proof = if receipt.never_started {
+            let proof = if receipt.never_started
+                && store.intent(&s.intent_id)?.state == IntentState::Prepared
+            {
+                StopEvidence::NeverDispatched
+            } else if receipt.never_started {
                 StopEvidence::ConfirmedNotStarted {
                     executor_instance: s.id.clone(),
                     receipt_ref: format!("owned-worker-no-start:{id}"),
@@ -1175,14 +1343,25 @@ impl Drop for Supervisor {
     }
 }
 
+struct WorkerLaunch {
+    route: ProtocolRoute,
+    installation: ApprovedInstallation,
+    configuration: Option<Value>,
+    duration: Duration,
+}
 fn run_worker(
     id: String,
-    installation: ApprovedInstallation,
-    duration: Duration,
+    launch: WorkerLaunch,
     commands: Receiver<Work>,
     cancel: Arc<AtomicBool>,
     events: SyncSender<Outcome>,
 ) -> WorkerReceipt {
+    let WorkerLaunch {
+        route,
+        installation,
+        configuration,
+        duration,
+    } = launch;
     let started = Instant::now();
     let notify = |outcome| events.try_send(outcome).is_ok();
     if cancel.load(Ordering::Relaxed) {
@@ -1192,22 +1371,25 @@ fn run_worker(
             never_started: true,
         };
     }
-    let mut process =
-        match ProviderProcess::start(installation, duration.min(Duration::from_secs(3))) {
-            Ok(p) => p,
-            Err(failure) => {
-                notify(Outcome::Failure(
-                    id.clone(),
-                    "provider_initialization_failed".into(),
-                ));
-                return WorkerReceipt {
-                    reason: "initialization_failed".into(),
-                    process_reaped: false,
-                    never_started: failure.side_effect_state
-                        == agentbaton_providers::transport::SideEffectState::None,
-                };
-            }
-        };
+    let mut process = match ManagedProviderProcess::start(
+        route,
+        installation,
+        duration.min(Duration::from_secs(3)),
+    ) {
+        Ok(p) => p,
+        Err(failure) => {
+            notify(Outcome::Failure(
+                id.clone(),
+                "provider_initialization_failed".into(),
+            ));
+            return WorkerReceipt {
+                reason: "initialization_failed".into(),
+                process_reaped: false,
+                never_started: failure.side_effect_state
+                    == agentbaton_providers::transport::SideEffectState::None,
+            };
+        }
+    };
     if cancel.load(Ordering::Relaxed) || started.elapsed() >= duration {
         process.terminate();
         return WorkerReceipt {
@@ -1221,6 +1403,19 @@ fn run_worker(
             .saturating_sub(started.elapsed())
             .min(Duration::from_secs(3)),
     );
+    if let Some(configuration) = configuration {
+        if process
+            .configure_session_configuration(&configuration)
+            .is_err()
+        {
+            process.terminate();
+            return WorkerReceipt {
+                reason: "provider_configuration_unsupported".into(),
+                process_reaped: process.diagnostics().process_reaped,
+                never_started: false,
+            };
+        }
+    }
     let native = match process.new_session(&id) {
         Ok(n) => n,
         Err(_) => {
@@ -1348,6 +1543,10 @@ impl Store {
         arguments: &[String],
         key: &str,
     ) -> Result<ApprovalProposal> {
+        let protocol_route = crate::routes::validate_route_arguments(provider, arguments)?;
+        let plan_digest = crate::runtime_config::plan_for_provider(provider)?
+            .plan_digest()
+            .map_err(crate::runtime_config::config_error)?;
         if name.trim().is_empty()
             || name.len() > 256
             || arguments.len() > 32
@@ -1355,12 +1554,9 @@ impl Store {
         {
             return Err(invalid("Connection selection must be bounded"));
         }
-        if provider != "custom_acp" {
-            return Err(CoreError::new("CAPABILITY_UNSUPPORTED","Native provider routes are not ACP; select an explicit supported custom ACP program"));
-        }
         let digest = executable_digest(executable)
             .map_err(|_| invalid("Select an existing canonical executable"))?;
-        let snapshot = json!({"intent":{"name":name,"provider":provider,"executable":executable,"arguments":arguments},"executable_sha256":digest.as_str(),"scope":"version_probe_only","identity_status":"unknown","enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"native_identity_isolation":false},"warning":"Executes selected program with --version only; no session/model invocation approved"});
+        let snapshot = json!({"intent":{"name":name,"provider":provider,"executable":executable,"arguments":arguments},"protocol_route":protocol_route,"runtime_plan_digest":plan_digest,"executable_sha256":digest.as_str(),"scope":"version_probe_only","identity_status":"unknown","enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"native_identity_isolation":false},"warning":"Executes selected program with --version only; no session/model invocation approved"});
         self.persist_proposal("connection", snapshot, key)
     }
     #[allow(clippy::too_many_arguments)]
@@ -1489,7 +1685,10 @@ impl Store {
                     Path::new(text("executable")?),
                     &arguments,
                     &key,
-                    proposal.snapshot["executable_sha256"].as_str()
+                    Some(ExpectedConnectionSnapshot {
+                        executable_sha256: proposal.snapshot["executable_sha256"].as_str().ok_or_else(|| invalid("Stored proposal executable digest is missing"))?,
+                        runtime_plan_digest: proposal.snapshot["runtime_plan_digest"].as_str().ok_or_else(|| CoreError::new("INPUT_CHANGED", "Stored proposal predates the current runtime plan; prepare a fresh proposal"))?,
+                    })
                 )?)
             }
             "grant" => {
@@ -1575,15 +1774,19 @@ mod tests {
         let (_commands, receiver) = mpsc::sync_channel(1);
         let receipt = run_worker(
             "session".into(),
-            ApprovedInstallation {
-                executable: exe,
-                expected_sha256: digest,
-                arguments: vec![],
-                workspace: root,
-                approval_reference: "fixture-only".into(),
-                environment: BTreeMap::new(),
+            WorkerLaunch {
+                route: ProtocolRoute::CustomAcp,
+                installation: ApprovedInstallation {
+                    executable: exe,
+                    expected_sha256: digest,
+                    arguments: vec![],
+                    workspace: root,
+                    approval_reference: "fixture-only".into(),
+                    environment: BTreeMap::new(),
+                },
+                configuration: None,
+                duration: Duration::from_secs(2),
             },
-            Duration::from_secs(2),
             receiver,
             Arc::new(AtomicBool::new(false)),
             sender,
@@ -1616,6 +1819,7 @@ mod tests {
             attempt_id: "a".into(),
             intent_id: "i".into(),
             fencing_token: 1,
+            runtime_snapshot: None,
         };
         store
             .conn

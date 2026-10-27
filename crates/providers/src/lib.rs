@@ -11,9 +11,17 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 use std::io::{BufRead, Read};
 
+#[cfg(unix)]
+pub mod codex;
 pub mod connections;
+#[cfg(unix)]
+pub mod driver;
 mod framing;
 pub mod installation;
+#[cfg(unix)]
+mod process_io;
+#[cfg(unix)]
+mod session_configuration;
 #[cfg(unix)]
 pub mod transport;
 
