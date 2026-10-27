@@ -44,3 +44,16 @@
 .command-validation dd { margin: 4px 0 14px; }
 .command-validation code { white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width:759px) { .command-validation .command-validation-fields { grid-template-columns: minmax(0,1fr); } .command-validation button, .command-validation select, .command-validation input { min-height: 44px; } }
+
+.goal-planning { min-width:0; margin-top:24px; padding-top:18px; border-top:1px solid var(--line); overflow-wrap:anywhere; }
+.goal-planning h2 { display:inline; font-size:var(--fs-title); font-weight:500; }
+.goal-planning fieldset { min-width:0; padding:14px; margin:18px 0; border:1px solid var(--line); border-radius:6px; }
+.goal-planning label { display:flex; flex-direction:column; gap:6px; margin:10px 0; min-width:0; }
+.goal-planning input,.goal-planning select,.goal-planning textarea { width:100%; min-width:0; max-width:100%; }
+.goal-planning .goal-planning-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 14px; }
+.goal-planning .goal-planning-output { border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:14px; }
+.goal-planning details { margin:14px 0; }
+.goal-planning summary { cursor:pointer; }
+.goal-planning code,.goal-planning pre { white-space:pre-wrap; overflow-wrap:anywhere; max-width:100%; }
+.goal-planning dd { margin:4px 0 14px; }
+@media(max-width:759px){ .goal-planning .goal-planning-fields{grid-template-columns:minmax(0,1fr)} .goal-planning button,.goal-planning input,.goal-planning select{min-height:44px} }
