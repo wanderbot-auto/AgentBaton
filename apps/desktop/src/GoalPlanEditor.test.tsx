@@ -86,3 +86,17 @@ describe('editor semantic boundary on the same public proposal',()=>{
   it.each(['acceptance','budget','reservation','recipients','input-hash','output-contract','write-prefix','cycle','kind','missing-output'] as const)('rejects %s without constructing a second DSL or changing authority',kind=>{const {scope,proposal}=fixture(),node=proposal.nodes[0];if(kind==='acceptance')proposal.acceptance_rules=[];else if(kind==='budget')node.budget.attempts=9;else if(kind==='reservation')node.reservation.runtime_ms=node.budget.runtime_ms+1;else if(kind==='recipients')node.recipients=['unapproved'];else if(kind==='input-hash'&&node.required_inputs[0].source.kind==='approved_external')node.required_inputs[0].source.sha256='0'.repeat(64);else if(kind==='output-contract')node.outputs[0].contract_id='contract-input';else if(kind==='write-prefix')node.write_set=[{kind:'workspace',path:'outputs-escape/report'}];else if(kind==='cycle')node.dependencies=[node.id];else if(kind==='kind')node.kind='owner_approval';else node.outputs=[];expect(()=>validateEditorPlan(proposal,scope,null)).toThrow();});
   it('accepts an exact existing public model and leaves its bytes/value untouched',()=>{const {scope,proposal}=fixture(),before=JSON.stringify(proposal);expect(validateEditorPlan(proposal,scope,null)).toEqual(proposal);expect(JSON.stringify(proposal)).toBe(before);});
 });
+
+// Regression reproduces the independent review control on the original source.
+it('removing node a retains unsafe numeric text owned by node a.b',async()=>{
+ const user=userEvent.setup(),{scope,proposal}=fixture(),onApply=vi.fn();
+ proposal.nodes[0].id='a.b';
+ const review={...copy(proposal.nodes[0]),id:'a',goal:'Review approved external input',kind:'owner_approval' as const,executor:{kind:'owner' as const,rule_id:'review'},outputs:[],write_set:[],side_effect:'advisory_read_only' as const,required_validators:['review'],idempotency_key:'review-key'};
+ proposal.nodes.push(review);
+ render(<GoalPlanEditor scope={scope} latest={null} raw={JSON.stringify(proposal)} language="en" disabled={false} onApply={onApply}/>);
+ await expand(user);await user.click(screen.getByRole('button',{name:'Read current JSON draft into editor'}));
+ const producer=await nodeDetails(user,'a.b');await user.click(producer.getByText('Bounded budget and retry',{selector:'summary'}));
+ fireEvent.change(producer.getByLabelText('Runtime (ms)'),{target:{value:'9007199254740993'}});expect(apply()).toBeDisabled();
+ const independent=await nodeDetails(user,'a');await user.click(independent.getByRole('button',{name:/^Remove step a$/}));
+ expect(producer.getByLabelText('Runtime (ms)')).toHaveValue('9007199254740993');expect(apply()).toBeDisabled();expect(onApply).not.toHaveBeenCalled();
+});

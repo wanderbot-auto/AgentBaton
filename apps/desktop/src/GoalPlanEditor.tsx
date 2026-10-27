@@ -88,13 +88,13 @@ function newNode(scope: GoalScope,id: string,outputs: boolean): GoalPlanNode {
 
 export function GoalPlanEditor({scope,latest,raw,language,disabled,onApply}: Props) {
   const t=goalMessages[language], uid=useId();
-  const [draft,setDraft]=useState<Draft|null>(null),[error,setError]=useState(''),[applied,setApplied]=useState(false),[edited,setEdited]=useState(false),[numbers,setNumbers]=useState<Record<string,string>>({});
+  const [draft,setDraft]=useState<Draft|null>(null),[error,setError]=useState(''),[applied,setApplied]=useState(false),[edited,setEdited]=useState(false),[numbers,setNumbers]=useState<Map<string,Record<string,string>>>(()=>new Map());
   const revision=latest?.proposal.revision??0, digest=latest?.digest??'';
   const context=JSON.stringify([scope.scope_digest,scope.edit_context]), available=hasEditorContext(scope);
   const changed=!!draft&&(draft.baseRevision!==revision||draft.baseDigest!==digest||draft.baseRaw!==raw||draft.baseContext!==context);
   const blocked=disabled||changed||!available;
-  const invalidNumbers=Object.values(numbers).some(text=>!/^(0|[1-9]\d*)$/.test(text)||!safeInteger(Number(text)));
-  function begin(proposal: GoalPlanProposal,edited=false) { setDraft({proposal:clone(proposal),baseRevision:revision,baseDigest:digest,baseRaw:raw,baseContext:context});setNumbers({});setError('');setApplied(false);setEdited(edited); }
+  const invalidNumbers=[...numbers.values()].some(fields=>Object.values(fields).some(text=>!/^(0|[1-9]\d*)$/.test(text)||!safeInteger(Number(text))));
+  function begin(proposal: GoalPlanProposal,edited=false) { setDraft({proposal:clone(proposal),baseRevision:revision,baseDigest:digest,baseRaw:raw,baseContext:context});setNumbers(new Map());setError('');setApplied(false);setEdited(edited); }
   function prepare() {
     if (disabled||!available) return;
     if (latest) begin({...clone(latest.proposal),revision:revision+1,expected_revision:revision},true);
@@ -110,7 +110,7 @@ export function GoalPlanEditor({scope,latest,raw,language,disabled,onApply}: Pro
   }
   function numeric(id:string,group:'budget'|'reservation'|'retry',key:string,text:string) {
     if(blocked)return;
-    setNumbers(previous=>({...previous,[`${id}.${group}.${key}`]:text}));
+    setNumbers(previous=>new Map(previous).set(id,{...previous.get(id),[`${group}.${key}`]:text}));
     if(/^(0|[1-9]\d*)$/.test(text)&&safeInteger(Number(text))) update(id,node=>({...node,[group]:{...node[group],[key]:Number(text)}}));
     else {setError(t.integer);setApplied(false);}
   }
@@ -122,7 +122,7 @@ export function GoalPlanEditor({scope,latest,raw,language,disabled,onApply}: Pro
   function remove(id:string) {
     if(blocked||!draft)return;
     if(draft.proposal.nodes.some(node=>node.id!==id&&(node.parent_id===id||node.dependencies.includes(id)||node.required_inputs.some(input=>input.source.kind==='node'&&input.source.node_id===id)))){setError(t.editorReferenced);return;}
-    setDraft({...draft,proposal:{...draft.proposal,nodes:draft.proposal.nodes.filter(node=>node.id!==id)}});setNumbers(previous=>Object.fromEntries(Object.entries(previous).filter(([key])=>!key.startsWith(id+'.'))));setApplied(false);setEdited(true);
+    setDraft({...draft,proposal:{...draft.proposal,nodes:draft.proposal.nodes.filter(node=>node.id!==id)}});setNumbers(previous=>{const next=new Map(previous);next.delete(id);return next;});setApplied(false);setEdited(true);
   }
   function apply() {
     if(blocked||!draft||invalidNumbers||!edited)return;
@@ -130,7 +130,7 @@ export function GoalPlanEditor({scope,latest,raw,language,disabled,onApply}: Pro
     catch(failure){setError(failure instanceof GoalFormError||failure instanceof EditorError?t[failure.reason]:t.invalid);}
   }
   const check=(label:string,checked:boolean,onChange:()=>void,off=false)=><label className="goal-plan-editor-check"><input type="checkbox" checked={checked} disabled={blocked||off} onChange={onChange}/>{label}</label>;
-  const numericInput=(node:GoalPlanNode,group:'budget'|'reservation'|'retry',key:string,label:string)=><label key={`${group}.${key}`}>{label}<input inputMode="numeric" value={numbers[`${node.id}.${group}.${key}`]??String((node[group] as unknown as Record<string,unknown>)[key])} onChange={event=>numeric(node.id,group,key,event.target.value)}/></label>;
+  const numericInput=(node:GoalPlanNode,group:'budget'|'reservation'|'retry',key:string,label:string)=><label key={`${group}.${key}`}>{label}<input inputMode="numeric" value={numbers.get(node.id)?.[`${group}.${key}`]??String((node[group] as unknown as Record<string,unknown>)[key])} onChange={event=>numeric(node.id,group,key,event.target.value)}/></label>;
   return <details className="goal-plan-editor" data-testid="goal-plan-editor"><summary>{t.editorTitle}</summary><p>{t.editorHint}</p><div className="goal-plan-editor-actions"><button type="button" disabled={disabled||!available} onClick={prepare}>{latest?t.editorFromLatest:t.editorFromScope}</button><button type="button" disabled={disabled||!raw.trim()} onClick={load}>{t.editorLoad}</button></div>{!available&&<p>{t.editorUnavailable}</p>}{changed&&<p role="alert">{t.editorChanged}</p>}{error&&<p role="alert" className="error">{error}</p>}{applied&&<p role="status">{t.editorApplied}</p>}
     {draft&&<><p>{t.editorVersion}: {draft.proposal.revision} · CAS {draft.proposal.expected_revision}</p><p>{t.editorAcceptance}: {draft.proposal.acceptance_rules.join(', ')}</p>
       <section aria-label={t.editorGraph}><h3>{t.editorGraph}</h3><ol className="goal-plan-editor-graph">{draft.proposal.nodes.map(node=>{const dependencies=[...new Set([...node.dependencies,...(node.parent_id?[node.parent_id]:[]),...node.required_inputs.flatMap(input=>input.source.kind==='node'?[input.source.node_id]:[])])];return <li key={node.id}><strong>{node.id}</strong><span>{node.goal||t.editorUntitled}</span><span>{dependencies.length?`${dependencies.join(', ')} → ${node.id}`:t.editorRoot}</span></li>;})}</ol></section>
