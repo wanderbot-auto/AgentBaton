@@ -12,3 +12,5 @@ This slice implements Projects UI and fixed native IPC for the Core author's sch
 6. Freeze local source for independent review. Primary later composes schema10 and runs actual daemon/browser/native/macOS checks; mock/native-closure tests do not establish those dimensions.
 
 Requirement contribution: AB-PRJ-002/003 local non-Git workspace identity, AB-VAL-002 fixed input versions, AB-TSK-007 requested versus confirmed cancellation, AB-SEC-004/010 explicit local data scope. This unit is not full acceptance of these entire requirements or the overall product.
+
+Independent review F1/F2 are part of this slice: retain the actual old cancellation/remount and contradictory-ready failure controls, persist bounded observed revision/project-version floors within pending intents, let validated mutation responses raise those floors before refresh, and require complete internally consistent public Ready observations before `onReady`. Do not reconstruct private copy authority in JavaScript or deny valid higher-revision/historical readbacks. Re-run all original302 tests plus added regressions and types/build; native/Core remain unchanged.

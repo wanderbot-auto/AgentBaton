@@ -1,6 +1,6 @@
 # Data workspace UI/native progress
 
-Source freeze `df0178a55ae1424840c76c0b7009b842b9080788`, base `b71492f`.
+Current source freeze `a436be79c5a9099c0b40341db1984629bdb9ba71`, base `b71492f`. Initial `df0178a` and its302-test evidence below are retained as history.
 
 - Added default-folded `DataWorkspaces` in Projects with explicit relative files/optional fixed SHA and byte/file caps. It sends only `{project_id,files,limits}`. Actual source/target roots, snapshot identity and permissions stay server-owned. No credentials, automatic HOME/auth directory copy, Git initialization, scripts, model call or execution grant.
 - Preview displays observed count, SHA, bytes and dataset revision, separately from copy approval. Dedicated native `data_workspace` approval binds the observed preview CAS; Renderer has no finalize flag/method. Creating, cancellation requested, failed/partial, unknown and ready are distinct. Ready-after-cancel remains ready with an explanation, never a cancellation receipt. Observed copied_files=0 never means the directory is empty.
@@ -11,3 +11,13 @@ Source freeze `df0178a55ae1424840c76c0b7009b842b9080788`, base `b71492f`.
 - New eight fixed native handlers compile. Native approval checks exact preview ID/revision, separate proposal revision, correct kind, actual file SHA/byte/dataset/root/destination review fields, false guarantees and complete16KiB snapshot before prompt/finalize. Existing native decline and post-finalize unknown behavior is preserved.
 - Actual results: **302 UI tests in18 files**, types/build PASS (original259 + new43). **17 Linux native leaf tests**, Clippy and fmt PASS (13 original +4 new). Native target was explicitly released to primary; no new target or lock/dependency changes.
 - Native compilation used primary's copied Goal/schema9 debug sidecars as build resources only. Schema10 Core is an independently owned pending dependency; no real DataWorkspace daemon copy, owner window, browser screenshot or macOS result is claimed here. Independent review is pending.
+
+## Independent review F1/F2 correction
+
+F1: the author reproduced the independent old failure (copy revision3 cancelling/transport lost → remount → stale Ready revision2 cleared pending). Pending now carries bounded observed `{id, revision, project_revision}` floors, its exact original payload/key, and any acknowledged mutation receipt. Reads must retain observed history and satisfy floors before reconciling. Known successful responses also raise the floor before refresh; older later lists cannot roll it back. Same-scope newer terminal facts can clear cancellation; historical project versions remain readable/cancellable. Wrong-project-version copies cannot satisfy an unknown approval. Stale callbacks do not revive or overwrite an already resolved/replaced intent. No automatic mutation was introduced.
+
+F2: five actual old controls accepted missing/failed/foreign-dataset/wrong-destination/partial observations as Ready. The final public DTO includes the formal library's destination, dataset_revision, selection_digest and copied-file input observation. Ready now requires a full ready observation, matching identities/paths/version/digest/count and null errors, consistent public copy contract and any available preview. Corruption never triggers `onReady` or enables writing. JavaScript does not recompute a private witness or authenticate OS identity numbers.
+
+The new paired-preview guard exposed one inconsistent original unit fixture (same preview had project_revision2, its copy3). Its failure is retained; only the copy's fixture version was corrected to2. All assertions remain, now exercising a real historical same-scope case under current project3. Original259 test files remain byte-identical. Source16-component input versus fixed inputs/17-component destination handling has a separate regression.
+
+Final actual **325/325 UI in18 files + types/build PASS** (original302 behavior plus23 cases), 2026-10-27 07:23:05 UTC. Native17 source is unchanged; the earlier native evidence remains leaf-only and was not redundantly rerun. Independent delta review and real schema10 integration are pending.
