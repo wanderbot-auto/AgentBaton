@@ -65,6 +65,7 @@ def main():
     parser.add_argument('--frontend', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
+    parser.add_argument('--candidate-manifest', type=Path, help='Optional immutable candidate attribution; no build or authority is inferred')
     args = parser.parse_args()
     binary, frontend, output = args.batond.resolve(strict=True), args.frontend.resolve(strict=True), args.output.resolve()
     assert (frontend / 'index.html').is_file()
@@ -76,6 +77,14 @@ def main():
               'daemon_sha256': sha(binary.read_bytes()), 'harness_sha256': sha(Path(__file__).read_bytes()),
               'frontend_assets_sha256': {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(frontend.rglob('*')) if p.is_file()},
               'checks': [], 'requests': [], 'faults': [], 'observations': {}, 'screenshots': [], 'unrun': []}
+    if args.candidate_manifest:
+        manifest_bytes = args.candidate_manifest.resolve(strict=True).read_bytes()
+        manifest = json.loads(manifest_bytes)
+        assert manifest['schema'] == 10 and manifest['binaries']['batond'] == report['daemon_sha256']
+        report['candidate'] = {'manifest_sha256': sha(manifest_bytes), 'status': manifest['status'],
+                               'git_head': manifest['git_head'], 'dirty': manifest['dirty'],
+                               'source_tree_sha256': manifest['source_tree_sha256'],
+                               'not_final_review_or_ci_acceptance': True}
     pump = lambda: None
     token = ''
 
@@ -391,6 +400,7 @@ def main():
                     assert database() == before
                     preview, request = verified(panel, 'normal')
                     assert database()['data_workspace_creations'] == 0 and database()['managed_workspaces'] == 0
+                    detail(panel, preview['id']).locator(':scope > summary').scroll_into_view_if_needed()
                     screenshot('01-real-selected-file-preview')
                     passed('real UI relative selection and bounded preview show actual hashes/bytes with no copy or source writes', preview_id=preview['id'])
 
@@ -421,6 +431,7 @@ def main():
                     assert registered['root'] == ready['destination'] and registered['base_revision'] == ready['dataset_revision']
                     refresh(panel); current = detail(panel, creation_id)
                     expect(current.get_by_text(ready['contract']['contract_digest'], exact=True)).to_be_visible()
+                    current.locator(':scope > summary').scroll_into_view_if_needed()
                     screenshot('02-real-ready-data-copy')
                     page.set_viewport_size({'width': 390, 'height': 844}); current.scroll_into_view_if_needed(); screenshot('03-real-ready-mobile')
                     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
@@ -493,7 +504,15 @@ def main():
                         assert Path(terminal['destination']).exists(), 'Readonly reconciliation deleted a retained target'
                     screenshot('05-real-copy-terminal-observation')
                     cancelled = requested and terminal['state'] != 'ready' and ((terminal.get('error') or {}).get('code') == 'CANCEL_REQUESTED' or (terminal.get('observation') or {}).get('error') == 'cancel_requested')
-                    report['observations']['copy_cancel'] = {'requested_through_ui': requested, 'terminal': terminal, 'retained_destination_exists': retained_destination, 'cooperative_io_cancel_observed': cancelled, 'not_a_stop_claim': terminal['state'] == 'ready'}
+                    io_observation = terminal.get('observation')
+                    in_copy_observation = cancelled and io_observation is not None and io_observation.get('error') == 'cancel_requested'
+                    before_reservation = cancelled and io_observation is None and not retained_destination and (terminal.get('error') or {}).get('side_effect_state') == 'not_started'
+                    report['observations']['copy_cancel'] = {'requested_through_ui': requested, 'terminal': terminal, 'retained_destination_exists': retained_destination,
+                        'cancellation_specific_receipt_observed': cancelled,
+                        'cancellation_stage': 'before_destination_reservation' if before_reservation else 'copy_observation' if in_copy_observation else 'not_established',
+                        'in_copy_cancellation_observation': in_copy_observation,
+                        'partial_copy_stop_not_established': not in_copy_observation,
+                        'not_a_stop_claim': terminal['state'] == 'ready'}
                     if not requested:
                         report['unrun'].append('Copy completed before UI cancellation control was available; no successful cancellation is claimed')
                     elif not cancelled:
