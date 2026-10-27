@@ -11,3 +11,5 @@ PR11 draft codex/data-contract-validation已保存WIPd0c714避免瞬态环境失
 本次将Root130f的已审postapproval guard与canonical fixture整合进Data。Data/schema7/library/Native/UI/两锁对0f23源码字节不变，只有共享IPC增加已独立审查的probe错误映射和三故障回归。组合Core/guard回归、独立Core审查、实际当前release sidecars/LinuxNative8+6与新FIRST readonlydata断言、最终浏览器及准确CI尚待执行。Native staticreview已通过，不把它当作编译/GUI运行。Native本地预确认oversize ErrString保留unknown请求的恢复UX限制已明确记在NATIVE_REVIEW，未误降finalizer/transport未知。
 
 Data合同仅固定JSON结构/类型/范围/所批metadata及文件hash；population/units/TZ按负责人声明匹配，不是独立科学事实，不运行复现脚本/算法，不建立TaskAccepted/采纳/生产权限。完整正确性验证与精确head采纳、规划路由委派工作流、全配置/留存导出/远程/登录睡眠等仍未完成并持续推进。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和需求表分开记录通过/失败/未运行/受阻，不写虚构百分比。原三个Environment与main保护保留，无直接/强推main或绕过检查。
+
+最新组合ddd6707已实际324顶层Rust+2compilefail/Core111/fmtClippy/真实release构建与hash相同侧车、LinuxNative8+6/两套Clippy通过，独立Core17审查无阻塞。当前再整合Root2a809的App首case输入夹具；产品Core/native/UI/两锁逐字未变，全部原project/archived/API断言/5s上限保留。最终129UI/type/build与当前release daemon的browser检查正在重跑，之后保存PR11准确候选/显式CI。Native新FIRST actualdata readonly UI尚未在Mac执行，预确认oversize unknown固定请求UX限制仍记录；不把partialcheck标全Goal完成。

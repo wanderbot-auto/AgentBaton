@@ -807,5 +807,18 @@
     "production_unchanged_from_32b2": true,
     "independent_linux_regressions": 3,
     "new_macos_ci": "not_run_yet; exactnewcandidate required"
+  },
+  "ui_fixture_timing": {
+    "failed_head": "130f3639cdf20a15acd7a4ab448f6ac400fb8770",
+    "run": 40422958570,
+    "failed_job": 121921608984,
+    "actual_failed_checkout": "0c1663aec65f94cc95ea8b1a1b8221e29e593ff4",
+    "result": "IntelAppfirstcase5164ms>original5000; other48passed; ARM/Rust/UIpassed",
+    "source": "4e18b72371e395468804406cb3dece34c9a86e7b",
+    "evidence": "docs/execution/ui-fixture-timing/EVIDENCE.json",
+    "review": "docs/execution/ui-fixture-timing/REVIEW.md",
+    "independent_app_tests": 12,
+    "remaining_app_cases_unchanged": 11,
+    "newMac_ci": "pending"
   }
 }
