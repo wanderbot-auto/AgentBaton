@@ -87,7 +87,7 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 7 {
+        if version > 8 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
@@ -126,6 +126,22 @@ impl Store {
         migrate_runtime_snapshots(&mut conn, version)?;
         migrate_validations(&mut conn, version)?;
         migrate_data_validations(&mut conn, version)?;
+        if version > 0 && version < 8 {
+            let backup = path.with_extension(format!("pre-v8-{}.sqlite3", Uuid::new_v4()));
+            drop(
+                OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .mode(0o600)
+                    .open(&backup)
+                    .map_err(|_| {
+                        CoreError::new("INTERNAL_ERROR", "Cannot create command-migration backup")
+                    })?,
+            );
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
+        }
+        migrate_command_validations(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -134,6 +150,7 @@ impl Store {
         store.recover_dispatches()?;
         store.recover_workspace_creations()?;
         store.recover_sessions()?;
+        store.recover_command_validations()?;
         Ok(store)
     }
     /// Authenticated entry point: new tasks require an active registered project or legacy local scope.
@@ -265,7 +282,8 @@ impl Store {
             return Ok(task);
         }
         let active:i64=self.conn.query_row("SELECT count(*) FROM attempts a JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.task_id=?1 AND d.state!='stopped'",[id],|r|r.get(0)).map_err(db_error)?;
-        let no_attempt = task.state == TaskState::Draft && active == 0;
+        let command_active:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM command_validation_runs WHERE task_id=?1 AND state IN('prepared','running','cancel_requested','outcome_unknown'))",[id],|r|r.get(0)).map_err(db_error)?;
+        let no_attempt = task.state == TaskState::Draft && active == 0 && !command_active;
         task.state = if no_attempt {
             TaskState::Cancelled
         } else {
@@ -447,6 +465,21 @@ fn migrate_data_validations(conn: &mut Connection, version: u32) -> Result<()> {
         tx.execute_batch("CREATE TABLE data_validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL);
         CREATE TABLE data_validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES data_validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),state TEXT NOT NULL CHECK(state IN('contract_passed','contract_failed')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key));
         PRAGMA user_version=7;").map_err(db_error)?;
+        tx.commit().map_err(db_error)?;
+    }
+    Ok(())
+}
+
+fn migrate_command_validations(conn: &mut Connection, version: u32) -> Result<()> {
+    if version < 8 {
+        let tx = conn.transaction().map_err(db_error)?;
+        tx.execute_batch("CREATE TABLE command_validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL);
+CREATE TABLE command_validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES command_validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),state TEXT NOT NULL CHECK(state IN('prepared','running','cancel_requested','command_passed','command_failed','outcome_unknown')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key));
+CREATE TABLE command_workspace_fences(workspace_id TEXT PRIMARY KEY REFERENCES managed_workspaces(id),run_id TEXT NOT NULL UNIQUE REFERENCES command_validation_runs(id));
+CREATE TRIGGER command_fence_attempt BEFORE INSERT ON attempts WHEN EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=json_extract(NEW.binding,'$.workspace_id')) BEGIN SELECT RAISE(ABORT,'command workspace remains fenced'); END;
+CREATE TRIGGER command_fence_lease_insert BEFORE INSERT ON workspace_leases WHEN EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=NEW.resource) BEGIN SELECT RAISE(ABORT,'command workspace remains fenced'); END;
+CREATE TRIGGER command_fence_lease_update BEFORE UPDATE ON workspace_leases WHEN EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=NEW.resource) BEGIN SELECT RAISE(ABORT,'command workspace remains fenced'); END;
+PRAGMA user_version=8;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
     Ok(())
