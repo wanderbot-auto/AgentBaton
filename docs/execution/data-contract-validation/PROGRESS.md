@@ -13,3 +13,8 @@ MergeRoot130f composition preservesfrozenDataCore/schema7/JSON/native/UI/locks. 
 Finalddd6707 composition324topRust+2compilefail/Core111/fmtClippy/releasebuildPASS; LinuxNativehost8+harness6+bothClippyPASS. Currentgenuine sidecarscopiedandSHAidenticalafterprepare scriptmetadata-targetfix; initialexit1preserved. Coreindependent17targeted/source reviewno blockers; actual30browser/16imagesandUI129 remainseparate. NewMacFIRST/Ownerdialog/DMGyetunrun.
 
 RootUIfixtureintegratedcfa68bdwithCore/native/UI/lockproductbytesunchanged; full129UI/type/buildandcurrentreleasebrowser30/16PASS. Allthreeindependentreviews+Core17/324Rust/native8+6andverifiedsidecars retained. NewexactcandidateMacCI/GUI/DMG/Ownerdialog remainpending; wholeGoalnotdone. Clearedonlyownedoldnativeincrementalcache1.6GiB toremainwithin32GiB; source/logs/artifacts untouched.
+
+
+## Protected-main integration after exact2640 evidence
+
+PR10 actually merged febe7c7 from62465a after seven success/independent dual native/DMG checks. OWNER001/002 reread ACK. PR11 integrates protected main, preserving both historical status versions and current schema7 product source. Accurate2640 seven success/native readonlyData3flags/MacCore111+UI129/host8+harness6/defaultreleaseaudit and downloaded dual DMG recorded in NATIVE_2640_REVIEW/DEVELOPMENT_PACKAGES_2640/EVIDENCE. Next normal push, retarget main/ready, fresh exact candidate7 CI and native/DMG review. Earlier pending statements above are historical and superseded for2640 only; native owner dialog/actual Mac data approve-run/science/full Goal remain unverified.

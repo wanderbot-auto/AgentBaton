@@ -1,0 +1,29 @@
+{
+  "run": 40430127911,
+  "head_sha": "62465a57f35b55838bce2064e96eafef8255156a",
+  "checkout": "62465a57f35b55838bce2064e96eafef8255156a",
+  "artifacts": [
+    {
+      "id": 12701774556,
+      "name": "development-macos-15-intel-62465a57f35b55838bce2064e96eafef8255156a",
+      "zip_digest": "sha256:ebcede6f1a3543a7aed3091a45a8e0279c2c145256828a391da40d5bf5088639",
+      "dmg": "AgentBaton-x86_64-62465a57f35b55838bce2064e96eafef8255156a-development.dmg",
+      "dmg_sha256": "f74ee366b63d001d09038cc7efc8caf1322ab5d453deb29f9827ae68f9031d5c",
+      "checkout_commit": "62465a57f35b55838bce2064e96eafef8255156a",
+      "architecture": "x86_64",
+      "build_record": "commit=62465a57f35b55838bce2064e96eafef8255156a\narchitecture=x86_64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.19.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\napps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app: code object is not signed at all\n",
+      "verified_path": "/workspace/.onboarding/pr10-artifacts/62465/12701774556/verified"
+    },
+    {
+      "id": 12701574012,
+      "name": "development-macos-15-62465a57f35b55838bce2064e96eafef8255156a",
+      "zip_digest": "sha256:c96aaad25b312db5ed449b64e8c5fdb357fc0572fffd5f5a13e51934f088ad9a",
+      "dmg": "AgentBaton-arm64-62465a57f35b55838bce2064e96eafef8255156a-development.dmg",
+      "dmg_sha256": "f584b1d38c4a88749184f4fea612cd870a28dcd040b36da1c23045d6343e8d40",
+      "checkout_commit": "62465a57f35b55838bce2064e96eafef8255156a",
+      "architecture": "arm64",
+      "build_record": "commit=62465a57f35b55838bce2064e96eafef8255156a\narchitecture=arm64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: aarch64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.20.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\nExecutable=/Users/runner/work/AgentBaton/AgentBaton/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop\nIdentifier=agentbaton_desktop-8faf8c448840d385\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=98056 flags=0x20002(adhoc,linker-signed) hashes=3060+0 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=984320\nHash type=sha256 size=32\nCandidateCDHash sha256=644d24e8eab18b1490fb271d18b56959e7656cbd\nCandidateCDHashFull sha256=644d24e8eab18b1490fb271d18b56959e7656cbd794295cfad0fcf44ff715890\nHash choices=sha256\nCMSDigest=644d24e8eab18b1490fb271d18b56959e7656cbd794295cfad0fcf44ff715890\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=8175616\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=644d24e8eab18b1490fb271d18b56959e7656cbd\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements=none\n",
+      "verified_path": "/workspace/.onboarding/pr10-artifacts/62465/12701574012/verified"
+    }
+  ]
+}

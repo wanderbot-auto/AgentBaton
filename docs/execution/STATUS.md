@@ -1,17 +1,13 @@
 # AgentBaton 执行状态
 
-完整Design v0.2全部130需求、27决定与WP01–14继续，AB-START-001有效。最新实际保护main c4e72c641e3edc3f3c0f665ffde5217933c2895f，OWNER001/002集成边界已读/ACK且无新序号。未提供原生Goal工具/Cloud任务URL；不虚构平台状态/停止后续跑。真实Provider/模型/私人身份、新增费用资源/未批准remote/正式签名密钥/最终许可证/生产发布仍单独关闭。
+Design v0.2全部130需求、27决定及WP01–14继续，AB-START-001有效。实际保护main为PR10合入febe7c74f62aad1f767aa60a0eab5e3fc0529dcb；本次集成边界重新读取OWNER001/002并ACK，无新序号。原生Goal工具/Cloud任务URL未提供。真实Provider/私人身份、新费用/资源、签名密钥、最终许可证、生产发布仍单独关闭。
 
-已按准确检查、独立review、双架构DMG核验保护合入PR3/4/9/6/7。PR7为专用QuietCanvas，准确a9fb七项通过后合c4e72c6；保留原Mac时序失败及不削弱保护的fixture纠正。Root PR8最新正常push130f3639cdf20a15acd7a4ab448f6ac400fb8770在main/ready，等待新精确CI。先前b994七项/双Mac窗口重开与daemon lifecycle/defaultreleaseaudit/双DMG独立通过；随后实际故障验证补了postapproval-probe误报not_started窄修32b2、独立Core83/3回归通过。2da7新CI两Mac因新增fixture未canonicalize临时路径而失败；旧ARM/Intel日志和Linux alias失败控制保留，现仅测试helper8441fe6返回canonical路径、独立3回归通过，无生产守卫/权限削弱。130f新Mac结果尚未读取，不继承旧head通过。
+已按保护流程合入PR3/4/9/6/7/8/10：真实Core/协议/注册表/托管会话/QuietCanvas/runtime/完整性策略及IPC。PR10准确62465a的Product40430127911+Environment40430127252七项通过，双Mac实际Core94/UI79/host7/harness6、真实窗口重开/daemon lifecycle/defaultreleaseaudit独立核验，双DMG下载/SHA/UDIF/提交/架构/签名核验后expected-head合入。Environment的实际PR checkout92394fc7与head不同但tree相同，报告明确区分。原生owner对话框/完整性批准运行未自动化；integrity-only不等于代码正确/TaskAccepted/采纳。
 
-PR10 draft当前3c1cd1a：schema6文件完整性/原生批准/真实IPC/Artifacts UI。Product40417144235/Environment40417148162全部七项成功，双Mac原生报告和迁移/真实IPC/defaultreleaseaudit独立核验，双DMG下载/hash/UDIF/准确head/架构/签名核验。脚本未自动点击Owner对话框或integrity approve/run；Linux策略IPC与26browser/12图分开。后续须整合Root新guard/保护main，再准确候选CI/按保护合入。
+当前PR11 codex/data-contract-validation：schema7固定JSON合同、持久策略/receipt、原生owner桥、真实IPC和默认折叠Data表单。324顶层Rust+2compilefail、129UI/type/build、当前release daemon浏览器30checks/16screens、LinuxNative8+6通过且独立Core/UI/native审查已记录。准确2640e6c的Product40430134077+Environment40430137922七项真实成功，双MacCore111/host8/harness6/UI129，以及新增真实native readonlyData列表/空表单/sequence不变三断言、重开/lifecycle/defaultreleaseaudit独立通过。双DMG实际下载并核验，ARM仅ad hoc、Intel未签名，无DeveloperID/公证。现安全整合实际保护main febe7c7，只解文档冲突并保留双方旧状态；产品代码与2640逐字相同。即将normal push/retarget main/ready，新head七项/原生产物仍须重新取得，不能继承2640。
 
-PR11 draft codex/data-contract-validation已保存WIPd0c714避免瞬态环境失效，实际shell恢复后持续实现，当前功能提交0f23ff0。独立JSON库cbd5509/a088529整合，Core/schema7独立data policy/receipt五namespace、原生DataValidation桥、默认折叠表单及幂等/撤销/绑定/故障路径已写实。Core321顶层Rust+2compilefail、Core108/13Data+busy1+迁移7三test、Clippy/fmt/build/真实重启通过；UI129/type/build及独立129审查通过；实际当前Schema7 daemon/builtReact browser30checks/16screens通过，4Data图保存，初次重复文本locator失败保留并仅scope纠正。主代理已查看实际Data页面截图。真实/native/dialog/Mac和科学算法维度不混充。
+Data只验证所批固定JSON结构/类型/范围/metadata和字节hash，不运行脚本或证明科学算法/代表性；不建立TaskAccepted/采纳/生产权限。真实Mac owner审批对话框和数据策略approve/run尚未验证。Native预确认oversize返回unknown时的固定请求恢复UX限制仍登记，未把未知finalizer/transport错误降低为not_started。
 
-本次将Root130f的已审postapproval guard与canonical fixture整合进Data。Data/schema7/library/Native/UI/两锁对0f23源码字节不变，只有共享IPC增加已独立审查的probe错误映射和三故障回归。组合Core/guard回归、独立Core审查、实际当前release sidecars/LinuxNative8+6与新FIRST readonlydata断言、最终浏览器及准确CI尚待执行。Native staticreview已通过，不把它当作编译/GUI运行。Native本地预确认oversize ErrString保留unknown请求的恢复UX限制已明确记在NATIVE_REVIEW，未误降finalizer/transport未知。
+PR12固定命令验证库source1dae4566经独立27command+4docs/LinuxClippy/fmt，作者90+4及双Apple cross-Clippy，F1延迟观察预算误判已原条件独立关闭，旧失败保留。当前准确c4f9ccd独立产品CI进行中，Environment已通过，Mac实际命令执行待日志证据；不能用crosscompile冒充。Core非阻塞命令worker/持久化/取消恢复与真实原生UI接线分别在隔离worktree实现，Goal计划DAG/权限收窄/共享预算ready算法单元并行实现。未将库单元当完整WP09或全产品。
 
-Data合同仅固定JSON结构/类型/范围/所批metadata及文件hash；population/units/TZ按负责人声明匹配，不是独立科学事实，不运行复现脚本/算法，不建立TaskAccepted/采纳/生产权限。完整正确性验证与精确head采纳、规划路由委派工作流、全配置/留存导出/远程/登录睡眠等仍未完成并持续推进。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和需求表分开记录通过/失败/未运行/受阻，不写虚构百分比。原三个Environment与main保护保留，无直接/强推main或绕过检查。
-
-最新组合ddd6707已实际324顶层Rust+2compilefail/Core111/fmtClippy/真实release构建与hash相同侧车、LinuxNative8+6/两套Clippy通过，独立Core17审查无阻塞。当前再整合Root2a809的App首case输入夹具；产品Core/native/UI/两锁逐字未变，全部原project/archived/API断言/5s上限保留。最终129UI/type/build与当前release daemon的browser检查正在重跑，之后保存PR11准确候选/显式CI。Native新FIRST actualdata readonly UI尚未在Mac执行，预确认oversize unknown固定请求UX限制仍记录；不把partialcheck标全Goal完成。
-
-实际PR8已于最新保护main afb52be合入，准确2a809七项/双Native/DMG完整验证；集成边界Owner001002再次ACK无新序号。当前Data再整合Schema6分支e89aeef的最新main ancestry及真实3c/2a Native/DMG记录，整棵Core/Native/UI/scripts/locks相对当前最终本地验证快照零差异。新Data准确候选即将正常push到PR11并显式触发独立七项CI；schema6 PR10先按新准确main候选重检，两者不互相继承通过。完整Goal范围未结束，后续命令验证器Linux26cases/全库89+4compilefail及两个Mac crosscheck已通过，真实Mac执行及Core接线尚待。
+完整Goal仍有规划/委派/采纳接线、完整配置与能力、远程主机、历史留存导出、登录睡眠/真实Provider等待做或受阻维度；持续选依赖就绪工作。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和需求证据表更新，原3项Environment必需检查与main保护保持，无直接或强推main/绕过检查/虚构完成百分比或停止后续跑。
