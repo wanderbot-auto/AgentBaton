@@ -224,6 +224,233 @@ impl Fixture {
     }
 }
 #[test]
+fn editing_metadata_is_recorded_approval_data_and_survives_readonly_history() {
+    let mut f = Fixture::new();
+    let selection = f.selection.clone();
+    let view = f.approve();
+    let context = view.edit_context.as_ref().unwrap();
+    assert_eq!(context.max_nodes, selection.max_nodes);
+    assert_eq!(context.writable_prefixes, selection.writable_prefixes);
+    assert_eq!(context.output_artifacts.len(), selection.outputs.len());
+    for output in &selection.outputs {
+        assert_eq!(
+            context.output_artifacts[&output.artifact.artifact_id],
+            output.artifact
+        );
+    }
+    assert_eq!(context.rule_executors.len(), view.rules.len());
+    for id in view.rules.keys() {
+        assert_eq!(
+            context.rule_executors[id],
+            if view.required_acceptance_rules.contains(id) {
+                GoalRuleExecutorKind::Owner
+            } else {
+                GoalRuleExecutorKind::Validator
+            }
+        );
+    }
+    let expected = serde_json::to_value(context).unwrap();
+    // Existing cached Owner results predate this display metadata. They remain
+    // readable without inventing a permission or inferring an editable context.
+    let mut legacy = serde_json::to_value(&view).unwrap();
+    legacy.as_object_mut().unwrap().remove("edit_context");
+    let legacy: GoalScopeView = serde_json::from_value(legacy).unwrap();
+    assert!(legacy.edit_context.is_none());
+    assert!(legacy.planning_only);
+    f.store.revoke_goal_scope(&view.id, 1, "revoke").unwrap();
+    let before = f.store.sequence().unwrap();
+    let historical = f.store.get_goal_scope(&view.id).unwrap();
+    assert!(historical.revoked);
+    assert_eq!(
+        serde_json::to_value(historical.edit_context.unwrap()).unwrap(),
+        expected
+    );
+    assert_eq!(
+        serde_json::to_value(
+            f.store.list_goal_scopes(&f.task.id).unwrap()[0]
+                .edit_context
+                .as_ref()
+                .unwrap()
+        )
+        .unwrap(),
+        expected
+    );
+    assert_eq!(f.store.sequence().unwrap(), before);
+    assert_eq!(
+        f.store
+            .submit_goal_plan(&Fixture::plan(&view), "revoked-edit", 0)
+            .unwrap_err()
+            .code,
+        "PERMISSION_DENIED"
+    );
+    assert_eq!(f.store.sequence().unwrap(), before);
+}
+
+#[test]
+fn editing_projection_cannot_widen_the_native_approved_write_set() {
+    let mut f = Fixture::new();
+    let mut view = f.approve();
+    let context = view.edit_context.as_mut().unwrap();
+    context.max_nodes = 256;
+    context.writable_prefixes = vec!["outside".into()];
+    context
+        .output_artifacts
+        .get_mut("report")
+        .unwrap()
+        .relative_path = "outside/report.txt".into();
+    let mut forged = Fixture::plan(&view);
+    forged.proposal.nodes[0].write_set = vec![WriteTarget::Workspace {
+        path: "outside/report.txt".into(),
+    }];
+    let before = f.store.sequence().unwrap();
+    assert_eq!(
+        f.store
+            .submit_goal_plan(&forged, "forged-edit-context", 0)
+            .unwrap_err()
+            .code,
+        "PERMISSION_DENIED"
+    );
+    assert_eq!(f.store.sequence().unwrap(), before);
+    assert!(f
+        .store
+        .list_goal_plan_revisions(&view.id)
+        .unwrap()
+        .is_empty());
+    let saved = f
+        .store
+        .submit_goal_plan(&Fixture::plan(&view), "original-approved-write-set", 0)
+        .unwrap();
+    assert!(!saved.dispatched);
+    assert_eq!(
+        saved.proposal.nodes[0].write_set,
+        vec![WriteTarget::Workspace {
+            path: "outputs/report.txt".into()
+        }]
+    );
+}
+
+#[test]
+fn persisted_legacy_goal_confirmation_remains_readable_after_editing_metadata_upgrade() {
+    let mut f = Fixture::new();
+    let view = f.approve();
+    let saved = f
+        .store
+        .submit_goal_plan(&Fixture::plan(&view), "before-upgrade", 0)
+        .unwrap();
+    assert_eq!(f.sql().execute("UPDATE approval_proposals SET result=json_remove(result,'$.edit_context') WHERE id=?1", [&view.id]).unwrap(), 1);
+    let cached_before: String = f
+        .sql()
+        .query_row(
+            "SELECT result FROM approval_proposals WHERE id=?1",
+            [&view.id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let before = f.store.sequence().unwrap();
+    assert!(f
+        .store
+        .get_goal_scope(&view.id)
+        .unwrap()
+        .edit_context
+        .is_some());
+    assert!(f.store.list_goal_scopes(&f.task.id).unwrap()[0]
+        .edit_context
+        .is_some());
+    assert_eq!(
+        f.store.list_goal_plan_revisions(&view.id).unwrap()[0].digest,
+        saved.digest
+    );
+    assert!(f.store.preview_goal_ready(&view.id, 1).unwrap().read_only);
+    assert_eq!(f.store.sequence().unwrap(), before);
+    // Consumed finalization returns the current read-only projection. Observe
+    // the actual persisted confirmation to prove it was never rewritten.
+    let replay = f.store.finalize_proposal(&view.id, 1).unwrap();
+    assert!(replay.get("edit_context").is_some());
+    let cached_after: String = f
+        .sql()
+        .query_row(
+            "SELECT result FROM approval_proposals WHERE id=?1",
+            [&view.id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(cached_after, cached_before);
+    let legacy: GoalScopeView = serde_json::from_str(&cached_after).unwrap();
+    assert!(legacy.edit_context.is_none());
+    assert_eq!(f.store.sequence().unwrap(), before);
+    f.store
+        .revoke_goal_scope(&view.id, 1, "revoke-legacy")
+        .unwrap();
+    let before = f.store.sequence().unwrap();
+    assert!(f.store.get_goal_scope(&view.id).unwrap().revoked);
+    assert_eq!(
+        f.store.get_goal_plan(&view.id).unwrap().digest,
+        saved.digest
+    );
+    assert_eq!(
+        f.store.preview_goal_ready(&view.id, 1).unwrap_err().code,
+        "PERMISSION_DENIED"
+    );
+    assert_eq!(f.store.sequence().unwrap(), before);
+}
+
+#[test]
+fn legacy_result_compatibility_never_ignores_permission_or_present_metadata_tampering() {
+    for corruption in [
+        "legacy_permission",
+        "present_context",
+        "present_null_context",
+    ] {
+        let mut f = Fixture::new();
+        let view = f.approve();
+        let document: String = f
+            .sql()
+            .query_row(
+                "SELECT result FROM approval_proposals WHERE id=?1",
+                [&view.id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let mut document: Value = serde_json::from_str(&document).unwrap();
+        match corruption {
+            "legacy_permission" => {
+                document.as_object_mut().unwrap().remove("edit_context");
+                document["root_budget"]["attempts"] = json!(9999);
+            }
+            "present_context" => document["edit_context"]["writable_prefixes"] = json!(["outside"]),
+            "present_null_context" => document["edit_context"] = Value::Null,
+            _ => unreachable!(),
+        }
+        assert_eq!(
+            f.sql()
+                .execute(
+                    "UPDATE approval_proposals SET result=?1 WHERE id=?2",
+                    params![document.to_string(), view.id]
+                )
+                .unwrap(),
+            1
+        );
+        let before = f.store.sequence().unwrap();
+        assert_eq!(
+            f.store.get_goal_scope(&view.id).unwrap_err().code,
+            "INPUT_CHANGED",
+            "{corruption}"
+        );
+        assert_eq!(
+            f.store.list_goal_scopes(&f.task.id).unwrap_err().code,
+            "INPUT_CHANGED",
+            "{corruption}"
+        );
+        assert_eq!(
+            f.store.list_goal_plan_revisions(&view.id).unwrap_err().code,
+            "INPUT_CHANGED",
+            "{corruption}"
+        );
+        assert_eq!(f.store.sequence().unwrap(), before);
+    }
+}
+
+#[test]
 fn native_goal_confirmation_is_distinct_and_updates_only_ceilings_atomically() {
     let mut f = Fixture::new();
     let p = f.store.propose_goal_scope(&f.selection, "pending").unwrap();

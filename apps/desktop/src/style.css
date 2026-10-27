@@ -57,3 +57,13 @@
 .goal-planning code,.goal-planning pre { white-space:pre-wrap; overflow-wrap:anywhere; max-width:100%; }
 .goal-planning dd { margin:4px 0 14px; }
 @media(max-width:759px){ .goal-planning .goal-planning-fields{grid-template-columns:minmax(0,1fr)} .goal-planning button,.goal-planning input,.goal-planning select{min-height:44px} }
+
+.goal-plan-editor { min-width:0; padding:14px; border:1px solid var(--line); border-radius:6px; background:var(--surface); }
+.goal-plan-editor h3 { font-size:var(--fs-body); font-weight:500; }
+.goal-plan-editor .goal-plan-editor-actions { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+.goal-plan-editor .goal-plan-editor-check { flex-direction:row; align-items:center; }
+.goal-plan-editor .goal-plan-editor-check input { width:auto; flex:none; }
+.goal-plan-editor .goal-plan-editor-graph { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding:0; list-style-position:inside; }
+.goal-plan-editor .goal-plan-editor-graph li { display:flex; flex-direction:column; gap:6px; min-width:0; padding:14px; border:1px solid var(--line); border-radius:6px; background:var(--canvas); }
+.goal-plan-editor .goal-plan-editor-node { padding:10px 0; border-bottom:1px solid var(--line); }
+@media(max-width:759px){ .goal-plan-editor .goal-plan-editor-graph{grid-template-columns:minmax(0,1fr)} }
