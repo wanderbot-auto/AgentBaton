@@ -400,7 +400,7 @@ def main():
                     assert database() == before
                     preview, request = verified(panel, 'normal')
                     assert database()['data_workspace_creations'] == 0 and database()['managed_workspaces'] == 0
-                    detail(panel, preview['id']).locator(':scope > summary').scroll_into_view_if_needed()
+                    detail(panel, preview['id']).locator(':scope > summary').evaluate("element=>element.scrollIntoView({block:'start'})")
                     screenshot('01-real-selected-file-preview')
                     passed('real UI relative selection and bounded preview show actual hashes/bytes with no copy or source writes', preview_id=preview['id'])
 
@@ -431,7 +431,7 @@ def main():
                     assert registered['root'] == ready['destination'] and registered['base_revision'] == ready['dataset_revision']
                     refresh(panel); current = detail(panel, creation_id)
                     expect(current.get_by_text(ready['contract']['contract_digest'], exact=True)).to_be_visible()
-                    current.locator(':scope > summary').scroll_into_view_if_needed()
+                    current.locator(':scope > summary').evaluate("element=>element.scrollIntoView({block:'start'})")
                     screenshot('02-real-ready-data-copy')
                     page.set_viewport_size({'width': 390, 'height': 844}); current.scroll_into_view_if_needed(); screenshot('03-real-ready-mobile')
                     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
@@ -502,6 +502,7 @@ def main():
                     # zero observed files never means an existing target is empty.
                     if retained_destination:
                         assert Path(terminal['destination']).exists(), 'Readonly reconciliation deleted a retained target'
+                    current.locator(':scope > summary').evaluate("element=>element.scrollIntoView({block:'start'})")
                     screenshot('05-real-copy-terminal-observation')
                     cancelled = requested and terminal['state'] != 'ready' and ((terminal.get('error') or {}).get('code') == 'CANCEL_REQUESTED' or (terminal.get('observation') or {}).get('error') == 'cancel_requested')
                     io_observation = terminal.get('observation')
