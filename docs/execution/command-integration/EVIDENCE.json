@@ -995,7 +995,7 @@
       "command-contract-390x844.png": "3d8ff4043aa1df5bd8fe733e3654baf3fc42b38a86ea6cd81f24dea4770cdc60"
     }
   },
-  "native_linux_composition": "running, not yet accepted",
+  "native_linux_composition": "11 default native units + explicit6 fixture/state units/Clippy/fmt pass; no actual Linux native GUI or OS owner dialog",
   "new_exact_head_ci_mac_packages": "not_run",
   "scope_limits": [
     "No actual OS native owner dialog exercised by browser fixture",
@@ -1023,6 +1023,27 @@
     "/workspace/.onboarding/command-integration-readonly-browser.log": "83d0b059f8b5705a5c74eb8e1d4f9aa21bd9381a4ebeab00e1464ca227446823",
     "/workspace/.onboarding/command-integration-ui-build-first.log": "ce5eec0c11f2ffce80e34154618f6bacbf57afb9d085b78bde7020d975fb2e0b",
     "/workspace/.onboarding/command-integration-ui-build.log": "0bcedbbc5eede2fe8cfa47abab0a1c945f17de79c80aba2c7dc83199d01895d8",
-    "/workspace/.onboarding/command-integration-daemon-build.log": "65c861f2510e0aab5c981f0c38525f50dd7282a192f287e4224296bd401e97eb"
-  }
+    "/workspace/.onboarding/command-integration-daemon-build.log": "65c861f2510e0aab5c981f0c38525f50dd7282a192f287e4224296bd401e97eb",
+    "/workspace/.onboarding/command-integration-workspace-tests.log": "374b5b0363872e7b71dfd1a58430d6efc58382835e0c9d192291cbfad6a0c1b8",
+    "/workspace/.onboarding/command-integration-workspace-clippy.log": "dd9d21b2588ea9eee9129bf217abf8fc6b087e0befcd6506c4d7937386b06dfd",
+    "/workspace/.onboarding/command-integration-workspace-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/.onboarding/command-integration-native-tests.log": "462a400766470ccd4f6569c4b561edb65ef751eb994ba4a7e3400b6ff4ca975a",
+    "/workspace/.onboarding/command-integration-native-harness-tests.log": "b5f9e5638d892320085685827d347124ff535eb1008fff09071d0d492aad3ecd",
+    "/workspace/.onboarding/command-integration-native-clippy.log": "1c14cb0495c8e2d808bfe6d3002252596c3b8f3092fc5caa7f276b5c7481e2a6",
+    "/workspace/.onboarding/command-integration-native-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "composed_local_checks": {
+    "workspace": "369 unique Rust unit/integration +4 compile-fail docs passed; existing nested FIFO child1 is an extra observation only",
+    "workspace_raw_passed_sum": 374,
+    "workspace_clippy": "all-targets -D warnings pass",
+    "workspace_fmt": "pass",
+    "native_default_tests": "11 Linux Rust units pass",
+    "native_explicit_feature_tests": "6 native-smoke fixture/state Rust units pass; explicitly --features native-smoke --bin agentbaton-native-smoke",
+    "native_clippy_default_features": "all-targets pass",
+    "native_fmt": "pass",
+    "native_gui_linux": "not_run; rootless WebKit helper-path limitation, no sandbox bypass",
+    "native_compile_resources": "actual Core8 Linux DEBUG files; not release/macOS installer"
+  },
+  "actual_browser_independent": "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
+  "actual_browser_independent_sha256": "ef7fd825faa7fabbfaee8d2dd9121efcd2cffc69de41fbd768874ccf8dbb59ad"
 }

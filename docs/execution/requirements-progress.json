@@ -1404,7 +1404,10 @@
         "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
         "docs/execution/command-ui/REVIEW.md",
         "docs/execution/command-core/EVIDENCE.md",
-        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md"
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -1470,6 +1473,18 @@
           "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
           "composed_browser_mac_ci": "not_run_yet",
           "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },
@@ -1513,7 +1528,10 @@
         "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
         "docs/execution/command-ui/REVIEW.md",
         "docs/execution/command-core/EVIDENCE.md",
-        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md"
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -1579,6 +1597,18 @@
           "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
           "composed_browser_mac_ci": "not_run_yet",
           "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },
@@ -1655,7 +1685,10 @@
         "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
         "docs/execution/command-ui/REVIEW.md",
         "docs/execution/command-core/EVIDENCE.md",
-        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md"
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -1721,6 +1754,18 @@
           "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
           "composed_browser_mac_ci": "not_run_yet",
           "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },
@@ -1757,7 +1802,10 @@
         "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
         "docs/execution/command-ui/REVIEW.md",
         "docs/execution/command-core/EVIDENCE.md",
-        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md"
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -1814,6 +1862,18 @@
           "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
           "composed_browser_mac_ci": "not_run_yet",
           "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },
@@ -3619,7 +3679,10 @@
         "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
         "docs/execution/command-ui/REVIEW.md",
         "docs/execution/command-core/EVIDENCE.md",
-        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md"
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3685,6 +3748,18 @@
           "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
           "composed_browser_mac_ci": "not_run_yet",
           "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },
@@ -3791,7 +3866,10 @@
         "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
         "docs/execution/command-ui/REVIEW.md",
         "docs/execution/command-core/EVIDENCE.md",
-        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md"
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3857,6 +3935,18 @@
           "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
           "composed_browser_mac_ci": "not_run_yet",
           "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },

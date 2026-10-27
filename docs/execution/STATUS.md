@@ -6,10 +6,11 @@
 
 PR11双包实际checkout1f2ed51：ARM SHA512cace87715d7f6af34c5d603e4fcfc2d8439ac9e155f5f6233be0ed84a65f7（ad hoc无TeamID），Intel SHAb69e8a39d9b1ed4d2587c4fa5407646f379e6851cfb16b1d183afca13a4ec659（未签名）。均无DeveloperID/公证；实际macOS15.7.9，不推断最小OS或用户安装验收。原生Owner对话框和Data/integrity批准运行未自动化，不把schema/字节检查当科学算法/TaskAccepted/Git采纳。
 
-当前PR12 codex/deterministic-command-validators仍draft，远程c4f9ccd库候选七项及双Mac实际13command/4docs、Linux27含故障控制、旧Data原生流程/双DMG已独立核验；该证据不覆盖新Core/UI。库F1延迟观察误判预算已独立关闭，原false-pass及修复同shim拒绝日志已跟踪保存。当前本地已整合Core8009824/schema8及UI最终355d33f：真实单次原生批准命令、持久intent/fence/异步worker/取消撤销/未知恢复。独立Core128 unique（FIFO内层1另计）、UI182/type/build、Linux native11及前置批准错误/取消恢复窄修均有独立审查/故障证据。Core独审新发现postcommit revoke再读损坏run导致已撤销误报not_started，作者正在窄修/最终复审，未据旧128标新源通过。
+当前PR12 codex/deterministic-command-validators仍draft，远程c4f9ccd旧库候选七项/双Mac实际13command/4docs、Linux27故障控制、旧Data原生/双DMG均已独立核验，不能覆盖新组合。本地已组合Core88ca6bc/schema8、UI355d33f与原生批准桥：单次批准命令、持久intent/fence/非阻塞worker、取消撤销/未知恢复。独立Core129unique/Clippy/fmt、UI182/type/build、Linuxnative11通过；postcommit撤销误报、Taskcancel终态、跨验证fence与实停后TaskUnknown验证等实际问题关闭，旧失败保留。主代理完整组合369uniqueRust+4compilefail/Clippy/fmt实际PASS（既有FIFO子进程1不重复计），当前Linuxnative11及显式native-smoke6/Clippy/fmt实际PASS。
 
-主代理已写新readonly native/browser检查（保留全部旧检查与deadline；独立selector/static/parser审查通过）和实际批准命令浏览器fixture脚本（未执行）。后者owner setup在HTTP外，真实generated ACP initialize→session/new失败→owned reaped，命令正常执行/同key回读/换key拒绝/取消/UI真实UnixIPC待新daemon组合验证；没有HTTP批准/finalize或真实账户模型调用。组合Core/Native/浏览器、新准确head七项/Mac/新双包尚待实际执行，不能继承c4f。
+真实构建React+schema8debugdaemon浏览器34只读/响应式检查及20图PASS；另5项真实命令UI执行/同key回放/换key拒绝/实际取消/HTTP审批403及TaskUnknown不误升验收PASS，并经独立复跑5+2实际截图/哈希核验。fixture使用无账户本地generatedACP initialize成功/sessionnew故意失败后真实ownedreaped，HTTP之外owner预批准固定SHA脚本；不把它称真实Vendor或OSnativeOwnerDialog。主代理实际查看正常/取消receipt截图，脚本与CI步骤已独立审查。新准确候选即将保存/normalpush并转main/ready，只保留实际PR触发检查，不再重复manual替代PR门禁；新Mac/原生/双开发包仍待实际CI与独立复核。
 
+Command当前仅单次策略/时间/捕获上限及本地单worker互斥，root/project共享预算尚未接入命令运行，原始捕获输出尚无完整流历史；这些及TaskAccepted/采纳/OS树收容/输入连续冻结仍未完成，不冒称全部WP09验收。
 Goal计划算法source9acf86c/docs3d369已独立48tests+4原语义控制/Clippy/fmt通过，三处真实问题（外部写重复、外部输入验证死路、旧消费版本错误验收）关闭，源/旧失败保留。尚未接Store/调度/Router/GUI；下一GoalStore/schema9/native范围批准/版本CAS和只读ready预览在独立worktree实现，不能把preview当reservation或派发。明确新nativeGoal批准才可修改root delegation ceiling，旧grant不偷换权限，root/project消耗不重置，旧未知计量不补0。
 
 完整Goal仍有验收采纳/规划派发/能力配置/历史留存导出/远程/登录睡眠/真实Provider与人工验收等未实现或未验证维度；依赖就绪工作持续推进。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和130需求表保留实际通过/失败/未跑/受阻，不写完成百分比。原三Environment检查、所有主分支保护和产品四检查均保持，不直接/强推main、不跳过失败求绿。
