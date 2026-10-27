@@ -25,3 +25,7 @@ ActualPRheadada4c812/Product40451447529/checkout6758d6d failed bothMac13/14 desp
 ## Ready for actual new source CI
 
 Productionperformance sourcecb82 safelycherry5cea/docs47ab after actual independent227+4/lints/Gitunsafecontrols/profile5calls. Author377+4 fullworkspace preserved separately. CopyexactREVIEW bbe0cef3...; nointroducedauthority/drift/ownedprocessboundweaken. SameMaccargo now --show-output foractualtestphase timestamps, standardflagstaticaudited, no extraexecution or changedlimits. Save/pushnewcandidate then readfresh7exactPRchecks andpairednative/packages; failedada4 neveraccepted.
+
+## Genuine Mac improvement and remaining Linux fixture pressure
+
+Actuale373/Product40456226726/checkoutba437: bothMac complete success, originalcommand14/native11/harness6/realWebView/defaultreleaseaudit anddualnativeZIP independentlyverified; original1000ms lifecycle RPC531msARM/406msIntel with998ms freshTTL. No model/OSowner/minOSclaim, screenshotframe limitations inNATIVE_E373_REVIEW f2bfe337... . Wholecandidate stillfails Linux13/14: remainingTTL760 and946msadmission underdefaultcrossfixtureparallelism, correctexpiry doesnotmeetpositivecase. OriginalLogSHA06014e87... kept. Only nextCIchange addsRUST_TEST_THREADS1 toLinuxRustworkspace-step, preserveswirecapture/allcases/internalexplicitconcurrency/budgets/25min/Env. Staticindependentreview approved2lines; crossfixturestress explicitlyfailed, serialfuturegreenwillnotproveit. Newhead7checks/native/dualpackages required; nooldMacborrow/merge.
