@@ -1495,5 +1495,33 @@
     },
     "browser_log_sha256": "b16170e4ec9f143e1398045f3b8cce8eb8662b8e567252f5089b00be1d73a59e",
     "macOS_exact_candidate": "pending"
+  },
+  "exact_2640_ci": {
+    "source": "2640e6c9af2568c2731019cab9d16423fd45ceae",
+    "product_run": 40430134077,
+    "environment_run": 40430137922,
+    "seven_checks": "success",
+    "event": "workflow_dispatch; actual checkout equals source",
+    "native_review": "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md",
+    "native_review_sha256": "6d1340186ec34d69997259dab70cca73d125adb6999bf08023cae65f12cadaf1",
+    "native_manifest_sha256": "c9c5f76498d84d09edae0a9b86b7bf52babba15d4204a7fde3ab4b3540e14dd4",
+    "development_packages": "docs/execution/data-contract-validation/DEVELOPMENT_PACKAGES_2640.json",
+    "scope": "real native readonlyData3flags/lifecycle/default release audit; owner dialog/data approval/run not automated; no science/fulltask acceptance"
+  },
+  "protected_main_integration": {
+    "main": "febe7c74f62aad1f767aa60a0eab5e3fc0529dcb",
+    "merged_pr": 10,
+    "approved_head": "62465a57f35b55838bce2064e96eafef8255156a",
+    "native_review": "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
+    "development_packages": "docs/execution/validation-integration/DEVELOPMENT_PACKAGES_62465.json",
+    "owner_ack": [
+      "OWNER-001",
+      "OWNER-002"
+    ],
+    "conflicts": [
+      "docs/execution/STATUS.md",
+      "BOOTSTRAP_MANIFEST.json"
+    ],
+    "policy": "old status versions preserved, no product code changes intended; new exact-head CI required"
   }
 }

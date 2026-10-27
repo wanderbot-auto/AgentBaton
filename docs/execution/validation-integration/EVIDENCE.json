@@ -745,5 +745,63 @@
     "command": "umask022; cargo test --locked -p agentbaton-core --lib actual_authenticated_ipc_uses_server_policy_and_rejects_forged_result_fields",
     "exit_code": 0,
     "tests": 1
+  },
+  "main_runtime_integration": {
+    "protected_main": "afb52be241f7c4cef261f99c04f56caf21f12083",
+    "root_source": "2a8092ec7031a467ea4c02e86893f3ebdbab0dbe",
+    "composition_commit": "e89aeef58f566727fe536e794f699977f8f5c1b5",
+    "owner_inbox": "OWNER001/002 rereadACK, no new sequence",
+    "production_validation_storage_native_ui_locks_unchanged_from_3c1d": true,
+    "new_shared_deltas": [
+      "post-approval probeerror confirmed/reference mapping",
+      "threeapprovaloutcome fault/retryregressions",
+      "canonical-executable fixture and firstAppcase bulkinput fixture"
+    ],
+    "checks": [
+      {
+        "command": "umask022; cargo test --locked -p agentbaton-core",
+        "exit_code": 0,
+        "tests": 94,
+        "nested_fifo_child_excluded": 1
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+        "exit_code": 0
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "exit_code": 0
+      },
+      {
+        "command": "cargo build --locked --bin batond --bin baton; python3 scripts/smoke-local-product.py",
+        "exit_code": 0
+      },
+      {
+        "cwd": "apps/desktop",
+        "command": "npm run typecheck; npm test; npm run build",
+        "exit_code": 0,
+        "tests": 79
+      }
+    ],
+    "logs": {
+      "validation-main-afb-smoke.log": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805",
+      "validation-main-afb-core.log": "2506f27f50d9d6fb7a1dc323236e37182a38f98162a0904d21d648009a48752d",
+      "validation-main-afb-design.log": "ba925602cd3563d70338a7816752256c98cb22f67f8776c2e81d680bdfffe6a7",
+      "validation-main-afb-debug.log": "9d4c8049a10f487fb7cdfabe3806ad874d34bc27188028f2390c89e1cdc78572",
+      "validation-main-afb-clippy.log": "e31b349a5b893395b1420e3e946daae4377fe8e98e5a1fea1e2d74f610f8b4d1",
+      "validation-main-afb-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+      "validation-main-afb-build.log": "a5153e93abd60167e7d06b77b6eeb881ffa41a368518993c281240c44e5ac9db",
+      "validation-main-afb-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "validation-main-afb-ui.log": "eacda772c762f8deb48f49a67a0040406cbc848e817db1d1f679fc26e13bdec1"
+    },
+    "new_exact_candidate_CI": "pending; do not inherit old3c/nativeRoot results"
+  },
+  "prior_schema6_ci": {
+    "head": "3c1cd1a26b99350f13d14645118bb0a72f87b1de",
+    "product": 40417144235,
+    "environment": 40417148162,
+    "checks": "all7success",
+    "native_review": "docs/execution/validation-integration/NATIVE_3C1D_REVIEW.md",
+    "development_packages": "docs/execution/validation-integration/DEVELOPMENT_PACKAGES_3C1D.json"
   }
 }

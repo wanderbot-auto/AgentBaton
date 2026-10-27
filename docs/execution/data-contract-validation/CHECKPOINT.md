@@ -15,3 +15,8 @@ Corefinal108/whole321+2doctests/fmt/Clippy/build/restartPASS,frozenhashesinCORE_
 Currentddd6707 full324+2doctest/release/native8+6/Clippy passed; independenteCore17verdictstored. Scriptprepare-desktop-sidecars nowusescargo metadata targetdirectory tohonor CARGO_TARGET_DIR, no dummyfiles; actualrelease/sidecarsha inEVIDENCE. NextmergeRootUI fixture2a809(testonly) preservingDataRuntime, rerunfullUI129/type/buildandactualfinalbrowser withcurrentrelease, sourcefreezecommit+push/PR11actualCI. Root8latest2a809 freshProduct40425134648/Env40425134840 atsource; latestmainstillc4e72c6/OWNER001002.
 
 MergedSchema6 e89/mainafb ancestry/evidence only; gitdiff ofallcrates/apps/scripts/locks ZEROvsfinal324/129/native8+6/releasebrowser30snapshots. Currentexactcandidatecommit+normalpush/PR11body+manualProduct/Environment next. Root8closedmergeafb, PR10currentmaincandidatevalidationinprogress. Commandvalidatorisolated26tests/crosschecks ongoingindependentreviewnext; noactiveGoaldaemon/toolpromise.
+
+
+## Protected-main integration after exact2640 evidence
+
+PR10 actually merged febe7c7 from62465a after seven success/independent dual native/DMG checks. OWNER001/002 reread ACK. PR11 integrates protected main, preserving both historical status versions and current schema7 product source. Accurate2640 seven success/native readonlyData3flags/MacCore111+UI129/host8+harness6/defaultreleaseaudit and downloaded dual DMG recorded in NATIVE_2640_REVIEW/DEVELOPMENT_PACKAGES_2640/EVIDENCE. Next normal push, retarget main/ready, fresh exact candidate7 CI and native/DMG review. Earlier pending statements above are historical and superseded for2640 only; native owner dialog/actual Mac data approve-run/science/full Goal remain unverified.
