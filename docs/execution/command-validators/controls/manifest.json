@@ -1,0 +1,43 @@
+{
+  "initial_source": "eec524c559ec5e99ac8434fa45655a170bbbc0ad",
+  "fixed_source": "1dae4566d09e469306a3f225f3c78e5cd448f124",
+  "records": [
+    {
+      "file": "baseline-delay.log.txt",
+      "source": "baseline-delay.log",
+      "sha256": "7a90bc7ae2b2456399ffdec2cff5f0d284f8d46761ce759295419a549a3d9e14"
+    },
+    {
+      "file": "fixed-delay.log.txt",
+      "source": "fixed-delay.log",
+      "sha256": "aa74c87dd5e7ececfd7ebfd8ec4d8e67e35718393988a1acdf61fdc4029d9c5c"
+    },
+    {
+      "file": "waitid_delay.c.txt",
+      "source": "waitid_delay.c",
+      "sha256": "7d056f0d0975bd0a9cb0de510bae2ea9845983dd689f6215ffed7d7177c56eaf"
+    },
+    {
+      "file": "ab-review-command-final-tests.log.txt",
+      "source": "ab-review-command-final-tests.log",
+      "sha256": "82f2c5bedafbe38ab0d216b950fa831911692eda48323cf6ae99ab5ec9ded5b0"
+    },
+    {
+      "file": "ab-review-command-final-doc.log.txt",
+      "source": "ab-review-command-final-doc.log",
+      "sha256": "204cb5b7a302e220c1d9fbdae49b170f1bca9dad41bd0e4ebc511579cf86f115"
+    },
+    {
+      "file": "ab-review-command-final-clippy.log.txt",
+      "source": "ab-review-command-final-clippy.log",
+      "sha256": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+    },
+    {
+      "file": "ab-review-command-final-fmt.log.txt",
+      "source": "ab-review-command-final-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "compiled_control_sha256": "0eff0e99b4f304ce3095c1e5ea511a8d46415c0f233290633332bdbe24e1c814",
+  "compiled_control_note": "Generated local test shim retained outside source tree; readable exact source above. No product/test execution occurs by opening these evidence files."
+}

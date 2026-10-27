@@ -428,9 +428,22 @@ const FIRST: &str = r#"
   const approve=dataPanel.querySelector('button[type="submit"]');
   require(approve&&approve.disabled,'draft without stopped session must not enable native data approval');
   require(result(await invoke('system_snapshot')).sequence===beforeData,'read-only data controls unexpectedly mutated history');
+  const beforeCommand=result(await invoke('system_snapshot')).sequence;
+  const commandPolicies=result(await invoke('command_validation_policies_list',{taskId:task.id}));
+  const commandRecords=result(await invoke('command_validations_list',{taskId:task.id}));
+  require(Array.isArray(commandPolicies)&&commandPolicies.length===0&&Array.isArray(commandRecords)&&commandRecords.length===0,'fresh task must have no fabricated command approval or execution');
+  let commandPanel;
+  while(!(commandPanel=document.querySelector('[data-testid="command-validation"]'))){require(Date.now()<deadline,'actual command validation panel did not mount');await new Promise(r=>setTimeout(r,25));}
+  const commandFolded=commandPanel.querySelector('details');
+  require(commandFolded&&!commandFolded.open,'command validation controls must start folded');commandFolded.querySelector('summary').click();
+  while(commandPanel.querySelector('form>fieldset')?.disabled!==false){require(Date.now()<deadline,'real native command-list read did not reconcile successfully');await new Promise(r=>setTimeout(r,25));}
+  require(!commandPanel.querySelector('[role="alert"]'),'real native command-list read failed');
+  const commandApprove=commandPanel.querySelector('button[type="submit"]');
+  require(commandApprove&&commandApprove.disabled,'draft without stopped session must not enable native command approval');
+  require(result(await invoke('system_snapshot')).sequence===beforeCommand,'read-only command controls unexpectedly mutated history');
   document.querySelector('#tab-conversation').click();
   while(document.querySelector('#tab-conversation')?.getAttribute('aria-selected')!=='true'){require(Date.now()<deadline,'return to conversation did not settle');await new Promise(r=>setTimeout(r,25));}
-  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true}});
+  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true}});
  } catch (error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;

@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+   Doc-tests agentbaton_workspaces
+
+running 4 tests
+test crates/workspaces/src/command_validation.rs - command_validation::ApprovedCommandRule (line 123) - compile fail ... ok
+test crates/workspaces/src/deterministic.rs - deterministic::ApprovedJsonTableRule (line 97) - compile fail ... ok
+test crates/workspaces/src/command_validation.rs - command_validation::CommandContractAcceptance (line 473) - compile fail ... ok
+test crates/workspaces/src/deterministic.rs - deterministic::JsonTableContractAcceptance (line 359) - compile fail ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+

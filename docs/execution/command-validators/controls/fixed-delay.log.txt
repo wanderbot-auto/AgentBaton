@@ -1,0 +1,16 @@
+
+running 1 test
+REVIEW controlled first WNOWAIT observation delayed 1500ms; waitid_result=0 si_pid=1041828 si_status=0
+
+thread 'linux::real_fixed_native_command_captures_separate_streams_and_only_accepts_command_scope' (1041810) panicked at crates/workspaces/tests/command_validation.rs:284:9:
+assertion failed: run.view().passed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test linux::real_fixed_native_command_captures_separate_streams_and_only_accepts_command_scope ... FAILED
+
+failures:
+
+failures:
+    linux::real_fixed_native_command_captures_separate_streams_and_only_accepts_command_scope
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 26 filtered out; finished in 1.63s
+

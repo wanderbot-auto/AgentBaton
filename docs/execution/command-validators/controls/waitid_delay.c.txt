@@ -1,0 +1,17 @@
+#define _GNU_SOURCE
+#include <dlfcn.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <stdio.h>
+static int delayed;
+int waitid(idtype_t kind, id_t child, siginfo_t *info, int flags) {
+    int (*original)(idtype_t,id_t,siginfo_t*,int) = dlsym(RTLD_NEXT,"waitid");
+    int first = (flags & WNOWAIT) && (flags & WNOHANG) && __sync_bool_compare_and_swap(&delayed,0,1);
+    if (first) {
+        struct timespec delay = {1,500000000};
+        while(nanosleep(&delay,&delay) != 0) {}
+    }
+    int result=original(kind,child,info,flags);
+    if(first) fprintf(stderr,"REVIEW controlled first WNOWAIT observation delayed 1500ms; waitid_result=%d si_pid=%d si_status=%d\n",result,info->si_pid,info->si_status);
+    return result;
+}

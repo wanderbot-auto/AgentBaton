@@ -34,6 +34,9 @@ assert record['first_webview']['realComposerSubmitted']
 assert record['first_webview']['dataContractLists']
 assert record['first_webview']['dataContractEmptyControls']
 assert record['first_webview']['readonlyDataNoMutation']
+assert record['first_webview']['commandContractLists'] is True
+assert record['first_webview']['commandContractEmptyControls'] is True
+assert record['first_webview']['readonlyCommandNoMutation'] is True
 assert record['reopened_webview']['restartPersisted']
 assert record['window_close_daemon_survived']
 assert record['second_writer_rejected']
