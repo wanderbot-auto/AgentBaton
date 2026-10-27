@@ -1,0 +1,11 @@
+# Data native full review
+
+Base aa1c2814a30f43405f3c545ec178cf665f96e673; branch codex/data-native-full-review. OWNER-001/002 ACK; repository development only, no product Provider/model/production authority. Scope: native approval.rs and these four records; no Core/UI/locks/permissions changes. Source frozen071e5698a455e11779f26b8392d9c9311a7ca084.
+
+Ordinary <=16KiB pretty snapshots retain the original behavior. Only oversize DataWorkspace uses a fixed-column lossless table. contract.files requirements must exactly equal each observation requirement; file/requirement/pin field sets must match. All remaining original fields remain in the complete displayed object. Production reconstructs both original file lists and checks full Value equality before any owner prompt. The native snapshot limit remains16384 bytes. Unsupported/conflicting/still-oversize representations refuse with0 prompts/0 finalize callbacks. Preserve preview CAS, proposal kind/id/revision and post-finalize uncertainty.
+
+Actual Core-generated64 old/fixed boundary controls, old17 plus5 new native cases, SDK alltarget Clippy/fmt/diff completed. Independent review and OS owner-dialog validation remain pending; no final product-completion claim. Native target released.
+
+## ADR-DATA-NATIVE-001
+
+Use one Data-specific17-column table with one complete JSON-escaped row per file. Four requirement values are displayed once only after strict equality of the two original occurrences; three observation values and all ten SourceFilePin values remain independent columns. Equal expected/actual SHA values remain separate fields. Non-file metadata, roots/pins, limits, dataset/selection revision, intent IDs/revisions/destination, guarantees/warnings/unknown values are retained unchanged. This is a fixed presentation, not a renderer-supplied summary or generic DSL. File/pin schema extensions cannot silently disappear: reject the compact representation until explicitly supported. Large unknown metadata still counts against the cap. No added dependencies or authority; full private proposal/finalize binding unchanged.
