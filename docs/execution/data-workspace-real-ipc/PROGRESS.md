@@ -1,5 +1,7 @@
 # Data workspace real IPC progress
 
+## Initial preparation (historical, source996/docs6eff)
+
 Harness source `996815991489dec0d50c492a1a1e5865855a0e1e`, inherited UI/native base `aa1c281` (reviewed UI source `a436be79`, unchanged). SHA-256 `444fe020a4fde10831161d6d98cb226fee34b318cc499e206347dc3a371f9ae9`.
 
 - Read current approval/gate/OWNER inbox, requirements IDs, actual Core schema10/workers/real tests and library cancellation/error/path semantics. Core confirmed the original eight native methods and separate kind=data_workspace. Runtime/private-source protection uses the actual host boundary; source/runtime are separate siblings.
@@ -8,3 +10,12 @@ Harness source `996815991489dec0d50c492a1a1e5865855a0e1e`, inherited UI/native b
 - Primary clarified that reading this newly generated runtime's session.token only into the host IPC authentication closure is allowed. It never reaches HTTP/evidence/screenshots/failure text and is never selected as data; a generated benign sentinel tests runtime exclusion. No private Agent credential or other runtime is read.
 - `py_compile` **PASS**, syntax only, output in `/tmp`; manual static contract/allowlist review completed. No daemon, browser, actual copy or renderer path has been executed in this unit. No runtime report or screenshot exists yet and no runtime PASS is claimed.
 - Waiting for primary's frozen schema10 binary and final built frontend. No Cargo/target/dependency/link, push/PR/merge or other-worktree edit.
+
+## Actual candidate execution, sourceca35
+
+- Primary supplied coherent WIP schema10 binary `636e41324108da50195585149a7e5730ea7a247a27e5f74c499f5d30c5381a5c`, manifest `01ce170843e65f7826e33d540d8f2bc82c902561c2256559a1b3ff20e155f17c`, source tree `b4b0c3071f31cb750351bb0c1fb9715734daed68a4aaf12510965a01a11e3263`, HEAD152725b explicitly dirty/not final review or CI. Frontend is the supplied DataUI aa1/a436 dist, untouched.
+- Original run1/source996 and original reports remain intact. Its `cooperative_io_cancel_observed` field overstated the layer: actual copy cancellation was before reservation. Source001e split report fields and added candidate attribution; source0b7 improved screenshot framing; source61a added actual own-source/managed-root pin/path checks before host approval, read-only receipt/commitment verification, and exclusive output directories. Sourceca35 independently recomputes the stored contract digest with its commitment field empty. No original runtime assertion was removed.
+- Fresh runs1/2/3/4/5 each actually exited0, eight checks/six screenshots/no page errors. Final script `a736ee8b125effe304d59f15ed3c042913773126e69a4029c9b11100162c5d02`. Normal actual Ready: two files,39bytes, exact registry/content/source mtime. Preview actual cancellation-specific receipt was dropped only after real IPC, followed by remount/read reconciliation/no new key. Copy actual `failed/CANCEL_REQUESTED`, observation null/target absent: no in-copy or partial-stop claim.
+- Actual normal receipt SQL sequences8<9<10 and stored owner/prepared snapshot digests/Ready contract commitment agree. HTTP forbidden commands403; generated runtime sentinel denied before persistence; invalid hashes/drift do not become Ready; no session/attempt/dispatch.
+- Final run5 six images viewed; actual metadata/Ready/unknown/failed visible, mobile390x844 without horizontal overflow. Deliberate exclusive-output negative exits1 and leaves all previous report/log/PNG bytes unchanged. No candidate runtime assertion failed.
+- Independent harness review remains reviewer-owned. Later Core `io_completion`/`cancelled` contract is pending new coherent integration and is not inferred from old receipts. No Cargo/target/dependency/product change/push.

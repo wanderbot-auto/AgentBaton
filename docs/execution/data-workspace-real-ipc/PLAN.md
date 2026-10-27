@@ -11,6 +11,12 @@ Accurate baseline mappings read from `specs/requirements.json`: AB-PRJ-002/003 a
 5. Exercise real32MiB regular sparse-file preview/copy cancellation. Only after actual cancel IPC returns, a Python-local one-shot control may drop that HTTP reply. Retain the actual downstream receipt and sequence; remount actual UI and reconcile through real readonly state, never a new copy key or forged terminal record. A completed race remains actual verified/ready and cancellation coverage is reported unrun, never relabeled successful cancellation.
 6. Exercise invalid expected hashes, post-preview source drift, retained failure history and the private-runtime boundary with an own benign sentinel (never session.token as dataset). Preserve all failures/screenshots and exact binary/assets/harness hashes.
 
-Run **only after primary supplies an immutable final schema10 daemon**. Do not build or borrow an older executable. `--batond`, `--frontend`, `--chromium`, `--output` are explicit. The test-only35s observation ceiling includes Core's unchanged30s I/O deadline; it does not extend product budgets or wait for a cancellation scheduling win.
+Run **only after primary supplies an explicitly frozen schema10 daemon (candidate status must be retained)**. Do not build or borrow an older executable. `--batond`, `--frontend`, `--chromium`, `--output` are explicit. The test-only35s observation ceiling includes Core's unchanged30s I/O deadline; it does not extend product budgets or wait for a cancellation scheduling win.
 
 Runtime evidence, independent review, native OwnerDialog/WebView, macOS and complete-product acceptance remain separate. A cancellation race without confirmed coverage yields explicit `incomplete_race_coverage`, exit2; a failed assertion exits1; fully executed planned coverage exits0.
+
+## Candidate execution checkpoint
+
+The supplied coherent **WIP** schema10 candidate has actually run all eight checks. Final sourceca35/run5 exited0 with six inspected screenshots; this is candidate integration evidence, not final regression/CI/native/Mac acceptance. Copies reached real Ready, and actual Owner/Prepared/Ready receipts and commitments were independently read from SQLite.
+
+Preview cancellation and response-loss/remount recovery were exercised. Copy cancellation was observed before destination reservation (`failed/CANCEL_REQUESTED`, null observation, no destination); chunk/partial-copy stop is not established. New `io_completion`/`cancelled` contract changes require a separately supplied coherent binary/UI and affected regressions. The old candidate cannot prove a worker join.
