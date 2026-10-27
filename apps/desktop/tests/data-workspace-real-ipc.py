@@ -214,6 +214,8 @@ def main():
                 assert [(event['aggregate_id'], event['kind']) for event in events] == [(proposal['id'], 'approval.confirmed'), (creation['id'], 'data_workspace.copy_prepared'), (creation['id'], 'data_workspace.copy_finished')]
                 assert owner['source'] == 'local_owner_confirmation' and owner['revision'] == stored_proposal['revision']
                 compact_digest = lambda value: sha(json.dumps(value, ensure_ascii=False, separators=(',', ':')).encode())
+                contract_commitment = {**stored_creation['contract'], 'contract_digest': ''}
+                assert compact_digest(contract_commitment) == creation['contract']['contract_digest']
                 assert owner['payload'] == {'kind': 'data_workspace', 'creation_id': creation['id'], 'consumed': True, 'snapshot_digest': compact_digest(stored_proposal['snapshot'])}
                 assert prepared['revision'] == 1 and prepared['source'] == 'data_workspace_core'
                 assert prepared['payload'] == {'workspace_id': creation['workspace_id'], 'dataset_revision': creation['dataset_revision'], 'copy_started': False, 'approval_id': creation['approval_id'], 'preview_id': creation['preview_id'], 'scope': creation['scope'], 'snapshot_digest': compact_digest(stored_creation['snapshot'])}
