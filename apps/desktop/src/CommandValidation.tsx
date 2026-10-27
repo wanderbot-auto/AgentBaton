@@ -50,7 +50,10 @@ function CommandPanel({ task, sessions, language, connected }: Props) {
       const unresolved = pendingRequests.get(task.id);
       // max_runs=1 makes any scoped run for this policy the only possible
       // execution. Observing it resolves the request without submitting again.
-      const resolved = unresolved && ((unresolved.kind === 'run' && r.value.some(item => item.policy_id === unresolved.policyId)) || (unresolved.kind === 'revoke' && p.value.some(item => item.id === unresolved.policyId && item.revoked)) || (unresolved.kind === 'cancel' && r.value.some(item => item.id === unresolved.runId && (item.state === 'cancel_requested' || item.evidence?.cleanup.owned_leader_reaped))));
+      // A scoped terminal failure also settles cancellation intent, including a
+      // pre-spawn refusal with no receipt. It is NOT a claim of process stop;
+      // only cleanup evidence below can describe a reaped owned leader.
+      const resolved = unresolved && ((unresolved.kind === 'run' && r.value.some(item => item.policy_id === unresolved.policyId)) || (unresolved.kind === 'revoke' && p.value.some(item => item.id === unresolved.policyId && item.revoked)) || (unresolved.kind === 'cancel' && r.value.some(item => item.id === unresolved.runId && item.revision >= unresolved.revision! && (item.state === 'cancel_requested' || item.state === 'command_failed' || item.evidence?.cleanup.owned_leader_reaped))));
       if (resolved) { pendingRequests.delete(task.id); setPending(null); }
       else if (unresolved) { const next = { ...unresolved, reconciled: true }; pendingRequests.set(task.id, next); setPending(next); }
       else setPending(null);

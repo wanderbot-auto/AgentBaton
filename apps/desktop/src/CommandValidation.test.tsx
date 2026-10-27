@@ -103,6 +103,22 @@ describe('Fixed command UI using mocked Tauri-facing transport, not native execu
     const user = userEvent.setup(), f = fixture(); vi.mocked(api.policiesList).mockResolvedValue([f.policy]); vi.mocked(api.recordsList).mockResolvedValue([{ ...f.prepared, state: 'command_failed', last_error: { code: 'ENFORCEMENT_UNAVAILABLE', message: 'Strict isolation unsupported' } }]);
     render(<CommandValidation task={f.task} sessions={[f.session]} language="en" connected />); await open(user); await user.click(screen.getByText(/Command contract failed/, { selector: 'summary' })); expect(screen.getByText('ENFORCEMENT_UNAVAILABLE: Strict isolation unsupported')).toBeVisible(); expect(screen.queryByText('Owned leader reaped; descendant containment is not established')).toBeNull(); expect(screen.queryByText(/Capture metadata only/, { selector: 'summary' })).toBeNull(); expect(api.run).not.toHaveBeenCalled();
   });
+  it('reconciles an uncertain cancellation after a scoped terminal pre-spawn failure without claiming stop evidence', async () => {
+    const user = userEvent.setup(), f = fixture(); vi.mocked(api.policiesList).mockResolvedValue([f.policy]); vi.mocked(api.recordsList).mockResolvedValue([{ ...f.prepared, state: 'running' }]); vi.mocked(api.cancel).mockRejectedValue(new Error('Lost cancellation response'));
+    render(<CommandValidation task={f.task} sessions={[f.session]} language="en" connected />); await open(user); await user.click(screen.getByText(/Command running/, { selector: 'summary' })); await user.click(screen.getByRole('button', { name: 'Request owned command cancellation' })); await screen.findByRole('alert'); expect(screen.getByLabelText('Executable absolute path')).toBeDisabled();
+    vi.mocked(api.recordsList).mockResolvedValue([{ ...f.prepared, revision: 2, state: 'command_failed', evidence: null, last_error: { code: 'INPUT_CHANGED', message: 'Pre-spawn admission failed', side_effect_state: 'not_started' } }]);
+    await user.click(refresh()); await screen.findByText(/Command contract failed/, { selector: 'summary' }); await waitFor(() => expect(screen.getByLabelText('Executable absolute path')).toBeEnabled());
+    expect(screen.queryByText('Owned leader reaped; descendant containment is not established')).toBeNull(); expect(screen.queryByRole('status')).toBeNull(); expect(api.cancel).toHaveBeenCalledTimes(1); expect(api.run).not.toHaveBeenCalled();
+  });
+  it.each(['stale','foreign','read failure'] as const)('does not release uncertain cancellation on a %s terminal read', async kind => {
+    const user = userEvent.setup(), f = fixture(); vi.mocked(api.policiesList).mockResolvedValue([f.policy]); vi.mocked(api.recordsList).mockResolvedValue([{ ...f.prepared, revision: 3, state: 'running' }]); vi.mocked(api.cancel).mockRejectedValue(new Error('Lost cancellation response'));
+    render(<CommandValidation task={f.task} sessions={[f.session]} language="en" connected />); await open(user); await user.click(screen.getByText(/Command running/, { selector: 'summary' })); await user.click(screen.getByRole('button', { name: 'Request owned command cancellation' })); await screen.findByRole('alert');
+    const terminal = { ...f.prepared, revision: 4, state: 'command_failed', evidence: null, last_error: { code: 'INPUT_CHANGED', message: 'Refused before spawn', side_effect_state: 'not_started' } };
+    if (kind === 'read failure') vi.mocked(api.recordsList).mockRejectedValueOnce(new Error('Latest cancellation read failed'));
+    else vi.mocked(api.recordsList).mockResolvedValueOnce([{ ...terminal, ...(kind === 'stale' ? { revision: 2 } : { task_id: 'foreign' }) }]);
+    await user.click(refresh()); await waitFor(() => expect(refresh()).toBeEnabled()); expect(screen.getByLabelText('Executable absolute path')).toBeDisabled(); expect(screen.getByRole('status')).toHaveTextContent('Request outcome unknown'); expect(api.cancel).toHaveBeenCalledWith(f.prepared.id, 3, expect.any(String));
+    vi.mocked(api.recordsList).mockResolvedValue([terminal]); await user.click(refresh()); await waitFor(() => expect(screen.getByLabelText('Executable absolute path')).toBeEnabled()); expect(screen.queryByText('Owned leader reaped; descendant containment is not established')).toBeNull(); expect(api.cancel).toHaveBeenCalledTimes(1); expect(api.run).not.toHaveBeenCalled();
+  });
   it('bounds asynchronous observation at70read polls and never automatically runs/cancels', async () => {
     vi.useFakeTimers();
     try {
