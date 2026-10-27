@@ -148,6 +148,122 @@ async fn workspaces_list(
 }
 
 #[tauri::command]
+async fn data_workspace_previews_start(
+    runtime: tauri::State<'_, Runtime>,
+    selection: Value,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime,json!({"method":"data_workspace_previews.start","params":selection,"expected_revision":expected_revision,"idempotency_key":idempotency_key}),false).await
+}
+#[tauri::command]
+async fn data_workspace_previews_list(
+    runtime: tauri::State<'_, Runtime>,
+    project_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"data_workspace_previews.list","params":{"project_id":project_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn data_workspace_previews_get(
+    runtime: tauri::State<'_, Runtime>,
+    preview_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"data_workspace_previews.get","params":{"preview_id":preview_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn data_workspace_previews_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    preview_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime,json!({"method":"data_workspace_previews.cancel","params":{"preview_id":preview_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}),false).await
+}
+fn data_workspace_proposal_frame(
+    preview_id: &str,
+    expected_revision: u64,
+    idempotency_key: &str,
+) -> Value {
+    json!({"method":"data_workspaces.propose","params":{"preview_id":preview_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key})
+}
+#[tauri::command]
+async fn data_workspace_approve(
+    runtime: tauri::State<'_, Runtime>,
+    app: tauri::AppHandle,
+    preview_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let proposal = ipc::call(
+            &directory,
+            data_workspace_proposal_frame(&preview_id, expected_revision, &idempotency_key),
+        )
+        .map_err(|error| error.to_string())?;
+        approval::confirm_data_workspace_and_finalize(
+            proposal,
+            &preview_id,
+            expected_revision,
+            |message| {
+                app.dialog()
+                    .message(message)
+                    .title("AgentBaton — Native data copy approval")
+                    .kind(MessageDialogKind::Warning)
+                    .buttons(MessageDialogButtons::OkCancel)
+                    .blocking_show()
+            },
+            |command| ipc::call(&directory, command).map_err(|error| error.to_string()),
+        )
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
+#[tauri::command]
+async fn data_workspaces_list(
+    runtime: tauri::State<'_, Runtime>,
+    project_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"data_workspaces.list","params":{"project_id":project_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn data_workspaces_get(
+    runtime: tauri::State<'_, Runtime>,
+    creation_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"data_workspaces.get","params":{"creation_id":creation_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn data_workspaces_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    creation_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(&runtime,json!({"method":"data_workspaces.cancel","params":{"creation_id":creation_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}),false).await
+}
+
+#[tauri::command]
 async fn connections_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, String> {
     call(
         &runtime,
@@ -771,6 +887,14 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         projects_reassociate,
         workspaces_create,
         workspaces_list,
+        data_workspace_previews_start,
+        data_workspace_previews_list,
+        data_workspace_previews_get,
+        data_workspace_previews_cancel,
+        data_workspace_approve,
+        data_workspaces_list,
+        data_workspaces_get,
+        data_workspaces_cancel,
         connections_list,
         connections_register,
         grants_list,
@@ -855,5 +979,12 @@ mod tests {
             goal_plan_frame(false, "s".into(), "中".repeat(87_382), 0, "k".into()).unwrap_err();
         assert_eq!(refusal["error"]["code"], "INVALID_REQUEST");
         assert_eq!(refusal["error"]["side_effect_state"], "not_started");
+    }
+    #[test]
+    fn data_copy_bridge_carries_only_preview_reference_with_outer_cas() {
+        assert_eq!(
+            data_workspace_proposal_frame("preview", 7, "same-key"),
+            json!({"method":"data_workspaces.propose","params":{"preview_id":"preview"},"expected_revision":7,"idempotency_key":"same-key"})
+        );
     }
 }

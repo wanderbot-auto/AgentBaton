@@ -67,3 +67,15 @@
 .goal-plan-editor .goal-plan-editor-graph li { display:flex; flex-direction:column; gap:6px; min-width:0; padding:14px; border:1px solid var(--line); border-radius:6px; background:var(--canvas); }
 .goal-plan-editor .goal-plan-editor-node { padding:10px 0; border-bottom:1px solid var(--line); }
 @media(max-width:759px){ .goal-plan-editor .goal-plan-editor-graph{grid-template-columns:minmax(0,1fr)} }
+
+.data-workspaces { min-width:0; padding-top:18px; margin-top:18px; border-top:1px solid var(--line); overflow-wrap:anywhere; }
+.data-workspaces h3 { display:inline; font-size:var(--fs-title); font-weight:500; }
+.data-workspaces h4 { font-size:var(--fs-body); font-weight:500; }
+.data-workspaces fieldset { min-width:0; padding:14px; margin:14px 0; border:1px solid var(--line); border-radius:6px; }
+.data-workspaces label { display:flex; flex-direction:column; gap:6px; margin:10px 0; min-width:0; }
+.data-workspaces input,.data-workspaces textarea { width:100%; max-width:100%; min-width:0; }
+.data-workspaces details { margin:14px 0; }
+.data-workspaces summary { cursor:pointer; }
+.data-workspaces dd { margin:4px 0 14px; }
+.data-workspaces code { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:759px){.data-workspaces button,.data-workspaces input{min-height:44px}}
