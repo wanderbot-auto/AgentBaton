@@ -1092,7 +1092,7 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
@@ -1122,6 +1122,14 @@
           "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "composed_goal_schema9_editing_context_legacy_compatibility_and_same_model_editor",
+          "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+          "metadata_source": "589b1a82d5def8302b9ea6a585695cfe95b7e892",
+          "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
         }
       ]
     },
@@ -1143,7 +1151,7 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -1179,6 +1187,14 @@
           "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "composed_goal_schema9_editing_context_legacy_compatibility_and_same_model_editor",
+          "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+          "metadata_source": "589b1a82d5def8302b9ea6a585695cfe95b7e892",
+          "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
         }
       ]
     },
@@ -1200,7 +1216,7 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
@@ -1230,6 +1246,14 @@
           "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "composed_goal_schema9_editing_context_legacy_compatibility_and_same_model_editor",
+          "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+          "metadata_source": "589b1a82d5def8302b9ea6a585695cfe95b7e892",
+          "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
         }
       ]
     },
@@ -1248,7 +1272,7 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
       },
       "evidence": [
         "docs/execution/goal-integration/EVIDENCE.json",
@@ -1272,6 +1296,14 @@
           "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "composed_goal_schema9_editing_context_legacy_compatibility_and_same_model_editor",
+          "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+          "metadata_source": "589b1a82d5def8302b9ea6a585695cfe95b7e892",
+          "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
         }
       ]
     },
@@ -1334,7 +1366,7 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -1376,6 +1408,14 @@
           "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "composed_goal_schema9_editing_context_legacy_compatibility_and_same_model_editor",
+          "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+          "metadata_source": "589b1a82d5def8302b9ea6a585695cfe95b7e892",
+          "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
         }
       ]
     },
@@ -1394,7 +1434,7 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
       },
       "evidence": [
         "docs/execution/goal-integration/EVIDENCE.json",
@@ -1418,6 +1458,14 @@
           "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "composed_goal_schema9_editing_context_legacy_compatibility_and_same_model_editor",
+          "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+          "metadata_source": "589b1a82d5def8302b9ea6a585695cfe95b7e892",
+          "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
         }
       ]
     },
@@ -1442,7 +1490,7 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -1477,6 +1525,14 @@
           "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "composed_goal_schema9_editing_context_legacy_compatibility_and_same_model_editor",
+          "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+          "metadata_source": "589b1a82d5def8302b9ea6a585695cfe95b7e892",
+          "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
         }
       ]
     },
@@ -3821,7 +3877,7 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
       },
       "evidence": [
         "docs/execution/goal-integration/EVIDENCE.json",
@@ -3858,6 +3914,14 @@
           "legacy_persisted_store": 34,
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "dimension": "partial; noNLP/reservation/dispatch/TaskAccepted/nativeOwner/Mac"
+        },
+        {
+          "slice": "composed_goal_schema9_editing_context_legacy_compatibility_and_same_model_editor",
+          "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+          "metadata_source": "589b1a82d5def8302b9ea6a585695cfe95b7e892",
+          "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
         }
       ]
     },
@@ -3882,7 +3946,7 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "local_goal_planning_slice": "passed: independent algorithms48, Store30+3migration/Core210; builtUI229 and actualLinuxUnixIPC/browser9; not full requirement/native/provider acceptance"
+        "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -3917,6 +3981,14 @@
           "ui_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actualCore210 and9browserchecks, independentreviews; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "composed_goal_schema9_editing_context_legacy_compatibility_and_same_model_editor",
+          "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+          "metadata_source": "589b1a82d5def8302b9ea6a585695cfe95b7e892",
+          "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+          "evidence": "docs/execution/goal-integration/EVIDENCE.json",
+          "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
         }
       ]
     },

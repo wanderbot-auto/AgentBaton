@@ -1,0 +1,52 @@
+use std::{fs,path::Path,os::unix::fs::{DirBuilderExt,PermissionsExt,OpenOptionsExt}};
+fn prepare_readonly_goal_project(runtime: &Path) -> Result<String, String> {
+    // Match the real daemon's private authority under umask 022 as well as 077.
+    // Fresh ownership is mandatory: never chmod, replace or reuse an existing
+    // database merely to make this disposable fixture pass admission.
+    let database = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .mode(0o600)
+        .open(runtime.join("baton.sqlite3"))
+        .map_err(|_| "cannot create a fresh private fixture database")?;
+    drop(database);
+    let directory = runtime.join("goal-readonly-project");
+    fs::DirBuilder::new()
+        .mode(0o700)
+        .create(&directory)
+        .map_err(|_| "cannot prepare private project directory")?;
+    fs::write(
+        directory.join("generated.txt"),
+        b"Generated readonly project fixture; no execution authority.\n",
+    )
+    .map_err(|_| "cannot prepare generated project file")?;
+    let mut store = agentbaton_core::storage::Store::open(&runtime.join("baton.sqlite3"))
+        .map_err(|_| "cannot initialize private fixture store")?;
+    let project = store
+        .import_project(
+            &directory,
+            "Native readonly Goal project",
+            "native-smoke-readonly-project",
+        )
+        .map_err(|_| "cannot register generated readonly project")?;
+    if !store
+        .list()
+        .map_err(|_| "cannot inspect private fixture tasks")?
+        .is_empty()
+    {
+        return Err("readonly project setup unexpectedly created a task".into());
+    }
+    Ok(project.id)
+}
+fn main() {
+ let runtime=std::path::PathBuf::from(std::env::args_os().nth(1).unwrap());
+ fs::DirBuilder::new().mode(0o700).create(&runtime).unwrap();
+ let project=prepare_readonly_goal_project(&runtime).unwrap();
+ let db=runtime.join("baton.sqlite3");
+ let version=std::process::Command::new("python3").args(["-I","-S","-c","import sqlite3,sys; print(sqlite3.connect('file:'+sys.argv[1]+'?mode=ro',uri=True).execute('pragma user_version').fetchone()[0])"]).arg(&db).output().unwrap();
+ assert!(version.status.success());assert_eq!(std::str::from_utf8(&version.stdout).unwrap().trim(),"9");
+ println!("project={} schema=9 db_mode={:o}",project,fs::metadata(&db).unwrap().permissions().mode() & 0o777);
+ let result=agentbaton_core::ipc::Daemon::bind(&runtime);
+ if let Err(error)=&result {println!("actual_daemon_bind_error={} message={}",error.code,error.message);}
+ assert!(result.is_ok(),"actual native main must bind the helper-created private database");
+}

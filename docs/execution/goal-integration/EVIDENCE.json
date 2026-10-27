@@ -139,16 +139,26 @@
   },
   "resource_cache_retirement_latest": "/workspace/.onboarding/original-completed-target-retirement.json",
   "native_goal_readonly_candidate": {
-    "source": "ee4024e93ad5adaee8e9fee14dc5ba8fc548e28c",
+    "source": "9244f652af1c08ec1eea5a5851b3627ef34eee50",
     "author_linux_host_tests": 13,
-    "author_linux_harness_tests": 10,
+    "author_linux_harness_tests": 11,
     "author_python_runner_tests": 17,
     "author_built_ui_checks": 38,
     "author_built_ui_png": 24,
-    "final_postfixture_clippy_fmt": "pending",
-    "independent_review": "blocked on actual native fixture DB0644 -> Daemon permission denial; production permission guard unchanged; narrow fix in_progress",
-    "macOS": "not_run",
-    "goal_assertions": "3 strict JS boolean flags plus independent fixed readonly DB counts/sequence invariant; no fourth JS flag claimed"
+    "final_postfixture_clippy_fmt": "passed author and independent",
+    "independent_review": "passed; P2 oldactualFAIL101 -> samecontrol actualbindPASS0; unchanged production private permissions",
+    "macOS": "not_run exactnewPRCIpending",
+    "goal_assertions": "3 strict JS boolean flags plus independent fixed readonly DB counts/sequence invariant; no fourth JS flag claimed",
+    "review": "docs/execution/goal-native-readonly/REVIEW.md",
+    "review_sha256": "6851f0510c0c580045dec63d8301d8e2ddf972a0c918d465d9a74e06187e4bd3",
+    "independent_manifest_sha256": "7dc96abc0468c6527124048a33ff2694c46488db6857dbdddfef8872584fdd21",
+    "root_rehashed_source_evidence_png_items": 46,
+    "independent_linux_host_tests": 13,
+    "independent_linux_harness_tests": 11,
+    "independent_runner_tests": 17,
+    "independent_browser_checks": 38,
+    "independent_browser_png": 24,
+    "independent_browser_daemon_sha256": "2b4a302c4e992df9c01cde404c03ba526cf411eb24ecbc7aadc4e85fb8be771e"
   },
   "current_composed_frontend_actual": {
     "source": "2b8b6d7",
@@ -178,5 +188,105 @@
     "current_binary_manifest": "/workspace/.onboarding/goal-integration-current-binaries/manifest.json",
     "local_smoke": "passed exact frozen new daemon/CLI; Unicode/idempotency/cancel/journal/SIGKILL-restart",
     "RUST_TEST_THREADS": 1
+  },
+  "current_composed_browser_actual": {
+    "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+    "daemon_sha256": "4fa6a499042e99cb5b718ffb8f6f4a26613ddb64222d35d13d7d21527475d01c",
+    "dimension": "fresh actual built React + fixed test-only HTTP adapter + real private Unix IPC/SQLite; no native Owner dialog/real Provider/Mac/Goal dispatch",
+    "manifest": "/workspace/.onboarding/goal-integration-current-browser/manifest.json",
+    "manifest_sha256": "8a39f570e66c97ecbea74753bc0fb12a648666d8f5255dcd132856c064dcb898",
+    "flows": [
+      {
+        "name": "quiet",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "apps/desktop/tests/quiet-canvas-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/goal-integration-current-binaries/batond",
+          "--chromium",
+          "/usr/bin/chromium",
+          "--output",
+          "/workspace/.onboarding/goal-integration-current-browser/quiet"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 9.03,
+        "log": "/workspace/.onboarding/goal-integration-current-browser/quiet.log",
+        "log_sha256": "2ec52b37d9b68432fb0b4c4902ba4b698f97a266c04d35f5ab71088e1e1826be",
+        "checks": 38,
+        "screenshots": 24,
+        "report": "/workspace/.onboarding/goal-integration-current-browser/quiet/evidence.json",
+        "report_sha256": "a2d441692af0acc7bab5e56f666558400768eb7f43db969f605cd7fcaf93210c"
+      },
+      {
+        "name": "commands",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "apps/desktop/tests/command-validation-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/goal-integration-current-binaries/batond",
+          "--chromium",
+          "/usr/bin/chromium",
+          "--output",
+          "/workspace/.onboarding/goal-integration-current-browser/commands"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 6.36,
+        "log": "/workspace/.onboarding/goal-integration-current-browser/commands.log",
+        "log_sha256": "f03998c5b8452d8ff93c34d82e8fdb9a0e430e378001862cf398032e86225515",
+        "checks": 5,
+        "screenshots": 2,
+        "report": "/workspace/.onboarding/goal-integration-current-browser/commands/evidence.json",
+        "report_sha256": "280b006461643906e937ced68098bf1791428b69c06494453fd1c9868ec8ddfa"
+      },
+      {
+        "name": "goal-default",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "apps/desktop/tests/goal-planning-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/goal-integration-current-binaries/batond",
+          "--chromium",
+          "/usr/bin/chromium",
+          "--output",
+          "/workspace/.onboarding/goal-integration-current-browser/goal-default"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 5.07,
+        "log": "/workspace/.onboarding/goal-integration-current-browser/goal-default.log",
+        "log_sha256": "a9472e60a7988474e24b913667246ee38c0e5b34976ca58b99cb1ffadde50829",
+        "checks": 9,
+        "screenshots": 6,
+        "report_sha256": "ffff2795f490e322f7d01c41d7ccefc1fc93f640ecc86ca6f5d184766c7f8af8",
+        "report": "/workspace/.onboarding/goal-integration-current-browser/goal-default/report.json"
+      },
+      {
+        "name": "goal-editor",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "apps/desktop/tests/goal-planning-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/goal-integration-current-binaries/batond",
+          "--chromium",
+          "/usr/bin/chromium",
+          "--output",
+          "/workspace/.onboarding/goal-integration-current-browser/goal-editor",
+          "--structured-editor"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 6.13,
+        "log": "/workspace/.onboarding/goal-integration-current-browser/goal-editor.log",
+        "log_sha256": "58e205d594c0e06e89a484e8be69764d59d32b4fb03982dca59cd0e21740298e",
+        "checks": 10,
+        "screenshots": 9,
+        "report_sha256": "257349112891d86372883cefbce56918002a76d4364fd3f09b41033a0ebc319b",
+        "report": "/workspace/.onboarding/goal-integration-current-browser/goal-editor/report.json"
+      }
+    ],
+    "root_visual_review": [
+      "quiet/home-1440x900.png",
+      "quiet/goal-readonly-1440x900.png",
+      "goal-editor/editor-02-applied-local-draft.png"
+    ],
+    "screenshot_limit": "Goal readonly1440 capture frames panel heading; below-fold disabled/empty controls proved by actual DOM/IPC assertions, not PNG alone"
   }
 }
