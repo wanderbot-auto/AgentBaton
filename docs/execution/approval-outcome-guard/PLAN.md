@@ -1,0 +1,7 @@
+# Approval outcome guard
+
+Baseline b9942d319b70dab22bf723d9f03230ebae08689a, isolated codex/approval-outcome-guard. GitHub main API independently reported c4e72c641e3edc3f3c0f665ffde5217933c2895f; OWNER-001/002 read and ACK, AB-START-001 gate retained. This is existing approved fault/recovery work, not new Provider/model/account or production authority.
+
+Inspect confirmation transaction boundaries; establish actual fault evidence before editing production. SQLite db_error already returns side_effect_state=unknown: keep this safe behavior and test original connection/grant persistence plus same-proposal retry instead of claiming not_started or renaming its code. Separately reproduce successful persisted approval followed by private-environment probe refusal through actual authenticated Unix IPC. If it reports not_started, map only the post-finalization probe error to confirmed with the existing connection reference and same-proposal reconciliation guidance. Preserve pre-effect errors and normal routes. No transactions/schema/permissions/dependency/UI redesign.
+
+Use generated nonexecuted executable, explicit stored readiness fixtures, controlled trigger faults and bounded local daemon fixtures only. Retain original failure logs and no-execution markers. Run new tests, full Core regression, fmt and Clippy under umask022; commit only authorized source/tests/docs locally, no push/merge. Parent independently reviews and integrates.
