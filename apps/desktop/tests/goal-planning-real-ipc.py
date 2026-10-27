@@ -51,6 +51,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--frontend', type=Path)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
+    parser.add_argument('--structured-editor', action='store_true', help='Exercise real same-model step editing before the unchanged proposal/preview/history checks')
     args = parser.parse_args()
     binary = args.batond.resolve(strict=True)
     frontend = (args.frontend or Path(__file__).resolve().parents[1] / 'dist').resolve(strict=True)
@@ -61,6 +62,7 @@ def main():
     assert not (output / 'report.json').exists(), 'Use a new output directory for each run'
     report = {
         'status': 'failed_or_interrupted',
+        'mode': 'structured_editor' if args.structured_editor else 'advanced_raw_json',
         'dimension': 'actual built React / Chromium / fixed test-only localhost adapter / real Unix Goal IPC',
         'native_owner_dialog': 'not_run; fixture owner finalizes actual proposals outside HTTP',
         'provider': 'generated credential-free local --version probe only; no session or model',
@@ -162,6 +164,10 @@ def main():
                          'inputs': [{'artifact_id': 'source', 'relative_path': 'input.txt', 'max_bytes': 1024, 'expected_sha256': sha(fixed_input)}],
                          'outputs': [{'artifact': {'artifact_id': 'report', 'relative_path': 'outputs/report.txt', 'max_bytes': 1024, 'expected_sha256': None}, 'validators': []}],
                          'writable_prefixes': ['outputs'], 'owner_acceptance_criteria': 'Owner reviews the exact report; approval or plan validation alone never accepts this task.'}
+            if args.structured_editor:
+                # A second work node needs its own real, separately approved
+                # output contract. Default/raw fixture remains unchanged.
+                selection['outputs'].append({'artifact': {'artifact_id': 'details', 'relative_path': 'outputs/details.txt', 'max_bytes': 1024, 'expected_sha256': None}, 'validators': []})
             scope = owner_approve('goal_scopes.propose', selection, 'goal-scope', 'goal')
             assert scope['planning_only'] is True and scope['revoked'] is False
             current_grant = next(g for g in result('grants.list', {'project_id': project['id']}) if g['id'] == grant['id'])
@@ -190,6 +196,8 @@ def main():
                 for table in ['attempts', 'dispatch_intents', 'workspace_leases', 'sessions', 'command_validation_runs', 'command_workspace_fences', 'goal_node_evidence', 'goal_external_action_journal']:
                     assert snapshot[table] == 0, (table, snapshot[table])
                 assert not (Path(workspace['root']) / 'outputs/report.txt').exists()
+                if args.structured_editor:
+                    assert not (Path(workspace['root']) / 'outputs/details.txt').exists()
                 invocations = [json.loads(line) for line in invocation_log.read_text().splitlines()]
                 assert invocations and all(argv == ['--version'] for argv in invocations), invocations
                 assert result('tasks.get', {'task_id': task['id']})['state'] == 'draft'
@@ -337,6 +345,83 @@ def main():
                     original_raw = '\n  ' + json.dumps(proposal, indent=2) + '\n '
                     textarea = panel.get_by_role('textbox', name='Plan proposal JSON', exact=True)
                     textarea.fill(original_raw)
+                    if args.structured_editor:
+                        editing = scope['edit_context']
+                        assert editing is not None and editing['max_nodes'] == selection['max_nodes']
+                        assert editing['writable_prefixes'] == selection['writable_prefixes']
+                        assert editing['output_artifacts'] == {output['artifact']['artifact_id']: output['artifact'] for output in selection['outputs']}
+                        assert set(editing['rule_executors']) == set(scope['rules'])
+                        before_edit = database_snapshot()
+                        editor = panel.get_by_test_id('goal-plan-editor')
+                        assert not editor.evaluate('(element)=>element.open')
+                        # Real Chromium native summary activation, not a jsdom
+                        # substitute or product keydown shim.
+                        editor.locator(':scope > summary').focus()
+                        page.keyboard.press('Enter')
+                        expect(editor).to_have_attribute('open', '')
+                        editor.get_by_role('button', name='Prepare steps from approved scope', exact=True).click()
+                        first_detail = editor.locator('.goal-plan-editor-node').first
+                        open_details(first_detail)
+                        first_id = first_detail.locator(':scope > summary').inner_text().rsplit(' · ', 1)[1]
+                        first_detail.get_by_role('textbox', name=f'Step goal {first_id}', exact=True).fill('Write the approved report from the fixed input')
+                        first_artifacts = first_detail.locator('details').filter(has=page.get_by_text('Inputs and outputs', exact=True)).last
+                        open_details(first_artifacts)
+                        first_detail.get_by_role('checkbox', name=f'Output {first_id}: details', exact=True).uncheck()
+                        first_detail.get_by_role('textbox', name=f'Proposed write paths (one relative path per line) {first_id}', exact=True).fill(editing['output_artifacts']['report']['relative_path'])
+                        first_budget = first_detail.locator('details').filter(has=page.get_by_text('Bounded budget and retry', exact=True)).last
+                        open_details(first_budget)
+                        first_detail.get_by_role('textbox', name='Runtime (ms)', exact=True).fill('2000')
+                        editor.get_by_role('button', name='Add step', exact=True).click()
+                        second_detail = editor.locator('.goal-plan-editor-node').last
+                        open_details(second_detail)
+                        second_id = second_detail.locator(':scope > summary').inner_text().rsplit(' · ', 1)[1]
+                        assert second_id != first_id
+                        second_detail.get_by_role('textbox', name=f'Step goal {second_id}', exact=True).fill('Write the separately approved details after the report')
+                        dependencies = second_detail.locator('details').filter(has=page.get_by_text('Dependencies and lineage', exact=True)).last
+                        open_details(dependencies)
+                        second_detail.get_by_role('checkbox', name=f'Dependency {second_id} ← {first_id}', exact=True).check()
+                        second_artifacts = second_detail.locator('details').filter(has=page.get_by_text('Inputs and outputs', exact=True)).last
+                        open_details(second_artifacts)
+                        second_detail.get_by_role('checkbox', name=f'Output {second_id}: details', exact=True).check()
+                        second_detail.get_by_role('textbox', name=f'Proposed write paths (one relative path per line) {second_id}', exact=True).fill(editing['output_artifacts']['details']['relative_path'])
+                        second_budget = second_detail.locator('details').filter(has=page.get_by_text('Bounded budget and retry', exact=True)).last
+                        open_details(second_budget)
+                        second_detail.get_by_role('textbox', name='Runtime (ms)', exact=True).fill('3000')
+                        expect(editor.get_by_role('region', name='Dependency graph', exact=True)).to_contain_text(f'{first_id} → {second_id}')
+                        assert textarea.input_value() == original_raw, 'Local step edits silently normalized or replaced the original advanced JSON'
+                        assert database_snapshot() == before_edit
+                        assert not any(row['method'] in {'goal_plans.propose', 'goal_plans.revise'} for row in report['requests'])
+                        graph_heading = editor.get_by_role('heading', name='Dependency graph', exact=True)
+                        graph_heading.scroll_into_view_if_needed()
+                        expect(graph_heading).to_be_visible()
+                        screenshot('editor-01-local-steps-no-write')
+                        editor.get_by_role('button', name='Apply steps to JSON draft', exact=True).click()
+                        original_raw = textarea.input_value()
+                        proposal = json.loads(original_raw)
+                        assert [node['id'] for node in proposal['nodes']] == [first_id, second_id]
+                        assert [node['kind'] for node in proposal['nodes']] == ['work', 'work']
+                        assert [node['budget']['runtime_ms'] for node in proposal['nodes']] == [2000, 3000]
+                        assert proposal['nodes'][1]['dependencies'] == [first_id]
+                        assert [node['outputs'] for node in proposal['nodes']] == [[{'artifact_id': 'report', 'contract_id': scope['outputs']['report']}], [{'artifact_id': 'details', 'contract_id': scope['outputs']['details']}]]
+                        assert proposal['acceptance_rules'] == scope['required_acceptance_rules']
+                        assert proposal['goal'] == scope['goal'] and proposal['scope_revision'] == scope['authority_revision']
+                        for edited_node in proposal['nodes']:
+                            assert edited_node['executor'] == {'kind': 'connection', 'binding': scope['binding'], 'program_sha256': scope['program_sha256']}
+                            assert edited_node['recipients'] == [] and edited_node['external_action_id'] is None
+                        assert database_snapshot() == before_edit, 'Applying local steps wrote the daemon journal or reserved execution resources'
+                        assert_no_execution()
+                        report['observations']['structured_editor'] = {'editing_context': editing, 'proposal': proposal, 'raw_sha256': sha(original_raw.encode()), 'local_edit_snapshot': before_edit, 'after_apply_snapshot': database_snapshot()}
+                        graph_heading.scroll_into_view_if_needed()
+                        expect(graph_heading).to_be_visible()
+                        screenshot('editor-02-applied-local-draft')
+                        page.set_viewport_size({'width': 390, 'height': 844})
+                        graph_heading.scroll_into_view_if_needed()
+                        expect(graph_heading).to_be_visible()
+                        screenshot('editor-03-mobile-dependency-graph')
+                        assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+                        page.set_viewport_size({'width': 1488, 'height': 981})
+                        passed('actual structured UI prepares and edits two approved work nodes and dependency without daemon writes; explicit Apply updates original model draft only')
+                    node_ids = {node['id'] for node in proposal['nodes']}
                     panel.get_by_role('button', name='Store initial plan proposal', exact=True).click()
                     first = wait(lambda: ipc('goal_plans.get', {'scope_id': scope['id']}), lambda response: response.get('result', {}).get('proposal', {}).get('revision') == 1)['result']
                     expect(panel.get_by_role('button', name='Store revised plan proposal', exact=True)).to_be_enabled()
@@ -361,7 +446,10 @@ def main():
                         assert all(value is None or bounded_integer(value) for value in usage.values())
                     if preview['decision'] is not None:
                         assert preview['decision']['requires_atomic_store_commit'] is True
-                        assert all(item['node_id'] in {'write-report'} for item in preview['decision']['admissions'])
+                        assert all(item['node_id'] in node_ids for item in preview['decision']['admissions'])
+                    if args.structured_editor:
+                        assert preview['decision'] is not None
+                        assert [item['node_id'] for item in preview['decision']['admissions']] == [proposal['nodes'][0]['id']]
                     report['observations']['ready_preview'] = preview
                     preview_heading = panel.get_by_role('heading', name='Read-only readiness observation', exact=True)
                     preview_heading.scroll_into_view_if_needed()
@@ -384,7 +472,9 @@ def main():
                     assert conflict['error']['code'] == 'CONFIG_CONFLICT' and database_snapshot() == before
                     stale = ipc('goal_plans.propose', {'scope_id': scope['id'], 'plan_json': original_raw}, 'stale-cas', 0)
                     assert stale['error']['code'] == 'STALE_REVISION' and database_snapshot() == before
-                    duplicate = original_raw.replace('"id": "write-report"', '"id": "write-report", "id": "write-report"', 1)
+                    node_marker = '"id": ' + json.dumps(proposal['nodes'][0]['id'])
+                    duplicate = original_raw.replace(node_marker, node_marker + ', ' + node_marker, 1)
+                    assert duplicate != original_raw, 'The actual node ID duplicate control was not constructed'
                     malformed = browser_request('goal_plans_propose', {**first_args, 'idempotencyKey': 'duplicate-plan', 'planJson': duplicate})
                     assert malformed['status'] == 200 and malformed['body']['error']['code'] == 'INVALID_REQUEST'
                     assert database_snapshot() == before
