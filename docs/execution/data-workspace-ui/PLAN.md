@@ -1,0 +1,14 @@
+# Selected-file data workspace UI/native plan
+
+ACK OWNER-001 / OWNER-002 at primary-approved base `b71492f`. Worktree `/workspace/.worktrees/data-workspace-ui`, branch `codex/data-workspace-ui`. Existing product development authorization applies; production, private identities/model calls, new spending, signing and release remain closed.
+
+This slice implements Projects UI and fixed native IPC for the Core author's schema10 selected-file dataset-copy contract. It does not change Core/library/schema/locks/App/old tests/browser harnesses/CI/global status. Registered Directory project roots and host-managed destinations are resolved by the server, never supplied as Renderer authority.
+
+1. Coordinate exact `DataWorkspaceSelection`, Preview, Creation, dataset snapshot and nullable real copy observation DTOs with the Core author. Use `data_workspace_previews.{start,get,list,cancel}` and `data_workspaces.{propose,get,list,cancel}` only.
+2. Add a default-folded Projects component: explicit relative file references and bounded limits → actual async preview → separate native Owner review → async creation observation. No generic job dashboard, terminal or recursive directory selection. Manual relative selection avoids introducing broad file-picker permissions.
+3. Keep exact payload/key/revision pending recovery across navigation in this UI process, max32 intents. Require fresh scoped reads after uncertainty. Deny foreign/stale/failed/missing history, duplicate clicks and new copies while creation is active/failed/unknown. Poll readonly at most20 times before requiring explicit refresh. Never auto-retry a mutation.
+4. Add native `ApprovalKind::DataWorkspace`, exact preview ID/revision and complete snapshot checks, genuine native dialog then private finalization. Keep existing approval kinds distinct and pre-finalize not_started versus post-finalize uncertainty semantics. Register eight fixed app commands; no Renderer finalize/dialog/filesystem/shell capability.
+5. Test normal, denial, malformed/foreign/stale records, raw paths and limits, cancellation races/terminal reconciliation, same-key uncertainty, remounts, polling and Projects ready refresh. Run unchanged original UI tests/types/build plus native leaf units/Clippy/fmt in primary's exclusive existing target window.
+6. Freeze local source for independent review. Primary later composes schema10 and runs actual daemon/browser/native/macOS checks; mock/native-closure tests do not establish those dimensions.
+
+Requirement contribution: AB-PRJ-002/003 local non-Git workspace identity, AB-VAL-002 fixed input versions, AB-TSK-007 requested versus confirmed cancellation, AB-SEC-004/010 explicit local data scope. This unit is not full acceptance of these entire requirements or the overall product.
