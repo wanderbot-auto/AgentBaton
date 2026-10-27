@@ -1,0 +1,10 @@
+{
+  "approval": "AB-START-001",
+  "base": "4798a189910367bf3038e19729c9d2daf2d138b7",
+  "source_sha256": "6bb8f618d7c56a47855b431e3e908250a2b3abc441a1c68b8ccad48a8e5fa2e0",
+  "test_sha256": "d2181ef025a3b98f6ff4ddb94329970da8776469b33616b13d2ff6a5da4e8228",
+  "actual_tests": "not_run; waiting shared Cargo window",
+  "format_first": "failed expected formatting-only check, fixed by formatter; rawlog /workspace/.onboarding/goal-editing-context-format-first.log",
+  "backend_authority": "unchanged; metadata never a token",
+  "new_schema_or_mutation_method": false
+}

@@ -224,6 +224,112 @@ impl Fixture {
     }
 }
 #[test]
+fn editing_metadata_is_recorded_approval_data_and_survives_readonly_history() {
+    let mut f = Fixture::new();
+    let selection = f.selection.clone();
+    let view = f.approve();
+    let context = view.edit_context.as_ref().unwrap();
+    assert_eq!(context.max_nodes, selection.max_nodes);
+    assert_eq!(context.writable_prefixes, selection.writable_prefixes);
+    assert_eq!(context.output_artifacts.len(), selection.outputs.len());
+    for output in &selection.outputs {
+        assert_eq!(
+            context.output_artifacts[&output.artifact.artifact_id],
+            output.artifact
+        );
+    }
+    assert_eq!(context.rule_executors.len(), view.rules.len());
+    for id in view.rules.keys() {
+        assert_eq!(
+            context.rule_executors[id],
+            if view.required_acceptance_rules.contains(id) {
+                GoalRuleExecutorKind::Owner
+            } else {
+                GoalRuleExecutorKind::Validator
+            }
+        );
+    }
+    let expected = serde_json::to_value(context).unwrap();
+    // Existing cached Owner results predate this display metadata. They remain
+    // readable without inventing a permission or inferring an editable context.
+    let mut legacy = serde_json::to_value(&view).unwrap();
+    legacy.as_object_mut().unwrap().remove("edit_context");
+    let legacy: GoalScopeView = serde_json::from_value(legacy).unwrap();
+    assert!(legacy.edit_context.is_none());
+    assert!(legacy.planning_only);
+    f.store.revoke_goal_scope(&view.id, 1, "revoke").unwrap();
+    let before = f.store.sequence().unwrap();
+    let historical = f.store.get_goal_scope(&view.id).unwrap();
+    assert!(historical.revoked);
+    assert_eq!(
+        serde_json::to_value(historical.edit_context.unwrap()).unwrap(),
+        expected
+    );
+    assert_eq!(
+        serde_json::to_value(
+            f.store.list_goal_scopes(&f.task.id).unwrap()[0]
+                .edit_context
+                .as_ref()
+                .unwrap()
+        )
+        .unwrap(),
+        expected
+    );
+    assert_eq!(f.store.sequence().unwrap(), before);
+    assert_eq!(
+        f.store
+            .submit_goal_plan(&Fixture::plan(&view), "revoked-edit", 0)
+            .unwrap_err()
+            .code,
+        "PERMISSION_DENIED"
+    );
+    assert_eq!(f.store.sequence().unwrap(), before);
+}
+
+#[test]
+fn editing_projection_cannot_widen_the_native_approved_write_set() {
+    let mut f = Fixture::new();
+    let mut view = f.approve();
+    let context = view.edit_context.as_mut().unwrap();
+    context.max_nodes = 256;
+    context.writable_prefixes = vec!["outside".into()];
+    context
+        .output_artifacts
+        .get_mut("report")
+        .unwrap()
+        .relative_path = "outside/report.txt".into();
+    let mut forged = Fixture::plan(&view);
+    forged.proposal.nodes[0].write_set = vec![WriteTarget::Workspace {
+        path: "outside/report.txt".into(),
+    }];
+    let before = f.store.sequence().unwrap();
+    assert_eq!(
+        f.store
+            .submit_goal_plan(&forged, "forged-edit-context", 0)
+            .unwrap_err()
+            .code,
+        "PERMISSION_DENIED"
+    );
+    assert_eq!(f.store.sequence().unwrap(), before);
+    assert!(f
+        .store
+        .list_goal_plan_revisions(&view.id)
+        .unwrap()
+        .is_empty());
+    let saved = f
+        .store
+        .submit_goal_plan(&Fixture::plan(&view), "original-approved-write-set", 0)
+        .unwrap();
+    assert!(!saved.dispatched);
+    assert_eq!(
+        saved.proposal.nodes[0].write_set,
+        vec![WriteTarget::Workspace {
+            path: "outputs/report.txt".into()
+        }]
+    );
+}
+
+#[test]
 fn native_goal_confirmation_is_distinct_and_updates_only_ceilings_atomically() {
     let mut f = Fixture::new();
     let p = f.store.propose_goal_scope(&f.selection, "pending").unwrap();

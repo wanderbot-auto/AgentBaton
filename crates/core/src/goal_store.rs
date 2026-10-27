@@ -225,6 +225,20 @@ struct ScopeRecord {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct GoalPlanEditingContext {
+    pub max_nodes: u32,
+    pub writable_prefixes: Vec<String>,
+    pub output_artifacts: BTreeMap<String, ArtifactRequirement>,
+    pub rule_executors: BTreeMap<String, GoalRuleExecutorKind>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum GoalRuleExecutorKind {
+    Owner,
+    Validator,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct GoalScopeView {
     pub id: String,
     pub revision: u64,
@@ -249,6 +263,10 @@ pub struct GoalScopeView {
     pub workspace_id: String,
     pub input_revision: String,
     pub planning_only: bool,
+    /// Read-only projection of the original approval, never an execution token.
+    /// Missing on older cached approval results; editors must not guess it.
+    #[serde(default)]
+    pub edit_context: Option<GoalPlanEditingContext>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -980,6 +998,28 @@ fn scope_view(record: &ScopeRecord, scope: &ApprovedGoalScope) -> Result<GoalSco
 /// historical reads never backdate host time or mint an expired scope token.
 fn recorded_scope_view(record: &ScopeRecord) -> Result<GoalScopeView> {
     let p = host_policy(&record.selection, &record.refs)?;
+    let edit_context = GoalPlanEditingContext {
+        max_nodes: record.selection.max_nodes,
+        writable_prefixes: record.selection.writable_prefixes.clone(),
+        output_artifacts: record
+            .selection
+            .outputs
+            .iter()
+            .map(|output| (output.artifact.artifact_id.clone(), output.artifact.clone()))
+            .collect(),
+        rule_executors: p
+            .rules
+            .keys()
+            .map(|id| {
+                let executor = if id == OWNER_RULE {
+                    GoalRuleExecutorKind::Owner
+                } else {
+                    GoalRuleExecutorKind::Validator
+                };
+                (id.clone(), executor)
+            })
+            .collect(),
+    };
     let connection_id = &record.refs.grant_after.scope.connection_ids[0];
     let c = &record.refs.grant_after.connection_bindings[connection_id];
     let binding = ExecutionBinding {
@@ -1046,6 +1086,7 @@ fn recorded_scope_view(record: &ScopeRecord) -> Result<GoalScopeView> {
         workspace_id: record.refs.workspace.id.clone(),
         input_revision: record.refs.workspace.base_revision.clone(),
         planning_only: true,
+        edit_context: Some(edit_context),
     })
 }
 fn read_scope(db: &Connection, id: &str) -> Result<(ScopeRecord, ApprovedGoalScope)> {
