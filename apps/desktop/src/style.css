@@ -29,3 +29,18 @@
 .data-validation dd { margin: 4px 0 14px; }
 .data-validation code { white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 759px) { .data-validation .data-validation-fields, .data-validation .data-validation-column { grid-template-columns: minmax(0, 1fr); } .data-validation button, .data-validation input, .data-validation select { min-height: 44px; } }
+
+.command-validation { min-width: 0; margin-top: 24px; border-top: 1px solid var(--line); padding-top: 18px; overflow-wrap: anywhere; }
+.command-validation h2 { display: inline; font-size: var(--fs-title); font-weight: 500; }
+.command-validation fieldset { min-width: 0; border: 1px solid var(--line); border-radius: 6px; padding: 14px; margin: 18px 0; }
+.command-validation label { display: flex; flex-direction: column; gap: 6px; min-width: 0; margin: 10px 0; }
+.command-validation input, .command-validation select, .command-validation textarea { min-width: 0; max-width: 100%; width: 100%; }
+.command-validation .command-validation-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
+.command-validation .command-validation-checkbox { flex-direction: row; align-items: center; }
+.command-validation .command-validation-checkbox input { width: auto; }
+.command-validation .command-validation-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.command-validation details { margin: 14px 0; }
+.command-validation summary { cursor: pointer; }
+.command-validation dd { margin: 4px 0 14px; }
+.command-validation code { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width:759px) { .command-validation .command-validation-fields { grid-template-columns: minmax(0,1fr); } .command-validation button, .command-validation select, .command-validation input { min-height: 44px; } }

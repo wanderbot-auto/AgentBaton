@@ -1,0 +1,76 @@
+{
+  "head": "ada4c81213fcd3e9fed80c86cd33581415b12890",
+  "actual_checkout": "6758d6d0c3b19ed6323a4ed412771fb4d269b088",
+  "product": {
+    "id": 40451447529,
+    "conclusion": "failure",
+    "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40451447529"
+  },
+  "environment": {
+    "id": 40451447566,
+    "conclusion": "success",
+    "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40451447566"
+  },
+  "jobs": [
+    {
+      "id": 122014868031,
+      "name": "Product / Rust",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "id": 122014868271,
+      "name": "Product / macos-15-intel",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Core and native host tests"
+      ]
+    },
+    {
+      "id": 122014868333,
+      "name": "Product / UI",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "id": 122014868483,
+      "name": "Product / macos-15",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Core and native host tests"
+      ]
+    }
+  ],
+  "artifact_names": [
+    "frontend-real-ipc-6758d6d0c3b19ed6323a4ed412771fb4d269b088",
+    "provider-contract-6758d6d0c3b19ed6323a4ed412771fb4d269b088"
+  ],
+  "actual_mac": {
+    "arm64": {
+      "passed": 13,
+      "failed": 1,
+      "fresh_ttl_ms": 999,
+      "return_to_request_ms": 0,
+      "session_admission_ms": 1331,
+      "suite_seconds": 128.12,
+      "log_sha256": "86134be1b6f736a84a0eae3ac194abafc46de4efbb40196cf953a36e673ff4a6"
+    },
+    "x86_64": {
+      "passed": 13,
+      "failed": 1,
+      "fresh_ttl_ms": 997,
+      "return_to_request_ms": 0,
+      "session_admission_ms": 1199,
+      "suite_seconds": 121.76,
+      "log_sha256": "16f999b823055fd7167550032fcd0a23f7ff0ffb59695ba0575e2286e2b70503"
+    },
+    "RUST_TEST_THREADS": "1 verified in both job logs",
+    "failed_assertion": "actual_reaped_failed_acp_lifecycle...TaskCancelled differs requiredOutcomeUnknown line1096",
+    "other_marker_case": "passed both; no cleanup hang claim",
+    "negative_expired_admission": "correctly refused both",
+    "native_gui_audit_development_packages": "not reached; zero native/development artifacts"
+  },
+  "review": "docs/execution/command-integration/NATIVE_ADA4_REVIEW.md",
+  "review_sha256": "fe874545bd4c79a6d0f8c17a27822688e2beea0116d26c9eb7b3738309a03a2d",
+  "conclusion": "Serial fixtures alone did not resolve admission latency. Preserve all original deadlines and assertions; profile/optimize genuine duplicate inspection work then new exact CI; no unchanged retry or merge."
+}

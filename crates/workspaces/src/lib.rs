@@ -1,7 +1,9 @@
 //! Owner-selected workspace operations. Worktrees organize writes; they are not OS sandboxes.
-//! No API here removes a source directory, executes its scripts, or stashes/resets source edits.
+//! Import/isolation APIs never remove source directories, implicitly execute repository scripts, or stash/reset source edits.
+//! Fixed validator execution is separate and requires a trusted-host-approved command contract.
 
 pub mod adoption;
+pub mod command_validation;
 pub mod deterministic;
 pub mod validation;
 
@@ -169,6 +171,62 @@ fn bounded_output(command: &mut Command) -> Result<Output, WorkspaceError> {
     })
 }
 
+#[cfg(test)]
+mod inspection_process_bounds {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt;
+
+    #[test]
+    fn each_inspection_stream_has_a_real_raw_byte_limit() {
+        for stream in ["stdout", "stderr"] {
+            let code = if stream == "stdout" {
+                "i=0; while [ \"$i\" -lt 5000 ]; do printf '%01000d' 0; i=$((i+1)); done"
+            } else {
+                "i=0; while [ \"$i\" -lt 5000 ]; do printf '%01000d' 0 >&2; i=$((i+1)); done"
+            };
+            assert!(
+                matches!(
+                    bounded_output(Command::new("/bin/sh").args(["-c", code])),
+                    Err(WorkspaceError::ResourceLimit)
+                ),
+                "{stream}"
+            );
+        }
+    }
+
+    #[test]
+    fn inspection_timeout_kills_and_reaps_the_actual_owned_command() {
+        let dir = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let marker = dir.path().join("pid");
+        // The static script writes its own PID, then exec replaces that exact
+        // owned child. No detached descendants or unrelated PID is signalled.
+        let started = Instant::now();
+        assert!(matches!(
+            bounded_output(
+                Command::new("/bin/sh")
+                    .args([
+                        "-c",
+                        "printf '%s' \"$$\" > \"$1\"; exec /bin/sleep 30",
+                        "fixture"
+                    ])
+                    .arg(&marker)
+            ),
+            Err(WorkspaceError::ResourceLimit)
+        ));
+        assert!(started.elapsed() >= Duration::from_secs(15));
+        assert!(started.elapsed() < Duration::from_secs(25));
+        let pid = fs::read_to_string(marker)
+            .unwrap()
+            .parse::<libc::pid_t>()
+            .unwrap();
+        assert_eq!(unsafe { libc::kill(pid, 0) }, -1);
+        assert_eq!(io::Error::last_os_error().raw_os_error(), Some(libc::ESRCH));
+    }
+}
+
 fn git_text(root: &Path, args: &[&str]) -> Result<String, WorkspaceError> {
     let result = bounded_output(git_command(root).args(args))?;
     if !result.status.success() {
@@ -224,13 +282,92 @@ fn reject_checkout_filters(root: &Path) -> Result<(), WorkspaceError> {
     Ok(())
 }
 
-fn reject_hidden_index_entries(root: &Path) -> Result<(), WorkspaceError> {
+/// One no-include config read replaces three independent declarations queries
+/// in an inspection. Do not cache this across inspections/admission boundaries.
+fn audit_inspection_config(root: &Path) -> Result<(), WorkspaceError> {
+    let config =
+        bounded_output(git_command(root).args(["config", "--no-includes", "--null", "--list"]))?;
+    if !config.status.success() {
+        return Err(WorkspaceError::NotRepository);
+    }
+    if !config.stdout.is_empty() && config.stdout.last() != Some(&0) {
+        return Err(WorkspaceError::UnsafeRepository);
+    }
+    for record in config.stdout.split(|b| *b == 0).filter(|r| !r.is_empty()) {
+        // Git's -z list separates key/value with LF, records with NUL. Values
+        // can themselves contain LF and must never be interpreted as keys.
+        let key = record.split(|b| *b == b'\n').next().unwrap_or_default();
+        if key == b"include.path"
+            || (key.starts_with(b"includeif.")
+                && key.ends_with(b".path")
+                && key.len() >= b"includeif.".len() + b".path".len())
+            || key == b"extensions.partialclone"
+            || (key.starts_with(b"remote.")
+                && key.ends_with(b".promisor")
+                && key.len() >= b"remote.".len() + b".promisor".len())
+            || key.starts_with(b"filter.")
+        {
+            return Err(WorkspaceError::UnsafeRepository);
+        }
+    }
+    Ok(())
+}
+
+fn inspected_git_metadata(
+    root: &Path,
+) -> Result<Option<(PathBuf, String, PathBuf)>, WorkspaceError> {
+    let batch = bounded_output(git_command(root).args([
+        "rev-parse",
+        "--path-format=absolute",
+        "--show-toplevel",
+        "--git-common-dir",
+        "--verify",
+        "HEAD^{commit}",
+    ]))?;
+    if batch.status.success() {
+        let text = String::from_utf8(batch.stdout).map_err(|_| WorkspaceError::InvalidPath)?;
+        let fields: Vec<_> = text.lines().collect();
+        if fields.len() == 3 && is_oid(fields[2]) {
+            return Ok(Some((
+                fs::canonicalize(fields[0])?,
+                fields[2].into(),
+                fs::canonicalize(fields[1])?,
+            )));
+        }
+        // Newlines in actual filesystem paths make the batched framing
+        // ambiguous. Preserve the original independent path-reading behavior.
+    }
+    let probe = output(
+        root,
+        &[OsStr::new("rev-parse"), OsStr::new("--show-toplevel")],
+    )?;
+    if !probe.status.success() {
+        return Ok(None);
+    }
+    let top = fs::canonicalize(
+        String::from_utf8(probe.stdout)
+            .map_err(|_| WorkspaceError::InvalidPath)?
+            .trim(),
+    )?;
+    let head = git_text(root, &["rev-parse", "--verify", "HEAD^{commit}"])?;
+    let common = fs::canonicalize(git_text(
+        root,
+        &["rev-parse", "--path-format=absolute", "--git-common-dir"],
+    )?)?;
+    Ok(Some((top, head, common)))
+}
+
+/// Read flags and modes together. This preserves assume-unchanged,
+/// skip-worktree, sparse-index and gitlink checks before running status.
+fn reject_hidden_index_entries(root: &Path) -> Result<bool, WorkspaceError> {
     // `-v` renders assume-unchanged entries with lowercase status letters; `S` denotes
     // skip-worktree (including sparse-directory index entries). Read only: never clear flags.
-    let entries = bounded_output(git_command(root).args(["ls-files", "--cached", "-v", "-z"]))?;
+    let entries =
+        bounded_output(git_command(root).args(["ls-files", "--cached", "--stage", "-v", "-z"]))?;
     if !entries.status.success() {
         return Err(WorkspaceError::NotRepository);
     }
+    let mut has_submodules = false;
     for entry in entries.stdout.split(|b| *b == 0).filter(|e| !e.is_empty()) {
         if entry.len() < 3 || entry[1] != b' ' {
             return Err(WorkspaceError::UnverifiedIndex);
@@ -238,6 +375,7 @@ fn reject_hidden_index_entries(root: &Path) -> Result<(), WorkspaceError> {
         if entry[0].is_ascii_lowercase() || entry[0] == b'S' {
             return Err(WorkspaceError::UnverifiedIndex);
         }
+        has_submodules |= entry[2..].starts_with(b"160000 ");
     }
     // Even if all files currently happen to be present, sparse configuration can change the
     // next checkout's coverage. Do not inherit it silently into a supposedly complete workspace.
@@ -254,7 +392,7 @@ fn reject_hidden_index_entries(root: &Path) -> Result<(), WorkspaceError> {
     } else if sparse.status.code() != Some(1) {
         return Err(WorkspaceError::UnverifiedIndex);
     }
-    Ok(())
+    Ok(has_submodules)
 }
 
 /// Import is read-only and does not initialize Git or execute repository scripts/hooks.
@@ -265,29 +403,13 @@ pub fn inspect(root: &Path) -> Result<WorkspaceIdentity, WorkspaceError> {
     if !metadata.is_dir() {
         return Err(WorkspaceError::InvalidPath);
     }
-    reject_config_indirection(&canonical_root)?;
-    let probe = output(
-        &canonical_root,
-        &[OsStr::new("rev-parse"), OsStr::new("--show-toplevel")],
-    )?;
-    let kind = if probe.status.success() {
-        let top = fs::canonicalize(
-            String::from_utf8(probe.stdout)
-                .map_err(|_| WorkspaceError::InvalidPath)?
-                .trim(),
-        )?;
+    audit_inspection_config(&canonical_root)?;
+    let kind = if let Some((top, head, common_dir)) = inspected_git_metadata(&canonical_root)? {
         // Explicit directory selection must not silently expand to an ancestor repository.
         if top != canonical_root {
             return Err(WorkspaceError::InvalidPath);
         }
-        reject_partial_clones(&canonical_root)?;
-        reject_checkout_filters(&canonical_root)?;
-        reject_hidden_index_entries(&canonical_root)?;
-        let head = git_text(&canonical_root, &["rev-parse", "--verify", "HEAD^{commit}"])?;
-        let common_dir = fs::canonicalize(git_text(
-            &canonical_root,
-            &["rev-parse", "--path-format=absolute", "--git-common-dir"],
-        )?)?;
+        let has_submodules = reject_hidden_index_entries(&canonical_root)?;
         let dirty = !git_text(
             &canonical_root,
             &[
@@ -300,15 +422,6 @@ pub fn inspect(root: &Path) -> Result<WorkspaceIdentity, WorkspaceError> {
         .is_empty();
         // Do not execute nested repositories' config/hooks merely to inspect their dirtiness.
         // Until explicit submodule policy exists, conservatively block adoption for any gitlink.
-        let index =
-            bounded_output(git_command(&canonical_root).args(["ls-files", "--stage", "-z"]))?;
-        if !index.status.success() {
-            return Err(WorkspaceError::NotRepository);
-        }
-        let has_submodules = index
-            .stdout
-            .split(|b| *b == 0)
-            .any(|entry| entry.starts_with(b"160000 "));
         let dirty = dirty || has_submodules;
         WorkspaceKind::Git {
             common_dir,

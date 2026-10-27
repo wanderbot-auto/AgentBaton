@@ -1375,7 +1375,11 @@
         "apps/desktop/src/ArtifactValidation.tsx",
         "crates/workspaces/src/deterministic.rs",
         "crates/core/src/data_validation.rs",
-        "apps/desktop/src/DataContractValidation.tsx"
+        "apps/desktop/src/DataContractValidation.tsx",
+        "crates/workspaces/src/command_validation.rs",
+        "crates/core/src/command_validation.rs",
+        "crates/core/src/command_workers.rs",
+        "apps/desktop/src/CommandValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1393,17 +1397,31 @@
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
         "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md",
         "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
+        "docs/execution/command-ui/REVIEW.md",
+        "docs/execution/command-core/EVIDENCE.md",
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs",
+        "crates/core/tests/command_validation.rs",
+        "crates/core/tests/command_validation_migration.rs",
+        "apps/desktop/src/CommandValidation.test.tsx"
       ],
       "verified_slices": [
         {
@@ -1438,6 +1456,35 @@
           "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
           "native_owner_dialog_and_policy_execution": "not_automated",
           "overall_requirement": "incomplete"
+        },
+        {
+          "slice": "schema7_data_exact_pr_and_command_core_ui_composition_in_progress",
+          "data_head": "06e7fa9a9f87c5e69564bc2a1afd97418d762d8d",
+          "data_actual_checkout": "1f2ed5136a6b362c07f5a031cfc15aaadfec1f7b",
+          "data_main_merge": "66061439c79fa44b66a33782febc1fb0f31c73df",
+          "data_product": 40432923340,
+          "data_environment": 40432923530,
+          "data_native_packages": "dual_arch_actual_pass_scope_limited",
+          "command_library_ci_head": "c4f9ccd353f2ea752781057026dfa33328be94e7",
+          "command_library_mac_tests": "13_actual_each_architecture",
+          "command_core_review_source": "8009824eaf2b83b37e65fe63f773bcf59143fc01",
+          "command_core_tests": "128_unique_independent_pass; postcommit_revoke_delta_pending",
+          "command_ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
+          "composed_browser_mac_ci": "not_run_yet",
+          "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },
@@ -1452,7 +1499,11 @@
         "apps/desktop/src/ArtifactValidation.tsx",
         "crates/workspaces/src/deterministic.rs",
         "crates/core/src/data_validation.rs",
-        "apps/desktop/src/DataContractValidation.tsx"
+        "apps/desktop/src/DataContractValidation.tsx",
+        "crates/workspaces/src/command_validation.rs",
+        "crates/core/src/command_validation.rs",
+        "crates/core/src/command_workers.rs",
+        "apps/desktop/src/CommandValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1470,17 +1521,31 @@
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
         "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md",
         "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
+        "docs/execution/command-ui/REVIEW.md",
+        "docs/execution/command-core/EVIDENCE.md",
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs",
+        "crates/core/tests/command_validation.rs",
+        "crates/core/tests/command_validation_migration.rs",
+        "apps/desktop/src/CommandValidation.test.tsx"
       ],
       "verified_slices": [
         {
@@ -1515,6 +1580,35 @@
           "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
           "native_owner_dialog_and_policy_execution": "not_automated",
           "overall_requirement": "incomplete"
+        },
+        {
+          "slice": "schema7_data_exact_pr_and_command_core_ui_composition_in_progress",
+          "data_head": "06e7fa9a9f87c5e69564bc2a1afd97418d762d8d",
+          "data_actual_checkout": "1f2ed5136a6b362c07f5a031cfc15aaadfec1f7b",
+          "data_main_merge": "66061439c79fa44b66a33782febc1fb0f31c73df",
+          "data_product": 40432923340,
+          "data_environment": 40432923530,
+          "data_native_packages": "dual_arch_actual_pass_scope_limited",
+          "command_library_ci_head": "c4f9ccd353f2ea752781057026dfa33328be94e7",
+          "command_library_mac_tests": "13_actual_each_architecture",
+          "command_core_review_source": "8009824eaf2b83b37e65fe63f773bcf59143fc01",
+          "command_core_tests": "128_unique_independent_pass; postcommit_revoke_delta_pending",
+          "command_ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
+          "composed_browser_mac_ci": "not_run_yet",
+          "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },
@@ -1562,7 +1656,11 @@
         "apps/desktop/src/ArtifactValidation.tsx",
         "crates/workspaces/src/deterministic.rs",
         "crates/core/src/data_validation.rs",
-        "apps/desktop/src/DataContractValidation.tsx"
+        "apps/desktop/src/DataContractValidation.tsx",
+        "crates/workspaces/src/command_validation.rs",
+        "crates/core/src/command_validation.rs",
+        "crates/core/src/command_workers.rs",
+        "apps/desktop/src/CommandValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1580,17 +1678,31 @@
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
         "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md",
         "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
+        "docs/execution/command-ui/REVIEW.md",
+        "docs/execution/command-core/EVIDENCE.md",
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs",
+        "crates/core/tests/command_validation.rs",
+        "crates/core/tests/command_validation_migration.rs",
+        "apps/desktop/src/CommandValidation.test.tsx"
       ],
       "verified_slices": [
         {
@@ -1625,6 +1737,35 @@
           "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
           "native_owner_dialog_and_policy_execution": "not_automated",
           "overall_requirement": "incomplete"
+        },
+        {
+          "slice": "schema7_data_exact_pr_and_command_core_ui_composition_in_progress",
+          "data_head": "06e7fa9a9f87c5e69564bc2a1afd97418d762d8d",
+          "data_actual_checkout": "1f2ed5136a6b362c07f5a031cfc15aaadfec1f7b",
+          "data_main_merge": "66061439c79fa44b66a33782febc1fb0f31c73df",
+          "data_product": 40432923340,
+          "data_environment": 40432923530,
+          "data_native_packages": "dual_arch_actual_pass_scope_limited",
+          "command_library_ci_head": "c4f9ccd353f2ea752781057026dfa33328be94e7",
+          "command_library_mac_tests": "13_actual_each_architecture",
+          "command_core_review_source": "8009824eaf2b83b37e65fe63f773bcf59143fc01",
+          "command_core_tests": "128_unique_independent_pass; postcommit_revoke_delta_pending",
+          "command_ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
+          "composed_browser_mac_ci": "not_run_yet",
+          "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },
@@ -1636,7 +1777,11 @@
         "crates/core/src/validation.rs",
         "crates/workspaces/src/validation.rs",
         "crates/workspaces/src/adoption.rs",
-        "apps/desktop/src/ArtifactValidation.tsx"
+        "apps/desktop/src/ArtifactValidation.tsx",
+        "crates/workspaces/src/command_validation.rs",
+        "crates/core/src/command_validation.rs",
+        "crates/core/src/command_workers.rs",
+        "apps/desktop/src/CommandValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1650,17 +1795,31 @@
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
         "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md",
         "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
+        "docs/execution/command-ui/REVIEW.md",
+        "docs/execution/command-core/EVIDENCE.md",
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs",
+        "crates/core/tests/command_validation.rs",
+        "crates/core/tests/command_validation_migration.rs",
+        "apps/desktop/src/CommandValidation.test.tsx"
       ],
       "verified_slices": [
         {
@@ -1686,6 +1845,35 @@
           "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
           "native_owner_dialog_and_policy_execution": "not_automated",
           "overall_requirement": "incomplete"
+        },
+        {
+          "slice": "schema7_data_exact_pr_and_command_core_ui_composition_in_progress",
+          "data_head": "06e7fa9a9f87c5e69564bc2a1afd97418d762d8d",
+          "data_actual_checkout": "1f2ed5136a6b362c07f5a031cfc15aaadfec1f7b",
+          "data_main_merge": "66061439c79fa44b66a33782febc1fb0f31c73df",
+          "data_product": 40432923340,
+          "data_environment": 40432923530,
+          "data_native_packages": "dual_arch_actual_pass_scope_limited",
+          "command_library_ci_head": "c4f9ccd353f2ea752781057026dfa33328be94e7",
+          "command_library_mac_tests": "13_actual_each_architecture",
+          "command_core_review_source": "8009824eaf2b83b37e65fe63f773bcf59143fc01",
+          "command_core_tests": "128_unique_independent_pass; postcommit_revoke_delta_pending",
+          "command_ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
+          "composed_browser_mac_ci": "not_run_yet",
+          "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },
@@ -3462,7 +3650,11 @@
         "apps/desktop/src/ArtifactValidation.tsx",
         "crates/workspaces/src/deterministic.rs",
         "crates/core/src/data_validation.rs",
-        "apps/desktop/src/DataContractValidation.tsx"
+        "apps/desktop/src/DataContractValidation.tsx",
+        "crates/workspaces/src/command_validation.rs",
+        "crates/core/src/command_validation.rs",
+        "crates/core/src/command_workers.rs",
+        "apps/desktop/src/CommandValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -3480,17 +3672,31 @@
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
         "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md",
         "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
+        "docs/execution/command-ui/REVIEW.md",
+        "docs/execution/command-core/EVIDENCE.md",
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs",
+        "crates/core/tests/command_validation.rs",
+        "crates/core/tests/command_validation_migration.rs",
+        "apps/desktop/src/CommandValidation.test.tsx"
       ],
       "verified_slices": [
         {
@@ -3525,6 +3731,35 @@
           "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
           "native_owner_dialog_and_policy_execution": "not_automated",
           "overall_requirement": "incomplete"
+        },
+        {
+          "slice": "schema7_data_exact_pr_and_command_core_ui_composition_in_progress",
+          "data_head": "06e7fa9a9f87c5e69564bc2a1afd97418d762d8d",
+          "data_actual_checkout": "1f2ed5136a6b362c07f5a031cfc15aaadfec1f7b",
+          "data_main_merge": "66061439c79fa44b66a33782febc1fb0f31c73df",
+          "data_product": 40432923340,
+          "data_environment": 40432923530,
+          "data_native_packages": "dual_arch_actual_pass_scope_limited",
+          "command_library_ci_head": "c4f9ccd353f2ea752781057026dfa33328be94e7",
+          "command_library_mac_tests": "13_actual_each_architecture",
+          "command_core_review_source": "8009824eaf2b83b37e65fe63f773bcf59143fc01",
+          "command_core_tests": "128_unique_independent_pass; postcommit_revoke_delta_pending",
+          "command_ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
+          "composed_browser_mac_ci": "not_run_yet",
+          "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },
@@ -3602,7 +3837,11 @@
         "apps/desktop/src/ArtifactValidation.tsx",
         "crates/workspaces/src/deterministic.rs",
         "crates/core/src/data_validation.rs",
-        "apps/desktop/src/DataContractValidation.tsx"
+        "apps/desktop/src/DataContractValidation.tsx",
+        "crates/workspaces/src/command_validation.rs",
+        "crates/core/src/command_validation.rs",
+        "crates/core/src/command_workers.rs",
+        "apps/desktop/src/CommandValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -3620,17 +3859,31 @@
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
         "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md",
         "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_PR_1F2E_REVIEW.md",
+        "docs/execution/command-ui/REVIEW.md",
+        "docs/execution/command-core/EVIDENCE.md",
+        "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
+        "docs/execution/command-core/REVIEW.md",
+        "docs/execution/command-integration/EVIDENCE.json",
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs",
+        "crates/core/tests/command_validation.rs",
+        "crates/core/tests/command_validation_migration.rs",
+        "apps/desktop/src/CommandValidation.test.tsx"
       ],
       "verified_slices": [
         {
@@ -3665,6 +3918,35 @@
           "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
           "native_owner_dialog_and_policy_execution": "not_automated",
           "overall_requirement": "incomplete"
+        },
+        {
+          "slice": "schema7_data_exact_pr_and_command_core_ui_composition_in_progress",
+          "data_head": "06e7fa9a9f87c5e69564bc2a1afd97418d762d8d",
+          "data_actual_checkout": "1f2ed5136a6b362c07f5a031cfc15aaadfec1f7b",
+          "data_main_merge": "66061439c79fa44b66a33782febc1fb0f31c73df",
+          "data_product": 40432923340,
+          "data_environment": 40432923530,
+          "data_native_packages": "dual_arch_actual_pass_scope_limited",
+          "command_library_ci_head": "c4f9ccd353f2ea752781057026dfa33328be94e7",
+          "command_library_mac_tests": "13_actual_each_architecture",
+          "command_core_review_source": "8009824eaf2b83b37e65fe63f773bcf59143fc01",
+          "command_core_tests": "128_unique_independent_pass; postcommit_revoke_delta_pending",
+          "command_ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "command_ui": "182_independent_mocked_ui_pass; Linux_native11_unchanged_Rust_source",
+          "composed_browser_mac_ci": "not_run_yet",
+          "overall_requirement": "incomplete; no TaskAccepted/adoption/production or OS containment"
+        },
+        {
+          "slice": "command_schema8_native_bridge_ui_actual_unix_execution_composition",
+          "core_source": "88ca6bcc4d9cdb9a78cf0e46ccd905ec323bfeda",
+          "ui_source": "355d33f85b57589338c0bc3d37a159693fd17082",
+          "composition": "e71c25d",
+          "linux_rust": "369 unique +4docs passed; FIFO nested1 excluded",
+          "ui_mocked": "182 independent pass",
+          "actual_browser": "5 approved-command execution/cancel checks independent pass;34 readonly checks/20screens primary pass",
+          "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
+          "exact_new_mac_ci": "not_run_yet",
+          "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
       ]
     },

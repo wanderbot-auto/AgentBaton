@@ -23,6 +23,8 @@ jobs:
       - run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
       - run: cargo fmt --all -- --check
       - name: Workspace tests with actual generated native-wire capture
+        env:
+          RUST_TEST_THREADS: '1'
         run: |
           set -euo pipefail
           mkdir -p artifacts/provider-contract
@@ -72,7 +74,10 @@ jobs:
           artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt
           artifacts/browser-venv/bin/python -m playwright install --with-deps chromium
       - name: Actual frontend with real Unix IPC and responsive screenshots
-        run: artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser
+        run: |
+          set -euo pipefail
+          artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser
+          artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/approved-commands
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -107,9 +112,13 @@ jobs:
           npm test
           npm run build
       - name: Core and native host tests
+        env:
+          # Each fixture owns real Git/SQLite/process work. Keep the original
+          # per-test deadlines while avoiding unrelated fixture contention.
+          RUST_TEST_THREADS: '1'
         run: |
           set -euo pipefail
-          cargo test --workspace --locked
+          cargo test --workspace --locked -- --show-output
           cargo build --locked --bin batond --bin baton
           python3 scripts/smoke-local-product.py
           cargo build --release --locked --bin batond --bin baton

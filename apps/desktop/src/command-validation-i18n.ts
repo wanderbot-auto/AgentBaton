@@ -1,0 +1,39 @@
+import type { Language } from './i18n';
+import { validationMessages } from './validation-i18n';
+const en = {
+  ...validationMessages.en,
+  title: 'Deterministic command validation', form: 'Review a fixed command', refresh: 'Refresh command records',
+  warning: 'One approved fixed command, not a terminal or task acceptance. A program may access this user’s files, network and accounts. No OS sandbox, immutable inputs or descendant containment is promised.',
+  scopeWarning: 'Only approved command observations are established. No scientific correctness, whole-task acceptance, Git integration or production release is authorized.',
+  executable: 'Executable absolute path', mode: 'Command mode', native: 'Fixed native executable', scriptMode: 'Fixed POSIX script via stdin', scriptPath: 'Script relative path', scriptHash: 'Script SHA-256',
+  arguments: 'Literal arguments (one per line)', argumentsHint: 'No shell splitting or interpolation. Empty lines are empty arguments. Arguments are reviewed and persisted: never enter credentials. Script mode uses fixed -s -- before these arguments.',
+  inputs: 'Fixed input paths and SHA-256', outputs: 'Output paths', pathsHint: 'One relative/path | SHA-256 per line. Input hashes are required; output hashes optional. Script is separate, pinned and at most 64 KiB.',
+  cap: 'Maximum bytes per input/output', wall: 'Execution budget (ms)', cleanup: 'Additional cleanup budget (ms)', stdout: 'Retained stdout byte limit', stderr: 'Retained stderr byte limit', exits: 'Expected exit codes (comma separated)',
+  limits: 'Limits and enforcement requirements', environment: 'Restricted constant environment', omitted: 'Omit', timezone: 'Set TZ=UTC',
+  filesystem_isolation: 'Require filesystem isolation', network_isolation: 'Require network isolation', process_tree_containment: 'Require descendant containment', execution_time_input_immutability: 'Require execution-time input immutability', auxiliary_source_immutability: 'Require auxiliary source immutability', sealed_executable_image: 'Require sealed executable image',
+  strictHint: 'Requirements are never silently relaxed. Unsupported strict requirements refuse execution before spawn. Capture limits bound retained bytes, not disk writes or all process output. The monotonic execution budget excludes file/Git preflight and cannot interrupt a blocked kernel call.',
+  approve: 'Review command in native dialog', approveAgain: 'Review the same command request again', run: 'Run approved command once', recoverRun: 'Recover the same run request',
+  approved: 'Approved fixed command only', revoked: 'Command policy revoked', noPolicies: 'No approved command policies.', noRecords: 'No command observations yet.', policies: 'Fixed command policies',
+  once: 'This policy permits one run. Another execution needs a fresh native-approved policy. Reusing a request key only observes the original run.',
+  cancel: 'Request owned command cancellation', retryCancel: 'Recover the same cancellation request',
+  prepared: 'Prepared; not yet observed running', running: 'Command running', cancel_requested: 'Cancellation requested; stop not confirmed', command_passed: 'Command contract passed', command_failed: 'Command contract failed', outcome_unknown: 'Outcome unknown; execution remains fenced',
+  unknown: 'Request outcome unknown. Payload, revision and key are retained across navigation. Reconcile records, then explicitly recover the same request; no new execution is retried automatically.', waiting: 'A command request is awaiting its response. Do not issue another mutation before reconciliation.',
+  unknownFence: 'An unknown run still holds its execution fence. Refresh evidence; a new request key cannot safely repeat it.', pollEnded: 'Automatic observation reached its bounded read limit. Refresh manually to continue observing; no command was retried.',
+  programHash: 'Approved executable SHA-256', cwd: 'Approved working directory', scriptHashLabel: 'Approved script SHA-256', digestLabel: 'Evidence or contract digest',
+  actualExit: 'Observed exit code', reason: 'Observation reason', stopConfirmed: 'Owned leader reaped; descendant containment is not established', stopUnknown: 'Owned leader stop is not confirmed',
+  capture: 'Capture metadata only; raw output is not a renderer command channel', captured: 'Retained bytes', observed: 'Observed bytes (at least)', truncated: 'Truncated', eof: 'Pipe EOF observed', elapsed: 'Process and cleanup elapsed (ms)',
+  scopeMismatch: 'Command history has foreign or unsupported scope, identity or authority; it was not used.',
+  empty: 'Choose a stopped session and at least one fixed input and output.', path: 'Use an absolute executable and unique bounded relative file paths, without traversal or control characters.', hash: 'Each fixed input and script requires a complete SHA-256.', limit: 'Use exact safe decimal integers within the declared command limits.', argumentsError: 'Use at most 64 literal arguments, each at most 4096 UTF-8 bytes and 16 KiB in total.', environmentError: 'Only LANG/LC_ALL constants C, C.UTF-8, en_US.UTF-8 and optional TZ=UTC are supported.', snapshot: 'Selection exceeds 16 KiB; reduce the explicit contract. Rust separately bounds its complete native snapshot. Nothing was omitted or approved.',
+};
+const zh: typeof en = {
+  ...en, ...validationMessages.zh,
+  title: '固定命令验证', form: '审阅固定命令', refresh: '刷新命令记录', warning: '仅运行一次获批固定命令，不是终端或任务验收。程序可能访问当前账号的文件、网络和身份，不保证系统沙箱、输入不可变或后代进程收容。', scopeWarning: '仅建立获批命令的观测，不证明科学正确性、整项任务验收、Git 采纳或生产发布权限。',
+  executable: '可执行程序绝对路径', mode: '命令模式', native: '固定原生程序', scriptMode: '固定 POSIX 脚本（stdin）', scriptPath: '脚本相对路径', scriptHash: '脚本 SHA-256', arguments: '逐行字面参数', argumentsHint: '不会进行 shell 分词或插值，空行表示空参数。参数将审阅并持久化，切勿填写凭据；脚本模式在参数前固定追加 -s --。', inputs: '固定输入路径及 SHA-256', outputs: '输出相对路径', pathsHint: '每行 相对路径 | SHA-256；输入必须固定哈希，输出可选。脚本单独固定且最多 64 KiB。',
+  cap: '每个输入或输出最多字节', wall: '运行预算（毫秒）', cleanup: '额外清理预算（毫秒）', stdout: 'stdout 保留字节上限', stderr: 'stderr 保留字节上限', exits: '预期退出码（逗号分隔）', limits: '限额与强制执行要求', environment: '受限常量环境', omitted: '不设置', timezone: '设置 TZ=UTC',
+  filesystem_isolation: '要求文件系统隔离', network_isolation: '要求网络隔离', process_tree_containment: '要求后代进程收容', execution_time_input_immutability: '要求运行时输入不可变', auxiliary_source_immutability: '要求辅助代码不可变', sealed_executable_image: '要求封存的程序映像', strictHint: '不会静默放宽要求；不支持的严格要求将在启动前拒绝。捕获上限仅限制保留字节，不是磁盘或进程全部输出配额；单调运行预算不含文件/Git 预检，也无法打断阻塞的内核调用。',
+  approve: '在原生对话框中审阅命令', approveAgain: '重新审阅同一命令请求', run: '仅运行一次获批命令', recoverRun: '对账同一运行请求', approved: '仅批准固定命令', revoked: '命令策略已撤销', noPolicies: '尚无获批命令策略。', noRecords: '尚无命令观测记录。', policies: '固定命令策略', once: '每项策略仅允许一次运行，再次执行需新原生批准；复用请求键仅读取原运行。', cancel: '请求取消自有命令', retryCancel: '对账同一取消请求',
+  prepared: '已准备；尚未观测到运行', running: '命令运行中', cancel_requested: '已请求取消；尚未确认停止', command_passed: '命令合同通过', command_failed: '命令合同未通过', outcome_unknown: '结果未知；执行仍受围栏约束', unknown: '请求结果未知，已跨导航保留原载荷、版本和请求键。请先读取记录对账，再明确恢复同一请求，不会自动重试执行。', waiting: '命令请求尚待响应；对账前不可开始其他写入。', unknownFence: '未知运行仍占据执行围栏，请刷新证据，不能用新请求键重复执行。', pollEnded: '自动观测已达到有界读取次数，请手动刷新继续观测；未重试命令。',
+  programHash: '获批程序 SHA-256', cwd: '获批工作目录', scriptHashLabel: '获批脚本 SHA-256', digestLabel: '证据或合同摘要', actualExit: '观测退出码', reason: '观测原因', stopConfirmed: '自有主进程已回收；不代表后代收容', stopUnknown: '尚未确认自有主进程停止', capture: '仅展示捕获元数据；原始输出不是命令通道', captured: '保留字节', observed: '至少观测字节', truncated: '已截断', eof: '观测到管道 EOF', elapsed: '运行及清理耗时（毫秒）', scopeMismatch: '命令历史范围、身份或授权不属于当前任务，或不受支持，未采用。',
+  empty: '请选择已停止会话，并填写至少一个固定输入和输出。', path: '程序须为绝对路径，文件须为唯一有界相对路径，不得穿越或含控制字符。', hash: '每个固定输入及脚本均须完整 SHA-256。', limit: '请填写限额范围内的精确十进制安全整数。', argumentsError: '最多 64 个字面参数，每个最多 4096 UTF-8 字节，总计最多 16 KiB。', environmentError: '仅支持 LANG/LC_ALL 三种常量及可选 TZ=UTC。', snapshot: '选择超过 16 KiB，请缩小明确合同；Rust 另行限制完整原生快照。未省略字段或批准。',
+};
+export const commandMessages: Record<Language, typeof en> = { en, zh };

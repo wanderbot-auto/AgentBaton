@@ -317,6 +317,7 @@ pub struct Daemon {
     socket: PathBuf,
     managed_root: PathBuf,
     supervisor: Supervisor,
+    command_workers: crate::command_workers::CommandWorkers,
 }
 impl Daemon {
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
@@ -369,6 +370,7 @@ impl Daemon {
             socket,
             managed_root,
             supervisor: Supervisor::new(runtime_dir),
+            command_workers: Default::default(),
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
@@ -376,6 +378,7 @@ impl Daemon {
         let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {
             self.supervisor.tick(&mut self.store)?;
+            self.command_workers.tick(&mut self.store)?;
             for _ in 0..16 {
                 let Ok(job) = ready.try_recv() else {
                     break;
@@ -387,6 +390,7 @@ impl Daemon {
                 };
                 let _ = job.reply.try_send(response);
                 self.supervisor.tick(&mut self.store)?;
+                self.command_workers.tick(&mut self.store)?;
             }
             readers.retain(|reader| !reader.is_finished());
             match self.listener.accept() {
@@ -408,6 +412,7 @@ impl Daemon {
         }
         drop(ready);
         drop(requests);
+        self.command_workers.shutdown(&mut self.store)?;
         self.supervisor.shutdown(&mut self.store)?;
         for reader in readers {
             let _ = reader.join();
@@ -447,7 +452,7 @@ impl Daemon {
         if r.request_id.is_empty() || r.request_id.len() > 128 {
             return Err(invalid());
         }
-        if self.supervisor.has_workers()
+        if (self.supervisor.has_workers() || self.command_workers.has_workers())
             && matches!(
                 r.method.as_str(),
                 "projects.import"
@@ -457,6 +462,7 @@ impl Daemon {
                     | "grants.propose"
                     | "approvals.finalize"
                     | "sessions.create"
+                    | "command_validation_policies.propose"
             )
         {
             let replay=match r.method.as_str(){
@@ -575,6 +581,73 @@ impl Daemon {
                 }
                 Ok(json!(s))
             }
+            "command_validation_policies.propose" => {
+                let selection: crate::command_validation::CommandValidationSelection =
+                    params(r.params)?;
+                Ok(json!(self.store.propose_command_validation_policy(
+                    &selection,
+                    &r.idempotency_key.ok_or_else(invalid)?
+                )?))
+            }
+            "command_validation_policies.list" => {
+                let p: ValidationTaskId = params(r.params)?;
+                Ok(json!(self
+                    .store
+                    .list_command_validation_policies(&p.task_id)?))
+            }
+            "command_validation_policies.revoke" => {
+                let p: ValidationPolicyId = params(r.params)?;
+                let policy = self.store.revoke_command_validation_policy(
+                    &p.policy_id,
+                    r.expected_revision.ok_or_else(invalid)?,
+                    &r.idempotency_key.ok_or_else(invalid)?,
+                )?;
+                self.command_workers.cancel_policy(&p.policy_id);
+                Ok(json!(policy))
+            }
+            "command_validations.list" => {
+                let p: ValidationTaskId = params(r.params)?;
+                Ok(json!(self
+                    .store
+                    .list_command_validation_records(&p.task_id)?))
+            }
+            "command_validations.get" => {
+                let p: CommandRunId = params(r.params)?;
+                Ok(json!(self
+                    .store
+                    .get_command_validation_record(&p.run_id)?))
+            }
+            "command_validations.cancel" => {
+                let p: CommandRunId = params(r.params)?;
+                let record = self.store.request_command_cancel(
+                    &p.run_id,
+                    r.expected_revision.ok_or_else(invalid)?,
+                    &r.idempotency_key.ok_or_else(invalid)?,
+                    self.command_workers.owns(&p.run_id),
+                )?;
+                self.command_workers.cancel(&p.run_id);
+                Ok(json!(record))
+            }
+            "command_validations.run" => {
+                let p: ValidationPolicyId = params(r.params)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.ok_or_else(invalid)?;
+                if self.supervisor.has_owned_io() {
+                    if let Some(replay) = self.store.command_replay(&p.policy_id, revision, &key)? {
+                        return Ok(json!(replay));
+                    }
+                    return Err(CoreError::new(
+                        "WORKSPACE_BUSY",
+                        "Stop owned Provider sessions before executing a fixed validator",
+                    ));
+                }
+                Ok(json!(self.command_workers.start(
+                    &mut self.store,
+                    &p.policy_id,
+                    revision,
+                    &key
+                )?))
+            }
             "data_validation_policies.propose" => {
                 let selection: crate::data_validation::DataValidationSelection = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
@@ -604,7 +677,7 @@ impl Daemon {
             "data_validations.run" => {
                 let p: ValidationPolicyId = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                if self.supervisor.has_workers() {
+                if self.supervisor.has_workers() || self.command_workers.has_workers() {
                     return Err(CoreError::new(
                         "WORKSPACE_BUSY",
                         "Stop active owned sessions before this bounded data-validation operation",
@@ -641,7 +714,7 @@ impl Daemon {
             "validations.run" => {
                 let p: ValidationPolicyId = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
-                if self.supervisor.has_workers() {
+                if self.supervisor.has_workers() || self.command_workers.has_workers() {
                     return Err(CoreError::new(
                         "WORKSPACE_BUSY",
                         "Stop active owned sessions before this bounded file-validation operation",
@@ -760,7 +833,9 @@ impl Daemon {
             "tasks.cancel" => {
                 let p: TaskId = params(r.params)?;
                 let rev = r.expected_revision.ok_or_else(invalid)?;
-                Ok(json!(self.store.cancel(&p.task_id, rev)?))
+                let task = self.store.cancel(&p.task_id, rev)?;
+                self.command_workers.cancel_task(&task.id);
+                Ok(json!(task))
             }
             "events.subscribe" => {
                 let p: Events = params(r.params)?;
@@ -783,6 +858,7 @@ impl Drop for Daemon {
     fn drop(&mut self) {
         // Error/unwind paths also retain authority until every owned worker is
         // cancelled and joined. Unpersisted outcomes are reconciled on restart.
+        self.command_workers.reap_owned_workers();
         self.supervisor.reap_owned_workers();
         let _ = fs::remove_file(&self.socket);
         // `run` has finished before self is dropped. Release this ownership
@@ -1000,4 +1076,10 @@ mod frame_tests {
             matches!(daemon.listener.accept(),Err(error) if error.kind()==std::io::ErrorKind::WouldBlock)
         );
     }
+}
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CommandRunId {
+    run_id: String,
 }

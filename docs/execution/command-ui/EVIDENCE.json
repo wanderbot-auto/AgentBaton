@@ -1,0 +1,192 @@
+{
+  "unit": "native-approved-fixed-command-validation-ui",
+  "authorization": "AB-START-001; OWNER001/002 ACK, read managed worktree AGENTS/gate/local protected origin/main OWNER; parent supplied exact6b19 base and explicitly authorized only this feature/bridge and pre-finalize classification correction",
+  "base_commit": "6b19d1c1633c9e52e95f83c1d45c0c40427ee84c",
+  "source_commit": "355d33f85b57589338c0bc3d37a159693fd17082",
+  "recorded_at_utc": "2026-10-27T01:56:03.879998+00:00",
+  "phase": "frontend_native_bridge_implemented_core_schema8_integration_pending",
+  "requirements": [
+    "WP09",
+    "AB-VAL-003",
+    "AB-VAL-004",
+    "AB-VAL-006",
+    "AB-VAL-007",
+    "AB-VAL-009",
+    "AB-VAL-011",
+    "cancellation_and_unknown_outcomes"
+  ],
+  "separate_preapproval_commits": [
+    "ff49430977f206c829cbfe9e9264e381f3e2cc32",
+    "e70105b81eecbe4c465a9d1fb0da5dd008b88d75"
+  ],
+  "source_sha256": {
+    "apps/desktop/src/CommandValidation.tsx": "f59204bfa094bb4351904863ae3d161f9fa7038c2844b14b80203fa4623cb1d1",
+    "apps/desktop/src/CommandValidation.test.tsx": "c70dbf95f41470f09a060968ca8d6db3a4fd6a3f75ea13c125e5114eea0939f9",
+    "apps/desktop/src/command-validation-api.ts": "a0174a48ace707b92a0479ff84128c2f8f9cfa4fe3490936242807921e763323",
+    "apps/desktop/src/command-validation-api.test.ts": "2b42ecda9b7b20f336f241f287ad400696de0077fee75a7d75549c4ca6700171",
+    "apps/desktop/src/command-validation-i18n.ts": "f33994ffeafc34edc337f8ff754ed5e060ede3890a23f65c6f9db5cec2b53056",
+    "apps/desktop/src/App.tsx": "8d0b82c93492b7063d63455b46370b0d94c417d5d9f79f3846ae76cdd81bdf08",
+    "apps/desktop/src/style.css": "2327809663043400ba2ed467bd4108215d480dbc7640f2744887cc377c719aa2",
+    "apps/desktop/src-tauri/src/lib.rs": "79251d8dff8564b7ec2c14af631b84dbf8562d2b1f30e03e7e242aa83666df7c",
+    "apps/desktop/src-tauri/src/approval.rs": "73e7ec269bc43fe01e078c618f0dc5c42ead47a023109339ebf6cde48dfe6c16"
+  },
+  "checks": [
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run typecheck",
+      "exit_code": 0
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm test",
+      "exit_code": 0,
+      "tests": 182,
+      "files": 13,
+      "scope": "129 prior UI +49 original command tests +4 cancel-terminal reconciliation regressions; mocked transport, not actual command execution"
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm run build",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "tests": 11,
+      "scope": "Actual Linux native crate unit tests, Tauri production bridge compile and Rust approval callback boundaries; not an actual native GUI dialog or new schema8 daemon execution",
+      "source": "6e82390 native source byte-identical355d33f, previous actual run retained, no redundant rerun"
+    },
+    {
+      "command": "cargo clippy --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "rustc --test exact-staged-preapproval-source + existing approved-cache serde_json dependency; run generated test binary",
+      "exit_code": 0,
+      "tests": 7,
+      "scope": "e701 exact preapproval-only staged source with original capability bytes; final11native tests above supersede this source"
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm test -- src/CommandValidation.test.tsx",
+      "exit_code": 0,
+      "tests": 26,
+      "scope": "All command component tests including4 terminalcancel regressions"
+    }
+  ],
+  "runtime_boundary": {
+    "native_methods": [
+      "command_validation_policies_list",
+      "command_validation_policy_approve",
+      "command_validation_policies_revoke",
+      "command_validations_run",
+      "command_validations_list",
+      "command_validations_get",
+      "command_validations_cancel"
+    ],
+    "approval_kind": "command_validation",
+    "selection": "Exact fixed command proposal; no renderer root/cwd/programSHA/subject/fence/approval supplied",
+    "one_run": "Policymax_runs=1; an existing run or unknown workspace fence blocks new execution. Same key recovery only, no automatic mutation. Unique policy run can be reconciled by readonly listing.",
+    "poll": "Only readonly lists,1s intervals,max70polls per observation batch; explicit refresh can resume. Stops on read failure/unmount/inactive state. Epoch regression ensures identical fast returned objects still observe through the cap.",
+    "cancel": "prepared/running/cancel_requested requests stay distinct from actual owned leader reaped evidence. Actualoutcome_unknown gets readonly fence explanation, no new run/cancel button. API/native cancel still supports exact fixed run controls per Core contract.",
+    "cache": "At most32 unresolved UI-process intents, exact payload/key/revision across remount; no durable-app-restart outbox claimed",
+    "environment": "Only LANG/LC_ALL C,C.UTF-8,en_US.UTF-8 and optionalTZ=UTC, never credential/env text input",
+    "preapproval": "Only failures before native confirmation/finalize return structuredINVALID_APPROVAL_PROPOSAL/not_started. ValidCoreerrors preserved. Malformed preerrors rejected with0/0callbacks even withresult. PostfinalizeErr/malformed/unknown preserved, never downgraded.",
+    "output": "Only exit/capture hashes/bytes/truncation/EOF and cleanup observations; no generic terminal or raw output execution channel",
+    "authority": "approved_deterministic_command_only observations do not establish scientific correctness, TaskAccepted, Git integration or production release"
+  },
+  "retained_development_failures": [
+    {
+      "log": "command-ui-tests-initial.log",
+      "tests_failed": 2,
+      "observed": [
+        "Test clicked an already-open same-id record summary after state update, closing it; fixed test to expand only if closed, retaining visible assertions.",
+        "Fast identical readonly responses did not retrigger the polling effect; actual UI read epoch fix now has70poll cap regression."
+      ],
+      "result": "Final178tests pass without timeout/skip/assertion weakening"
+    },
+    {
+      "log": "command-approval-initial-launch-failure.log",
+      "kind": "Preserved execution setup summary, full tool stderr transcript; corrected actual cache dependency path"
+    },
+    {
+      "log": "command-ui-cancel-terminal-failing-control.log",
+      "exit_code": 1,
+      "observed": "Fresh scoped terminal command_failed/evidence:null after an uncertain cancel left the form permanently disabled in6e; new regression executed against old component before correction.",
+      "correction": "Only same-run scoped terminal failure may settle cancellation intent, with readrevision>=original observed cancellationrevision. Null evidence never becomes leader/tree stop confirmation. Foreign/failed/stale reads do not clear it."
+    }
+  ],
+  "native_build_environment": {
+    "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_BUILD_JOBS": "2",
+    "PKG_CONFIG_SYSROOT_DIR": "/workspace/.toolchains/linux-ui/sysroot",
+    "sidecar_resources": {
+      "baton-x86_64-unknown-linux-gnu": {
+        "source": "/workspace/.worktrees/data-contract-validation/apps/desktop/src-tauri/binaries/baton-x86_64-unknown-linux-gnu",
+        "sha256": "3ec906a134e258e77bb27596e508f6d668c88368ee52d0929e33d07fffb60c6b",
+        "scope": "actual existing older schema7 sidecar used only as native compilation resource, not new command Core execution evidence"
+      },
+      "batond-x86_64-unknown-linux-gnu": {
+        "source": "/workspace/.worktrees/data-contract-validation/apps/desktop/src-tauri/binaries/batond-x86_64-unknown-linux-gnu",
+        "sha256": "d6547a2f917c848d10939242a663e31e66f483b7bbab905e32ae49b3ee2e6602",
+        "scope": "actual existing older schema7 sidecar used only as native compilation resource, not new command Core execution evidence"
+      }
+    },
+    "scope": "Old schema7 real sidecar resources only; not evidence for schema8 command IPC"
+  },
+  "local_log_sha256": {
+    "command-ui-build.log": "28fb3766eece8c6c7cb8583c0b3c0fe3e980690de0e47351e680a52ad755d833",
+    "command-ui-native-clippy-before-preerror.log": "eb3fd474676861ad4c41aaf232a853ae7c6668984edf312fbd6278633d6870ba",
+    "command-ui-native-clippy.log": "c732a050700bf7bb688c41cadd11ab27f024bea1aeb9998e9c5ddd1c0487dd4d",
+    "command-ui-native-fmt-before-preerror.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command-ui-native-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command-ui-native-tests-before-preerror.log": "24d748b9d3d0b1b010ed70dacc690ea0f7e050f51721e38123def9ff086ca6f0",
+    "command-ui-native-tests.log": "4bdb1ba9382da8cd4dcb80d3c292c384ed57f550be4ad5ebc4db9698d2914a74",
+    "command-ui-tests-focused.log": "bf58bcc42c10116626d363674949901d423c2c4ea9891ad07fa5b4c26740c4d7",
+    "command-ui-tests-initial.log": "5d8bb5120fbce035728ac5300b535161d45f9f48ad744419ccce338f4cfdebd1",
+    "command-ui-tests.log": "cdc104b50b4766d5b168f43016b49729884baa0f351a6554dda55334ea304534",
+    "command-ui-typecheck-initial.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "command-ui-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "command-approval-initial-launch-failure.log": "11b706fb4d4b24c475eecb148399d21906d41861bfae6a9a79b509b633609d08",
+    "command-approval-malformed-preerror-tests.log": "5de29ed2d9babb965672cd5e9c08a7c37aaef598be68349458b6eea9b8d17241",
+    "command-approval-precheck-tests.log": "84d9acc89fb79f9f0218d57a2918dd781e4b9b5c04eeed1826ea53cf756e323f",
+    "command-ui-sidecar-resources.json": "8da7723bbd54b59c3c183e0997b91a27c94999a7cf4cd7b1607da3d9ca727d44",
+    "command-ui-cancel-terminal-build.log": "d815b83c523e4477b0f869b8a8a4edf7b971bc25f89897549102ee00126a568a",
+    "command-ui-cancel-terminal-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "command-ui-cancel-terminal-tests.log": "c66204e5ba11ee3813d19b22a08556388335f00d2e93d1b24b5b7b1a2e5999d6",
+    "command-ui-cancel-terminal-full182.log": "2a109b95de19c8870d54d7dbe134bcec6989a461c670a5726ce3539033ef4e09",
+    "command-ui-cancel-terminal-failing-control.log": "2fc2bcd0fec16a0afe1cc65149b28b93df2b643a713f206ea2b1c4c3a97b378f"
+  },
+  "independent_review": {
+    "preapproval": "PRE_FINALIZE_REVIEW.md written/updated by independent parent-assigned reviewer for ff494 ande701; not overwritten or staged by worker",
+    "command_ui_native": "Completed, no unresolved blocking finding: REVIEW.md independently reviewed6e82390+355d33f, final182UI/typecheck/build and unchanged6e native11 independently passed. Actualschema8IPC/Mac acceptance remain separate.",
+    "documents_sha256": {
+      "PRE_FINALIZE_REVIEW.md": "6d6b65f12022733251bacea6dce59e5b6c6ff2c6b280c3d34bf27bca9734c910",
+      "REVIEW.md": "49a455d9b8a66e669a09df0a81408cc50de87101f9ce80d6d1dd4ae0753bb707"
+    }
+  },
+  "temporary_dependencies": "Only worker-created exact symlink to existing locked Root installation was removed after checks. Actual dependencies untouched.",
+  "not_run": [
+    "Schema8 Core/actor and command actual daemon IPC not in this branch yet; parent integration needed",
+    "Actual native owner dialog/WebView and browser run/cancel execution evidence",
+    "Current-source AppleSilicon/Intel CI/unsigned packages/installation acceptance",
+    "Scientific correctness, wholeTaskAccepted/Git integration/production release; fullGOAL remains open",
+    "PrivateProvider/modelcalls/newspend/signing keys remain separately unauthorized"
+  ],
+  "prior_evidence_git": "9547a645e0e0729efe0452ab3a7ee87d66ebe5f1:docs/execution/command-ui/EVIDENCE.json",
+  "cancel_terminal_reconciliation": {
+    "source": "355d33f85b57589338c0bc3d37a159693fd17082",
+    "changed_files": [
+      "apps/desktop/src/CommandValidation.tsx",
+      "apps/desktop/src/CommandValidation.test.tsx"
+    ],
+    "tests_added": 4,
+    "result": "Component26/full182/typecheck/build PASS. Original178assertions and limits retained. No automatic cancellation replay; actualCoreexecutionfence remains authoritative.",
+    "native_and_core_delta": "None from6e; native11previous evidence applies to byte-identical Rust source."
+  }
+}

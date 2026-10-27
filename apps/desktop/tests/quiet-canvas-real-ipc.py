@@ -92,6 +92,8 @@ def main():
                             'validations_list': ('validations.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'data_validation_policies_list': ('data_validation_policies.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'data_validations_list': ('data_validations.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
+                            'command_validation_policies_list': ('command_validation_policies.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
+                            'command_validations_list': ('command_validations.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'workspaces_list': ('workspaces.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
                             'grants_list': ('grants.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
                             'events_subscribe': ('events.subscribe', {'cursor': values.get('cursor', 0), 'limit': values.get('limit', 100)}, {'cursor', 'limit'}),
@@ -243,6 +245,25 @@ def main():
                     assert ipc('system.snapshot', {})['result']['sequence'] == before_integrity
                     assert not any(request['method'] in ['data_validation_policies.propose', 'approvals.finalize', 'data_validations.run'] for request in report['requests'])
                     passed(f'actual read-only data contract lists and no fabricated validation {width}x{height}', task_id=selected_task)
+                    data_panel.locator('summary').filter(has_text=re.compile('^数据合同验证$')).click()
+                    command_panel = page.get_by_test_id('command-validation')
+                    command_panel.wait_for()
+                    assert not command_panel.locator(':scope > details').evaluate('(e)=>e.open')
+                    command_panel.locator('summary').filter(has_text=re.compile('^固定命令验证$')).click()
+                    command_panel.get_by_text('尚无命令观测记录。', exact=True).wait_for()
+                    page.wait_for_function("()=>document.querySelector('[data-testid=\"command-validation\"] form>fieldset')?.disabled===false")
+                    assert command_panel.get_by_role('button', name='刷新命令记录', exact=True).is_enabled()
+                    assert command_panel.get_by_role('button', name='在原生对话框中审阅命令', exact=True).is_disabled()
+                    assert command_panel.get_by_role('alert').count() == 0
+                    for method in ['command_validation_policies.list', 'command_validations.list']:
+                        assert any(request['method'] == method and request['error'] is None for request in report['requests'])
+                    assert not page.evaluate('document.documentElement.scrollWidth > innerWidth')
+                    command_screenshot = output / f'command-contract-{width}x{height}.png'
+                    page.screenshot(path=str(command_screenshot))
+                    report['screenshots'].append(str(command_screenshot))
+                    assert ipc('system.snapshot', {})['result']['sequence'] == before_integrity
+                    assert not any(request['method'] in ['command_validation_policies.propose', 'approvals.finalize', 'command_validations.run', 'command_validations.cancel'] for request in report['requests'])
+                    passed(f'actual read-only command lists and no fabricated execution {width}x{height}', task_id=selected_task)
                     page.get_by_role('button', name='返回任务', exact=True).click()
                 page.set_viewport_size({'width': 1488, 'height': 981})
                 page.get_by_role('button', name='搜索', exact=True).click()

@@ -1,0 +1,5 @@
+# Independent command-budget controls
+
+Verbatim evidence copied from the separately executed review. The initial source falsely passed an actual exited-command observation delayed1500ms under its1000ms process budget. The same review shim on the fixed source causes the original positive assertion to fail101 as expected; the unmodified normal suite passes. The final27-case log also records deadline, cleanup and cancellation rejection controls. Nested control subprocesses are not counted as additional top-level cases.
+
+The C text is only a local test-harness observation shim. Actual approved child programs use env_clear; no system library, vendor/account process or production executable was patched. The generated shim binary is not distributed. See ../REVIEW.md and manifest.json for exact source commits, hashes, commands and scope. Raw test output can contain fixture PIDs and workspace paths; it contains no private credential. macOS compilation/execution and full product acceptance remain separate evidence.
