@@ -1,0 +1,13 @@
+# Goal editor real IPC progress
+
+Harness source frozen at `1707ada6a0a11379214af4300c0a23433bc2e807`; product base `76ec9b1ea4cff3ea09549ee2aa2a1eb414edb61c` remains byte-identical.
+
+- Added only optional structured-editor mode and model-derived node-ID assertions to the existing real IPC script. The entire fixed HTTP adapter is byte-identical to base; all original nine check names/semantics remain.
+- Real React build PASS in this worktree. Temporary dependency link was created only when absent and removed after build; original installed dependencies were untouched. No Cargo or install.
+- Actual default run **9 checks PASS**, actual structured run **10 checks PASS**, same frozen daemon SHA `81e6ec0327f8dda1ff1b721eb381dfdf273e253020b6feed2922e9f13649493f`. Each uses a fresh private daemon database, real `--version` probe and outside-HTTP actual Goal approval. Both retain raw-byte persistence, exact-key replay, conflict/CAS and strict duplicate rejection, no-write previews, drift, revoked history and denied new actions.
+- Structured UI prepares from real `Some(edit_context)`, creates two Work nodes: first `report`, runtime 2000ms; second separately approved `details`, runtime 3000ms, depends on first. Actual Chromium native summary Enter expands the editor. Local edits leave raw JSON intact; explicit Apply updates its draft only, with identical durable snapshots. The original Store button then succeeds through actual Unix IPC/Core storage. The readiness candidate is only the dependency-ready first node, with no reservation or dispatch.
+- Actual final snapshots show zero attempts, sessions, dispatch intents, leases, command workers/fences, node evidence or external-action records; no output files. Budgets retain consumed/active zero from this genuine zero-history fixture. Task remains `draft` throughout.
+- Saved and viewed actual 1488×981 desktop and 390×844 mobile editor dependency screenshots. Desktop diagram has two quiet cards, mobile one column, no horizontal overflow. New mode has 9 screenshots; default has 6. Earlier passing runs remain separate, never overwritten.
+- Primary reported an independent legacy cached-approval compatibility investigation against this candidate backend. These runs explicitly establish **fresh database** behavior only; they do not cover old `2cad` cached approval results. No adapter error is ignored or normalized. Primary's final repaired binary needs its own affected rerun.
+
+Independent review of the optional mode is pending. Native OwnerDialog/WebView, macOS, NL planning, Goal dispatch/reservation and Task acceptance are not established by these checks.
