@@ -1,0 +1,19 @@
+# Progress
+
+Implemented real schema6 separate validation policies/receipts with private pre-upgrade backups and exact legacy task-byte preservation. Task spec revision1 is distinct from lifecycle revision. Server derives task/session/attempt/input/root, requires confirmed stop plus current write epoch, and binds owner proposals to complete selected contracts. Revocation blocks new checks; idempotent replay retains original historical results. No task acceptance, code correctness, Git integration, command execution or Provider call is inferred.
+
+Typed authenticated IPC and five narrow native commands are wired; Native owner confirmation receives the exact server proposal, renderer cannot finalize. Artifacts UI connects typed API and displays only real receipt data, explicit scope and source hashes; no placeholder success. Unknown operations retain exact request keys/payload/revision; successful automatic read reconciliation mayenable only explicit retry. Latest failed/foreign reads blockretry. UI stays inside Quiet Canvas tab, bilingual and folded.
+
+Actual local279 top-level Rust,9 policy/realIPC fixture tests,14 migration/storage tests,78 mocked UI/wire tests/type/build, fmt/Clippy and realrelease sidecars pass. Independent Core89 and UI78 verify the respective scope. Initial failures and reviewer findings were retained and corrected; EVIDENCE distinguishes test filters, oldlogs and mock/native/platform dimensions. Native compile is still running here; do not claimitpassed until actualresult.
+
+Next: save this reviewed source checkpoint, merge latest reviewed runtime/guards/main ancestry withoutoverwriting schema6/newArtifacts, resolveandindependentlyreviewcomposite, rerun exactrelevanttests andrealbrowserIPC, nativehost, thenstackedPR/exactCI. Continue approved correctness validators/adoption/router/delegation/workflows/retention/remote/lifecycle; fullDesignv0.2 is not complete.
+
+Actual Linux nativehost5-command compile/sevenunit tests pass. BrowserrealIPC upgradedreadonlywhitelistonly(no approve/finalize/run testport), actual26checks/12screens withfour Artifactpanels pass; disclosure/summarylocatorfixturefailures retained. SourceCore/UIreviewfindingsclosed; nextsafecheckpointcommit allowsprotectionmerge beforeexactCI. MainPR6now65f223c, OWNER1/2unchanged; Root9edfnativereopenrepairhasindependentreviewandfreshCIrunning, no nativeGUIpassinherited.
+
+Runtime9edf composition: shared include/raw/fetch guards, actor reap-before-unlock, native reopen/terminalstate and asyncUI corrections integrated. First workspace41/1fail preserved; independent corrected fixture42workspace/91core and primary79UI/type/build pass. Full integrated regression remains pending.
+
+Post-main composition full283Rust/79UI/7Linuxhost/6nativeunits/15runner/Clippy/fmt/build/actualdaemonrestart PASS; current26realbrowserIPC/12images PASS. First022 fixtureDB0644 correctlyrefused, testonlycreate_new0600 nowmatchesdaemon; productionguarduntouched. Currentevidencearchivedpre-runtimeandrecordsallfailure/source/log/imagehashes; independentdelta review andfreshstackedPR/macCI next.
+
+Rootbe647/Quieta9fb+protectedmain65f ancestry integrated7984b3f. Onlynewcode is reviewedsharedsessionsfixture; current17tests/fmt/CoreClippy PASS, productionCore/native/UI/locks exactly matchfull283snapshot. PrivateDBfixtureindependent1PASSclosed. Saveconcretebranch/stackedPRandrunfreshall7next.
+
+Protectedmainafb52be integratede89aeef; schema6validation/storage/native/UI/locks unchangedfrom3c1d, sharedRootguard+3regressions/Appfixtureadded. ActualCore94/79UI/typebuild/CoreClippy/fmt/CLIrestartPASS, precise logs recorded. Newmain-target candidateCI next, historical3c/all7/nativeDMGnotinherited.

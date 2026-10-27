@@ -255,7 +255,7 @@ fn v1_migration_preserves_records_and_produces_private_restorable_backup() {
             let e = e.unwrap();
             e.file_name()
                 .to_string_lossy()
-                .contains("pre-v5")
+                .contains("pre-v6")
                 .then_some(e.path())
         })
         .collect();

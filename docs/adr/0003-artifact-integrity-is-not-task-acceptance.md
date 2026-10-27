@@ -1,0 +1,9 @@
+# ADR 0003: Separate artifact integrity evidence and execution authority
+
+Status: accepted reversible implementation under AB-START-001; full Design v0.2 acceptance remains open.
+
+An immutable task goal has specification revision1, separate from lifecycle revisions; older documents lacking that field decode as1 without rewriting the original bytes. Validation binds the task, attempt, input, registered root and current write epoch. A stopped status alone is insufficient: require matching confirmed dispatch-stop evidence and an empty matching workspace lease. A later writer cannot borrow an earlier attempt policy even if its bytes match.
+
+Native owner confirmation approves a complete separate file-check contract. Executable/session grants or Agent descriptions do not grant validation or adoption authority. This first builtin validates regular-file existence, byte limits, content hashes and optional reproducibility metadata. It records integrity_passed/failed plus explicit correctness/task acceptance/integration not established; it never changes Task state or executes code. Actual approved correctness validators and exact-head integration remain later ready work. Legacy policy/receipt collections have both count and4MiB stored/raw-JSON bounds before decoding, with explicit refusal instead of omission.
+
+Unknown UI operations retain their exact request key, payload and revision. Read-only reconciliation may run automatically after remount or explicitly on Refresh; the latest failed/foreign-scope read blocks retry. Only a later explicit user action may retry the original mutation. A historical idempotent replay remains an old receipt with its original time/digest, not new file verification. Pending UI data is currently memory-only; server records are durable and app restart reconciliation remains a documented limitation.

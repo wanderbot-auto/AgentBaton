@@ -269,7 +269,10 @@ fn connection_binding(conn: &Connection, id: &str) -> Result<GrantedConnection> 
 // can both reject their own edits and hold the single-writer actor while a Git
 // command runs. Check the pinned directory and Git linkage using bounded local
 // filesystem reads instead; this is not a fresh clean-input/adoption check.
-fn live_workspace_matches(root: &Path, pinned: &WorkspaceIdentity) -> std::io::Result<bool> {
+pub(crate) fn live_workspace_matches(
+    root: &Path,
+    pinned: &WorkspaceIdentity,
+) -> std::io::Result<bool> {
     fn pointer(path: &Path) -> std::io::Result<String> {
         let mut bytes = Vec::new();
         let file = OpenOptions::new()

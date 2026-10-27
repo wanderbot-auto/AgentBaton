@@ -6,6 +6,7 @@ export interface Task {
   goal: string;
   state: string;
   revision: number;
+  readonly spec_revision?: number;
   created_at: string;
   updated_at: string;
 }

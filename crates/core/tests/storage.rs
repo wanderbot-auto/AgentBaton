@@ -73,7 +73,7 @@ fn future_and_unknown_database_are_not_modified() {
     let dir = tempfile::tempdir().unwrap();
     let db = dir.path().join("store.db");
     let conn = Connection::open(&db).unwrap();
-    conn.execute_batch("PRAGMA user_version=6; CREATE TABLE sentinel(value TEXT);")
+    conn.execute_batch("PRAGMA user_version=7; CREATE TABLE sentinel(value TEXT);")
         .unwrap();
     drop(conn);
     let before = std::fs::read(&db).unwrap();

@@ -1,6 +1,9 @@
 //! Owner-selected workspace operations. Worktrees organize writes; they are not OS sandboxes.
 //! No API here removes a source directory, executes its scripts, or stashes/resets source edits.
 
+pub mod adoption;
+pub mod validation;
+
 use serde::{Deserialize, Serialize};
 use std::ffi::{CString, OsStr};
 use std::fmt;

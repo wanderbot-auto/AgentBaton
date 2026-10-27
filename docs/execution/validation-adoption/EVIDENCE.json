@@ -1,0 +1,78 @@
+{
+  "recorded_at_utc": "2026-10-26T21:09:43.087456+00:00",
+  "base_commit": "636dbdd",
+  "source_commit": "c856e462125d2cb546a4af4206cbe4b263bbc76b",
+  "branch": "codex/validation-adoption",
+  "scope": "partial validation/adoption library; not full product acceptance",
+  "working_directory": "/workspace/.worktrees/validation-adoption",
+  "commands": [
+    {
+      "command": "cargo test --locked -p agentbaton-workspaces",
+      "exit_code": 0,
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "breakdown": {
+        "unit": 2,
+        "git_security": 3,
+        "existing_workspace": 18,
+        "validation_adoption": 17
+      }
+    },
+    {
+      "command": "cargo fmt --manifest-path crates/workspaces/Cargo.toml",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo clippy --locked -p agentbaton-workspaces --all-targets -- -D warnings",
+      "exit_code": 0
+    }
+  ],
+  "source_sha256": {
+    "crates/workspaces/Cargo.toml": "dfeae56a6be3a7d2d0c44de528b9234753ac7f46af786055325eca2c8c91b884",
+    "crates/workspaces/src/lib.rs": "331ff269ff91a208964ebd49a3049e9785ccba1b79caae178640eba40c8badc2",
+    "crates/workspaces/src/validation.rs": "a278c52004c6bc2e90c16f112ac5d3c57c3f1caf9e9d909abbe699893cf715de",
+    "crates/workspaces/src/adoption.rs": "be970ed01ee18bebe9b06e62087d0bd7c52e97bfca6db0dcaec60cbedeba9472",
+    "crates/workspaces/tests/lazy_fetch.rs": "e514f8ecd8e1393ad8edd897b74dc11d39dadf2c76627412ab86a873e45e24d0",
+    "crates/workspaces/tests/validation_adoption.rs": "8a4c7782a867fc5b9caa89a0d3d1200fe225faeb46ee4729c74b00ea6fb4ff25"
+  },
+  "lockfile": {
+    "sha256": "5996b785447afaafade8c6cbb63daae5c68fd459d831d520188286bcb5abf416",
+    "state": "primary-generated unstaged dependency refresh, deliberately excluded from worker commits"
+  },
+  "dimensions": {
+    "linux_git_filesystem": "verified",
+    "macos_native": "not_run",
+    "ui_ipc": "not_run",
+    "provider": "not_run",
+    "global_task_acceptance": "not_established",
+    "remote_push_pr_deploy": "not_dispatched",
+    "production_release": "not_dispatched"
+  },
+  "independent_review": "reviewer findings fixed; final closure pending",
+  "failure_history": [
+    {
+      "operation": "initial locked build after approved sha2 manifest addition",
+      "result": "blocked until primary generated shared lock update; no unauthorized lock write"
+    },
+    {
+      "operation": "Clippy after policy digest helper append",
+      "result": "items_after_test_module failed; moved helper before tests, reran unchanged checks passed"
+    },
+    {
+      "operation": "pinned readonly selector refactor compile",
+      "result": "checked_out signature/call arity mismatch; corrected helper to same pinned context, reran tests passed"
+    },
+    {
+      "operation": "proposal digest method insertion fmt",
+      "result": "incorrect impl placement failed syntax; moved method to module scope, reran tests/fmt/clippy passed"
+    }
+  ],
+  "limitations": [
+    "File integrity/reproducibility metadata rule is not code/numerical correctness or overall task acceptance.",
+    "Authoritative policy/actor identity must be resolved by trusted host; proposal DTOs do not grant authority.",
+    "No arbitrary validation command execution, real Provider calls, remote Git delivery or production deployment.",
+    "Ref CAS is local only; known checked-out target branches are rejected.",
+    "Same-user uncoordinated directory/ref/config mutation needs caller fencing/reconciliation; no OS sandbox claim."
+  ]
+}

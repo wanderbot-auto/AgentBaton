@@ -1273,107 +1273,317 @@
     {
       "id": "AB-VAL-001",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     },
     {
       "id": "AB-VAL-002",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     },
     {
       "id": "AB-VAL-003",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     },
     {
       "id": "AB-VAL-004",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     },
     {
       "id": "AB-VAL-005",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ]
     },
     {
       "id": "AB-VAL-006",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     },
     {
       "id": "AB-VAL-007",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     },
     {
       "id": "AB-VAL-008",
@@ -1730,17 +1940,35 @@
     {
       "id": "AB-SEC-005",
       "work_package": "WP12",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ]
     },
     {
       "id": "AB-SEC-006",
@@ -1762,7 +1990,11 @@
       "work_package": "WP12",
       "status": "implementing",
       "implementation_refs": [
-        "crates/core/src/storage.rs"
+        "crates/core/src/storage.rs",
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1770,18 +2002,26 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
       "evidence": [
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
       ],
       "limitations": [
-        "Actual schema5 backup/failure/future-version tests pass locally; full upgrade/support matrix remains open."
+        "Actual schema5 backup/failure/future-version tests pass locally; full upgrade/support matrix remains open.",
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
       ],
       "coverage": "partial",
       "verification_refs": [
-        "crates/core/tests/migration_v5.rs"
+        "crates/core/tests/migration_v5.rs",
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
       ]
     },
     {
@@ -2158,17 +2398,49 @@
     {
       "id": "AB-DOM-004",
       "work_package": "WP01",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     },
     {
       "id": "AB-DOM-005",
@@ -3062,47 +3334,143 @@
     {
       "id": "AB-VAL-009",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     },
     {
       "id": "AB-VAL-010",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     },
     {
       "id": "AB-VAL-011",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     },
     {
       "id": "AB-UX-009",
@@ -3379,17 +3747,49 @@
     {
       "id": "AB-DOM-008",
       "work_package": "WP01",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/validation.rs",
+        "crates/workspaces/src/validation.rs",
+        "crates/workspaces/src/adoption.rs",
+        "apps/desktop/src/ArtifactValidation.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/validation-integration/EVIDENCE.json",
+        "docs/execution/validation-integration/CORE_REVIEW.md",
+        "docs/execution/validation-integration/UI_REVIEW.md"
+      ],
+      "limitations": [
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/migration_v6.rs",
+        "apps/desktop/src/ArtifactValidation.test.tsx",
+        "apps/desktop/src/validation-api.test.ts"
+      ],
+      "verified_slices": [
+        {
+          "slice": "artifact_integrity_policy_core_ipc_and_ui",
+          "implementation_commit": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+          "composition_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+          "evidence": "docs/execution/validation-integration/EVIDENCE.json",
+          "local_core": "passed_scope_limited",
+          "mocked_ui": "passed_scope_limited",
+          "real_browser_unix_ipc": "passed_readonly_artifacts_scope",
+          "native_dialog_and_exact_candidate_mac": "not_run",
+          "overall_requirement": "incomplete",
+          "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        }
+      ]
     }
   ]
 }

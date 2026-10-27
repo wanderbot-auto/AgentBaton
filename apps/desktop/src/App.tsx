@@ -7,6 +7,7 @@ import { Connections } from './Connections';
 import { ManagedSessions, sessionEventText } from './ManagedSessions';
 import { sessionApi, type ManagedSession, type NamedConnection } from './session-api';
 import { ContextDialog } from './ContextDialog';
+import { ArtifactValidation } from './ArtifactValidation';
 import { Icon, type IconName } from './Icons';
 import { earlierEventWindow, type WindowReplacement } from './event-window';
 
@@ -217,7 +218,7 @@ export function App() {
         if (next) { event.preventDefault(); setTab(next); document.getElementById(`tab-${next}`)?.focus(); }
       }} onClick={() => setTab(item)}>{c[item]}</button>)}</div><div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === 'conversation' && <><div className="conversation"><article className="user-message"><p>{selected.goal}</p></article>{conversationEvents.map(event => <article className={event.kind === 'session.message_queued' ? 'user-message' : 'agent-message'} key={event.event_id}><p>{sessionEventText(event)}</p></article>)}</div>{!selectedSessions.length && <div className="thread-note"><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => setDialog('execution')}>{c.configure}</button></div>}{selectedSessions.map(session => <p className="session-observation" key={session.id}>{c.sessionState}: {stateText(session.state)}{session.turn_state ? ` · ${session.turn_state}` : ''}</p>)}<details className="folded-plan"><summary>{c.plans}</summary><p>{c.noPlan}</p></details><details className="observable-events"><summary>{c.eventDetails}</summary><EventList events={taskEvents} title={t.evidence} empty={t.noEvents} /></details>{eventPager}{earliestCursor > 0 && <p className="hint">{t.moreEvents}</p>}</>}
-        {tab === 'artifacts' && <div className="empty-panel"><Icon name="file" /><h2>{c.noArtifacts}</h2><p>{c.artifactUnavailable}</p><button disabled>{c.artifacts} · {c.unavailable}</button></div>}
+        {tab === 'artifacts' && <ArtifactValidation key={selected.id} task={selected} sessions={sessions} language={language} connected={status === 'connected'} />}
         {tab === 'details' && <div className="task-details"><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.project}</dt><dd>{projectName(selected.project_id)}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{c.retained}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || ['cancel_requested', 'cancelled', 'accepted', 'failed'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p></div>}
       </div></section>}
       {view === 'capabilities' && <><div className="page-heading"><h1>{t.capabilities}</h1></div><Connections language={language} connected={status === 'connected'} compact /><section className="capability-empty"><h2>{c.capabilitySources}</h2><p>{c.noCapabilitySources}</p><p className="hint">{c.provenance}</p></section></>}

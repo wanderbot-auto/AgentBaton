@@ -1579,7 +1579,7 @@ impl Store {
         let snapshot = json!({"intent":{"project_id":project_id,"workspace_id":workspace_id,"connection_id":connection_id,"max_attempts":max_attempts,"max_concurrency":max_concurrency,"max_duration_ms":max_duration_ms},"refs":refs,"scope":"bounded_local_session_execution","enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"native_identity_isolation":false},"warning":"Selected process may use its native capabilities. Baton-mediated tools deny additional roots/recipients; private environment is not an OS sandbox. Native account identity is unknown."});
         self.persist_proposal("grant", snapshot, key)
     }
-    fn persist_proposal(
+    pub(crate) fn persist_proposal(
         &mut self,
         kind: &str,
         snapshot: Value,
@@ -1719,6 +1719,7 @@ impl Store {
                     Some(&proposal.snapshot["refs"])
                 )?)
             }
+            "validation" => self.approve_validation_policy(&proposal)?,
             _ => return Err(invalid("Unknown owner proposal kind")),
         };
         proposal.consumed = true;
