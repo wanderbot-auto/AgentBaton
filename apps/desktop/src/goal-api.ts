@@ -5,6 +5,9 @@ export interface GoalBudget { attempts: number; parallel: number; runtime_ms: nu
 export interface GoalBinding { project_id: string; root_task_id: string; task_id: string; spec_revision: number; input_revision: string }
 export interface GoalExecutionBinding { connection_id: string; environment_id: string; identity_ref: string; host_id: string; workspace_id: string; config_revision: string; input_revision: string; capability_snapshot_id: string; policy_revision: string }
 export interface GoalValidatorRef { kind: 'integrity' | 'data' | 'command'; policy_id: string; revision: number }
+// Optional read-only projection of the original native-approved scope. Older
+// daemons omit it; absence never licenses the editor to infer permissions.
+export interface GoalEditContext { max_nodes: number; writable_prefixes: string[]; output_artifacts: Record<string, ArtifactRequirement>; rule_executors: Record<string, 'owner' | 'validator'> }
 export interface GoalSelection {
   task_id: string; expected_task_revision: number; grant_id: string; expected_grant_revision: number; max_nodes: number;
   new_max_children: number; new_max_depth: number; root_budget: GoalBudget; project_budget: GoalBudget;
@@ -17,6 +20,7 @@ export interface GoalScope {
   outputs: Record<string, string>; required_acceptance_rules: string[]; contracts: Record<string, string[]>;
   inputs: Record<string, { contract_id: string; sha256: string }>; binding: GoalExecutionBinding; program_sha256: string;
   expires_at_ms: number; rules: Record<string, string>; workspace_id: string; input_revision: string; planning_only: boolean;
+  edit_context?: GoalEditContext | null;
 }
 export interface GoalPlanNode {
   id: string; parent_id: string | null; kind: 'work' | 'validate' | 'owner_approval' | 'summary'; goal: string;
