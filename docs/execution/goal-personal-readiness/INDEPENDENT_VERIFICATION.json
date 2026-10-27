@@ -1,0 +1,71 @@
+{
+  "reviewer": "/root (independent from implementation author /root/quiet_canvas_review)",
+  "source": "78badec275ec25c84363834ec73c8ad74e65024f",
+  "docs_head": "b9c9eabba42038b52beebdabdc0ff5d1be45a465",
+  "source_sha256": {
+    "apps/desktop/src/GoalPlanning.tsx": "7f3b1de644f84406cf65049951b66d720a0ed5fbf4096bf488c0eaa0f34bf3d9",
+    "apps/desktop/src/goal-i18n.ts": "1853711d0836001edbcc2a788d46222c51e0220d004bdc0a07828fcbd47cf2e9",
+    "apps/desktop/src/GoalPlanning.local-project.test.tsx": "b2d1f5e6ecf8865a0d227c1140f7c7f11e83b2d0a89b62d788e95b5b87b4928f"
+  },
+  "evidence_sha256": {
+    "tests.log": "2c813a33b804a45f95291c13264c18b465157c35816b7319b2628497e527f925",
+    "typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "build.log": "117f303537874e911960c546295231e283d4d947e4ac4bd955fb2a13076404cc",
+    "ui-results.json": "f6ba363674a68d407d3923b278ebf8651e4abbf63c80a4fe56c691ed01500ec0",
+    "personal-real-review.py": "f4aa7a75b3c2f793446d68517baff129660e356fb23498f8f950f0e7c80f8e4b",
+    "old-real-browser.log": "3223fb950190639cd771a6d63aedb471429edbe4da441b50c8f2382e6fd3f244",
+    "old-real-browser/failure-evidence.json": "421dc4f342b60f084026615905bff9d9013f5677fca7501f32490422f94d99ff",
+    "fixed-real-browser.log": "9dc766864a83aa485a02952ffe2155bb013f61241e1b9ef369e22fa9259b4bbb",
+    "fixed-real-browser/evidence.json": "9cc9c2eebf4bd31aa53f967753303b7dfae89b19a188feb9c3d26902194e98c6",
+    "fixed-real-browser/home-1488x981.png": "71e5ddf93c4db538092e0ced9cb570d5b1763bfe7846504eea58a4d6ac1c46c0",
+    "fixed-real-browser/task-1488x981.png": "650ab94f1d5658b39d134db2a7dcebf847f46619dffa16dff7e32831f2816ec6",
+    "fixed-real-browser/artifacts-1488x981.png": "c67513efd640feec06c8cc95edc4298214013398eed6a502430cafa20ec05b8e",
+    "fixed-real-browser/data-contract-1488x981.png": "1adc00bde94669de0fd8cd1c0e4bbd1c669530d6a37e25788687e9961f0b659f",
+    "fixed-real-browser/command-contract-1488x981.png": "7b97a459829cb79f2d92f712c732c99e801ec2c20b52c3830bdf2d8f9bd60b68",
+    "fixed-real-browser/goal-readonly-1488x981.png": "81fd4b056a5780cf92dc1bc1e5ca05f99ecd4085451cd7f53a535538588d6663",
+    "fixed-real-browser/home-1440x900.png": "16943c16f9467ac8e60a69215aea3e8245d44d7e52dcd0efddcd9bbccc232613",
+    "fixed-real-browser/task-1440x900.png": "7f9e2d8da667c1501956403842273a750a5b41c311d95078ce4e8e793e0e752e",
+    "fixed-real-browser/artifacts-1440x900.png": "b5970170e1e89444b862e28f5588cea9f2dce1a399dad39562b898ecefeb90e5",
+    "fixed-real-browser/data-contract-1440x900.png": "654aa7364138e66fee93a7a06528090df51eb795228b0ee745dcd7d6135ae3f1",
+    "fixed-real-browser/command-contract-1440x900.png": "fbdb4e64228240977ecd6c1cec82985bdb1951614f4708e4e52c4f1fd29ce582",
+    "fixed-real-browser/goal-readonly-1440x900.png": "d5f53be05dce7bd6fcd62512416b986b876c567f01216df530a0168dad37142d",
+    "fixed-real-browser/home-1024x768.png": "dab74b3ceb14d6ffb33735c5d566034389bb3e37636f5b90ee06e40b1526fe3b",
+    "fixed-real-browser/task-1024x768.png": "d343949afad7898676fd0d4fb84ef333e3930d849a8b5064df4800d4408dc993",
+    "fixed-real-browser/artifacts-1024x768.png": "8c6ce7e206d0ebb7a1e6d4490931736310ebc7517c798217b7b6f63deab12a84",
+    "fixed-real-browser/data-contract-1024x768.png": "fd90bd4454093d31806b7d2bd23bc19fecb0f1dc232658c50ffeca769656c72c",
+    "fixed-real-browser/command-contract-1024x768.png": "736f9cf995950756740c98d678c49ccc17a06dba22c5d9f4d793baff75544ff2",
+    "fixed-real-browser/goal-readonly-1024x768.png": "fa1f3b7c69c8eeb6817b1df572ae02642686806afbce775e22feb86433d11753",
+    "fixed-real-browser/home-390x844.png": "f9bf107b3ed3d753087a26b445b6330fc6679acb8c938cc66dba56846c5b9223",
+    "fixed-real-browser/task-390x844.png": "96d341280e61de3e602b0c5f4027a8e1c5e1e9eb153102f21e31fccff07904a7",
+    "fixed-real-browser/artifacts-390x844.png": "ae1ba86506c33abd201e0e04376cbb8b85b0fba356f7dfd3f15fc166fa1cd02b",
+    "fixed-real-browser/data-contract-390x844.png": "d34c9aaeb91209cc2a18eeb45dfc31a4b9adbcb53359c7e1a25b97daef39a727",
+    "fixed-real-browser/command-contract-390x844.png": "5fa64da766611136d3b33e7bc500d500df2d39b2c69e747b89e3cd3963c7c31e",
+    "fixed-real-browser/goal-readonly-390x844.png": "b027d83c8a0a813ba9d8c508f5ae02cc0f25cabdc1ce16b96335415b34b05c77",
+    "fixed-real-browser/personal-goal-prerequisite-zh-desktop.png": "0c123f12eaaf3fd6406bc414a9278ac0e10c2ac44e4ae238649abf7f9d90aaa4",
+    "fixed-real-browser/personal-goal-prerequisite-en-mobile.png": "874908b53fb5666f444eb1ee3a6be8fb4c3cc604f160ee8276368d10034a40d3"
+  },
+  "results": {
+    "ui_tests": 266,
+    "ui_files": 17,
+    "typecheck_build": "passed independently",
+    "original_testfiles_byte_identical": 16,
+    "registered_GoalPanel_bytes": "unchanged",
+    "old_real_browser": "actual39 prior checks passed, then missing personal prerequisite -> Timeout/exit1; actual grants.list(local) NOT_FOUND1",
+    "fixed_real_browser_checks": 41,
+    "fixed_real_browser_png": 26,
+    "daemon_sha256": "4fa6a499042e99cb5b718ffb8f6f4a26613ddb64222d35d13d7d21527475d01c",
+    "dimension": "Linux Chromium actual builtUI/privateUnixIPC; no native Owner/Mac/provider/dispatch"
+  },
+  "frontend_assets": {
+    "old_aeff": {
+      "index.html": "e072964df52904b36aac43d1a25978e66812d24fb148ddb8849d99a03128e954",
+      "assets/index-B3WfCqru.css": "3dc2b0859eaa5552936928bc10dbf03b008f52e582a8195a3a1b6466005cf98f",
+      "assets/index-ojfhYZcd.js": "232b7024a08f05ba75c01ad77232c464e1187bfef647cd0e2eeb80c6c1db32bc"
+    },
+    "fixed_78ba": {
+      "index.html": "fd946ac2dcf9de61d7e35ce5e74765ce0eb4718730e130d2f1cc7069df6edee2",
+      "assets/index-B3WfCqru.css": "3dc2b0859eaa5552936928bc10dbf03b008f52e582a8195a3a1b6466005cf98f",
+      "assets/index-Dq4xVrvp.js": "16ff5a9a3a53329acf5896ded33cc1eaff11d0bae7b0707c67cbf11eb0438d65"
+    }
+  }
+}
