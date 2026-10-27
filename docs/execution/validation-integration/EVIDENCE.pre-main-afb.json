@@ -1,0 +1,749 @@
+{
+  "recorded_at_utc": "2026-10-26T23:03:29.669610+00:00",
+  "approval": "AB-START-001",
+  "owner_inbox": "OWNER001/002 ACK protectedmain65f223; no later sequence",
+  "branch": "codex/validation-integration",
+  "committed_implementation": "9895ba669bfcae6190fb9d2d4b0a1f6127977910",
+  "runtime_merge": "815db46",
+  "protected_main_ancestry_merge": "280c92a",
+  "tested_source": "280c92a plus test-only private database fixture preparation, exact fingerprints below",
+  "scope": "artifact_integrity_only; notcode/numericalcorrectness, TaskAccepted or adoptionauthority",
+  "checks": [
+    {
+      "command": "umask022; cargo test --workspace --locked",
+      "exit_code": 0,
+      "top_level_tests": 283,
+      "breakdown": {
+        "core": 91,
+        "config": 67,
+        "providers": 81,
+        "workspaces": 42,
+        "daemon_signals": 2
+      },
+      "nested_fifo_child_excluded": true
+    },
+    {
+      "command": "cargo fmt --all -- --check; cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo build --locked --bin batond --bin baton; python3 scripts/smoke-local-product.py",
+      "exit_code": 0,
+      "scope": "actualdaemon/CLI and SIGKILL/restart persistence"
+    },
+    {
+      "command": "npm run typecheck; npm test; npm run build",
+      "cwd": "apps/desktop",
+      "exit_code": 0,
+      "tests": 79,
+      "scope": "mockedTauri/wire React tests, notnative dialog"
+    },
+    {
+      "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "tests": 7,
+      "scope": "Linuxnativehost/bridge units; noGUI"
+    },
+    {
+      "commands": [
+        "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-smoke",
+        "cargo clippy --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-smoke -- -D warnings"
+      ],
+      "exit_code": 0,
+      "tests": 6,
+      "scope": "Linux realprivateDaemonfixture/phase/terminalconcurrency; notMacGUI"
+    },
+    {
+      "command": "python3 apps/desktop/src-tauri/tests/test_native_runner.py",
+      "exit_code": 0,
+      "tests": 15
+    },
+    {
+      "command": "/workspace/AgentBaton/artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond target/debug/batond --output /workspace/.onboarding/validation-composite-browser --chromium /usr/bin/chromium",
+      "exit_code": 0,
+      "checks": 26,
+      "screenshots": 12,
+      "scope": "actualbuiltReact+testonlylocalhostadapter+realcurrentUnixDaemon/schema6; readonlyArtifacts/noimplicitmutation; noProvider/dialog"
+    }
+  ],
+  "source_sha256": {
+    "crates/core/src/validation.rs": "b1e507f8c23c8e66c1bed99669bdc2a14578e1e943ebaf179edbf2ba796c3c51",
+    "crates/core/src/sessions.rs": "f5e8a4ce96c767d9b988017f3ecb41159ecd99276b569444a51e68b57010cfe7",
+    "crates/core/src/ipc.rs": "100e552744cf02caa64734f554b37835487f0e07f522255633d62f2a4af112d3",
+    "crates/core/src/storage.rs": "1dba48a47b42bbb58498d7fd746f1fe8fa8d10d1e31efe703cac11053ac61b7b",
+    "crates/core/src/policy.rs": "f082e800c4ceaab6312324350c6a6b71e3697197636e4d47e514f05239513bb3",
+    "crates/workspaces/src/lib.rs": "793468aa4586138ae8dcb7d4f249fe4ce0e966e3f8b93b79db1f8f65f854f379",
+    "crates/workspaces/tests/validation_adoption.rs": "eba06f2101967215f73705a83bd8f1dbce0cb02e1456bf5df65e8d59c886a6a8",
+    "apps/desktop/src/ArtifactValidation.tsx": "b2b344cd45e8c2a078ca3aaaa25c928e0c3e965d8af1858dfb48773c7acb0a9d",
+    "apps/desktop/src/validation-api.ts": "8f12a282955f13ac68c5d0db45588ed019fed1d1d377a3325287d865bada42c3",
+    "apps/desktop/src/SessionWorkbench.test.tsx": "d3898008b0ccb4a3681bd32eaa1eaf0bb0249a80bbdf1ef6d08609273e3a8070",
+    "apps/desktop/src-tauri/src/lib.rs": "6b424769da00eb674b76af98747b207eb8a93adfc58f6abdbf43ba43c8194288",
+    "apps/desktop/src-tauri/src/approval.rs": "20529b3a0c2c3de2d3b35c16d598b3a784bcd6e84ffaee332777d513fa9bdfa1",
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "8eb1d8114d60a86eaabf4d316a9f4d7931b1c463a13b1624dee7ed65af19d31f",
+    "Cargo.lock": "d07f4bc79c5653a3bb641d68dff0cad94bd9ade97ca443ff7d1f993541064a02",
+    "apps/desktop/src-tauri/Cargo.lock": "8bfdfd48228f3a26a860747d3d08aea8814f794f9218d721142a5e3686442aad"
+  },
+  "log_sha256": {
+    "validation-composite-review-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation-composite-review-clippy.log": "73e851148f0f72e1293700296c7968129c0216313c52dc06814a04837d2f49b4",
+    "validation-composite-full-rust-private.log": "c0acdeb4cecfffeb69b75cd7958d173b252c81966cfe1800c6179bf374a27954",
+    "validation-composite-full-rust.log": "13730e264e71cc9aacbfbbbf109bbbd470ab96170c3a2d9ce627d42d105cf9ac",
+    "validation-composite-clippy.log": "7ba43cab725fc44046f657dfeccd5d2f2c33f1c9992529e9bb71a86a3d9d87ae",
+    "validation-composite-native-units.log": "07bd529cec679bedce5eb2b45c5d767a2c6f341656cb7f9a3a8b1a829d93f046",
+    "validation-composite-review-core.log": "5489f441b21c3262dbb54e3e99f1272b9e9590e423d0eb0896dd397cc922f2d2",
+    "validation-composite-smoke.log": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805",
+    "validation-composite-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation-composite-workspaces.log": "5540212f7789622dd24b9a07188c51dc6bb85588652409cd70fd6d2fce45dab5",
+    "validation-composite-runner.log": "839f1d0cb89fb60245660f19eb3bf7c442710bc99b48d09d9d5df85dd2c8df28",
+    "validation-composite-build.log": "2a60d044a41bff02dabcb2963c8919cc537bc57a2ac2f0352d38db195a8afbd5",
+    "validation-composite-native-host.log": "85e0dcbaeebac0c33aa79e4dd011f13cdec718febec7d67f752cc88c14a01844",
+    "validation-composite-debug-build.log": "f9f0d2c71b22cf43b759e6c48bdd55ff97b0ae0010db1db78bf6d3a3ec63d065",
+    "validation-composite-ui.log": "8d353dbb43493d244f5f8fbbc638a9e15e3f70fc4a1167e85f4a425a3dc57fc4",
+    "validation-composite-browser.log": "fa8735f19f58fba9ffd0353b83142367d276219459e86bff37b87d5314a4a074",
+    "validation-composite-native-clippy.log": "78c94dd1ee293950490a6036b0839621ecb584dab3ab1bd41adfe0a1bff09538",
+    "validation-composite-review-workspaces.log": "90ce72026fa83aade12b21d78aa5acb68cc4ef1a2568c96fe7505b877250c17a",
+    "validation-composite-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+  },
+  "browser": {
+    "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider",
+    "daemon_sha256": "ed6b9d387f97024907132a03fec7227d7da6c5ed4d39deb6b281b00191004961",
+    "checks": [
+      {
+        "name": "empty state contains no demonstration task",
+        "status": "passed"
+      },
+      {
+        "name": "five actual UI drafts persisted through Unix IPC",
+        "status": "passed",
+        "task_ids": [
+          "168dc193-d6fc-47ff-9e06-eab4a64d0c67",
+          "2ee2b176-1f46-4fbc-8f21-06814799256a",
+          "395f944d-7042-4f60-9bcf-f85b73cc45b7",
+          "03b42d93-75e8-4e2a-ad62-a2cf8202ce21",
+          "4e654a05-feb2-4a6a-b888-ff328f4e567b"
+        ]
+      },
+      {
+        "name": "reviewed quick-context summary converts to actual draft, standalone model send unavailable",
+        "status": "passed"
+      },
+      {
+        "name": "truthful recorded-state filtering",
+        "status": "passed"
+      },
+      {
+        "name": "real core rejects oversized UTF-8 goal without inserting a task",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 1488x981",
+        "status": "passed",
+        "columns": 2,
+        "overflow": false,
+        "sidebar": 232,
+        "fonts": [
+          "18px",
+          "14px",
+          "24px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 1488x981",
+        "status": "passed"
+      },
+      {
+        "name": "actual read-only integrity lists and no fabricated validation 1488x981",
+        "status": "passed",
+        "task_id": "6c907766-1409-4ad5-83fc-595b1244490b"
+      },
+      {
+        "name": "home layout 1440x900",
+        "status": "passed",
+        "columns": 2,
+        "overflow": false,
+        "sidebar": 232,
+        "fonts": [
+          "18px",
+          "14px",
+          "24px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 1440x900",
+        "status": "passed"
+      },
+      {
+        "name": "actual read-only integrity lists and no fabricated validation 1440x900",
+        "status": "passed",
+        "task_id": "6c907766-1409-4ad5-83fc-595b1244490b"
+      },
+      {
+        "name": "collapsed rail controls retain accessible localized names",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 1024x768",
+        "status": "passed",
+        "columns": 2,
+        "overflow": false,
+        "sidebar": 64,
+        "fonts": [
+          "18px",
+          "14px",
+          "24px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 1024x768",
+        "status": "passed"
+      },
+      {
+        "name": "actual read-only integrity lists and no fabricated validation 1024x768",
+        "status": "passed",
+        "task_id": "6c907766-1409-4ad5-83fc-595b1244490b"
+      },
+      {
+        "name": "mobile navigation exposes named controls and44px toggle target",
+        "status": "passed"
+      },
+      {
+        "name": "home layout 390x844",
+        "status": "passed",
+        "columns": 1,
+        "overflow": false,
+        "sidebar": 0,
+        "fonts": [
+          "18px",
+          "24px",
+          "14px"
+        ],
+        "weights": [
+          500,
+          400
+        ]
+      },
+      {
+        "name": "last card remains accessible above composer 390x844",
+        "status": "passed"
+      },
+      {
+        "name": "actual read-only integrity lists and no fabricated validation 390x844",
+        "status": "passed",
+        "task_id": "6c907766-1409-4ad5-83fc-595b1244490b"
+      },
+      {
+        "name": "keyboard command search, Escape and focus restore",
+        "status": "passed"
+      },
+      {
+        "name": "actual closed-details summary is included in dialog focus trap",
+        "status": "passed"
+      },
+      {
+        "name": "actual grant duration input enforces3600second core boundary; no unsupported grant sent",
+        "status": "passed"
+      },
+      {
+        "name": "reduced motion disables product transitions",
+        "status": "passed"
+      },
+      {
+        "name": "actual never-dispatched draft cancellation is confirmed by core evidence",
+        "status": "passed"
+      },
+      {
+        "name": "history uses actual journal events",
+        "status": "passed"
+      },
+      {
+        "name": "no browser runtime errors",
+        "status": "passed"
+      }
+    ],
+    "screenshots": [
+      "/workspace/.onboarding/validation-composite-browser/home-1488x981.png",
+      "/workspace/.onboarding/validation-composite-browser/task-1488x981.png",
+      "/workspace/.onboarding/validation-composite-browser/artifacts-1488x981.png",
+      "/workspace/.onboarding/validation-composite-browser/home-1440x900.png",
+      "/workspace/.onboarding/validation-composite-browser/task-1440x900.png",
+      "/workspace/.onboarding/validation-composite-browser/artifacts-1440x900.png",
+      "/workspace/.onboarding/validation-composite-browser/home-1024x768.png",
+      "/workspace/.onboarding/validation-composite-browser/task-1024x768.png",
+      "/workspace/.onboarding/validation-composite-browser/artifacts-1024x768.png",
+      "/workspace/.onboarding/validation-composite-browser/home-390x844.png",
+      "/workspace/.onboarding/validation-composite-browser/task-390x844.png",
+      "/workspace/.onboarding/validation-composite-browser/artifacts-390x844.png"
+    ],
+    "requests": [
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "tasks.create",
+        "error": "INVALID_REQUEST",
+        "side_effect_state": "not_started"
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "validations.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "validation_policies.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "validation_policies.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "validations.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "validations.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "validation_policies.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "validations.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "validation_policies.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "grants.list",
+        "error": "NOT_FOUND",
+        "side_effect_state": "not_started"
+      },
+      {
+        "method": "workspaces.list",
+        "error": "NOT_FOUND",
+        "side_effect_state": "not_started"
+      },
+      {
+        "method": "tasks.cancel",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "system.snapshot",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "events.subscribe",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "projects.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "connections.list",
+        "error": null,
+        "side_effect_state": null
+      },
+      {
+        "method": "sessions.list",
+        "error": null,
+        "side_effect_state": null
+      }
+    ],
+    "browser_version": "154.0.8037.57",
+    "playwright_version": "1.62.0",
+    "screenshot_sha256": {
+      "home-1488x981.png": "caa74b7709a0e627556a5bd983ce399a53ee4bc2667c18ff92bef1016336930b",
+      "task-1488x981.png": "c1ccd266b97af54580a921d597b3a8e77092e10250b5da67318626233d39aa7d",
+      "artifacts-1488x981.png": "870e205cdd142f9e987fadd105b0fa26d44038924f1039005dd13200486fc50a",
+      "home-1440x900.png": "7bc8e19e9a7b78fc44ef4ef0df1b8886aa38783841d7418aad6f717777212941",
+      "task-1440x900.png": "df363222400d60e36796c324830311aaa98fa32c339cc41e77891a2042805505",
+      "artifacts-1440x900.png": "349717c8e119724a21536d03ad48e394463dfbc07c35f517bd2cf9e5fe4328ee",
+      "home-1024x768.png": "65673c8c0e14f43e7571f1a16ddf4ec86dbabd887277063a1754ca00a672c68b",
+      "task-1024x768.png": "c4ea2e63b4770e7f455e8af2d901bdd7c67f75bb447b37b66416e7fa9e25fe76",
+      "artifacts-1024x768.png": "dce5921c1aac228049f26d81310f1b03589699eab5d83fdfda6ac7ab1f71df9b",
+      "home-390x844.png": "67adaee0bc59101aab7bb8e9b2516228ae2710e055b8cae310af3b40bddf988a",
+      "task-390x844.png": "a90c5ec5aa492506744588d04e083e60dc159a953e2e6cb584feaf99cf5dbb62",
+      "artifacts-390x844.png": "76435cce9085f9663f2c624c06faba6a0cd24bf87063d78f8b3a561d5ced3d36"
+    }
+  },
+  "reviews": [
+    "CORE_REVIEW.md",
+    "UI_REVIEW.md",
+    "COMPOSITE_REVIEW.md"
+  ],
+  "prior_evidence": {
+    "path": "docs/execution/validation-integration/EVIDENCE.pre-runtime-composite.json",
+    "sha256": "1368d70fae2005f51f78ddde144696d73489ea78bb7b652872f7aa194ee99b76"
+  },
+  "additional_failures": [
+    {
+      "log": "validation-composite-workspaces.log",
+      "result": "41pass/1fail; earlyincludeUnsafeRepository supersededfixtureconstructauthorization",
+      "repair": "Pin legitimate grant before includeIf drift; assert bothinspect+candidate refusal and unchanged source/index/config/refs/marker. Independent42pass."
+    },
+    {
+      "log": "validation-composite-full-rust.log",
+      "result": "umask022 actualIPC fixture PERMISSION_DENIED due fixtureStore-created0644DB",
+      "repair": "Testfixturecreate_new0600 before Store.open, permissionsassert retained; productionDaemon privateguard unchanged; full283 pass."
+    }
+  ],
+  "not_run": [
+    "schema6exact-headremoteCI/macOSnativeOwnerDialog",
+    "realproductProvider/model/account",
+    "fullcorrectnessvalidators/adoptionorchestrator",
+    "manualmacinstaller/minimumOS/sleep/login/remotehosts",
+    "productionrelease/signing/notarization"
+  ],
+  "native_goal_observation": {
+    "available": false,
+    "basis": "currentenabledtoolmetadata inspected; noGoaltool andnoCloudtaskURLprovided",
+    "not_a_goal_status": true
+  },
+  "post_quiet_composition": {
+    "source_commit": "7984b3f76d46b2f9772ac55ece149b83603a0a43",
+    "includes_runtime": "be647dd",
+    "includes_quiet_reviewed_fixture": "da4dda0/a9fb0d1",
+    "production_core_native_ui_locks_unchanged_from_283_test_snapshot": true,
+    "only_code_delta": "crates/core/tests/sessions_ipc.rs",
+    "test_source_sha256": "7578156baf226cdf507726b2e9bdc19e6fc267d4f8f10579f40181a1459b9208",
+    "checks": [
+      {
+        "command": "umask022; cargo test -p agentbaton-core --locked --test sessions_ipc",
+        "exit_code": 0,
+        "tests": 17
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "exit_code": 0
+      },
+      {
+        "command": "cargo clippy -p agentbaton-core --all-targets --locked -- -D warnings",
+        "exit_code": 0
+      }
+    ],
+    "logs": {
+      "validation-composite-post-quiet-sessions.log": "c3f3a149d11b49bab59bae06729d7a94969d99242b62c22585d12c0bcc8779a0",
+      "validation-composite-post-quiet-clippy.log": "efdf44316067dd5375548c9ebb1ef82401f1e6b8047a4664f86c03b9b83c91dc",
+      "validation-composite-post-quiet-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review": "docs/execution/quiet-canvas/TIMEOUT_FIXTURE_REVIEW.md",
+    "note": "full283/79/browser/nativechecks preceded this sole testdelta; targeted17 rerun currentcomposition. Freshremoteexactcandidatepending."
+  },
+  "private_fixture_independent": {
+    "review": "docs/execution/validation-integration/COMPOSITE_REVIEW.md",
+    "source_sha256": "b1e507f8c23c8e66c1bed99669bdc2a14578e1e943ebaf179edbf2ba796c3c51",
+    "log_sha256": "570fe062c72ac7db219eebc6cd6d862a16a3a9efcd8bff828967cad2f5a5b4a1",
+    "command": "umask022; cargo test --locked -p agentbaton-core --lib actual_authenticated_ipc_uses_server_policy_and_rejects_forged_result_fields",
+    "exit_code": 0,
+    "tests": 1
+  }
+}
