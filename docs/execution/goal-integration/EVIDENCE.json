@@ -146,8 +146,9 @@
     "author_built_ui_checks": 38,
     "author_built_ui_png": 24,
     "final_postfixture_clippy_fmt": "pending",
-    "independent_review": "in_progress",
-    "macOS": "not_run"
+    "independent_review": "blocked on actual native fixture DB0644 -> Daemon permission denial; production permission guard unchanged; narrow fix in_progress",
+    "macOS": "not_run",
+    "goal_assertions": "3 strict JS boolean flags plus independent fixed readonly DB counts/sequence invariant; no fourth JS flag claimed"
   },
   "current_composed_frontend_actual": {
     "source": "2b8b6d7",
@@ -162,5 +163,20 @@
     "tests": 17,
     "status": "passed",
     "dimension": "Python failure contracts only, not real macOS or native DBbind"
+  },
+  "current_composed_rust_actual": {
+    "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+    "workspace_unique_unit_integration": 462,
+    "compilefail_docs": 4,
+    "nested_fifo_child_not_double_counted": 1,
+    "raw_passed_sum": 467,
+    "failed": 0,
+    "ignored": 0,
+    "fmt_clippy_sidecars": "passed",
+    "log_manifest": "/workspace/.onboarding/goal-integration-current-rust.json",
+    "workspace_log_sha256": "c6503adb1aea9ae20e1932ba6e51f0508434beb449c0e3780f3c17096099a43d",
+    "current_binary_manifest": "/workspace/.onboarding/goal-integration-current-binaries/manifest.json",
+    "local_smoke": "passed exact frozen new daemon/CLI; Unicode/idempotency/cancel/journal/SIGKILL-restart",
+    "RUST_TEST_THREADS": 1
   }
 }
