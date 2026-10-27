@@ -1,0 +1,10 @@
+# Data workspace real IPC progress
+
+Harness source `996815991489dec0d50c492a1a1e5865855a0e1e`, inherited UI/native base `aa1c281` (reviewed UI source `a436be79`, unchanged). SHA-256 `444fe020a4fde10831161d6d98cb226fee34b318cc499e206347dc3a371f9ae9`.
+
+- Read current approval/gate/OWNER inbox, requirements IDs, actual Core schema10/workers/real tests and library cancellation/error/path semantics. Core confirmed the original eight native methods and separate kind=data_workspace. Runtime/private-source protection uses the actual host boundary; source/runtime are separate siblings.
+- Added `apps/desktop/tests/data-workspace-real-ipc.py`. It contains actual UI selection/preview, real host-only owner proposal/finalization, actual copied files/registry/source preservation, replay/history, cancel response loss and remount, invalid-hash/drift failure and private-runtime sentinel checks. No synthetic Ready, SQL mutations or approval HTTP route.
+- Primary explicitly approved one-shot test-adapter reply loss **after** a real cancellation response and retaining that receipt/sequence. The fault is controlled only by Python closure, never an HTTP option or product flag. Actual completion races are preserved and not counted as cooperative cancellation success; missing race coverage returns exit2.
+- Primary clarified that reading this newly generated runtime's session.token only into the host IPC authentication closure is allowed. It never reaches HTTP/evidence/screenshots/failure text and is never selected as data; a generated benign sentinel tests runtime exclusion. No private Agent credential or other runtime is read.
+- `py_compile` **PASS**, syntax only, output in `/tmp`; manual static contract/allowlist review completed. No daemon, browser, actual copy or renderer path has been executed in this unit. No runtime report or screenshot exists yet and no runtime PASS is claimed.
+- Waiting for primary's frozen schema10 binary and final built frontend. No Cargo/target/dependency/link, push/PR/merge or other-worktree edit.
