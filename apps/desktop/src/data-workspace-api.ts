@@ -20,7 +20,10 @@ export interface DataCreation {
   id:string;preview_id:string;project_id:string;project_revision:number;workspace_id:string;approval_id:string;revision:number;state:string;dataset_revision:string;managed_root:DataDirectoryPin;destination:string;
   snapshot:DatasetSnapshot;contract:DataCopyContract|null;observation:DataCreationObservation|null;cancel_requested:boolean;error:DataOperationError|null;created_at:string;updated_at:string;
   scope:string;filesystem_sandbox:boolean;atomic_directory_freeze:boolean;
+  readonly io_completion?: 'worker_joined'|'not_scheduled'|'interrupted_no_join_receipt'|null;
 }
+// A historical cancellation error alone is not a stopped-worker receipt.
+export const dataCopyCancellationUnconfirmed=(value:DataCreation)=>value.state==='failed'&&value.error?.code==='CANCEL_REQUESTED';
 export interface DataWorkspaceForm { files:string;maxFileBytes:string;maxTotalBytes:string;maxFiles:string }
 export const newDataForm=():DataWorkspaceForm=>({files:'',maxFileBytes:'8388608',maxTotalBytes:'33554432',maxFiles:'16'});
 export class DataFormError extends Error {constructor(public reason:'path'|'integer'|'hash'|'duplicate'|'limit'|'selection'){super(reason);}}
@@ -70,7 +73,13 @@ export function dataPreviewShape(value:DataPreview,projectId:string):boolean {
 export function dataCreationShape(value:DataCreation,projectId:string):boolean {
   if(!value||!id(value.id)||!id(value.preview_id)||value.project_id!==projectId||!dataSafeInteger(value.project_revision,1)||!dataSafeInteger(value.revision,1)||!id(value.workspace_id)||!id(value.approval_id)||typeof value.state!=='string'||value.scope!=='explicit_selected_dataset_copy_only'||value.filesystem_sandbox!==false||value.atomic_directory_freeze!==false||typeof value.cancel_requested!=='boolean'||typeof value.destination!=='string'||!value.destination.startsWith('/')||!pin(value.managed_root)||!dataSnapshotShape(value.snapshot)||value.dataset_revision!==value.snapshot.dataset_revision||value.snapshot.contract.approval_reference!==value.preview_id||!operationError(value.error)||typeof value.created_at!=='string'||typeof value.updated_at!=='string')return false;
   const observation=value.observation;
+  const io=value.io_completion;
+  if(io!==undefined&&io!==null&&!['worker_joined','not_scheduled','interrupted_no_join_receipt'].includes(io))return false;
+  if(io==='worker_joined'&&!['ready','failed','outcome_unknown','cancelled'].includes(value.state))return false;
+  if(io==='not_scheduled'&&(value.state!=='failed'||observation!==null||value.contract!==null))return false;
+  if(io==='interrupted_no_join_receipt'&&(value.state!=='outcome_unknown'||value.contract!==null))return false;
   if(observation!==null&&(!observation||observation.creation_id!==value.id||observation.destination!==value.destination||observation.dataset_revision!==value.dataset_revision||observation.selection_digest!==value.snapshot.selection_digest||!dataSafeInteger(observation.copied_files,0,value.snapshot.files.length)||typeof observation.state!=='string'||observation.filesystem_sandbox!==false||observation.atomic_directory_freeze!==false||observation.source_observation_scope!=='selected_files_before_after_only'))return false;
+  if(value.state==='cancelled'&&(io!=='worker_joined'||!value.cancel_requested||value.contract!==null||value.error?.code!=='CANCEL_REQUESTED'||value.error.side_effect_state!=='confirmed'||observation!==null&&(observation.state!=='failed'||observation.error!=='cancel_requested')))return false;
   if(value.state==='ready'&&(!observation||observation.state!=='ready'||observation.error!==null||value.error!==null||observation.copied_files!==value.snapshot.files.length))return false;
   if(value.contract===null)return value.state!=='ready';
   return !!value.contract&&value.contract.format_version===1&&value.contract.creation_id===value.id&&hash(value.contract.contract_digest)&&!!value.contract.snapshot&&dataSnapshotEqual(value.contract.snapshot,value.snapshot)&&pin(value.contract.managed_root)&&value.contract.managed_root.canonical_root===value.managed_root.canonical_root&&pin(value.contract.destination)&&value.contract.destination.canonical_root===value.destination&&Array.isArray(value.contract.files)&&value.contract.files.length===value.snapshot.files.length&&value.contract.files.every((file,index)=>!!file&&sameObservation(file.input,value.snapshot.files[index])&&!!file.destination_identity&&typeof file.destination_identity==='object'&&!Array.isArray(file.destination_identity))&&Array.isArray(value.contract.directories);
