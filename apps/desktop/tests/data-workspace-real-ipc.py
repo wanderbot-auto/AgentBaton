@@ -69,8 +69,7 @@ def main():
     args = parser.parse_args()
     binary, frontend, output = args.batond.resolve(strict=True), args.frontend.resolve(strict=True), args.output.resolve()
     assert (frontend / 'index.html').is_file()
-    output.mkdir(parents=True, exist_ok=True)
-    assert not (output / 'report.json').exists(), 'Use a new evidence directory; never replace a failed run'
+    output.mkdir(parents=True, exist_ok=False)  # interrupted evidence without report.json is still evidence
     report = {'status': 'failed_or_interrupted', 'dimension': 'actual built React / Chromium / fixed test-only HTTP / real Unix schema10 daemon / actual generated files',
               'owner_confirmation': 'host fixture outside HTTP, not a native OS OwnerDialog',
               'not_claimed': ['macOS', 'native WebView', 'Provider/session/model', 'OS sandbox', 'DLP', 'atomic directory freeze', 'execution grant', 'Task acceptance'],
@@ -183,6 +182,45 @@ def main():
             def creation_record(creation_id):
                 return result('data_workspaces.get', {'creation_id': creation_id})
 
+            def owner_paths(proposal):
+                snapshot, intent = proposal['snapshot'], proposal['snapshot']['intent']
+                project_name = next(name for name, project in projects.items() if project['id'] == intent['project_id'])
+                source, managed = snapshot['snapshot']['contract']['source'], intent['managed_root']
+                for pin, expected in [(source, folders[project_name]), (managed, runtime / 'workspaces')]:
+                    assert not expected.is_symlink() and expected.is_dir()
+                    actual = expected.stat(follow_symlinks=False)
+                    assert pin['canonical_root'] == str(expected.resolve())
+                    assert pin['device'] == actual.st_dev and pin['inode'] == actual.st_ino
+                creation_id = intent['creation_id']
+                assert str(uuid.UUID(creation_id)) == creation_id
+                assert intent['destination'] == str(runtime / 'workspaces' / ('data-' + creation_id))
+                assert not Path(intent['destination']).is_relative_to(sources)
+
+            def journal_commitments(creation, proposal):
+                # Independently observe actual persisted receipts; never write
+                # SQL or treat these public observations as a private witness.
+                with sqlite3.connect(f'file:{runtime / "baton.sqlite3"}?mode=ro', uri=True) as store:
+                    store.execute('PRAGMA query_only=ON'); store.execute('BEGIN')
+                    receipt = store.execute('SELECT owner_sequence,prepared_sequence,finished_sequence FROM data_workspace_receipts WHERE creation_id=?', [creation['id']]).fetchone()
+                    assert receipt and receipt[0] < receipt[1] < receipt[2]
+                    proposal_row = store.execute('SELECT document,result FROM approval_proposals WHERE id=?', [proposal['id']]).fetchone()
+                    stored_proposal, original_result = map(json.loads, proposal_row)
+                    stored_creation = json.loads(store.execute('SELECT document FROM data_workspace_creations WHERE id=?', [creation['id']]).fetchone()[0])
+                    assert stored_creation == creation and stored_proposal['consumed'] is True
+                    assert stored_proposal['snapshot'] == proposal['snapshot'] and stored_proposal['revision'] == proposal['revision'] + 1
+                    assert all(original_result[key] == creation[key] for key in ['id', 'approval_id', 'workspace_id', 'project_id', 'dataset_revision'])
+                    events = [json.loads(store.execute('SELECT document FROM events WHERE sequence=?', [sequence]).fetchone()[0]) for sequence in receipt]
+                owner, prepared, finished = events
+                assert [(event['aggregate_id'], event['kind']) for event in events] == [(proposal['id'], 'approval.confirmed'), (creation['id'], 'data_workspace.copy_prepared'), (creation['id'], 'data_workspace.copy_finished')]
+                assert owner['source'] == 'local_owner_confirmation' and owner['revision'] == stored_proposal['revision']
+                compact_digest = lambda value: sha(json.dumps(value, ensure_ascii=False, separators=(',', ':')).encode())
+                assert owner['payload'] == {'kind': 'data_workspace', 'creation_id': creation['id'], 'consumed': True, 'snapshot_digest': compact_digest(stored_proposal['snapshot'])}
+                assert prepared['revision'] == 1 and prepared['source'] == 'data_workspace_core'
+                assert prepared['payload'] == {'workspace_id': creation['workspace_id'], 'dataset_revision': creation['dataset_revision'], 'copy_started': False, 'approval_id': creation['approval_id'], 'preview_id': creation['preview_id'], 'scope': creation['scope'], 'snapshot_digest': compact_digest(stored_creation['snapshot'])}
+                assert finished['revision'] == creation['revision'] and finished['source'] == 'data_workspace_core'
+                assert finished['payload'] == {'state': 'ready', 'workspace_id': creation['workspace_id'], 'cancel_requested': creation['cancel_requested'], 'automatic_retry': False, 'source_write': False, 'approval_id': creation['approval_id'], 'dataset_revision': creation['dataset_revision'], 'contract_digest': creation['contract']['contract_digest']}
+                report['observations']['normal_journal_commitments'] = {'sequences': list(receipt), 'events': events, 'stored_snapshot_digest': compact_digest(stored_creation['snapshot']), 'owner_snapshot_digest': compact_digest(stored_proposal['snapshot']), 'contract_digest': creation['contract']['contract_digest']}
+
             def remember(method, response):
                 value = response.get('result')
                 rows = value if isinstance(value, list) else [value]
@@ -199,6 +237,7 @@ def main():
                 assert latest['revision'] == preview['revision'] and latest['state'] == 'verified'
                 proposal = result('data_workspaces.propose', {'preview_id': latest['id']}, key, latest['revision'])
                 assert proposal['kind'] == 'data_workspace'
+                owner_paths(proposal)
                 snapshot = proposal['snapshot']
                 assert snapshot['intent']['preview_id'] == latest['id'] and snapshot['intent']['preview_revision'] == latest['revision']
                 assert snapshot['intent']['project_id'] == latest['project_id'] and snapshot['intent']['project_revision'] == latest['project_revision']
@@ -211,6 +250,7 @@ def main():
                 return proposal
 
             def owner_finalize(proposal):
+                owner_paths(proposal)
                 response = ipc('approvals.finalize', {'proposal_id': proposal['id']}, 'proposal:' + proposal['id'], proposal['revision'])
                 remember('data_workspaces.get', response)
                 return response
@@ -429,6 +469,7 @@ def main():
                     registered = next(row for row in registry if row['id'] == ready['workspace_id'])
                     assert registered['state'] == 'ready' and registered['identity']['kind']['kind'] == 'directory'
                     assert registered['root'] == ready['destination'] and registered['base_revision'] == ready['dataset_revision']
+                    journal_commitments(ready, proposal)
                     refresh(panel); current = detail(panel, creation_id)
                     expect(current.get_by_text(ready['contract']['contract_digest'], exact=True)).to_be_visible()
                     current.locator(':scope > summary').evaluate("element=>element.scrollIntoView({block:'start'})")
