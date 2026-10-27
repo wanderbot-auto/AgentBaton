@@ -44,9 +44,6 @@ pub fn confirm_and_finalize(
     confirm_native: impl FnOnce(&str) -> bool,
     finalize: impl FnOnce(Value) -> Result<Value, String>,
 ) -> Result<Value, String> {
-    if response.get("error").is_some() {
-        return Ok(response);
-    }
     // A proposal may already be persisted, but none of these failures has
     // called native confirmation or finalize. Scope this receipt to approval,
     // never to a transport failure after finalize may have committed.
@@ -55,6 +52,23 @@ pub fn confirm_and_finalize(
             json!({"request_id":null,"error":{"code":"INVALID_APPROVAL_PROPOSAL","message":message,"retryable":false,"side_effect_state":"not_started","details_ref":null},"revision":0,"warnings":[]}),
         )
     };
+    if let Some(error) = response.get("error") {
+        let valid = error.is_object()
+            && error.get("code").and_then(Value::as_str).is_some()
+            && error.get("message").and_then(Value::as_str).is_some()
+            && error.get("retryable").and_then(Value::as_bool).is_some()
+            && error
+                .get("side_effect_state")
+                .and_then(Value::as_str)
+                .is_some();
+        if valid {
+            return Ok(response);
+        }
+        // Even error:null beside a result is not authority to approve.
+        return refused(
+            "Server returned a malformed error before approval; no approval was finalized",
+        );
+    }
     let Some(proposal) = response.get("result") else {
         return refused("Server returned no approval proposal; no approval was finalized");
     };
@@ -184,8 +198,7 @@ mod tests {
         );
         assert!(called.get());
         assert_eq!(result.unwrap_err(), "finalize response lost");
-        let server_error =
-            json!({"error":{"code":"OUTCOME_UNKNOWN","side_effect_state":"unknown"}});
+        let server_error = json!({"error":{"code":"OUTCOME_UNKNOWN","message":"Outcome unknown","retryable":false,"side_effect_state":"unknown"}});
         let response = confirm_and_finalize(
             server_error.clone(),
             ApprovalKind::Grant,
@@ -244,5 +257,46 @@ mod tests {
         )
         .unwrap();
         assert_eq!(denied["error"]["side_effect_state"], "not_started");
+    }
+    #[test]
+    fn malformed_preapproval_errors_never_confirm_and_postfinalize_values_stay_unknown() {
+        for error in [
+            Value::Null,
+            json!(false),
+            json!("invalid"),
+            json!({}),
+            json!({"code":"X","message":"refused","retryable":"false","side_effect_state":"unknown"}),
+        ] {
+            let confirms = Cell::new(0);
+            let finalizes = Cell::new(0);
+            let mut malformed = proposal("grant");
+            malformed["error"] = error;
+            let response = confirm_and_finalize(
+                malformed,
+                ApprovalKind::Grant,
+                |_| {
+                    confirms.set(confirms.get() + 1);
+                    true
+                },
+                |_| {
+                    finalizes.set(finalizes.get() + 1);
+                    Ok(json!({}))
+                },
+            )
+            .unwrap();
+            assert_eq!(response["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+            assert_eq!(response["error"]["side_effect_state"], "not_started");
+            assert_eq!(confirms.get(), 0);
+            assert_eq!(finalizes.get(), 0);
+        }
+        let malformed = json!({"error":null});
+        let result = confirm_and_finalize(
+            proposal("grant"),
+            ApprovalKind::Grant,
+            |_| true,
+            |_| Ok(malformed.clone()),
+        )
+        .unwrap();
+        assert_eq!(result, malformed);
     }
 }
