@@ -1375,7 +1375,8 @@
         "apps/desktop/src/ArtifactValidation.tsx",
         "crates/workspaces/src/deterministic.rs",
         "crates/core/src/data_validation.rs",
-        "apps/desktop/src/DataContractValidation.tsx"
+        "apps/desktop/src/DataContractValidation.tsx",
+        "crates/workspaces/src/command_validation.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1392,16 +1393,20 @@
         "docs/execution/data-contract-validation/EVIDENCE.json",
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs"
       ],
       "verified_slices": [
         {
@@ -1438,7 +1443,8 @@
         "apps/desktop/src/ArtifactValidation.tsx",
         "crates/workspaces/src/deterministic.rs",
         "crates/core/src/data_validation.rs",
-        "apps/desktop/src/DataContractValidation.tsx"
+        "apps/desktop/src/DataContractValidation.tsx",
+        "crates/workspaces/src/command_validation.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1455,16 +1461,20 @@
         "docs/execution/data-contract-validation/EVIDENCE.json",
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs"
       ],
       "verified_slices": [
         {
@@ -1534,7 +1544,8 @@
         "apps/desktop/src/ArtifactValidation.tsx",
         "crates/workspaces/src/deterministic.rs",
         "crates/core/src/data_validation.rs",
-        "apps/desktop/src/DataContractValidation.tsx"
+        "apps/desktop/src/DataContractValidation.tsx",
+        "crates/workspaces/src/command_validation.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1551,16 +1562,20 @@
         "docs/execution/data-contract-validation/EVIDENCE.json",
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs"
       ],
       "verified_slices": [
         {
@@ -1594,7 +1609,8 @@
         "crates/core/src/validation.rs",
         "crates/workspaces/src/validation.rs",
         "crates/workspaces/src/adoption.rs",
-        "apps/desktop/src/ArtifactValidation.tsx"
+        "apps/desktop/src/ArtifactValidation.tsx",
+        "crates/workspaces/src/command_validation.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1607,16 +1623,20 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs"
       ],
       "verified_slices": [
         {
@@ -3406,7 +3426,8 @@
         "apps/desktop/src/ArtifactValidation.tsx",
         "crates/workspaces/src/deterministic.rs",
         "crates/core/src/data_validation.rs",
-        "apps/desktop/src/DataContractValidation.tsx"
+        "apps/desktop/src/DataContractValidation.tsx",
+        "crates/workspaces/src/command_validation.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -3423,16 +3444,20 @@
         "docs/execution/data-contract-validation/EVIDENCE.json",
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs"
       ],
       "verified_slices": [
         {
@@ -3532,7 +3557,8 @@
         "apps/desktop/src/ArtifactValidation.tsx",
         "crates/workspaces/src/deterministic.rs",
         "crates/core/src/data_validation.rs",
-        "apps/desktop/src/DataContractValidation.tsx"
+        "apps/desktop/src/DataContractValidation.tsx",
+        "crates/workspaces/src/command_validation.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -3549,16 +3575,20 @@
         "docs/execution/data-contract-validation/EVIDENCE.json",
         "docs/execution/data-contract-validation/CORE_REVIEW.md",
         "docs/execution/data-contract-validation/UI_REVIEW.md",
-        "docs/execution/data-contract-validation/NATIVE_REVIEW.md"
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/command-validators/EVIDENCE.md",
+        "docs/execution/command-validators/REVIEW.md"
       ],
       "limitations": [
-        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
+        "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
+        "Fixed-command library source1dae4566: Linux90+4 author and independent27+4 passed; actual Mac execution/host-owner/Core/IPC/UI integration pending. Scope is approved deterministic command only; no TaskAccepted/adoption/production or OS containment assurance."
       ],
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "crates/workspaces/tests/command_validation.rs"
       ],
       "verified_slices": [
         {

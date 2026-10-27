@@ -19,3 +19,5 @@ Next: independent F1 exact-fingerprint revalidation, including the reviewer's or
 ## Independent review closure
 
 Separate reviewer verified exact source1dae4566, all27 command cases,4 compile-fail docs, Linux Clippy/fmt and the original observation-delay fault control. F1 is closed; no remaining blocking library finding. REVIEW.md SHA301262f2893f46d109a44c42d46aa97115743ae2b78c8a344ef20ea2411a2e8d. Independent raw controls/logs archived under /workspace/.onboarding/command-validator-independent/manifest.json. macOS execution and Core/native-owner/IPC/UI integration remain pending. Latest protected main afb52be/OWNER001002 reread and ACK at parent integration.
+
+Parent integration merged Data2640 at6b19d1c; command implementation/tests/lib fingerprints remain byte-identical to independent1dae review. Next exact-head CI must execute Mac tests, not inherit cross-compile results.

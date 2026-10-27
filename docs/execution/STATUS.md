@@ -1,17 +1,13 @@
 # AgentBaton 执行状态
 
-完整Design v0.2全部130需求、27决定与WP01–14继续，AB-START-001有效。最新实际保护main c4e72c641e3edc3f3c0f665ffde5217933c2895f，OWNER001/002集成边界已读/ACK且无新序号。未提供原生Goal工具/Cloud任务URL；不虚构平台状态/停止后续跑。真实Provider/模型/私人身份、新增费用资源/未批准remote/正式签名密钥/最终许可证/生产发布仍单独关闭。
+Design v0.2 全部130需求/27决定/WP01–14继续，AB-START-001有效；最新保护main afb52be241f7c4cef261f99c04f56caf21f12083，OWNER001/002于本次集成边界实际读取并ACK，无新序号。原生Goal工具和Cloud任务URL未提供。真实Provider/私人身份、新费用/资源、签名密钥、最终许可证和生产发布仍关闭。
 
-已按准确检查、独立review、双架构DMG核验保护合入PR3/4/9/6/7。PR7为专用QuietCanvas，准确a9fb七项通过后合c4e72c6；保留原Mac时序失败及不削弱保护的fixture纠正。Root PR8最新正常push130f3639cdf20a15acd7a4ab448f6ac400fb8770在main/ready，等待新精确CI。先前b994七项/双Mac窗口重开与daemon lifecycle/defaultreleaseaudit/双DMG独立通过；随后实际故障验证补了postapproval-probe误报not_started窄修32b2、独立Core83/3回归通过。2da7新CI两Mac因新增fixture未canonicalize临时路径而失败；旧ARM/Intel日志和Linux alias失败控制保留，现仅测试helper8441fe6返回canonical路径、独立3回归通过，无生产守卫/权限削弱。130f新Mac结果尚未读取，不继承旧head通过。
+PR3/4/9/6/7/8已按准确检查、独立审查和实际双架构开发包证据合入。Quiet Canvas单入口和Provider/runtime接口是真实产品功能；完整配置/规划委派/验收采纳/远程/历史留存/生命周期范围仍有未实现或未验证部分，完整Goal未完成。
 
-PR10 draft当前3c1cd1a：schema6文件完整性/原生批准/真实IPC/Artifacts UI。Product40417144235/Environment40417148162全部七项成功，双Mac原生报告和迁移/真实IPC/defaultreleaseaudit独立核验，双DMG下载/hash/UDIF/准确head/架构/签名核验。脚本未自动点击Owner对话框或integrity approve/run；Linux策略IPC与26browser/12图分开。后续须整合Root新guard/保护main，再准确候选CI/按保护合入。
+PR10 main/ready候选62465a：schema6真实文件完整性策略、原生owner批准桥、Core/IPC/Artifacts UI。Product40430127911与Environment40430127252七项已成功；当前双原生/DMG准确候选独立复核进行，完成前不合入。此前3c双原生/DMG证据另存，不能冒充新head。
 
-PR11 draft codex/data-contract-validation已保存WIPd0c714避免瞬态环境失效，实际shell恢复后持续实现，当前功能提交0f23ff0。独立JSON库cbd5509/a088529整合，Core/schema7独立data policy/receipt五namespace、原生DataValidation桥、默认折叠表单及幂等/撤销/绑定/故障路径已写实。Core321顶层Rust+2compilefail、Core108/13Data+busy1+迁移7三test、Clippy/fmt/build/真实重启通过；UI129/type/build及独立129审查通过；实际当前Schema7 daemon/builtReact browser30checks/16screens通过，4Data图保存，初次重复文本locator失败保留并仅scope纠正。主代理已查看实际Data页面截图。真实/native/dialog/Mac和科学算法维度不混充。
+PR11 stacked/draft候选2640e6c：schema7 JSON数据契约库、持久化策略/receipt、原生桥和默认折叠表单。324顶层Rust+2compilefail、129UI、真实release daemon浏览器30checks/16screens、LinuxNative8+6通过；独立Core/UI/native源码审查已记录。Product40430134077/Environment40430137922七项真实成功，双Mac新readonlyData UI三断言、窗口重开/daemon lifecycle/defaultreleaseaudit独立通过；双DMG已下载核对真实SHA/UDIF/准确2640/架构及签名。仍待PR10合入后安全同步main、retarget和新准确候选CI。未自动点击owner对话框或实际Mac批准/运行数据策略，数据合同不证明科学算法/样本代表性。
 
-本次将Root130f的已审postapproval guard与canonical fixture整合进Data。Data/schema7/library/Native/UI/两锁对0f23源码字节不变，只有共享IPC增加已独立审查的probe错误映射和三故障回归。组合Core/guard回归、独立Core审查、实际当前release sidecars/LinuxNative8+6与新FIRST readonlydata断言、最终浏览器及准确CI尚待执行。Native staticreview已通过，不把它当作编译/GUI运行。Native本地预确认oversize ErrString保留unknown请求的恢复UX限制已明确记在NATIVE_REVIEW，未误降finalizer/transport未知。
+当前命令验证器库单元source1dae4566已整合Data2640；真实受批命令/内存脚本、Linux密封ELF、Mac受保护Mach-O路径、取消/超时/有限捕获及私有命令合同acceptance。90顶层Rust+4compilefail和双Apple cross-Clippy由作者通过，独立27command+4docs/LinuxClippy/fmt通过。F1延迟waitid误判预算漏洞已用原故障shim和三新控制独立关闭，旧失败证据保留。仅库的Mac实际执行将由准确head CI取得；尚无Core/原生owner/IPC/UI接线，不把command-only token当TaskAccepted/Git采纳。Core非阻塞worker/持久化/取消恢复和Goal计划DAG/范围预算/ready算法分别在隔离工作树持续实现。
 
-Data合同仅固定JSON结构/类型/范围/所批metadata及文件hash；population/units/TZ按负责人声明匹配，不是独立科学事实，不运行复现脚本/算法，不建立TaskAccepted/采纳/生产权限。完整正确性验证与精确head采纳、规划路由委派工作流、全配置/留存导出/远程/登录睡眠等仍未完成并持续推进。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和需求表分开记录通过/失败/未运行/受阻，不写虚构百分比。原三个Environment与main保护保留，无直接/强推main或绕过检查。
-
-最新组合ddd6707已实际324顶层Rust+2compilefail/Core111/fmtClippy/真实release构建与hash相同侧车、LinuxNative8+6/两套Clippy通过，独立Core17审查无阻塞。当前再整合Root2a809的App首case输入夹具；产品Core/native/UI/两锁逐字未变，全部原project/archived/API断言/5s上限保留。最终129UI/type/build与当前release daemon的browser检查正在重跑，之后保存PR11准确候选/显式CI。Native新FIRST actualdata readonly UI尚未在Mac执行，预确认oversize unknown固定请求UX限制仍记录；不把partialcheck标全Goal完成。
-
-实际PR8已于最新保护main afb52be合入，准确2a809七项/双Native/DMG完整验证；集成边界Owner001002再次ACK无新序号。当前Data再整合Schema6分支e89aeef的最新main ancestry及真实3c/2a Native/DMG记录，整棵Core/Native/UI/scripts/locks相对当前最终本地验证快照零差异。新Data准确候选即将正常push到PR11并显式触发独立七项CI；schema6 PR10先按新准确main候选重检，两者不互相继承通过。完整Goal范围未结束，后续命令验证器Linux26cases/全库89+4compilefail及两个Mac crosscheck已通过，真实Mac执行及Core接线尚待。
+每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE及需求证据表继续维护。环境原三项必需检查保留；功能分支正常push/PR，准确七项及独立审查通过才保护合入，无直接/强推main或绕过检查。旧状态保存在本单元STATUS.incoming-data2640.md，各历史失败未删除。
