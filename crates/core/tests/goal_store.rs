@@ -676,6 +676,10 @@ fn real_unix_ipc_goal_flow_roundtrips_original_plan_text_and_has_no_execution_en
     plan.proposal.nodes.push(owner);
     let raw = serde_json::to_string_pretty(&plan.proposal).unwrap();
     let server = Server::new(&f.runtime);
+    assert_eq!(
+        server.call(json!({"method":"goal_plans.list","params":{"scope_id":scope.id}}))["result"],
+        json!([])
+    );
     let saved=server.call(json!({"method":"goal_plans.propose","params":{"scope_id":scope.id,"plan_json":raw},"idempotency_key":"ipc-plan","expected_revision":0}));
     assert!(saved.get("error").is_none(), "{saved}");
     assert_eq!(
@@ -729,6 +733,21 @@ fn real_unix_ipc_goal_flow_roundtrips_original_plan_text_and_has_no_execution_en
             ["digest"],
         saved["result"]["digest"]
     );
+    let revoked = restarted.call(json!({"method":"goal_scopes.revoke","params":{"scope_id":scope.id},"expected_revision":1,"idempotency_key":"ipc-revoke"}));
+    assert_eq!(revoked["result"]["revoked"], true);
+    let after_revoke = f.store.sequence().unwrap();
+    assert_eq!(
+        restarted.call(json!({"method":"goal_plans.list","params":{"scope_id":scope.id}}))
+            ["result"][0]["digest"],
+        saved["result"]["digest"]
+    );
+    assert_eq!(
+        restarted.call(json!({"method":"goal_plans.get","params":{"scope_id":scope.id}}))["result"]
+            ["digest"],
+        saved["result"]["digest"]
+    );
+    assert_eq!(restarted.call(json!({"method":"goal_plans.ready_preview","params":{"scope_id":scope.id},"expected_revision":1}))["error"]["code"], "PERMISSION_DENIED");
+    assert_eq!(f.store.sequence().unwrap(), after_revoke);
 }
 #[test]
 fn actual_raw_unix_duplicate_revision_and_nested_node_keys_are_rejected_without_journal() {
@@ -1295,7 +1314,21 @@ fn actual_native_integrity_definition_is_additional_rule_never_goal_acceptance()
     );
     f.store.revoke_validation_policy(&policy.id, 1).unwrap();
     assert_eq!(
-        f.store.get_goal_plan(&scope.id).unwrap_err().code,
+        f.store.get_goal_plan(&scope.id).unwrap().proposal.revision,
+        1
+    );
+    assert_eq!(
+        f.store.preview_goal_ready(&scope.id, 1).unwrap_err().code,
+        "INPUT_CHANGED"
+    );
+    let mut next = Fixture::plan(&scope);
+    next.proposal.expected_revision = 1;
+    next.proposal.revision = 2;
+    assert_eq!(
+        f.store
+            .submit_goal_plan(&next, "revoked-source-new-action", 1)
+            .unwrap_err()
+            .code,
         "INPUT_CHANGED"
     );
 }
@@ -1428,6 +1461,11 @@ fn actual_native_fixed_command_definition_projection_is_lossless_and_consumed_ru
         f.store.get(&f.task.id).unwrap().state,
         agentbaton_core::storage::TaskState::Draft
     );
+    let plan = Fixture::plan(&scope);
+    let saved = f
+        .store
+        .submit_goal_plan(&plan, "plan-before-command-use", 0)
+        .unwrap();
     let mut workers = agentbaton_core::command_workers::CommandWorkers::default();
     let run = workers
         .start(&mut f.store, &policy.id, 1, "actual-source-once")
@@ -1449,7 +1487,21 @@ fn actual_native_fixed_command_definition_projection_is_lossless_and_consumed_ru
         "command_passed"
     );
     assert_eq!(
-        f.store.get_goal_plan(&scope.id).unwrap_err().code,
+        f.store.get_goal_plan(&scope.id).unwrap().digest,
+        saved.digest
+    );
+    assert_eq!(
+        f.store.preview_goal_ready(&scope.id, 1).unwrap_err().code,
+        "CAPABILITY_UNSUPPORTED"
+    );
+    let mut next = plan;
+    next.proposal.expected_revision = 1;
+    next.proposal.revision = 2;
+    assert_eq!(
+        f.store
+            .submit_goal_plan(&next, "used-source-new-action", 1)
+            .unwrap_err()
+            .code,
         "CAPABILITY_UNSUPPORTED"
     );
     f.selection.expected_grant_revision = 2;
@@ -1628,4 +1680,238 @@ fn oversize_idempotency_payload_or_result_is_never_treated_as_absent() {
             )
             .unwrap();
     }
+}
+
+#[test]
+fn fresh_scope_lists_real_empty_plan_history_before_first_submission() {
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    let sequence = f.store.sequence().unwrap();
+    assert!(f
+        .store
+        .list_goal_plan_revisions(&scope.id)
+        .unwrap()
+        .is_empty());
+    assert_eq!(
+        f.store.get_goal_plan(&scope.id).unwrap_err().code,
+        "NOT_FOUND"
+    );
+    assert_eq!(f.store.sequence().unwrap(), sequence);
+    f.store
+        .submit_goal_plan(&Fixture::plan(&scope), "first", 0)
+        .unwrap();
+    assert_eq!(
+        f.store.list_goal_plan_revisions(&scope.id).unwrap().len(),
+        1
+    );
+}
+
+#[test]
+fn immutable_plan_history_remains_readable_without_reviving_current_authority() {
+    for change in [
+        "scope_revoke",
+        "grant_revoke",
+        "grant_expiry",
+        "input_drift",
+        "task_spec",
+    ] {
+        let mut f = Fixture::new();
+        let scope = f.approve();
+        let first = Fixture::plan(&scope);
+        f.store.submit_goal_plan(&first, "first", 0).unwrap();
+        let mut second = first.clone();
+        second.proposal.expected_revision = 1;
+        second.proposal.revision = 2;
+        second.proposal.nodes[0].goal = "Refine the same approved report".into();
+        let saved = f.store.submit_goal_plan(&second, "second", 1).unwrap();
+        match change {
+            "scope_revoke" => {
+                f.store.revoke_goal_scope(&scope.id, 1, "revoke").unwrap();
+            }
+            "grant_revoke" => {
+                f.store.revoke_grant(&f.grant.id, 2, "revoke").unwrap();
+            }
+            "grant_expiry" => {
+                f.sql().execute("UPDATE execution_grants SET document=json_set(document,'$.expires_at_ms',0) WHERE id=?1", [&f.grant.id]).unwrap();
+            }
+            "input_drift" => {
+                fs::write(f.root.join("input.txt"), "Changed after proposal commit\n").unwrap();
+            }
+            "task_spec" => {
+                f.sql().execute("UPDATE tasks SET document=json_set(document,'$.spec_revision',2,'$.goal','New unapproved specification') WHERE id=?1", [&f.task.id]).unwrap();
+            }
+            _ => unreachable!(),
+        }
+        let sequence = f.store.sequence().unwrap();
+        let history = f.store.list_goal_plan_revisions(&scope.id).unwrap();
+        assert_eq!(history.len(), 2, "{change}");
+        assert_eq!(history[0].proposal.revision, 1);
+        assert_eq!(history[1].digest, saved.digest);
+        assert_eq!(
+            f.store.get_goal_plan(&scope.id).unwrap().digest,
+            saved.digest
+        );
+        assert_eq!(
+            f.store.sequence().unwrap(),
+            sequence,
+            "historical reads do not authorize/reserve: {change}"
+        );
+        let mut third = second.clone();
+        third.proposal.expected_revision = 2;
+        third.proposal.revision = 3;
+        let expected = if ["input_drift", "task_spec"].contains(&change) {
+            "INPUT_CHANGED"
+        } else {
+            "PERMISSION_DENIED"
+        };
+        assert_eq!(
+            f.store
+                .submit_goal_plan(&third, "new-action", 2)
+                .unwrap_err()
+                .code,
+            expected,
+            "{change}"
+        );
+        assert_eq!(
+            f.store.preview_goal_ready(&scope.id, 2).unwrap_err().code,
+            expected,
+            "{change}"
+        );
+        assert_eq!(f.store.sequence().unwrap(), sequence);
+        assert_eq!(
+            f.store.budget(false, &f.task.id).unwrap().unwrap().consumed,
+            0
+        );
+    }
+}
+
+#[test]
+fn historical_reads_reject_orphans_and_tampered_commitments_instead_of_empty_success() {
+    for corruption in [
+        "no_head",
+        "no_revisions",
+        "no_proposals",
+        "revision_plan_id",
+        "proposal_plan_id",
+        "proposal_body",
+        "previous_digest",
+        "head_digest",
+        "plan_journal",
+        "scope_journal",
+        "scope_columns",
+        "scope_approval",
+        "oversize_proposal",
+    ] {
+        let mut f = Fixture::new();
+        let scope = f.approve();
+        f.store
+            .submit_goal_plan(&Fixture::plan(&scope), "plan", 0)
+            .unwrap();
+        f.store.revoke_goal_scope(&scope.id, 1, "revoke").unwrap();
+        match corruption {
+            "no_head" => {
+                f.sql().execute("DELETE FROM goal_plan_heads", []).unwrap();
+            }
+            "no_revisions" => {
+                f.sql()
+                    .execute("DELETE FROM goal_plan_revisions", [])
+                    .unwrap();
+            }
+            "no_proposals" => {
+                f.sql()
+                    .execute("DELETE FROM goal_plan_proposals", [])
+                    .unwrap();
+            }
+            "revision_plan_id" => {
+                f.sql()
+                    .execute(
+                        "UPDATE goal_plan_revisions SET plan_id='uncommitted-other-plan'",
+                        [],
+                    )
+                    .unwrap();
+            }
+            "proposal_plan_id" => {
+                f.sql()
+                    .execute(
+                        "UPDATE goal_plan_proposals SET plan_id='uncommitted-other-plan'",
+                        [],
+                    )
+                    .unwrap();
+            }
+            "proposal_body" => {
+                f.sql().execute("UPDATE goal_plan_proposals SET document=json_set(document,'$.proposal.nodes[0].goal','Uncommitted replacement')", []).unwrap();
+            }
+            "previous_digest" => {
+                f.sql()
+                    .execute(
+                        "UPDATE goal_plan_revisions SET previous_digest='uncommitted-predecessor'",
+                        [],
+                    )
+                    .unwrap();
+            }
+            "head_digest" => {
+                f.sql()
+                    .execute("UPDATE goal_plan_heads SET digest='uncommitted-digest'", [])
+                    .unwrap();
+            }
+            "plan_journal" => {
+                f.sql().execute("DELETE FROM events WHERE json_extract(document,'$.kind')='goal.plan_validated'", []).unwrap();
+            }
+            "scope_journal" => {
+                f.sql().execute("DELETE FROM events WHERE json_extract(document,'$.kind')='goal.scope_approved'", []).unwrap();
+            }
+            "scope_columns" => {
+                f.sql()
+                    .execute("UPDATE goal_scopes SET revision=99", [])
+                    .unwrap();
+            }
+            "scope_approval" => {
+                f.sql().execute("UPDATE approval_proposals SET document=json_set(document,'$.snapshot.intent.owner_acceptance_criteria','Uncommitted acceptance') WHERE id=?1", [&scope.id]).unwrap();
+            }
+            "oversize_proposal" => {
+                f.sql()
+                    .execute(
+                        "UPDATE goal_plan_proposals SET document=?1",
+                        ["x".repeat(1_048_577)],
+                    )
+                    .unwrap();
+            }
+            _ => unreachable!(),
+        }
+        let sequence = f.store.sequence().unwrap();
+        let expected = if corruption == "oversize_proposal" {
+            "RESOURCE_LIMIT"
+        } else {
+            "INPUT_CHANGED"
+        };
+        assert_eq!(
+            f.store
+                .list_goal_plan_revisions(&scope.id)
+                .unwrap_err()
+                .code,
+            expected,
+            "{corruption}"
+        );
+        assert_eq!(
+            f.store.get_goal_plan(&scope.id).unwrap_err().code,
+            expected,
+            "{corruption}"
+        );
+        assert_eq!(f.store.sequence().unwrap(), sequence);
+    }
+    // With every plan table empty, a retained plan-validated journal is still
+    // evidence of corrupt/missing history, not an unused fresh Goal.
+    let mut f = Fixture::new();
+    let scope = f.approve();
+    f.store
+        .submit_goal_plan(&Fixture::plan(&scope), "plan", 0)
+        .unwrap();
+    f.sql().execute_batch("DELETE FROM goal_plan_heads;DELETE FROM goal_plan_revisions;DELETE FROM goal_plan_proposals;").unwrap();
+    assert_eq!(
+        f.store
+            .list_goal_plan_revisions(&scope.id)
+            .unwrap_err()
+            .code,
+        "INPUT_CHANGED"
+    );
 }

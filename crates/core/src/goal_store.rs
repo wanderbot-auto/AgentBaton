@@ -970,6 +970,15 @@ fn approved_scope(task: &Task, record: &ScopeRecord) -> Result<ApprovedGoalScope
     .map_err(plan_error)
 }
 fn scope_view(record: &ScopeRecord, scope: &ApprovedGoalScope) -> Result<GoalScopeView> {
+    let view = recorded_scope_view(record)?;
+    if view.goal != *scope.goal() || view.scope_digest != scope.digest() {
+        return Err(changed());
+    }
+    Ok(view)
+}
+/// Plain recorded data, not a reconstructed execution authority. In particular,
+/// historical reads never backdate host time or mint an expired scope token.
+fn recorded_scope_view(record: &ScopeRecord) -> Result<GoalScopeView> {
     let p = host_policy(&record.selection, &record.refs)?;
     let connection_id = &record.refs.grant_after.scope.connection_ids[0];
     let c = &record.refs.grant_after.connection_bindings[connection_id];
@@ -996,8 +1005,14 @@ fn scope_view(record: &ScopeRecord, scope: &ApprovedGoalScope) -> Result<GoalSco
         root_grant_id: record.refs.grant_after.id.clone(),
         root_grant_revision: record.refs.grant_after.revision,
         authority_revision: record.refs.grant_after.revision,
-        scope_digest: scope.digest().into(),
-        goal: scope.goal().clone(),
+        scope_digest: record.scope_digest.clone(),
+        goal: GoalBinding {
+            project_id: record.refs.project_id.clone(),
+            root_task_id: record.refs.task_id.clone(),
+            task_id: record.refs.task_id.clone(),
+            spec_revision: record.refs.spec_revision,
+            input_revision: record.refs.workspace.base_revision.clone(),
+        },
         root_budget: p.root_budget,
         project_budget: p.project_budget,
         contracts: p
@@ -1499,25 +1514,172 @@ impl Store {
     }
 }
 fn stored_scope_view(db: &Connection, id: &str) -> Result<GoalScopeView> {
+    key(id)?;
     let r: ScopeRecord = raw(db, "goal_scopes", id)?;
+    let columns: (i64, bool, String, String) = db
+        .query_row(
+            "SELECT revision,revoked,task_id,root_grant_id FROM goal_scopes WHERE id=?1",
+            [id],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+        )
+        .map_err(db_error)?;
     let (p, result) = native_confirmation(db, &r.approval_id, "goal")?;
     if r.id != id
+        || r.approval_id != id
+        || columns
+            != (
+                sql_num(r.revision)?,
+                r.revoked,
+                r.refs.task_id.clone(),
+                r.refs.grant_after.id.clone(),
+            )
         || p.snapshot["intent"] != json!(r.selection)
         || p.snapshot["resolved"] != approval_refs(&r.refs)?
         || p.snapshot["resolved_digest"] != json!(sha(&r.refs)?)
+        || p.snapshot["goal_policy"] != json!(host_policy(&r.selection, &r.refs)?)
     {
         return Err(changed());
     }
-    let mut view: GoalScopeView = serde_json::from_value(result).map_err(|_| changed())?;
-    if view.id != id
-        || view.scope_digest != r.scope_digest
-        || view.root_grant_revision != r.refs.grant_after.revision
+    let original = read_grant_revision(db, &r.refs.grant_after.id, r.refs.grant_after.revision)?;
+    if original != r.refs.grant_after
+        || grant_origin(db, &original)? != r.refs.grant_confirmation_id
     {
         return Err(changed());
     }
-    view.revision = r.revision;
-    view.revoked = r.revoked;
+    let view = recorded_scope_view(&r)?;
+    let mut approved = view.clone();
+    approved.revision = 1;
+    approved.revoked = false;
+    if json!(approved) != result {
+        return Err(changed());
+    }
+    let committed: bool = db.query_row(
+        "SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=?1 AND json_extract(document,'$.kind')='goal.scope_approved' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.aggregate_id')=?2 AND json_extract(document,'$.revision')=1 AND json_extract(document,'$.payload.scope_id')=?2 AND json_extract(document,'$.payload.task_id')=?3 AND json_extract(document,'$.payload.scope_digest')=?4 AND json_extract(document,'$.payload.grant_revision')=?5)",
+        params![MAX_STORED_BYTES,id,r.refs.task_id,r.scope_digest,sql_num(r.refs.grant_after.revision)?], |row|row.get(0),
+    ).map_err(db_error)?;
+    if !committed {
+        return Err(changed());
+    }
     Ok(view)
+}
+
+/// Verify immutable persistence/journal commitments and return data only. This
+/// deliberately neither reads current artifact bytes nor constructs a private
+/// ApprovedGoalScope/ValidatedPlan. New submissions and ready decisions still
+/// use read_scope/current_plan with all live authority and one-shot checks.
+fn historical_plan_views(db: &Connection, scope_id: &str) -> Result<Vec<GoalPlanView>> {
+    let scope = stored_scope_view(db, scope_id)?;
+    let head: Option<(String, i64, String)> = db
+        .query_row(
+            "SELECT plan_id,revision,digest FROM goal_plan_heads WHERE scope_id=?1",
+            [scope_id],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+        )
+        .optional()
+        .map_err(db_error)?;
+    let (revisions,proposals):(i64,i64) = db.query_row(
+        "SELECT (SELECT count(*) FROM goal_plan_revisions WHERE scope_id=?1),(SELECT count(*) FROM goal_plan_proposals WHERE scope_id=?1)",
+        [scope_id], |r|Ok((r.get(0)?,r.get(1)?)),
+    ).map_err(db_error)?;
+    let Some((plan_id, head, head_digest)) = head else {
+        let journal:bool = db.query_row(
+            "SELECT EXISTS(SELECT 1 FROM events WHERE json_extract(document,'$.kind')='goal.plan_validated' AND json_extract(document,'$.payload.scope_id')=?1)",
+            [scope_id], |r|r.get(0),
+        ).map_err(db_error)?;
+        if revisions != 0 || proposals != 0 || journal {
+            return Err(changed());
+        }
+        return Ok(vec![]);
+    };
+    if head > MAX_REVISIONS || revisions > MAX_REVISIONS || proposals > MAX_REVISIONS {
+        return Err(limited());
+    }
+    if head < 1 || revisions != head || proposals != head {
+        return Err(changed());
+    }
+    let mut q = db.prepare(
+        "SELECT r.revision,r.previous_digest,r.digest,CASE WHEN octet_length(r.document)<=?2 THEN r.document END,r.created_at,p.plan_id,p.digest,CASE WHEN octet_length(p.document)<=?3 THEN p.document END,r.plan_id FROM goal_plan_revisions r LEFT JOIN goal_plan_proposals p ON p.scope_id=r.scope_id AND p.revision=r.revision WHERE r.scope_id=?1 ORDER BY r.revision LIMIT 256",
+    ).map_err(db_error)?;
+    let mut rows = q
+        .query(params![
+            scope_id,
+            MAX_GOAL_PLAN_BYTES as i64,
+            MAX_STORED_BYTES
+        ])
+        .map_err(db_error)?;
+    let mut views: Vec<GoalPlanView> = vec![];
+    while let Some(row) = rows.next().map_err(db_error)? {
+        let revision =
+            u64::try_from(row.get::<_, i64>(0).map_err(db_error)?).map_err(|_| changed())?;
+        let expected = u64::try_from(views.len()).map_err(|_| limited())?;
+        let previous: Option<String> = row.get(1).map_err(db_error)?;
+        let digest: String = row.get(2).map_err(db_error)?;
+        let document: String = row
+            .get::<_, Option<String>>(3)
+            .map_err(db_error)?
+            .ok_or_else(limited)?;
+        let created_at: String = row.get(4).map_err(db_error)?;
+        let proposal_plan_id: Option<String> = row.get(5).map_err(db_error)?;
+        let proposal_digest: Option<String> = row.get(6).map_err(db_error)?;
+        let raw_proposal: String = row
+            .get::<_, Option<String>>(7)
+            .map_err(db_error)?
+            .ok_or_else(limited)?;
+        let revision_plan_id: String = row.get(8).map_err(db_error)?;
+        let proposal: GoalPlanProposal = decode(&document)?;
+        if revision != expected.checked_add(1).ok_or_else(limited)?
+            || proposal.revision != revision
+            || proposal.expected_revision != expected
+            || proposal.plan_id != plan_id
+            || revision_plan_id != plan_id
+            || proposal.goal != scope.goal
+            || proposal.scope_revision != scope.authority_revision
+            || previous.as_deref() != views.last().map(|v| v.digest.as_str())
+            || sha(&(&scope.scope_digest, &proposal))? != digest
+            || proposal_digest.as_ref() != Some(&digest)
+            || proposal_plan_id.as_ref() != Some(&plan_id)
+        {
+            return Err(changed());
+        }
+        let stored = match serde_json::from_str::<GoalPlanRawSubmission>(&raw_proposal) {
+            Ok(raw) => {
+                if raw.plan_json.len() > MAX_GOAL_PLAN_BYTES {
+                    return Err(limited());
+                }
+                GoalPlanSubmission {
+                    scope_id: raw.scope_id,
+                    proposal: serde_json::from_str(&raw.plan_json).map_err(|_| changed())?,
+                }
+            }
+            Err(_) => {
+                serde_json::from_str::<GoalPlanSubmission>(&raw_proposal).map_err(|_| changed())?
+            }
+        };
+        if stored.scope_id != scope_id || stored.proposal != proposal {
+            return Err(changed());
+        }
+        let committed:bool = db.query_row(
+            "SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=?1 AND json_extract(document,'$.kind')='goal.plan_validated' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.aggregate_id')=?2 AND json_extract(document,'$.revision')=?3 AND json_extract(document,'$.payload.scope_id')=?4 AND json_extract(document,'$.payload.plan_id')=?2 AND json_extract(document,'$.payload.plan_revision')=?3 AND json_extract(document,'$.payload.digest')=?5 AND json_extract(document,'$.payload.previous_digest') IS ?6 AND json_extract(document,'$.payload.dispatched')=0 AND json_extract(document,'$.payload.reservation_made')=0)",
+            params![MAX_STORED_BYTES,plan_id,sql_num(revision)?,scope_id,digest,previous], |r|r.get(0),
+        ).map_err(db_error)?;
+        if !committed {
+            return Err(changed());
+        }
+        views.push(GoalPlanView {
+            scope_id: scope_id.into(),
+            proposal,
+            digest,
+            created_at,
+            state: "validated_proposal".into(),
+            dispatched: false,
+        });
+    }
+    if views.last().is_none_or(|v| {
+        v.digest != head_digest || i64::try_from(v.proposal.revision).ok() != Some(head)
+    }) {
+        return Err(changed());
+    }
+    Ok(views)
 }
 fn idempotency_entry(db: &Connection, scope: &str, key: &str) -> Result<Option<(String, String)>> {
     // CASE bounds the bytes materialized by this statement and distinguishes a
@@ -1760,34 +1922,12 @@ impl Store {
         Ok(view)
     }
     pub fn get_goal_plan(&self, scope_id: &str) -> Result<GoalPlanView> {
-        let (_, scope) = read_scope(&self.conn, scope_id)?;
-        Ok(current_plan(&self.conn, scope_id, &scope)?.1)
+        historical_plan_views(&self.conn, scope_id)?
+            .pop()
+            .ok_or_else(|| err("NOT_FOUND", "Goal has no persisted plan"))
     }
     pub fn list_goal_plan_revisions(&self, scope_id: &str) -> Result<Vec<GoalPlanView>> {
-        let (_, scope) = read_scope(&self.conn, scope_id)?;
-        current_plan(&self.conn, scope_id, &scope)?;
-        let mut q=self.conn.prepare("SELECT document,digest,created_at FROM goal_plan_revisions WHERE scope_id=?1 AND octet_length(document)<=?2 ORDER BY revision LIMIT 256").map_err(db_error)?;
-        let rows = q
-            .query_map(params![scope_id, MAX_GOAL_PLAN_BYTES as i64], |r| {
-                Ok((
-                    r.get::<_, String>(0)?,
-                    r.get::<_, String>(1)?,
-                    r.get::<_, String>(2)?,
-                ))
-            })
-            .map_err(db_error)?;
-        rows.map(|row| {
-            let (doc, digest, created_at) = row.map_err(db_error)?;
-            Ok(GoalPlanView {
-                scope_id: scope_id.into(),
-                proposal: decode(&doc)?,
-                digest,
-                created_at,
-                state: "validated_proposal".into(),
-                dispatched: false,
-            })
-        })
-        .collect()
+        historical_plan_views(&self.conn, scope_id)
     }
     pub fn preview_goal_ready(
         &mut self,
