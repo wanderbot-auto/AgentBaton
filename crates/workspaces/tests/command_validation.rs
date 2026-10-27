@@ -54,6 +54,122 @@ printf("ready");fprintf(stderr,"diag");if(!strcmp(mode,"exit7"))return 7;if(!str
             CompilerFixture {_directory:directory,executable}
         })
     }
+    fn observation_shim() -> &'static Path {
+        static SHIM: OnceLock<(tempfile::TempDir, PathBuf)> = OnceLock::new();
+        &SHIM.get_or_init(|| {
+            let directory = tempfile::tempdir().unwrap(); let source = directory.path().join("waitid-delay.c"); let image = directory.path().join("waitid-delay.so");
+            fs::write(&source, r#"
+#define _GNU_SOURCE
+#include <dlfcn.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+static int observations, saw_exit, cleanup_delayed;
+int waitid(idtype_t kind, id_t child, siginfo_t *info, int flags) {
+    int (*original)(idtype_t,id_t,siginfo_t*,int) = dlsym(RTLD_NEXT,"waitid");
+    const char *mode = getenv("AB_COMMAND_OBSERVATION_CASE");
+    int index = ((flags & WNOWAIT) && (flags & WNOHANG)) ? __sync_add_and_fetch(&observations,1) : 0;
+    int selected = mode && (!strcmp(mode,"cleanup") ? (index && saw_exit && __sync_bool_compare_and_swap(&cleanup_delayed,0,1)) : index == 1);
+    if(selected) {
+        const char *marker = getenv("AB_COMMAND_WAIT_MARKER");
+        if(marker) { int fd=open(marker,O_WRONLY|O_CREAT|O_TRUNC,0600); if(fd>=0) { write(fd,"entered",7); close(fd); } }
+        struct timespec delay = !strcmp(mode,"deadline") ? (struct timespec){1,500000000} : (struct timespec){0,150000000};
+        while(nanosleep(&delay,&delay) != 0) {}
+    }
+    int result = original(kind,child,info,flags);
+    if(mode && !strcmp(mode,"cleanup") && index && result == 0 && info->si_pid != 0) saw_exit = 1;
+    if(selected) fprintf(stderr,"CONTROL %s delayed observation %d result=%d si_pid=%d si_status=%d\n",mode,index,result,info->si_pid,info->si_status);
+    return result;
+}
+"#).unwrap();
+            let result = Command::new("/usr/bin/cc").env_clear().env("PATH", "/usr/bin:/bin").args(["-shared", "-fPIC", "-o"]).arg(&image).arg(&source).arg("-ldl").output().unwrap();
+            assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr)); (directory, image)
+        }).1
+    }
+    #[test]
+    fn delayed_exit_cleanup_and_cancel_observations_cannot_be_accepted() {
+        const TEST_NAME: &str =
+            "linux::delayed_exit_cleanup_and_cancel_observations_cannot_be_accepted";
+        if let Ok(case) = std::env::var("AB_COMMAND_OBSERVATION_CASE") {
+            assert!(matches!(case.as_str(), "deadline" | "cleanup" | "cancel"));
+            let f = Fixture::new();
+            let rule = f.rule(f.settings("normal"));
+            let cancel = Arc::new(AtomicBool::new(false));
+            let canceler = if case == "cancel" {
+                let marker = PathBuf::from(std::env::var_os("AB_COMMAND_WAIT_MARKER").unwrap());
+                let flag = cancel.clone();
+                Some(std::thread::spawn(move || {
+                    let end = Instant::now() + Duration::from_secs(2);
+                    while !marker.exists() {
+                        assert!(Instant::now() < end);
+                        std::thread::sleep(Duration::from_millis(1));
+                    }
+                    flag.store(true, Ordering::Relaxed);
+                }))
+            } else {
+                None
+            };
+            let mut run = run_approved_command(&rule, &cancel).unwrap();
+            if let Some(thread) = canceler {
+                thread.join().unwrap();
+            }
+            println!(
+                "CONTROL {case} reason={:?} passed={} elapsed_ms={} exit={:?}",
+                run.view().reason,
+                run.view().passed,
+                run.view().process_and_cleanup_elapsed_ms,
+                run.view().exit_code
+            );
+            assert!(!run.view().passed, "late observation must not PASS");
+            assert!(run.accept_command(&rule).is_err());
+            match case.as_str() {
+                "deadline" => assert!(!run.view().exit_observed_within_budget),
+                "cleanup" => assert!(!run.view().cleanup_completed_within_budget),
+                "cancel" => assert!(run.view().cancellation_observed),
+                _ => unreachable!(),
+            }
+            assert_eq!(
+                run.view().reason,
+                match case.as_str() {
+                    "deadline" => RunReason::DeadlineExceeded,
+                    "cleanup" => RunReason::CleanupUnknown,
+                    "cancel" => RunReason::CancelRequested,
+                    _ => unreachable!(),
+                }
+            );
+            let end = Instant::now() + Duration::from_secs(1);
+            while !run.try_reap_owned_leader().unwrap() {
+                assert!(Instant::now() < end);
+                std::thread::sleep(Duration::from_millis(1));
+            }
+            assert!(!run.view().passed);
+            assert!(run.accept_command(&rule).is_err());
+            return;
+        }
+        for case in ["deadline", "cleanup", "cancel"] {
+            let directory = tempfile::tempdir().unwrap();
+            let output = Command::new(std::env::current_exe().unwrap())
+                .args(["--exact", TEST_NAME, "--nocapture"])
+                .env("LD_PRELOAD", observation_shim())
+                .env("AB_COMMAND_OBSERVATION_CASE", case)
+                .env("AB_COMMAND_WAIT_MARKER", directory.path().join("entered"))
+                .output()
+                .unwrap();
+            println!(
+                "{}{}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            assert!(
+                output.status.success(),
+                "controlled {case} child test failed"
+            );
+        }
+    }
     struct Fixture {
         _directory: tempfile::TempDir,
         root: PathBuf,

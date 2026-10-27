@@ -364,6 +364,9 @@ pub struct CommandValidationView {
     pub contract: CommandContractView,
     pub contract_digest: String,
     pub process_started: bool,
+    pub exit_observed_within_budget: bool,
+    pub cleanup_completed_within_budget: bool,
+    pub cancellation_observed: bool,
     pub reason: RunReason,
     pub exit_code: Option<i32>,
     pub exit_signal: Option<i32>,
@@ -446,6 +449,9 @@ impl CommandRun {
             || self.view.approval_id != rule.approval_id
             || self.view.policy_revision != rule.policy_revision
             || !self.view.passed
+            || !self.view.exit_observed_within_budget
+            || !self.view.cleanup_completed_within_budget
+            || self.view.cancellation_observed
         {
             return Err(CommandError::InvalidContract);
         }
@@ -497,6 +503,9 @@ fn initial(rule: &ApprovedCommandRule, reason: RunReason) -> CommandRun {
             contract: rule.view.clone(),
             contract_digest: rule.digest.clone(),
             process_started: false,
+            exit_observed_within_budget: false,
+            cleanup_completed_within_budget: false,
+            cancellation_observed: reason == RunReason::CancelledBeforeSpawn,
             reason,
             exit_code: None,
             exit_signal: None,
@@ -1058,6 +1067,7 @@ pub fn run_approved_command(
         }
         let mut offset = 0;
         let deadline = execution_start + Duration::from_millis(rule.settings.wall_time_ms);
+        let mut exit_observed_within_budget = false;
         let mut reason = loop {
             if stdout.setup_failed || stderr.setup_failed || stdin_failed {
                 break RunReason::IoFailure;
@@ -1076,11 +1086,31 @@ pub fn run_approved_command(
                 (Ok(a), Ok(b), Ok(c)) => a || b || c,
                 _ => break RunReason::IoFailure,
             };
+            // Nonblocking syscalls can still return after a scheduler/kernel
+            // stall. Classification uses the time AFTER each observation, never
+            // just the clock sampled before entering it.
+            if cancel.load(Ordering::Relaxed) {
+                break RunReason::CancelRequested;
+            }
+            if Instant::now() >= deadline {
+                break RunReason::DeadlineExceeded;
+            }
             if stdout.truncated || stderr.truncated {
                 break RunReason::CaptureLimit;
             }
-            match owned.finished() {
-                Ok(true) => break RunReason::Exited,
+            let finished = owned.finished();
+            let observed_at = Instant::now();
+            if cancel.load(Ordering::Relaxed) {
+                break RunReason::CancelRequested;
+            }
+            if observed_at >= deadline {
+                break RunReason::DeadlineExceeded;
+            }
+            match finished {
+                Ok(true) => {
+                    exit_observed_within_budget = true;
+                    break RunReason::Exited;
+                }
                 Ok(false) => (),
                 Err(_) => break RunReason::IoFailure,
             }
@@ -1099,26 +1129,47 @@ pub fn run_approved_command(
         if reason == RunReason::Exited && offset != script.len() {
             reason = RunReason::IoFailure;
         }
+        // Cleanup's fixed budget includes its ownership observation and signals.
+        // It must not restart after a delayed kill_owned()/waitid observation.
+        let cleanup = Instant::now() + Duration::from_millis(rule.settings.cleanup_time_ms);
         stdin.take();
         owned.kill_owned();
-        let cleanup = Instant::now() + Duration::from_millis(rule.settings.cleanup_time_ms);
         let mut status = None;
+        let mut cleanup_completed_within_budget = false;
         loop {
+            if Instant::now() >= cleanup {
+                break;
+            }
             let mut progress = false;
-            if !owned.reaped && owned.finished().unwrap_or(false) {
-                status = owned.reap().ok();
-                progress = true;
+            if !owned.reaped {
+                let finished = owned.finished().unwrap_or(false);
+                if Instant::now() >= cleanup {
+                    break;
+                }
+                if finished {
+                    status = owned.reap().ok();
+                    progress = true;
+                }
+                if Instant::now() >= cleanup {
+                    break;
+                }
             }
             if let Ok(p) = stdout.pump() {
                 progress |= p;
             }
+            if Instant::now() >= cleanup {
+                break;
+            }
             if let Ok(p) = stderr.pump() {
                 progress |= p;
             }
-            if owned.reaped && stdout.pipe.is_none() && stderr.pipe.is_none() {
+            // A late EOF/reap is an actual observation, but not proof that the
+            // approved cleanup budget was met. Retain its facts without PASS.
+            if Instant::now() >= cleanup {
                 break;
             }
-            if Instant::now() >= cleanup {
+            if owned.reaped && stdout.pipe.is_none() && stderr.pipe.is_none() {
+                cleanup_completed_within_budget = true;
                 break;
             }
             if !progress {
@@ -1128,7 +1179,9 @@ pub fn run_approved_command(
         if (stdout.truncated || stderr.truncated) && reason == RunReason::Exited {
             reason = RunReason::CaptureLimit;
         }
-        if (!owned.reaped || !stdout.eof || !stderr.eof) && reason == RunReason::Exited {
+        if (!cleanup_completed_within_budget || !owned.reaped || !stdout.eof || !stderr.eof)
+            && reason == RunReason::Exited
+        {
             reason = RunReason::CleanupUnknown;
         }
         let process_and_cleanup_elapsed_ms =
@@ -1157,8 +1210,19 @@ pub fn run_approved_command(
         if (!stable || !artifact_passed) && reason == RunReason::Exited {
             reason = RunReason::ArtifactContractFailed;
         }
+        // This is the completion boundary for cancellation. Artifact/Git reads
+        // do not extend the process/cleanup budgets, and must not hide a stop
+        // request received while the observations were being checked.
+        let cancellation_observed =
+            cancel.load(Ordering::Relaxed) || reason == RunReason::CancelRequested;
+        if cancellation_observed && reason == RunReason::Exited {
+            reason = RunReason::CancelRequested;
+        }
         let mut run = initial(rule, reason);
         run.view.process_started = true;
+        run.view.exit_observed_within_budget = exit_observed_within_budget;
+        run.view.cleanup_completed_within_budget = cleanup_completed_within_budget;
+        run.view.cancellation_observed = cancellation_observed;
         run.view.script_bytes_delivered = offset as u64;
         run.view.process_and_cleanup_elapsed_ms = process_and_cleanup_elapsed_ms;
         run.view.main_image = IMAGE_POLICY.into();
@@ -1180,6 +1244,9 @@ pub fn run_approved_command(
         };
         run.view.file_integrity = files.as_ref().map(ValidationEvidence::view);
         run.view.passed = reason == RunReason::Exited
+            && exit_observed_within_budget
+            && cleanup_completed_within_budget
+            && !cancellation_observed
             && owned.reaped
             && stable
             && artifact_passed

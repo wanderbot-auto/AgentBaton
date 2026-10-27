@@ -6,12 +6,12 @@ Implemented and self-tested Linux sealed ELF and macOS root-protected Mach-O exe
 
 Frozen source fingerprints:
 
-- command_validation.rs: `fdc83ed40e68e4de3a590f69fa272dcb6a112b47d396dd598003623b80697f04`
+- command_validation.rs: `d5fa7b28d6a694c4fa8f767a021499fb5c984a68937cfbf939fcf553cbd4e870`
 - lib.rs (one module export plus explicitly authorized top-level API comment clarification): `e396e03e5fbdf99ee4ffa2016240c1771da2892977651340cef2b4f3afdd45a5`
-- tests/command_validation.rs: `8896fd4c1062724771b01b5cd1b847491b0df0b225218ce13c9a35b04520f866`
+- tests/command_validation.rs: `1ec8708817bb72197be4fb44afec25155810e70dc4c0fc6e3973f86fe912cfd5`
 
-Final source, including API comments and the escape-fixture release handshake, was tested at these exact hashes. Independent review must verify these source hashes. The source/doc commit is to remain local until parent integration review; no push or main update has been made by this unit.
+Initial freeze `eec524c559ec5e99ac8434fa45655a170bbbc0ad` is preserved. This checkpoint supersedes its source hashes after independent review F1: observed-exit/cancel checks run after I/O/waitid, cleanup includes ownership/signalling observations, and scoped acceptance requires recorded in-budget completion. Final source was tested at these exact hashes: 90 unit/integration plus 4 doctests, formatting and three-target Clippy PASS. Independent review must verify these source hashes. The source/doc commit is to remain local until parent integration review; no push or main update has been made by this unit.
 
 Actual results/log hashes are in EVIDENCE.md. Shared build target `/workspace/.worktrees/validation-integration/target` was released to the primary engineer after the final self-checks; do not start another cargo run on it without coordination. Two Apple target standard libraries were installed for cross checking, with no Cargo dependency/lock change or new target directory.
 
-Next: independent source review and exact-fingerprint tests; address findings in this isolated worktree. Parent then integrates on a separate approved branch, wires trusted Core policy/native confirmation, and runs the existing two-architecture macOS CI against the exact integrated candidate. Preserve all original assertions and failed logs. Any unreaped Child/unknown process outcome must be retained/reconciled by the future supervisor rather than blindly replayed. Never promote the command-only token to full task/Git/production acceptance.
+Next: independent F1 exact-fingerprint revalidation, including the reviewer's original 1500ms delay versus unchanged 1000ms process budget. F1 is not marked independently closed by the implementer. Address any further findings in this isolated worktree. Parent then integrates on a separate approved branch, wires trusted Core policy/native confirmation, and runs the existing two-architecture macOS CI against the exact integrated candidate. Preserve all original assertions and failed logs. Any unreaped Child/unknown process outcome must be retained/reconciled by the future supervisor rather than blindly replayed. Never promote the command-only token to full task/Git/production acceptance.

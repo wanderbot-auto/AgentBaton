@@ -19,3 +19,5 @@ Read `AGENTS.md`, execution gate/approval, `docs/06-orchestration.md`, `docs/08-
 | AB-VAL-007 | Private command-only acceptance tied to exact rule/approval/revision and live artifact observations | No automatic TaskAccepted promotion or full task rules in this library |
 | AB-VAL-009 | Approved Git candidate/tree/target-head checked before/after and again at acceptance | No merge/adoption side effects; caller still needs the separate authorized adoption contract |
 | AB-VAL-011 | `integration_authorized=false`, task acceptance not established | No production approval, signing or publishing operation |
+
+Review F1 follow-up: recheck monotonic deadline/cancel after every exit/I/O observation and cleanup budget after ownership/reap/EOF observations; never infer budget compliance from a pre-syscall timestamp. Add real isolated parent-waitid-delay controls and keep original budgets, fixtures and acceptance assertions. Preserve initial eec524c and its failing control as history; require independent revalidation before integration.
