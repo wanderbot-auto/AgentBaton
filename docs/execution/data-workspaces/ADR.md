@@ -1,0 +1,3 @@
+# ADR: explicit files and no-overwrite publication
+
+Use a fixed, owner-approved file list instead of automatic recursive directory copying. Keep declarations and verified host tokens separate; JSON labels cannot grant path authority. Reserve the unique final directory atomically and publish an exclusive Ready marker only after complete source/copy checks. Never rename over unknown destinations or clean partial directories. Ready recovery trusts a host-authenticated persisted creation contract plus actual target bytes/permissions/root pins, independently of original source availability. Byte/stamp before-after checks are observations, not OS input freeze or atomic multi-file snapshot proof. Resource caps are explicit safety limits, not an MVP reduction.

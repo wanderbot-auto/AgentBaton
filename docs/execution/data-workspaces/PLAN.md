@@ -1,0 +1,9 @@
+# Explicit data workspace snapshots
+
+Base7ba60e0822129d474be1ade845640d1d72e79b21; isolated codex/data-workspace-snapshots worktree. AB-START-001, OWNER001/002 ACK at protectedmain66061439c79fa44b66a33782febc1fb0f31c73df. Scope new workspaces data_workspace.rs/test, one export, unit documents only; no Core/locks/UI/credentials/real Provider/model calls.
+
+Implement host-approved explicit regular-file selection, private non-Deserialize verified snapshot token, bounded FD-root/nofollow/nonblock/singlelink source reads and before-after SHA/stamp/root rechecks. Defaults:64MiB/file,256MiB total,64files; no recursion or external process/Git invocation. Root/path/ID/hash contract determines reproducible content dataset revision; observations are not an atomic whole-directory freeze/OS sandbox.
+
+Host-approved private managed root must be canonical/current UID0700 and pinned. Reject it when equal to/inside source by canonical paths, root device/inode and ancestor identities. Reserve a unique data-ID final directory with mkdirat no-overwrite. Creating marker first; new directories0700/files0600 without inherited executable bits; verify every copy/hash/source observation and fsync before exclusive Ready marker/private ready token. Keep all partial/unknown creations, never overwrite/resume/delete unknown contents automatically. Reject traversal, path prefix/case/inode aliases, FIFO/symlink/hardlink, private native-auth paths and oversize before unsafe reads.
+
+Recovery must use a host-authenticated persisted restore contract/dataset revision and rehash all target files/permissions/root pins. A disk Ready label alone is not authority. A Ready copy remains valid if original source later changes/moves; recovery must not reopen original source. Partial creation after source drift is unknown/failed, not automatic resume.
