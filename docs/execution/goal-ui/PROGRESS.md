@@ -11,3 +11,10 @@ Actual224UI in15files/typecheck/build pass; original182tests in13files remain by
 Failed evidence retained: initial37-case run had one summary/time DOMquery mismatch; corrected query retains full visibletext assertion. Initial full219 run exposed hidden Goalalert collision with an unchanged oldApp assertion; real progressive-disclosure fix defers reads and livealerts until user expansion, with regression. Two additional negative controls failed for fixed-key recovery after revoked authority, then narrow recovery-only handling passed. New actions still reject stale/revoked authority, exacthistorical recovery is manual/samepayload-key-CAS only and Core must reject new commits under stale authority. All224/assertions/limits retained.
 
 Nine source fingerprints plus all failure/pass/resource hashes are recorded. Worker exact dependency symlink removed; no push. Independent full UI/native review and safe Core9 composition/real IPC/actualmacOS remain next; fullGoal product delivery is not claimed.
+
+
+## Defensive read-shape correction
+
+Independent review identified missing/unsafeexpires permitting freshnewplan/preview and malformedblockedreason objects crashing React. Added four negativecontrols first and actually observed4fails, including the unhandled Reactchild-object error (log retained). Narrow source98a38d4 changes only GoalPlanning and its tests: scope/grant expiry must be signed safeinteger, dimension/reason arrays must containstrings, blockedmap values must bestrings with existingplan nodeIDs. Invalidlatestread clears priorpreview/freshness and disables writes.
+
+Added a fifth positivehistory guard: a legitimate signedpast expiry remains readable and exactoriginalraw/key/CAS manual recovery still works, while a newcommit is denied. No new authority, receipt or zero meter invented. Original224tests/assertions/limits preserved. Actual component31/full229UI/types/build pass. Native/API/Core/locks untouched; original8eeLinuxnative13/Clippy/fmt evidence reused against identicalRust, no redundantCargo or nativeharness claim. Parent-assigned reviewer is checking the small delta; its report/link are not modified by this worker.

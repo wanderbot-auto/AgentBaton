@@ -1,8 +1,8 @@
 {
   "unit": "goal-scope-plan-ui-native-bridge",
   "base_commit": "322461e125c9295ef5055cc9f04ebe552ac14dbb",
-  "source_commit": "8ee7c105da36d5a1168cd70b5ec4fa3ec1b0a806",
-  "recorded_at_utc": "2026-10-27T03:27:16.093259+00:00",
+  "source_commit": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+  "recorded_at_utc": "2026-10-27T03:36:07.682555+00:00",
   "authorization": "AB-START-001; OWNER001/002 ACK; exact parent-approved322base. Only Goal UI/native and four unit docs, no Core/schema9/library/locks/permissions/modelcalls/mainpush.",
   "state": "ui_and_bridge_locally_verified_schema9_integration_and_independent_review_pending",
   "requirements": [
@@ -14,8 +14,8 @@
     "unknown_idempotent_request_recovery"
   ],
   "source_sha256": {
-    "apps/desktop/src/GoalPlanning.tsx": "1d530af0006f942a9f343f699bbac553bdaf97be8d53c06eab55a5eaa774a812",
-    "apps/desktop/src/GoalPlanning.test.tsx": "4dfc0ed7cdf0d64a47d1cba530f80cfe8ec26a79722e61dd6de5e9fe7084d15b",
+    "apps/desktop/src/GoalPlanning.tsx": "90fcd894bef5c0e867ffb1667bb25ac5823b895ed2b0574a66d2d1c122aa592e",
+    "apps/desktop/src/GoalPlanning.test.tsx": "26ce0dc387e8d736d6f967679ab7b0f6677c603884aea9caa089d56f64196b7d",
     "apps/desktop/src/goal-api.ts": "24dcf1d3af72666da1b902ffb3689f47b6fdd1040389b8decd7949b68664d4be",
     "apps/desktop/src/goal-api.test.ts": "155913e9b5a3c968682c91717f9c68039ae2fd57a347352ddf5378c35e52fa1f",
     "apps/desktop/src/goal-i18n.ts": "f93e2109599583857812edc1aee90e2a1e17c4fcb745ea5883d77332a563c246",
@@ -38,9 +38,9 @@
       "cwd": "apps/desktop",
       "command": "npm test",
       "exit_code": 0,
-      "tests": 224,
+      "tests": 229,
       "files": 15,
-      "scope": "Original182tests plus42Goal tests; jsdom/mocked native-facing transport, no claim of actual Core9/OS confirmation/dispatch"
+      "scope": "Original182+42Goal tests unchanged plus5 defensive-shape/history regressions; mocked transport, not Core9/native execution"
     },
     {
       "cwd": "apps/desktop",
@@ -55,7 +55,8 @@
       "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml",
       "exit_code": 0,
       "tests": 13,
-      "scope": "Actual Linux native crate unit tests and production dispatcher compilation against unchanged Core8. Two added tests cover independent Goal-kind confirmation and raw plan byte forwarding/oversize not_started refusal; not actual native GUI or Core9 RPC execution"
+      "scope": "Actual Linux native crate unit tests and production dispatcher compilation against unchanged Core8. Two added tests cover independent Goal-kind confirmation and raw plan byte forwarding/oversize not_started refusal; not actual native GUI or Core9 RPC execution",
+      "source": "8ee7c10 nativeRust byte-identical98a38d4; actual prior native13 preserved, not redundantly rerun"
     },
     {
       "command": "cargo clippy --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --all-targets -- -D warnings",
@@ -64,6 +65,13 @@
     {
       "command": "cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml -- --check",
       "exit_code": 0
+    },
+    {
+      "cwd": "apps/desktop",
+      "command": "npm test -- src/GoalPlanning.test.tsx",
+      "exit_code": 0,
+      "tests": 31,
+      "scope": "All Goal component assertions incl5 new expiry/reason shape/history guards"
     }
   ],
   "contracts": {
@@ -104,6 +112,12 @@
       "log": "goal-ui-recovery-revoked-failing-control.log",
       "result": "2failed targeted control against pre-fix uncommitted GoalPanel",
       "observation": "Fresh revoked authority incorrectly disabled exact old-key recovery. Added negative cases first, then narrowly separated historical recovery from new actions; final224pass."
+    },
+    {
+      "log": "goal-ui-shape-failing-control.log",
+      "result": "4 targeted failures against8ee including one actual unhandled React child-object error",
+      "observation": "Missing/unsafe expiry was accepted and new preview remained enabled; blocked reason object crashed rendering; unknown_dimensions object was accepted. New cases ran before correction.",
+      "correction": "98a38d4 adds minimal expiry/signed-safe and string-array/map guards before adoption/render; invalid latest reads clear old preview/freshness and disable writes. Valid signed expired history still permits only exact-key manual recovery, not new actions."
     }
   ],
   "native_environment": {
@@ -142,14 +156,30 @@
     "goal-ui-tests.log": "f82b93368ac92b945c133336d7b707bc3894136d0e4a7f8838543248de976e73",
     "goal-ui-typecheck-initial.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
     "goal-ui-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
-    "goal-ui-native-resource-sha256.json": "6a75d8582e1b64c12082f37f1807d9c654fd445372b484bbcfd515ddc2f901a4"
+    "goal-ui-native-resource-sha256.json": "6a75d8582e1b64c12082f37f1807d9c654fd445372b484bbcfd515ddc2f901a4",
+    "goal-ui-shape-tests.log": "fc295fe1209b83ea1f8cc34d005365a46d20c2f4b9597cbeffedba5f8bdfd08a",
+    "goal-ui-shape-full229.log": "a7c5ceb5fda54b0712b8aa0ea1979c75b4ce3d684dd07fb4c86840ceebb304f9",
+    "goal-ui-shape-failing-control.log": "172cce990e218ee8fd4b1774293404dfa04641238c06d277555496bc59f5799a",
+    "goal-ui-shape-build.log": "9675ea4f7f9b1c1b448dd09db65fcc36b2aea8f8d26ea69f1b92dd1e90ed90b3",
+    "goal-ui-shape-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
   },
   "temporary_dependencies": "Worker-created exact symlink to existing locked Root installation was unlinked after checks; actual dependencies untouched.",
-  "independent_review": "Needed for source8ee7c10; no review verdict fabricated.",
+  "independent_review": "Parent-assigned reviewer checked8ee and now reviews98a38d4; no final delta verdict claimed yet.",
   "not_run": [
     "Core9/schema9 migrations or real Goal daemon IPC not merged into this UI branch; backend independently implemented elsewhere",
     "Actual OS native Goal owner dialog, WebView/browser interaction and MacCI/installation for this exact composition",
     "NL planner, reservation/dispatch/scheduler/node execution and task acceptance are later authorized units; no fake runtime/success displayed here",
     "Real Provider/model/private account calls/new paid provisioning/signing/production release remain separately gated"
-  ]
+  ],
+  "prior_evidence_git": "ac0c400a845d8243432139a87d88827bbd8930ef:docs/execution/goal-ui/EVIDENCE.json",
+  "defensive_shape_delta": {
+    "source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+    "changed_files": [
+      "apps/desktop/src/GoalPlanning.tsx",
+      "apps/desktop/src/GoalPlanning.test.tsx"
+    ],
+    "tests_added": 5,
+    "final_result": "component31/full229/typecheck/build pass; old224/assertions/timeouts intact",
+    "boundaries": "No API/Core/native/lock/authority changes. Native13 reuses byte-identicalRust. Invalid/missing expiry refused, signed past safe expiry remains history, blocked reason values and dimension/reason arrays must be strings and scoped node IDs."
+  }
 }
