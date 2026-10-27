@@ -31,9 +31,17 @@ describe('Task workspace using mocked Tauri transport', () => {
     vi.mocked(api.create).mockResolvedValue({ ...task, project_id: project.id });
     render(<App />);
     await screen.findByText('Local daemon connected');
+    const active = await screen.findByRole('option', { name: project.name });
+    expect(active).toBeEnabled();
     await user.selectOptions(screen.getByLabelText('Project'), project.id);
+    expect(screen.getByLabelText('Project')).toHaveValue(project.id);
     expect(screen.getByRole('option', { name: 'Archive (Archived)' })).toBeDisabled();
-    await user.type(screen.getByLabelText('Task goal'), task.goal);
+    // This case checks project binding; keyboard-by-keyboard creation remains
+    // covered below. Paste the goal through the actual input/onChange path.
+    const goal = screen.getByLabelText('Task goal');
+    await user.click(goal);
+    await user.paste(task.goal);
+    expect(goal).toHaveValue(task.goal);
     await user.click(screen.getByRole('button', { name: 'Create task' }));
     await waitFor(() => expect(api.create).toHaveBeenCalledWith(task.goal, expect.any(String), project.id));
   });
