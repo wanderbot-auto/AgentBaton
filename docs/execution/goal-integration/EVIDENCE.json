@@ -148,5 +148,19 @@
     "final_postfixture_clippy_fmt": "pending",
     "independent_review": "in_progress",
     "macOS": "not_run"
+  },
+  "current_composed_frontend_actual": {
+    "source": "2b8b6d7",
+    "tests": 259,
+    "files": 16,
+    "typecheck_build": "passed",
+    "logs_manifest": "/workspace/.onboarding/goal-integration-current-ui.json",
+    "dimension": "current composed frontend; native fixture review still pending"
+  },
+  "native_runner_current_actual": {
+    "source": "a6bad87",
+    "tests": 17,
+    "status": "passed",
+    "dimension": "Python failure contracts only, not real macOS or native DBbind"
   }
 }
