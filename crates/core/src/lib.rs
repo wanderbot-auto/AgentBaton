@@ -1,6 +1,7 @@
 //! AgentBaton's single business authority, shared by every local client.
 pub mod data_validation;
 pub mod execution;
+pub mod goal_plan;
 pub mod ipc;
 pub mod policy;
 pub mod registry;

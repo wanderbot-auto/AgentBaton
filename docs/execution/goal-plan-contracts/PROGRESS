@@ -1,0 +1,9 @@
+# Progress
+
+Implemented the pure product contract/decision layer and 35 integration tests. No Store, scheduler, IPC, UI, lockfile or migration changes. Scope constructor authenticates no labels: its documented trusted caller must resolve actual owner/grant/rule records. Neither scope, validated plan nor host-evidence wrapper implements Deserialize.
+
+Actual checks completed: cargo check; 35 targeted Rust integration tests (zero failed/ignored); Core all-target Clippy with -D warnings; rustfmt check and git diff --check. An initial fixture compile failure and first Clippy failure are recorded in EVIDENCE and corrected, with no lint suppression or acceptance reduction.
+
+Self-review improvements included: individual plan/spec/input/attempt evidence binding; cross-plan snapshot rejection; old-plan unresolved-action root barrier; checked quotas and unknown-meter propagation; exact task/physical-workspace/write-set proof binding; trusted validator candidate dependency handling; separate single-attempt reservations; complete cumulative node/ancestor/root/project ledgers; child retry counting without resetting root limits. Validators cannot be repurposed for external writes.
+
+Independent review is pending. This is partial evidence toward WP08, not completed natural-language planning, bidirectional Router delegation, persistent scheduler, budget-stop/recovery, GUI plan editing or TaskAccepted. Native Goal capability is not available in this tool entry, and no platform Goal state is claimed. No Provider/model/private identity or new paid resource was used.

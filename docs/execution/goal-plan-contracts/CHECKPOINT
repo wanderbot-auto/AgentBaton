@@ -1,0 +1,11 @@
+# Recovery checkpoint
+
+Worktree /workspace/.worktrees/goal-plan-contracts; branch codex/goal-plan-contracts. Source parent is 2640e6c9af2568c2731019cab9d16423fd45ceae. Local freeze commit is the commit containing this checkpoint (obtain exact ID using git log); no push is authorized for this agent. Primary arranges independent review, integration and later Store/IPC/UI implementation.
+
+Frozen files: crates/core/src/goal_plan.rs, crates/core/tests/goal_plan.rs, exactly one module export in crates/core/src/lib.rs, and this unit's four documents. Source SHA-256 values and actual logs are in EVIDENCE. No other files are in scope.
+
+Validation completed: 35 goal_plan integration tests pass; Core all-target Clippy -D warnings passes; rustfmt and whitespace checks pass. Last source edit after the successful Cargo checks only expands trusted-host precondition documentation. Independent review should rerun against the exact freeze. No remaining known source defect, but review is not yet complete.
+
+CARGO_HOME=/workspace/.toolchains/cargo; RUSTUP_HOME=/workspace/.toolchains/rustup; CARGO_BUILD_JOBS=2; CARGO_TARGET_DIR=/workspace/.worktrees/validation-integration/target. Shared target was released to the CommandCore agent after checks; coordinate before any new Cargo invocation. Do not create a new target/node_modules.
+
+Next: independent code/test review; correct any concrete finding inside allowed files; primary integrates with the command/Data baselines. Future host must derive a consistent Store/journal snapshot, verify owner/rule/attempt ownership and actual write isolation, atomically compare plan+ledger revisions and reserve/dispatch under existing grants. Never treat ReadyDecision as a reservation, dispatch, accepted task or an OS sandbox.
