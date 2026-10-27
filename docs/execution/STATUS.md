@@ -18,3 +18,5 @@ Command当前仅单次策略/时间/捕获上限及本地单worker互斥，root/
 Goal计划算法source9acf86c/docs3d369已独立48tests+4原语义控制/Clippy/fmt通过，三处真实问题关闭且旧失败保留。独立GoalStore/schema9源码1a3236a已实现新kindgoal原生范围批准、版本CAS、原始JSON严格解析和只读ready预览；作者实际Core207/Clippy/fmt通过，独审正在验证，不把作者检查冒充验收。独审发现的根预算历史丢失及超大记录被当缺失两项已修复，同语义旧失败与新controls保留。Goal UI源码98a38d4/docs4953已独审229 UI/type/build及13 Linuxnative单元通过，尚未组合真实Core9/浏览器/Mac。预览不是reservation/派发，新nativeGoal批准才可修改delegation ceiling，旧grant不偷换权限，未知计量不补0。
 
 完整Goal仍有验收采纳/规划派发/能力配置/历史留存导出/远程/登录睡眠/真实Provider与人工验收等未实现或未验证维度；依赖就绪工作持续推进。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和130需求表保留实际通过/失败/未跑/受阻，不写完成百分比。原三Environment检查、所有主分支保护和产品四检查均保持，不直接/强推main、不跳过失败求绿。
+
+最新PR12验证对象ada4的Product40451447529已实际bothMac13/14失败、Env三项/Rust/UI成功；真实checkout6758d6d，admission1331/1199ms>1000，所有原时限保留。CI_ADA4_FAILURE.json/NATIVE_ADA4_REVIEW.md精确保留失败与下游未跑。真正Git检查批处理sourcecb82/docsff8598已作者377unique+4docs/lints通过且接受独审，仍未新Mac验证。Goal已远程draftPR13 https://github.com/wanderbot-auto/AgentBaton/pull/13 head4798a18，stackedPR12、实际9browserchecks，不借旧绿合入。Root另5f4b0de只读编辑上下文待Cargo，Editor924/882作者258MockUI通过，独审发现numericnodeid缓存碰撞正窄修；Data168原110+7通过，最后路径前置guard修订待实测。完整130需求继续，extra权限仍关闭。
