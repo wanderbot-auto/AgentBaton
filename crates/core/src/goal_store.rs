@@ -1591,7 +1591,16 @@ fn stored_scope_view(db: &Connection, id: &str) -> Result<GoalScopeView> {
     let mut approved = view.clone();
     approved.revision = 1;
     approved.revoked = false;
-    if json!(approved) != result {
+    let mut approved = json!(approved);
+    // Older schema9 confirmations predate this additive display projection.
+    // Compare every original field, and validate the context exactly whenever
+    // it was recorded. Do not rewrite consent or accept a null/forged context.
+    if result.get("edit_context").is_none() {
+        if let Some(object) = approved.as_object_mut() {
+            object.remove("edit_context");
+        }
+    }
+    if approved != result {
         return Err(changed());
     }
     let committed: bool = db.query_row(
