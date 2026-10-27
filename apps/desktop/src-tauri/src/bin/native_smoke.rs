@@ -997,9 +997,11 @@ mod fixture_tests {
     #[test]
     fn generated_registered_project_setup_creates_no_goal_or_attempt_authority() {
         let directory = private_fixture_runtime().unwrap();
-        let id = prepare_readonly_goal_project(directory.path()).unwrap();
-        let store =
-            agentbaton_core::storage::Store::open(&directory.path().join("baton.sqlite3")).unwrap();
+        // Match main(): macOS temporary roots may include a system symlink
+        // alias, while the production daemon correctly requires the real path.
+        let runtime = directory.path().canonicalize().unwrap();
+        let id = prepare_readonly_goal_project(&runtime).unwrap();
+        let store = agentbaton_core::storage::Store::open(&runtime.join("baton.sqlite3")).unwrap();
         assert!(store.list().unwrap().is_empty());
         let project = store.get_project(&id).unwrap();
         assert_eq!(project.name, "Native readonly Goal project");
@@ -1010,15 +1012,15 @@ mod fixture_tests {
         assert!(store.list_workspaces(&id).unwrap().is_empty());
         assert!(store.list_grants(&id).unwrap().is_empty());
         assert!(valid_goal_counts(
-            &goal_database_snapshot(directory.path()).unwrap()
+            &goal_database_snapshot(&runtime).unwrap()
         ));
-        let mode = fs::metadata(directory.path().join("baton.sqlite3"))
+        let mode = fs::metadata(runtime.join("baton.sqlite3"))
             .unwrap()
             .permissions()
             .mode()
             & 0o777;
         drop(store);
-        let actual_daemon = ipc::Daemon::bind(directory.path());
+        let actual_daemon = ipc::Daemon::bind(&runtime);
         assert!(
             actual_daemon.is_ok(),
             "helper-created DB mode={mode:o}; actual authority rejection={:?}",
@@ -1026,6 +1028,50 @@ mod fixture_tests {
         );
         assert_eq!(mode, 0o600);
         drop(actual_daemon);
+    }
+
+    #[test]
+    fn owned_runtime_alias_is_rejected_but_its_canonical_private_database_binds() {
+        let directory = private_fixture_runtime().unwrap();
+        let owned_parent = directory.path().canonicalize().unwrap();
+        let real_parent = owned_parent.join("actual-parent");
+        fs::DirBuilder::new()
+            .mode(0o700)
+            .create(&real_parent)
+            .unwrap();
+        let alias_parent = owned_parent.join("alias-parent");
+        std::os::unix::fs::symlink(&real_parent, &alias_parent).unwrap();
+        let owned_runtime = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir_in(&alias_parent)
+            .unwrap();
+        let alias_runtime = owned_runtime.path();
+        let runtime = alias_runtime.canonicalize().unwrap();
+        assert_ne!(alias_runtime, runtime);
+        prepare_readonly_goal_project(&runtime).unwrap();
+        let database = runtime.join("baton.sqlite3");
+        let before = fs::read(&database).unwrap();
+        assert_eq!(
+            fs::metadata(&database).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+        let denied = ipc::Daemon::bind(alias_runtime)
+            .err()
+            .expect("a symlink alias must never gain daemon authority");
+        assert_eq!(denied.code, "PERMISSION_DENIED");
+        assert!(denied.message.contains("symbolic links"));
+        assert_eq!(fs::read(&database).unwrap(), before);
+        let daemon =
+            ipc::Daemon::bind(&runtime).expect("the same owned canonical runtime must bind");
+        assert!(valid_goal_counts(
+            &goal_database_snapshot(&runtime).unwrap()
+        ));
+        drop(daemon);
+        assert_eq!(fs::read_link(alias_parent).unwrap(), real_parent);
+        assert_eq!(
+            fs::metadata(database).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
     }
 
     #[test]
