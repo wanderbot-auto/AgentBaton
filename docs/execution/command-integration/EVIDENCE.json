@@ -1076,5 +1076,21 @@
     "independent_review": "docs/execution/command-integration/NATIVE_201F_REVIEW.md",
     "new_exact_mac_ci": "pending; hypothesis not established rootcause",
     "mac_cross_fixture_parallel_stress": "not_verified; explicit intra-test concurrency and Linuxparallel retained"
+  },
+  "inspection_performance_fix": {
+    "source": "cb82ac6d1f8072e0b2fc18a90e7e13572fb6d8bb",
+    "root_cherry": "5cea4be",
+    "production": "same-inspection batching only; both independent admission/launch checks retained",
+    "git_processes_each_phase": {
+      "old": 10,
+      "new": 5
+    },
+    "author_workspace_unique": 377,
+    "compilefail_docs": 4,
+    "independent_affected_unique": 227,
+    "review": "docs/execution/admission-performance/REVIEW.md",
+    "review_sha256": "bbe0cef3e002667934bfda5efe8b47382db078ec93038df1f3c7b061ff234fc6",
+    "new_exact_mac_ci": "pending",
+    "ci_delta": "sameMaccargo invocation adds -- --show-output only; all original tests/deadlines remain"
   }
 }

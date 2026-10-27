@@ -20,3 +20,5 @@ Goal计划算法source9acf86c/docs3d369已独立48tests+4原语义控制/Clippy/
 完整Goal仍有验收采纳/规划派发/能力配置/历史留存导出/远程/登录睡眠/真实Provider与人工验收等未实现或未验证维度；依赖就绪工作持续推进。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和130需求表保留实际通过/失败/未跑/受阻，不写完成百分比。原三Environment检查、所有主分支保护和产品四检查均保持，不直接/强推main、不跳过失败求绿。
 
 最新PR12验证对象ada4的Product40451447529已实际bothMac13/14失败、Env三项/Rust/UI成功；真实checkout6758d6d，admission1331/1199ms>1000，所有原时限保留。CI_ADA4_FAILURE.json/NATIVE_ADA4_REVIEW.md精确保留失败与下游未跑。真正Git检查批处理sourcecb82/docsff8598已作者377unique+4docs/lints通过且接受独审，仍未新Mac验证。Goal已远程draftPR13 https://github.com/wanderbot-auto/AgentBaton/pull/13 head4798a18，stackedPR12、实际9browserchecks，不借旧绿合入。Root另5f4b0de只读编辑上下文待Cargo，Editor924/882作者258MockUI通过，独审发现numericnodeid缓存碰撞正窄修；Data168原110+7通过，最后路径前置guard修订待实测。完整130需求继续，extra权限仍关闭。
+
+PR12真实优化sourcecb82（本地cherry5cea，docs47ab）已独审227unique+4compilefail/Clippy/fmt/5Git每phase及额外恶意Git配置控制通过；作者完整377+4另记。生产仅同次inspect批量只读查询，reservation/launch两次独立完整guard与原1000/1/2/3秒不变。Mac同次cargo仅加--show-output显示实际阶段，不额外重复/预热/skip。新候选正常push后仍须新准确7检查、双native与实际双包核验，未将Linux当Mac或完整产品完成。
