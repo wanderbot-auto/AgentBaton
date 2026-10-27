@@ -105,7 +105,7 @@
     },
     "independent_review_sha256": "d044e277ef5738a86b3b2414ab748a36ad1e963ec72a7e7cc7604b9959772a3c"
   },
-  "ci": "structured10 added to existing frontend step alongside originalGoal9; exactwholeGoal/native Macpending; NativeGoalreadonly3 implementation in isolatedsubtask",
+  "ci": "structured10 remains alongside originalGoal9; PR13 currently stacked draft with no new run; nativeGoal4 readonly assertion extension in independent review; exact wholeGoal/macOS checks not_run",
   "resource_cache_retirement": "/workspace/.onboarding/completed-worktree-cache-retirement.json",
   "protected_main": "bcf10bb802258645c554f37581237a6c0cb3cbe6",
   "upstream_command_acceptance": "docs/execution/command-integration/MERGE_58B5.json",
@@ -136,5 +136,17 @@
     "clippy_fmt": "passed",
     "review_sha256": "d28756abb6f03a3b428445c2704159222f4094fd505eb947317e0999f108c772",
     "legacy_cache": "missingnewdisplayfield compatible only, everyoriginalfield/presentorNulltamperstrict; realpersistedcachebyteunchanged"
+  },
+  "resource_cache_retirement_latest": "/workspace/.onboarding/original-completed-target-retirement.json",
+  "native_goal_readonly_candidate": {
+    "source": "ee4024e93ad5adaee8e9fee14dc5ba8fc548e28c",
+    "author_linux_host_tests": 13,
+    "author_linux_harness_tests": 10,
+    "author_python_runner_tests": 17,
+    "author_built_ui_checks": 38,
+    "author_built_ui_png": 24,
+    "final_postfixture_clippy_fmt": "pending",
+    "independent_review": "in_progress",
+    "macOS": "not_run"
   }
 }
