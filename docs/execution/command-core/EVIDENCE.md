@@ -46,3 +46,25 @@ Logs are retained under ignored artifacts/command-core; all source hashes are in
 All earlier passing/intermediate logs remain local. Shared dependency cache sometimes reused an older branch's workspace metadata despite the exact module/export being present; refreshing only this clone's dependency mtimes forced its source rebuild, without modifying library contents or deleting errors. Independent review/CI on the exact source remains required. The primary removed only rebuilding incremental cache at an idle boundary; deps, binaries, logs and source were preserved.
 
 Limits/unrun: no combined Native/UI/browser check in this unit, no current-candidate macOS run, no production/signing or model validation. The standalone library's older two-target cross compilation does not prove this Core candidate runs on macOS. Commands verify only approved fixed-command observations; no TaskAccepted/scientific correctness/Git adoption token is created. Only clean pinned WorkspaceArtifacts are supported; uncommitted Provider edits and exact target integration-candidate adoption remain another unit. Nonsecret environment is intentionally limited to LANG/LC_ALL fixed locale constants and TZ=UTC. Arguments are displayed/retained and must not contain credentials. Strict filesystem/network/input/auxiliary-source/tree guarantees unavailable in the library are rejected before spawn, not silently weakened. Root bindings are observations, not OS write isolation. Thread-spawn failure handling is source-reviewed but not forced with an OS resource-limit fault here; its durable one-run intent remains consumed and historical replay must not treat it as absent. Early initialize failures lacking a typed cleanup receipt remain unknown and fenced, never fabricated as stopped.
+
+
+## Post-commit owned-control repair
+
+Initial source8009824 independently passed128 unique Core tests, all-target Clippy and formatting; the independent full log is `/workspace/.onboarding/command-core-independent-tests.log`, SHA35607907ed4e301068a98f049c4b9d6a700c9208e78a2299ea7f93db5c6482ba. This remains valid historical evidence, not evidence for later source.
+
+A new real Unix IPC test `committed_revoke_and_task_cancel_never_become_not_started_errors_from_owned_record_corruption` installs a generated SQLite trigger during an actual command run. On revoke's idempotency INSERT it corrupts only the owned run document beyond4MiB. Old source actually committed policy.revoked=true, then its post-commit cancel_policy decoded that corrupted run and returned RESOURCE_LIMIT/side_effect_state=not_started. Task.cancel's analogous control already returned its committed result on old source; no equivalent old post-commit lookup existed there. Both old controls, including the failing revoke, remain in the preserved log.
+
+The fixed worker caches immutable policy_id/task_id from the actual durable prepared record. cancel_policy and cancel_task perform pure-memory matching/setAtomicBool operations; no caller-supplied metadata, PID scan or fallible database decode occurs after commit. The same corruption controls now return committed success for revoke/task cancel. Subsequent actor raw-limit reconciliation still fails conservatively and the persistent workspace fence remains; fatal-path teardown retires owned work. This does not repair corrupt history by deleting it or manufacture stop evidence.
+
+Final commands are the same CARGO_INCREMENTAL=0/JOBS2/umask022 fullCore/Clippy/fmt commands above. New exact-source result: **129 unique Core tests PASS**, base111 +18new (14 command integration,3migration,1unit); existing nested FIFO child1 is still excluded from unique counts. No failure timeout or guard was relaxed.
+
+| Follow-up log in artifacts/command-core | Actual result | SHA-256 |
+| --- | --- | --- |
+| postcommit-old-source-control.log | Old-source trigger reproduces committed revoke misreportednot_started; expectedFAIL101 | `cceb147856b20405ec467a442217e13c58d7e6ac922d6e5d361b1871e6e694f4` |
+| postcommit-fixed-source-control.log | Intermediate compileFAIL omitted Worker metadata initializer, corrected | `0d99de46c57486e4c216eab2e230ee36ca2fd7bc59ec41bcebec4164febf5fa1` |
+| postcommit-final-source-control.log | Both committed revoke/task_cancel controls PASS with result, actor conservatively fails raw limit and fence remains | `abede85615e59c49b54feb2d247b676ed2ec79f6d453b71621f2e7599f0b6567` |
+| core-postcommit-final.log | 129 unique Core PASS | `a394e5da2f3e3b6ac54e0899e26bb4b7d247749dd602d0eea974852d7210ad27` |
+| clippy-postcommit-final.log | all-targets -Dwarnings PASS | `ec7e553abc13a9de335d4d91e193da7eb7fc35aa26f3f6a8e176be045605f0e3` |
+| fmt-postcommit-final.log | PASS empty output | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+
+The independent reviewer is retesting this fixed source; no new independent approval is claimed until their verdict. No Native/macOS/combined browser result is added by this follow-up. Latest merged main66061439c79fa44b66a33782febc1fb0f31c73df was read for OWNER001/002 ACK; it changes no execution scope for this unit.

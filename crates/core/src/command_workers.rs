@@ -16,6 +16,8 @@ use std::{
     time::Duration,
 };
 struct Worker {
+    policy_id: String,
+    task_id: String,
     cancel: Arc<AtomicBool>,
     thread: JoinHandle<std::result::Result<CommandRun, CoreError>>,
 }
@@ -36,13 +38,26 @@ impl CommandWorkers {
             w.cancel.store(true, Ordering::Relaxed);
         }
     }
-    pub fn cancel_policy(&self, store: &Store, policy: &str) -> Result<()> {
-        for id in self.workers.keys() {
-            if store.get_command_validation_record(id)?.policy_id == policy {
-                self.cancel(id);
-            }
+    /// Infallible post-commit control using only metadata fixed from the actual
+    /// persisted prepared run. Corrupt history cannot prevent a stop request or
+    /// turn a committed revocation into a not_started response.
+    pub fn cancel_policy(&self, policy: &str) {
+        for worker in self
+            .workers
+            .values()
+            .filter(|worker| worker.policy_id == policy)
+        {
+            worker.cancel.store(true, Ordering::Relaxed);
         }
-        Ok(())
+    }
+    pub fn cancel_task(&self, task: &str) {
+        for worker in self
+            .workers
+            .values()
+            .filter(|worker| worker.task_id == task)
+        {
+            worker.cancel.store(true, Ordering::Relaxed);
+        }
     }
     pub fn start(
         &mut self,
@@ -71,7 +86,15 @@ impl CommandWorkers {
             .spawn(move || run_approved_command(&rule, &flag).map_err(command_error))
         {
             Ok(thread) => {
-                self.workers.insert(record.id, Worker { cancel, thread });
+                self.workers.insert(
+                    record.id,
+                    Worker {
+                        policy_id: record.policy_id.clone(),
+                        task_id: record.task_id.clone(),
+                        cancel,
+                        thread,
+                    },
+                );
             }
             Err(_) => store.command_failed_before_receipt(
                 &record.id,
