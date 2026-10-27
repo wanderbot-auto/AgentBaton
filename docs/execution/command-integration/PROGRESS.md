@@ -25,3 +25,8 @@ New browser fixture+CI step require separate independent review; full workspace3
 ## Final local composition verified
 
 Actual full369uniqueRust+4compilefaildocs/Clippy/fmt PASS (raw374 includes existing FIFO nested1; excluded from unique count). Linux native default11 and explicitly enabled native-smoke6 both actually passed, plus nativeClippy/fmt. Earlier shorthand suggesting defaultcargo test included6 was corrected; explicit command/log recorded. New real browser5 independent rerun and readonly34/20 pass. Native-cache-only cleanup manifest records completed older source variants; source/log/package/currentnativeSDK retained. All changed source reviews closed. Source branch ready to save exact new candidate/normalpush/retargetmain and real seven PR checks; current latest accepted main6606143, OWNER001/002 ACK. Do not attach oldc4f checks/artifacts to the newer candidate.
+
+
+## PR7ba failure and independently checked correction
+
+Actual Product40446762573 at56ff4227 passed Rust/UI/ARM but failed Intel short-lived grant fixture13/14. Environment40446762718 all3 passed. Intel GUI/build/audit/package were skipped; failure/API/raw SHA retained in CI_7BA_FAILURE.json. Production expiry correctly rejected expired admission. Correctionb1438a9 (locald575f7d) retains1000ms/3s and all original outcomes, moves preparation before approval, adds explicit expired/no-effect and actual generated-process startup/reap controls. Independent old executable EXPECTEDFAIL101; new14/Clippy/fmt PASS. New-head all7 and independent dual Mac/DMGs still required; no merge yet.

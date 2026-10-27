@@ -1045,5 +1045,28 @@
     "native_compile_resources": "actual Core8 Linux DEBUG files; not release/macOS installer"
   },
   "actual_browser_independent": "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
-  "actual_browser_independent_sha256": "ef7fd825faa7fabbfaee8d2dd9121efcd2cffc69de41fbd768874ccf8dbb59ad"
+  "actual_browser_independent_sha256": "ef7fd825faa7fabbfaee8d2dd9121efcd2cffc69de41fbd768874ccf8dbb59ad",
+  "pr_7ba_failed_candidate": {
+    "head": "7ba60e0822129d474be1ade845640d1d72e79b21",
+    "actual_checkout": "56ff4227f2bae71fdbf377fbd07c3af7bcd6e403",
+    "product_run": 40446762573,
+    "environment_run": 40446762718,
+    "rust_ui_arm": "passed",
+    "intel": "failed command fixture13passed1failed; downstreamGUI/build/audit/package skipped",
+    "full_metadata": "docs/execution/command-integration/CI_7BA_FAILURE.json",
+    "raw_intel_log_sha256": "7bb109695acb3fbf3018eb4f793dad9fd806a23294ea6c5f4d57152bc99b76e3",
+    "merged": false
+  },
+  "fixture_correction": {
+    "source": "b1438a9c6e97cb45e155c443a084ece81453cb8f",
+    "local_cherry": "d575f7d",
+    "test_sha256": "5525e892f99ece9fba21df7f9b1ff05b8cc996f5f83bfd880ff7732a05a6e4db",
+    "production_changed": false,
+    "independent_old_order": "expectedFAIL101; actual1100ms prep consumes original1000ms grant",
+    "independent_fixed": "14pass + Core alltargetClippy/fmt",
+    "original_limits": "1000ms grant; 3second waits unchanged",
+    "review": "docs/execution/command-ci-fixture/REVIEW.md",
+    "new_exact_ci": "pending; no inherited Mac acceptance",
+    "review_sha256": "faeb93addbf230c4ad4b1542d7eecc84c92cdd481a6b3a605df91b0c2c277750"
+  }
 }
