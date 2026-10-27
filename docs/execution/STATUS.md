@@ -13,3 +13,5 @@ PR11 draft codex/data-contract-validation已保存WIPd0c714避免瞬态环境失
 Data合同仅固定JSON结构/类型/范围/所批metadata及文件hash；population/units/TZ按负责人声明匹配，不是独立科学事实，不运行复现脚本/算法，不建立TaskAccepted/采纳/生产权限。完整正确性验证与精确head采纳、规划路由委派工作流、全配置/留存导出/远程/登录睡眠等仍未完成并持续推进。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和需求表分开记录通过/失败/未运行/受阻，不写虚构百分比。原三个Environment与main保护保留，无直接/强推main或绕过检查。
 
 最新组合ddd6707已实际324顶层Rust+2compilefail/Core111/fmtClippy/真实release构建与hash相同侧车、LinuxNative8+6/两套Clippy通过，独立Core17审查无阻塞。当前再整合Root2a809的App首case输入夹具；产品Core/native/UI/两锁逐字未变，全部原project/archived/API断言/5s上限保留。最终129UI/type/build与当前release daemon的browser检查正在重跑，之后保存PR11准确候选/显式CI。Native新FIRST actualdata readonly UI尚未在Mac执行，预确认oversize unknown固定请求UX限制仍记录；不把partialcheck标全Goal完成。
+
+实际PR8已于最新保护main afb52be合入，准确2a809七项/双Native/DMG完整验证；集成边界Owner001002再次ACK无新序号。当前Data再整合Schema6分支e89aeef的最新main ancestry及真实3c/2a Native/DMG记录，整棵Core/Native/UI/scripts/locks相对当前最终本地验证快照零差异。新Data准确候选即将正常push到PR11并显式触发独立七项CI；schema6 PR10先按新准确main候选重检，两者不互相继承通过。完整Goal范围未结束，后续命令验证器Linux26cases/全库89+4compilefail及两个Mac crosscheck已通过，真实Mac执行及Core接线尚待。
