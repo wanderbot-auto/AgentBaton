@@ -4,6 +4,7 @@
 
 pub mod adoption;
 pub mod command_validation;
+pub mod data_workspace;
 pub mod deterministic;
 pub mod validation;
 
