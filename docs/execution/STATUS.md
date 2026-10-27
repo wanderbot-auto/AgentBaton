@@ -1,13 +1,13 @@
 # AgentBaton 执行状态
 
-完整Design v0.2全部130项需求、27决定与WP01–14继续，AB-START-001有效。在本次集成边界实际fetch/read保护main afb52be241f7c4cef261f99c04f56caf21f12083，OWNER001/002继续ACK，无新增序号。原生Goal/Cloud任务URL未提供；不虚构平台状态/无执行器续跑。
+Design v0.2全部130需求、27决定及WP01–14继续，AB-START-001有效。实际保护main为PR10合入febe7c74f62aad1f767aa60a0eab5e3fc0529dcb；本次集成边界重新读取OWNER001/002并ACK，无新序号。原生Goal工具/Cloud任务URL未提供。真实Provider/私人身份、新费用/资源、签名密钥、最终许可证、生产发布仍单独关闭。
 
-PR3/4/9/6/7/8均已按独立审查、准确七项CI和双架构DMG核验保护合入。最新PR8准确head2a8092ec7031a467ea4c02e86893f3ebdbab0dbe Product40425134648/Environment40425134840全部七项success后合afb52be；两workflow实际checkout18d05cd75404d108b2c5fdabfca699034445a43f，树与head相同。两Mac新审批3/App12/UI49/native6、首窗/重开/daemon生命周期、实际defaultreleaseaudit报告级独立验证通过。双DMG实际下载，APIzip/sha/UDIF/构建架构/签名核对；Intel未签名，ARM ad hoc无TeamIdentifier，非正式签名/公证。2da7 canonicalfixture与130f Intel5s fixture旧失败/控制复现/原断言均保留。
+已按保护流程合入PR3/4/9/6/7/8/10：真实Core/协议/注册表/托管会话/QuietCanvas/runtime/完整性策略及IPC。PR10准确62465a的Product40430127911+Environment40430127252七项通过，双Mac实际Core94/UI79/host7/harness6、真实窗口重开/daemon lifecycle/defaultreleaseaudit独立核验，双DMG下载/SHA/UDIF/提交/架构/签名核验后expected-head合入。Environment的实际PR checkout92394fc7与head不同但tree相同，报告明确区分。原生owner对话框/完整性批准运行未自动化；integrity-only不等于代码正确/TaskAccepted/采纳。
 
-当前PR10分支codex/validation-integration仍为schema6文件完整性策略/Core认证IPC/Native批准入口/Artifacts UI，不是代码正确/全任务验收/采纳授权。旧准确3c1cd1a的Product40417144235/Environment40417148162全部七项、双Mac原生/迁移/IPC/defaultreleaseaudit及双DMG独立核验完成。Native脚本未自动点Owner对话框或policy approve/run；Linux真实策略IPC和26browser/12图分开。此候选已安全整合最新main afb52be及Root已审probe确认错误与两fixture纠正，保留schema6/spec/policy/UI/两锁逐字。仅共享IPC增加正确confirmed/probe引用，新增3故障回归及App测试输入方式改变。当前组合Core94/79UI/type/build/fmt/Clippy/实际CLI重启增量回归均已通过；准备新准确main候选CI，不继承3c或Root通过。
+当前PR11 codex/data-contract-validation：schema7固定JSON合同、持久策略/receipt、原生owner桥、真实IPC和默认折叠Data表单。324顶层Rust+2compilefail、129UI/type/build、当前release daemon浏览器30checks/16screens、LinuxNative8+6通过且独立Core/UI/native审查已记录。准确2640e6c的Product40430134077+Environment40430137922七项真实成功，双MacCore111/host8/harness6/UI129，以及新增真实native readonlyData列表/空表单/sequence不变三断言、重开/lifecycle/defaultreleaseaudit独立通过。双DMG实际下载并核验，ARM仅ad hoc、Intel未签名，无DeveloperID/公证。现安全整合实际保护main febe7c7，只解文档冲突并保留双方旧状态；产品代码与2640逐字相同。即将normal push/retarget main/ready，新head七项/原生产物仍须重新取得，不能继承2640。
 
-PR11 codex/data-contract-validation已保存WIPd0c714后实现0f23/ddd/cfa：schema7独立数据合同策略、真实IPC、Native5命令、折叠表单真实接线。完整324Rust+2compilefail/Core111/fmt/Clippy/真实release构建与侧车SHA、LinuxNative8+6通过；UI129/type/build+独立129和Data/Core17/Native静态独立review通过；当前releaseDaemon+真实React浏览器30checks/16图通过。Native新FIRST只读dataUI/Mac/Ownerdialog/DMG尚未新准确CI验证；预确认oversize固定unknown请求恢复UX限制已登记，未把未知finalizer降not_started。数据合同只验证固定结构/范围/所批metadata/文件hash，不证明算法、不执行复现、不建立TaskAccepted/采纳。
+Data只验证所批固定JSON结构/类型/范围/metadata和字节hash，不运行脚本或证明科学算法/代表性；不建立TaskAccepted/采纳/生产权限。真实Mac owner审批对话框和数据策略approve/run尚未验证。Native预确认oversize返回unknown时的固定请求恢复UX限制仍登记，未把未知finalizer/transport错误降低为not_started。
 
-独立codex/deterministic-command-validators正在实际实现固定预批程序/内存脚本验证，Linux23命令case/全workspace86+4compilefail通过、两个Macstd目标crosscheck编译通过（非Mac运行）；强制OS/辅助validator完整性无法证明时拒绝，正常规则仅报告固定命令事实，不给Task/GitAcceptance。没有真实Provider/模型/私人身份调用或私钥复制；继续完整正确性/精确采纳/规划路由委派工作流/全配置/历史留存导出/远程/登录睡眠等未完成范围。
+PR12固定命令验证库source1dae4566经独立27command+4docs/LinuxClippy/fmt，作者90+4及双Apple cross-Clippy，F1延迟观察预算误判已原条件独立关闭，旧失败保留。当前准确c4f9ccd独立产品CI进行中，Environment已通过，Mac实际命令执行待日志证据；不能用crosscompile冒充。Core非阻塞命令worker/持久化/取消恢复与真实原生UI接线分别在隔离worktree实现，Goal计划DAG/权限收窄/共享预算ready算法单元并行实现。未将库单元当完整WP09或全产品。
 
-真实Provider身份/模型测试、新增费用资源、未批准remote、正式签名/公证、最终许可证/生产发布仍关闭，缺项只阻塞相关验证。原三个Environment和main保护保留，无直接/强推main或绕过检查；不写虚构完成百分比、不把阶段切片当全Goal交付。
+完整Goal仍有规划/委派/采纳接线、完整配置与能力、远程主机、历史留存导出、登录睡眠/真实Provider等待做或受阻维度；持续选依赖就绪工作。每单元PLAN/PROGRESS/CHECKPOINT/EVIDENCE和需求证据表更新，原3项Environment必需检查与main保护保持，无直接或强推main/绕过检查/虚构完成百分比或停止后续跑。

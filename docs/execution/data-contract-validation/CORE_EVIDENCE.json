@@ -1,0 +1,230 @@
+{
+  "unit": "schema7-Core-data-contract-validation",
+  "authorization": "AB-START-001",
+  "recorded_at_utc": "2026-10-26T23:51:00.638806+00:00",
+  "shared_worktree": "/workspace/.worktrees/data-contract-validation",
+  "branch": "codex/data-contract-validation",
+  "head_wip_commit": "d0c714b69c9114ab38cbeb702ebf815e9a6a501f",
+  "source_state": "uncommitted Corechanges; worker notauthorizedto stage/commit/push, Rootownscheckpoint",
+  "trusted_main_owner_ack": "c4e72c6 OWNER001/002/gate reread unchanged",
+  "schema_version": 7,
+  "new_records_scope": {
+    "state": [
+      "contract_passed",
+      "contract_failed"
+    ],
+    "scope": "data_contract_only",
+    "correctness": "approved_schema_ranges_metadata_only",
+    "task_acceptance": "not_established",
+    "integration_authorized": false
+  },
+  "checks": [
+    {
+      "name": "final-workspace",
+      "command": "cargo test --workspace --locked",
+      "exit_code": 0
+    },
+    {
+      "name": "final-clippy",
+      "command": "cargo clippy --workspace --locked --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "name": "final-fmt",
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo test --locked -p agentbaton-core --test migration_v7",
+      "exit_code": 0,
+      "tests": 3
+    },
+    {
+      "command": "cargo test --locked -p agentbaton-core --test migration_v3 --test migration_v5 --test migration_v6",
+      "exit_code": 0,
+      "tests": 6
+    },
+    {
+      "command": "cargo build --locked --bin baton --bin batond",
+      "exit_code": 0
+    },
+    {
+      "command": "runpy.run_path('scripts/smoke-local-product.py'); main.__globals__['BINARIES']=Path(CARGO_TARGET_DIR)/'debug'; main()",
+      "exit_code": 0,
+      "log": "product-smoke-shared-target.log",
+      "changes": "binarypathonly; no script/assertion/timeout edits"
+    }
+  ],
+  "counts": {
+    "new_data_tests": 13,
+    "new_busyguard": 1,
+    "new_schema7_migrations": 3,
+    "core_top_level": 108,
+    "all_workspace_top_level": 321,
+    "config": 67,
+    "providers": 81,
+    "workspaces": 63,
+    "daemon_signals": 2,
+    "compile_fail_doctests": 2,
+    "extra_nested_fifochild_excluded": 1
+  },
+  "authority_guards": [
+    "Nativeconfirmationkind data_validation with storedsnapshot+confirmedconsumption",
+    "serverderived task/project/session/attempt/spec/input/root identity/fence",
+    "reconstruct complete libraryruleandcompare canonicalcontractdigest",
+    "allrequiredinputsha references andactualscript/environmenthashes exact",
+    "data/oldintegrity namespacesandtabledocuments separate",
+    "newrunfailsrevoked/stalerevision/laterwriter/root/spec/inputdrift",
+    "ownedworker run fastbusyguard; no scripts/Provider/adoption/TaskAccepted",
+    "runreceipt+journal atomic; stablefailedreceipts retained; keyhistoricalreplayexplicit"
+  ],
+  "migration_changes": "pre-v7 privatebackup; version7 independenttables transaction; genuinev6 rawtask/blob backup preserved; future8rawDBunchanged; failure rollback. Oldmigrationcurrentversion/prefix/fixturetables updated, originalbackupsourceversions/rawdata/sentinelassertions unchanged.",
+  "failure_evidence": {
+    "resume-controls.json": "firstfmt1 andE0277u64ToSql101",
+    "pre-migration-fix-checks.json": "compiledpass, oldv6fixture101/future7control101",
+    "core-clippy.log": "boolassert/lenzero101 correctedwithstrongerbyteequality",
+    "product-smoke.log": "initialFileNotFound due hardcodedlocaltarget, notruntimeproductfailure"
+  },
+  "logs": {
+    "compiled-check.log": {
+      "path": "artifacts/data-contract-validation/compiled-check.log",
+      "sha256": "730032cdc45e6435086eaae6eb3ddf1d7795d843ee191862f3a100c8e07fbb87"
+    },
+    "composition-checks.json": {
+      "path": "artifacts/data-contract-validation/composition-checks.json",
+      "sha256": "350334e10d8ba1177314608ca8d28cdf8c56197e391d37a82f7a06e3dd91f894"
+    },
+    "core-all.log": {
+      "path": "artifacts/data-contract-validation/core-all.log",
+      "sha256": "804dde5f1e33509f7274d8698ac8893d9a3467f84f7188b23e28f09e61132b3c"
+    },
+    "core-checks.json": {
+      "path": "artifacts/data-contract-validation/core-checks.json",
+      "sha256": "77e4bafcbf68450bc9065365cc090509697a4551bfbf3eeda54c35796ef989c2"
+    },
+    "core-clippy-fixed.log": {
+      "path": "artifacts/data-contract-validation/core-clippy-fixed.log",
+      "sha256": "a21cc4a2e33d5f90b846590b402de6a54040824b45e4885ad8807049951728a3"
+    },
+    "core-clippy.log": {
+      "path": "artifacts/data-contract-validation/core-clippy.log",
+      "sha256": "850c6380a2f2267d70293eb89f504b3906ed952ca1dd45f3cb59595db8925199"
+    },
+    "core-source-freeze.json": {
+      "path": "artifacts/data-contract-validation/core-source-freeze.json",
+      "sha256": "44e1fec4d081e9466feb2b978209bae7b896ba121ed036e398c3f6cec2c25c63"
+    },
+    "data-tests-first.log": {
+      "path": "artifacts/data-contract-validation/data-tests-first.log",
+      "sha256": "dab78c04742ade5f1c468d284b5a3d1721070ee19f6a3907e03e10ef19b5a550"
+    },
+    "final-checks.json": {
+      "path": "artifacts/data-contract-validation/final-checks.json",
+      "sha256": "b0ec90ede03487ef44bdcaf3341bae71c97ec084cf8dfd479afbcf3d50f665c4"
+    },
+    "final-clippy.log": {
+      "path": "artifacts/data-contract-validation/final-clippy.log",
+      "sha256": "d48f01cc1d5dc86dced8447cef74467e922f0e9fa9fb29d9ebb428646b714558"
+    },
+    "final-fmt.log": {
+      "path": "artifacts/data-contract-validation/final-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-workspace.log": {
+      "path": "artifacts/data-contract-validation/final-workspace.log",
+      "sha256": "7902af3f3d9ea1b843216987b6da94bd182e4946029376be49bb9020f827fd5e"
+    },
+    "legacy-migrations.log": {
+      "path": "artifacts/data-contract-validation/legacy-migrations.log",
+      "sha256": "56e26bd823ab7a8b605b2d6e2a424a3c3c2d18bb76b14ed5b4b9f6663d4235f0"
+    },
+    "old-future-control.log": {
+      "path": "artifacts/data-contract-validation/old-future-control.log",
+      "sha256": "cfb9d2f55141f648231ebb5979ea63e9548472e4ee3a60f5711fafac0f5dd873"
+    },
+    "old-migration-control.log": {
+      "path": "artifacts/data-contract-validation/old-migration-control.log",
+      "sha256": "b6ffc2c1b8d44eb5b79125926a1f7e4c753f2bc555b717f422840d04686f3ce2"
+    },
+    "pre-migration-fix-checks.json": {
+      "path": "artifacts/data-contract-validation/pre-migration-fix-checks.json",
+      "sha256": "ede46787be8de83cff9c36053c76216f4b710b031dd6d59a0a302d79e3e8d85b"
+    },
+    "product-bins.log": {
+      "path": "artifacts/data-contract-validation/product-bins.log",
+      "sha256": "ddadb708b862f5f8d4569bf9c660771d7327b53b00d6fa3308bc8112888c764e"
+    },
+    "product-smoke-shared-target.log": {
+      "path": "artifacts/data-contract-validation/product-smoke-shared-target.log",
+      "sha256": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805"
+    },
+    "product-smoke.log": {
+      "path": "artifacts/data-contract-validation/product-smoke.log",
+      "sha256": "0f14a7d61eb666db544a632fe038e2239247d5c1189cc5b3209c1ceb1730d18e"
+    },
+    "resume-check.log": {
+      "path": "artifacts/data-contract-validation/resume-check.log",
+      "sha256": "52ed2dab580dc0b51672ab4c19c8e3d21b4a5690fe0845c1bf922e737e9ec4ea"
+    },
+    "resume-controls.json": {
+      "path": "artifacts/data-contract-validation/resume-controls.json",
+      "sha256": "806e810e51ad9abc8a9db726c097a5f912c3f8422b175bf65c93e8216bb104b2"
+    },
+    "resume-fmt-control.log": {
+      "path": "artifacts/data-contract-validation/resume-fmt-control.log",
+      "sha256": "9636b7ce0c272f7f4ff7925bd67de5abf7eed0ea4bde51f28a8a99790519695b"
+    },
+    "schema7-migration.log": {
+      "path": "artifacts/data-contract-validation/schema7-migration.log",
+      "sha256": "9684c6853133f71865342177b3300c252bc52694a1b1be2f4aead147d52b97bb"
+    },
+    "workspace-all.log": {
+      "path": "artifacts/data-contract-validation/workspace-all.log",
+      "sha256": "cdd5f4182149f03337abca07bb183263f6b446d97606ad88d8318cb359bcfb92"
+    },
+    "workspace-clippy.log": {
+      "path": "artifacts/data-contract-validation/workspace-clippy.log",
+      "sha256": "d6918a0c38922c514a7cd4d82ab68bb39119b0a7f74c81f4e0352d15b11b4be8"
+    },
+    "workspace-fmt.log": {
+      "path": "artifacts/data-contract-validation/workspace-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "source_hashes": {
+    "crates/core/src/data_validation.rs": "5c5ee6842f1342e95f9e19d39591c25c0ec5716d89f30e3384b0967ce670b5ce",
+    "crates/core/src/lib.rs": "89e59ad6b1afaca403859095646e4b93d5d8ebcc6ae8d61ba2a6014f78532770",
+    "crates/core/src/storage.rs": "6e9a8cb81d88586200f61a4ecd81f11c9e0637370c1a07254ae873eb4deea4ac",
+    "crates/core/src/sessions.rs": "b861a6486d8f6498e78343b1b7d15a879b62516fb01782823c9b90bfeffc37bb",
+    "crates/core/src/ipc.rs": "72dfb866d955b167aa370418a7da7cb8feacb7dc5dd753f6129a111179484ad2",
+    "crates/core/src/validation.rs": "54fb2c26f8e483a430e6af29966d302cb89ff3437d3318e1059587550aded2ac",
+    "crates/core/tests/execution.rs": "cc275e1641e4e32aed89f4c3de5b7284cad84824b031bcd5c52b0fbc7b30d113",
+    "crates/core/tests/migration_v3.rs": "927f908cefe42b762948eaca7e6f1677e776f2cdb34be1343cd4841948b4468c",
+    "crates/core/tests/migration_v5.rs": "75c9752bf14d7fa6b3091104bd9828930f94f6a604321e04b6241c2bf8110db0",
+    "crates/core/tests/migration_v6.rs": "9dfc5deb7eb55b3deb8487406b6fc8cb83425282e9530b472ec71adff2127cca",
+    "crates/core/tests/storage.rs": "50a853c57c706fd27f7f03be31da0a47d85eec1faa356967e87bd7ee2a870b71",
+    "crates/core/tests/migration_v7.rs": "6afbd809d0320b4950475da9720edbec840eb2c7a7ce69989ac6952a78d3c4c9"
+  },
+  "environment": {
+    "os": "Linuxcloud",
+    "umask": "022",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/target",
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+  },
+  "remaining_limits": {
+    "independent_Core_native_review": "pendingRootassignment",
+    "UI_mock_evidence": "separateauthor129tests; not rerun/claimedbyCoreworker",
+    "native_macos_remoteCI": "not_run_thiscomposition",
+    "synthetic_session": "explicitnever-dispatched confirmedstopfixture, notProviderexecution/nativeDialogevidence",
+    "population_algorithm": "ownerdeclareddataset_rows/hashbindings checked, inputs notparsedforpopulation/actualengineconsumption; noalgorithm/representativesampling/reproductionexecution proof",
+    "authority": "typedlibraryboundarynotidentityauthentication; privateCLI/nativeRustconfirmationistrustedfrontdoor",
+    "filesystem": "contentpointchecksnotmultifiletransaction/OSsandbox",
+    "owner_finalizer": "policy+policy-eventatomic; sharedproposalconsumptionsecondtransaction, pendingconsumptioncannotrun andhasretrytest",
+    "historical_replay": "samekeyreturnsoriginalreceipt afterrevocation/drift, notfreshvalidation",
+    "real_vendor_account_model": "not_run_not_authorized",
+    "production_signing_paidresources": "not_performed",
+    "full_product": "incomplete"
+  }
+}

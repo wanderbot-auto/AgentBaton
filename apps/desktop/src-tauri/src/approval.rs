@@ -5,6 +5,7 @@ pub enum ApprovalKind {
     Connection,
     Grant,
     Validation,
+    DataValidation,
 }
 impl ApprovalKind {
     pub fn proposal_method(&self) -> &'static str {
@@ -12,6 +13,7 @@ impl ApprovalKind {
             Self::Connection => "connections.propose",
             Self::Grant => "grants.propose",
             Self::Validation => "validation_policies.propose",
+            Self::DataValidation => "data_validation_policies.propose",
         }
     }
     fn kind(&self) -> &'static str {
@@ -19,6 +21,7 @@ impl ApprovalKind {
             Self::Connection => "connection",
             Self::Grant => "grant",
             Self::Validation => "validation",
+            Self::DataValidation => "data_validation",
         }
     }
     fn action(&self) -> &'static str {
@@ -30,6 +33,7 @@ impl ApprovalKind {
                 "Grant this exact recipient and workspace the bounded execution scope below"
             }
             Self::Validation => "Approve only the exact local artifact-integrity rule below; this does not accept a task or authorize integration",
+            Self::DataValidation => "Approve only this exact JSON data-table contract: fixed file hashes, field types, numeric ranges and declared metadata. Dataset population, units and timezone are owner-declared values to match, not independently verified scientific facts. No reproduction script is executed; this does not establish algorithm correctness, accept a task or authorize integration.\n\n仅批准以下固定 JSON 数据表合同。行数总体、单位、时区按负责人声明核对；不运行复现脚本，不证明算法或科学结论，不验收任务、不授权采纳。",
         }
     }
 }
@@ -139,5 +143,47 @@ mod tests {
         let capability: Value =
             serde_json::from_str(include_str!("../capabilities/main.json")).unwrap();
         assert!(capability["permissions"].as_array().unwrap().is_empty());
+    }
+
+    #[test]
+    fn data_contract_confirmation_is_distinct_and_cannot_reuse_integrity_approval() {
+        assert_eq!(
+            ApprovalKind::DataValidation.proposal_method(),
+            "data_validation_policies.propose"
+        );
+        assert!(confirm_and_finalize(
+            proposal("validation"),
+            ApprovalKind::DataValidation,
+            |_| panic!("integrity approval cannot be elevated to a data contract"),
+            |_| unreachable!()
+        )
+        .is_err());
+        let approved = confirm_and_finalize(
+            proposal("data_validation"),
+            ApprovalKind::DataValidation,
+            |message| {
+                assert!(message.contains("owner-declared"));
+                assert!(message.contains("No reproduction script is executed"));
+                assert!(message.contains("algorithm correctness"));
+                assert!(message.contains("/exact/program"));
+                true
+            },
+            |command| {
+                assert_eq!(command["method"], "approvals.finalize");
+                assert_eq!(command["params"], json!({"proposal_id":"proposal-1"}));
+                assert_eq!(command["expected_revision"], 3);
+                Ok(json!({"result":{"approved_proposal":"proposal-1"}}))
+            },
+        )
+        .unwrap();
+        assert_eq!(approved["result"]["approved_proposal"], "proposal-1");
+        let denied = confirm_and_finalize(
+            proposal("data_validation"),
+            ApprovalKind::DataValidation,
+            |_| false,
+            |_| panic!("declined data contract must not be finalized"),
+        )
+        .unwrap();
+        assert_eq!(denied["error"]["side_effect_state"], "not_started");
     }
 }

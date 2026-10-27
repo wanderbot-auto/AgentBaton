@@ -11,7 +11,7 @@ fn v2_upgrade_keeps_tasks_intents_and_private_backup_reopens() {
         .unwrap();
     drop(store);
     let c = Connection::open(&db).unwrap();
-    c.execute_batch("DROP TABLE validation_runs;DROP TABLE validation_policies;DROP TABLE session_runtime_snapshots;DROP TABLE approval_proposals;DROP TABLE session_turns;DROP TABLE sessions;DROP TABLE execution_grants;DROP TABLE connections;DROP TABLE workspace_leases;DROP TABLE managed_workspaces;DROP TABLE projects;PRAGMA user_version=2;").unwrap();
+    c.execute_batch("DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs;DROP TABLE validation_policies;DROP TABLE session_runtime_snapshots;DROP TABLE approval_proposals;DROP TABLE session_turns;DROP TABLE sessions;DROP TABLE execution_grants;DROP TABLE connections;DROP TABLE workspace_leases;DROP TABLE managed_workspaces;DROP TABLE projects;PRAGMA user_version=2;").unwrap();
     drop(c);
     let upgraded = Store::open(&db).unwrap();
     assert_eq!(
@@ -27,7 +27,7 @@ fn v2_upgrade_keeps_tasks_intents_and_private_backup_reopens() {
             p.file_name()
                 .unwrap()
                 .to_string_lossy()
-                .contains("pre-v6")
+                .contains("pre-v7")
                 .then_some(p)
         })
         .collect();
@@ -59,7 +59,7 @@ fn v2_upgrade_keeps_tasks_intents_and_private_backup_reopens() {
                 .unwrap()
                 .file_name()
                 .to_string_lossy()
-                .contains("pre-v6"))
+                .contains("pre-v7"))
             .count(),
         1
     );
@@ -72,7 +72,7 @@ fn failed_v3_migration_leaves_version_and_legacy_state_recoverable() {
     let task = store.create("local", "must remain", "key").unwrap();
     drop(store);
     let c = Connection::open(&db).unwrap();
-    c.execute_batch("DROP TABLE validation_runs;DROP TABLE validation_policies;DROP TABLE session_runtime_snapshots;DROP TABLE approval_proposals;DROP TABLE session_turns;DROP TABLE sessions;DROP TABLE execution_grants;DROP TABLE connections;DROP TABLE workspace_leases;DROP TABLE managed_workspaces;DROP TABLE projects;CREATE TABLE projects(sentinel TEXT);PRAGMA user_version=2;").unwrap();
+    c.execute_batch("DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs;DROP TABLE validation_policies;DROP TABLE session_runtime_snapshots;DROP TABLE approval_proposals;DROP TABLE session_turns;DROP TABLE sessions;DROP TABLE execution_grants;DROP TABLE connections;DROP TABLE workspace_leases;DROP TABLE managed_workspaces;DROP TABLE projects;CREATE TABLE projects(sentinel TEXT);PRAGMA user_version=2;").unwrap();
     drop(c);
     assert!(Store::open(&db).is_err());
     let c = Connection::open(&db).unwrap();

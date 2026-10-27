@@ -1,0 +1,164 @@
+{
+  "unit": "deterministic-json-table-contract-library",
+  "authorization": "AB-START-001",
+  "recorded_at_utc": "2026-10-26T23:12:25.590474+00:00",
+  "branch": "codex/deterministic-validators",
+  "base_commit": "9895ba6",
+  "tested_commit": "cbd55093d58a95c5876591e1f57f44977f919fe9",
+  "trusted_main_read": "65f223cc05277435fe2caecfa140708de8bc9a52 gate+OWNER001/002 ACK",
+  "scope_revision": "Root explicitly authorized existinglocked serde_json workspace dependency+thiscrate lockedge and only pub(crate) visibility on BoundArtifact::read; reading implementation unchanged. No newparser/crateversion/download.",
+  "implementation": "builtin.data-json-table.v1 fixedflat metadata+rows contract with private host-only ApprovedJsonTableRule, private JsonTableEvidence and distinct JsonTableContractAcceptance. It verifies schema/types/required/null/ranges/rowcount/approved metadata/hashbindings, not algorithms or TaskAccepted.",
+  "binding": "Policy-content SHA binds validatorversion/fullschema/limits/analysis/task/attempt/spec/input/dataset and all approvedroot identities/path/hash policies. Receipt SHA additionally binds approval/revision, actual input/output bytes and checkoutcomes; accept_contract explicitly matches approval/revision+contractdigest and rehashes all bound files.",
+  "checks": [
+    {
+      "name": "final-deterministic",
+      "command": "cargo test --locked -p agentbaton-workspaces --test deterministic",
+      "exit_code": 0
+    },
+    {
+      "name": "final-workspaces",
+      "command": "cargo test --locked -p agentbaton-workspaces",
+      "exit_code": 0
+    },
+    {
+      "name": "final-clippy",
+      "command": "cargo clippy --locked -p agentbaton-workspaces --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "name": "final-fmt",
+      "command": "cargo fmt --package agentbaton-workspaces -- --check",
+      "exit_code": 0
+    }
+  ],
+  "counts": {
+    "new_deterministic_integration": 21,
+    "existing_library_unit": 2,
+    "existing_lazyfetch": 3,
+    "existing_safety": 18,
+    "existing_validation_adoption": 17,
+    "all_unit_integration": 61,
+    "compile_fail_doctests": 2
+  },
+  "independent_review": {
+    "agent": "/root/integration_review",
+    "source": "cbd55093d58a95c5876591e1f57f44977f919fe9",
+    "result": "approved; no blocking finding",
+    "document": "REVIEW.md",
+    "sha256": "3a9a5a064b5ff441234a69ab3eeec9a6ade9140b0f415a0028c56978bce1974a",
+    "commands": [
+      "cargo test --locked -p agentbaton-workspaces",
+      "cargo fmt --all -- --check",
+      "cargo clippy --locked -p agentbaton-workspaces --all-targets -- -D warnings"
+    ],
+    "actual_counts": "61 unit/integration +2 compilefail doctests, allPASS",
+    "logs": {
+      "independent-tests.log": "47ce36686a545f370ce9332a7c694743ac5df47e7eb35e51a815ca1f79ac9219",
+      "independent-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "independent-clippy.log": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+    }
+  },
+  "environment": {
+    "platform": "Linux cloud",
+    "umask": "022",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/target",
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+    "cargo_target_coordination": "serial implementer/reviewer windows, released; no new independent targetdir"
+  },
+  "initial_failure": {
+    "log": "artifacts/deterministic-validators/initial-tests.log",
+    "exit_code": 101,
+    "passed": 14,
+    "failed": 1,
+    "cause": "String-boundary fixture added a field while retaining earlier exact-valuecount budget. Reset separate valuebudget for string test; all original assertions retained. Original failedlog preserved."
+  },
+  "logs": {
+    "checks.json": {
+      "path": "artifacts/deterministic-validators/checks.json",
+      "sha256": "7f098db8c5a3899fe575a87ed0a5f8fd729e1b5c73cd56fefefae5012507570d"
+    },
+    "clippy.log": {
+      "path": "artifacts/deterministic-validators/clippy.log",
+      "sha256": "b067db1d8cb65de3a0d5c7b38d5135c1404717ec497ddf2541159db498106d40"
+    },
+    "deterministic.log": {
+      "path": "artifacts/deterministic-validators/deterministic.log",
+      "sha256": "ae278513387786635ba606abc8010fdd49b3aef34fd2ee7c80451cfb9e92e173"
+    },
+    "final-checks.json": {
+      "path": "artifacts/deterministic-validators/final-checks.json",
+      "sha256": "cfcbd66b3172cb93fa68a4203f4c5cebb12d8104b604c5d78770fbe0b08fb0a2"
+    },
+    "final-clippy.log": {
+      "path": "artifacts/deterministic-validators/final-clippy.log",
+      "sha256": "9153f0eeb5d4e66d16ce32028fc681090265174859dd9fa49f59a4d230505f7d"
+    },
+    "final-deterministic.log": {
+      "path": "artifacts/deterministic-validators/final-deterministic.log",
+      "sha256": "002449344515c2caa965a86519684639acf7b73bbf4ff6bd9549be7a7eaa6c5e"
+    },
+    "final-fmt.log": {
+      "path": "artifacts/deterministic-validators/final-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-workspaces.log": {
+      "path": "artifacts/deterministic-validators/final-workspaces.log",
+      "sha256": "324c6d6a0159223a6ed5094210b06c857e24bb4f140c720018628b77b1959cb0"
+    },
+    "fmt.log": {
+      "path": "artifacts/deterministic-validators/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "independent-clippy.log": {
+      "path": "artifacts/deterministic-validators/independent-clippy.log",
+      "sha256": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+    },
+    "independent-fmt.log": {
+      "path": "artifacts/deterministic-validators/independent-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "independent-tests.log": {
+      "path": "artifacts/deterministic-validators/independent-tests.log",
+      "sha256": "47ce36686a545f370ce9332a7c694743ac5df47e7eb35e51a815ca1f79ac9219"
+    },
+    "initial-tests.log": {
+      "path": "artifacts/deterministic-validators/initial-tests.log",
+      "sha256": "c6865e5a5290ce94f5c301c332d0186811681279af6375b02472e1050546528b"
+    },
+    "workspaces.log": {
+      "path": "artifacts/deterministic-validators/workspaces.log",
+      "sha256": "d73a7608169883bf53fa011ff0c8c6da4b1337fcadf519b19adc0f2db33ddbd2"
+    }
+  },
+  "source_hashes": {
+    "Cargo.lock": "b22c148dd432426f70586093394eeb9f04c0aeca938764be503e1145659f7d42",
+    "crates/workspaces/Cargo.toml": "303ae03186afbb4da35f45b954efbb91155f6d241c174f130ad89c36df9aa897",
+    "crates/workspaces/src/lib.rs": "c1757055bb2c5adbaf8ab50aab25f533c1f2e64ecfd549084f1defbcd6de435b",
+    "crates/workspaces/src/validation.rs": "92ea96d82f7711bca1e5112a59fdbd9f0617df0ce887ce9f55e2c8ac25cd4c83",
+    "crates/workspaces/src/deterministic.rs": "44e8feda9a9dbd91d7fb5db1ed0c38424ef380fbb8fc3ec565ea3f1591a97c26",
+    "crates/workspaces/tests/deterministic.rs": "340f91af93a8550712b2c96daa1e890065843e4ddcf09c4c40907073c55cb286"
+  },
+  "requirements": {
+    "AB-VAL-003": "implemented+libraryverified fixedapproved deterministicdata contract; no script/agent-definedvalidator execution",
+    "AB-VAL-004": "approvedmetadata/hash/scope binding verified; no algorithm/script/environment-effectiveness proof",
+    "AB-VAL-006": "safeexistingBoundArtifactreader reused, paths/root/links/nonregularfile failures verified",
+    "AB-VAL-009": "not implemented bythislibrary; cannotconvert data contract acceptance to Gitadoption Acceptance",
+    "AB-VAL-010": "not implemented bythislibrary; no push/PR/deploy runtime"
+  },
+  "remaining_limits": {
+    "core_ipc_ui_storage": "not_connected_thisunit; nextdistinctschema7 work separatelyauthorized",
+    "native_macos_remote_ci": "not_run",
+    "full_workspace_product_suite": "not_run_thisunit; libraryscope only",
+    "algorithm_population_sampling": "notestablished; dataset_rows is approveddeclaration, inputs arehash-bound notparsed/provedpopulation",
+    "units_timezone": "exactapprovedstrings only, no dimensionanalysis/TZDBvalidation",
+    "numbers": "Number finiteIEEE754 binary64 with rounding/underflow; Integer exacti64 representations conservativelyreject -0/decimal/exponent",
+    "proposal_authentication": "DTO deserializationitself unbounded; futuretransport mustbound bytes and authenticate currentownerapproval before constructingtoken. from_verified_policy is notidentityauthentication",
+    "filesystem": "observed contentrechecks, notmultifileatomictransaction/OSsandbox",
+    "scripts": "hashonly, neverexecuted",
+    "real_vendor_model_account": "not_run_not_authorized",
+    "push": "not_performed",
+    "full_product": "incomplete"
+  }
+}

@@ -1,0 +1,13 @@
+# Core data-contract validation execution plan
+
+Resume sameauthorized task aftertransientenvironment notice. Root saved/pushed allsharedWIP at d0c714b69c9114ab38cbeb702ebf815e9a6a501f; that checkpoint was explicitly uncompiled, not acceptance. Initialcomposition f59e748=PR10 source3c1cd1a+reviewedlibrarycbd5509. Current protectedmain c4e72c641e3edc3f3c0f665ffde5217933c2895f OWNER001/002 reread/ACK, gateAB-START-001 unchanged. No newnativeGoal/task URL exposed. Do not touch PR10/RootCI heads or select a license.
+
+Implement separate schema7 data_validation_policies/data_validation_runs and fiveprivateIPC namespaces; keep oldintegrity policies/runs unchanged. Server resolves session/project/task/attempt/root/input/spec/fence and requires matching confirmedStopped intent, inactive workspace writerlease/currentepoch and pinnedroot identity. DataVersion.dataset_revision=binding.input_revision; approveddataset_rows is a declaration, not inputpopulation parsingproof.
+
+Native owner proposal kind=data_validation contains complete canonical file_contract/table/validator/digest and serverrefs. Confirm against currentsnapshot; no renderer approvalbool. Reconstruct libraryApprovedJsonTableRule from trustedstoredpolicy, compare complete digest and owner snapshot before boundedexecution. Persist stablepass/fail receipts plusjournalatomically; duplicatekeys replayhistory rather thanexecute. Revocation prevents newruns; neverupdateTaskAccepted or invokeadoption/scripts/Provider.
+
+Typedselection is {session_id,inputs:ArtifactRequirement[],outputs:ArtifactRequirement[],table:JsonTableContract}; roots/bindings and forgedresult fields are rejected. Policy includesfile_contract/table/contract_digest/validator_id+ids/revision/revoked/time. Records usecontract_passed|contract_failed,scope data_contract_only,correctness approved_schema_ranges_metadata_only,task_acceptance not_established,integration_authorized false,evidence aJsonTableValidationView DTOonly.
+
+TestrealUnixIPC with explicitly syntheticnever-dispatched stoppedstoragefixtures; no privateaccount/model/nativeDialog claims. Add schema7 actualv6 privatebackup/rawdocuments+blob/future8/rollback tests and preserveoldmigrationassertions. Rawlist caps4MiB/count100 beforedecode, bounded policy/singlehistory reads, busy-ownedworker fastreject. Run022 Core/fullRust/fmt/Clippy andrealdaemonrestart; then independentCore/native/UI integration reviews.
+
+Ownedsource onlyCoremodule/export/schema7/finalizerbranch/IPC fivecalls+timeout,validationhelpervisibility+fixedallowlist, relatedCoretests andCORE_*docs. Rootowns bothlocks/native/UI/commits/push; thisworker mustnotstage/commit/push/spawn. Sharedtarget validation-integration/target is coordinatedandreleased.

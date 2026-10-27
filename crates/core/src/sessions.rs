@@ -1720,6 +1720,7 @@ impl Store {
                 )?)
             }
             "validation" => self.approve_validation_policy(&proposal)?,
+            "data_validation" => self.approve_data_validation_policy(&proposal)?,
             _ => return Err(invalid("Unknown owner proposal kind")),
         };
         proposal.consumed = true;

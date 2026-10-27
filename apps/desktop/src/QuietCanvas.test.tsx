@@ -5,9 +5,11 @@ import { App } from './App';
 import { api, DaemonError, type Task } from './api';
 import { sessionApi, type ManagedSession } from './session-api';
 import { validationApi } from './validation-api';
+import { dataValidationApi } from './data-validation-api';
 vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { snapshot: vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), workspacesList: vi.fn() } }));
 vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn(), sessionsSend: vi.fn() } }));
 vi.mock('./validation-api', async original => ({ ...await original<typeof import('./validation-api')>(), validationApi: { policiesList: vi.fn(), recordsList: vi.fn(), policiesApprove: vi.fn(), run: vi.fn(), revoke: vi.fn() } }));
+vi.mock('./data-validation-api', async original => ({ ...await original<typeof import('./data-validation-api')>(), dataValidationApi: { policiesList: vi.fn(), recordsList: vi.fn(), approve: vi.fn(), run: vi.fn(), revoke: vi.fn() } }));
 const date = '2026-10-26T00:00:00Z';
 const draft: Task = { id: 'draft-id', goal: 'A recorded local draft', state: 'draft', revision: 1, created_at: date, updated_at: date };
 const running: Task = { ...draft, id: 'running-id', goal: 'A recorded running task', state: 'running' };
@@ -20,6 +22,8 @@ beforeEach(() => {
   vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);
   vi.mocked(validationApi.policiesList).mockResolvedValue([]);
   vi.mocked(validationApi.recordsList).mockResolvedValue([]);
+  vi.mocked(dataValidationApi.policiesList).mockResolvedValue([]);
+  vi.mocked(dataValidationApi.recordsList).mockResolvedValue([]);
 });
 describe('Quiet Canvas product UI with mocked transport', () => {
   it('includes a closed details summary at the dialog focus boundary and excludes its hidden content', async () => {
@@ -61,6 +65,11 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     expect(validationApi.recordsList).toHaveBeenCalledWith(draft.id);
     expect(validationApi.policiesApprove).not.toHaveBeenCalled();
     expect(validationApi.run).not.toHaveBeenCalled();
+    const dataPanel = screen.getByTestId('data-contract-validation');
+    expect(dataPanel.querySelector('details')).not.toHaveAttribute('open');
+    expect(dataValidationApi.policiesList).toHaveBeenCalledWith(draft.id);
+    expect(dataValidationApi.recordsList).toHaveBeenCalledWith(draft.id);
+    expect(dataValidationApi.approve).not.toHaveBeenCalled(); expect(dataValidationApi.run).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: 'Back to tasks' }));
     expect(screen.getAllByTestId('task-card')).toHaveLength(1);
   });

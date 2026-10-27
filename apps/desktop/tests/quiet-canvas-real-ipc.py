@@ -90,6 +90,8 @@ def main():
                             'sessions_list': ('sessions.list', {}, set()),
                             'validation_policies_list': ('validation_policies.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'validations_list': ('validations.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
+                            'data_validation_policies_list': ('data_validation_policies.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
+                            'data_validations_list': ('data_validations.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'workspaces_list': ('workspaces.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
                             'grants_list': ('grants.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
                             'events_subscribe': ('events.subscribe', {'cursor': values.get('cursor', 0), 'limit': values.get('limit', 100)}, {'cursor', 'limit'}),
@@ -216,7 +218,7 @@ def main():
                     assert any(request['method'] == 'validations.list' and request['error'] is None for request in report['requests'])
                     page.locator('summary').filter(has_text=re.compile('^审阅文件检查策略$')).click()
                     assert page.get_by_text('文件完整性检查，不代表代码正确、任务验收或合入授权。', exact=True).is_visible()
-                    assert page.get_by_text('请先停止并对账本任务的已登记会话，再批准文件检查。', exact=True).is_visible()
+                    assert page.locator('.artifact-validation').get_by_text('请先停止并对账本任务的已登记会话，再批准文件检查。', exact=True).is_visible()
                     assert page.get_by_role('button', name='在原生负责人对话框中审阅', exact=True).is_disabled()
                     artifact_screenshot = output / f'artifacts-{width}x{height}.png'
                     page.screenshot(path=str(artifact_screenshot))
@@ -224,6 +226,23 @@ def main():
                     assert ipc('system.snapshot', {})['result']['sequence'] == before_integrity
                     assert not any(request['method'] in ['validation_policies.propose', 'approvals.finalize', 'validations.run'] for request in report['requests'])
                     passed(f'actual read-only integrity lists and no fabricated validation {width}x{height}', task_id=selected_task)
+                    page.locator('summary').filter(has_text=re.compile('^审阅文件检查策略$')).click()
+                    data_panel = page.get_by_test_id('data-contract-validation')
+                    data_panel.wait_for()
+                    data_panel.locator('summary').filter(has_text=re.compile('^数据合同验证$')).click()
+                    data_panel.get_by_text('尚无数据合同记录。', exact=True).wait_for()
+                    page.wait_for_function("()=>document.querySelector('[data-testid=\"data-contract-validation\"] form>fieldset')?.disabled===false")
+                    assert data_panel.get_by_role('button', name='刷新数据合同记录', exact=True).is_enabled()
+                    assert data_panel.get_by_role('button', name='在原生对话框中审阅数据合同', exact=True).is_disabled()
+                    assert any(request['method'] == 'data_validation_policies.list' and request['error'] is None for request in report['requests'])
+                    assert any(request['method'] == 'data_validations.list' and request['error'] is None for request in report['requests'])
+                    assert not page.evaluate('document.documentElement.scrollWidth > innerWidth')
+                    data_screenshot = output / f'data-contract-{width}x{height}.png'
+                    page.screenshot(path=str(data_screenshot))
+                    report['screenshots'].append(str(data_screenshot))
+                    assert ipc('system.snapshot', {})['result']['sequence'] == before_integrity
+                    assert not any(request['method'] in ['data_validation_policies.propose', 'approvals.finalize', 'data_validations.run'] for request in report['requests'])
+                    passed(f'actual read-only data contract lists and no fabricated validation {width}x{height}', task_id=selected_task)
                     page.get_by_role('button', name='返回任务', exact=True).click()
                 page.set_viewport_size({'width': 1488, 'height': 981})
                 page.get_by_role('button', name='搜索', exact=True).click()

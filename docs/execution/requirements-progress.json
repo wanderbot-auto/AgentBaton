@@ -1372,7 +1372,10 @@
         "crates/core/src/validation.rs",
         "crates/workspaces/src/validation.rs",
         "crates/workspaces/src/adoption.rs",
-        "apps/desktop/src/ArtifactValidation.tsx"
+        "apps/desktop/src/ArtifactValidation.tsx",
+        "crates/workspaces/src/deterministic.rs",
+        "crates/core/src/data_validation.rs",
+        "apps/desktop/src/DataContractValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1385,7 +1388,13 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/EVIDENCE.json",
+        "docs/execution/data-contract-validation/CORE_REVIEW.md",
+        "docs/execution/data-contract-validation/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -1408,6 +1417,27 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "approved_fixed_json_data_contract_schema7_core_ipc_and_ui",
+          "implementation_commit": "0f23ff025d9952ab5ac679daed914cd33938e61d",
+          "composition_commit": "cfa68bd",
+          "evidence": "docs/execution/data-contract-validation/EVIDENCE.json",
+          "core_library_native_helper_ui_and_actual_browser": "passed_scope_limited",
+          "native_owner_dialog_newMacFIRST_and_packages": "not_run",
+          "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
+        },
+        {
+          "slice": "exact_schema6_62465_and_schema7_2640_mac_host_tests_native_readonly_lifecycle",
+          "schema6_head": "62465a57f35b55838bce2064e96eafef8255156a",
+          "schema6_product": 40430127911,
+          "schema6_environment": 40430127252,
+          "schema7_head": "2640e6c9af2568c2731019cab9d16423fd45ceae",
+          "schema7_product": 40430134077,
+          "schema7_environment": 40430137922,
+          "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
+          "native_owner_dialog_and_policy_execution": "not_automated",
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -1419,7 +1449,10 @@
         "crates/core/src/validation.rs",
         "crates/workspaces/src/validation.rs",
         "crates/workspaces/src/adoption.rs",
-        "apps/desktop/src/ArtifactValidation.tsx"
+        "apps/desktop/src/ArtifactValidation.tsx",
+        "crates/workspaces/src/deterministic.rs",
+        "crates/core/src/data_validation.rs",
+        "apps/desktop/src/DataContractValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1432,7 +1465,13 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/EVIDENCE.json",
+        "docs/execution/data-contract-validation/CORE_REVIEW.md",
+        "docs/execution/data-contract-validation/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -1455,6 +1494,27 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "approved_fixed_json_data_contract_schema7_core_ipc_and_ui",
+          "implementation_commit": "0f23ff025d9952ab5ac679daed914cd33938e61d",
+          "composition_commit": "cfa68bd",
+          "evidence": "docs/execution/data-contract-validation/EVIDENCE.json",
+          "core_library_native_helper_ui_and_actual_browser": "passed_scope_limited",
+          "native_owner_dialog_newMacFIRST_and_packages": "not_run",
+          "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
+        },
+        {
+          "slice": "exact_schema6_62465_and_schema7_2640_mac_host_tests_native_readonly_lifecycle",
+          "schema6_head": "62465a57f35b55838bce2064e96eafef8255156a",
+          "schema6_product": 40430127911,
+          "schema6_environment": 40430127252,
+          "schema7_head": "2640e6c9af2568c2731019cab9d16423fd45ceae",
+          "schema7_product": 40430134077,
+          "schema7_environment": 40430137922,
+          "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
+          "native_owner_dialog_and_policy_execution": "not_automated",
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -1499,7 +1559,10 @@
         "crates/core/src/validation.rs",
         "crates/workspaces/src/validation.rs",
         "crates/workspaces/src/adoption.rs",
-        "apps/desktop/src/ArtifactValidation.tsx"
+        "apps/desktop/src/ArtifactValidation.tsx",
+        "crates/workspaces/src/deterministic.rs",
+        "crates/core/src/data_validation.rs",
+        "apps/desktop/src/DataContractValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -1512,7 +1575,13 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/EVIDENCE.json",
+        "docs/execution/data-contract-validation/CORE_REVIEW.md",
+        "docs/execution/data-contract-validation/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -1535,6 +1604,27 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "approved_fixed_json_data_contract_schema7_core_ipc_and_ui",
+          "implementation_commit": "0f23ff025d9952ab5ac679daed914cd33938e61d",
+          "composition_commit": "cfa68bd",
+          "evidence": "docs/execution/data-contract-validation/EVIDENCE.json",
+          "core_library_native_helper_ui_and_actual_browser": "passed_scope_limited",
+          "native_owner_dialog_newMacFIRST_and_packages": "not_run",
+          "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
+        },
+        {
+          "slice": "exact_schema6_62465_and_schema7_2640_mac_host_tests_native_readonly_lifecycle",
+          "schema6_head": "62465a57f35b55838bce2064e96eafef8255156a",
+          "schema6_product": 40430127911,
+          "schema6_environment": 40430127252,
+          "schema7_head": "2640e6c9af2568c2731019cab9d16423fd45ceae",
+          "schema7_product": 40430134077,
+          "schema7_environment": 40430137922,
+          "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
+          "native_owner_dialog_and_policy_execution": "not_automated",
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -1559,7 +1649,9 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -1582,6 +1674,18 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "exact_schema6_62465_and_schema7_2640_mac_host_tests_native_readonly_lifecycle",
+          "schema6_head": "62465a57f35b55838bce2064e96eafef8255156a",
+          "schema6_product": 40430127911,
+          "schema6_environment": 40430127252,
+          "schema7_head": "2640e6c9af2568c2731019cab9d16423fd45ceae",
+          "schema7_product": 40430134077,
+          "schema7_environment": 40430137922,
+          "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
+          "native_owner_dialog_and_policy_execution": "not_automated",
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -2403,7 +2507,10 @@
         "crates/core/src/validation.rs",
         "crates/workspaces/src/validation.rs",
         "crates/workspaces/src/adoption.rs",
-        "apps/desktop/src/ArtifactValidation.tsx"
+        "apps/desktop/src/ArtifactValidation.tsx",
+        "crates/workspaces/src/deterministic.rs",
+        "crates/core/src/data_validation.rs",
+        "apps/desktop/src/DataContractValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -2416,7 +2523,11 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/EVIDENCE.json",
+        "docs/execution/data-contract-validation/CORE_REVIEW.md",
+        "docs/execution/data-contract-validation/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -2439,6 +2550,15 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "approved_fixed_json_data_contract_schema7_core_ipc_and_ui",
+          "implementation_commit": "0f23ff025d9952ab5ac679daed914cd33938e61d",
+          "composition_commit": "cfa68bd",
+          "evidence": "docs/execution/data-contract-validation/EVIDENCE.json",
+          "core_library_native_helper_ui_and_actual_browser": "passed_scope_limited",
+          "native_owner_dialog_newMacFIRST_and_packages": "not_run",
+          "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
         }
       ]
     },
@@ -3339,7 +3459,10 @@
         "crates/core/src/validation.rs",
         "crates/workspaces/src/validation.rs",
         "crates/workspaces/src/adoption.rs",
-        "apps/desktop/src/ArtifactValidation.tsx"
+        "apps/desktop/src/ArtifactValidation.tsx",
+        "crates/workspaces/src/deterministic.rs",
+        "crates/core/src/data_validation.rs",
+        "apps/desktop/src/DataContractValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -3352,7 +3475,13 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/EVIDENCE.json",
+        "docs/execution/data-contract-validation/CORE_REVIEW.md",
+        "docs/execution/data-contract-validation/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -3375,6 +3504,27 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "approved_fixed_json_data_contract_schema7_core_ipc_and_ui",
+          "implementation_commit": "0f23ff025d9952ab5ac679daed914cd33938e61d",
+          "composition_commit": "cfa68bd",
+          "evidence": "docs/execution/data-contract-validation/EVIDENCE.json",
+          "core_library_native_helper_ui_and_actual_browser": "passed_scope_limited",
+          "native_owner_dialog_newMacFIRST_and_packages": "not_run",
+          "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
+        },
+        {
+          "slice": "exact_schema6_62465_and_schema7_2640_mac_host_tests_native_readonly_lifecycle",
+          "schema6_head": "62465a57f35b55838bce2064e96eafef8255156a",
+          "schema6_product": 40430127911,
+          "schema6_environment": 40430127252,
+          "schema7_head": "2640e6c9af2568c2731019cab9d16423fd45ceae",
+          "schema7_product": 40430134077,
+          "schema7_environment": 40430137922,
+          "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
+          "native_owner_dialog_and_policy_execution": "not_automated",
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -3386,7 +3536,10 @@
         "crates/core/src/validation.rs",
         "crates/workspaces/src/validation.rs",
         "crates/workspaces/src/adoption.rs",
-        "apps/desktop/src/ArtifactValidation.tsx"
+        "apps/desktop/src/ArtifactValidation.tsx",
+        "crates/workspaces/src/deterministic.rs",
+        "crates/core/src/data_validation.rs",
+        "apps/desktop/src/DataContractValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -3399,7 +3552,11 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/EVIDENCE.json",
+        "docs/execution/data-contract-validation/CORE_REVIEW.md",
+        "docs/execution/data-contract-validation/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -3422,6 +3579,15 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "approved_fixed_json_data_contract_schema7_core_ipc_and_ui",
+          "implementation_commit": "0f23ff025d9952ab5ac679daed914cd33938e61d",
+          "composition_commit": "cfa68bd",
+          "evidence": "docs/execution/data-contract-validation/EVIDENCE.json",
+          "core_library_native_helper_ui_and_actual_browser": "passed_scope_limited",
+          "native_owner_dialog_newMacFIRST_and_packages": "not_run",
+          "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
         }
       ]
     },
@@ -3433,7 +3599,10 @@
         "crates/core/src/validation.rs",
         "crates/workspaces/src/validation.rs",
         "crates/workspaces/src/adoption.rs",
-        "apps/desktop/src/ArtifactValidation.tsx"
+        "apps/desktop/src/ArtifactValidation.tsx",
+        "crates/workspaces/src/deterministic.rs",
+        "crates/core/src/data_validation.rs",
+        "apps/desktop/src/DataContractValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -3446,7 +3615,13 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/EVIDENCE.json",
+        "docs/execution/data-contract-validation/CORE_REVIEW.md",
+        "docs/execution/data-contract-validation/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md",
+        "docs/execution/validation-integration/NATIVE_62465_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_2640_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -3469,6 +3644,27 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "approved_fixed_json_data_contract_schema7_core_ipc_and_ui",
+          "implementation_commit": "0f23ff025d9952ab5ac679daed914cd33938e61d",
+          "composition_commit": "cfa68bd",
+          "evidence": "docs/execution/data-contract-validation/EVIDENCE.json",
+          "core_library_native_helper_ui_and_actual_browser": "passed_scope_limited",
+          "native_owner_dialog_newMacFIRST_and_packages": "not_run",
+          "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
+        },
+        {
+          "slice": "exact_schema6_62465_and_schema7_2640_mac_host_tests_native_readonly_lifecycle",
+          "schema6_head": "62465a57f35b55838bce2064e96eafef8255156a",
+          "schema6_product": 40430127911,
+          "schema6_environment": 40430127252,
+          "schema7_head": "2640e6c9af2568c2731019cab9d16423fd45ceae",
+          "schema7_product": 40430134077,
+          "schema7_environment": 40430137922,
+          "mac_arm64_x86_64": "passed CI host tests/default release audit and real WebView draft/lifecycle; schema7 adds readonly Data controls only",
+          "native_owner_dialog_and_policy_execution": "not_automated",
+          "overall_requirement": "incomplete"
         }
       ]
     },
@@ -3752,7 +3948,10 @@
         "crates/core/src/validation.rs",
         "crates/workspaces/src/validation.rs",
         "crates/workspaces/src/adoption.rs",
-        "apps/desktop/src/ArtifactValidation.tsx"
+        "apps/desktop/src/ArtifactValidation.tsx",
+        "crates/workspaces/src/deterministic.rs",
+        "crates/core/src/data_validation.rs",
+        "apps/desktop/src/DataContractValidation.tsx"
       ],
       "verification": {
         "unit": "not_run",
@@ -3765,7 +3964,11 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/EVIDENCE.json",
+        "docs/execution/data-contract-validation/CORE_REVIEW.md",
+        "docs/execution/data-contract-validation/UI_REVIEW.md",
+        "docs/execution/data-contract-validation/NATIVE_REVIEW.md"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -3788,6 +3991,15 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "approved_fixed_json_data_contract_schema7_core_ipc_and_ui",
+          "implementation_commit": "0f23ff025d9952ab5ac679daed914cd33938e61d",
+          "composition_commit": "cfa68bd",
+          "evidence": "docs/execution/data-contract-validation/EVIDENCE.json",
+          "core_library_native_helper_ui_and_actual_browser": "passed_scope_limited",
+          "native_owner_dialog_newMacFIRST_and_packages": "not_run",
+          "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
         }
       ]
     }
