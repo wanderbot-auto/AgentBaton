@@ -93,6 +93,14 @@ impl Fixture {
         fs::create_dir(&managed).unwrap();
         fs::set_permissions(&managed, fs::Permissions::from_mode(0o700)).unwrap();
         let mut store = Store::open(&db).unwrap();
+        assert_eq!(
+            Connection::open(&db)
+                .unwrap()
+                .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+                .unwrap(),
+            8,
+            "CI fixture must link exact schema8 source"
+        );
         let project = store
             .import_project(&source, "Synthetic project", "import")
             .unwrap();
@@ -937,13 +945,15 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
     // actually handshakes, then session/new fails with malformed protocol. The
     // driver owns the process and confirms reap; no prompt/model call occurs.
     let executable = f.runtime.join("generated-malformed-acp");
+    let observed_requests = f.runtime.join("generated-acp-observed");
+    let observed_literal = serde_json::to_string(&observed_requests).unwrap();
     let python = Command::new("/usr/bin/env")
         .args(["which", "python3"])
         .output()
         .unwrap();
     assert!(python.status.success());
     let python = String::from_utf8(python.stdout).unwrap();
-    fs::write(&executable,format!("#!{}\nimport sys,json\nif '--version' in sys.argv:\n print('generated-account-free-fixture 0.1')\n sys.exit(0)\nfor line in sys.stdin:\n request=json.loads(line)\n if request.get('method')=='initialize':\n  print(json.dumps({{'jsonrpc':'2.0','id':request['id'],'result':{{'protocolVersion':1,'agentCapabilities':{{}}}}}}),flush=True)\n elif request.get('method')=='session/new':\n  print('not-valid-acp-json',flush=True)\n  sys.exit(0)\n",python.trim())).unwrap();
+    fs::write(&executable,format!("#!{}\nimport sys,json,os\nOBSERVED={}\nif '--version' in sys.argv:\n print('generated-account-free-fixture 0.1')\n sys.exit(0)\nfor line in sys.stdin:\n request=json.loads(line)\n if request.get('method') in ('initialize','session/new'):\n  fd=os.open(OBSERVED,os.O_WRONLY|os.O_CREAT|os.O_APPEND,0o600)\n  os.write(fd,(request['method']+'\\n').encode())\n  os.close(fd)\n if request.get('method')=='initialize':\n  print(json.dumps({{'jsonrpc':'2.0','id':request['id'],'result':{{'protocolVersion':1,'agentCapabilities':{{}}}}}}),flush=True)\n elif request.get('method')=='session/new':\n  print('not-valid-acp-json',flush=True)\n  sys.exit(0)\n",python.trim(),observed_literal)).unwrap();
     fs::set_permissions(&executable, fs::Permissions::from_mode(0o700)).unwrap();
     drop(f.store);
     let daemon = Daemon::bind(&runtime).unwrap();
@@ -951,8 +961,25 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
     let flag = stop.clone();
     let thread = std::thread::spawn(move || daemon.run(flag).unwrap());
     let call = |r: Value| {
+        let method = r["method"].as_str().unwrap().to_owned();
+        let begin = Instant::now();
+        // Real fixture preparation latency, not a fake grant clock or longer
+        // execution budget. It must occur before final grant approval.
+        if method == "tasks.create" {
+            std::thread::sleep(Duration::from_millis(1100));
+        }
+        let rpc = Instant::now();
         let response = ipc::call(&runtime, r).unwrap();
-        assert!(response.get("error").is_none(), "{response}");
+        eprintln!(
+            "LIFECYCLE method={method} prep_ms={} rpc_ms={} total_ms={}",
+            rpc.duration_since(begin).as_millis(),
+            rpc.elapsed().as_millis(),
+            begin.elapsed().as_millis()
+        );
+        assert!(
+            response.get("error").is_none(),
+            "method={method} response={response}"
+        );
         response["result"].clone()
     };
     let p = call(
@@ -978,14 +1005,80 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
         assert!(Instant::now() < end, "{value}");
         std::thread::sleep(Duration::from_millis(5));
     }
+    let task = call(
+        json!({"method":"tasks.create","params":{"project_id":project,"goal":"Validate confirmed stopped generated runtime"},"idempotency_key":"real-task"}),
+    );
+    let expired = call(
+        json!({"method":"grants.propose","params":{"project_id":project,"workspace_id":workspace,"connection_id":connection["id"],"max_attempts":4,"max_concurrency":1,"max_duration_ms":1000},"idempotency_key":"expired-control-grant"}),
+    );
+    let expired = call(
+        json!({"method":"approvals.finalize","params":{"proposal_id":expired["id"]},"expected_revision":1}),
+    );
+    let expired_return = Instant::now();
+    let before = Connection::open(&database).unwrap();
+    let lease_before: (String, i64) = before
+        .query_row(
+            "SELECT holder,fencing_token FROM workspace_leases WHERE resource=?1",
+            [workspace.as_str()],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .unwrap();
+    std::thread::sleep(Duration::from_millis(1100));
+    let negative_rpc = Instant::now();
+    let refused=ipc::call(&runtime,json!({"method":"sessions.create","params":{"task_id":task["id"],"workspace_id":workspace,"connection_id":connection["id"],"grant_id":expired["id"]},"expected_revision":task["revision"],"idempotency_key":"expired-control-session"})).unwrap();
+    eprintln!(
+        "LIFECYCLE expired_negative approved_return_to_request_ms={} rpc_ms={} response={refused}",
+        negative_rpc.duration_since(expired_return).as_millis(),
+        negative_rpc.elapsed().as_millis()
+    );
+    assert_eq!(refused["error"]["code"], "PERMISSION_DENIED");
+    assert_eq!(refused["error"]["side_effect_state"], "not_started");
+    assert_eq!(
+        before
+            .query_row(
+                "SELECT count(*) FROM sessions WHERE task_id=?1",
+                [task["id"].as_str().unwrap()],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        before
+            .query_row(
+                "SELECT count(*) FROM attempts WHERE task_id=?1",
+                [task["id"].as_str().unwrap()],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+        0
+    );
+    let lease_after: (String, i64) = before
+        .query_row(
+            "SELECT holder,fencing_token FROM workspace_leases WHERE resource=?1",
+            [workspace.as_str()],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(lease_before, lease_after);
+    assert!(!observed_requests.exists());
+    drop(before);
     let grant = call(
         json!({"method":"grants.propose","params":{"project_id":project,"workspace_id":workspace,"connection_id":connection["id"],"max_attempts":4,"max_concurrency":1,"max_duration_ms":1000},"idempotency_key":"real-grant"}),
     );
     let grant = call(
         json!({"method":"approvals.finalize","params":{"proposal_id":grant["id"]},"expected_revision":1}),
     );
-    let task = call(
-        json!({"method":"tasks.create","params":{"project_id":project,"goal":"Validate confirmed stopped generated runtime"},"idempotency_key":"real-task"}),
+    let granted_return = Instant::now();
+    let remaining_ms = grant["expires_at_ms"].as_i64().unwrap()
+        - std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as i64;
+    eprintln!("LIFECYCLE fresh_grant_return ttl_remaining_ms={remaining_ms} duration_ms=1000");
+    eprintln!(
+        "LIFECYCLE approved_return_to_admission_request_ms={}",
+        granted_return.elapsed().as_millis()
     );
     let session = call(
         json!({"method":"sessions.create","params":{"task_id":task["id"],"workspace_id":workspace,"connection_id":connection["id"],"grant_id":grant["id"]},"expected_revision":task["revision"],"idempotency_key":"real-session"}),
@@ -1001,6 +1094,11 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
     };
     let current = call(json!({"method":"tasks.get","params":{"task_id":task["id"]}}));
     assert_eq!(current["state"], "outcome_unknown");
+    assert_eq!(stopped["last_error"], "session_creation_failed");
+    assert_eq!(
+        fs::read_to_string(&observed_requests).unwrap(),
+        "initialize\nsession/new\n"
+    );
     let c = Connection::open(&database).unwrap();
     let intent: String = c
         .query_row(
@@ -1010,6 +1108,13 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
         )
         .unwrap();
     assert_eq!(intent, "stopped");
+    let raw_stop:String=c.query_row("SELECT document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.stopped' ORDER BY sequence DESC LIMIT 1",[stopped["id"].as_str().unwrap()],|r|r.get(0)).unwrap();
+    let receipt: Value = serde_json::from_str(&raw_stop).unwrap();
+    assert_eq!(receipt["payload"]["process_reaped"], true);
+    assert_eq!(receipt["payload"]["no_process_started"], false);
+    assert_eq!(receipt["payload"]["reason"], "session_creation_failed");
+    assert_eq!(receipt["payload"]["task_accepted"], false);
+
     assert_eq!(
         c.query_row(
             "SELECT holder FROM workspace_leases WHERE resource=?1",
