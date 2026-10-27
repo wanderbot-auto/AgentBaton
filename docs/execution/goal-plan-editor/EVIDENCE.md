@@ -53,3 +53,36 @@ The fixture now uses the supported native click disclosure and preserves an open
 ## Pending dimensions
 
 Independent review, primary's readonly metadata backend tests/integration, actual editor/Unix IPC/browser operation and screenshots, native OwnerDialog/WebView, both macOS architectures and exact integrated CI are **not run by this unit**. No Provider/session/model, paid resource or private credential was used. No NL planner, routing, reservation, dispatch or Task acceptance is established by plan editing or passing mock transport tests.
+
+## F1 exact-node numeric-cache correction
+
+Current source `1751558feeaeb51bf3604be5dd6c2ed7acb21887`; initial `92416da` source and its evidence above are retained as history. The independent reviewer first ran the original full 258/types/build successfully and then found an adversarial local draft loss. Independent old failure: `/workspace/.onboarding/goal-plan-editor-independent/numeric-id-collision-control.log`.
+
+Author copied the exact control semantics read-only: nodes `a` and `a.b` are legitimate independent nodes, `a.b` owns the output, `a` is a separate Owner input-review node with no dependencies. Set `a.b` runtime to unsafe `9007199254740993`, assert Apply disabled, remove exact `a`, then assert the same unsafe text remains, Apply stays disabled and no `onApply` occurs. On old product source the author's run actually **failed, exit 1**, received `60000`, at test line 101. Filtered execution intentionally selected the new control only (1 failed, 29 outside-filter tests not run), not a weakened full-suite acceptance.
+
+```sh
+npm test -- src/GoalPlanEditor.test.tsx -t 'removing node a retains'
+npm run typecheck
+npm test -- src/GoalPlanEditor.test.tsx
+npm test
+npm run build
+```
+
+The fix replaces delimiter/prefix numeric storage with `Map<exactNodeId, fixedGroupFieldRecord>`, exact lookup and exact `delete(id)`. It preserves dotted node IDs, the untouched node's entered text, and blocked Apply. No raw JSON, CAS, approval, metadata, old test, model, backend, native, lock, harness or timeout change.
+
+Initial copied control used `getByRole(...,{exact:true})`, an unsupported option in the installed TypeScript `ByRoleOptions`; its type-check failure is retained. Replaced only that selector with the equivalent anchored accessible name `/^Remove step a$/`; all behavioral assertions and exact matching remain.
+
+Final: **typecheck PASS**, **30/30 editor tests PASS** (05:19:54 UTC), **259/259 full tests in 16 files PASS** (05:19:57 UTC, 10.92s), **production build PASS**. All previous 229 tests are byte-identical to base. No new real backend/Chromium/native verification is implied.
+
+| F1 artifact | SHA-256 |
+| --- | --- |
+| `GoalPlanEditor.tsx` | `5dc2a7a31290eaa5f315fafe7678e9d62ed6f7205cc8a3e4ae6b15eb7a87198a` |
+| `GoalPlanEditor.test.tsx` | `d29288f62757b237ee480aff7527d3a579c1c1ed11959224cd8bcdfbf906e26e` |
+| `f1/old-numeric-collision.log` | `6b9a614aebce1666e95c9865780a447b35924a9ef9d0acba28954c5ff5aecca0` |
+| `f1/typecheck.log` (initial copied-test type error) | `945506c56b29177f7fc607635f6ee9280a1a70e8d7b157b9b09da736dfa15607` |
+| `f1/typecheck-final.log` | `642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e` |
+| `f1/editor.log` | `68560af609942cb544eaf70e0c7e62362304d59276fbfce59df533c8bf81c867` |
+| `f1/ui.log` | `5e7d91807772c204e114c334137196c176d17e3dedf1179c5e9cfea05685123c` |
+| `f1/build.log` | `7763a8ef000414766f8fb5b08bef50eb6a9fb2bca8083640886135eb19f77e4e` |
+
+All F1 logs are under `/workspace/.onboarding/goal-plan-editor/f1/`. Other four product files retain their `92416da` hashes above. New built JS `index-ojfhYZcd.js` SHA `232b7024a08f05ba75c01ad77232c464e1187bfef647cd0e2eeb80c6c1db32bc`; CSS is unchanged. The worker-created exact dependency symlink is removed after checks, with the original dependency directory untouched. Independent F1 re-review and primary's real metadata/editor IPC/browser validation remain pending.

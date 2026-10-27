@@ -11,3 +11,5 @@ Requirement: AB-TSK-011 and `docs/06-orchestration.md` section 6. Add real editi
 5. Exercise normal edits and semantic failures, original-byte preservation, versions/concurrent changes, metadata refusal, keyboard form controls and real Goal API boundary through mocked transport. Run unchanged original 229 tests plus new tests/types/build. Freeze local source for independent review and primary's subsequent real backend/Chromium checks.
 
 No Core/native/App/locks/old tests/harness/CI/global status changes, new dependencies, Cargo, agents, push or PR in this unit. Entire-product completion, generated NL planning, scheduling, conditional workflow/runtime routing and actual Goal execution are outside this slice and remain tracked by the primary.
+
+Independent review F1 follow-up: reproduce the numeric draft collision on unchanged source first; replace delimiter/prefix node keys with exact node identity storage, preserving valid IDs and other nodes' text. Keep the original failing evidence and all prior assertions, run the full suite/types/build, and freeze a separately reviewable source commit. No authority or backend dependency change belongs to this fix.

@@ -1,6 +1,6 @@
 # Goal plan editor progress
 
-Source frozen at `92416daa28174ffeb735cd72e31c911af59112dd` (base `d30bb9e`).
+Current source frozen at `1751558feeaeb51bf3604be5dd6c2ed7acb21887` (base `d30bb9e`); initial feature source `92416daa28174ffeb735cd72e31c911af59112dd` and its 258-test evidence are retained below.
 
 - Implemented a default-folded step editor and accessible dependency adjacency diagram over the actual `GoalPlanProposal`. Work, summary, deterministic-validation and Owner-review nodes use the approved connection or a matching approved rule. Displayed arrows include dependencies, lineage and node-produced input edges.
 - Explicit prepare from scope/latest or load current JSON creates a local editing copy. Merely reading raw JSON never calls `onApply` or normalizes its original whitespace. Apply requires a real edit or explicit new-version preparation. It updates the existing JSON draft; approval, store/revise and preview remain separate actions in `GoalPlanning`.
@@ -10,3 +10,11 @@ Source frozen at `92416daa28174ffeb735cd72e31c911af59112dd` (base `d30bb9e`).
 - Actual final validation: **258 UI tests in 16 files**, typecheck and production build pass at source `92416da`. This includes all unchanged original 229 tests and 29 new editor cases. All old tests, the raw-plan browser harness, App, Core/native and locks are byte-identical to base.
 - One new keyboard fixture initially failed: jsdom/user-event did not perform native `<summary>` Enter expansion. No product keydown shim, timeout increase or assertion weakening was added to compensate. The fixture now checks focusable summary/click disclosure and actual Tab/Enter button/input editing. Native summary Enter behavior requires the primary's real browser check.
 - No actual editor/schema9 IPC, browser screenshot, native OwnerDialog, macOS or dispatch result is claimed. Primary will integrate the readonly backend metadata and run the real checks; independent review is pending.
+
+## Independent review F1 — exact numeric draft identity
+
+The independent reviewer reproduced a local draft loss: after entering `9007199254740993` in node `a.b`, deleting unrelated node `a` removed `a.b`'s numeric cache through `startsWith('a.')`, displayed the old `60000` and could re-enable Apply. This was not a Core permission expansion, but silently losing user text was a source blocker.
+
+The same control was copied read-only into the owned test and actually failed on old source (exit 1, `60000` received). Source `1751558` changes only numeric cache organization to `Map<exactNodeId, fixedFieldTextRecord>` and exact `delete(id)`. Legal dotted IDs remain valid; unchanged nodes retain their unsafe text and Apply stays disabled. Original JSON transport, revision/unknown handling and metadata guards are unchanged.
+
+Final actual results: **30 editor tests / 259 full UI tests in 16 files**, typecheck and build PASS. Original 229 tests and all original assertions remain intact. Failed control, an initial copied-test type-check error, and passing logs persist under `/workspace/.onboarding/goal-plan-editor/f1/`. Independent delta re-review is pending; real metadata/backend/browser/native dimensions remain unrun here.
