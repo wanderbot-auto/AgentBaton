@@ -684,3 +684,28 @@ fn disk_ready_label_and_recomputed_untrusted_views_never_create_verified_tokens(
         Some(DataWorkspaceError::MetadataInvalid)
     );
 }
+
+#[test]
+fn selection_bounds_are_checked_before_source_io_or_sorting() {
+    let f = Fixture::new();
+    let absent = f.source.join("nonexistent");
+    let files = (0..65)
+        .map(|i| ArtifactRequirement {
+            artifact_id: format!("input-{i}"),
+            relative_path: format!("file-{i}").into(),
+            max_bytes: 100,
+            expected_sha256: None,
+        })
+        .collect();
+    assert_eq!(
+        ApprovedDataSelection::from_verified_host(
+            &absent,
+            "owner".into(),
+            files,
+            DataLimits::default()
+        )
+        .err(),
+        Some(DataWorkspaceError::InvalidSelection)
+    );
+    assert!(!absent.exists());
+}

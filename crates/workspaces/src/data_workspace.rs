@@ -25,6 +25,23 @@ const MAX_METADATA: u64 = 4 * 1024 * 1024;
 const CREATING: &str = ".baton-data-creating.json";
 const READY: &str = ".baton-data-ready.json";
 const FAILED: &str = ".baton-data-failed.json";
+
+// Private deterministic I/O fault injection; absent from production builds.
+#[cfg(test)]
+type PublicationHook = Box<dyn Fn(&Path, bool)>;
+#[cfg(test)]
+thread_local! {
+    static PUBLICATION_HOOK: std::cell::RefCell<Option<PublicationHook>> = const { std::cell::RefCell::new(None) };
+}
+#[cfg(test)]
+fn publication_observed(path: &Path, ready_written: bool) {
+    PUBLICATION_HOOK.with(|hook| {
+        if let Some(hook) = &*hook.borrow() {
+            hook(path, ready_written);
+        }
+    });
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DataLimits {
@@ -239,6 +256,8 @@ pub struct DataCreationView {
     pub state: CreationState,
     pub dataset_revision: String,
     pub selection_digest: String,
+    /// Copies observed in this call; incomplete inspection returns zero without
+    /// asserting that the retained directory contains no copied/owner files.
     pub copied_files: u32,
     pub error: Option<DataWorkspaceError>,
     pub source_observation_scope: String,
@@ -501,29 +520,39 @@ impl ApprovedDataSelection {
     pub fn from_verified_host(
         root: &Path,
         approval_reference: String,
-        mut files: Vec<ArtifactRequirement>,
+        files: Vec<ArtifactRequirement>,
         limits: DataLimits,
     ) -> Result<Self, DataWorkspaceError> {
-        if root == Path::new("/")
-            || root
-                .components()
-                .any(|p| matches!(p,Component::Normal(name) if auth_component(name)))
+        // Validate bounds and names before sorting, root I/O or metadata cloning.
+        if !canonical_shape(root) {
+            return Err(DataWorkspaceError::InvalidSelection);
+        }
+        let mut contract = DataSelectionContract {
+            format_version: FORMAT,
+            approval_reference,
+            source: DirectoryPin {
+                canonical_root: root.into(),
+                device: 0,
+                inode: 0,
+            },
+            files,
+            limits,
+        };
+        validate_selection(&contract)?;
+        if root
+            .components()
+            .any(|p| matches!(p, Component::Normal(name) if auth_component(name)))
             || std::env::var_os("HOME")
                 .and_then(|p| fs::canonicalize(p).ok())
                 .is_some_and(|p| p == root)
         {
             return Err(DataWorkspaceError::UnauthorizedPath);
         }
-        files.sort_by(|a, b| a.relative_path.cmp(&b.relative_path));
+        contract
+            .files
+            .sort_by(|a, b| a.relative_path.cmp(&b.relative_path));
         let fd = checked_root(root)?;
-        let contract = DataSelectionContract {
-            format_version: FORMAT,
-            approval_reference,
-            source: directory_pin(root, &fd)?,
-            files,
-            limits,
-        };
-        validate_selection(&contract)?;
+        contract.source = directory_pin(root, &fd)?;
         Ok(Self { contract, root: fd })
     }
     pub fn contract_view(&self) -> DataSelectionContract {
@@ -632,9 +661,10 @@ pub fn verify_dataset(
 
 fn validate_snapshot(v: &DatasetSnapshotView) -> Result<(), DataWorkspaceError> {
     validate_selection(&v.contract)?;
-    if v.selection_digest != digest(&v.contract)?
-        || v.dataset_revision != dataset_revision(&v.files)?
-        || v.files.len() != v.contract.files.len()
+    if v.files.len() != v.contract.files.len()
+        || !valid_hash(&v.selection_digest)
+        || !valid_hash(&v.dataset_revision)
+        || v.selection_digest != digest(&v.contract)?
         || v.atomic_directory_freeze
         || v.source_observation_scope != "selected_files_before_after_only"
     {
@@ -658,7 +688,10 @@ fn validate_snapshot(v: &DatasetSnapshotView) -> Result<(), DataWorkspaceError> 
             .checked_add(f.bytes)
             .ok_or(DataWorkspaceError::ResourceLimit)?;
     }
-    if total != v.total_bytes || total > v.contract.limits.max_total_bytes {
+    if total != v.total_bytes
+        || total > v.contract.limits.max_total_bytes
+        || v.dataset_revision != dataset_revision(&v.files)?
+    {
         return Err(DataWorkspaceError::MetadataInvalid);
     }
     Ok(())
@@ -687,7 +720,11 @@ fn validate_completed_contract(c: &DataWorkspaceContract) -> Result<(), DataWork
                 .canonical_root
                 .join(format!("data-{}", c.creation_id))
         || c.files.len() != c.snapshot.files.len()
-        || c.contract_digest != completed_digest(c)?
+        || c.directories.len() > MAX_FILES as usize * 16
+        || c.directories
+            .iter()
+            .any(|pin| !canonical_shape(&pin.canonical_root))
+        || !valid_hash(&c.contract_digest)
     {
         return Err(DataWorkspaceError::MetadataInvalid);
     }
@@ -713,7 +750,10 @@ fn validate_completed_contract(c: &DataWorkspaceContract) -> Result<(), DataWork
         .iter()
         .map(|d| d.canonical_root.clone())
         .collect();
-    if actual != expected || actual.len() != c.directories.len() {
+    if actual != expected
+        || actual.len() != c.directories.len()
+        || c.contract_digest != completed_digest(c)?
+    {
         return Err(DataWorkspaceError::MetadataInvalid);
     }
     Ok(())
@@ -919,6 +959,8 @@ pub fn create_data_workspace(
     let result = (|| -> Result<DataWorkspaceContract, DataWorkspaceError> {
         verify_destination_location(managed, &directory, &destination)?;
         write_new(&directory, OsStr::new(CREATING), &json_bytes(&intent)?)?;
+        #[cfg(test)]
+        publication_observed(&destination.canonical_root, false);
         directory.sync_all().map_err(|_| DataWorkspaceError::Io)?;
         let mut known = BTreeMap::new();
         let mut copied = vec![];
@@ -981,12 +1023,16 @@ pub fn create_data_workspace(
         verify_copy_bytes(&directory, &contract)?;
         verify_destination_location(managed, &directory, &destination)?;
         directory.sync_all().map_err(|_| DataWorkspaceError::Io)?;
+        verify_intent(&directory, &contract)?;
         write_new(&directory, OsStr::new(READY), &json_bytes(&contract)?)?;
+        #[cfg(test)]
+        publication_observed(&destination.canonical_root, true);
         directory.sync_all().map_err(|_| DataWorkspaceError::Io)?;
         managed
             .root
             .sync_all()
             .map_err(|_| DataWorkspaceError::Io)?;
+        verify_publication(&directory, &contract)?;
         verify_destination_location(managed, &directory, &destination)?;
         Ok(contract)
     })();
@@ -1076,6 +1122,32 @@ fn read_metadata<T: for<'a> Deserialize<'a>>(
     }
     serde_json::from_slice(&bytes).map_err(|_| DataWorkspaceError::MetadataInvalid)
 }
+fn verify_intent(
+    directory: &File,
+    contract: &DataWorkspaceContract,
+) -> Result<(), DataWorkspaceError> {
+    let intent: Intent = read_metadata(directory, CREATING)?;
+    if intent.format_version != FORMAT
+        || intent.creation_id != contract.creation_id
+        || intent.snapshot != contract.snapshot
+        || intent.destination != contract.destination
+        || intent.managed_root != contract.managed_root
+    {
+        return Err(DataWorkspaceError::MetadataInvalid);
+    }
+    Ok(())
+}
+fn verify_publication(
+    directory: &File,
+    contract: &DataWorkspaceContract,
+) -> Result<(), DataWorkspaceError> {
+    verify_intent(directory, contract)?;
+    let ready: DataWorkspaceContract = read_metadata(directory, READY)?;
+    if &ready != contract {
+        return Err(DataWorkspaceError::MetadataInvalid);
+    }
+    Ok(())
+}
 /// Restores only from an independently authenticated persisted host contract.
 /// No original source path is reopened: an unchanged Ready copy survives source
 /// movement/deletion/modification. Disk labels alone cannot create this token.
@@ -1097,19 +1169,7 @@ pub fn restore_data_workspace(
     )
     .map_err(|_| DataWorkspaceError::DestinationChanged)?;
     verify_destination_location(managed, &directory, &contract.destination)?;
-    let intent: Intent = read_metadata(&directory, CREATING)?;
-    if intent.format_version != FORMAT
-        || intent.creation_id != contract.creation_id
-        || intent.snapshot != contract.snapshot
-        || intent.destination != contract.destination
-        || intent.managed_root != contract.managed_root
-    {
-        return Err(DataWorkspaceError::MetadataInvalid);
-    }
-    let ready: DataWorkspaceContract = read_metadata(&directory, READY)?;
-    if &ready != contract {
-        return Err(DataWorkspaceError::MetadataInvalid);
-    }
+    verify_publication(&directory, contract)?;
     verify_copy_bytes(&directory, contract)?;
     verify_destination_location(managed, &directory, &contract.destination)?;
     Ok(VerifiedDataWorkspace {
@@ -1163,4 +1223,68 @@ pub fn inspect_incomplete_creation(
         }
     }
     Ok(view)
+}
+
+#[cfg(test)]
+mod publication_tests {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt;
+
+    fn marker_fault(ready_written: bool) {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().canonicalize().unwrap();
+        let source = root.join("source");
+        let managed = root.join("managed");
+        fs::create_dir(&source).unwrap();
+        fs::create_dir(&managed).unwrap();
+        fs::set_permissions(&managed, fs::Permissions::from_mode(0o700)).unwrap();
+        fs::write(source.join("dataset"), b"fixed input").unwrap();
+        let selected = ApprovedDataSelection::from_verified_host(
+            &source,
+            "host-approved".into(),
+            vec![ArtifactRequirement {
+                artifact_id: "dataset".into(),
+                relative_path: "dataset".into(),
+                max_bytes: 100,
+                expected_sha256: None,
+            }],
+            DataLimits::default(),
+        )
+        .unwrap();
+        let snapshot = verify_dataset(&selected).unwrap();
+        let host_root = ApprovedManagedRoot::from_verified_host(&managed).unwrap();
+        PUBLICATION_HOOK.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move |path, stage| {
+                if stage == ready_written {
+                    fs::write(
+                        path.join(if ready_written { READY } else { CREATING }),
+                        b"{}",
+                    )
+                    .unwrap();
+                }
+            }))
+        });
+        let result = create_data_workspace(&snapshot, &host_root, "marker-fault");
+        PUBLICATION_HOOK.with(|hook| *hook.borrow_mut() = None);
+        let creation = result.unwrap();
+        assert!(
+            creation.verified().is_none(),
+            "modified publication metadata must never yield a Ready token"
+        );
+        assert_ne!(creation.view().state, CreationState::Ready);
+        assert_eq!(
+            creation.view().error,
+            Some(DataWorkspaceError::MetadataInvalid)
+        );
+        assert_eq!(fs::read(source.join("dataset")).unwrap(), b"fixed input");
+        assert!(managed.join("data-marker-fault").exists());
+    }
+    #[test]
+    fn creating_marker_drift_cannot_publish_a_verified_token() {
+        marker_fault(false);
+    }
+    #[test]
+    fn ready_marker_drift_cannot_publish_a_verified_token() {
+        marker_fault(true);
+    }
 }
