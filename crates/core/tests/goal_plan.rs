@@ -165,6 +165,7 @@ impl Fixture {
                     verified: true,
                 },
             )]),
+            external_actions: BTreeMap::new(),
             external_writes: map(vec![
                 (
                     "target-1",
@@ -184,11 +185,27 @@ impl Fixture {
             required_goal_outputs: map(vec![("out-a", "result".into())]),
             acceptance_rules: set(&["accept"]),
         };
-        Self {
+        let mut fixture = Self {
             task,
             grant,
             policy,
-        }
+        };
+        fixture.approve_action("external-a", "target-1", "workspace-a");
+        fixture.approve_action("external-b", "target-alias", "workspace-b");
+        fixture
+    }
+    fn approve_action(&mut self, id: &str, target: &str, workspace: &str) {
+        let executor = self.node("template", workspace).executor;
+        let request = ExternalActionRequest {
+            operation: "create-review".into(),
+            recipient: "reviewer".into(),
+            resource_ids: set(&[target]),
+            payload: serde_json::json!({"body":format!("owner approved exact request {id}")}),
+        };
+        self.policy.external_actions.insert(
+            id.into(),
+            ApprovedExternalAction::from_verified_host(executor, request).unwrap(),
+        );
     }
     fn scope(&self) -> ApprovedGoalScope {
         ApprovedGoalScope::from_verified_host(&self.task, &self.grant, self.policy.clone(), 10)
@@ -252,6 +269,7 @@ impl Fixture {
                 ],
             },
             idempotency_key: format!("action-{id}"),
+            external_action_id: None,
         }
     }
     fn proposal(&self, nodes: Vec<PlanNode>) -> GoalPlanProposal {
@@ -318,6 +336,7 @@ fn snapshot(p: &ValidatedPlan) -> HostPlanSnapshot {
                         attempt_id: None,
                         attempts_started: 0,
                         reworks_used: 0,
+                        consumed_inputs: vec![],
                     },
                 )
             })
@@ -351,12 +370,44 @@ fn snapshot(p: &ValidatedPlan) -> HostPlanSnapshot {
             .collect(),
         resources: ResourceUsage::default(),
         unresolved_actions: vec![],
+        external_actions: p
+            .approved_external_actions()
+            .iter()
+            .map(|(id, a)| {
+                (
+                    id.clone(),
+                    ExternalActionObservation {
+                        project_id: p.proposal().goal.project_id.clone(),
+                        root_task_id: p.proposal().goal.root_task_id.clone(),
+                        action_id: id.clone(),
+                        payload_sha256: a.payload_sha256.clone(),
+                        state: ExternalActionState::NeverStarted,
+                    },
+                )
+            })
+            .collect(),
         verified_isolation: vec![],
         verified_write_sets: vec![],
     }
 }
 fn observe(p: &ValidatedPlan, h: &mut HostPlanSnapshot, node: &str, state: NodeState) {
+    let inputs = p
+        .proposal()
+        .nodes
+        .iter()
+        .find(|n| n.id == node)
+        .unwrap()
+        .required_inputs
+        .iter()
+        .map(|i| ConsumedInputReceipt {
+            evidence: p.evidence_binding(),
+            consumer_node_id: node.into(),
+            consumer_attempt_id: format!("attempt-{node}"),
+            input: resolve_for_test(p, h, i),
+        })
+        .collect();
     let o = h.nodes.get_mut(node).unwrap();
+    o.consumed_inputs = inputs;
     o.state = state;
     o.attempt_id = Some(format!("attempt-{node}"));
     o.attempts_started = 1;
@@ -454,16 +505,58 @@ fn artifact(p: &ValidatedPlan, h: &mut HostPlanSnapshot, node: &str) {
     });
 }
 fn receipt(p: &ValidatedPlan, h: &mut HostPlanSnapshot, node: &str, rule: &str, passed: bool) {
+    let a = h.artifacts.iter().find(|a| a.node_id == node).unwrap();
     h.validations.push(ValidationReceipt {
         evidence: p.evidence_binding(),
-        artifact_id: format!("out-{node}"),
-        producer_node_id: node.into(),
-        attempt_id: format!("attempt-{node}"),
-        artifact_sha256: sha('e'),
+        input: ResolvedInput {
+            artifact_id: a.artifact_id.clone(),
+            contract_id: p
+                .proposal()
+                .nodes
+                .iter()
+                .find(|n| n.id == node)
+                .unwrap()
+                .outputs
+                .iter()
+                .find(|o| o.artifact_id == a.artifact_id)
+                .unwrap()
+                .contract_id
+                .clone(),
+            source: ResolvedInputSource::NodeOutput {
+                node_id: node.into(),
+                attempt_id: a.attempt_id.clone(),
+                sha256: a.sha256.clone(),
+            },
+        },
         rule_id: rule.into(),
         policy_digest: sha(if rule == "check" { 'b' } else { 'c' }),
         passed,
     });
+}
+fn resolve_for_test(p: &ValidatedPlan, h: &HostPlanSnapshot, i: &RequiredInput) -> ResolvedInput {
+    let source = match &i.source {
+        InputSource::ApprovedExternal { sha256 } => ResolvedInputSource::ApprovedExternal {
+            scope_revision: p.proposal().scope_revision,
+            sha256: sha256.clone(),
+        },
+        InputSource::Node { node_id, .. } => {
+            let a = h
+                .artifacts
+                .iter()
+                .find(|a| a.artifact_id == i.artifact_id)
+                .expect("fixture input must exist");
+            ResolvedInputSource::NodeOutput {
+                node_id: node_id.clone(),
+                attempt_id: a.attempt_id.clone(),
+                sha256: a.sha256.clone(),
+            }
+        }
+    };
+    ResolvedInput {
+        artifact_id: i.artifact_id.clone(),
+        contract_id: i.contract_id.clone(),
+        source,
+    }
 }
 fn decision(p: &ValidatedPlan, h: HostPlanSnapshot) -> ReadyDecision {
     decide_ready(p, &TrustedPlanSnapshot::from_verified_host(p, h).unwrap()).unwrap()
@@ -692,8 +785,20 @@ fn stale_wrong_attempt_rule_digest_and_artifact_hash_are_rejected() {
     for alter in 0..5 {
         let mut b = h.clone();
         match alter {
-            0 => b.validations[0].attempt_id = "old-attempt".into(),
-            1 => b.validations[0].artifact_sha256 = sha('f'),
+            0 => {
+                if let ResolvedInputSource::NodeOutput { attempt_id, .. } =
+                    &mut b.validations[0].input.source
+                {
+                    *attempt_id = "old-attempt".into()
+                }
+            }
+            1 => {
+                if let ResolvedInputSource::NodeOutput { sha256, .. } =
+                    &mut b.validations[0].input.source
+                {
+                    *sha256 = sha('f')
+                }
+            }
             2 => b.validations[0].policy_digest = sha('f'),
             3 => b.validations[0].evidence.plan_revision += 1,
             _ => b.nodes.get_mut("a").unwrap().evidence.goal.spec_revision += 1,
@@ -821,6 +926,14 @@ fn external_resource_aliases_conflict_even_in_isolated_workspaces() {
     let mut b = f.node("b", "workspace-b");
     for (n, target) in [(&mut a, "target-1"), (&mut b, "target-alias")] {
         n.side_effect = SideEffect::ExternalWrite;
+        n.external_action_id = Some(
+            if target == "target-1" {
+                "external-a"
+            } else {
+                "external-b"
+            }
+            .into(),
+        );
         n.write_set = vec![WriteTarget::External {
             resource_id: target.into(),
         }];
@@ -1212,4 +1325,478 @@ fn admission_references_exact_reservation_and_requires_atomic_commit() {
     assert_eq!(d.expected_plan_revision, 1);
     assert!(d.requires_atomic_store_commit);
     assert!(!d.required_checks_satisfied);
+}
+
+fn external_node(f: &Fixture) -> PlanNode {
+    let mut n = f.node("a", "workspace-a");
+    n.side_effect = SideEffect::ExternalWrite;
+    n.write_set = vec![WriteTarget::External {
+        resource_id: "target-1".into(),
+    }];
+    n.external_action_id = Some("external-a".into());
+    n
+}
+fn external_input() -> RequiredInput {
+    RequiredInput {
+        goal_task_id: "task-1".into(),
+        artifact_id: "source".into(),
+        contract_id: "result".into(),
+        source: InputSource::ApprovedExternal { sha256: sha('d') },
+    }
+}
+fn external_receipt(p: &ValidatedPlan, h: &mut HostPlanSnapshot, rule: &str) {
+    h.validations.push(ValidationReceipt {
+        evidence: p.evidence_binding(),
+        input: resolve_for_test(p, h, &external_input()),
+        rule_id: rule.into(),
+        policy_digest: sha(if rule == "check" { 'b' } else { 'c' }),
+        passed: true,
+    });
+}
+#[test]
+fn external_write_validation_failure_requires_reconciled_no_effect() {
+    let f = Fixture::new();
+    let p = f.plan(vec![external_node(&f)]);
+    let first = decision(&p, snapshot(&p));
+    assert_eq!(first.admissions.len(), 1);
+    let mut h = snapshot(&p);
+    observe(
+        &p,
+        &mut h,
+        "a",
+        NodeState::Failed {
+            class: FailureClass::ValidationFailed,
+            stop: StopProof::ConfirmedStopped,
+        },
+    );
+    let stopped = decision(&p, h.clone());
+    assert!(stopped.admissions.is_empty());
+    assert_eq!(stopped.blocked["a"], BlockReason::ReconcileUnknown);
+    h.external_actions.get_mut("external-a").unwrap().state = ExternalActionState::NoEffect;
+    let safe = decision(&p, h.clone());
+    assert_eq!(safe.admissions[0].next_attempt, 2);
+    assert_eq!(
+        safe.admissions[0].idempotency_key,
+        first.admissions[0].idempotency_key
+    );
+    assert_eq!(
+        safe.admissions[0].external_action.as_ref().unwrap().request,
+        f.policy.external_actions["external-a"].request
+    );
+    h.external_actions.get_mut("external-a").unwrap().state = ExternalActionState::EffectConfirmed;
+    assert_eq!(
+        decision(&p, h).blocked["a"],
+        BlockReason::ExternalEffectAlreadyApplied
+    );
+}
+#[test]
+fn before_dispatch_external_failure_can_retry_without_changing_action_key() {
+    let f = Fixture::new();
+    let p = f.plan(vec![external_node(&f)]);
+    let first = decision(&p, snapshot(&p));
+    let mut h = snapshot(&p);
+    observe(
+        &p,
+        &mut h,
+        "a",
+        NodeState::Failed {
+            class: FailureClass::BeforeDispatchTransient,
+            stop: StopProof::ConfirmedNotStarted,
+        },
+    );
+    let retry = decision(&p, h);
+    assert_eq!(
+        retry.admissions[0].idempotency_key,
+        first.admissions[0].idempotency_key
+    );
+}
+#[test]
+fn external_known_effect_and_identity_survive_plan_revision_and_renaming() {
+    let f = Fixture::new();
+    let p = f.plan(vec![external_node(&f)]);
+    let first = decision(&p, snapshot(&p));
+    let mut proposal = p.proposal().clone();
+    proposal.revision = 2;
+    proposal.expected_revision = 1;
+    proposal.nodes[0].id = "renamed".into();
+    proposal.nodes[0].idempotency_key = "brand-new-model-key".into();
+    let next = p.revise(&f.scope(), proposal).unwrap();
+    let second = decision(&next, snapshot(&next));
+    assert_eq!(
+        first.admissions[0].idempotency_key,
+        second.admissions[0].idempotency_key
+    );
+    let mut h = snapshot(&next);
+    h.external_actions.get_mut("external-a").unwrap().state = ExternalActionState::EffectConfirmed;
+    let d = decision(&next, h);
+    assert!(d.admissions.is_empty());
+    assert!(!d.required_checks_satisfied);
+    assert_eq!(
+        d.blocked["renamed"],
+        BlockReason::ExternalEffectAlreadyApplied
+    );
+}
+#[test]
+fn external_payload_target_and_action_changes_cannot_escape_host_journal() {
+    let f = Fixture::new();
+    let mut n = external_node(&f);
+    n.external_action_id = Some("invented-action".into());
+    assert_eq!(
+        ValidatedPlan::initial(&f.scope(), f.proposal(vec![n])).unwrap_err(),
+        PlanError::AuthorityExpansion
+    );
+    let mut n = external_node(&f);
+    n.write_set = vec![WriteTarget::External {
+        resource_id: "target-alias".into(),
+    }];
+    assert_eq!(
+        ValidatedPlan::initial(&f.scope(), f.proposal(vec![n])).unwrap_err(),
+        PlanError::AuthorityExpansion
+    );
+    let mut changed = f.clone();
+    changed
+        .policy
+        .external_actions
+        .get_mut("external-a")
+        .unwrap()
+        .request
+        .payload = serde_json::json!({"body":"changed"});
+    assert_eq!(
+        ApprovedGoalScope::from_verified_host(
+            &changed.task,
+            &changed.grant,
+            changed.policy.clone(),
+            10
+        )
+        .unwrap_err(),
+        PlanError::AuthorityExpansion
+    );
+    let p = f.plan(vec![external_node(&f)]);
+    let mut h = snapshot(&p);
+    h.external_actions
+        .get_mut("external-a")
+        .unwrap()
+        .payload_sha256 = sha('f');
+    assert_eq!(
+        TrustedPlanSnapshot::from_verified_host(&p, h).unwrap_err(),
+        PlanError::StaleEvidence
+    );
+}
+#[test]
+fn external_journal_is_complete_root_bound_and_checks_old_actions() {
+    let f = Fixture::new();
+    let p = f.plan(vec![f.node("a", "workspace-a")]);
+    let mut h = snapshot(&p);
+    h.external_actions.clear();
+    assert_eq!(
+        TrustedPlanSnapshot::from_verified_host(&p, h).unwrap_err(),
+        PlanError::StaleEvidence
+    );
+    let mut h = snapshot(&p);
+    h.external_actions.get_mut("external-a").unwrap().project_id = "other-project".into();
+    assert_eq!(
+        TrustedPlanSnapshot::from_verified_host(&p, h).unwrap_err(),
+        PlanError::StaleEvidence
+    );
+    for state in [
+        ExternalActionState::InFlight,
+        ExternalActionState::OutcomeUnknown,
+    ] {
+        let mut h = snapshot(&p);
+        h.external_actions.get_mut("external-a").unwrap().state = state;
+        assert_eq!(decision(&p, h).blocked["a"], BlockReason::ReconcileUnknown);
+    }
+}
+#[test]
+fn external_action_is_unique_and_completion_needs_confirmed_effect() {
+    let f = Fixture::new();
+    let a = external_node(&f);
+    let mut b = a.clone();
+    b.id = "b".into();
+    b.outputs[0].artifact_id = "out-b".into();
+    b.idempotency_key = "b-key".into();
+    assert_eq!(
+        ValidatedPlan::initial(&f.scope(), f.proposal(vec![a.clone(), b])).unwrap_err(),
+        PlanError::AuthorityExpansion
+    );
+    let p = f.plan(vec![a]);
+    let mut h = snapshot(&p);
+    observe(&p, &mut h, "a", NodeState::ExecutionSucceeded);
+    artifact(&p, &mut h, "a");
+    receipt(&p, &mut h, "a", "check", true);
+    receipt(&p, &mut h, "a", "accept", true);
+    assert!(!decision(&p, h.clone()).required_checks_satisfied);
+    h.external_actions.get_mut("external-a").unwrap().state = ExternalActionState::EffectConfirmed;
+    assert!(decision(&p, h).required_checks_satisfied);
+}
+#[test]
+fn approved_external_validator_has_a_source_exact_completed_receipt() {
+    let f = Fixture::new();
+    let a = f.node("a", "workspace-a");
+    let mut v = f.node("verify-source", "workspace-b");
+    v.kind = NodeKind::Validate;
+    v.executor = Executor::Validator {
+        rule_id: "check".into(),
+    };
+    v.outputs.clear();
+    v.required_inputs = vec![external_input()];
+    let p = f.plan(vec![a, v]);
+    let mut h = snapshot(&p);
+    observe(&p, &mut h, "a", NodeState::ExecutionSucceeded);
+    artifact(&p, &mut h, "a");
+    receipt(&p, &mut h, "a", "check", true);
+    receipt(&p, &mut h, "a", "accept", true);
+    let admission = decision(&p, h.clone());
+    assert_eq!(admission.admissions[0].node_id, "verify-source");
+    assert_eq!(
+        admission.admissions[0].resolved_inputs[0],
+        resolve_for_test(&p, &h, &external_input())
+    );
+    observe(&p, &mut h, "verify-source", NodeState::ExecutionSucceeded);
+    assert!(!decision(&p, h.clone()).required_checks_satisfied);
+    external_receipt(&p, &mut h, "check");
+    assert!(decision(&p, h).required_checks_satisfied);
+}
+#[test]
+fn external_owner_and_ordinary_consumer_require_contract_checks() {
+    let f = Fixture::new();
+    let mut a = f.node("a", "workspace-a");
+    a.required_inputs = vec![external_input()];
+    let mut owner = f.node("owner", "workspace-b");
+    owner.kind = NodeKind::OwnerApproval;
+    owner.executor = Executor::Owner {
+        rule_id: "accept".into(),
+    };
+    owner.required_validators = vec!["accept".into()];
+    owner.outputs.clear();
+    owner.required_inputs = vec![external_input()];
+    let p = f.plan(vec![a, owner]);
+    let mut h = snapshot(&p);
+    let blocked = decision(&p, h.clone());
+    assert_eq!(blocked.blocked["a"], BlockReason::InputsNotValidated);
+    assert_eq!(blocked.blocked["owner"], BlockReason::InputsNotValidated);
+    external_receipt(&p, &mut h, "check");
+    let d = decision(&p, h.clone());
+    assert_eq!(d.admissions[0].node_id, "a");
+    assert_eq!(d.blocked["owner"], BlockReason::AwaitingOwner);
+    observe(&p, &mut h, "a", NodeState::ExecutionSucceeded);
+    artifact(&p, &mut h, "a");
+    receipt(&p, &mut h, "a", "check", true);
+    receipt(&p, &mut h, "a", "accept", true);
+    observe(&p, &mut h, "owner", NodeState::ExecutionSucceeded);
+    assert!(!decision(&p, h.clone()).required_checks_satisfied);
+    external_receipt(&p, &mut h, "accept");
+    assert!(decision(&p, h).required_checks_satisfied);
+}
+#[test]
+fn external_receipt_wrong_source_hash_scope_contract_and_collision_are_rejected() {
+    let f = Fixture::new();
+    let p = f.plan(vec![f.node("a", "workspace-a")]);
+    let mut h = snapshot(&p);
+    external_receipt(&p, &mut h, "check");
+    for alter in 0..4 {
+        let mut bad = h.clone();
+        match alter {
+            0 => {
+                bad.validations[0].input.source = ResolvedInputSource::NodeOutput {
+                    node_id: "a".into(),
+                    attempt_id: "attempt-a".into(),
+                    sha256: sha('d'),
+                }
+            }
+            1 => {
+                bad.validations[0].input.source = ResolvedInputSource::ApprovedExternal {
+                    scope_revision: 2,
+                    sha256: sha('e'),
+                }
+            }
+            2 => {
+                bad.validations[0].input.source = ResolvedInputSource::ApprovedExternal {
+                    scope_revision: 3,
+                    sha256: sha('d'),
+                }
+            }
+            _ => bad.validations[0].input.contract_id = "wrong-contract".into(),
+        };
+        assert_eq!(
+            TrustedPlanSnapshot::from_verified_host(&p, bad).unwrap_err(),
+            PlanError::StaleEvidence
+        );
+    }
+    let mut a = f.node("a", "workspace-a");
+    a.outputs.push(PlannedOutput {
+        artifact_id: "source".into(),
+        contract_id: "result".into(),
+    });
+    assert_eq!(
+        ValidatedPlan::initial(&f.scope(), f.proposal(vec![a])).unwrap_err(),
+        PlanError::Duplicate
+    );
+}
+#[test]
+fn upstream_rework_invalidates_actual_downstream_consumption() {
+    let mut f = Fixture::new();
+    f.policy
+        .required_goal_outputs
+        .insert("out-b".into(), "result".into());
+    let a = f.node("a", "workspace-a");
+    let mut b = f.node("b", "workspace-b");
+    b.dependencies.push("a".into());
+    b.required_inputs.push(input("a", false));
+    let p = f.plan(vec![a, b]);
+    let mut h = snapshot(&p);
+    observe(&p, &mut h, "a", NodeState::ExecutionSucceeded);
+    artifact(&p, &mut h, "a");
+    receipt(&p, &mut h, "a", "check", true);
+    receipt(&p, &mut h, "a", "accept", true);
+    observe(&p, &mut h, "b", NodeState::ExecutionSucceeded);
+    artifact(&p, &mut h, "b");
+    receipt(&p, &mut h, "b", "check", true);
+    receipt(&p, &mut h, "b", "accept", true);
+    assert!(decision(&p, h.clone()).required_checks_satisfied);
+    h.nodes.get_mut("a").unwrap().attempts_started = 2;
+    h.nodes.get_mut("a").unwrap().attempt_id = Some("attempt-a-2".into());
+    observe(&p, &mut h, "b", NodeState::ExecutionSucceeded);
+    // B's immutable consumed receipt remains A1/e while A2/f is verified.
+    for a in &mut h.artifacts {
+        if a.node_id == "a" {
+            a.attempt_id = "attempt-a-2".into();
+            a.sha256 = sha('f');
+        }
+    }
+    for v in &mut h.validations {
+        if let ResolvedInputSource::NodeOutput {
+            node_id,
+            attempt_id,
+            sha256,
+        } = &mut v.input.source
+        {
+            if node_id == "a" {
+                *attempt_id = "attempt-a-2".into();
+                *sha256 = sha('f');
+            }
+        }
+    }
+    let d = decision(&p, h.clone());
+    assert!(!d.required_checks_satisfied);
+    assert_eq!(d.blocked["b"], BlockReason::ConsumedInputsChanged);
+    // Only an actual new B attempt with newly fixed inputs restores acceptance.
+    observe(&p, &mut h, "b", NodeState::ExecutionSucceeded);
+    h.nodes.get_mut("b").unwrap().attempt_id = Some("attempt-b-2".into());
+    h.nodes.get_mut("b").unwrap().attempts_started = 2;
+    for c in &mut h.nodes.get_mut("b").unwrap().consumed_inputs {
+        c.consumer_attempt_id = "attempt-b-2".into();
+    }
+    for a in &mut h.artifacts {
+        if a.node_id == "b" {
+            a.attempt_id = "attempt-b-2".into();
+        }
+    }
+    for v in &mut h.validations {
+        if let ResolvedInputSource::NodeOutput {
+            node_id,
+            attempt_id,
+            ..
+        } = &mut v.input.source
+        {
+            if node_id == "b" {
+                *attempt_id = "attempt-b-2".into();
+            }
+        }
+    }
+    h.root_usage.attempts_started = 4;
+    h.project_usage.attempts_started = 4;
+    h.subtree_usage.get_mut("b").unwrap().attempts_started = 2;
+    assert!(decision(&p, h).required_checks_satisfied);
+}
+#[test]
+fn consumed_receipts_are_bound_to_consumer_attempt_and_exact_external_source() {
+    let f = Fixture::new();
+    let mut a = f.node("a", "workspace-a");
+    a.required_inputs = vec![external_input()];
+    let p = f.plan(vec![a]);
+    let mut h = snapshot(&p);
+    observe(&p, &mut h, "a", NodeState::ExecutionSucceeded);
+    for alter in 0..4 {
+        let mut bad = h.clone();
+        let c = &mut bad.nodes.get_mut("a").unwrap().consumed_inputs[0];
+        match alter {
+            0 => c.consumer_node_id = "another".into(),
+            1 => c.consumer_attempt_id = "old-attempt".into(),
+            2 => c.input.contract_id = "wrong".into(),
+            _ => {
+                c.input.source = ResolvedInputSource::ApprovedExternal {
+                    scope_revision: 2,
+                    sha256: sha('f'),
+                }
+            }
+        };
+        assert_eq!(
+            TrustedPlanSnapshot::from_verified_host(&p, bad).unwrap_err(),
+            PlanError::StaleEvidence
+        );
+    }
+}
+
+#[test]
+fn same_semantic_payload_cannot_gain_another_host_action_id_via_resource_alias() {
+    let mut f = Fixture::new();
+    let body = f.policy.external_actions["external-a"]
+        .request
+        .payload
+        .clone();
+    let b = f.policy.external_actions.get_mut("external-b").unwrap();
+    b.request.payload = body;
+    *b = ApprovedExternalAction::from_verified_host(b.executor.clone(), b.request.clone()).unwrap();
+    assert_eq!(
+        ApprovedGoalScope::from_verified_host(&f.task, &f.grant, f.policy, 10).unwrap_err(),
+        PlanError::Duplicate
+    );
+}
+#[test]
+fn input_invalidation_propagates_to_grandchildren_and_candidate_validators() {
+    let f = Fixture::new();
+    let a = f.node("a", "workspace-a");
+    let mut b = f.node("b", "workspace-b");
+    b.required_inputs.push(input("a", false));
+    let mut c = f.node("c", "workspace-c");
+    c.required_inputs.push(input("b", false));
+    let mut v = f.node("validator", "workspace-c");
+    v.kind = NodeKind::Validate;
+    v.executor = Executor::Validator {
+        rule_id: "check".into(),
+    };
+    v.outputs.clear();
+    v.required_inputs.push(input("a", true));
+    let p = f.plan(vec![a, b, c, v]);
+    let mut h = snapshot(&p);
+    for n in ["a", "b", "c"] {
+        observe(&p, &mut h, n, NodeState::ExecutionSucceeded);
+        artifact(&p, &mut h, n);
+        receipt(&p, &mut h, n, "check", true);
+        receipt(&p, &mut h, n, "accept", true);
+    }
+    observe(&p, &mut h, "validator", NodeState::ExecutionSucceeded);
+    assert!(decision(&p, h.clone()).required_checks_satisfied);
+    // Same producer attempt with changed SHA is also stale, not just attempt IDs.
+    h.artifacts
+        .iter_mut()
+        .find(|a| a.node_id == "a")
+        .unwrap()
+        .sha256 = sha('f');
+    for r in &mut h.validations {
+        if let ResolvedInputSource::NodeOutput {
+            node_id, sha256, ..
+        } = &mut r.input.source
+        {
+            if node_id == "a" {
+                *sha256 = sha('f');
+            }
+        }
+    }
+    let d = decision(&p, h);
+    assert!(!d.required_checks_satisfied);
+    for n in ["b", "c", "validator"] {
+        assert_eq!(d.blocked[n], BlockReason::ConsumedInputsChanged);
+    }
 }

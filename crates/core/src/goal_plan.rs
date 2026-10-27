@@ -232,6 +232,7 @@ pub struct PlanNode {
     pub reservation: AttemptReservation,
     pub retry: RetryPolicy,
     pub idempotency_key: String,
+    pub external_action_id: Option<String>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
@@ -287,6 +288,43 @@ pub struct ExternalWritePermit {
     pub recipient: String,
     pub conflict_group: String,
 }
+/// Exact structured request approved by the host. No model-authored request or
+/// digest is accepted as authority. Dispatch must send/recheck these exact bytes.
+#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+pub struct ExternalActionRequest {
+    pub operation: String,
+    pub recipient: String,
+    pub resource_ids: BTreeSet<String>,
+    pub payload: serde_json::Value,
+}
+#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+pub struct ApprovedExternalAction {
+    pub executor: Executor,
+    pub request: ExternalActionRequest,
+    pub payload_sha256: String,
+}
+impl ApprovedExternalAction {
+    /// Caller must resolve actual owner-approved request/connection records.
+    /// Computing this digest authenticates neither the caller nor owner approval.
+    pub fn from_verified_host(
+        executor: Executor,
+        request: ExternalActionRequest,
+    ) -> PlanResult<Self> {
+        if serde_json::to_vec(&request)
+            .map_err(|_| PlanError::InvalidContract)?
+            .len()
+            > 16384
+        {
+            return Err(PlanError::Limit);
+        }
+        let payload_sha256 = digest(&(&executor, &request))?;
+        Ok(Self {
+            executor,
+            request,
+            payload_sha256,
+        })
+    }
+}
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
 pub struct ResourceLimits {
     pub global: u32,
@@ -309,6 +347,7 @@ pub struct HostGoalPolicy {
     pub contracts: BTreeMap<String, ArtifactContract>,
     pub external_inputs: BTreeMap<String, ExternalInput>,
     pub external_writes: BTreeMap<String, ExternalWritePermit>,
+    pub external_actions: BTreeMap<String, ApprovedExternalAction>,
     pub required_goal_outputs: BTreeMap<String, String>,
     pub acceptance_rules: BTreeSet<String>,
 }
@@ -395,6 +434,7 @@ impl ApprovedGoalScope {
             policy.contracts.len(),
             policy.external_inputs.len(),
             policy.external_writes.len(),
+            policy.external_actions.len(),
             policy.required_goal_outputs.len(),
         ]
         .into_iter()
@@ -466,6 +506,81 @@ impl ApprovedGoalScope {
             if !id(key) || !id(&w.conflict_group) || !grant.scope.recipients.contains(&w.recipient)
             {
                 return Err(PlanError::AuthorityExpansion);
+            }
+        }
+        let mut canonical_actions = BTreeSet::new();
+        for (key, action) in &policy.external_actions {
+            let Executor::Connection {
+                binding,
+                program_sha256,
+            } = &action.executor
+            else {
+                return Err(PlanError::AuthorityExpansion);
+            };
+            let c = &policy
+                .connections
+                .get(&binding.connection_id)
+                .ok_or(PlanError::AuthorityExpansion)?
+                .binding;
+            let w = policy
+                .workspaces
+                .get(&binding.workspace_id)
+                .ok_or(PlanError::AuthorityExpansion)?;
+            if action.payload_sha256 != digest(&(&action.executor, &action.request))?
+                || !id(&action.request.operation)
+                || !grant.scope.recipients.contains(&action.request.recipient)
+                || serde_json::to_vec(&action.request)
+                    .map_err(|_| PlanError::InvalidContract)?
+                    .len()
+                    > 16384
+                || program_sha256 != &c.executable_sha256
+                || binding.environment_id != c.environment_id
+                || binding.identity_ref != c.identity_ref
+                || binding.host_id != c.host_id
+                || binding.host_id != w.host_id
+                || binding.config_revision != c.config_revision
+                || binding.capability_snapshot_id != c.capability_snapshot_id
+                || binding.input_revision != policy.input_revision
+                || binding.policy_revision != format!("{}:{}", grant.id, grant.revision)
+                || action.request.resource_ids.iter().any(|id| {
+                    policy
+                        .external_writes
+                        .get(id)
+                        .is_none_or(|p| p.recipient != action.request.recipient)
+                })
+            {
+                return Err(PlanError::AuthorityExpansion);
+            }
+            if !id(key)
+                || !hash(&action.payload_sha256)
+                || action.request.resource_ids.is_empty()
+                || action.request.resource_ids.len() > MAX_REFS
+                || action
+                    .request
+                    .resource_ids
+                    .iter()
+                    .any(|r| !policy.external_writes.contains_key(r))
+            {
+                return Err(PlanError::AuthorityExpansion);
+            }
+        }
+        for action in policy.external_actions.values() {
+            // Conservative canonicalization: renaming a host action or using a
+            // resource alias cannot turn the same payload into another action.
+            let targets: BTreeSet<_> = action
+                .request
+                .resource_ids
+                .iter()
+                .map(|r| &policy.external_writes[r].conflict_group)
+                .collect();
+            let semantic = digest(&(
+                &action.request.operation,
+                &action.request.recipient,
+                targets,
+                &action.request.payload,
+            ))?;
+            if !canonical_actions.insert(semantic) {
+                return Err(PlanError::Duplicate);
             }
         }
         for (key, contract) in &policy.required_goal_outputs {
@@ -546,6 +661,9 @@ impl ValidatedPlan {
     pub fn topological_order(&self) -> &[String] {
         &self.order
     }
+    pub fn approved_external_actions(&self) -> &BTreeMap<String, ApprovedExternalAction> {
+        &self.scope.policy.external_actions
+    }
     pub fn evidence_binding(&self) -> EvidenceBinding {
         EvidenceBinding {
             goal: self.proposal.goal.clone(),
@@ -586,6 +704,7 @@ fn validate(
     let mut nodes = BTreeMap::new();
     let mut outputs = BTreeMap::new();
     let mut keys = BTreeSet::new();
+    let mut action_ids = BTreeSet::new();
     for n in &p.nodes {
         if !id(&n.id)
             || n.goal.trim().is_empty()
@@ -700,6 +819,37 @@ fn validate(
         {
             return Err(PlanError::InvalidContract);
         }
+        if matches!(n.kind, NodeKind::Validate | NodeKind::OwnerApproval)
+            && n.side_effect != SideEffect::AdvisoryReadOnly
+        {
+            return Err(PlanError::InvalidContract);
+        }
+        match (&n.side_effect, &n.external_action_id) {
+            (SideEffect::ExternalWrite, Some(action_id)) => {
+                let action = scope
+                    .policy
+                    .external_actions
+                    .get(action_id)
+                    .ok_or(PlanError::AuthorityExpansion)?;
+                let resources: BTreeSet<_> = n
+                    .write_set
+                    .iter()
+                    .filter_map(|w| match w {
+                        WriteTarget::External { resource_id } => Some(resource_id.clone()),
+                        _ => None,
+                    })
+                    .collect();
+                if resources != action.request.resource_ids
+                    || n.executor != action.executor
+                    || !action_ids.insert(action_id.clone())
+                {
+                    return Err(PlanError::AuthorityExpansion);
+                }
+            }
+            (SideEffect::ExternalWrite, None) => return Err(PlanError::AuthorityExpansion),
+            (_, Some(_)) => return Err(PlanError::InvalidContract),
+            (_, None) => {}
+        }
         for w in &n.write_set {
             match w {
                 WriteTarget::Workspace { path: p }
@@ -749,6 +899,9 @@ fn validate(
         for o in &n.outputs {
             if !id(&o.artifact_id) || !scope.policy.contracts.contains_key(&o.contract_id) {
                 return Err(PlanError::MissingReference);
+            }
+            if scope.policy.external_inputs.contains_key(&o.artifact_id) {
+                return Err(PlanError::Duplicate);
             }
             if outputs
                 .insert(o.artifact_id.clone(), (&n.id, &o.contract_id))
@@ -885,6 +1038,34 @@ pub struct EvidenceBinding {
     pub plan_digest: String,
     pub plan_revision: u64,
 }
+/// An actual attempt's resolved input identity, also returned for atomic admission.
+/// This host-only representation never deserializes proposed Agent evidence.
+#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum ResolvedInputSource {
+    NodeOutput {
+        node_id: String,
+        attempt_id: String,
+        sha256: String,
+    },
+    ApprovedExternal {
+        scope_revision: u64,
+        sha256: String,
+    },
+}
+#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+pub struct ResolvedInput {
+    pub artifact_id: String,
+    pub contract_id: String,
+    pub source: ResolvedInputSource,
+}
+#[derive(Clone, Debug)]
+pub struct ConsumedInputReceipt {
+    pub evidence: EvidenceBinding,
+    pub consumer_node_id: String,
+    pub consumer_attempt_id: String,
+    pub input: ResolvedInput,
+}
 #[derive(Clone, Debug)]
 pub struct NodeObservation {
     pub evidence: EvidenceBinding,
@@ -892,6 +1073,7 @@ pub struct NodeObservation {
     pub attempt_id: Option<String>,
     pub attempts_started: u32,
     pub reworks_used: u32,
+    pub consumed_inputs: Vec<ConsumedInputReceipt>,
 }
 #[derive(Clone, Debug)]
 pub struct ArtifactReceipt {
@@ -904,10 +1086,7 @@ pub struct ArtifactReceipt {
 #[derive(Clone, Debug)]
 pub struct ValidationReceipt {
     pub evidence: EvidenceBinding,
-    pub artifact_id: String,
-    pub producer_node_id: String,
-    pub attempt_id: String,
-    pub artifact_sha256: String,
+    pub input: ResolvedInput,
     pub rule_id: String,
     pub policy_digest: String,
     pub passed: bool,
@@ -937,6 +1116,24 @@ pub struct UnresolvedAction {
     pub root_task_id: String,
     pub action_id: String,
     pub attempt_id: String,
+}
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ExternalActionState {
+    NeverStarted,
+    /// Reconciled against the receiver/actual dispatch journal, not process exit.
+    NoEffect,
+    InFlight,
+    OutcomeUnknown,
+    EffectConfirmed,
+}
+/// Complete durable root journal includes known effects as well as unknown ones.
+#[derive(Clone, Debug)]
+pub struct ExternalActionObservation {
+    pub project_id: String,
+    pub root_task_id: String,
+    pub action_id: String,
+    pub payload_sha256: String,
+    pub state: ExternalActionState,
 }
 /// Host-verified physical isolation, bound to this exact plan and both pinned roots.
 #[derive(Clone, Debug)]
@@ -974,6 +1171,7 @@ pub struct HostPlanSnapshot {
     pub resources: ResourceUsage,
     /// Complete root-goal journal projection, including older plans/actions.
     pub unresolved_actions: Vec<UnresolvedAction>,
+    pub external_actions: BTreeMap<String, ExternalActionObservation>,
     /// Ordered pairs from an actual host isolation check, never a proposal flag.
     pub verified_isolation: Vec<IsolationProof>,
     /// Nodes whose actual bounded write set has been independently verified.
@@ -1019,6 +1217,22 @@ impl TrustedPlanSnapshot {
         {
             return Err(PlanError::StaleEvidence);
         }
+        if host.external_actions.len() > 4096
+            || plan.scope.policy.external_actions.iter().any(|(k, p)| {
+                host.external_actions
+                    .get(k)
+                    .is_none_or(|a| a.payload_sha256 != p.payload_sha256)
+            })
+            || host.external_actions.iter().any(|(k, a)| {
+                k != &a.action_id
+                    || !id(k)
+                    || !hash(&a.payload_sha256)
+                    || a.project_id != plan.proposal.goal.project_id
+                    || a.root_task_id != plan.proposal.goal.root_task_id
+            })
+        {
+            return Err(PlanError::StaleEvidence);
+        }
         let mut attempts = 0u32;
         let mut reworks = 0u32;
         let mut local = ResourceUsage::default();
@@ -1060,7 +1274,34 @@ impl TrustedPlanSnapshot {
             {
                 return Err(PlanError::StaleEvidence);
             }
-            if !plan.proposal.nodes.iter().any(|n| &n.id == id) {
+            let node = plan
+                .proposal
+                .nodes
+                .iter()
+                .find(|n| &n.id == id)
+                .ok_or(PlanError::StaleEvidence)?;
+            let never_started = matches!(
+                o.state,
+                NodeState::NotStarted
+                    | NodeState::Failed {
+                        stop: StopProof::ConfirmedNotStarted,
+                        ..
+                    }
+            );
+            if (o.state == NodeState::NotStarted && !o.consumed_inputs.is_empty())
+                || (!never_started || !o.consumed_inputs.is_empty())
+                    && (o.consumed_inputs.len() != node.required_inputs.len()
+                        || node
+                            .required_inputs
+                            .iter()
+                            .zip(&o.consumed_inputs)
+                            .any(|(i, c)| {
+                                c.evidence != expected
+                                    || c.consumer_node_id != node.id
+                                    || Some(&c.consumer_attempt_id) != o.attempt_id.as_ref()
+                                    || !consumption_matches_contract(plan, i, &c.input)
+                            }))
+            {
                 return Err(PlanError::StaleEvidence);
             }
         }
@@ -1172,15 +1413,10 @@ impl TrustedPlanSnapshot {
         }
         let mut validations = BTreeSet::new();
         for v in &host.validations {
-            let a = host
-                .artifacts
-                .iter()
-                .find(|a| a.artifact_id == v.artifact_id)
-                .ok_or(PlanError::StaleEvidence)?;
             if v.evidence != expected
-                || a.node_id != v.producer_node_id
-                || a.attempt_id != v.attempt_id
-                || a.sha256 != v.artifact_sha256
+                || resolve_artifact(plan, &host, &v.input.artifact_id, &v.input.contract_id)
+                    .as_ref()
+                    != Some(&v.input)
                 || plan
                     .scope
                     .policy
@@ -1188,7 +1424,7 @@ impl TrustedPlanSnapshot {
                     .get(&v.rule_id)
                     .map(|r| &r.policy_digest)
                     != Some(&v.policy_digest)
-                || !validations.insert((v.artifact_id.clone(), v.rule_id.clone()))
+                || !validations.insert((v.input.artifact_id.clone(), v.rule_id.clone()))
             {
                 return Err(PlanError::StaleEvidence);
             }
@@ -1221,6 +1457,8 @@ pub enum BlockReason {
     Cancelled,
     Dependencies,
     InputsNotValidated,
+    ConsumedInputsChanged,
+    ExternalEffectAlreadyApplied,
     ParentNotReady,
     ReconcileUnknown,
     StoppedEvidenceMissing,
@@ -1235,6 +1473,12 @@ pub enum BlockReason {
     WriteConflict,
 }
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+pub struct ResolvedExternalAction {
+    pub action_id: String,
+    pub payload_sha256: String,
+    pub request: ExternalActionRequest,
+}
+#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
 pub struct Admission {
     pub node_id: String,
     pub next_attempt: u32,
@@ -1243,6 +1487,8 @@ pub struct Admission {
     pub executor: Executor,
     pub reservation: AttemptReservation,
     pub idempotency_key: String,
+    pub resolved_inputs: Vec<ResolvedInput>,
+    pub external_action: Option<ResolvedExternalAction>,
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct ReadyDecision {
@@ -1254,48 +1500,163 @@ pub struct ReadyDecision {
     pub required_checks_satisfied: bool,
     pub requires_atomic_store_commit: bool,
 }
+fn consumption_matches_contract(
+    plan: &ValidatedPlan,
+    i: &RequiredInput,
+    c: &ResolvedInput,
+) -> bool {
+    if i.artifact_id != c.artifact_id || i.contract_id != c.contract_id {
+        return false;
+    }
+    match (&i.source, &c.source) {
+        (
+            InputSource::Node { node_id, .. },
+            ResolvedInputSource::NodeOutput {
+                node_id: actual,
+                attempt_id,
+                sha256,
+            },
+        ) => node_id == actual && id(attempt_id) && hash(sha256),
+        (
+            InputSource::ApprovedExternal { sha256 },
+            ResolvedInputSource::ApprovedExternal {
+                scope_revision,
+                sha256: actual,
+            },
+        ) => sha256 == actual && *scope_revision == plan.scope.revision,
+        _ => false,
+    }
+}
+fn resolve_artifact(
+    plan: &ValidatedPlan,
+    snapshot: &HostPlanSnapshot,
+    artifact: &str,
+    contract: &str,
+) -> Option<ResolvedInput> {
+    if let Some(e) = plan.scope.policy.external_inputs.get(artifact) {
+        if e.contract_id != contract {
+            return None;
+        }
+        return Some(ResolvedInput {
+            artifact_id: artifact.into(),
+            contract_id: contract.into(),
+            source: ResolvedInputSource::ApprovedExternal {
+                scope_revision: plan.scope.revision,
+                sha256: e.sha256.clone(),
+            },
+        });
+    }
+    let a = snapshot
+        .artifacts
+        .iter()
+        .find(|a| a.artifact_id == artifact)?;
+    let n = plan.proposal.nodes.iter().find(|n| n.id == a.node_id)?;
+    if !n
+        .outputs
+        .iter()
+        .any(|o| o.artifact_id == artifact && o.contract_id == contract)
+    {
+        return None;
+    }
+    Some(ResolvedInput {
+        artifact_id: artifact.into(),
+        contract_id: contract.into(),
+        source: ResolvedInputSource::NodeOutput {
+            node_id: a.node_id.clone(),
+            attempt_id: a.attempt_id.clone(),
+            sha256: a.sha256.clone(),
+        },
+    })
+}
+fn checked_input(plan: &ValidatedPlan, snapshot: &HostPlanSnapshot, input: &ResolvedInput) -> bool {
+    plan.scope.policy.contracts[&input.contract_id]
+        .required_validators
+        .iter()
+        .all(|r| {
+            snapshot
+                .validations
+                .iter()
+                .any(|v| &v.input == input && &v.rule_id == r && v.passed)
+        })
+}
 fn checked_artifact(
     plan: &ValidatedPlan,
     snapshot: &HostPlanSnapshot,
     artifact: &str,
     contract: &str,
 ) -> bool {
-    plan.scope.policy.contracts[contract]
-        .required_validators
-        .iter()
-        .all(|rule| {
-            snapshot
-                .validations
-                .iter()
-                .any(|v| v.artifact_id == artifact && &v.rule_id == rule && v.passed)
-        })
+    resolve_artifact(plan, snapshot, artifact, contract)
+        .is_some_and(|i| checked_input(plan, snapshot, &i))
 }
-fn finished(plan: &ValidatedPlan, snapshot: &HostPlanSnapshot, id: &str) -> bool {
-    if snapshot.nodes[id].state != NodeState::ExecutionSucceeded {
+/// Freshness propagates through data/dependency edges without requiring a
+/// candidate's yet-to-run validator; execution success alone never upgrades refs.
+fn input_freshness(plan: &ValidatedPlan, snapshot: &HostPlanSnapshot) -> BTreeMap<String, bool> {
+    let mut fresh = BTreeMap::new();
+    for id in &plan.order {
+        let n = plan.proposal.nodes.iter().find(|n| &n.id == id).unwrap();
+        let o = &snapshot.nodes[id];
+        let expected: Option<Vec<_>> = n
+            .required_inputs
+            .iter()
+            .map(|i| resolve_artifact(plan, snapshot, &i.artifact_id, &i.contract_id))
+            .collect();
+        let current = expected
+            .as_ref()
+            .is_some_and(|inputs| inputs.iter().eq(o.consumed_inputs.iter().map(|c| &c.input)))
+            && n.required_inputs.iter().all(|i| match &i.source {
+                InputSource::ApprovedExternal { .. } => true,
+                InputSource::Node { node_id, .. } => {
+                    snapshot.nodes[node_id].state == NodeState::ExecutionSucceeded && fresh[node_id]
+                }
+            })
+            && n.dependencies
+                .iter()
+                .all(|d| snapshot.nodes[d].state == NodeState::ExecutionSucceeded && fresh[d])
+            && n.parent_id.as_ref().is_none_or(|p| {
+                matches!(
+                    snapshot.nodes[p].state,
+                    NodeState::Running | NodeState::WaitingChild | NodeState::ExecutionSucceeded
+                ) && fresh[p]
+            });
+        fresh.insert(id.clone(), current);
+    }
+    fresh
+}
+fn finished(
+    plan: &ValidatedPlan,
+    snapshot: &HostPlanSnapshot,
+    id: &str,
+    fresh: &BTreeMap<String, bool>,
+) -> bool {
+    if snapshot.nodes[id].state != NodeState::ExecutionSucceeded || !fresh[id] {
         return false;
     }
     let node = plan.proposal.nodes.iter().find(|n| n.id == id).unwrap();
-    let rules_pass = |artifact: &str, rules: &[String]| {
+    if node
+        .external_action_id
+        .as_ref()
+        .is_some_and(|a| snapshot.external_actions[a].state != ExternalActionState::EffectConfirmed)
+    {
+        return false;
+    }
+    let rules_pass = |i: &ResolvedInput, rules: &[String]| {
         rules.iter().all(|r| {
             snapshot
                 .validations
                 .iter()
-                .any(|v| v.artifact_id == artifact && v.rule_id == *r && v.passed)
+                .any(|v| &v.input == i && &v.rule_id == r && v.passed)
         })
     };
     match &node.executor {
         Executor::Connection { .. } => node.outputs.iter().all(|o| {
-            snapshot
-                .artifacts
-                .iter()
-                .any(|a| a.artifact_id == o.artifact_id)
-                && checked_artifact(plan, snapshot, &o.artifact_id, &o.contract_id)
-                && rules_pass(&o.artifact_id, &node.required_validators)
+            resolve_artifact(plan, snapshot, &o.artifact_id, &o.contract_id).is_some_and(|i| {
+                checked_input(plan, snapshot, &i) && rules_pass(&i, &node.required_validators)
+            })
         }),
-        Executor::Validator { .. } | Executor::Owner { .. } => node
-            .required_inputs
+        Executor::Validator { .. } | Executor::Owner { .. } => snapshot.nodes[id]
+            .consumed_inputs
             .iter()
-            .all(|i| rules_pass(&i.artifact_id, &node.required_validators)),
+            .all(|i| rules_pass(&i.input, &node.required_validators)),
     }
 }
 fn budget_admits(
@@ -1504,6 +1865,7 @@ pub fn decide_ready(
     let mut project = host.project_usage.clone();
     let mut resources = host.resources.clone();
     let mut subtrees = host.subtree_usage.clone();
+    let fresh = input_freshness(plan, host);
     let mut occupied: Vec<&PlanNode> = plan
         .proposal
         .nodes
@@ -1519,7 +1881,12 @@ pub fn decide_ready(
             )
         })
         .collect();
-    let unresolved = !host.unresolved_actions.is_empty()
+    let unresolved = host.external_actions.values().any(|a| {
+        matches!(
+            a.state,
+            ExternalActionState::InFlight | ExternalActionState::OutcomeUnknown
+        )
+    }) || !host.unresolved_actions.is_empty()
         || host.nodes.values().any(|o| {
             matches!(
                 o.state,
@@ -1546,6 +1913,41 @@ pub fn decide_ready(
         if let Some(reason) = reason {
             result.blocked.insert(id.clone(), reason);
             continue;
+        }
+        if matches!(
+            observed.state,
+            NodeState::ExecutionSucceeded
+                | NodeState::Running
+                | NodeState::WaitingChild
+                | NodeState::WaitingApproval
+        ) && !fresh[id]
+        {
+            result
+                .blocked
+                .insert(id.clone(), BlockReason::ConsumedInputsChanged);
+            continue;
+        }
+        if let Some(action_id) = &node.external_action_id {
+            let action = &host.external_actions[action_id];
+            if observed.state != NodeState::ExecutionSucceeded
+                && action.state == ExternalActionState::EffectConfirmed
+            {
+                result
+                    .blocked
+                    .insert(id.clone(), BlockReason::ExternalEffectAlreadyApplied);
+                continue;
+            }
+            if let NodeState::Failed { stop, .. } = &observed.state {
+                if action.state != ExternalActionState::NoEffect
+                    && !(action.state == ExternalActionState::NeverStarted
+                        && *stop == StopProof::ConfirmedNotStarted)
+                {
+                    result
+                        .blocked
+                        .insert(id.clone(), BlockReason::ReconcileUnknown);
+                    continue;
+                }
+            }
         }
         let rework = match &observed.state {
             NodeState::NotStarted => false,
@@ -1587,10 +1989,11 @@ pub fn decide_ready(
             _ => continue,
         };
         if node.parent_id.as_ref().is_some_and(|p| {
-            !matches!(
-                host.nodes[p].state,
-                NodeState::Running | NodeState::WaitingChild | NodeState::ExecutionSucceeded
-            )
+            !fresh[p]
+                || !matches!(
+                    host.nodes[p].state,
+                    NodeState::Running | NodeState::WaitingChild | NodeState::ExecutionSucceeded
+                )
         }) {
             result
                 .blocked
@@ -1601,26 +2004,26 @@ pub fn decide_ready(
             // A validator consumes an explicitly identified unvalidated candidate.
             // Requiring that candidate's final checks here would deadlock validation.
             let candidate = node.required_inputs.iter().any(|i| matches!(&i.source, InputSource::Node {node_id,candidate_for_validation:true} if node_id == d));
-            if candidate { host.nodes[d].state != NodeState::ExecutionSucceeded } else { !finished(plan, host, d) }
+            if candidate { host.nodes[d].state != NodeState::ExecutionSucceeded || !fresh[d] } else { !finished(plan, host, d, &fresh) }
         }) {
             result.blocked.insert(id.clone(), BlockReason::Dependencies);
             continue;
         }
-        let inputs_ready = node.required_inputs.iter().all(|i| match &i.source {
-            InputSource::ApprovedExternal { .. } => true,
-            InputSource::Node {
-                node_id,
-                candidate_for_validation,
-            } => {
-                host.nodes[node_id].state == NodeState::ExecutionSucceeded
-                    && host
-                        .artifacts
-                        .iter()
-                        .any(|a| a.node_id == *node_id && a.artifact_id == i.artifact_id)
-                    && (*candidate_for_validation
-                        || checked_artifact(plan, host, &i.artifact_id, &i.contract_id))
-            }
-        });
+        let resolved_inputs: Option<Vec<_>> = node
+            .required_inputs
+            .iter()
+            .map(|i| resolve_artifact(plan, host, &i.artifact_id, &i.contract_id))
+            .collect();
+        let inputs_ready = resolved_inputs.as_ref().is_some_and(|resolved| node.required_inputs.iter().zip(resolved).all(|(i,r)| {
+            let candidate=match &i.source {
+                InputSource::Node {node_id,candidate_for_validation} => {
+                    if host.nodes[node_id].state != NodeState::ExecutionSucceeded || !fresh[node_id] {return false;}
+                    *candidate_for_validation
+                }
+                InputSource::ApprovedExternal {..} => matches!(&node.executor,Executor::Validator {rule_id}|Executor::Owner {rule_id} if plan.scope.policy.contracts[&i.contract_id].required_validators.contains(rule_id)),
+            };
+            candidate || checked_input(plan,host,r)
+        }));
         if !inputs_ready {
             result
                 .blocked
@@ -1749,14 +2152,32 @@ pub fn decide_ready(
             workspace_id: node.workspace_id.clone(),
             executor: node.executor.clone(),
             reservation: node.reservation.clone(),
-            idempotency_key: digest(&(
-                plan.digest.as_str(),
-                node.idempotency_key.as_str(),
-                observed
-                    .attempts_started
-                    .checked_add(1)
-                    .ok_or(PlanError::Limit)?,
-            ))?,
+            resolved_inputs: resolved_inputs.unwrap(),
+            external_action: node.external_action_id.as_ref().map(|id| {
+                let a = &plan.scope.policy.external_actions[id];
+                ResolvedExternalAction {
+                    action_id: id.clone(),
+                    payload_sha256: a.payload_sha256.clone(),
+                    request: a.request.clone(),
+                }
+            }),
+            idempotency_key: if let Some(id) = &node.external_action_id {
+                digest(&(
+                    &plan.proposal.goal.project_id,
+                    &plan.proposal.goal.root_task_id,
+                    id,
+                    &plan.scope.policy.external_actions[id].payload_sha256,
+                ))?
+            } else {
+                digest(&(
+                    plan.digest.as_str(),
+                    node.idempotency_key.as_str(),
+                    observed
+                        .attempts_started
+                        .checked_add(1)
+                        .ok_or(PlanError::Limit)?,
+                ))?
+            },
         });
     }
     result.required_checks_satisfied = !unresolved
@@ -1767,7 +2188,7 @@ pub fn decide_ready(
             .proposal
             .nodes
             .iter()
-            .all(|n| finished(plan, host, &n.id))
+            .all(|n| finished(plan, host, &n.id, &fresh))
         && plan
             .scope
             .policy
@@ -1776,9 +2197,9 @@ pub fn decide_ready(
             .all(|(artifact, contract)| {
                 checked_artifact(plan, host, artifact, contract)
                     && plan.scope.policy.acceptance_rules.iter().all(|r| {
-                        host.validations
-                            .iter()
-                            .any(|v| v.artifact_id == *artifact && v.rule_id == *r && v.passed)
+                        host.validations.iter().any(|v| {
+                            v.input.artifact_id == *artifact && v.rule_id == *r && v.passed
+                        })
                     })
             });
     Ok(result)
