@@ -61,3 +61,29 @@ Earlier native13+9/13+10, pre-Project Clippy and intermediate logs remain /tmp/g
 ## Independent follow-up closed
 
 Reviewer independently closed P2 on exact9244, reran the original private-db probe main/assertions unchanged with only the exact corrected helper: under umask022 schema9/mode600 actual Daemon::bind succeeds, exit0. Original old helper/schema9/mode644/PermissionDenied exit101 remains intact. Native13+11 and Clippy/fmt/diff, strict runner17 and separate actual browser38/24 all independently passed. This is independent engineering verification, not an OS owner authorization or Mac window test. Reviewer-owned REVIEW.md and its final identity belong to reviewer/primary; author does not stage or edit it. Shared Native target formally released to primary/DataUI reviewer; no author writer or source changes.
+
+## Actual Mac failure and owned-runtime alias correction — source8fde
+
+Actual run Product40471245384, ARM job122078603054, checkout1b990b0853ab837ffb97cc97e0436bae6c09370e (reported aeff candidate). Raw /workspace/.onboarding/pr13-aeff-failures/arm.log SHA cb4d8d7e20483a538ed4d2a697cc7754613d3cce426c92bffcbd2d9b2237e636. Feature harness11:10passed/1failed at generated_registered_project_setup...:1022; DBmode600 but actual Daemonbind returned PERMISSION_DENIED:Runtime paths must not contain symbolic links. WebView and package acceptance did not run/pass. This is distinct from prior0644 and1000ms issues.
+
+Independent pre-fix mechanism control /workspace/.onboarding/goal-native-aeff/controlled-runtime-alias.json SHA18122d87067db7605cdfba6590e49d928ef4a243c25b597d5ba74e620cdbfbf6 used the existing fixed-helper ELF on Linux: owned symlink-parent runtime alias exit101; canonical runtime exit0. It proves that mechanism on controlled Linux, not the exact historical Darwin temp path, a fresh current Core build or new Mac success. Preserved alias log SHA049ad009b071550837e80a970ef39756752aa8e4e33e74f8f354beea9ddf1d89 and canonical log6ccc0bf31da5abc73f81347c39f216938a020126fc8097a53ebfa16bd7c80935.
+
+Correction source8fde8b658bf49d18bd1f88290d16e3adc6278b5c changes only nativebin cfg(test). Main already canonicalizes TempDir and production Core correctly rejects aliases. The introduced leaf now canonicalizes owned runtime before prepare/Store/snapshot/actualbind;600 and real bind/all old assertions remain. Added one real owned parent-symlink alias negative: actual bind rejects PERMISSION_DENIED/symbolic-links, DB bytes unchanged; same canonical DB genuinely binds, Goal counts remain empty, alias identity and600 mode remain. No Core guard, production helper, TMPDIR, umask, timeout, UI, scripts or CI was changed.
+
+Before Cargo, own crates/core/src/lib.rs, crates/workspaces/src/lib.rs and native src/lib.rs were touched only for mtime to avoid shared-target stale rmeta. Before/after SHA manifests identical86da789faeb29c937cee2338fff820f97d2cb0d97ffba8f539046c3a9301df5a, stored /tmp/goal-native-alias-entrypoints-{before,after}.sha256. Native-only existing target/SDK/INC0/JOBS2 as above; no main target, new target/deps/download or environment/path bypass.
+
+Actual authored commands/results:
+
+- cargo test --locked --offline --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol:13host+12harness PASS,0 doctests; old11 retained plus1 alias mechanism regression.
+- cargo clippy with same manifest/features --all-targets -- -D warnings:PASS.
+- cargo fmt with same manifest -- --check and git diff --check:PASS.
+- Unchanged runner/browser/Frontend/SQL/3flags were not rerun to create redundant green; previous evidence retains its exact-source scope. No new actual macOS WebView/owner dialog/Provider/model/install result is claimed.
+
+| Current source/log | SHA-256 |
+| --- | --- |
+| native_smoke.rs (fixture-only correction) | 775f355327660a3d21c51ddc317c9ac958c870b58dd7c1ee8c633efba8c12309 |
+| /tmp/goal-native-alias-native-tests.log | 198b10714c5e48752a9e0a34a0b69979af33e0a958426e3e9781ce65ac6db072 |
+| /tmp/goal-native-alias-clippy.log | d3e06f63124166c2a799a7b39309f9a37fc5c096221b0934afd2db54906eeb72 |
+| /tmp/goal-native-alias-fmt.log | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
+
+Source frozen, target formally released to primary for independent review. Reviewer's prior9244 closure does not automatically accept this correction; new exact-source review and actual dualMac CI remain required. Intel run was not cancelled and no author CI was retried. All failed evidence and reviewer-owned REVIEW remain preserved.
