@@ -305,6 +305,10 @@ fn real_scoped_handle_revocation_denies_all_four_tools_while_owner_cancel_still_
 fn real_scoped_handle_expiry_denies_all_four_tools_without_replaying_or_faking_stop() {
     run_mode("scope_ttl");
 }
+#[test]
+fn mixed_narrow_factory_root_uses_original_ledger_without_refunding_prior_work() {
+    run_mode("mixed_narrow");
+}
 fn run_mode(mode: &str) {
     use agentbaton_core::ipc::{call, Daemon};
     use std::sync::{
@@ -450,6 +454,11 @@ fn run_mode(mode: &str) {
     } else {
         None
     };
+    // The existing Goal ledger was explicitly approved at30000 above. Only
+    // this new Factory root ceiling narrows; project and historical ledger stay.
+    if mode == "mixed_narrow" {
+        f.selection.root_budget.runtime_ms = 10000;
+    }
     let scope = f.scope();
     let workspace = scope.bindings.workspaces[0].root.clone();
     let runtime = f._temp.path().canonicalize().unwrap();
@@ -472,9 +481,14 @@ fn run_mode(mode: &str) {
     let start=call(&runtime,json!({"method":"factory_runs.start","params":{"scope_id":scope.id},"expected_revision":scope.revision,"idempotency_key":"actual-run"})).unwrap();
     assert!(start.get("error").is_none(), "{start}");
     if mode == "scope_revoke" || mode == "scope_ttl" {
-        scope_liveness_tools_and_owner_stop(&f.path, &runtime, &scope, &workspace, mode);
+        let checked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            scope_liveness_tools_and_owner_stop(&f.path, &runtime, &scope, &workspace, mode)
+        }));
         stop.store(true, Ordering::Relaxed);
         assert!(daemon_thread.join().unwrap().is_ok());
+        if let Err(panic) = checked {
+            std::panic::resume_unwind(panic);
+        }
         return;
     }
     if mode == "pin_drift" {
@@ -588,10 +602,7 @@ fn run_mode(mode: &str) {
     .unwrap();
     assert_eq!(
         final_run["result"]["run"]["state"],
-        if matches!(
-            mode,
-            "normal" | "two_children" | "mixed_sequence" | "mixed_busy"
-        ) {
+        if mode == "normal" || mode == "two_children" || mode.starts_with("mixed_") {
             "completed"
         } else if mode == "cancel_queued" {
             "blocked"
@@ -602,10 +613,7 @@ fn run_mode(mode: &str) {
         },
         "{final_run}"
     );
-    if !matches!(
-        mode,
-        "normal" | "two_children" | "mixed_sequence" | "mixed_busy"
-    ) {
+    if !(mode == "normal" || mode == "two_children" || mode.starts_with("mixed_")) {
         assert_eq!(
             final_run["result"]["tasks"].as_array().unwrap().len(),
             if mode == "cancel_queued" { 2 } else { 1 }
@@ -1299,7 +1307,18 @@ fn scope_liveness_tools_and_owner_stop(
         runtime,
         json!({"method":"factory_runs.cancel","params":{"scope_id":scope.id},"expected_revision":current["run"]["revision"],"idempotency_key":"actual-owner-stop-invalid-agent-scope"}),
     );
-    assert_eq!(cancelled["cancel_requested"], true);
+    assert_eq!(cancelled["id"], current["run"]["id"]);
+    if current["run"]["state"] == "cancelled" {
+        // Scope revocation/expiry may have already completed the actual stop.
+        // The existing API keeps a terminal run terminal instead of inventing a
+        // new in-flight cancellation flag. The owned-stop checks below remain
+        // mandatory even for this legitimate idempotent race.
+        assert_eq!(cancelled["state"], "cancelled");
+        assert!(current["run"]["active_session_id"].is_null());
+        assert!(cancelled["active_session_id"].is_null());
+    } else {
+        assert_eq!(cancelled["cancel_requested"], true);
+    }
     let until = Instant::now() + Duration::from_secs(5);
     loop {
         let (pending,active):(i64,i64)=db.query_row("SELECT (SELECT count(*) FROM dispatch_intents WHERE state!='stopped'),(SELECT COALESCE(sum(active),0) FROM budgets WHERE scope LIKE 'project:%')",[],|r|Ok((r.get(0)?,r.get(1)?))).unwrap();

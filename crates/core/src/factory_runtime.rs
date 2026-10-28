@@ -1078,9 +1078,15 @@ pub(crate) fn reserve_factory_session(
     // Goal work may already have spent this same project/root-Grant budget.
     // Clamp to the current shared remainder inside the admission transaction;
     // missing/unknown observations still fail closed in the existing helper.
-    if let Some(remaining) =
-        Store::remaining_shared_runtime(db, &c.scope.root_grant_id, &s.project_id)?
-    {
+    if let Some(remaining) = Store::remaining_shared_runtime_with_limits(
+        db,
+        &c.scope.root_grant_id,
+        &s.project_id,
+        Some((
+            c.scope.selection.root_budget.runtime_ms,
+            c.scope.selection.project_budget.runtime_ms,
+        )),
+    )? {
         record.reservation.runtime_ms = record.reservation.runtime_ms.min(remaining);
     }
     // Every ancestor bound is cumulative over actual attempts, not a fresh child budget.
