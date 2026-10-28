@@ -1,5 +1,13 @@
 # AgentBaton 执行状态
 
+## Goal 实际运行集成进行中
+
+新隔离分支 codex/goal-runtime-integration 在 Data37bd032 上合并独审 UI3daa/ce50163 和准备 harness03943e0，组合c9617a6实际445 UI/24files、type/build PASS。Core11 尚未合入：全回归实际发现 Data 输出结算误用 Git-only 检查，作者9f833738窄修后 Data2 PASS，正在安全控制/fullworkspace4，独立最终审查未签收。新真实IPC尚未跑，不能使用旧schema10冒充；记录 goal-runtime-integration/{PLAN,PROGRESS,CHECKPOINT,EVIDENCE}。
+
+Data PR14 新head37bd032正常push后准确 Product40669158389/Environment40669158380 运行中，尚无新双Mac或双包通过声明。Root保留de150失败并独立重哈希89+6记录。完整130需求/27决定继续，既有生产/凭据/真实Provider/费用/签名/许可证门禁不变。
+
+以下保留历史检查点。
+
 ## Data PR14：双 Mac 失败与预览观察窄修
 
 当前 main 为 18f4261da9285bec5446101d47786839b1020d9c；本边界实际 fetch 并重读 OWNER-001/002，ACK，无新序号。PR14 已 ready/base main。旧 head de150679f7af9915f00cae58e0686a3954041dee、实际 checkout 458bbc2d4a1b9cc125e19ccf21057491c2f8fd1c：Environment 40664620013 三项、Product 40664619985 Rust/UI 成功，双 Mac 均在 Data 测试 20/21 时失败。32 MiB 预览在旧 5 秒观察限仍 checking/rev1；尚未到 Owner、copy、cancel/join，根因保持未知。没有新 Native/默认 release 审计/双包，不可合入。CI_DE150_FAILURE.json、NATIVE_DE150_REVIEW.md、89 项原始证据清单保留。

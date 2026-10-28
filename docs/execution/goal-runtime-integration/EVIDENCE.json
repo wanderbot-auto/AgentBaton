@@ -1,0 +1,68 @@
+{
+  "status": "UI leaf composed checks pass; Core11 freeze/integration/realIPC/native/macOS/CI pending",
+  "source_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+  "baseline": "37bd032f0e1b2dfa75fc9ff768e85801f1693a99",
+  "ui_source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+  "ui_review": "../goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+  "ui_actual_unique": 445,
+  "ui_actual_files": 24,
+  "ui_results": [
+    {
+      "name": "tests",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration/apps/desktop",
+      "head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+      "exit_code": 0,
+      "seconds": 23.87,
+      "log": "/workspace/.onboarding/goal-runtime-integration-ui/tests.log",
+      "sha256": "1df8bb5bd929b476f22e86546d5420fa87c0fc8032bafef64a86de24aed26735"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration/apps/desktop",
+      "head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+      "exit_code": 0,
+      "seconds": 1.35,
+      "log": "/workspace/.onboarding/goal-runtime-integration-ui/typecheck.log",
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration/apps/desktop",
+      "head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+      "exit_code": 0,
+      "seconds": 1.4,
+      "log": "/workspace/.onboarding/goal-runtime-integration-ui/build.log",
+      "sha256": "a7a0a4794c12c72911d9e4192a7058214b2ebda143ed46f5eef5283c5b72cf27"
+    }
+  ],
+  "frontend_assets": {
+    "assets/index-Bkjos9Ky.js": "5eea38cf06da58b61700f0a8b65db0de04e257ab245636400e8b1d9797bc4af4",
+    "assets/index-CJjrxlpo.css": "0371179f77391e82fb051c1305d3c045f4b7b0717c3a944e56e0ff892aca5aa9",
+    "index.html": "53cc0107621bae682121ea3d0c3d1ccdc7f8d7cb747ddda697664a7d27f0f941"
+  },
+  "harness_source": "03943e0cabb94cf798bfb8ba0e1c91ec756a8e81",
+  "harness_sha256": "3dfeed46a5bb68092f8c05ef3ed06119babd76606a821aa81267613183771ef4",
+  "harness_runtime": "not_run; finalschema11binary required",
+  "core_status": "author9f833738 post-failure regression in progress; not accepted/frozen",
+  "full_design": "incomplete; all130 remain; never fullGoal from Work-only slice",
+  "latest_data_runs": {
+    "product": 40669158389,
+    "environment": 40669158380,
+    "head": "37bd032f0e1b2dfa75fc9ff768e85801f1693a99",
+    "status": "running; final acceptance pending"
+  }
+}

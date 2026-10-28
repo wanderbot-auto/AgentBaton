@@ -1113,7 +1113,10 @@
         "crates/core/src/policy.rs",
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1129,7 +1132,9 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1160,6 +1165,15 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
         }
       ]
     },
@@ -1173,7 +1187,10 @@
         "crates/core/src/execution.rs",
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1187,7 +1204,9 @@
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1225,6 +1244,15 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
         }
       ]
     },
@@ -1346,7 +1374,10 @@
         "crates/core/src/ipc.rs",
         "crates/core/src/execution.rs",
         "crates/core/src/sessions.rs",
-        "crates/core/src/policy.rs"
+        "crates/core/src/policy.rs",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1360,7 +1391,9 @@
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
         "docs/execution/session-supervision/REVIEW.md",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1383,7 +1416,18 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        }
+      ]
     },
     {
       "id": "AB-TSK-008",
@@ -1397,7 +1441,10 @@
         "crates/core/src/policy.rs",
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1414,7 +1461,9 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1456,6 +1505,15 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
         }
       ]
     },
@@ -1466,7 +1524,10 @@
       "implementation_refs": [
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1479,7 +1540,9 @@
       "evidence": [
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -1506,6 +1569,15 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
         }
       ]
     },
@@ -1521,7 +1593,10 @@
         "crates/core/src/policy.rs",
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1538,7 +1613,9 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1573,6 +1650,15 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
         }
       ]
     },
@@ -2503,7 +2589,9 @@
       "implementation_refs": [
         "crates/core/src/policy.rs",
         "apps/desktop/src-tauri/src/approval.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/capabilities/native.rs",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts"
       ],
       "verification": {
         "unit": "not_run",
@@ -2516,7 +2604,9 @@
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
         "docs/execution/session-supervision/REVIEW.md",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -2535,7 +2625,18 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        }
+      ]
     },
     {
       "id": "AB-SEC-002",
@@ -2544,7 +2645,9 @@
       "implementation_refs": [
         "crates/core/src/policy.rs",
         "apps/desktop/src-tauri/src/approval.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/capabilities/native.rs",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts"
       ],
       "verification": {
         "unit": "not_run",
@@ -2557,7 +2660,9 @@
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
         "docs/execution/session-supervision/REVIEW.md",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -2576,7 +2681,18 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        }
+      ]
     },
     {
       "id": "AB-SEC-003",
@@ -2666,7 +2782,11 @@
       "id": "AB-SEC-006",
       "work_package": "WP12",
       "status": "implementing",
-      "implementation_refs": [],
+      "implementation_refs": [
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -2675,7 +2795,9 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -2686,7 +2808,19 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        }
+      ]
     },
     {
       "id": "AB-SEC-007",
@@ -4025,7 +4159,10 @@
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
         "apps/desktop/src/GoalPlanning.tsx",
-        "apps/desktop/src/GoalPlanEditor.tsx"
+        "apps/desktop/src/GoalPlanEditor.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -4040,7 +4177,9 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-editing-context/REVIEW.md",
-        "docs/execution/goal-plan-editor-real-ipc/REVIEW.md"
+        "docs/execution/goal-plan-editor-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -4078,6 +4217,15 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
         }
       ]
     },
@@ -4093,7 +4241,10 @@
         "crates/core/src/policy.rs",
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -4110,7 +4261,9 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -4145,6 +4298,15 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
         }
       ]
     },
@@ -4548,7 +4710,11 @@
       "id": "AB-SEC-010",
       "work_package": "WP12",
       "status": "implementing",
-      "implementation_refs": [],
+      "implementation_refs": [
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -4557,7 +4723,9 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -4568,7 +4736,19 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        }
+      ]
     },
     {
       "id": "AB-REL-008",
