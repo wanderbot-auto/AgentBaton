@@ -2,7 +2,6 @@
   "approval": "AB-START-001",
   "baseline": "ee374d1e67fd4b8671bba5f4d25b2659be846480",
   "branch": "codex/goal-runtime-real-ipc",
-  "worktree": "/workspace/.worktrees/goal-runtime-real-ipc",
   "requirements": {
     "AB-TSK-001": "partial, complete typed TaskRequest; no generated NLP planner claim",
     "AB-TSK-003": "fixed capability boundary, no authority from HTTP/plan text",
@@ -17,62 +16,675 @@
     "AB-REL-001": "separate syntax/browser/generated protocol/native/Provider dimensions"
   },
   "mapping_note": "No AB-ORC IDs exist in the immutable requirements baseline; actual AB-TSK/WP08 identifiers are used without editing specs.",
-  "script_sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
-  "status": "prepared_not_executed",
-  "actual_checks": [
-    "Python ast.parse",
-    "compile extracted generated ACP body without executing it",
-    "py_compile harness to /tmp",
-    "git diff --check"
+  "status": "actual_generated_protocol_browser_verified; independent final capture re-run pending",
+  "harness_source_commit": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+  "harness_sha256": "6c75746a2402710ccb7eb58c9c2e9e91c0bc697a5d39974652b830d9adcf8114",
+  "actual_command": [
+    "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+    "apps/desktop/tests/goal-execution-real-ipc.py",
+    "--batond",
+    "/workspace/.onboarding/goal-runtime-schema11-9f833738/batond",
+    "--candidate-manifest",
+    "/workspace/.onboarding/goal-runtime-schema11-9f833738/manifest.json",
+    "--frontend",
+    "/workspace/.worktrees/goal-runtime-integration/apps/desktop/dist",
+    "--chromium",
+    "/usr/bin/chromium",
+    "--output",
+    "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed"
   ],
-  "syntax_report": "/workspace/.onboarding/goal-execution-real-ipc/preparation/syntax.json",
-  "syntax_report_sha256": "1c282bf86f5a0378e70085bad6e0902bd0d760fbeda82aaecdf198b4f140d0ed",
-  "runtime_not_run": [
-    "No schema11 final coherent daemon supplied",
-    "No composed actual Goal Execution frontend supplied",
-    "No browser/Unix Goal execution/Owner fixture/ACP process/timeout/cancel run",
-    "No new native/macOS/CI/real Provider/account/model or Task acceptance"
-  ],
-  "authority": [
-    "Private host calls actual proposal/finalize outside HTTP, whole compact16KiB review bound retained",
-    "HTTP fixed metadata/plan-store/readonly-run/cancel/advance only; no approve/propose/finalize/generic/session dispatch",
-    "SQLite readonly/query_only observation; no SQL-forged Goal/state/budget/approval/Ready rows",
-    "Generated process private group stop proof distinct from protocol response and partial output",
-    "No Cargo/target/native/Node/lock/CI/STATUS/spec changes or new credentials/accounts/fees"
-  ],
-  "next": "Review static allowlist/cleanup/races; await Core author immutable schema11 binary+manifest and Root composed frontend, then run exclusive outputs and record real failures/results/source/asset hashes. Independent review required before acceptance.",
-  "static_followup": {
-    "dimension": "syntax/static contract preparation only, no runtime",
-    "script_sha256": "180f4deb748d3d23ce04c3c7233c45a26944ac5d4358d4bd055749ac51443bba",
-    "actual_syntax": "AST/py_compile and extracted generated ACP compile passed",
-    "static_followups": [
-      "Root-task and project budgets both consumed1→2 active0; root-grant/project Goal ledger attempts1→2 output12→27 runtime increases limits unchanged tokens/costnull",
-      "Per owned terminal: actual PID gone, sessionstopped, readonly reserved→attemptstopped→supervisorstopped→Goalsettled SQLPK order and exact correlated actual meter payloads",
-      "Any fallback cleanup of still-live private generated group prevents a pass; cleanup identity failure preserves failed report"
+  "core_attribution": {
+    "source_head": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+    "source_tree_sha256": "76ba31c43c03709e106a5d015d78ebce063d430b721af25ae593e9164a40fa13",
+    "manifest": "/workspace/.onboarding/goal-runtime-schema11-9f833738/manifest.json",
+    "manifest_sha256": "2114390f03df55e6d48c5f1b20864f2c22f9351c88e1eb66c5c19e80703f04dc",
+    "schema": 11,
+    "daemon_sha256": "081b84b5813e46f1f111b2a5c80bd6888563e9673147df1a9b831576149aa4ca",
+    "dirty": false
+  },
+  "frontend_attribution": {
+    "path": "/workspace/.worktrees/goal-runtime-integration/apps/desktop/dist",
+    "root_reported_composition_head": "ed8b91dd7b66e590730c06ec66819a289a3103a0",
+    "assets_sha256": {
+      "assets/index-Bkjos9Ky.js": "5eea38cf06da58b61700f0a8b65db0de04e257ab245636400e8b1d9797bc4af4",
+      "assets/index-CJjrxlpo.css": "0371179f77391e82fb051c1305d3c045f4b7b0717c3a944e56e0ff892aca5aa9",
+      "index.html": "53cc0107621bae682121ea3d0c3d1ccdc7f8d7cb747ddda697664a7d27f0f941"
+    },
+    "limits": "Root binds94Rust files:93 equal and sole difference upstream14a command_validation test file; production source/locks equal to frozen9f daemon, not whole-tree identity. Root445/24/type/build reported separately, not rerun by harness author."
+  },
+  "actual_result": {
+    "exit_code": 0,
+    "checks": [
+      {
+        "name": "private host approves generated local inputs and planning scopes; no execution or SQL-forged authority",
+        "status": "passed"
+      },
+      {
+        "name": "actual Goal execution is lazy/read-only with no stored plan and no authority from planning approval",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP denies approval/finalize/generic dispatch or execution and foreign run references without database writes",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP-external real Owner fixture starts full TaskRequest, real artifact and owned-reaped candidate without acceptance",
+        "status": "passed"
+      },
+      {
+        "name": "UI stores rev2 then explicitly adopts same-scope plan; dropped real response recovers exact key without new Owner, attempt replay or budget/history reset",
+        "status": "passed"
+      },
+      {
+        "name": "native-confirmed actual selected-file Directory copy supplies real Goal TaskRequest inputs without Git initialization or source writes",
+        "status": "passed"
+      },
+      {
+        "name": "real partial-write Goal cancellation keeps request receipt separate from actual owned stop; dropped response reconciles by current reads without a second mutation",
+        "status": "passed"
+      },
+      {
+        "name": "actual1200ms owned timeout remains unknown after reaping and cancellation; UI blocks new approval/adoption and never fabricates TaskAccepted",
+        "status": "passed"
+      },
+      {
+        "name": "original generated sources unchanged, real scoped history retained and no browser runtime errors",
+        "status": "passed"
+      }
     ],
-    "runtime": "not_run; explicit schema11 candidate+composed UI pending"
+    "screenshots": [
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/01-stored-plan-no-execution.png",
+        "sha256": "ca48570b6deba77a5f1c58563403f930151448728bf8819aebf8e7ac0947a48c",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/02-real-generated-candidate.png",
+        "sha256": "8789206552ddfd05078ccf4acfda631b2e6c8e3086010bc935e792f9fe8361fb",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/03-real-plan-advance-response-lost.png",
+        "sha256": "4af5cdcaa657dfe74d91e515affb4baf840f6e69a0d9b91bd29cdc1c5f4450a5",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/04-same-scope-replan-history-kept.png",
+        "sha256": "872f9f87eaee946c0ae8f5985675a054c9669b3904e4c02089e6b86a9aa0e0a8",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/05-real-data-workspace-goal-candidate.png",
+        "sha256": "8d99d3939eec6e82be73bf39a5f0a552c85881ff91cffb01df80f644219ede3b",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/06-real-owned-cancel-retains-partial-report.png",
+        "sha256": "9f6b89cf4def1f335bcd82ace20cc89cbb1d98b8d83dc1455604ae4daf951b6b",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/07-timeout-owned-stop-effects-still-unknown.png",
+        "sha256": "c8207f7469fe464df37c2e47ed25eb50306e8f83a2b4d092870d8e19cd381f6a",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/08-timeout-mobile-unknown.png",
+        "sha256": "ce8d43c4fe4dec5950e44e6761f811af4c4b9776eb49971c7f04b0049dd72df2",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      }
+    ],
+    "report": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/report.json",
+    "report_sha256": "211a5f8541122171038d19a32d13100129af0ed5e9afb51813ce9b30b8f6ce41",
+    "log_sha256": "e871db357c6489fd7a95e6325f909cbc6e66aad38f2f245aa72936d389b61231",
+    "page_errors": [],
+    "fallback_cleanup_used": false,
+    "final_counts": {
+      "attempts": 5,
+      "sessions": 5,
+      "dispatch_intents": 5,
+      "goal_runs": 4,
+      "goal_run_nodes": 5,
+      "goal_run_reservations": 5,
+      "goal_plan_revisions": 5,
+      "goal_node_evidence": 0,
+      "sequence": 156,
+      "execution_approvals": 4
+    }
   },
-  "static_followup_report_sha256": "01447aa5b32f1339e03f1a50945ef35207544f3d3dc8de7a7d654c3c3a1d899c",
-  "latest_static_followup": {
-    "status": "passed",
-    "dimension": "syntax/static preparation only; no Core/ACP/browser execution",
-    "script_sha256": "3dfeed46a5bb68092f8c05ef3ed06119babd76606a821aa81267613183771ef4",
-    "followups": [
-      "Correct exact-key result equality compares immutable result; fresh transport request_id/current envelope journal revision are not idempotent receipt fields",
-      "Planned actual stale-run and stale-ledger CAS negatives each require Core STALE_REVISION and no DB mutation before fresh successful UI adoption",
-      "Private Goal execution host review matches entire saved plan/scope/current grant/connection summary and explicit no-new-workspace/enforcement fields",
-      "Private Data copy fixture reviews actual source/managed dev-inode and fixed UUID-derived destination before finalize"
-    ]
+  "actual_task_requests": [
+    {
+      "utf8_bytes": 3499,
+      "sha256": "c69ea07761eda1b981fbfd74cdc1546c2a82b4fb0ec661243650c3c4fc0b3b29",
+      "plan_revision": 1,
+      "goal": "goal-report",
+      "owned_stop_observed": true
+    },
+    {
+      "utf8_bytes": 3524,
+      "sha256": "81f436626785f07f91117878f27a20f76666f3dcca0a7e2467f0d07bafd3c801",
+      "plan_revision": 2,
+      "goal": "goal-report-v2",
+      "owned_stop_observed": true
+    },
+    {
+      "utf8_bytes": 3559,
+      "sha256": "ee87755c67860a0ff0e56c3dbd4db14e78531f5c566c6dda467ef4d71f0aa2ae",
+      "plan_revision": 1,
+      "goal": "goal-report",
+      "owned_stop_observed": true
+    },
+    {
+      "utf8_bytes": 3511,
+      "sha256": "f09999a664246618739e4d888a2bcaa749d79a16d64988ab0d24f092722cb19e",
+      "plan_revision": 1,
+      "goal": "goal-partial-hang",
+      "owned_stop_observed": true
+    },
+    {
+      "utf8_bytes": 3485,
+      "sha256": "3525dcdbc7479d54636e592030a0246f0f61c5f3d9ed807311038efb23d7e086",
+      "plan_revision": 1,
+      "goal": "hang",
+      "owned_stop_observed": true
+    }
+  ],
+  "same_scope_replan": {
+    "first_nodes": [
+      {
+        "revision": 1,
+        "runtime_ms": 101,
+        "selected_output_bytes": 12,
+        "attempt_id": "72e843bd-ba32-4392-b929-f77e47c4d157"
+      }
+    ],
+    "second_nodes": [
+      {
+        "revision": 1,
+        "runtime_ms": 101,
+        "selected_output_bytes": 12,
+        "attempt_id": "72e843bd-ba32-4392-b929-f77e47c4d157"
+      },
+      {
+        "revision": 2,
+        "runtime_ms": 118,
+        "selected_output_bytes": 15,
+        "attempt_id": "decb5bc9-f993-4847-870f-be41cafb25db"
+      }
+    ],
+    "first_budgets": {
+      "project:bb4198c0-6af6-4790-ad34-74b267add900": {
+        "consumed": 1,
+        "active": 0
+      },
+      "root:d18cb931-f8be-4e16-b8d7-d3074e0553c4": {
+        "consumed": 1,
+        "active": 0
+      }
+    },
+    "second_budgets": {
+      "project:bb4198c0-6af6-4790-ad34-74b267add900": {
+        "consumed": 2,
+        "active": 0
+      },
+      "root:d18cb931-f8be-4e16-b8d7-d3074e0553c4": {
+        "consumed": 2,
+        "active": 0
+      }
+    },
+    "first_ledgers": {
+      "project:bb4198c0-6af6-4790-ad34-74b267add900": {
+        "limits": {
+          "attempts": 2,
+          "parallel": 1,
+          "runtime_ms": 20000,
+          "output_bytes": 8192,
+          "children": 1,
+          "reworks": 1,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "observed_attempts": 1,
+        "runtime_ms": 101,
+        "output_bytes": 12,
+        "tokens": null,
+        "cost_microunits": null
+      },
+      "root-grant:49f01eb3-4c78-4f2e-bef5-8b0f5ab35940": {
+        "limits": {
+          "attempts": 2,
+          "parallel": 1,
+          "runtime_ms": 20000,
+          "output_bytes": 8192,
+          "children": 1,
+          "reworks": 1,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "observed_attempts": 1,
+        "runtime_ms": 101,
+        "output_bytes": 12,
+        "tokens": null,
+        "cost_microunits": null
+      }
+    },
+    "second_ledgers": {
+      "project:bb4198c0-6af6-4790-ad34-74b267add900": {
+        "limits": {
+          "attempts": 2,
+          "parallel": 1,
+          "runtime_ms": 20000,
+          "output_bytes": 8192,
+          "children": 1,
+          "reworks": 1,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "observed_attempts": 2,
+        "runtime_ms": 219,
+        "output_bytes": 27,
+        "tokens": null,
+        "cost_microunits": null
+      },
+      "root-grant:49f01eb3-4c78-4f2e-bef5-8b0f5ab35940": {
+        "limits": {
+          "attempts": 2,
+          "parallel": 1,
+          "runtime_ms": 20000,
+          "output_bytes": 8192,
+          "children": 1,
+          "reworks": 1,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "observed_attempts": 2,
+        "runtime_ms": 219,
+        "output_bytes": 27,
+        "tokens": null,
+        "cost_microunits": null
+      }
+    },
+    "only_one_execution_approval_before_other_scenarios": 1,
+    "actual_CAS_refusals": [
+      {
+        "status": 200,
+        "body": {
+          "error": {
+            "code": "STALE_REVISION",
+            "details_ref": null,
+            "message": "Plan advancement requires the exact current run and shared ledger",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "request_id": "af243ae0-87ff-4669-98d4-34adb88bacc0",
+          "revision": 81,
+          "warnings": []
+        }
+      },
+      {
+        "status": 200,
+        "body": {
+          "error": {
+            "code": "STALE_REVISION",
+            "details_ref": null,
+            "message": "Plan advancement requires the exact current run and shared ledger",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "request_id": "203c31c9-4c2f-44c8-8b7c-bf7d0ebc134c",
+          "revision": 81,
+          "warnings": []
+        }
+      }
+    ],
+    "advance_response_dropped_after_real_commit": true,
+    "explicit_same_key_recovery": true,
+    "old_node_unchanged": true
   },
-  "latest_static_followup_report_sha256": "477f5cac76d6662eb125038bf7b0a403300a6233305364c63184ba33911b990e",
-  "review_key_and_output_followup": {
-    "source_sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
-    "actual": "AST/py_compile and extracted generated ACP compile PASS",
-    "runtime": "not_run; final Core11 immutable candidate pending",
-    "review_narrow_changes": [
-      "Every one of four allowed mutation methods rejects null/missing/empty/invalid idempotency key at HTTP boundary; read-only remains keyless",
-      "Preserve15/12 selected output meter assertions and add actual rev2/Data bytes equality fixed report v2/fixed report"
-    ]
+  "actual_data": {
+    "state": "awaiting_acceptance",
+    "selected_output_bytes": 12,
+    "runtime_ms": 143,
+    "task_accepted": false,
+    "source_and_output_bytes_asserted": "baseline input preserved; real output bfixed report; actual native-confirmed Directory copy, no Git initialization"
   },
-  "review_followup_syntax_sha256": "5e032010fc5c34aaefd4e9c97f02268f93ae78bdf634246c3e2c47f5f3d18f1d"
+  "actual_cancel": {
+    "request_state": "cancel_requested",
+    "terminal_state": "cancelled",
+    "node_state": "cancelled",
+    "owned_stop": true,
+    "selected_output_bytes": 14,
+    "runtime_ms": 349,
+    "partial_report_retained": true,
+    "request_response_dropped_after_real_commit": true,
+    "same_key_historical_result_replayed_without_execution": true,
+    "automatic_replay": false
+  },
+  "actual_timeout": {
+    "reservation_ms": 1200,
+    "actual_runtime_ms": 1201,
+    "before_cancel_state": "outcome_unknown",
+    "after_cancel_state": "outcome_unknown",
+    "owned_stop": true,
+    "selected_output_bytes": null,
+    "tokens": null,
+    "cost_microunits": null,
+    "new_approval_blocked_in_UI": true,
+    "task_accepted": false
+  },
+  "actual_owned_stop_chains": [
+    {
+      "plan_revision": 1,
+      "sql_sequences": [
+        66,
+        77,
+        79,
+        80
+      ],
+      "kinds": [
+        "goal.node_reserved",
+        "attempt.stopped",
+        "session.stopped",
+        "goal.node_settled"
+      ]
+    },
+    {
+      "plan_revision": 2,
+      "sql_sequences": [
+        84,
+        95,
+        97,
+        98
+      ],
+      "kinds": [
+        "goal.node_reserved",
+        "attempt.stopped",
+        "session.stopped",
+        "goal.node_settled"
+      ]
+    },
+    {
+      "plan_revision": 1,
+      "sql_sequences": [
+        104,
+        115,
+        117,
+        118
+      ],
+      "kinds": [
+        "goal.node_reserved",
+        "attempt.stopped",
+        "session.stopped",
+        "goal.node_settled"
+      ]
+    },
+    {
+      "plan_revision": 1,
+      "sql_sequences": [
+        124,
+        134,
+        136,
+        137
+      ],
+      "kinds": [
+        "goal.node_reserved",
+        "attempt.stopped",
+        "session.stopped",
+        "goal.node_settled"
+      ]
+    },
+    {
+      "plan_revision": 1,
+      "sql_sequences": [
+        143,
+        152,
+        154,
+        155
+      ],
+      "kinds": [
+        "goal.node_reserved",
+        "attempt.stopped",
+        "session.stopped",
+        "goal.node_settled"
+      ]
+    }
+  ],
+  "private_complete_reviews": [
+    {
+      "id": "a8f51ce5-7c88-41d6-9ec1-cfd474bf4da0",
+      "kind": "connection",
+      "snapshot_utf8_bytes": 632,
+      "snapshot_sha256": "f2cbd621940f3f4ded2ee0a5062f3fe13e8e12855145bea49be3eac08782fadf",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "f49d5f69-5471-4945-9352-cded65aa81bd",
+      "kind": "grant",
+      "snapshot_utf8_bytes": 1870,
+      "snapshot_sha256": "ce6fc559a8d6a830e87346c8505b7fc902b230604e014863c55800c4d731362b",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "f2a2120b-6933-4b7f-b150-a0482d296293",
+      "kind": "goal",
+      "snapshot_utf8_bytes": 7254,
+      "snapshot_sha256": "2416f4cd95ac026d63e3f4ddc03352c227115afdfb0d7c7a5b5d32b58ec9fcc0",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "65f8de81-8813-4a23-8b6d-6b77547133b9",
+      "kind": "data_workspace",
+      "snapshot_utf8_bytes": 2210,
+      "snapshot_sha256": "e7fa555ea7eeb354c3db94f182a5b0498708c1dbe02310aa9020546361c35a5c",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "38818f66-d4a5-48ea-8399-8aef2a7aa061",
+      "kind": "grant",
+      "snapshot_utf8_bytes": 2266,
+      "snapshot_sha256": "b237960b4ac1b55d340c611f45da06e7ada12403442effe4b363ae85712715e0",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "616c679a-0419-43fe-9e56-aba53a21ef0f",
+      "kind": "goal",
+      "snapshot_utf8_bytes": 7202,
+      "snapshot_sha256": "ad8f99af404378522e211026b7d089ae1aba9350da5970a09afd193242622a3f",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "5d6dec65-cb8c-4f3d-84f5-db8cc7adae01",
+      "kind": "grant",
+      "snapshot_utf8_bytes": 1870,
+      "snapshot_sha256": "b43c4b827a0ac2e15d182918761b35b05dbb18ad581d6eddc74d8ec435e13e7d",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "c602fcbe-d3c9-4ff9-8b48-b7cd187447d9",
+      "kind": "goal",
+      "snapshot_utf8_bytes": 7254,
+      "snapshot_sha256": "61c1b93ea600ce040a39bb20133d0e728008a4cefc7e4d73999902abd926c2b3",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "093f1c89-fad6-4f42-b0d3-f122f4190522",
+      "kind": "grant",
+      "snapshot_utf8_bytes": 1872,
+      "snapshot_sha256": "2d5e13a31f9129ec82fb86fe659e3699e2dfa46c4ea414ee2c98aeda5ac7d5a0",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "a66fff23-ae11-4964-9f94-b2b4abae72e2",
+      "kind": "goal",
+      "snapshot_utf8_bytes": 7256,
+      "snapshot_sha256": "b4e4c0ea83b436e1a59ac0fa99daf0e23556a80e14c16537f76b9f6f415652e8",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "cf2c07ee-db4c-4fdf-a298-dfe4cdb0dae7",
+      "kind": "goal_execution",
+      "snapshot_utf8_bytes": 7721,
+      "snapshot_sha256": "7be8bc7ca24c7063dd3ed5d502fb63d0e2a8c738a2c418a3491e08a75e8cadc9",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "4dba25fe-6538-4ea4-8ed1-18ec4c060b2e",
+      "kind": "goal_execution",
+      "snapshot_utf8_bytes": 7719,
+      "snapshot_sha256": "dbe07c81fa9a2c867b105efdb91f4e5c614647fcebc0d50c262bfe51db7d0c42",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "637a1030-05f0-48af-b02d-c4b49d3d8434",
+      "kind": "goal_execution",
+      "snapshot_utf8_bytes": 7728,
+      "snapshot_sha256": "b17431501a067472c45f629fe5fe27f9a6a075f1dc2db87498f6fb31af3dba26",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    },
+    {
+      "id": "c82f8ccb-da52-498a-a253-428b39529efe",
+      "kind": "goal_execution",
+      "snapshot_utf8_bytes": 7716,
+      "snapshot_sha256": "167a44df084afa3c9a72e5128184015418ca82f84fd619ea69516440e1bc97f8",
+      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
+    }
+  ],
+  "preserved_first_actual_run": {
+    "source_commit": "d1932d62608157fefc328a46d7705bda677f8598",
+    "harness_sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
+    "report": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-primary/report.json",
+    "report_sha256": "a7b1650be02d22c9c04559129a59db37a4e5a3ee528e6405a1c0451ebc6912c7",
+    "exit_code": 0,
+    "checks": 9,
+    "screenshots": 8,
+    "capture_limit": "04/05/06 and mobile08 did not frame their target record; original bytes retained. This is a capture defect, not failed runtime checks or native proof.503c only scrolls actual target/expands actual node before taking new screenshots; no image editing/product/timeout/assertion weakening."
+  },
+  "visual_inspection": {
+    "opened_all_final8": true,
+    "desktop": "1488x981",
+    "mobile": "390x844",
+    "specific_content": "02 candidate/Yes/reserved4000+2048 vs measured101ms+12/null meters;04runrev2 and Plan1/2history;05Data candidate;06cancelled/Yes/14;07unknown+Yes+1201/nulloutput;08mobile unknown+Yes (lower observed meter requires scrolling, available in desktop07/actualJSON).",
+    "no_document_horizontal_overflow": true
+  },
+  "author_verification_manifest": "/workspace/.onboarding/goal-execution-real-ipc/author-verification-manifest.json",
+  "author_verification_manifest_sha256": "9cb06fb2cbc702521c39c20f6a110f664eb460c76fb2e48b2352a6c8a99ebde7",
+  "preparation_history": {
+    "approval": "AB-START-001",
+    "baseline": "ee374d1e67fd4b8671bba5f4d25b2659be846480",
+    "branch": "codex/goal-runtime-real-ipc",
+    "worktree": "/workspace/.worktrees/goal-runtime-real-ipc",
+    "requirements": {
+      "AB-TSK-001": "partial, complete typed TaskRequest; no generated NLP planner claim",
+      "AB-TSK-003": "fixed capability boundary, no authority from HTTP/plan text",
+      "AB-TSK-004": "exact-key advance/cancel receipt recovery",
+      "AB-TSK-007": "request acknowledgement versus actual owned reap",
+      "AB-TSK-008": "timeout unknown effects remain unknown after stop/cancel",
+      "AB-TSK-010": "observed selected output/runtime versus reservations and unknown token/cost",
+      "AB-TSK-011": "same-scope stored plan revision/explicit adoption/history",
+      "AB-TSK-012": "same root/project cumulative attempts/output not reset",
+      "AB-SEC-002": "finite HTTP allowlist, no generic execution/native approval",
+      "AB-SEC-004": "generated local data only, no network/model",
+      "AB-REL-001": "separate syntax/browser/generated protocol/native/Provider dimensions"
+    },
+    "mapping_note": "No AB-ORC IDs exist in the immutable requirements baseline; actual AB-TSK/WP08 identifiers are used without editing specs.",
+    "script_sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
+    "status": "prepared_not_executed",
+    "actual_checks": [
+      "Python ast.parse",
+      "compile extracted generated ACP body without executing it",
+      "py_compile harness to /tmp",
+      "git diff --check"
+    ],
+    "syntax_report": "/workspace/.onboarding/goal-execution-real-ipc/preparation/syntax.json",
+    "syntax_report_sha256": "1c282bf86f5a0378e70085bad6e0902bd0d760fbeda82aaecdf198b4f140d0ed",
+    "runtime_not_run": [
+      "No schema11 final coherent daemon supplied",
+      "No composed actual Goal Execution frontend supplied",
+      "No browser/Unix Goal execution/Owner fixture/ACP process/timeout/cancel run",
+      "No new native/macOS/CI/real Provider/account/model or Task acceptance"
+    ],
+    "authority": [
+      "Private host calls actual proposal/finalize outside HTTP, whole compact16KiB review bound retained",
+      "HTTP fixed metadata/plan-store/readonly-run/cancel/advance only; no approve/propose/finalize/generic/session dispatch",
+      "SQLite readonly/query_only observation; no SQL-forged Goal/state/budget/approval/Ready rows",
+      "Generated process private group stop proof distinct from protocol response and partial output",
+      "No Cargo/target/native/Node/lock/CI/STATUS/spec changes or new credentials/accounts/fees"
+    ],
+    "next": "Review static allowlist/cleanup/races; await Core author immutable schema11 binary+manifest and Root composed frontend, then run exclusive outputs and record real failures/results/source/asset hashes. Independent review required before acceptance.",
+    "static_followup": {
+      "dimension": "syntax/static contract preparation only, no runtime",
+      "script_sha256": "180f4deb748d3d23ce04c3c7233c45a26944ac5d4358d4bd055749ac51443bba",
+      "actual_syntax": "AST/py_compile and extracted generated ACP compile passed",
+      "static_followups": [
+        "Root-task and project budgets both consumed1→2 active0; root-grant/project Goal ledger attempts1→2 output12→27 runtime increases limits unchanged tokens/costnull",
+        "Per owned terminal: actual PID gone, sessionstopped, readonly reserved→attemptstopped→supervisorstopped→Goalsettled SQLPK order and exact correlated actual meter payloads",
+        "Any fallback cleanup of still-live private generated group prevents a pass; cleanup identity failure preserves failed report"
+      ],
+      "runtime": "not_run; explicit schema11 candidate+composed UI pending"
+    },
+    "static_followup_report_sha256": "01447aa5b32f1339e03f1a50945ef35207544f3d3dc8de7a7d654c3c3a1d899c",
+    "latest_static_followup": {
+      "status": "passed",
+      "dimension": "syntax/static preparation only; no Core/ACP/browser execution",
+      "script_sha256": "3dfeed46a5bb68092f8c05ef3ed06119babd76606a821aa81267613183771ef4",
+      "followups": [
+        "Correct exact-key result equality compares immutable result; fresh transport request_id/current envelope journal revision are not idempotent receipt fields",
+        "Planned actual stale-run and stale-ledger CAS negatives each require Core STALE_REVISION and no DB mutation before fresh successful UI adoption",
+        "Private Goal execution host review matches entire saved plan/scope/current grant/connection summary and explicit no-new-workspace/enforcement fields",
+        "Private Data copy fixture reviews actual source/managed dev-inode and fixed UUID-derived destination before finalize"
+      ]
+    },
+    "latest_static_followup_report_sha256": "477f5cac76d6662eb125038bf7b0a403300a6233305364c63184ba33911b990e",
+    "review_key_and_output_followup": {
+      "source_sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
+      "actual": "AST/py_compile and extracted generated ACP compile PASS",
+      "runtime": "not_run; final Core11 immutable candidate pending",
+      "review_narrow_changes": [
+        "Every one of four allowed mutation methods rejects null/missing/empty/invalid idempotency key at HTTP boundary; read-only remains keyless",
+        "Preserve15/12 selected output meter assertions and add actual rev2/Data bytes equality fixed report v2/fixed report"
+      ]
+    },
+    "review_followup_syntax_sha256": "5e032010fc5c34aaefd4e9c97f02268f93ae78bdf634246c3e2c47f5f3d18f1d"
+  },
+  "independent_review": "Separate reviewer artifact_contract_fixture static40 passed on d193; actual oldd193 independent9/8 reported; final503c independent actual+capture rerun in progress, not counted as accepted by author.",
+  "limits": [
+    "Only generated, account-free local ACP over actual owned process/Unix Core; not a real vendor/account/model test.",
+    "Private host fixture reviews/finalizes complete actual snapshots outside HTTP; OS OwnerDialog not run.",
+    "Selected output accounting measures declared report files only, not capture stream/cumulative writes/whole filesystem quota; token/cost unknown remain null.",
+    "Owned direct generated processes actually gone/session stopped/correlated receipts; no general descendant containment or adversarial OS sandbox claim.",
+    "No Native/WebView/macOS/minimumOS/CI/dualDMG/signing/TaskAccepted/whole130 completion proof.",
+    "No Cargo/Node/dependency/targets/Core/UI/Native/lock/CI/STATUS/spec/remote/account/credential/extra-fee actions by this unit."
+  ]
 }
