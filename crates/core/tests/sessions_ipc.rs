@@ -30,7 +30,24 @@ impl Server {
         }
     }
     fn request(&self, v: Value) -> Value {
-        call(&self.runtime, v).unwrap()
+        let method = v["method"].clone();
+        let key = v["idempotency_key"].clone();
+        let started = Instant::now();
+        let response = call(&self.runtime, v);
+        if let Err(error) = &response {
+            eprintln!(
+                "FIXTURE_RPC_TRANSPORT_FAILURE method={method} idempotency_key={key} elapsed_ms={} error={error:?}",
+                started.elapsed().as_millis()
+            );
+        }
+        let response = response.unwrap();
+        if response.get("error").is_some() {
+            eprintln!(
+                "FIXTURE_RPC_FAILURE method={method} idempotency_key={key} elapsed_ms={} response={response}",
+                started.elapsed().as_millis()
+            );
+        }
+        response
     }
     fn shutdown(&mut self) {
         self.stop.store(true, Ordering::Relaxed);
@@ -3937,14 +3954,28 @@ fn actual_capture_prestart_queue_exhaustion_never_spawns_or_claims_an_io_join() 
 fn actual_integrity_definition_graph_fixture() -> (Scenario, Value, Value) {
     actual_integrity_definition_graph_fixture_with_budget(8)
 }
+fn trace_integrity_grant(f: &Scenario, phase: &str) {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
+    eprintln!(
+        "INTEGRITY_GRANT_PHASE {}",
+        json!({"phase":phase,"now_epoch_ms":now,"grant_id":f.grant["id"],
+            "approved_at":f.grant["approved_at"],"expires_at_ms":f.grant["expires_at_ms"]})
+    );
+}
 fn actual_integrity_definition_graph_fixture_with_budget(
     attempts: u32,
 ) -> (Scenario, Value, Value) {
     use agentbaton_core::{goal_plan::*, goal_store::*};
     let mut f = Scenario::new(10_000);
     use_actual_dataset_workspace(&mut f);
-    let grant_proposal=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":8,"max_concurrency":1,"max_duration_ms":10000},"idempotency_key":"initial-eight-shared-attempt-policy"})));
+    // Enclosing fixture lifetime includes bootstrap and two Owner reviews.
+    // Match Data/Command's 30s Grant; Graph runtime/node/negative limits stay fixed.
+    let grant_proposal=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":8,"max_concurrency":1,"max_duration_ms":30000},"idempotency_key":"initial-eight-shared-attempt-policy"})));
     f.grant = approve(&f.server, grant_proposal);
+    trace_integrity_grant(&f, "enclosing_grant_approved_before_bootstrap");
     let bootstrap = goal_scope_and_plan_with_options(&f, "goal-report", 0, 1, 2, 8, vec![]);
     let source = approve_goal_execution(&f, &bootstrap);
     let source_done = wait(
@@ -3954,6 +3985,7 @@ fn actual_integrity_definition_graph_fixture_with_budget(
         |d| d["run"]["state"] == "awaiting_acceptance",
     );
     let session = &source_done["nodes"][0]["session_id"];
+    trace_integrity_grant(&f, "bootstrap_candidate_before_definition");
     let policy_proposal=result(f.server.request(json!({"method":"validation_policies.propose","params":{"session_id":session,"inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":agentbaton_workspaces::validation::sha256(b"baseline")}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],"analysis":null},"idempotency_key":"source-additional-integrity-definition"})));
     let definition = approve(&f.server, policy_proposal);
     result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":source["id"]},"expected_revision":source_done["run"]["revision"],"idempotency_key":"cancel-source-candidate-before-new-graph"})));
@@ -3963,6 +3995,7 @@ fn actual_integrity_definition_graph_fixture_with_budget(
         json!({"run_id":source["id"]}),
         |d| d["run"]["state"] == "cancelled",
     );
+    trace_integrity_grant(&f, "bootstrap_cancelled_before_new_task");
     let grants = result(
         f.server
             .request(json!({"method":"grants.list","params":{"project_id":f.project["id"]}})),
@@ -4053,12 +4086,14 @@ fn actual_integrity_definition_graph_fixture_with_budget(
     plan.revision = 2;
     plan.expected_revision = 1;
     result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"actual-integrity-five-node-plan"})));
+    trace_integrity_grant(&f, "five_node_plan_prepared");
     (f, scope, definition)
 }
 #[test]
 fn actual_graph_integrity_validator_is_a_charged_owned_attempt_before_owner_and_summary() {
     eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
     let (f, scope, definition) = actual_integrity_definition_graph_fixture();
+    trace_integrity_grant(&f, "before_graph_approval");
     let approved = approve_graph_at(&f, &scope, 2);
     let run_id = &approved["run"]["id"];
     let checked = wait(
@@ -4094,11 +4129,13 @@ fn actual_graph_integrity_validator_is_a_charged_owned_attempt_before_owner_and_
     assert!(validator["attempt_id"].is_string());
     assert_eq!(validator["execution_kind"], "validator");
     assert_eq!(validator["state"], "validated");
+    trace_integrity_grant(&f, "before_first_owner_proposal");
     let owner_proposal = graph_owner_proposal(&f, run_id, "owner-report", "integrity-owner-report");
     assert_eq!(
         owner_proposal["snapshot"]["validation_refs"][0],
         authentic_validation_from_projection(receipt)
     );
+    trace_integrity_grant(&f, "before_first_owner_finalize");
     let first_decision = approve(&f.server, owner_proposal.clone());
     wait(
         &f.server,
@@ -4111,8 +4148,10 @@ fn actual_graph_integrity_validator_is_a_charged_owned_attempt_before_owner_and_
             })
         },
     );
+    trace_integrity_grant(&f, "before_final_owner_proposal");
     let final_proposal =
         graph_owner_proposal(&f, run_id, "owner-summary", "integrity-owner-summary");
+    trace_integrity_grant(&f, "before_final_owner_finalize");
     let decision = approve(&f.server, final_proposal.clone());
     assert_eq!(decision["task_accepted"], true);
     let accepted = result(
@@ -4820,7 +4859,7 @@ fn actual_graph_interrupted_validator_snapshot_is_unknown_fenced_and_never_autom
     let approved = approve_graph_at(&f, &scope, 2);
     let id = &approved["run"]["id"];
     let _pid = wait_actual_graph_command_child(&f);
-    let recovery = f.root.join("validator-interrupted-runtime");
+    let recovery = f.root.join("restore");
     std::fs::DirBuilder::new()
         .mode(0o700)
         .create(&recovery)
@@ -4840,6 +4879,42 @@ fn actual_graph_interrupted_validator_snapshot_is_unknown_fenced_and_never_autom
     // Consistent in-flight durable crash image; original owned process is actually
     // stopped/joined before a second daemon is allowed to read its snapshot.
     f.server.shutdown();
+    // Probe the original socket-length shape only in an exclusively created
+    // private sibling. Never remove or bind an existing/unknown path.
+    use std::os::unix::{fs::FileTypeExt, net::UnixListener};
+    let old_name = "validator-interrupted-runtime";
+    let old_socket = f.root.join(old_name).join("batond.sock");
+    let nonce = uuid::Uuid::new_v4().simple().to_string();
+    let probe = f.root.join(&nonce[..old_name.len()]);
+    std::fs::DirBuilder::new()
+        .mode(0o700)
+        .create(&probe)
+        .unwrap();
+    let probe_socket = probe.join("batond.sock");
+    assert_eq!(probe_socket.as_os_str().len(), old_socket.as_os_str().len());
+    let outcome = match UnixListener::bind(&probe_socket) {
+        Ok(listener) => {
+            std::fs::set_permissions(&probe_socket, std::fs::Permissions::from_mode(0o600))
+                .unwrap();
+            drop(listener);
+            assert!(std::fs::symlink_metadata(&probe_socket)
+                .unwrap()
+                .file_type()
+                .is_socket());
+            std::fs::remove_file(&probe_socket).unwrap();
+            json!({"result":"bound_and_closed","error_kind":null,"raw_os_error":null})
+        }
+        Err(error) => json!({"result":"bind_failed","error_kind":format!("{:?}",error.kind()),
+            "raw_os_error":error.raw_os_error(),"message":error.to_string()}),
+    };
+    eprintln!(
+        "RECOVERY_SOCKET_PROBE {}",
+        json!({"original_socket":old_socket,
+        "original_socket_bytes":old_socket.as_os_str().len(),"probe_socket":probe_socket,
+        "probe_socket_bytes":probe_socket.as_os_str().len(),"outcome":outcome,
+        "scope":"test-only newly created private path; not a historical errno reconstruction"})
+    );
+    std::fs::remove_dir(&probe).unwrap();
     let recovered = Server::start(&recovery);
     let state =
         result(recovered.request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})));
