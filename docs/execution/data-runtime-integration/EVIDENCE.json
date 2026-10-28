@@ -1,0 +1,481 @@
+{
+  "status": "reviewed source893 pathfixture integrated; new exact CI pending; old37bd5success2fail retained",
+  "baseline": "a2c5bcf47fd60d66207e2cc93c94db4f7f648057",
+  "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+  "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+  "native_source": "071e5698a455e11779f26b8392d9c9311a7ca084",
+  "harness_source": "2746548",
+  "current_ui": [
+    {
+      "name": "tests",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 15.0,
+      "log": "/workspace/.onboarding/data-runtime-integration-ui/tests.log",
+      "sha256": "6d57a8ca427eae1f115338aa7338566c1174ed8c99beee13aab0e82f11af6c42"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 0.73,
+      "log": "/workspace/.onboarding/data-runtime-integration-ui/typecheck.log",
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 1.16,
+      "log": "/workspace/.onboarding/data-runtime-integration-ui/build.log",
+      "sha256": "10893ca94dd75156f4386cdad9c6e0b5a590cf22d8cce800a6552735af36f1e1"
+    }
+  ],
+  "rust_composed": {
+    "unique_unit_integration": 515,
+    "compilefail_docs": 7,
+    "raw_passed": 524,
+    "nested_duplicate_executions": 2,
+    "failed": 0,
+    "ignored": 0,
+    "results": [
+      {
+        "name": "tests",
+        "command": [
+          "cargo",
+          "test",
+          "--workspace",
+          "--locked",
+          "--offline"
+        ],
+        "exit_code": 0,
+        "seconds": 317.93,
+        "log": "/workspace/.onboarding/data-runtime-integration-rust/tests.log",
+        "sha256": "675192dd73b2fdf025a68fc48f50160cf39b74445c7ebd88acd8fcb731ed022e"
+      },
+      {
+        "name": "clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "--workspace",
+          "--all-targets",
+          "--locked",
+          "--offline",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "seconds": 9.2,
+        "log": "/workspace/.onboarding/data-runtime-integration-rust/clippy.log",
+        "sha256": "8aea5bede588eea587774cbe63db374b0ca4b14f4067db570c46a75ffeb17351"
+      },
+      {
+        "name": "fmt",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 0.51,
+        "log": "/workspace/.onboarding/data-runtime-integration-rust/fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "build",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--offline",
+          "--bin",
+          "batond",
+          "--bin",
+          "baton"
+        ],
+        "exit_code": 0,
+        "seconds": 0.41,
+        "log": "/workspace/.onboarding/data-runtime-integration-rust/build.log",
+        "sha256": "b49f73187761510ffcefb00533eb62fa33a27f6b8175f226e927c21ecb93cf12"
+      }
+    ]
+  },
+  "native_independent_manifest_sha256": "b6e885947ae8babaac21c37a47907f01c2cb88d79a1e7745a0841d76645f0c23",
+  "native_old_tmp_absence": "7 author raw entries and original independent tmp manifest absent; fresh persistent run separate",
+  "data_browser_reports": {
+    "c82bc-old-ca35-run1": "3e181c37739832cfd6a44e914ce15ac3ab6fb5fcb01e925dd7cc76e0d3ca50f0",
+    "c82bc-new-274-run1": "965f96969e0e7cb109bbc66c3bd3981d169f1970eae3f5450609a3617e4f87fb",
+    "root-independent-c82-274-run1": "b0fbacdf00d7d1fe2c1722a773472a91b81dc61488ca0303bb658f90a4b010de"
+  },
+  "data_browser_scope": "real8323/current367UI; both new8/6, cancel before-destination worker_joined; no partial-write browser, nojoin-unknown or Ready-race proof",
+  "full130": "incomplete; continue approved work",
+  "platform": "37bd both Mac fail longpath fixture before product call; Native/packages not reached; next narrow fixture review pending",
+  "frozen_combined_binaries": {
+    "manifest": "/workspace/.onboarding/data-runtime-integration-binaries/manifest.json",
+    "manifest_sha256": "45a0f2220346076734dea26023a2b6e343ce4c05b3bab800c0315aa998c01b46",
+    "daemon": "191daa527ef60a68c2e745ec07b87c0160b03ad7beb74fd7efa7cd5741577554",
+    "cli": "705e02fa51167906ef50c7db2d333e6ebdd30123e543fb25d42c578503cc6c1f"
+  },
+  "composed_actual_browser": {
+    "results": [
+      {
+        "name": "quiet",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "/workspace/.worktrees/data-runtime-integration/apps/desktop/tests/quiet-canvas-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/data-runtime-integration-binaries/batond",
+          "--output",
+          "/workspace/.onboarding/data-runtime-integration-browser/quiet",
+          "--chromium",
+          "/usr/bin/chromium"
+        ],
+        "exit_code": 0,
+        "seconds": 7.79,
+        "log_sha256": "515da886070eec3996b18f6d6629e777e0adf20761bf350a1f5d0c2f22cdc957"
+      },
+      {
+        "name": "command",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "/workspace/.worktrees/data-runtime-integration/apps/desktop/tests/command-validation-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/data-runtime-integration-binaries/batond",
+          "--output",
+          "/workspace/.onboarding/data-runtime-integration-browser/command",
+          "--chromium",
+          "/usr/bin/chromium"
+        ],
+        "exit_code": 0,
+        "seconds": 6.33,
+        "log_sha256": "f03998c5b8452d8ff93c34d82e8fdb9a0e430e378001862cf398032e86225515"
+      },
+      {
+        "name": "goal-default",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "/workspace/.worktrees/data-runtime-integration/apps/desktop/tests/goal-planning-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/data-runtime-integration-binaries/batond",
+          "--output",
+          "/workspace/.onboarding/data-runtime-integration-browser/goal-default",
+          "--chromium",
+          "/usr/bin/chromium"
+        ],
+        "exit_code": 0,
+        "seconds": 5.21,
+        "log_sha256": "944f33e06c94376864373b4606eae33fa34e63ff3b474ec2e8aacea98101d32d",
+        "report_sha256": "4622f792847aca2dfa7396fdb1ae55afe6c80f1506a685981d1c022324835a6b",
+        "checks": 9,
+        "images": 6
+      },
+      {
+        "name": "goal-editor",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "/workspace/.worktrees/data-runtime-integration/apps/desktop/tests/goal-planning-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/data-runtime-integration-binaries/batond",
+          "--output",
+          "/workspace/.onboarding/data-runtime-integration-browser/goal-editor",
+          "--chromium",
+          "/usr/bin/chromium",
+          "--structured-editor"
+        ],
+        "exit_code": 0,
+        "seconds": 6.42,
+        "log_sha256": "83be051b84ea0cefb14e3c5696f73a6a8edd39cfaece86ea8e43db090ae8eba2",
+        "report_sha256": "43b308c505310a56016c6289c1fac4aad1185a46485ef7a2ba0de63a9c71ac88",
+        "checks": 10,
+        "images": 9
+      },
+      {
+        "name": "data",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "/workspace/.worktrees/data-runtime-integration/apps/desktop/tests/data-workspace-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/data-runtime-integration-binaries/batond",
+          "--output",
+          "/workspace/.onboarding/data-runtime-integration-browser/data",
+          "--chromium",
+          "/usr/bin/chromium",
+          "--frontend",
+          "/workspace/.worktrees/data-runtime-integration/apps/desktop/dist"
+        ],
+        "exit_code": 0,
+        "seconds": 10.38,
+        "log_sha256": "a310af761e02f2c14785aa516de14c08d86f9fd223f1c5e6f609256208de1a59",
+        "report_sha256": "ddfebfedcd123e741584099f8fdf89068d636ef7421dee9255d20c5665e3d51c",
+        "checks": 8,
+        "images": 6
+      }
+    ],
+    "verified_report_files": {
+      "quiet": {
+        "report_file": "/workspace/.onboarding/data-runtime-integration-browser/quiet/evidence.json",
+        "report_sha256": "65ca76a83609b0f8cfea19f38ef6c813df263ab045cb504ddf6e72cb5ce7be0f",
+        "checks": 38,
+        "images": 24,
+        "daemon_sha256": "191daa527ef60a68c2e745ec07b87c0160b03ad7beb74fd7efa7cd5741577554"
+      },
+      "command": {
+        "report_file": "/workspace/.onboarding/data-runtime-integration-browser/command/evidence.json",
+        "report_sha256": "f6caf06242b31df4b773c06d245edb1c7986bb6333e8cbedeba18e92373e01cb",
+        "checks": 5,
+        "images": 2,
+        "daemon_sha256": "191daa527ef60a68c2e745ec07b87c0160b03ad7beb74fd7efa7cd5741577554"
+      },
+      "goal-default": {
+        "report_file": "/workspace/.onboarding/data-runtime-integration-browser/goal-default/report.json",
+        "report_sha256": "4622f792847aca2dfa7396fdb1ae55afe6c80f1506a685981d1c022324835a6b",
+        "checks": 9,
+        "images": 6,
+        "daemon_sha256": "191daa527ef60a68c2e745ec07b87c0160b03ad7beb74fd7efa7cd5741577554"
+      },
+      "goal-editor": {
+        "report_file": "/workspace/.onboarding/data-runtime-integration-browser/goal-editor/report.json",
+        "report_sha256": "43b308c505310a56016c6289c1fac4aad1185a46485ef7a2ba0de63a9c71ac88",
+        "checks": 10,
+        "images": 9,
+        "daemon_sha256": "191daa527ef60a68c2e745ec07b87c0160b03ad7beb74fd7efa7cd5741577554"
+      },
+      "data": {
+        "report_file": "/workspace/.onboarding/data-runtime-integration-browser/data/report.json",
+        "report_sha256": "ddfebfedcd123e741584099f8fdf89068d636ef7421dee9255d20c5665e3d51c",
+        "checks": 8,
+        "images": 6,
+        "daemon_sha256": "191daa527ef60a68c2e745ec07b87c0160b03ad7beb74fd7efa7cd5741577554"
+      }
+    },
+    "scope": "freshRoot daemon191daa; quiet38/24 command5/2 Goal9/6 editor10/9 Data8/6; no native OSdialog/Mac/liveProvider equivalence",
+    "copy_cancel": {
+      "requested_through_ui": true,
+      "retained_destination_exists": false,
+      "cancellation_specific_receipt_observed": true,
+      "cancellation_stage": "before_destination_reservation",
+      "in_copy_cancellation_observation": false,
+      "retained_selected_files": [],
+      "selected_output_progress_observed": false,
+      "partial_selected_output_observed": false,
+      "partial_copy_stop_not_established": true,
+      "no_join_unknown_case_exercised": false,
+      "ready_race_exercised": false,
+      "not_a_stop_claim": false
+    }
+  },
+  "additional_checks": [
+    {
+      "name": "cli-restart",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-c",
+        "import runpy,pathlib;d=runpy.run_path('scripts/smoke-local-product.py');d['main'].__globals__['BINARIES']=pathlib.Path('/workspace/.onboarding/data-runtime-integration-binaries');d['main']()"
+      ],
+      "exit_code": 0,
+      "log": "/workspace/.onboarding/data-runtime-integration/cli-restart.log",
+      "sha256": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805"
+    },
+    {
+      "name": "native-runner-contracts",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "apps/desktop/src-tauri/tests/test_native_runner.py"
+      ],
+      "exit_code": 0,
+      "log": "/workspace/.onboarding/data-runtime-integration/native-runner-contracts.log",
+      "sha256": "a334f7b07c367030b32432935c6bb11e77b1a7a2116d1ec138e7c5abc58a046b"
+    }
+  ],
+  "sidebar_followup": {
+    "source": "25e9fbeda9fab2043f5b167fea86fc7e48d5a8d3",
+    "independent": "docs/execution/sidebar-project-overflow/INDEPENDENT_VERIFICATION.json",
+    "build_log_sha256": "8f47f3a08d29437cc9cce5bedbea216ebfdbc654b41f60255cdf3c0a76c6a7c0",
+    "asset_hashes": {
+      "index.html": "efbfa79fc6a993a17916385de0496dcdb60481b119072842bd8286ddf7a5b80f",
+      "assets/index-iZLr2xM7.css": "b17d03948d859e1957a3be00830e0e592f53c5c5550dfe8e68ad89e9e47f8ea9",
+      "assets/index-Dhlya2zb.js": "b9b2307b9d40b5e8a34a142a4565148e7c832cbf3e3c4093931e866782232ae0"
+    },
+    "scope": "oneCSSdeclaration; Rootactual39/28 newassetset; Rust/source and UI JS unchanged; fresh exactMacCI pending"
+  },
+  "dependency_boundary": {
+    "goal_head": "bf67629f7911531fec52ec31e59c9508f814f9fd",
+    "goal_pr": 13,
+    "product_run": 40652731429,
+    "environment_run": 40652731215,
+    "actual_environment": "3success; Productpending, no merge",
+    "data_pr": 14,
+    "data_base": "codex/goal-planning-integration",
+    "data_remote_at_update": "822c3bb46c8ec8ba506e7682b07e2a1384ed0674",
+    "new_local_code": "0197b01 (plus current proof docs), no new Core/UI runtime source beyond reviewedCSS25e9",
+    "composed_workflow": "exact Goalbf workflow plus one reviewed fixedData command, byte-inverse verified",
+    "infrastructure_checks": {
+      "Python": 34,
+      "Node": 4,
+      "static_infra": "passed",
+      "design": "passed",
+      "Bootstrap": 93
+    },
+    "infrastructure_log_sha256": {
+      "node-final.log": "0d41e537f99fda86e0d3738a880ab44ad8166b6b91047969f46b9a608a754f33",
+      "infrastructure-tests-final.log": "31060265fa655280bab0c749fef9c7fefaec04a0e07f871cdb66e03f4d7ebf7d",
+      "static-infrastructure-final.log": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "design-final.log": "a373e2073eff8ff94ea8e5aced4392a64577d2d8582aaafaf167aaca5cf614e4"
+    }
+  },
+  "main_after_goal_merge": {
+    "main": "18f4261da9285bec5446101d47786839b1020d9c",
+    "goal_source": "e384ccaa2d05aa403327867c0d6c5b50baf437e0",
+    "all7": "success",
+    "new_native_package_pair": "independent PASS, packages linked in goal-integration/DEVELOPMENT_DELIVERY_E384.md",
+    "owner_inbox": "001/002 rereadACK no003",
+    "artifact_fixture_after_data_merge": [
+      {
+        "name": "command-tests",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-workspaces",
+          "--test",
+          "command_validation",
+          "--",
+          "--show-output"
+        ],
+        "exit_code": 0,
+        "seconds": 11.31,
+        "log": "/workspace/.onboarding/data-runtime-integration/artifact-fixture-after-merge/command-tests.log",
+        "sha256": "49c3853c81f9358101a4aa50dfb94d5d4c9c3a02bee1cfcf6fb6a7c1977f379b"
+      },
+      {
+        "name": "clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-workspaces",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "seconds": 2.09,
+        "log": "/workspace/.onboarding/data-runtime-integration/artifact-fixture-after-merge/clippy.log",
+        "sha256": "46247db17ec70b4ce8937d46487d022a1cb125f875e8ab4589206faefd2dcc3e"
+      },
+      {
+        "name": "fmt",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 0.6,
+        "log": "/workspace/.onboarding/data-runtime-integration/artifact-fixture-after-merge/fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "data_ci": "not yet triggered; PR14 becoming ready/main then final normalpush",
+    "scope": "DataCore10/c82; currentGoalCore11/UI445 are separate followups"
+  },
+  "latest_ci": {
+    "failure": "CI_DE150_FAILURE.json",
+    "review": "NATIVE_DE150_REVIEW.md",
+    "verification": "CI_DE150_VERIFICATION.json",
+    "linux_data_ui": "LINUX_DATA_UI_DE150.json",
+    "observer_source": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
+    "observer_sha256": "17178a8c943fa0c5225bb4fd543a8ef50281808458da031b59fe5ea5c54043dd",
+    "observer_independent": "../data-preview-observation/INDEPENDENT_VERIFICATION.json",
+    "root_rehash": [
+      {
+        "directory": "/workspace/.onboarding/data-native-de150",
+        "files": 89,
+        "manifest_sha256": "d8a6065dedd0131ab4d001c142909b6c2b51e778fbade2d0a22de5d3764e6770"
+      },
+      {
+        "directory": "/workspace/.onboarding/data-preview-observation-review",
+        "files": 6,
+        "manifest_sha256": "3197e4f06d5ea400c0208a95700d9932962ee9d416211b30047c6e7a655eeb66"
+      }
+    ],
+    "new_exact_checks": "not yet triggered; normal push after records and integrity checks",
+    "fresh_mac_native_and_packages": "not run for corrected candidate"
+  },
+  "latest_ci_37bd": {
+    "head": "37bd032f0e1b2dfa75fc9ff768e85801f1693a99",
+    "checkout": "e79a267584d1dcbb4f329b1e3044e5c66eb9a6bb",
+    "product_run": 40669158389,
+    "environment_run": 40669158380,
+    "final": "5success/2Macfailure; do not merge",
+    "core_data21": "both Mac passed; 0db actual positive evidence, not full job success",
+    "timings_ms": {
+      "arm": {
+        "start": 54,
+        "parallel_snapshot": 27,
+        "parallel_get": 28,
+        "preview_verified": 3748,
+        "copy_cancel_worker_joined": 2104
+      },
+      "intel": {
+        "start": 41,
+        "parallel_snapshot": 17,
+        "parallel_get": 17,
+        "preview_verified": 4869,
+        "copy_cancel_worker_joined": 2352
+      }
+    },
+    "new_failure": {
+      "test": "full_internal_target_path_budget_is_rejected_before_reserving_any_directory",
+      "file": "crates/workspaces/tests/data_workspace.rs",
+      "line": 36,
+      "operation": "Fixture.put fs::create_dir_all(parent).unwrap()",
+      "error": "macOS Os63 InvalidFilename File name too long",
+      "stage": "fixture setup; product create_data_workspace path guard not reached",
+      "suite": "23pass/1fail both Mac",
+      "not_inferred": "No product copy failure or exact OS path-length limit inferred from this log alone"
+    },
+    "not_reached": [
+      "Native22lib+12harness",
+      "actualWebView/newsidebarPNG",
+      "defaultreleaseaudit",
+      "developmentDMGpair"
+    ],
+    "evidence_manifest_sha256": "e12de7d4c1286f99d5287edd1389a84a71312096273a84745047716cd2fb7057",
+    "root_rehashed_files": 107,
+    "root_verifier_note": "Initial local verifier assumed string entries, rejected dict entry before copying; corrected to documented sha256+bytes shape, all original records unchanged"
+  },
+  "path_fixture": {
+    "source": "893efe5aa1dd89844de6d4df00d90d736d2b5e8a",
+    "test_file_sha256": "f1aa9b30b601becab1a9b52e50c090a585f6becfbe4c5a80e1c963ed75b8d77b",
+    "independent_review": "../data-path-fixture/INDEPENDENT_REVIEW.md",
+    "manifest": "../data-path-fixture/INDEPENDENT_VERIFICATION.json",
+    "root_rehashed_files": 16,
+    "local_data_unique": 24,
+    "related_root_fd_unique": 1,
+    "new_mac": "not_run",
+    "scope": "test-only FD construction preserves complete4096 pre-effect refusal; no product limits changed"
+  }
+}

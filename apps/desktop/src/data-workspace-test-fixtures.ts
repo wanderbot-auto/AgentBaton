@@ -1,0 +1,16 @@
+// Test-only generated records. Not imported by application entrypoints.
+import type { Project } from './api';
+import type { DataCreation, DataPreview, DataSelection, DatasetSnapshot } from './data-workspace-api';
+let serial=0;
+export const copyFixture=<T,>(value:T):T=>JSON.parse(JSON.stringify(value)) as T;
+export function dataWorkspaceFixture(){
+  const suffix=++serial,date='2026-10-27T00:00:00Z';
+  const project:Project={id:`data-project-${suffix}`,name:'Explicit data',archived:false,revision:3,identity:{canonical_root:'/registered/source',device:1,inode:2,kind:{kind:'directory'}},created_at:date,updated_at:date};
+  const selection:DataSelection={project_id:project.id,files:[{artifact_id:'file-1',relative_path:'data.csv',max_bytes:8388608,expected_sha256:null}],limits:{max_file_bytes:8388608,max_total_bytes:33554432,max_files:16}};
+  const previewId=`preview-${suffix}`;
+  const snapshot:DatasetSnapshot={contract:{format_version:1,approval_reference:previewId,source:{canonical_root:project.identity.canonical_root,device:1,inode:2},files:copyFixture(selection.files),limits:copyFixture(selection.limits)},selection_digest:'a'.repeat(64),dataset_revision:'b'.repeat(64),files:[{requirement:copyFixture(selection.files[0]),source_identity:{device:1,inode:3,bytes:12,uid:1000,gid:1000,mode:33024,mtime:1700000000,mtime_nsec:0,ctime:1700000000,ctime_nsec:0},sha256:'c'.repeat(64),bytes:12,destination_relative_path:'inputs/data.csv'}],total_bytes:12,source_observation_scope:'selected_files_before_after_only',atomic_directory_freeze:false};
+  const preview:DataPreview={id:previewId,project_id:project.id,project_revision:project.revision,revision:2,selection,state:'verified',snapshot,error:null,created_at:date,updated_at:date};
+  const creation:DataCreation={id:`copy-${suffix}`,preview_id:preview.id,project_id:project.id,project_revision:project.revision,workspace_id:`workspace-${suffix}`,approval_id:`native-${suffix}`,revision:1,state:'creating',dataset_revision:snapshot.dataset_revision,managed_root:{canonical_root:'/host-managed',device:1,inode:4},destination:`/host-managed/data-${suffix}`,snapshot:copyFixture(snapshot),contract:null,observation:null,cancel_requested:false,error:null,created_at:date,updated_at:date,scope:'explicit_selected_dataset_copy_only',filesystem_sandbox:false,atomic_directory_freeze:false};
+  const ready:DataCreation={...copyFixture(creation),revision:2,state:'ready',observation:{creation_id:creation.id,destination:creation.destination,dataset_revision:creation.dataset_revision,selection_digest:snapshot.selection_digest,state:'ready',copied_files:1,error:null,source_observation_scope:'selected_files_before_after_only',atomic_directory_freeze:false,filesystem_sandbox:false},contract:{format_version:1,creation_id:creation.id,snapshot:copyFixture(snapshot),managed_root:copyFixture(creation.managed_root),destination:{canonical_root:creation.destination,device:1,inode:5},files:[{input:copyFixture(snapshot.files[0]),destination_identity:{device:1,inode:6,bytes:12,uid:1000,gid:1000,mode:33024,mtime:1700000000,mtime_nsec:0,ctime:1700000000,ctime_nsec:0}}],directories:[],contract_digest:'d'.repeat(64)}};
+  return {project,selection,snapshot,preview,creation,ready};
+}

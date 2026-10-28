@@ -26,6 +26,63 @@ pub struct ValidationSelection {
     pub analysis: Option<AnalysisReproducibility>,
 }
 
+pub(crate) enum ArtifactValidationPlan {
+    Replay(Box<ValidationRecord>),
+    Check(Box<PreparedArtifactValidation>),
+}
+pub(crate) struct PreparedArtifactValidation {
+    pub(crate) policy: ValidationPolicy,
+    rule: ApprovedRule,
+    inputs: Vec<BoundArtifact>,
+    outputs: Vec<BoundArtifact>,
+    payload: String,
+    idempotency_key: String,
+    expected_revision: u64,
+    data_root: bool,
+}
+pub(crate) struct CheckedArtifactValidation {
+    prepared: PreparedArtifactValidation,
+    evidence: agentbaton_workspaces::validation::ValidationEvidence,
+    view: ValidationView,
+    pins: Option<crate::data_workspaces::DataArtifactPins>,
+}
+impl PreparedArtifactValidation {
+    pub(crate) fn execute(mut self) -> Result<CheckedArtifactValidation> {
+        let evidence = validate_artifacts(
+            &self.rule,
+            std::mem::take(&mut self.inputs),
+            std::mem::take(&mut self.outputs),
+            self.policy.contract.analysis.clone(),
+        )
+        .map_err(validation_error)?;
+        let contracts: Vec<_> = self
+            .policy
+            .contract
+            .inputs
+            .iter()
+            .chain(&self.policy.contract.outputs)
+            .cloned()
+            .collect();
+        let pins = if self.data_root {
+            Some(crate::data_workspaces::DataArtifactPins::capture(
+                &contracts,
+            )?)
+        } else {
+            None
+        };
+        if pins.is_some() {
+            evidence.verify_current().map_err(validation_error)?;
+        }
+        let view = evidence.view();
+        Ok(CheckedArtifactValidation {
+            prepared: self,
+            evidence,
+            view,
+            pins,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -241,6 +298,24 @@ mod tests {
                 .unwrap(),
         )
         .unwrap()
+    }
+    #[test]
+    fn existing_git_artifact_contract_allows_deep_regular_paths_without_data_selection_depth_rules()
+    {
+        let mut f = fixture(true);
+        let relative = std::iter::repeat_n("d", 18).collect::<Vec<_>>().join("/") + "/report.txt";
+        let full = f.workspace.root.join(&relative);
+        fs::create_dir_all(full.parent().unwrap()).unwrap();
+        fs::write(&full, b"generated output").unwrap();
+        f.selection.outputs[0].relative_path = relative.into();
+        let policy = approve(&mut f);
+        let result = f.store.run_artifact_validation(
+            &policy.id,
+            policy.revision,
+            "deep-legacy-git-contract",
+        );
+        assert!(result.is_ok(),"The existing Git artifact API does not impose the new data-source 16/internal17 component limit: {result:?}");
+        assert_eq!(result.unwrap().state, "integrity_passed");
     }
     #[test]
     fn integrity_receipt_is_durable_idempotent_and_never_claims_task_acceptance() {
@@ -799,9 +874,14 @@ impl Store {
             ));
         }
         let identity = workspace.identity.as_ref().ok_or_else(invalid)?;
-        if !crate::policy::live_workspace_matches(&workspace.root, identity).map_err(|_| {
-            validation_error(agentbaton_workspaces::validation::ValidationError::StaleEvidence)
-        })? {
+        if matches!(
+            identity.kind,
+            agentbaton_workspaces::WorkspaceKind::Directory
+        ) {
+            self.require_data_input(&workspace)?;
+        } else if !crate::policy::live_workspace_matches(&workspace.root, identity).map_err(
+            |_| validation_error(agentbaton_workspaces::validation::ValidationError::StaleEvidence),
+        )? {
             return Err(CoreError::new(
                 "INPUT_CHANGED",
                 "Registered workspace identity changed",
@@ -891,6 +971,12 @@ impl Store {
         selection: &ValidationSelection,
         idempotency_key: &str,
     ) -> Result<ApprovalProposal> {
+        if let Some(old) =
+            self.data_proposal_replay("validation", &json!(selection), idempotency_key)?
+        {
+            return Ok(old);
+        }
+
         let (contract, refs) = self.resolve_validation_selection(selection)?;
         self.persist_proposal("validation", json!({"intent":selection,"refs":refs,"contract":contract,"contract_digest":contract.digest(),"scope":"artifact_integrity_only","warning":"Approves local file existence/hash/reproducibility metadata checks only. Does not execute tests, establish code correctness, accept a task, authorize integration or production release. No file contents are sent to a Provider."}), idempotency_key)
     }
@@ -989,17 +1075,37 @@ impl Store {
         expected_revision: u64,
         idempotency_key: &str,
     ) -> Result<ValidationRecord> {
+        match self.prepare_artifact_validation(policy_id, expected_revision, idempotency_key)? {
+            ArtifactValidationPlan::Replay(record) => Ok(*record),
+            ArtifactValidationPlan::Check(prepared) => {
+                let checked = prepared.execute()?;
+                self.finish_artifact_validation(checked)
+            }
+        }
+    }
+    pub(crate) fn prepare_artifact_validation(
+        &self,
+        policy_id: &str,
+        expected_revision: u64,
+        idempotency_key: &str,
+    ) -> Result<ArtifactValidationPlan> {
         key(idempotency_key)?;
         let payload = encode(&json!({"policy_id":policy_id,"revision":expected_revision}))?;
-        let old: Option<(String,String)> = self.conn.query_row("SELECT payload,document FROM validation_runs WHERE policy_id=?1 AND idempotency_key=?2",params![policy_id,idempotency_key],|row|Ok((row.get(0)?,row.get(1)?))).optional().map_err(db_error)?;
+        let old: Option<(Option<String>,Option<String>)> = self.conn.query_row("SELECT CASE WHEN octet_length(payload)<=4194304 AND octet_length(document)<=4194304 THEN payload END, CASE WHEN octet_length(payload)<=4194304 AND octet_length(document)<=4194304 THEN document END FROM validation_runs WHERE policy_id=?1 AND idempotency_key=?2",params![policy_id,idempotency_key],|row|Ok((row.get(0)?,row.get(1)?))).optional().map_err(db_error)?;
         if let Some((original, record)) = old {
+            let (original, record) = original.zip(record).ok_or_else(|| {
+                CoreError::new(
+                    "RESOURCE_LIMIT",
+                    "Persisted validation receipt exceeds its raw budget",
+                )
+            })?;
             if original != payload {
                 return Err(CoreError::new(
                     "CONFIG_CONFLICT",
                     "Validation key was already used with another request",
                 ));
             }
-            return decode(&record);
+            return Ok(ArtifactValidationPlan::Replay(Box::new(decode(&record)?)));
         }
         let policy = self.get_validation_policy(policy_id)?;
         if policy.revoked {
@@ -1055,10 +1161,61 @@ impl Store {
                 "Persisted validation contract is inconsistent",
             ));
         }
-        let result = validate_artifacts(&rule, inputs, outputs, policy.contract.analysis.clone())
-            .map_err(validation_error)?;
-        result.verify_current().map_err(validation_error)?;
-        let view = result.view();
+        Ok(ArtifactValidationPlan::Check(Box::new(
+            PreparedArtifactValidation {
+                data_root: matches!(
+                    workspace.identity.as_ref().map(|i| &i.kind),
+                    Some(agentbaton_workspaces::WorkspaceKind::Directory)
+                ),
+                policy,
+                rule,
+                inputs,
+                outputs,
+                payload,
+                idempotency_key: idempotency_key.into(),
+                expected_revision,
+            },
+        )))
+    }
+    pub(crate) fn finish_artifact_validation(
+        &mut self,
+        checked: CheckedArtifactValidation,
+    ) -> Result<ValidationRecord> {
+        let CheckedArtifactValidation {
+            prepared,
+            evidence,
+            view,
+            pins,
+        } = checked;
+        let PreparedArtifactValidation {
+            policy,
+            payload,
+            idempotency_key,
+            expected_revision,
+            ..
+        } = prepared;
+        match self.prepare_artifact_validation(&policy.id, expected_revision, &idempotency_key)? {
+            ArtifactValidationPlan::Replay(record) => return Ok(*record),
+            ArtifactValidationPlan::Check(current) => {
+                if encode(&current.policy)? != encode(&policy)? {
+                    return Err(CoreError::new(
+                        "INPUT_CHANGED",
+                        "Validation approval or subject changed during the file observations",
+                    ));
+                }
+            }
+        }
+        if evidence.view().digest != view.digest {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Validation receipt binding changed",
+            ));
+        }
+        if let Some(pins) = pins {
+            pins.verify(view.passed)?;
+        } else {
+            evidence.verify_current().map_err(validation_error)?;
+        }
         let record = ValidationRecord {
             id: Uuid::new_v4().to_string(),
             policy_id: policy.id.clone(),

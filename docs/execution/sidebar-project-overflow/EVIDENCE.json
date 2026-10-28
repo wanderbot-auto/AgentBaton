@@ -1,0 +1,469 @@
+{
+  "approval": "AB-START-001",
+  "baseline": "822c3bb46c8ec8ba506e7682b07e2a1384ed0674",
+  "source_commit": "25e9fbeda9fab2043f5b167fea86fc7e48d5a8d3",
+  "branch": "codex/sidebar-project-overflow",
+  "requirements": [
+    "OWNER-002",
+    "AB-UX-001 (WP11)",
+    "AB-UX-006 (WP11)"
+  ],
+  "only_product_change": ".sidebar-projects adds grid-template-columns:minmax(0,1fr); all other CSS bytes equal baseline. No overflow-x masking, no App/markup/API/contract change.",
+  "css_sha256": "d1504ff61459f8d865e3d89abde17b6fd14c6b16855fa3bb1bc38b2e25252963",
+  "baseline_css_sha256": "425ecf4f1d9849bd873ea7e9daa7c2efc169a76179bc4cbdf41828a9dc819d2e",
+  "origin_native_observation": {
+    "path": "/workspace/.onboarding/goal-native-a2c5/resumed-independent/intel-native-verified/native-screen.png",
+    "sha256": "19beeac91f91b03be0857669943ffb7cdffc8247e5665725f794f1a4fa5a0d70",
+    "limit": "Original actual Intel screenshot inspected for visual defect only; no new macOS execution by this author"
+  },
+  "cause": "Sidebar projects implicit auto grid column minimum uses the button min-content contribution. Existing span min-width:0/overflow:hidden/ellipsis never shrank because its grid track expanded to235.078px beyond207px container. Explicit zero-minimum flexible track permits normal button/text shrink within the existing sidebar.",
+  "commands": [
+    {
+      "command": "npm run build --prefix apps/desktop",
+      "old_and_new": "both actual exit0; logs old-build.log/new-build.log"
+    },
+    {
+      "command": "SIDEBAR_FRONTEND=/workspace/.worktrees/sidebar-project-overflow/apps/desktop/dist /workspace/AgentBaton/artifacts/browser-venv/bin/python /workspace/.onboarding/sidebar-project-overflow/quiet-long-project.py --batond /workspace/.onboarding/data-runtime-integration-binaries/batond --chromium /usr/bin/chromium --output <exclusive old-822-run2 or new-grid-run1>",
+      "dimension": "actual built React + generated project imported by real Unix Core + bounded existing HTTP test adapter + Linux Chromium; not mock/native macOS"
+    }
+  ],
+  "daemon_sha256": "191daa527ef60a68c2e745ec07b87c0160b03ad7beb74fd7efa7cd5741577554",
+  "unchanged_original_quiet_harness_sha256": "d6a3f683e7ffcd354fb21c200488c25e228ebbf5a7ef290bef56c952e7598ebd",
+  "derived_external_verifier": {
+    "path": "/workspace/.onboarding/sidebar-project-overflow/quiet-long-project.py",
+    "sha256": "02140a19ac0a0334eba05f81cc6635ed2ecaca18f63d02235397c9df97f99bc6",
+    "changes": "explicit frontend env selector; exclusive output; fixture legal name Native readonly Goal project; original checks retained and actual appended layout/accessibility/click measurements",
+    "original_check_count": 38,
+    "new_check_count": 39
+  },
+  "old_actual_failure": {
+    "exit_code": 1,
+    "checks_before_failure": 38,
+    "report_sha256": "6c41b068022904b77244c3480f8a2b6300f8bddf58bc69c702cbc0b446f77612",
+    "metrics": [
+      {
+        "viewport": 1488,
+        "sidebar": {
+          "left": 0,
+          "right": 232,
+          "width": 232,
+          "clientWidth": 231,
+          "scrollWidth": 247,
+          "minWidth": "auto"
+        },
+        "projects": {
+          "left": 0,
+          "right": 207,
+          "width": 207,
+          "clientWidth": 207,
+          "scrollWidth": 235,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 0,
+          "right": 235.078125,
+          "width": 235.078125,
+          "clientWidth": 233,
+          "scrollWidth": 233,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 232,
+          "right": 1488,
+          "width": 1256,
+          "clientWidth": 1256,
+          "scrollWidth": 1256,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 39,
+          "right": 224.078125,
+          "width": 185.078125,
+          "clientWidth": 185,
+          "scrollWidth": 185,
+          "minWidth": "0px",
+          "display": "block",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "235.078px"
+      },
+      {
+        "viewport": 1180,
+        "sidebar": {
+          "left": 0,
+          "right": 232,
+          "width": 232,
+          "clientWidth": 231,
+          "scrollWidth": 247,
+          "minWidth": "auto"
+        },
+        "projects": {
+          "left": 0,
+          "right": 207,
+          "width": 207,
+          "clientWidth": 207,
+          "scrollWidth": 235,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 0,
+          "right": 235.078125,
+          "width": 235.078125,
+          "clientWidth": 233,
+          "scrollWidth": 233,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 232,
+          "right": 1180,
+          "width": 948,
+          "clientWidth": 948,
+          "scrollWidth": 948,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 39,
+          "right": 224.078125,
+          "width": 185.078125,
+          "clientWidth": 185,
+          "scrollWidth": 185,
+          "minWidth": "0px",
+          "display": "block",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "235.078px"
+      },
+      {
+        "viewport": 1024,
+        "sidebar": {
+          "left": 0,
+          "right": 64,
+          "width": 64,
+          "clientWidth": 63,
+          "scrollWidth": 63,
+          "minWidth": "auto"
+        },
+        "projects": {
+          "left": 8,
+          "right": 55,
+          "width": 47,
+          "clientWidth": 47,
+          "scrollWidth": 47,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 8,
+          "right": 55,
+          "width": 47,
+          "clientWidth": 45,
+          "scrollWidth": 45,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 64,
+          "right": 1024,
+          "width": 960,
+          "clientWidth": 960,
+          "scrollWidth": 960,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 0,
+          "right": 0,
+          "width": 0,
+          "clientWidth": 0,
+          "scrollWidth": 0,
+          "minWidth": "0px",
+          "display": "none",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "47px"
+      },
+      {
+        "viewport": 390,
+        "sidebar": {
+          "left": 0,
+          "right": 232,
+          "width": 232,
+          "clientWidth": 231,
+          "scrollWidth": 247,
+          "minWidth": "0px"
+        },
+        "projects": {
+          "left": 0,
+          "right": 207,
+          "width": 207,
+          "clientWidth": 207,
+          "scrollWidth": 235,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 0,
+          "right": 235.078125,
+          "width": 235.078125,
+          "clientWidth": 233,
+          "scrollWidth": 233,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 0,
+          "right": 390,
+          "width": 390,
+          "clientWidth": 390,
+          "scrollWidth": 390,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 39,
+          "right": 224.078125,
+          "width": 185.078125,
+          "clientWidth": 185,
+          "scrollWidth": 185,
+          "minWidth": "0px",
+          "display": "block",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "235.078px"
+      }
+    ],
+    "assertion": "sidebar.scrollWidth <= sidebar.clientWidth failed; unchanged original38 passed first"
+  },
+  "new_actual_pass": {
+    "exit_code": 0,
+    "checks": 39,
+    "screenshots": 28,
+    "report_sha256": "1cf171f4fe53de88d6d2b3b7e45cbf4586f7a8e30517de85d19f1eb4796712fc",
+    "metrics": [
+      {
+        "viewport": 1488,
+        "sidebar": {
+          "left": 0,
+          "right": 232,
+          "width": 232,
+          "clientWidth": 231,
+          "scrollWidth": 231,
+          "minWidth": "auto"
+        },
+        "projects": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 207,
+          "scrollWidth": 207,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 205,
+          "scrollWidth": 205,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 232,
+          "right": 1488,
+          "width": 1256,
+          "clientWidth": 1256,
+          "scrollWidth": 1256,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 51,
+          "right": 208,
+          "width": 157,
+          "clientWidth": 157,
+          "scrollWidth": 185,
+          "minWidth": "0px",
+          "display": "block",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "207px"
+      },
+      {
+        "viewport": 1180,
+        "sidebar": {
+          "left": 0,
+          "right": 232,
+          "width": 232,
+          "clientWidth": 231,
+          "scrollWidth": 231,
+          "minWidth": "auto"
+        },
+        "projects": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 207,
+          "scrollWidth": 207,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 205,
+          "scrollWidth": 205,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 232,
+          "right": 1180,
+          "width": 948,
+          "clientWidth": 948,
+          "scrollWidth": 948,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 51,
+          "right": 208,
+          "width": 157,
+          "clientWidth": 157,
+          "scrollWidth": 185,
+          "minWidth": "0px",
+          "display": "block",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "207px"
+      },
+      {
+        "viewport": 1024,
+        "sidebar": {
+          "left": 0,
+          "right": 64,
+          "width": 64,
+          "clientWidth": 63,
+          "scrollWidth": 63,
+          "minWidth": "auto"
+        },
+        "projects": {
+          "left": 8,
+          "right": 55,
+          "width": 47,
+          "clientWidth": 47,
+          "scrollWidth": 47,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 8,
+          "right": 55,
+          "width": 47,
+          "clientWidth": 45,
+          "scrollWidth": 45,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 64,
+          "right": 1024,
+          "width": 960,
+          "clientWidth": 960,
+          "scrollWidth": 960,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 0,
+          "right": 0,
+          "width": 0,
+          "clientWidth": 0,
+          "scrollWidth": 0,
+          "minWidth": "0px",
+          "display": "none",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "47px"
+      },
+      {
+        "viewport": 390,
+        "sidebar": {
+          "left": 0,
+          "right": 232,
+          "width": 232,
+          "clientWidth": 231,
+          "scrollWidth": 231,
+          "minWidth": "0px"
+        },
+        "projects": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 207,
+          "scrollWidth": 207,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 205,
+          "scrollWidth": 205,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 0,
+          "right": 390,
+          "width": 390,
+          "clientWidth": 390,
+          "scrollWidth": 390,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 51,
+          "right": 208,
+          "width": 157,
+          "clientWidth": 157,
+          "scrollWidth": 185,
+          "minWidth": "0px",
+          "display": "block",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "207px"
+      }
+    ],
+    "frontend_assets_sha256": {
+      "index.html": "efbfa79fc6a993a17916385de0496dcdb60481b119072842bd8286ddf7a5b80f",
+      "assets/index-iZLr2xM7.css": "b17d03948d859e1957a3be00830e0e592f53c5c5550dfe8e68ad89e9e47f8ea9",
+      "assets/index-Dhlya2zb.js": "b9b2307b9d40b5e8a34a142a4565148e7c832cbf3e3c4093931e866782232ae0"
+    }
+  },
+  "accessibility_and_interactions": "Full project name stays in unchanged span/title. Exact accessible role/name found when visible at1488/1180/1024/390, real clicks toggle project selection false/true and select actual project id. Mobile navigation reopened after actual navigation closes it. Main width and document overflow unchanged; existing38 checks include keyboard dialog/search/focus and reduced motion.",
+  "visual_inspection": [
+    "Original actual Intel screenshot",
+    "old1180 long project",
+    "new1180 long project",
+    "new390 mobile nav",
+    "new1024 collapsed rail"
+  ],
+  "preserved_fixture_error": "First external verifier old-822-run1 completed original38 then used role locator after mobile navigation hid it, causing30s locator timeout. Original script/log/report retained. Only external verifier changed to stable title locator for post-click DOM attribute reads, with visible role/full-name assertion still required. Second old run then failed actual overflow as intended.",
+  "local_verification_manifest": "/workspace/.onboarding/sidebar-project-overflow/verification-manifest.json",
+  "local_verification_manifest_sha256": "d8e01ce9b5239216c8a816d208992024f32a397379ae3bf017b3e027c312ea9d",
+  "limits": [
+    "Linux Chromium and build only; new macOS native/WebView/dual architecture/OS scrollbar validation require fresh exact-head CI.",
+    "No CSS-mirroring unit test added; no new Cargo/target/dependency/Provider/model/account/credential/paid resource/production/signing action.",
+    "No primary STATUS/CI/lock/Native/Core/App/source harness/spec change.",
+    "Independent review still required; author does not mark accepted or merge."
+  ]
+}

@@ -1,0 +1,331 @@
+{
+  "subject_head": "e384ccaa2d05aa403327867c0d6c5b50baf437e0",
+  "actual_checkout": "b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+  "parents": [
+    "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+    "e384ccaa2d05aa403327867c0d6c5b50baf437e0"
+  ],
+  "equal_tree": "f1b484c1a928f381fd6ef12c34a0616f2f1c40c7",
+  "product_run": 40658084175,
+  "environment_run": 40658084279,
+  "verdict": "PASS for exact7/currentdualnative/visual/defaultreleaseaudit/developmentpackagepair; Rootfinalintegrationguardsremain",
+  "all7_required_results": [
+    {
+      "id": 122713941515,
+      "name": "Product / macos-15-intel",
+      "conclusion": "success"
+    },
+    {
+      "id": 122713941383,
+      "name": "Product / Rust",
+      "conclusion": "success"
+    },
+    {
+      "id": 122713941332,
+      "name": "Product / UI",
+      "conclusion": "success"
+    },
+    {
+      "id": 122713941148,
+      "name": "Product / macos-15",
+      "conclusion": "success"
+    },
+    {
+      "id": 122713940564,
+      "name": "Environment / ubuntu-24.04",
+      "conclusion": "success"
+    },
+    {
+      "id": 122713940559,
+      "name": "Environment / macos-15",
+      "conclusion": "success"
+    },
+    {
+      "id": 122713940243,
+      "name": "Environment / macos-15-intel",
+      "conclusion": "success"
+    }
+  ],
+  "native_pair_accepted": true,
+  "native_artifacts": [
+    {
+      "artifact_id": 12803596971,
+      "name": "native-webview-macos-15-b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+      "api_sha256": "sha256:6cc1ce7e3c13a9cd926786c774dd968e94997e3053c58efa09c6ba9638c41610",
+      "local_sha256": "6cc1ce7e3c13a9cd926786c774dd968e94997e3053c58efa09c6ba9638c41610",
+      "size": 162374,
+      "entries": 5,
+      "safe_zip_crc": "passed",
+      "commit": "b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+      "architecture": "aarch64",
+      "report_status": "passed",
+      "command_readonly_checks": 3,
+      "data_readonly_checks": 3,
+      "goal_strict_js_checks": 3,
+      "goal_readonly_database": {
+        "after": {
+          "attempt_count": 0,
+          "plan_count": 0,
+          "scope_count": 0,
+          "sequence": 3
+        },
+        "before": {
+          "attempt_count": 0,
+          "plan_count": 0,
+          "scope_count": 0,
+          "sequence": 3
+        },
+        "read_only": true,
+        "unchanged": true
+      },
+      "fixture_project_id": "c428b81e-9a2c-4569-87d3-45ff4b520f41",
+      "task_id": "f0aafe0a-df96-47ca-a930-28fa8d6ac9bd",
+      "lifecycle": "passed",
+      "native_dialog": "not_run_manual_acceptance_required",
+      "provider_models": "not_run_not_authorized",
+      "png": "/workspace/.onboarding/goal-native-e384/arm-native-verified/native-screen.png",
+      "png_dimensions": [
+        1136,
+        793
+      ],
+      "files": {
+        "native-smoke.json": "ac60a4079ba8d1b4c2bd503812e0332141c7b062ab057c233fba4bb3233cf772",
+        "native-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "native-screen.png": "384f47db24d967eda756c830cb7d67e3d54274899aed081b7670254436660918",
+        "lane.log": "959544e7b8413f26844e097413a5e52ed14eeb4d3c7838d51e9de218c2e3735b",
+        "native-runner.json": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+      }
+    },
+    {
+      "artifact_id": 12803134586,
+      "name": "native-webview-macos-15-intel-b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+      "api_sha256": "sha256:fc39b348cf8e495b94fc880c0de9c4d487d2be294c8749b079216b3e66fb9e4f",
+      "local_sha256": "fc39b348cf8e495b94fc880c0de9c4d487d2be294c8749b079216b3e66fb9e4f",
+      "size": 201459,
+      "entries": 5,
+      "safe_zip_crc": "passed",
+      "commit": "b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+      "architecture": "x86_64",
+      "report_status": "passed",
+      "command_readonly_checks": 3,
+      "data_readonly_checks": 3,
+      "goal_strict_js_checks": 3,
+      "goal_readonly_database": {
+        "after": {
+          "attempt_count": 0,
+          "plan_count": 0,
+          "scope_count": 0,
+          "sequence": 3
+        },
+        "before": {
+          "attempt_count": 0,
+          "plan_count": 0,
+          "scope_count": 0,
+          "sequence": 3
+        },
+        "read_only": true,
+        "unchanged": true
+      },
+      "fixture_project_id": "8aed9db4-899b-4a4a-b655-b6b1dd8478f0",
+      "task_id": "2bef59f1-dfa8-4a89-9009-f173e4c1db43",
+      "lifecycle": "passed",
+      "native_dialog": "not_run_manual_acceptance_required",
+      "provider_models": "not_run_not_authorized",
+      "png": "/workspace/.onboarding/goal-native-e384/intel-native-verified/native-screen.png",
+      "png_dimensions": [
+        1292,
+        912
+      ],
+      "files": {
+        "native-smoke.json": "9702b1bd82cd2500bb302ca411762192491e2f6b6422b3976daa4506574339ea",
+        "native-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "native-screen.png": "00852dc7d1c5b4fd0a149a94838ed2bd40f1e746ff993dc86ad00e9c664d521c",
+        "lane.log": "4e27ccd06d66186e76455287770733bd6d1f3b12684f9d3791e1fde2b3c7ad1d",
+        "native-runner.json": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+      }
+    }
+  ],
+  "native_visual": [
+    {
+      "artifact_id": 12803596971,
+      "png_sha256": "384f47db24d967eda756c830cb7d67e3d54274899aed081b7670254436660918",
+      "actual_checkout": "b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+      "method": "tools.view_image(detail original) and image(result.image_url, original), actualcontent viewed",
+      "visual_result": "PASS for actualcapturedtaskscreen",
+      "visible": [
+        "AgentBaton branding/sidebar/localdaemonstatus",
+        "原生 WebView→IPC persistent task title and Draft",
+        "Conversation Artifacts Details tabs",
+        "task message bubble",
+        "execution configuration button",
+        "message composer and registeredproject/connection selectors"
+      ],
+      "dimensions": [
+        1136,
+        793
+      ],
+      "limitations": "only capturedtask-screenvisual; noOwnerDialog/liveProvider/populatedGoal/dispatch acceptance",
+      "observed_utc": "2026-10-28T08:53:47.913456+00:00"
+    },
+    {
+      "artifact_id": 12803134586,
+      "png_sha256": "00852dc7d1c5b4fd0a149a94838ed2bd40f1e746ff993dc86ad00e9c664d521c",
+      "actual_checkout": "b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+      "method": "tools.view_image(detail original) + image(result.image_url, original); actualcontent viewed",
+      "visual_result": "PASS for actualcapturedtaskscreen",
+      "visible": [
+        "AgentBaton branding/sidebar/localdaemonstatus",
+        "原生 WebView→IPC persistent task and Draft",
+        "Conversation Artifacts Details",
+        "chat bubble and configureexecutionbutton",
+        "message composer and project/connection selectors"
+      ],
+      "dimensions": [
+        1292,
+        912
+      ],
+      "known_layout_limit": "long generatedprojectlabel causes sidebar horizontal scrollbar; preexisting/followupslice, not claimedfixed here",
+      "scope": "actualcapturedtask-screen only; no populatedGoal/OwnerDialog/realProvider acceptance",
+      "observed_utc": "2026-10-28T09:03:16.716246+00:00"
+    }
+  ],
+  "development_package_pair_accepted": true,
+  "development_packages": {
+    "run": 40658084175,
+    "head_sha": "e384ccaa2d05aa403327867c0d6c5b50baf437e0",
+    "checkout": "b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+    "artifacts": [
+      {
+        "id": 12804745792,
+        "name": "development-macos-15-intel-b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+        "zip_digest": "sha256:8ed495cfedb49f4ec98c5363dfa74c1cb0a3eacbcbf586bfe6a743db4d72608b",
+        "dmg": "AgentBaton-x86_64-b6756c3200feb09c3a9a04b3690ae5ee579bf913-development.dmg",
+        "dmg_sha256": "c21eb84d5afbce621a20228bad65aca4b3cd47628370130bfbd9079f85b792b8",
+        "checkout_commit": "b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+        "architecture": "x86_64",
+        "build_record": "commit=b6756c3200feb09c3a9a04b3690ae5ee579bf913\narchitecture=x86_64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.19.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\napps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app: code object is not signed at all\n",
+        "verified_path": "/workspace/.onboarding/goal-native-e384/development/12804745792/verified"
+      },
+      {
+        "id": 12802954121,
+        "name": "development-macos-15-b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+        "zip_digest": "sha256:9a49068c75fdf402045871519b483f66e95caa0a20cb411172b468bd3d785c54",
+        "dmg": "AgentBaton-arm64-b6756c3200feb09c3a9a04b3690ae5ee579bf913-development.dmg",
+        "dmg_sha256": "24ef220c070c2c82497df452db4eea810780cd27a09a77d20392a5ed76775287",
+        "checkout_commit": "b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+        "architecture": "arm64",
+        "build_record": "commit=b6756c3200feb09c3a9a04b3690ae5ee579bf913\narchitecture=arm64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: aarch64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.20.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\nExecutable=/Users/runner/work/AgentBaton/AgentBaton/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop\nIdentifier=agentbaton_desktop-49528096917a5b7e\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=102472 flags=0x20002(adhoc,linker-signed) hashes=3198+0 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=984320\nHash type=sha256 size=32\nCandidateCDHash sha256=5da4078288e820838eab24814df84b22144202a9\nCandidateCDHashFull sha256=5da4078288e820838eab24814df84b22144202a90c3a11373dbacccb561dcfdc\nHash choices=sha256\nCMSDigest=5da4078288e820838eab24814df84b22144202a90c3a11373dbacccb561dcfdc\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=8470528\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=5da4078288e820838eab24814df84b22144202a9\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements=none\n",
+        "verified_path": "/workspace/.onboarding/goal-native-e384/development/12802954121/verified"
+      }
+    ]
+  },
+  "signature_status": {
+    "x86_64": "unsigned: actualcodesign says code object is not signed at all",
+    "arm64": "ad hoc/linker-signed, TeamIdentifier unset, notDeveloperID/notarized"
+  },
+  "package_verification": "strictpreaudit paths/types/duplicates/bounds/CRC then Rootsuccess-onlyhelper; API/localZIPdigest/UDIF/SHA256SUMS/exactcheckoutarchbuildrecords/checklists passed. Root independentlyre-ran samehelper beforefreeze; no repeateddownload.",
+  "source_and_checkout": "source-and-checkout-verification.json exactAPI/Git objects/sourcehashes plusall5completedEnv/Rust/UIcheckoutlogs",
+  "default_release_audit": "actualdefaultapplicationexecutables onbothMac passed no nativeharnessidentifier check",
+  "artifact_contract_case": "bothactualMac finiteMissing/TooLarge Some0+ArtifactContractFailed/inbudget/reaped; originalinfinite30 remainsDeadlineExceeded/None/notinbudget/reaped; freshsource14a bytes",
+  "reviewer": "/root/data_native_integration_review independentofauthor; read-onlyGitHub/evidence, no source/target/index/CItrigger/cancel/retry/remote/merge/account/model actions",
+  "limits": [
+    "ActualOwnerDialog/liveProvider/model/minOS/userinstallation/formalsigning notverified",
+    "Goalreadonlyemptyfixture isnot fullGoaldispatch/acceptance",
+    "Intelsidebarlonglabelscroll knownbaseline layoutfollowup",
+    "historicalfailedrunsandBFvisualcorrectionpreservedseparately"
+  ],
+  "full_product_acceptance": false,
+  "files": {
+    "12803134586.zip": "fc39b348cf8e495b94fc880c0de9c4d487d2be294c8749b079216b3e66fb9e4f",
+    "12803596971.zip": "6cc1ce7e3c13a9cd926786c774dd968e94997e3053c58efa09c6ba9638c41610",
+    "CHECKPOINT.json": "ee65ceb90a88868a151146cdca6bafe4084a0af3728060e7a51b04fb7884b99e",
+    "arm-job-122713941148.log": "46e4356c24127b9dd595fd8354e62c41ba6cb4bc2f44a04fdf67e51df20ce29f",
+    "arm-native-verification.json": "62ff9ddb1e73d7baeb5f3729dcb303983e36516de51e24752e2f1f96f861aaee",
+    "arm-native-verified/lane.log": "959544e7b8413f26844e097413a5e52ed14eeb4d3c7838d51e9de218c2e3735b",
+    "arm-native-verified/native-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "arm-native-verified/native-runner.json": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0",
+    "arm-native-verified/native-screen.png": "384f47db24d967eda756c830cb7d67e3d54274899aed081b7670254436660918",
+    "arm-native-verified/native-smoke.json": "ac60a4079ba8d1b4c2bd503812e0332141c7b062ab057c233fba4bb3233cf772",
+    "arm-visual-verification.json": "1aac81f2f16a99da77925556f5b2445801b6c0d083b85d02beedf25acd566b4c",
+    "artifacts-after-arm-native.json": "03e394a38bdf40826baaa453905b81250b7c9bb49bdb49eae6aefd3e0bb4fbb8",
+    "artifacts-after-intel-native.json": "13d78cf9320d136fe6df22158b8328c06a1a60c8bcc9e2821a5aa0896572d1bb",
+    "artifacts-completion.json": "c341b3b4120492a396e608d84cc2fcd600b3034568866f10270ae2bc0d816514",
+    "artifacts-initial.json": "d50465101e7619f863bb0d76d4676e3b840d1a3ed168b01a872d3f4cc8670d16",
+    "audit-native-artifact.py": "dab2032a0b4c3f735043d7a69527dd067d88361254e3483c0b0f8f61fc2584c7",
+    "checkout-commit.json": "630d572f0361be4b9c439efed55fbfffb33e3d267ec4038aa82d35421017f665",
+    "development/12802954121/artifact.zip": "9a49068c75fdf402045871519b483f66e95caa0a20cb411172b468bd3d785c54",
+    "development/12802954121/verified/AgentBaton-arm64-b6756c3200feb09c3a9a04b3690ae5ee579bf913-development.dmg": "24ef220c070c2c82497df452db4eea810780cd27a09a77d20392a5ed76775287",
+    "development/12802954121/verified/DEVELOPMENT_ACCEPTANCE.md": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+    "development/12802954121/verified/SHA256SUMS": "846d4c42926530031f5622bbfc1fe004cf093d26a5f892a2c7bcb052a5109f2f",
+    "development/12802954121/verified/build-record.txt": "5f389bfea17192b2f095f4c0fdc392a8468ef140972e67992fd3e8a8ad74e1b4",
+    "development/12804745792/artifact.zip": "8ed495cfedb49f4ec98c5363dfa74c1cb0a3eacbcbf586bfe6a743db4d72608b",
+    "development/12804745792/verified/AgentBaton-x86_64-b6756c3200feb09c3a9a04b3690ae5ee579bf913-development.dmg": "c21eb84d5afbce621a20228bad65aca4b3cd47628370130bfbd9079f85b792b8",
+    "development/12804745792/verified/DEVELOPMENT_ACCEPTANCE.md": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+    "development/12804745792/verified/SHA256SUMS": "409b756d545d71641d055b3cca014c1e8b4c1c34663a3774943b8a84d42ad90b",
+    "development/12804745792/verified/build-record.txt": "4729b3fcde35d541d8b97c00f0658e40087bccf50ce69e9d7b9a009984abd777",
+    "development/verified.json": "cbae6b6356d84a50421816092950a00ce28692feeaff31f264229f16f65f01b5",
+    "environment-job-122713940243.log": "a4294d26bafc7c54ea32a92dde9b35e794abf824a0a9e26bd75072c3f316abc7",
+    "environment-job-122713940559.log": "ec4b7f768ca31c14837112acc0db62ebc0b92c87a8bbb90bae9e8704418154ac",
+    "environment-job-122713940564.log": "67db4848ed0b512640014da9d3d0845a638701715b8343e39a631e8e79e72fa7",
+    "environment-jobs-initial.json": "1fb70237e44cbbae6d9e567ff92a006ba21477f595dd91609b16eb9be5052275",
+    "environment-run-initial.json": "8ae7f3f285778004c294d2ecd593c85a34b661dcdab11fbd5054eb12c90093d4",
+    "head-check-runs-completion.json": "a06142cbf1f86b8ff091385ecc553dc561325a66634261ca1395dfaf7f281c03",
+    "head-commit.json": "426538ffd29daf3c0e367a7ceb9604539e60dfb9e9037979873b732a6fc46d4f",
+    "intel-job-122713941515.log": "2abbc7ab27611dd3ed299f9814d97ad77ffda681a86df1b86894a25828a55252",
+    "intel-native-verification.json": "81462cfe6e3272d6bdc5aaade29ea17ee16db19a0baa17e62a4c0b5f9e662600",
+    "intel-native-verified/lane.log": "4e27ccd06d66186e76455287770733bd6d1f3b12684f9d3791e1fde2b3c7ad1d",
+    "intel-native-verified/native-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "intel-native-verified/native-runner.json": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0",
+    "intel-native-verified/native-screen.png": "00852dc7d1c5b4fd0a149a94838ed2bd40f1e746ff993dc86ad00e9c664d521c",
+    "intel-native-verified/native-smoke.json": "9702b1bd82cd2500bb302ca411762192491e2f6b6422b3976daa4506574339ea",
+    "intel-visual-verification.json": "9d855c6739e0efbe0dc4785bf169a11d803f6af0d8f4833a829265cf14e0e955",
+    "main-ref-final-observation.json": "1a48ab885cbd9486e4e2883ca791a5abdd175db5e0abad3d41b5d4319fc740e8",
+    "package-helper.log": "b6f82904deb254c447273e13f51560899fc8d44a2e232d1703b871e8baeaf8da",
+    "package-zip-preaudit.json": "f23bf872f0f76c3b6d80d9bde9eaef4fc293fa48f88998c97936ca60885d8f1e",
+    "pr-final-observation.json": "c24c98c0d4cf1abb1cbe2483b199fca1c8eb7c6d1cd2438f844c04cd2e5d84f2",
+    "pr-initial.json": "2316144c3835d5455b7a636454d3299dd9e0bca505ad363470553494ca32ce50",
+    "preaudit-package-zips.py": "3102d46927dc5eb238335c38e7d601ba105d754face92360d7cff7238a4aba56",
+    "product-jobs-completion.json": "026a4de9605d369f3e430e97faae008613c75d9bde55f4a402ccdb6b7d342198",
+    "product-jobs-initial.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "product-run-completion.json": "d61ca9035ccf97ad1e293cf0461f0a60edac66ec173c9807867f2f81658be996",
+    "product-run-initial.json": "c0a58147262c8563f31c00fc93b3ecfd2f928ea762e84ea5111c534b48fc293d",
+    "root-package-verification.log": "b6f82904deb254c447273e13f51560899fc8d44a2e232d1703b871e8baeaf8da",
+    "rust-job-122713941383.log": "70ddc7c6d5cb237e0ed519dc794740fb5575a96a1994c0f909286df30ba3b5a7",
+    "source-and-checkout-verification.json": "8ccc919ef41215a3acd05e16af0851673538cfa128b82f2c5d61d176355d9638",
+    "ui-job-122713941332.log": "1c1bed8ca78487c73f770f29f3b1da343658536211ed510cd85f207f53254521",
+    "watch-jobs-001.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "watch-jobs-002.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "watch-jobs-003.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "watch-jobs-004.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "watch-jobs-005.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "watch-jobs-006.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "watch-jobs-007.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "watch-jobs-008.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "watch-jobs-009.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "watch-jobs-010.json": "cf4df46bc4e3b18907d2c2fb6e65265e32bf18bf69ee13ed75df0cbd22e20115",
+    "watch-jobs-011.json": "58b04e6ee1d75db7dca20ff6e517039ead0da39014f3ddb77cd9b3e8365ddec4",
+    "watch-jobs-012.json": "58b04e6ee1d75db7dca20ff6e517039ead0da39014f3ddb77cd9b3e8365ddec4",
+    "watch-jobs-013.json": "58b04e6ee1d75db7dca20ff6e517039ead0da39014f3ddb77cd9b3e8365ddec4",
+    "watch-jobs-014.json": "58b04e6ee1d75db7dca20ff6e517039ead0da39014f3ddb77cd9b3e8365ddec4",
+    "watch-jobs-015.json": "58b04e6ee1d75db7dca20ff6e517039ead0da39014f3ddb77cd9b3e8365ddec4",
+    "watch-jobs-016.json": "58b04e6ee1d75db7dca20ff6e517039ead0da39014f3ddb77cd9b3e8365ddec4",
+    "watch-jobs-017.json": "8b6dc863572ffcf6fa53bffafece15f070083758028950f1be0d48f8874ad0bf",
+    "watch-jobs-018.json": "8b6dc863572ffcf6fa53bffafece15f070083758028950f1be0d48f8874ad0bf",
+    "watch-jobs-019.json": "8b6dc863572ffcf6fa53bffafece15f070083758028950f1be0d48f8874ad0bf",
+    "watch-jobs-020.json": "8b6dc863572ffcf6fa53bffafece15f070083758028950f1be0d48f8874ad0bf",
+    "watch-jobs-021.json": "dc426cde7acdac979b42ae240bc98d73f3bab571b322bbd0f7d43ea0896c8151",
+    "watch-jobs-022.json": "dc426cde7acdac979b42ae240bc98d73f3bab571b322bbd0f7d43ea0896c8151",
+    "watch-jobs-023.json": "31bbbea1bfe1f9185871113960b1d2168e9c5f0ecc5dc6294be0ae04eddc460d",
+    "watch-jobs-024.json": "31bbbea1bfe1f9185871113960b1d2168e9c5f0ecc5dc6294be0ae04eddc460d",
+    "watch-jobs-025.json": "31bbbea1bfe1f9185871113960b1d2168e9c5f0ecc5dc6294be0ae04eddc460d",
+    "watch-jobs-026.json": "31bbbea1bfe1f9185871113960b1d2168e9c5f0ecc5dc6294be0ae04eddc460d",
+    "watch-jobs-027.json": "31bbbea1bfe1f9185871113960b1d2168e9c5f0ecc5dc6294be0ae04eddc460d",
+    "watch-jobs-028.json": "31bbbea1bfe1f9185871113960b1d2168e9c5f0ecc5dc6294be0ae04eddc460d",
+    "watch-jobs-029.json": "31bbbea1bfe1f9185871113960b1d2168e9c5f0ecc5dc6294be0ae04eddc460d",
+    "watch-jobs-030.json": "31bbbea1bfe1f9185871113960b1d2168e9c5f0ecc5dc6294be0ae04eddc460d",
+    "watch-jobs-031.json": "31bbbea1bfe1f9185871113960b1d2168e9c5f0ecc5dc6294be0ae04eddc460d",
+    "watch-jobs-032.json": "edb0b7bf13db1e5acdee18d9626d44114e0e4e7fb8bd3b2a8318b5db66c77e5f",
+    "watch-jobs-033.json": "026a4de9605d369f3e430e97faae008613c75d9bde55f4a402ccdb6b7d342198",
+    "watcher-start-run.json": "c0a58147262c8563f31c00fc93b3ecfd2f928ea762e84ea5111c534b48fc293d"
+  }
+}

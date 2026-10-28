@@ -1,0 +1,73 @@
+{
+  "reviewer": "/root/data_native_integration_review",
+  "baseline": "37bd032f0e1b2dfa75fc9ff768e85801f1693a99",
+  "source_commit": "893efe5aa1dd89844de6d4df00d90d736d2b5e8a",
+  "author_docs_commit": "e3949be42ad991f8a2a042540257757fbeebc4d1",
+  "verdict": "PASS scoped fixture/Linux; Mac after-fix not run",
+  "files": {
+    "CHECKPOINT.json": {
+      "sha256": "f5e31d7686122e86d2c58ae2f60cd646ecd6c0aab2223835d83cb2ad0703e444",
+      "bytes": 1114
+    },
+    "REVIEW.md": {
+      "sha256": "3d0254f723a1ec80d7249cc2462b53832ca32483867348841ee0105a3eb0e09e",
+      "bytes": 5524
+    },
+    "after.rs": {
+      "sha256": "f1aa9b30b601becab1a9b52e50c090a585f6becfbe4c5a80e1c963ed75b8d77b",
+      "bytes": 33123
+    },
+    "author-EVIDENCE.md": {
+      "sha256": "2e0b53de79b85731f141e7a3849a1911158beff9f8a7aaab5b38680b03700aa9",
+      "bytes": 3763
+    },
+    "author-manifest.json": {
+      "sha256": "2a1228346d7c6c8b8189e848779162a5157606b89e3385d0f74c97f111f5caa1",
+      "bytes": 3787
+    },
+    "author-mechanical-scope-check.json": {
+      "sha256": "4972e3c565edf873e96d5b2ddc23e4aa6059ce8b23ffa6fb92eac659467ed2b5",
+      "bytes": 2575
+    },
+    "before.rs": {
+      "sha256": "b61b0896ac373d98ade5c444da314af1dbbce4d85a5205a863f8aa4cf2657157",
+      "bytes": 29942
+    },
+    "clippy.log": {
+      "sha256": "4ef80863e5d4f223b1b277692f3c2668bc5ab27c8bf0935f57a280c913a49e4b",
+      "bytes": 174
+    },
+    "commands.json": {
+      "sha256": "f9f30092c83f2fe5f817296160a4b56fbdd452aca61b806e2305ea3404e1521c",
+      "bytes": 3616
+    },
+    "data24.log": {
+      "sha256": "4be92281421940676ae7cb5acd28342eed2742d7b3c3ff78ed3bbdf8ff05361c",
+      "bytes": 4923
+    },
+    "diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "fmt.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "initial-command-unavailable.json": {
+      "sha256": "846c6174ac277a2635c637cd05f326dbf38bbc1fc81e3eca6306add021f58b54",
+      "bytes": 388
+    },
+    "mtime-byte-invariance.json": {
+      "sha256": "10c12032c0215b1d390f4065a2fbad43b16889a9d362030991f919ffe89e9735",
+      "bytes": 538
+    },
+    "root-fd.log": {
+      "sha256": "612a81b2c52b98031b873621abcb347749e6a5eafc271dad7d32b9cf93abb165",
+      "bytes": 702
+    },
+    "static-proof.json": {
+      "sha256": "425091db6a6164be90a16e55eb73dc264c26ba9c7359979a9838a54b5e95196d",
+      "bytes": 5596
+    }
+  }
+}

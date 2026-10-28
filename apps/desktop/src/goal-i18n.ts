@@ -12,6 +12,7 @@ const editorEn = {
 };
 const en = {
   ...editorEn,
+  personalProject: 'Goal planning needs a registered project and an approved root grant. Create a task in a registered project and prepare its root grant first; this personal task has no project execution scope.',
   title: 'Goal scope and plan', refresh: 'Refresh Goal records', warning: 'Separate Goal approval changes only reviewed delegation ceilings. It does not dispatch work, reserve resources, establish passing evidence or accept the task.',
   boundaries: 'Connections, account identity, host, workspace, recipients and existing execution ceilings stay fixed. Shared consumed/active counters are retained, not reset. Active or unknown execution must be reconciled before approval.',
   noGrant: 'A live existing local root grant is required. Register and approve its exact execution scope first.', grant: 'Existing root grant', chooseGrant: 'Choose a root grant', before: 'Observed grant revision', children: 'New child ceiling', depth: 'New delegation depth', maxNodes: 'Maximum plan nodes',
@@ -29,6 +30,7 @@ const en = {
 };
 const zh: typeof en = {
   ...editorEn,
+  personalProject: 'Goal 规划需要已注册项目及已批准的根授权。请先在已注册项目中创建任务并准备其根授权；此个人任务没有项目执行范围。',
   editorCycle: '依赖、输入来源及层级必须组成无环图，请先移除循环引用再应用。', editorMissingOutput: '每个获批输出都需要唯一产出步骤及固定合同。', editorTitle: '编辑步骤与依赖', editorHint: '直接编辑同一版本化计划模型；这些步骤是提议，不是运行记录或验收凭据。',
   editorFromScope: '从获批范围准备步骤', editorFromLatest: '从最新版本准备步骤', editorLoad: '将当前 JSON 草稿读入编辑器', editorChanged: 'JSON 草稿或最新已保存版本已变化，请明确重新读取后再应用；本地编辑没有覆盖它。',
   editorApplied: '步骤仅已写入 JSON 草稿，请另行审阅并保存计划提议。', editorVersion: '草稿版本', editorAcceptance: '固定任务验收规则', editorGraph: '依赖图', editorNodes: '计划步骤', editorUntitled: '未命名步骤', editorRoot: '无依赖', editorGoal: '步骤目标', editorKind: '步骤类型',

@@ -1,0 +1,85 @@
+{
+  "subject_head": "de150679f7af9915f00cae58e0686a3954041dee",
+  "actual_checkout": "458bbc2d4a1b9cc125e19ccf21057491c2f8fd1c",
+  "product_run": 40664619985,
+  "environment_run": 40664620013,
+  "final_result": "5success/2macOSfailure; Productfailure; noNative orpackagepair",
+  "same_failed_test": "actual_copy_cancellation_only_claims_cancelled_after_join_and_preserves_ready_race",
+  "suite": "Coredata_workspaces20passed1failed inbothMac",
+  "failure_line": 89,
+  "actual_state": "data_workspace_previews.get stayedchecking/rev1/snapshotnull/errornull on32MiB copy.bin before5s observationlimit",
+  "not_reached_in_test": [
+    "propose",
+    "nativefixtureapproval",
+    "copycancel request",
+    "workerjoined/cancelled/Ready-race assertions"
+  ],
+  "source_limits": {
+    "Fixture_wait_total_observation_seconds": 5,
+    "IO_worker_declared_budget_seconds": 30,
+    "RPC_status_wait_is_not_same_as_worker_completion": "bothgetcallsreturnedchecking; no actualterminalworkererror logged"
+  },
+  "actual_processing_cause": "unknown; no load/crypto/kernel cause inferred",
+  "ARM": {
+    "job": 122735886054,
+    "raw_sha256": "3ab69d42611f550cb14fb2a5a4b7c3a1634771b694852385c0b3f285d594df72"
+  },
+  "Intel": {
+    "job": 122735886318,
+    "raw_sha256": "241e4310801d99ab7d878282494bd31560ee8e15bcc3b49c44d03785466c62c0"
+  },
+  "not_reached_in_jobs": [
+    "Native22lib+12featureharness",
+    "actualWebViews/newsidebarNativePNG",
+    "defaultreleaseapplicationaudit",
+    "newmacOSDMGpackages"
+  ],
+  "completed_positive_scope": {
+    "artifact": 12806041117,
+    "zip_sha256": "57afb90bd2793ad17015ef27ffe70ecc5f2c3359c8473038e70181e45dbecca4",
+    "report_sha256": "a8ada29cf6f1da4daf6ec48d927e814dc8a05b875399edaf50b1aec0490b152c",
+    "actual_checkout": "458bbc2d4a1b9cc125e19ccf21057491c2f8fd1c",
+    "scope": "actual built React / Chromium / fixed test-only HTTP / real Unix schema10 daemon / actual generated files",
+    "frontend_tests": 367,
+    "actual_checks": 8,
+    "reported_unrun_array": [],
+    "normal_ready": {
+      "state": "ready",
+      "io_completion": "worker_joined",
+      "files": 2,
+      "bytes": 39,
+      "owner_prepared_finished_sequences": [
+        8,
+        9,
+        10
+      ]
+    },
+    "actual_cancelled": {
+      "state": "cancelled",
+      "io_completion": "worker_joined",
+      "owned_join_proven": true,
+      "finished_sequence": 20,
+      "stage": "before_destination_reservation",
+      "destination_exists": false,
+      "general_filesystem_quiescence_claimed": false
+    },
+    "limits": [
+      "Actual UI before-destination owned worker stop only; partial selected output not observed/partial stop not established despite unrunarray0",
+      "No browser realOSOwnerDialog; outsideHTTP trustedfixture approval only",
+      "No newactualMac native/visual/defaultreleaseaudit/packages yet; noGoaloldartifact substitution"
+    ],
+    "final_database": {
+      "data_workspace_previews": 5,
+      "data_workspace_creations": 3,
+      "managed_workspaces": 3,
+      "approval_proposals": 3,
+      "attempts": 0,
+      "sessions": 0,
+      "dispatch_intents": 0,
+      "sequence": 29
+    },
+    "browser_page_errors": [],
+    "observed_utc": "2026-10-28T09:45:15.193920+00:00"
+  },
+  "observed_utc": "2026-10-28T09:51:05.128844+00:00"
+}

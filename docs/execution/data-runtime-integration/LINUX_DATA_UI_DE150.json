@@ -1,0 +1,47 @@
+{
+  "artifact": 12806041117,
+  "zip_sha256": "57afb90bd2793ad17015ef27ffe70ecc5f2c3359c8473038e70181e45dbecca4",
+  "report_sha256": "a8ada29cf6f1da4daf6ec48d927e814dc8a05b875399edaf50b1aec0490b152c",
+  "actual_checkout": "458bbc2d4a1b9cc125e19ccf21057491c2f8fd1c",
+  "scope": "actual built React / Chromium / fixed test-only HTTP / real Unix schema10 daemon / actual generated files",
+  "frontend_tests": 367,
+  "actual_checks": 8,
+  "reported_unrun_array": [],
+  "normal_ready": {
+    "state": "ready",
+    "io_completion": "worker_joined",
+    "files": 2,
+    "bytes": 39,
+    "owner_prepared_finished_sequences": [
+      8,
+      9,
+      10
+    ]
+  },
+  "actual_cancelled": {
+    "state": "cancelled",
+    "io_completion": "worker_joined",
+    "owned_join_proven": true,
+    "finished_sequence": 20,
+    "stage": "before_destination_reservation",
+    "destination_exists": false,
+    "general_filesystem_quiescence_claimed": false
+  },
+  "limits": [
+    "Actual UI before-destination owned worker stop only; partial selected output not observed/partial stop not established despite unrunarray0",
+    "No browser realOSOwnerDialog; outsideHTTP trustedfixture approval only",
+    "No newactualMac native/visual/defaultreleaseaudit/packages yet; noGoaloldartifact substitution"
+  ],
+  "final_database": {
+    "data_workspace_previews": 5,
+    "data_workspace_creations": 3,
+    "managed_workspaces": 3,
+    "approval_proposals": 3,
+    "attempts": 0,
+    "sessions": 0,
+    "dispatch_intents": 0,
+    "sequence": 29
+  },
+  "browser_page_errors": [],
+  "observed_utc": "2026-10-28T09:45:15.193920+00:00"
+}

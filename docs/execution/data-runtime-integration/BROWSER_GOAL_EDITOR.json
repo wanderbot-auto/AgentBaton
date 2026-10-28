@@ -1,0 +1,1161 @@
+{
+  "status": "passed",
+  "mode": "structured_editor",
+  "dimension": "actual built React / Chromium / fixed test-only localhost adapter / real Unix Goal IPC",
+  "native_owner_dialog": "not_run; fixture owner finalizes actual proposals outside HTTP",
+  "provider": "generated credential-free local --version probe only; no session or model",
+  "not_claimed": [
+    "native WebView",
+    "macOS",
+    "dispatch",
+    "reservation",
+    "task acceptance",
+    "generated planner"
+  ],
+  "daemon_sha256": "191daa527ef60a68c2e745ec07b87c0160b03ad7beb74fd7efa7cd5741577554",
+  "harness_sha256": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018",
+  "frontend_assets_sha256": {
+    "assets/index-BdI-OwiJ.js": "b9b2307b9d40b5e8a34a142a4565148e7c832cbf3e3c4093931e866782232ae0",
+    "assets/index-D6UB0Jo6.css": "1208bc54eb8aeea54bca803a4d78dc7435688106f6b6eb0224dfbf1b5b390595",
+    "index.html": "771cf3663e3e2f5a8d2f2f03aeb9b501a34fb9b62febbe690425c66f9f3acc1a"
+  },
+  "checks": [
+    {
+      "name": "actual outside-HTTP Goal approval preserves execution bindings and does not accept task",
+      "status": "passed",
+      "scope_id": "2191df23-333e-4736-8352-9bc0e3ec234e",
+      "task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf"
+    },
+    {
+      "name": "real UI lazily lists an independently approved Goal and empty immutable plan history",
+      "status": "passed"
+    },
+    {
+      "name": "actual structured UI prepares and edits two approved work nodes and dependency without daemon writes; explicit Apply updates original model draft only",
+      "status": "passed"
+    },
+    {
+      "name": "actual UI stores original raw plan bytes and server-derived scope references without dispatch",
+      "status": "passed",
+      "plan_digest": "57aed8cf35a506cdbbde9059b3213a22906734b00c88afc1f1c438da8d30ab4e",
+      "raw_sha256": "839394d208c2918759d689d609e5c147286aa0a41c664368105e9bb6f5e35557"
+    },
+    {
+      "name": "real UI preview and direct repeat leave journal, ledgers, attempts, leases and execution unchanged",
+      "status": "passed"
+    },
+    {
+      "name": "exact-key replay is read-only; whitespace/key conflict, stale CAS and raw nested duplicates are refused by actual Core",
+      "status": "passed"
+    },
+    {
+      "name": "actual UI revises with correct CAS and retains immutable first revision; stale preview is refused",
+      "status": "passed"
+    },
+    {
+      "name": "test HTTP adapter refuses approval, generic IPC, execution, forged scope, extra fields and boolean revisions",
+      "status": "passed"
+    },
+    {
+      "name": "real input drift refuses live preview, clears old observation and disables new UI writes while retaining strict history",
+      "status": "passed"
+    },
+    {
+      "name": "revoked scope permits strict historical reads/exact-key replay while UI and Core deny new plans and previews",
+      "status": "passed"
+    }
+  ],
+  "requests": [
+    {
+      "method": "system.snapshot",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "projects.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "events.subscribe",
+      "args": {
+        "cursor": 0,
+        "limit": 100
+      },
+      "error": null
+    },
+    {
+      "method": "connections.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "sessions.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "grants.list",
+      "args": {
+        "projectId": "c8787cd7-d4f1-4600-8c32-0461d674b106"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_scopes.list",
+      "args": {
+        "taskId": "e53bdab0-691b-464e-9ebc-c92ace21c5cf"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.list",
+      "args": {
+        "scopeId": "2191df23-333e-4736-8352-9bc0e3ec234e"
+      },
+      "error": null
+    },
+    {
+      "method": "grants.list",
+      "args": {
+        "projectId": "c8787cd7-d4f1-4600-8c32-0461d674b106"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_scopes.list",
+      "args": {
+        "taskId": "e53bdab0-691b-464e-9ebc-c92ace21c5cf"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.list",
+      "args": {
+        "scopeId": "2191df23-333e-4736-8352-9bc0e3ec234e"
+      },
+      "error": null
+    },
+    {
+      "method": "system.snapshot",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "projects.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "events.subscribe",
+      "args": {
+        "cursor": 0,
+        "limit": 100
+      },
+      "error": null
+    },
+    {
+      "method": "connections.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "sessions.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "goal_plans.propose",
+      "args": {
+        "scopeId": "2191df23-333e-4736-8352-9bc0e3ec234e",
+        "planJson": "{\n  \"schema_version\": 1,\n  \"plan_id\": \"f72b6e4a-270f-482c-a3e1-e8d59847a719\",\n  \"goal\": {\n    \"input_revision\": \"0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51\",\n    \"project_id\": \"c8787cd7-d4f1-4600-8c32-0461d674b106\",\n    \"root_task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\",\n    \"spec_revision\": 1,\n    \"task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\"\n  },\n  \"scope_revision\": 2,\n  \"revision\": 1,\n  \"expected_revision\": 0,\n  \"acceptance_rules\": [\n    \"goal-owner-review\"\n  ],\n  \"nodes\": [\n    {\n      \"id\": \"step-1\",\n      \"parent_id\": null,\n      \"kind\": \"work\",\n      \"goal\": \"Write the approved report from the fixed input\",\n      \"dependencies\": [],\n      \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\",\n      \"executor\": {\n        \"kind\": \"connection\",\n        \"binding\": {\n          \"capability_snapshot_id\": \"client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"config_revision\": \"4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e\",\n          \"connection_id\": \"1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"environment_id\": \"2f5946ef-866d-4062-8199-7cb87b8895df\",\n          \"host_id\": \"local\",\n          \"identity_ref\": \"unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"input_revision\": \"0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51\",\n          \"policy_revision\": \"b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2\",\n          \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\"\n        },\n        \"program_sha256\": \"7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6\"\n      },\n      \"recipients\": [],\n      \"required_inputs\": [\n        {\n          \"goal_task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\",\n          \"artifact_id\": \"source\",\n          \"contract_id\": \"input:source\",\n          \"source\": {\n            \"kind\": \"approved_external\",\n            \"sha256\": \"f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1\"\n          }\n        }\n      ],\n      \"outputs\": [\n        {\n          \"artifact_id\": \"report\",\n          \"contract_id\": \"output:report\"\n        }\n      ],\n      \"required_validators\": [\n        \"goal-owner-review\"\n      ],\n      \"side_effect\": \"workspace_write\",\n      \"write_set\": [\n        {\n          \"kind\": \"workspace\",\n          \"path\": \"outputs/report.txt\"\n        }\n      ],\n      \"budget\": {\n        \"attempts\": 1,\n        \"parallel\": 1,\n        \"runtime_ms\": 2000,\n        \"output_bytes\": 1024,\n        \"children\": 0,\n        \"reworks\": 0,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"reservation\": {\n        \"runtime_ms\": 1000,\n        \"output_bytes\": 1024,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"retry\": {\n        \"max_attempts\": 1,\n        \"max_reworks\": 0,\n        \"retry_classes\": []\n      },\n      \"idempotency_key\": \"9a1c4a2d-1790-43fe-aec6-814ee4441eca\",\n      \"external_action_id\": null\n    },\n    {\n      \"id\": \"step-2\",\n      \"parent_id\": null,\n      \"kind\": \"work\",\n      \"goal\": \"Write the separately approved details after the report\",\n      \"dependencies\": [\n        \"step-1\"\n      ],\n      \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\",\n      \"executor\": {\n        \"kind\": \"connection\",\n        \"binding\": {\n          \"capability_snapshot_id\": \"client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"config_revision\": \"4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e\",\n          \"connection_id\": \"1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"environment_id\": \"2f5946ef-866d-4062-8199-7cb87b8895df\",\n          \"host_id\": \"local\",\n          \"identity_ref\": \"unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"input_revision\": \"0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51\",\n          \"policy_revision\": \"b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2\",\n          \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\"\n        },\n        \"program_sha256\": \"7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6\"\n      },\n      \"recipients\": [],\n      \"required_inputs\": [\n        {\n          \"goal_task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\",\n          \"artifact_id\": \"source\",\n          \"contract_id\": \"input:source\",\n          \"source\": {\n            \"kind\": \"approved_external\",\n            \"sha256\": \"f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1\"\n          }\n        }\n      ],\n      \"outputs\": [\n        {\n          \"artifact_id\": \"details\",\n          \"contract_id\": \"output:details\"\n        }\n      ],\n      \"required_validators\": [\n        \"goal-owner-review\"\n      ],\n      \"side_effect\": \"workspace_write\",\n      \"write_set\": [\n        {\n          \"kind\": \"workspace\",\n          \"path\": \"outputs/details.txt\"\n        }\n      ],\n      \"budget\": {\n        \"attempts\": 1,\n        \"parallel\": 1,\n        \"runtime_ms\": 3000,\n        \"output_bytes\": 1024,\n        \"children\": 0,\n        \"reworks\": 0,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"reservation\": {\n        \"runtime_ms\": 1000,\n        \"output_bytes\": 1024,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"retry\": {\n        \"max_attempts\": 1,\n        \"max_reworks\": 0,\n        \"retry_classes\": []\n      },\n      \"idempotency_key\": \"ee5c4bc7-a11e-4cdc-bdac-3a499efaff62\",\n      \"external_action_id\": null\n    }\n  ]\n}",
+        "expectedRevision": 0,
+        "idempotencyKey": "c0902021-b7c8-4458-bd4b-28fb67da7eaf"
+      },
+      "error": null,
+      "plan_json_sha256": "839394d208c2918759d689d609e5c147286aa0a41c664368105e9bb6f5e35557"
+    },
+    {
+      "method": "goal_plans.ready_preview",
+      "args": {
+        "scopeId": "2191df23-333e-4736-8352-9bc0e3ec234e",
+        "expectedRevision": 1
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.propose",
+      "args": {
+        "scopeId": "2191df23-333e-4736-8352-9bc0e3ec234e",
+        "planJson": "{\n  \"schema_version\": 1,\n  \"plan_id\": \"f72b6e4a-270f-482c-a3e1-e8d59847a719\",\n  \"goal\": {\n    \"input_revision\": \"0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51\",\n    \"project_id\": \"c8787cd7-d4f1-4600-8c32-0461d674b106\",\n    \"root_task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\",\n    \"spec_revision\": 1,\n    \"task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\"\n  },\n  \"scope_revision\": 2,\n  \"revision\": 1,\n  \"expected_revision\": 0,\n  \"acceptance_rules\": [\n    \"goal-owner-review\"\n  ],\n  \"nodes\": [\n    {\n      \"id\": \"step-1\", \"id\": \"step-1\",\n      \"parent_id\": null,\n      \"kind\": \"work\",\n      \"goal\": \"Write the approved report from the fixed input\",\n      \"dependencies\": [],\n      \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\",\n      \"executor\": {\n        \"kind\": \"connection\",\n        \"binding\": {\n          \"capability_snapshot_id\": \"client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"config_revision\": \"4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e\",\n          \"connection_id\": \"1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"environment_id\": \"2f5946ef-866d-4062-8199-7cb87b8895df\",\n          \"host_id\": \"local\",\n          \"identity_ref\": \"unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"input_revision\": \"0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51\",\n          \"policy_revision\": \"b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2\",\n          \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\"\n        },\n        \"program_sha256\": \"7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6\"\n      },\n      \"recipients\": [],\n      \"required_inputs\": [\n        {\n          \"goal_task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\",\n          \"artifact_id\": \"source\",\n          \"contract_id\": \"input:source\",\n          \"source\": {\n            \"kind\": \"approved_external\",\n            \"sha256\": \"f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1\"\n          }\n        }\n      ],\n      \"outputs\": [\n        {\n          \"artifact_id\": \"report\",\n          \"contract_id\": \"output:report\"\n        }\n      ],\n      \"required_validators\": [\n        \"goal-owner-review\"\n      ],\n      \"side_effect\": \"workspace_write\",\n      \"write_set\": [\n        {\n          \"kind\": \"workspace\",\n          \"path\": \"outputs/report.txt\"\n        }\n      ],\n      \"budget\": {\n        \"attempts\": 1,\n        \"parallel\": 1,\n        \"runtime_ms\": 2000,\n        \"output_bytes\": 1024,\n        \"children\": 0,\n        \"reworks\": 0,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"reservation\": {\n        \"runtime_ms\": 1000,\n        \"output_bytes\": 1024,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"retry\": {\n        \"max_attempts\": 1,\n        \"max_reworks\": 0,\n        \"retry_classes\": []\n      },\n      \"idempotency_key\": \"9a1c4a2d-1790-43fe-aec6-814ee4441eca\",\n      \"external_action_id\": null\n    },\n    {\n      \"id\": \"step-2\",\n      \"parent_id\": null,\n      \"kind\": \"work\",\n      \"goal\": \"Write the separately approved details after the report\",\n      \"dependencies\": [\n        \"step-1\"\n      ],\n      \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\",\n      \"executor\": {\n        \"kind\": \"connection\",\n        \"binding\": {\n          \"capability_snapshot_id\": \"client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"config_revision\": \"4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e\",\n          \"connection_id\": \"1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"environment_id\": \"2f5946ef-866d-4062-8199-7cb87b8895df\",\n          \"host_id\": \"local\",\n          \"identity_ref\": \"unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n          \"input_revision\": \"0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51\",\n          \"policy_revision\": \"b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2\",\n          \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\"\n        },\n        \"program_sha256\": \"7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6\"\n      },\n      \"recipients\": [],\n      \"required_inputs\": [\n        {\n          \"goal_task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\",\n          \"artifact_id\": \"source\",\n          \"contract_id\": \"input:source\",\n          \"source\": {\n            \"kind\": \"approved_external\",\n            \"sha256\": \"f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1\"\n          }\n        }\n      ],\n      \"outputs\": [\n        {\n          \"artifact_id\": \"details\",\n          \"contract_id\": \"output:details\"\n        }\n      ],\n      \"required_validators\": [\n        \"goal-owner-review\"\n      ],\n      \"side_effect\": \"workspace_write\",\n      \"write_set\": [\n        {\n          \"kind\": \"workspace\",\n          \"path\": \"outputs/details.txt\"\n        }\n      ],\n      \"budget\": {\n        \"attempts\": 1,\n        \"parallel\": 1,\n        \"runtime_ms\": 3000,\n        \"output_bytes\": 1024,\n        \"children\": 0,\n        \"reworks\": 0,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"reservation\": {\n        \"runtime_ms\": 1000,\n        \"output_bytes\": 1024,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"retry\": {\n        \"max_attempts\": 1,\n        \"max_reworks\": 0,\n        \"retry_classes\": []\n      },\n      \"idempotency_key\": \"ee5c4bc7-a11e-4cdc-bdac-3a499efaff62\",\n      \"external_action_id\": null\n    }\n  ]\n}",
+        "expectedRevision": 0,
+        "idempotencyKey": "duplicate-plan"
+      },
+      "error": "INVALID_REQUEST",
+      "plan_json_sha256": "d6471e69dd39a4e3198a384993b33be516deb2a25b130d58b75a7a55ca386b5a"
+    },
+    {
+      "method": "goal_plans.revise",
+      "args": {
+        "scopeId": "2191df23-333e-4736-8352-9bc0e3ec234e",
+        "planJson": "\n{\n   \"schema_version\": 1,\n   \"plan_id\": \"f72b6e4a-270f-482c-a3e1-e8d59847a719\",\n   \"goal\": {\n      \"input_revision\": \"0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51\",\n      \"project_id\": \"c8787cd7-d4f1-4600-8c32-0461d674b106\",\n      \"root_task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\",\n      \"spec_revision\": 1,\n      \"task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\"\n   },\n   \"scope_revision\": 2,\n   \"revision\": 2,\n   \"expected_revision\": 1,\n   \"acceptance_rules\": [\n      \"goal-owner-review\"\n   ],\n   \"nodes\": [\n      {\n         \"id\": \"step-1\",\n         \"parent_id\": null,\n         \"kind\": \"work\",\n         \"goal\": \"Refine the report within unchanged approved scope\",\n         \"dependencies\": [],\n         \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\",\n         \"executor\": {\n            \"kind\": \"connection\",\n            \"binding\": {\n               \"capability_snapshot_id\": \"client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n               \"config_revision\": \"4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e\",\n               \"connection_id\": \"1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n               \"environment_id\": \"2f5946ef-866d-4062-8199-7cb87b8895df\",\n               \"host_id\": \"local\",\n               \"identity_ref\": \"unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n               \"input_revision\": \"0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51\",\n               \"policy_revision\": \"b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2\",\n               \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\"\n            },\n            \"program_sha256\": \"7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6\"\n         },\n         \"recipients\": [],\n         \"required_inputs\": [\n            {\n               \"goal_task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\",\n               \"artifact_id\": \"source\",\n               \"contract_id\": \"input:source\",\n               \"source\": {\n                  \"kind\": \"approved_external\",\n                  \"sha256\": \"f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1\"\n               }\n            }\n         ],\n         \"outputs\": [\n            {\n               \"artifact_id\": \"report\",\n               \"contract_id\": \"output:report\"\n            }\n         ],\n         \"required_validators\": [\n            \"goal-owner-review\"\n         ],\n         \"side_effect\": \"workspace_write\",\n         \"write_set\": [\n            {\n               \"kind\": \"workspace\",\n               \"path\": \"outputs/report.txt\"\n            }\n         ],\n         \"budget\": {\n            \"attempts\": 1,\n            \"parallel\": 1,\n            \"runtime_ms\": 2000,\n            \"output_bytes\": 1024,\n            \"children\": 0,\n            \"reworks\": 0,\n            \"tokens\": null,\n            \"cost_microunits\": null\n         },\n         \"reservation\": {\n            \"runtime_ms\": 1000,\n            \"output_bytes\": 1024,\n            \"tokens\": null,\n            \"cost_microunits\": null\n         },\n         \"retry\": {\n            \"max_attempts\": 1,\n            \"max_reworks\": 0,\n            \"retry_classes\": []\n         },\n         \"idempotency_key\": \"9a1c4a2d-1790-43fe-aec6-814ee4441eca\",\n         \"external_action_id\": null\n      },\n      {\n         \"id\": \"step-2\",\n         \"parent_id\": null,\n         \"kind\": \"work\",\n         \"goal\": \"Write the separately approved details after the report\",\n         \"dependencies\": [\n            \"step-1\"\n         ],\n         \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\",\n         \"executor\": {\n            \"kind\": \"connection\",\n            \"binding\": {\n               \"capability_snapshot_id\": \"client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n               \"config_revision\": \"4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e\",\n               \"connection_id\": \"1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n               \"environment_id\": \"2f5946ef-866d-4062-8199-7cb87b8895df\",\n               \"host_id\": \"local\",\n               \"identity_ref\": \"unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490\",\n               \"input_revision\": \"0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51\",\n               \"policy_revision\": \"b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2\",\n               \"workspace_id\": \"44f71f1a-03c4-4ffd-88ef-068a9ade07a3\"\n            },\n            \"program_sha256\": \"7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6\"\n         },\n         \"recipients\": [],\n         \"required_inputs\": [\n            {\n               \"goal_task_id\": \"e53bdab0-691b-464e-9ebc-c92ace21c5cf\",\n               \"artifact_id\": \"source\",\n               \"contract_id\": \"input:source\",\n               \"source\": {\n                  \"kind\": \"approved_external\",\n                  \"sha256\": \"f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1\"\n               }\n            }\n         ],\n         \"outputs\": [\n            {\n               \"artifact_id\": \"details\",\n               \"contract_id\": \"output:details\"\n            }\n         ],\n         \"required_validators\": [\n            \"goal-owner-review\"\n         ],\n         \"side_effect\": \"workspace_write\",\n         \"write_set\": [\n            {\n               \"kind\": \"workspace\",\n               \"path\": \"outputs/details.txt\"\n            }\n         ],\n         \"budget\": {\n            \"attempts\": 1,\n            \"parallel\": 1,\n            \"runtime_ms\": 3000,\n            \"output_bytes\": 1024,\n            \"children\": 0,\n            \"reworks\": 0,\n            \"tokens\": null,\n            \"cost_microunits\": null\n         },\n         \"reservation\": {\n            \"runtime_ms\": 1000,\n            \"output_bytes\": 1024,\n            \"tokens\": null,\n            \"cost_microunits\": null\n         },\n         \"retry\": {\n            \"max_attempts\": 1,\n            \"max_reworks\": 0,\n            \"retry_classes\": []\n         },\n         \"idempotency_key\": \"ee5c4bc7-a11e-4cdc-bdac-3a499efaff62\",\n         \"external_action_id\": null\n      }\n   ]\n}\n",
+        "expectedRevision": 1,
+        "idempotencyKey": "030f7d02-cce4-4a77-9d34-f12b3caa0df8"
+      },
+      "error": null,
+      "plan_json_sha256": "0e852dd2c5e53a9f36bf2006373fe226631ee981a10115838db233f80f49be9a"
+    },
+    {
+      "method": "system.snapshot",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "projects.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "connections.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "sessions.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "events.subscribe",
+      "args": {
+        "cursor": 0,
+        "limit": 100
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.ready_preview",
+      "args": {
+        "scopeId": "2191df23-333e-4736-8352-9bc0e3ec234e",
+        "expectedRevision": 2
+      },
+      "error": "INPUT_CHANGED"
+    },
+    {
+      "method": "goal_scopes.list",
+      "args": {
+        "taskId": "e53bdab0-691b-464e-9ebc-c92ace21c5cf"
+      },
+      "error": null
+    },
+    {
+      "method": "grants.list",
+      "args": {
+        "projectId": "c8787cd7-d4f1-4600-8c32-0461d674b106"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.list",
+      "args": {
+        "scopeId": "2191df23-333e-4736-8352-9bc0e3ec234e"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_scopes.revoke",
+      "args": {
+        "scopeId": "2191df23-333e-4736-8352-9bc0e3ec234e",
+        "expectedRevision": 1,
+        "idempotencyKey": "3d796638-a949-4cb7-9fe5-e05e9ec09c45"
+      },
+      "error": null
+    },
+    {
+      "method": "grants.list",
+      "args": {
+        "projectId": "c8787cd7-d4f1-4600-8c32-0461d674b106"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_scopes.list",
+      "args": {
+        "taskId": "e53bdab0-691b-464e-9ebc-c92ace21c5cf"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.list",
+      "args": {
+        "scopeId": "2191df23-333e-4736-8352-9bc0e3ec234e"
+      },
+      "error": null
+    }
+  ],
+  "observations": {
+    "connection": {
+      "kind": "connection",
+      "snapshot_utf8_bytes": 713,
+      "snapshot_sha256": "aaf13f7c45fabe6660c386ffeaa471677e583803339771128cdcb0b9f7072329"
+    },
+    "root-grant": {
+      "kind": "grant",
+      "snapshot_utf8_bytes": 2204,
+      "snapshot_sha256": "339da3ee96a02b468b9baa49aeaaaf693a17a98eb7b420940fe4ab12c5068525"
+    },
+    "goal-scope": {
+      "kind": "goal",
+      "snapshot_utf8_bytes": 9973,
+      "snapshot_sha256": "4ffa55cee0ee1b49fc2c98b7455ca771a5cb8227021beab26a646dfcc0702345"
+    },
+    "empty_history_response": {
+      "request_id": "f2b42f01-703a-437b-8e84-69480b24e68d",
+      "result": [],
+      "revision": 17,
+      "warnings": []
+    },
+    "structured_editor": {
+      "editing_context": {
+        "max_nodes": 4,
+        "output_artifacts": {
+          "details": {
+            "artifact_id": "details",
+            "expected_sha256": null,
+            "max_bytes": 1024,
+            "relative_path": "outputs/details.txt"
+          },
+          "report": {
+            "artifact_id": "report",
+            "expected_sha256": null,
+            "max_bytes": 1024,
+            "relative_path": "outputs/report.txt"
+          }
+        },
+        "rule_executors": {
+          "goal-input-sha256": "validator",
+          "goal-owner-review": "owner"
+        },
+        "writable_prefixes": [
+          "outputs"
+        ]
+      },
+      "proposal": {
+        "schema_version": 1,
+        "plan_id": "f72b6e4a-270f-482c-a3e1-e8d59847a719",
+        "goal": {
+          "input_revision": "0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51",
+          "project_id": "c8787cd7-d4f1-4600-8c32-0461d674b106",
+          "root_task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+          "spec_revision": 1,
+          "task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf"
+        },
+        "scope_revision": 2,
+        "revision": 1,
+        "expected_revision": 0,
+        "acceptance_rules": [
+          "goal-owner-review"
+        ],
+        "nodes": [
+          {
+            "id": "step-1",
+            "parent_id": null,
+            "kind": "work",
+            "goal": "Write the approved report from the fixed input",
+            "dependencies": [],
+            "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3",
+            "executor": {
+              "kind": "connection",
+              "binding": {
+                "capability_snapshot_id": "client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+                "connection_id": "1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                "environment_id": "2f5946ef-866d-4062-8199-7cb87b8895df",
+                "host_id": "local",
+                "identity_ref": "unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                "input_revision": "0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51",
+                "policy_revision": "b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2",
+                "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3"
+              },
+              "program_sha256": "7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6"
+            },
+            "recipients": [],
+            "required_inputs": [
+              {
+                "goal_task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+                "artifact_id": "source",
+                "contract_id": "input:source",
+                "source": {
+                  "kind": "approved_external",
+                  "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "artifact_id": "report",
+                "contract_id": "output:report"
+              }
+            ],
+            "required_validators": [
+              "goal-owner-review"
+            ],
+            "side_effect": "workspace_write",
+            "write_set": [
+              {
+                "kind": "workspace",
+                "path": "outputs/report.txt"
+              }
+            ],
+            "budget": {
+              "attempts": 1,
+              "parallel": 1,
+              "runtime_ms": 2000,
+              "output_bytes": 1024,
+              "children": 0,
+              "reworks": 0,
+              "tokens": null,
+              "cost_microunits": null
+            },
+            "reservation": {
+              "runtime_ms": 1000,
+              "output_bytes": 1024,
+              "tokens": null,
+              "cost_microunits": null
+            },
+            "retry": {
+              "max_attempts": 1,
+              "max_reworks": 0,
+              "retry_classes": []
+            },
+            "idempotency_key": "9a1c4a2d-1790-43fe-aec6-814ee4441eca",
+            "external_action_id": null
+          },
+          {
+            "id": "step-2",
+            "parent_id": null,
+            "kind": "work",
+            "goal": "Write the separately approved details after the report",
+            "dependencies": [
+              "step-1"
+            ],
+            "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3",
+            "executor": {
+              "kind": "connection",
+              "binding": {
+                "capability_snapshot_id": "client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+                "connection_id": "1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                "environment_id": "2f5946ef-866d-4062-8199-7cb87b8895df",
+                "host_id": "local",
+                "identity_ref": "unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                "input_revision": "0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51",
+                "policy_revision": "b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2",
+                "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3"
+              },
+              "program_sha256": "7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6"
+            },
+            "recipients": [],
+            "required_inputs": [
+              {
+                "goal_task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+                "artifact_id": "source",
+                "contract_id": "input:source",
+                "source": {
+                  "kind": "approved_external",
+                  "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "artifact_id": "details",
+                "contract_id": "output:details"
+              }
+            ],
+            "required_validators": [
+              "goal-owner-review"
+            ],
+            "side_effect": "workspace_write",
+            "write_set": [
+              {
+                "kind": "workspace",
+                "path": "outputs/details.txt"
+              }
+            ],
+            "budget": {
+              "attempts": 1,
+              "parallel": 1,
+              "runtime_ms": 3000,
+              "output_bytes": 1024,
+              "children": 0,
+              "reworks": 0,
+              "tokens": null,
+              "cost_microunits": null
+            },
+            "reservation": {
+              "runtime_ms": 1000,
+              "output_bytes": 1024,
+              "tokens": null,
+              "cost_microunits": null
+            },
+            "retry": {
+              "max_attempts": 1,
+              "max_reworks": 0,
+              "retry_classes": []
+            },
+            "idempotency_key": "ee5c4bc7-a11e-4cdc-bdac-3a499efaff62",
+            "external_action_id": null
+          }
+        ]
+      },
+      "raw_sha256": "839394d208c2918759d689d609e5c147286aa0a41c664368105e9bb6f5e35557",
+      "local_edit_snapshot": {
+        "attempts": 0,
+        "dispatch_intents": 0,
+        "workspace_leases": 0,
+        "sessions": 0,
+        "command_validation_runs": 0,
+        "command_workspace_fences": 0,
+        "goal_node_evidence": 0,
+        "goal_external_action_journal": 0,
+        "goal_plan_heads": 0,
+        "goal_plan_revisions": 0,
+        "goal_plan_proposals": 0,
+        "budgets": [
+          [
+            "project:c8787cd7-d4f1-4600-8c32-0461d674b106",
+            8,
+            2,
+            0,
+            0
+          ],
+          [
+            "root:e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+            8,
+            2,
+            0,
+            0
+          ]
+        ],
+        "goal_ledgers": [
+          [
+            "project:c8787cd7-d4f1-4600-8c32-0461d674b106",
+            "{\"limits\":{\"attempts\":8,\"parallel\":2,\"runtime_ms\":60000,\"output_bytes\":8192,\"children\":3,\"reworks\":2,\"tokens\":null,\"cost_microunits\":null},\"observed_attempts\":0,\"runtime_ms\":0,\"output_bytes\":0,\"tokens\":0,\"cost_microunits\":0}"
+          ],
+          [
+            "root-grant:b4858ac0-f3eb-4d46-b5e5-560665fc4ca4",
+            "{\"limits\":{\"attempts\":8,\"parallel\":2,\"runtime_ms\":60000,\"output_bytes\":8192,\"children\":3,\"reworks\":2,\"tokens\":null,\"cost_microunits\":null},\"observed_attempts\":0,\"runtime_ms\":0,\"output_bytes\":0,\"tokens\":0,\"cost_microunits\":0}"
+          ]
+        ],
+        "journal_sequence": 17
+      },
+      "after_apply_snapshot": {
+        "attempts": 0,
+        "dispatch_intents": 0,
+        "workspace_leases": 0,
+        "sessions": 0,
+        "command_validation_runs": 0,
+        "command_workspace_fences": 0,
+        "goal_node_evidence": 0,
+        "goal_external_action_journal": 0,
+        "goal_plan_heads": 0,
+        "goal_plan_revisions": 0,
+        "goal_plan_proposals": 0,
+        "budgets": [
+          [
+            "project:c8787cd7-d4f1-4600-8c32-0461d674b106",
+            8,
+            2,
+            0,
+            0
+          ],
+          [
+            "root:e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+            8,
+            2,
+            0,
+            0
+          ]
+        ],
+        "goal_ledgers": [
+          [
+            "project:c8787cd7-d4f1-4600-8c32-0461d674b106",
+            "{\"limits\":{\"attempts\":8,\"parallel\":2,\"runtime_ms\":60000,\"output_bytes\":8192,\"children\":3,\"reworks\":2,\"tokens\":null,\"cost_microunits\":null},\"observed_attempts\":0,\"runtime_ms\":0,\"output_bytes\":0,\"tokens\":0,\"cost_microunits\":0}"
+          ],
+          [
+            "root-grant:b4858ac0-f3eb-4d46-b5e5-560665fc4ca4",
+            "{\"limits\":{\"attempts\":8,\"parallel\":2,\"runtime_ms\":60000,\"output_bytes\":8192,\"children\":3,\"reworks\":2,\"tokens\":null,\"cost_microunits\":null},\"observed_attempts\":0,\"runtime_ms\":0,\"output_bytes\":0,\"tokens\":0,\"cost_microunits\":0}"
+          ]
+        ],
+        "journal_sequence": 17
+      }
+    },
+    "ready_preview": {
+      "blocked_reasons": [],
+      "budget_usage": {
+        "project": {
+          "active": 0,
+          "attempts": 0,
+          "children": 0,
+          "cost_microunits": 0,
+          "output_bytes": 0,
+          "runtime_ms": 0,
+          "tokens": 0
+        },
+        "root": {
+          "active": 0,
+          "attempts": 0,
+          "children": 0,
+          "cost_microunits": 0,
+          "output_bytes": 0,
+          "runtime_ms": 0,
+          "tokens": 0
+        }
+      },
+      "decision": {
+        "admissions": [
+          {
+            "executor": {
+              "binding": {
+                "capability_snapshot_id": "client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+                "connection_id": "1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                "environment_id": "2f5946ef-866d-4062-8199-7cb87b8895df",
+                "host_id": "local",
+                "identity_ref": "unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                "input_revision": "0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51",
+                "policy_revision": "b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2",
+                "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3"
+              },
+              "kind": "connection",
+              "program_sha256": "7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6"
+            },
+            "external_action": null,
+            "idempotency_key": "62e344bec028a7b50ab1247ad35a2c4cb1bbe63c2732be6a822195495d8d5b52",
+            "next_attempt": 1,
+            "node_id": "step-1",
+            "reservation": {
+              "cost_microunits": null,
+              "output_bytes": 1024,
+              "runtime_ms": 1000,
+              "tokens": null
+            },
+            "resolved_inputs": [
+              {
+                "artifact_id": "source",
+                "contract_id": "input:source",
+                "source": {
+                  "kind": "approved_external",
+                  "scope_revision": 2,
+                  "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+                }
+              }
+            ],
+            "rework": false,
+            "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3"
+          }
+        ],
+        "blocked": {
+          "step-2": "Dependencies"
+        },
+        "expected_ledger_revision": 18,
+        "expected_plan_revision": 1,
+        "plan_digest": "57aed8cf35a506cdbbde9059b3213a22906734b00c88afc1f1c438da8d30ab4e",
+        "required_checks_satisfied": false,
+        "requires_atomic_store_commit": true
+      },
+      "dispatched": false,
+      "journal_sequence": 18,
+      "plan_id": "f72b6e4a-270f-482c-a3e1-e8d59847a719",
+      "plan_revision": 1,
+      "read_only": true,
+      "reservation_made": false,
+      "scope_id": "2191df23-333e-4736-8352-9bc0e3ec234e",
+      "unknown_dimensions": []
+    },
+    "revoked_history_response": {
+      "request_id": "56571acb-11c0-447b-9580-3bc6c12cfc02",
+      "result": [
+        {
+          "created_at": "2026-10-28T07:07:27.877965387Z",
+          "digest": "57aed8cf35a506cdbbde9059b3213a22906734b00c88afc1f1c438da8d30ab4e",
+          "dispatched": false,
+          "proposal": {
+            "acceptance_rules": [
+              "goal-owner-review"
+            ],
+            "expected_revision": 0,
+            "goal": {
+              "input_revision": "0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51",
+              "project_id": "c8787cd7-d4f1-4600-8c32-0461d674b106",
+              "root_task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+              "spec_revision": 1,
+              "task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf"
+            },
+            "nodes": [
+              {
+                "budget": {
+                  "attempts": 1,
+                  "children": 0,
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "parallel": 1,
+                  "reworks": 0,
+                  "runtime_ms": 2000,
+                  "tokens": null
+                },
+                "dependencies": [],
+                "executor": {
+                  "binding": {
+                    "capability_snapshot_id": "client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+                    "connection_id": "1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "environment_id": "2f5946ef-866d-4062-8199-7cb87b8895df",
+                    "host_id": "local",
+                    "identity_ref": "unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "input_revision": "0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51",
+                    "policy_revision": "b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2",
+                    "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3"
+                  },
+                  "kind": "connection",
+                  "program_sha256": "7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6"
+                },
+                "external_action_id": null,
+                "goal": "Write the approved report from the fixed input",
+                "id": "step-1",
+                "idempotency_key": "9a1c4a2d-1790-43fe-aec6-814ee4441eca",
+                "kind": "work",
+                "outputs": [
+                  {
+                    "artifact_id": "report",
+                    "contract_id": "output:report"
+                  }
+                ],
+                "parent_id": null,
+                "recipients": [],
+                "required_inputs": [
+                  {
+                    "artifact_id": "source",
+                    "contract_id": "input:source",
+                    "goal_task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+                    "source": {
+                      "kind": "approved_external",
+                      "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+                    }
+                  }
+                ],
+                "required_validators": [
+                  "goal-owner-review"
+                ],
+                "reservation": {
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "runtime_ms": 1000,
+                  "tokens": null
+                },
+                "retry": {
+                  "max_attempts": 1,
+                  "max_reworks": 0,
+                  "retry_classes": []
+                },
+                "side_effect": "workspace_write",
+                "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3",
+                "write_set": [
+                  {
+                    "kind": "workspace",
+                    "path": "outputs/report.txt"
+                  }
+                ]
+              },
+              {
+                "budget": {
+                  "attempts": 1,
+                  "children": 0,
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "parallel": 1,
+                  "reworks": 0,
+                  "runtime_ms": 3000,
+                  "tokens": null
+                },
+                "dependencies": [
+                  "step-1"
+                ],
+                "executor": {
+                  "binding": {
+                    "capability_snapshot_id": "client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+                    "connection_id": "1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "environment_id": "2f5946ef-866d-4062-8199-7cb87b8895df",
+                    "host_id": "local",
+                    "identity_ref": "unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "input_revision": "0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51",
+                    "policy_revision": "b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2",
+                    "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3"
+                  },
+                  "kind": "connection",
+                  "program_sha256": "7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6"
+                },
+                "external_action_id": null,
+                "goal": "Write the separately approved details after the report",
+                "id": "step-2",
+                "idempotency_key": "ee5c4bc7-a11e-4cdc-bdac-3a499efaff62",
+                "kind": "work",
+                "outputs": [
+                  {
+                    "artifact_id": "details",
+                    "contract_id": "output:details"
+                  }
+                ],
+                "parent_id": null,
+                "recipients": [],
+                "required_inputs": [
+                  {
+                    "artifact_id": "source",
+                    "contract_id": "input:source",
+                    "goal_task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+                    "source": {
+                      "kind": "approved_external",
+                      "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+                    }
+                  }
+                ],
+                "required_validators": [
+                  "goal-owner-review"
+                ],
+                "reservation": {
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "runtime_ms": 1000,
+                  "tokens": null
+                },
+                "retry": {
+                  "max_attempts": 1,
+                  "max_reworks": 0,
+                  "retry_classes": []
+                },
+                "side_effect": "workspace_write",
+                "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3",
+                "write_set": [
+                  {
+                    "kind": "workspace",
+                    "path": "outputs/details.txt"
+                  }
+                ]
+              }
+            ],
+            "plan_id": "f72b6e4a-270f-482c-a3e1-e8d59847a719",
+            "revision": 1,
+            "schema_version": 1,
+            "scope_revision": 2
+          },
+          "scope_id": "2191df23-333e-4736-8352-9bc0e3ec234e",
+          "state": "validated_proposal"
+        },
+        {
+          "created_at": "2026-10-28T07:07:29.022703029Z",
+          "digest": "7e61d476a1df4e296aa6ed5f6490df4241d21402e1cc593b6c660eac0801c277",
+          "dispatched": false,
+          "proposal": {
+            "acceptance_rules": [
+              "goal-owner-review"
+            ],
+            "expected_revision": 1,
+            "goal": {
+              "input_revision": "0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51",
+              "project_id": "c8787cd7-d4f1-4600-8c32-0461d674b106",
+              "root_task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+              "spec_revision": 1,
+              "task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf"
+            },
+            "nodes": [
+              {
+                "budget": {
+                  "attempts": 1,
+                  "children": 0,
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "parallel": 1,
+                  "reworks": 0,
+                  "runtime_ms": 2000,
+                  "tokens": null
+                },
+                "dependencies": [],
+                "executor": {
+                  "binding": {
+                    "capability_snapshot_id": "client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+                    "connection_id": "1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "environment_id": "2f5946ef-866d-4062-8199-7cb87b8895df",
+                    "host_id": "local",
+                    "identity_ref": "unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "input_revision": "0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51",
+                    "policy_revision": "b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2",
+                    "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3"
+                  },
+                  "kind": "connection",
+                  "program_sha256": "7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6"
+                },
+                "external_action_id": null,
+                "goal": "Refine the report within unchanged approved scope",
+                "id": "step-1",
+                "idempotency_key": "9a1c4a2d-1790-43fe-aec6-814ee4441eca",
+                "kind": "work",
+                "outputs": [
+                  {
+                    "artifact_id": "report",
+                    "contract_id": "output:report"
+                  }
+                ],
+                "parent_id": null,
+                "recipients": [],
+                "required_inputs": [
+                  {
+                    "artifact_id": "source",
+                    "contract_id": "input:source",
+                    "goal_task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+                    "source": {
+                      "kind": "approved_external",
+                      "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+                    }
+                  }
+                ],
+                "required_validators": [
+                  "goal-owner-review"
+                ],
+                "reservation": {
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "runtime_ms": 1000,
+                  "tokens": null
+                },
+                "retry": {
+                  "max_attempts": 1,
+                  "max_reworks": 0,
+                  "retry_classes": []
+                },
+                "side_effect": "workspace_write",
+                "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3",
+                "write_set": [
+                  {
+                    "kind": "workspace",
+                    "path": "outputs/report.txt"
+                  }
+                ]
+              },
+              {
+                "budget": {
+                  "attempts": 1,
+                  "children": 0,
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "parallel": 1,
+                  "reworks": 0,
+                  "runtime_ms": 3000,
+                  "tokens": null
+                },
+                "dependencies": [
+                  "step-1"
+                ],
+                "executor": {
+                  "binding": {
+                    "capability_snapshot_id": "client-no-tools:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+                    "connection_id": "1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "environment_id": "2f5946ef-866d-4062-8199-7cb87b8895df",
+                    "host_id": "local",
+                    "identity_ref": "unknown:1a6acdbf-610d-45f8-9519-acd41e5e8490",
+                    "input_revision": "0c3c3d25578406cce6a12cdbe3eeb75ceb7e3b51",
+                    "policy_revision": "b4858ac0-f3eb-4d46-b5e5-560665fc4ca4:2",
+                    "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3"
+                  },
+                  "kind": "connection",
+                  "program_sha256": "7fc20e644872c8063dfce372e75f34aeadbc976866adb2f23084494f6197a9e6"
+                },
+                "external_action_id": null,
+                "goal": "Write the separately approved details after the report",
+                "id": "step-2",
+                "idempotency_key": "ee5c4bc7-a11e-4cdc-bdac-3a499efaff62",
+                "kind": "work",
+                "outputs": [
+                  {
+                    "artifact_id": "details",
+                    "contract_id": "output:details"
+                  }
+                ],
+                "parent_id": null,
+                "recipients": [],
+                "required_inputs": [
+                  {
+                    "artifact_id": "source",
+                    "contract_id": "input:source",
+                    "goal_task_id": "e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+                    "source": {
+                      "kind": "approved_external",
+                      "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+                    }
+                  }
+                ],
+                "required_validators": [
+                  "goal-owner-review"
+                ],
+                "reservation": {
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "runtime_ms": 1000,
+                  "tokens": null
+                },
+                "retry": {
+                  "max_attempts": 1,
+                  "max_reworks": 0,
+                  "retry_classes": []
+                },
+                "side_effect": "workspace_write",
+                "workspace_id": "44f71f1a-03c4-4ffd-88ef-068a9ade07a3",
+                "write_set": [
+                  {
+                    "kind": "workspace",
+                    "path": "outputs/details.txt"
+                  }
+                ]
+              }
+            ],
+            "plan_id": "f72b6e4a-270f-482c-a3e1-e8d59847a719",
+            "revision": 2,
+            "schema_version": 1,
+            "scope_revision": 2
+          },
+          "scope_id": "2191df23-333e-4736-8352-9bc0e3ec234e",
+          "state": "validated_proposal"
+        }
+      ],
+      "revision": 20,
+      "warnings": []
+    },
+    "final_database": {
+      "attempts": 0,
+      "dispatch_intents": 0,
+      "workspace_leases": 0,
+      "sessions": 0,
+      "command_validation_runs": 0,
+      "command_workspace_fences": 0,
+      "goal_node_evidence": 0,
+      "goal_external_action_journal": 0,
+      "goal_plan_heads": 1,
+      "goal_plan_revisions": 2,
+      "goal_plan_proposals": 2,
+      "budgets": [
+        [
+          "project:c8787cd7-d4f1-4600-8c32-0461d674b106",
+          8,
+          2,
+          0,
+          0
+        ],
+        [
+          "root:e53bdab0-691b-464e-9ebc-c92ace21c5cf",
+          8,
+          2,
+          0,
+          0
+        ]
+      ],
+      "goal_ledgers": [
+        [
+          "project:c8787cd7-d4f1-4600-8c32-0461d674b106",
+          "{\"limits\":{\"attempts\":8,\"parallel\":2,\"runtime_ms\":60000,\"output_bytes\":8192,\"children\":3,\"reworks\":2,\"tokens\":null,\"cost_microunits\":null},\"observed_attempts\":0,\"runtime_ms\":0,\"output_bytes\":0,\"tokens\":0,\"cost_microunits\":0}"
+        ],
+        [
+          "root-grant:b4858ac0-f3eb-4d46-b5e5-560665fc4ca4",
+          "{\"limits\":{\"attempts\":8,\"parallel\":2,\"runtime_ms\":60000,\"output_bytes\":8192,\"children\":3,\"reworks\":2,\"tokens\":null,\"cost_microunits\":null},\"observed_attempts\":0,\"runtime_ms\":0,\"output_bytes\":0,\"tokens\":0,\"cost_microunits\":0}"
+        ]
+      ],
+      "journal_sequence": 20
+    },
+    "browser_page_errors": []
+  },
+  "screenshots": [
+    {
+      "path": "/workspace/.onboarding/data-runtime-integration-browser/goal-editor/01-fresh-goal-expanded.png",
+      "sha256": "82f1b2e573189bf1bd125c8ce135a00787008ab9bd338c62e39b240fcfe03895",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/data-runtime-integration-browser/goal-editor/editor-01-local-steps-no-write.png",
+      "sha256": "82a8d8a33cf4ec24f67202c3b82de203b33f65e845f5b4a56bcf9500d35eae39",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/data-runtime-integration-browser/goal-editor/editor-02-applied-local-draft.png",
+      "sha256": "a95ea5800356b0582b6e93469a897003262a2a69d92b73e09f3fbfab6053f62b",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/data-runtime-integration-browser/goal-editor/editor-03-mobile-dependency-graph.png",
+      "sha256": "6155700b78ab2c98379389ef2c2f5bef7e3c99bd10e6fe2feec715ae4f1cc195",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/data-runtime-integration-browser/goal-editor/02-read-only-preview-desktop.png",
+      "sha256": "47505c7ebda4be1e25e47963126467173d1f4e32634e6c8308a8dc1176fe37d1",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/data-runtime-integration-browser/goal-editor/03-read-only-preview-mobile.png",
+      "sha256": "0e7b286d9ccef824711ca14a78f425fe8ea0bd9d9fc3873e5a0b5b2045bf2bd6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/data-runtime-integration-browser/goal-editor/04-versioned-plan-history.png",
+      "sha256": "848558afef68c2f35863fc895779cf3bceafa21a6afad9e241b1ec2cf4cc9ab1",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/data-runtime-integration-browser/goal-editor/05-input-drift-read-refused.png",
+      "sha256": "0aa5be78fffa7081607752accb223eaf71e65ecb88eb5720bb5f791484a02c4b",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/data-runtime-integration-browser/goal-editor/06-revoked-historical-scope.png",
+      "sha256": "30d0ba404cfb020d5e2771fb1631ada7dc11e6c48afe2a4b4b901fbbc4ac62cc",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    }
+  ]
+}

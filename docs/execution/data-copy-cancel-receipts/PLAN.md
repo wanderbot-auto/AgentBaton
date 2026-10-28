@@ -1,0 +1,9 @@
+# Data-copy cancellation completion receipts
+
+ACK OWNER-001/002 and AB-START-001 within existing local product development scope. Branch `codex/data-copy-cancel-receipts`, base `aa1c2814a30f43405f3c545ec178cf665f96e673` (DataUI source a436); source freeze `52a06c9c44814217d0734f21be319af43765ccb5`. Original DataUI worktree/review, personal-Goal branch and PR13 candidate are untouched. Owned paths: DataWorkspaces.tsx, data-workspace-api.ts, data-workspace-i18n.ts, one new cancelled test and these four records.
+
+1. Confirm formal nullable readonly completion DTO/state combinations with the Core/schema10 owner before implementing; inspect actual Core producer logic without changing it.
+2. Add meaningful old-source failure controls, then accept and display only the confirmed owned-worker cancellation combination. Preserve original preview cancellation, Ready race, ordinary failure, legacy Ready and F1/F2 safeguards. Keep matching pending ID/project/revision floors through uncertain or malformed reads and legacy cancellation failures.
+3. Run complete original325 plus new tests/types/build. Verify all18 original test files and outgoing typed API methods are byte-identical; freeze for primary independent review and later actual composed schema10 browser/daemon validation.
+
+Engineering decision: completion is optional read-only server data, not a request field, private host witness, permission or automatic retry trigger. `cancelled` requires actual server worker_joined + cancellation + no Ready proof. Old failed/CANCEL_REQUESTED without the receipt remains unconfirmed. A confirmed cancellation permits only the next explicit user preview and separate native copy approval; no automatic copy/new key/deletion or same-preview repeat approval. This contributes to AB-TSK-007; full requirement/product acceptance is not established by mocked tests.

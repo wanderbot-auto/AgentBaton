@@ -1,0 +1,216 @@
+{
+  "source": "25e9fbeda9fab2043f5b167fea86fc7e48d5a8d3",
+  "baseline": "822c3bb46c8ec8ba506e7682b07e2a1384ed0674",
+  "css_sha256": "d1504ff61459f8d865e3d89abde17b6fd14c6b16855fa3bb1bc38b2e25252963",
+  "reverse_comparison": "exactly one new grid-template-columns declaration; all other bytes identical",
+  "reviewer": "/root independent of author",
+  "actual_browser": {
+    "checks": 39,
+    "screenshots": 28,
+    "report": "/workspace/.onboarding/sidebar-project-overflow/root-independent-new-run1/evidence.json",
+    "report_sha256": "c7e20348d39322958561e4b94d114dc3142233b0f4bae2380dab6b0a3a273b43",
+    "log_sha256": "fee33c53f42d5b38a7c820362176883e1015608d9401cf3b36c9a0bfb7fc3e70",
+    "metrics": [
+      {
+        "viewport": 1488,
+        "sidebar": {
+          "left": 0,
+          "right": 232,
+          "width": 232,
+          "clientWidth": 231,
+          "scrollWidth": 231,
+          "minWidth": "auto"
+        },
+        "projects": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 207,
+          "scrollWidth": 207,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 205,
+          "scrollWidth": 205,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 232,
+          "right": 1488,
+          "width": 1256,
+          "clientWidth": 1256,
+          "scrollWidth": 1256,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 51,
+          "right": 208,
+          "width": 157,
+          "clientWidth": 157,
+          "scrollWidth": 185,
+          "minWidth": "0px",
+          "display": "block",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "207px"
+      },
+      {
+        "viewport": 1180,
+        "sidebar": {
+          "left": 0,
+          "right": 232,
+          "width": 232,
+          "clientWidth": 231,
+          "scrollWidth": 231,
+          "minWidth": "auto"
+        },
+        "projects": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 207,
+          "scrollWidth": 207,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 205,
+          "scrollWidth": 205,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 232,
+          "right": 1180,
+          "width": 948,
+          "clientWidth": 948,
+          "scrollWidth": 948,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 51,
+          "right": 208,
+          "width": 157,
+          "clientWidth": 157,
+          "scrollWidth": 185,
+          "minWidth": "0px",
+          "display": "block",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "207px"
+      },
+      {
+        "viewport": 1024,
+        "sidebar": {
+          "left": 0,
+          "right": 64,
+          "width": 64,
+          "clientWidth": 63,
+          "scrollWidth": 63,
+          "minWidth": "auto"
+        },
+        "projects": {
+          "left": 8,
+          "right": 55,
+          "width": 47,
+          "clientWidth": 47,
+          "scrollWidth": 47,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 8,
+          "right": 55,
+          "width": 47,
+          "clientWidth": 45,
+          "scrollWidth": 45,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 64,
+          "right": 1024,
+          "width": 960,
+          "clientWidth": 960,
+          "scrollWidth": 960,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 0,
+          "right": 0,
+          "width": 0,
+          "clientWidth": 0,
+          "scrollWidth": 0,
+          "minWidth": "0px",
+          "display": "none",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "47px"
+      },
+      {
+        "viewport": 390,
+        "sidebar": {
+          "left": 0,
+          "right": 232,
+          "width": 232,
+          "clientWidth": 231,
+          "scrollWidth": 231,
+          "minWidth": "0px"
+        },
+        "projects": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 207,
+          "scrollWidth": 207,
+          "minWidth": "auto"
+        },
+        "button": {
+          "left": 12,
+          "right": 219,
+          "width": 207,
+          "clientWidth": 205,
+          "scrollWidth": 205,
+          "minWidth": "auto"
+        },
+        "main": {
+          "left": 0,
+          "right": 390,
+          "width": 390,
+          "clientWidth": 390,
+          "scrollWidth": 390,
+          "minWidth": "0px"
+        },
+        "label": {
+          "left": 51,
+          "right": 208,
+          "width": 157,
+          "clientWidth": 157,
+          "scrollWidth": 185,
+          "minWidth": "0px",
+          "display": "block",
+          "textOverflow": "ellipsis",
+          "overflow": "hidden",
+          "whiteSpace": "nowrap"
+        },
+        "documentOverflow": false,
+        "gridColumns": "207px"
+      }
+    ]
+  },
+  "limits": [
+    "No new macOS run; old actual Intel screenshot demonstrates original issue only",
+    "Original367UI/Rust results are before this CSS-only delta; current newCSS blackbox39 verified; exact remoteCI still pending"
+  ]
+}

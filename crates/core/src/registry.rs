@@ -224,7 +224,22 @@ fn lease_from(conn: &rusqlite::Connection, resource: &str) -> Result<Option<Work
     .map_err(db_error)
 }
 
-fn check_workspace_identity(workspace: &ManagedWorkspace, check_base: bool) -> Result<()> {
+fn check_workspace_identity(
+    conn: &rusqlite::Connection,
+    workspace: &ManagedWorkspace,
+    check_base: bool,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<()> {
+    if matches!(
+        workspace.identity.as_ref().map(|i| &i.kind),
+        Some(WorkspaceKind::Directory)
+    ) {
+        return if check_base {
+            crate::data_workspaces::require_data_input_from(conn, workspace, data)
+        } else {
+            crate::data_workspaces::data_live_workspace(conn, workspace)
+        };
+    }
     let pinned = workspace.identity.as_ref().ok_or_else(|| {
         CoreError::new(
             "OUTCOME_UNKNOWN",
@@ -684,7 +699,7 @@ impl Store {
         if project.archived {
             return Err(CoreError::new("PERMISSION_DENIED", "Project is archived"));
         }
-        check_workspace_identity(&workspace, true)?;
+        check_workspace_identity(&tx, &workspace, true, self.data_input.as_ref())?;
         let previous = lease_from(&tx, resource)?;
         let token = previous.as_ref().map_or(0, |l| l.fencing_token);
         if token != expected_fencing_token {
@@ -749,7 +764,7 @@ impl Store {
             ));
         }
         let workspace = workspace_from(&tx, resource)?;
-        check_workspace_identity(&workspace, false)?;
+        check_workspace_identity(&tx, &workspace, false, self.data_input.as_ref())?;
         if project_from(&tx, &workspace.project_id)?.archived {
             return Err(CoreError::new("PERMISSION_DENIED", "Project is archived"));
         }
@@ -824,7 +839,7 @@ impl Store {
             ));
         }
         let workspace = workspace_from(&self.conn, resource)?;
-        check_workspace_identity(&workspace, false)?;
+        check_workspace_identity(&self.conn, &workspace, false, self.data_input.as_ref())?;
         if workspace.state != "ready" || project_from(&self.conn, &workspace.project_id)?.archived {
             return Err(CoreError::new(
                 "PERMISSION_DENIED",

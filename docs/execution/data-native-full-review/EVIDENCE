@@ -1,0 +1,25 @@
+# Evidence
+
+Source071e5698a455e11779f26b8392d9c9311a7ca084, baseaa1c2814a30f43405f3c545ec178cf665f96e673. Only approval.rs, SHA8210a22a7a5ace764228b0885bcd5429e91d135fb93ee35fb6ad45c74ae415be; original test module prefix byte-identical (17 original tests retained).
+
+## Real generated64 boundary evidence
+
+Core author exported fixture from legal_sixty_four_file_preview_and_owner_proposal_keep_every_selected_hash (64 generated local b'x' files, actual hashes/bytes/source pins). Initial handoff SHA3b09 was superseded in that author's artifact by another run before our copy. Exact tested frozen copy in artifacts/data-native-full-review/generated-sixty-four-file-owner-proposal.json: SHA18f711d75eda729c31f693ff405b2ca08066b88d40fb5269675ea7b73e7a10f4. No private credentials; temporary paths are provenance, not reusable authority. Sizes:59170-byte pretty full-proposal file,34799B compact full proposal,55144B pretty snapshot.
+
+Old source exact git aa1 approval.rs + standalone main, linked existing serde_json: legal64 expected prompt assertion actually FAIL101. Receipt INVALID_APPROVAL_PROPOSAL/not_started; prompts0/finalizecallbacks0. Old artifacts preserved: old-approval64-probe.rs SHA3eacbc11672d87b8865001808fe9d7eaefc3d06d571ebeb2d4e24b974a953701; ELF SHA125128f3b13f3b631f9ea6caac1e3698849340382557cc9483c6c2c4ac9226ec; old-approval64.log SHA6111ac81cc98ba1b6d5e3bc8899f62bd615d4995805bc096287e570cbf60e96a.
+
+Current source exact standalone main PASS0. Compact complete snapshot14809B<=16384; parse/restore Value equals full original snapshot; native callback1/finalizecallback1 and exact original proposal id/revision/idempotency frame. Fixed probe.rs SHA070fd5041b4fd88003a63a1a0e2e5c5f656dedb9fe67da9bce1ccc46befff167; ELF SHA85034f009c146a85e5414496a95eae620f7adf13a475c1e8d011256d8d2ba60f; fixed-approval64-final.log SHA12a98893649a790e7280efe50d0d5cdfabf1b446dba35d8da84b405c84388717; generated-sixty-four-native-display.json SHAecd1b2c36c92f4ec0b5c5acf62cbad79c7ff5340515ee37ccaed37b035d10af0. These are Rust callback-boundary checks, NO_OS_DIALOG_OR_REAL_FINALIZE=true; no actual Owner approval or full64 copy is claimed. Files remain in ignored artifacts/data-native-full-review.
+
+## SDK checks and failures
+
+Environment: CARGO_HOME=/workspace/.toolchains/cargo, RUSTUP_HOME=/workspace/.toolchains/rustup, PATH prepends Cargo bin; CARGO_TARGET_DIR=/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target; CARGO_BUILD_JOBS=2, CARGO_INCREMENTAL=0; PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot and that root's usr/lib/x86_64-linux-gnu/pkgconfig plus usr/share/pkgconfig. No production env/test-control changes. Before/after byte manifests for own Core/workspaces/native-lib entrypoints compare equal after mtime-only touches; manifest SHA7ab77e510b39a2d78556a932262e169e099ba9ae411cf4b9e942b7a1f4d2fe0d.
+
+Commands actually run:
+
+- cargo test --locked --offline --manifest-path apps/desktop/src-tauri/Cargo.toml --lib:22 PASS (17 old+5 new). /tmp/data-native-full-review-native-tests-final.log SHAc27a684467677d95f29ec1d3c12c2bf395a33075fee70016c58c6eccc65c3957.
+- cargo clippy --locked --offline --manifest-path apps/desktop/src-tauri/Cargo.toml --all-targets -- -D warnings: PASS. /tmp/data-native-full-review-clippy-final.log SHA2a698f95b8eb4a420930220c230b20603940f67bf928a7b748c770e7cf610cdc.
+- cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml -- --check and git diff --check: PASS. fmt log empty SHAe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.
+
+Initial cargo setup failure: missing sidecar resource; no tests ran, /tmp/data-native-full-review-missing-resources-failure.log retained. Frozen real Goal9 debug copies used only as build resources: batond2b4a302c4e992df9c01cde404c03ba526cf411eb24ecbc7aadc4e85fb8be771e, batonab5962a6fa6cc981026572f9b0950db8743fc4cc69a492d7202b14413824d979. They are not release/Data10 evidence. First21-test pass retained; first Clippy failed nested-format lint in artifacts/data-native-full-review/clippy-initial-format-failure.log, fixed without disabling lint or tests. Complete artifact/log/source hash manifest verification-manifest.json SHA887f06da6426415b747e92f4de1cb6c213dc3cebe4171746bb417f51edba50cf.
+
+No Core-main target usage; Native target formally released. No browser, macOS native window, OS owner dialog/manual usability, actual finalized approval, full64 data copy, Provider/model, signing, production or Task acceptance verified in this slice. Independent review and future integrated runtime validation remain separate.

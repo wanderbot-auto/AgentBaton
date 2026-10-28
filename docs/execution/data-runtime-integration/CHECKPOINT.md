@@ -1,0 +1,55 @@
+# 最新检查点
+
+## Data PR14：双 Mac 失败与预览观察窄修
+
+当前 main 为 18f4261da9285bec5446101d47786839b1020d9c；本边界实际 fetch 并重读 OWNER-001/002，ACK，无新序号。PR14 已 ready/base main。旧 head de150679f7af9915f00cae58e0686a3954041dee、实际 checkout 458bbc2d4a1b9cc125e19ccf21057491c2f8fd1c：Environment 40664620013 三项、Product 40664619985 Rust/UI 成功，双 Mac 均在 Data 测试 20/21 时失败。32 MiB 预览在旧 5 秒观察限仍 checking/rev1；尚未到 Owner、copy、cancel/join，根因保持未知。没有新 Native/默认 release 审计/双包，不可合入。CI_DE150_FAILURE.json、NATIVE_DE150_REVIEW.md、89 项原始证据清单保留。
+
+仅测试修复上游 0db994786b3e70e21b7c0c57a15cf210fd9e9fdf（本分支 2edd8e4）：大预览准备改为从 start 前起算的绝对 35 秒观察窗口，匹配既有产品 I/O 30 秒并留 5 秒观察余量；新增 start、并行 snapshot/get、每次 poll 小于 3 秒断言。普通观察及取消/join 仍 5 秒，32 MiB、所有原 verified/真实 joined/Ready 竞态/replay/源文件断言、生产预算/代码/工作流/锁文件不变。作者与独立 reviewer 各实跑 21 Data + 3 migration、Clippy/fmt PASS；嵌套 child 不重复计数。旧 Linux 用例也通过，不能据此声称重现 Mac 历史失败原因。独审报告 data-preview-observation/INDEPENDENT_REVIEW.md。Root 重哈希全部 89 项失败记录与 6 项独审记录。
+
+准备正常 push 新精确 head，需重新读取全部七项、双 Mac 此用例/Native22+12、Goal3+独立 DB、Command3/Data3、新侧栏实际截图、默认 release 审计及双真实 DMG。PR13 的双包仍可按 goal-integration/DEVELOPMENT_DELIVERY_E384.md 追溯，但不能替代本 Data 候选验证。
+
+Goal 实际运行 Core11 继续独立开发：schema11、原子 reservation/实际生成协议/同 scope 修订/共享预算/取消与未知恢复已有真实局部测试，最新全 workspace 暴露 Data Goal advance/recovery 失败，正在修复；4eb4458 只是候选而非最终 freeze。UI 3daa 已独审 445/type/build，Native28+12 是原叶子字节证据；新真实 IPC harness03943e0仅语法通过，等待最终 Core11 与组合 dist，尚未运行。完整130需求与WP01–14继续，不计完整 Goal 或全产品完成。真实 Provider/私人身份、费用、远程资源、生产、正式签名和最终许可证权限均未扩大。
+
+以下保留此前检查点。
+
+# Checkpoint
+
+Resume branch codex/data-runtime-integration. Main remains bcf10bb; Goal dependency PR13 head a2c5bcf Product40646347414/Env40646347269 is5success, twoMac running, not merged. Data code frozen by integration commits recorded by git, not yet final accepted. Root exclusive main Cargo target for combined tests/lints/build; Native target released.
+
+Pending: finish composed Rust, actual original quiet/command/Goal/editor on new8323/currentdist, copy final independent harness/CI review; save final evidence/130table/STATUS/bootstrap; feature push/draft stacked PR. Current real Data8/6 accepted only for Linux/browser and host Owner fixture; copy cancellation before destination only. NewGoal runtime worktree exists16924 baseline, subagent capacity interruptions may have left it clean; inspect before resuming, no active work promised without executor. No external approval is required for the next repository steps.
+
+Final local composition: Rust515unique+7compilefail docs (524raw includes2nested), all-targetClippy/fmt/build passed. Frozen daemon191daa/CLI705e in .onboarding/data-runtime-integration-binaries; sourceheadc2540fe4 code exactly current. Fresh actual builtUI/UnixIPC quiet38/24PNG, command5/2, Goaldefault9/6, editor10/9 and Data8/6 PASS. Full reportSHA/source/binary and selected actual screenshots recorded. Original runtime8323 author candidate is separate; this newRoot run did not borrow its reports. MainCargo target explicitly handed off to Goal runtime author after Root froze its tools. Data exact CI/macOS/default-release audit/development packages remain pending.
+
+## 最新检查点：Data PR14 与 Goal CI 依赖
+
+Data草稿PR：https://github.com/wanderbot-auto/AgentBaton/pull/14，仍堆叠于codex/goal-planning-integration，尚无Data远程CI，不可合入。已合入最新Goal候选bf67629的有限CI预算策略和独审记录，93文件Bootstrap全部通过；当前Product工作流严格等于Goal工作流加唯一已审Data实际IPC命令。Root在Data组合另实跑基础设施34、Node4、设计和静态校验全部通过。原Rust515+7、UI367、Native22+12、真实UnixIPC70检查/47图的源码与限制保留。
+
+实际Intel截图暴露的长项目名侧栏溢出已用单个grid声明修正；作者与Root分别实跑39检查/28图，四宽度的侧栏scrollWidth/clientWidth一致，完整名称、导航及正文保留。新Root构建与独审同一assets，JS和全部Rust源码仍逐字匹配原已测组合；这不是重新跑过macOS的声明。
+
+依赖PR13最新bf67629：Env40652731215实际三项成功，Product40652731429仍运行；旧03BB因三Env静态30分钟规则失败不可接受，Product在正常新push后由既有并发规则取代，旧失败/原ARM成功/Intel未完成均保留。新bf仍须准确七项、新双Native/默认release审计/真实双DMG再保护合入，不能借旧ARM包。
+
+Goal实际执行Core/UI单元另在goal-runtime-core/ui开发，已有39dd WIP及两条真实生成协议正常/同scope修订验证，独审与取消/超时/崩溃/预算等尚未完成。它们不在本Data PR内，不计为完整产品完成。当前仍继续全部130需求；无真实Provider账号/费用/生产/签名新增授权。
+
+## Data 转入 main 精确验证
+
+PR13已按expected-head保护合入main18f4261da9285bec5446101d47786839b1020d9c；源e384、实测checkoutb6756c3的完整七检查/双Native/实际原图/默认release审计/双DMG均独审通过，Root复核91项与双包后合入。交付记录goal-integration/DEVELOPMENT_DELIVERY_E384.md；ARM24ef220c...临时签名，Intelc21eb84d...未签名，均未公证。不是整个产品完成。
+
+Data分支已合入该实际main，仍保持c82/schema10与已审UI/取消回执/64文件完整审批/侧栏修复。新fixture14a合入后Root在实际Data源码重跑command27/全workspaces Clippy/fmt全部PASS；原完整515+7及UI367在此前组合、CSS之后另有39/28的范围分别保留，未谎称这些全部重跑。即将把PR14从已完成Goal依赖分支转main并normalpush新head，触发全新七项/双Native/双包；现在尚未称Data远程CI通过。
+
+实际Goal执行Core工作另有27eadf WIP远程备份、UI3daa/a11独审445及Native28+12通过；live生成协议SIGKILL恢复保持unknown、1attempt/active不退款，其他安全/迁移/全回归仍在推进，尚未合入该Data组合。新真实HTTP/IPC harness只准备中，须用最终schema11 binary和组合dist实跑。全部130需求继续，生产/额外费用/私人Provider身份/正式签名/最终许可证授权未扩大。
+
+## Data PR14：新预览检查通过，长路径 fixture 阻塞
+
+精确37bd032f0e1b2dfa75fc9ff768e85801f1693a99 / checkout e79a267584d1dcbb4f329b1e3044e5c66eb9a6bb 的 Product40669158389、Environment40669158380 最终五成功、双Mac失败。新大预览准备及取消/join安全断言均通过：ARM预览3748ms、copycancel2104ms，Intel4869/2352ms；两边cancelled+worker_joined，3秒RPC和5秒join边界满足，旧de150失败保留。
+
+新失败是workspaces长路径fixture在第36行create_dir_all先报macOS Os63 File name too long，尚未进入产品拒绝逻辑；23通过/1失败。Native、WebView、默认release审计、双包未到达，不借PR13绿/包。完整报告/107项manifest和真实LinuxData8已保留，Root逐项SHA+size复核；见CI_37BD_FAILURE.json。Root最初比较器误用旧字符串manifest格式先拒绝，修为sha256/bytes字段后全通过，原记录不改。
+
+下一窄修在codex/data-path-fixture源893efe5aa1dd89844de6d4df00d90d736d2b5e8a：仅目标用例改目录FD逐层创建16层/~4KiB真实输入，保留完整目标>4096、精确ResourceLimit、managed零目录和其它23case；生产限额/代码/超时/工作流不变。作者实际24 Data+相关rootFD1/Clippy/fmt通过；独审和新精确MacCI待，不称已修复Mac。main仍18f4261，OWNER001/002 ACK，无需额外批准的工程步骤继续。
+
+Goal运行组合独立在codex/goal-runtime-integration：author9f833/497冻结schema11，549Rust+7docs/lints/build通过；独立Core274+已保护command27通过。Root445UI、Native28+12、原quiet/command/Goal/editor/Data真实70检查47图通过；新执行作者及独立最终503c实跑各9检查8图通过，取景仅测试定位修正，旧图保留。Root组合最终全Rust仍运行；macOS/OSOwnerDialog/真实Provider、完整依赖验收/factory/NL及全130仍未完成，继续原完整目标和全部权限边界。
+
+## Data 长路径 fixture 修复已独审，准备新 CI
+
+已集成893efe5aa1dd89844de6d4df00d90d736d2b5e8a（本分支13be879）及作者e3949be4：仅目标测试内以FD逐级mkdirat/openat创建实际16层输入，relative4015/source4038/target4132字节、真实11字节SHA快照。其它23case、原长度公式/80字符ID/完整目标>4096/精确ResourceLimit/managed零目录全部保留，生产/锁/CI/超时/4096限额不变。作者及独审分别实际24Data+相关rootFD1/Clippy/fmt/diff PASS；Root重哈希独审16项，报告data-path-fixture/INDEPENDENT_REVIEW.md，manifest fe23cf7746a691a18c9df3bd7eaf1d910d9c95bd891dc5f6d3416d6fdab174e5。
+
+旧37bd准确五成功双失败及107项证据不改；0db新预览与copyjoin均已在双Mac通过，但长路径fixture先失败使Native/新图/audit/DMG未到达。下一normalpush需新准确七项、双Native/实际侧栏图/defaultreleaseaudit和双真实DMG，不推断Mac修复已通过。main18f4261及OWNER001/002已再次fetch确认，无扩权。Goal实际运行Core/UI/真实IPC另在独立组合继续，全130及依赖/验收/factory等余项仍未完成。

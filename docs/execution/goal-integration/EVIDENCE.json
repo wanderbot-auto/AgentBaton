@@ -545,5 +545,24 @@
     "limits": "Original infinite30ms remains; finite artifact fixtures use existing1000 default; no historical reason invented; no newMac result/dualpackage yet",
     "authoritative_native_review": "NATIVE_BF676_REVIEW_CORRECTED.md",
     "visual_correction": "ARM_BF676_VISUAL_CORRECTION.json"
+  },
+  "E384_protected_integration": {
+    "PR": 13,
+    "main_commit": "18f4261da9285bec5446101d47786839b1020d9c",
+    "parents": [
+      "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+      "e384ccaa2d05aa403327867c0d6c5b50baf437e0"
+    ],
+    "source_head": "e384ccaa2d05aa403327867c0d6c5b50baf437e0",
+    "actual_tested_checkout": "b6756c3200feb09c3a9a04b3690ae5ee579bf913",
+    "tree": "f1b484c1a928f381fd6ef12c34a0616f2f1c40c7",
+    "product_run": 40658084175,
+    "environment_run": 40658084279,
+    "checks": "7/7success",
+    "independent_native_review_sha256": "8ba13f2d84bd329a62143620517adca1b0f3f6461edcaad063282e1a3b0a1760",
+    "required_ruleset": "25893455 active/strict3Env/no bypass; Root additionally enforcedall4Product andindependentreviews",
+    "merge_method": "GitHubprotectedPR merge, expectedsourcehead guard, no direct/force main push",
+    "owner_inbox": "001/002 rereadACK, no003",
+    "whole_product_complete": false
   }
 }

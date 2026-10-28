@@ -1,0 +1,120 @@
+{
+  "review_status": "no remaining blocking findings after CI frontend argument correction",
+  "source_commit": "2746548a805d2036e991d502d4c389d22ea95c58",
+  "integration_head": "592e484baa1e0ded06cb1879b6c55368fd88c7b8",
+  "harness_sha256": "62fcc24db50cad5d4cde663a2d4110c151cb7d0db941d94ef6e4dc17f5bcded4",
+  "workflow_sha256": "cacddcba86a3008598f6179b4c1dc0d0b1279923f67406a4e88e627c35a696f1",
+  "workflow_change": "one added Data command with explicit --frontend apps/desktop/dist; no original line modified/removed",
+  "initial_finding": {
+    "command_without_required_frontend": "actual argparse exit 2 observed; not published as CI success",
+    "resolution": "Root added --frontend apps/desktop/dist before pushing",
+    "command": [
+      "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+      "apps/desktop/tests/data-workspace-real-ipc.py",
+      "--batond",
+      "/workspace/.onboarding/data-workspace-candidate-binaries/schema10-c82bcff50353/batond",
+      "--output",
+      "/tmp/data-review-missing-frontend-probe"
+    ],
+    "exit_code": 2,
+    "log_sha256": "ab811fecb8b4cd15eea454b5917c1c5fa7b916a980229d53674648a0d6591d25"
+  },
+  "focused_actual_helper_controls": [
+    {
+      "name": "actual cancelled joint shape",
+      "expected": "accept",
+      "result": {
+        "io_completion": "worker_joined",
+        "owned_copy_worker_join_observed": true,
+        "cancelled_owned_worker_join_observed": true,
+        "completion_unrecorded": false,
+        "general_filesystem_quiescence_claimed": false
+      }
+    },
+    {
+      "name": "missing join",
+      "expected": "reject",
+      "result": "rejected"
+    },
+    {
+      "name": "Ready contract",
+      "expected": "reject",
+      "result": "rejected"
+    },
+    {
+      "name": "request only",
+      "expected": "reject",
+      "result": "rejected"
+    },
+    {
+      "name": "unobserved cancel",
+      "expected": "reject",
+      "result": "rejected"
+    },
+    {
+      "name": "legacy ready never invents join",
+      "expected": "accept",
+      "result": {
+        "io_completion": null,
+        "owned_copy_worker_join_observed": false,
+        "cancelled_owned_worker_join_observed": false,
+        "completion_unrecorded": true,
+        "general_filesystem_quiescence_claimed": false
+      }
+    },
+    {
+      "name": "joined panic remains unknown",
+      "expected": "accept",
+      "result": {
+        "io_completion": "worker_joined",
+        "owned_copy_worker_join_observed": true,
+        "cancelled_owned_worker_join_observed": false,
+        "completion_unrecorded": false,
+        "general_filesystem_quiescence_claimed": false
+      }
+    },
+    {
+      "name": "not scheduled cannot claim ready",
+      "expected": "reject",
+      "result": "rejected"
+    },
+    {
+      "name": "interrupted nojoin",
+      "expected": "accept",
+      "result": {
+        "io_completion": "interrupted_no_join_receipt",
+        "owned_copy_worker_join_observed": false,
+        "cancelled_owned_worker_join_observed": false,
+        "completion_unrecorded": false,
+        "general_filesystem_quiescence_claimed": false
+      }
+    },
+    {
+      "name": "interrupted cannot claim ready",
+      "expected": "reject",
+      "result": "rejected"
+    }
+  ],
+  "browser_report": {
+    "path": "/workspace/.onboarding/data-workspace-real-ipc/root-independent-c82-274-run1/report.json",
+    "sha256": "b0fbacdf00d7d1fe2c1722a773472a91b81dc61488ca0303bb658f90a4b010de",
+    "checks": 8,
+    "screenshots_rehashed": 6,
+    "executed_by": "Root, reviewed here; no duplicate browser execution in this static review",
+    "cancel_observed": "cancelled + worker_joined, before destination reservation",
+    "not_observed": [
+      "in-copy partial filesystem stop",
+      "Ready cancellation race",
+      "no-join restart/unknown browser path"
+    ]
+  },
+  "not_run": [
+    "Cargo",
+    "new browser execution",
+    "remote CI",
+    "macOS",
+    "OS owner dialog",
+    "real Provider/model",
+    "installation/package verification"
+  ]
+}

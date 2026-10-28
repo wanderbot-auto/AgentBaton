@@ -1,0 +1,113 @@
+{
+  "source_commit": "071e5698a455e11779f26b8392d9c9311a7ca084",
+  "base_commit": "aa1c2814a30f43405f3c545ec178cf665f96e673",
+  "source_scope": "approval.rs only; no lib interface change",
+  "existing_test_source_unchanged": true,
+  "native_tests": {
+    "passed": 22,
+    "old": 17,
+    "new": 5
+  },
+  "generated64": {
+    "full_proposal_compact_bytes": 34799,
+    "pretty_proposal_file_bytes": 59170,
+    "pretty_snapshot_bytes": 55144,
+    "lossless_native_snapshot_bytes": 14809,
+    "limit_bytes": 16384,
+    "full_snapshot_equality": true,
+    "os_prompt_or_actual_finalize": false
+  },
+  "native_target_released": true,
+  "files": [
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/apps/desktop/src-tauri/src/approval.rs",
+      "bytes": 45756,
+      "sha256": "8210a22a7a5ace764228b0885bcd5429e91d135fb93ee35fb6ad45c74ae415be"
+    },
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/clippy-initial-format-failure.log",
+      "bytes": 2172,
+      "sha256": "529055e0333cb906389e4fd1cdcb10df81cfb62780ced555b4536e6bc673ef35"
+    },
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/fixed-approval64-final.log",
+      "bytes": 214,
+      "sha256": "12a98893649a790e7280efe50d0d5cdfabf1b446dba35d8da84b405c84388717"
+    },
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/fixed-approval64-probe",
+      "bytes": 5799296,
+      "sha256": "85034f009c146a85e5414496a95eae620f7adf13a475c1e8d011256d8d2ba60f"
+    },
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/fixed-approval64-probe.rs",
+      "bytes": 47613,
+      "sha256": "070fd5041b4fd88003a63a1a0e2e5c5f656dedb9fe67da9bce1ccc46befff167"
+    },
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/fixed-approval64.log",
+      "bytes": 214,
+      "sha256": "12a98893649a790e7280efe50d0d5cdfabf1b446dba35d8da84b405c84388717"
+    },
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/generated-sixty-four-file-owner-proposal.json",
+      "bytes": 59170,
+      "sha256": "18f711d75eda729c31f693ff405b2ca08066b88d40fb5269675ea7b73e7a10f4"
+    },
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/generated-sixty-four-native-display.json",
+      "bytes": 14809,
+      "sha256": "ecd1b2c36c92f4ec0b5c5acf62cbad79c7ff5340515ee37ccaed37b035d10af0"
+    },
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/old-approval64-probe",
+      "bytes": 5493664,
+      "sha256": "125128f3b13f3b631f9ea6caac1e3698849340382557cc9483c6c2c4ac9226ec"
+    },
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/old-approval64-probe.rs",
+      "bytes": 30310,
+      "sha256": "3eacbc11672d87b8865001808fe9d7eaefc3d06d571ebeb2d4e24b974a953701"
+    },
+    {
+      "path": "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/old-approval64.log",
+      "bytes": 620,
+      "sha256": "6111ac81cc98ba1b6d5e3bc8899f62bd615d4995805bc096287e570cbf60e96a"
+    },
+    {
+      "path": "/tmp/data-native-full-review-missing-resources-failure.log",
+      "bytes": 1834,
+      "sha256": "c70548692516ed50b6e99b3bc1cf52630c6cd304d9d7d37eeccc9e500e525e41"
+    },
+    {
+      "path": "/tmp/data-native-full-review-native-tests.log",
+      "bytes": 2578,
+      "sha256": "09a5f57ab291070789e1c80c5f4f7adfea5ce88dbb47257a0feb43a9eb3dc397"
+    },
+    {
+      "path": "/tmp/data-native-full-review-native-tests-final.log",
+      "bytes": 2563,
+      "sha256": "c27a684467677d95f29ec1d3c12c2bf395a33075fee70016c58c6eccc65c3957"
+    },
+    {
+      "path": "/tmp/data-native-full-review-clippy-final.log",
+      "bytes": 182,
+      "sha256": "2a698f95b8eb4a420930220c230b20603940f67bf928a7b748c770e7cf610cdc"
+    },
+    {
+      "path": "/tmp/data-native-full-review-fmt-final.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/data-native-full-review-entrypoints-before.sha256",
+      "bytes": 284,
+      "sha256": "7ab77e510b39a2d78556a932262e169e099ba9ae411cf4b9e942b7a1f4d2fe0d"
+    },
+    {
+      "path": "/tmp/data-native-full-review-entrypoints-after.sha256",
+      "bytes": 284,
+      "sha256": "7ab77e510b39a2d78556a932262e169e099ba9ae411cf4b9e942b7a1f4d2fe0d"
+    }
+  ]
+}

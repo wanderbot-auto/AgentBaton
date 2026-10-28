@@ -1,0 +1,11 @@
+# Independent cancel-receipt UI review
+
+Reviewed source `52a06c9c44814217d0734f21be319af43765ccb5`, docs `b7db817076bd9d2a920eede9abd407d1a20e0162`, independently by Root. No blocking finding in this UI delta; suitable for integration with the final independently reviewed Core contract. This is not real worker-stop or whole-product acceptance.
+
+Root actually ran the full frontend suite: **360 tests in 19 files passed**, `npm run typecheck` and `npm run build` passed. The exact logs were rehashed on resume against results.json. All original 18 test-file bytes and the entire outgoing Data API export remain identical to baseline aa1c281. The temporary dependency symlink was removed only after confirming its exact owned target.
+
+The new cancelled state is accepted only with worker_joined, cancel_requested, no contract, CANCEL_REQUESTED/confirmed, and either no observation or a failed/cancel_requested observation. Invalid/missing/foreign/stale completion data fails before clearing the recovery intent or notifying Ready. Legacy failed cancellation with no join keeps its exact recovery key and uncertainty. A Ready-wins race remains Ready, with explicit wording that cancellation did not succeed. Actual panic join with outcome_unknown remains unknown. not_scheduled and interrupted_no_join_receipt cannot advertise Ready.
+
+Component recovery retains project/revision floors, permits only explicit new preview after a valid terminal cancellation, never re-approves the same preview automatically and never emits a copy/approval on a read. The stopped wording explicitly retains possible partial files and does not claim deletion, ready workspaces or accepted artifacts. Existing generic failed-copy recovery remains blocked as before, outside this delta. The new field is readonly and is not sent in any outgoing request; Core remains the authority.
+
+Unit/component transport is mocked. Actual schema10 worker join, interrupted/panic filesystem outcomes, native Owner confirmation, macOS and final real IPC must be tested separately. Old candidate636e browser evidence is not this new contract. All evidence is bound in INDEPENDENT_VERIFICATION.json; no original failing evidence or test was removed and no timeout or authority changed.

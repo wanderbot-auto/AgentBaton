@@ -1,0 +1,9 @@
+# Progress
+
+Source071e5698a455e11779f26b8392d9c9311a7ca084 implements Data-only lossless native review. Complete real generated64 proposal34799 compact bytes / snapshot55144 pretty bytes now displays14809 bytes; production full restoration equality succeeds. Existing non-Data and small-snapshot display paths retain their prior behavior. Core/UI/NativeSmoke/renderer permissions/locks/actions unchanged.
+
+Actual results: Native SDK22 tests PASS (old17 source-byte unchanged +5 new), alltarget Clippy -Dwarnings/fmt/diff PASS. Coverage includes64 full fields/roundtrip/fixed finalize frame; Unicode/escapes/null/large integers/unknown metadata; mismatched duplicate requirements, unknown file/pin fields, count/length/cap rejection with0 prompt/finalize; kind isolation; small pretty-display preservation; same expected/actual hash values kept in distinct columns; post-finalize transport failure still unknown.
+
+Actual full Core fixture copy is SHA18f711d75eda729c31f693ff405b2ca08066b88d40fb5269675ea7b73e7a10f4. Source generator rewrote its temporary-path fixture between initial handoff SHA3b09 and our copy; that initial SHA is not the identity of our tested file. Actual old source fails the legal64 boundary assertion (exit101) with0 prompts/0 finalizes; exact current-source fixed probe exits0, restores full snapshot, invokes only mocked native/finalize callbacks once with the original server proposal reference/revision. No OS owner prompt or actual daemon approval was exercised.
+
+Initial setup failure (missing real sidecar resources) occurred before tests; retained. Frozen Goal9 debug compatibility sidecars used solely as compile resources, not release or Data10 runtime evidence. Initial nested-format Clippy failure retained and corrected without suppression; subsequent checks pass. Native-only target formally released; no author writer or Core-main target usage. Independent review/actual OS native dialog still pending.
