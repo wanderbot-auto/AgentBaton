@@ -1,0 +1,34 @@
+{
+  "base": "a2c5bcf47fd60d66207e2cc93c94db4f7f648057",
+  "reviewed_worktree": "/workspace/.worktrees/goal-integration",
+  "workflow": ".github/workflows/product.yml",
+  "before_sha256": "a246e9b14eacdb1178acef3ba6d63a382b05108f798abd321ba5a2ec870fd010",
+  "after_sha256": "2debf199476273c81f3e608d8887c2927c675e2b2db4e15f23b48331e3d90b7e",
+  "only_mutated_tracked_path": ".github/workflows/product.yml",
+  "exact_byte_inverse_proof": "removing exactly2comments+restoring desktop45→30 produces entire old workflow byte-for-byte",
+  "syntax": {
+    "parser": "PyYAML",
+    "version": "6.0.3",
+    "parsed": true,
+    "only_semantic_change": "jobs.desktop.timeout-minutes30→45"
+  },
+  "unchanged_critical_source_hashes": {
+    "scripts/native-macos-smoke.sh": "29ea54f7e94229a46934686f73a73c7e215c5dc5da3d123523c2b2734b29bb61",
+    "scripts/native-run.py": "c46145848ec5ae4ee966f0781b92d5a4079232a4cb054dda4ce82e0505bb1845",
+    "scripts/native-audit-release.sh": "dd60a45803ebc66c8dc5a19bba24da35b6e20716589b332314c7d1ecc4fa52d0",
+    "scripts/package-development-macos.sh": "5f2234ec7e50d5a6d7dd71d22d4115b85d2a74c6f653b32877fd715a029e33d6",
+    "crates/providers/tests/native_codex.rs": "aff6e9cac154f7877b6f0a969d4cadaaa7e32c2a28638fcb9546b088d7b1c8e3",
+    "crates/core/tests/command_validation.rs": "83aa18cf1b4a639c3c082798dfcac08ac358ff600ee880d2905246faa79c1960",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "844fd6410315d6c3fb99828b212d46b1f1d5caf76e02a471a04a0caf5e84dd2e",
+    "apps/desktop/tests/quiet-canvas-real-ipc.py": "d6a3f683e7ffcd354fb21c200488c25e228ebbf5a7ef290bef56c952e7598ebd",
+    "apps/desktop/tests/command-validation-real-ipc.py": "05b37fbb969ca750b93887ad1125a5c5e7ebb459ff7151edc5d055315673a41d",
+    "apps/desktop/tests/goal-planning-real-ipc.py": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018"
+  },
+  "verdict": "no blocking finding; bounded whole-job build execution allowance, suitable for new exact-head CI; no functional pass claimed",
+  "old_cancellation": "122675947130 annotation confirms maximum30m; actual native tests/lifecycle passed and only app release compile cancelled; audit/IntelDMG absent",
+  "permission_scope": "existing authorized hostedCI quota only; no new runner/matrix/parallelism/account/purchase/signing/Provider permission",
+  "unchanged_checks": "all3Environment and all4Product checks, every command/test/runner/type/step/failure condition/audit/package remain unchanged",
+  "files": {
+    "ci-build-budget.diff": "36b47b3809541eb5a9361d9abb8722d7503f180fadacfb84cc4c98830b1f7266"
+  }
+}

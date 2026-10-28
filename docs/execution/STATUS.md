@@ -1,5 +1,15 @@
 # AgentBaton 执行状态
 
+## A2C5 final and bounded CI build budget
+
+Exacta2c5bcf Product40646347414/Env40646347269, checkoutc67d741713c35af95ef146799f36c52b2f268f6c treef9452465 equalshead, final6success/1cancelled. BothNative pairs actuallypassed13host+12harness, Goal3+independent unchanged DBcounts/sequence, originalCommand3/Data3, first/reopenedWebView/lifecycle/PNG. ARM defaultreleaseaudit/package passed (actualDMGd99d9614,adhoc), Intel releasebuild hit whole-job30m cap after20m21Core/nativehost+70sNative+7m6releasecompile. Annotation/raw6bbe1a20 confirmed exact cause; Intel audit/package skipped, no dualDMGpair and NO MERGE. HistoricalARM initialize cause remainsunknown; newgeneratedprotocol20 passes do not retroactively establish cause.
+
+CI_BUILD_BUDGET_ADR/REVIEW/VERIFICATION narrowly change onlyexistingdesktop job wallclock30→45, same2runners/maxparallel2/allsteps, all product500ms/1000ms/3s/nativeRunner bounds untouched. Independent mechanical reverse comparison and YAMLparse passed. All67 finalA2 artifacts/raw/API files rehashed byRoot beforecopy; source codeunchanged. InitialRoot manifest verification used its own directory ratherthan documented parent evidence root and failed beforecommit/push; correctedRoot-rooted verification passed all67, without changing any record. Newnormalpush will require newexact7/nativepair/dualDMGs, never oldgreen or partialARMpackage.
+
+Data integration is separately saved draftPR14 https://github.com/wanderbot-auto/AgentBaton/pull/14 head822c3bb, stacked onGoalbranch; local515+7docs/367UI/native22+12/freshUnixIPC70checks47PNG andindependentreviews passed, not remoteCI/macOS. Full130 remainsincomplete; actualGoal runtimeCore/UI workstreams continue independently with newgoal_execution nativepermission ratherthan reinterpreting oldpreview-only receipt. Longproject-name sidebarscroll observed inNativeIntel is being fixed in an independently verified one-declarationCSSleaf; no currentMacfixclaim. ExtraProvider/credentials/fees/signing/production gates remainclosed.
+
+以下为历史检查点。
+
 ## Quota-resume checkpoint — 2026-10-28
 
 Runtime actually connected/running and network enforced; tools and native agents are executing again. Actual fetch main remains bcf10bb802258645c554f37581237a6c0cb3cbe6; OWNER001/002 reread ACK, no003. PR13 remote0a0beac completed5success/2MacFAIL, not merged. Exactcheckout3d958a/tree d232, ARM native protocol startup18/19 TimeoutUnknown(original500ms, historical mode/cause unknown), Intel workspace+host13 pass then alias positive socket bind11/12; no new native pair/default-release audit/DMGs. CI_0A0B_FAILURE/VERIFICATION and independent NATIVE_0A0B_REVIEW preserve actual failure and all raw hashes.
