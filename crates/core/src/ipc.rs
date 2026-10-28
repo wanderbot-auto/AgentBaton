@@ -334,6 +334,7 @@ pub struct Daemon {
     supervisor: Supervisor,
     command_workers: crate::command_workers::CommandWorkers,
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
+    goal_pending: Option<(String, Receiver<Value>)>,
 }
 impl Daemon {
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
@@ -389,6 +390,7 @@ impl Daemon {
             supervisor: Supervisor::new(runtime_dir),
             command_workers: Default::default(),
             data_workers,
+            goal_pending: None,
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
@@ -399,6 +401,7 @@ impl Daemon {
             self.command_workers.tick(&mut self.store)?;
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
+            self.tick_goals()?;
             for _ in 0..16 {
                 let Ok(job) = ready.try_recv() else {
                     break;
@@ -508,6 +511,25 @@ impl Daemon {
             "data_workspaces.list" => {let p:ProjectId=params(r.params)?;Ok(json!(self.store.list_data_workspace_creations(&p.project_id)?))}
             "data_workspaces.cancel" => {let p:DataCreationId=params(r.params)?;let record=self.store.cancel_data_workspace_creation(&p.creation_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;self.data_workers.cancel(&p.creation_id);Ok(json!(record))}
             "data_workspaces.create" | "data_workspaces.approve" => Err(CoreError::new("AUTH_REQUIRED","A server-fixed preview and native data_workspace owner confirmation are required before copying")),
+            "goal_runs.propose"=>{let p:crate::goal_store::GoalRunSelection=params(r.params)?;Ok(json!(self.store.propose_goal_run(&p,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "goal_runs.get"=>{let p:GoalRunId=params(r.params)?;self.store.goal_run_details(&p.run_id)}
+            "goal_runs.list"=>{let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_runs(&p.task_id)?))}
+            "goal_runs.cancel"=>{let p:GoalRunId=params(r.params)?;let (run,stops)=self.store.cancel_goal_with_stops(&p.run_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;for id in stops {self.supervisor.cancel(&id);}Ok(json!(run))}
+            "goal_runs.advance_plan"=>{let p:crate::goal_store::GoalPlanAdvance=params(r.params)?;Ok(json!(self.store.advance_goal_plan(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "goal_runs.dispatch"=>{
+                let mut p:crate::goal_store::GoalRunDispatch=params(r.params)?;let revision=r.expected_revision.ok_or_else(invalid)?;let key=r.idempotency_key.ok_or_else(invalid)?;
+                let (receipt,new)=self.store.admit_goal_advance(&p,revision,&key)?;if !new{return Ok(receipt);}
+                p.expected_ledger_revision=self.store.sequence()?;
+                let started=Instant::now();
+                let action=(||->Result<()> {
+                    if let Some(session)=self.store.goal_dispatch_session(&p,revision)? {
+                        if let Err(error)=self.supervisor.launch(&mut self.store,&session.id){self.supervisor.record_local_launch_failure(&mut self.store,&session.id)?;self.store.settle_goal_worker(&session.id,u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),true,true)?;return Err(error);}
+                        return Ok(());
+                    }
+                    if let Some((id,text))=self.store.goal_prompt(&p,revision)?{if let Err(error)=self.supervisor.send(&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}Ok(())
+                })();
+                if let Err(mut error)=action {if error.side_effect_state=="not_started"{error.side_effect_state="confirmed".into();}error.details_ref=receipt["intent_id"].as_str().map(|id|format!("recorded-goal-advance:{id}"));return Err(error);}Ok(receipt)
+            }
             "goal_scopes.propose" => {
                 let selection:crate::goal_store::GoalScopeSelection=params(r.params)?;
                 let key=r.idempotency_key.ok_or_else(invalid)?;
@@ -1223,6 +1245,49 @@ impl Daemon {
                 }
                 ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
             }
+            "goal_runs.propose" => {
+                let p: crate::goal_store::GoalRunSelection = params(request.params)?;
+                if let Some(key) = request.idempotency_key.as_deref() {
+                    if self
+                        .store
+                        .goal_execution_proposal_replay(&p, key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
+            }
+            "goal_runs.advance_plan" => {
+                let p: crate::goal_store::GoalPlanAdvance = params(request.params)?;
+                if let (Some(key), Some(revision)) = (
+                    request.idempotency_key.as_deref(),
+                    request.expected_revision,
+                ) {
+                    if self
+                        .store
+                        .goal_plan_advance_replay(&p, revision, key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                let run = self.store.get_goal_run(&p.run_id)?;
+                ids.push(self.store.get_goal_scope(&run.scope_id)?.workspace_id);
+            }
+            "goal_runs.dispatch" => {
+                let p: crate::goal_store::GoalRunDispatch = params(request.params)?;
+                if let (Some(key), Some(revision)) = (
+                    request.idempotency_key.as_deref(),
+                    request.expected_revision,
+                ) {
+                    if self.store.goal_advance_replay(&p, revision, key)?.is_some() {
+                        return Ok(vec![]);
+                    }
+                }
+                let run = self.store.get_goal_run(&p.run_id)?;
+                ids.push(self.store.get_goal_scope(&run.scope_id)?.workspace_id);
+            }
             "goal_plans.ready_preview" => {
                 let p: GoalScopeId = params(request.params)?;
                 ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
@@ -1326,6 +1391,11 @@ impl Daemon {
                 if let Some(raw) = raw {
                     let proposal: crate::sessions::ApprovalProposal = crate::storage::decode(&raw)?;
                     match proposal.kind.as_str() {
+                        "goal_execution" => {
+                            if let Some(id) = proposal.snapshot["intent"]["scope_id"].as_str() {
+                                ids.push(self.store.get_goal_scope(id)?.workspace_id);
+                            }
+                        }
                         "goal" => {
                             if let Some(id) = proposal.snapshot["intent"]["grant_id"].as_str() {
                                 ids.extend(self.store.get_grant(id)?.scope.workspace_ids);
@@ -1526,5 +1596,58 @@ impl Daemon {
             .ok()
             .and_then(|v| v["request_id"].as_str().map(str::to_owned));
         json!({"request_id":request_id,"result":result,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
+    }
+}
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct GoalRunId {
+    run_id: String,
+}
+impl Daemon {
+    fn tick_goals(&mut self) -> Result<()> {
+        for id in self.store.goal_stop_requests()? {
+            self.supervisor.cancel(&id);
+        }
+        if let Some((id, receiver)) = self.goal_pending.take() {
+            match receiver.try_recv() {
+                Ok(response) => {
+                    if let Some(code) = response["error"]["code"].as_str() {
+                        if !matches!(code, "STALE_REVISION" | "WORKSPACE_BUSY") {
+                            self.store.block_goal_run(&id, code)?;
+                        }
+                    }
+                }
+                Err(std::sync::mpsc::TryRecvError::Empty) => {
+                    self.goal_pending = Some((id, receiver));
+                    return Ok(());
+                }
+                Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                    self.store
+                        .block_goal_run(&id, "INTERNAL_ADVANCE_INTERRUPTED")?;
+                }
+            }
+        }
+        if self.data_workers.has_workers() {
+            return Ok(());
+        }
+        let mut next = None;
+        for r in self.store.active_goal_runs()? {
+            if self.store.goal_run_needs_advance(&r.id)? {
+                next = Some(r);
+                break;
+            }
+        }
+        let Some(run) = next else { return Ok(()) };
+        let ledger = self.store.sequence()?;
+        let raw=serde_json::to_string(&json!({"api_version":API_VERSION,"request_id":Uuid::new_v4().to_string(),"token":self.token,"method":"goal_runs.dispatch","params":{"run_id":run.id,"expected_ledger_revision":ledger},"expected_revision":run.revision,"idempotency_key":format!("goal-advance:{}:{}:{}",run.id,run.revision,ledger)})).map_err(|_|CoreError::new("INTERNAL_ERROR","Cannot construct private Goal advancement"))?;
+        let (reply, receive) = mpsc::sync_channel(1);
+        self.goal_pending = Some((run.id, receive));
+        self.handle_ready_request(ReadyRequest {
+            raw,
+            reply,
+            deadline: Instant::now() + Duration::from_secs(60),
+        });
+        Ok(())
     }
 }

@@ -24,7 +24,7 @@ fn version9() -> (tempfile::TempDir, PathBuf, Vec<u8>) {
         .unwrap();
     drop(s);
     let db = Connection::open(&path).unwrap();
-    db.execute_batch("DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;CREATE TABLE original_blob(raw BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=9;").unwrap();
+    db.execute_batch("DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;CREATE TABLE original_blob(raw BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=9;").unwrap();
     drop(db);
     let before = fs::read(&path).unwrap();
     (d, path, before)
@@ -49,7 +49,7 @@ fn actual_schema9_upgrade_has_private_exact_old_bytes_backup_and_does_not_seed_m
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        10
+        11
     );
     assert_eq!(
         db.query_row("SELECT raw FROM original_blob", [], |r| r
@@ -127,10 +127,10 @@ fn schema10_migration_collision_rolls_back_every_new_table_and_preserves_unknown
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema11_is_refused_without_touching_bytes_or_creating_migration_backup() {
+fn future_schema12_is_refused_without_touching_bytes_or_creating_migration_backup() {
     let (d, path, _) = version9();
     let db = Connection::open(&path).unwrap();
-    db.execute_batch("PRAGMA user_version=11;").unwrap();
+    db.execute_batch("PRAGMA user_version=12;").unwrap();
     drop(db);
     let before = fs::read(&path).unwrap();
     assert_eq!(

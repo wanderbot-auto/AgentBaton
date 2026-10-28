@@ -89,11 +89,29 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 10 {
+        if version > 11 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
             ));
+        }
+        if version > 0 && version < 11 {
+            let backup = path.with_extension(format!("pre-v11-{}.sqlite3", Uuid::new_v4()));
+            drop(
+                OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .mode(0o600)
+                    .open(&backup)
+                    .map_err(|_| {
+                        CoreError::new(
+                            "INTERNAL_ERROR",
+                            "Cannot create Goal runtime migration backup",
+                        )
+                    })?,
+            );
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
         }
         if version > 0 && version < 10 {
             let backup = path.with_extension(format!("pre-v10-{}.sqlite3", Uuid::new_v4()));
@@ -179,6 +197,7 @@ impl Store {
         }
         crate::goal_store::migrate(&mut conn, version)?;
         crate::data_workspaces::migrate(&mut conn, version)?;
+        crate::goal_store::migrate_runtime(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -192,6 +211,7 @@ impl Store {
         store.recover_sessions()?;
         store.recover_command_validations()?;
         store.recover_data_workspace_operations()?;
+        store.recover_goal_runs()?;
         Ok(store)
     }
     /// Authenticated entry point: new tasks require an active registered project or legacy local scope.
