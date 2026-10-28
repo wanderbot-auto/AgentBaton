@@ -25,7 +25,7 @@ import time
 import uuid
 
 
-# Exact schema12 tables: never substitute old test DDL or silently skip absent
+# Exact schema13 tables: never substitute old test DDL or silently skip absent
 # tables. Every Goal store/runtime/graph table is empty in this Grant-only probe.
 GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
                'goal_plan_revisions', 'goal_plan_proposals', 'goal_ledgers',
@@ -33,7 +33,10 @@ GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
                'goal_run_nodes', 'goal_run_reservations', 'goal_graph_capabilities',
                'goal_graph_jobs', 'goal_graph_candidates', 'goal_graph_validations',
                'goal_graph_owner_decisions', 'goal_graph_acceptances')
-ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES)
+FACTORY_TABLES = ('factory_scopes', 'factory_runs', 'factory_task_lineage',
+                  'factory_task_bindings', 'factory_delegations', 'factory_attempts',
+                  'factory_scoped_handles', 'factory_handoffs', 'factory_budget_reservations')
+ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES, *FACTORY_TABLES)
 
 
 def save(path, value):
@@ -105,7 +108,7 @@ def database(runtime, proposal_id):
 
 
 def pending_error(value, proposal, sequence):
-    if (value.get('read_only') is not True or value.get('schema_version') != 12
+    if (value.get('read_only') is not True or type(value.get('schema_version')) is not int or value.get('schema_version') != 13
             or type(value.get('sequence')) is not int or value['sequence'] != sequence
             or value.get('proposal') != proposal or proposal.get('kind') != 'grant'
             or proposal.get('consumed') is not False or value.get('proposal_result') is not None
@@ -120,7 +123,7 @@ def pending_error(value, proposal, sequence):
 def approved_error(value, proposal, baseline, response):
     grants = value.get('grants')
     current = value.get('proposal', {})
-    if (value.get('read_only') is not True or value.get('schema_version') != 12
+    if (value.get('read_only') is not True or type(value.get('schema_version')) is not int or value.get('schema_version') != 13
             or not isinstance(grants, list) or len(grants) != 1
             or current.get('id') != proposal['id'] or current.get('snapshot') != proposal['snapshot']
             or current.get('kind') != 'grant' or current.get('consumed') is not True

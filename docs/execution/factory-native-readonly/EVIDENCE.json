@@ -1,0 +1,143 @@
+{
+  "baseline": "641be86e8b055920787cfebdd48270716d509309",
+  "branch": "codex/factory-native-readonly",
+  "recorded_at_utc": "2026-10-28T19:17:15.727058+00:00",
+  "authority": "AB-START-001",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "requirements": [
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-TSK-010",
+    "AB-TSK-012",
+    "AB-SEC-002",
+    "AB-SEC-003"
+  ],
+  "dimension": "test-only schema13 compatibility and no-authority readonly evidence; partial, not full requirement acceptance",
+  "source_sha256": {
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "ea477d18088f685ab06db7a0c5f5853a6fd1819b5ae075b41e6257ac97077677",
+    "apps/desktop/src-tauri/tests/test_native_owner_dialog.py": "a1b6864c9a75456f3965c0b1fad3a0ff9c02537708d23a092e79ffec926747ec",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "dcbd9959811c9d1d13d06778b0a021063c92e329a96d374137e5a81191875113",
+    "scripts/native-owner-dialog-smoke.py": "f1d148f4f5a2ea22dd69f867d4df5ae5b0128db46a6a406291dc19b75f587e24",
+    "scripts/native-run.py": "813ff1bbb901aac58f441ede157f59a05b2726a0295ddaaa363e074d00030f51"
+  },
+  "preservation_checks": {
+    "GOAL_READONLY_SQL_byte_identical": true,
+    "GOAL_EXECUTION_READONLY_SQL_byte_identical": true,
+    "GOAL_GRAPH_READONLY_SQL_byte_identical": true,
+    "webcrypto_original_full_helper_block_identical": true,
+    "FIRST_original_restored_by_removing_only_factory_additions": true,
+    "SECOND_byte_identical": true,
+    "record_count_DTO_fields_exact": true,
+    "query_only_and_real_readonly_uri": true,
+    "owner_original_19_tables_preserved_plus_exact_factory9": true,
+    "only_allowed_test_sources_changed": true,
+    "owner_OS_controller_and_wrapper_untouched": true,
+    "match_observed_WIP_table_names": true
+  },
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s apps/desktop/src-tauri/tests -p test_native_runner.py -v",
+      "exit_code": 0,
+      "passed": 32,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 2.634,
+      "log": "/workspace/.onboarding/factory-native-readonly/native-runner-tests.log"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 /workspace/.onboarding/factory-native-readonly/run-owner-unit-controls.py",
+      "exit_code": 0,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "scope": "explicit pure unit subset; not complete Owner suite or actualCore13",
+      "not_run": [
+        {
+          "id": "factory_owner_controls.OwnerRunnerControls.test_real_readonly_sqlite_observation_rejects_authority_change",
+          "reason": "requires designated frozen schema13 actual Core binary; not yet provided; no old binary or invented DDL substituted"
+        }
+      ],
+      "log": "/workspace/.onboarding/factory-native-readonly/owner-unit-controls.log"
+    },
+    {
+      "command": "node /workspace/.onboarding/factory-native-readonly/check-node.cjs",
+      "exit_code": 0,
+      "syntax_scripts": 2,
+      "crypto_contexts": 4,
+      "unavailable_negative_controls": 4,
+      "dimension": "actual Node global WebCrypto/TextEncoder only; NOT Native WebView/macOS",
+      "log": "/workspace/.onboarding/factory-native-readonly/node-checks.log"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 /workspace/.onboarding/factory-native-readonly/source-checks.py",
+      "exit_code": 0,
+      "python_compile_no_bytecode": true,
+      "log": "/workspace/.onboarding/factory-native-readonly/source-checks.log"
+    },
+    {
+      "command": "RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --check apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "exit_code": 0,
+      "dimension": "source format/syntax only, not Rust compile"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "rust_harness": {
+    "source_test_bodies": 30,
+    "executed": false,
+    "compiled": false
+  },
+  "actual_core13_owner_database_observation": "not_run_requires_designated_frozen_binary",
+  "actual_factory_fixed_native_handlers": "not_run_requires_composition",
+  "actual_native_webview": "not_run",
+  "macos_arm64": "not_run",
+  "macos_x64": "not_run",
+  "actual_factory_private_multipage_os_approval": "not_run",
+  "actual_current_release_binary_audit": "not_run",
+  "cargo_used": false,
+  "target_writes": false,
+  "formal_approval": false,
+  "ci_triggered": false,
+  "pushed": false,
+  "known_failures": [],
+  "remaining_prerequisites": [
+    "Root compose frozen Core schema13 and UI Native bridge",
+    "Root grant unique Cargo/Native lease",
+    "designated actual schema13 daemon for real Owner database test"
+  ],
+  "factory_core_observation": {
+    "state": "observed WIP source only; final schema13 DDL and runtime were not frozen or tested",
+    "source_path": "/workspace/.worktrees/factory-runtime-core/crates/core/src/factory_store.rs",
+    "observed_entire_source_file_sha256": "f9a70f9601ff2b3480a49fb6875222ee6bb06a47dc14025ee921ef599593a290",
+    "observation_record_written_at_utc": "2026-10-28T19:15:36.013515+00:00",
+    "time_basis": "Retained source-checks.json write timestamp; not a Core freeze or runtime execution timestamp",
+    "comparison_scope": "Only the set of nine CREATE TABLE factory_* table names was compared with the native readonly SQL list; no column, nullability, primary-key, unique-constraint, authority-kind or final DDL compatibility was established",
+    "table_names": [
+      "factory_scopes",
+      "factory_runs",
+      "factory_task_lineage",
+      "factory_task_bindings",
+      "factory_delegations",
+      "factory_attempts",
+      "factory_scoped_handles",
+      "factory_handoffs",
+      "factory_budget_reservations"
+    ],
+    "retained_inspector_original_label": "all_nine_SQL_tables_match_frozen_core_DDL",
+    "label_correction": "The prior inspector label overstated its table-name-only observation. This documentation-only correction does not rerun it or claim that WIP columns were frozen.",
+    "runtime_test_status": "not_run"
+  },
+  "documentation_correction": {
+    "recorded_at_utc": "2026-10-28T19:35:13.366226+00:00",
+    "source_commit_unchanged": "12b100cb2d6679525eb74750d35371fd2428e2a3",
+    "scope": "Observed WIP table-name wording only; no source changes or checks rerun"
+  }
+}
