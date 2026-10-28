@@ -94,7 +94,7 @@ def bounded_file(path, limit, expected_parent=None):
         assert parent == expected_parent
     parent_fd = os.open(parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
-        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent_fd)
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent_fd)
         try:
             before = os.fstat(fd)
             assert stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_uid == os.getuid()
@@ -1248,6 +1248,15 @@ def diagnostic_self_check():
         assert condition, name; checks.append({'name':name,'status':'passed'})
     with tempfile.TemporaryDirectory(prefix='factory-diagnostic-unit-') as temporary:
         root=Path(temporary); output=root/'evidence'; output.mkdir(mode=0o700)
+        fifo=root/'record-fifo'; os.mkfifo(fifo,0o600)
+        try: bounded_file(fifo,1024,root)
+        except AssertionError: check('FIFO without writer opens nonblocking then fails regular-file check')
+        else: raise AssertionError('FIFO was accepted')
+        with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as listener:
+            unix_socket=root/'record-socket'; listener.bind(str(unix_socket))
+            try: bounded_file(unix_socket,1024,root)
+            except OSError: check('Unix socket path cannot be accepted as record file')
+            else: raise AssertionError('Socket was accepted')
         installed={}; source=Path('/usr/bin/true').resolve(strict=True); original=sha(source.read_bytes())
         daemon,cli=install_private_tools(source,source,root/'installed',installed)
         check('real strip tool acts only on exclusive private CLI copy', installed['strip_argv'][-1]==str(cli) and not cli.samefile(source))
