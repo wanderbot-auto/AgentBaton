@@ -1,5 +1,15 @@
 # AgentBaton 执行状态
 
+## 03BB infrastructure-policy correction
+
+Source03bbec8/checkoutcb41f7f Product40650374473 hasRust/UI success andMacrunning before replacement, while Env40650374542 actually3FAIL at static blanket30m guard. This cross-file requirement was missed by Root and initialbudgetreview; previousreview and actualfailed logs remain, not silently relabelled. Nevermergeorborrowoldgreen.
+
+Revisedresourcepolicy grants45 onlytoexactproduct.yml/desktop withoriginalmatrix[macos15,Intel], matrixrunnerselector,maxparallel2,failfastfalse; everyotherjob/workflow remainscap30, unknown/malformed/expandedconfigurationdenied. OriginalEnvironmentworkflow/allsteps andall28oldinfrastructuretests byte-identical. New6testmethods joinexistingdiscovery (no skip); local full34Python/4Node/staticinfra/design passed. Independent full34/4 plus12actualmaincontrols,6guard subset and93Bootstrap passed; REVIEW3085b59e/manifest8fe180cf copied/rehashed. AddedonlyoneBootstrapentry(newtest); knownvalidator/CIplanhashesupdated; STATUShash onlynowupdated. OriginalProducttesttimeouts/runneraudit/package scripts unchanged.
+
+mainfetchedstillbcf10bb; OWNER001/002 rereadACK. Normalpush nextheadonce, existingworkflowconcurrency may supersedeoldrunningProduct andmustberecorded; no manual retry/cancel/readytoggle. Newexact7/native/dualpackageevidence stillmandatory. DataPR14draft remainsseparatewithcurrentlocalchecks; independentCSS25e9fbe Root39/28 source/assets confirmed. ActualGoalCoreWIP39dd firstgeneratedruntimePASS only, independentreview/remainingfailure/replan/Factory/acceptance andUIcontinuing; notfullGoalcompletion. Allproduction/privateProvider/extraexpense/signinggatesremainclosed.
+
+以下保留历史检查点。
+
 ## A2C5 final and bounded CI build budget
 
 Exacta2c5bcf Product40646347414/Env40646347269, checkoutc67d741713c35af95ef146799f36c52b2f268f6c treef9452465 equalshead, final6success/1cancelled. BothNative pairs actuallypassed13host+12harness, Goal3+independent unchanged DBcounts/sequence, originalCommand3/Data3, first/reopenedWebView/lifecycle/PNG. ARM defaultreleaseaudit/package passed (actualDMGd99d9614,adhoc), Intel releasebuild hit whole-job30m cap after20m21Core/nativehost+70sNative+7m6releasecompile. Annotation/raw6bbe1a20 confirmed exact cause; Intel audit/package skipped, no dualDMGpair and NO MERGE. HistoricalARM initialize cause remainsunknown; newgeneratedprotocol20 passes do not retroactively establish cause.
