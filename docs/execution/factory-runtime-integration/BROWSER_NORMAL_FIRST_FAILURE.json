@@ -1,0 +1,62 @@
+{
+  "source_integration": "5e0b538a61bf7221bcc09f24ed1f63cbfa67d73c",
+  "harness_source": "84ec373512ea9619b6e524885e9105dad7557134",
+  "harness_sha256": "fb926ccd27af3b7d4ba362c96857efeaaf0490cbf30fd817a1d8aeb776afde8d",
+  "candidate_manifest_sha256": "4194ae2d57dd15d5164fd9fc87d62cf4b8bc52a3cbe552b0dab87571b4c9414a",
+  "command": [
+    "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+    "apps/desktop/tests/factory-real-ipc.py",
+    "--case",
+    "normal",
+    "--batond",
+    "/workspace/AgentBaton/.onboarding/factory-data-controlled-candidate/batond",
+    "--candidate-manifest",
+    "/workspace/.onboarding/factory-candidate-0ef/manifest.json",
+    "--frontend",
+    "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+    "--output",
+    "/workspace/.onboarding/factory-browser-root/normal-first"
+  ],
+  "execution_session_id": 7747,
+  "start_utc": "not separately captured; timestamps in retained real events are not relabelled as process start",
+  "report_written_mtime_utc": "2026-10-28T21:52:29.809045+00:00",
+  "exit_code": 1,
+  "status": "failed_or_interrupted",
+  "checks_passed": 2,
+  "screenshots": 2,
+  "reason": "normal expected completed; actual parent waiting_child and child/run outcome_unknown",
+  "observed_events": "retained-http-events.json: parent dispatch\u2192ready4.88s; childdispatch\u2192stop5.02s, process_reapedfalse/reason factory_preflight_cancelled_or_deadline. Timing alone does not prove which preflight step consumed budget.",
+  "cleanup": "HTTP thread/handlers joined; private daemon exit0/no forcedkill. Generatedidentity verification absent0/required3 so cleanup_completefalse retained, not converted to success.",
+  "evidence_limits": "temporary SQLite/workspace and raw generated records deleted by original driver; do not claim original DB/childrecords retained. HTTP captures40completeevents provide bounded diagnostic history. Author adding failure retention before next run.",
+  "next": "private installed compact CLI analogous to Core fixture, raw frozen tools immutable; no duration/expectedterminal relaxation; independent review then actual rerun",
+  "archive": "BROWSER_NORMAL_FIRST_FAILURE.tar.gz",
+  "bytes": 378466,
+  "sha256": "a0766d51d787315e615f8a7deac6ca0392d5fcdea44355254f29cf861a5be8ee",
+  "all_regular_members_roundtrip_verified": true,
+  "files": {
+    "failure-current-ui.png": {
+      "bytes": 157786,
+      "sha256": "c3aa0b23e91f83e446127caf228723a40bcb186311caec006992f05a49e54612"
+    },
+    "daemon.log": {
+      "bytes": 59,
+      "sha256": "4bcc7f2b81fee3611d930d47e97c800e6c5584da09d53c810b90bf40cc64c524"
+    },
+    "retained-http-events.json": {
+      "bytes": 41428,
+      "sha256": "3f500ae8df3e8eb9d02eb955d43e990df7605a1ce3f7a2e06c66a833ae50d340"
+    },
+    "01-real-approved-scope-not-started.png": {
+      "bytes": 155486,
+      "sha256": "f943187b9af3e032a55fb0825d0af36c16a2df2964336244fe5155ab91e59825"
+    },
+    "report.json": {
+      "bytes": 772278,
+      "sha256": "09586eb70841e65892f3ef780e8791f5c35a0ce1f1f83b5efc5cf7b3a435592d"
+    },
+    "stdout.log": {
+      "bytes": 149,
+      "sha256": "dfa1151911e26d22f92a22f4245462dde4b48352c15792a16727c8f067780dd5"
+    }
+  }
+}

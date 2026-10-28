@@ -7,3 +7,5 @@ Actual commands, dates, exits and stdout are in NATIVE_COMPOSITION_EVIDENCE.tar.
 Next: integrate reviewed next Core fixes, frozen exact rebuilt daemon/CLI; fix independent browser failure/empty-evidence findings before running it; Node/type/build and actual composed UI/IPC, full regression and independent review. Keep full130 scope open. Runtime quota/Goal tool not exposed; no fabricated scheduler/continuation. External Cloud task ID01a178c5-a34b-76c3-9181-2a0d46d01016 is inherited, not independently verified.
 
 Node stage completed:643/41/type/build0; built dist at apps/desktop/dist (JSf31b650f/CSSbdb1e006/index409c30ec). It is ready for the reviewed real driver and an exact frozen Corecandidate; no runtime conclusion yet.
+
+Core0ef merged8cbe, corrected harness84ec merged5e0;45candidate sources and raw081a/89eb verified. Actualnormal first exit1 preserved in BROWSER_NORMAL_FIRST_FAILURE*, no cancel/unknown run. Full runtime acceptance remains open. Root no browser/daemon/Cargo remains; Core lease active. Native source rendering repair proceeds in separate schema12 branch after actualMac e3cc failures.

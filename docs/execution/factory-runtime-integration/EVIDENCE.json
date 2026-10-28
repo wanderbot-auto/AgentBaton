@@ -37,7 +37,7 @@
   "artifact_manifest": "NATIVE_COMPOSITION_MANIFEST.json",
   "sidecar_copy_incident": "SIDECAR_COPY_CORRECTION.json",
   "not_run": [
-    "actual Factory composed browser/Unix IPC",
+    "successful Factory composed browser/Unix IPC and cancel/unknown cases",
     "Factory macOS/AppKit/default production release audit/installers",
     "full workspace and full Factory failure/budget/unknown/recovery regression",
     "live product Provider/accounts/remote hosts"
@@ -63,5 +63,19 @@
     },
     "evidence": "NODE_COMPOSITION_MANIFEST.json",
     "scope": "Node mocked UI/contract tests and real frontend build; not actual Factory browser/IPC"
+  },
+  "current_core_followup": {
+    "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+    "integration": "8cbe754a89c52cd828cff59930c8a7f98a96e44e",
+    "production_sources_45_match": true,
+    "candidate": "CANDIDATE_0EF_BINDING.json",
+    "independent_static_review": "0ef no new mustfix; elapsedstaticclosed only; dynamic metadata-stall/inflightcancel not_run; portable review import next"
+  },
+  "first_actual_browser": {
+    "evidence": "BROWSER_NORMAL_FIRST_FAILURE.json",
+    "status": "failed_or_interrupted",
+    "exit_code": 1,
+    "checks": 2,
+    "remaining": "normal expectedcompleted not established; cancel/unknown not_run"
   }
 }
