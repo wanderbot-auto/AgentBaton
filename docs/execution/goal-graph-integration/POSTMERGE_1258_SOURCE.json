@@ -1,0 +1,29 @@
+{
+  "worktree": "/workspace/.worktrees/goal-graph-integration",
+  "head": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "time_qualified_handoff": "12:58 UI release andRootreturn exclusiveNativewriterCore; latermilestones excluded",
+  "files": {
+    "BOOTSTRAP_MANIFEST.json": "43de5a081151f172f6e2a9f2ccd006b7caa0466a583c7d029ff274c39b249bf2",
+    "docs/execution/STATUS.md": "af4b03eefa365eb3440d51f0645d76a121d611f5401782fce5ff141563a2f8ce",
+    "docs/execution/goal-graph-integration/CHECKPOINT.md": "43785baf6250aeb98f8e9141be1307229631d1de27f4a8cbf2a960c13aba04e9",
+    "docs/execution/goal-graph-integration/EVIDENCE.json": "c3945edcffd2b4b1f29dfe0075ba6ed2395c85f651fa6fff018353276b4edf67",
+    "docs/execution/goal-graph-integration/PLAN.md": "4076eed8b865526f3c29379109835a5b01ac293ee2fd6d3b5c4622473696a940",
+    "docs/execution/goal-graph-integration/PROGRESS.md": "43785baf6250aeb98f8e9141be1307229631d1de27f4a8cbf2a960c13aba04e9",
+    "docs/execution/goal-runtime-integration/CHECKPOINT.md": "016284ed508f055c7b962a15f99cd33c3fc12914bc9006b20ce16b22b94a8101",
+    "docs/execution/goal-runtime-integration/CI_1C9_FINAL_MANIFEST.json": "d3b0a9ebceb510e12cc4377e36fef10f25e9966e6626f0d5331fa823158f31d1",
+    "docs/execution/goal-runtime-integration/CI_1C9_FINAL_REVIEW.md": "6c6f871a5841e7b48118d72415253c639aa9de970bf00f31cf43ccca2046183a",
+    "docs/execution/goal-runtime-integration/CI_9200_VERIFICATION.json": "27d7a3f8b2d533a30570de29b08f2ee80ce7698bd606c2b639632e9747a88615",
+    "docs/execution/goal-runtime-integration/DEVELOPMENT_ACCEPTANCE_arm64_9200.md": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+    "docs/execution/goal-runtime-integration/DEVELOPMENT_ACCEPTANCE_x86_64_9200.md": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+    "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md": "d547c92f9e89755ef8bf724fea7f61450c1c7393c64c67c92f3d71b71add6073",
+    "docs/execution/goal-runtime-integration/EVIDENCE.json": "ce38cbe5a7f9af8486773c75c5c934753fa71b9e37711edb9dd35df2328e2ed8",
+    "docs/execution/goal-runtime-integration/MERGE_9200.json": "db1d46311580794e6dad22acfe63edb495d9c573e032340414ddc15a8f3a962c",
+    "docs/execution/goal-runtime-integration/MERGE_9200_GUARD.json": "9b126251d45f3517c1c668699fbe5bac06d629e26bf9a84d17e6b731111437a7",
+    "docs/execution/goal-runtime-integration/NATIVE_9200_MANIFEST.json": "ef05f51983efdbbac78ce99e44cec1727e139ea63e643e44b30c941f60bd827c",
+    "docs/execution/goal-runtime-integration/NATIVE_9200_REVIEW.md": "6eef0afc0432f39b4f6b4abd6946691117800da6900cecedc5e8ac2aea4c41d9",
+    "docs/execution/goal-runtime-integration/PACKAGES_9200.json": "bfb9024e540c7f3059774b2d81d5b1581f8b1fed60e070d723fe9e16775154de",
+    "docs/execution/goal-runtime-integration/PACKAGE_9200_VERIFICATION.json": "f4b611e2695f3e6f2aaad4fb74532995ab41546f6754fa33fd4b710fd3dbd425",
+    "docs/execution/goal-runtime-integration/PROGRESS.md": "89b4adf01d2dd69dcba6f3c2226b543c760f0aa60705b140f5c05140012bd549",
+    "docs/execution/requirements-progress.json": "1f7d026f80d146e6ebfb2a9058856895ac3878698bdc4d9c9110dad752b19281"
+  }
+}

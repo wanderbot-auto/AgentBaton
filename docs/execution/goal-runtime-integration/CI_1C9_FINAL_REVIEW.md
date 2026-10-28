@@ -1,0 +1,19 @@
+# PR15 1C9 failed/superseded subject independent record
+
+**BLOCKED; final2 success /3 failure /2 cancelled.** Environment40683715237 failed; Product40683715213 was cancelled following the next normal push under the existing concurrency policy. UI and Rust completed successfully before cancellation. This subject is not accepted for integration or development-package delivery. No manual CI trigger/retry/cancel/ready toggle was performed by this reviewer.
+
+Exact head `1c9e9d58cce8f09e81e25133487251d5d30f3b9e`; actual checkout `b0b3d969ccad21c3984822d0468b9d0c895ea8d9`; GitAPI parents `[a014283c36814c8fbff1ce7b7071ab7e484f2651, 1c9e9d58cce8f09e81e25133487251d5d30f3b9e]`, equal head/checkout tree `26dfbc21ec4f861720cb51491f7402e5ffacd35a`. All seven completed raws and exact checks bind this subject. New9200965 evidence is separate; neither an old success nor cancellation is substituted for a required new result.
+
+All three Environment failures are the same actual `validate_design` assertion: `Broken link in docs/execution/goal-runtime-ui/EVIDENCE.md: /workspace/.onboarding/goal-runtime-ui/verification.json`. The workspace-absolute Markdown link cannot resolve in clean CI. Ubuntu raw was reused byte-for-byte from Root's retained file; ARM/Intel raws were independently downloaded once. Root owns the correction: tracked author manifest plus relative Markdown link, with validator and product/test/CI bytes unchanged. The observed Environment cause is documentation, not a failed product test. That does not prove the interrupted Mac product suite passed.
+
+| Environment job | Raw SHA-256 |
+|---|---|
+|Ubuntu122800626700|`579d82dec4fb6a413eab499c9f0ee1ddbac23f922a69295a2a98e5f72cbbbec1`|
+|Intel122800626258|`8d4fe105d1864318eb41a16fd564777bb8fe3a9360e95d844bbff1c0fcd05d2e`|
+|ARM122800626713|`afc14361b83a581d99a8c634558320f35edf8262e6ec574255e14524c8ae9f15`|
+
+Product UI122800626970 success raw SHA `3f30910b035b2e17a7f1b4bcbed24024f54a446c325c24a505011f1b4e8ecb25` shows445 unit tests and actual Linux UI checks38+5+9+10+8+10=80, including new Goal-execution10. These are actual generated-fixture/Linux/realUnix results, not Mac/native/actualProvider evidence. Frontend artifact12813154010 exists (API digest `7f95ea756ccaf507459890caecc7c4cab7409fb1e038f5f22d9ea98461575bcf`); it was not independently downloaded or visually audited for this already failed subject. Product Rust122800627316 success raw SHA `986d8166767f95addb8e4f892d16da21cbb4dab0487b768d5ab44c00c0d6efe6` preserves the actual completed Rust workflow; provider-contract artifact12813308741 is API-recorded, not a live Provider test.
+
+Mac ARM122800627308 raw SHA `0173ab1b9cff4fa975e73ea93ff354e899b2b4488fceb51fec7f42a1dbbe9df6` and Intel122800627339 raw SHA `8aa42496f12cf99b166825e289069a1c4643ecaf005a69f6c7654c5bafc144c5` both end with actual `The operation was canceled.` while step6 Core/native-host tests was running. Partial successful test output is retained, but the full Mac suite, native28 library/17 harness, real WebView/new three execution flags/schema11 independent run-node-reservation0 and old four-count/sequence binding, original Goal3/Command3/Data3/lifecycle, screenshots, default-release audit and DMGs are **not reached**, not passed. Final artifacts API contains only the current frontend/provider ZIPs; no native or development artifact. Auditors in this directory are prepared exact-subject code, not executed passing evidence. The success-only package helper was not run.
+
+All original logs and observed source hashes are retained. The bounded Product watcher21595 naturally exited after6observations and no old watcher is left active. No source/index/Cargo writes, remote mutations, credentials/accounts/model calls or extra resources were used. Continue on new9200965 with all seven checks and fresh artifacts; this failed/cancelled record remains unchanged.

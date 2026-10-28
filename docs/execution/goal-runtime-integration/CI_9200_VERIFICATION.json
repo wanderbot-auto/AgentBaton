@@ -1,0 +1,89 @@
+{
+  "head": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+  "actual_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+  "parents": [
+    "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+    "9200965aae3fc3277b6ec88949dfe103e8c939a8"
+  ],
+  "equal_tree": "92f62a6ae3d24a57c34275bf4a8608f5ab2dbfd9",
+  "product_run": 40684484532,
+  "environment_run": 40684484589,
+  "checks": [
+    {
+      "id": 122803529896,
+      "name": "Product / macos-15",
+      "head_sha": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+      "conclusion": "success"
+    },
+    {
+      "id": 122803529887,
+      "name": "Product / macos-15-intel",
+      "head_sha": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+      "conclusion": "success"
+    },
+    {
+      "id": 122803529827,
+      "name": "Product / UI",
+      "head_sha": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+      "conclusion": "success"
+    },
+    {
+      "id": 122803529396,
+      "name": "Product / Rust",
+      "head_sha": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+      "conclusion": "success"
+    },
+    {
+      "id": 122803218030,
+      "name": "Environment / macos-15",
+      "head_sha": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+      "conclusion": "success"
+    },
+    {
+      "id": 122803218016,
+      "name": "Environment / macos-15-intel",
+      "head_sha": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+      "conclusion": "success"
+    },
+    {
+      "id": 122803217902,
+      "name": "Environment / ubuntu-24.04",
+      "head_sha": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+      "conclusion": "success"
+    }
+  ],
+  "raw_sha256": {
+    "122803217902": "e3f6d1c22217c52075af8d40f870581fdb0cec6160500f3ee2ccf09030502eed",
+    "122803218016": "68877c1253d577acb058b39617df859176525aeb135a38d14c4eb43f611ca3ff",
+    "122803218030": "c5530ac0bb33201a6aca1b71addec0391e05c66a3bd23b4581a95a93c306f6c8",
+    "122803529396": "d6aa88109d7ae6164aafe6d82b2227821c59d03734cc3fc5d36a1bda42761091",
+    "122803529827": "2dfa0885bb0aac3799b4d9f2dfe5a4d560ff3a3b797a50425ef42414cec77d2c",
+    "122803529887": "105d658a061950bcef23fda056b657e4351f220164b2f6da4a7c22fe53e29e59",
+    "122803529896": "a4e4c9f784f443bca8d3766b7625952d50a0545d4b2c0cbb0c601628df5452ea"
+  },
+  "native_pair": {
+    "arm": 12815038129,
+    "intel": 12815732617,
+    "new_execution_flags": 3,
+    "schema11": true,
+    "run_node_reservation_zero": true,
+    "old_scope_plan_attempt_zero": true,
+    "DB_JS_original_execution_sequences_before_after": 3,
+    "fixed_missing_run": "NOT_FOUND/not_started",
+    "originalGoal_Command_Data": 3,
+    "lifecycle": "passed"
+  },
+  "package_pair": [
+    {
+      "id": 12815652047,
+      "architecture": "arm64",
+      "dmg_sha256": "f061b3aafbe695e921a2dff28bf032af55fb499ba7dffedb3b01a099b3cf322c"
+    },
+    {
+      "id": 12815288881,
+      "architecture": "x86_64",
+      "dmg_sha256": "6d084033f3f895a72965f2411084b7c6fe35d8de9739effdec9849bc9a0ff748"
+    }
+  ],
+  "old1c9": "2success3Envfail2Maccancelled retained separately; not borrowed"
+}

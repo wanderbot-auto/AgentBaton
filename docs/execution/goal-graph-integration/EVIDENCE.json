@@ -1,0 +1,58 @@
+{
+  "status": "in_progress_not_graph_acceptance",
+  "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
+  "postmerge_doc_commands": [
+    {
+      "command": "python3 scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "files": 93
+    },
+    {
+      "command": "python3 scripts/validate_design.py",
+      "exit_code": 1,
+      "failure": "initial CHECKPOINT/PROGRESS appended delivery link resolved in wrong parent; corrected to same-directory relative link; no validator changed"
+    },
+    {
+      "command": "python3 scripts/validate_design.py",
+      "exit_code": 0,
+      "requirements": 130,
+      "answered_questions": 27,
+      "local_links_checked": 41
+    },
+    {
+      "command": "python3 scripts/check_infrastructure.py",
+      "exit_code": 2,
+      "failure": "incorrect file name; no such file; not a validation pass"
+    },
+    {
+      "command": "python3 scripts/validate_infrastructure.py",
+      "exit_code": 0,
+      "scope": "static_only_not_remoteCI"
+    },
+    {
+      "command": "python3 scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "files": 93
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 2,
+      "failure": "independent reviewer found new blank line at EOF in CHECKPOINT/PROGRESS; Root removed trailing blank lines, retaining document text"
+    }
+  ],
+  "graph_runtime": "not_yet_implemented",
+  "native_goal_dialog": "not_verified",
+  "task_accepted": "not_implemented_no_claim",
+  "current_core_wip": "c4b8b70",
+  "core_actual_directed_tests": 8,
+  "ui_mock_node_tests": 513,
+  "native_compile": {
+    "tests": "41lib+17harness",
+    "clippy": "PASS -Dwarnings after retained101 nestedformat warning",
+    "fmt": "PASS",
+    "runtime_dimension": "ownCore04/schema11 compile + actualCore12 proposal6074 callbacks; notCore12 runtime/OSDialog/Mac",
+    "lease": "UI released12:58 no writers; Root explicitly returned sole Native writer toCore"
+  },
+  "full_design": "incomplete"
+}

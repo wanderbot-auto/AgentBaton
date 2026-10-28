@@ -1235,6 +1235,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -1339,6 +1352,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -1549,6 +1575,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -1662,6 +1701,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -1751,6 +1803,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -1857,6 +1922,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -2974,6 +3052,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -3056,6 +3147,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -3329,6 +3433,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -4655,6 +4772,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -4761,6 +4891,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },

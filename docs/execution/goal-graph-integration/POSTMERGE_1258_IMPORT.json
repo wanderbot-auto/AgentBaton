@@ -1,0 +1,13 @@
+{
+  "status": "mechanical exact frozen-review import after Root19evidence+22source rehash",
+  "reviewed_baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "review_manifest_sha256": "6a6bf6361d1c93dde7c675b5b8cca61756cd4c608430ebb8c731838e319089a0",
+  "source_files_rehashed": 22,
+  "review_evidence_rehashed": 19,
+  "copy_sha256": {
+    "POSTMERGE_1258_REVIEW.md": "16f870db5f660c1fd920fde2fb10acb080188d487e41e2e2827725f06159fff7",
+    "POSTMERGE_1258_MANIFEST.json": "6a6bf6361d1c93dde7c675b5b8cca61756cd4c608430ebb8c731838e319089a0",
+    "POSTMERGE_1258_SOURCE.json": "c4763aa4a3415d4445f653e62bd75baefcc29052f12f01e415677651707abc6a"
+  },
+  "scope": "The22-file snapshot is unchanged. These four import files were added after review as a separate hash-chain step; no claim that old source hashes include these new copies. All product Graph WIP remains incomplete."
+}

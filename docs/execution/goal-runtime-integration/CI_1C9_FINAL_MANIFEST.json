@@ -1,0 +1,145 @@
+{
+  "reviewer": "/root/data_native_integration_review",
+  "head": "1c9e9d58cce8f09e81e25133487251d5d30f3b9e",
+  "actual_checkout": "b0b3d969ccad21c3984822d0468b9d0c895ea8d9",
+  "equal_tree": "26dfbc21ec4f861720cb51491f7402e5ffacd35a",
+  "verdict": "BLOCKED2success/3Envfail/2Maccancelled; no native/package acceptance",
+  "files": {
+    "CHECKPOINT.json": {
+      "sha256": "b58b0a2f33d437db1af6b6ac1d58beca8f02fd2f308241302b0c578da35a1b3d",
+      "bytes": 1812
+    },
+    "ENVIRONMENT_FAILURE_VERIFICATION.json": {
+      "sha256": "689bcbbfd5be9cbe0abf2ec5d7b6bf5456857c4a2aa00b7ab1550b63c09f7dd3",
+      "bytes": 1297
+    },
+    "NATIVE_1C9_REVIEW.md": {
+      "sha256": "6c6f871a5841e7b48118d72415253c639aa9de970bf00f31cf43ccca2046183a",
+      "bytes": 3874
+    },
+    "artifacts-final.json": {
+      "sha256": "dab94ba7eb81305083eb3183e055d73199d23d4d52ffd910b1ab7754011ad2a7",
+      "bytes": 1557
+    },
+    "audit-native-artifact.py": {
+      "sha256": "1dcba22b2a04ce0cc4855b30ad03ec9936dcbc3f4d6a874084554360dd7edd6e",
+      "bytes": 6431
+    },
+    "checkout-commit.json": {
+      "sha256": "fc3627d7853a483c14a6804ee78ca77281944ce1859d29ddaf480be3fb3164c8",
+      "bytes": 2660
+    },
+    "checks-final.json": {
+      "sha256": "1ab0504fe50160b81600b138bcfb08f91a92cd7dadd2d11faad035c4f4ddf040",
+      "bytes": 25072
+    },
+    "checks-initial.json": {
+      "sha256": "48433d03c11dc3fe75a21188dcf88307159f93467202da28025ad7f0a7f1cc86",
+      "bytes": 24984
+    },
+    "environment-job-122800626258.log": {
+      "sha256": "8d4fe105d1864318eb41a16fd564777bb8fe3a9360e95d844bbff1c0fcd05d2e",
+      "bytes": 32914
+    },
+    "environment-job-122800626700.log": {
+      "sha256": "579d82dec4fb6a413eab499c9f0ee1ddbac23f922a69295a2a98e5f72cbbbec1",
+      "bytes": 33139
+    },
+    "environment-job-122800626713.log": {
+      "sha256": "afc14361b83a581d99a8c634558320f35edf8262e6ec574255e14524c8ae9f15",
+      "bytes": 33085
+    },
+    "environment-jobs-final.json": {
+      "sha256": "210142f371d2b7183ff2a0d1cde253fa359a2475349ca42268c29e240e659154",
+      "bytes": 11416
+    },
+    "environment-jobs-initial.json": {
+      "sha256": "210142f371d2b7183ff2a0d1cde253fa359a2475349ca42268c29e240e659154",
+      "bytes": 11416
+    },
+    "environment-run-final.json": {
+      "sha256": "a626d1c2900b9f23802a2bb57c338aa02da98cee6e0834e16136b5b7aa58f27d",
+      "bytes": 13396
+    },
+    "environment-run-initial.json": {
+      "sha256": "c7014e15068c42da26b5ee53eb80bf7ce369b222c47181bc6fc002cfd4d7535b",
+      "bytes": 13396
+    },
+    "head-commit.json": {
+      "sha256": "b4c24ff759bc4f8155998048c4db0e915721405365f500afc638282506e55bd7",
+      "bytes": 1200
+    },
+    "job-122800626970.log": {
+      "sha256": "3f30910b035b2e17a7f1b4bcbed24024f54a446c325c24a505011f1b4e8ecb25",
+      "bytes": 70181
+    },
+    "job-122800627308.log": {
+      "sha256": "0173ab1b9cff4fa975e73ea93ff354e899b2b4488fceb51fec7f42a1dbbe9df6",
+      "bytes": 109193
+    },
+    "job-122800627316.log": {
+      "sha256": "986d8166767f95addb8e4f892d16da21cbb4dab0487b768d5ab44c00c0d6efe6",
+      "bytes": 123781
+    },
+    "job-122800627339.log": {
+      "sha256": "8aa42496f12cf99b166825e289069a1c4643ecaf005a69f6c7654c5bafc144c5",
+      "bytes": 80115
+    },
+    "pr-initial.json": {
+      "sha256": "5abbe8ce44cc733378c0d5745cec553f363ba6dc4e246d60da0a37ce9682f041",
+      "bytes": 19925
+    },
+    "preaudit-package-zips.py": {
+      "sha256": "fb6fc2cde6819ff56fffd40695b1c4358a2d60bbf93ec952917f4cc1f21ed2a2",
+      "bytes": 1469
+    },
+    "product-jobs-final.json": {
+      "sha256": "c9bcc1b0e2a6f9338cfd59ed2bd5c703b6eacd6997d0e97b82c09bd08349115e",
+      "bytes": 14731
+    },
+    "product-jobs-initial.json": {
+      "sha256": "033d65e4c57fc15e4ddc55391f396d750788efb47feb508f43515ae16c5f239f",
+      "bytes": 12778
+    },
+    "product-run-final.json": {
+      "sha256": "68374f57f493225cdc56d9dab86de12fe6567a2c65a707ec6a6c8f14d64560c3",
+      "bytes": 13361
+    },
+    "product-run-initial.json": {
+      "sha256": "026d8bb4713b44df98737f7600a2f472b372beaa727dadcc959e52326aec9ab9",
+      "bytes": 13356
+    },
+    "source-verification.json": {
+      "sha256": "4d523fc50ad0361d0d86d4759464f26336ce1fc675f7726361dcfedd4536c851",
+      "bytes": 11160
+    },
+    "watch-product-001.json": {
+      "sha256": "033d65e4c57fc15e4ddc55391f396d750788efb47feb508f43515ae16c5f239f",
+      "bytes": 12778
+    },
+    "watch-product-002.json": {
+      "sha256": "a01ff5d16b7f03b2c5d9edd69c8b5c7b0482cc7237c5610d3d9b310a713f3ecd",
+      "bytes": 13146
+    },
+    "watch-product-003.json": {
+      "sha256": "a01ff5d16b7f03b2c5d9edd69c8b5c7b0482cc7237c5610d3d9b310a713f3ecd",
+      "bytes": 13146
+    },
+    "watch-product-004.json": {
+      "sha256": "bb93726a34cbc9d291654d88fe882c5b7ad0b3eaaab00b966b86afeb616c4be9",
+      "bytes": 13189
+    },
+    "watch-product-005.json": {
+      "sha256": "4270887c35ccdc9767230f7fcf28413fd8df387ecf01cecc38d113a7415f1a02",
+      "bytes": 13643
+    },
+    "watch-product-006.json": {
+      "sha256": "c9bcc1b0e2a6f9338cfd59ed2bd5c703b6eacd6997d0e97b82c09bd08349115e",
+      "bytes": 14731
+    },
+    "watch-product.py": {
+      "sha256": "f54f37b82180ae801775409c83a0d09d5b33050248b5f1a9a91d124517434d76",
+      "bytes": 1561
+    }
+  }
+}

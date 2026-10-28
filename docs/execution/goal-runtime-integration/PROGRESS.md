@@ -43,3 +43,14 @@ PR15准备ready并转main后normalpush最终head一次，需全新七项、双Na
 准确1c9e9d58 / checkoutb0b3d969 的Environment40683715237三项失败：EVIDENCE.md把本地/workspace/.onboarding文件当Markdown链接，Cloud本地真实存在遮蔽了干净CI缺失。Root承担此可移植性漏检；原日志及三个SHA在goal-runtime-integration/CI_1C9_FAILURE.json，未放宽检查器或删证据。43c676a把原a1caf机器manifest逐字保存进仓库并改相对链接，独立干净worktree实跑设计130/27/38links、静态infra、Bootstrap93全通过，另全部tracked38链接为相对且存在。
 
 旧Product40683715213实际UI445/80checks已成功，Rust/Mac仍运行；旧subject整体因Env失败不可合入。下一正常push仅文档/证据更新，生产/测试/工作流源码全同，既有concurrency可自然取代旧Product，不手动重跑/取消、不借旧绿；新准确七项/新双Native和包仍需读取。PR15ready/main，maina014283和OWNER001/002未变。
+
+
+## PR15 已保护合入，继续 Graph 验证与 Owner 接纳
+
+2026-10-28 12:47:30UTC，PR15准确9200965按expectedhead保护合入main **a1be94d26d10bb245bb35eb50226b82012c967da**；实际CI/build9b077217及merge树92f62a一致。Product40684484532/Environment40684484589七项全成功；新双Native28lib+17harness、readonly execution3/schema11/三表零计数/seq3、原Goal/Command/Data与生命周期、default-release审计及真实双DMG独审通过。Root232项全部重哈希，亲自查看双原图并重跑包校验器exit0。交付 [双架构下载、SHA与限制](DEVELOPMENT_DELIVERY_9200.md)。ARM临时签名、Intel未签名、均未公证；未提交正式Approve，未绕过保护、未发布生产。
+
+原1c9最终2success/3Envfail/2Maccancelled与34项失败证据保留；9200生产/测试/工作流字节与1c9相同，仅修可移植证据文档，全部新绿/新包独立取得。旧9f撤回签收、G19/G20真实失败和新279独审、Root554+7/80checks56PNG也保留。
+
+当前Root活动分支codex/goal-graph-integration基线此main，仅更新合入/交付证据；最新已合入OWNER001/002已读ACK无003。Core/schema12与UI/Native新Graph均在独立worktree WIP，未合入且不可当已完成：actual Core12目前propose/getlist通过，finalize明确unsupported/0run；UI513 mock、type/build通过，Native新41lib+17旧harness及Clippy/fmt已在12:58短租约实际通过；真实Core12提案仅6074完整callback，不是Graph运行/OSdialog。GraphTaskAcceptance只是DTO，Core实际TaskState/ref未接线，不能冒充真实TaskAccepted。Core是唯一迁移writer；12:51安全交接给UI的Native短租约已在12:58无writer释放，Root明确归还Core唯一Cargo写权，UI只继续Node/文档，不并发写target。独审正在检查近1MiB proposal完整壳转义边界与权限/旧能力隔离。
+
+连续下一项：真实Work候选FD/hash回执→确定性Validate→固定Native Owner接受/拒绝→依赖Summary/Work→全部required满足后持久TaskAccepted；复用同计划/Scope/累计预算，不升级旧goal_execution许可。Factory/NL、Skills/MCP、完整会话/历史/远程/安装等130需求继续，不降MVP。真实Provider/私人凭据、新费用/远程资源、签名/生产/最终许可证未扩权。平台无原生Goal工具，原生subagents实际运行；无外部执行器后台承诺。

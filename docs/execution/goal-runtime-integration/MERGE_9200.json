@@ -1,0 +1,24 @@
+{
+  "pr": 15,
+  "url": "https://github.com/wanderbot-auto/AgentBaton/pull/15",
+  "head": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+  "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "merged_at": "2026-10-28T12:47:30Z",
+  "base_at_ci": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+  "actual_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+  "equal_tree": "92f62a6ae3d24a57c34275bf4a8608f5ab2dbfd9",
+  "product_run": 40684484532,
+  "environment_run": 40684484589,
+  "all_seven": "completed/success",
+  "independent_review": "NATIVE_9200_REVIEW.md",
+  "review_sha256": "6eef0afc0432f39b4f6b4abd6946691117800da6900cecedc5e8ac2aea4c41d9",
+  "manifest_sha256": "ef05f51983efdbbac78ce99e44cec1727e139ea63e643e44b30c941f60bd827c",
+  "root_rehashed_files": 232,
+  "formal_approve_submitted": false,
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "no_new_owner_instruction": true,
+  "scope": "bounded existing-workspace Goal execution; full Design v0.2 not complete"
+}
