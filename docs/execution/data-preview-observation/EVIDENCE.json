@@ -1,0 +1,148 @@
+{
+  "status": "author_local_checks_passed; independent review and exact fresh macOS CI pending",
+  "baseline": "de150679f7af9915f00cae58e0686a3954041dee",
+  "source_commit": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
+  "branch": "codex/data-preview-observation",
+  "source_file": "crates/core/tests/data_workspaces.rs",
+  "source_sha256": "17178a8c943fa0c5225bb4fd543a8ef50281808458da031b59fe5ea5c54043dd",
+  "requirements_partial": [
+    "AB-PRJ-002",
+    "AB-PRJ-005",
+    "AB-REL-001"
+  ],
+  "authority": "AB-START-001; parent narrow test/docs assignment; ACK OWNER-001 and OWNER-002, no authority changes",
+  "historical_failure": {
+    "pr": 14,
+    "head": "de150679f7af9915f00cae58e0686a3954041dee",
+    "run": 40664619985,
+    "job": 122735886054,
+    "platform": "macOS ARM",
+    "log": "/workspace/.onboarding/data-preview-observation/original-arm-job-122735886054.log",
+    "sha256": "3ab69d42611f550cb14fb2a5a4b7c3a1634771b694852385c0b3f285d594df72",
+    "observed": "Fixture.wait 5s assertion while 32MiB preview checking/rev1/snapshot null; owner/copy/cancel/join assertions not reached",
+    "root_cause": "unknown"
+  },
+  "local_results": {
+    "recorded_utc": "2026-10-28T09:50:32.224887+00:00",
+    "worktree": "/workspace/.worktrees/data-preview-observation",
+    "branch": "codex/data-preview-observation",
+    "baseline": "de150679f7af9915f00cae58e0686a3954041dee",
+    "source_commit": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
+    "source_sha256": "17178a8c943fa0c5225bb4fd543a8ef50281808458da031b59fe5ea5c54043dd",
+    "platform": "Linux x86_64",
+    "env": {
+      "CARGO_HOME": "/workspace/.toolchains/cargo",
+      "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+      "PATH_prefix": "/workspace/.toolchains/cargo/bin",
+      "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_BUILD_JOBS": "2",
+      "RUST_TEST_THREADS": "1"
+    },
+    "commands": [
+      {
+        "name": "old_original_case",
+        "command": "cargo test --locked --offline -p agentbaton-core --test data_workspaces actual_copy_cancellation_only_claims_cancelled_after_join_and_preserves_ready_race -- --exact --nocapture --test-threads=1",
+        "exit_code": 0,
+        "source": "de150679f7af9915f00cae58e0686a3954041dee",
+        "log": "old-original-case.log",
+        "unique_tests": 1,
+        "test_summary_seconds": 2.45,
+        "meaning": "Original fixture passed on Linux; historic ARM failure not reproduced."
+      },
+      {
+        "name": "data_and_migration",
+        "command": "cargo test --locked --offline -p agentbaton-core --test data_workspaces --test data_workspace_migration -- --nocapture --test-threads=1",
+        "exit_code": 0,
+        "source": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
+        "log": "data-and-migration.log",
+        "unique_tests": 24,
+        "data_unique": 21,
+        "migration_unique": 3,
+        "nested_duplicate_executions": 1,
+        "failed": 0,
+        "ignored": 0,
+        "data_test_summary_seconds": 6.19,
+        "migration_test_summary_seconds": 0.03
+      },
+      {
+        "name": "clippy",
+        "command": "cargo clippy --locked --offline -p agentbaton-core --all-targets -- -D warnings",
+        "exit_code": 0,
+        "source": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
+        "log": "clippy.log",
+        "cargo_summary_seconds": 13.03
+      },
+      {
+        "name": "fmt",
+        "command": "cargo fmt --package agentbaton-core -- --check",
+        "exit_code": 0,
+        "source": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
+        "log": "fmt.log"
+      },
+      {
+        "name": "diff",
+        "command": "git diff --check",
+        "exit_code": 0,
+        "source": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
+        "log": "diff-check.log"
+      }
+    ],
+    "native_target_ownership": "Parent authorized sole writer; checked no writer before build; released after checks. No future Cargo writes by author.",
+    "source_mtime_refresh": "Touched crates/core/src/lib.rs before old build; bytes unchanged, confirmed by git diff/static proof.",
+    "observations": {
+      "preview_start_ms": 11,
+      "parallel_snapshot_ms": 5,
+      "parallel_preview_read_ms": 5,
+      "parallel_preview_read_state": "checking",
+      "preparation_terminal_ms": 2196,
+      "preparation_state": "verified",
+      "preview_revision": 2,
+      "preview_io_completion": "field absent from preview type; diagnostic null does not mean a missing creation receipt",
+      "copy_cancel_join_ms": 39,
+      "copy_terminal": "cancelled",
+      "copy_io_completion": "worker_joined"
+    },
+    "not_run": [
+      "macOS rerun for this exact source",
+      "full Core suite beyond all-targets compilation/lint and scoped integration tests",
+      "real Provider",
+      "remote host",
+      "signing",
+      "development packages"
+    ],
+    "independent_review": "pending, delegated by parent separately",
+    "historical_arm_reason": "unknown; original failure is 5s fixture observation still checking before owner/copy/cancel/join, not proof of hash slowness or worker30s violation"
+  },
+  "manifest": {
+    "path": "/workspace/.onboarding/data-preview-observation/verification-manifest.json",
+    "sha256": "e7fa39c1465ab632a4fad2fdd8aedf2d4e50f0087473415dfc4040961e6a414c"
+  },
+  "limits": {
+    "baseline": "de150679f7af9915f00cae58e0686a3954041dee",
+    "only_modified_tracked_file": [
+      "crates/core/tests/data_workspaces.rs"
+    ],
+    "unchanged_other_test_functions": 20,
+    "all_test_function_names_retained": 21,
+    "entire_file_outside_target_function_byte_identical": true,
+    "target_existing_verified_and_owner_copy_cancel_ready_receipt_assertion_tail_byte_identical_after_removing_only_added_timer_and_diagnostic": true,
+    "normal_wait_seconds": 5,
+    "cancel_join_wait_seconds": 5,
+    "large_preview_observation_seconds": 35,
+    "product_worker_io_budget_seconds": 30,
+    "new_start_parallel_read_and_poll_test_response_seconds": 3,
+    "server_frame_socket_seconds": 3,
+    "client_ordinary_socket_seconds": 5,
+    "dataset_bytes": 33554432,
+    "source_sha256": "17178a8c943fa0c5225bb4fd543a8ef50281808458da031b59fe5ea5c54043dd",
+    "production_manifests_lockfiles_workflows_other_tests_diff": []
+  },
+  "acceptance_limitations": [
+    "This test-only observation repair is not whole-product completion.",
+    "The original case passed locally; local diagnostics do not establish the historic ARM cause.",
+    "The 30s production worker budget remains unchanged; verified is still mandatory. A terminal failure at 30s is not accepted.",
+    "No production files, CI, lock, other tests, global STATUS or immutable specs changed.",
+    "No Provider credential, model, production, signing, purchase or remote action used."
+  ]
+}
