@@ -53,3 +53,9 @@ Resolve the four independently reproduced90d blockers before runtime: separate r
 Root then found two genuine fixture issues in actual replay: output Path shadowed by the scope-output loop variable, and Integrity's10s private Grant expired during full bootstrap/browser/Owner review. Rename only local loop variable and, by explicit Root instruction, give all validation cases30s private initial Grant. Keep Goal/runtime10s, node5s/4s reservation, command1500ms/500cleanup/512x2 and observation/cleanup limits unchanged. Preserve unknown original shadowed exception and the independently observable correct expiry rejection as failures.
 
 Reviewer confirmed exact fixes source-ready; Root owns serial final six-mode actual replay. Partial validation/firstOwner/Summary evidence is not completion. Author only runs Python controls and writes these records; no duplicate browser/Cargo run.
+
+## Private Command observation on managed proc mounts
+
+Keep Root's four actual160e browser passes and timeout failure separate. Repair only the harness observer: prefer private task children, bounded fallback PPID-only stat discovery when that file is absent, exact private identity/argv/PGID checks and fail-closed permission handling. Preserve all product/observer timeouts, command caps and actual gone evidence. Run self-owned subprocess positive/wrong-parent/wrong-argv and exact cleanup controls, freeze source for independent review, then let Root run Command-timeout alone. Full six exact-source CI/replay and remaining Graph matrix remain Root-managed; no whole-Graph completion from observer units.
+
+Observer repair milestone: independent13controls and Root exact-source Command-timeout5checks/1PNG now PASS; full remaining matrix and integration remain Root-owned. Preserve160e four-case successes and old timeout failure by exact source. Do not repeat previously accepted runs without a new concern.
