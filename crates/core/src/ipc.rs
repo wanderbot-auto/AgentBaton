@@ -1105,22 +1105,36 @@ mod frame_tests {
 
     #[test]
     fn fatal_actor_error_cancels_and_joins_owned_graph_reader_before_writer_lock_handoff() {
-        let directory=tempfile::Builder::new().permissions(fs::Permissions::from_mode(0o700)).tempdir().unwrap();
-        let runtime=directory.path().canonicalize().unwrap().join("runtime");
-        let mut daemon=Daemon::bind(&runtime).unwrap();
-        let old_duplicate=daemon._lock.try_clone().unwrap();
-        let checked=Arc::new(AtomicBool::new(false));let observed=checked.clone();let worker_runtime=runtime.clone();
-        daemon.graph_workers.install_drop_fixture(runtime.clone(),move||{
-            assert_eq!(Daemon::bind(&worker_runtime).err().unwrap().code,"WORKSPACE_BUSY");
-            assert!(worker_runtime.join("batond.sock").exists());
-            observed.store(true,Ordering::SeqCst);
-        });
+        let directory = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = directory.path().canonicalize().unwrap().join("runtime");
+        let mut daemon = Daemon::bind(&runtime).unwrap();
+        let old_duplicate = daemon._lock.try_clone().unwrap();
+        let checked = Arc::new(AtomicBool::new(false));
+        let observed = checked.clone();
+        let worker_runtime = runtime.clone();
+        daemon
+            .graph_workers
+            .install_drop_fixture(runtime.clone(), move || {
+                assert_eq!(
+                    Daemon::bind(&worker_runtime).err().unwrap().code,
+                    "WORKSPACE_BUSY"
+                );
+                assert!(worker_runtime.join("batond.sock").exists());
+                observed.store(true, Ordering::SeqCst);
+            });
         // The synthetic reader has no authorized run: tick returns a real actor
         // error before run's normal shutdown branch. Drop must still reap it.
-        let error=daemon.run(Arc::new(AtomicBool::new(false))).unwrap_err();assert_eq!(error.code,"NOT_FOUND");
-        assert!(checked.load(Ordering::SeqCst));assert!(!runtime.join("batond.sock").exists());
-        let successor=Daemon::bind(&runtime).unwrap();drop(old_duplicate);
-        assert_eq!(Daemon::bind(&runtime).err().unwrap().code,"WORKSPACE_BUSY");drop(successor);
+        let error = daemon.run(Arc::new(AtomicBool::new(false))).unwrap_err();
+        assert_eq!(error.code, "NOT_FOUND");
+        assert!(checked.load(Ordering::SeqCst));
+        assert!(!runtime.join("batond.sock").exists());
+        let successor = Daemon::bind(&runtime).unwrap();
+        drop(old_duplicate);
+        assert_eq!(Daemon::bind(&runtime).err().unwrap().code, "WORKSPACE_BUSY");
+        drop(successor);
     }
 
     #[test]

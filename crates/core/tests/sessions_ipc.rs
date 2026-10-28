@@ -4392,7 +4392,7 @@ fn export_graph_fixture(kind: &str, evidence: &Value) {
     );
 }
 
-fn actual_command_definition_graph_fixture() -> (Scenario, Value, Value) {
+fn actual_command_definition_graph_fixture(command_case: &str) -> (Scenario, Value, Value) {
     use agentbaton_core::{goal_plan::*, goal_store::*};
     let mut f = Scenario::new(10_000);
     use_actual_dataset_workspace(&mut f);
@@ -4407,7 +4407,17 @@ fn actual_command_definition_graph_fixture() -> (Scenario, Value, Value) {
         |d| d["run"]["state"] == "awaiting_acceptance",
     );
     let session = &source_done["nodes"][0]["session_id"];
-    let policy_proposal=result(f.server.request(json!({"method":"command_validation_policies.propose","params":{"session_id":session,"executable":std::fs::canonicalize("/usr/bin/printf").unwrap(),"mode":"native_executable","script":null,"inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":agentbaton_workspaces::validation::sha256(b"baseline")}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],"arguments":["fixed command observed"],"environment":{},"expected_exit_codes":[0],"wall_time_ms":500,"cleanup_time_ms":500,"stdout_limit":512,"stderr_limit":512,"require":agentbaton_core::command_validation::CommandEnforcement::default()},"idempotency_key":"source-additional-command-definition"})));
+    let executable = if command_case == "normal" {
+        "/usr/bin/printf"
+    } else {
+        "/usr/bin/sleep"
+    };
+    let arguments = if command_case == "normal" {
+        vec!["fixed command observed"]
+    } else {
+        vec!["3"]
+    };
+    let policy_proposal=result(f.server.request(json!({"method":"command_validation_policies.propose","params":{"session_id":session,"executable":std::fs::canonicalize(executable).unwrap(),"mode":"native_executable","script":null,"inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":agentbaton_workspaces::validation::sha256(b"baseline")}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],"arguments":arguments,"environment":{},"expected_exit_codes":[0],"wall_time_ms":if command_case=="normal" {500}else{1500},"cleanup_time_ms":500,"stdout_limit":512,"stderr_limit":512,"require":agentbaton_core::command_validation::CommandEnforcement::default()},"idempotency_key":"source-additional-command-definition"})));
     let definition = approve(&f.server, policy_proposal);
     result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":source["id"]},"expected_revision":source_done["run"]["revision"],"idempotency_key":"cancel-source-candidate-before-new-graph"})));
     wait(
@@ -4511,7 +4521,7 @@ fn actual_command_definition_graph_fixture() -> (Scenario, Value, Value) {
 #[test]
 fn actual_graph_fixed_command_observation_is_charged_without_recounting_checked_producer_bytes() {
     eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
-    let (f, scope, definition) = actual_command_definition_graph_fixture();
+    let (f, scope, definition) = actual_command_definition_graph_fixture("normal");
     let approved = approve_graph_at(&f, &scope, 2);
     let id = &approved["run"]["id"];
     let checked = wait(
@@ -4586,4 +4596,218 @@ fn actual_graph_fixed_command_observation_is_charged_without_recounting_checked_
     }
     let evidence = json!({"build_source_hashes":graph_build_source_hashes(),"task":task,"scope":scope,"definition":definition,"graph_details":graph_details,"owner_proposal":owner_proposal,"first_decision":first_decision,"final_owner_proposal":final_owner_proposal,"final_decision":final_decision});
     export_graph_fixture("command", &evidence);
+}
+
+fn command_pid_exists(pid: u32) -> bool {
+    Command::new("ps")
+        .args(["-p", &pid.to_string(), "-o", "pid="])
+        .output()
+        .unwrap()
+        .stdout
+        .iter()
+        .any(u8::is_ascii_digit)
+}
+fn wait_actual_graph_command_child(_f: &Scenario) -> u32 {
+    let started = Instant::now();
+    loop {
+        let output = Command::new("ps")
+            .args(["-axo", "pid=,ppid=,comm="])
+            .output()
+            .unwrap();
+        assert!(output.status.success());
+        for line in String::from_utf8_lossy(&output.stdout).lines() {
+            let mut fields = line.split_whitespace();
+            let Some(pid) = fields.next().and_then(|s| s.parse::<u32>().ok()) else {
+                continue;
+            };
+            let Some(parent) = fields.next().and_then(|s| s.parse::<u32>().ok()) else {
+                continue;
+            };
+            let Some(command) = fields.next() else {
+                continue;
+            };
+            if parent == std::process::id()
+                && Path::new(command).file_name().is_some_and(|n| n == "sleep")
+            {
+                return pid;
+            }
+        }
+        assert!(
+            started.elapsed() < Duration::from_secs(5),
+            "actual approved command did not spawn"
+        );
+        std::thread::sleep(Duration::from_millis(5));
+    }
+}
+#[test]
+fn actual_graph_command_cancel_and_definition_revocation_join_the_owned_child_and_block_downstream()
+{
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    for action in ["cancel", "revoke"] {
+        let (f, scope, definition) = actual_command_definition_graph_fixture("hold");
+        let approved = approve_graph_at(&f, &scope, 2);
+        let id = &approved["run"]["id"];
+        let pid = wait_actual_graph_command_child(&f);
+        let current = result(
+            f.server
+                .request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})),
+        );
+        if action == "cancel" {
+            let receipt=result(f.server.request(json!({"method":"goal_graph_runs.cancel","params":{"run_id":id},"expected_revision":current["run"]["revision"],"idempotency_key":"cancel-real-validator-child"})));
+            assert_eq!(receipt["run"]["cancel_requested"], true);
+        } else {
+            result(f.server.request(json!({"method":"command_validation_policies.revoke","params":{"policy_id":definition["id"]},"expected_revision":definition["revision"],"idempotency_key":"revoke-live-graph-definition"})));
+        }
+        let stopped = wait(
+            &f.server,
+            "goal_graph_runs.get",
+            json!({"run_id":id}),
+            |d| d["validations"].as_array().is_some_and(|vs| !vs.is_empty()),
+        );
+        let v = &stopped["validations"][0];
+        assert_eq!(v["passed"], false);
+        assert_eq!(v["stop_confirmed"], true);
+        assert_eq!(v["io_completion"], "worker_joined");
+        assert_eq!(stopped["task_accepted"], false);
+        assert!(stopped["owner_decisions"].as_array().unwrap().is_empty());
+        assert!(stopped["nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|n| n["execution_kind"] == "owner" || n["node"]["kind"] == "summary")
+            .all(|n| n["state"] == "not_started"));
+        assert!(
+            !command_pid_exists(pid),
+            "owned command leader must actually be reaped"
+        );
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            3
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT consumed FROM budgets WHERE scope=?1",
+                [format!("project:{}", f.project["id"].as_str().unwrap())],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            3
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT active FROM budgets WHERE scope=?1",
+                [format!("project:{}", f.project["id"].as_str().unwrap())],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            0
+        );
+        eprintln!("ACTUAL_COMMAND_STOP action={action} pid={pid} joined=true attempts=3 no downstream/acceptance/refund");
+    }
+}
+#[test]
+fn actual_graph_command_wall_timeout_reaps_without_owner_or_acceptance() {
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let (f, scope, _) = actual_command_definition_graph_fixture("timeout");
+    let approved = approve_graph_at(&f, &scope, 2);
+    let id = &approved["run"]["id"];
+    let pid = wait_actual_graph_command_child(&f);
+    let failed = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":id}),
+        |d| d["validations"].as_array().is_some_and(|v| !v.is_empty()),
+    );
+    let v = &failed["validations"][0];
+    assert_eq!(v["passed"], false);
+    assert_eq!(v["stop_confirmed"], true);
+    assert_eq!(v["io_completion"], "worker_joined");
+    assert_eq!(v["observation"]["reason"], "timed_out");
+    assert_eq!(failed["task_accepted"], false);
+    assert!(!command_pid_exists(pid));
+    assert!(failed["owner_decisions"].as_array().unwrap().is_empty());
+    eprintln!(
+        "ACTUAL_COMMAND_TIMEOUT pid={pid} observed={}ms",
+        v["actual_runtime_ms"]
+    );
+}
+#[test]
+fn actual_graph_interrupted_validator_snapshot_is_unknown_fenced_and_never_automatically_replayed()
+{
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let (mut f, scope, _) = actual_command_definition_graph_fixture("recovery");
+    let approved = approve_graph_at(&f, &scope, 2);
+    let id = &approved["run"]["id"];
+    let _pid = wait_actual_graph_command_child(&f);
+    let recovery = f._dir.path().join("validator-interrupted-runtime");
+    std::fs::create_dir(&recovery).unwrap();
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    db.execute(
+        "VACUUM INTO ?1",
+        [recovery.join("baton.sqlite3").to_str().unwrap()],
+    )
+    .unwrap();
+    drop(db);
+    // Consistent in-flight durable crash image; original owned process is actually
+    // stopped/joined before a second daemon is allowed to read its snapshot.
+    f.server.shutdown();
+    let recovered = Server::start(&recovery);
+    let state =
+        result(recovered.request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})));
+    assert_eq!(state["run"]["state"], "outcome_unknown");
+    assert_eq!(state["task_accepted"], false);
+    let db = rusqlite::Connection::open(recovery.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        3
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM goal_graph_jobs WHERE state='outcome_unknown'",
+            [],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        1
+    );
+    let request = json!({"method":"goal_graph_runs.cancel","params":{"run_id":id},"expected_revision":state["run"]["revision"],"idempotency_key":"cancel-interrupted-unknown-validator"});
+    result(recovered.request(request));
+    let current =
+        result(recovered.request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})));
+    assert_ne!(current["run"]["state"], "cancelled");
+    assert_eq!(current["task_accepted"], false);
+    let sequence = result(recovered.request(json!({"method":"system.snapshot","params":{}})))
+        ["sequence"]
+        .clone();
+    for _ in 0..5 {
+        result(recovered.request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})));
+    }
+    assert_eq!(
+        result(recovered.request(json!({"method":"system.snapshot","params":{}})))["sequence"],
+        sequence
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        3
+    );
+    for key in [
+        format!("project:{}", f.project["id"].as_str().unwrap()),
+        format!("root-grant:{}", f.grant["id"].as_str().unwrap()),
+    ] {
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM goal_ledgers WHERE scope=?1",
+                [key],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let ledger: Value = serde_json::from_str(&raw).unwrap();
+        assert!(ledger["runtime_ms"].is_null());
+        assert!(ledger["output_bytes"].is_null());
+    }
+    eprintln!("ACTUAL_RECOVERY consistent in-flight validator snapshot: no replay/refund/falsecancelled, unknown meters/fence preserved");
 }

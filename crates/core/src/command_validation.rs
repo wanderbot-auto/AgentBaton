@@ -1041,17 +1041,26 @@ mod cancellation_classification {
 /// Reconstruct only the already approved fixed settings for the separate graph
 /// capability. Script binding is deferred to its owned IO worker; no actor-side
 /// artifact read and no old one-shot execution permit is reused here.
-pub(crate) fn graph_definition_settings(policy:&Value)->Result<(CommandSettings,Option<ArtifactRequirement>)> {
-    let selection:CommandValidationSelection=serde_json::from_value(policy["selection"].clone()).map_err(|_|changed())?;
-    let script=match selection.mode.as_str() {
-        "native_executable" if selection.script.is_none()=>None,
-        "posix_sh_stdin" if selection.script.is_some()=>{
-            let source:ArtifactRequirement=serde_json::from_value(policy["contract"]["script"]["requirement"].clone()).map_err(|_|changed())?;
-            if Some(&source)!=selection.script.as_ref()||source.expected_sha256.is_none(){return Err(changed());}
+pub(crate) fn graph_definition_settings(
+    policy: &Value,
+) -> Result<(CommandSettings, Option<ArtifactRequirement>)> {
+    let selection: CommandValidationSelection =
+        serde_json::from_value(policy["selection"].clone()).map_err(|_| changed())?;
+    let script = match selection.mode.as_str() {
+        "native_executable" if selection.script.is_none() => None,
+        "posix_sh_stdin" if selection.script.is_some() => {
+            let source: ArtifactRequirement =
+                serde_json::from_value(policy["contract"]["script"]["requirement"].clone())
+                    .map_err(|_| changed())?;
+            if Some(&source) != selection.script.as_ref() || source.expected_sha256.is_none() {
+                return Err(changed());
+            }
             Some(source)
         }
-        _=>return Err(changed()),
+        _ => return Err(changed()),
     };
-    let mut deferred=selection;deferred.mode="native_executable".into();deferred.script=None;
-    Ok((settings(&deferred,None)?,script))
+    let mut deferred = selection;
+    deferred.mode = "native_executable".into();
+    deferred.script = None;
+    Ok((settings(&deferred, None)?, script))
 }
