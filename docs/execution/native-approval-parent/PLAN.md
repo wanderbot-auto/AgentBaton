@@ -2,7 +2,7 @@
 
 Baseline `f094d217f6ca62e1b753e6d6a13ddc43021487ea`; isolated `codex/native-approval-parent`. ACK OWNER001/002 and AB-START-001. Root authorized this reversible window-ownership correction. Partial contribution to AB-SEC-002 and native approval correctness; no new execution authority or OS driver.
 
-Only `src/lib.rs`, new `src/native_parent.rs` and these four records. Existing `approval.rs`, old 16 KiB kinds, new two kinds' 1 MiB complete review, fixed reject/finalize frames, all original tests, JS contracts, schemas, CI, locks and capabilities remain frozen.
+Only `src/lib.rs`, new `src/native_parent.rs` and these four records initially; Root subsequently authorized the necessary desktop Cargo.toml/Cargo.lock direct dependency edge correction after actual compiler E0433. Existing `approval.rs`, old 16 KiB kinds, new two kinds' 1 MiB complete review, fixed reject/finalize frames, all original tests, JS contracts, schemas, CI, locks and capabilities remain frozen.
 
 1. Inject framework `WebviewWindow` in every fixed approval command, without renderer parent/label/handle arguments. Validate actual caller before initial Core proposal.
 2. Acquire the original caller's window/display handles fallibly on the main thread. A private checked adapter returns the same already-successful borrowed handles to plugin.parent; no ignored second caller query or parentless fallback. On macOS require the actual AppKit variant.

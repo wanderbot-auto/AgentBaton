@@ -45,6 +45,7 @@ version = "0.1.0"
 dependencies = [
  "agentbaton-core",
  "objc2",
+ "raw-window-handle",
  "serde_json",
  "tauri",
  "tauri-build",
