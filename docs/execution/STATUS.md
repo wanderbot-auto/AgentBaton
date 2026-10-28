@@ -1,5 +1,13 @@
 # AgentBaton 执行状态
 
+## Schema12 早期集成检查点 — 13:14UTC
+
+Root codex/goal-graph-integration已合入不可变Core WIP5d9a417，仍非最终Graph签收/无PR。protected main仍a1be94d，OWNER001/002再次读取ACK。Core此快照实际Unix提案→私有finalize→原key回执恢复→legacy API隔离1项通过；自动Graph执行门在该快照仍关闭，不能将作者后来Work/capture测试绑定到此旧源。
+
+Root仅将两个旧浏览器脚本及Product candidate metadata严格schema11→12，含实际SQLite==12，拒绝11|12双接受；inversebyte证明其余流程/断言/16KiB/stop链及全部工作流字节不变。Root及独审各用真实旧冻结schema11/d109候选得到preflight拒绝且subprocess audit0、binarySHA未变；pycompile/AST/staticinfra/Bootstrap93/diff通过。不是schema12正向浏览器通过，待最终freeze+composedUI。
+
+Native41+17/lints的12:58证据仍仅Core04/schema11+Core12 proposal6074回调；新Graph42未Cargo、新只读85cc22harness/25Python另在隔离叶子，Root此树尚未导入。UI幂等恢复与Core实际Node/Validate/Owner/TaskAccepted仍接线中；新58边界harness默认exit2/pending而非伪造成功。Core独占Native target，其他作者无Cargo。下方此前12:58状态及全部失败历史保留。
+
 ## PR15 已保护合入，继续 Graph 验证与 Owner 接纳
 
 2026-10-28 12:47:30UTC，PR15准确9200965按expectedhead保护合入main **a1be94d26d10bb245bb35eb50226b82012c967da**；实际CI/build9b077217及merge树92f62a一致。Product40684484532/Environment40684484589七项全成功；新双Native28lib+17harness、readonly execution3/schema11/三表零计数/seq3、原Goal/Command/Data与生命周期、default-release审计及真实双DMG独审通过。Root232项全部重哈希，亲自查看双原图并重跑包校验器exit0。交付 [双架构下载、SHA与限制](goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md)。ARM临时签名、Intel未签名、均未公证；未提交正式Approve，未绕过保护、未发布生产。

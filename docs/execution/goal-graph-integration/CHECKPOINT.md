@@ -9,3 +9,11 @@ UI branch codex/goal-validation-graph-ui WIP d1d6f2/Native483029c/docs c28d8e7; 
 Core explicitly released Native target after session17749 exit0/no writer. Root granted a temporary exclusive lease to UI. At12:58 UI completed final41+17/Clippy/fmt, released with no writers; Root explicitly returned the sole Native writer lease to Core. UI cannot Cargo now. Main cache retired by reviewed manifest; no other Cargo writer. Native target /workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target; CARGO_INCREMENTAL=0. Independent Core reviewer is read-only and raised GG-CAP-1: JSON-escaped request_id can exceed worst response estimate near1MiB. Fix/negative real IPC test pending, no cap raised.
 
 Next: Core implement real shared-ledger graph finalize/capture/validation/Owner/dependency acceptance; new real IPC harness prepares only fixed methods in separate worktree. Root reviews integration, updates requirement evidence and keeps remaining130 scope open. Product Provider/private identities/newhost/fees/signing/production/license closed. No executorless background promise.
+
+## Schema12 早期集成检查点 — 13:14UTC
+
+Root codex/goal-graph-integration已合入不可变Core WIP5d9a417，仍非最终Graph签收/无PR。protected main仍a1be94d，OWNER001/002再次读取ACK。Core此快照实际Unix提案→私有finalize→原key回执恢复→legacy API隔离1项通过；自动Graph执行门在该快照仍关闭，不能将作者后来Work/capture测试绑定到此旧源。
+
+Root仅将两个旧浏览器脚本及Product candidate metadata严格schema11→12，含实际SQLite==12，拒绝11|12双接受；inversebyte证明其余流程/断言/16KiB/stop链及全部工作流字节不变。Root及独审各用真实旧冻结schema11/d109候选得到preflight拒绝且subprocess audit0、binarySHA未变；pycompile/AST/staticinfra/Bootstrap93/diff通过。不是schema12正向浏览器通过，待最终freeze+composedUI。
+
+Native41+17/lints的12:58证据仍仅Core04/schema11+Core12 proposal6074回调；新Graph42未Cargo、新只读85cc22harness/25Python另在隔离叶子，Root此树尚未导入。UI幂等恢复与Core实际Node/Validate/Owner/TaskAccepted仍接线中；新58边界harness默认exit2/pending而非伪造成功。Core独占Native target，其他作者无Cargo。下方此前12:58状态及全部失败历史保留。

@@ -125,7 +125,7 @@ def main():
     manifest = json.loads(manifest_bytes)
     binary_entry = manifest['binaries']['batond']
     expected_binary = binary_entry['sha256'] if isinstance(binary_entry, dict) else binary_entry
-    assert manifest['schema'] == 11 and sha(binary.read_bytes()) == expected_binary, 'Explicit coherent schema11 candidate is required'
+    assert manifest['schema'] == 12 and sha(binary.read_bytes()) == expected_binary, 'Explicit coherent schema12 candidate is required'
     report = {'status': 'failed_or_interrupted',
               'dimension': 'actual built React / Linux Chromium / fixed test-only HTTP / authenticated Unix Core / generated owned ACP process',
               'native_owner_dialog': 'not_run; fixed private host fixture outside HTTP approves actual Core snapshots',
@@ -203,7 +203,7 @@ def main():
             def database():
                 with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
                     db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-                    assert db.execute('PRAGMA user_version').fetchone()[0] == 11
+                    assert db.execute('PRAGMA user_version').fetchone()[0] == 12
                     tables = ['attempts', 'sessions', 'dispatch_intents', 'goal_runs', 'goal_run_nodes', 'goal_run_reservations', 'goal_plan_revisions', 'goal_node_evidence']
                     value = {name: db.execute('SELECT count(*) FROM ' + name).fetchone()[0] for name in tables}
                     value['sequence'] = db.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]

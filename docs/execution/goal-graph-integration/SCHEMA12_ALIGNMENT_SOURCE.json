@@ -1,0 +1,20 @@
+{
+  "scope": "metadata/schema only; all other source/assertions/limits/functions unchanged; no runtime pass claimed",
+  "files": {
+    ".github/workflows/product.yml": {
+      "before_sha256": "9189ad4eea3d7d0b4f36ab6735aae2b2db06cacf8ec053f9e3cd069942deedfd",
+      "after_sha256": "ef238f4a2e78ead6c20414b348825e129083903d2b4bec012524ba0cb1580363",
+      "inverse_byte_identity": true
+    },
+    "apps/desktop/tests/goal-execution-real-ipc.py": {
+      "before_sha256": "e5db2bed25b98a5d7b03fa72adf8e332a91d98e1d2ac43a089d697ea93bade5e",
+      "after_sha256": "0ce135bd4ca07f5e4aca117bf1d57c9754da44eca56fd1add158597d0bdafe0f",
+      "inverse_byte_identity": true
+    },
+    "apps/desktop/tests/data-workspace-real-ipc.py": {
+      "before_sha256": "7e1bc37ac2837a2121ddc01480232ab2a6dbba2522806fa940b86dae529ff26b",
+      "after_sha256": "75108a947b237db13e47495d0ae2e0b176217361e7d4b37b9ceedafbed83e493",
+      "inverse_byte_identity": true
+    }
+  }
+}
