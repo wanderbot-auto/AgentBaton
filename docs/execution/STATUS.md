@@ -1,5 +1,15 @@
 # AgentBaton 执行状态
 
+## 最终 Core 与 Linux 组合验证完成 · 2026-10-28 UTC
+
+此段更新前述进行中检查点，历史阶段保留。Core70a独立完整workspace实际593唯一外层（Core315）+7compilefail docs、零失败/忽略；fmt/Clippy/alltargets/build均PASS，100源码锁前后不变、构建二进制与冻结40322b/66ca50相同。报告/manifest/counts已导入；原24份证据及原manifest全部保存CORE_70A_REVIEW_EVIDENCE.tar.gz，CORE_70A_IMPORT.json记录精确路径/哈希映射，原文中的相对文件在archive内解析。
+
+Root拿回唯一Native Cargo租约后，精确组合实际57库+4Ownercontroller+22readonly、Clippy-Dwarnings/fmt全PASS；before/after源哈希相同，详ROOT_NATIVE_FINAL.json/ROOT_NATIVE_SOURCES.json。Observation四新回调在57中真实运行；此Linux绿不含macOS-only AppKit编译/NSAlert。Python首跑漏必要daemon环境变量而失败，日志保留，补齐精确70a实际batond后36PASS。Node564/37与buildPASS。Root全部Cargo完成，无缓存writer。
+
+新Core40322b+新4fab资产实际重跑原六条browser/Unix IPC全部PASS，80检查/56原图；Root已目视quiet/home1488和execution09。ROOT_LEGACY_BROWSER_FINAL.json逐绑定命令/报告SHA，final-linux保存实际日志（workspace gzip可无损恢复）。九项需求新增明确partial slice，130需求未减少。新Owner-only和五Validator浏览器场景仍待修脚本的receipt/view、原路径、Summary ID和完整多产物计量四处独审错误后实跑；不是产品权限或验收标准放宽。
+
+无Graph PR/新CI/双Mac新包/实际OS Owner对话框结论。main仍a1be94d，PR15双架构包仍最新交付；新CI仅增真实builder后Owner runner contracts的4行，待独审。完整Design剩余范围及原授权限制不变，未formal Approve。
+
 ## Graph 最终候选恢复核验 · 2026-10-28 UTC
 
 当前 `codex/goal-graph-integration` 功能分支，protected main 仍 `a1be94d26d10bb245bb35eb50226b82012c967da`（PR15），已安全 fetch 并重新读取 OWNER-001/002，ACK，无新增指令。无 Graph PR、新 CI 或新 macOS 包。本次续跑没有观察到模型容量拒绝；没有新建替代 Cloud 任务、账号、费用或凭据，也未提交正式 GitHub Approve。

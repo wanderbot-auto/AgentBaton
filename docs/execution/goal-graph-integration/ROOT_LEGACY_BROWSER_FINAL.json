@@ -1,0 +1,161 @@
+[
+  {
+    "name": "quiet",
+    "command": [
+      "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/quiet-canvas-real-ipc.py",
+      "--batond",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+      "--output",
+      "/workspace/.onboarding/goal-graph-final-browser-legacy/quiet",
+      "--chromium",
+      "/usr/bin/chromium"
+    ],
+    "exit_code": 0,
+    "seconds": 7.9,
+    "log_sha256": "a7ad9465613205ca55ccf325240c8e3880367e3acc9f0b2e489820f9bf61c778",
+    "status": null,
+    "checks": 38,
+    "screenshots": 24,
+    "report": "/workspace/.onboarding/goal-graph-final-browser-legacy/quiet/evidence.json",
+    "report_sha256": "115db964f3e572d806bb28b58c745524da6057199c7b0d8b41cff3b621267430",
+    "frontend_attribution": "Shared 4fab built dist before/after Root invocation; original quiet report has no per-run frontend asset fingerprint. Other five reports capture exact ca708 JS assets."
+  },
+  {
+    "name": "commands",
+    "command": [
+      "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/command-validation-real-ipc.py",
+      "--batond",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+      "--output",
+      "/workspace/.onboarding/goal-graph-final-browser-legacy/commands",
+      "--chromium",
+      "/usr/bin/chromium"
+    ],
+    "exit_code": 0,
+    "seconds": 6.22,
+    "log_sha256": "f03998c5b8452d8ff93c34d82e8fdb9a0e430e378001862cf398032e86225515",
+    "status": "passed",
+    "checks": 5,
+    "screenshots": 2,
+    "report": "/workspace/.onboarding/goal-graph-final-browser-legacy/commands/evidence.json",
+    "report_sha256": "d5284f8d602966a5682e41802c0a06ee5c5da770a23481a231d6b9da3c1eae41",
+    "frontend_assets_sha256": {
+      "assets/index-CbM2OhF1.js": "ca70891148fb3da167ee7219e2b0b4dcf867390cc9b3b81241b15256f6db4626",
+      "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+      "index.html": "a91ec9ba22205a07e7c0e285ffe77ed67e5d731c7e6fb7edf04b50d658d29450"
+    }
+  },
+  {
+    "name": "goal",
+    "command": [
+      "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-planning-real-ipc.py",
+      "--batond",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+      "--output",
+      "/workspace/.onboarding/goal-graph-final-browser-legacy/goal",
+      "--chromium",
+      "/usr/bin/chromium"
+    ],
+    "exit_code": 0,
+    "seconds": 4.77,
+    "log_sha256": "fd7c17980adec72817255dd761008037945b4e03c01c5fdbf690b7ff92e61add",
+    "checks": 9,
+    "screenshots": 6,
+    "status": "passed",
+    "report": "/workspace/.onboarding/goal-graph-final-browser-legacy/goal/report.json",
+    "report_sha256": "2a88bf53dafc3da696e0f68ad4eac2a19816c2243c9dfd278b6f415679ccec9e",
+    "frontend_assets_sha256": {
+      "assets/index-CbM2OhF1.js": "ca70891148fb3da167ee7219e2b0b4dcf867390cc9b3b81241b15256f6db4626",
+      "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+      "index.html": "a91ec9ba22205a07e7c0e285ffe77ed67e5d731c7e6fb7edf04b50d658d29450"
+    }
+  },
+  {
+    "name": "editor",
+    "command": [
+      "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-planning-real-ipc.py",
+      "--batond",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+      "--output",
+      "/workspace/.onboarding/goal-graph-final-browser-legacy/editor",
+      "--chromium",
+      "/usr/bin/chromium",
+      "--structured-editor"
+    ],
+    "exit_code": 0,
+    "seconds": 6.2,
+    "log_sha256": "9b1a29af91cc6e7a90c5a728a9e205c9c7fd00609938ea629f0ae245ce295535",
+    "checks": 10,
+    "screenshots": 9,
+    "status": "passed",
+    "report": "/workspace/.onboarding/goal-graph-final-browser-legacy/editor/report.json",
+    "report_sha256": "a98eb5ee18e28b778e6a9363783c95ad8681b5f033ba45f0353b96c362e92e24",
+    "frontend_assets_sha256": {
+      "assets/index-CbM2OhF1.js": "ca70891148fb3da167ee7219e2b0b4dcf867390cc9b3b81241b15256f6db4626",
+      "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+      "index.html": "a91ec9ba22205a07e7c0e285ffe77ed67e5d731c7e6fb7edf04b50d658d29450"
+    }
+  },
+  {
+    "name": "data",
+    "command": [
+      "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/data-workspace-real-ipc.py",
+      "--batond",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+      "--output",
+      "/workspace/.onboarding/goal-graph-final-browser-legacy/data",
+      "--chromium",
+      "/usr/bin/chromium",
+      "--frontend",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist"
+    ],
+    "exit_code": 0,
+    "seconds": 9.51,
+    "log_sha256": "0779b68d045f79ba6ed5a2134c436dd958c6ed455407369f150193714a3c152e",
+    "checks": 8,
+    "screenshots": 6,
+    "status": "passed",
+    "report": "/workspace/.onboarding/goal-graph-final-browser-legacy/data/report.json",
+    "report_sha256": "55408fd27c13c06c8438ea72775ddd44b47bc617411b571b78b177747aa354ec",
+    "frontend_assets_sha256": {
+      "assets/index-CbM2OhF1.js": "ca70891148fb3da167ee7219e2b0b4dcf867390cc9b3b81241b15256f6db4626",
+      "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+      "index.html": "a91ec9ba22205a07e7c0e285ffe77ed67e5d731c7e6fb7edf04b50d658d29450"
+    }
+  },
+  {
+    "name": "execution",
+    "command": [
+      "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-execution-real-ipc.py",
+      "--batond",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+      "--output",
+      "/workspace/.onboarding/goal-graph-final-browser-legacy/execution",
+      "--chromium",
+      "/usr/bin/chromium",
+      "--frontend",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist",
+      "--candidate-manifest",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/manifest.json"
+    ],
+    "exit_code": 0,
+    "seconds": 15.29,
+    "log_sha256": "d8f6be2a06038e88354bc7a984d2ad2629dd12c4c837dedf56226841ccc42deb",
+    "checks": 10,
+    "screenshots": 9,
+    "status": "passed",
+    "report": "/workspace/.onboarding/goal-graph-final-browser-legacy/execution/report.json",
+    "report_sha256": "dcf2ce37c923cb12cffc66b7d7921b89e5092e6fa4766246f502e3ea9c99fbf9",
+    "frontend_assets_sha256": {
+      "assets/index-CbM2OhF1.js": "ca70891148fb3da167ee7219e2b0b4dcf867390cc9b3b81241b15256f6db4626",
+      "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+      "index.html": "a91ec9ba22205a07e7c0e285ffe77ed67e5d731c7e6fb7edf04b50d658d29450"
+    }
+  }
+]

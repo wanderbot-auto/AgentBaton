@@ -1259,6 +1259,24 @@
           "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
           "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
           "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node and legacy real browser80/56; new Graph browser modes pending adapter correction",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ]
         }
       ]
     },
@@ -1387,6 +1405,24 @@
           "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
           "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
           "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node and legacy real browser80/56; new Graph browser modes pending adapter correction",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ]
         }
       ]
     },
@@ -1621,6 +1657,24 @@
           "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
           "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
           "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node and legacy real browser80/56; new Graph browser modes pending adapter correction",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ]
         }
       ]
     },
@@ -1758,6 +1812,24 @@
           "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
           "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
           "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node and legacy real browser80/56; new Graph browser modes pending adapter correction",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ]
         }
       ]
     },
@@ -1871,6 +1943,24 @@
           "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
           "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
           "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node and legacy real browser80/56; new Graph browser modes pending adapter correction",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ]
         }
       ]
     },
@@ -2001,6 +2091,24 @@
           "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
           "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
           "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node and legacy real browser80/56; new Graph browser modes pending adapter correction",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ]
         }
       ]
     },
@@ -3142,6 +3250,24 @@
           "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
           "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
           "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node and legacy real browser80/56; new Graph browser modes pending adapter correction",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ]
         }
       ]
     },
@@ -4873,6 +4999,24 @@
           "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
           "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
           "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node and legacy real browser80/56; new Graph browser modes pending adapter correction",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ]
         }
       ]
     },
@@ -5003,6 +5147,24 @@
           "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
           "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
           "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node and legacy real browser80/56; new Graph browser modes pending adapter correction",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ]
         }
       ]
     },

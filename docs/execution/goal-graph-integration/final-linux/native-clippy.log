@@ -1,0 +1,4 @@
+    Checking agentbaton-workspaces v0.1.0 (/workspace/.worktrees/goal-graph-integration/crates/workspaces)
+   Compiling agentbaton-desktop v0.1.0 (/workspace/.worktrees/goal-graph-integration/apps/desktop/src-tauri)
+    Checking agentbaton-core v0.1.0 (/workspace/.worktrees/goal-graph-integration/crates/core)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.81s

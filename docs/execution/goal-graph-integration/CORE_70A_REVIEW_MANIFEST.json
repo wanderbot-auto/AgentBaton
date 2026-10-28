@@ -1,0 +1,134 @@
+{
+  "review_commit": "70a48d41663108337529915358109026e98ddf98",
+  "verdict": "NO_BLOCKER_IN_REVIEWED_EXISTING_WORKSPACE_GRAPH_SLICE",
+  "independent_workspace": {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--workspace",
+      "--no-fail-fast",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "cwd": "/workspace/.worktrees/goal-validation-graph",
+    "environment": {
+      "CARGO_HOME": "/workspace/.toolchains/cargo",
+      "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+      "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_BUILD_JOBS": "2",
+      "RUST_TEST_THREADS": "1"
+    },
+    "returncode": 0,
+    "seconds": 512.8608087870089
+  },
+  "independent_checks": [
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": "/workspace/.worktrees/goal-validation-graph",
+      "returncode": 0,
+      "seconds": 0.7777773329871707
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/workspace/.worktrees/goal-validation-graph",
+      "returncode": 0,
+      "seconds": 0.13285803599865176
+    },
+    {
+      "name": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "-p",
+        "batond",
+        "-p",
+        "baton"
+      ],
+      "cwd": "/workspace/.worktrees/goal-validation-graph",
+      "returncode": 0,
+      "seconds": 0.10320649800996762
+    }
+  ],
+  "outer_tests": {
+    "passed": 593,
+    "failed": 0,
+    "ignored": 0
+  },
+  "doctests": {
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0
+  },
+  "nested_reexecutions_excluded": 5,
+  "package_counts": {
+    "agentbaton_config": 67,
+    "agentbaton_core": 315,
+    "agentbaton_providers": 82,
+    "agentbaton_workspaces": 127,
+    "baton": 0,
+    "batond": 2
+  },
+  "source_tree_before_after_equal": true,
+  "source_tree_sha256": "7ef299c501455b4ae9ec5ee8eaa0d19af426a620f856a4b11da866c29ff1dce7",
+  "binaries": {
+    "batond": {
+      "path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+      "sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+      "bytes": 104881288
+    },
+    "baton": {
+      "path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/baton",
+      "sha256": "66ca50a6d4a2e633f799c6275d66b9be3fe3aa35f6346649893ad925de2ee0d0",
+      "bytes": 76685288
+    }
+  },
+  "target_lease": "RELEASED_TO_ROOT_NO_FURTHER_CARGO",
+  "native_macos_provider_ci": "not_run_by_this_review",
+  "evidence_sha256": {
+    "PREPARATION.json": "dee131c5eec1ba7f3d109faca7d88007c44b20d6040987b5dd064faf38f7e4d5",
+    "REVIEW.md": "6fa33c78df8163d8c668099b49a52b79edf75e282ce1397bcea8eb30aa78eb24",
+    "author-candidate-manifest.json": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+    "build.log": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc",
+    "checks-result.json": "a8201baac1c2147e52540e2aa82b75d63b2f4dcc8e3c477d01b3ec4cdd37aa0b",
+    "clippy.log": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af",
+    "embedded-source-hashes.json": "b7a50b7d47a6f7c12cac86ac242dfcd88ea060e74c90663ae9133e760be80762",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "package-counts.json": "3be9e0f55b98c71754aa0db35bb5bbcd31077bb5e4ef4b661634a7b318e226af",
+    "protected-command-fixture.diff": "2895c86861f700a8a1874d8199d35a0349a78f8eff65400b2516b01551be11de",
+    "protected-command-fixture.json": "fb2fa12a14853e8223e49860ce92b6cbf1999cb56c72c2015864f8989f1669ed",
+    "runtime-artifacts/actual-command-graph-5448dec8d5b777e54aba27874eddee2d3836853e767e82377d05748fe6c15fa2.json": "5448dec8d5b777e54aba27874eddee2d3836853e767e82377d05748fe6c15fa2",
+    "runtime-artifacts/actual-data-graph-c8f2684736e9564af0ac14db71f134def6591702a864f4fb3fe789039209d92d.json": "c8f2684736e9564af0ac14db71f134def6591702a864f4fb3fe789039209d92d",
+    "runtime-artifacts/actual-graph-proposal-3a673372bab01fbd146d4f72b3134962f3a09b48d1f0796f70c115d561976a84.json": "3a673372bab01fbd146d4f72b3134962f3a09b48d1f0796f70c115d561976a84",
+    "runtime-artifacts/actual-integrity-graph-8ea2af73a41a56488eff0d7422af6d39c440c6b7a00f1c3de02c98a2b587d5bb.json": "8ea2af73a41a56488eff0d7422af6d39c440c6b7a00f1c3de02c98a2b587d5bb",
+    "runtime-artifacts/actual-task-accepted-83c88405356af86c99c9c976613d4a0dcc0f99de3cecd0da1986d8869ba63360.json": "83c88405356af86c99c9c976613d4a0dcc0f99de3cecd0da1986d8869ba63360",
+    "runtime-artifacts.json": "f47de129f721b749271fa5a04e273129b4949161a076acee64625d3e1bc99e24",
+    "source-after.json": "fc27f114cee4e5ac20854b45b71b48d02411176a4bbb3d4bf6a860d21c4d704c",
+    "source-before.json": "1d1af606cd9b4cfa05f519343d485cbfafbb97de2a104117f5985adf80cf6969",
+    "summarize.py": "5ee05fe1e6aa65ad726e59272215634001ac532c34ba52ccb1c8ca9296955283",
+    "test-counts.json": "175da0c2475afb6a498d55c70236e66f00479ffe9f75ca6f713ae008fac7717d",
+    "toolchain.json": "d4fa83464d209ddb3fa49f63f894b6a381344cef6433ffdfdd18fb5cbe2d9963",
+    "workspace-result.json": "0e25abce728c5743dc6d0113a7c6ba918be28d83b1fc393d61a5b8a8a215df19",
+    "workspace.log": "ab01604f0d33b9b76d7fc27b61e2bbaaf1ac377822a94d1a354da73144be0366"
+  }
+}

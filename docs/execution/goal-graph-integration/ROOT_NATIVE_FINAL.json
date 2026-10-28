@@ -1,0 +1,117 @@
+{
+  "dimension": "Actual Linux x86_64 composed Rust/Node and generated native runner contracts; not macOS GUI",
+  "source_before_sha256": "848204fd44584a8069934dbf5bfecf9c03c5a13871e10483e0f91d1f29409555",
+  "source_after_sha256": "848204fd44584a8069934dbf5bfecf9c03c5a13871e10483e0f91d1f29409555",
+  "native": [
+    {
+      "name": "native-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--features",
+        "native-smoke,custom-protocol"
+      ],
+      "exit_code": 0,
+      "seconds": 37.34,
+      "log": "/workspace/.onboarding/goal-graph-final-native/native-tests.log",
+      "sha256": "514266ba6d98bba522b414cc2429252e2d6873669f46e46a4006dd5044102988"
+    },
+    {
+      "name": "native-clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--features",
+        "native-smoke,custom-protocol",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 10.93,
+      "log": "/workspace/.onboarding/goal-graph-final-native/native-clippy.log",
+      "sha256": "aa86c6abbb7cc08a8a6c823f862ab8334e7d9b28ce20bc4790ad20e2b3d6b68f"
+    },
+    {
+      "name": "native-fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.29,
+      "log": "/workspace/.onboarding/goal-graph-final-native/native-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "native_counts": {
+    "library": 57,
+    "owner_controller": 4,
+    "readonly_harness": 22,
+    "failed": 0,
+    "ignored": 0
+  },
+  "frontend": [
+    {
+      "name": "node-tests",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 27.42,
+      "sha256": "7919989060fc6f5fa2aacb8bc291ee48dcb8384df837d1cc836b2769e9aacc25"
+    },
+    {
+      "name": "frontend-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 1.43,
+      "sha256": "a170e71412f19e841156c3946bf96af3325cfcd7f8daf136c24180257bdf0671"
+    }
+  ],
+  "frontend_counts": {
+    "tests": 564,
+    "files": 37
+  },
+  "python": {
+    "first_missing_environment": {
+      "exit_code": 1,
+      "ran": 36,
+      "errors": 1,
+      "log_sha256": "16796b95c5e74e9954a8630fdb61a9c30b53f1bea20af1438fc7b902d5297113"
+    },
+    "correct_actual_daemon": {
+      "environment": {
+        "AGENTBATON_OWNER_FIXTURE_DAEMON": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond"
+      },
+      "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+      "exit_code": 0,
+      "tests": 36,
+      "log_sha256": "6c96dcdd586f1a7cab6250e4e7f74e6a790216fa399dce3798d389dbca86b9ff"
+    }
+  },
+  "macos_dialog": "not_run",
+  "cargo_target": "No writer after Root test/lint/fmt completed",
+  "limits": [
+    "Linux controller unit tests do not exercise NSAlert or borrowed AppKit handles",
+    "No new CI run or new macOS installer produced"
+  ]
+}

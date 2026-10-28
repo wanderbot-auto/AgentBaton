@@ -1,5 +1,5 @@
 {
-  "status": "in_progress_not_graph_acceptance",
+  "status": "local_core_and_composed_linux_passed_new_graph_browser_ci_macos_pending",
   "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
   "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
   "postmerge_doc_commands": [
@@ -41,27 +41,35 @@
       "failure": "independent reviewer found new blank line at EOF in CHECKPOINT/PROGRESS; Root removed trailing blank lines, retaining document text"
     }
   ],
-  "graph_runtime": "implemented_owner_and_three_validators; final independent workspace running; new composed browser not_run",
+  "graph_runtime": "implemented_owner_and_three_real_validators; independent final workspace PASS; new composed Graph browser pending fixture correction",
   "native_goal_dialog": "not_verified",
-  "task_accepted": "not_implemented_no_claim",
-  "current_core_wip": "c4b8b70",
-  "core_actual_directed_tests": 8,
-  "ui_mock_node_tests": 513,
-  "native_compile": {
-    "tests": "41lib+17harness",
-    "clippy": "PASS -Dwarnings after retained101 nestedformat warning",
-    "fmt": "PASS",
-    "runtime_dimension": "ownCore04/schema11 compile + actualCore12 proposal6074 callbacks; notCore12 runtime/OSDialog/Mac",
-    "lease": "UI released12:58 no writers; Root explicitly returned sole Native writer toCore"
-  },
   "full_design": "incomplete",
   "current_candidate": {
     "core": "70a48d41663108337529915358109026e98ddf98",
     "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
     "root_composition": "CORE_70A_COMPOSITION.json",
-    "full_workspace_independent": "running_not_yet_pass",
-    "native_composition": "not_run",
-    "browser_new_modes": "not_run",
+    "full_workspace_independent": {
+      "status": "PASS",
+      "outer_unique": 593,
+      "compilefail_docs": 7,
+      "failed": 0,
+      "ignored": 0,
+      "report": "CORE_70A_REVIEW.md",
+      "manifest": "CORE_70A_REVIEW_MANIFEST.json",
+      "source_100_before_after_equal": true
+    },
+    "native_composition": {
+      "status": "PASS_linux_only",
+      "evidence": "ROOT_NATIVE_FINAL.json",
+      "source_map": "ROOT_NATIVE_SOURCES.json"
+    },
+    "browser_new_modes": {
+      "current_corrected_runtime": "not_run",
+      "prior_current_harness_runtime": "not_run",
+      "prior_static_actual_packet_counterexamples": "four blocking fixture adaptation failures reproduced and retained, no daemon/browser involved",
+      "counterexamples_local": "/workspace/.onboarding/goal-graph-driver-90d-review/actual-packet-counterexamples.json",
+      "old_owner_only_runtime": "5b7e401/oldCore5541 actual6checks/3PNG, preserved separately and not borrowed as newGraph pass"
+    },
     "new_ci": "not_run",
     "new_macos": "not_run",
     "lossless_ui_independent": {
@@ -72,6 +80,53 @@
       "evidence_files": 59,
       "report": "LOSSLESS_4FAB_REVIEW.md",
       "manifest": "LOSSLESS_4FAB_MANIFEST.json"
+    },
+    "legacy_browser": {
+      "status": "PASS",
+      "checks": 80,
+      "screenshots": 56,
+      "evidence": "ROOT_LEGACY_BROWSER_FINAL.json",
+      "personally_viewed": [
+        "quiet/home-1488x981.png",
+        "execution/09-same-plan-work-and-summary-frontier.png"
+      ],
+      "source": "70a frozen daemon40322b +4fab frontendca708911"
     }
+  },
+  "historical_stages": [
+    {
+      "stage": "early_proposal_only_before_Graph_runtime",
+      "current_at_that_stage": {
+        "current_core_wip": "c4b8b70",
+        "task_accepted": "not_implemented_no_claim",
+        "core_actual_directed_tests": 8,
+        "ui_mock_node_tests": 513,
+        "native_compile": {
+          "tests": "41lib+17harness",
+          "clippy": "PASS -Dwarnings after retained101 nestedformat warning",
+          "fmt": "PASS",
+          "runtime_dimension": "ownCore04/schema11 compile + actualCore12 proposal6074 callbacks; notCore12 runtime/OSDialog/Mac",
+          "lease": "UI released12:58 no writers; Root explicitly returned sole Native writer toCore"
+        }
+      },
+      "superseded_for_current_progress": true,
+      "note": "Retained original values; not current-source assertions"
+    }
+  ],
+  "current_core_source": "70a48d41663108337529915358109026e98ddf98",
+  "task_accepted": "actual durable TaskAccepted through private fixture Owner path verified in exact70a Core; new composed Graph browser and OS dialog pending",
+  "ui_node_tests": {
+    "tests": 564,
+    "files": 37,
+    "dimension": "actual Node component/mock tests, not Core/browser/Mac"
+  },
+  "native_compile_current": {
+    "library": 57,
+    "controller": 4,
+    "readonly_harness": 22,
+    "clippy": "PASS -Dwarnings",
+    "fmt": "PASS",
+    "evidence": "ROOT_NATIVE_FINAL.json",
+    "dimension": "Linux composed current sources; macOS code and NSAlert not_run"
   }
 }

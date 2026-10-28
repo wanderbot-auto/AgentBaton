@@ -1,0 +1,117 @@
+   Compiling agentbaton-workspaces v0.1.0 (/workspace/.worktrees/goal-graph-integration/crates/workspaces)
+   Compiling agentbaton-core v0.1.0 (/workspace/.worktrees/goal-graph-integration/crates/core)
+   Compiling agentbaton-desktop v0.1.0 (/workspace/.worktrees/goal-graph-integration/apps/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 30.25s
+     Running unittests src/lib.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_desktop-31ff9bbf364a3428)
+
+running 57 tests
+test approval::graph_review_tests::explicit_owner_rejection_is_separate_from_cancel_and_graph_execution ... ok
+test approval::graph_review_tests::graph_cancel_on_any_page_or_final_never_creates_a_decision_or_finalizes ... ok
+test approval::graph_review_tests::graph_pages_preserve_complete_values_and_utf8_with_bounded_payloads ... ok
+test approval::graph_review_tests::graph_pages_refuse_oversize_or_nonobject_without_truncation ... ok
+test approval::graph_review_tests::graph_postfinalize_unknown_or_transport_error_is_never_downgraded_or_retried ... ok
+test approval::graph_review_tests::graph_private_finalize_only_after_every_page_and_final_confirmation ... ok
+test approval::graph_review_tests::graph_wrong_kind_bad_reference_and_oversize_fail_before_prompt ... ok
+test approval::tests::actual_core12_generated_graph_proposal_is_reviewed_completely_with_original_private_reference ... ok
+test approval::tests::actual_core_node_proposal_binds_real_capture_origin_and_complete_private_owner_decision ... ok
+test approval::tests::actual_data_and_command_native_review_preserves_complete_observations_and_private_receipts ... ok
+test approval::tests::actual_integrity_missing_observation_or_unjoined_pass_never_opens_native_review ... ok
+test approval::tests::actual_integrity_native_cancel_on_each_page_and_final_never_finalizes_or_rejects ... ok
+test approval::tests::actual_integrity_validator_observation_roundtrips_every_native_review_byte ... ok
+test approval::tests::all_preapproval_validation_failures_are_explicitly_not_started ... ok
+test approval::tests::approval_sends_only_the_server_proposal_reference_and_revision ... ok
+test approval::tests::command_confirmation_is_scoped_one_run_and_cannot_reuse_other_approval_kinds ... ok
+test approval::tests::compact_table_preserves_unicode_escape_null_unique_hashes_and_unknown_metadata ... ok
+test approval::tests::complete_goal_snapshot_can_use_lossless_compact_json_but_never_raise_the_limit ... ok
+test approval::tests::conflicting_or_unknown_file_structure_and_oversize_metadata_never_prompt ... ok
+test approval::tests::data_compaction_is_kind_specific_and_small_display_stays_complete_pretty_json ... ok
+test approval::tests::data_contract_confirmation_is_distinct_and_cannot_reuse_integrity_approval ... ok
+test approval::tests::data_copy_decline_and_postfinalize_uncertainty_are_not_completion_receipts ... ok
+test approval::tests::data_workspace_confirmation_binds_exact_preview_and_separate_proposal_revision ... ok
+test approval::tests::denial_never_invokes_finalize ... ok
+test approval::tests::finalize_transport_failure_is_not_downgraded_to_not_started ... ok
+test approval::tests::goal_confirmation_is_separate_and_never_reuses_execution_or_validation_authority ... ok
+test approval::tests::goal_execution_decline_never_finalizes_and_postfinalize_uncertainty_is_preserved ... ok
+test approval::tests::goal_execution_native_confirmation_binds_scope_plan_ledger_and_full_existing_permissions ... ok
+test approval::tests::goal_execution_preapproval_core_errors_and_all_original_kind_boundaries_stay_separate ... ok
+test approval::tests::goal_execution_rejects_wrong_intent_or_new_authority_before_any_native_prompt ... ok
+test approval::tests::graph_fixed_native_snapshot_checks_full_scope_and_new_authority_before_any_prompt ... ok
+test approval::tests::graph_postfinalize_wrong_run_id_is_unknown_instead_of_a_new_execution_receipt ... ok
+test approval::tests::identical_expected_and_actual_hashes_remain_distinct_fields_and_finalize_errors_stay_unknown ... ok
+test approval::tests::malformed_data_copy_proposals_never_prompt_or_finalize ... ok
+test approval::tests::malformed_preapproval_errors_never_confirm_and_postfinalize_values_stay_unknown ... ok
+test approval::tests::owner_fixed_native_accept_and_reject_bind_exact_refs_and_separate_private_actions ... ok
+test approval::tests::owner_foreign_snapshot_cas_input_artifact_and_scope_are_refused_without_prompt ... ok
+test approval::tests::owner_postfinalize_unbound_success_is_unknown_and_never_a_not_started_receipt ... ok
+test approval::tests::renderer_has_no_native_dialog_filesystem_or_shell_plugin_permissions ... ok
+test approval::tests::sixty_four_file_native_review_roundtrips_every_snapshot_field_and_fixed_finalize ... ok
+test graph_bridge_tests::graph_and_owner_frames_keep_fixed_kinds_separate_and_preserve_exact_cas ... ok
+test native_parent::tests::actual_framework_label_is_only_a_concurrency_key_not_a_parent_selector ... ok
+test native_parent::tests::close_after_dispatch_is_deferred_and_does_not_erase_possible_commit ... ok
+test native_parent::tests::close_after_last_page_before_finalize_fails_closed ... ok
+test native_parent::tests::close_before_proposal_or_review_never_opens_a_dispatch_gate ... ok
+test native_parent::tests::close_during_or_between_pages_never_restores_confirmation ... ok
+test native_parent::tests::forced_destruction_after_dispatch_is_not_a_not_started_proof ... ok
+test native_parent::tests::genuine_completion_can_dispatch_once_but_never_twice ... ok
+test native_parent::tests::human_completion_idle_state_is_not_a_startup_timeout_signal ... ok
+test native_parent::tests::startup_deadline_cannot_later_open_a_review_or_dispatch ... ok
+test native_parent::tests::unavailable_before_dispatch_is_an_explicit_non_authority_result ... ok
+test tests::daemon_is_fixed_sibling_not_path_from_renderer ... ok
+test tests::data_copy_bridge_carries_only_preview_reference_with_outer_cas ... ok
+test tests::goal_execution_bridge_preserves_exact_selected_cas_and_private_action_boundaries ... ok
+test tests::goal_plan_bridge_preserves_original_duplicate_fields_whitespace_and_utf8 ... ok
+test tests::stale_socket_is_restartable_but_permission_and_live_failure_are_not ... ok
+test tests::stalled_read_only_probe_cannot_extend_readiness_deadline ... ok
+
+test result: ok. 57 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s
+
+     Running unittests src/main.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_desktop-2ce3c4ceadca14e8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/native_owner_dialog_smoke.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_native_owner_dialog_smoke-fe79bbd5b881827d)
+
+running 4 tests
+test controller::tests::clipped_or_partial_message_is_not_reviewed ... ok
+test controller::tests::complete_owned_sheet_observation_is_eligible_for_a_real_click_only ... ok
+test controller::tests::foreign_parent_and_wrong_proposal_or_revision_never_click ... ok
+test controller::tests::missing_disabled_ambiguous_buttons_and_wrong_phase_are_rejected ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/native_smoke.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_native_smoke-43ce6d999710fab5)
+
+running 22 tests
+test fixture_tests::actual_readonly_goal_counts_observe_sequence_changes_without_writes ... ok
+test fixture_tests::completed_report_rejects_a_stale_timeout_and_final_acceptance_requires_no_failure ... ok
+test fixture_tests::destroyed_window_can_schedule_exactly_one_reopen_in_the_valid_phase ... ok
+test fixture_tests::each_real_window_phase_gets_its_script_once_and_wrong_windows_get_none ... ok
+test fixture_tests::execution_actual_private_daemon_empty_list_and_fixed_missing_get_are_readonly ... ok
+test fixture_tests::execution_checkpoints_reject_wrong_phase_replay_changes_missing_and_fake_values ... ok
+test fixture_tests::execution_final_evidence_requires_real_counts_strict_flags_and_exact_missing_reference ... ok
+test fixture_tests::execution_readonly_actual_schema_counts_and_journal_observations_never_write ... ok
+test fixture_tests::execution_readonly_schema_and_each_actual_table_drift_fail_closed ... ok
+test fixture_tests::fixture_runtime_allows_the_real_private_daemon_authority ... ok
+test fixture_tests::generated_registered_project_setup_creates_no_goal_or_attempt_authority ... ok
+test fixture_tests::goal_checkpoints_reject_wrong_window_failure_replay_and_noninteger_counts ... ok
+test fixture_tests::graph_actual_private_daemon_empty_list_and_fixed_missing_get_are_readonly ... ok
+test fixture_tests::graph_checkpoints_reject_phase_replay_type_and_cross_interval_substitution ... ok
+test fixture_tests::graph_final_evidence_requires_independent_schema12_and_exact_core_denial ... ok
+test fixture_tests::graph_readonly_actual_schema_six_counts_and_journal_never_write ... ok
+test fixture_tests::graph_readonly_wrong_schema_and_each_real_table_drift_fail_closed ... ok
+test fixture_tests::late_success_cannot_erase_failure_published_while_the_report_lock_is_held ... ok
+test fixture_tests::only_completed_or_failed_states_stop_the_watchdog ... ok
+test fixture_tests::owned_runtime_alias_is_rejected_but_its_canonical_private_database_binds ... ok
+test fixture_tests::project_fixture_refuses_existing_database_without_chmod_or_byte_changes ... ok
+test fixture_tests::readonly_query_capture_and_owned_child_timeout_are_real_bounds ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.91s
+
+   Doc-tests agentbaton_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

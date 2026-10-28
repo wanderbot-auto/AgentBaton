@@ -37,3 +37,13 @@ Core 冻结 `70a48d41663108337529915358109026e98ddf98` / schema12，manifest `c9
 前端无损 Observation `4fab558` / docs `2f31fcc` 已独审：564测试/37文件、selected14/2、type/build，以及18额外异步/WeakMap/篡改控制通过；59份冻结证据 Root 逐哈希核验。原系统 Command 的大 u64 通过精确原文 SHA 验证，只读展示不创造授权；旧无原文592包仍拒绝。Native4个新增函数尚未执行，浏览器新组合尚未运行。正式 review 见 LOSSLESS_4FAB_REVIEW.md / LOSSLESS_4FAB_MANIFEST.json。
 
 接下来执行最终 workspace、Native 合成、旧六条浏览器流程及新 Owner-only/Integrity/Data/Command/失败模式，再经独审、准确新七项 CI 与双 macOS 验证。OS Owner 弹窗叶子虽 Python36和实际 Linux schema/清理控制通过，Rust/macOS/原图仍待验证。PR15 双架构开发包仍是最新真实交付；全130项设计、Factory/NL/SkillsMCP/历史/远程等剩余范围继续，未标产品完成。生产、真实 Provider、私人身份、新费用/资源、签名、公证、最终许可证门禁不变。
+
+## 最终 Core 与 Linux 组合验证完成 · 2026-10-28 UTC
+
+此段更新前述进行中检查点，历史阶段保留。Core70a独立完整workspace实际593唯一外层（Core315）+7compilefail docs、零失败/忽略；fmt/Clippy/alltargets/build均PASS，100源码锁前后不变、构建二进制与冻结40322b/66ca50相同。报告/manifest/counts已导入；原24份证据及原manifest全部保存CORE_70A_REVIEW_EVIDENCE.tar.gz，CORE_70A_IMPORT.json记录精确路径/哈希映射，原文中的相对文件在archive内解析。
+
+Root拿回唯一Native Cargo租约后，精确组合实际57库+4Ownercontroller+22readonly、Clippy-Dwarnings/fmt全PASS；before/after源哈希相同，详ROOT_NATIVE_FINAL.json/ROOT_NATIVE_SOURCES.json。Observation四新回调在57中真实运行；此Linux绿不含macOS-only AppKit编译/NSAlert。Python首跑漏必要daemon环境变量而失败，日志保留，补齐精确70a实际batond后36PASS。Node564/37与buildPASS。Root全部Cargo完成，无缓存writer。
+
+新Core40322b+新4fab资产实际重跑原六条browser/Unix IPC全部PASS，80检查/56原图；Root已目视quiet/home1488和execution09。ROOT_LEGACY_BROWSER_FINAL.json逐绑定命令/报告SHA，final-linux保存实际日志（workspace gzip可无损恢复）。九项需求新增明确partial slice，130需求未减少。新Owner-only和五Validator浏览器场景仍待修脚本的receipt/view、原路径、Summary ID和完整多产物计量四处独审错误后实跑；不是产品权限或验收标准放宽。
+
+无Graph PR/新CI/双Mac新包/实际OS Owner对话框结论。main仍a1be94d，PR15双架构包仍最新交付；新CI仅增真实builder后Owner runner contracts的4行，待独审。完整Design剩余范围及原授权限制不变，未formal Approve。
