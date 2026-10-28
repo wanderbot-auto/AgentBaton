@@ -1,0 +1,9 @@
+{
+  "archive": "MAC_FIXTURE_REVIEW_EVIDENCE.tar.gz",
+  "bytes": 61065,
+  "sha256": "9a8ac6e3b7cc4eac35405109efe4a9fdaa2fbd25aed01ae49d79e7898902133e",
+  "files": 21,
+  "source_manifest_sha256": "8425b2626d8f324d01d8529fa35d996153345478c13a700470d823a30df2a5c5",
+  "all_roundtrip_sha256_verified": true,
+  "scope": "exact c05 source local55 author/3 independent subset; noMac/newCI"
+}

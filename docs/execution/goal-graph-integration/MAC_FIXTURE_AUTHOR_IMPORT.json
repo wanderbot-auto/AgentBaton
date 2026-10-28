@@ -1,0 +1,9 @@
+{
+  "archive": "MAC_FIXTURE_AUTHOR_EVIDENCE.tar.gz",
+  "bytes": 87318,
+  "sha256": "1776b0c30d91d11ced9506e48e176d43688402d290fff2c776814b2623e12cdf",
+  "files": 36,
+  "source_manifest_sha256": "22e7e701af64c5a1c3193ff2723ea62670170798ba35b1d7a1ea1a262bedaecf",
+  "all_roundtrip_sha256_verified": true,
+  "scope": "exact c05 source local55 author/3 independent subset; noMac/newCI"
+}

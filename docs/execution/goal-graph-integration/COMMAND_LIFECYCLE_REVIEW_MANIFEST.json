@@ -1,0 +1,30 @@
+{
+  "verdict": "PASS_NARROW_TEST_PATCH_INDEPENDENT_LINUX14_MAC_CI_PENDING",
+  "source": "2ee515e7b2d97b376740a7514ffc2a7590bca5ca",
+  "independent_tests": 14,
+  "failed": 0,
+  "ignored": 0,
+  "all104_before_after_unchanged": true,
+  "other13_and_expiry_negative_byte_identical": true,
+  "target_lease": "RELEASED_TO_ROOT",
+  "files": {
+    "REVIEW.md": "236069a78c5510736a11f38e5fa2eb816663c9d3067c3dc64d96471eb371b7ac",
+    "author-evidence/FINAL_VERIFICATION.json": "b29b90776c0bcfe6f3ddd2700edaa3998c7ab0f03793005af5613d75bde75999",
+    "author-evidence/MECHANICAL_DIFF.json": "4a0bdd420fc34598380ceab6cfa0adaa5bc9d85d66d35e60e44852ef22a4a97b",
+    "author-evidence/final-clippy.log": "373e905a62ca77e9996dda19bcd936a2eda4e2611e27b9f6846787f0d2f87804",
+    "author-evidence/final-positive-evidence.json": "8587ec76694ae97523a3893cc8a7823f09543368de48f4339ce62e0d28f62852",
+    "author-evidence/original-ttl-controlled-delay.json": "3355bd9fb61160f7ae03ea5b53810fc75419d0e9814ef0930de6358c4104ad89",
+    "author-evidence/original-ttl-controlled-delay.log": "e8f685ddfba76d26a40cf47efa2a2c43e06452045c68907214dd8911c83153ad",
+    "author-evidence/original-ttl-controlled-delay.rs": "ef5045e3ea1b20e4ef6e659bccb92c8cd939092338796e4778d98498cf7597ee",
+    "author-evidence/original-ttl-diagnostics.json": "b429a3764d9cc3ebe902f8e38d684bc9a5fb2b371efa0a5e116b179e3c259057",
+    "author-evidence/original-ttl-diagnostics.log": "b90d54ab10c86ab8385a3992843b421790eabaa034cffa954c923ae8b17c83ec",
+    "author-source-map.json": "5c209c84a453aaf72b988401b5e48072c415e0f448bdede79c5b2f9aba3fa1be",
+    "command14.log": "e27ddc59e6c51d07d297cbc6df0305917cd724bfdbb25c069273197740eda5cd",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "frozen-command_validation.rs": "252afb6800be9a26f43393bea2832964a0eda31ffd56d8206a4ee463eed74f8a",
+    "independent-positive-evidence.json": "ab905c6075f213fc212882fd6985b74f7c31e0a5aebad9becadb5926e9c77bb0",
+    "results.json": "fa7b881185e655c60f5296b88538d4323096d2b469b7084d707ccf09e4ec781e",
+    "source-after.json": "6db913ec0d25be06d130f11a25884efc0cb98ceb2b288489eb943606c47eb0be",
+    "source-before.json": "c33e6b5346702c157030efada429ab3d84238224ebf3ba565e1ebc3e5d89001b"
+  }
+}

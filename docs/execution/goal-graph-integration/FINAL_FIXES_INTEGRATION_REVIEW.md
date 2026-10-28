@@ -1,0 +1,15 @@
+# PR16 final fixes integration — read-only boundary review
+
+PASS for the exact source composition and corrected current documentation; this is content consistency, not GitHub Approve, CI success, merge or release acceptance. No Cargo/Chrome, download, full-archive replay or remote action. FactoryCore's exclusive target was untouched.
+
+Parent908bb6cf79631cbefc3635781bb6a4cfebc8b4e7 contains exactly five code changes from652, each byte-identical to the frozen2ee/c05/579 leaf source. The two Core files are tests; Native smoke and runner changes remain the previously independently reviewed test-only paths. All other tracked code/production Core/ordinary Native, locks, checkers and workflows are unchanged. Factory schema13 work is absent from this PR16 tree. FIXED_SOURCE_COMPOSITION map is mechanically correct.
+
+Current STATUS/PROGRESS/CHECKPOINT preserve the actual verification dimensions: command author14 and independent14 overlap; sessions author55 and independent3 overlap; WebCrypto26Rust/29Python/Node4 real-crypto contexts+4 unavailable controls. No28/58 counts, current-root full-workspace claim, actual WebView/Mac proof or new-bundle result is fabricated. Original startup/expiry, unknown/owned-stop/budget, graph node/runtime/queue, readonly and negative boundaries remain attributed to their frozen reports. The Linux57B probe is not Darwin109B/errno evidence. Borrowed build macro assets/sidecars are explicitly compile-only. New exact-head seven checks, Mac Native/NSAlert/release/packages and full130 product remain pending; old652 five-green/two-Mac-failure remains a separate result.
+
+Imported own command/Mac reports and manifests are byte-identical to frozen originals. Six archive digest/size and manifest-import links match; Root's already recorded member roundtrip is not redundantly rerun here. Existing desktop independent WebCrypto evidence matches its three exact source hashes and stated counts. checks.json contains all map/digest checks.
+
+One machine-readable current/history ambiguity was raised and corrected: EVIDENCE's old70a/57+4+22/6912 current-labelled values are now preserved unchanged in explicit historical stage. Current candidate is908 composition plus2ee/c05/579 and local limited tests, with new CI not started. Current PR CI correctly identifies652/1e04 and its five-green/two-failure outcome. The original70a is clearly production baseline, not current test snapshot. No old evidence was erased or borrowed as new success.
+
+Exact STATUS SHA532f2d5edf3f4533e8e02558c626bd7d6cecd1ea123992d920a6444a9d8e0c02 is content-consistent. BOOTSTRAP is still unedited,93 original paths/algorithm/note. Only STATUS recorded d98aa6c…31086 is stale; all other92 actual guarded files match. It is consistent to update ONLY that entry to532f…e0c02. Any later STATUS content requires a new exact-byte check; no blanket future update permission is inferred. Prior failures/archives and unchanged validators/protection are preserved.
+
+Exact final input hashes are in inputs.json. No Root files or prior frozen reviews were edited. No merge/push/CI action, account, credential, model call or scope expansion by this reviewer.

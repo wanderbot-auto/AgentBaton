@@ -113,3 +113,17 @@ Root的STATUS-only bootstrap修复已独审并保持93条完整校验；此段�
 原IO修复在双Mac69单元均通过；Intel实际metadata确认/bin/rm nlink2，原严格single-link guard正确拒绝，不是已证实var/private错误。Intel新失败在既有真实ACP失败生命周期夹具：新Grant剩997ms但sessions.create耗1011ms，Task返回cancelled而断言unknown；尚需原stop原因和事件时序判断，不把两态都接受，不用fixture掩盖生产错误。ARM命令14项通过，但sessions53pass2fail：Integrity Graph某请求PERMISSION_DENIED execution Grant到期；恢复snapshot新daemon socket bind失败。精确日志与API在ci-652/，不以日志单独推断根因。
 
 继续隔离诊断：Core生命周期单元唯一Cargo writer；ARM独立源码/日志调查；test-only Native WebView新增真实WebCrypto原UTF8哈希与unsafe-u64文字验证，不能用Node/Linux替代Mac。保持负授权、未知结果、owned join、预算/执行期限及全部旧断言。新三失败修复需独审和真实回归后才一次normalpush新准确候选；不为无变化重跑，不跳过保护/测试。Mac Native/NSAlert/defaultrelease/双架构新包均未到达，最新有效包仍PR15，130项完整产品未完成，剩余Factory/NL/SkillsMCP/history/remote等不删除。
+
+## PR16 第二轮失败修复已独审合成，待新准确候选七项 CI
+
+记录时本地组合父提交 908bb6cf79631cbefc3635781bb6a4cfebc8b4e7，功能分支codex/goal-graph-integration；PR16远端被测试head仍652c5f0。FIXED_SOURCE_COMPOSITION.json逐hash绑定本轮仅5个测试/runner源差异，Core生产、普通Native权限代码、锁、workflows较652全部字节不变。实际source分别command2ee515e、Macfixturec05f8ce、WebCrypto579f4ca，现已合成本地分支；Factory不在此候选。
+
+生命周期旧1000ms+真实session/new延迟1100ms已实际复现FAIL并保留：policy_stop_requested先于malformed/sessionfailure，未证明Task曾unknown后被降级。正例Grant10s覆盖真实1100ms启动延迟，原3s启动/观察界限与expired1000+1100全部负断言不变；真实malformed、ownedreap后Taskunknown，随后显式revoke该Grant，再独立command通过且Taskunknown/预算root1project2 active0/1attempt1session不重置。作者14与独审14为同一组，不加成28；Clippy/fmt通过，其他13测试函数逐字同。证据COMMAND_LIFECYCLE_*。
+
+Macfixture仅Integrity外层Grant10→30s，与原Data/Command一致，原Graph10s/node4/5s/queue1200/RPC5/负预算全部不变。增加失败请求method/key/耗时与9阶段实际观察；恢复用canonical root/restore、0700/0600/VACUUM/原worker真shutdown后恢复；独占新私有等长probe目录绑定后仅清理自己的socket/dir。作者55全PASS+Clippy/fmt，独审3受影响场景PASS为55子集，不记58；101作者与104独审各自scope源码/锁前后同。Linux实际原形/probe57B绑定关闭成功、errno null、短restore35B恢复unknown/无重放/账本原断言通过，不能借成旧ARM109B/errno或具体授权失效stage已经证实。证据MAC_FIXTURE_*。
+
+WebCrypto增加真实Native脚本FIRST.before/after/first与reopened各自调用window.crypto.subtle.digest/TextEncoder，原109B中文/emoji/LF与unsafe-u64字面不parse/stringify，SHA d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892。独审26Rust（原22+4）/29Python（原25+4）/Node4实际crypto上下文+4不可用负控/Clippy/fmt均PASS。编译只临时借用已记录旧Rootdist/70asidecars满足macro要求，前后源同、自己的exact链接已移除；不是实际WebView/Mac/新bundle运行证明。原只读schema12、六Graph表0/seq3、旧assert完整。证据WEBCRYPTO_*。
+
+所有作者/独审原日志、失败控制、manifest已Root逐hash和portable archive roundtrip核验。旧第二轮652五绿双Mac失败及首6912失败仍保留；下一次仅一次normalpush新的已审候选，须重新读取全7准确结果和双Mac实际Native/NSAlert/defaultrelease/双包，不能借旧绿色或PR15包。没有formalApprove/合入/新Mac包或全产品完成声明。
+
+后续Factory研发已经在独立factory-runtime-core与factory-runtime-ui分支编码：schema13/持久lineage/scoped4工具/显式start与原父进程真join后child及newparentattempt；Native私有新Factory批准、Details折叠UI。此为新工作进行中，不在PR16，尚无产品测试通过声明。原130需求、27决定、WP01–14总目标保留；当前入口仍无原生Goal工具，使用相同完成契约与真实原生子代理。环境通知后实际running/connected/spec3，原树和测试结果保留，未重复启动既有检查/模型/账号/费用。只受授权内开发，真实Provider/生产/付费/签名等仍分别关闭。

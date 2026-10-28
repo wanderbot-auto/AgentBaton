@@ -1,0 +1,158 @@
+{
+  "review_type": "independent_source_python_node_then_authorized_exact_native_harness_cargo",
+  "baseline": "652c5f0",
+  "candidate": "579f4ca9ab07d1fd3039ab71ad506af47ca237aa",
+  "recorded_at_utc": "2026-10-28T18:39:06.644867+00:00",
+  "source_sha256": {
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "93777843bb2d5caf7eac5e42a569a859d5f04153896d0e53c1baee771d370d82",
+    "scripts/native-run.py": "8fa23e107fe92542b95fc5d398aa38a20236d29b2e3fbbe7eb87b92efb0197c1",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "50433be6bd43681342d5e247bc0386561ce5f4c070684824c1ca92dffb217b2e"
+  },
+  "all_changed_sha256": {
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "93777843bb2d5caf7eac5e42a569a859d5f04153896d0e53c1baee771d370d82",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "50433be6bd43681342d5e247bc0386561ce5f4c070684824c1ca92dffb217b2e",
+    "docs/execution/native-webcrypto-smoke/CHECKPOINT.md": "d29ca5c2a091ef68676f3701078151ee031ba973a530889176979bec91019580",
+    "docs/execution/native-webcrypto-smoke/EVIDENCE.md": "7742b22b9decdf9ba233bc9e59551f56eba8fe917dc035f8a4d78670e39147f3",
+    "docs/execution/native-webcrypto-smoke/PLAN.md": "02bee263b0d8b7390cfe96add1a970d56ad1013fa9a4b95f6cb46448e0459fdc",
+    "docs/execution/native-webcrypto-smoke/PROGRESS.md": "a87194bb528549c8da01d5a4d6304e4eaeaab23cce907fd1d93c8ac534756fe9",
+    "scripts/native-run.py": "8fa23e107fe92542b95fc5d398aa38a20236d29b2e3fbbe7eb87b92efb0197c1"
+  },
+  "preservation_checks": {
+    "candidate_head_exact": true,
+    "scope_only_three_sources_four_docs": true,
+    "author_source_hashes_match": true,
+    "GOAL_READONLY_SQL_byte_identical": true,
+    "GOAL_EXECUTION_READONLY_SQL_byte_identical": true,
+    "GOAL_GRAPH_READONLY_SQL_byte_identical": true,
+    "FIRST_old_script_preserved_except_additive_proof": true,
+    "FIRST_no_static_digest_in_js": true,
+    "FIRST_one_real_digest_call": true,
+    "SECOND_old_script_preserved_except_additive_proof": true,
+    "SECOND_no_static_digest_in_js": true,
+    "SECOND_one_real_digest_call": true,
+    "all_existing_rust_test_bodies_preserved": true,
+    "all_existing_python_test_asts_preserved": true,
+    "old_report_validator_preserved_plus_crypto": true,
+    "debug_only_compile_guard": true,
+    "feature_required_native_smoke_binary": true,
+    "no_production_or_manifest_or_ci_diff": true
+  },
+  "checks": {
+    "python": {
+      "exit_code": 0,
+      "passed": 29,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "node": {
+      "exit_code": 0,
+      "syntax_scripts": 2,
+      "real_crypto_contexts": 4,
+      "unavailable_negative_cases": 4,
+      "dimension": "Node only, not Native WebView"
+    },
+    "diff_check": {
+      "exit_code": 0
+    },
+    "native_harness_test": {
+      "exit_code": 0,
+      "passed": 26,
+      "failed": 0,
+      "command_wall_seconds": 33.937
+    },
+    "native_selected_bin_clippy": {
+      "exit_code": 0,
+      "deny_warnings": true,
+      "command_wall_seconds": 8.804
+    },
+    "native_rustfmt": {
+      "exit_code": 0
+    }
+  },
+  "rust_harness": {
+    "total_source_test_bodies": 26,
+    "executed": true,
+    "passed": 26,
+    "failed": 0,
+    "ignored": 0,
+    "dimension": "Linux compiled Rust unit harness only; no WebView launched",
+    "test_duration_seconds": 4.81
+  },
+  "native_webview": "not_run",
+  "macos_arm64": "not_run",
+  "macos_x64": "not_run",
+  "actual_default_artifact_audit": "not_run",
+  "candidate_worktree_status": "",
+  "candidate_modified": false,
+  "cargo_used": true,
+  "targets_written": true,
+  "formal_approval": false,
+  "must_fix_new_diff_findings": [],
+  "evidence_sha256": {
+    "SOURCE_ONLY_REVIEW.md": "57a3c3d7a92da7be22ab7641aec7db19a54cbe68433c8d7707c2e7a508f9f77c",
+    "native-lease-01.log": "5e583ab9c799a32519434c922c34a1677c2141548d25e1682ce78634527e2c76",
+    "native-lease-commands.json": "50750352a798967746feacdf99ad3aad304d71f0e162e63c55d1abb30b3631af",
+    "manifest.json": "38d9445a05363c7be31757338a87e433b837c16e6c16856073a2ce8a11f1b189",
+    "EVIDENCE.json": "38d9445a05363c7be31757338a87e433b837c16e6c16856073a2ce8a11f1b189",
+    "manifest-source-phase.json": "38d9445a05363c7be31757338a87e433b837c16e6c16856073a2ce8a11f1b189",
+    "run-native-lease.py": "4d91853accd0c54d82786bbaf789ca521d1d590a2333975a434fdec90d5eaaf4",
+    "native-lease.json": "37b2973b1250004fb5df31bbbc9e630a44a1d0dd9f212a8d6ee59ce24f28eb9e",
+    "second.js": "88eaef4caa9e7ed155a11016b992ac75e5e6da9ca412121c64095eab3625fc83",
+    "preservation.json": "1183f5c65447cf98122bbb415f9de338c6b0b03927f4780b76ea8acd662b6da2",
+    "SOURCE_ONLY_MANIFEST.json": "38d9445a05363c7be31757338a87e433b837c16e6c16856073a2ce8a11f1b189",
+    "native-lease-00.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cargo-source-before.json": "282de7308f8c411326cc41807d0e4d00c2b772ba2dcb3bc019dbda9ebbda935c",
+    "REVIEW.md": "57a3c3d7a92da7be22ab7641aec7db19a54cbe68433c8d7707c2e7a508f9f77c",
+    "python-tests.log": "6e55c466a41e5fe650f69c134da33fa705617c395fcf3d327d210c287c202c0b",
+    "cargo-source-after.json": "282de7308f8c411326cc41807d0e4d00c2b772ba2dcb3bc019dbda9ebbda935c",
+    "check-node.cjs": "3275f7242931b23bf353c1a05e77ba745cebc6d69c097e37ba7711255307d271",
+    "native-lease-02.log": "d2567cedaf5c454a2edd5e23158c7332c5b00daa271a0a6de18471d1cf01b191",
+    "node.log": "01955c8d524300190997278d5b310bb85e792e0dd159560e8d70ab669aa94bac",
+    "node-result.json": "01955c8d524300190997278d5b310bb85e792e0dd159560e8d70ab669aa94bac",
+    "CHECKPOINT.md": "7b445ccb466aaba666217d0f4c4acc571bc417f2e05928ddf1f355c13b143617",
+    "FINAL_REVIEW.md": "aa640c5035f2ecc85ebbf7087ad11316c1e98becac4fa2dc036a5c67799a44c8",
+    "review_checks.py": "a51802367d1a4ecfa1c8d367199dbe3029c9f2d03984b405d47e8dba8b8386c3",
+    "first.js": "b9007973ce2c4eec794c01c4df5293ce05a2458abf333236bc8bf7e88addfd72",
+    "assetmap.json": "637054aca63b800bae614206898e4762f6de1b6bd2f39e972a17db1d14652bd4",
+    "PLAN.md": "d115b14bc3b07be03e7e854ad26464bf6bb3b282231f2cdf3cbe84007fbfbe13",
+    "PROGRESS.md": "a52e41e6ecfaa1b75147a42316524af3f32ac1605d00ab34cc3f795d8b719f41",
+    "preservation.log": "1183f5c65447cf98122bbb415f9de338c6b0b03927f4780b76ea8acd662b6da2",
+    "source-phase/manifest.json": "38d9445a05363c7be31757338a87e433b837c16e6c16856073a2ce8a11f1b189",
+    "source-phase/second.js": "88eaef4caa9e7ed155a11016b992ac75e5e6da9ca412121c64095eab3625fc83",
+    "source-phase/preservation.json": "1183f5c65447cf98122bbb415f9de338c6b0b03927f4780b76ea8acd662b6da2",
+    "source-phase/REVIEW.md": "57a3c3d7a92da7be22ab7641aec7db19a54cbe68433c8d7707c2e7a508f9f77c",
+    "source-phase/python-tests.log": "6e55c466a41e5fe650f69c134da33fa705617c395fcf3d327d210c287c202c0b",
+    "source-phase/check-node.cjs": "3275f7242931b23bf353c1a05e77ba745cebc6d69c097e37ba7711255307d271",
+    "source-phase/node.log": "01955c8d524300190997278d5b310bb85e792e0dd159560e8d70ab669aa94bac",
+    "source-phase/node-result.json": "01955c8d524300190997278d5b310bb85e792e0dd159560e8d70ab669aa94bac",
+    "source-phase/CHECKPOINT.md": "292afba4b23a9fa45686d1bf91e5ba9e6839b843881d7e3cc10dd57d10fc2a46",
+    "source-phase/review_checks.py": "a51802367d1a4ecfa1c8d367199dbe3029c9f2d03984b405d47e8dba8b8386c3",
+    "source-phase/first.js": "b9007973ce2c4eec794c01c4df5293ce05a2458abf333236bc8bf7e88addfd72",
+    "source-phase/PLAN.md": "d115b14bc3b07be03e7e854ad26464bf6bb3b282231f2cdf3cbe84007fbfbe13",
+    "source-phase/PROGRESS.md": "520a3262cdcec522ac72431bd3ee5b6b09ec42555fafe8c27aa864774dd37a9c",
+    "source-phase/preservation.log": "1183f5c65447cf98122bbb415f9de338c6b0b03927f4780b76ea8acd662b6da2"
+  },
+  "source_phase_manifest": "manifest-source-phase.json",
+  "cargo_authorization": "explicit unique native Cargo lease from Root after predecessor release",
+  "native_lease_released": true,
+  "target_scope": "only existing shared native target under unique lease; no new target dirs",
+  "native_lease_record": "native-lease.json",
+  "assetmap": "assetmap.json",
+  "before_after_sources_identical": true,
+  "own_exact_symlinks_removed": true,
+  "source_phase_recorded_at_utc": "2026-10-28T18:32:50.357597+00:00",
+  "report": "FINAL_REVIEW.md",
+  "prior_source_phase": {
+    "directory": "source-phase",
+    "review": "SOURCE_ONLY_REVIEW.md",
+    "review_sha256": "57a3c3d7a92da7be22ab7641aec7db19a54cbe68433c8d7707c2e7a508f9f77c",
+    "manifest": "SOURCE_ONLY_MANIFEST.json",
+    "manifest_sha256": "38d9445a05363c7be31757338a87e433b837c16e6c16856073a2ce8a11f1b189",
+    "all_original_source_phase_evidence_hashes_verified": true
+  },
+  "actual_native_cargo_interval_utc": {
+    "start": "2026-10-28T18:35:36.846796+00:00",
+    "finish": "2026-10-28T18:36:19.640678+00:00"
+  }
+}

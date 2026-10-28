@@ -1,0 +1,33 @@
+{
+  "verdict": "PASS_CONTENT_SOURCE_COMPOSITION_ONLY_NEW_CI_MAC_PENDING",
+  "composition_parent": "908bb6cf79631cbefc3635781bb6a4cfebc8b4e7",
+  "status_content_sha256": "532f2d5edf3f4533e8e02558c626bd7d6cecd1ea123992d920a6444a9d8e0c02",
+  "only_STATUS_bootstrap_rebaseline_consistent": true,
+  "no_Cargo_Chrome_remote": true,
+  "inputs": {
+    "composition_parent": "908bb6cf79631cbefc3635781bb6a4cfebc8b4e7",
+    "files_sha256": {
+      "docs/execution/STATUS.md": "532f2d5edf3f4533e8e02558c626bd7d6cecd1ea123992d920a6444a9d8e0c02",
+      "docs/execution/goal-graph-integration/PROGRESS.md": "2c7ded76bb231fda0058927032e5c83cd98f75223dc30b0aefbcd3a8e4a43a16",
+      "docs/execution/goal-graph-integration/CHECKPOINT.md": "61363904efca6182bbea33e02c29835b71f9ecd49fde9aaf3941a12a26ccdb96",
+      "docs/execution/goal-graph-integration/EVIDENCE.json": "d1951bb1c2108bab64d5bd4f382b9dbe8845dfea04eb4f179073dac93efd4bbc",
+      "docs/execution/goal-graph-integration/FIXED_SOURCE_COMPOSITION.json": "baa0cabeda4d8dce54254be8084f70fa4df7ffa075f56a09dfa4fc35b1e237f7",
+      "BOOTSTRAP_MANIFEST.json": "a2d742a97bfcd989dceae13c3e3ad5af0e50401e3d51fb9b1e70e3fdde5ae4c7"
+    },
+    "old_current_snapshot_values_preserved_exactly": [
+      "current_candidate",
+      "current_core_source",
+      "native_compile_current",
+      "task_accepted",
+      "ui_node_tests",
+      "pull_request"
+    ],
+    "current_snapshot_no_old_CI_borrowing": true
+  },
+  "files_sha256": {
+    "inputs.json": "cc951104516197eb9c8da28483344c622eb37d8f60630f911e14e6b6ac205e75",
+    "check.py": "cceeb249df92e3bb16d410eaef8ce8f421ef725dc586f31e2f4f9b4cdd941bca",
+    "checks.json": "9f7940adb812866fcf9fb1cbefeb7a1d0c64646f4f59ff6cf2aef28d628bc53e",
+    "REVIEW.md": "5e2eb3f7d589bc68876471bb6196652ba1c2538178fa59e74dea7d4e69c6be61"
+  }
+}

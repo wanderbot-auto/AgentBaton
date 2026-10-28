@@ -1,5 +1,5 @@
 {
-  "status": "pr16_652_exact_ci_five_success_two_mac_failure_diagnosis_active",
+  "status": "reviewed_652_failure_fixes_composed_new_exact7_ci_not_started",
   "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
   "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
   "postmerge_doc_commands": [
@@ -44,121 +44,6 @@
   "graph_runtime": "actual local Work/Integrity/Data/fixed Command/private Owner/Summary/TaskAccepted + Data range and real command timeout failures verified",
   "native_goal_dialog": "not_verified",
   "full_design": "incomplete",
-  "current_candidate": {
-    "core": "70a48d41663108337529915358109026e98ddf98",
-    "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
-    "root_composition": "CORE_70A_COMPOSITION.json",
-    "full_workspace_independent": {
-      "status": "PASS",
-      "outer_unique": 593,
-      "compilefail_docs": 7,
-      "failed": 0,
-      "ignored": 0,
-      "report": "CORE_70A_REVIEW.md",
-      "manifest": "CORE_70A_REVIEW_MANIFEST.json",
-      "source_100_before_after_equal": true
-    },
-    "native_composition": {
-      "status": "PASS_linux_only",
-      "evidence": "ROOT_NATIVE_FINAL.json",
-      "source_map": "ROOT_NATIVE_SOURCES.json"
-    },
-    "browser_new_modes": {
-      "current_corrected_runtime": {
-        "status": "all6_local_scenarios_passed34checks14PNG",
-        "evidence": "ROOT_GRAPH_BROWSER_FINAL.json",
-        "sources": "160e four modes, a941 final timeout/Owner; no claim all six ran on a941 yet"
-      },
-      "prior_current_harness_runtime": {
-        "source": "7d80c2cc258669dd82bf235ad8753c5373705e70",
-        "sha256": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
-        "owner_only": "PASS 6checks3PNG",
-        "integrity": "FAIL TypeError output directory parameter shadowed; final report not written, first exception masked",
-        "other_modes": "not_run after stop-on-failure",
-        "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-new",
-        "cleanup_limit": "Exact frozen daemon process scan empty after failure; not proof of all descendants"
-      },
-      "prior_static_actual_packet_counterexamples": "four blocking fixture adaptation failures reproduced and retained, no daemon/browser involved",
-      "counterexamples_local": "/workspace/.onboarding/goal-graph-driver-90d-review/actual-packet-counterexamples.json",
-      "old_owner_only_runtime": "5b7e401/oldCore5541 actual6checks/3PNG, preserved separately and not borrowed as newGraph pass",
-      "prior_static_review": "BROWSER_90D_BLOCKED_REVIEW.md",
-      "prior_static_counterexamples": "BROWSER_90D_STATIC_FAILURES.json",
-      "runtime_attempts": [
-        {
-          "source": "7d80c2cc258669dd82bf235ad8753c5373705e70",
-          "sha256": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
-          "owner_only": "PASS 6checks3PNG",
-          "integrity": "FAIL TypeError output directory parameter shadowed; final report not written, first exception masked",
-          "other_modes": "not_run after stop-on-failure",
-          "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-new",
-          "cleanup_limit": "Exact frozen daemon process scan empty after failure; not proof of all descendants"
-        },
-        {
-          "source": "c3e7e192bfa475c9a6771227550d09667640b3cd",
-          "harness_sha256": "3be92d90f6da058eb8b7c54fb2d1a93979a68418885f83647a537e09c30814c0",
-          "owner_only": "PASS6/3",
-          "integrity": "FAIL final Owner correctly refused expired10s private Grant;2checks3PNG, daemon exited0/no forced kill/owned identities gone",
-          "other_modes": "not_run after stop-on-failure",
-          "evidence": "final-linux/browser-expired-grant/FAILURE.json"
-        },
-        {
-          "source": "fd1654a9224bbcb3c7296381b73c9ad6479fb52e",
-          "integrity": "FAIL post-TaskAccepted strict ordinary root budget expectation3; no actual SQL diagnostic yet",
-          "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-grantfix/integrity/report.json"
-        },
-        {
-          "source": "6a8cf49136545ac800042870426ad61001d5b8a3",
-          "integrity": "FAIL original strict expectation3; actual new root4/project4/oldroot1, active0; same root-grant history inherited correctly",
-          "evidence": "final-linux/browser-budget-diagnostic/DIAGNOSTIC.json"
-        },
-        {
-          "source": "160e0a07d0bebb19e7ff1881e1cd25cf4ac3875a",
-          "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
-          "actual_results": {
-            "integrity": "PASS6/3",
-            "data": "PASS6/3",
-            "command": "PASS6/3",
-            "data-range": "PASS5/1",
-            "command-timeout": "FAIL private /proc children observer returnedNone; actual journal validator failed with owned-stop/join, cannot infer absent command",
-            "owner-only": "not_run after stop-on-failure"
-          },
-          "archive": "final-linux/browser-shared-history-first/results.json"
-        }
-      ],
-      "final_independent_review": {
-        "source": "a94140ebebf22624899b8b815d868f2971bb51f4",
-        "verdict": "PASS scoped source/evidence, not macOS/CI/fullproduct",
-        "report": "DRIVER_A941_REVIEW.md",
-        "manifest": "DRIVER_A941_MANIFEST.json",
-        "portable_import": "DRIVER_A941_IMPORT.json",
-        "files": 135,
-        "raw_checks": 34,
-        "screenshots_actually_viewed": 14
-      }
-    },
-    "new_ci": "not_run",
-    "new_macos": "not_run",
-    "lossless_ui_independent": {
-      "source": "4fab558fe126543c23b1410949e6fcd922b770d6",
-      "node": 564,
-      "files": 37,
-      "additional_controls": 18,
-      "evidence_files": 59,
-      "report": "LOSSLESS_4FAB_REVIEW.md",
-      "manifest": "LOSSLESS_4FAB_MANIFEST.json"
-    },
-    "legacy_browser": {
-      "status": "PASS",
-      "checks": 80,
-      "screenshots": 56,
-      "evidence": "ROOT_LEGACY_BROWSER_FINAL.json",
-      "personally_viewed": [
-        "quiet/home-1488x981.png",
-        "execution/09-same-plan-work-and-summary-frontier.png"
-      ],
-      "source": "70a frozen daemon40322b +4fab frontendca708911"
-    }
-  },
   "historical_stages": [
     {
       "stage": "early_proposal_only_before_Graph_runtime",
@@ -177,24 +62,170 @@
       },
       "superseded_for_current_progress": true,
       "note": "Retained original values; not current-source assertions"
+    },
+    {
+      "stage": "pre_CI_and_first_6912_CI_snapshot",
+      "current_at_that_stage": {
+        "current_candidate": {
+          "core": "70a48d41663108337529915358109026e98ddf98",
+          "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+          "root_composition": "CORE_70A_COMPOSITION.json",
+          "full_workspace_independent": {
+            "status": "PASS",
+            "outer_unique": 593,
+            "compilefail_docs": 7,
+            "failed": 0,
+            "ignored": 0,
+            "report": "CORE_70A_REVIEW.md",
+            "manifest": "CORE_70A_REVIEW_MANIFEST.json",
+            "source_100_before_after_equal": true
+          },
+          "native_composition": {
+            "status": "PASS_linux_only",
+            "evidence": "ROOT_NATIVE_FINAL.json",
+            "source_map": "ROOT_NATIVE_SOURCES.json"
+          },
+          "browser_new_modes": {
+            "current_corrected_runtime": {
+              "status": "all6_local_scenarios_passed34checks14PNG",
+              "evidence": "ROOT_GRAPH_BROWSER_FINAL.json",
+              "sources": "160e four modes, a941 final timeout/Owner; no claim all six ran on a941 yet"
+            },
+            "prior_current_harness_runtime": {
+              "source": "7d80c2cc258669dd82bf235ad8753c5373705e70",
+              "sha256": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
+              "owner_only": "PASS 6checks3PNG",
+              "integrity": "FAIL TypeError output directory parameter shadowed; final report not written, first exception masked",
+              "other_modes": "not_run after stop-on-failure",
+              "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-new",
+              "cleanup_limit": "Exact frozen daemon process scan empty after failure; not proof of all descendants"
+            },
+            "prior_static_actual_packet_counterexamples": "four blocking fixture adaptation failures reproduced and retained, no daemon/browser involved",
+            "counterexamples_local": "/workspace/.onboarding/goal-graph-driver-90d-review/actual-packet-counterexamples.json",
+            "old_owner_only_runtime": "5b7e401/oldCore5541 actual6checks/3PNG, preserved separately and not borrowed as newGraph pass",
+            "prior_static_review": "BROWSER_90D_BLOCKED_REVIEW.md",
+            "prior_static_counterexamples": "BROWSER_90D_STATIC_FAILURES.json",
+            "runtime_attempts": [
+              {
+                "source": "7d80c2cc258669dd82bf235ad8753c5373705e70",
+                "sha256": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
+                "owner_only": "PASS 6checks3PNG",
+                "integrity": "FAIL TypeError output directory parameter shadowed; final report not written, first exception masked",
+                "other_modes": "not_run after stop-on-failure",
+                "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-new",
+                "cleanup_limit": "Exact frozen daemon process scan empty after failure; not proof of all descendants"
+              },
+              {
+                "source": "c3e7e192bfa475c9a6771227550d09667640b3cd",
+                "harness_sha256": "3be92d90f6da058eb8b7c54fb2d1a93979a68418885f83647a537e09c30814c0",
+                "owner_only": "PASS6/3",
+                "integrity": "FAIL final Owner correctly refused expired10s private Grant;2checks3PNG, daemon exited0/no forced kill/owned identities gone",
+                "other_modes": "not_run after stop-on-failure",
+                "evidence": "final-linux/browser-expired-grant/FAILURE.json"
+              },
+              {
+                "source": "fd1654a9224bbcb3c7296381b73c9ad6479fb52e",
+                "integrity": "FAIL post-TaskAccepted strict ordinary root budget expectation3; no actual SQL diagnostic yet",
+                "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-grantfix/integrity/report.json"
+              },
+              {
+                "source": "6a8cf49136545ac800042870426ad61001d5b8a3",
+                "integrity": "FAIL original strict expectation3; actual new root4/project4/oldroot1, active0; same root-grant history inherited correctly",
+                "evidence": "final-linux/browser-budget-diagnostic/DIAGNOSTIC.json"
+              },
+              {
+                "source": "160e0a07d0bebb19e7ff1881e1cd25cf4ac3875a",
+                "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+                "actual_results": {
+                  "integrity": "PASS6/3",
+                  "data": "PASS6/3",
+                  "command": "PASS6/3",
+                  "data-range": "PASS5/1",
+                  "command-timeout": "FAIL private /proc children observer returnedNone; actual journal validator failed with owned-stop/join, cannot infer absent command",
+                  "owner-only": "not_run after stop-on-failure"
+                },
+                "archive": "final-linux/browser-shared-history-first/results.json"
+              }
+            ],
+            "final_independent_review": {
+              "source": "a94140ebebf22624899b8b815d868f2971bb51f4",
+              "verdict": "PASS scoped source/evidence, not macOS/CI/fullproduct",
+              "report": "DRIVER_A941_REVIEW.md",
+              "manifest": "DRIVER_A941_MANIFEST.json",
+              "portable_import": "DRIVER_A941_IMPORT.json",
+              "files": 135,
+              "raw_checks": 34,
+              "screenshots_actually_viewed": 14
+            }
+          },
+          "new_ci": "not_run",
+          "new_macos": "not_run",
+          "lossless_ui_independent": {
+            "source": "4fab558fe126543c23b1410949e6fcd922b770d6",
+            "node": 564,
+            "files": 37,
+            "additional_controls": 18,
+            "evidence_files": 59,
+            "report": "LOSSLESS_4FAB_REVIEW.md",
+            "manifest": "LOSSLESS_4FAB_MANIFEST.json"
+          },
+          "legacy_browser": {
+            "status": "PASS",
+            "checks": 80,
+            "screenshots": 56,
+            "evidence": "ROOT_LEGACY_BROWSER_FINAL.json",
+            "personally_viewed": [
+              "quiet/home-1488x981.png",
+              "execution/09-same-plan-work-and-summary-frontier.png"
+            ],
+            "source": "70a frozen daemon40322b +4fab frontendca708911"
+          }
+        },
+        "current_core_source": "70a48d41663108337529915358109026e98ddf98",
+        "native_compile_current": {
+          "library": 57,
+          "controller": 4,
+          "readonly_harness": 22,
+          "clippy": "PASS -Dwarnings",
+          "fmt": "PASS",
+          "evidence": "ROOT_NATIVE_FINAL.json",
+          "dimension": "Linux composed current sources; macOS code and NSAlert not_run"
+        },
+        "task_accepted": "actual durable TaskAccepted verified in independent70a Core and fresh composed React/Unix Graph flows; private generated Owner fixture, not OS/human",
+        "ui_node_tests": {
+          "tests": 564,
+          "files": 37,
+          "dimension": "actual Node component/mock tests, not Core/browser/Mac"
+        },
+        "pull_request": {
+          "number": 16,
+          "url": "https://github.com/wanderbot-auto/AgentBaton/pull/16",
+          "state": "draft",
+          "first_head": "3af6b5c391dbce8c7eb4df15844acd255029b919",
+          "first_product_run": 40732467344,
+          "first_environment_run": 40732467579,
+          "current_ci": {
+            "product": 40733070149,
+            "environment": 40733070186,
+            "attempt": 1,
+            "ui": "PASS114checks70PNG exactcandidate",
+            "environment3": "FAIL STATUS manifest mismatch",
+            "rust": "FAIL sessions48pass7fail",
+            "intel": "FAIL IOlibunit",
+            "arm": "FAIL same IOunit;Corelib68pass1fail",
+            "evidence": "ci-6912/MANIFEST.json",
+            "product_conclusion": "failure",
+            "native_macos_and_packages": "not_reached"
+          },
+          "formal_approve": "not_submitted",
+          "current_head": "6912fa9b72bc3ab9fbc1ddba18cd76e7c052677c",
+          "actual_checkout": "a11045e6a8f72bb5264c1f4cdbf792f51370bdfa"
+        }
+      },
+      "superseded_for_current_progress": true,
+      "note": "Original values moved without change. 70a full test source and57+4+22 Native compilation are historical; no new fixed composition or Mac acceptance inferred."
     }
   ],
-  "current_core_source": "70a48d41663108337529915358109026e98ddf98",
-  "task_accepted": "actual durable TaskAccepted verified in independent70a Core and fresh composed React/Unix Graph flows; private generated Owner fixture, not OS/human",
-  "ui_node_tests": {
-    "tests": 564,
-    "files": 37,
-    "dimension": "actual Node component/mock tests, not Core/browser/Mac"
-  },
-  "native_compile_current": {
-    "library": 57,
-    "controller": 4,
-    "readonly_harness": 22,
-    "clippy": "PASS -Dwarnings",
-    "fmt": "PASS",
-    "evidence": "ROOT_NATIVE_FINAL.json",
-    "dimension": "Linux composed current sources; macOS code and NSAlert not_run"
-  },
   "pull_request": {
     "number": 16,
     "url": "https://github.com/wanderbot-auto/AgentBaton/pull/16",
@@ -203,21 +234,23 @@
     "first_product_run": 40732467344,
     "first_environment_run": 40732467579,
     "current_ci": {
-      "product": 40733070149,
-      "environment": 40733070186,
+      "product": 40740806703,
+      "environment": 40740806162,
       "attempt": 1,
-      "ui": "PASS114checks70PNG exactcandidate",
-      "environment3": "FAIL STATUS manifest mismatch",
-      "rust": "FAIL sessions48pass7fail",
-      "intel": "FAIL IOlibunit",
-      "arm": "FAIL same IOunit;Corelib68pass1fail",
-      "evidence": "ci-6912/MANIFEST.json",
-      "product_conclusion": "failure",
+      "feature_head": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+      "actual_checkout": "1e04de31b8c44b37a48c6ac2cfe3282001326fd1",
+      "conclusion": "failure",
+      "environment3": "success",
+      "rust": "success",
+      "ui": "success114checks70PNG",
+      "intel": "failure command13pass1fail",
+      "arm": "failure sessions53pass2fail",
+      "evidence": "ci-652/MANIFEST.json",
       "native_macos_and_packages": "not_reached"
     },
     "formal_approve": "not_submitted",
-    "current_head": "6912fa9b72bc3ab9fbc1ddba18cd76e7c052677c",
-    "actual_checkout": "a11045e6a8f72bb5264c1f4cdbf792f51370bdfa"
+    "actual_checkout": "1e04de31b8c44b37a48c6ac2cfe3282001326fd1",
+    "remote_head_at_checkpoint": "652c5f0bc4983f53375ccb10d897c1088cd0e57f"
   },
   "ci_portability_fix": {
     "source": "a2c48b7e399ab298047e838f2d6c4475de6f8a4f",
@@ -256,5 +289,35 @@
     "mac_logs": "ci-652/MANIFEST.json",
     "native_and_packages": "not_reached",
     "next": "diagnose;review test changes;exact candidate seven CI"
+  },
+  "fixed_source_composition": "FIXED_SOURCE_COMPOSITION.json",
+  "factory_followup": {
+    "core_branch": "codex/factory-runtime-core",
+    "ui_branch": "codex/factory-runtime-ui",
+    "status": "coding_not_in_PR16",
+    "product_tests": "not_yet_run"
+  },
+  "current_candidate": {
+    "fixed_source_composition": "FIXED_SOURCE_COMPOSITION.json",
+    "composition_parent_commit": "908bb6cf79631cbefc3635781bb6a4cfebc8b4e7",
+    "production_core_baseline": "70a48d41663108337529915358109026e98ddf98",
+    "production_core_baseline_is_not_current_test_snapshot": true,
+    "source_units": {
+      "command": "2ee515e7b2d97b376740a7514ffc2a7590bca5ca",
+      "sessions": "c05f8cee4966b8c76b6e8de7181d5b9a21572dfe",
+      "native_webcrypto": "579f4ca9ab07d1fd3039ab71ad506af47ca237aa"
+    },
+    "local_current_source_evidence": {
+      "command_author_and_independent": "14+same14 overlap",
+      "sessions_author_and_independent": "55+subset3 overlap",
+      "native_harness_independent": 26,
+      "native_python_independent": 29,
+      "node_webcrypto": "4actualcontexts+4unavailablecontrols",
+      "clippy_and_fmt": "passed selected scopes; no allworkspace currentroot claim"
+    },
+    "exact_new_CI": "not_started",
+    "actualNativeGUI_and_macOS": "not_run",
+    "installers": "none_for_this_candidate",
+    "formal_approve": "not_submitted"
   }
 }
