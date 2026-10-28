@@ -1,0 +1,370 @@
+{
+  "recorded_utc": "2026-10-28T10:29:56.705499+00:00",
+  "status": "independent scoped actual Linux Goal IPC passed9/8PNG; CI hook static passed, remote CI pending",
+  "requirements_partial": [
+    "AB-TSK-001",
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-010",
+    "AB-TSK-011",
+    "AB-TSK-012",
+    "AB-SEC-002",
+    "AB-SEC-004",
+    "AB-REL-001"
+  ],
+  "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+  "harness_sha256": "6c75746a2402710ccb7eb58c9c2e9e91c0bc697a5d39974652b830d9adcf8114",
+  "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+  "daemon_sha256": "081b84b5813e46f1f111b2a5c80bd6888563e9673147df1a9b831576149aa4ca",
+  "candidate_manifest_sha256": "2114390f03df55e6d48c5f1b20864f2c22f9351c88e1eb66c5c19e80703f04dc",
+  "actual_report_sha256": "8f20946e379290a9a56222f9b2fd4489fd38fc2850013c4be1502f28ad6e84ce",
+  "actual_review_sha256": "f41c9e121c967ea516b5c44888199e43446f7b07ed6b1185d7cf26ddf2b96710",
+  "ci_hook_review_sha256": "29f3313aa5d788de6e60b6df95ed324a47c9aebfc578d94a058ff50e44d883d2",
+  "ci_hook_source_sha256": "9189ad4eea3d7d0b4f36ab6735aae2b2db06cacf8ec053f9e3cd069942deedfd",
+  "static_prior_manifest_sha256": "517fda99dcd34a7796232f254da0b44ab347a0f57c1964690d9c139a5e1f799e",
+  "artifact_count": 65,
+  "artifacts": [
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/ACTUAL_REVIEW.md",
+      "sha256": "f41c9e121c967ea516b5c44888199e43446f7b07ed6b1185d7cf26ddf2b96710",
+      "bytes": 8464
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/CI_HOOK_REVIEW.md",
+      "sha256": "29f3313aa5d788de6e60b6df95ed324a47c9aebfc578d94a058ff50e44d883d2",
+      "bytes": 3698
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/REVIEW.md",
+      "sha256": "097920d578349a784af5238a6d0a82abf58a6ecd56874717e4d647575728aa86",
+      "bytes": 7688
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-audit-first-verifier-fail.log",
+      "sha256": "8b1cca2d7a90a0ef01e8fb75fe107df5c2cb800a0d0e0cb66ed00153bdedbbd3",
+      "bytes": 586
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-command.json",
+      "sha256": "409474264a41f4273bbec629b3057ae692d0ba4d78fff5cb53ba4143e26f3ab0",
+      "bytes": 914
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-framed-command.json",
+      "sha256": "4c92ee9cef2dd7249304a72746abaead3d020df34457d5f9fe825897b3f1c604",
+      "bytes": 1812
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833/01-stored-plan-no-execution.png",
+      "sha256": "31eb1f81ed81c69c4525b5f3247f0edd38eaf3b57fb0516cfe9ffc51414fea84",
+      "bytes": 121832
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833/02-real-generated-candidate.png",
+      "sha256": "d159930d02fc52c6fb7da53f092b65851fc33cc85b00d722fc69036d381fd7f9",
+      "bytes": 134904
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833/03-real-plan-advance-response-lost.png",
+      "sha256": "9ae8461bafcabec426342841f44f714a9bec61d780f8da31c79842efd39317a9",
+      "bytes": 136185
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833/04-same-scope-replan-history-kept.png",
+      "sha256": "45ba4acb1becee568197f5bed161171b1c97be641530d03131c2e2412d4e3985",
+      "bytes": 136761
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833/05-real-data-workspace-goal-candidate.png",
+      "sha256": "dc2b50b112f5951f8e5ea5195fe1a5f1b5590ffde4be786f54a680c6ea6fb0e0",
+      "bytes": 142397
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833/06-real-owned-cancel-retains-partial-report.png",
+      "sha256": "b0060ad7d2936c48957d95ce0b5aafc0cbc48044d6a26deaaf45288a3ff6faae",
+      "bytes": 135760
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833/07-timeout-owned-stop-effects-still-unknown.png",
+      "sha256": "c8b1a9b09fbfaf587026d61f4420ab1c4c0beb3f35003da5e2561baa39c981d2",
+      "bytes": 145564
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833/08-timeout-mobile-unknown.png",
+      "sha256": "b7245f9609861e275505eaff25290e872772f8e3c378ef7f785e8a4e1357bf11",
+      "bytes": 51282
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833/daemon.log",
+      "sha256": "f73c9b7a18e358496d1e17d196441cc95ae20d6b873118dcab26319f41bee222",
+      "bytes": 66
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833/report.json",
+      "sha256": "eeb23b69b2265da651aa62534cf21c9fd119249e7bb2bf796fa29d5f6508db3c",
+      "bytes": 880130
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed/01-stored-plan-no-execution.png",
+      "sha256": "1d005d677999a813d88dff7b9c255846964afb99b810516fab7ae8330d88588b",
+      "bytes": 121776
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed/02-real-generated-candidate.png",
+      "sha256": "e87b7c4f8b00fcca94cab7078815515cfe53371affaf904b946f0d6f95a00232",
+      "bytes": 135176
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed/03-real-plan-advance-response-lost.png",
+      "sha256": "27a6de0fea790ca2bf4dee31087be89024d8e8ea2557f6324bee6754722b6fa0",
+      "bytes": 135657
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed/04-same-scope-replan-history-kept.png",
+      "sha256": "63c45b9673f56c49f7e85cb74e1b5c74a75cbb0e1c44cf6e36bb27791a72bf0e",
+      "bytes": 135920
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed/05-real-data-workspace-goal-candidate.png",
+      "sha256": "7ea280ca3f67c6b5a1ab7924fffd059276de55031343234e583b2ab402924971",
+      "bytes": 145180
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed/06-real-owned-cancel-retains-partial-report.png",
+      "sha256": "bb03921bbfab0c55ca639293bc843db7037bf3912ce3012fa9d5c2cec5f401a3",
+      "bytes": 134993
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed/07-timeout-owned-stop-effects-still-unknown.png",
+      "sha256": "b7c6ec3ab1aeb4e23f9eb15bea5c2af77a0c4d4158724462e5859d3ff743cdcc",
+      "bytes": 145392
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed/08-timeout-mobile-unknown.png",
+      "sha256": "893137963ef825d914b598fd0f0f6eb75dc325f9826a4bc696ae93077571ed33",
+      "bytes": 51421
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed/daemon.log",
+      "sha256": "671e7231739ac0b04a51c2efb91530846cfe44513ea35776ccab1d88ce031c85",
+      "bytes": 66
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed/report.json",
+      "sha256": "8f20946e379290a9a56222f9b2fd4489fd38fc2850013c4be1502f28ad6e84ce",
+      "bytes": 880205
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833-framed.log",
+      "sha256": "a55462debda69c40882f3a9490dd61d4d0f87954c7b4f39a1494639b49c6c8c4",
+      "bytes": 162
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-9f833.log",
+      "sha256": "417c9ede1275feade9596ff2feaf1439e7542bbc2c7e455fcea9686cf26aa0c4",
+      "bytes": 155
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-audit.json",
+      "sha256": "5683068e9baf7647fea934a7cd2d5fc655d3df303bebac20fc7a1a49d0f3d7f3",
+      "bytes": 7719
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-independent-audit.log",
+      "sha256": "8af384e69f26b414e76d6ea6f41a14ac617d1ce88183c12f65f0489cd98551c4",
+      "bytes": 408
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-preflight.json",
+      "sha256": "1e16c74ee9c245d04530c713e3074917c80b1837fccc28377b1cb4bbb37e9291",
+      "bytes": 1245
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/actual-primary-report-preserved.json",
+      "sha256": "a7b1650be02d22c9c04559129a59db37a4e5a3ee528e6405a1c0451ebc6912c7",
+      "bytes": 880072
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/audit_actual.py",
+      "sha256": "da2380bd39c116bd8057ddc66a0a3a67dd359c598ddf8cf9d2a233b79746cd76",
+      "bytes": 7208
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/capture-only-proof.json",
+      "sha256": "876c34c3bd023f2fae2f9ca8457adc0cd1d61c07474ab78129d8963f4f77be4e",
+      "bytes": 557
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/ci-hook-diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/ci-hook-final-embedded.py",
+      "sha256": "4befd87f1ed9ba14e3f46ebfa8df4a2b5426448295d1b6dfef15a08dc99dcac1",
+      "bytes": 1214
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/ci-hook-final-run.sh",
+      "sha256": "8f85d1c7f895cbca77059b8c11bb5663c11a77e4ec1f17dbd2438bf5a451f975",
+      "bytes": 2087
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/ci-hook-final-static.json",
+      "sha256": "03a214e34235bc6b3ff82fe9283c894eab2a605e4ee20b99deb0a0bfe96de9da",
+      "bytes": 1765
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/ci-hook-final-static.log",
+      "sha256": "03a214e34235bc6b3ff82fe9283c894eab2a605e4ee20b99deb0a0bfe96de9da",
+      "bytes": 1765
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/ci-hook-final-workflow.yml",
+      "sha256": "9189ad4eea3d7d0b4f36ab6735aae2b2db06cacf8ec053f9e3cd069942deedfd",
+      "bytes": 9169
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/ci-hook-infrastructure-static.log",
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "bytes": 231
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/ci-hook-initial-static.log",
+      "sha256": "0a016a68df3505ea1b6eb48f86dbc2e597f98f0c5b279c9fc707499880cb405c",
+      "bytes": 283
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/ci-hook-output-collision-control/sentinel.txt",
+      "sha256": "ad5fe2d1d3a9c16aca67d90d1ac709615163be42802d06b27cb54f4c3cc39b3b",
+      "bytes": 25
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/data-schema11-static.json",
+      "sha256": "0b9e9d0bdd3cae5fea6734cda7994bd9a66938e4acd484dfc34c2440064958f8",
+      "bytes": 1389
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/data-schema11-static.log",
+      "sha256": "db60cf127fb65b594ad092bd2a8971b3b3bf7a283ac9357c14e8ef9445860c05",
+      "bytes": 119
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/data_schema_static.py",
+      "sha256": "c80e5387632c4eef57485680ae480aafef4fcd0181cb83c0b51fc51eacdb0553",
+      "bytes": 2945
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/finalize_proof.py",
+      "sha256": "c2e13b1fbe26f45926c09e3852c90b4e93b31b47244cbf4e7cbec7ca46e4bd82",
+      "bytes": 3161
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/manifest.json",
+      "sha256": "517fda99dcd34a7796232f254da0b44ab347a0f57c1964690d9c139a5e1f799e",
+      "bytes": 3872
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/postrun-and-data-metadata-check.json",
+      "sha256": "41320e40793589c7d052615845a09cf69951c455a407f1baaec4576c8f0d3699",
+      "bytes": 596
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/postrun-first-verifier-fail.log",
+      "sha256": "3e8159d5ffd5ea16235d4c331a1a826a869a107e8722c71dc851a690c422077d",
+      "bytes": 282
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/review_ci_hook.py",
+      "sha256": "aaaf94e83c11436b6a3de79d2a1b8c0e4bd7a40ee4fafd04668e0a6db14b3fe4",
+      "bytes": 3945
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/review_ci_hook_final.py",
+      "sha256": "068bc3283616ce9034e030a61959a446c6df1d5fe0c89d5d87a6031f648e8997",
+      "bytes": 5591
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/revised-byte-proof.json",
+      "sha256": "e2ef43aa6ba172230ecca0ee1fbb6e43d3016a6fc3cb5cf6c64cfa57fe2ed1fc",
+      "bytes": 641
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/revised-byte-proof.log",
+      "sha256": "e2ef43aa6ba172230ecca0ee1fbb6e43d3016a6fc3cb5cf6c64cfa57fe2ed1fc",
+      "bytes": 641
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/revised-static-controls.json",
+      "sha256": "700b420d85fc4b87932d4ab3c5da10a4fdb1696019c0003d6ef96c72fe265bbe",
+      "bytes": 6205
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/revised-static-controls.log",
+      "sha256": "89c19952de91b045a1379443bf8236a6a667cb780b270464c127b63a20c2902a",
+      "bytes": 247
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/source-03943e0.py",
+      "sha256": "3dfeed46a5bb68092f8c05ef3ed06119babd76606a821aa81267613183771ef4",
+      "bytes": 55655
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/source-503c201.py",
+      "sha256": "6c75746a2402710ccb7eb58c9c2e9e91c0bc697a5d39974652b830d9adcf8114",
+      "bytes": 56805
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/source-d1932d6.py",
+      "sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
+      "bytes": 56059
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/source-state.json",
+      "sha256": "87a81f9f327fbeeef34f535645e05fa7d606685d4bf1107d799b11b084f94983",
+      "bytes": 597
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/source-window-note.json",
+      "sha256": "3adf3b53ad4fda24ea30e53d1926ee011a5e9f871aaaa5b2bfd4eaf8095dd2c4",
+      "bytes": 716
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/static-controls-first-verifier-fail.log",
+      "sha256": "0f2539f348f6118f422a236b3d2c95ca691220dfa208e66a0eeef26f62631387",
+      "bytes": 856
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/static-controls.json",
+      "sha256": "12f27d4d0c8440e9ae7939b56e80a2acda28d46f9a8943e4c4c74ae0337c1c09",
+      "bytes": 6310
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/static-controls.log",
+      "sha256": "e7b58d12c932a0ffed61bb06e098783d7301225f430ba86fcca6cc6ff45011fb",
+      "bytes": 247
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-harness-review/static_controls.py",
+      "sha256": "ab1f5115c70c27cfc848aaf29227b5771b001b1f557e7a432eaa098de5e4caaf",
+      "bytes": 8201
+    }
+  ],
+  "acceptance_runtime_directory": "actual-independent-9f833-framed",
+  "excluded_from_fixed_source_acceptance": "actual-independent-9f833 ran during author source transition; preserved evidence, source-window-note.json explains",
+  "failure_evidence": "all verifier failures preserved; no real harness failing test removed or weakened",
+  "formal_github_approve": false,
+  "remote_ci_executed_by_reviewer": false,
+  "not_claimed": [
+    "macOS",
+    "native WebView",
+    "real Provider/model",
+    "TaskAccepted",
+    "independent artifact acceptance",
+    "OS sandbox",
+    "whole workspace output quota",
+    "whole product completion"
+  ]
+}

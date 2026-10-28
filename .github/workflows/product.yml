@@ -81,6 +81,32 @@ jobs:
           artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/goal-planning
           artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --structured-editor --output artifacts/ui-browser/goal-plan-editor
           artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --batond target/debug/batond --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
+          artifacts/browser-venv/bin/python - <<'PY'
+          import hashlib, json, pathlib, subprocess, sys
+          from playwright.sync_api import sync_playwright
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+          assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
+          candidate = {
+              'schema': 11,
+              'git_head': git('rev-parse', 'HEAD'),
+              'git_tree': git('rev-parse', 'HEAD^{tree}'),
+              'dirty': False,
+              'binaries': {'batond': hashlib.sha256(pathlib.Path('target/debug/batond').read_bytes()).hexdigest()},
+              'scope': 'CI-built Linux debug candidate; actual schema checked by read-only SQLite in the harness; acceptance pending',
+          }
+          pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
+          with sync_playwright() as playwright:
+              chromium = playwright.chromium.executable_path
+          subprocess.run([
+              sys.executable, 'apps/desktop/tests/goal-execution-real-ipc.py',
+              '--batond', 'target/debug/batond',
+              '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
+              '--frontend', 'apps/desktop/dist',
+              '--output', 'artifacts/ui-browser/goal-execution',
+              '--chromium', chromium,
+          ], check=True)
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
