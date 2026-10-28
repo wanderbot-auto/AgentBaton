@@ -1,0 +1,59 @@
+{
+  "status": "source_frozen_awaiting_Cargo_lease_and_independent_review",
+  "baseline": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+  "source_commit": "c05f8cee4966b8c76b6e8de7181d5b9a21572dfe",
+  "source_file": "crates/core/tests/sessions_ipc.rs",
+  "source_sha256": "227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b",
+  "role": "Root explicitly reassigned prior independent investigator as test-only author; separate reviewer required",
+  "old_failure": {
+    "product": 40740806703,
+    "ARM_job": 123001572522,
+    "actual_checkout": "1e04de31b8c44b37a48c6ac2cfe3282001326fd1",
+    "raw_log_sha256": "52bc6265318399699c99c47258a1db79de7e340c1d81ab2803ddba3df7eb666b",
+    "integrity_request_stage": "unknown in original raw; uniform result helper only",
+    "socket_errno_and_actual_case_path": "not recorded in original raw; 109-byte length from another same-log root is modeled, not captured failure"
+  },
+  "actual_checks": [
+    {
+      "command": [
+        "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/core/tests/sessions_ipc.rs"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/.onboarding/graph-mac-fixture-stability/scope_proof.py"
+      ],
+      "exit_code": 0,
+      "log_sha256": "9e052216f75aaf3503db341659ef8144fbd70975bf94c909e8b31b49f4710923",
+      "proof": "whole file inverse exact;55 original names; other bytes unchanged"
+    }
+  ],
+  "not_run": [
+    "Cargo/typecheck",
+    "55 sessions runtime",
+    "alltarget Clippy",
+    "actual private socket probe",
+    "actual new Mac/native/Owner/package validation"
+  ],
+  "first_checker_failure": {
+    "scope-proof-initial.log": "dc4e001ba9e9954988293f06f0f2e782c145b001e6edbe834b188d19745680d5",
+    "cause": "inverse verifier replace-all also changed existing Command identical30000 line; only verifier corrected to first occurrence"
+  },
+  "first_bare_rustfmt_failure": "command not found observed in tool stdout, no separate original raw log; used existing absolute rustfmt, no dependency install"
+}
