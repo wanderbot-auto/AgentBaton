@@ -1,0 +1,11 @@
+# Native Owner bootstrap CI stability — test-only plan
+
+Designv0.2/AB-START-001, baseline641be86e8b055920787cfebdd48270716d509309. Validation obligations include AB-SEC-001 permission/enforcement boundaries, AB-SEC-006 fault evidence, AB-TSK-008 unknown recovery and AB-VAL-007 execution versus acceptance. This leaf repairs fixture preparation/observability; it does not accept those complete product requirements.
+
+1. Preserve third-round ARM40749637133/job123032556134 actuald033 failure. The daemon exited1 before readiness; its old stdout/stderr went to DEVNULL and actual path/mode were not captured. Historical cause remains UNKNOWN. The prior independent artifact audit is frozen separately; after that audit Root explicitly reassigned this agent as two-file author, so a different reviewer must review the fix.
+2. Canonicalize only the new private fixture root, shorten its prefix, and prepare a new private short-temp fallback if the actual final socket UTF-8 length exceeds103 bytes. Preserve root/runtime0700, production path/ownership checks and all original deadlines. Do not change Daemon/product/locks/CI or Factory WIP.
+3. Capture only this owned daemon's stdout/stderr in exclusive0600 files under fresh private owned evidence. Record actual paths/modes/exit and original failure, without environment/credential dump. Retain strict original owned group cleanup; a dead daemon, exit0-before-ready or forced cleanup can never become success.
+4. Preserve all original NativeCoreClient/SQL19-table/Owner message/CallerParent/Cancel/OK/Grant/event/session/attempt assertions. Run original11 plus meaningful added controls using actual frozen70a/schema12 Linux Core, not old5541 sidecar/new Mac or Factory schema13. Retain six actual positive/negative input/output controls with explicit dimensions.
+5. Freeze source and actual evidence, obtain independent peer review, and let Root compose one next candidate for actual Mac verification. No Cargo, Chrome, CI mutation, remote push, PR, merge, formal Approve, live Provider, credentials or spending in this leaf.
+
+Allowed source paths: scripts/native-owner-dialog-smoke.py and apps/desktop/src-tauri/tests/test_native_owner_dialog.py, plus these four unit records. Future Factory c8 same-file changes remain a separate frozen branch/contract; no schema13 borrowing.

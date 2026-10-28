@@ -1,0 +1,102 @@
+{
+  "status": "author_Python15_and_six_retained_controls_PASS_peer_and_Mac_pending",
+  "baseline": "641be86e8b055920787cfebdd48270716d509309",
+  "source_commit": "a43cbb181a52b9ebcc0c72a838f68497101759b8",
+  "source_sha256": {
+    "scripts/native-owner-dialog-smoke.py": "872b1ba6e7dc0d006b96561bbc36627ac2868bb13407f10768a80e4336f6611a",
+    "apps/desktop/src-tauri/tests/test_native_owner_dialog.py": "bb5f2c9bdc4a9567e6886b94b67de229965b641247cd2f80030c2a5bec1457b1"
+  },
+  "actual_unit_run": {
+    "command": [
+      "python3",
+      "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 4.233,
+    "daemon": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+    "daemon_source": "70a48d41663108337529915358109026e98ddf98/schema12 Linux frozen, not this new Mac binary",
+    "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+    "source_sha256": {
+      "scripts/native-owner-dialog-smoke.py": "872b1ba6e7dc0d006b96561bbc36627ac2868bb13407f10768a80e4336f6611a",
+      "apps/desktop/src-tauri/tests/test_native_owner_dialog.py": "bb5f2c9bdc4a9567e6886b94b67de229965b641247cd2f80030c2a5bec1457b1"
+    },
+    "log_sha256": "95480cfbd45f2b9b174bbffc0b11f40e46f77be163b61f3b6ec94aca11fbc607"
+  },
+  "original_test_class_11_whole_bytes_preserved": true,
+  "new_tests": 4,
+  "total_actual_tests": 15,
+  "separate_retained_controls": {
+    "count": 6,
+    "not_added_to_unit_count": true,
+    "report_sha256": "6d9a1482a3561ce23f7aa6cecea5ed60b36fa9bd070023d2f90e33c77ae19a5f",
+    "input_map_sha256": "299c5a23d4e868448992403e452998a9f7c33559f1f222d516bd819e2967c9f8",
+    "dimensions": [
+      "real frozen70a/schema12 bootstrap and read-only pending proposal",
+      "own raw symlink alias rejected, not historical reconstruction",
+      "canonical alias parent real bootstrap",
+      "real overlong private parent244\u219240-byte fallback",
+      "own generated process exits0/23, never Core success/DDL"
+    ]
+  },
+  "historical_ARM": {
+    "run": 40749637133,
+    "job": 123032556134,
+    "actual_checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+    "daemon_exit": 1,
+    "stderr_and_path_mode": "not retained in original artifact; DEVNULL",
+    "exact_cause": "UNKNOWN",
+    "independent_artifact_audit_report_SHA256": "8a6a1f4e49865f65eee7e41e8531578efc989d48dae3a679efb42ea796f79dff",
+    "independent_artifact_audit_manifest_SHA256": "6f2c33f7bc4c117ef4c8a05ccaf08b947dd571b4a46a2b6dff17f09747692138"
+  },
+  "source_preservation": {
+    "status": "passed",
+    "baseline": "641be86e8b055920787cfebdd48270716d509309",
+    "unchanged_original_top_level_bodies_except_bootstrap": [
+      "save",
+      "NativeCoreClient",
+      "database",
+      "pending_error",
+      "approved_error",
+      "expected_message",
+      "group_helpers",
+      "exited_without_reaping",
+      "stop_owned",
+      "enable_owned_subreaper",
+      "run"
+    ],
+    "original_owner_controls_class_11_whole_bytes_unchanged": true,
+    "total_tests": 15,
+    "new_test_names": [
+      "test_alias_parent_real_core_refuses_raw_alias_but_canonical_bootstrap_is_ready",
+      "test_long_private_temp_parent_uses_short_canonical_real_core_runtime",
+      "test_bootstrap_retains_original_exit_and_private_stderr_without_yielding",
+      "test_bootstrap_refuses_nonprivate_or_nonempty_evidence_without_overwriting"
+    ],
+    "schema12_GOAL_and_ZERO_assignments_exact": true,
+    "ZERO_table_count": 19,
+    "bootstrap_original_client_method_set_sequence_and_Grant_params_invoke_deadlines_AST_exact": true,
+    "all_original_run_OS_message_Parent_Cancel_OK_and_cleanup_logic_bodies_exact": true,
+    "source_sha256": {
+      "scripts/native-owner-dialog-smoke.py": "872b1ba6e7dc0d006b96561bbc36627ac2868bb13407f10768a80e4336f6611a",
+      "apps/desktop/src-tauri/tests/test_native_owner_dialog.py": "bb5f2c9bdc4a9567e6886b94b67de229965b641247cd2f80030c2a5bec1457b1"
+    }
+  },
+  "limits_unchanged": {
+    "readiness_seconds": 10,
+    "generated_version_probe_seconds": 10,
+    "git_seconds": 10,
+    "client_socket_seconds": 20,
+    "OS_app_seconds": 85,
+    "SIGTERM_quiescence_seconds": 1.5,
+    "SIGKILL_quiescence_seconds": 1,
+    "wait_seconds": 1
+  },
+  "not_run": [
+    "new macOS bootstrap/NSAlert/Grant acceptance",
+    "Factory schema13 integration",
+    "new full CI/native release audit/dual installers/signing",
+    "independent peer result not asserted by author"
+  ],
+  "no_Cargo_Chrome_Provider_credentials_remote_mutation": true
+}
