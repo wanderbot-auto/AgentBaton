@@ -1,5 +1,19 @@
 # AgentBaton 执行状态
 
+## PR16 第三轮失败修复已独审合成，待新准确候选
+
+远端head641be86e8b055920787cfebdd48270716d509309，准确checkout d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d / tree67038b21828745f79905a169abb6e57e98bca5a0；Product40749637133 / Environment40749637046。三个Environment、Rust、UI成功，双Mac产品作业失败。2026-10-28恢复时重新fetch：main仍a1be94d，OWNER001/002重读ACK，无003。PR16保持draft，未formalApprove/合入，没有该候选开发安装包。
+
+Linux独立审计129文件已逐hash和完整archive roundtrip：593唯一外层+7compilefail docs、Node564/37、12实际UI/Unix IPC报告114检查/70PNG，新六Graph34/14均同一准确候选。5代表图实际目视，其余hash，不是全部70图视觉审查。原UTF8/Owner refs/receipt/事件/共享预算/owned cleanup核验；实际CI观测不含unsafe-u64 inode，原大整数packet/Node证据仍单列。见CI_641_LINUX_REVIEW.md及IMPORT。
+
+ARM Core/native测试通过，真实只读WebView通过；4处实际window.crypto.subtle对109B中文/emoji/LF和unsafe-u64字面得到固定SHA d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892，原schema12/空表/seq3/生命周期不变。仅一张原生PNG，Root与独审均实际查看。随后Owner bootstrap daemon退出1，transcript为空、没有成功NSAlert/数据库审批证据；原stdout/stderr被丢弃，历史根因未知。真实Mac恢复控制的109B socket probe报SUN_LEN，87B短restore成功；不能据此代称旧Owner失败原因。默认release审计与打包未到达。见CI_641_ARM_REVIEW.md及IMPORT。
+
+Intel提前在Node单例5000ms超时（563通过/1失败），尚未运行该平台Core/native/打包。窄测试维护bdb2a886已独审并合成本地75c19c4，未推送：原89条expect与其余25用例逐字保留，新增8启用/可见guard，7个click调用点改为DOM事件；原5000ms/无retry/CI/产品不变。作者26/full564/type/build、独审26通过，但本地未复现Intel超时，不能宣称根因已证、超时修复已证或全套加速。证据COMMAND_UI_AUTHOR/REVIEW_*。Owner两文件a43cbb1及作者docs f8aca83已独审并合成本地cf073d9。作者与独立各自Python15通过为同一组，不加总30；原11含既有真实Core只读控，新增4含2真实Core/自有退出0+23/私有证据目录拒绝。独立另6重叠控制保留：正常、raw alias真实拒绝、短alias canonical且不fallback、CJK长parent173B→40B fallback、提前退出0/23均拒ready，正向daemon均exit0/groupquiet/无SIGKILL。旧强制SIGKILL负控仍拒绿，不能笼统说全部测试无SIGKILL。原11关键声明/class/RPC/Grant/两10s/19表/Owner消息和完整OS驱动均保持。OWNER_BOOTSTRAP_REVIEW_*封存50文件及原manifest，逐hash/archive roundtrip已核；作者原控制另行归档。下一步最终文档/STATUS-only完整93文件校验与独审，再一次normalpush并重新读取全7结果，MacOwner仍未验证。
+
+更正旧编译资源标签：先前Root所称70a sidecars实为5541阶段batond fc5d33d及baton9065fa7，独审原manifest已记实际hash。这些仅用于Linux宏编译，未执行；原记录已明确更正，历史manifest不改。正确冻结70a daemon为40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd，Owner新测试已核验并使用它。真实Mac候选由CI自行构建，不借旧资产。
+
+Factory仍在分离Core/UI/schema13只读测试分支，不在PR16。Core独立复审固定53e07a0已静态闭合三项scope/finalize/首次start准入P1，核作者11scope+3migration=14通过；旧两实际失败属pre-admission-fix控制，不是逐字0c8全源回放。仅编译nullable legacy ledger不等混合预算验证，完整runtime/MCP/parent-child-parent仍未完成。UI4279作者与独审626/41 Node及type/build通过，原三DTO负控已拒绝；新独审FR05的7个原Grant配置pin漂移负控仍失败，作者继续修，10新Rust未编译；schema13只读叶子独立43纯Python通过，实际schema13 daemon/30Rust/新Mac未运行。Core独占Native Cargo target，避免并发写入。130项需求与27决定不减，Factory/NL/SkillsMCP/历史/远程等余项保留；真实Provider、私人身份、额外费用/资源、正式签名/生产/最终许可证仍关闭。当前入口无原生Goal工具，真实原生代理继续执行。
+
 ## PR16 第二轮失败修复已独审合成，待新准确候选七项 CI
 
 记录时本地组合父提交 908bb6cf79631cbefc3635781bb6a4cfebc8b4e7，功能分支codex/goal-graph-integration；PR16远端被测试head仍652c5f0。FIXED_SOURCE_COMPOSITION.json逐hash绑定本轮仅5个测试/runner源差异，Core生产、普通Native权限代码、锁、workflows较652全部字节不变。实际source分别command2ee515e、Macfixturec05f8ce、WebCrypto579f4ca，现已合成本地分支；Factory不在此候选。
@@ -8,7 +22,7 @@
 
 Macfixture仅Integrity外层Grant10→30s，与原Data/Command一致，原Graph10s/node4/5s/queue1200/RPC5/负预算全部不变。增加失败请求method/key/耗时与9阶段实际观察；恢复用canonical root/restore、0700/0600/VACUUM/原worker真shutdown后恢复；独占新私有等长probe目录绑定后仅清理自己的socket/dir。作者55全PASS+Clippy/fmt，独审3受影响场景PASS为55子集，不记58；101作者与104独审各自scope源码/锁前后同。Linux实际原形/probe57B绑定关闭成功、errno null、短restore35B恢复unknown/无重放/账本原断言通过，不能借成旧ARM109B/errno或具体授权失效stage已经证实。证据MAC_FIXTURE_*。
 
-WebCrypto增加真实Native脚本FIRST.before/after/first与reopened各自调用window.crypto.subtle.digest/TextEncoder，原109B中文/emoji/LF与unsafe-u64字面不parse/stringify，SHA d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892。独审26Rust（原22+4）/29Python（原25+4）/Node4实际crypto上下文+4不可用负控/Clippy/fmt均PASS。编译只临时借用已记录旧Rootdist/70asidecars满足macro要求，前后源同、自己的exact链接已移除；不是实际WebView/Mac/新bundle运行证明。原只读schema12、六Graph表0/seq3、旧assert完整。证据WEBCRYPTO_*。
+WebCrypto增加真实Native脚本FIRST.before/after/first与reopened各自调用window.crypto.subtle.digest/TextEncoder，原109B中文/emoji/LF与unsafe-u64字面不parse/stringify，SHA d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892。独审26Rust（原22+4）/29Python（原25+4）/Node4实际crypto上下文+4不可用负控/Clippy/fmt均PASS。编译只临时借用已记录旧Rootdist及fc5d33d/9065fa7 sidecars（5541阶段，仅作编译资源；原70a标签有误）满足macro要求，前后源同、自己的exact链接已移除；不是实际WebView/Mac/新bundle运行证明。原只读schema12、六Graph表0/seq3、旧assert完整。证据WEBCRYPTO_*。
 
 所有作者/独审原日志、失败控制、manifest已Root逐hash和portable archive roundtrip核验。旧第二轮652五绿双Mac失败及首6912失败仍保留；下一次仅一次normalpush新的已审候选，须重新读取全7准确结果和双Mac实际Native/NSAlert/defaultrelease/双包，不能借旧绿色或PR15包。没有formalApprove/合入/新Mac包或全产品完成声明。
 

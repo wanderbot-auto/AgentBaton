@@ -1278,6 +1278,22 @@
             "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
           ],
           "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
         }
       ]
     },
@@ -1425,6 +1441,22 @@
             "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
           ],
           "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
         }
       ]
     },
@@ -1678,6 +1710,22 @@
             "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
           ],
           "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
         }
       ]
     },
@@ -1834,6 +1882,22 @@
             "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
           ],
           "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
         }
       ]
     },
@@ -1966,6 +2030,22 @@
             "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
           ],
           "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
         }
       ]
     },
@@ -2115,6 +2195,22 @@
             "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
           ],
           "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
         }
       ]
     },
@@ -3275,6 +3371,22 @@
             "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
           ],
           "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
         }
       ]
     },
@@ -5025,6 +5137,22 @@
             "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
           ],
           "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
         }
       ]
     },
@@ -5174,6 +5302,22 @@
             "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
           ],
           "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
         }
       ]
     },

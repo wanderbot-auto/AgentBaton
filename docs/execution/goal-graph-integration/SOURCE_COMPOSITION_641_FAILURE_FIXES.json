@@ -1,0 +1,26 @@
+{
+  "composition_commit": "cf073d963e25f631502e333647171d19e6b40348",
+  "baseline_tested_head": "641be86e8b055920787cfebdd48270716d509309",
+  "source_commits": {
+    "command_ui": "bdb2a8860c38abe4e42c67b173a3452c06a760b1",
+    "owner_bootstrap": "a43cbb181a52b9ebcc0c72a838f68497101759b8"
+  },
+  "files": {
+    "apps/desktop/src-tauri/tests/test_native_owner_dialog.py": {
+      "sha256": "bb5f2c9bdc4a9567e6886b94b67de229965b641247cd2f80030c2a5bec1457b1",
+      "bytes": 21024
+    },
+    "apps/desktop/src/CommandValidation.test.tsx": {
+      "sha256": "56fd14320f4d53d9e88d6bfcb12c57534cf082296d644506e3fd108ab4e41bd8",
+      "bytes": 27760
+    },
+    "scripts/native-owner-dialog-smoke.py": {
+      "sha256": "872b1ba6e7dc0d006b96561bbc36627ac2868bb13407f10768a80e4336f6611a",
+      "bytes": 29106
+    }
+  },
+  "production_Core_Native_UI_locks_workflows_unchanged_from641": true,
+  "Factory_schema13_included": false,
+  "exact_new_CI": "not_started; upcoming documentation head retains these exact source bytes",
+  "root_source_list_first_check": "initial sequence assertion expected wrong Git path sort order and failed before mutation; corrected to exact set comparison, same three paths"
+}

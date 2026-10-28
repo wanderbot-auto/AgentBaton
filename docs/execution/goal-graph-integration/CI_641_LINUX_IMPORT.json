@@ -1,0 +1,9 @@
+{
+  "archive": "CI_641_LINUX_EVIDENCE.tar.gz",
+  "bytes": 18431506,
+  "sha256": "ffe4be49979acb01a11ef3a867efe0217e9e3f92508efcb1447cbcc3058c40fb",
+  "files": 129,
+  "source_manifest_sha256": "30584c84974b380c6ac8f643b61fa9347a5a68b398fa10b8dc7f55f651571629",
+  "all_roundtrip_sha256_verified": true,
+  "scope": "exact d033 ProductLinux evidence, noMac/native/packages"
+}

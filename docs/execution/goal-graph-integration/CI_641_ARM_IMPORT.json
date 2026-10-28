@@ -1,0 +1,10 @@
+{
+  "archive": "CI_641_ARM_EVIDENCE.tar.gz",
+  "bytes": 549796,
+  "sha256": "56c0439ed0a04675115046cac1b07ea43bd97c4d4762867c43e61ea219b9f31d",
+  "files": 27,
+  "all_roundtrip_sha256_verified": true,
+  "manifest_sha256": "6f2c33f7bc4c117ef4c8a05ccaf08b947dd571b4a46a2b6dff17f09747692138",
+  "Root_also_viewed_exact_native_screen_png": true,
+  "scope": "ARM exact d033 Native readonly pass, Owner bootstrap failure/unknown cause; no desktoprelease or installer"
+}
