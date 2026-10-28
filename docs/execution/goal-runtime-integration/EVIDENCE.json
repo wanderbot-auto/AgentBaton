@@ -330,5 +330,14 @@
   "ci_hook_review": "CI_HOOK_REVIEW.md",
   "ci_hook_current_sha256": "9189ad4eea3d7d0b4f36ab6735aae2b2db06cacf8ec053f9e3cd069942deedfd",
   "runtime_fix": "in progress in goal-ready-frontier; actualoldfail/newpass and independentreview pending",
-  "native_followup": "goal-execution-native-readonly inprogress; no product source change intended"
+  "native_followup": "goal-execution-native-readonly inprogress; no product source change intended",
+  "pr": {
+    "number": 15,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/pull/15",
+    "draft": true,
+    "base": "codex/data-runtime-integration",
+    "head_at_creation": "3dadeeec1edd3581afd342f2a8d2a500a58e766c",
+    "checks_at_creation": [],
+    "acceptance": "WITHHELD G19; new frontier regression/review pending"
+  }
 }

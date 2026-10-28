@@ -1,5 +1,7 @@
 # AgentBaton 执行状态
 
+Goal组合草稿PR15：https://github.com/wanderbot-auto/AgentBaton/pull/15，head3dadeeec1edd3581afd342f2a8d2a500a58e766c、base codex/data-runtime-integration，当前draft且无checks（尚未转main触发）。G19旧真实两节点1attempt失败已保留，窄修两节点通过仍需独立复验；G20暂时执行槽排队边界正补实际控制。短暂exec-server断联后工作区恢复，已核旧失败创建命令未执行再建立唯一PR15，没有替代Cloud任务或新增账号/费用。
+
 ## Goal 运行时集成：真实局部通过，G19 阻塞签收
 
 当前组合 codex/goal-runtime-integration：Core9f833/schema11、独审UI3daa、真实harness503c，以及已保护14a与Data路径fixture893。Root在78b317a实际完整549 Rust+7compilefail docs、Clippy/fmt/debugbuild通过（48个outer suite去重），445 UI/type/build、LinuxNative28lib+12harness通过；新构建冻结503bd282/CLIe0a0f593明确WITHHELD，不冒充可交付安装包。独立Core274+上游command27通过，均只证明已覆盖场景。

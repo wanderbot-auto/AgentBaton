@@ -21,3 +21,5 @@ Product UI仅增已独审26行：在原五浏览器流程后从同venv Playwrigh
 Data PR14已normalpush f9c6cf78a71ad66eeb167779cfbdaa83863ecf56；准确Product40672455553/Environment40672455569运行中，actualcheckout4fa2818f3746925a81cfe884be3499f5477ecea4、tree43d4afccfbad93fb2ef9d2e133116aff397f452b。旧37bd准确5success/2Mac路径准备错误保留，新Core21预览/取消join在两Mac已通过；新FD路径修复24+rootFD1作者独审均通过但新Mac/Native/双DMG仍待，不借旧包。main18f4261、OWNER001/002 ACK无003。
 
 完整Designv0.2/130需求/WP01–14继续。平台没有原生Goal工具，使用真实subagents；不虚构持续目标或无执行器后台续跑。真实Provider/私人身份、新费用/资源/未批准远程、正式签名/生产/最终许可证未授权。独立代码review证据不等于GitHub Approve，本轮未提交正式Approve；仍按既有受保护流程处理PR。依赖验证/Owner/factory/NL、完整会话/能力管理/历史/远程等余项均保留，不称完整产品完成。
+
+Goal组合草稿PR15：https://github.com/wanderbot-auto/AgentBaton/pull/15，head3dadeeec1edd3581afd342f2a8d2a500a58e766c、base codex/data-runtime-integration，当前draft且无checks（尚未转main触发）。G19旧真实两节点1attempt失败已保留，窄修两节点通过仍需独立复验；G20暂时执行槽排队边界正补实际控制。短暂exec-server断联后工作区恢复，已核旧失败创建命令未执行再建立唯一PR15，没有替代Cloud任务或新增账号/费用。
