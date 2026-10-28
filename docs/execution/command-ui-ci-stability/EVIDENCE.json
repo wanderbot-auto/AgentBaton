@@ -1,0 +1,676 @@
+{
+  "baseline": "641be86e8b055920787cfebdd48270716d509309",
+  "branch": "codex/command-ui-ci-stability",
+  "original_ci": {
+    "run": 40749637133,
+    "intel_job": 123032556900,
+    "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+    "result": "Node563pass1fail/37files; first Command test5000ms timeout5088ms; suite102.07s; Core/Native/Package not reached",
+    "logs": [
+      {
+        "path": "/workspace/.onboarding/pr16-641-ci/product-intel.log",
+        "sha256": "d581f61c41feac265ef6afb945c4190777d659555f59b91cf897125eda689cef"
+      },
+      {
+        "path": "/workspace/.onboarding/pr16-641-ci/product-intel-plain.log",
+        "sha256": "79dd61bcd0d9ee8688f6ad23f126e97291716f8fe0d1b3c605aa89b115c74cc1"
+      }
+    ]
+  },
+  "original_source": {
+    "path": "/workspace/.onboarding/command-ui-ci-stability/baseline-source.tsx",
+    "sha256": "c70dbf95f41470f09a060968ca8d6db3a4fd6a3f75ea13c125e5114eea0939f9"
+  },
+  "allowed_paths": [
+    "apps/desktop/src/CommandValidation.test.tsx",
+    "docs/execution/command-ui-ci-stability/{PLAN,PROGRESS,CHECKPOINT,EVIDENCE}.json_or_md"
+  ],
+  "status": "source_frozen_local_checks_pass_independent_review_and_Intel_CI_pending",
+  "limitations": [
+    "Linux jsdom mocked Tauri-facing transport; not Native/macOS proof",
+    "No timeout/retry/thread/production/CI change authorized"
+  ],
+  "source_commit": "bdb2a8860c38abe4e42c67b173a3452c06a760b1",
+  "source_sha256": "56fd14320f4d53d9e88d6bfcb12c57534cf082296d644506e3fd108ab4e41bd8",
+  "requirements": {
+    "retained_existing_coverage": [
+      "AB-VAL-003",
+      "AB-VAL-004",
+      "AB-VAL-006",
+      "AB-VAL-007",
+      "AB-VAL-009",
+      "AB-VAL-011"
+    ],
+    "scope": "Test-only reliability maintenance of existing Command UI evidence; no new implemented or native_verified requirement claim"
+  },
+  "actual_commands": {
+    "baseline": [
+      {
+        "name": "selected",
+        "command": [
+          "npm",
+          "test",
+          "--",
+          "src/CommandValidation.test.tsx"
+        ],
+        "exitcode": 0,
+        "seconds": 3.806551933288574,
+        "log_sha256": "083a24dc7caf5d19b009b36ae7168aefaa08ee8f1b008b7bcf95616b19684846"
+      },
+      {
+        "name": "full",
+        "command": [
+          "npm",
+          "test"
+        ],
+        "exitcode": 0,
+        "seconds": 23.186551332473755,
+        "log_sha256": "0b721e244059656db31da9a2f28ba854b120aa1e5dcefa94268f6dd224ee5e29"
+      }
+    ],
+    "phase_before": [
+      {
+        "name": "selected",
+        "command": [
+          "npm",
+          "test",
+          "--",
+          "src/CommandValidation.test.tsx",
+          "--reporter=verbose"
+        ],
+        "exitcode": 0,
+        "seconds": 3.9558353424072266,
+        "log_sha256": "fb8c15011062344cb71aa9940cfcdd55f2073572834d028c03ef54a7ade610ca"
+      },
+      {
+        "name": "full",
+        "command": [
+          "npm",
+          "test",
+          "--",
+          "--reporter=verbose"
+        ],
+        "exitcode": 0,
+        "seconds": 22.1350359916687,
+        "log_sha256": "1a0eee1f0a21ba2466b24dd6872c2253a3333970df05458d78c08b1f62069262"
+      }
+    ],
+    "phase_after_trial": [
+      {
+        "name": "selected",
+        "command": [
+          "npm",
+          "test",
+          "--",
+          "src/CommandValidation.test.tsx",
+          "--reporter=verbose"
+        ],
+        "exitcode": 0,
+        "seconds": 3.7334346771240234,
+        "log_sha256": "a7a04bf8e74098cbffbb3bb0c138ee24556a4ba6cccfd42a295eeee05a3d9c14"
+      },
+      {
+        "name": "full",
+        "command": [
+          "npm",
+          "test",
+          "--",
+          "--reporter=verbose"
+        ],
+        "exitcode": 0,
+        "seconds": 22.69999361038208,
+        "log_sha256": "bef762fbeef53297f5cb7371e66d02110a6730c4a13b6e60aebb646ba854ccf4"
+      }
+    ],
+    "final_exact_source": [
+      {
+        "name": "selected",
+        "command": [
+          "npm",
+          "test",
+          "--",
+          "src/CommandValidation.test.tsx",
+          "--reporter=verbose"
+        ],
+        "exitcode": 0,
+        "seconds": 3.6372034549713135,
+        "source_sha256": "56fd14320f4d53d9e88d6bfcb12c57534cf082296d644506e3fd108ab4e41bd8",
+        "log_sha256": "da9bef07c0bdf6d7a5f33eda30d03d5f7349b31a7e93546ce7a52dfe4ff7f036"
+      },
+      {
+        "name": "full",
+        "command": [
+          "npm",
+          "test"
+        ],
+        "exitcode": 0,
+        "seconds": 23.57888913154602,
+        "source_sha256": "56fd14320f4d53d9e88d6bfcb12c57534cf082296d644506e3fd108ab4e41bd8",
+        "log_sha256": "1633ec94f0768432fa045e82c75c5b5756bd82869398668b658e637358dccead"
+      },
+      {
+        "name": "typecheck",
+        "command": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "exitcode": 0,
+        "seconds": 0.8943350315093994,
+        "source_sha256": "56fd14320f4d53d9e88d6bfcb12c57534cf082296d644506e3fd108ab4e41bd8",
+        "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+      },
+      {
+        "name": "build",
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "exitcode": 0,
+        "seconds": 1.348618745803833,
+        "source_sha256": "56fd14320f4d53d9e88d6bfcb12c57534cf082296d644506e3fd108ab4e41bd8",
+        "log_sha256": "0ab0f2f0f598067042f6c4f49264fea015feb59926ff770261af0e385ae69f38"
+      }
+    ]
+  },
+  "source_and_semantics": {
+    "changed": "Only first lifecycle test; direct DOM activation and explicit UI state waits plus pre-action availability guards",
+    "unchanged": "All other25 cases, all helpers/imports/fixture/default configuration byte-equal; all89 original expectation AST calls retained exactly",
+    "guards_added": 8,
+    "assertion_audit": {
+      "status": "passed",
+      "parser": "existing cached rolldown TSX AST; no installation",
+      "original_assertions": 89,
+      "current_assertions": 97,
+      "all_original_assertions_preserved": true,
+      "extra_assertions": [
+        "expect(heading).toBeVisible()",
+        "expect(approvalButton).toBeEnabled()",
+        "expect(policySummary).toBeVisible()",
+        "expect(runButton).toBeEnabled()",
+        "expect(preparedSummary).toBeVisible()",
+        "expect(refreshButton).toBeEnabled()",
+        "expect(result).toBeVisible()",
+        "expect(refresh()).toBeEnabled()"
+      ],
+      "outside_first_test_bytes_equal": true
+    },
+    "retained_flow": [
+      "default details folded",
+      "initial readonly refresh freshness",
+      "controlled input onChange and exact selection approval",
+      "native workflow API mock call exact selection+key; no autorun",
+      "policy program SHA visibility",
+      "run exact policy id+CASrevision1+key",
+      "prepared appears separately from terminal and run disabled",
+      "explicit readonly terminal refresh",
+      "owned leader receipt and containment limitation",
+      "no scientific correctness and no task state promotion",
+      "exactly one run"
+    ],
+    "configuration": "Default5000ms unchanged; no retry, threads, skips, loosened states or product modifications"
+  },
+  "performance_diagnostics": {
+    "dimension": "Real host performance diagnostics only; not product clocks or timing assertions",
+    "before": {
+      "selected": {
+        "first_test_ms": 341,
+        "phases": [
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "render-and-default-fold",
+            "elapsed_ms": 45.09034099999997
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-and-fresh",
+            "elapsed_ms": 138.40781400000003
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "fill-three-fields",
+            "elapsed_ms": 24.05935999999997
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-approve-button",
+            "elapsed_ms": 7.974380999999994
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-approve",
+            "elapsed_ms": 24.05271599999992
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-policy",
+            "elapsed_ms": 13.44659999999999
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "approval-and-hash-assertions",
+            "elapsed_ms": 10.635678999999982
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-run-button",
+            "elapsed_ms": 5.145153000000164
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-run",
+            "elapsed_ms": 16.20249899999999
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-prepared",
+            "elapsed_ms": 13.288164999999935
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "prepared-exact-CAS-and-disabled-assertions",
+            "elapsed_ms": 6.738998000000038
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-refresh-button",
+            "elapsed_ms": 2.8206760000000486
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-refresh-terminal",
+            "elapsed_ms": 18.371804999999995
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "terminal-summary-and-expand",
+            "elapsed_ms": 2.0123009999999795
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "receipt-and-single-run-assertions",
+            "elapsed_ms": 9.375229999999874
+          }
+        ]
+      },
+      "full": {
+        "first_test_ms": 366,
+        "phases": [
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "render-and-default-fold",
+            "elapsed_ms": 45.77960499999995
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-and-fresh",
+            "elapsed_ms": 139.77230700000007
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "fill-three-fields",
+            "elapsed_ms": 26.28783999999996
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-approve-button",
+            "elapsed_ms": 9.035413000000062
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-approve",
+            "elapsed_ms": 24.831837999999834
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-policy",
+            "elapsed_ms": 13.570956000000024
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "approval-and-hash-assertions",
+            "elapsed_ms": 15.09950600000002
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-run-button",
+            "elapsed_ms": 5.136389000000008
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-run",
+            "elapsed_ms": 15.545761000000084
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-prepared",
+            "elapsed_ms": 13.198290999999926
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "prepared-exact-CAS-and-disabled-assertions",
+            "elapsed_ms": 11.26542900000004
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-refresh-button",
+            "elapsed_ms": 4.0433590000000095
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-refresh-terminal",
+            "elapsed_ms": 23.150701000000026
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "terminal-summary-and-expand",
+            "elapsed_ms": 1.7653119999999944
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "receipt-and-single-run-assertions",
+            "elapsed_ms": 13.135987999999998
+          }
+        ]
+      }
+    },
+    "after_trial": {
+      "selected": {
+        "first_test_ms": 273,
+        "phases": [
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "render-and-default-fold",
+            "elapsed_ms": 47.74211100000002
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-and-fresh",
+            "elapsed_ms": 122.04479700000002
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "fill-three-fields",
+            "elapsed_ms": 20.15099799999996
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-approve-button",
+            "elapsed_ms": 5.338300000000004
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-approve",
+            "elapsed_ms": 6.8008519999999635
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-policy",
+            "elapsed_ms": 14.085062000000107
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "approval-and-hash-assertions",
+            "elapsed_ms": 7.19766299999992
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-run-button",
+            "elapsed_ms": 5.006816000000072
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-run",
+            "elapsed_ms": 4.061406000000034
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-prepared",
+            "elapsed_ms": 8.218584999999848
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "prepared-exact-CAS-and-disabled-assertions",
+            "elapsed_ms": 5.855001000000129
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-refresh-button",
+            "elapsed_ms": 1.9723209999999654
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-refresh-terminal",
+            "elapsed_ms": 3.59112499999992
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "terminal-summary-and-expand",
+            "elapsed_ms": 10.073391000000129
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "receipt-and-single-run-assertions",
+            "elapsed_ms": 7.088710999999876
+          }
+        ]
+      },
+      "full": {
+        "first_test_ms": 387,
+        "phases": [
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "render-and-default-fold",
+            "elapsed_ms": 61.70996800000012
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-and-fresh",
+            "elapsed_ms": 170.6596669999999
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "fill-three-fields",
+            "elapsed_ms": 37.57030200000008
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-approve-button",
+            "elapsed_ms": 9.483610999999883
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-approve",
+            "elapsed_ms": 10.242983999999979
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-policy",
+            "elapsed_ms": 17.371303000000125
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "approval-and-hash-assertions",
+            "elapsed_ms": 7.821432999999843
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-run-button",
+            "elapsed_ms": 4.80274200000008
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-run",
+            "elapsed_ms": 5.907367999999906
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "open-prepared",
+            "elapsed_ms": 13.039524000000029
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "prepared-exact-CAS-and-disabled-assertions",
+            "elapsed_ms": 7.654254000000037
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "query-refresh-button",
+            "elapsed_ms": 3.511545999999953
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "click-refresh-terminal",
+            "elapsed_ms": 6.394314000000122
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "terminal-summary-and-expand",
+            "elapsed_ms": 15.20379099999991
+          },
+          {
+            "diagnostic": "command-ui-phase",
+            "name": "receipt-and-single-run-assertions",
+            "elapsed_ms": 10.702097999999978
+          }
+        ]
+      }
+    },
+    "final_selected_first_test_ms": 286,
+    "interpretation": "Individual click phases reduced; local standalone first-case341→273ms(trial)/286ms(final guards), but full-suite first-case366→387ms varied and suite speed was not improved. Original Intel failure not reproduced; no established unique root cause or guaranteed Mac fix."
+  },
+  "environment": {
+    "platform": "Linux 6.18.55 x86_64",
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "temporary_cache_symlink": "Own exact apps/desktop/node_modules symlink to /workspace/AgentBaton/apps/desktop/node_modules created and removed; shared cache unchanged"
+  },
+  "artifacts": [
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/assertion-audit-failed.cjs",
+      "sha256": "7706f0411a88acadc3f133d9ba2c026d9c24f3c222092327e1d0986f4380467d",
+      "bytes": 1966
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/assertion-audit.mjs",
+      "sha256": "59b48d2706d06179b0c7f8550f186b887cf86d27b296a45605634ec0d541a3bc",
+      "bytes": 2082
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/baseline/full.log",
+      "sha256": "0b721e244059656db31da9a2f28ba854b120aa1e5dcefa94268f6dd224ee5e29",
+      "bytes": 796
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/baseline/results.json",
+      "sha256": "1d5057c5b413fe853a1432611bbc57eede05cabd8c43bd4d687cbaad673b8860",
+      "bytes": 494
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/baseline/selected.log",
+      "sha256": "083a24dc7caf5d19b009b36ae7168aefaa08ee8f1b008b7bcf95616b19684846",
+      "bytes": 522
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/baseline-source.tsx",
+      "sha256": "c70dbf95f41470f09a060968ca8d6db3a4fd6a3f75ea13c125e5114eea0939f9",
+      "bytes": 27038
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/final/assertion-audit.json",
+      "sha256": "9f048cbce28dc1ff9f037eeaa5f14a8e3050388701eff0c708a798dbf31f71fd",
+      "bytes": 588
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/final/build.log",
+      "sha256": "0ab0f2f0f598067042f6c4f49264fea015feb59926ff770261af0e385ae69f38",
+      "bytes": 984
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/final/full.log",
+      "sha256": "1633ec94f0768432fa045e82c75c5b5756bd82869398668b658e637358dccead",
+      "bytes": 796
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/final/results.json",
+      "sha256": "05559a82a9768556047e10bc169d5081c30dace36175719612ae02b12a1503c9",
+      "bytes": 1351
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/final/selected.log",
+      "sha256": "da9bef07c0bdf6d7a5f33eda30d03d5f7349b31a7e93546ce7a52dfe4ff7f036",
+      "bytes": 6160
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/final/source.tsx",
+      "sha256": "56fd14320f4d53d9e88d6bfcb12c57534cf082296d644506e3fd108ab4e41bd8",
+      "bytes": 27760
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/final/typecheck.log",
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+      "bytes": 263
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/observed-tooling-failures.json",
+      "sha256": "cc96dfc54891d3ab9cb8cdac8a3267336a34532c1a1b59a30bb5ba96e1ef7974",
+      "bytes": 667
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/phase-after/full.log",
+      "sha256": "bef762fbeef53297f5cb7371e66d02110a6730c4a13b6e60aebb646ba854ccf4",
+      "bytes": 100323
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/phase-after/instrumented-source.tsx",
+      "sha256": "d337e65ab3fff26e511472382511d0c5320a96f576942dd7f3c122a9c21a4e93",
+      "bytes": 28097
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/phase-after/results.json",
+      "sha256": "384a5da0b8c1b5f3b66bfe1e1426d061a319a84bc3122d7238422235a5671c19",
+      "bytes": 562
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/phase-after/selected.log",
+      "sha256": "a7a04bf8e74098cbffbb3bb0c138ee24556a4ba6cccfd42a295eeee05a3d9c14",
+      "bytes": 8842
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/phase-before/full.log",
+      "sha256": "1a0eee1f0a21ba2466b24dd6872c2253a3333970df05458d78c08b1f62069262",
+      "bytes": 101063
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/phase-before/instrumented-source.tsx",
+      "sha256": "67f58491969b4d1e40963173a93f33e2c2ee6491661b1d2534475278e8164a54",
+      "bytes": 27844
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/phase-before/results.json",
+      "sha256": "f8cf960e745061475970ec89a9f5779251fa2214f95fe3234fb4b174ca00064a",
+      "bytes": 561
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/phase-before/selected.log",
+      "sha256": "fb8c15011062344cb71aa9940cfcdd55f2073572834d028c03ef54a7ade610ca",
+      "bytes": 9586
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/phase-comparison.json",
+      "sha256": "68cf7f2655aff3df779c7cf34f0fa6f3297b8ef1bf5bb4796ca5383c86aabc31",
+      "bytes": 9780
+    },
+    {
+      "path": "/workspace/.onboarding/command-ui-ci-stability/proposed-source.tsx",
+      "sha256": "db97ef2a47d575926eab7010e852f0cb116fcc463d90e048a0280c1bd2b2c77e",
+      "bytes": 27295
+    }
+  ],
+  "pending": [
+    "Independent reviewer source/AST/button/wait semantics and regression review",
+    "Root future Intel CI exact candidate; no CI mutation or rerun triggered here",
+    "Native/macOS Core/package validation separately owned; Node mocks prove only Linux/jsdom transport UI"
+  ]
+}
