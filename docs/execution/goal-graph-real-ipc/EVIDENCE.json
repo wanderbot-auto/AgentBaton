@@ -22,8 +22,8 @@
     "AB-SEC-004",
     "AB-REL-001"
   ],
-  "status": "prepared_not_runtime_verified",
-  "source_sha256": "9c683292eef68dd4d3930e701f20dc7f273d8a74a9ee865d43d463117a5bb3f5",
+  "status": "owner_only_driver_connected_runtime_pending",
+  "source_sha256": "fcca93a28914503a531ace98bf777eb2920b5eae4e344f48af47a98e87890a4f",
   "wire_at_preparation": {
     "path": "/workspace/.worktrees/goal-validation-graph/docs/execution/goal-validation-graph/WIRE_CONTRACT.json",
     "sha256": "034c2103b294502ee57ae5706530327a48e951395a4b329877c6b006e5e2931a",
@@ -89,6 +89,42 @@
     {
       "command": "git diff --check",
       "result": "PASS"
+    },
+    {
+      "command": "python3 -c py_compile.compile(new harness,cfile=/tmp/goal-graph-real-ipc-owner.pyc,doraise=True)",
+      "result": "PASS syntax only; no subprocess/daemon/browser"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --driver-self-check --output /workspace/.onboarding/goal-graph-real-ipc/preparation-owner-driver-final",
+      "exit_code": 0,
+      "count": 15,
+      "dimension": "static constructor/generated Python syntax/manifest negatives and isolated readonly FD positive, foreign pin, traversal, symlink and hardlink refusal controls; no Core/browser/receipts",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/preparation-owner-driver-final/driver-static-checks.json",
+        "sha256": "5bece4b5b3107731b3c8295d4ab01f80ec56756d7ed77e56a1a5c22b06747244",
+        "bytes": 1743
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --self-check --output /workspace/.onboarding/goal-graph-real-ipc/preparation-owner-boundary-3",
+      "exit_code": 0,
+      "count": 58,
+      "dimension": "outgoing argument controls only; during driver development, before final preflight wrapper/FD additions; decoder unchanged",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/preparation-owner-boundary-3/boundary-checks.json",
+        "sha256": "06a76ae2c58dd2198f2a2cb83c6262b75f08e51580d147a37c20478150cd5715",
+        "bytes": 6251
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --owner-only --batond /workspace/.onboarding/goal-ready-frontier-schema11-04ba180/batond --candidate-manifest /workspace/.onboarding/goal-ready-frontier-schema11-04ba180/manifest.json --frontend /workspace/.worktrees/goal-runtime-integration/apps/desktop/dist --output /workspace/.onboarding/goal-graph-real-ipc/preparation-owner-schema11-refusal-1",
+      "exit_code": 2,
+      "result": "preflight_refused, actual_runtime not_run; older schema refused before binary hash read/invocation, Playwright import, auth-file read or listener",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/preparation-owner-schema11-refusal-1/preflight-refusal.json",
+        "sha256": "8bf86008d4ed7bbb0889ff71ab4ba90b0e6597ea79e8b2d1364b261d5f024a6d",
+        "bytes": 350
+      }
     }
   ],
   "boundary_guarantees": [
@@ -108,20 +144,20 @@
   },
   "old80checks56captures": "Existing baseline independent evidence preserved; NOT rerun or replaced by these58static boundary controls. No old schema11 daemon/model invoked.",
   "pending_exact_dependencies": [
-    "Actual Core12 Graph TaskRequest kind/fields, owned-work dispatch and capture job/receipt sources with fresh SHA/FD/writer_epoch",
-    "Complete approved deterministic Validate definition GoalValidatorRef/pinned digest/actions and reusable new-producer subject binding; validation correctness/goal_acceptance distinction",
-    "Actual GoalPlan Work→Validate→Owner→Summary dependencies, required inputs/artifact contracts/criterion mapping from authoritative fixture",
-    "Private finalize/decline replay and cancellation/unknown response semantics, durable Owner result source/sequence/criterion/candidate bindings",
-    "Actual all-required GraphTaskAcceptance source/event/sequence and Task accepted projection acceptance_ref/acceptance_sequence, terminal no-reopen behavior",
-    "Real drift/unknown-owned-stop/cancel/CAS/ledger/explicit reject/fault recovery fixtures and new schema12 frozen binary+manifest",
-    "Root composed actual Graph UI build and final stable selectors"
+    "Core fix/freeze OO-WIRE4 connection|validator|owner and fresh acceptance_state projections; historical da00 does not satisfy runtime assertions",
+    "Root immutable schema12 daemon/manifest with source hash, composed actual Graph UI dist; no daemon supplied for author browser execution yet",
+    "Actual deterministic Validate source definition bootstrap/reuse/producer rebind fixture, then fifth node separate from Owner-only",
+    "Core-author exact drift/reject/cancel/unknown/CAS/ledger fixture contracts and subsequent real negative/transport-drop runs",
+    "Independent code review, independent actual Linux/browser rerun, Native/macOS/real Provider/CI/package checks separately"
   ],
   "limits": [
-    "Prepared skeleton and pure outgoing boundary controls only; no schema12 Core/browser/provider/validator/owner/TaskAccepted execution.",
-    "Runtime driver intentionally returns pending exit2 until actual Graph fixture is connected; it cannot produce fake success/acceptance.",
-    "No SQL writes/synthetic candidates/acceptances/Renderer Owner authority. PrivateUnixFixture is not instantiated by preparation self-checks; no auth file actually read.",
-    "No Cargo/sharedtarget/Node/dependency install/oldtest/product/Core/Native/UI/lock/schema/gate/STATUS changes; no models/accounts/host/extra fee/recursive agents.",
-    "Independent review and real Linux/browser/native/macOS/provider/CI/package acceptance remain separate."
+    "Owner-only real driver is connected but has NEVER executed Core12/browser/generated ACP/Owner/TaskAccepted. No runtime PASS or PNG exists for this source.",
+    "15 static/isolated generated-file FD controls plus 58 outgoing adapter controls are not Graph acceptance evidence. Old 80 checks/56 captures untouched.",
+    "Core historical da00 is author-only JSON, not this harness result. Projection defect must be fixed; strong canonical accepted rules are not relaxed.",
+    "Default full-five-node command still returns explicit pending exit2. No deterministic Validate or Graph failure matrix success claimed.",
+    "No SQL writes/synthetic runtime candidates/acceptances/Renderer Owner authority. Actual preparation did not instantiate PrivateUnixFixture or read session.token.",
+    "No Cargo/sharedtarget/Node/install/oldtest/product/Core/Native/UI/lock/schema/gate/STATUS changes; no models/accounts/host/extra fee/recursive agents; no new remote push/PR/CI action.",
+    "Actual Owner fixture is private local host acceptance, not OS Owner dialog/live Provider/macOS; whole Design v0.2 scope stays unchanged."
   ],
   "remote_backup": {
     "branch": "codex/goal-graph-real-ipc",
@@ -145,5 +181,58 @@
     "reason_for_Owner2": "Connection requires output and each host_policy output requires goal-owner-review; cannot weaken Summary acceptance or call deterministic validation GoalAcceptance",
     "budget": "bounded parallel1/root-project cumulative, real bootstrap usage retained; charging awaits actual Core fixture",
     "runtime": "not_run"
+  },
+  "source_commit": "d29180f9bbe4c90f8cdcc97118da586bc5f51f9a",
+  "owner_only_driver": {
+    "mode": "--owner-only",
+    "contract_source": "50a53bf sessions_ipc::graph_owner_summary_plan / actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input, plus mandatory OO-WIRE4 canonical/fresh projection fix",
+    "historical_Core_portable": {
+      "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/actual-task-accepted-da00c1ca8bfbe1efc0230a02b8865e4a7ffff96096c5b055ccd7eace6e1c3317.json",
+      "bytes": 38134,
+      "sha256": "da00c1ca8bfbe1efc0230a02b8865e4a7ffff96096c5b055ccd7eace6e1c3317",
+      "attribution": "Core author actual fixture only; NOT this harness/browser/independent execution; agent/pending projection defect preserved"
+    },
+    "nodes": [
+      "produce-report/work",
+      "owner-report/owner_approval",
+      "independent-2/summary",
+      "owner-summary/owner_approval"
+    ],
+    "actual_runtime": "not_run",
+    "preflight": "Explicit schema12 + exact daemon SHA + source binding + built index; older schema refuses before auth-file read/process/listener/Playwright import",
+    "connected_assertions": [
+      "Built UI stores exact initial plan1/revised plan2 through finite HTTP; planning launches no sessions",
+      "HTTP owner/propose/finalize/decline/generic commands forbidden; explicit private resource/Graph/Owner fixture authority outside HTTP",
+      "Generated account-free ACP consumes full real 16-field TaskRequest, external baseline then actual accepted upstream candidate physical SHA, full two-output scope",
+      "Owner1 gates Summary; Owner2 required for Summary output; candidate/owned stop/validation are not TaskAccepted",
+      "Readonly O_NOFOLLOW component walk verifies root/FilePin/regular single-link bytes/SHA; no minted private witness or SQL write",
+      "Private same-key Owner prepare/finalize replay compares durable result, cross-action rejection must CONFIG_CONFLICT",
+      "TaskAccepted requires exact projection/Task refs, durable event SQL sequence+stored raw document digest, two concrete accepted decisions and two outputs",
+      "OO-WIRE4 execution_kind connection|owner and acceptance_state accepted required; Owner stop false/no session, execution candidate remains distinct",
+      "Owned worker PID identity gone, stopped session, reserve/attempt-stop/supervisor/capture sequence chain and true reaped/joined receipts",
+      "Cumulative project/root two attempts, zero active, Goal output26 bytes, no terminal reopen or repeated-get ledger growth",
+      "UI global refresh reloads authoritative Task acceptance refs before Graph TaskAccepted history capture; source/assets/hash unchanged",
+      "On failure keep report/PNG/log; cleanup only daemon and exact generated PID/startticks/own group+program, fallback cleanup invalidates pass"
+    ],
+    "unimplemented_scenarios": [
+      "five-node deterministic Validate/bootstrap/subject rebinding",
+      "explicit fresh Owner rejection scenario",
+      "post-proposal artifact drift",
+      "cancel intent versus owned stop versus unknown",
+      "ledger/CAS negative matrix",
+      "actual lost-response recovery (same-key private replay coded, transport-drop scenario pending)"
+    ],
+    "runtime_command_pending": "/workspace/AgentBaton/artifacts/browser-venv/bin/python apps/desktop/tests/goal-graph-real-ipc.py --owner-only --batond <Root-frozen-schema12/batond> --candidate-manifest <Root-frozen-schema12/manifest.json> --frontend <Root-composed-Graph-dist> --output <new-exclusive-directory>"
+  },
+  "environment_resume_observation": {
+    "tool": "cloud_environment.environment_status",
+    "observations_current": true,
+    "connectivity": "connected",
+    "phase": "running",
+    "network_policy": "unrestricted/enforced",
+    "secrets": 0,
+    "runtime_variables": 0,
+    "outbound_identities": 0,
+    "extra_configuration_or_credentials_added": false
   }
 }
