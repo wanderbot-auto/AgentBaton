@@ -5,7 +5,7 @@ The only approvals.finalize host bootstrap is for this generated local executabl
 --version connection. The target Grant is finalized ONLY by production Tauri UI.
 """
 import argparse
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 import hashlib
 import importlib.util
 import ctypes
@@ -16,6 +16,7 @@ from pathlib import Path
 import re
 import signal
 import socket
+import stat
 import sqlite3
 import subprocess
 import sys
@@ -252,6 +253,29 @@ def enable_owned_subreaper():
             raise OSError(ctypes.get_errno(), 'owned fixture subreaper failed')
 
 
+def private_path_record(path):
+    record = {'path': str(path), 'utf8_bytes': len(str(path).encode('utf-8'))}
+    try:
+        info = path.lstat()
+        record.update(exists=True, uid=info.st_uid, mode=stat.S_IMODE(info.st_mode),
+                      is_directory=stat.S_ISDIR(info.st_mode), is_symlink=stat.S_ISLNK(info.st_mode))
+    except FileNotFoundError:
+        record['exists'] = False
+    return record
+
+
+def daemon_output_record(path):
+    if path is None:
+        return None
+    digest = hashlib.sha256()
+    size = 0
+    with path.open('rb') as reader:
+        for chunk in iter(lambda: reader.read(65536), b''):
+            size += len(chunk)
+            digest.update(chunk)
+    return {**private_path_record(path), 'bytes': size, 'sha256': digest.hexdigest()}
+
+
 @contextmanager
 def bootstrap(daemon_path, output):
     """Actual Core/generated --version fixture only; no GUI or Grant finalize.
@@ -259,28 +283,69 @@ def bootstrap(daemon_path, output):
     Linux controls use this same pre-OS path, never pretending they ran macOS.
     The caller must keep the yielded context alive while observing the database.
     """
-    with tempfile.TemporaryDirectory(prefix='baton-owner-os-') as temporary:
-        root = Path(temporary)
-        root.chmod(0o700)
-        runtime = root / 'runtime'
-        runtime.mkdir(mode=0o700)
-        env = os.environ.copy()
-        env['BATON_RUNTIME_DIR'] = str(runtime)
-        # Own generated fixture, never private Provider state or a real engine.
-        executable = root / 'probe'
-        executable.write_text('#!/bin/sh\nif [ "$#" = 1 ] && [ "$1" = --version ]; then echo baton-owner-fixture-1; exit 0; fi\nexit 64\n')
-        executable.chmod(0o700)
-        project = root / 'source'
-        project.mkdir()
-        git_env = {k: v for k, v in env.items() if not k.startswith('GIT_')}
-        git_env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null')
-        for args in [['init', '-q'], ['-c', 'user.name=Native Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--allow-empty', '-qm', 'local owner fixture']]:
-            subprocess.run(['git', '-C', str(project), '-c', 'core.hooksPath=/dev/null', '-c', 'init.templateDir=', *args], env=git_env, check=True, timeout=10, capture_output=True)
-        enable_owned_subreaper()
-        daemon = subprocess.Popen([str(daemon_path.resolve())], env=env, start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        client = NativeCoreClient(runtime)
-        generated = {}
+    # 103 UTF-8 bytes leaves the trailing NUL in Darwin's sockaddr_un.sun_path.
+    # This prepares only our new fixture paths; the production guard is unchanged.
+    socket_limit = 103
+    output = Path(output).resolve(strict=True)
+    output_info = output.stat()
+    if not output.is_dir() or output_info.st_uid != os.geteuid() or stat.S_IMODE(output_info.st_mode) & 0o077:
+        raise ValueError('Bootstrap evidence directory must be private and owned')
+    if any(output.iterdir()):
+        raise ValueError('Use a fresh empty bootstrap evidence directory')
+    daemon, client, stdout_path, stderr_path = None, None, None, None
+    generated, paths, failure, last_readiness_error = {}, {}, None, None
+    phase = 'private_path_preparation'
+    with ExitStack() as owned:
         try:
+            temporary = owned.enter_context(tempfile.TemporaryDirectory(prefix='ab-own-'))
+            root = Path(temporary).resolve(strict=True)
+            initial_socket = root / 'runtime' / 'batond.sock'
+            paths.update(requested_root=str(temporary), initial_canonical_root=str(root),
+                         initial_socket_utf8_bytes=len(str(initial_socket).encode('utf-8')),
+                         socket_limit_utf8_bytes=socket_limit, private_short_fallback=False)
+            if paths['initial_socket_utf8_bytes'] > socket_limit:
+                # Fixed system temp parent, canonicalized; never chmod a shared
+                # parent or reuse an existing runtime. mkdtemp owns the new leaf.
+                short_parent = Path('/tmp').resolve(strict=True)
+                temporary = owned.enter_context(tempfile.TemporaryDirectory(prefix='ab-own-', dir=short_parent))
+                root = Path(temporary).resolve(strict=True)
+                paths['private_short_fallback'] = True
+            root.chmod(0o700)
+            runtime = root / 'runtime'
+            runtime.mkdir(mode=0o700)
+            socket_path = runtime / 'batond.sock'
+            paths.update(root=private_path_record(root), runtime=private_path_record(runtime),
+                         socket=private_path_record(socket_path), effective_uid=os.geteuid())
+            save(output / 'bootstrap-paths.json', paths)
+            if paths['socket']['utf8_bytes'] > socket_limit:
+                raise ValueError('Private fixture socket exceeds portable address capacity')
+            env = os.environ.copy()
+            env['BATON_RUNTIME_DIR'] = str(runtime)
+            # Own generated fixture, never private Provider state or a real engine.
+            executable = root / 'probe'
+            executable.write_text('#!/bin/sh\nif [ "$#" = 1 ] && [ "$1" = --version ]; then echo baton-owner-fixture-1; exit 0; fi\nexit 64\n')
+            executable.chmod(0o700)
+            project = root / 'source'
+            project.mkdir()
+            git_env = {k: v for k, v in env.items() if not k.startswith('GIT_')}
+            git_env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null')
+            phase = 'generated_project_preparation'
+            for args in [['init', '-q'], ['-c', 'user.name=Native Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--allow-empty', '-qm', 'local owner fixture']]:
+                subprocess.run(['git', '-C', str(project), '-c', 'core.hooksPath=/dev/null', '-c', 'init.templateDir=', *args], env=git_env, check=True, timeout=10, capture_output=True)
+            enable_owned_subreaper()
+            streams = []
+            for name in ['daemon-stdout.log', 'daemon-stderr.log']:
+                path = output / name
+                descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_NOFOLLOW', 0), 0o600)
+                if name == 'daemon-stdout.log':
+                    stdout_path = path
+                else:
+                    stderr_path = path
+                streams.append(owned.enter_context(os.fdopen(descriptor, 'wb', buffering=0)))
+            phase = 'daemon_spawn'
+            daemon = subprocess.Popen([str(daemon_path.resolve())], env=env, start_new_session=True, stdout=streams[0], stderr=streams[1])
+            client = NativeCoreClient(runtime)
+            phase = 'daemon_readiness'
             deadline = time.monotonic() + 10
             while True:
                 if exited_without_reaping(daemon):
@@ -288,15 +353,18 @@ def bootstrap(daemon_path, output):
                 try:
                     client.call('system.snapshot', {})
                     break
-                except (OSError, RuntimeError):
+                except (OSError, RuntimeError) as error:
+                    last_readiness_error = {'type': type(error).__name__, 'message': str(error)}
                     if time.monotonic() >= deadline:
                         raise
                     time.sleep(.05)
+            phase = 'generated_connection_preparation'
             imported = client.call('projects.import', {'path': str(project), 'name': 'Owner fixture'}, 'owner-project')
             workspace = client.call('workspaces.create', {'project_id': imported['id'], 'expected_head': imported['identity']['kind']['head']}, 'owner-workspace', imported['revision'])
             connection_proposal = client.call('connections.propose', {'name': 'Generated version-only fixture', 'provider': 'custom_acp', 'executable': str(executable), 'arguments': []}, 'owner-connection')
             client.connection_proposal = connection_proposal['id']
             connection = client.call('approvals.finalize', {'proposal_id': connection_proposal['id']}, 'proposal:' + connection_proposal['id'], connection_proposal['revision'])
+            phase = 'generated_version_probe'
             deadline = time.monotonic() + 10
             while True:
                 connections = client.call('connections.list', {})
@@ -312,15 +380,30 @@ def bootstrap(daemon_path, output):
             proposal = client.call('grants.propose', params, 'owner-os-grant')
             invoke = {'projectId': imported['id'], 'workspaceId': workspace['id'], 'connectionId': connection['id'], 'maxAttempts': 1, 'maxConcurrency': 1, 'maxDurationMs': 1000, 'idempotencyKey': 'owner-os-grant'}
             generated = {'runtime': runtime, 'env': env, 'client': client, 'proposal': proposal, 'invoke': invoke}
+            phase = 'yielded_before_native_owner'
             yield generated
+        except BaseException as error:
+            failure = {'type': type(error).__name__, 'message': str(error)}
+            raise
         finally:
             try:
-                save(output / 'core-bootstrap-transcript.json', client.transcript)
+                save(output / 'core-bootstrap-transcript.json', client.transcript if client else [])
             finally:
                 cleanup = stop_owned(daemon, 'daemon')
                 generated['daemon_cleanup'] = cleanup
                 save(output / 'daemon-cleanup.json', cleanup)
-                if not cleanup['ok']:
+                if 'runtime' in paths:
+                    paths['runtime_after_cleanup'] = private_path_record(Path(paths['runtime']['path']))
+                    paths['socket_after_cleanup'] = private_path_record(Path(paths['socket']['path']))
+                save(output / 'bootstrap-state.json', {
+                    'status': 'completed' if failure is None and cleanup['ok'] else 'failed',
+                    'phase': phase, 'paths': paths, 'original_failure': failure,
+                    'last_readiness_error': last_readiness_error,
+                    'daemon_exitcode': cleanup['returncode'], 'cleanup_ok': cleanup['ok'],
+                    'stdout': daemon_output_record(stdout_path), 'stderr': daemon_output_record(stderr_path)})
+                # Keep the original error when one is already propagating, but
+                # never allow unexpected exit/forced cleanup to become success.
+                if not cleanup['ok'] and failure is None:
                     raise RuntimeError('Owned daemon exited unexpectedly or required forced cleanup; no successful result')
 
 
