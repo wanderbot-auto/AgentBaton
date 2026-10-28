@@ -466,43 +466,52 @@ impl Store {
         let nodes = self
             .goal_node_history(&summary.run)?
             .into_iter()
-            .map(|n| GraphNodeView {
-                execution_kind: match n.node.executor {
-                    Executor::Connection { .. } => "agent",
-                    Executor::Validator { .. } => "validator",
-                    Executor::Owner { .. } => "owner",
-                }
-                .into(),
-                node: n.node.clone(),
-                plan_revision: n.plan_revision,
-                state: n.state,
-                session_id: n.session_id,
-                attempt_id: n.attempt_id,
-                job_id: None,
-                acceptance_state: "pending".into(),
-                stop_confirmed: n.stop_confirmed,
-                actual_runtime_ms: n.actual_runtime_ms,
-                actual_output_bytes: n.actual_output_bytes,
-                tokens: n.tokens,
-                cost_microunits: n.cost_microunits,
-                candidate_ids: candidates
-                    .iter()
-                    .filter(|c| c.node_id == n.node.id && c.plan_revision == n.plan_revision)
-                    .map(|c| c.id.clone())
-                    .collect(),
-                validation_ids: validations
-                    .iter()
-                    .filter(|v| v.node_id == n.node.id && v.plan_revision == n.plan_revision)
-                    .map(|v| v.id.clone())
-                    .collect(),
-                owner_decision_ids: owners
-                    .iter()
-                    .filter(|o| o.node_id == n.node.id && o.plan_revision == n.plan_revision)
-                    .map(|o| o.id.clone())
-                    .collect(),
-                blocked_reason: None,
+            .map(|n| {
+                Ok(GraphNodeView {
+                    execution_kind: match &n.node.executor {
+                        Executor::Connection { .. } => "connection",
+                        Executor::Validator { .. } => "validator",
+                        Executor::Owner { .. } => "owner",
+                    }
+                    .into(),
+                    node: n.node.clone(),
+                    plan_revision: n.plan_revision,
+                    state: n.state.clone(),
+                    session_id: n.session_id.clone(),
+                    attempt_id: n.attempt_id.clone(),
+                    job_id: None,
+                    acceptance_state: node_acceptance_state(
+                        &self.conn,
+                        &summary.run,
+                        &n,
+                        &candidates,
+                        &validations,
+                        &owners,
+                    )?,
+                    stop_confirmed: n.stop_confirmed,
+                    actual_runtime_ms: n.actual_runtime_ms,
+                    actual_output_bytes: n.actual_output_bytes,
+                    tokens: n.tokens,
+                    cost_microunits: n.cost_microunits,
+                    candidate_ids: candidates
+                        .iter()
+                        .filter(|c| c.node_id == n.node.id && c.plan_revision == n.plan_revision)
+                        .map(|c| c.id.clone())
+                        .collect(),
+                    validation_ids: validations
+                        .iter()
+                        .filter(|v| v.node_id == n.node.id && v.plan_revision == n.plan_revision)
+                        .map(|v| v.id.clone())
+                        .collect(),
+                    owner_decision_ids: owners
+                        .iter()
+                        .filter(|o| o.node_id == n.node.id && o.plan_revision == n.plan_revision)
+                        .map(|o| o.id.clone())
+                        .collect(),
+                    blocked_reason: None,
+                })
             })
-            .collect();
+            .collect::<Result<Vec<_>>>()?;
         let task_acceptance = if summary.task_accepted {
             Some(verify_accepted_state(&self.conn, &summary.run)?)
         } else {
@@ -546,6 +555,11 @@ struct CaptureOrigin {
     runtime_reservation_ms: u64,
     consumed_inputs: Vec<GraphInputBinding>,
 }
+enum CaptureCompletion {
+    NotStarted(CoreError),
+    Joined(Box<Result<evidence::CapturedCandidate>>),
+    UnjoinedUnknown,
+}
 struct CaptureWorker {
     origin: CaptureOrigin,
     cancel: std::sync::Arc<std::sync::atomic::AtomicBool>,
@@ -584,7 +598,7 @@ impl GraphWorkers {
                 .and_then(|r| r);
             store.finish_graph_capture(
                 &w.origin,
-                result,
+                CaptureCompletion::Joined(Box::new(result)),
                 w.unknown_recorded,
                 w.queued_at.elapsed(),
             )?;
@@ -598,7 +612,12 @@ impl GraphWorkers {
             }
             if std::time::Instant::now() > w.deadline && !w.unknown_recorded {
                 w.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
-                store.mark_graph_capture_unknown(&w.origin)?;
+                store.finish_graph_capture(
+                    &w.origin,
+                    CaptureCompletion::UnjoinedUnknown,
+                    true,
+                    w.queued_at.elapsed(),
+                )?;
                 w.unknown_recorded = true;
             }
         }
@@ -622,10 +641,15 @@ impl GraphWorkers {
             store.mark_graph_capture_unknown(&origin)?;
             return Ok(());
         };
-        let prepared = match store.prepare_graph_capture_worker(&origin) {
+        let prepared = match store.prepare_graph_capture_worker(&origin, queued_at) {
             Ok(p) => p,
             Err(error) => {
-                store.finish_graph_capture(&origin, Err(error), false, queued_at.elapsed())?;
+                store.finish_graph_capture(
+                    &origin,
+                    CaptureCompletion::NotStarted(error),
+                    false,
+                    queued_at.elapsed(),
+                )?;
                 return Ok(());
             }
         };
@@ -650,7 +674,7 @@ impl GraphWorkers {
             }
             Err(_) => store.finish_graph_capture(
                 &origin,
-                Err(err(
+                CaptureCompletion::NotStarted(err(
                     "RESOURCE_LIMIT",
                     "Owned graph evidence worker could not start",
                 )),
@@ -803,6 +827,7 @@ impl Store {
     fn prepare_graph_capture_worker(
         &mut self,
         origin: &CaptureOrigin,
+        queued_at: std::time::Instant,
     ) -> Result<evidence::PreparedCandidateCapture> {
         let (_, n, record) = self.verify_capture_origin(origin)?;
         let inputs = origin
@@ -851,7 +876,10 @@ impl Store {
             .runtime_reservation_ms
             .saturating_sub(origin.elapsed_at_stop_ms)
             .min(30_000);
-        if remaining == 0 {
+        let deadline = queued_at
+            .checked_add(std::time::Duration::from_millis(remaining))
+            .ok_or_else(limited)?;
+        if remaining == 0 || std::time::Instant::now() >= deadline {
             return Err(err(
                 "RESOURCE_LIMIT",
                 "Producer exhausted its evidence runtime reservation",
@@ -862,7 +890,7 @@ impl Store {
             inputs,
             outputs,
             cancelled: std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
-            deadline: std::time::Instant::now() + std::time::Duration::from_millis(remaining),
+            deadline,
         })
     }
     fn mark_graph_capture_unknown(&mut self, origin: &CaptureOrigin) -> Result<()> {
@@ -888,11 +916,29 @@ impl Store {
     fn finish_graph_capture(
         &mut self,
         origin: &CaptureOrigin,
-        result: Result<evidence::CapturedCandidate>,
+        completion: CaptureCompletion,
         was_unknown: bool,
         queue_elapsed: std::time::Duration,
     ) -> Result<()> {
+        let (mut result, capture_joined) = match completion {
+            CaptureCompletion::NotStarted(e) => (Err(e), false),
+            CaptureCompletion::Joined(r) => (*r, true),
+            CaptureCompletion::UnjoinedUnknown => return self.mark_graph_capture_unknown(origin),
+        };
         let (r, n, record) = self.verify_capture_origin(origin)?;
+        if let Ok(c) = &result {
+            if c.inputs.len() != origin.consumed_inputs.len()
+                || c.inputs.iter().zip(&origin.consumed_inputs).any(|(f, i)| {
+                    f.artifact.artifact_id != i.artifact_id
+                        || f.sha256 != i.sha256
+                        || i.candidate
+                            .as_ref()
+                            .is_some_and(|a| a.file_pin != f.pin || a.bytes != f.bytes)
+                })
+            {
+                result = Err(changed());
+            }
+        }
         let observed = u64::try_from(queue_elapsed.as_millis()).map_err(|_| limited())?;
         let worker_ms = result
             .as_ref()
@@ -922,7 +968,8 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        let success = result.is_ok()
+        let success = capture_joined
+            && result.is_ok()
             && !was_unknown
             && !current.cancel_requested
             && current.state != "blocked";
@@ -1006,6 +1053,9 @@ impl Store {
             params![state, origin.id],
         )
         .map_err(db_error)?;
+        if was_unknown {
+            current.state = "outcome_unknown".into();
+        }
         if !success && current.state != "cancelled" {
             current.state = if was_unknown {
                 "outcome_unknown"
@@ -1018,7 +1068,7 @@ impl Store {
             &tx,
             &mut current,
             "goal.capture_settled",
-            json!({"job_id":origin.id,"state":state,"io_completion":"worker_joined","actual_runtime_ms":elapsed,"actual_output_bytes":output_bytes,"task_accepted":false}),
+            json!({"job_id":origin.id,"state":state,"io_completion":if capture_joined {"worker_joined"}else{"not_started"},"capture_worker_joined":capture_joined,"producer_stop_confirmed":true,"actual_runtime_ms":elapsed,"actual_output_bytes":output_bytes,"task_accepted":false}),
         )?;
         tx.commit().map_err(db_error)
     }
@@ -1072,6 +1122,36 @@ fn graph_candidates(db: &Connection, r: &GoalRun) -> Result<Vec<GraphCandidateRe
             || e.payload["receipt_digest"] != sha(&c)?
             || e.payload["io_completion"] != "worker_joined"
         {
+            return Err(denied());
+        }
+        raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(state)+octet_length(id)+octet_length(run_id)+octet_length(node_id)+octet_length(attempt_id)+octet_length(workspace_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE id=?1",[&c.capture_job_id],1,MAX_STORED_BYTES)?;
+        let (state, origin_raw): (String, String) = db
+            .query_row(
+                "SELECT state,document FROM goal_graph_jobs WHERE id=?1",
+                [&c.capture_job_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .map_err(db_error)?;
+        let origin: CaptureOrigin = decode(&origin_raw)?;
+        if state != "completed"
+            || origin.run_id != r.id
+            || origin.node_id != c.node_id
+            || origin.plan_revision != c.plan_revision
+            || origin.plan_digest != c.plan_digest
+            || origin.session_id != c.session_id
+            || origin.attempt_id != c.attempt_id
+            || origin.workspace_id != c.workspace_id
+            || origin.stop_receipt_sequence != c.stop_receipt_sequence
+            || origin.capability_digest != c.capability_digest
+            || origin.consumed_inputs != c.consumed_inputs
+        {
+            return Err(changed());
+        }
+        let prepared:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.capture_prepared' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.payload.job_id')=?2 AND json_extract(document,'$.payload.origin_digest')=?3 AND json_extract(document,'$.payload.stop_receipt_sequence')=?4 ORDER BY sequence LIMIT 1",params![r.id,origin.id,sha(&origin)?,sql_num(origin.stop_receipt_sequence)?],|row|row.get(0)).optional().map_err(db_error)?;
+        if prepared.is_none_or(|seq| {
+            seq <= sql_num(c.stop_receipt_sequence).unwrap_or(i64::MAX)
+                || seq >= sql_num(c.capture_receipt_sequence).unwrap_or(0)
+        }) {
             return Err(denied());
         }
         let s: crate::sessions::ManagedSession = raw(db, "sessions", &c.session_id)?;
@@ -1307,14 +1387,18 @@ fn graph_input_refs(
     Ok(refs)
 }
 fn graph_owner_decisions(db: &Connection, r: &GoalRun) -> Result<Vec<GraphOwnerDecision>> {
-    graph_records(
+    let owners: Vec<GraphOwnerDecision> = graph_records(
         db,
         r,
         "goal_graph_owner_decisions",
         "goal.owner_decided",
         "owner_decision_id",
         "local_owner_confirmation",
-    )
+    )?;
+    for owner in &owners {
+        verify_owner_decision_receipt(db, r, owner)?;
+    }
+    Ok(owners)
 }
 fn graph_validations(db: &Connection, r: &GoalRun) -> Result<Vec<GraphValidationReceipt>> {
     graph_records(
@@ -1981,6 +2065,21 @@ impl Store {
                     "This fixed proposal already records a different Owner decision",
                 ));
             }
+            let run_id = p.snapshot["run_binding"]["run_id"]
+                .as_str()
+                .ok_or_else(changed)?;
+            let r = run(&tx, run_id)?;
+            let owners = graph_owner_decisions(&tx, &r)?;
+            let owner = owners
+                .iter()
+                .find(|o| o.id == old.owner_decision_id)
+                .ok_or_else(changed)?;
+            if serde_json::to_value(verify_owner_decision_receipt(&tx, &r, owner)?)
+                .map_err(|_| changed())?
+                != json!(old)
+            {
+                return Err(changed());
+            }
             return Ok(json!(old));
         }
         if p.consumed || p.expires_at_ms <= ms()? {
@@ -2015,9 +2114,11 @@ impl Store {
         {
             return Err(changed());
         }
-        let mut n = node_records(&tx, &r.id)?
-            .into_iter()
+        let nodes_before = node_records(&tx, &r.id)?;
+        let mut n = nodes_before
+            .iter()
             .find(|n| n.node.id == s.node_id)
+            .cloned()
             .ok_or_else(changed)?;
         let owner = GraphOwnerDecision {
             id: Uuid::new_v4().to_string(),
@@ -2075,7 +2176,13 @@ impl Store {
         tx.execute("INSERT INTO events(document) VALUES(?1)", [encode(&e)?])
             .map_err(db_error)?;
         let task_accepted = if accept {
-            maybe_accept_task(&tx, &mut r, &owner, self.graph_input.as_ref())?
+            maybe_accept_task(
+                &tx,
+                &mut r,
+                &owner,
+                &nodes_before,
+                self.graph_input.as_ref(),
+            )?
         } else {
             false
         };
@@ -2236,21 +2343,31 @@ fn maybe_accept_task(
     db: &Connection,
     r: &mut GoalRun,
     pending: &GraphOwnerDecision,
+    nodes: &[RuntimeNode],
     witness: Option<&GraphReadWitness>,
 ) -> Result<bool> {
     if pending.decision != "accepted" {
         return Ok(false);
     }
     let record: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
-    let nodes = node_records(db, &r.id)?;
     let candidates = graph_candidates(db, r)?;
     let validations = graph_validations(db, r)?;
-    let mut owners = graph_owner_decisions(db, r)?;
+    let mut owners: Vec<GraphOwnerDecision> = graph_records(
+        db,
+        r,
+        "goal_graph_owner_decisions",
+        "goal.owner_decided",
+        "owner_decision_id",
+        "local_owner_confirmation",
+    )?;
+    for old in owners.iter().filter(|o| o.id != pending.id) {
+        verify_owner_decision_receipt(db, r, old)?;
+    }
     if !owners.iter().any(|o| o.id == pending.id) {
         owners.push(pending.clone());
     }
     let mut refs = Vec::new();
-    for n in &nodes {
+    for n in nodes {
         match n.node.kind {
             NodeKind::OwnerApproval => {
                 if n.node.id != pending.node_id && n.state != "accepted" {
@@ -2411,6 +2528,8 @@ pub(super) fn verify_accepted_state(db: &Connection, r: &GoalRun) -> Result<Grap
         .map_err(db_error)?;
     let a: GraphTaskAcceptance = decode(&raw.ok_or_else(denied)?)?;
     let task: Task = raw_task(db, &r.task_id)?;
+    stored_scope_view(db, &r.scope_id)?;
+    let record: ScopeRecord = super::super::raw(db, "goal_scopes", &r.scope_id)?;
     if a.graph_contract_version != 1
         || a.run_id != r.id
         || a.task_id != r.task_id
@@ -2422,6 +2541,15 @@ pub(super) fn verify_accepted_state(db: &Connection, r: &GoalRun) -> Result<Grap
         || a.capability_digest != sha(&p.snapshot)?
         || a.source != "baton_goal_acceptance"
         || a.artifact_refs.is_empty()
+        || task.id != a.task_id
+        || task.project_id != a.project_id
+        || task.goal != record.refs.task_goal
+        || record.refs.task_id != task.id
+        || record.refs.project_id != task.project_id
+        || record.refs.spec_revision != task.spec_revision
+        || a.input_revision != record.refs.workspace.base_revision
+        || a.workspace_id != record.refs.workspace.id
+        || p.snapshot["scope"]["scope_digest"] != record.scope_digest
         || task.state != TaskState::Accepted
         || task.revision != a.task_revision
         || task.spec_revision != a.spec_revision
@@ -2444,6 +2572,98 @@ pub(super) fn verify_accepted_state(db: &Connection, r: &GoalRun) -> Result<Grap
     {
         return Err(denied());
     }
+    let candidates = graph_candidates(db, r)?;
+    let owners = graph_owner_decisions(db, r)?;
+    let validations = graph_validations(db, r)?;
+    if a.artifact_refs.iter().any(|artifact| {
+        !candidates
+            .iter()
+            .any(|c| c.capture_receipt_sequence < a.sequence && c.artifacts.contains(artifact))
+    }) || a.owner_decision_ids.iter().any(|id| {
+        !owners
+            .iter()
+            .any(|o| o.id == *id && o.plan_revision == a.plan_revision && o.decision == "accepted")
+    }) || a.validation_ids.iter().any(|id| {
+        !validations.iter().any(|v| {
+            v.id == *id
+                && v.plan_revision == a.plan_revision
+                && v.passed
+                && v.stop_confirmed
+                && v.io_completion == "worker_joined"
+        })
+    }) {
+        return Err(changed());
+    }
+    let plans = bounded_plan_history(db, &r.scope_id)?;
+    let plan = plans
+        .iter()
+        .find(|p| p.proposal.revision == r.plan_revision && p.digest == r.plan_digest)
+        .ok_or_else(changed)?;
+    let nodes = node_records_at(db, r, r.plan_revision, &r.plan_digest, plan)?;
+    for n in &nodes {
+        match n.node.kind {
+            NodeKind::OwnerApproval => {
+                if n.state != "accepted"
+                    || !owners.iter().any(|o| {
+                        o.node_id == n.node.id
+                            && o.plan_revision == n.plan_revision
+                            && a.owner_decision_ids.contains(&o.id)
+                    })
+                {
+                    return Err(changed());
+                }
+            }
+            NodeKind::Validate => {
+                if n.state != "validated"
+                    || !validations.iter().any(|v| {
+                        v.node_id == n.node.id
+                            && v.plan_revision == n.plan_revision
+                            && a.validation_ids.contains(&v.id)
+                            && v.passed
+                    })
+                {
+                    return Err(changed());
+                }
+            }
+            _ => {
+                let refs = candidates
+                    .iter()
+                    .filter(|c| c.node_id == n.node.id && c.plan_revision == n.plan_revision)
+                    .flat_map(|c| c.artifacts.clone())
+                    .collect::<Vec<_>>();
+                if n.state != "candidate"
+                    || !n.stop_confirmed
+                    || refs.is_empty()
+                    || refs.iter().any(|a_ref| !a.artifact_refs.contains(a_ref))
+                    || !rules_satisfied(&record, &n.node, &refs, &validations, &owners, false)
+                {
+                    return Err(changed());
+                }
+            }
+        }
+    }
+    for o in owners
+        .iter()
+        .filter(|o| a.owner_decision_ids.contains(&o.id))
+    {
+        let seq:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='goal.owner_decided' AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.payload.owner_decision_id')=?1 ORDER BY sequence LIMIT 1",[&o.id],|row|row.get(0)).optional().map_err(db_error)?;
+        if seq.is_none_or(|v| v <= 0 || u64::try_from(v).ok().is_none_or(|v| v >= a.sequence)) {
+            return Err(denied());
+        }
+    }
+    for output in &record.selection.outputs {
+        if a.artifact_refs
+            .iter()
+            .filter(|r| {
+                r.artifact_id == output.artifact.artifact_id
+                    && r.contract_id == format!("output:{}", output.artifact.artifact_id)
+            })
+            .count()
+            != 1
+        {
+            return Err(changed());
+        }
+    }
     Ok(a)
 }
 fn raw_task(db: &Connection, id: &str) -> Result<Task> {
@@ -2464,4 +2684,215 @@ pub(crate) fn verify_task_acceptance_state(db: &Connection, task: &Task) -> Resu
         return Err(changed());
     }
     Ok(())
+}
+
+fn mutation_summary(db: &Connection, r: GoalRun, event_kind: &str) -> Result<GraphRunSummary> {
+    let seq:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.revision')=?2 AND json_extract(document,'$.kind')=?3 AND json_extract(document,'$.source')='goal_core' ORDER BY sequence LIMIT 1",params![r.id,sql_num(r.revision)?,event_kind],|row|row.get(0)).optional().map_err(db_error)?;
+    Ok(GraphRunSummary {
+        graph_contract_version: 1,
+        task_accepted: r.task_accepted,
+        run: r,
+        ledger_revision: u64::try_from(seq.ok_or_else(denied)?).map_err(|_| changed())?,
+    })
+}
+impl Store {
+    pub(crate) fn cancel_goal_graph_with_stops(
+        &mut self,
+        id: &str,
+        revision: u64,
+        key: &str,
+    ) -> Result<(GraphRunSummary, Vec<String>)> {
+        let (r, new) = self.record_goal_cancel_kind(id, revision, key, true)?;
+        let receipt = mutation_summary(&self.conn, r, "goal.run_cancel_requested")?;
+        if !new {
+            return Ok((receipt, vec![]));
+        }
+        match self.goal_stop_requests() {
+            Ok(stops) => Ok((receipt, stops)),
+            Err(mut e) => {
+                e.side_effect_state = "confirmed".into();
+                e.details_ref = Some(format!("recorded-goal-graph-cancel:{id}"));
+                e.message+="; graph cancellation intent is committed, owned stop remains unconfirmed; recover exact original key";
+                Err(e)
+            }
+        }
+    }
+    pub(crate) fn graph_plan_advance_replay(
+        &self,
+        p: &GoalPlanAdvance,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<Option<GoalRun>> {
+        checked_capability(&self.conn, &run(&self.conn, &p.run_id)?)?;
+        key(key_id)?;
+        replay(
+            &self.conn,
+            &format!("goal-run:{}:advance-plan", p.run_id),
+            key_id,
+            &encode(&json!({"intent":p,"expected_revision":revision}))?,
+        )
+    }
+    pub fn advance_goal_graph_plan(
+        &mut self,
+        p: &GoalPlanAdvance,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<GraphRunSummary> {
+        let r = self.advance_goal_plan_kind(p, revision, key_id, true)?;
+        mutation_summary(&self.conn, r, "goal.run_plan_advanced")
+    }
+}
+
+fn node_acceptance_state(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    candidates: &[GraphCandidateReceipt],
+    validations: &[GraphValidationReceipt],
+    owners: &[GraphOwnerDecision],
+) -> Result<String> {
+    if n.state == "outcome_unknown" {
+        return Ok("unknown".into());
+    }
+    if n.node.kind == NodeKind::OwnerApproval {
+        return Ok(if n.state == "accepted" {
+            "accepted"
+        } else {
+            "pending"
+        }
+        .into());
+    }
+    if n.node.kind == NodeKind::Validate {
+        return Ok(if n.state == "validated" {
+            "validated"
+        } else {
+            "pending"
+        }
+        .into());
+    }
+    if n.state != "candidate" || !n.stop_confirmed {
+        return Ok("pending".into());
+    }
+    let refs = candidates
+        .iter()
+        .filter(|c| c.node_id == n.node.id && c.plan_revision == n.plan_revision)
+        .flat_map(|c| c.artifacts.clone())
+        .collect::<Vec<_>>();
+    if refs.is_empty() {
+        return Ok("pending".into());
+    }
+    let record: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
+    Ok(
+        if rules_satisfied(&record, &n.node, &refs, validations, owners, false) {
+            "accepted"
+        } else if n
+            .node
+            .required_validators
+            .iter()
+            .any(|v| v != OWNER_RULE && v != INPUT_RULE)
+            && rules_satisfied(&record, &n.node, &refs, validations, owners, true)
+        {
+            "validated"
+        } else {
+            "pending"
+        }
+        .into(),
+    )
+}
+
+fn verify_owner_decision_receipt(
+    db: &Connection,
+    r: &GoalRun,
+    o: &GraphOwnerDecision,
+) -> Result<GraphOwnerDecisionResult> {
+    let p: ApprovalProposal = raw(db, "approval_proposals", &o.approval_id)?;
+    let old:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(result)<=1048576 THEN result END FROM approval_proposals WHERE id=?1 AND result IS NOT NULL",[&p.id],|row|row.get(0)).optional().map_err(db_error)?;
+    let result: GraphOwnerDecisionResult = decode(&old.ok_or_else(denied)?.ok_or_else(limited)?)?;
+    let intended_revision = p.snapshot["expected_run_revision"]
+        .as_u64()
+        .ok_or_else(changed)?;
+    if !p.consumed
+        || p.kind != "goal_node_acceptance"
+        || o.graph_contract_version != 1
+        || o.run_id != r.id
+        || o.source
+            != if o.decision == "accepted" {
+                "local_owner_confirmation"
+            } else {
+                "local_owner_rejection"
+            }
+        || result.approval_id != p.id
+        || result.run_id != r.id
+        || result.node_id != o.node_id
+        || result.plan_revision != o.plan_revision
+        || result.owner_decision_id != o.id
+        || result.decision != o.decision
+        || result.run_revision != intended_revision.checked_add(1).ok_or_else(limited)?
+        || p.snapshot["run_binding"]["run_id"] != r.id
+        || p.snapshot["run_binding"]["plan_revision"] != o.plan_revision
+        || p.snapshot["run_binding"]["plan_digest"] != o.plan_digest
+        || p.snapshot["node"]["id"] != o.node_id
+        || p.snapshot["candidate_refs"] != json!(o.candidate_refs)
+        || p.snapshot["criterion"]["rule_id"] != o.rule_id
+        || p.snapshot["criterion"]["criterion_digest"] != o.criterion_digest
+    {
+        return Err(changed());
+    }
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='approval.proposed'",[&p.id],1,MAX_STORED_BYTES)?;
+    let proposed:Option<(i64,Option<String>)>=db.query_row("SELECT sequence,CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='approval.proposed'",[&p.id],|row|Ok((row.get(0)?,row.get(1)?))).optional().map_err(db_error)?;
+    let (proposal_seq, doc) = proposed.ok_or_else(denied)?;
+    let event: Event = decode(&doc.ok_or_else(limited)?)?;
+    if proposal_seq <= 0
+        || event.source != "user_action"
+        || event.payload["kind"] != p.kind
+        || event.payload["snapshot"] != p.snapshot
+    {
+        return Err(denied());
+    }
+    let owner_seq:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.owner_decided' AND json_extract(document,'$.source')=?2 AND json_extract(document,'$.payload.owner_decision_id')=?3 AND json_extract(document,'$.payload.approval_id')=?4 AND json_extract(document,'$.payload.receipt_digest')=?5 AND json_extract(document,'$.payload.decision')=?6 ORDER BY sequence LIMIT 1",params![r.id,o.source,o.id,p.id,sha(o)?,o.decision],|row|row.get(0)).optional().map_err(db_error)?;
+    let owner_seq = owner_seq.ok_or_else(denied)?;
+    if owner_seq <= proposal_seq {
+        return Err(denied());
+    }
+    let settled:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.owner_node_settled' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.revision')=?2 AND json_extract(document,'$.payload.node_id')=?3 AND json_extract(document,'$.payload.owner_decision_id')=?4 AND json_extract(document,'$.payload.decision')=?5 AND json_extract(document,'$.payload.task_accepted')=?6 ORDER BY sequence LIMIT 1",params![r.id,sql_num(result.run_revision)?,o.node_id,o.id,o.decision,result.task_accepted],|row|row.get(0)).optional().map_err(db_error)?;
+    if settled.is_none_or(|seq| seq <= owner_seq) {
+        return Err(denied());
+    }
+    let receipts: Vec<GraphCandidateReceipt> =
+        serde_json::from_value(p.snapshot["candidate_receipts"].clone()).map_err(|_| changed())?;
+    if receipts.is_empty()
+        || receipts.len() > 64
+        || o.candidate_refs
+            .iter()
+            .any(|a| !receipts.iter().any(|c| c.artifacts.contains(a)))
+        || receipts
+            .iter()
+            .any(|c| c.capture_receipt_sequence >= u64::try_from(proposal_seq).unwrap_or(0))
+    {
+        return Err(changed());
+    }
+    let expected_validations = serde_json::from_value::<Vec<GraphValidationReceipt>>(
+        p.snapshot["validation_refs"].clone(),
+    )
+    .map_err(|_| changed())?
+    .into_iter()
+    .map(|v| v.id)
+    .collect::<Vec<_>>();
+    if expected_validations != o.validation_ids {
+        return Err(changed());
+    }
+    Ok(result)
+}
+impl GraphWorkers {
+    pub(crate) fn reap_owned_workers(&mut self) {
+        self.stopping = true;
+        for w in self.captures.values() {
+            w.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+        // Called before the daemon unlocks its sole writer lock. Fatal/unwind
+        // teardown never detaches an owned evidence reader into its successor.
+        for (_, w) in self.captures.drain() {
+            let _ = w.thread.join();
+        }
+    }
 }

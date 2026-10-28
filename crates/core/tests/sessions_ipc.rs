@@ -3152,6 +3152,8 @@ fn graph_owner_proposal(f: &Scenario, run_id: &Value, node: &str, key: &str) -> 
 }
 #[test]
 fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input() {
+    let build_source_hashes = graph_build_source_hashes();
+    eprintln!("GRAPH_BUILD_SOURCES {}", build_source_hashes);
     let f = Scenario::new(10_000);
     let scope = graph_owner_summary_plan(&f);
     let approved = approve_graph_at(&f, &scope, 2);
@@ -3262,7 +3264,7 @@ fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_in
         2
     );
     use std::io::Write;
-    let evidence = json!({"graph_details":accepted,"task":task,"final_owner_proposal":final_proposal,"final_owner_decision":final_decision});
+    let evidence = json!({"build_source_hashes":build_source_hashes,"graph_details":accepted,"task":task,"final_owner_proposal":final_proposal,"final_owner_decision":final_decision});
     let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
     let hash = agentbaton_workspaces::validation::sha256(&bytes);
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
@@ -3285,6 +3287,77 @@ fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_in
     let ordinary=f.server.request(json!({"method":"sessions.create","params":{"task_id":task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":task["revision"],"idempotency_key":"accepted-task-cannot-reopen"}));
     assert!(ordinary.get("error").is_some());
     let before = accepted["ledger_revision"].clone();
+    for (method, params, revision) in [
+        (
+            "goal_runs.dispatch",
+            json!({"run_id":run_id,"expected_ledger_revision":before}),
+            accepted["run"]["revision"].clone(),
+        ),
+        (
+            "goal_runs.advance_plan",
+            json!({"run_id":run_id,"expected_plan_revision":3,"expected_ledger_revision":before}),
+            accepted["run"]["revision"].clone(),
+        ),
+        (
+            "goal_graph_runs.advance_plan",
+            json!({"run_id":run_id,"expected_plan_revision":3,"expected_ledger_revision":before}),
+            accepted["run"]["revision"].clone(),
+        ),
+        (
+            "goal_graph_runs.cancel",
+            json!({"run_id":run_id}),
+            accepted["run"]["revision"].clone(),
+        ),
+        (
+            "goal_runs.propose",
+            json!({"scope_id":scope["id"],"expected_plan_revision":2,"expected_ledger_revision":before}),
+            Value::Null,
+        ),
+        (
+            "goal_graph_runs.propose",
+            json!({"scope_id":scope["id"],"expected_plan_revision":2,"expected_ledger_revision":before}),
+            Value::Null,
+        ),
+        (
+            "tasks.create",
+            json!({"project_id":task["project_id"],"goal":"Agent text cannot accept a task","state":"accepted","acceptance_ref":task["acceptance_ref"]}),
+            Value::Null,
+        ),
+    ] {
+        let response=f.server.request(json!({"method":method,"params":params,"expected_revision":revision,"idempotency_key":format!("accepted-terminal-{method}")}));
+        assert!(
+            response.get("error").is_some(),
+            "terminal bypass {method}: {response}"
+        );
+        assert_eq!(
+            response["error"]["side_effect_state"], "not_started",
+            "{method}"
+        );
+    }
+    let original_plan = result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    );
+    let mut new_plan = original_plan["proposal"].clone();
+    new_plan["revision"] = json!(3);
+    new_plan["expected_revision"] = json!(2);
+    let plan_refused=f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&new_plan).unwrap()},"expected_revision":2,"idempotency_key":"accepted-task-no-new-plan"}));
+    assert!(plan_refused.get("error").is_some());
+    let raw_db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let original_scope: String = raw_db
+        .query_row(
+            "SELECT document FROM approval_proposals WHERE id=?1",
+            [scope["id"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let mut scope_intent =
+        serde_json::from_str::<Value>(&original_scope).unwrap()["snapshot"]["intent"].clone();
+    scope_intent["expected_task_revision"] = task["revision"].clone();
+    scope_intent["expected_grant_revision"] = scope["root_grant_revision"].clone();
+    drop(raw_db);
+    let scope_refused=f.server.request(json!({"method":"goal_scopes.propose","params":scope_intent,"idempotency_key":"accepted-task-no-new-scope"}));
+    assert!(scope_refused.get("error").is_some());
     for _ in 0..3 {
         let stable = result(
             f.server
@@ -3317,4 +3390,48 @@ fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_in
             .unwrap();
         assert_eq!(count, 2);
     }
+    // Acceptance is a historical versioned fact. A later file edit does not
+    // create new authority and cannot erase the completed receipt.
+    std::fs::write(
+        PathBuf::from(f.workspace["root"].as_str().unwrap()).join("reports/report.txt"),
+        b"later user edit",
+    )
+    .unwrap();
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"tasks.get","params":{"task_id":task["id"]}}))
+        ),
+        task
+    );
+    assert_eq!(approve(&f.server, final_proposal), final_decision);
+}
+
+fn graph_build_source_hashes() -> Value {
+    let sources: [(&str, &[u8]); 11] = [
+        ("goal_graph.rs", include_bytes!("../src/goal_graph.rs")),
+        (
+            "goal_evidence.rs",
+            include_bytes!("../src/goal_evidence.rs"),
+        ),
+        ("goal_runtime.rs", include_bytes!("../src/goal_runtime.rs")),
+        ("goal_store.rs", include_bytes!("../src/goal_store.rs")),
+        ("storage.rs", include_bytes!("../src/storage.rs")),
+        ("sessions.rs", include_bytes!("../src/sessions.rs")),
+        ("ipc.rs", include_bytes!("../src/ipc.rs")),
+        ("execution.rs", include_bytes!("../src/execution.rs")),
+        (
+            "data_workspace_workers.rs",
+            include_bytes!("../src/data_workspace_workers.rs"),
+        ),
+        (
+            "data_workspaces.rs",
+            include_bytes!("../src/data_workspaces.rs"),
+        ),
+        ("tests/sessions_ipc.rs", include_bytes!("sessions_ipc.rs")),
+    ];
+    json!(sources
+        .into_iter()
+        .map(|(name, bytes)| (name, agentbaton_workspaces::validation::sha256(bytes)))
+        .collect::<std::collections::BTreeMap<_, _>>())
 }

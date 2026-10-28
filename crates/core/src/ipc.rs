@@ -522,6 +522,8 @@ impl Daemon {
             "data_workspaces.create" | "data_workspaces.approve" => Err(CoreError::new("AUTH_REQUIRED","A server-fixed preview and native data_workspace owner confirmation are required before copying")),
             "goal_node_approvals.propose"=>{let p:crate::goal_store::GraphNodeApprovalSelection=params(r.params)?;Ok(json!(self.store.propose_goal_node_acceptance(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
             "approvals.decline"=>{let p:ProposalId=params(r.params)?;self.store.decide_goal_node(&p.proposal_id,r.expected_revision.ok_or_else(invalid)?,false)}
+            "goal_graph_runs.cancel"=>{let p:GoalRunId=params(r.params)?;let (receipt,stops)=self.store.cancel_goal_graph_with_stops(&p.run_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;for id in stops{self.supervisor.cancel(&id);}Ok(json!(receipt))}
+            "goal_graph_runs.advance_plan"=>{let p:crate::goal_store::GoalPlanAdvance=params(r.params)?;Ok(json!(self.store.advance_goal_graph_plan(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
             "goal_graph_runs.propose"=>{let p:crate::goal_store::GraphRunSelection=params(r.params)?;Ok(json!(self.store.propose_goal_graph_run(&p,&r.idempotency_key.ok_or_else(invalid)?)?))}
             "goal_graph_runs.get"=>{let p:GoalRunId=params(r.params)?;Ok(json!(self.store.goal_graph_details(&p.run_id)?))}
             "goal_graph_runs.list"=>{let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_graph_runs(&p.task_id)?))}
@@ -957,6 +959,7 @@ impl Drop for Daemon {
     fn drop(&mut self) {
         // Error/unwind paths also retain authority until every owned worker is
         // cancelled and joined. Unpersisted outcomes are reconciled on restart.
+        self.graph_workers.reap_owned_workers();
         self.data_workers.reap_owned_workers();
         self.command_workers.reap_owned_workers();
         self.supervisor.reap_owned_workers();
@@ -1301,6 +1304,23 @@ impl Daemon {
                     }
                 }
                 ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
+            }
+            "goal_graph_runs.advance_plan" => {
+                let p: crate::goal_store::GoalPlanAdvance = params(request.params)?;
+                if let (Some(key), Some(rev)) = (
+                    request.idempotency_key.as_deref(),
+                    request.expected_revision,
+                ) {
+                    if self
+                        .store
+                        .graph_plan_advance_replay(&p, rev, key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                let r = self.store.goal_graph_summary(&p.run_id)?.run;
+                ids.push(self.store.get_goal_scope(&r.scope_id)?.workspace_id);
             }
             "goal_runs.advance_plan" => {
                 let p: crate::goal_store::GoalPlanAdvance = params(request.params)?;

@@ -595,8 +595,21 @@ impl Store {
         revision: u64,
         key_id: &str,
     ) -> Result<(GoalRun, bool)> {
+        self.record_goal_cancel_kind(id, revision, key_id, false)
+    }
+    fn record_goal_cancel_kind(
+        &mut self,
+        id: &str,
+        revision: u64,
+        key_id: &str,
+        graph: bool,
+    ) -> Result<(GoalRun, bool)> {
         key(key_id)?;
-        graph::require_legacy_run(&self.conn, id)?;
+        if graph {
+            graph::checked_capability(&self.conn, &run(&self.conn, id)?)?;
+        } else {
+            graph::require_legacy_run(&self.conn, id)?;
+        }
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -612,6 +625,9 @@ impl Store {
                 "STALE_REVISION",
                 "Goal run changed before cancellation",
             ));
+        }
+        if r.task_accepted || r.state == "accepted" {
+            return Err(denied());
         }
         r.cancel_requested = true;
         if r.state != "outcome_unknown" {
@@ -1922,12 +1938,25 @@ impl Store {
         revision: u64,
         key_id: &str,
     ) -> Result<GoalRun> {
+        self.advance_goal_plan_kind(p, revision, key_id, false)
+    }
+    fn advance_goal_plan_kind(
+        &mut self,
+        p: &GoalPlanAdvance,
+        revision: u64,
+        key_id: &str,
+        graph: bool,
+    ) -> Result<GoalRun> {
         key(key_id)?;
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        graph::require_legacy_run(&tx, &p.run_id)?;
+        if graph {
+            graph::checked_capability(&tx, &run(&tx, &p.run_id)?)?;
+        } else {
+            graph::require_legacy_run(&tx, &p.run_id)?;
+        }
         let idem = format!("goal-run:{}:advance-plan", p.run_id);
         let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
         if let Some(r) = replay(&tx, &idem, key_id, &payload)? {
@@ -1941,7 +1970,10 @@ impl Store {
             ));
         }
         if r.cancel_requested
-            || matches!(r.state.as_str(), "outcome_unknown" | "cancelled" | "failed")
+            || matches!(
+                r.state.as_str(),
+                "accepted" | "outcome_unknown" | "cancelled" | "failed"
+            )
         {
             return Err(denied());
         }
