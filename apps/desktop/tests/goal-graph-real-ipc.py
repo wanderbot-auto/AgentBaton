@@ -1594,8 +1594,11 @@ def owner_only_driver(args, output: Path) -> int:
                             assert commit['payload']['acceptance_ref'] == acceptance['id'] and commit['payload']['acceptance_sequence'] == acceptance['sequence']
                             budgets = {scope_name: {'consumed': consumed, 'active': active} for scope_name, consumed, active in db.execute('SELECT scope,consumed,active FROM budgets')}
                             report['observations']['observed_budgets'] = budgets
+                            # The shared root-grant carries bootstrap1 into the
+                            # new root: bootstrap1 + Work1 + Validate1 + Summary1.
+                            # A new Task must not reset that consumed history.
                             for key in ['root:' + task['id'], 'project:' + project['id']]:
-                                assert budgets[key] == {'consumed': (4 if key.startswith('project:') else 3) if case else 2, 'active': 0}, {'key': key, 'actual': budgets[key], 'expected': {'consumed': (4 if key.startswith('project:') else 3) if case else 2, 'active': 0}}
+                                assert budgets[key] == {'consumed': 4 if case else 2, 'active': 0}, {'key': key, 'actual': budgets[key], 'expected': {'consumed': 4 if case else 2, 'active': 0}}
                             ledgers = {k: json.loads(v) for k, v in db.execute('SELECT scope,document FROM goal_ledgers')}
                             produced_bytes = sum(a['bytes'] for c in accepted['candidates'] for a in c['artifacts'])
                             validator_output = validation_proof['new_output_bytes'] if case else 0
