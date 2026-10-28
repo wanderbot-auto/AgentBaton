@@ -1,0 +1,29 @@
+# Independent PR13 A2C5 CI and native evidence review
+
+Verdict: **NOT ACCEPTED for merge or dual-package delivery.** Product run40646347414 completed cancelled: six required checks succeeded and Intel exceeded the overall30-minute job budget during release application compilation. The new **dual native WebView/lifecycle evidence passes**, but this does not supply Intel's skipped release audit or absent DMG. Reviewer `/root/data_native_integration_review`; no source, target, CI trigger, cancellation, rerun, remote-write or merge action.
+
+## Exact subject
+
+Head `a2c5bcf47fd60d66207e2cc93c94db4f7f648057`; actual checkout `c67d741713c35af95ef146799f36c52b2f268f6c`; parents mainbcf10bb802258645c554f37581237a6c0cb3cbe6 and the head; both tree `f94524652da859991b2af9eada2d39ea26a60607`. Saved API objects and each relevant source hash were independently compared with exact Git objects. No old report, image, package or green check was borrowed.
+
+Environment40646347269 Ubuntu122675946832, ARM122675946758 and Intel122675946654 all succeeded. Product Rust122675946866, UI122675947120 and ARM122675947044 succeeded; Intel122675947130 cancelled. Exact head check-run API contains these seven final outcomes. Rust/UI raw logs bind this checkout: generated protocol20, Goal contracts48/store34, runner17, real CLI SIGKILL/restart, frontend259 and actual browser38/Command5/Goal9/Editor10 pass. Raw Rust pass summaries total468 including nested child/doc results; no inflated unique-test claim is made.
+
+## Actual dual native evidence
+
+ARM native artifact12797824062 ZIP SHA `9fd87df10fadfad13966507dc7928a69b464719ff4f3eb62dffccd186ac87881`; Intel12798925619 ZIP SHA `9ff273e4a1779df6192ca11b799960303e92e8146eaea450170947f0600307d4`. Both pass API/local digest identity, bounded safe ZIP entries, CRC, exact checkout/architecture, strict Native reports and watchdog reports. Each reports three strict Goal JS flags plus separately captured readonly SQLite scope/plan/attempt counts0 and sequence3 unchanged. The original Command3/Data3 checks remain. First/reopened actual WebViews share exact task/project IDs; window close survival, second writer refusal, daemon restart and owned cleanup all pass.
+
+Both PNGs were viewed: ARM1136x793, Intel1292x912; their hashes and report details are in per-arch verification JSON. They show the real task screen. Folded/empty Goal UI does not prove populated Goal execution. Intel's long generated project name produces a visible sidebar horizontal scrollbar, recorded as a UI limitation rather than silently claimed fixed. OS Owner dialogs and live Provider/model calls are explicitly not run. Native architecture spells ARM `aarch64`; development package record uses `arm64`. The first reviewer invocation used the package spelling in the native audit, correctly failed strict comparison, and was corrected on the unchanged artifact in a new exclusive extraction directory; audit-correction.txt retains this reviewer error.
+
+Both actual job logs contain command14 with original1000ms authorization. ARM returned998ms and session admission654ms; Intel997ms and699ms. Both generated Provider20 include the unchanged4MiB/500ms test and safe diagnostic negative control. Both nativehost13 and harness12 pass, including canonical private bind and alias refusal/canonical bind. This is new Mac proof for the reviewed fixture, not an invented explanation of old Darwin errno. The old0a ARM failure remains unreproduced/root cause unknown; added diagnostics are not a production performance fix.
+
+## Intel cancellation and missing package
+
+Check-run annotations explicitly state **“The job has exceeded the maximum execution time of 30m0s”**. Job ran06:50:51–07:21:08UTC. Core/nativehost step06:52:25–07:12:46 succeeded; Native WebView/lifecycle07:12:46–07:13:56 succeeded. The desktop release application build ran07:13:59–07:21:05 then cancelled while compiling agentbaton-core. This is not a failing protocol/Goal/assertion test. The raw log records the cancellation and cleanup, SHA `6bbe1a20a9303442258175f8ec916b57ef641ee3619525e95a446cd6a7492073`. Intel default-release audit, package generation and development upload are actually skipped. Final artifact API contains no Intel development artifact.
+
+ARM whole job succeeded, including actual default-release identifier audit and development artifact12798695626. Its ZIP digest `sha256:c77340119268b118ee7635859000f5078116efd2f35d20303abdd62d6797c629` matches API, bounded entries/CRC checked; sole DMG has UDIF koly trailer, matches SHA256SUMS, exact checkout/arm64 build record and a nonempty acceptance checklist. DMG SHA `d99d96148806aea3b1076ffa9205e1f1d5c74408ab7d45901c9cf3aac6f1e117`. Actual record says macOS15.7.9, linker ad hoc signature, TeamIdentifier unset, no DeveloperID or notarization. This single package does not count as the required pair. The Root success-only dual-package helper was **not invoked** because the Product run is cancelled.
+
+## Handoff and limits
+
+All raw API/logs, source objects, native archives/extractions, real screenshots, ARM package, cancellation annotation and previous interrupted evidence persist under `/workspace/.onboarding/goal-native-a2c5/`; resumed reviewer files are under `resumed-independent`. Manifest SHA `2f27777ee0b15b61b54326f3d57285616844b25dffc778d47f00f6fb0607a762`. Previous0a/aeff failures remain separate and unchanged.
+
+A bounded CI build-budget/compilation correction and fresh exact-head seven-check run with both real release audits/DMGs remain necessary. Original product500ms/1000ms/3s and native watchdog contracts were neither changed nor skipped. No Provider/account, extra resources, signing/notarization, minimum supportedOS, user installation, whole Goal execution or full130-product acceptance is established by this report. The exact source cannot be merged on these final outcomes.
