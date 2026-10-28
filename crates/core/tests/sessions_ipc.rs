@@ -4423,7 +4423,15 @@ fn actual_command_definition_graph_fixture(command_case: &str) -> (Scenario, Val
     } else {
         vec!["3"]
     };
-    let policy_proposal=result(f.server.request(json!({"method":"command_validation_policies.propose","params":{"session_id":session,"executable":std::fs::canonicalize(executable).unwrap(),"mode":"native_executable","script":null,"inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":agentbaton_workspaces::validation::sha256(b"baseline")}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],"arguments":arguments,"environment":{},"expected_exit_codes":[0],"wall_time_ms":if command_case=="normal" {500}else{1500},"cleanup_time_ms":500,"stdout_limit":512,"stderr_limit":512,"require":agentbaton_core::command_validation::CommandEnforcement::default()},"idempotency_key":"source-additional-command-definition"})));
+    let program = if command_case == "normal" && cfg!(target_os = "linux") {
+        let path = f.root.join("graph-fixed-command");
+        std::fs::copy(executable, &path).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o700)).unwrap();
+        path
+    } else {
+        std::fs::canonicalize(executable).unwrap()
+    };
+    let policy_proposal=result(f.server.request(json!({"method":"command_validation_policies.propose","params":{"session_id":session,"executable":program,"mode":"native_executable","script":null,"inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":agentbaton_workspaces::validation::sha256(b"baseline")}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],"arguments":arguments,"environment":{},"expected_exit_codes":[0],"wall_time_ms":if command_case=="normal" {500}else{1500},"cleanup_time_ms":500,"stdout_limit":512,"stderr_limit":512,"require":agentbaton_core::command_validation::CommandEnforcement::default()},"idempotency_key":"source-additional-command-definition"})));
     let definition = approve(&f.server, policy_proposal);
     result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":source["id"]},"expected_revision":source_done["run"]["revision"],"idempotency_key":"cancel-source-candidate-before-new-graph"})));
     wait(
