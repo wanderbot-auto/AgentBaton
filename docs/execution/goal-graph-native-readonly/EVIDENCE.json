@@ -44,7 +44,7 @@
       "dimension": "parser/format only, not Rust typecheck"
     },
     {
-      "command": "PYTHONDONTWRITEBYTECODE=1 python3 .onboarding/goal-graph-native-readonly/preservation_static.py",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 /workspace/.onboarding/goal-graph-native-readonly/preservation_static.py",
       "exit_code": 0,
       "standalone_validator_negative_controls": 81,
       "old_rust_module_prefix": "17 original tests preserved after enumerated necessary schema normalization",
@@ -54,7 +54,33 @@
     {
       "command": "node --check extracted first.js and second.js; bash -n scripts/native-macos-smoke.sh",
       "exit_code": 0,
-      "dimension": "syntax only"
+      "dimension": "syntax only",
+      "exact_argv": [
+        {
+          "command": [
+            "node",
+            "--check",
+            "/workspace/.onboarding/goal-graph-native-readonly/first.js"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "node",
+            "--check",
+            "/workspace/.onboarding/goal-graph-native-readonly/second.js"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "bash",
+            "-n",
+            "scripts/native-macos-smoke.sh"
+          ],
+          "exit_code": 0
+        }
+      ]
     },
     {
       "command": "git diff --check",
@@ -163,5 +189,5 @@
   ],
   "cloud_task_url": "not supplied; native delegated task /root/artifact_contract_fixture",
   "authority": "AB-START-001; OWNER001/002 ACK; no credential/model/spend/release expansion; Root corrected existing test path",
-  "verification_manifest_sha256": "5f31e26f6b0501f6d96880d662522c0fca5994f6231bb7e4600f60707db4a015"
+  "verification_manifest_sha256": "782f430a6a6c40a0b2bdb9c77eff0398a0ac86e27e0e827cebc3e3ee5934b94c"
 }
