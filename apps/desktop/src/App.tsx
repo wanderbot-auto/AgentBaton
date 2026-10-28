@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { api, DaemonError, type JournalEvent, type Task, type Project } from './api';
+import { api, DaemonError, taskAllowsExecution, type JournalEvent, type Task, type Project } from './api';
 import { initialLanguage, messages, type Language } from './i18n';
 import { canvasMessages } from './canvas-i18n';
 import { Projects } from './Projects';
@@ -66,7 +66,7 @@ export function App() {
   const composer = useRef<HTMLTextAreaElement>(null);
   const selected = tasks.find(task => task.id === selectedId);
   const selectedSessions = sessions.filter(session => session.task_id === selectedId);
-  const readySession = selectedSessions.find(session => session.state === 'ready');
+  const readySession = selected&&taskAllowsExecution(selected)?selectedSessions.find(session => session.state === 'ready'):undefined;
   const uncertainTaskSend = selectedSessions.some(session => uncertainSessions.has(session.id));
   const selectedConnection = connections.find(record => record.id === readySession?.connection_id);
   const stateText = (state: string) => Object.hasOwn(t, state) ? t[state as keyof typeof t] : `${t.unknown}: ${state}`;
@@ -161,6 +161,7 @@ export function App() {
     } finally { setBusy(false); }
   }
   async function cancelTask(task: Task) {
+    if(!['draft','running','outcome_unknown'].includes(task.state))return;
     setBusy(true); setError('');
     try { await api.cancel(task, crypto.randomUUID()); await refresh(); }
     catch (e) { showError(e); }
@@ -222,7 +223,7 @@ export function App() {
       }} onClick={() => setTab(item)}>{c[item]}</button>)}</div><div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === 'conversation' && <><div className="conversation"><article className="user-message"><p>{selected.goal}</p></article>{conversationEvents.map(event => <article className={event.kind === 'session.message_queued' ? 'user-message' : 'agent-message'} key={event.event_id}><p>{sessionEventText(event)}</p></article>)}</div>{!selectedSessions.length && <div className="thread-note"><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => setDialog('execution')}>{c.configure}</button></div>}{selectedSessions.map(session => <p className="session-observation" key={session.id}>{c.sessionState}: {stateText(session.state)}{session.turn_state ? ` · ${session.turn_state}` : ''}</p>)}<details className="folded-plan"><summary>{c.plans}</summary><p>{c.noPlan}</p></details><details className="observable-events"><summary>{c.eventDetails}</summary><EventList events={taskEvents} title={t.evidence} empty={t.noEvents} /></details>{eventPager}{earliestCursor > 0 && <p className="hint">{t.moreEvents}</p>}</>}
         {tab === 'artifacts' && <><ArtifactValidation key={selected.id} task={selected} sessions={sessions} language={language} connected={status === 'connected'} /><DataContractValidation key={`data-${selected.id}`} task={selected} sessions={sessions} language={language} connected={status === 'connected'} /><CommandValidation key={`command-${selected.id}`} task={selected} sessions={sessions} language={language} connected={status === 'connected'} /></>}
-        {tab === 'details' && <div className="task-details"><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.project}</dt><dd>{projectName(selected.project_id)}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{c.retained}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || ['cancel_requested', 'cancelled', 'accepted', 'failed'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><GoalPlanning key={`goal-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /></div>}
+        {tab === 'details' && <div className="task-details"><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.project}</dt><dd>{projectName(selected.project_id)}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{c.retained}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || !['draft','running','outcome_unknown'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><GoalPlanning key={`goal-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /></div>}
       </div></section>}
       {view === 'capabilities' && <><div className="page-heading"><h1>{t.capabilities}</h1></div><Connections language={language} connected={status === 'connected'} compact /><section className="capability-empty"><h2>{c.capabilitySources}</h2><p>{c.noCapabilitySources}</p><p className="hint">{c.provenance}</p></section></>}
       {view === 'history' && <><div className="page-heading"><h1>{t.history}</h1></div><EventList events={events} title={t.evidence} empty={t.noEvents} />{eventPager}{earliestCursor > 0 && <><p>{events.length >= 500 ? t.windowLimit : t.moreEvents}</p><button onClick={() => void loadEarlier()} disabled={busy || status !== 'connected'}>{t.earlier}</button></>}</>}
