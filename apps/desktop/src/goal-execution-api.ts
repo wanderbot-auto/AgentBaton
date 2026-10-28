@@ -35,7 +35,7 @@ export const goalRunViewClosed=(view:GoalRunView)=>goalRunViewSupported(view)&&v
 export const goalRunCanAdvanceView=(view:GoalRunView)=>!view.run.cancel_requested&&['queued','running','blocked','awaiting_acceptance'].includes(view.run.state)&&goalRunViewClosed(view);
 
 export const goalRunNeedsReconciliation=(run:GoalRun)=>!['cancelled','failed'].includes(run.state);
-export const goalRunCanCancel=(run:GoalRun)=>!run.cancel_requested&&['queued','running','blocked','outcome_unknown'].includes(run.state);
+export const goalRunCanCancel=(run:GoalRun)=>!run.cancel_requested&&['queued','running','blocked','outcome_unknown','awaiting_acceptance'].includes(run.state);
 export const goalRunPolling=(run:GoalRun)=>['queued','running','cancel_requested'].includes(run.state);
 export function goalRunShape(value:GoalRun,task:Task,scope?:GoalScope):boolean {
   return !!value&&id(value.id)&&id(value.scope_id)&&value.task_id===task.id&&value.project_id===task.project_id&&id(value.root_grant_id)
