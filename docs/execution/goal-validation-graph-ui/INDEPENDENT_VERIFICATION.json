@@ -1,0 +1,311 @@
+{
+  "source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+  "tree": "a1595eeb766c7b112d19df0e930b85d266727e50",
+  "disposition": "PASS_bounded_independent_source_and_Node_review",
+  "review_sha256": "525e5fb6d0f8136c837e9c19253cfb38a8d0c4d54eed42f2d5826e9d2dd015dd",
+  "dimensions": {
+    "independent_jsdom": {
+      "suite_tests": 537,
+      "suite_files": 32,
+      "own_controls_tests": 3,
+      "own_controls_files": 2
+    },
+    "independent_typecheck": "PASS",
+    "independent_vite_build": "PASS_with_bundle_warning",
+    "independent_diffcheck": "PASS",
+    "root_linux_native": "43lib+22harness/Clippy/fmt exact unchanged source; evidence hash-verified, not reviewer Rust run",
+    "macos": "NOT_RUN",
+    "actual_owner_os_dialog": "NOT_RUN",
+    "real_provider": "NOT_RUN",
+    "full_product_acceptance": "NOT_CLAIMED"
+  },
+  "artifacts": [
+    {
+      "path": "REVIEW.md",
+      "bytes": 7895,
+      "sha256": "525e5fb6d0f8136c837e9c19253cfb38a8d0c4d54eed42f2d5826e9d2dd015dd"
+    },
+    {
+      "path": "build-final/assets/index-Cxl2UxNp.js",
+      "bytes": 525900,
+      "sha256": "4472889886faf0fc9f9d1f39faa0e0053ca47a22be7d7e21c191e67a08fa0bd8"
+    },
+    {
+      "path": "build-final/assets/index-mnnXGu7H.css",
+      "bytes": 29346,
+      "sha256": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac"
+    },
+    {
+      "path": "build-final/index.html",
+      "bytes": 441,
+      "sha256": "3d83ddee4f79c6d56431ffb6c32f2de936f03cb40a73226360485731d30fac99"
+    },
+    {
+      "path": "build.log",
+      "bytes": 927,
+      "sha256": "825ff4371910ac58a0f886009a241a073d988eb9fa4d564e5a14c8e818ed98e6"
+    },
+    {
+      "path": "build.result.json",
+      "bytes": 555,
+      "sha256": "984e5655a63604b2aa24b0c6feeced460e32f2fc0684ab2724e0a2cce3441e1f"
+    },
+    {
+      "path": "controls.config.mts",
+      "bytes": 539,
+      "sha256": "bcfd55c9c5391596a08842cd731b435e7d81ce86564ac57a2fbe531a87a044a4"
+    },
+    {
+      "path": "diff-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "diff-check.result.json",
+      "bytes": 510,
+      "sha256": "e78d0f87665165c8cc9896cd5a08a04ae0adcae39c8875a0803336547d1cfcb1"
+    },
+    {
+      "path": "f819-to-4eadffe.diff",
+      "bytes": 68276,
+      "sha256": "77ecb56184aef572f699ed00ff6dfaeaf90b1404b6d1f88d78cdc7d7976d95cf"
+    },
+    {
+      "path": "finalize_manifest.py",
+      "bytes": 1761,
+      "sha256": "ec592bb14c128281047e91a93127fb87c36fae7709a69670fcd35b0d5e8a9314"
+    },
+    {
+      "path": "foreign-decision.review.test.tsx",
+      "bytes": 5355,
+      "sha256": "1d6501b84cf0a87d7de7b4b6537c9ca1d37cb10fdd58fee03d685a0f975c0292"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/App.tsx",
+      "bytes": 29295,
+      "sha256": "c0790e5dbad77505ab5c46930adbac8f52ac76427675a2cb4109f02b5c70cc4f"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/GoalExecution.tsx",
+      "bytes": 18800,
+      "sha256": "cb00a0277870c61f9f54b04f5a0e4338b2b178977086d41c80e76e2309c46fcd"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/GoalGraphExecution.actual-projection.test.ts",
+      "bytes": 2193,
+      "sha256": "7c12fc16a4639e463cc1e3209d1f9e77f84224c486436f7a0218ad9b985e7321"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/GoalGraphExecution.legacy-cancel.test.tsx",
+      "bytes": 2370,
+      "sha256": "e5b0bf95d504def5649cc5aaf72ff75558226ce79dabb8b8c11e79299b8b39cd"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/GoalGraphExecution.task-home.test.tsx",
+      "bytes": 3080,
+      "sha256": "4884e12d224e707d65606086dd348ceb251017978c31427634a9f495c3ca54b8"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/GoalGraphExecution.task-projection.test.ts",
+      "bytes": 2418,
+      "sha256": "019c181a0d6a299152394f3f73f7801d04fc3b17672a8dd3216de5e21d29fbfd"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/GoalGraphExecution.test.tsx",
+      "bytes": 21024,
+      "sha256": "9251444393f5f2e518be63442514ff3030d16257a30444d495bcb76baecd7386"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/GoalGraphExecution.tsx",
+      "bytes": 25451,
+      "sha256": "982c64c2812260f9cb8ac7398cdde39b4327f5cf3ff1e3d647d44bc3b750651c"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/GoalGraphExecutionHistory.test.tsx",
+      "bytes": 3919,
+      "sha256": "3073ff50f2472aa866f6dc4dbf59f56e53cf345beda3e686a07e1086baec4ba0"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/GoalGraphExecutionHistory.tsx",
+      "bytes": 4873,
+      "sha256": "24a420c4291d89ad4adcb440ca82eab00bb1a7ebd2a8016fcdd52164a0b95bc3"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/GoalPlanning.tsx",
+      "bytes": 25759,
+      "sha256": "0fe6adad2b515623ac3d1920e6fd60e1616c55935251ea74b94066e4976a8d07"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/api.ts",
+      "bytes": 4528,
+      "sha256": "4ab2ee81ee7663babfe63bcf8e5a78a1a069555c895bad9e40f321fa1a7b319a"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-execution-api.ts",
+      "bytes": 7829,
+      "sha256": "6ba8ef82c22663da5274e2e0f95d957154cb87536c2ee826681e779854ee61e4"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-actual-accepted-fixture.json",
+      "bytes": 38134,
+      "sha256": "da00c1ca8bfbe1efc0230a02b8865e4a7ffff96096c5b055ccd7eace6e1c3317"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-actual-canonical-accepted-fixture.json",
+      "bytes": 39181,
+      "sha256": "60c205a9ca559150b52b5bdffb2418a706b93cbb3b8aeda9e3c17d670b885754"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-actual-node-proposal-fixture.json",
+      "bytes": 8926,
+      "sha256": "8fe6cdea6761fbdeb6d88dfd10344aa781058a9bd4912aaff2d1265448c25ee8"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-actual-proposal-fixture.json",
+      "bytes": 13083,
+      "sha256": "6074f58ca57c370ed789b92c8602c2dc5e37e5cf29963f83ee4e76297362f36a"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-api.test.ts",
+      "bytes": 3252,
+      "sha256": "6d47daa5f68048c5800455ab0d0f55d5d8d385e55167f143784d4b2c3e21f135"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-api.ts",
+      "bytes": 1793,
+      "sha256": "54f6b43d0fdb51c608d518dbbc1e2d717d32d52c429fef9bd38d61a011d279e6"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-guards.test.ts",
+      "bytes": 7927,
+      "sha256": "78d3d791ed2bd7a9a5ebd2a83d663fa031499f9bc107d5689b052442bb33a87c"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-guards.ts",
+      "bytes": 23388,
+      "sha256": "98074e6ef7582b61cb4e05ecee8502dac95617557b21d28db72817e1004fe23b"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-i18n.ts",
+      "bytes": 5691,
+      "sha256": "d9ff5a969200698da558797114aa7d38c368864586e1bb31e381f403a41362e6"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-labels.ts",
+      "bytes": 1361,
+      "sha256": "cdd0423ea7d4c38a31d5f5a544ae7bb92db142f684b5ff7ca6eab7cc2a6a83db"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-test-fixtures.ts",
+      "bytes": 4257,
+      "sha256": "9b2fd468d3e01451d986034810b80f261ba8a4032f3c50078a6d1306a2f19f3e"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph-types.ts",
+      "bytes": 3782,
+      "sha256": "1c81859cfd5b1ff3528904361f007d27b5b0aa58ce4422f584fa28700036f9fc"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src/goal-graph.css",
+      "bytes": 890,
+      "sha256": "6963e42e18851158f061bea98bc3f98108b0d8044ac953a61aac2d06f3387a75"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src-tauri/src/approval.rs",
+      "bytes": 122643,
+      "sha256": "ed15fe18bca38f102c41f77cd87c31b2a644f23201652d367670465ebc7bb80a"
+    },
+    {
+      "path": "frozen-source/apps/desktop/src-tauri/src/lib.rs",
+      "bytes": 44577,
+      "sha256": "f4c9676026dcb8492d58ea381f0e04661cc039bff23fff868e558bbee7560af6"
+    },
+    {
+      "path": "full-suite.log",
+      "bytes": 93534,
+      "sha256": "4f3be1eb1a40f7e776867583c48866ebbf78138597a9cb48633ac842ca6b0cae"
+    },
+    {
+      "path": "full-suite.result.json",
+      "bytes": 592,
+      "sha256": "39f5a5d0a7987ca3ec59add87c1d4817fb8273a87060b8ad1b740bb9d5a4704c"
+    },
+    {
+      "path": "independent-controls.log",
+      "bytes": 832,
+      "sha256": "67d0bffb96ee8998bfba0b723543daae5d9b689c470c772e5cbb51c699e67dc4"
+    },
+    {
+      "path": "independent-controls.result.json",
+      "bytes": 607,
+      "sha256": "41a94cf8c1c0fecbbdcfb691fae7bcf64302cf080e9eca3bbc9f165600a05b8f"
+    },
+    {
+      "path": "origin.review.test.ts",
+      "bytes": 1440,
+      "sha256": "72ecfb649d6350c508a8c0410d4fb88ae62d7daded779cbf9dd44fe5eb137d5c"
+    },
+    {
+      "path": "run_check.py",
+      "bytes": 1497,
+      "sha256": "270ce5768956c7313e1938ef98a3dbe7e97d1614ef905168a81458a46858b914"
+    },
+    {
+      "path": "source-preservation.json",
+      "bytes": 5943,
+      "sha256": "9d4d35703ccf69a824377423c1b2d8344949f9e98947acfe7f3195dfadd34a8e"
+    },
+    {
+      "path": "test-setup.review.ts",
+      "bytes": 149,
+      "sha256": "ae4b6b92c8c0f06526032b2dedeb4fb0e93b85af2a138a423386f2e36894a685"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "typecheck.result.json",
+      "bytes": 454,
+      "sha256": "c8af66f520825d28c133fe702d0c640f364b0109330198a8ca37e7b2b379253f"
+    },
+    {
+      "path": "verification.json",
+      "bytes": 3627,
+      "sha256": "3b9a0b2331364850e398007737e2a1d14e943710d649a3393bb39ea446855acd"
+    },
+    {
+      "path": "vitest-final.config.mts",
+      "bytes": 588,
+      "sha256": "162733f432ee270660e4ba44d6a75a948ba73c19da442ba086d1005517ed4978"
+    }
+  ],
+  "external_references": [
+    {
+      "path": "/workspace/.onboarding/goal-graph-ui-review/REVIEW.md",
+      "bytes": 5415,
+      "sha256": "2fe402fc75facd5a789fddbd54227cb73c38d3a70c6e76c971a62a707078aabc"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-ui-review/CHECKPOINT.json",
+      "bytes": 9529,
+      "sha256": "78ee3f0616647e299554b3590c7ab31bbdea26f8b02d7eab4c3c5df4c31db068"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-ui-review/root-native94157-evidence-audit.json",
+      "bytes": 3482,
+      "sha256": "04e931a3607e4d1ed40970ed2ce89209d7e1562cc1d7446b80f6f6d9677007ba"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-ui-review/native-preservation-f819.json",
+      "bytes": 3171,
+      "sha256": "34d9c37c070decec1d632464db0e73b2c4b1c357a71eec386cc5771de279d01f"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-owner5541-native94157/manifest.json",
+      "bytes": 12721,
+      "sha256": "dd76425e46e99fad9e6fdd58c17f232f992ffecde13b8cdb2bd002f546e4b325"
+    }
+  ]
+}

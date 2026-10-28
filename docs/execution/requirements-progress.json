@@ -1248,6 +1248,17 @@
           "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
         }
       ]
     },
@@ -1365,6 +1376,17 @@
           "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
         }
       ]
     },
@@ -1588,6 +1610,17 @@
           "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
         }
       ]
     },
@@ -1714,6 +1747,17 @@
           "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
         }
       ]
     },
@@ -1816,6 +1860,17 @@
           "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
         }
       ]
     },
@@ -1935,6 +1990,17 @@
           "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
         }
       ]
     },
@@ -3065,6 +3131,17 @@
           "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
         }
       ]
     },
@@ -4785,6 +4862,17 @@
           "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
         }
       ]
     },
@@ -4904,6 +4992,17 @@
           "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
         }
       ]
     },

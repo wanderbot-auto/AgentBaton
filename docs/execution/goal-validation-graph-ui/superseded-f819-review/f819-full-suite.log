@@ -1,0 +1,566 @@
+
+ RUN  v5.0.5 /workspace/.worktrees/goal-graph-ui-review/apps/desktop
+
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > is folded and does not read or preview until explicitly opened and selected 218ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > starts a bounded preview with exact project CAS and never copies on preview verification 86ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > requires separate native approval, observes creating then actual ready contract and notifies workspace refresh 95ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > is folded, selects only a real root grant, uses separate native Goal approval and never dispatches on approval 305ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > preserves selection on native decline and never advertises ready 54ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > stores exact raw plan, revises with explicit next CAS and preserves readonly history 175ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > keeps original preview key/payload/revision across remount, requires successful fresh read, never auto retries 118ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > does not discard earlier uncertainty when an exact-key recovery returns a not-started busy error 70ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > labels readiness candidates as readonly with real known counters and null token/cost never zero 69ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > shows historical unknown runtime/output blocked and keeps the actual shared consumed/active values 70ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > reconciles lost approval using an actual in-scope copy record without another native mutation 66ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > refuses foreign records and stale read revisions and disables new writes 63ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > retains editable scope draft after native PERMISSION_DENIED 91ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > ignores a callback from a previously selected project 23ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > refuses a stale empty list which silently drops previously observed immutable history 49ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > ignores a read from the earlier revision of the same project 19ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > retains editable scope draft after native INVALID_APPROVAL_PROPOSAL 88ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > uses observed preview cancellation CAS, preserves cancel-requested and never claims a copy was made 37ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > retains actual ready-after-cancel completion rather than relabeling it cancelled 44ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > retains exact native approval selection/key across remount and never automatically recovers mutations 129ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > resolves a lost cancel response from scoped terminal failure without claiming stop or allowing another partial copy 58ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > keeps historical/stale and archived previews readonly while existing cancellation remains available 45ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > retains failed copy evidence and refuses new copies or false empty-directory claims 41ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > retains outcome_unknown copy evidence and refuses new copies or false empty-directory claims 45ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > retains future_state copy evidence and refuses new copies or false empty-directory claims 52ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > retains original plan bytes/key/CAS across remount even if current history moved ahead 159ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > renders daemon error strings as text without interpreting HTML and keeps invalid forms local 56ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > refreshes the real Projects workspace list only after a valid ready record is observed 35ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > bounds automatic polling to twenty readonly observations and never retries mutations 31ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > invalidates earlier plan-recovery freshness after a later read failure 129ms
+ ✓ src/DataWorkspaces.test.tsx > DataWorkspace UI using mocked native/daemon transport, not real copy proof > blocks duplicate clicks synchronously while the request response is pending 31ms
+ ✓ src/DataWorkspaces.test.tsx > stale terminal copy across remount cannot clear a later unknown cancellation 57ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > invalidates earlier plan-recovery freshness after a later foreign scope 134ms
+ ✓ src/DataWorkspaces.test.tsx > only a fresh newer terminal receipt with the original historical project revision clears a remounted cancel intent 57ms
+ ✓ src/DataWorkspaces.test.tsx > acknowledged cancellation raises the read floor before refresh and retains it through remount until a newer receipt 73ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > does not submit duplicate/unknown authority JSON, unsafe integer, external or remote plan requests 161ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > refuses foreign/elevated scope {"task_id":"foreign"} 33ms
+ ✓ src/DataWorkspaces.test.tsx > does not borrow a same-preview copy from the wrong project revision to reconcile an unknown approval 75ms
+ ✓ src/DataWorkspaces.test.tsx > corrupt missing ready observation cannot trigger onReady or enable writing 19ms
+ ✓ src/DataWorkspaces.test.tsx > corrupt failed ready observation cannot trigger onReady or enable writing 18ms
+ ✓ src/DataWorkspaces.test.tsx > corrupt wrong-dataset ready observation cannot trigger onReady or enable writing 19ms
+ ✓ src/DataWorkspaces.test.tsx > corrupt partial ready observation cannot trigger onReady or enable writing 17ms
+ ✓ src/DataWorkspaces.test.tsx > corrupt error ready observation cannot trigger onReady or enable writing 17ms
+ ✓ src/DataWorkspaces.test.tsx > copy cannot borrow a different dataset than its available approved preview 17ms
+ ✓ src/DataWorkspaces.test.tsx > copy cannot borrow a different selection than its available approved preview 17ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > refuses foreign/elevated scope {"planning_only":false} 33ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > refuses authority-bearing or stale preview {"reservation_made":true} and blocks writes until refresh 61ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > refuses authority-bearing or stale preview {"dispatched":true} and blocks writes until refresh 70ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > refuses authority-bearing or stale preview {"read_only":false} and blocks writes until refresh 59ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > refuses authority-bearing or stale preview {"plan_revision":99} and blocks writes until refresh 59ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > revokes with exact scope revision and preserves historical plan snapshots without claiming workers stopped 74ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > recovers uncertain revocation by readonly fresh revoked scope and does not issue another write 74ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > disables live plan actions on stale specification/grant revisions and renders hostile text safely 55ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > requires a fresh read after a server CAS rejection before any further plan write 103ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > does not claim readiness from a foreign candidate or expired Goal authority 104ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > keeps Goal reads deferred until the user opens the scoped panel 21ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > recovers only the original approval key after a fresh read finds the root grant revoked 106ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > can settle the exact unknown plan request after scope revocation while refusing every new plan mutation 138ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > rejects latest malformed expiry undefined and clears prior preview/write freshness 102ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > rejects latest malformed expiry 9007199254740992 and clears prior preview/write freshness 106ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > refuses malformed blocked object before rendering and invalidates prior preview/write freshness 110ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > refuses malformed unknown dimension object before rendering and invalidates prior preview/write freshness 88ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > folds by default, approves in native workflow, runs once returning prepared and separately reads terminal observations 338ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > keeps payload editable after known pre-finalize refusal PERMISSION_DENIED without auto-run 95ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > retains exact historical recovery for a valid signed past expiry while refusing new actions 128ms
+ ✓ src/GoalPlanning.test.tsx > Goal UI with mocked native transport; not Core9/native dialog/dispatch proof > never reads or writes while disconnected and localizes the scoped Goal approval boundary 19ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > keeps payload editable after known pre-finalize refusal INVALID_APPROVAL_PROPOSAL without auto-run 88ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > refuses traversal before invoking approval and preserves unsupported strict requirements unchanged for server pre-spawn denial 127ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > retains exact unknown approval payload/key across remount and only recovers on manual action after reads 133ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > does not reuse an earlier successful reconciliation after read failure 107ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > does not reuse an earlier successful reconciliation after foreign scope 95ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > retains unknown run original key/revision and never silently submits a new key 109ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > reconciles the unique prepared run by read without replay, then requests cancellation independently of confirmed stop 137ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > preserves cancellation key/revision after uncertain transport and revokes only future policy use 145ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > refuses foreign/elevated historical record {"task_id":"foreign"} 35ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > refuses foreign/elevated historical record {"attempt_id":"foreign"} 35ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > refuses foreign/elevated historical record {"integration_authorized":true} 41ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > refuses foreign/elevated historical record {"task_acceptance":"accepted"} 41ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > refuses foreign/elevated historical record {"correctness":"scientifically_correct"} 40ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > keeps unknown execution fenced and never turns cancellation or future enums into success 76ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > starts folded and prepares actual bound scope fields without changing or submitting the original text 289ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > reading valid JSON is opaque until a real edit and explicit apply; it never normalizes it on expansion/load 91ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > renders failed/unknown evidence as text, and does not execute output, argv or error markup 57ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > disables writes after specification changes/disconnect and excludes running/foreign sessions 64ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > restores unknown run intent after unmount without an automatic mutation 112ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > applies structured changes to the original GoalPlanning draft and invokes its existing real API boundary only on separate store 181ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > prepares a next version from latest without modifying history or changing the plan ID/acceptance 50ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > does not crash or retain write freshness after malformed policy/record reads 80ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > shows a pre-spawn refusal without fabricating a running process, captured output or stop proof 42ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > refuses silent overwrite when a newer stored version or the raw JSON changes 66ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > does not guess legacy metadata, invalid rule kinds or missing output paths 42ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > honors disabled/pending/revoked authority without replacing the advanced original raw path 40ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > reconciles an uncertain cancellation after a scoped terminal pre-spawn failure without claiming stop evidence 81ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > retains unsafe numeric text and forbids apply instead of rounding a u64 budget 59ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > does not release uncertain cancellation on a stale terminal read 120ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > does not release uncertain cancellation on a foreign terminal read 132ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > adds a real owner review node with a candidate input edge and preserves exact rule selection 175ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > does not release uncertain cancellation on a read failure terminal read 107ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > does not remove a referenced node or create a dependency cycle 122ms
+ ✓ src/CommandValidation.test.tsx > Fixed command UI using mocked Tauri-facing transport, not native execution evidence > bounds asynchronous observation at70read polls and never automatically runs/cancels 244ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > supports focusable summary and keyboard button/input editing after native disclosure 178ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > rejects duplicate raw JSON without modifying the original and handles malformed metadata safely 51ms
+ ✓ src/GoalPlanEditor.test.tsx > same-model Goal step editor, mocked transport only > validates a prefix boundary and scope maximum nodes before any parent draft change 52ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > refuses missing editing metadata 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > refuses invalid-kind editing metadata 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > refuses foreign-output editing metadata 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > refuses missing-path editing metadata 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > refuses unsafe-max editing metadata 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > rejects acceptance without constructing a second DSL or changing authority 1ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > rejects budget without constructing a second DSL or changing authority 1ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > rejects reservation without constructing a second DSL or changing authority 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > rejects recipients without constructing a second DSL or changing authority 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > rejects input-hash without constructing a second DSL or changing authority 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > rejects output-contract without constructing a second DSL or changing authority 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > rejects write-prefix without constructing a second DSL or changing authority 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > rejects cycle without constructing a second DSL or changing authority 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > rejects kind without constructing a second DSL or changing authority 1ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > rejects missing-output without constructing a second DSL or changing authority 0ms
+ ✓ src/GoalPlanEditor.test.tsx > editor semantic boundary on the same public proposal > accepts an exact existing public model and leaves its bytes/value untouched 1ms
+ ✓ src/GoalPlanEditor.test.tsx > removing node a retains unsafe numeric text owned by node a.b 116ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > is folded by default and only reads dedicated namespaces before explicit native approval and separate run 408ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > retains form on native denial, and rejects unsafe integer form values without a second invoke 185ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > approves only selected contracts, then separately runs and renders real returned evidence without task acceptance 413ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > rejects traversal and missing metadata before proposing any authority 146ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > retains selection on native decline and never retries, runs or fabricates a policy 101ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > retains exact unknown approval payload/key across unmount and does not mutate on reconciliation 155ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > holds unknown approval intent and exact key until an explicit same-request retry after refresh 120ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > invalidates earlier retry freshness after a later read failure 152ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > blocks same-request replay after a later read failure until another successful reconciliation 144ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > blocks same-request replay after a later foreign scope until another successful reconciliation 162ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > invalidates earlier retry freshness after a later foreign scope 188ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > preserves unknown selection and idempotency key across tab-style unmount/remount 132ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > keeps an unknown run key and original revision after reconciliation returns a newer policy 117ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > holds an unknown run key without automatic retry and reuses its original policy revision 88ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > excludes running/foreign-task/foreign-project sessions and refuses traversal before invoking native approval 99ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > never carries pending intent into another task, then restores its original payload when returning 169ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > rejects foreign/elevated record {"task_id":"foreign"} without showing success 41ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > renders failed server evidence and malicious path text without interpreting markup or opening files 38ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > revokes future checks with the exact revision while preserving existing receipts 52ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > rejects foreign/elevated record {"integration_authorized":true} without showing success 36ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > rejects foreign/elevated record {"correctness":"algorithm_correct"} without showing success 34ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > rejects foreign/elevated record {"task_acceptance":"accepted"} without showing success 30ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > localizes warnings, refuses stale policy runs and never mutates while disconnected 52ms
+ ✓ src/ArtifactValidation.test.tsx > Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence) > shows lease/stop denial without treating a failed session label as confirmed stop evidence 80ms
+ ✓ src/ArtifactValidation.test.tsx > Integrity history scope checks with mocked transport > rejects a foreign-task record instead of showing another task history 13ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > renders unknown states and failure pointers as text without executing HTML or interpreting future states as success 52ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > selects only stopped/failed matching task/project sessions and keeps stale/foreign policy runs disabled 50ms
+ ✓ src/ArtifactValidation.test.tsx > Integrity history scope checks with mocked transport > rejects same-task elevated authority {"integration_authorized":true} independently 14ms
+ ✓ src/ArtifactValidation.test.tsx > Integrity history scope checks with mocked transport > rejects same-task elevated authority {"task_acceptance":"accepted"} independently 13ms
+ ✓ src/ArtifactValidation.test.tsx > Integrity history scope checks with mocked transport > labels unknown record and artifact states without presenting them as passing or elevating authority 31ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > revokes with exact revision and preserves historical receipts; unknown revoke reconciles without auto-replay 100ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > rejects foreign/unsupported policy {"task_id":"other-task"} and does not reuse an earlier good read 87ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > rejects foreign/unsupported policy {"project_id":"other-project"} and does not reuse an earlier good read 74ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > rejects foreign/unsupported policy {"validator_id":"future.validator"} and does not reuse an earlier good read 70ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > does not turn a foreign approval response into success or discard its uncertain intent 88ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > allows labelled column editing and keeps sample scope and limitation explicit in the submitted contract 201ms
+ ✓ src/DataContractValidation.test.tsx > Data contract UI with mocked native transport; no real Provider/native owner proof > disables all mutations while disconnected and localizes the default-folded warnings 29ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > starts folded and reads scoped history only on expansion, with no automatic mutation 175ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > reads a fresh exact ledger and sends only the independent native execution selection once 46ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > does not offer execution of a mismatched or unvalidated stored plan scope 24ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > does not offer execution of a mismatched or unvalidated stored plan state 24ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > does not offer execution of a mismatched or unvalidated stored plan dispatched 24ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > does not offer execution of a mismatched or unvalidated stored plan input 25ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > a declined native dialog clears only a definitely not-started intent and never claims a run 43ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > rejects stale or authority-bearing preapproval preview {"scope_id":"foreign"} 39ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > rejects stale or authority-bearing preapproval preview {"plan_revision":3} 41ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > rejects stale or authority-bearing preapproval preview {"read_only":false} 43ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > rejects stale or authority-bearing preapproval preview {"reservation_made":true} 28ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > rejects stale or authority-bearing preapproval preview {"dispatched":true} 28ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > rejects stale or authority-bearing preapproval preview {"journal_sequence":9007199254740992} 31ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > rejects stale or authority-bearing preapproval preview {"decision":{"plan_digest":"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","expected_plan_revision":1,"expected_ledger_revision":12,"admissions":[],"blocked":{},"required_checks_satisfied":false,"requires_atomic_store_commit":true}} 41ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > retains the exact approval key/selection across remount and only explicitly recovers after a fresh scoped read 80ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > retains a missing acknowledgement even if another matching run appears, rather than inventing its request receipt 59ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > does not discard cancellation version floors on remount or accept a stale/changed terminal revision2 88ms
+ ✓ src/GoalGraphExecution.test.tsx > stays folded and performs only readonly typed-mode reads after expansion 246ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > does not discard cancellation version floors on remount or accept a stale/changed terminal revision3 93ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > retains an uncertain cancellation when the global ledger regresses despite a newer run revision 79ms
+ ✓ src/GoalGraphExecution.test.tsx > keeps graph approval separate from legacy and preserves exact plan/ledger/key once 110ms
+ ✓ src/GoalGraphExecution.test.tsx > blocks a new graph run while an old independent run still has unresolved acceptance 70ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > displays a candidate and unknown measurements separately from declared reservations without Task acceptance 49ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > blocks new actions when detail evidence is foreign 17ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > blocks new actions when detail evidence is accepted 20ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > blocks new actions when detail evidence is unjoined 16ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > an unsupported runtime state remains unknown and cannot unlock approval or fabricate a cancellation action 23ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > holds a pending scope across scope navigation and does not send its recovery into another scope 44ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > uses an in-flight guard while preparing a native approval and never submits twice 31ms
+ ✓ src/GoalGraphExecution.test.tsx > offers only fixed Owner actions for current exact pending node and does not accept a candidate 117ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > pauses bounded automatic readonly polling without retrying mutations 59ms
+ ✓ src/GoalExecution.test.tsx > Goal execution UI, mocked transport > keeps the Chinese execution boundary and no-acceptance copy 21ms
+ ✓ src/GoalGraphExecution.test.tsx > separates explicit Reject from a cancelled approval and retains a lost rejection exact request on remount 151ms
+ ✓ src/GoalExecution.test.tsx > explicit same-scope persisted plan adoption > adopts only the newer persisted validated plan using the freshly read run/ledger, no second Owner dialog 48ms
+ ✓ src/GoalExecution.test.tsx > explicit same-scope persisted plan adoption > recovers an uncertain adoption with exactly the same plan/ledger/key/run revision and retains old history 65ms
+ ✓ src/GoalExecution.test.tsx > explicit same-scope persisted plan adoption > cannot adopt when active 19ms
+ ✓ src/GoalGraphExecution.test.tsx > blocks Owner mutation on unsupported or mismatched evidence future-kind 52ms
+ ✓ src/GoalGraphExecution.test.tsx > blocks Owner mutation on unsupported or mismatched evidence unknown-node 43ms
+ ✓ src/GoalGraphExecution.test.tsx > blocks Owner mutation on unsupported or mismatched evidence unknown-validation 56ms
+ ✓ src/GoalExecution.test.tsx > explicit same-scope persisted plan adoption > cannot adopt when unknown 24ms
+ ✓ src/GoalExecution.test.tsx > explicit same-scope persisted plan adoption > cannot adopt when cancelled 19ms
+ ✓ src/GoalExecution.test.tsx > explicit same-scope persisted plan adoption > cannot adopt when foreign-latest 17ms
+ ✓ src/GoalExecution.test.tsx > explicit same-scope persisted plan adoption > cannot adopt when unvalidated 20ms
+ ✓ src/GoalGraphExecution.test.tsx > blocks Owner mutation on unsupported or mismatched evidence foreign-scope 32ms
+ ✓ src/GoalGraphExecution.test.tsx > blocks Owner mutation on unsupported or mismatched evidence rolled-ledger 33ms
+ ✓ src/GoalGraphExecution.test.tsx > disables recovery across a different scope without sending the old node authority 89ms
+ ✓ src/GoalGraphExecution.test.tsx > keeps validated-plan adoption separate and recovers the original old/new plan CAS and key after a lost reply 141ms
+ ✓ src/GoalGraphExecution.test.tsx > does not adopt unsaved or unvalidated local plan drafts 57ms
+ ✓ src/GoalGraphExecution.test.tsx > rechecks current exact Owner evidence and refuses a click when fresh read has ledger drift 83ms
+ ✓ src/GoalGraphExecution.test.tsx > rechecks current exact Owner evidence and refuses a click when fresh read has node-fork drift 80ms
+ ✓ src/GoalGraphExecution.test.tsx > keeps a missing graph run floor blocked rather than interpreting an empty list as fresh execution authority 88ms
+ ✓ src/GoalGraphExecution.test.tsx > prevents the reverse legacy mode from issuing a new approval until typed graph history is current and closed 42ms
+ ✓ src/GoalGraphExecution.test.tsx > does not release approval in either mode when a cancelled summary conceals unknown node effects despite owned stop 63ms
+ ✓ src/GoalGraphExecution.test.tsx > does not enable Owner review from a validator that claims validated without a joined receipt 56ms
+ ✓ src/GoalGraphExecution.test.tsx > reconciles a consumed exact-key adoption receipt without rolling a newer observed run or ledger backwards 169ms
+ ✓ src/GoalGraphExecution.test.tsx > keeps a malformed future plan readable without crashing or exposing an execution authority action 37ms
+ ✓ src/GoalGraphExecution.test.tsx > does not unlock Owner review using artifact identities rounded by the renderer JSON parser 32ms
+ ✓ src/GoalGraphExecution.test.tsx > preserves a safe cancellation request from a trusted summary when unsafe artifact detail blocks Owner trust 71ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > keeps grant controls unavailable until the actual scope response resolves 174ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > rejects execution durations beyond the core one-hour limit and submits the exact accepted boundary 249ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > preserves the selection and does not register again when native owner confirmation is declined 153ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > explicitly registers only the user-selected program and keeps probe/account evidence distinct 256ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > accepts a joined cancellation before reserve or after a failed partial-copy observation 4ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt missing 1ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt null 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt not_scheduled 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt interrupted_no_join_receipt 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt unknown 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt object 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt no-cancel 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt ready-contract 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt no-error 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt wrong-error 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt uncertain-error 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses contradictory cancelled receipt ready-observation 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > preserves valid legacy-ready without inferring cancellation or private witness 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > preserves valid null-ready without inferring cancellation or private witness 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > preserves valid joined-ready without inferring cancellation or private witness 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > preserves valid joined-failed without inferring cancellation or private witness 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > preserves valid joined-unknown without inferring cancellation or private witness 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > preserves valid unscheduled-failed without inferring cancellation or private witness 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > preserves valid interrupted-unknown without inferring cancellation or private witness 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > preserves valid legacy-cancel-failed without inferring cancellation or private witness 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses malformed completion unknown-io instead of advertising ready 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses malformed completion active-joined instead of advertising ready 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses malformed completion ready-unscheduled instead of advertising ready 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses malformed completion ready-interrupted instead of advertising ready 0ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > readonly owned-copy completion DTO, mocked transport > refuses malformed completion observed-unscheduled instead of advertising ready 0ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > native selection drops custom argv and requests the selected route without an approval claim 260ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > requires explicit acknowledgement after showing exact recipient and writable scope 95ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > creates a session bound to an existing task and backend grant without sending a prompt 114ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > copy cancellation evidence and reconciliation, not real I/O stop proof > settles a fresh joined cancellation, stops polling, retains partial output and requires new explicit preview/approval 314ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > copy cancellation evidence and reconciliation, not real I/O stop proof > retains an exact cancel intent for a legacy failed cancellation with no join receipt 114ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > keeps sent prompts, completion and cancellation request semantics separate 254ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > copy cancellation evidence and reconciliation, not real I/O stop proof > does not clear pending floors or notify ready on stale 93ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > copy cancellation evidence and reconciliation, not real I/O stop proof > does not clear pending floors or notify ready on foreign-project 80ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > blocks replay after an uncertain send and retains the unsent draft for review 139ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > does not offer expired, revoked or differently scoped grants for session creation 53ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > rejects stale session projections and deduplicates idempotent create responses 1ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > copy cancellation evidence and reconciliation, not real I/O stop proof > does not clear pending floors or notify ready on wrong-project-revision 95ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > copy cancellation evidence and reconciliation, not real I/O stop proof > does not clear pending floors or notify ready on malformed-io 80ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > copy cancellation evidence and reconciliation, not real I/O stop proof > does not clear pending floors or notify ready on contradictory-ready 79ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > copy cancellation evidence and reconciliation, not real I/O stop proof > keeps a ready cancellation race ready without reporting cancellation success 65ms
+ ✓ src/DataWorkspaces.cancelled.test.tsx > copy cancellation evidence and reconciliation, not real I/O stop proof > retains the distinct preview-cancelled wording 19ms
+ ✓ src/SessionWorkbench.test.tsx > Named connection and managed-session UI using mocked transport > keeps observing an idle ready process and disables sending after the daemon stops it 1042ms
+ ✓ src/App.test.tsx > Task workspace using mocked Tauri transport > binds task drafts to an explicitly selected active project and disables archived projects 385ms
+ ✓ src/App.test.tsx > Task workspace using mocked Tauri transport > shows a disconnected error and never inserts demonstration tasks 81ms
+ ✓ src/App.test.tsx > Task workspace using mocked Tauri transport > creates a task through the API and preserves cancellation-request semantics 412ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > rejects terminal cancelled hiding unknown effects even after owned stop 4ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > rejects terminal failed hiding unknown effects even after owned stop 1ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > rejects terminal awaiting_acceptance hiding unknown effects even after owned stop 1ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > rejects terminal cancelled hiding unsupported historical node states 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > rejects terminal failed hiding unsupported historical node states 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > rejects terminal awaiting_acceptance hiding unsupported historical node states 1ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > keeps a future node state readable in a blocked run without treating no attempt as a known safe effect 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > keeps truthful outcome_unknown readable, owned stop=false never makes effects known 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > keeps truthful outcome_unknown readable, owned stop=true never makes effects known 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > does not manufacture known candidate evidence without an attempt 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > does not manufacture known cancelled evidence without an attempt 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > does not manufacture known failed evidence without an attempt 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > requires not_started to have no attempted session or stop claim 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > permits a known stopped candidate plus never-started owner node, preserving the ordinary adoption path 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > known lifecycle and unknown-effect evidence, not server authority > does not infer an advance capability from an unsupported run state either 0ms
+ ✓ src/GoalExecution.evidence.test.tsx > actual component adversarial response controls, mocked transport > a contradictory cancelled record with unknown effects cannot enable a new native approval 195ms
+ ✓ src/GoalExecution.evidence.test.tsx > actual component adversarial response controls, mocked transport > a future node state stays visible but cannot unlock adoption of another validated plan 53ms
+ ✓ src/GoalExecution.evidence.test.tsx > actual component adversarial response controls, mocked transport > a real cancellation acknowledgement resolves only its request intent while unknown effects remain blocked and visible 73ms
+ ✓ src/App.test.tsx > Task workspace using mocked Tauri transport > reuses the create idempotency key after an uncertain outcome 327ms
+ ✓ src/App.test.tsx > Task workspace using mocked Tauri transport > switches language and exposes navigation and unknown states as text 97ms
+ ✓ src/GoalExecution.evidence.test.tsx > actual component adversarial response controls, mocked transport > does not clear an uncertain cancel intent from contradictory stopped history across remount 110ms
+ ✓ src/GoalExecution.evidence.test.tsx > actual component adversarial response controls, mocked transport > retains the exact uncertain adoption while future history is unsupported, without automatic recovery or another key 123ms
+ ✓ src/App.test.tsx > Task workspace using mocked Tauri transport > renders native event payload as text without interpreting injected markup 86ms
+ ✓ src/App.test.tsx > Task workspace using mocked Tauri transport > opens the newest event window beyond 100 events and explicitly pages older history 230ms
+ ✓ src/App.test.tsx > Task workspace using mocked Tauri transport > shows byte-limited history honestly and follows the returned cursor without accumulating large pages 90ms
+ ✓ src/App.test.tsx > Task workspace using mocked Tauri transport > keeps authenticated task cancellation available when only history is resource-limited 113ms
+ ✓ src/App.test.tsx > bounds accumulated history by bytes and explains that records remain in the local journal 217ms
+ ✓ src/App.test.tsx > labels byte-limited backend pages without claiming complete displayed history 57ms
+ ✓ src/App.test.tsx > keeps authenticated task controls available when a single oversized journal record is refused 97ms
+ ✓ src/QuietCanvas.test.tsx > Quiet Canvas product UI with mocked transport > includes a closed details summary at the dialog focus boundary and excludes its hidden content 316ms
+ ✓ src/QuietCanvas.test.tsx > Quiet Canvas product UI with mocked transport > renders unknown prototype-named states as data without interpreting inherited object properties 63ms
+ ✓ src/QuietCanvas.test.tsx > Quiet Canvas product UI with mocked transport > filters actual records and opens a focused task instead of a permanent inspector 224ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > sends exact original plan text and outer CAS without normalization or authority flags 8ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > separates native scope approval/read/revoke from plan history and readonly preview 4ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses duplicate JSON keys before they are lost: {"a":1,"a":2} 2ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses duplicate JSON keys before they are lost: {"n":{"x":1,"x":2}} 1ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses duplicate JSON keys before they are lost: {"a":1,"\u0061":2} 1ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses unsafe/noninteger plan literal 9007199254740993 1ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses unsafe/noninteger plan literal 9007199254740991.1 0ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses unsafe/noninteger plan literal 1e3 0ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses unsafe/noninteger plan literal -1 1ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses unsafe/noninteger plan literal NaN 0ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses unsafe/noninteger plan literal Infinity 0ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses malformed/trailing JSON, excess depth and raw UTF8 byte bounds 2ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > rejects nested unknown authority fields rather than dropping them 2ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > supports multiple versioned nodes, while external/production/remote proposals are never sent 3ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > pins plan/scope authority revision and CAS without changing the original plan identity 2ms
+ ✓ src/goal-api.test.ts > Goal strict raw transport and proposal checks; mocked native transport > refuses scope grant expansion, traversal, unsafe integers and invalid validator references 1ms
+ ✓ src/QuietCanvas.test.tsx > Quiet Canvas product UI with mocked transport > traps dialog keyboard focus, closes with Escape and restores its opener 199ms
+ ✓ src/QuietCanvas.test.tsx > Quiet Canvas product UI with mocked transport > previews only a chosen quick-context summary then creates a real draft without model replies 539ms
+ ✓ src/QuietCanvas.test.tsx > Quiet Canvas product UI with mocked transport > keeps an uncertain task-composer send blocked and preserves the exact user text 360ms
+ ✓ src/GoalPlanning.local-project.test.tsx > reserved personal project Goal prerequisites, mocked transport > explains the personal prerequisite in en without impossible reads or Goal actions 175ms
+ ✓ src/GoalPlanning.local-project.test.tsx > reserved personal project Goal prerequisites, mocked transport > explains the personal prerequisite in zh without impossible reads or Goal actions 21ms
+ ✓ src/GoalPlanning.local-project.test.tsx > reserved personal project Goal prerequisites, mocked transport > keeps personal prerequisites non-failing across connection changes and reopening 40ms
+ ✓ src/GoalPlanning.local-project.test.tsx > reserved personal project Goal prerequisites, mocked transport > preserves genuine registered-project read failure: Error: Registered project no longer exists 59ms
+ ✓ src/GoalPlanning.local-project.test.tsx > reserved personal project Goal prerequisites, mocked transport > preserves genuine registered-project read failure: Error: Registered project connection unavailable 45ms
+ ✓ src/GoalPlanning.local-project.test.tsx > reserved personal project Goal prerequisites, mocked transport > keeps a successful empty registered-project read distinct from personal readiness 52ms
+ ✓ src/GoalPlanning.local-project.test.tsx > reserved personal project Goal prerequisites, mocked transport > preserves an exact registered pending approval across navigation through a personal task 191ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > sends only an explicit bounded selection and fixed IDs to the dedicated namespace 6ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > keeps reads/run/revoke separate, with exact policy revision and no auto-retry 3ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > rejects unsafe or oversized path ../escape 1ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > rejects unsafe or oversized path /secret 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > rejects unsafe or oversized path a/../b 1ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > rejects unsafe or oversized path ./b 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > rejects unsafe or oversized path a//b 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > rejects unsafe or oversized path C:\a 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > rejects unsafe or oversized path a\b 1ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > rejects unsafe or oversized path bad name 1ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > rejects unsafe or oversized path 中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > requires fixed SHA inputs and unique input/output paths across all roles 1ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > never silently rounds count or seed 9007199254740992 1ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > never silently rounds count or seed 9007199254740993 1ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > never silently rounds count or seed 9007199254740991.1 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > never silently rounds count or seed 1e3 1ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > never silently rounds count or seed -1 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > never silently rounds count or seed NaN 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > never silently rounds count or seed  0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > supports exact safe signed integer bounds and maximum safe seed, refusing unsafe integer min 1ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > refuses non-finite or non-JSON number bound  0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > refuses non-finite or non-JSON number bound NaN 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > refuses non-finite or non-JSON number bound Infinity 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > refuses non-finite or non-JSON number bound 1e999 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > refuses non-finite or non-JSON number bound 0xFF 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > enforces column names, uniqueness, numeric units and string bounds 2ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > preserves prototype-named numeric units as own data and finite binary64 semantics 0ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > enforces full/sample population limits without silently upgrading sample scope 1ms
+ ✓ src/data-validation-api.test.ts > Data contract transport and form bounds; mocked Tauri, not native authority > enforces every read bound, input count, total bytes and explicit selection snapshot 2ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > reads generated current and historical candidate evidence without declaring acceptance 4ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects malformed or mismatched run summary version 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects malformed or mismatched run summary foreignscope 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects malformed or mismatched run summary foreignroot 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects malformed or mismatched run summary ledger 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects malformed or mismatched run summary accepted 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects malformed or mismatched run summary cancelled 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects broken candidate and original artifact binding attempt 1ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects broken candidate and original artifact binding hash 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects broken candidate and original artifact binding bytes 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects broken candidate and original artifact binding root 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects broken candidate and original artifact binding path 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects broken candidate and original artifact binding pin 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects broken candidate and original artifact binding origin 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects broken candidate and original artifact binding missing 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects unsafe artifact identities before trusting a renderer projection 0ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > allows future execution state for display but does not mark the view supported 1ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > rejects ledger rollback, same revision fork and changed original plan digest 8ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > retains original candidate bytes and attempt history across plan adoption 2ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > does not allow a newer global ledger to conceal changed same-CAS result evidence 1ms
+ ✓ src/goal-graph-guards.test.ts > Goal graph draft DTO guards; generated fixtures only > checks exact Owner action receipt references and never promotes rejection into acceptance 0ms
+ ✓ src/goal-graph-guards.test.ts > requires the complete accepted receipt and exact criterion decisions instead of graph status booleans 2ms
+ ✓ src/goal-graph-guards.test.ts > rejects unsafe or invalid file pin device instead of treating rounded JSON as exact evidence 0ms
+ ✓ src/goal-graph-guards.test.ts > rejects unsafe or invalid file pin inode instead of treating rounded JSON as exact evidence 0ms
+ ✓ src/goal-graph-guards.test.ts > rejects unsafe or invalid file pin bytes instead of treating rounded JSON as exact evidence 0ms
+ ✓ src/goal-graph-guards.test.ts > rejects unsafe or invalid file pin uid instead of treating rounded JSON as exact evidence 0ms
+ ✓ src/goal-graph-guards.test.ts > rejects unsafe or invalid file pin gid instead of treating rounded JSON as exact evidence 0ms
+ ✓ src/goal-graph-guards.test.ts > rejects unsafe or invalid file pin mode instead of treating rounded JSON as exact evidence 0ms
+ ✓ src/goal-graph-guards.test.ts > rejects unsafe or invalid file pin mtime instead of treating rounded JSON as exact evidence 0ms
+ ✓ src/goal-graph-guards.test.ts > rejects unsafe or invalid file pin mtime_nsec instead of treating rounded JSON as exact evidence 0ms
+ ✓ src/goal-graph-guards.test.ts > rejects unsafe or invalid file pin ctime instead of treating rounded JSON as exact evidence 0ms
+ ✓ src/goal-graph-guards.test.ts > rejects unsafe or invalid file pin ctime_nsec instead of treating rounded JSON as exact evidence 0ms
+ ✓ src/goal-graph-guards.test.ts > enforces signed seconds, nanosecond and unsigned pin ranges without changing wire values 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > sends only selected relative files and limits, never roots or permission claims 4ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > refuses unsafe relative path /absolute 1ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > refuses unsafe relative path ../parent 1ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > refuses unsafe relative path a/../parent 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > refuses unsafe relative path a\b 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > refuses unsafe relative path C:/file 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > refuses unsafe relative path a//b 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > refuses unsafe relative path a/./b 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > rejects duplicate/case/ancestor aliases a
+A 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > rejects duplicate/case/ancestor aliases a
+a-b
+a/c 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > rejects duplicate/case/ancestor aliases a/c
+a 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > rejects duplicate/case/ancestor aliases same
+same 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > does not round or exceed supported file bound 9007199254740993 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > does not round or exceed supported file bound 1.5 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > does not round or exceed supported file bound 0 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > does not round or exceed supported file bound 67108865 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > does not round or exceed supported file bound 01 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > rejects archived/Git selections and malformed SHA 0ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > preserves real canonical sorted observations and inputs/ destination prefix 1ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > requires in-scope verified snapshots and actual ready contracts with honest enforcement 1ms
+ ✓ src/data-workspace-api.test.ts > data workspace typed API, mocked native transport only > uses fixed native commands and exact CAS/key for preview, approval and cancellations 1ms
+ ✓ src/data-workspace-api.test.ts > refuses contradictory missing observation before ready UI 0ms
+ ✓ src/data-workspace-api.test.ts > refuses contradictory failed observation before ready UI 0ms
+ ✓ src/data-workspace-api.test.ts > refuses contradictory foreign-dataset observation before ready UI 0ms
+ ✓ src/data-workspace-api.test.ts > refuses contradictory wrong-destination observation before ready UI 0ms
+ ✓ src/data-workspace-api.test.ts > refuses contradictory partial observation before ready UI 0ms
+ ✓ src/data-workspace-api.test.ts > accepts the full public ready receipt as historical data after the project changes 0ms
+ ✓ src/data-workspace-api.test.ts > refuses contradictory selection public fields without minting a private copy witness 0ms
+ ✓ src/data-workspace-api.test.ts > refuses contradictory contract-snapshot public fields without minting a private copy witness 0ms
+ ✓ src/data-workspace-api.test.ts > refuses contradictory copied-input public fields without minting a private copy witness 0ms
+ ✓ src/data-workspace-api.test.ts > refuses contradictory record-error public fields without minting a private copy witness 0ms
+ ✓ src/data-workspace-api.test.ts > refuses contradictory observation-error public fields without minting a private copy witness 0ms
+ ✓ src/data-workspace-api.test.ts > keeps legal sixteen-component sources and their seventeen-component inputs/ destinations distinct 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > sends only the proposal selection, never a program hash/root/subject or renderer approval claim 4ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > uses seven dedicated native commands and exact policy/run revision and fixed keys 3ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > pins script bytes separately while preserving literal argv, empty arguments and constant-only environment 1ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > refuses unsupported environment value API_KEY=secret 1ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > refuses unsupported environment value secret 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > refuses unsupported environment value en_US.UTF-8
+PRIVATE_KEY=anything 1ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects unsafe path ../escape and duplicate roles before native approval 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects unsafe path /private/file and duplicate roles before native approval 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects unsafe path a/../b and duplicate roles before native approval 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects unsafe path ./b and duplicate roles before native approval 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects unsafe path a//b and duplicate roles before native approval 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects unsafe path C:\file and duplicate roles before native approval 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects unsafe path a\b and duplicate roles before native approval 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects unsafe path name .txt and duplicate roles before native approval 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects unsafe path 中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中中 and duplicate roles before native approval 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > requires fixed hashes, bounded input/output counts and unique roles 1ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects numeric bound wall=0 without rounding 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects numeric bound wall=60001 without rounding 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects numeric bound cleanup=1001 without rounding 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects numeric bound stdout=65537 without rounding 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects numeric bound stderr=-1 without rounding 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects numeric bound cap=4194305 without rounding 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects numeric bound wall=9007199254740993 without rounding 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects numeric bound exits=256 without rounding 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects numeric bound exits=0,0 without rounding 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > rejects numeric bound wall=1e3 without rounding 0ms
+ ✓ src/command-validation-api.test.ts > Command native contracts with mocked invoke, not execution authority > enforces UTF8 argument/total-file/selection budgets without truncation 1ms
+ ✓ src/Projects.test.tsx > Project management using mocked Tauri transport > imports only an explicitly entered source and selects its returned identity 337ms
+ ✓ src/Projects.test.tsx > Project management using mocked Tauri transport > shows observed dirty identity and creates a separate workspace without a renderer destination 70ms
+ ✓ src/Projects.test.tsx > Project management using mocked Tauri transport > reports conflict without changing the displayed project identity 132ms
+ ✓ src/Projects.test.tsx > Project management using mocked Tauri transport > shows unknown workspace outcome and prevents another creation 53ms
+ ✓ src/Projects.test.tsx > Project management using mocked Tauri transport > archives metadata only and makes archived operations unavailable 42ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > uses only five fixed commands and never sends dispatch/finalize/authority fields 3ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses malformed or foreign run task 1ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses malformed or foreign run project 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses malformed or foreign run scope 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses malformed or foreign run grant 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses malformed or foreign run revision 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses malformed or foreign run digest 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses malformed or foreign run accepted 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses malformed or foreign run cancel 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > preserves null observations separately from reservation and refuses non-finite values 1ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses contradictory runtime view empty 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses contradictory runtime view foreign-workspace 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses contradictory runtime view active-stopped 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses contradictory runtime view cancel-unjoined 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses contradictory runtime view failed-unjoined 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses contradictory runtime view accepted 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses contradictory runtime view wrong-kind 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses contradictory runtime view missing-meter 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses contradictory runtime view duplicate 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > refuses same-revision state/cancellation changes and changed creation identity 0ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > retains more than256 historical nodes across revisions without truncating valid bounded history 8ms
+ ✓ src/goal-execution-api.test.ts > fixed Goal runtime renderer references > keeps full cross-revision node histories distinct and enforces digest/version floors 0ms
+ ✓ src/validation-api.test.ts > Artifact integrity narrow transport (mocked invoke, not native evidence) > approval sends selected relative contracts without roots, approval flags or resolved subject 4ms
+ ✓ src/validation-api.test.ts > Artifact integrity narrow transport (mocked invoke, not native evidence) > list/run/revoke use exact camelCase native arguments and no authority roundtrip 1ms
+ ✓ src/validation-api.test.ts > Artifact integrity narrow transport (mocked invoke, not native evidence) > native denial and unknown outcomes propagate without retry 3ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > supports Unicode/space paths and fixed SHA inputs with separate IDs 1ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > refuses unsafe path ../escape before transport 0ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > refuses unsafe path /private/file before transport 0ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > refuses unsafe path nested/../escape before transport 0ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > refuses unsafe path ./report before transport 0ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > refuses unsafe path a//b before transport 0ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > refuses unsafe path C:\secret before transport 0ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > refuses unsafe path a\b before transport 0ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > refuses unsafe path report .txt before transport 0ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > refuses duplicate paths, missing input digest and malformed digest 1ms
+ ✓ src/validation-api.test.ts > Bounded artifact form parsing (usability checks, not filesystem authorization) > enforces combined count, UTF-8 path budget and integer per-file cap 0ms
+ ✓ src/GoalGraphExecutionHistory.test.tsx > presents exact candidate artifacts as evidence while leaving Task acceptance pending 212ms
+ ✓ src/GoalGraphExecutionHistory.test.tsx > requires a trusted matching accepted Task projection as well as versioned graph acceptance 53ms
+ ✓ src/GoalGraphExecutionHistory.test.tsx > keeps unknown states and observed usage distinct from confirmation of effects 34ms
+ ✓ src/GoalGraphExecutionHistory.test.tsx > renders untrusted goals and artifact metadata as text and never opens their paths 23ms
+ ✓ src/event-window.test.ts > byte-bounded visible event history > preserves order and input arrays while the combined window fits 3ms
+ ✓ src/event-window.test.ts > byte-bounded visible event history > bounds large Unicode records by encoded bytes rather than count or UTF-16 length 26ms
+ ✓ src/event-window.test.ts > byte-bounded visible event history > keeps the existing count bound without silently slicing away the requested older page 2ms
+ ✓ src/event-window.test.ts > byte-bounded visible event history > rejects an invalid oversized incoming page while leaving the existing window untouched 31ms
+ ✓ src/event-window.test.ts > bounded visible journal window > continues to older pages when the current record-count window is full 1ms
+ ✓ src/event-window.test.ts > bounded visible journal window > replaces the view with the requested older page before large Unicode records accumulate 26ms
+ ✓ src/goal-graph-api.test.ts > Goal graph fixed Native transport, mocked Tauri > sends independent graph approval references without renderer authority fields 4ms
+ ✓ src/goal-graph-api.test.ts > Goal graph fixed Native transport, mocked Tauri > keeps node and graph proposal kinds separate and includes exact run CAS 1ms
+ ✓ src/goal-graph-api.test.ts > Goal graph fixed Native transport, mocked Tauri > uses a separate fixed Owner reject command and never a renderer decision flag 1ms
+ ✓ src/goal-graph-api.test.ts > Goal graph fixed Native transport, mocked Tauri > forwards only fixed readonly IDs and fixed cancellation or plan adoption CAS 1ms
+ ✓ src/goal-graph-api.test.ts > Goal graph fixed Native transport, mocked Tauri > preserves a Core rejection and post-finalization uncertainty without transport replay 1ms
+ ✓ src/session-api.test.ts > Session transport sends only typed user intent to narrow native commands > registration does not supply a trusted approval or resolved execution binding 4ms
+ ✓ src/session-api.test.ts > Session transport sends only typed user intent to narrow native commands > native selection passes only the explicit Provider choice, without inventing adapter flags 1ms
+ ✓ src/session-api.test.ts > Session transport sends only typed user intent to narrow native commands > grant creation uses camelCase Tauri arguments and omits renderer authority claims 1ms
+ ✓ src/session-api.test.ts > Session transport sends only typed user intent to narrow native commands > session creation sends selected references rather than resolved bindings 0ms
+ ✓ src/session-api.test.ts > Session transport sends only typed user intent to narrow native commands > native denial propagates without automatic retries or finalize exposed to JS 2ms
+ ✓ src/GoalGraphExecution.task-home.test.tsx > keeps trusted accepted Task in finished history and disables messaging and cancellation despite a reusable ready session 400ms
+ ✓ src/GoalGraphExecution.task-home.test.tsx > displays a future Task state as unknown and prevents a stale ready session from enabling execution 117ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > reads a real-shaped accepted Task projection with its exact receipt and sequence but forbids new execution 4ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects accepted Task with a missing or fake acceptance reference undefined 3ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects accepted Task with a missing or fake acceptance reference null 1ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects accepted Task with a missing or fake acceptance reference "" 0ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects accepted Task with a missing or fake acceptance reference true 1ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects accepted Task with a missing or fake acceptance reference 1 1ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects missing or unsafe acceptance sequence undefined 0ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects missing or unsafe acceptance sequence null 1ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects missing or unsafe acceptance sequence 0 1ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects missing or unsafe acceptance sequence -1 2ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects missing or unsafe acceptance sequence true 1ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects missing or unsafe acceptance sequence "21" 0ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects missing or unsafe acceptance sequence 9007199254740992 0ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > allows old draft/running projections but never unknown/future/accepted states or stale acceptance references 1ms
+ ✓ src/GoalGraphExecution.task-projection.test.ts > rejects an accepted Task receipt from a future snapshot sequence 0ms
+ ✓ src/GoalPlanning.execution-mount.test.tsx > mounts execution as a separate folded control in the real Goal panel and leaves existing planning reads readonly 309ms
+ ✓ src/api.test.ts > Narrow desktop command transport > sends task project binding only when selected 4ms
+ ✓ src/api.test.ts > Narrow desktop command transport > never roundtrips source identity or supplies a managed destination 1ms
+ ✓ src/api.test.ts > Narrow desktop command transport > preserves uncertain side effects instead of treating transport failure as no execution 2ms
+ ✓ src/GoalGraphExecution.legacy-cancel.test.tsx > lets an old unaccepted candidate request cancellation with exact run CAS without treating request as stop or Task acceptance 242ms
+ × src/GoalGraphExecution.actual-projection.test.ts > parses the immutable actual Core Owner-only accepted packet and binds the trusted Task receipt exactly 10ms
+   → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/GoalGraphExecution.actual-projection.test.ts > parses the immutable actual Core Owner-only accepted packet and binds the trusted Task receipt exactly
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/GoalGraphExecution.actual-projection.test.ts:13:138
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 31 passed (32)
+      Tests  1 failed | 528 passed (529)
+   Start at  13:49:56
+   Duration  29.43s (tests 51%, environment 37%, setup 6%, transform 3%, import 3%)
+
+Environment  jsdom was created 32 times · 20.00s total, 37% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
