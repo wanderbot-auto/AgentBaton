@@ -8,3 +8,5 @@ Base822c3bb46c8ec8ba506e7682b07e2a1384ed0674; branch codex/goal-runtime-ui; OWNE
 4. Complete server intent/scope/root_grant/existing_connection/plan and permissions are retained under the unchanged16KiB review bound. GoalExecution-only compact JSON may remove formatting whitespace but no fields or values. Oversize still refuses. Other approval kinds keep their prior behavior.
 5. Preserve all367 baseline UI test-source bytes, original22 Native test bodies and12 harness bytes. New normal/negative/uncertain/version/history tests and actual Core-issued proposal callback controls precede source freeze.
 6. Root owns independent review, current Core11/frontend real IPC/browser/macOS/OSdialog/default-release/package integration. Local mocks and callbacks prove only their recorded dimensions.
+
+Independent R1 review adds joint lifecycle/effect validation and positive known-state action gates. Five fixed actions remain approval/list/get/cancel/advance_plan. Generic dispatch and private finalize stay unavailable to Renderer; explicit same-scope validated advancement remains permitted. No behavior is added to the old proposal-save action.
