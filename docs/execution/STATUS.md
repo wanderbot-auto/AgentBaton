@@ -1,5 +1,15 @@
 # AgentBaton 执行状态
 
+## 新 Graph 本地六场景验证完成，进入 PR/CI
+
+Core70a/冻daemon40322b、新4fab资产ca708在实际Linux React/Unix IPC中完成六场景：Integrity6/3、Data6/3、Command6/3、Data-range5/1（上述harness160e/9b1），最终Command-timeout5/1与Owner-only6/3（harnessa941/4bc）。共34检查/14原PNG；ROOT_GRAPH_BROWSER_FINAL.json逐命令/报告/源码归因。没有把四个旧源结果写成最终a941全部同SHA执行；CI必须在同一准确候选重跑六项。Root已目视CommandAccepted、DataRangeBlocked，独立reviewer逐张核验四场景原图，正封存最终两项实际证据。
+
+managed/proc缺children已双独立实际Popen控制确认；新observer先有限8192 PID/stat父ID筛私有daemon，匹配后才读argv/PGID/startticks，1500ms命令/500ms清理/5s观测不变。最终真实timeout child814635的身份、停止、gone及root/project3active0已验证；Owner-only最终精确源6/3与2attempt预算通过。所有旧静态四反例、Path遮错、Grant到期拒绝、共享root错误期望、timeout漏检的实际失败均无损保留，不删除/跳过/接受多值求绿。Core/锁/生产权限没有因此改动。
+
+环境短starting后已恢复原文件/分支；重新fetch main仍a1be94d，OWNER001/002 ACK无003，94Native源码+95Core一致部分再次逐hash不变。真实原代理继续，没有替代Cloud任务或新账号/费用。Core593+7、NativeLinux57+4+22、Node564/37、Python36、旧六80/56及独审证据保留。
+
+接下来创建受保护main为base的Graph PR并读取新七项CI。macOS双架构/真实NSAlert/新双包均待新准确候选结果，不能借PR15旧包；尚未formal Approve，尚非完整130项产品完成。Factory/NL/SkillsMCP/session/history/retention/remote等剩余范围继续，全部原额外权限限制保持。
+
 ## 新 Graph 实际四模式通过，超时观测器兼容性修复中
 
 最终Core70a仍冻结且已独审593+7；无产品源码/预算/执行阈值变化。harness160e0a0精确SHA9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452已实际Integrity6/3、Data6/3、Command6/3、Data-range5/1通过；前三完整TaskAccepted，失败Data明确blocked/无Owner/Summary/accepted/无退款。Root实际目视Command03与DataRange01原PNG。

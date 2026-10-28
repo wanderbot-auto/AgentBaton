@@ -1,5 +1,5 @@
 {
-  "status": "local_core_and_composed_linux_passed_new_graph_browser_ci_macos_pending",
+  "status": "local_graph_six_scenarios_passed_with_explicit_sources_ci_macos_pending",
   "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
   "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
   "postmerge_doc_commands": [
@@ -41,7 +41,7 @@
       "failure": "independent reviewer found new blank line at EOF in CHECKPOINT/PROGRESS; Root removed trailing blank lines, retaining document text"
     }
   ],
-  "graph_runtime": "implemented_owner_and_three_real_validators; independent final workspace PASS; new composed Graph browser pending fixture correction",
+  "graph_runtime": "actual local Work/Integrity/Data/fixed Command/private Owner/Summary/TaskAccepted + Data range and real command timeout failures verified",
   "native_goal_dialog": "not_verified",
   "full_design": "incomplete",
   "current_candidate": {
@@ -65,9 +65,9 @@
     },
     "browser_new_modes": {
       "current_corrected_runtime": {
-        "status": "awaiting_bounded_private_process_observer_compatibility_fix",
-        "cause_actual_control": "Managed Linux exposes task/tid directories but no task/tid/children files; original helper also returnedNone for actual self-owned sleep3 child with correct argv/pgid",
-        "unchanged": "Core70a full source/locks/budgets/timing and four successful modes remain frozen"
+        "status": "all6_local_scenarios_passed34checks14PNG",
+        "evidence": "ROOT_GRAPH_BROWSER_FINAL.json",
+        "sources": "160e four modes, a941 final timeout/Owner; no claim all six ran on a941 yet"
       },
       "prior_current_harness_runtime": {
         "source": "7d80c2cc258669dd82bf235ad8753c5373705e70",
@@ -170,7 +170,7 @@
     }
   ],
   "current_core_source": "70a48d41663108337529915358109026e98ddf98",
-  "task_accepted": "actual durable TaskAccepted through private fixture Owner path verified in exact70a Core; new composed Graph browser and OS dialog pending",
+  "task_accepted": "actual durable TaskAccepted verified in independent70a Core and fresh composed React/Unix Graph flows; private generated Owner fixture, not OS/human",
   "ui_node_tests": {
     "tests": 564,
     "files": 37,

@@ -61,3 +61,13 @@ Root拿回唯一Native Cargo租约后，精确组合实际57库+4Ownercontroller
 Command-timeout目前整体验证失败：私有/proc task children observer5s未捕获PID，Core真实journal已记录worker started→settled failed/stopconfirmed/workerjoined/runtime1803ms；不能因此假称未执行或省去真实PID证据。作者独立轻控确证本managed/proc没有task/tid/children文件，原helper对自身实际sleep3也返回None。正在增加有限metadata父PID筛选fallback，先筛私有daemon直接child再读argv/PGID/startticks，不读无关argv、不全局signal、不提高product1500ms/observer5s。
 
 当前无Graph PR/新CI/Mac或新包结论，feature最新已normalpush47eb0d4；最新独审通过新增4行真实Core Python CI接线与RootLinux Native57+4+22证据，原Env3/四Product lanes/45min/权限不变。继续修复→实际timeout/Owner→独审→PR/CI，完整130范围不变。
+
+## 新 Graph 本地六场景验证完成，进入 PR/CI
+
+Core70a/冻daemon40322b、新4fab资产ca708在实际Linux React/Unix IPC中完成六场景：Integrity6/3、Data6/3、Command6/3、Data-range5/1（上述harness160e/9b1），最终Command-timeout5/1与Owner-only6/3（harnessa941/4bc）。共34检查/14原PNG；ROOT_GRAPH_BROWSER_FINAL.json逐命令/报告/源码归因。没有把四个旧源结果写成最终a941全部同SHA执行；CI必须在同一准确候选重跑六项。Root已目视CommandAccepted、DataRangeBlocked，独立reviewer逐张核验四场景原图，正封存最终两项实际证据。
+
+managed/proc缺children已双独立实际Popen控制确认；新observer先有限8192 PID/stat父ID筛私有daemon，匹配后才读argv/PGID/startticks，1500ms命令/500ms清理/5s观测不变。最终真实timeout child814635的身份、停止、gone及root/project3active0已验证；Owner-only最终精确源6/3与2attempt预算通过。所有旧静态四反例、Path遮错、Grant到期拒绝、共享root错误期望、timeout漏检的实际失败均无损保留，不删除/跳过/接受多值求绿。Core/锁/生产权限没有因此改动。
+
+环境短starting后已恢复原文件/分支；重新fetch main仍a1be94d，OWNER001/002 ACK无003，94Native源码+95Core一致部分再次逐hash不变。真实原代理继续，没有替代Cloud任务或新账号/费用。Core593+7、NativeLinux57+4+22、Node564/37、Python36、旧六80/56及独审证据保留。
+
+接下来创建受保护main为base的Graph PR并读取新七项CI。macOS双架构/真实NSAlert/新双包均待新准确候选结果，不能借PR15旧包；尚未formal Approve，尚非完整130项产品完成。Factory/NL/SkillsMCP/session/history/retention/remote等剩余范围继续，全部原额外权限限制保持。
