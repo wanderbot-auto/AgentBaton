@@ -348,6 +348,7 @@ impl Drop for CallerOwner {
     }
 }
 pub(crate) fn unavailable(message: &str) -> Value {
+    let message = format!("{message}. This invocation did not dispatch private finalize/decline. Existing pending proposals and previously committed history were not rolled back. Verify using the original idempotency key.");
     json!({"request_id":null,"error":{"code":"NATIVE_PARENT_UNAVAILABLE","message":message,"retryable":false,"side_effect_state":"not_started","details_ref":null},"revision":0,"warnings":[]})
 }
 pub(crate) fn with_caller(
