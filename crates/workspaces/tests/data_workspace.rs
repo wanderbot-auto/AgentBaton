@@ -827,6 +827,58 @@ fn maximum_source_depth_remains_valid_after_private_inputs_prefix_without_wideni
 
 #[test]
 fn full_internal_target_path_budget_is_rejected_before_reserving_any_directory() {
+    // Build the same long source without passing its full path to a syscall.
+    // macOS can reject that full fixture path before the product's 4096-byte
+    // target check; each existing component is still <=250 bytes.
+    fn put_through_directory_fds(root: &Path, relative: &str, bytes: &[u8]) {
+        use std::{
+            ffi::CString,
+            io::Write,
+            os::{
+                fd::{AsRawFd, FromRawFd},
+                unix::fs::OpenOptionsExt,
+            },
+            path::Component,
+        };
+        let mut directory = fs::OpenOptions::new()
+            .read(true)
+            .custom_flags(libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC)
+            .open(root)
+            .unwrap();
+        let mut parts = Path::new(relative).components().peekable();
+        while let Some(part) = parts.next() {
+            let Component::Normal(value) = part else {
+                panic!("fixture requires normal relative components")
+            };
+            let name = CString::new(value.as_encoded_bytes()).unwrap();
+            let is_directory = parts.peek().is_some();
+            if is_directory {
+                // SAFETY: directory owns a live descriptor and name is one
+                // NUL-terminated component; this fixture has no existing child.
+                let created = unsafe { libc::mkdirat(directory.as_raw_fd(), name.as_ptr(), 0o700) };
+                assert_eq!(created, 0, "mkdirat: {}", std::io::Error::last_os_error());
+            }
+            let flags = libc::O_NOFOLLOW
+                | libc::O_NONBLOCK
+                | libc::O_CLOEXEC
+                | if is_directory {
+                    libc::O_RDONLY | libc::O_DIRECTORY
+                } else {
+                    libc::O_WRONLY | libc::O_CREAT | libc::O_EXCL
+                };
+            // SAFETY: descriptor/name are valid, and mode is supplied for O_CREAT.
+            let fd = unsafe { libc::openat(directory.as_raw_fd(), name.as_ptr(), flags, 0o600) };
+            assert!(fd >= 0, "openat: {}", std::io::Error::last_os_error());
+            // SAFETY: successful openat returns one newly owned descriptor.
+            let mut opened = unsafe { File::from_raw_fd(fd) };
+            if is_directory {
+                directory = opened;
+            } else {
+                opened.write_all(bytes).unwrap();
+            }
+        }
+    }
+
     let f = Fixture::new();
     let root_bytes = f.source.as_os_str().len();
     let component_bytes = ((4090 - root_bytes - 16) / 16).min(250);
@@ -835,8 +887,16 @@ fn full_internal_target_path_budget_is_rejected_before_reserving_any_directory()
         .map(|i| format!("{i:02}{}", "x".repeat(component_bytes - 2)))
         .collect::<Vec<_>>()
         .join("/");
-    f.put(&relative, b"fixed input");
+    put_through_directory_fds(&f.source, &relative, b"fixed input");
     let snapshot = f.snapshot(&[&relative]);
+    assert_eq!(Path::new(&relative).components().count(), 16);
+    assert_eq!(snapshot.view().files.len(), 1);
+    assert_eq!(
+        snapshot.view().files[0].requirement.relative_path,
+        Path::new(&relative)
+    );
+    assert_eq!(snapshot.view().files[0].sha256, sha256(b"fixed input"));
+    assert_eq!(snapshot.view().total_bytes, b"fixed input".len() as u64);
     let id = "i".repeat(80);
     assert!(
         f.managed
@@ -847,6 +907,7 @@ fn full_internal_target_path_budget_is_rejected_before_reserving_any_directory()
             .len()
             > 4096
     );
+    eprintln!("DATA_TARGET_PATH_FIXTURE components=16 relative_bytes={} source_full_bytes={} target_full_bytes={} snapshot_bytes={} snapshot_sha256={} creation=directory_fds",relative.len(),f.source.join(&relative).as_os_str().len(),f.managed.join(format!("data-{id}")).join("inputs").join(&relative).as_os_str().len(),snapshot.view().total_bytes,snapshot.view().files[0].sha256);
     assert_eq!(
         create_data_workspace(&snapshot, &f.managed(), &id).err(),
         Some(DataWorkspaceError::ResourceLimit)
