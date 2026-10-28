@@ -31,3 +31,8 @@ Freeze source, independently review pure controls, then Root alone runs the new 
 
 
 Independent diagnostic review found FIFO open could block before fstat and prevent the observer loop from returning. Use O_NONBLOCK with O_NOFOLLOW, keep strict S_ISREG/FD-pin checks, and reject own FIFO/socket controls without changing deadlines. Credential snapshot completeness is explicit: ignore only deleted-file ENOENT race; other permission/parse/type/bounds errors record name/type only and mark incomplete; inspect at most256entries, detect257th as incomplete. No raw credential/error text is saved.
+
+
+## Generated MCP owned-stop repair after second Root normal failure
+
+Keep the strict zombie/argv/PIDstart/true-join and six-identity checks. Generated ACP must close and wait its own MCP Popen before normal end_turn; if close or wait fails, do not emit terminal success. SIGTERM enters finally rather than Python's default immediate exit; ignore repeat TERM to avoid recursive handler, retain original Popen until successful wait. Preserve first close exception and annotate secondary wait failure; original wait timeout1 remains unchanged. Validate with real self-created Python parent/child processes only under a standalone unit-controller subreaper, never setting prctl in Core/agent or touching the old orphan. Root reruns full actual workflow after independent exactsource review; helper stop proof cannot substitute for six actual runtime identities.

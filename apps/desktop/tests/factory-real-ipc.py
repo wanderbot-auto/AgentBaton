@@ -554,7 +554,7 @@ def preflight(args):
     return binary, companion, frontend, manifest, raw
 
 
-GENERATED_ACP = r'''import hashlib,json,os,stat,subprocess,sys
+GENERATED_ACP = r'''import hashlib,json,os,signal,stat,subprocess,sys
 if '--version' in sys.argv:
  print('Generated account-free Factory ACP 1');sys.exit(0)
 settings_path=sys.argv[sys.argv.index('--fixture-settings')+1]
@@ -580,7 +580,16 @@ def tool(name,args):
 def close_mcp():
  global mcp
  if mcp is not None:
-  mcp.stdin.close();mcp.wait(timeout=1);mcp=None
+  try:mcp.stdin.close()
+  except BaseException as failure:
+   try:mcp.wait(timeout=1)
+   except BaseException as wait_failure:failure.add_note('MCP wait also failed: '+repr(wait_failure))
+   raise
+  mcp.wait(timeout=1);mcp=None
+def stop_on_signal(signum,_frame):
+ signal.signal(signum,signal.SIG_IGN)
+ raise SystemExit(128+signum)
+signal.signal(signal.SIGTERM,stop_on_signal)
 def file_hash(path):return hashlib.sha256(open(path,'rb').read()).hexdigest()
 try:
  for line in sys.stdin:
@@ -655,6 +664,7 @@ try:
     assert os.path.realpath(path).startswith(os.path.realpath('.')+'/')
     fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_TRUNC|os.O_NOFOLLOW,0o600)
     with os.fdopen(fd,'wb')as f:f.write((stage+' '+artifact_id+' report\n').encode())
+   close_mcp()
    response(request,{'stopReason':'end_turn'})
   elif method=='session/cancel':
    close_mcp()

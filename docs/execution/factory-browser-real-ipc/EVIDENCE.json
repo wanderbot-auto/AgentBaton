@@ -1043,5 +1043,535 @@
     ],
     "unchanged": "HTTP/authority/deadlines/success/budgets remain; only diagnostic helpers + controls; NO Core/browser/runtime",
     "prior_evidence": "cfd19,9cec21 and initial unit failure retained as separate exactsource snapshots, not summed"
+  },
+  "generated_mcp_stop_revision": {
+    "source_commit": "851698b899bae10968a0862013693f8dfd723648",
+    "source_sha256": "b966a2e37eea0f994e2744b0fc75d70508da53df30c294016704d19b33abbf79",
+    "status": "frozen_waiting_independent_review",
+    "previous_5de_review": {
+      "path": "/workspace/.onboarding/factory-browser-independent-review/revision-5de3454a/REVIEW.md",
+      "sha256": "96a492839832dd96510bb4f6b7ed64d3aeaaf52aae77a938a94a57004899b6a8",
+      "manifest_sha256": "fec95deb4d2517767bd3e0be9ccdc588d0008c685c76396d848bfab8ea9071d3",
+      "dimension": "pure controls only, source-ready before real failure"
+    },
+    "root_actual_failure": {
+      "report": {
+        "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/evidence/report.json",
+        "sha256": "3535636ed6b57786e25a6bc7126e6ca7f4b23938829cf4b81d10e35b4c804aab",
+        "bytes": 120702
+      },
+      "attribution": "Root, exact5de/ced161, immutable0ef/raw081a89eb/composedUI",
+      "status": "failed",
+      "checks": 2,
+      "PNG": 2,
+      "primary": "collect_started_records existing bound companion cmdline NUL assertion, not normal completed",
+      "SQL_snapshot": "35events,2attempts,1boundrecord/2identities; complete true; no DBbytes retained",
+      "later_state": "Later proc stateZ/PPID1/cmdlineempty for966853 start9756854; later HTTPseq51/3session not inserted into earlier SQLsnapshot",
+      "cleanup_complete": false,
+      "retained_files": [
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/BEFORE.json",
+          "sha256": "9dff15c8d476c0a3c0b95e4da852945936efa6134f6f9b045bfcad1cfc0c4444",
+          "bytes": 10206
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/PROC_AFTER_FAILURE.json",
+          "sha256": "1b0b0cc17fc79a249e3b96d608ce9fec443ae1595f2845955174c69f93d29201",
+          "bytes": 1559
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/RESULT.json",
+          "sha256": "19e34e7d3902d6badab52dd3b1ef3815ada300b3da5e8f5465d80e28f51a5798",
+          "bytes": 10426
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/evidence/01-real-approved-scope-not-started.png",
+          "sha256": "5456c1e2c1258adeab01fa8fb321ec38202dce762cab2ca07558fd29d5450f57",
+          "bytes": 156681
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/evidence/daemon.log",
+          "sha256": "5b26244469f61442773e57231a11d6f0dc105bc7441039a8f21c68393e73f1be",
+          "bytes": 59
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/evidence/diagnostics-c128ffd480db415f8036d4c45401a05c.json",
+          "sha256": "2b245db99b42d08402e600c2605658f21f5bcba6c59fe1e297847d48dfa57b6e",
+          "bytes": 84805
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/evidence/failure-current-ui.png",
+          "sha256": "8f25bb3c062d1558d733fed99fa6b63149cc40d04962839214281aa9d82840be",
+          "bytes": 156755
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/evidence/report.json",
+          "sha256": "3535636ed6b57786e25a6bc7126e6ca7f4b23938829cf4b81d10e35b4c804aab",
+          "bytes": 120702
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/evidence/verified-966850.json",
+          "sha256": "ad6feccddff420342b9dbf784056c3118edbadff90dc8a6a086bc7dc731391c2",
+          "bytes": 3201
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/runner.log",
+          "sha256": "171eae629589c0a6feeb53acd69e3ef95d77ce69e4c83bf2165e6224e0ce630d",
+          "bytes": 165
+        }
+      ]
+    },
+    "fixes": [
+      "Generatedfixture normal end_turn emitted only after own MCP close+wait",
+      "SIGTERM ignores repeatTERM and raises SystemExit into finally",
+      "close error still waits with originaltimeout1, retains originalfailure and adds secondarywait note; Popen reference retained on error"
+    ],
+    "unchanged": "no observer/Z-gone/argv/PID/truejoin/6identity or HTTP/authority/child5s/observer15s changes",
+    "real_own_process_controls": {
+      "command": [
+        "python3",
+        "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/controls.py"
+      ],
+      "exitcode": 0,
+      "count": 7,
+      "results": {
+        "source_sha256": "b966a2e37eea0f994e2744b0fc75d70508da53df30c294016704d19b33abbf79",
+        "status": "passed",
+        "count": 7,
+        "checks": [
+          {
+            "version": "old",
+            "mode": "group-term",
+            "status": "passed",
+            "parent_exitcode": -15,
+            "saved": {
+              "parent": {
+                "pid": 969606,
+                "pgid": 969606,
+                "start_ticks": "9782732"
+              },
+              "child": {
+                "pid": 969607,
+                "pgid": 969606,
+                "start_ticks": "9782734"
+              }
+            },
+            "receipt": null,
+            "controller_reaped_old_or_failed_child_status": 15,
+            "stderr": "",
+            "dimension": "real own Python parent/child, extracted helpers only; no Core or MCP service"
+          },
+          {
+            "version": "new",
+            "mode": "normal",
+            "status": "passed",
+            "parent_exitcode": 0,
+            "saved": {
+              "parent": {
+                "pid": 969608,
+                "pgid": 969608,
+                "start_ticks": "9782735"
+              },
+              "child": {
+                "pid": 969609,
+                "pgid": 969608,
+                "start_ticks": "9782738"
+              }
+            },
+            "receipt": {
+              "failure": null,
+              "secondary": null,
+              "wait_returncode": 0,
+              "end_turn_allowed": true,
+              "reference_retained_on_error": false
+            },
+            "controller_reaped_old_or_failed_child_status": null,
+            "stderr": "",
+            "dimension": "real own Python parent/child, extracted helpers only; no Core or MCP service"
+          },
+          {
+            "version": "new",
+            "mode": "parent-term",
+            "status": "passed",
+            "parent_exitcode": 1,
+            "saved": {
+              "parent": {
+                "pid": 969610,
+                "pgid": 969610,
+                "start_ticks": "9782743"
+              },
+              "child": {
+                "pid": 969611,
+                "pgid": 969610,
+                "start_ticks": "9782746"
+              }
+            },
+            "receipt": {
+              "failure": {
+                "type": "SystemExit",
+                "message": "143",
+                "notes": []
+              },
+              "secondary": null,
+              "wait_returncode": 0,
+              "end_turn_allowed": false,
+              "reference_retained_on_error": false
+            },
+            "controller_reaped_old_or_failed_child_status": null,
+            "stderr": "",
+            "dimension": "real own Python parent/child, extracted helpers only; no Core or MCP service"
+          },
+          {
+            "version": "new",
+            "mode": "group-term",
+            "status": "passed",
+            "parent_exitcode": 1,
+            "saved": {
+              "parent": {
+                "pid": 969612,
+                "pgid": 969612,
+                "start_ticks": "9782751"
+              },
+              "child": {
+                "pid": 969613,
+                "pgid": 969612,
+                "start_ticks": "9782753"
+              }
+            },
+            "receipt": {
+              "failure": {
+                "type": "SystemExit",
+                "message": "143",
+                "notes": []
+              },
+              "secondary": null,
+              "wait_returncode": -15,
+              "end_turn_allowed": false,
+              "reference_retained_on_error": false
+            },
+            "controller_reaped_old_or_failed_child_status": null,
+            "stderr": "",
+            "dimension": "real own Python parent/child, extracted helpers only; no Core or MCP service"
+          },
+          {
+            "version": "new",
+            "mode": "close-error",
+            "status": "passed",
+            "parent_exitcode": 1,
+            "saved": {
+              "parent": {
+                "pid": 969614,
+                "pgid": 969614,
+                "start_ticks": "9782754"
+              },
+              "child": {
+                "pid": 969615,
+                "pgid": 969614,
+                "start_ticks": "9782756"
+              }
+            },
+            "receipt": {
+              "failure": {
+                "type": "RuntimeError",
+                "message": "unit first stdin close failure",
+                "notes": []
+              },
+              "secondary": {
+                "type": "RuntimeError",
+                "message": "unit first stdin close failure",
+                "notes": []
+              },
+              "wait_returncode": 0,
+              "end_turn_allowed": false,
+              "reference_retained_on_error": true
+            },
+            "controller_reaped_old_or_failed_child_status": null,
+            "stderr": "",
+            "dimension": "real own Python parent/child, extracted helpers only; no Core or MCP service"
+          },
+          {
+            "version": "new",
+            "mode": "wait-error",
+            "status": "passed",
+            "parent_exitcode": 1,
+            "saved": {
+              "parent": {
+                "pid": 969616,
+                "pgid": 969616,
+                "start_ticks": "9782759"
+              },
+              "child": {
+                "pid": 969617,
+                "pgid": 969616,
+                "start_ticks": "9782762"
+              }
+            },
+            "receipt": {
+              "failure": {
+                "type": "TimeoutExpired",
+                "message": "Command '['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3', '/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-5.py']' timed out after 1 seconds",
+                "notes": []
+              },
+              "secondary": {
+                "type": "TimeoutExpired",
+                "message": "Command '['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3', '/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-5.py']' timed out after 1 seconds",
+                "notes": []
+              },
+              "wait_returncode": null,
+              "end_turn_allowed": false,
+              "reference_retained_on_error": true
+            },
+            "controller_reaped_old_or_failed_child_status": null,
+            "stderr": "",
+            "dimension": "real own Python parent/child, extracted helpers only; no Core or MCP service"
+          },
+          {
+            "version": "new",
+            "mode": "both-error",
+            "status": "passed",
+            "parent_exitcode": 1,
+            "saved": {
+              "parent": {
+                "pid": 969618,
+                "pgid": 969618,
+                "start_ticks": "9782963"
+              },
+              "child": {
+                "pid": 969619,
+                "pgid": 969618,
+                "start_ticks": "9782965"
+              }
+            },
+            "receipt": {
+              "failure": {
+                "type": "RuntimeError",
+                "message": "unit first stdin close failure",
+                "notes": [
+                  "MCP wait also failed: TimeoutExpired(['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3', '/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-6.py'], 1)"
+                ]
+              },
+              "secondary": {
+                "type": "RuntimeError",
+                "message": "unit first stdin close failure",
+                "notes": [
+                  "MCP wait also failed: TimeoutExpired(['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3', '/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-6.py'], 1)"
+                ]
+              },
+              "wait_returncode": null,
+              "end_turn_allowed": false,
+              "reference_retained_on_error": true
+            },
+            "controller_reaped_old_or_failed_child_status": null,
+            "stderr": "",
+            "dimension": "real own Python parent/child, extracted helpers only; no Core or MCP service"
+          }
+        ],
+        "subreaper_restored": true,
+        "actual_Core_browser": "NOT_RUN"
+      },
+      "dimension": "exact extracted helpers, real ownPython parent/child. Standalone unit-controller subreaper only, restored; own children reaped; not Core/MCP service or actual Factory",
+      "artifacts": [
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-0.py",
+          "sha256": "f11b672ffa117bc836d153f1da3392133e7b9d1d21f68acba6ec5f81f025b80d",
+          "bytes": 40
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-1.py",
+          "sha256": "f11b672ffa117bc836d153f1da3392133e7b9d1d21f68acba6ec5f81f025b80d",
+          "bytes": 40
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-2.py",
+          "sha256": "f11b672ffa117bc836d153f1da3392133e7b9d1d21f68acba6ec5f81f025b80d",
+          "bytes": 40
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-3.py",
+          "sha256": "f11b672ffa117bc836d153f1da3392133e7b9d1d21f68acba6ec5f81f025b80d",
+          "bytes": 40
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-4.py",
+          "sha256": "f11b672ffa117bc836d153f1da3392133e7b9d1d21f68acba6ec5f81f025b80d",
+          "bytes": 40
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-5.py",
+          "sha256": "2f03c34e6f90cbf2afa3b6c248d6b3850a62bd78a20b39f1793e667657785685",
+          "bytes": 30
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/child-6.py",
+          "sha256": "2f03c34e6f90cbf2afa3b6c248d6b3850a62bd78a20b39f1793e667657785685",
+          "bytes": 30
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/controls.py",
+          "sha256": "005bc6867d8637e9c7573cfa78fec35fcaa09d08074f989a152351675c9a37c0",
+          "bytes": 8529
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/new-generated-acp.py",
+          "sha256": "409ae32d3d2663e60a6fae0dc063823c3fd9a039a122da7f821863b9556beae2",
+          "bytes": 7994
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/old-generated-acp.py",
+          "sha256": "41505b6917f23ded3439f45794e0451d22a6ee2d15fffaf23bb2df42f37a1127",
+          "bytes": 7645
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/parent-0.py",
+          "sha256": "fe20511c26d01fd9dd0e7ab4985006618019750f1b16564adb14c562049b7879",
+          "bytes": 1410
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/parent-1.py",
+          "sha256": "f77c1c60eeeba872cf963d8f21dc8c7a8ba1a92a6696389defd540335324ed7c",
+          "bytes": 1828
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/parent-2.py",
+          "sha256": "f77c1c60eeeba872cf963d8f21dc8c7a8ba1a92a6696389defd540335324ed7c",
+          "bytes": 1828
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/parent-3.py",
+          "sha256": "f77c1c60eeeba872cf963d8f21dc8c7a8ba1a92a6696389defd540335324ed7c",
+          "bytes": 1828
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/parent-4.py",
+          "sha256": "f77c1c60eeeba872cf963d8f21dc8c7a8ba1a92a6696389defd540335324ed7c",
+          "bytes": 1828
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/parent-5.py",
+          "sha256": "f77c1c60eeeba872cf963d8f21dc8c7a8ba1a92a6696389defd540335324ed7c",
+          "bytes": 1828
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/parent-6.py",
+          "sha256": "f77c1c60eeeba872cf963d8f21dc8c7a8ba1a92a6696389defd540335324ed7c",
+          "bytes": 1828
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-1/results.json",
+          "sha256": "c09c1f35b4203af0daf0575d2bec961f9d95179634b1a3c1ab25f7afc43c76be",
+          "bytes": 6932
+        }
+      ]
+    },
+    "current_source_checks": {
+      "source_sha256": "b966a2e37eea0f994e2744b0fc75d70508da53df30c294016704d19b33abbf79",
+      "commands": [
+        {
+          "name": "boundary",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/boundary"
+          ],
+          "exitcode": 0,
+          "log_sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f"
+        },
+        {
+          "name": "fixture",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--fixture-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/fixture"
+          ],
+          "exitcode": 0,
+          "log_sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1"
+        },
+        {
+          "name": "cleanup",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--cleanup-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/cleanup"
+          ],
+          "exitcode": 0,
+          "log_sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479"
+        },
+        {
+          "name": "diagnostic",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--diagnostic-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/diagnostic"
+          ],
+          "exitcode": 0,
+          "log_sha256": "28b0586c7edc0fe66831c37654122f938ca36ecd9f3a1d3ef1554bf12bb62025"
+        }
+      ],
+      "Core_browser": "NOT_RUN"
+    },
+    "helper_counts": {
+      "boundary": 63,
+      "fixture_version": 13,
+      "cleanup_meter": 28,
+      "diagnostic": 25
+    },
+    "check_artifacts": [
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/boundary/boundary-checks.json",
+        "sha256": "989ea1d18fc00030822093b22e57aa0aec2215bdcd81cab0272bce386a4e122b",
+        "bytes": 5294
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/boundary.log",
+        "sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/cleanup/cleanup-unit-checks.json",
+        "sha256": "5f6ea0ccc89a087443c9093c22fbc1252e78f69065c42adbcb40b529c7146027",
+        "bytes": 2986
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/cleanup.log",
+        "sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/diagnostic/diagnostic-unit-checks.json",
+        "sha256": "ae3e45ce7d2b2444e525b98343271def4263b05913cf29e3df04e67d76921e5d",
+        "bytes": 3238
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/diagnostic.log",
+        "sha256": "28b0586c7edc0fe66831c37654122f938ca36ecd9f3a1d3ef1554bf12bb62025",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/fixture/fixture-unit-checks.json",
+        "sha256": "961758183efe033ff6b5c2ab12bd233c5e0a11532bd71eceb855fe7492420f71",
+        "bytes": 1685
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/fixture.log",
+        "sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/owned-mcp-stop-final/results.json",
+        "sha256": "d61c5b82ec26dd22928193476deea4722c10393b00219310d1db2be38b73781d",
+        "bytes": 1682
+      }
+    ],
+    "new_real_Core_browser": "NOT_RUN; Root after review",
+    "old_orphan": "not signaled or reaped by this unit",
+    "no_claim": "wholeFactory/Provider/OS/Mac/TaskAccepted acceptance"
   }
 }
