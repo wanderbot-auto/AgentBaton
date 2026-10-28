@@ -531,7 +531,15 @@
     "source_fix_actualMac_success": "not_claimed",
     "formal_Approve": "not_submitted",
     "protected_merge": "not_performed",
-    "final_integration_record_review": "pending"
+    "final_integration_record_review": {
+      "subject": "903b9791c80aa6c363053c284650747fa7ad50e3",
+      "report": "FINAL_903_INTEGRATION_REVIEW.md",
+      "report_sha256": "e93f6406eb2fa2fda76816d6a487965556ccd8391f35e8db9d63bc7e85eba363",
+      "review_manifest_sha256": "4f405622c20f79f91713a918f40ca5be35d6340744163542e713d585211e48be",
+      "import": "FINAL_903_INTEGRATION_REVIEW_IMPORT.json",
+      "result": "no mustfix within final composition/static records; no product rerun/newMac acceptance or formalApprove",
+      "source_and_STATUS_unchanged_after_review": true
+    }
   },
   "ci_641": {
     "head": "641be86e8b055920787cfebdd48270716d509309",
