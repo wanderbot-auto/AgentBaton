@@ -42,3 +42,16 @@ AB-REL-001: Node/jsdom, supplied actual Core data, callback source, real Core ex
 All requirement mappings remain partial at project level.
 
 NOT_RUN / NOT_CLAIMED: Native compilation/execution for this revision, actual macOS WebView or OS dialog, full Data/Command graphs, real Provider, CI, installers/signing and full Design v0.2. Independent review is pending Root's separate reviewer. No production release or new authority.
+
+## Separate pending Data / Command test-only revision
+
+Original Integrity source733 and docs e889 are independently reviewed, with separate review manifest /workspace/.onboarding/goal-validation-observation-ui-review/manifest.json; this section does not replace that result.
+The initial targeted actual Data/Command log at data-command-revision/actual-data-command.log records 3 passed / 1 failed (exit1). Initial source is preserved beside it. Command592's unsafe inode is a real fail-closed boundary, not a reason to loosen acceptance.
+New fixtures retain exact SHA-256 33c63615f18d89b6201e2a603f16066ce72d1e415868a90403ee3f3aaa9867cd /119716B and 592ac8036eb9d1c59ffbdf4119612eb3ffcf6bac960b92e8cf8fc3092be04f89 /94218B.
+No generic JSON.parse/stringify == Rust f64 digest claim is made. The persisted digest remains opaque for these actual Data/Command observations; full parsed field preservation and trusted/untrusted projection are tested separately.
+
+## Lossless projection revision — pre-freeze checks
+
+Exact additional provided packets: Command526a42e1775785b82eaf420af9dd6fd9a3f3c299f885f1535ab23835a812ed19 /102705B; Data97c07926adf05f4bc04bcbeed97adc6d6aea59cbbcaa10d6aaeebad19a456d99 /127780B. Original Owner validation_refs have no new display field; raw exists only on GraphDetails validation views.
+Targeted lossless tests14/2 and typecheck passed; complete frozen-source results follow. Own intermediate async-projection FAIL is preserved at lossless-revision/async-projection-before-fix.log with before-await-fix-guards.ts. Ten other tests listed as skipped in that targeted -t reproduction were filtered only for diagnosis; full suites do not skip them.
+No generic Rust f64 re-encoding digest claim: original raw UTF-8 bytes are hashed directly. Without verified raw text, unsafe numbers remain unsupported; all real candidate/pin/seq/CAS fields keep original safe-integer checks.

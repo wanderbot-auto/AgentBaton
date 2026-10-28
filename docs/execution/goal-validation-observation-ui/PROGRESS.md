@@ -17,3 +17,22 @@
 - All old32 renderer files, four old actual/failure JSON fixtures, 36 original Native test blocks and byte-limit constants independently byte-checked against baseline; lib/native_parent/Core/CI/locks untouched.
 - Standalone rustfmt parse/check passed. Three new actual nonempty-validation callback tests are still uncompiled/unrun, not macOS/OS-dialog evidence.
 - Source remains frozen for Root's separate reviewer; only these four records are finalized. No formal GitHub Approve, PR, CI or remote action.
+
+## Subsequent test-only Data / Command revision
+
+- Integrity733 + docs e889 independent review passed in its own detached context; its source, 47-artifact manifest and conclusions remain frozen.
+- Added exact real Data33c63615...867cd (119,716 bytes) and Command592ac803...04f89 (94,218 bytes) packets, including real TaskProjection and matching first Owner decisions.
+- Initial targeted run actually returned 3 passed / 1 failed: Data guard and readonly history passed; Command graphDetailsShape correctly rejected its original unsafe inode. The direct parsed-JSON Command DOM check was not treated as trusted UI acceptance.
+- Python inspection found four original Command observation root_inode fields equal to 9223372036855074700, above JavaScript MAX_SAFE_INTEGER. The original packet, initial test source and failed log are retained. No conversion to string or relaxed guard is used.
+- Command592 is now an explicit renderer-unsupported negative, while its original u64 remains a meaningful lossless Native callback test. New Native callback test covers complete original Data/Command snapshots, fixed private frame, corresponding actual first receipt and Cancel/no-rejection.
+- Root/Core agreed future Command UI positive must come from an independently produced real private-program-location packet, not edited inode fields. Current revision does not claim that positive or actual Native execution.
+
+## Lossless display revision in progress
+
+- Root/Core replaced the fixture-location workaround with a generic readonly display projection. New raw system-Command526a42e...ed19 /102705B and Data97c079...6d99 /127780B retain original Value and exact observation_json; received bytes/SHA and raw-text SHA/result_digest equality were verified.
+- API get verifies original UTF-8 text with WebCrypto, compares parsed projection shape, and keeps object-bound verification state in a WeakMap. It never sends raw observation back as authority. No raw/unsafe original592 still fails closed.
+- History displays exact original raw text and envelope metadata without reserializing rounded opaque Value. Existing folded layout and readonly behavior remain.
+- Derived observation_json is excluded only from persistent-receipt floor comparisons; original receipt fields/digests still cannot change. Same-CAS display-only upgrade and changed-digest controls added.
+- Targeted new tests passed14/2 and typecheck passed before source freeze. Covered actual Data/system-Command verification, wrong digest/raw/projection/JSON/no-crypto, candidate Pin invariants, mutation/floor/cancellation boundaries, complete visible original text and HTML escaping.
+- An asynchronous projection mutation control initially failed during this implementation. Original source/log are preserved; final verification captures the pre-await projection and rechecks raw/digest/projection after await. The control now passes.
+- Native production/test source remains exactly the separate8a revision; four new callbacks are still not compiled or run. New production JS changes require a fresh complete suite/type/build before independent review.

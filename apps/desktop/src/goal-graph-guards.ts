@@ -12,17 +12,47 @@ const ids=(x:unknown):x is string[]=>Array.isArray(x)&&x.length<=65536&&x.every(
 const meter=(x:unknown)=>x===null||safeInteger(x);
 const optionalId=(x:unknown)=>x===null||id(x);
 const relative=(x:unknown):x is string=>text(x,4096)&&!x.startsWith('/')&&!/[\\\u0000-\u001f\u007f]/.test(x)&&x.split('/').every(part=>!!part&&part!=='.'&&part!=='..');
-// Preserve the complete Core observation (including goal_io) for readonly
-// history. An unsafe renderer number cannot support evidence trust; Native
-// retains the original integer Values. Core verifies the persisted digest.
-export function graphObservationSupported(value:unknown):boolean {
+// Raw observation text is a readonly display projection, never an input to
+// Native authority. Candidate FilePin/seq/CAS checks remain separate and exact.
+const verifiedObservationText=new WeakMap<object,{raw:string;digest:string;projection:string}>();
+const hasObservationText=(value:Record<string,any>)=>Object.prototype.hasOwnProperty.call(value,'observation_json');
+function observationShape(value:unknown,allowOpaqueIntegers:boolean):boolean {
   const jsonValue=(item:unknown):boolean=>{
     if(item===null||typeof item==='string'||typeof item==='boolean')return true;
-    if(typeof item==='number')return Number.isFinite(item)&&(!Number.isInteger(item)||Number.isSafeInteger(item));
+    if(typeof item==='number')return Number.isFinite(item)&&(allowOpaqueIntegers||!Number.isInteger(item)||Number.isSafeInteger(item));
     if(Array.isArray(item))return item.every(jsonValue);
     return object(item)&&Object.values(item).every(jsonValue);
   };
   return object(value)&&object(value.goal_io)&&text(value.goal_io.state,128)&&jsonValue(value);
+}
+export const graphObservationSupported=(value:unknown)=>observationShape(value,false);
+function validationObservationSupported(value:Record<string,any>):boolean {
+  const checked=verifiedObservationText.get(value);
+  if(!hasObservationText(value))return !checked&&graphObservationSupported(value.observation);
+  return !!checked&&checked.raw===value.observation_json&&checked.digest===value.result_digest&&observationShape(value.observation,true)&&checked.projection===canonical(value.observation);
+}
+// Hash original Core UTF-8 bytes. Parsing below checks projection agreement;
+// JavaScript re-encoding is never used to compute the original Rust digest.
+export async function verifyGraphObservationText(value:unknown):Promise<void> {
+  const error=()=>new Error('Original validator observation could not be verified');
+  if(!object(value))throw error();
+  if(!hasObservationText(value))return;
+  verifiedObservationText.delete(value);
+  const raw=value.observation_json,digest=value.result_digest;
+  if(!text(raw,4194304)||!hash(digest)||!observationShape(value.observation,true))throw error();
+  let parsed:unknown;
+  try{parsed=JSON.parse(raw);}catch{throw error();}
+  const projection=canonical(value.observation);
+  if(!observationShape(parsed,true)||canonical(parsed)!==projection)throw error();
+  const subtle=globalThis.crypto?.subtle;
+  if(!subtle)throw error();
+  let actual:string;
+  try{
+    const bytes=await subtle.digest('SHA-256',new TextEncoder().encode(raw));
+    actual=Array.from(new Uint8Array(bytes),byte=>byte.toString(16).padStart(2,'0')).join('');
+  }catch{throw error();}
+  if(actual!==digest||value.observation_json!==raw||value.result_digest!==digest||canonical(value.observation)!==projection)throw error();
+  verifiedObservationText.set(value,{raw,digest,projection});
 }
 export function graphArtifactPrecision(value:unknown):boolean {
   if(!object(value)||!object(value.root)||!object(value.file_pin))return false;
@@ -66,7 +96,7 @@ export function graphDetailsShape(value:unknown,task:Task,scope:GoalScope):value
   }
   const refMatches=(ref:any)=>graphArtifactShape(ref,scope)&&candidates.get(ref.candidate_id)?.artifacts.some((actual:any)=>actual.artifact_id===ref.artifact_id&&actual.contract_id===ref.contract_id&&actual.sha256===ref.sha256&&actual.bytes===ref.bytes&&actual.relative_path===ref.relative_path&&actual.producer_node_id===ref.producer_node_id&&actual.producer_attempt_id===ref.producer_attempt_id&&actual.writer_epoch===ref.writer_epoch&&canonical(actual)===canonical(ref));
   for(const v of x.validations){
-    if(!base(v)||validations.has(v.id)||!id(v.attempt_id)||!id(v.rule_id)||!hash(v.definition_digest)||!Array.isArray(v.candidate_refs)||v.candidate_refs.length>64||!v.candidate_refs.every(refMatches)||!Array.isArray(v.input_bindings)||v.input_bindings.length>64||v.input_bindings.some((input:any)=>!object(input)||!id(input.artifact_id)||!id(input.contract_id)||!hash(input.sha256)||!(input.candidate===null||refMatches(input.candidate)&&input.candidate.sha256===input.sha256&&input.candidate.artifact_id===input.artifact_id&&input.candidate.contract_id===input.contract_id))||!text(v.state,128)||typeof v.passed!=='boolean'||!text(v.scope,128)||!text(v.correctness,128)||!text(v.task_acceptance,128)||!hash(v.result_digest)||!graphObservationSupported(v.observation)||!text(v.details_ref,4096)||typeof v.stop_confirmed!=='boolean'||!text(v.io_completion,128)||!meter(v.actual_runtime_ms))return false;
+    if(!base(v)||validations.has(v.id)||!id(v.attempt_id)||!id(v.rule_id)||!hash(v.definition_digest)||!Array.isArray(v.candidate_refs)||v.candidate_refs.length>64||!v.candidate_refs.every(refMatches)||!Array.isArray(v.input_bindings)||v.input_bindings.length>64||v.input_bindings.some((input:any)=>!object(input)||!id(input.artifact_id)||!id(input.contract_id)||!hash(input.sha256)||!(input.candidate===null||refMatches(input.candidate)&&input.candidate.sha256===input.sha256&&input.candidate.artifact_id===input.artifact_id&&input.candidate.contract_id===input.contract_id))||!text(v.state,128)||typeof v.passed!=='boolean'||!text(v.scope,128)||!text(v.correctness,128)||!text(v.task_acceptance,128)||!hash(v.result_digest)||!validationObservationSupported(v)||!text(v.details_ref,4096)||typeof v.stop_confirmed!=='boolean'||!text(v.io_completion,128)||!meter(v.actual_runtime_ms))return false;
     validations.set(v.id,v);
   }
   for(const d of x.owner_decisions){
@@ -104,13 +134,18 @@ export function graphSummaryMeetsFloor(next:GraphRunSummary,floor:GraphRunSummar
 // A replayed exact-key result is historical evidence, not a new observation.
 // It may acknowledge the original request while preserving all newer floors.
 export const graphReceiptFitsFloor=(receipt:GraphRunSummary,observed:GraphRunSummary,exactUncertainReplay:boolean)=>graphSummaryMeetsFloor(receipt,observed)||exactUncertainReplay&&graphSummaryMeetsFloor(observed,receipt);
+const validationReceipt=(value:GraphRunDetails['validations'][number])=>{
+  const {observation_json:_displayOnly,...receipt}=value;return receipt;
+};
+const detailsWithoutDisplay=(value:GraphRunDetails)=>({...value,validations:value.validations.map(validationReceipt)});
 export function graphDetailsMeetFloor(next:GraphRunDetails,floor:GraphEvidenceFloor):boolean {
   if(!graphSummaryMeetsFloor(next,floor.summary))return false;
   const before=floor.details;if(!before)return true;
   if(before.task_acceptance!==null&&canonical(before.task_acceptance)!==canonical(next.task_acceptance))return false;
   for(const name of ['candidates','validations','owner_decisions'] as const){
-    const records=new Map(next[name].map(item=>[item.id,canonical(item)]));
-    if(before[name].some(item=>records.get(item.id)!==canonical(item)))return false;
+    const receipt=(item:typeof next[typeof name][number])=>name==='validations'?validationReceipt(item as GraphRunDetails['validations'][number]):item;
+    const records=new Map(next[name].map(item=>[item.id,canonical(receipt(item))]));
+    if(before[name].some(item=>records.get(item.id)!==canonical(receipt(item))))return false;
   }
   for(const original of before.nodes){
     const sameNode=next.nodes.filter(item=>item.plan_revision===original.plan_revision&&item.node.id===original.node.id);
@@ -122,13 +157,13 @@ export function graphDetailsMeetFloor(next:GraphRunDetails,floor:GraphEvidenceFl
       if(!retained||retained.session_id!==original.session_id||original.job_id!==null&&retained.job_id!==original.job_id||original.stop_confirmed&&!retained.stop_confirmed||original.candidate_ids.some(id=>!retained.candidate_ids.includes(id))||original.validation_ids.some(id=>!retained.validation_ids.includes(id))||original.owner_decision_ids.some(id=>!retained.owner_decision_ids.includes(id)))return false;
     }
   }
-  return next.run.revision!==before.run.revision||canonical({...next,ledger_revision:0})===canonical({...before,ledger_revision:0});
+  return next.run.revision!==before.run.revision||canonical({...detailsWithoutDisplay(next),ledger_revision:0})===canonical({...detailsWithoutDisplay(before),ledger_revision:0});
 }
 export const graphExecutionKinds:readonly string[]=['connection','validator','owner'];
 export function graphViewSupported(view:GraphRunDetails):boolean {
   return graphRunStates.includes(view.run.state)&&view.nodes.every(node=>graphNodeStates.includes(node.state)&&graphAcceptanceStates.includes(node.acceptance_state)&&graphExecutionKinds.includes(node.execution_kind)&&(node.execution_kind==='connection'?['work','summary'].includes(node.node.kind):node.execution_kind==='validator'?node.node.kind==='validate':node.node.kind==='owner_approval'))
     &&view.candidates.every(c=>c.source==='baton_goal_evidence'&&c.integrity==='verified'&&c.task_acceptance==='not_established'&&c.artifacts.every(graphArtifactPrecision))
-    &&view.validations.every(v=>v.source==='baton_goal_validator'&&['passed','failed','cancelled','outcome_unknown'].includes(v.state)&&['worker_joined','not_started','outcome_unknown'].includes(v.io_completion)&&['artifact_integrity_only','data_contract_only','approved_deterministic_command_only'].includes(v.scope)&&v.correctness===(v.scope==='artifact_integrity_only'?'not_established':v.scope==='data_contract_only'?'approved_schema_ranges_metadata_only':'approved_fixed_command_observations_only')&&v.task_acceptance==='not_established'&&graphObservationSupported(v.observation)&&(v.state==='passed')===v.passed)
+    &&view.validations.every(v=>v.source==='baton_goal_validator'&&['passed','failed','cancelled','outcome_unknown'].includes(v.state)&&['worker_joined','not_started','outcome_unknown'].includes(v.io_completion)&&['artifact_integrity_only','data_contract_only','approved_deterministic_command_only'].includes(v.scope)&&v.correctness===(v.scope==='artifact_integrity_only'?'not_established':v.scope==='data_contract_only'?'approved_schema_ranges_metadata_only':'approved_fixed_command_observations_only')&&v.task_acceptance==='not_established'&&validationObservationSupported(v)&&(v.state==='passed')===v.passed)
     &&view.validations.every(v=>v.candidate_refs.every(graphArtifactPrecision))&&view.owner_decisions.every(d=>d.candidate_refs.every(graphArtifactPrecision))&&(!view.task_acceptance||view.task_acceptance.artifact_refs.every(graphArtifactPrecision))
     &&view.owner_decisions.every(d=>d.decision==='accepted'&&d.source==='local_owner_confirmation'||d.decision==='rejected'&&d.source==='local_owner_rejection');
 }
