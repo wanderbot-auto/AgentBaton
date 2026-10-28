@@ -1,0 +1,659 @@
+{
+  "proposal": {
+    "consumed": false,
+    "created_at": "2026-10-28T19:57:45.682604805Z",
+    "expires_at_ms": 1793217765682,
+    "id": "27f60496-3cd9-4f2c-8274-937d3ae78d73",
+    "kind": "factory",
+    "revision": 1,
+    "snapshot": {
+      "bindings": {
+        "approved_grant": {
+          "approval_id": "3e51cd35-3246-4708-950c-138468e702d2",
+          "approved_at": "2026-10-28T19:57:45.627354372Z",
+          "connection_bindings": {
+            "generated-connection": {
+              "capability_snapshot_id": "generated-capability",
+              "config_revision": "generated-config",
+              "environment_id": "generated-environment",
+              "executable_sha256": "3ca1426b4fed203086d44821f44ef57698808d8aee864eb2e0d4543732d9f59a",
+              "host_id": "local",
+              "identity_ref": "unknown",
+              "protocol_route": "custom_acp",
+              "revision": 1
+            }
+          },
+          "depth": 0,
+          "enforcement": {
+            "baton_mediated_scope": true,
+            "native_identity_isolation": false,
+            "os_filesystem_sandbox": false,
+            "os_network_sandbox": false
+          },
+          "expires_at_ms": 1793217495627,
+          "id": "7887b88e-d86a-45c7-ac19-9dc5c7f14fd7",
+          "parent_id": null,
+          "project_id": "fde3239b-3a65-4328-aca4-d7072d6e0b68",
+          "revision": 1,
+          "revoked": false,
+          "root_grant_id": "7887b88e-d86a-45c7-ac19-9dc5c7f14fd7",
+          "scope": {
+            "connection_ids": [
+              "generated-connection"
+            ],
+            "host_ids": [
+              "local"
+            ],
+            "max_attempts": 8,
+            "max_children": 0,
+            "max_concurrency": 1,
+            "max_depth": 0,
+            "max_duration_ms": 30000,
+            "network": {
+              "mode": "deny"
+            },
+            "recipients": [],
+            "workspace_ids": [
+              "23b2bab8-f4f0-480e-ad9c-6d57394381fe"
+            ]
+          },
+          "workspace_bindings": {
+            "23b2bab8-f4f0-480e-ad9c-6d57394381fe": {
+              "canonical_root": "/tmp/.tmpPQRPxv/managed/23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+              "device": 34,
+              "inode": 483193,
+              "kind": {
+                "common_dir": "/tmp/.tmpPQRPxv/source/.git",
+                "dirty": false,
+                "head": "560a649fc892334552805ee5bb39e9693c5f1c92",
+                "kind": "git"
+              }
+            }
+          }
+        },
+        "companion": {
+          "argument_template": [
+            "factory-mcp",
+            "${SESSION_HANDLE_FILE}"
+          ],
+          "credential_transport": "private_0600_file_reference",
+          "executable": "/tmp/.tmpPQRPxv/generated-companion-binding-only",
+          "executable_sha256": "3ca1426b4fed203086d44821f44ef57698808d8aee864eb2e0d4543732d9f59a",
+          "global_daemon_token_available": false
+        },
+        "connections": [
+          {
+            "approval_id": "synthetic-no-provider",
+            "arguments": [],
+            "capability_snapshot_id": "generated-capability",
+            "config_revision": "generated-config",
+            "config_status": "baton_managed",
+            "created_at": "2026-10-28T00:00:00Z",
+            "environment_id": "generated-environment",
+            "executable": "/tmp/.tmpPQRPxv/generated-companion-binding-only",
+            "executable_sha256": "3ca1426b4fed203086d44821f44ef57698808d8aee864eb2e0d4543732d9f59a",
+            "host_id": "local",
+            "id": "generated-connection",
+            "identity_ref": "unknown",
+            "identity_status": "unknown",
+            "name": "Explicit synthetic connection; no Provider call",
+            "probe_state": "ready",
+            "protocol_route": "custom_acp",
+            "provider": "custom_acp",
+            "revision": 1,
+            "runtime_plan": {
+              "claude": {
+                "disabled_project_mcp_names": [],
+                "enabled_project_mcp_names": []
+              },
+              "codex": {
+                "approval_policy": "on-request",
+                "model": null,
+                "sandbox": "workspace-write"
+              },
+              "mcp_servers": [],
+              "provider": "custom_acp",
+              "skills": [],
+              "source_refs": []
+            },
+            "version_evidence": null
+          }
+        ],
+        "guarantees": {
+          "account_isolation": false,
+          "complete_process_tree_containment": false,
+          "continuous_input_immutability": false,
+          "filesystem_sandbox": false,
+          "network_sandbox": false,
+          "output_quota": false
+        },
+        "inputs": [
+          {
+            "bytes": 12,
+            "contract": {
+              "canonical_root": "/tmp/.tmpPQRPxv/managed/23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+              "requirement": {
+                "artifact_id": "input",
+                "expected_sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1",
+                "max_bytes": 1024,
+                "relative_path": "input.txt"
+              },
+              "root_device": 34,
+              "root_inode": 483193
+            },
+            "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+          }
+        ],
+        "outputs": [
+          {
+            "canonical_root": "/tmp/.tmpPQRPxv/managed/23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+            "requirement": {
+              "artifact_id": "report",
+              "expected_sha256": null,
+              "max_bytes": 4096,
+              "relative_path": "reports/report.txt"
+            },
+            "root_device": 34,
+            "root_inode": 483193
+          }
+        ],
+        "project": {
+          "archived": false,
+          "created_at": "2026-10-28T19:57:45.361796377Z",
+          "id": "fde3239b-3a65-4328-aca4-d7072d6e0b68",
+          "identity": {
+            "canonical_root": "/tmp/.tmpPQRPxv/source",
+            "device": 34,
+            "inode": 483132,
+            "kind": {
+              "common_dir": "/tmp/.tmpPQRPxv/source/.git",
+              "dirty": false,
+              "head": "560a649fc892334552805ee5bb39e9693c5f1c92",
+              "kind": "git"
+            }
+          },
+          "name": "Generated Factory scope",
+          "revision": 1,
+          "updated_at": "2026-10-28T19:57:45.361796377Z"
+        },
+        "root_task": {
+          "created_at": "2026-10-28T19:57:45.574356664Z",
+          "goal": "Delegate only the fixed generated input and return a report",
+          "id": "f4185b79-409a-4926-b526-a87f968bf08f",
+          "project_id": "fde3239b-3a65-4328-aca4-d7072d6e0b68",
+          "revision": 1,
+          "spec_revision": 1,
+          "state": "draft",
+          "updated_at": "2026-10-28T19:57:45.574356664Z"
+        },
+        "start_contract": {
+          "context_continuation": "new_attempt_explicit_handoff_only",
+          "implicit_start_on_approval": false,
+          "mode": "single_scope_single_run",
+          "new_workspace_authority": false,
+          "root_task_request_digest": "48e50456398be6e95ad86dc10a0ebecda1d14fb52bc4dc216fb9755a9b1844f1"
+        },
+        "workspaces": [
+          {
+            "base_revision": "560a649fc892334552805ee5bb39e9693c5f1c92",
+            "created_at": "2026-10-28T19:57:45.414425336Z",
+            "id": "23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+            "identity": {
+              "canonical_root": "/tmp/.tmpPQRPxv/managed/23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+              "device": 34,
+              "inode": 483193,
+              "kind": {
+                "common_dir": "/tmp/.tmpPQRPxv/source/.git",
+                "dirty": false,
+                "head": "560a649fc892334552805ee5bb39e9693c5f1c92",
+                "kind": "git"
+              }
+            },
+            "project_id": "fde3239b-3a65-4328-aca4-d7072d6e0b68",
+            "revision": 2,
+            "root": "/tmp/.tmpPQRPxv/managed/23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+            "state": "ready"
+          }
+        ]
+      },
+      "contract_digest": "c434c3922b310ae04bfb1fa433d64814ae173d6f306a5a3a5f652cdd19d6ab68",
+      "schema_version": 1,
+      "selection": {
+        "capabilities": {
+          "child_goal_execution": false,
+          "child_planning": false,
+          "create_workspace": false,
+          "delegate_task": true,
+          "resume_parent_as_new_attempt": true
+        },
+        "connection_ids": [
+          "generated-connection"
+        ],
+        "expected_grant_revision": 1,
+        "expected_task_revision": 1,
+        "grant_id": "7887b88e-d86a-45c7-ac19-9dc5c7f14fd7",
+        "inputs": [
+          {
+            "artifact_id": "input",
+            "expected_sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1",
+            "max_bytes": 1024,
+            "relative_path": "input.txt"
+          }
+        ],
+        "max_children": 2,
+        "max_depth": 2,
+        "max_total_nodes": 4,
+        "outputs": [
+          {
+            "artifact_id": "report",
+            "expected_sha256": null,
+            "max_bytes": 4096,
+            "relative_path": "reports/report.txt"
+          }
+        ],
+        "project_budget": {
+          "attempts": 8,
+          "children": 3,
+          "cost_microunits": null,
+          "output_bytes": 4096,
+          "parallel": 1,
+          "reworks": 0,
+          "runtime_ms": 30000,
+          "tokens": null
+        },
+        "recipients": [],
+        "root_budget": {
+          "attempts": 8,
+          "children": 3,
+          "cost_microunits": null,
+          "output_bytes": 4096,
+          "parallel": 1,
+          "reworks": 0,
+          "runtime_ms": 30000,
+          "tokens": null
+        },
+        "root_task_id": "f4185b79-409a-4926-b526-a87f968bf08f",
+        "ttl_ms": 30000,
+        "workspace_ids": [
+          "23b2bab8-f4f0-480e-ad9c-6d57394381fe"
+        ]
+      }
+    }
+  },
+  "provenance": "generated files; real Store native-owner finalizer fixture; no actual OS dialog or Provider execution",
+  "run_details": {
+    "run": {
+      "active_session_id": null,
+      "active_task_id": null,
+      "cancel_requested": false,
+      "context_continuation": "new_attempt_explicit_handoff_only",
+      "created_at": "2026-10-28T19:57:45.802892423Z",
+      "id": "09441ace-0960-4123-babc-b5541eca3163",
+      "last_error": null,
+      "project_id": "fde3239b-3a65-4328-aca4-d7072d6e0b68",
+      "revision": 1,
+      "root_task_id": "f4185b79-409a-4926-b526-a87f968bf08f",
+      "scope_id": "27f60496-3cd9-4f2c-8274-937d3ae78d73",
+      "state": "queued",
+      "updated_at": "2026-10-28T19:57:45.802892423Z"
+    },
+    "tasks": [
+      {
+        "attempt_id": null,
+        "cancel_requested": false,
+        "confirmed_stop": false,
+        "delegation_id": "root:f4185b79-409a-4926-b526-a87f968bf08f",
+        "factory_scope_id": "27f60496-3cd9-4f2c-8274-937d3ae78d73",
+        "parent_task_id": null,
+        "result_available": false,
+        "revision": 1,
+        "root_task_id": "f4185b79-409a-4926-b526-a87f968bf08f",
+        "state": "queued",
+        "task_id": "f4185b79-409a-4926-b526-a87f968bf08f"
+      }
+    ],
+    "waiting_relations": []
+  },
+  "scope": {
+    "approval_id": "27f60496-3cd9-4f2c-8274-937d3ae78d73",
+    "bindings": {
+      "approved_grant": {
+        "approval_id": "3e51cd35-3246-4708-950c-138468e702d2",
+        "approved_at": "2026-10-28T19:57:45.627354372Z",
+        "connection_bindings": {
+          "generated-connection": {
+            "capability_snapshot_id": "generated-capability",
+            "config_revision": "generated-config",
+            "environment_id": "generated-environment",
+            "executable_sha256": "3ca1426b4fed203086d44821f44ef57698808d8aee864eb2e0d4543732d9f59a",
+            "host_id": "local",
+            "identity_ref": "unknown",
+            "protocol_route": "custom_acp",
+            "revision": 1
+          }
+        },
+        "depth": 0,
+        "enforcement": {
+          "baton_mediated_scope": true,
+          "native_identity_isolation": false,
+          "os_filesystem_sandbox": false,
+          "os_network_sandbox": false
+        },
+        "expires_at_ms": 1793217495627,
+        "id": "7887b88e-d86a-45c7-ac19-9dc5c7f14fd7",
+        "parent_id": null,
+        "project_id": "fde3239b-3a65-4328-aca4-d7072d6e0b68",
+        "revision": 1,
+        "revoked": false,
+        "root_grant_id": "7887b88e-d86a-45c7-ac19-9dc5c7f14fd7",
+        "scope": {
+          "connection_ids": [
+            "generated-connection"
+          ],
+          "host_ids": [
+            "local"
+          ],
+          "max_attempts": 8,
+          "max_children": 0,
+          "max_concurrency": 1,
+          "max_depth": 0,
+          "max_duration_ms": 30000,
+          "network": {
+            "mode": "deny"
+          },
+          "recipients": [],
+          "workspace_ids": [
+            "23b2bab8-f4f0-480e-ad9c-6d57394381fe"
+          ]
+        },
+        "workspace_bindings": {
+          "23b2bab8-f4f0-480e-ad9c-6d57394381fe": {
+            "canonical_root": "/tmp/.tmpPQRPxv/managed/23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+            "device": 34,
+            "inode": 483193,
+            "kind": {
+              "common_dir": "/tmp/.tmpPQRPxv/source/.git",
+              "dirty": false,
+              "head": "560a649fc892334552805ee5bb39e9693c5f1c92",
+              "kind": "git"
+            }
+          }
+        }
+      },
+      "companion": {
+        "argument_template": [
+          "factory-mcp",
+          "${SESSION_HANDLE_FILE}"
+        ],
+        "credential_transport": "private_0600_file_reference",
+        "executable": "/tmp/.tmpPQRPxv/generated-companion-binding-only",
+        "executable_sha256": "3ca1426b4fed203086d44821f44ef57698808d8aee864eb2e0d4543732d9f59a",
+        "global_daemon_token_available": false
+      },
+      "connections": [
+        {
+          "approval_id": "synthetic-no-provider",
+          "arguments": [],
+          "capability_snapshot_id": "generated-capability",
+          "config_revision": "generated-config",
+          "config_status": "baton_managed",
+          "created_at": "2026-10-28T00:00:00Z",
+          "environment_id": "generated-environment",
+          "executable": "/tmp/.tmpPQRPxv/generated-companion-binding-only",
+          "executable_sha256": "3ca1426b4fed203086d44821f44ef57698808d8aee864eb2e0d4543732d9f59a",
+          "host_id": "local",
+          "id": "generated-connection",
+          "identity_ref": "unknown",
+          "identity_status": "unknown",
+          "name": "Explicit synthetic connection; no Provider call",
+          "probe_state": "ready",
+          "protocol_route": "custom_acp",
+          "provider": "custom_acp",
+          "revision": 1,
+          "runtime_plan": {
+            "claude": {
+              "disabled_project_mcp_names": [],
+              "enabled_project_mcp_names": []
+            },
+            "codex": {
+              "approval_policy": "on-request",
+              "model": null,
+              "sandbox": "workspace-write"
+            },
+            "mcp_servers": [],
+            "provider": "custom_acp",
+            "skills": [],
+            "source_refs": []
+          },
+          "version_evidence": null
+        }
+      ],
+      "guarantees": {
+        "account_isolation": false,
+        "complete_process_tree_containment": false,
+        "continuous_input_immutability": false,
+        "filesystem_sandbox": false,
+        "network_sandbox": false,
+        "output_quota": false
+      },
+      "inputs": [
+        {
+          "bytes": 12,
+          "contract": {
+            "canonical_root": "/tmp/.tmpPQRPxv/managed/23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+            "requirement": {
+              "artifact_id": "input",
+              "expected_sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1",
+              "max_bytes": 1024,
+              "relative_path": "input.txt"
+            },
+            "root_device": 34,
+            "root_inode": 483193
+          },
+          "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+        }
+      ],
+      "outputs": [
+        {
+          "canonical_root": "/tmp/.tmpPQRPxv/managed/23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+          "requirement": {
+            "artifact_id": "report",
+            "expected_sha256": null,
+            "max_bytes": 4096,
+            "relative_path": "reports/report.txt"
+          },
+          "root_device": 34,
+          "root_inode": 483193
+        }
+      ],
+      "project": {
+        "archived": false,
+        "created_at": "2026-10-28T19:57:45.361796377Z",
+        "id": "fde3239b-3a65-4328-aca4-d7072d6e0b68",
+        "identity": {
+          "canonical_root": "/tmp/.tmpPQRPxv/source",
+          "device": 34,
+          "inode": 483132,
+          "kind": {
+            "common_dir": "/tmp/.tmpPQRPxv/source/.git",
+            "dirty": false,
+            "head": "560a649fc892334552805ee5bb39e9693c5f1c92",
+            "kind": "git"
+          }
+        },
+        "name": "Generated Factory scope",
+        "revision": 1,
+        "updated_at": "2026-10-28T19:57:45.361796377Z"
+      },
+      "root_task": {
+        "created_at": "2026-10-28T19:57:45.574356664Z",
+        "goal": "Delegate only the fixed generated input and return a report",
+        "id": "f4185b79-409a-4926-b526-a87f968bf08f",
+        "project_id": "fde3239b-3a65-4328-aca4-d7072d6e0b68",
+        "revision": 1,
+        "spec_revision": 1,
+        "state": "draft",
+        "updated_at": "2026-10-28T19:57:45.574356664Z"
+      },
+      "start_contract": {
+        "context_continuation": "new_attempt_explicit_handoff_only",
+        "implicit_start_on_approval": false,
+        "mode": "single_scope_single_run",
+        "new_workspace_authority": false,
+        "root_task_request_digest": "48e50456398be6e95ad86dc10a0ebecda1d14fb52bc4dc216fb9755a9b1844f1"
+      },
+      "workspaces": [
+        {
+          "base_revision": "560a649fc892334552805ee5bb39e9693c5f1c92",
+          "created_at": "2026-10-28T19:57:45.414425336Z",
+          "id": "23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+          "identity": {
+            "canonical_root": "/tmp/.tmpPQRPxv/managed/23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+            "device": 34,
+            "inode": 483193,
+            "kind": {
+              "common_dir": "/tmp/.tmpPQRPxv/source/.git",
+              "dirty": false,
+              "head": "560a649fc892334552805ee5bb39e9693c5f1c92",
+              "kind": "git"
+            }
+          },
+          "project_id": "fde3239b-3a65-4328-aca4-d7072d6e0b68",
+          "revision": 2,
+          "root": "/tmp/.tmpPQRPxv/managed/23b2bab8-f4f0-480e-ad9c-6d57394381fe",
+          "state": "ready"
+        }
+      ]
+    },
+    "contract_digest": "c434c3922b310ae04bfb1fa433d64814ae173d6f306a5a3a5f652cdd19d6ab68",
+    "created_at": "2026-10-28T19:57:45.740707986Z",
+    "expires_at_ms": 1793217495627,
+    "id": "27f60496-3cd9-4f2c-8274-937d3ae78d73",
+    "project_id": "fde3239b-3a65-4328-aca4-d7072d6e0b68",
+    "revision": 1,
+    "revoked": false,
+    "root_grant_id": "7887b88e-d86a-45c7-ac19-9dc5c7f14fd7",
+    "root_grant_revision": 1,
+    "root_task_id": "f4185b79-409a-4926-b526-a87f968bf08f",
+    "selection": {
+      "capabilities": {
+        "child_goal_execution": false,
+        "child_planning": false,
+        "create_workspace": false,
+        "delegate_task": true,
+        "resume_parent_as_new_attempt": true
+      },
+      "connection_ids": [
+        "generated-connection"
+      ],
+      "expected_grant_revision": 1,
+      "expected_task_revision": 1,
+      "grant_id": "7887b88e-d86a-45c7-ac19-9dc5c7f14fd7",
+      "inputs": [
+        {
+          "artifact_id": "input",
+          "expected_sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1",
+          "max_bytes": 1024,
+          "relative_path": "input.txt"
+        }
+      ],
+      "max_children": 2,
+      "max_depth": 2,
+      "max_total_nodes": 4,
+      "outputs": [
+        {
+          "artifact_id": "report",
+          "expected_sha256": null,
+          "max_bytes": 4096,
+          "relative_path": "reports/report.txt"
+        }
+      ],
+      "project_budget": {
+        "attempts": 8,
+        "children": 3,
+        "cost_microunits": null,
+        "output_bytes": 4096,
+        "parallel": 1,
+        "reworks": 0,
+        "runtime_ms": 30000,
+        "tokens": null
+      },
+      "recipients": [],
+      "root_budget": {
+        "attempts": 8,
+        "children": 3,
+        "cost_microunits": null,
+        "output_bytes": 4096,
+        "parallel": 1,
+        "reworks": 0,
+        "runtime_ms": 30000,
+        "tokens": null
+      },
+      "root_task_id": "f4185b79-409a-4926-b526-a87f968bf08f",
+      "ttl_ms": 30000,
+      "workspace_ids": [
+        "23b2bab8-f4f0-480e-ad9c-6d57394381fe"
+      ]
+    }
+  },
+  "selection": {
+    "capabilities": {
+      "child_goal_execution": false,
+      "child_planning": false,
+      "create_workspace": false,
+      "delegate_task": true,
+      "resume_parent_as_new_attempt": true
+    },
+    "connection_ids": [
+      "generated-connection"
+    ],
+    "expected_grant_revision": 1,
+    "expected_task_revision": 1,
+    "grant_id": "7887b88e-d86a-45c7-ac19-9dc5c7f14fd7",
+    "inputs": [
+      {
+        "artifact_id": "input",
+        "expected_sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1",
+        "max_bytes": 1024,
+        "relative_path": "input.txt"
+      }
+    ],
+    "max_children": 2,
+    "max_depth": 2,
+    "max_total_nodes": 4,
+    "outputs": [
+      {
+        "artifact_id": "report",
+        "expected_sha256": null,
+        "max_bytes": 4096,
+        "relative_path": "reports/report.txt"
+      }
+    ],
+    "project_budget": {
+      "attempts": 8,
+      "children": 3,
+      "cost_microunits": null,
+      "output_bytes": 4096,
+      "parallel": 1,
+      "reworks": 0,
+      "runtime_ms": 30000,
+      "tokens": null
+    },
+    "recipients": [],
+    "root_budget": {
+      "attempts": 8,
+      "children": 3,
+      "cost_microunits": null,
+      "output_bytes": 4096,
+      "parallel": 1,
+      "reworks": 0,
+      "runtime_ms": 30000,
+      "tokens": null
+    },
+    "root_task_id": "f4185b79-409a-4926-b526-a87f968bf08f",
+    "ttl_ms": 30000,
+    "workspace_ids": [
+      "23b2bab8-f4f0-480e-ad9c-6d57394381fe"
+    ]
+  }
+}

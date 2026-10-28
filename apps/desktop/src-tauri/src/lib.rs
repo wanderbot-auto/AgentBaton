@@ -617,6 +617,145 @@ fn goal_graph_advance_frame(
 ) -> Value {
     json!({"method":"goal_graph_runs.advance_plan","params":{"run_id":run_id,"expected_plan_revision":expected_plan_revision,"expected_ledger_revision":expected_ledger_revision},"expected_revision":expected_revision,"idempotency_key":idempotency_key})
 }
+
+fn factory_scope_proposal_frame(selection: &Value, key: &str) -> Value {
+    json!({"method":"factory_scopes.propose","params":selection,"idempotency_key":key})
+}
+fn factory_scope_frame(
+    method: &str,
+    scope_id: &str,
+    revision: Option<u64>,
+    key: Option<&str>,
+) -> Value {
+    let mut value = json!({"method":method,"params":{"scope_id":scope_id}});
+    if let Some(revision) = revision {
+        value["expected_revision"] = json!(revision);
+    }
+    if let Some(key) = key {
+        value["idempotency_key"] = json!(key);
+    }
+    value
+}
+#[tauri::command]
+async fn factory_scope_approve(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    selection: Value,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                factory_scope_proposal_frame(&selection, &idempotency_key),
+            )
+            .map_err(|e| e.to_string())?;
+            approval::confirm_factory_and_finalize(
+                proposal,
+                &selection,
+                |message| parent.confirm("AgentBaton — Independent Factory approval", message),
+                |frame| parent.finalize(|| ipc::call(&directory, frame).map_err(|e| e.to_string())),
+            )
+        })
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+#[tauri::command]
+async fn factory_scopes_get(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_scope_frame("factory_scopes.get", &scope_id, None, None),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_scopes_list(
+    runtime: tauri::State<'_, Runtime>,
+    root_task_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"factory_scopes.list","params":{"root_task_id":root_task_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_scopes_revoke(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_scope_frame(
+            "factory_scopes.revoke",
+            &scope_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_runs_start(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_scope_frame(
+            "factory_runs.start",
+            &scope_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_runs_get(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_scope_frame("factory_runs.get", &scope_id, None, None),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_runs_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_scope_frame(
+            "factory_runs.cancel",
+            &scope_id,
+            Some(expected_revision),
+            Some(&idempotency_key),
+        ),
+        false,
+    )
+    .await
+}
+
 #[tauri::command]
 async fn goal_graph_run_approve(
     runtime: tauri::State<'_, Runtime>,
@@ -1133,6 +1272,13 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
 
 pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
     let handler: fn(tauri::ipc::Invoke<tauri::Wry>) -> bool = tauri::generate_handler![
+        factory_scope_approve,
+        factory_scopes_get,
+        factory_scopes_list,
+        factory_scopes_revoke,
+        factory_runs_start,
+        factory_runs_get,
+        factory_runs_cancel,
         goal_graph_run_approve,
         goal_graph_runs_list,
         goal_graph_runs_get,
@@ -1337,5 +1483,39 @@ mod graph_bridge_tests {
             goal_graph_proposal_frame(&graph, "key")["method"],
             goal_run_proposal_frame(&graph, "key")["method"]
         );
+    }
+}
+
+#[cfg(test)]
+mod factory_bridge_tests {
+    use super::*;
+    #[test]
+    fn factory_owner_frames_keep_only_scope_reference_and_original_cas_key() {
+        for method in [
+            "factory_scopes.revoke",
+            "factory_runs.start",
+            "factory_runs.cancel",
+        ] {
+            assert_eq!(
+                factory_scope_frame(method, "scope", Some(7), Some("same-key")),
+                json!({"method":method,"params":{"scope_id":"scope"},"expected_revision":7,"idempotency_key":"same-key"})
+            );
+        }
+        assert_eq!(
+            factory_scope_frame("factory_runs.get", "scope", None, None),
+            json!({"method":"factory_runs.get","params":{"scope_id":"scope"}})
+        );
+    }
+    #[test]
+    fn factory_selection_never_adds_agent_tool_token_or_owner_approval_flags() {
+        let selection = json!({"root_task_id":"task","grant_id":"grant"});
+        let frame = factory_scope_proposal_frame(&selection, "key");
+        assert_eq!(
+            frame,
+            json!({"method":"factory_scopes.propose","params":selection,"idempotency_key":"key"})
+        );
+        assert!(frame.get("caller").is_none());
+        assert!(frame.get("token").is_none());
+        assert!(frame["params"].get("approved").is_none());
     }
 }
