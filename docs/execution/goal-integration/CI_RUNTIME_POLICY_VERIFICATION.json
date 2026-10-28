@@ -1,0 +1,180 @@
+{
+  "base_subject": "03bbec858c73b4c461fb63e98d50a51de79b37eb",
+  "reviewer": "/root/data_native_integration_review",
+  "verdict": "PASS for scoped finite CI policy alignment; fresh exact-head CI still required",
+  "source_hashes": {
+    "scripts/validate_infrastructure.py": "cd3c3f922c0e173a9242b59255763057c12991a7a9965c58f6fdf6ee6ced704e",
+    "tests/infrastructure/test_runtime_policy.py": "79243f66fd7912033d74d2193c44785c47617957849234a8803e182647dec215",
+    "infra/CI-PLAN.md": "4a597925faebe8a6fbfb28bb6a1212055200a66a5da2ea246d51ec48ecddaee5",
+    "docs/execution/goal-integration/CI_BUILD_BUDGET_ADR.md": "94c34efe24ee590161bbb304ab56f6d5a38e9f0d29065d8f64b3ed8bc2bc0d07",
+    ".github/workflows/environment-preflight.yml": "3bcfd3051e2995de0e49bff88861fd9972a3f805a7cdc9f9bd13c43d4d0e668c",
+    ".github/workflows/product.yml": "2debf199476273c81f3e608d8887c2927c675e2b2db4e15f23b48331e3d90b7e"
+  },
+  "actual_local": {
+    "targeted_guard_methods": 6,
+    "full_infrastructure_methods": 34,
+    "targeted_are_subset_not_40_unique": true,
+    "Node_tests": 4,
+    "independent_actual_validator_main_controls": 12,
+    "static_infrastructure": "PASS",
+    "design_package_validation": "PASS, not product tests",
+    "bootstrap_files": 93,
+    "diff": "PASS",
+    "commands": [
+      {
+        "name": "targeted-runtime-policy",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_runtime_policy.py",
+          "-v"
+        ],
+        "exit_code": 0,
+        "seconds": 0.13,
+        "sha256": "bf6fbc37aa0a4a53b72a97ae353774098db02a3cd9f651892c5e94b49dc302f8",
+        "log": "/workspace/.onboarding/goal-native-03bb/policy-independent-review/targeted-runtime-policy.log"
+      },
+      {
+        "name": "infrastructure",
+        "command": [
+          "python3",
+          "scripts/validate_infrastructure.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.05,
+        "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+        "log": "/workspace/.onboarding/goal-native-03bb/policy-independent-review/infrastructure.log"
+      },
+      {
+        "name": "full-python-infrastructure",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "exit_code": 0,
+        "seconds": 0.64,
+        "sha256": "19570a70ef79dd89d9d066895d5ee369c06ccc0220fa2de66e4389b5a3653e00",
+        "log": "/workspace/.onboarding/goal-native-03bb/policy-independent-review/full-python-infrastructure.log"
+      },
+      {
+        "name": "design-validation",
+        "command": [
+          "python3",
+          "scripts/validate_design.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.19,
+        "sha256": "c703e1f06b80c9e294120fa28eb3bea25096ca895f213b29f73adfe4d1279edc",
+        "log": "/workspace/.onboarding/goal-native-03bb/policy-independent-review/design-validation.log"
+      },
+      {
+        "name": "node-infrastructure",
+        "command": [
+          "node",
+          "--test",
+          "tests/infrastructure/node-smoke.test.mjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.19,
+        "sha256": "aad7d1ca920852739c43a802943c864e1ca8b526e2fbb7a0a6bbefaaa3ec191f",
+        "log": "/workspace/.onboarding/goal-native-03bb/policy-independent-review/node-infrastructure.log"
+      },
+      {
+        "name": "diff",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 0.0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log": "/workspace/.onboarding/goal-native-03bb/policy-independent-review/diff.log"
+      },
+      {
+        "name": "bootstrap93",
+        "command": [
+          "python3",
+          "scripts/verify_bootstrap_manifest.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.08,
+        "log": "/workspace/.onboarding/goal-native-03bb/policy-independent-review/bootstrap93.log",
+        "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+      }
+    ]
+  },
+  "unchanged_policy_evidence": {
+    "base_subject": "03bbec858c73b4c461fb63e98d50a51de79b37eb",
+    "source_hashes": {
+      "scripts/validate_infrastructure.py": "cd3c3f922c0e173a9242b59255763057c12991a7a9965c58f6fdf6ee6ced704e",
+      "tests/infrastructure/test_runtime_policy.py": "79243f66fd7912033d74d2193c44785c47617957849234a8803e182647dec215",
+      "infra/CI-PLAN.md": "4a597925faebe8a6fbfb28bb6a1212055200a66a5da2ea246d51ec48ecddaee5",
+      "docs/execution/goal-integration/CI_BUILD_BUDGET_ADR.md": "94c34efe24ee590161bbb304ab56f6d5a38e9f0d29065d8f64b3ed8bc2bc0d07",
+      ".github/workflows/environment-preflight.yml": "3bcfd3051e2995de0e49bff88861fd9972a3f805a7cdc9f9bd13c43d4d0e668c",
+      ".github/workflows/product.yml": "2debf199476273c81f3e608d8887c2927c675e2b2db4e15f23b48331e3d90b7e"
+    },
+    "original_infrastructure_test_files_unchanged": [
+      "tests/infrastructure/node-smoke.test.mjs",
+      "tests/infrastructure/test_design_discovery.py",
+      "tests/infrastructure/test_execution_authorization.py",
+      "tests/infrastructure/test_preparation.py",
+      "tests/infrastructure/test_public_repository.py"
+    ],
+    "unchanged_critical_tests_runners_audit_package_hashes": {
+      "scripts/native-run.py": "c46145848ec5ae4ee966f0781b92d5a4079232a4cb054dda4ce82e0505bb1845",
+      "scripts/native-macos-smoke.sh": "29ea54f7e94229a46934686f73a73c7e215c5dc5da3d123523c2b2734b29bb61",
+      "scripts/native-audit-release.sh": "dd60a45803ebc66c8dc5a19bba24da35b6e20716589b332314c7d1ecc4fa52d0",
+      "scripts/package-development-macos.sh": "5f2234ec7e50d5a6d7dd71d22d4115b85d2a74c6f653b32877fd715a029e33d6",
+      "crates/providers/tests/native_codex.rs": "aff6e9cac154f7877b6f0a969d4cadaaa7e32c2a28638fcb9546b088d7b1c8e3",
+      "crates/core/tests/command_validation.rs": "83aa18cf1b4a639c3c082798dfcac08ac358ff600ee880d2905246faa79c1960",
+      "apps/desktop/src-tauri/tests/test_native_runner.py": "844fd6410315d6c3fb99828b212d46b1f1d5caf76e02a471a04a0caf5e84dd2e"
+    },
+    "bootstrap": {
+      "actual_files": 93,
+      "manifest_sha256": "4ccf2ee24b850d1cb51ebd91bf14f6bf083e11619be5f97574407449c4793ed7",
+      "new_paths": [
+        "tests/infrastructure/test_runtime_policy.py"
+      ],
+      "changed_existing_hashes": [
+        "infra/CI-PLAN.md",
+        "scripts/validate_infrastructure.py"
+      ],
+      "scope": "momentary integrity; Root may subsequently update only STATUS/hash after review",
+      "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+    }
+  },
+  "previous_review_omission": "Earlier workflow-only budget review missed blanket30 cross-file validator.03BB actual3Env failures and unchanged old report retained; new scope actually tested across files.",
+  "limits": [
+    "Local config/control fixtures do not execute CI or provision runners",
+    "No new Product/Mac/native/package result inferred from these tests",
+    "Subsequent STATUS/hash update only is outside this intermediate bootstrap manifest SHA",
+    "No product timeout/tests/runtime controls/Environmentworkflow modifications or review action changing permissions/paid resources"
+  ],
+  "files": {
+    "bootstrap93.log": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+    "commands.json": "3684f7ba4f5dbfcd5eea10655c3e3086f0f9f5de5feaf4f1b1a908e12e81b0b0",
+    "design-validation.log": "c703e1f06b80c9e294120fa28eb3bea25096ca895f213b29f73adfe4d1279edc",
+    "diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "full-python-infrastructure.log": "19570a70ef79dd89d9d066895d5ee369c06ccc0220fa2de66e4389b5a3653e00",
+    "infrastructure.log": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+    "node-infrastructure.log": "aad7d1ca920852739c43a802943c864e1ca8b526e2fbb7a0a6bbefaaa3ec191f",
+    "old-validator.py": "b225da66019ad7b76c18e97f44aa898d36c4103e11392a31595e28680287bc00",
+    "review-assembly-correction.txt": "ee2a7f840ae200336d3a78a445b86240ce66e98eab4416e5f5d55e8d4d8b8913",
+    "static-source-proof.json": "f884100ebbf41774ea249abbfcbb0f754022d2d23e63c2d77d857532456e835b",
+    "targeted-runtime-policy.log": "bf6fbc37aa0a4a53b72a97ae353774098db02a3cd9f651892c5e94b49dc302f8",
+    "whole-validator-controls.json": "7d4a40fec9644c70ef6e76ca701ad6c7ba18e430453d6575fb2bf00f6cdc0bf8"
+  }
+}

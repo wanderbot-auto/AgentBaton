@@ -506,5 +506,32 @@
     ],
     "new_change": "Only desktop job wall-clock build budget30→45 +comments; all check steps/product deadlines/parallelism unchanged, independently reviewed",
     "not_accepted": "No Intel release audit/package; exact new7 and newdualDMGs still required"
+  },
+  "03BB_failure_policy_correction": {
+    "head": "03bbec858c73b4c461fb63e98d50a51de79b37eb",
+    "product_run": 40650374473,
+    "environment_run": 40650374542,
+    "checkout": "cb41f7f94aa1850a1c33e2cdb75f86325928b855",
+    "tree": "cd9480e92e3a4b287d455c7bd91fed86014661a8",
+    "environment": "3fail: static blanket30m guard rejects desktop45; real failure preserved",
+    "product_before_replacement": "Rust/UI success; dualMac stillrunning; not accepted/merged",
+    "policy_change": "exactproduct/desktop fixed2Mac/runner/maxparallel2/failfastfalse limited45; every otherjob/workflow capped30; no Environmentworkflow bytes changed",
+    "local_checks": {
+      "Python": 34,
+      "Node": 4,
+      "static_infra": "passed",
+      "design": "passed",
+      "bootstrap": 93
+    },
+    "independent_checks": {
+      "guard_subset": 6,
+      "full_Python": 34,
+      "Node": 4,
+      "actual_main_controls": 12,
+      "static_infra_design_bootstrap93": "passed"
+    },
+    "old_tests": "all28original infrastructuretests remain byteidentical;6meaningful resourcepolicy methods added",
+    "reason": "Existing CI budget policy was intentionally narrowed to one documented coldbuild exception; products/process/RPC budgets/assertions unchanged",
+    "next": "new exact7 plusactual native pair/defaultaudit/dualDMGs, no old borrowing"
   }
 }

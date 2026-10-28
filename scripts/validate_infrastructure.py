@@ -7,6 +7,23 @@ ROOT = Path(__file__).resolve().parents[1]
 def check(condition, message):
     if not condition:
         raise AssertionError(message)
+def validate_job_timeout(workflow_name, job_name, job):
+    maximum = 30
+    if workflow_name == 'product.yml' and job_name == 'desktop':
+        # One explicit cold-build budget, not a general permission for longer CI.
+        check(job.get('runs-on') == '${{ matrix.os }}', 'Unexpected product build host selector')
+        strategy = job.get('strategy', {})
+        check(strategy.get('matrix') == {'os': ['macos-15', 'macos-15-intel']}, 'Unexpected product build matrix')
+        check(str(strategy.get('max-parallel')) == '2', 'Unexpected product build concurrency')
+        check(str(strategy.get('fail-fast')).lower() == 'false', 'Both product architectures must complete')
+        maximum = 45
+    value = job.get('timeout-minutes')
+    check(type(value) in (str, int), 'Invalid CI job timeout')
+    try:
+        timeout = int(value)
+    except ValueError:
+        raise AssertionError('Invalid CI job timeout') from None
+    check(0 < timeout <= maximum, 'Unbounded CI job')
 def main():
     gate = json.loads((ROOT / 'infra/execution-gate.json').read_text())
     assert_product_approval(gate)
@@ -28,8 +45,8 @@ def main():
             check(d['on']['push'] == {'branches': ['main'], 'paths': ['infra/ci-request.json']}, 'Unexpected infrastructure main trigger')
             check(d['on']['pull_request'] == {'branches': ['main'], 'types': ['opened', 'synchronize', 'reopened', 'ready_for_review']}, 'Required checks must run on every main PR')
             check(d['jobs']['preflight']['strategy']['matrix']['os'] == ['ubuntu-24.04', 'macos-15', 'macos-15-intel'], 'Dual-architecture hosts missing')
-        for job in d['jobs'].values():
-            check(0 < int(job['timeout-minutes']) <= 30, 'Unbounded CI job')
+        for job_name, job in d['jobs'].items():
+            validate_job_timeout(f.name, job_name, job)
             check('self-hosted' not in str(job.get('runs-on', '')), 'Personal runners not approved')
             for step in job['steps']:
                 if 'uses' in step:
