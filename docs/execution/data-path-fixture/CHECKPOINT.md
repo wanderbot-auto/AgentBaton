@@ -1,0 +1,7 @@
+# Checkpoint
+
+Worktree /workspace/.worktrees/data-path-fixture; branch codex/data-path-fixture; baseline37bd032f0e1b2dfa75fc9ff768e85801f1693a99; source893efe5aa1dd89844de6d4df00d90d736d2b5e8a. Source file SHA f1aa9b30b601becab1a9b52e50c090a585f6becfbe4c5a80e1c963ed75b8d77b. Only assigned test function changed; original24names, other23/outside bytes and original formulas/assertions exact. Four author docs updated after freeze; no Goal/Root/production/lock/UI/CI change.
+
+Old Linux boundary1 and newData24+root-FD1, workspaces all-target Clippy-Dwarnings,fmt/diff PASS. Original ARM122751238994/Intel122751238886 logs preserved; no after-fix Mac pass claimed. Artifact manifest and frozen test ELF are in artifacts/data-path-fixture, EVIDENCE has exact hashes/commands.
+
+Native target /workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target is formally released to Root; author must not write it without a new lease. Main target was never acquired/touched for this task. Independent reviewer /root/data_native_integration_review has exact source/ELF/manifest and may directly run immutable ELF without Cargo. Root controls any further Native Cargo ownership. Next: independent source/actual-test verdict, parent composes narrow source+docs and runs new protected dual-Mac CI. If macOS still fails, retain evidence and determine whether fixture/product behavior is affected; do not reduce length, skip or broaden production scope automatically. Full product/Goal work continues in parent; this fixture is not a product completion claim.
