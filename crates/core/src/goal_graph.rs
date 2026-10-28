@@ -1372,6 +1372,20 @@ impl Store {
                     serde_json::from_value(params.clone()).map_err(|_| invalid())?;
                 key(&fixed.proposal_id)?;
                 raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)),0),COALESCE(max(octet_length(document)),0) FROM approval_proposals WHERE id=?1",[&fixed.proposal_id],1,MAX_STORED_BYTES)?;
+                // Unknown proposals belong to the normal fixed approval route,
+                // including its existing global-idle gate. Absence is never
+                // interpreted as a graph capability or a new read witness.
+                let exists: bool = self
+                    .conn
+                    .query_row(
+                        "SELECT EXISTS(SELECT 1 FROM approval_proposals WHERE id=?1)",
+                        [&fixed.proposal_id],
+                        |row| row.get(0),
+                    )
+                    .map_err(db_error)?;
+                if !exists {
+                    return Ok(None);
+                }
                 let p: ApprovalProposal =
                     raw(&self.conn, "approval_proposals", &fixed.proposal_id)?;
                 if p.kind != "goal_node_acceptance" || p.consumed {

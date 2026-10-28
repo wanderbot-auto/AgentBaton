@@ -5162,19 +5162,15 @@ fn actual_graph_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_auth
         let code = response["error"]["code"]
             .as_str()
             .expect("all corrupt/foreign authority must be refused");
-        if mode == "unknown_id" {
-            assert_eq!(code, "NOT_FOUND");
-        }
         assert!(
-            (mode == "unknown_id" && code == "NOT_FOUND")
-                || matches!(
-                    code,
-                    "WORKSPACE_BUSY"
-                        | "RESOURCE_LIMIT"
-                        | "INPUT_CHANGED"
-                        | "PERMISSION_DENIED"
-                        | "INVALID_REQUEST"
-                ),
+            matches!(
+                code,
+                "WORKSPACE_BUSY"
+                    | "RESOURCE_LIMIT"
+                    | "INPUT_CHANGED"
+                    | "PERMISSION_DENIED"
+                    | "INVALID_REQUEST"
+            ),
             "{mode}: {response}"
         );
         if mode == "renderer_kind" {
@@ -5183,7 +5179,7 @@ fn actual_graph_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_auth
         if mode == "oversize" {
             assert_eq!(code, "RESOURCE_LIMIT");
         }
-        if matches!(mode, "wrong_doc_id" | "wrong_stored_kind") {
+        if matches!(mode, "unknown_id" | "wrong_doc_id" | "wrong_stored_kind") {
             assert_eq!(code, "WORKSPACE_BUSY");
         }
         assert_eq!(
@@ -5238,6 +5234,21 @@ fn actual_graph_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_auth
     );
     assert_eq!(first["nodes"][0]["stop_confirmed"], true);
     assert_eq!(first["task_accepted"], false);
+    let sequence = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let idle=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":"unknown-owner-proposal"},"expected_revision":1,"idempotency_key":"idle-unknown-never-authorizes"}));
+    assert_eq!(idle["error"]["code"], "NOT_FOUND");
+    assert_eq!(idle["error"]["side_effect_state"], "not_started");
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"system.snapshot","params":{}}))
+        )["sequence"],
+        sequence
+    );
 }
 
 #[test]
