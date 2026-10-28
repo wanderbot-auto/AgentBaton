@@ -3435,3 +3435,110 @@ fn graph_build_source_hashes() -> Value {
         .map(|(name, bytes)| (name, agentbaton_workspaces::validation::sha256(bytes)))
         .collect::<std::collections::BTreeMap<_, _>>())
 }
+
+fn accepted_owner_graph_fixture()->(Scenario,Value,Value,Value,Value) {
+    let f=Scenario::new(10_000);
+    let scope=graph_owner_summary_plan(&f);
+    let summary=approve_graph_at(&f,&scope,2);
+    let run_id=summary["run"]["id"].clone();
+    wait(&f.server,"goal_graph_runs.get",json!({"run_id":run_id}),|d|d["nodes"].as_array().is_some_and(|ns|ns.iter().any(|n|n["node"]["id"]=="owner-report"&&n["state"]=="awaiting_owner")));
+    approve(&f.server,graph_owner_proposal(&f,&run_id,"owner-report","fixture-owner-first"));
+    wait(&f.server,"goal_graph_runs.get",json!({"run_id":run_id}),|d|d["nodes"].as_array().is_some_and(|ns|ns.iter().any(|n|n["node"]["id"]=="owner-summary"&&n["state"]=="awaiting_owner")));
+    let proposal=graph_owner_proposal(&f,&run_id,"owner-summary","fixture-owner-last");
+    let decision=approve(&f.server,proposal.clone());
+    assert_eq!(decision["task_accepted"],true);
+    let accepted=result(f.server.request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})));
+    (f,scope,proposal,decision,accepted)
+}
+#[test]
+fn actual_accepted_history_and_owner_replay_reject_durable_receipt_tampering_without_file_reads() {
+    let (mut f,_scope,proposal,decision,accepted)=accepted_owner_graph_fixture();
+    let run_id=accepted["run"]["id"].as_str().unwrap();
+    let task_id=f.task["id"].as_str().unwrap();
+    std::fs::write(PathBuf::from(f.workspace["root"].as_str().unwrap()).join("reports/report.txt"),b"legitimate later edit").unwrap();
+    let replay_request=json!({"method":"goal_node_approvals.propose","params":proposal["snapshot"]["intent"],"expected_revision":proposal["snapshot"]["expected_run_revision"],"idempotency_key":"fixture-owner-last"});
+    let recovered=result(f.server.request(replay_request));
+    assert_eq!(recovered["id"],proposal["id"]);assert_eq!(recovered["snapshot"],proposal["snapshot"]);assert_eq!(recovered["consumed"],true);
+    assert_eq!(approve(&f.server,recovered),decision);
+    let cross=f.server.request(json!({"method":"approvals.decline","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"fixed-opposite-action"}));
+    assert_eq!(cross["error"]["code"],"CONFIG_CONFLICT");
+    assert_eq!(result(f.server.request(json!({"method":"tasks.get","params":{"task_id":task_id}})))["state"],"accepted");
+    let foreign_path=f.root.join("foreign-project-source");std::fs::create_dir(&foreign_path).unwrap();git(&foreign_path,&["init","-q"]);std::fs::write(foreign_path.join("file"),b"another project").unwrap();git(&foreign_path,&["add","file"]);git(&foreign_path,&["commit","-qm","foreign fixture"]);
+    let foreign_project=result(f.server.request(json!({"method":"projects.import","params":{"path":foreign_path,"name":"Separate registered fixture"},"idempotency_key":"foreign-project-evidence-control"})));
+    f.server.shutdown();
+    let db=rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let frozen=f.root.join("accepted-original.sqlite3");
+    let mut snapshot=rusqlite::Connection::open(&frozen).unwrap();
+    rusqlite::backup::Backup::new(&db,&mut snapshot).unwrap().run_to_completion(128,Duration::from_millis(1),None).unwrap();
+    drop(snapshot);drop(db);
+    {let control=agentbaton_core::storage::Store::open(&frozen).unwrap();assert_eq!(control.get(task_id).unwrap().state,agentbaton_core::storage::TaskState::Accepted);assert!(control.goal_graph_details(run_id).unwrap().task_accepted);}
+    let cases=[
+        ("owner-deleted","DELETE FROM goal_graph_owner_decisions WHERE rowid=(SELECT min(rowid) FROM goal_graph_owner_decisions)"),
+        ("owner-source","UPDATE events SET document=json_set(document,'$.source','agent_output') WHERE sequence=(SELECT min(sequence) FROM events WHERE json_extract(document,'$.kind')='goal.owner_decided')"),
+        ("owner-reordered","UPDATE events SET sequence=(SELECT max(sequence)+100 FROM events) WHERE sequence=(SELECT min(sequence) FROM events WHERE json_extract(document,'$.kind')='goal.owner_decided')"),
+        ("capture-prepared-deleted","DELETE FROM events WHERE sequence=(SELECT min(sequence) FROM events WHERE json_extract(document,'$.kind')='goal.capture_prepared')"),
+        ("capture-prepared-source","UPDATE events SET document=json_set(document,'$.source','agent_output') WHERE sequence=(SELECT min(sequence) FROM events WHERE json_extract(document,'$.kind')='goal.capture_prepared')"),
+        ("capture-reordered","UPDATE events SET sequence=(SELECT max(sequence)+100 FROM events) WHERE sequence=(SELECT min(sequence) FROM events WHERE json_extract(document,'$.kind')='goal.capture_prepared')"),
+        ("candidate-sha","UPDATE goal_graph_candidates SET document=json_set(document,'$.artifacts[0].sha256',printf('%064d',0)) WHERE rowid=(SELECT min(rowid) FROM goal_graph_candidates)"),
+        ("task-project","UPDATE tasks SET document=json_set(document,'$.project_id','foreign-registered-project')"),
+        ("task-goal","UPDATE tasks SET document=json_set(document,'$.goal','different acceptance subject')"),
+        ("task-id","UPDATE tasks SET document=json_set(document,'$.id','foreign-task')"),
+        ("result-run","UPDATE approval_proposals SET result=json_set(result,'$.run_id','foreign-run') WHERE id=?1"),
+        ("result-node","UPDATE approval_proposals SET result=json_set(result,'$.node_id','foreign-node') WHERE id=?1"),
+        ("result-plan","UPDATE approval_proposals SET result=json_set(result,'$.plan_revision',999) WHERE id=?1"),
+        ("result-owner","UPDATE approval_proposals SET result=json_set(result,'$.owner_decision_id','foreign-decision') WHERE id=?1"),
+        ("result-revision","UPDATE approval_proposals SET result=json_set(result,'$.run_revision',999) WHERE id=?1"),
+        ("result-taskaccept","UPDATE approval_proposals SET result=json_set(result,'$.task_accepted',json('false')) WHERE id=?1"),
+        ("result-approval","UPDATE approval_proposals SET result=json_set(result,'$.approval_id','foreign-proposal') WHERE id=?1"),
+    ];
+    for (name,sql) in cases {
+        let path=f.root.join(format!("tampered-{name}.sqlite3"));std::fs::copy(&frozen,&path).unwrap();
+        let db=rusqlite::Connection::open(&path).unwrap();
+        if name=="task-project" {db.execute("UPDATE tasks SET document=json_set(document,'$.project_id',?1)",[foreign_project["id"].as_str().unwrap()]).unwrap();}else if name.starts_with("result-"){db.execute(sql,[proposal["id"].as_str().unwrap()]).unwrap();}else{db.execute_batch(sql).unwrap();}
+        let seq:u64=db.query_row("SELECT max(sequence) FROM events",[],|r|r.get::<_,i64>(0)).unwrap().try_into().unwrap();drop(db);
+        let mut store=agentbaton_core::storage::Store::open(&path).unwrap();
+        assert!(store.get(task_id).is_err(),"{name}: generic accepted read borrowed damaged evidence");
+        assert!(store.list().is_err(),"{name}: list borrowed damaged accepted evidence");
+        assert!(store.goal_graph_details(run_id).is_err(),"{name}: Graph accepted read borrowed damaged evidence");
+        assert!(store.finalize_proposal(proposal["id"].as_str().unwrap(),proposal["revision"].as_u64().unwrap()).is_err(),"{name}: historical finalize borrowed damaged result/evidence");
+        assert_eq!(store.sequence().unwrap(),seq,"{name}: rejection created events");
+        eprintln!("ACCEPTED_HISTORY_CONTROL {name} refused without mutation");
+    }
+}
+
+#[test]
+fn actual_last_owner_rechecks_all_original_products_and_never_accepts_changed_cancelled_or_revoked_graph() {
+    eprintln!("GRAPH_BUILD_SOURCES {}",graph_build_source_hashes());
+    for mode in ["changed-report","same-bytes-replacement","revoked","cancelled"] {
+        let f=Scenario::new(10_000);let scope=graph_owner_summary_plan(&f);let approved=approve_graph_at(&f,&scope,2);let run_id=&approved["run"]["id"];
+        wait(&f.server,"goal_graph_runs.get",json!({"run_id":run_id}),|d|d["nodes"].as_array().is_some_and(|ns|ns.iter().any(|n|n["node"]["id"]=="owner-report"&&n["state"]=="awaiting_owner")));
+        let first=approve(&f.server,graph_owner_proposal(&f,run_id,"owner-report","fresh-all-first-owner"));
+        let before=wait(&f.server,"goal_graph_runs.get",json!({"run_id":run_id}),|d|d["nodes"].as_array().is_some_and(|ns|ns.iter().any(|n|n["node"]["id"]=="owner-summary"&&n["state"]=="awaiting_owner")));
+        let proposal=graph_owner_proposal(&f,run_id,"owner-summary","fresh-all-last-owner");
+        let report=PathBuf::from(f.workspace["root"].as_str().unwrap()).join("reports/report.txt");
+        let original=std::fs::read(&report).unwrap();
+        match mode {
+            "changed-report"=>std::fs::write(&report,b"report changed after first Owner accepted").unwrap(),
+            "same-bytes-replacement"=>{let replacement=report.with_file_name("replacement.txt");std::fs::write(&replacement,&original).unwrap();std::fs::set_permissions(&replacement,std::fs::metadata(&report).unwrap().permissions()).unwrap();std::fs::rename(replacement,&report).unwrap();},
+            "revoked"=>{result(f.server.request(json!({"method":"goal_scopes.revoke","params":{"scope_id":scope["id"]},"expected_revision":scope["revision"],"idempotency_key":"revoke-before-final-owner"})));},
+            "cancelled"=>{let request=json!({"method":"goal_graph_runs.cancel","params":{"run_id":run_id},"expected_revision":before["run"]["revision"],"idempotency_key":"cancel-before-final-owner"});let receipt=result(f.server.request(request.clone()));assert_eq!(receipt["run"]["cancel_requested"],true);assert_eq!(result(f.server.request(request)),receipt);},
+            _=>unreachable!(),
+        }
+        let ledger_before=result(f.server.request(json!({"method":"system.snapshot","params":{}})))["sequence"].clone();
+        let refused=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"must-not-accept-stale-whole-task"}));
+        assert!(refused.get("error").is_some(),"{mode}: {refused}");assert_eq!(refused["error"]["side_effect_state"],"not_started","{mode}");
+        let after=result(f.server.request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})));
+        assert_eq!(after["task_accepted"],false,"{mode}");assert_eq!(after["owner_decisions"].as_array().unwrap().len(),1,"{mode}");assert_eq!(after["owner_decisions"][0]["id"],first["owner_decision_id"]);
+        assert_eq!(after["candidates"],before["candidates"],"{mode}: old history was erased");
+        let task=result(f.server.request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})));assert_ne!(task["state"],"accepted");assert!(task.get("acceptance_ref").is_none());
+        let recovered=result(f.server.request(json!({"method":"goal_node_approvals.propose","params":proposal["snapshot"]["intent"],"expected_revision":proposal["snapshot"]["expected_run_revision"],"idempotency_key":"fresh-all-last-owner"})));
+        assert_eq!(recovered,proposal,"{mode}: exact unconsumed proposal history cannot mint fresh authority");
+        let db=rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(db.query_row("SELECT result IS NULL FROM approval_proposals WHERE id=?1",[proposal["id"].as_str().unwrap()],|r|r.get::<_,bool>(0)).unwrap(),true);
+        assert_eq!(db.query_row("SELECT count(*) FROM goal_graph_acceptances",[],|r|r.get::<_,u32>(0)).unwrap(),0);
+        for key in [format!("project:{}",f.project["id"].as_str().unwrap()),format!("root:{}",f.task["id"].as_str().unwrap())] {assert_eq!(db.query_row("SELECT consumed FROM budgets WHERE scope=?1",[key],|r|r.get::<_,u32>(0)).unwrap(),2,"{mode}: no budget refund");}
+        if mode!="cancelled" {assert_eq!(after["ledger_revision"],ledger_before,"{mode}: denied finalize wrote events");}
+        assert!(report.exists());
+        eprintln!("FINAL_OWNER_FRESH_CONTROL {mode} refused, original Owner/version and charged attempts retained");
+    }
+}
