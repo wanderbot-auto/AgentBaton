@@ -1,33 +1,35 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { DaemonError, type Task } from './api';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { DaemonError, taskAllowsExecution, type Task } from './api';
 import { goalApi, safeInteger, type GoalPlan, type GoalScope } from './goal-api';
 import { goalExecutionApi as api, goalRunShape, goalRunViewShape, goalRunFloor, goalRunMeetsFloor, goalRunNeedsReconciliation, goalRunCanCancel, goalRunPolling, goalRunStates, goalRunNodeStates, goalRunViewSupported, goalRunViewClosed, goalRunCanAdvanceView, type GoalRun, type GoalRunView, type GoalRunSelection, type GoalPlanAdvance, type GoalRunFloor } from './goal-execution-api';
 import { goalExecutionMessages } from './goal-execution-i18n';
 import type { Language } from './i18n';
 import './goal-execution.css';
 
-type Props={task:Task;scope:GoalScope;latest:GoalPlan|null;language:Language;connected:boolean;approvalAllowed:boolean};
+type Props={task:Task;scope:GoalScope;latest:GoalPlan|null;language:Language;connected:boolean;approvalAllowed:boolean;panel?:(expanded:boolean)=>ReactNode;footer?:(expanded:boolean)=>ReactNode;title?:string;onPendingChange?:(blocked:boolean)=>void};
 type Floors=[string,GoalRunFloor][];
 type Pending={kind:'approve'|'cancel'|'advance';key:string;scopeId:string;rootGrantId:string;runId?:string;revision?:number;selection?:GoalRunSelection;advance?:GoalPlanAdvance;planDigest?:string;receipt?:{id:string;revision:number};floors:Floors;ledger?:number;uncertain:boolean;reconciled:boolean};
 // UI-process recovery only. This is neither a durable outbox nor a background writer.
 const intents=new Map<string,Pending>();
+export const legacyGoalExecutionPending=(taskId:string)=>intents.has(taskId);
 const uncertain=(failure:unknown)=>!(failure instanceof DaemonError)||failure.code==='OUTCOME_UNKNOWN'||!['none','not_started'].includes(failure.sideEffectState);
 const mergeReceiptFloor=(floors:Map<string,GoalRunFloor>,run:GoalRun)=>{
   const previous=floors.get(run.id);
   if(!previous||run.revision>=previous.revision&&goalRunMeetsFloor(run,previous))floors.set(run.id,goalRunFloor(run));
 };
-const storedPlanInScope=(plan:GoalPlan|null,task:Task,scope:GoalScope)=>!!plan&&plan.scope_id===scope.id&&plan.state==='validated_proposal'&&plan.dispatched===false&&/^[a-f0-9]{64}$/.test(plan.digest)&&!!plan.proposal&&plan.proposal.schema_version===1&&safeInteger(plan.proposal.revision,1)&&plan.proposal.expected_revision===plan.proposal.revision-1&&plan.proposal.scope_revision===scope.authority_revision&&Array.isArray(plan.proposal.nodes)&&plan.proposal.nodes.length>0&&plan.proposal.nodes.length<=256&&!!plan.proposal.goal&&(['project_id','root_task_id','task_id','spec_revision','input_revision']as const).every(key=>plan.proposal.goal[key]===scope.goal[key])&&scope.goal.task_id===task.id&&scope.goal.project_id===task.project_id;
+const storedPlanInScope=(plan:GoalPlan|null,task:Task,scope:GoalScope)=>taskAllowsExecution(task)&&!!plan&&plan.scope_id===scope.id&&plan.state==='validated_proposal'&&plan.dispatched===false&&/^[a-f0-9]{64}$/.test(plan.digest)&&!!plan.proposal&&plan.proposal.schema_version===1&&safeInteger(plan.proposal.revision,1)&&plan.proposal.expected_revision===plan.proposal.revision-1&&plan.proposal.scope_revision===scope.authority_revision&&Array.isArray(plan.proposal.nodes)&&plan.proposal.nodes.length>0&&plan.proposal.nodes.length<=256&&!!plan.proposal.goal&&(['project_id','root_task_id','task_id','spec_revision','input_revision']as const).every(key=>plan.proposal.goal[key]===scope.goal[key])&&scope.goal.task_id===task.id&&scope.goal.project_id===task.project_id;
 export function GoalExecution(props:Props){
   const [started,setStarted]=useState(false),[expanded,setExpanded]=useState(false);
-  return <section className="goal-execution" data-testid="goal-execution"><details onToggle={event=>{const open=event.currentTarget.open;setExpanded(open);if(open)setStarted(true);}}><summary><h3>{goalExecutionMessages[props.language].title}</h3></summary>{started&&<ExecutionPanel key={`${props.task.id}:${props.scope.id}`} {...props} expanded={expanded}/>}</details></section>;
+  return <section className="goal-execution" data-testid="goal-execution" data-execution-mode={props.panel?'graph':'legacy'}><details onToggle={event=>{const open=event.currentTarget.open;setExpanded(open);if(open)setStarted(true);}}><summary><h3>{props.title??goalExecutionMessages[props.language].title}</h3></summary>{started&&(props.panel?props.panel(expanded):<ExecutionPanel key={`${props.task.id}:${props.scope.id}`} {...props} expanded={expanded}/>)}{started&&props.footer?.(expanded)}</details></section>;
 }
-function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,expanded}:Props&{expanded:boolean}){
+function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,expanded,onPendingChange}:Props&{expanded:boolean}){
   const t=goalExecutionMessages[language],saved=intents.get(task.id);
   const [runs,setRuns]=useState<GoalRun[]>([]),[view,setView]=useState<GoalRunView|null>(null),[pending,setPending]=useState<Pending|null>(saved??null);
   const [fresh,setFresh]=useState(false),[loading,setLoading]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[paused,setPaused]=useState(false),[readVersion,setReadVersion]=useState(0);
   const mounted=useRef(true),sequence=useRef(0),writing=useRef(false),observed=useRef(new Map<string,GoalRunFloor>(saved?.floors??[])),selected=useRef(''),reads=useRef(0),ledger=useRef(saved?.ledger??0);
   const context=useRef({task,scope,latest,approvalAllowed});context.current={task,scope,latest,approvalAllowed};
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;++sequence.current;};},[]);
+  useEffect(()=>{onPendingChange?.(busy||!!pending);return()=>onPendingChange?.(false);},[busy,pending,onPendingChange]);
   const refresh=useCallback(async(manual=true)=>{
     if(manual){reads.current=0;setPaused(false);}setFresh(false);setError('');
     const cached=intents.get(task.id);
