@@ -125,7 +125,14 @@ for line in sys.stdin:
    assert contract['kind']=='agentbaton_goal_task_request' and contract['schema_version']==1
    assert contract['workspace']['canonical_root']==os.getcwd()
    assert contract['lineage']['attempt_id'] and contract['plan_digest'] and contract['return_location']['node_id']==contract['node']['id']
-   assert contract['inputs'][0]['artifact']['relative_path'] in ('file','inputs/file') and contract['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
+   if contract['inputs'][0].get('candidate'):
+    import hashlib
+    candidate=contract['inputs'][0]['candidate']
+    assert contract['inputs'][0]['artifact']['relative_path']==candidate['relative_path']
+    assert contract['inputs'][0]['sha256']==candidate['sha256'] and candidate['producer_attempt_id']
+    assert hashlib.sha256(open(candidate['relative_path'],'rb').read()).hexdigest()==candidate['sha256']
+   else:assert contract['inputs'][0]['artifact']['relative_path'] in ('file','inputs/file')
+   assert contract['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
    assert contract['policy']['enforced']=={'filesystem_sandbox':False,'network_sandbox':False,'output_quota':False}
    text=contract['goal']
    if text in ('goal-report','goal-report-v2','goal-report-drift','goal-report-hold'):
@@ -991,6 +998,15 @@ fn goal_scope_and_plan_with_independent_nodes(
     reworks: u32,
     count: u32,
 ) -> Value {
+    goal_scope_and_plan_with_capacity(f, goal, reworks, count, count.max(2))
+}
+fn goal_scope_and_plan_with_capacity(
+    f: &Scenario,
+    goal: &str,
+    reworks: u32,
+    count: u32,
+    max_nodes: u32,
+) -> Value {
     use agentbaton_core::{goal_plan::*, goal_store::*};
     let limits = BudgetLimits {
         attempts: 2,
@@ -1007,8 +1023,8 @@ fn goal_scope_and_plan_with_independent_nodes(
         expected_task_revision: f.task["revision"].as_u64().unwrap(),
         grant_id: f.grant["id"].as_str().unwrap().into(),
         expected_grant_revision: f.grant["revision"].as_u64().unwrap(),
-        max_nodes: count.max(2),
-        new_max_children: count.max(2) - 1,
+        max_nodes,
+        new_max_children: max_nodes - 1,
         new_max_depth: 1,
         root_budget: limits.clone(),
         project_budget: limits,
@@ -2905,33 +2921,45 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
             .request(json!({"method":"goal_graph_runs.list","params":{"task_id":f.task["id"]}})),
     );
     assert_eq!(list, json!([]));
-    let finalize=json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"native-graph-finalize"});
-    let authorized=result(f.server.request(finalize.clone()));
-    assert_eq!(authorized["run"]["id"],proposal["id"]);
-    assert_eq!(authorized["graph_contract_version"],1);
-    assert_eq!(result(f.server.request(finalize)),authorized);
-    assert_eq!(result(f.server.request(json!({"method":"goal_runs.list","params":{"task_id":f.task["id"]}}))),json!([]));
-    let legacy=f.server.request(json!({"method":"goal_runs.get","params":{"run_id":proposal["id"]}}));
-    assert_eq!(legacy["error"]["code"],"CAPABILITY_UNSUPPORTED");
-    let details=result(f.server.request(json!({"method":"goal_graph_runs.get","params":{"run_id":proposal["id"]}})));
-    assert_eq!(details["run"]["id"],proposal["id"]);
-    assert_eq!(details["task_accepted"],false);
+    {
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        for table in ["goal_run_reservations", "goal_graph_jobs", "attempts"] {
+            assert_eq!(
+                db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
+                    .get::<_, u32>(0))
+                    .unwrap(),
+                0
+            );
+        }
+    }
+    let finalize = json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"native-graph-finalize"});
+    let authorized = result(f.server.request(finalize.clone()));
+    assert_eq!(authorized["run"]["id"], proposal["id"]);
+    assert_eq!(authorized["graph_contract_version"], 1);
+    assert_eq!(result(f.server.request(finalize)), authorized);
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"goal_runs.list","params":{"task_id":f.task["id"]}}))
+        ),
+        json!([])
+    );
+    let legacy = f
+        .server
+        .request(json!({"method":"goal_runs.get","params":{"run_id":proposal["id"]}}));
+    assert_eq!(legacy["error"]["code"], "CAPABILITY_UNSUPPORTED");
+    let details = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.get","params":{"run_id":proposal["id"]}})),
+    );
+    assert_eq!(details["run"]["id"], proposal["id"]);
+    assert_eq!(details["task_accepted"], false);
     let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
         12
     );
-    for table in [
-        "goal_run_reservations", "goal_graph_jobs", "attempts",
-    ] {
-        assert_eq!(
-            db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
-                .get::<_, u32>(0))
-                .unwrap(),
-            0
-        );
-    }
     assert_eq!(
         db.query_row(
             "SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",
@@ -3002,5 +3030,291 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
                 .unwrap(),
             0
         );
+    }
+}
+
+#[test]
+fn actual_graph_work_captures_owned_versioned_sha_without_task_acceptance() {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let ledger = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let proposal=result(f.server.request(json!({"method":"goal_graph_runs.propose","params":{"scope_id":scope["id"],"expected_plan_revision":1,"expected_ledger_revision":ledger},"idempotency_key":"graph-captured-work"})));
+    let approved = approve(&f.server, proposal);
+    let details = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":approved["run"]["id"]}),
+        |v| v["candidates"].as_array().is_some_and(|c| c.len() == 1),
+    );
+    let c = &details["candidates"][0];
+    assert_eq!(details["task_accepted"], false);
+    assert_eq!(c["source"], "baton_goal_evidence");
+    assert_eq!(c["integrity"], "verified");
+    assert_eq!(c["task_acceptance"], "not_established");
+    assert!(
+        c["capture_receipt_sequence"].as_u64().unwrap()
+            > c["stop_receipt_sequence"].as_u64().unwrap()
+    );
+    assert_eq!(
+        c["artifacts"][0]["sha256"],
+        agentbaton_workspaces::validation::sha256(b"fixed report")
+    );
+    assert_eq!(c["artifacts"][0]["bytes"], 12);
+    assert_eq!(details["nodes"][0]["candidate_ids"][0], c["id"]);
+    assert_eq!(details["nodes"][0]["stop_confirmed"], true);
+    assert_eq!(
+        c["consumed_inputs"][0]["sha256"],
+        agentbaton_workspaces::validation::sha256(b"baseline")
+    );
+}
+
+fn graph_owner_summary_plan(f: &Scenario) -> Value {
+    use agentbaton_core::{goal_plan::*, goal_store::*};
+    let scope = goal_scope_and_plan_with_capacity(f, "goal-report", 0, 2, 4);
+    let view: GoalScopeView = serde_json::from_value(scope.clone()).unwrap();
+    let current: GoalPlanView = serde_json::from_value(result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":view.id}})),
+    ))
+    .unwrap();
+    let mut plan = current.proposal;
+    let producer = plan.nodes[0].clone();
+    let mut summary = plan.nodes[1].clone();
+    let input = RequiredInput {
+        goal_task_id: view.task_id.clone(),
+        artifact_id: "report".into(),
+        contract_id: "output:report".into(),
+        source: InputSource::Node {
+            node_id: producer.id.clone(),
+            candidate_for_validation: true,
+        },
+    };
+    let mut owner = producer.clone();
+    owner.id = "owner-report".into();
+    owner.kind = NodeKind::OwnerApproval;
+    owner.executor = Executor::Owner {
+        rule_id: "goal-owner-review".into(),
+    };
+    owner.goal = "Review exact original report".into();
+    owner.dependencies = vec![producer.id.clone()];
+    owner.required_inputs = vec![input.clone()];
+    owner.outputs = vec![];
+    owner.required_validators = vec!["goal-owner-review".into()];
+    owner.side_effect = SideEffect::AdvisoryReadOnly;
+    owner.write_set = vec![];
+    owner.idempotency_key = "owner-report-once".into();
+    summary.dependencies = vec![owner.id.clone()];
+    let mut accepted_input = input;
+    accepted_input.source = InputSource::Node {
+        node_id: producer.id.clone(),
+        candidate_for_validation: false,
+    };
+    summary.required_inputs = vec![accepted_input];
+    let mut final_owner = owner.clone();
+    final_owner.id = "owner-summary".into();
+    final_owner.goal = "Review exact dependent summary".into();
+    final_owner.dependencies = vec![summary.id.clone()];
+    final_owner.required_inputs = vec![RequiredInput {
+        goal_task_id: view.task_id.clone(),
+        artifact_id: "report-2".into(),
+        contract_id: "output:report-2".into(),
+        source: InputSource::Node {
+            node_id: summary.id.clone(),
+            candidate_for_validation: true,
+        },
+    }];
+    final_owner.idempotency_key = "owner-summary-once".into();
+    plan.nodes = vec![producer, owner, summary, final_owner];
+    plan.revision = 2;
+    plan.expected_revision = 1;
+    result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":view.id,"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"graph-summary-plan-v2"})));
+    scope
+}
+fn approve_graph_at(f: &Scenario, scope: &Value, plan: u64) -> Value {
+    let ledger = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let p=result(f.server.request(json!({"method":"goal_graph_runs.propose","params":{"scope_id":scope["id"],"expected_plan_revision":plan,"expected_ledger_revision":ledger},"idempotency_key":"actual-graph-plan"})));
+    approve(&f.server, p)
+}
+fn graph_owner_proposal(f: &Scenario, run_id: &Value, node: &str, key: &str) -> Value {
+    let d = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})),
+    );
+    result(f.server.request(json!({"method":"goal_node_approvals.propose","params":{"run_id":run_id,"node_id":node,"expected_plan_revision":d["run"]["plan_revision"],"expected_ledger_revision":d["ledger_revision"]},"expected_revision":d["run"]["revision"],"idempotency_key":key})))
+}
+#[test]
+fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input() {
+    let f = Scenario::new(10_000);
+    let scope = graph_owner_summary_plan(&f);
+    let approved = approve_graph_at(&f, &scope, 2);
+    let run_id = &approved["run"]["id"];
+    let initial = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-report" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    assert_eq!(initial["candidates"].as_array().unwrap().len(), 1);
+    assert_eq!(initial["task_accepted"], false);
+    eprintln!("GRAPH_PIPELINE first owned capture and owner-ready observed");
+    let p = graph_owner_proposal(&f, run_id, "owner-report", "accept-exact-report");
+    assert_eq!(p["kind"], "goal_node_acceptance");
+    assert_eq!(p["snapshot"]["candidate_receipts"], initial["candidates"]);
+    assert_eq!(
+        p["snapshot"]["candidate_refs"][0]["sha256"],
+        agentbaton_workspaces::validation::sha256(b"fixed report")
+    );
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../artifacts/goal-validation-graph/actual-node-proposal.json");
+    std::fs::write(path, serde_json::to_vec_pretty(&p).unwrap()).unwrap();
+    eprintln!("GRAPH_PIPELINE exact Owner proposal persisted");
+    let decision = approve(&f.server, p.clone());
+    assert_eq!(decision["decision"], "accepted");
+    assert_eq!(decision["approval_id"], p["id"]);
+    eprintln!("GRAPH_PIPELINE private Owner decision committed");
+    let after = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| d["candidates"].as_array().is_some_and(|c| c.len() == 2),
+    );
+    let summary = after["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["node_id"] == "independent-2")
+        .unwrap();
+    assert_eq!(
+        summary["consumed_inputs"][0]["candidate"],
+        initial["candidates"][0]["artifacts"][0]
+    );
+    assert_eq!(
+        summary["artifacts"][0]["sha256"],
+        agentbaton_workspaces::validation::sha256(b"extra report 2")
+    );
+    assert_eq!(
+        after["owner_decisions"][0]["source"],
+        "local_owner_confirmation"
+    );
+    assert_eq!(after["task_accepted"], false);
+    let sessions = result(
+        f.server
+            .request(json!({"method":"sessions.list","params":{}})),
+    );
+    assert_eq!(sessions.as_array().unwrap().len(), 2);
+    let ready = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-summary" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    assert_eq!(ready["task_accepted"], false);
+    let final_proposal = graph_owner_proposal(&f, run_id, "owner-summary", "accept-exact-summary");
+    let final_decision = approve(&f.server, final_proposal.clone());
+    assert_eq!(final_decision["task_accepted"], true);
+    let accepted = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})),
+    );
+    assert_eq!(accepted["task_accepted"], true);
+    assert_eq!(accepted["run"]["state"], "accepted");
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    assert_eq!(task["state"], "accepted");
+    assert_eq!(task["acceptance_ref"], accepted["task_acceptance"]["id"]);
+    assert_eq!(
+        task["acceptance_sequence"],
+        accepted["task_acceptance"]["sequence"]
+    );
+    assert_eq!(
+        task["revision"],
+        accepted["task_acceptance"]["task_revision"]
+    );
+    assert_eq!(
+        accepted["task_acceptance"]["source"],
+        "baton_goal_acceptance"
+    );
+    assert_eq!(
+        accepted["task_acceptance"]["artifact_refs"]
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    use std::io::Write;
+    let evidence = json!({"graph_details":accepted,"task":task,"final_owner_proposal":final_proposal,"final_owner_decision":final_decision});
+    let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
+    let hash = agentbaton_workspaces::validation::sha256(&bytes);
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
+        "../../artifacts/goal-validation-graph/actual-task-accepted-{hash}.json"
+    ));
+    std::fs::OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .write_all(&bytes)
+        .unwrap();
+    eprintln!(
+        "ACTUAL_TASK_ACCEPTED_JSON sha256={hash} bytes={} path={}",
+        bytes.len(),
+        path.display()
+    );
+    let cancelled=result(f.server.request(json!({"method":"tasks.cancel","params":{"task_id":task["id"]},"expected_revision":task["revision"],"idempotency_key":"accepted-task-cancel-no-reopen"})));
+    assert_eq!(cancelled, task);
+    let ordinary=f.server.request(json!({"method":"sessions.create","params":{"task_id":task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":task["revision"],"idempotency_key":"accepted-task-cannot-reopen"}));
+    assert!(ordinary.get("error").is_some());
+    let before = accepted["ledger_revision"].clone();
+    for _ in 0..3 {
+        let stable = result(
+            f.server
+                .request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})),
+        );
+        assert_eq!(stable["run"], accepted["run"]);
+        assert_eq!(stable["ledger_revision"], before);
+    }
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"sessions.list","params":{}}))
+        )
+        .as_array()
+        .unwrap()
+        .len(),
+        2
+    );
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    for key in [
+        format!("project:{}", f.project["id"].as_str().unwrap()),
+        format!("root:{}", f.task["id"].as_str().unwrap()),
+    ] {
+        let count: u32 = db
+            .query_row(
+                "SELECT consumed FROM budgets WHERE scope=?1",
+                [key],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 2);
     }
 }
