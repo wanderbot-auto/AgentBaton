@@ -4,7 +4,7 @@
   "branch": "codex/factory-browser-real-ipc",
   "source_commit": "84ec373512ea9619b6e524885e9105dad7557134",
   "source_sha256": "fb926ccd27af3b7d4ba362c96857efeaaf0490cbf30fd817a1d8aeb776afde8d",
-  "status": "review_repairs_frozen_independent_review_pending_actual_runtime_NOT_RUN",
+  "status": "independently_reviewed_source_ready_actual_runtime_NOT_RUN_Root_execution_next",
   "native_task": "/root/data_real_ipc_resume",
   "cloud_task_url": "unavailable",
   "requirements": [
@@ -316,9 +316,8 @@
     "wholeFactory/130Designcompletion"
   ],
   "pending_dependencies": [
-    "Independent repaired-source counterprobe review",
-    "Root exact-source actual UI/Core13 normal/cancel/unknown execution with query PRAGMA13",
-    "Full remaining protocol/fault/usage/realProvider/OS/macOS matrix"
+    "Root exact-source actual UI/Core13 normal/cancel/unknown execution with actual PRAGMA13/receipts/cleanup/PNG",
+    "Full remaining scopedMCP/protocol/fault/usage/realProvider/OS/macOS matrix"
   ],
   "artifacts": [
     {
@@ -599,7 +598,16 @@
     },
     "cleanup_helper_count": 28,
     "cleanup_stub_dimension": "Explicit mocked gone-process identity metadata; not real stop verification",
-    "independent_status": "requested on exact84ec source, pending"
+    "independent_status": {
+      "status": "both_mustfix_closed_source_ready",
+      "review_path": "/workspace/.onboarding/factory-browser-independent-review/revision-84ec/REVIEW.md",
+      "review_sha256": "63fdebb385db55f397e41942525ca7aa66a0e28ba1ffd631008b3eff3b17e149",
+      "manifest_sha256": "205c7809b045bd9ccc24e9ce9f370a1d4ab0011d1340db0e8fceaf206a5bd334",
+      "additional_controls": 23,
+      "original_helpers": "63/13/28 independently pass",
+      "dimension": "source/DTO/explicit metadata stub, not actual Core/browser/stop",
+      "HTTP_Owner_boundary_functions": "byte preserved from prior source"
+    }
   },
   "prepared_runtime_inputs": {
     "source_sha256": "fb926ccd27af3b7d4ba362c96857efeaaf0490cbf30fd817a1d8aeb776afde8d",
