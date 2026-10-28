@@ -1007,9 +1007,12 @@ fn goal_scope_and_plan_with_capacity(
     count: u32,
     max_nodes: u32,
 ) -> Value {
+    goal_scope_and_plan_with_options(f,goal,reworks,count,max_nodes,2,vec![])
+}
+fn goal_scope_and_plan_with_options(f:&Scenario,goal:&str,reworks:u32,count:u32,max_nodes:u32,attempts:u32,validators:Vec<agentbaton_core::goal_store::GoalValidatorRef>)->Value {
     use agentbaton_core::{goal_plan::*, goal_store::*};
     let limits = BudgetLimits {
-        attempts: 2,
+        attempts,
         parallel: 1,
         runtime_ms: 10_000,
         output_bytes: 8192,
@@ -1045,7 +1048,7 @@ fn goal_scope_and_plan_with_capacity(
                 max_bytes: 1024,
                 expected_sha256: None,
             },
-            validators: vec![],
+            validators,
         }],
         writable_prefixes: vec!["reports".into()],
         owner_acceptance_criteria: "Owner reviews the exact report separately from process success"
@@ -3541,4 +3544,76 @@ fn actual_last_owner_rechecks_all_original_products_and_never_accepts_changed_ca
         assert!(report.exists());
         eprintln!("FINAL_OWNER_FRESH_CONTROL {mode} refused, original Owner/version and charged attempts retained");
     }
+}
+
+#[test]
+fn actual_capture_prestart_queue_exhaustion_never_spawns_or_claims_an_io_join() {
+    eprintln!("GRAPH_BUILD_SOURCES {}",graph_build_source_hashes());
+    let f=Scenario::new(10_000);let scope=goal_scope_and_plan(&f,"goal-report");
+    let current=result(f.server.request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})));
+    let mut plan=current["proposal"].clone();plan["revision"]=json!(2);plan["expected_revision"]=json!(1);plan["nodes"][0]["reservation"]["runtime_ms"]=json!(1200);
+    result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"queue-delay-approved-1200ms"})));
+    let db=rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    // Actual bounded SQLite work delays the already stopped producer's capture
+    // preparation. No test clock, extended production timeout, fake worker join
+    // or private Provider process is used.
+    db.execute_batch("CREATE TRIGGER controlled_capture_prepare_delay AFTER INSERT ON goal_graph_jobs BEGIN SELECT sum(n) FROM (WITH RECURSIVE delay(n) AS(VALUES(1) UNION ALL SELECT n+1 FROM delay WHERE n<4000000) SELECT n FROM delay); END;").unwrap();drop(db);
+    let approved=approve_graph_at(&f,&scope,2);let run_id=&approved["run"]["id"];
+    let blocked=wait(&f.server,"goal_graph_runs.get",json!({"run_id":run_id}),|d|d["run"]["state"]=="blocked");
+    assert_eq!(blocked["task_accepted"],false);assert!(blocked["candidates"].as_array().unwrap().is_empty());assert_eq!(blocked["nodes"][0]["stop_confirmed"],true);
+    assert!(blocked["nodes"][0]["actual_runtime_ms"].as_u64().unwrap()>=1200);assert!(blocked["nodes"][0]["actual_output_bytes"].is_null());
+    let sessions=result(f.server.request(json!({"method":"sessions.list","params":{}})));assert_eq!(sessions.as_array().unwrap().len(),1);assert_eq!(sessions[0]["state"],"stopped");assert_eq!(sessions[0]["turn_state"],"completed");
+    let db=rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='goal.capture_worker_started'",[],|r|r.get::<_,u32>(0)).unwrap(),0);
+    let raw:String=db.query_row("SELECT document FROM events WHERE json_extract(document,'$.kind')='goal.capture_settled'",[],|r|r.get(0)).unwrap();let receipt:Value=serde_json::from_str(&raw).unwrap();
+    assert_eq!(receipt["payload"]["io_completion"],"not_started");assert_eq!(receipt["payload"]["capture_worker_joined"],false);assert_eq!(receipt["payload"]["producer_stop_confirmed"],true);
+    assert_eq!(db.query_row("SELECT count(*) FROM goal_graph_candidates",[],|r|r.get::<_,u32>(0)).unwrap(),0);
+    assert_eq!(db.query_row("SELECT consumed FROM budgets WHERE scope=?1",[format!("project:{}",f.project["id"].as_str().unwrap())],|r|r.get::<_,u32>(0)).unwrap(),1);
+    eprintln!("CAPTURE_PRESTART actual queued delay exhausted 1200ms reservation, no thread started/no join/candidate/refund; actual_runtime_ms={}",receipt["payload"]["actual_runtime_ms"]);
+}
+
+fn actual_integrity_definition_graph_fixture()->(Scenario,Value,Value) {
+    use agentbaton_core::{goal_plan::*,goal_store::*};
+    let mut f=Scenario::new(10_000);use_actual_dataset_workspace(&mut f);
+    let grant_proposal=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":8,"max_concurrency":1,"max_duration_ms":10000},"idempotency_key":"initial-eight-shared-attempt-policy"})));f.grant=approve(&f.server,grant_proposal);
+    let bootstrap=goal_scope_and_plan_with_options(&f,"goal-report",0,1,2,8,vec![]);
+    let source=approve_goal_execution(&f,&bootstrap);
+    let source_done=wait(&f.server,"goal_runs.get",json!({"run_id":source["id"]}),|d|d["run"]["state"]=="awaiting_acceptance");
+    let session=&source_done["nodes"][0]["session_id"];
+    let policy_proposal=result(f.server.request(json!({"method":"validation_policies.propose","params":{"session_id":session,"inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":agentbaton_workspaces::validation::sha256(b"baseline")}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],"analysis":null},"idempotency_key":"source-additional-integrity-definition"})));
+    let definition=approve(&f.server,policy_proposal);
+    result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":source["id"]},"expected_revision":source_done["run"]["revision"],"idempotency_key":"cancel-source-candidate-before-new-graph"})));
+    wait(&f.server,"goal_runs.get",json!({"run_id":source["id"]}),|d|d["run"]["state"]=="cancelled");
+    let grants=result(f.server.request(json!({"method":"grants.list","params":{"project_id":f.project["id"]}})));f.grant=grants.as_array().unwrap().iter().find(|g|g["id"]==f.grant["id"]).unwrap().clone();
+    f.task=result(f.server.request(json!({"method":"tasks.create","params":{"project_id":f.project["id"],"goal":"Use approved same-workspace graph definition with a new owned producer subject"},"idempotency_key":"new-graph-task-keeps-project-history"})));
+    let validator=GoalValidatorRef {kind:GoalValidatorKind::Integrity,policy_id:definition["id"].as_str().unwrap().into(),revision:definition["revision"].as_u64().unwrap()};
+    let scope=goal_scope_and_plan_with_options(&f,"goal-report",0,2,5,8,vec![validator]);
+    let view:GoalScopeView=serde_json::from_value(scope.clone()).unwrap();
+    let current:GoalPlanView=serde_json::from_value(result(f.server.request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})))).unwrap();
+    let mut plan=current.proposal;let producer=plan.nodes[0].clone();let mut summary=plan.nodes[1].clone();
+    let rule_id=view.contracts["output:report"].iter().find(|id|id.starts_with("integrity:")).unwrap().clone();
+    let candidate=RequiredInput {goal_task_id:view.task_id.clone(),artifact_id:"report".into(),contract_id:"output:report".into(),source:InputSource::Node {node_id:producer.id.clone(),candidate_for_validation:true}};
+    let mut validate=producer.clone();validate.id="validate-report".into();validate.kind=NodeKind::Validate;validate.executor=Executor::Validator {rule_id:rule_id.clone()};validate.goal="Apply exact approved integrity definition to the new captured producer".into();validate.dependencies=vec![producer.id.clone()];validate.required_inputs=vec![candidate.clone()];validate.outputs.clear();validate.required_validators=vec![rule_id.clone()];validate.side_effect=SideEffect::AdvisoryReadOnly;validate.write_set.clear();validate.idempotency_key="validate-owned-report-once".into();
+    let mut owner=validate.clone();owner.id="owner-report".into();owner.kind=NodeKind::OwnerApproval;owner.executor=Executor::Owner {rule_id:"goal-owner-review".into()};owner.goal="Owner reviews exact report after deterministic integrity only".into();owner.dependencies=vec![producer.id.clone(),validate.id.clone()];owner.required_validators=vec!["goal-owner-review".into()];owner.idempotency_key="owner-report-once".into();
+    summary.dependencies=vec![validate.id.clone(),owner.id.clone()];let mut accepted=candidate;accepted.source=InputSource::Node {node_id:producer.id.clone(),candidate_for_validation:false};summary.required_inputs=vec![accepted];
+    let mut final_owner=owner.clone();final_owner.id="owner-summary".into();final_owner.dependencies=vec![summary.id.clone()];final_owner.required_inputs=vec![RequiredInput {goal_task_id:view.task_id.clone(),artifact_id:"report-2".into(),contract_id:"output:report-2".into(),source:InputSource::Node {node_id:summary.id.clone(),candidate_for_validation:true}}];final_owner.idempotency_key="owner-summary-once".into();
+    plan.nodes=vec![producer,validate,owner,summary,final_owner];plan.revision=2;plan.expected_revision=1;
+    result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"actual-integrity-five-node-plan"})));
+    (f,scope,definition)
+}
+#[test]
+fn actual_graph_integrity_validator_is_a_charged_owned_attempt_before_owner_and_summary() {
+    eprintln!("GRAPH_BUILD_SOURCES {}",graph_build_source_hashes());
+    let (f,scope,definition)=actual_integrity_definition_graph_fixture();
+    let approved=approve_graph_at(&f,&scope,2);let run_id=&approved["run"]["id"];
+    let checked=wait(&f.server,"goal_graph_runs.get",json!({"run_id":run_id}),|d|d["nodes"].as_array().is_some_and(|ns|ns.iter().any(|n|n["node"]["id"]=="owner-report"&&n["state"]=="awaiting_owner")));
+    assert_eq!(checked["validations"].as_array().unwrap().len(),1);let receipt=&checked["validations"][0];
+    assert_eq!(receipt["passed"],true);assert_eq!(receipt["scope"],"artifact_integrity_only");assert_eq!(receipt["correctness"],"not_established");assert_eq!(receipt["task_acceptance"],"not_established");assert_eq!(receipt["source"],"baton_goal_validator");assert_eq!(receipt["io_completion"],"worker_joined");assert_eq!(receipt["stop_confirmed"],true);assert_eq!(checked["task_accepted"],false);
+    let validator=checked["nodes"].as_array().unwrap().iter().find(|n|n["node"]["id"]=="validate-report").unwrap();assert!(validator["session_id"].is_null());assert!(validator["job_id"].is_string());assert!(validator["attempt_id"].is_string());assert_eq!(validator["execution_kind"],"validator");assert_eq!(validator["state"],"validated");
+    let owner_proposal=graph_owner_proposal(&f,run_id,"owner-report","integrity-owner-report");assert_eq!(owner_proposal["snapshot"]["validation_refs"][0],*receipt);approve(&f.server,owner_proposal.clone());
+    wait(&f.server,"goal_graph_runs.get",json!({"run_id":run_id}),|d|d["nodes"].as_array().is_some_and(|ns|ns.iter().any(|n|n["node"]["id"]=="owner-summary"&&n["state"]=="awaiting_owner")));
+    let final_proposal=graph_owner_proposal(&f,run_id,"owner-summary","integrity-owner-summary");let decision=approve(&f.server,final_proposal.clone());assert_eq!(decision["task_accepted"],true);
+    let accepted=result(f.server.request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})));assert_eq!(accepted["task_accepted"],true);
+    let db=rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();assert_eq!(db.query_row("SELECT count(*) FROM attempts",[],|r|r.get::<_,u32>(0)).unwrap(),4);assert_eq!(db.query_row("SELECT count(*) FROM sessions",[],|r|r.get::<_,u32>(0)).unwrap(),3);assert_eq!(db.query_row("SELECT consumed FROM budgets WHERE scope=?1",[format!("project:{}",f.project["id"].as_str().unwrap())],|r|r.get::<_,u32>(0)).unwrap(),4);
+    let evidence=json!({"build_source_hashes":graph_build_source_hashes(),"scope":scope,"definition":definition,"graph_details":accepted,"owner_proposal":owner_proposal,"final_owner_proposal":final_proposal,"final_decision":decision});let bytes=serde_json::to_vec_pretty(&evidence).unwrap();let sha=agentbaton_workspaces::validation::sha256(&bytes);let path=PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!("../../artifacts/goal-validation-graph/actual-integrity-graph-{sha}.json"));use std::io::Write;std::fs::OpenOptions::new().create_new(true).write(true).open(&path).unwrap().write_all(&bytes).unwrap();eprintln!("ACTUAL_INTEGRITY_GRAPH sha256={sha} bytes={} path={}",bytes.len(),path.display());
 }

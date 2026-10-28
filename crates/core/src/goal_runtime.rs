@@ -683,7 +683,7 @@ pub(crate) fn permits_continuing_task(
     db: &Connection,
     intent: &crate::execution::DispatchIntent,
 ) -> Result<bool> {
-    db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_nodes n JOIN sessions s ON s.id=n.session_id JOIN goal_runs r ON r.id=n.run_id WHERE json_extract(s.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping'))",params![intent.id,intent.task_id],|r|r.get(0)).map_err(db_error)
+    db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_nodes n JOIN sessions s ON s.id=n.session_id JOIN goal_runs r ON r.id=n.run_id WHERE json_extract(s.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping')) OR EXISTS(SELECT 1 FROM goal_graph_jobs j JOIN goal_run_nodes n ON n.attempt_id=j.attempt_id AND n.run_id=j.run_id JOIN goal_runs r ON r.id=j.run_id JOIN goal_graph_capabilities c ON c.run_id=r.id WHERE json_extract(j.document,'$.job_kind')='validator' AND json_extract(j.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping'))",params![intent.id,intent.task_id],|r|r.get(0)).map_err(db_error)
 }
 
 fn checked_runtime_scope(
@@ -1008,6 +1008,15 @@ pub(crate) fn reserve_session(
     data: Option<&crate::data_workspaces::DataInputWitness>,
     graph_input: Option<&GraphReadWitness>,
 ) -> Result<()> {
+    reserve_attempt(db,c,GoalAttemptTarget {attempt_id:&s.attempt_id,task_id:&s.task_id,grant_id:&s.grant_id,session:Some(s)},binding,data,graph_input)
+}
+struct GoalAttemptTarget<'a> {
+    attempt_id:&'a str,
+    task_id:&'a str,
+    grant_id:&'a str,
+    session:Option<&'a crate::sessions::ManagedSession>,
+}
+fn reserve_attempt(db:&Connection,c:&GoalDispatchContext,target:GoalAttemptTarget<'_>,binding:&ExecutionBinding,data:Option<&crate::data_workspaces::DataInputWitness>,graph_input:Option<&GraphReadWitness>)->Result<()> {
     let mut r = run(db, &c.run.id)?;
     if r.revision != c.run.revision
         || r.plan_digest != c.run.plan_digest
@@ -1019,27 +1028,24 @@ pub(crate) fn reserve_session(
             "Goal dispatch changed before atomic reservation",
         ));
     }
-    let (scope, _) = checked_runtime_scope(db, &r, data)?;
+    let (scope, approved) = checked_runtime_scope(db, &r, data)?;
     if graph::is_graph_run(db, &r.id)? {
-        graph::require_dispatch_read(db, &r, &c.node, graph_input, s)?;
+        graph::require_attempt_read(db, &r, &c.node, graph_input, target.session)?;
     }
     let nodes = node_records(db, &r.id)?;
     let mut n = nodes
         .into_iter()
         .find(|n| n.node.id == c.node.id && n.state == "not_started")
         .ok_or_else(changed)?;
-    if n.node != c.node || s.task_id != r.task_id || s.grant_id != r.root_grant_id {
+    if n.node != c.node || target.task_id != r.task_id || target.grant_id != r.root_grant_id {
         return Err(changed());
     }
-    let Executor::Connection {
-        binding: expected, ..
-    } = &n.node.executor
-    else {
-        return Err(denied());
+    let expected=match &n.node.executor {
+        Executor::Connection {binding,..}=>binding.as_ref().clone(),
+        Executor::Validator {..} if graph::is_graph_run(db,&r.id)?=>scope_view(&scope,&approved)?.binding,
+        _=>return Err(denied()),
     };
-    if binding != expected.as_ref() {
-        return Err(changed());
-    }
+    if binding!=&expected{return Err(changed());}
     let all_active: u32 = db
         .query_row(
             "SELECT (SELECT count(*) FROM dispatch_intents WHERE state!='stopped')+(SELECT count(*) FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))+(SELECT count(*) FROM goal_graph_jobs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))",
@@ -1212,7 +1218,7 @@ pub(crate) fn reserve_session(
     db.execute(
         "INSERT INTO goal_run_reservations VALUES(?1,?2,?3,?4,?5)",
         params![
-            s.attempt_id,
+            target.attempt_id,
             r.id,
             n.node.id,
             n.node.parent_id,
@@ -1221,12 +1227,12 @@ pub(crate) fn reserve_session(
     )
     .map_err(db_error)?;
     n.state = "reserved".into();
-    n.session_id = Some(s.id.clone());
-    n.attempt_id = Some(s.attempt_id.clone());
+    n.session_id = target.session.map(|s|s.id.clone());
+    n.attempt_id = Some(target.attempt_id.to_owned());
     n.started_at_ms = Some(ms()?);
     save_node(db, &r.id, &n)?;
     r.state = "running".into();
-    let payload = json!({"node_id":n.node.id,"attempt_id":s.attempt_id,"session_id":s.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"reservation":n.node.reservation,"actual_runtime_ms":null,"actual_output_bytes":null,"tokens":null,"cost_microunits":null,"task_accepted":false});
+    let payload = json!({"node_id":n.node.id,"attempt_id":target.attempt_id,"session_id":target.session.map(|s|&s.id),"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"reservation":n.node.reservation,"actual_runtime_ms":null,"actual_output_bytes":null,"tokens":null,"cost_microunits":null,"task_accepted":false});
     save_run(db, &mut r, "goal.node_reserved", payload)?;
     Ok(())
 }
@@ -1395,7 +1401,7 @@ impl Store {
                 if !matches!(n.state.as_str(), "reserved" | "running" | "stopping") {
                     continue;
                 }
-                let id = n.session_id.clone().ok_or_else(changed)?;
+                let Some(id)=n.session_id.clone()else{continue;};
                 let s = self.get_session(&id)?;
                 if cancel
                     || matches!(
@@ -1746,7 +1752,8 @@ impl Store {
         let nodes = node_records(&self.conn, id)?;
         for n in &nodes {
             if n.state == "reserved" {
-                let session = self.get_session(n.session_id.as_deref().ok_or_else(changed)?)?;
+                let Some(id)=n.session_id.as_deref()else{return Ok(false);};
+                let session = self.get_session(id)?;
                 return Ok(session.state == "ready" && session.turn_state.is_none());
             }
             if matches!(n.state.as_str(), "running" | "stopping" | "outcome_unknown") {
@@ -1754,7 +1761,7 @@ impl Store {
             }
         }
         let ready = if graph::is_graph_run(&self.conn, id)? {
-            graph::ready_connection_node(&self.conn, &r, &nodes)?.is_some()
+            graph::ready_dispatch_node(&self.conn, &r, &nodes)?.is_some()
         } else {
             nodes.iter().any(executable_work)
         };

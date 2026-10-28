@@ -3,6 +3,9 @@
 use super::*;
 #[path = "goal_evidence.rs"]
 mod evidence;
+#[path = "goal_graph_validators.rs"]
+mod validators;
+pub(crate) use validators::PreparedGraphValidation;
 pub use evidence::{
     GraphArtifactReference, GraphCandidateReceipt, GraphInputBinding, GraphOwnerDecision,
     GraphValidationReceipt, GRAPH_CONTRACT_VERSION, MAX_GRAPH_REVIEW_BYTES,
@@ -479,7 +482,7 @@ impl Store {
                     state: n.state.clone(),
                     session_id: n.session_id.clone(),
                     attempt_id: n.attempt_id.clone(),
-                    job_id: None,
+                    job_id: validators::node_job_id(&self.conn,&summary.run,&n)?,
                     acceptance_state: node_acceptance_state(
                         &self.conn,
                         &summary.run,
@@ -572,12 +575,18 @@ struct CaptureWorker {
 pub(crate) struct GraphWorkers {
     captures: std::collections::HashMap<String, CaptureWorker>,
     stopping: bool,
+    validators: validators::ValidatorWorkers,
 }
 impl GraphWorkers {
+    pub(crate) fn start_validation(&mut self,store:&mut Store,prepared:PreparedGraphValidation)->Result<()> {
+        if self.has_workers(){return Err(err("WORKSPACE_BUSY","Another owned Goal worker holds the local slot"));}
+        self.validators.start(store,prepared)
+    }
     pub(crate) fn has_workers(&self) -> bool {
-        !self.captures.is_empty()
+        !self.captures.is_empty() || self.validators.has_workers()
     }
     pub(crate) fn tick(&mut self, store: &mut Store) -> Result<()> {
+        self.validators.tick(store)?;
         let finished: Vec<_> = self
             .captures
             .iter()
@@ -625,11 +634,11 @@ impl GraphWorkers {
             return Ok(());
         }
         store.reconcile_graph_frontiers()?;
-        raw_collection_budget(&store.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(state)+octet_length(workspace_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE state='prepared'",[],1,MAX_STORED_BYTES)?;
+        raw_collection_budget(&store.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(state)+octet_length(workspace_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE state='prepared' AND json_extract(document,'$.job_kind') IS NULL",[],1,MAX_STORED_BYTES)?;
         let doc: Option<String> = store
             .conn
             .query_row(
-                "SELECT document FROM goal_graph_jobs WHERE state='prepared' LIMIT 1",
+                "SELECT document FROM goal_graph_jobs WHERE state='prepared' AND json_extract(document,'$.job_kind') IS NULL LIMIT 1",
                 [],
                 |row| row.get(0),
             )
@@ -660,6 +669,7 @@ impl GraphWorkers {
             .spawn(move || prepared.execute());
         match thread {
             Ok(thread) => {
+                let id=origin.id.clone();
                 self.captures.insert(
                     origin.id.clone(),
                     CaptureWorker {
@@ -671,6 +681,7 @@ impl GraphWorkers {
                         queued_at,
                     },
                 );
+                store.mark_graph_capture_started(&self.captures.get(&id).ok_or_else(changed)?.origin)?;
             }
             Err(_) => store.finish_graph_capture(
                 &origin,
@@ -686,6 +697,7 @@ impl GraphWorkers {
     }
     pub(crate) fn shutdown(&mut self, store: &mut Store) -> Result<()> {
         self.stopping = true;
+        self.validators.request_all_stops();
         for w in self.captures.values() {
             w.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
         }
@@ -712,6 +724,7 @@ impl Store {
         session_id: &str,
         elapsed_at_stop_ms: u64,
     ) -> Result<()> {
+        let queued_at=std::time::Instant::now();
         let s = self.get_session(session_id)?;
         let (run_id,doc):(String,String)=self.conn.query_row("SELECT run_id,document FROM goal_run_nodes WHERE session_id=?1 AND octet_length(document)<=262144",[session_id],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
         let r = run(&self.conn, &run_id)?;
@@ -775,7 +788,7 @@ impl Store {
         )?;
         tx.commit().map_err(db_error)?;
         self.graph_capture_clocks
-            .insert(origin.id, std::time::Instant::now());
+            .insert(origin.id, queued_at);
         Ok(())
     }
     fn verify_capture_origin(
@@ -1154,6 +1167,8 @@ fn graph_candidates(db: &Connection, r: &GoalRun) -> Result<Vec<GraphCandidateRe
         }) {
             return Err(denied());
         }
+        let started:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.capture_worker_started' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.payload.job_id')=?2 AND json_extract(document,'$.payload.origin_digest')=?3 AND json_extract(document,'$.payload.owned_thread_started')=1 ORDER BY sequence LIMIT 1",params![r.id,origin.id,sha(&origin)?],|row|row.get(0)).optional().map_err(db_error)?;
+        if !matches!((prepared,started),(Some(p),Some(s)) if p<s && s<sql_num(c.capture_receipt_sequence).unwrap_or(0)){return Err(denied());}
         let s: crate::sessions::ManagedSession = raw(db, "sessions", &c.session_id)?;
         if s.attempt_id != c.attempt_id
             || s.workspace_id != c.workspace_id
@@ -1401,14 +1416,9 @@ fn graph_owner_decisions(db: &Connection, r: &GoalRun) -> Result<Vec<GraphOwnerD
     Ok(owners)
 }
 fn graph_validations(db: &Connection, r: &GoalRun) -> Result<Vec<GraphValidationReceipt>> {
-    graph_records(
-        db,
-        r,
-        "goal_graph_validations",
-        "goal.validation_settled",
-        "validation_id",
-        "goal_core",
-    )
+    let records:Vec<GraphValidationReceipt>=graph_records(db,r,"goal_graph_validations","goal.validation_settled","validation_id","goal_core")?;
+    for record in &records {validators::verify_receipt(db,r,record)?;}
+    Ok(records)
 }
 fn graph_records<T: serde::de::DeserializeOwned + Serialize>(
     db: &Connection,
@@ -1743,15 +1753,15 @@ fn input_bindings(
         })
         .collect()
 }
-pub(super) fn require_dispatch_read(
+pub(super) fn require_attempt_read(
     db: &Connection,
     r: &GoalRun,
     node: &PlanNode,
     witness: Option<&GraphReadWitness>,
-    session: &crate::sessions::ManagedSession,
+    session: Option<&crate::sessions::ManagedSession>,
 ) -> Result<()> {
     let refs = graph_input_refs(node, &graph_candidates(db, r)?, r.plan_revision)?;
-    require_read(db, r, &refs, witness, Some(session))
+    require_read(db, r, &refs, witness, session)
 }
 fn require_read(
     db: &Connection,
@@ -2220,6 +2230,7 @@ impl Store {
 }
 
 pub(super) fn verify_intrinsic_node(db: &Connection, r: &GoalRun, n: &RuntimeNode) -> Result<()> {
+    if n.node.kind==NodeKind::Validate {return validators::verify_intrinsic(db,r,n);}
     if !is_graph_run(db, &r.id)?
         || n.session_id.is_some()
         || n.attempt_id.is_some()
@@ -2317,7 +2328,7 @@ impl Store {
                         json!({"node_id":n.node.id,"plan_revision":n.plan_revision,"executor_started":false,"task_accepted":false}),
                     )?;
                     tx.commit().map_err(db_error)?;
-                } else if matches!(ready.node.kind, NodeKind::Work | NodeKind::Summary)
+                } else if matches!(ready.node.kind, NodeKind::Work | NodeKind::Summary | NodeKind::Validate)
                     && r.state == "awaiting_acceptance"
                 {
                     let tx = self
@@ -2886,6 +2897,7 @@ fn verify_owner_decision_receipt(
 impl GraphWorkers {
     pub(crate) fn reap_owned_workers(&mut self) {
         self.stopping = true;
+        self.validators.reap_owned_workers();
         for w in self.captures.values() {
             w.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
         }
@@ -2895,4 +2907,36 @@ impl GraphWorkers {
             let _ = w.thread.join();
         }
     }
+}
+
+impl Store {
+    fn mark_graph_capture_started(&mut self,origin:&CaptureOrigin)->Result<()> {
+        let (r,_,_)=self.verify_capture_origin(origin)?;
+        let tx=self.conn.transaction_with_behavior(TransactionBehavior::Immediate).map_err(db_error)?;
+        if tx.execute("UPDATE goal_graph_jobs SET state='running' WHERE id=?1 AND state='prepared'",[&origin.id]).map_err(db_error)?!=1{return Err(changed());}
+        event(&tx,&r.id,r.revision,"goal.capture_worker_started",json!({"job_id":origin.id,"origin_digest":sha(origin)?,"owned_thread_started":true,"worker_joined":false,"task_accepted":false}))?;
+        tx.commit().map_err(db_error)
+    }
+}
+impl Drop for GraphWorkers {
+    fn drop(&mut self){self.reap_owned_workers();}
+}
+
+#[cfg(test)]
+impl GraphWorkers {
+    /// An owned cancellation-observing reader fixture, not a Provider, Goal
+    /// candidate, approval or accepted output. Only tests can install it.
+    pub(crate) fn install_drop_fixture(&mut self, root:std::path::PathBuf, checked:impl FnOnce()+Send+'static) {
+        use std::os::unix::fs::MetadataExt;
+        let meta=std::fs::metadata(&root).unwrap();
+        let identity=agentbaton_workspaces::WorkspaceIdentity {canonical_root:root,device:meta.dev(),inode:meta.ino(),kind:agentbaton_workspaces::WorkspaceKind::Directory};
+        let cancel=std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));let flag=cancel.clone();
+        let thread=std::thread::spawn(move||{while !flag.load(std::sync::atomic::Ordering::SeqCst){std::thread::sleep(std::time::Duration::from_millis(1));}checked();Err(err("CANCEL_REQUESTED","Controlled owned reader observed cancellation"))});
+        let origin=CaptureOrigin {id:"drop-reader-fixture".into(),run_id:"no-authorized-fixture-run".into(),node_id:"not-an-executor".into(),plan_revision:1,plan_digest:"not-authority".into(),attempt_id:"not-a-provider-attempt".into(),session_id:"no-provider-session".into(),workspace_id:"fixture-root-only".into(),root:identity,writer_epoch:0,stop_receipt_sequence:0,capability_digest:"not-authority".into(),elapsed_at_stop_ms:0,prepared_at_ms:0,runtime_reservation_ms:1,consumed_inputs:vec![]};
+        self.captures.insert(origin.id.clone(),CaptureWorker {origin,cancel,thread,deadline:std::time::Instant::now()+std::time::Duration::from_secs(30),unknown_recorded:false,queued_at:std::time::Instant::now()});
+    }
+}
+
+pub(super) fn ready_dispatch_node<'a>(db:&Connection,r:&GoalRun,nodes:&'a[RuntimeNode])->Result<Option<&'a RuntimeNode>> {
+    Ok(graph_ready_node(db,r,nodes,&graph_candidates(db,r)?)?.filter(|n|matches!(n.node.kind,NodeKind::Work|NodeKind::Summary|NodeKind::Validate)))
 }

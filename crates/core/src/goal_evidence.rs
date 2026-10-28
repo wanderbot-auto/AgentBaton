@@ -92,6 +92,7 @@ pub struct GraphValidationReceipt {
     pub correctness: String,
     pub task_acceptance: String,
     pub result_digest: String,
+    pub observation: serde_json::Value,
     pub details_ref: String,
     pub stop_confirmed: bool,
     pub io_completion: String,
