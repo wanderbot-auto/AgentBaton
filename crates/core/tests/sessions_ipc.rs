@@ -123,7 +123,7 @@ for line in sys.stdin:
   if text.startswith('{'):
    contract=json.loads(text)
    assert contract['kind']=='agentbaton_goal_task_request' and contract['schema_version']==1
-   assert len(contract)==(18 if 'task_binding' in contract else 16)
+   assert set(contract)==({'schema_version','kind','goal','node','run_id','plan_revision','plan_digest','workspace','inputs','outputs','policy','lineage','budget','idempotency_key','return_location'}|({'task_binding','validation_contracts'} if 'task_binding' in contract else set()))
    assert ('validation_contracts' in contract)==('task_binding' in contract)
    assert contract['workspace']['canonical_root']==os.getcwd()
    assert contract['lineage']['attempt_id'] and contract['plan_digest'] and contract['return_location']['node_id']==contract['node']['id']
@@ -4004,6 +4004,7 @@ fn actual_graph_integrity_validator_is_a_charged_owned_attempt_before_owner_and_
     );
     assert_eq!(checked["validations"].as_array().unwrap().len(), 1);
     let receipt = &checked["validations"][0];
+    authentic_validation_from_projection(receipt);
     assert_eq!(receipt["passed"], true);
     assert_eq!(receipt["scope"], "artifact_integrity_only");
     assert_eq!(receipt["correctness"], "not_established");
@@ -4024,7 +4025,10 @@ fn actual_graph_integrity_validator_is_a_charged_owned_attempt_before_owner_and_
     assert_eq!(validator["execution_kind"], "validator");
     assert_eq!(validator["state"], "validated");
     let owner_proposal = graph_owner_proposal(&f, run_id, "owner-report", "integrity-owner-report");
-    assert_eq!(owner_proposal["snapshot"]["validation_refs"][0], *receipt);
+    assert_eq!(
+        owner_proposal["snapshot"]["validation_refs"][0],
+        authentic_validation_from_projection(receipt)
+    );
     let first_decision = approve(&f.server, owner_proposal.clone());
     wait(
         &f.server,
@@ -4295,6 +4299,7 @@ fn actual_graph_data_contract_passes_before_owner_and_summary_but_is_not_scienti
         },
     );
     let v = &checked["validations"][0];
+    authentic_validation_from_projection(v);
     assert_eq!(v["passed"], true);
     assert_eq!(v["scope"], "data_contract_only");
     assert_eq!(v["correctness"], "approved_schema_ranges_metadata_only");
@@ -4423,14 +4428,7 @@ fn actual_command_definition_graph_fixture(command_case: &str) -> (Scenario, Val
     } else {
         vec!["3"]
     };
-    let program = if command_case == "normal" && cfg!(target_os = "linux") {
-        let path = f.root.join("graph-fixed-command");
-        std::fs::copy(executable, &path).unwrap();
-        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o700)).unwrap();
-        path
-    } else {
-        std::fs::canonicalize(executable).unwrap()
-    };
+    let program = std::fs::canonicalize(executable).unwrap();
     let policy_proposal=result(f.server.request(json!({"method":"command_validation_policies.propose","params":{"session_id":session,"executable":program,"mode":"native_executable","script":null,"inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":agentbaton_workspaces::validation::sha256(b"baseline")}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],"arguments":arguments,"environment":{},"expected_exit_codes":[0],"wall_time_ms":if command_case=="normal" {500}else{1500},"cleanup_time_ms":500,"stdout_limit":512,"stderr_limit":512,"require":agentbaton_core::command_validation::CommandEnforcement::default()},"idempotency_key":"source-additional-command-definition"})));
     let definition = approve(&f.server, policy_proposal);
     result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":source["id"]},"expected_revision":source_done["run"]["revision"],"idempotency_key":"cancel-source-candidate-before-new-graph"})));
@@ -4550,6 +4548,7 @@ fn actual_graph_fixed_command_observation_is_charged_without_recounting_checked_
         },
     );
     let receipt = &checked["validations"][0];
+    authentic_validation_from_projection(receipt);
     assert_eq!(receipt["passed"], true);
     assert_eq!(receipt["scope"], "approved_deterministic_command_only");
     assert_eq!(
@@ -4824,4 +4823,19 @@ fn actual_graph_interrupted_validator_snapshot_is_unknown_fenced_and_never_autom
         assert!(ledger["output_bytes"].is_null());
     }
     eprintln!("ACTUAL_RECOVERY consistent in-flight validator snapshot: no replay/refund/falsecancelled, unknown meters/fence preserved");
+}
+
+fn authentic_validation_from_projection(view: &Value) -> Value {
+    let raw = view["observation_json"]
+        .as_str()
+        .expect("lossless observation string");
+    assert_eq!(
+        agentbaton_workspaces::validation::sha256(raw.as_bytes()),
+        view["result_digest"]
+    );
+    let restored: Value = serde_json::from_str(raw).unwrap();
+    assert_eq!(restored, view["observation"]);
+    let mut original = view.clone();
+    original.as_object_mut().unwrap().remove("observation_json");
+    original
 }

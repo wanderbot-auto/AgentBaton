@@ -55,6 +55,14 @@ pub struct GraphRunSummary {
     pub ledger_revision: u64,
     pub task_accepted: bool,
 }
+/// Read-only, lossless display projection. The original receipt is unchanged
+/// in storage, native approval snapshots and authenticated digest/event chains.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct GraphValidationView {
+    #[serde(flatten)]
+    pub receipt: GraphValidationReceipt,
+    pub observation_json: String,
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GraphRunDetails {
@@ -62,7 +70,7 @@ pub struct GraphRunDetails {
     pub run: GoalRun,
     pub nodes: Vec<GraphNodeView>,
     pub candidates: Vec<GraphCandidateReceipt>,
-    pub validations: Vec<GraphValidationReceipt>,
+    pub validations: Vec<GraphValidationView>,
     pub owner_decisions: Vec<GraphOwnerDecision>,
     pub ledger_revision: u64,
     pub task_accepted: bool,
@@ -525,7 +533,21 @@ impl Store {
             run: summary.run,
             nodes,
             candidates,
-            validations,
+            validations: validations
+                .into_iter()
+                .map(|receipt| {
+                    let observation_json = encode(&receipt.observation)?;
+                    if agentbaton_workspaces::validation::sha256(observation_json.as_bytes())
+                        != receipt.result_digest
+                    {
+                        return Err(changed());
+                    }
+                    Ok(GraphValidationView {
+                        receipt,
+                        observation_json,
+                    })
+                })
+                .collect::<Result<Vec<_>>>()?,
             owner_decisions: owners,
             ledger_revision: summary.ledger_revision,
             task_accepted: summary.task_accepted,
