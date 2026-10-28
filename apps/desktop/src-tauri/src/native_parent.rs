@@ -40,7 +40,8 @@ fn review_prompts(message: &str) -> Result<Vec<String>, String> {
     let mut start = 0;
     let mut end = 0;
     for (offset, ch) in message.char_indices() {
-        let escaped = if ch == '\x7f'
+        let escaped = if ch == '\u{061c}'
+            || ch == '\x7f'
             || ('\u{0080}'..='\u{009f}').contains(&ch)
             || ('\u{200b}'..='\u{200f}').contains(&ch)
             || ('\u{2028}'..='\u{202e}').contains(&ch)
@@ -482,6 +483,23 @@ mod tests {
         }
         assert!(prompts.concat().contains("\\u202e"));
         assert!(prompts.concat().contains("你好🔒"));
+    }
+    #[test]
+    fn all_twelve_unicode_bidi_controls_are_visible_escaped_and_lossless() {
+        let controls = [
+            '\u{061c}', '\u{200e}', '\u{200f}', '\u{202a}', '\u{202b}', '\u{202c}', '\u{202d}',
+            '\u{202e}', '\u{2066}', '\u{2067}', '\u{2068}', '\u{2069}',
+        ];
+        assert_eq!(controls.len(), 12);
+        for control in controls {
+            let original = format!("recipient: abc{control}123 你好🔒");
+            let prompts = review_prompts(&original).unwrap();
+            let displayed = prompts.concat();
+            assert!(!displayed.contains(control));
+            assert!(displayed.contains(&format!("\\u{:04x}", control as u32)));
+            assert!(displayed.contains("你好🔒"));
+            assert_eq!(restore_prompts(&prompts), original);
+        }
     }
     #[test]
     fn original_large_limits_are_preserved_and_never_truncated() {

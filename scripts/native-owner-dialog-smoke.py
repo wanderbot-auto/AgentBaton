@@ -176,7 +176,7 @@ def presentation_prompts(message):
     rows, encoded, start, offset = [], '', 0, 0
     for char in message:
         code = ord(char)
-        escaped = (f'\\u{code:04x}' if code == 127 or 128 <= code <= 159 or 0x200b <= code <= 0x200f
+        escaped = (f'\\u{code:04x}' if code in (127, 0x061c) or 128 <= code <= 159 or 0x200b <= code <= 0x200f
                    or 0x2028 <= code <= 0x202e or 0x2060 <= code <= 0x206f or code == 0xfeff
                    else json.dumps(char, ensure_ascii=False)[1:-1])
         if encoded and len(encoded.encode('utf-8')) + len(escaped.encode('utf-8')) > 40:

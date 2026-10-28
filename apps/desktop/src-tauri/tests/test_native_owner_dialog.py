@@ -359,6 +359,22 @@ class PresentationControls(unittest.TestCase):
             self.assertLessEqual(len(prompt.splitlines()), 12)
             self.assertTrue(all(line and not line[0].isspace() for line in prompt.splitlines()))
 
+    def test_all_twelve_unicode_bidi_controls_are_visible_escaped_and_lossless(self):
+        controls = [0x061c, 0x200e, 0x200f, 0x202a, 0x202b, 0x202c,
+                    0x202d, 0x202e, 0x2066, 0x2067, 0x2068, 0x2069]
+        self.assertEqual(len(controls), 12)
+        for code in controls:
+            with self.subTest(code=hex(code)):
+                original = f'recipient: abc{chr(code)}123 你好🔒'
+                prompts = runner.presentation_prompts(original)
+                displayed = ''.join(prompts)
+                self.assertNotIn(chr(code), displayed)
+                self.assertIn(chr(92) + f'u{code:04x}', displayed)
+                self.assertIn('你好🔒', displayed)
+                restored = ''.join(runner.json.loads(line.split(' ', 1)[1])
+                                   for page in prompts[:-1] for line in page.splitlines() if line.startswith('L'))
+                self.assertEqual(restored.encode('utf-8'), original.encode('utf-8'))
+
     def test_canonical_json_row_matches_production_rust_vector(self):
         self.assertEqual(runner.presentation_prompts(' \t你好🔒\n')[0],
             'Native review page 1/1\nOriginal UTF-8 bytes 0..13 of 13.\nRead JSON strings in L order; escapes preserve ALL text.\nOK reads this page only. Cancel stops this review.\nL00001 " \\t你好🔒\\n"')
