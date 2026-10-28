@@ -29,7 +29,7 @@ fn v4_runtime_upgrade_preserves_original_tasks_and_private_backup() {
     assert_eq!(
         db.pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
             .unwrap(),
-        11
+        12
     );
     assert_eq!(
         db.query_row(

@@ -33,7 +33,7 @@ pub use runtime::{
     GraphExecutionSnapshot, GraphInputBinding, GraphNodeAcceptanceSnapshot,
     GraphNodeApprovalSelection, GraphNodeView, GraphOwnerDecision, GraphOwnerDecisionResult,
     GraphRunBinding, GraphRunDetails, GraphRunSelection, GraphRunSummary, GraphTaskAcceptance,
-    GraphValidationReceipt,
+    GraphValidationReceipt, GraphValidationView,
 };
 
 pub const MAX_GOAL_PLAN_BYTES: usize = 262_144;

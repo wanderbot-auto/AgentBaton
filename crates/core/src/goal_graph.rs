@@ -409,17 +409,8 @@ impl Store {
             payload: json!({"kind":proposal.kind,"snapshot":proposal.snapshot}),
             source: "user_action".into(),
         };
-        let document = encode(&proposal)?;
+        let document = bounded_graph_proposal(&proposal, &proposed)?;
         let event_document = encode(&proposed)?;
-        let worst_response = encode(
-            &json!({"request_id":"\0".repeat(128),"result":proposal,"revision":u64::MAX,"warnings":[]}),
-        )?;
-        if [document.len(), event_document.len(), worst_response.len()]
-            .iter()
-            .any(|n| *n > MAX_GRAPH_REVIEW_BYTES)
-        {
-            return Err(err("RESOURCE_LIMIT","Complete graph approval row and review envelope exceed 1MiB; nothing was truncated"));
-        }
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -782,7 +773,7 @@ impl Store {
             session_id: s.id,
             workspace_id: s.workspace_id,
             root: record.refs.workspace.identity.clone().ok_or_else(changed)?,
-            writer_epoch: u64::try_from(s.fencing_token).map_err(|_| changed())?,
+            writer_epoch: s.fencing_token,
             stop_receipt_sequence: u64::try_from(stop).map_err(|_| changed())?,
             capability_digest: sha(&p.snapshot)?,
             elapsed_at_stop_ms,
@@ -857,7 +848,7 @@ impl Store {
             || trusted_session_stop(&self.conn, &r.id, &s)?
                 != sql_num(origin.stop_receipt_sequence)?
             || !lease.holder.is_empty()
-            || u64::try_from(lease.fencing_token).ok() != Some(origin.writer_epoch)
+            || lease.fencing_token != origin.writer_epoch
             || record.refs.workspace.identity.as_ref() != Some(&origin.root)
             || !current_output_root(&self.conn, &record.refs.workspace)
         {
@@ -1026,7 +1017,7 @@ impl Store {
             "failed"
         };
         if success {
-            let c = result.map_err(|e| e)?;
+            let c = result?;
             if c.root != origin.root || c.outputs.len() != n.node.outputs.len() {
                 return Err(changed());
             }
@@ -1372,10 +1363,31 @@ impl Store {
         let run_id = match method {
             "goal_graph_runs.dispatch" | "goal_node_approvals.propose" => params["run_id"].as_str(),
             "approvals.finalize" | "approvals.decline" => {
-                let Some(id) = params["proposal_id"].as_str() else {
+                #[derive(Deserialize)]
+                #[serde(deny_unknown_fields)]
+                struct FixedProposalReference {
+                    proposal_id: String,
+                }
+                let fixed: FixedProposalReference =
+                    serde_json::from_value(params.clone()).map_err(|_| invalid())?;
+                key(&fixed.proposal_id)?;
+                raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)),0),COALESCE(max(octet_length(document)),0) FROM approval_proposals WHERE id=?1",[&fixed.proposal_id],1,MAX_STORED_BYTES)?;
+                // Unknown proposals belong to the normal fixed approval route,
+                // including its existing global-idle gate. Absence is never
+                // interpreted as a graph capability or a new read witness.
+                let exists: bool = self
+                    .conn
+                    .query_row(
+                        "SELECT EXISTS(SELECT 1 FROM approval_proposals WHERE id=?1)",
+                        [&fixed.proposal_id],
+                        |row| row.get(0),
+                    )
+                    .map_err(db_error)?;
+                if !exists {
                     return Ok(None);
-                };
-                let p: ApprovalProposal = raw(&self.conn, "approval_proposals", id)?;
+                }
+                let p: ApprovalProposal =
+                    raw(&self.conn, "approval_proposals", &fixed.proposal_id)?;
                 if p.kind != "goal_node_acceptance" || p.consumed {
                     return Ok(None);
                 }
@@ -3108,4 +3120,54 @@ pub(super) fn prompt_validation_contracts(
         contracts.push(json!({"rule_id":def.rule_id,"definition_digest":def.digest,"artifacts":artifacts,"context":context,"current_subject":{"task_id":record.refs.task_id,"attempt_id":session.attempt_id,"spec_revision":record.refs.spec_revision,"input_revision":record.refs.workspace.base_revision,"version":version},"task_acceptance":"not_established"}));
     }
     Ok(json!(contracts))
+}
+
+#[cfg(test)]
+mod proposal_size_tests {
+    use super::*;
+    #[test]
+    fn complete_proposal_envelope_accounts_for_maximum_control_id_escaping_at_exact_byte_boundary()
+    {
+        let mut p = ApprovalProposal {
+            id: "p".into(),
+            kind: "goal_graph_execution".into(),
+            revision: 1,
+            snapshot: json!({"padding":""}),
+            created_at: "2026-10-28T00:00:00Z".into(),
+            expires_at_ms: 1,
+            consumed: false,
+        };
+        let envelope = |p: &ApprovalProposal, id: &str| {
+            encode(&json!({"request_id":id,"result":p,"revision":u64::MAX,"warnings":[]})).unwrap()
+        };
+        let overhead = envelope(&p, &"\0".repeat(128)).len();
+        p.snapshot["padding"] = json!("x".repeat(MAX_STORED_BYTES as usize - overhead));
+        let event_for = |p: &ApprovalProposal| Event {
+            sequence: 0,
+            event_id: "e".into(),
+            aggregate_id: p.id.clone(),
+            revision: 1,
+            kind: "approval.proposed".into(),
+            occurred_at: "2026-10-28T00:00:00Z".into(),
+            payload: json!({"kind":p.kind,"snapshot":p.snapshot}),
+            source: "user_action".into(),
+        };
+        assert_eq!(
+            envelope(&p, &"\0".repeat(128)).len(),
+            MAX_STORED_BYTES as usize
+        );
+        assert!(bounded_graph_proposal(&p, &event_for(&p)).is_ok());
+        assert!(envelope(&p, "ordinary-request-id").len() < MAX_STORED_BYTES as usize);
+        let mut padding = p.snapshot["padding"].as_str().unwrap().to_owned();
+        padding.push('x');
+        p.snapshot["padding"] = json!(padding);
+        assert_eq!(
+            bounded_graph_proposal(&p, &event_for(&p)).unwrap_err().code,
+            "RESOURCE_LIMIT"
+        );
+        assert!(
+            envelope(&p, "ordinary-request-id").len() < MAX_STORED_BYTES as usize,
+            "ordinary UUID alone would incorrectly pass the old control-id bound"
+        );
+    }
 }

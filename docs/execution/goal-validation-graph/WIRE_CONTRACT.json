@@ -199,5 +199,37 @@
     "finalize_decline": "same action exact proposal/key returns original decision receipt; cross action conflict",
     "foreign_current_node": "another key accepting same node never resolves original unknown",
     "unconsumed": "original proposal must still pass all current exact refs/CAS and fresh witness"
+  },
+  "read_only_observation_projection": {
+    "path": "GraphRunDetails.validations[*].observation_json",
+    "type": "string",
+    "encoding": "serde_json compact serialization of the original persisted observation Value; SHA-256 UTF-8 bytes exactly equals result_digest",
+    "authority": "display-only; stored GraphValidationReceipt, native Owner snapshot validation_refs, original Value and authenticated receipt/event digests remain unchanged",
+    "limits": "complete Details including both forms remains <=4194304 serialized bytes; all existing predecode raw aggregate limits remain",
+    "numeric_metadata": "Raw display preserves full Rust u64/f64 JSON without relying on JavaScript number roundtrip. Identity/CAS/pin authorization guards remain unchanged."
+  },
+  "task_request_fields": {
+    "legacy": [
+      "schema_version",
+      "kind",
+      "goal",
+      "node",
+      "run_id",
+      "plan_revision",
+      "plan_digest",
+      "workspace",
+      "inputs",
+      "outputs",
+      "policy",
+      "lineage",
+      "budget",
+      "idempotency_key",
+      "return_location"
+    ],
+    "graph_additions": [
+      "task_binding",
+      "validation_contracts"
+    ],
+    "authority": "only trusted stored graph capability permits graph additions; legacy exact field set is unchanged"
   }
 }
