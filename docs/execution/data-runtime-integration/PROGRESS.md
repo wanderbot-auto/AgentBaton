@@ -48,3 +48,9 @@ Goal 实际运行 Core11 继续独立开发：schema11、原子 reservation/实�
 下一窄修在codex/data-path-fixture源893efe5aa1dd89844de6d4df00d90d736d2b5e8a：仅目标用例改目录FD逐层创建16层/~4KiB真实输入，保留完整目标>4096、精确ResourceLimit、managed零目录和其它23case；生产限额/代码/超时/工作流不变。作者实际24 Data+相关rootFD1/Clippy/fmt通过；独审和新精确MacCI待，不称已修复Mac。main仍18f4261，OWNER001/002 ACK，无需额外批准的工程步骤继续。
 
 Goal运行组合独立在codex/goal-runtime-integration：author9f833/497冻结schema11，549Rust+7docs/lints/build通过；独立Core274+已保护command27通过。Root445UI、Native28+12、原quiet/command/Goal/editor/Data真实70检查47图通过；新执行作者及独立最终503c实跑各9检查8图通过，取景仅测试定位修正，旧图保留。Root组合最终全Rust仍运行；macOS/OSOwnerDialog/真实Provider、完整依赖验收/factory/NL及全130仍未完成，继续原完整目标和全部权限边界。
+
+## Data 长路径 fixture 修复已独审，准备新 CI
+
+已集成893efe5aa1dd89844de6d4df00d90d736d2b5e8a（本分支13be879）及作者e3949be4：仅目标测试内以FD逐级mkdirat/openat创建实际16层输入，relative4015/source4038/target4132字节、真实11字节SHA快照。其它23case、原长度公式/80字符ID/完整目标>4096/精确ResourceLimit/managed零目录全部保留，生产/锁/CI/超时/4096限额不变。作者及独审分别实际24Data+相关rootFD1/Clippy/fmt/diff PASS；Root重哈希独审16项，报告data-path-fixture/INDEPENDENT_REVIEW.md，manifest fe23cf7746a691a18c9df3bd7eaf1d910d9c95bd891dc5f6d3416d6fdab174e5。
+
+旧37bd准确五成功双失败及107项证据不改；0db新预览与copyjoin均已在双Mac通过，但长路径fixture先失败使Native/新图/audit/DMG未到达。下一normalpush需新准确七项、双Native/实际侧栏图/defaultreleaseaudit和双真实DMG，不推断Mac修复已通过。main18f4261及OWNER001/002已再次fetch确认，无扩权。Goal实际运行Core/UI/真实IPC另在独立组合继续，全130及依赖/验收/factory等余项仍未完成。

@@ -1,5 +1,5 @@
 {
-  "status": "PR14 corrected37bd rejected:5success/2Mac pathfixture setup failures; Core21 observation correction passed on both Mac",
+  "status": "reviewed source893 pathfixture integrated; new exact CI pending; old37bd5success2fail retained",
   "baseline": "a2c5bcf47fd60d66207e2cc93c94db4f7f648057",
   "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
   "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
@@ -466,5 +466,16 @@
     "evidence_manifest_sha256": "e12de7d4c1286f99d5287edd1389a84a71312096273a84745047716cd2fb7057",
     "root_rehashed_files": 107,
     "root_verifier_note": "Initial local verifier assumed string entries, rejected dict entry before copying; corrected to documented sha256+bytes shape, all original records unchanged"
+  },
+  "path_fixture": {
+    "source": "893efe5aa1dd89844de6d4df00d90d736d2b5e8a",
+    "test_file_sha256": "f1aa9b30b601becab1a9b52e50c090a585f6becfbe4c5a80e1c963ed75b8d77b",
+    "independent_review": "../data-path-fixture/INDEPENDENT_REVIEW.md",
+    "manifest": "../data-path-fixture/INDEPENDENT_VERIFICATION.json",
+    "root_rehashed_files": 16,
+    "local_data_unique": 24,
+    "related_root_fd_unique": 1,
+    "new_mac": "not_run",
+    "scope": "test-only FD construction preserves complete4096 pre-effect refusal; no product limits changed"
   }
 }

@@ -1,5 +1,13 @@
 # AgentBaton 执行状态
 
+## Data 长路径 fixture 修复已独审，准备新 CI
+
+已集成893efe5aa1dd89844de6d4df00d90d736d2b5e8a（本分支13be879）及作者e3949be4：仅目标测试内以FD逐级mkdirat/openat创建实际16层输入，relative4015/source4038/target4132字节、真实11字节SHA快照。其它23case、原长度公式/80字符ID/完整目标>4096/精确ResourceLimit/managed零目录全部保留，生产/锁/CI/超时/4096限额不变。作者及独审分别实际24Data+相关rootFD1/Clippy/fmt/diff PASS；Root重哈希独审16项，报告data-path-fixture/INDEPENDENT_REVIEW.md，manifest fe23cf7746a691a18c9df3bd7eaf1d910d9c95bd891dc5f6d3416d6fdab174e5。
+
+旧37bd准确五成功双失败及107项证据不改；0db新预览与copyjoin均已在双Mac通过，但长路径fixture先失败使Native/新图/audit/DMG未到达。下一normalpush需新准确七项、双Native/实际侧栏图/defaultreleaseaudit和双真实DMG，不推断Mac修复已通过。main18f4261及OWNER001/002已再次fetch确认，无扩权。Goal实际运行Core/UI/真实IPC另在独立组合继续，全130及依赖/验收/factory等余项仍未完成。
+
+以下保留历史检查点。
+
 ## Data PR14：新预览检查通过，长路径 fixture 阻塞
 
 精确37bd032f0e1b2dfa75fc9ff768e85801f1693a99 / checkout e79a267584d1dcbb4f329b1e3044e5c66eb9a6bb 的 Product40669158389、Environment40669158380 最终五成功、双Mac失败。新大预览准备及取消/join安全断言均通过：ARM预览3748ms、copycancel2104ms，Intel4869/2352ms；两边cancelled+worker_joined，3秒RPC和5秒join边界满足，旧de150失败保留。
