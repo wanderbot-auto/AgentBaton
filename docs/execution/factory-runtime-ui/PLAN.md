@@ -11,3 +11,5 @@ Folded Details UI loads only on expansion, selects real live grant/connections/w
 Meaningful mocked Node/API/Native callback tests are separate from actual Core IPC/browser/macOS. Run full Node/type/build on final candidate, preserve original source/test evidence. Root provides real Core fixtures/integration and future compile lease.
 
 Revision after37c independent review: mirror current typed Project binding and share only the specifically approved immutable0c6f Core wire fixture under Native tests/fixtures. Add host/recipient Grant subset, required root/connected lineage and exact waiting-parent guards. Preserve original37c failures; run affected and full Node/type/build. Native10 source bodies remain uncompiled without a lease.
+
+FR05 follow-up4279: compare every original Grant connection pin business scalar, require selected pin maps and identity structure in Renderer; keep filesystem numbers opaque. Native compares original full workspace identity Value and exact artifact contract root device/inode. Frozen old failures remain. No shared session API/Cargo/lock changes.

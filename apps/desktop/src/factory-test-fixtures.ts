@@ -1,7 +1,7 @@
 // Synthetic DTO fixtures for Node transport/component controls, NOT Core proof.
 import type { Task, ManagedWorkspace } from './api';
-import type { NamedConnection, ExecutionGrant } from './session-api';
-import type { FactoryScope, FactoryRunDetails } from './factory-types';
+import type { NamedConnection } from './session-api';
+import type { FactoryScope, FactoryRunDetails, FactoryGrant } from './factory-types';
 import { newFactoryForm, parseFactorySelection } from './factory-form';
 let ordinal=0;
 export function factoryFixture(){
@@ -9,7 +9,7 @@ export function factoryFixture(){
  const task:Task={id:`factory-task-${suffix}`,project_id:'factory-project',goal:'Generate a bounded local report',state:'draft',revision:1,spec_revision:1,created_at:now,updated_at:now};
  const connection:NamedConnection={id:'factory-connection',name:'Existing local connection',provider:'custom_acp',protocol_route:'custom_acp',executable:'/generated/fixture',arguments:[],executable_sha256:'a'.repeat(64),environment_id:'environment',identity_ref:'identity-unknown',config_revision:'config',host_id:'local',approval_id:'connection-approval',probe_state:'ready',revision:2,capability_snapshot_id:'capability',identity_status:'unknown',config_status:'supported',created_at:now,version_evidence:null};
  const workspace:ManagedWorkspace={id:'factory-workspace',project_id:task.project_id!,root:'/managed/factory',identity:{canonical_root:'/managed/factory',device:1,inode:2**60,kind:{kind:'git',common_dir:'/source/.git',head:'b'.repeat(40),dirty:false}},revision:1,base_revision:'b'.repeat(40),created_at:now,state:'ready'};
- const grant:ExecutionGrant={id:'factory-grant',project_id:task.project_id!,root_grant_id:'factory-grant',parent_id:null,depth:0,revision:1,approval_id:'grant-approval',approved_at:now,expires_at_ms:Date.now()+3600000,revoked:false,scope:{workspace_ids:[workspace.id],connection_ids:[connection.id],host_ids:['local'],max_attempts:8,max_concurrency:2,max_duration_ms:120000,recipients:[],network:{mode:'deny'},max_depth:0,max_children:0},enforcement:{baton_mediated_scope:true,os_filesystem_sandbox:false,os_network_sandbox:false,native_identity_isolation:false}};
+ const grant:FactoryGrant={id:'factory-grant',project_id:task.project_id!,root_grant_id:'factory-grant',parent_id:null,depth:0,revision:1,approval_id:'grant-approval',approved_at:now,expires_at_ms:Date.now()+3600000,revoked:false,connection_bindings:{[connection.id]:{protocol_route:'custom_acp',revision:connection.revision,environment_id:connection.environment_id,identity_ref:connection.identity_ref,host_id:connection.host_id,config_revision:connection.config_revision,executable_sha256:connection.executable_sha256,capability_snapshot_id:connection.capability_snapshot_id}},workspace_bindings:{[workspace.id]:workspace.identity!},scope:{workspace_ids:[workspace.id],connection_ids:[connection.id],host_ids:['local'],max_attempts:8,max_concurrency:2,max_duration_ms:120000,recipients:[],network:{mode:'deny'},max_depth:0,max_children:0},enforcement:{baton_mediated_scope:true,os_filesystem_sandbox:false,os_network_sandbox:false,native_identity_isolation:false}};
  const form={...newFactoryForm(),grantId:grant.id,connections:[connection.id],workspaces:[workspace.id],inputs:'input | input.txt | 1024',outputs:'output | report.txt | 1024'};
  const selection=parseFactorySelection(form,task,grant);
  const contract=(requirement:typeof selection.inputs[number])=>({canonical_root:workspace.root,root_device:1,root_inode:2**60,requirement});

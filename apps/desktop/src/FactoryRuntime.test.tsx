@@ -50,3 +50,7 @@ describe('Factory incomplete or contradictory subtree evidence never unlocks rep
 describe('Factory approved Project revision is immutable business authority',()=>{
  it('rejects a changed Project revision hidden behind unchanged scope authority',async()=>{const f=factoryFixture(),user=userEvent.setup();setup(f,[f.scope]);render(<FactoryRuntime {...props(f)}/>);await open(user);const fork=structuredClone(f.scope);fork.bindings.project.revision++;setup(f,[fork]);await user.click(screen.getByRole('button',{name:t.refresh}));expect(await screen.findByRole('alert')).toHaveTextContent(t.invalid);expect(screen.getByRole('button',{name:t.start})).toBeDisabled();expect(factoryApi.start).not.toHaveBeenCalled();});
 });
+
+describe('Factory connection receipt cannot drift from the original Grant pin',()=>{
+ it('blocks new execution with a changed connection configuration despite unchanged scope/Grant IDs',async()=>{const f=factoryFixture(),user=userEvent.setup();const scope=structuredClone(f.scope);scope.bindings.connections[0].config_revision='foreign-config';setup(f,[scope]);render(<FactoryRuntime {...props(f)}/>);await open(user);expect(await screen.findByRole('alert')).toHaveTextContent(t.invalid);expect(screen.getByRole('button',{name:t.approve})).toBeDisabled();expect(factoryApi.start).not.toHaveBeenCalled();expect(factoryApi.approve).not.toHaveBeenCalled();});
+});

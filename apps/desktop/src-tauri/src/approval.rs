@@ -1503,7 +1503,7 @@ fn factory_contract_matches(contract: &Value, requirements: &Value, workspaces: 
     // These remain original serde u64, without the renderer safe-number cap.
     &&contract["root_device"].as_u64().is_some()&&contract["root_inode"].as_u64().is_some()
     &&requirements.as_array().is_some_and(|items|items.contains(&contract["requirement"]))
-    &&workspaces.as_array().is_some_and(|items|items.iter().any(|w|w["root"]==contract["canonical_root"]))
+    &&workspaces.as_array().is_some_and(|items|items.iter().any(|w|w["root"]==contract["canonical_root"] && w["identity"]["device"]==contract["root_device"] && w["identity"]["inode"]==contract["root_inode"]))
 }
 fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
     let b = &snapshot["bindings"];
@@ -1632,6 +1632,21 @@ fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
     if !b["connections"].as_array().is_some_and(|rows| {
         rows.iter().all(|c| {
             graph_hash(&c["executable_sha256"])
+                && c["id"].as_str().is_some_and(|id| {
+                    let pin = &grant["connection_bindings"][id];
+                    let fields = [
+                        "protocol_route",
+                        "revision",
+                        "environment_id",
+                        "identity_ref",
+                        "host_id",
+                        "config_revision",
+                        "executable_sha256",
+                        "capability_snapshot_id",
+                    ];
+                    exact_fields(pin, &fields)
+                        && fields.iter().all(|field| pin[*field] == c[*field])
+                })
                 && grant["scope"]["host_ids"]
                     .as_array()
                     .is_some_and(|allowed| allowed.contains(&c["host_id"]))
@@ -1648,6 +1663,15 @@ fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
     }) || !b["workspaces"].as_array().is_some_and(|rows| {
         rows.iter().all(|w| {
             w["project_id"] == task["project_id"]
+                && w["id"].as_str().is_some_and(|id| {
+                    let pin = &grant["workspace_bindings"][id];
+                    pin.is_object()
+                        && pin["canonical_root"] == w["root"]
+                        && pin["device"].as_u64().is_some()
+                        && pin["inode"].as_u64().is_some()
+                        && pin["kind"].is_object()
+                        && w["identity"] == *pin
+                })
                 && w["root"].as_str().is_some_and(|p| !p.is_empty())
                 && w["state"] == "ready"
         })
@@ -3201,6 +3225,12 @@ mod factory_tests {
         let selection = json!({"root_task_id":"task","expected_task_revision":1,"grant_id":"grant","expected_grant_revision":2,"connection_ids":["connection"],"workspace_ids":["workspace"],"inputs":[input],"outputs":[output],"recipients":[],"max_depth":1,"max_children":1,"max_total_nodes":2,"root_budget":budget,"project_budget":budget,"ttl_ms":300000,"capabilities":{"delegate_task":true,"resume_parent_as_new_attempt":true,"child_planning":false,"child_goal_execution":false,"create_workspace":false}});
         let contract = |requirement: Value| json!({"canonical_root":"/managed/factory","root_device":1,"root_inode":9223372036854775809u64,"requirement":requirement});
         let bindings = json!({"project":{"id":"project","name":"Existing project","identity":{"canonical_root":"/managed/factory","device":1,"inode":9223372036854775809u64,"kind":{"kind":"directory"}},"revision":1,"archived":false,"created_at":"2026-10-28T00:00:00Z","updated_at":"2026-10-28T00:00:00Z"},"root_task":{"id":"task","project_id":"project","revision":1,"spec_revision":1,"goal":"Bounded local Factory","state":"draft","created_at":"2026-10-28T00:00:00Z","updated_at":"2026-10-28T00:00:00Z"},"approved_grant":{"id":"grant","root_grant_id":"grant","parent_id":null,"project_id":"project","revision":2,"revoked":false,"scope":{"connection_ids":["connection"],"workspace_ids":["workspace"],"host_ids":["local"],"recipients":[],"max_children":0,"max_depth":0,"max_attempts":8,"max_concurrency":2,"max_duration_ms":120000}},"connections":[{"id":"connection","revision":2,"executable_sha256":"a".repeat(64),"environment_id":"environment","identity_ref":"identity-unknown","host_id":"local","config_revision":"config","capability_snapshot_id":"capability"}],"workspaces":[{"id":"workspace","project_id":"project","revision":1,"root":"/managed/factory","state":"ready"}],"inputs":[{"contract":contract(input),"sha256":"b".repeat(64),"bytes":3}],"outputs":[contract(output)],"companion":{"executable":"/host/baton","executable_sha256":"c".repeat(64),"argument_template":["factory-mcp","${SESSION_HANDLE_FILE}"],"credential_transport":"private_0600_file_reference","global_daemon_token_available":false},"guarantees":{"filesystem_sandbox":false,"network_sandbox":false,"account_isolation":false,"output_quota":false,"continuous_input_immutability":false,"complete_process_tree_containment":false},"start_contract":{"mode":"single_scope_single_run","root_task_request_digest":"d".repeat(64),"context_continuation":"new_attempt_explicit_handoff_only","implicit_start_on_approval":false,"new_workspace_authority":false}});
+        let mut bindings = bindings;
+        let identity = json!({"canonical_root":"/managed/factory","device":1,"inode":9223372036854775809u64,"kind":{"kind":"directory"}});
+        bindings["workspaces"][0]["identity"] = identity.clone();
+        bindings["connections"][0]["protocol_route"] = json!("custom_acp");
+        bindings["approved_grant"]["workspace_bindings"] = json!({"workspace":identity});
+        bindings["approved_grant"]["connection_bindings"] = json!({"connection":{"protocol_route":"custom_acp","revision":2,"environment_id":"environment","identity_ref":"identity-unknown","host_id":"local","config_revision":"config","executable_sha256":"a".repeat(64),"capability_snapshot_id":"capability"}});
         (
             selection.clone(),
             json!({"result":{"id":"factory-proposal","kind":"factory","revision":3,"snapshot":{"schema_version":1,"selection":selection,"bindings":bindings,"contract_digest":"e".repeat(64)}},"revision":8,"warnings":[]}),
@@ -3477,6 +3507,122 @@ mod factory_contract_regression_tests {
                 refused["error"]["code"], "INVALID_APPROVAL_PROPOSAL",
                 "{kind}"
             );
+        }
+    }
+}
+
+#[cfg(test)]
+mod factory_grant_pin_tests {
+    use super::*;
+    fn actual_wire() -> Value {
+        serde_json::from_str(include_str!("../tests/fixtures/factory-wire-bundle-0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64.json")).unwrap()
+    }
+    fn refuse(proposal: Value, selection: &Value) {
+        let value = confirm_factory_and_finalize(
+            json!({"result":proposal}),
+            selection,
+            |_| panic!("unbound Grant pin must not prompt"),
+            |_| panic!("unbound Grant pin must not finalize"),
+        )
+        .unwrap();
+        assert_eq!(value["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+        assert_eq!(value["error"]["side_effect_state"], "not_started");
+    }
+    #[test]
+    fn factory_original_grant_connection_pin_is_required_for_all_eight_fields() {
+        for field in [
+            "protocol_route",
+            "revision",
+            "environment_id",
+            "identity_ref",
+            "host_id",
+            "config_revision",
+            "executable_sha256",
+            "capability_snapshot_id",
+            "missing-selected",
+            "missing-map",
+        ] {
+            let wire = actual_wire();
+            let mut proposal = wire["proposal"].clone();
+            let b = &mut proposal["snapshot"]["bindings"];
+            if field == "missing-selected" {
+                let id = b["connections"][0]["id"].as_str().unwrap().to_owned();
+                b["approved_grant"]["connection_bindings"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove(&id);
+            } else if field == "missing-map" {
+                b["approved_grant"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("connection_bindings");
+            } else {
+                b["connections"][0][field] = match field {
+                    "revision" => json!(2),
+                    "executable_sha256" => json!("f".repeat(64)),
+                    _ => json!("foreign-binding"),
+                };
+                if field == "host_id" {
+                    b["approved_grant"]["scope"]["host_ids"]
+                        .as_array_mut()
+                        .unwrap()
+                        .push(json!("foreign-binding"));
+                }
+            }
+            refuse(proposal, &wire["selection"]);
+        }
+    }
+    #[test]
+    fn factory_workspace_and_contract_pins_use_exact_serde_u64_without_renderer_rounding() {
+        let wire = actual_wire();
+        let mut proposal = wire["proposal"].clone();
+        let b = &mut proposal["snapshot"]["bindings"];
+        let workspace_id = b["workspaces"][0]["id"].as_str().unwrap().to_owned();
+        let exact = 9223372036854775809u64;
+        b["workspaces"][0]["identity"]["inode"] = json!(exact);
+        b["approved_grant"]["workspace_bindings"][&workspace_id]["inode"] = json!(exact);
+        b["inputs"][0]["contract"]["root_inode"] = json!(exact);
+        b["outputs"][0]["root_inode"] = json!(exact);
+        assert!(factory_snapshot_matches(
+            &proposal["snapshot"],
+            &wire["selection"]
+        ));
+        for field in [
+            "device",
+            "inode",
+            "kind",
+            "missing-selected",
+            "missing-map",
+            "input-device",
+            "input-inode",
+            "output-device",
+            "output-inode",
+        ] {
+            let mut changed = proposal.clone();
+            let b = &mut changed["snapshot"]["bindings"];
+            match field {
+                "device" => b["workspaces"][0]["identity"]["device"] = json!(999u64),
+                "inode" => b["workspaces"][0]["identity"]["inode"] = json!(exact + 1),
+                "kind" => b["workspaces"][0]["identity"]["kind"] = json!({"kind":"directory"}),
+                "missing-selected" => {
+                    b["approved_grant"]["workspace_bindings"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove(&workspace_id);
+                }
+                "missing-map" => {
+                    b["approved_grant"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("workspace_bindings");
+                }
+                "input-device" => b["inputs"][0]["contract"]["root_device"] = json!(999u64),
+                "input-inode" => b["inputs"][0]["contract"]["root_inode"] = json!(exact + 1),
+                "output-device" => b["outputs"][0]["root_device"] = json!(999u64),
+                "output-inode" => b["outputs"][0]["root_inode"] = json!(exact + 1),
+                _ => unreachable!(),
+            }
+            refuse(changed, &wire["selection"]);
         }
     }
 }
