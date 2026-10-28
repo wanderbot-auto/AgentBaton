@@ -1128,7 +1128,7 @@
     {
       "id": "AB-TSK-002",
       "work_package": "WP08",
-      "status": "not_started",
+      "status": "implementing",
       "implementation_refs": [],
       "verification": {
         "unit": "not_run",
@@ -1137,8 +1137,23 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+      ],
+      "limitations": [],
+      "verified_slices": [
+        {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        }
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-TSK-003",
@@ -1170,7 +1185,8 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1310,6 +1326,16 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
         }
       ]
     },
@@ -1342,7 +1368,8 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1489,6 +1516,16 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
         }
       ]
     },
@@ -1629,7 +1666,8 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1774,6 +1812,16 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
         }
       ]
     },
@@ -1811,7 +1859,8 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1962,6 +2011,16 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
         }
       ]
     },
@@ -3505,7 +3564,7 @@
     {
       "id": "AB-SEC-003",
       "work_package": "WP12",
-      "status": "not_started",
+      "status": "implementing",
       "implementation_refs": [],
       "verification": {
         "unit": "not_run",
@@ -3514,8 +3573,23 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+      ],
+      "limitations": [],
+      "verified_slices": [
+        {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        }
+      ],
+      "coverage": "partial"
     },
     {
       "id": "AB-SEC-004",
@@ -5318,7 +5392,8 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -5462,6 +5537,16 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
         }
       ]
     },
@@ -5880,7 +5965,8 @@
       "evidence": [
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -5914,6 +6000,16 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "Factory compiled Native contracts and strict schema13 readonly guards only",
+          "source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+          "core_source": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+          "ui_source": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "dimension": "Linux Native library70/controller6/readonly30; not actual Factory GUI/IPC or Mac",
+          "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
+          "status": "partial",
+          "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
         }
       ]
     },

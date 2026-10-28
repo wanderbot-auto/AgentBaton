@@ -1,0 +1,50 @@
+{
+  "phase": "partial_factory_integration_not_accepted",
+  "source_composition": "489f302bdc9c235fbc09e9fac14513ab8e66eb36",
+  "source_inputs": {
+    "rootPR16": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+    "core": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+    "ui": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+    "native13leaf": "c8bafaec1cae4c953230b53c56ab4ae711e168aa"
+  },
+  "tested_source": "3346968d548fd9c942b6a5de31e88592250bd85f",
+  "first_attempt": {
+    "exit": 101,
+    "library_passed": 70,
+    "controller_passed": 6,
+    "readonly_passed": 29,
+    "readonly_failed": 1,
+    "cause": "negative fixture budget INSERT omitted current schema13 authority_kind; original log and source retained"
+  },
+  "fix": "one test SQL document adds factory_task kind; all nine drift/count/sequence/schema/missing-table assertions unchanged",
+  "second_attempt": {
+    "exit": 0,
+    "library": 70,
+    "controller": 6,
+    "readonly": 30,
+    "total_nonzero_cases": 106,
+    "ignored": 0,
+    "format_exit": 0,
+    "clippy_all_targets_Dwarnings_exit": 0,
+    "source_before_after_unchanged": true,
+    "temporary_links_removed": true
+  },
+  "independent_review": {
+    "fixture_report_sha256": "17d776e4246a5af5aac921e3fe281e3dcbe26199fd15d04c6a2d7db52828c27f",
+    "supplement_sha256": "47cd3ae06e7f44e3f6f828206a63a2a69437466c6184d4d5c87cad47851bbcb5",
+    "scope": "one-line fixture plus retained Root execution log audit; not independent Cargo/runtime"
+  },
+  "artifact_manifest": "NATIVE_COMPOSITION_MANIFEST.json",
+  "sidecar_copy_incident": "SIDECAR_COPY_CORRECTION.json",
+  "not_run": [
+    "new Factory composed Node/type/build/browser/actual IPC",
+    "Factory macOS/AppKit/default production release audit/installers",
+    "full workspace and full Factory failure/budget/unknown/recovery regression",
+    "live product Provider/accounts/remote hosts"
+  ],
+  "open_core_findings": [
+    "053 FD053-01 early Data boundary return misses worker check elapsed; author fixing after fixed053",
+    "cooperative Data restore chunk cancellation/deadline still not accepted at053; later source/tests separate"
+  ],
+  "authority": "AB-START-001 unchanged; no formalApprove/merge/production/private credential/new fee/signing/license grant"
+}

@@ -1,0 +1,6 @@
+{
+  "old_sha256": "4ac42f0fce63ed9f8b797893665bdb7a2f2144ee8777a9d68434cd672ed6fb32",
+  "new_sha256": "abe9c28a9f62b852cbca539c9f1f615b1522d2e18c1b1f933dc7859c454553a4",
+  "registered_paths": 93,
+  "scope": "only STATUS content hash changes; checker and other92 retained"
+}

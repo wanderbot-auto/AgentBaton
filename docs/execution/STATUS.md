@@ -1,3 +1,13 @@
+## Factory isolated integration checkpoint — 2026-10-28 UTC
+
+This record applies to local `codex/factory-runtime-integration` (source3346968), separate from PR16 draft head e3ccf86/schema12. Core053b432 + independently reviewed UI40b435b + Native13c8bafa are composed. Linux Native70 library (including13 new Factory tests) +6 controller +30 readonly cases passed, with format/Clippy alltargets; source hashes unchanged. First run29/1 readonly failure and the narrow schema13 fixture correction are retained and independently reviewed. This is not real Factory UI/IPC, macOS, live Provider or installer acceptance.
+
+Core053 still has independent P2 FD053-01 elapsed-accounting early-return omission and the known cooperative Data restore deadline/cancellation gap. Subsequent author fixes and tests remain a separate candidate until reviewed. New Factory browser harness also has independently found late-browser-error and missing-cleanup-evidence false-green paths under correction; no runtime pass claimed. Full130 requirements/WP01–14 remain open.
+
+Root's Native build resource staging overlooked tauri-build copying old sidecars into shared target/debug. Later fc5/906 binary labels as053 are rejected; original wrong manifest and source mechanism are preserved in `factory-runtime-integration/SIDECAR_COPY_CORRECTION.json`. Core rebuilt/froze new source-bound tools; those are not the old incorrectly labelled binaries. Future Native leases require explicit tool-copy preservation and hash verification. No Cargo operation remains at Root; lease returned to Core.
+
+PR16 exact e3cc Environment3/Rust/UI succeeded; both Mac lanes remain pending separately. No Factory PR, remote push, formal Approve/merge/new package or permission expansion. Latest main remains a1be94 (PR15); OWNER001/002 reread and ACK, no003. Detailed commands/raw logs/failures are in `docs/execution/factory-runtime-integration/`.
+
 # AgentBaton 执行状态
 
 ## PR16 第四轮准确 CI：五成功、双 Mac Owner 文本观察失败；诊断已独审合成

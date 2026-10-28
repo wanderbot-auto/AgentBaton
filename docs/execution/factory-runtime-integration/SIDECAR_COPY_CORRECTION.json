@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-10-28T21:37:01.790720+00:00",
+  "mechanism": "locked tauri-build copy_binaries strips target suffix, removes and copies sidecars into Cargo target/debug; Root staged old5541 resources for Native macro build and omitted the resulting tool-path mutation",
+  "locked_source": "/workspace/.toolchains/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-build-2.7.4/src/lib.rs",
+  "locked_source_sha256": "e5b9ad92b05b5271a6ace95752c8218de44d0bb278c3ba8e3e2f92b23c1194cb",
+  "source_lines": [
+    139,
+    165,
+    735,
+    740
+  ],
+  "affected_paths": [
+    "target/debug/batond",
+    "target/debug/baton"
+  ],
+  "later_incorrect_frozen_bin_labels": "053 label rejected; actual hashes are old5541 fc5d33/9065fa; original manifest preserved",
+  "pre_copy_tool_hash_capture": "not captured; do not fabricate original053 raw binary hash",
+  "Native106_dimension": "compiled current Core053 and Native source tests; no target/debug tools executed by Native tests; actual daemon binds use compiled ipc::Daemon directly",
+  "remediation": "Core explicitly rebuilds daemon/CLI and freezes source-bound binaries; future Native lease requires correct frozen resources or pre-stage backup/hash/asserted restore of only known copies",
+  "source_changes": "none from staging; all tracked before/after hashes equal"
+}
