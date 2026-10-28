@@ -1,0 +1,641 @@
+{
+  "authorization": "AB-START-001; OWNER001/002 ACK; Root assigned new private bounded browser fixture; no new permission",
+  "baseline": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+  "branch": "codex/factory-browser-real-ipc",
+  "source_commit": "84ec373512ea9619b6e524885e9105dad7557134",
+  "source_sha256": "fb926ccd27af3b7d4ba362c96857efeaaf0490cbf30fd817a1d8aeb776afde8d",
+  "status": "independently_reviewed_source_ready_actual_runtime_NOT_RUN_Root_execution_next",
+  "native_task": "/root/data_real_ipc_resume",
+  "cloud_task_url": "unavailable",
+  "requirements": [
+    {
+      "id": "AB-TSK-002",
+      "title": "双向委派",
+      "baseline_acceptance": {
+        "given": "Codex和Qoder均已真实接入",
+        "when": "双向发起批准任务",
+        "then": "统一Router记录父子关系和返回产物"
+      },
+      "scope_evidence": "Prepared generated ACP parent/child/newparent; real Codex/Qoder bidirectional integration NOT_RUN",
+      "actual_runtime": "NOT_RUN"
+    },
+    {
+      "id": "AB-TSK-003",
+      "title": "委派无扩权",
+      "baseline_acceptance": {
+        "given": "子任务请求更大目录或工具权限",
+        "when": "处理请求",
+        "then": "拒绝或需明确追加批准，不继承daemon全权"
+      },
+      "scope_evidence": "63boundary denyOwner/Agent/generic/foreign IDs; prepared real MCP fixed4tools and forbiddenOwnertool probe; full escalation matrix NOT_RUN",
+      "actual_runtime": "NOT_RUN"
+    },
+    {
+      "id": "AB-TSK-004",
+      "title": "幂等提交",
+      "baseline_acceptance": {
+        "given": "同caller重复提交同key",
+        "when": "任务请求重试",
+        "then": "返回同一请求结果；不同payload报冲突"
+      },
+      "scope_evidence": "Prepared real start samekey receipt/differentpayload conflict plus strict keys; actualCore and true dropped response NOT_RUN",
+      "actual_runtime": "NOT_RUN"
+    },
+    {
+      "id": "AB-TSK-005",
+      "title": "循环与fanout限制",
+      "baseline_acceptance": {
+        "given": "互相委派形成环或超预算",
+        "when": "排队",
+        "then": "拒绝或阻塞并解释，不无限执行"
+      },
+      "scope_evidence": "Explicit bounded depth/children/totalnodes and budgets; actual cycle/fanout/hard-limit negative matrix NOT_RUN",
+      "actual_runtime": "NOT_RUN"
+    },
+    {
+      "id": "AB-TSK-006",
+      "title": "父子等待无死锁",
+      "baseline_acceptance": {
+        "given": "父任务占用并发槽等待子任务",
+        "when": "调度",
+        "then": "释放/保留必要子任务容量并检测循环等待"
+      },
+      "scope_evidence": "Prepared actual parallel1 parent-owned-stop→child→newparent stages and events; runtime NOT_RUN",
+      "actual_runtime": "NOT_RUN"
+    },
+    {
+      "id": "AB-TSK-007",
+      "title": "取消请求与停止确认",
+      "baseline_acceptance": {
+        "given": "Provider未确认cancel",
+        "when": "取消任务",
+        "then": "显示cancel_requested或unknown，不直接cancelled"
+      },
+      "scope_evidence": "Prepared real UI cancelintent receipt vs actual terminal ownedstop; runtime NOT_RUN",
+      "actual_runtime": "NOT_RUN"
+    },
+    {
+      "id": "AB-TSK-008",
+      "title": "未知副作用恢复",
+      "baseline_acceptance": {
+        "given": "断线时可能已外部写入",
+        "when": "重连",
+        "then": "先对账，不盲目重放"
+      },
+      "scope_evidence": "Prepared malformedACP outcome_unknown fence only; real disconnect/reconnect/restart/lostresponse NOT_RUN",
+      "actual_runtime": "NOT_RUN"
+    },
+    {
+      "id": "AB-SEC-003",
+      "title": "scoped委派凭据",
+      "baseline_acceptance": {
+        "given": "过期或跨session句柄",
+        "when": "调用MCP bridge",
+        "then": "拒绝访问且不暴露秘密"
+      },
+      "scope_evidence": "Private real Baton scopedfile reference, no rendererAgenttools or credentials; actual expired/crosssession handle matrix NOT_RUN",
+      "actual_runtime": "NOT_RUN"
+    },
+    {
+      "id": "AB-TSK-012",
+      "title": "根预算与任务覆盖",
+      "baseline_acceptance": {
+        "given": "子任务与父任务共享项目预算",
+        "when": "达到硬上限",
+        "then": "不通过拆子任务重置预算，保存进度并停止新派发/安全暂停"
+      },
+      "scope_evidence": "Prepared readonly actual oneGrant/oneRoot cumulativeattempt budget checks; full hard-limit data/usage boundary NOT_RUN",
+      "actual_runtime": "NOT_RUN"
+    },
+    {
+      "id": "AB-SEC-010",
+      "title": "接收方与数据策略",
+      "baseline_acceptance": {
+        "given": "存在已批准ProjectPolicy",
+        "when": "任务/委派/远程传输",
+        "then": "由Core验证资源与接收方关系，模型或前端不能自报授权"
+      },
+      "scope_evidence": "Private complete Project/Grant/connection/host/config/input/output/recipient binding review plus fixed browserIDs; actual policy/remote recipient matrix NOT_RUN",
+      "actual_runtime": "NOT_RUN"
+    }
+  ],
+  "checks": {
+    "syntax": "passed",
+    "fixed_boundary": {
+      "count": 63,
+      "result": "passed",
+      "dimension": "pure JSON/HTTP argument controls"
+    },
+    "fixture_units": {
+      "count": 13,
+      "result": "passed",
+      "dimension": "modified savedStoreDTO guard+compile+local generated --version process; no Core/MCP/browser"
+    },
+    "runtime": "NOT_RUN",
+    "runtime_PNG": 0,
+    "cleanup_budget_helper_units": {
+      "count": 28,
+      "result": "passed",
+      "dimension": "actual failure/report/cleanup/budget helper execution with explicit metadata stub; not Core"
+    }
+  },
+  "commands": {
+    "source_sha256": "3718aa54307dd099fa86fd84c56e95ec1248e2d13fc9bdbdf6bdffa3773cd9a2",
+    "commands": [
+      {
+        "name": "boundary",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-real-ipc.py",
+          "--self-check",
+          "--output",
+          "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/boundary"
+        ],
+        "exitcode": 0,
+        "expected_exitcode": 0,
+        "seconds": 0.10999321937561035,
+        "log_sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f"
+      },
+      {
+        "name": "fixture",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-real-ipc.py",
+          "--fixture-self-check",
+          "--output",
+          "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/fixture"
+        ],
+        "exitcode": 0,
+        "expected_exitcode": 0,
+        "seconds": 0.1491405963897705,
+        "log_sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1"
+      },
+      {
+        "name": "pending",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-real-ipc.py",
+          "--output",
+          "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/pending"
+        ],
+        "exitcode": 2,
+        "expected_exitcode": 2,
+        "seconds": 0.09703350067138672,
+        "log_sha256": "b2d07a8c0fa11ff83dfb27b3eec735cb40bb2ff903510a24905513f8f24c0426"
+      },
+      {
+        "name": "missing-runtime-args",
+        "command": [
+          "python3",
+          "apps/desktop/tests/factory-real-ipc.py",
+          "--case",
+          "normal",
+          "--output",
+          "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/missing-runtime-args"
+        ],
+        "exitcode": 2,
+        "expected_exitcode": 2,
+        "seconds": 0.10732913017272949,
+        "log_sha256": "3799bfa3f32d12fb67281c616a4498943cbf11728cc2332a892ac6b90b4b14e8"
+      }
+    ],
+    "syntax": "passed; no Core/browser execution"
+  },
+  "additional_controls": {
+    "harness_sha256": "3718aa54307dd099fa86fd84c56e95ec1248e2d13fc9bdbdf6bdffa3773cd9a2",
+    "schema12_refusal": {
+      "command": [
+        "python3",
+        "apps/desktop/tests/factory-real-ipc.py",
+        "--case",
+        "normal",
+        "--batond",
+        "/bin/true",
+        "--candidate-manifest",
+        "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/schema12-synthetic.json",
+        "--frontend",
+        "/tmp",
+        "--output",
+        "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/schema12-refused"
+      ],
+      "exitcode": 2,
+      "actual_runtime": "not_run; synthetic manifest; /bin/true NOT executed"
+    },
+    "exclusive_refusal": {
+      "command": [
+        "python3",
+        "apps/desktop/tests/factory-real-ipc.py",
+        "--self-check",
+        "--output",
+        "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/boundary"
+      ],
+      "exitcode": 1,
+      "existing_report_sha256_before_after": "4d0b8062dabc067bb7240087dded08298aa3b608c843a88de5a68050cd3b2582"
+    },
+    "old_python_harnesses_byte_equal": {
+      "apps/desktop/tests/goal-planning-real-ipc.py": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018",
+      "apps/desktop/tests/goal-execution-real-ipc.py": "c403bb51ee61901a47ce638278682c88291f67625c0e2d90c9cf1b8ef7232ef5",
+      "apps/desktop/tests/data-workspace-real-ipc.py": "75108a947b237db13e47495d0ae2e0b176217361e7d4b37b9ceedafbed83e493",
+      "apps/desktop/tests/goal-graph-real-ipc.py": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+      "apps/desktop/tests/quiet-canvas-real-ipc.py": "d6a3f683e7ffcd354fb21c200488c25e228ebbf5a7ef290bef56c952e7598ebd",
+      "apps/desktop/tests/command-validation-real-ipc.py": "05b37fbb969ca750b93887ad1125a5c5e7ebb459ff7151edc5d055315673a41d"
+    },
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "contract_source_reads": {
+    "/workspace/.worktrees/factory-runtime-core/crates/core/src/factory.rs": {
+      "sha256_at_read": "77b71b60fdcf68f6590e615aa746205173092c5b251b56373d03240327fa870e",
+      "attribution": "WIP source read only; not candidate freeze/runtime evidence"
+    },
+    "/workspace/.worktrees/factory-runtime-core/crates/core/src/factory_runtime.rs": {
+      "sha256_at_read": "55b43ad1465edebeed1b8f8838f7cfaa03031d0ad2e245ce8cfb6f4efad8a439",
+      "attribution": "WIP source read only; not candidate freeze/runtime evidence"
+    },
+    "/workspace/.worktrees/factory-runtime-core/crates/core/src/factory_store.rs": {
+      "sha256_at_read": "045776631910cfbc64c57bb470f79a4d66280b9a9c6af4533e68b471223e30ed",
+      "attribution": "WIP source read only; not candidate freeze/runtime evidence"
+    },
+    "/workspace/.worktrees/factory-runtime-core/crates/core/src/factory_companion.rs": {
+      "sha256_at_read": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+      "attribution": "WIP source read only; not candidate freeze/runtime evidence"
+    },
+    "/workspace/.worktrees/factory-runtime-core/crates/core/tests/factory_runtime_ipc.rs": {
+      "sha256_at_read": "961aa0c9af8dd508038a7c58ca28cbe6acd9206e81c847d044f5b3b47875b174",
+      "attribution": "Read actual author tests; borrowed ACP/wire only, not synthetic SQL setup or author pass attribution"
+    }
+  },
+  "boundary": {
+    "http_reads": [
+      "system.snapshot",
+      "projects.list",
+      "connections.list",
+      "sessions.list",
+      "workspaces.list(project)",
+      "grants.list(project)",
+      "goal_scopes.list(rootTask)",
+      "factory_scopes.get(scope)",
+      "factory_scopes.list(rootTask)",
+      "factory_runs.get(scope)",
+      "events.subscribe(bounded)"
+    ],
+    "http_writes": [
+      "factory_runs.start(scope,CAS,key)",
+      "factory_runs.cancel(scope,CAS,key)"
+    ],
+    "private_host_only": [
+      "all resource proposals/finalize",
+      "factory_scopes.propose/approve",
+      "factory_scopes.revoke"
+    ],
+    "denied_http": [
+      "Ownerapprove/propose/finalize/decline",
+      "genericRPC/sessiondispatch",
+      "all4Agenttools",
+      "scope-revoke"
+    ],
+    "raw_reply": "Original bounded Core UTF8 reply bytes forwarded unchanged; Owner token never exported or logged",
+    "limits": {
+      "request_http": 270336,
+      "ipc_frame": 262144,
+      "response": 4194304,
+      "Factory_complete_review": 1048576,
+      "legacy_review": 16384,
+      "companion_bind_original_cap": 134217728,
+      "handler_socket_timeout_s": 5,
+      "observation_timeout_s": 15
+    }
+  },
+  "not_claimed": [
+    "runtime success",
+    "human/OSOwnerapproval",
+    "realModel/Provider/CodexQoderintegration",
+    "schema12 asFactoryproof",
+    "saved0c6fqueuedStore asruntimeproof",
+    "ordinary samekey replay asresponseDrop",
+    "actualMac/CI/packages",
+    "wholeFactory/130Designcompletion"
+  ],
+  "pending_dependencies": [
+    "Root exact-source actual UI/Core13 normal/cancel/unknown execution with actual PRAGMA13/receipts/cleanup/PNG",
+    "Full remaining scopedMCP/protocol/fault/usage/realProvider/OS/macOS matrix"
+  ],
+  "artifacts": [
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/boundary-driver-1/boundary-checks.json",
+      "sha256": "dd7a485282c2dfc26edb25308a3115150695aa759be3eefb48bbcae5e513ff6e",
+      "bytes": 5294
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/boundary-initial-1/boundary-checks.json",
+      "sha256": "2f8f84d82f14b4f82ce08533ae48ec63c3d56f098e12e0c32ea2eba5a444e376",
+      "bytes": 5294
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/fixture-unit-1/fixture-unit-checks.json",
+      "sha256": "69c9108bb4960cbceb95ebc00da2d663bb5a3ecc6f7484a04e3e7eb9588f2139",
+      "bytes": 1685
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/additional-controls.json",
+      "sha256": "2b94302bd2dc7c5b9296561f44191db23d9780bb71fb1939fad2dd872bb132d0",
+      "bytes": 1842
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/boundary/boundary-checks.json",
+      "sha256": "4d0b8062dabc067bb7240087dded08298aa3b608c843a88de5a68050cd3b2582",
+      "bytes": 5294
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/boundary.log",
+      "sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f",
+      "bytes": 34
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/exclusive-output-refused.log",
+      "sha256": "f3901b466d1880755ee1678e1cb2b0e6f95c260d17d59ff39269ea8a2b144f17",
+      "bytes": 740
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/fixture/fixture-unit-checks.json",
+      "sha256": "0cca5d972dbeb88525ce05a1a39c031d869497e647fcbe3b8d9018d4a38cf980",
+      "bytes": 1685
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/fixture.log",
+      "sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1",
+      "bytes": 34
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/missing-runtime-args/preflight-refusal.json",
+      "sha256": "9bcc3a2432175d47a30b1490d9746ff4035653745d9ed1d19744313808080d51",
+      "bytes": 386
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/missing-runtime-args.log",
+      "sha256": "3799bfa3f32d12fb67281c616a4498943cbf11728cc2332a892ac6b90b4b14e8",
+      "bytes": 370
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/pending/pending-runtime.json",
+      "sha256": "a96e2df3746ab9d3abb81ea6ef553d15d9ce5be48fcf7c1b56c636c22566062e",
+      "bytes": 534
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/pending.log",
+      "sha256": "b2d07a8c0fa11ff83dfb27b3eec735cb40bb2ff903510a24905513f8f24c0426",
+      "bytes": 504
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/results.json",
+      "sha256": "6b9189127daed6e28c47a4602ceb76f08c835546b654a77d4618c2518e8c1087",
+      "bytes": 1926
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/schema12-refused/preflight-refusal.json",
+      "sha256": "301e81d4daa48dbe3c280acbe4f3ce230185fce6afa2e6b4254a6d527f4fe290",
+      "bytes": 387
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/schema12-refused.log",
+      "sha256": "49d7a561d4b26ea606a7e9fc5fe57bf3ad519f6d9eefdefec9d4dfddc54e9aa2",
+      "bytes": 371
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/initial-freeze/schema12-synthetic.json",
+      "sha256": "e7c02633470d11bbe2ffe9912e5254f04ea45c8229820b2d0544149ff4aea37a",
+      "bytes": 14
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/pending-driver-1/pending-runtime.json",
+      "sha256": "50d6dc80ed9a511a02d19d33faef05743fb0ee381ff2a74fea68290b2c5d9f38",
+      "bytes": 534
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/preflight-initial-1/command-0.log",
+      "sha256": "867354f16f686f04f8e8acc1f76758810c2ca6d3a3ce45b91adc90175ce6e135",
+      "bytes": 371
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/preflight-initial-1/command-1.log",
+      "sha256": "c55c308c183a28ac51b73bd8d527f305852348530890e515d012834d177694c3",
+      "bytes": 370
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/preflight-initial-1/missing-args-refused/preflight-refusal.json",
+      "sha256": "4fcc0ed7849e13cb66df40ae6a107c8b4836c6aee4f0ea14326d668cade4eed3",
+      "bytes": 386
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/preflight-initial-1/results.json",
+      "sha256": "c6b92343556447e08251044afa60766fbb32985efd39e9f63a7f669568b36511",
+      "bytes": 899
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/preflight-initial-1/schema12-refused/preflight-refusal.json",
+      "sha256": "17e42ee66307e3c0a9c8ab3a53292c7f0d6cb5af3f1c772db14d44872610d8e3",
+      "bytes": 387
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/preflight-initial-1/synthetic-schema12.json",
+      "sha256": "e7c02633470d11bbe2ffe9912e5254f04ea45c8229820b2d0544149ff4aea37a",
+      "bytes": 14
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/cleanup-1/cleanup-unit-checks.json",
+      "sha256": "d5ad690d98e811b3b568549dd79cb0bf4bc50ee4779dca8cae32186d2b0fad58",
+      "bytes": 2986
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/boundary/boundary-checks.json",
+      "sha256": "1354297d1c12ac73ebb745e4ec497f3840e80ebb2465c5ec5fff45a3c1fbe42e",
+      "bytes": 5294
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/boundary.log",
+      "sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f",
+      "bytes": 34
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/cleanup/cleanup-unit-checks.json",
+      "sha256": "d5ad690d98e811b3b568549dd79cb0bf4bc50ee4779dca8cae32186d2b0fad58",
+      "bytes": 2986
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/cleanup.log",
+      "sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479",
+      "bytes": 34
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/fixture/fixture-unit-checks.json",
+      "sha256": "0ef9c907136ab0cb5f5d525edf1cbc4c9a73931fc129d313e5652e98b8e225b5",
+      "bytes": 1685
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/fixture.log",
+      "sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1",
+      "bytes": 34
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/missing-args/preflight-refusal.json",
+      "sha256": "877138da411f2a68f7ea08fe036f0ded1e6021f616adae1ca69e890a60ec9deb",
+      "bytes": 386
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/missing-args.log",
+      "sha256": "98cb0effc18a516c8ac0ba97eab536953897c1c738c59d8ebd5056ccab811c74",
+      "bytes": 370
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/pending/pending-runtime.json",
+      "sha256": "b1e8ad9ed85e5d186adee08c022d63776f39263e16a05961ecdd1163dc6c70e2",
+      "bytes": 534
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/pending.log",
+      "sha256": "48f2506934b8ad0ee7f984d2fcddc4f4c98899942256349fa4bc45fd1b8cb376",
+      "bytes": 504
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/results.json",
+      "sha256": "4c091b3e15423dbdccb3ad4ec3d0650b942ab15cb7c810ec0dfbb0f963259ca6",
+      "bytes": 2352
+    },
+    {
+      "path": "/workspace/.onboarding/factory-browser-real-ipc/review-repair/read-only-preflight.json",
+      "sha256": "012c719f50bf9f43c6be86d30e51800b345bdd4e848455eaac17ad6ea7bd0fb3",
+      "bytes": 1004
+    }
+  ],
+  "review_repairs": {
+    "prior_source": "fd5e10ce077c383154771de7cf4ace7bbb8b3d74",
+    "prior_counterexamples": {
+      "review": "/workspace/.onboarding/factory-browser-independent-review/REVIEW.md",
+      "review_sha256": "e0a6b536c9c6f48e710483cc996a6fb1b651425272c3728e53ce606e1f3044d3",
+      "probes": "/workspace/.onboarding/factory-browser-independent-review/failure-probes.json",
+      "dimension": "actual extracted source-unit controls; no browser/Core"
+    },
+    "fixes": [
+      "late/finally exception fails status and nonzero exit, firstfailure retained",
+      "report after tempcleanup, allcleanup actions failclosed",
+      "saved verified record path/SHA+exact6/2 identities, no emptyfreshglob proof",
+      "exact rootTask+project generic budgets two rows3/1/1 consumed active0 with actual ownedreap receipts"
+    ],
+    "checks": {
+      "source_sha256": "fb926ccd27af3b7d4ba362c96857efeaaf0490cbf30fd817a1d8aeb776afde8d",
+      "commands": [
+        {
+          "name": "boundary",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/boundary"
+          ],
+          "exitcode": 0,
+          "expected": 0,
+          "seconds": 0.08578753471374512,
+          "log_sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f"
+        },
+        {
+          "name": "fixture",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--fixture-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/fixture"
+          ],
+          "exitcode": 0,
+          "expected": 0,
+          "seconds": 0.11968398094177246,
+          "log_sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1"
+        },
+        {
+          "name": "cleanup",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--cleanup-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/cleanup"
+          ],
+          "exitcode": 0,
+          "expected": 0,
+          "seconds": 0.08615827560424805,
+          "log_sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479"
+        },
+        {
+          "name": "pending",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--output",
+            "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/pending"
+          ],
+          "exitcode": 2,
+          "expected": 2,
+          "seconds": 0.08098506927490234,
+          "log_sha256": "48f2506934b8ad0ee7f984d2fcddc4f4c98899942256349fa4bc45fd1b8cb376"
+        },
+        {
+          "name": "missing-args",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--case",
+            "normal",
+            "--output",
+            "/workspace/.onboarding/factory-browser-real-ipc/review-repair/final-checks/missing-args"
+          ],
+          "exitcode": 2,
+          "expected": 2,
+          "seconds": 0.10281658172607422,
+          "log_sha256": "98cb0effc18a516c8ac0ba97eab536953897c1c738c59d8ebd5056ccab811c74"
+        }
+      ],
+      "actual_runtime": "NOT_RUN"
+    },
+    "cleanup_helper_count": 28,
+    "cleanup_stub_dimension": "Explicit mocked gone-process identity metadata; not real stop verification",
+    "independent_status": {
+      "status": "both_mustfix_closed_source_ready",
+      "review_path": "/workspace/.onboarding/factory-browser-independent-review/revision-84ec/REVIEW.md",
+      "review_sha256": "63fdebb385db55f397e41942525ca7aa66a0e28ba1ffd631008b3eff3b17e149",
+      "manifest_sha256": "205c7809b045bd9ccc24e9ce9f370a1d4ab0011d1340db0e8fceaf206a5bd334",
+      "additional_controls": 23,
+      "original_helpers": "63/13/28 independently pass",
+      "dimension": "source/DTO/explicit metadata stub, not actual Core/browser/stop",
+      "HTTP_Owner_boundary_functions": "byte preserved from prior source"
+    }
+  },
+  "prepared_runtime_inputs": {
+    "source_sha256": "fb926ccd27af3b7d4ba362c96857efeaaf0490cbf30fd817a1d8aeb776afde8d",
+    "dimension": "actual frozen files read/hash/preflight only; no execution, token or socket access",
+    "schema_declared": 13,
+    "schema_runtime_query": "NOT_RUN; driver must still query PRAGMA",
+    "manifest_sha256": "4194ae2d57dd15d5164fd9fc87d62cf4b8bc52a3cbe552b0dab87571b4c9414a",
+    "binary_sha256": {
+      "batond": "081a1e489952a2dc71ecd034930e1ce8cb3927f639a29f625116e101df0f0307",
+      "baton": "89eb42f559f0df9e4958495a8b9235da7fb54c23727d9bbc079f55d853812a13"
+    },
+    "binary_bytes": {
+      "batond": 111270496,
+      "baton": 80838848
+    },
+    "frontend_assets_sha256": {
+      "assets/index-BMwbYbXt.js": "f31b650fa1a794b9572098e51f64b8983a4494f7524c1a428040b7bf88fde1b7",
+      "assets/index-DczAmFjL.css": "bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944",
+      "index.html": "409c30ec49aa45a9566e00b0f3ad66fe2324ec8db9b77c8cbbbdd18660968997"
+    },
+    "status": "preflight_passed_only_not_runtime",
+    "source_commit_root_declared": "0efda24e092e630d84e227d06d43b38442672ffe, integrated8cbe; Root separately checked45productionhashes; reviewer runtime not run"
+  },
+  "explicit_limits": [
+    "MCPtools/list includes cancel_task but this driver has NOT actually invoked Agent cancel_task",
+    "UI cancellation uses distinct Owner factory_runs.cancel",
+    "Ordinary key replay is NOT dropped-response recovery",
+    "Only readonly SQL query/record reports retained; temporary database bytes are NOT retained or replayable",
+    "Token/cost/output complete hard-limit enforcement NOT_RUN"
+  ]
+}
