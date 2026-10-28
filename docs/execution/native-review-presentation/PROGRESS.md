@@ -11,3 +11,9 @@ Python final exact UTF-8 source:19PASS6.169s, including three original actual da
 Actual old ARM expected message3132B/SHAe34a...77a8 converts offline to12 prompts(11content+final), maximum573 UTF-8 bytes/12lines. Full original bytes roundtrip exactly; Chinese remains visible. This structural result does not prove native physical height/visibility or genuine AppKit clicks.
 
 rustfmt parser/check, Python compile and diff check passed. No Cargo lease held or target writes. Native typecheck/tests and new actual dualMac display/click/database evidence remain pending Root-safe compilation and independent review.
+
+## 407ab9e revision
+
+Source `407ab9e7b014a1af81e39bf90ffac5034708285f` fixes only061C, adds complete12-control Rust/Python coverage and leaves2028/2029 unchanged. Full Python20PASS6.124s (old19 plus1newtest/12subcases); rustfmt check/pycompile/diffPASS. Initial new Python assertion had a unicodeescape syntax error; failed log retained and assertion corrected without weakening runtime behavior. No author Cargo/target use.
+
+Root separately compiled immutable old87:61lib+8Owner tests, fmt/Clippy passed and shareddebug sidecars restored with original inodes. Those results are old87 only, not new407. NewRust and newMac display remain pending. Config old87 NP87-01 report preserved.

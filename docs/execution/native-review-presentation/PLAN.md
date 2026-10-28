@@ -13,3 +13,7 @@ OS harness: inspect/capture/permit each exact content page and final page, then 
 First static/meaningful Python controls, then Root-safe native cache window/independent review, then real new dualMac CI. No Linux/mock evidence may claim AppKit success.
 
 ADR readability refinement: ordinary Chinese/emoji remain literal standard UTF-8 JSON text; only JSON/control/bidi characters are escaped. Byte bounds split only between Unicode scalars. The initial all-ASCII experiment was rejected for bilingual readability and remains intermediate evidence, not the final design.
+
+## NP87-01 follow-up
+
+Independent fixed87 review found U+061C ARABIC LETTER MARK missing from the bidi escape set (P2). Add only that code point to both existing implementations, retaining Chinese/emoji readable UTF-8 and existing2028/2029 handling. Add one test per language covering all12 Unicode Bidi_Control code points, asserting no raw direction control, explicit visible escape and exact reverse bytes. No approval/snapshot/lifecycle/limit change. Root owns safe compilation and newMac CI.
