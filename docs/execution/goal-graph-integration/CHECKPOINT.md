@@ -97,3 +97,13 @@ Core作者在新隔离goal-graph-ci-portability基线6912只修fixture/测试可
 最新API和原日志证实Product40733070149已completed/failure，Environment40733070186亦failure。Apple Silicon job122974542722在2026-10-28 17:24:37UTC结束，Corelib68pass/1fail，正是Intel同一IO rm fixture execute提前INPUT_CHANGED；不是Mac桌面/原生Owner/签名或安装包通过。三个Environment平台原日志均核STATUS hash过期。前段ARM pending保留为此前读取时的历史快照，以ci-6912/MANIFEST.json latest_api_observation为当前结果。
 
 UI同一准确a110候选114/70成功已存；其余问题均由新隔离Core CI portability修复和独审继续处理。Root只更新经审STATUS内容登记hash，93路径/校验算法与原Env检查器不变。原6912失败/旧3af cancelled均保留，不无变化重跑、不借UI绿合入、不formalApprove。
+
+## PR16 CI 夹具修复已合成，独立关键回归通过，待新准确候选
+
+Core CI portability最终source a2c48b7e399ab298047e838f2d6c4475de6f8a4f / docs eca2649已合入当前功能分支。104 Rust/Cargo/locks映射逐项匹配；相对6912仅sessions_ipc测试文件与goal_validator_io的cfg(test)部分变化，IO生产前缀及其他生产/锁字节不变。没有放宽生产权限、预算、deadline、路径或程序身份检查。
+
+作者实际69lib+55sessions=124唯一测试通过（精确d4源），最后a2仅恢复夹具f._dir.path→已canonical f.root一行，另复验recovery1；不计成125唯一。最终a2独立7个受影响sessions+IO11全部PASS（18为前述子集，不加总虚构142），fresh artifact parent+umask022、fmt/alltargetsClippy-Dwarnings通过，104源前后不变。Capture受控SQLite阻塞1500ms实际calls1/runtime1767>=原1200ms，仍零线程开始/零join/零候选/无退款；目录创建、0700runtime/0600db、Server先drop/原错误保留均核。
+
+原固定NativeExecutable-sh方案被库正确拒绝并保留失败；post-command删除回归现用既有PosixShStdin模式、空argv、固定字面script SHA+FD pin，真实删除report且持有OwnedRun直到reap，原300ms不足预算拒绝仍在。原系统rm的Mac提前IO拒绝根因没有伪造确认，保留原失败及program metadata诊断，须在新双Mac CI读取事实。旧CI/本地NotFound、权限、Drop竞态、E0509等失败均保留。
+
+Root的STATUS-only bootstrap修复已独审并保持93条完整校验；此段最新执行状态将对应更新同一STATUS哈希，其他92条/算法/校验器/workflows不动。唯一Native缓存已由独审正式释放，无活动Cargo/测试writer。准备一次normalpush新head并读取全7实际结果，旧6912仅UI114/70成功、Env3/Rust/双Mac失败仍完整记录；未合入、未formalApprove、未生成新包或宣称Mac通过。全130及所有原权限门禁不变。

@@ -8,5 +8,11 @@
     }
   },
   "algorithm_note_checker_and_all_other_92_hashes_unchanged": true,
-  "must_be_independently_reviewed_before_remote_stage": true
+  "must_be_independently_reviewed_before_remote_stage": true,
+  "latest_local_rebaseline_after_ci_portability": {
+    "previous_reviewed_status_sha256": "73a689ca3b7c059c88d4c97df1b9619a7f7aaf0747db0ebfc4c8bb8e0599aa28",
+    "new_status_sha256": "d0fc2a1ba4c9991dc60bd3a63d6487182aca8bb2e1a3f4ebd253c0cc05998844",
+    "reason": "Append exact local source/test/lease handoff checkpoint; original93 paths/checker preserved",
+    "independent_metadata_review": "CI_PORTABILITY_INTEGRATION_AUDIT.md"
+  }
 }

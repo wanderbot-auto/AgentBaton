@@ -1,5 +1,5 @@
 {
-  "status": "pr16_ci_UI_passed_environment3_rust_intel_failed_fixes_in_progress",
+  "status": "ci_portability_patch_reviewed_locally_new_exact7_ci_pending",
   "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
   "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
   "postmerge_doc_commands": [
@@ -218,5 +218,21 @@
     "formal_approve": "not_submitted",
     "current_head": "6912fa9b72bc3ab9fbc1ddba18cd76e7c052677c",
     "actual_checkout": "a11045e6a8f72bb5264c1f4cdbf792f51370bdfa"
+  },
+  "ci_portability_fix": {
+    "source": "a2c48b7e399ab298047e838f2d6c4475de6f8a4f",
+    "author_full124_source": "d4ecdf5",
+    "final_delta": "one canonical recovery fixture path; recovery1 repeated on final",
+    "independent_final_subset": 18,
+    "subset_not_additive_to124": true,
+    "source_map_entries": 104,
+    "only_two_test_files_changed": true,
+    "production_prefix_and_other_sources_locks_unchanged": true,
+    "macos_and_new_ci": "pending",
+    "source_manifest": "CI_PORTABILITY_AUTHOR_SOURCE.json",
+    "root_composition": "CI_PORTABILITY_ROOT_COMPOSITION.json",
+    "independent_review": "CI_PORTABILITY_REVIEW.md",
+    "independent_manifest": "CI_PORTABILITY_REVIEW_MANIFEST.json",
+    "portable_import": "CI_PORTABILITY_REVIEW_IMPORT.json"
   }
 }

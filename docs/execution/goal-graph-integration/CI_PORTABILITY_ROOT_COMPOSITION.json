@@ -1,0 +1,14 @@
+{
+  "source_commit": "a2c48b7e399ab298047e838f2d6c4475de6f8a4f",
+  "all_source_cargo_map_entries_matched": 104,
+  "changed_rust_files": [
+    "crates/core/src/goal_validator_io.rs",
+    "crates/core/tests/sessions_ipc.rs"
+  ],
+  "io_production_prefix_unchanged": true,
+  "io_production_prefix_sha256": "9f78593e5aca462b6e87ff8d47bd0955f57a30ee8df0a04e696f2e1dd838ec36",
+  "bootstrap_guard93": "PASS after merge",
+  "macOS": "not_run locally; next exactCI required",
+  "lease_at_composition_snapshot": "exclusive independent Core reviewer, not Root",
+  "current_native_lease": "independent reviewer explicitly released after all commands waited; no active writer"
+}
