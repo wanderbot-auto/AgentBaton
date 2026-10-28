@@ -1,0 +1,231 @@
+{
+  "reviewer": "/root/data_native_integration_review independent of author/artifact_contract_fixture",
+  "baseline": "bf67629f7911531fec52ec31e59c9508f814f9fd",
+  "source_commit": "14a20fe15b957f9e41df2e322451f5fed00b7ea7",
+  "docs_head": "2016298693d3a5b012a212b376b413460f09d78d",
+  "source_sha256": "3b039348580055680dc7e229c2c26c8d34ee3e434ebe1209f6c166c5c828ea7e",
+  "verdict": "PASS for test semantic separation and stronger artifact evidence; suitableintegration/freshexactCI, not historicalMac rootcause closure",
+  "semantics": {
+    "finite_missing_output": "existingFixture default1000 instead of unrelated30; stillSome0/ArtifactContractFailed plus exactMissing/inbudget/reap",
+    "finite_oversized_newcase": "builtinprintf exact5000 bytes versus existing4096 outputlimit; Some0/ArtifactContractFailed/TooLarge/inbudget/reap",
+    "original_infinite_writer": "sameoriginalscript,30ms and failure/integrity assertions retained",
+    "all_test_names_across_platforms": 29,
+    "modified_functions": 1,
+    "other_test_functions_byte_identical": 28,
+    "normal_fixture_default_cleanup_output_requirements": "unchanged",
+    "production_code_locks_manifests_CI": "unchanged"
+  },
+  "actual_results": {
+    "Linux_unique_command_suite": 27,
+    "overlapping_nested_observation_children": 3,
+    "raw_pass_summary_counts": [
+      [
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "27",
+        "0",
+        "0"
+      ]
+    ],
+    "failed": 0,
+    "ignored": 0,
+    "clippy_all_targets": "PASS",
+    "fmt": "PASS",
+    "diff": "PASS",
+    "commands": [
+      {
+        "name": "command-suite",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-workspaces",
+          "--test",
+          "command_validation",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "seconds": 10.72,
+        "log": "/workspace/.onboarding/artifact-contract-fixture-review/command-suite.log",
+        "sha256": "4729a032008ff2d0c45893286eff89625fe58f10d36100f09c23ccd4b3178f70"
+      },
+      {
+        "name": "clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-workspaces",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "seconds": 1.51,
+        "log": "/workspace/.onboarding/artifact-contract-fixture-review/clippy.log",
+        "sha256": "1fdf67df0125aa044fffb9cfa5116103a35f761fa1f9ff0a9ca8a25e23711acb"
+      },
+      {
+        "name": "fmt",
+        "command": [
+          "cargo",
+          "fmt",
+          "--package",
+          "agentbaton-workspaces",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 0.11,
+        "log": "/workspace/.onboarding/artifact-contract-fixture-review/fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "diff",
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "bf67629f7911531fec52ec31e59c9508f814f9fd..14a20fe15b957f9e41df2e322451f5fed00b7ea7"
+        ],
+        "exit_code": 0,
+        "seconds": 0.0,
+        "log": "/workspace/.onboarding/artifact-contract-fixture-review/diff.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "delayed_mechanism_replay": [
+      {
+        "kind": "old",
+        "command": [
+          "/workspace/.onboarding/artifact-contract-fixture/old-delayed-exit-control",
+          "--exact",
+          "scripts::expected_exit_zero_cannot_accept_missing_or_oversized_output",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 0.17,
+        "log_sha256": "e2b959a36e9e85c1f8b98946eb212ee60ffa01813999efb89f5b7e38adfe5c47",
+        "probe_binary_sha256": "8dffac711b64dce3746a50578f9cf791e8c311d3d500b103db041283789b6a80",
+        "probe_source_sha256": "8e95435207124dacb790edaa666f0649f1af03b83eaef683276dd74cf0de5501",
+        "scope": "independent replay of hash-verified saved author control binaries, explicit50ms script; not freshMac or historicalreason reproduction"
+      },
+      {
+        "kind": "new",
+        "command": [
+          "/workspace/.onboarding/artifact-contract-fixture/new-delayed-exit-control",
+          "--exact",
+          "scripts::expected_exit_zero_cannot_accept_missing_or_oversized_output",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 0.46,
+        "log_sha256": "b5bf1a0166f497e9159dae5b62ed336ee3a3254cf73b69496571c658b1d04352",
+        "probe_binary_sha256": "412d5d821778dbd886c514f3b4eb781c636c7013cfd060f43e68dbca2e1b7bbe",
+        "probe_source_sha256": "b0be21438e1003c62bce0e7d615b89fa5d9ecc11d8412841e73c803813647972",
+        "scope": "independent replay of hash-verified saved author control binaries, explicit50ms script; not freshMac or historicalreason reproduction"
+      }
+    ],
+    "author19artifacts_rehashed": true,
+    "historical_Intel_raw_unchanged": true
+  },
+  "target": {
+    "only_used": "/workspace/.worktrees/provider-startup-evidence/target",
+    "ownership": "formallyRELEASED after tests/lints; no furtherCargo writer",
+    "main_and_native_targets_accessed": false,
+    "CARGO_INCREMENTAL": "0",
+    "jobs": 2,
+    "RUST_TEST_THREADS": 1,
+    "umask": "022",
+    "workspaces_entrypoint_mtime_only": true
+  },
+  "static": {
+    "base": "bf67629f7911531fec52ec31e59c9508f814f9fd",
+    "source": "14a20fe15b957f9e41df2e322451f5fed00b7ea7",
+    "docs_head_at_start": "2016298693d3a5b012a212b376b413460f09d78d",
+    "source_sha256": "3b039348580055680dc7e229c2c26c8d34ee3e434ebe1209f6c166c5c828ea7e",
+    "inverse_byte_proof": "Replace only changed target test body and CheckState import reflow with exact old bytes => complete original test file",
+    "all29_test_function_names_retained": true,
+    "other28_test_function_bytes_unchanged": true,
+    "only_changed_source_file": [
+      "crates/workspaces/tests/command_validation.rs"
+    ],
+    "workspaces_lib_touch": "mtime-only, content unchanged",
+    "workspaces_lib_sha256": "2065213a1eb32be1e2a953adb0c5f0435d55987b4f8d0b40885797f5d11eb6e6",
+    "production_defaults_Cargo_locks_workflows": "byte-identical by entire commit diff",
+    "test_names_across_platforms": [
+      "delayed_exit_cleanup_and_cancel_observations_cannot_be_accepted",
+      "real_fixed_native_command_captures_separate_streams_and_only_accepts_command_scope",
+      "exact_expected_nonzero_exit_is_distinct_from_signal_or_unexpected_exit",
+      "changed_program_and_inputs_are_rejected_before_start",
+      "sealed_image_runs_approved_bytes_even_if_original_path_is_replaced",
+      "required_unknown_enforcement_is_rejected_before_any_program_start",
+      "cancellation_before_and_during_run_never_claims_full_tree_stopped",
+      "timeout_and_each_stream_limit_are_actual_failures_with_bounded_capture",
+      "owned_inherited_pipe_child_is_killed_before_original_leader_is_reaped",
+      "escaped_fixture_pipe_is_bounded_and_containment_remains_unknown",
+      "environment_is_not_inherited_and_values_are_not_in_contract_logs",
+      "cwd_replacement_and_post_run_input_drift_invalidate_evidence",
+      "limits_and_program_path_are_in_the_complete_contract_digest",
+      "git_candidate_target_and_root_bindings_are_checked_before_and_after_command",
+      "native_mode_rejects_shebang_and_program_root_replacement_without_start",
+      "restored_input_is_only_a_before_after_observation_not_continuous_immutability",
+      "approved_script_bytes_use_fixed_sh_stdin_and_literal_arguments",
+      "changed_script_is_rejected_without_running_any_script_content",
+      "script_path_mutation_does_not_change_executed_memory_bytes_and_fails_integrity",
+      "full_subject_rule_and_output_changes_invalidate_command_acceptance",
+      "symlink_and_oversize_input_are_rejected_before_spawn",
+      "shell_native_mode_cannot_bypass_the_pinned_script_contract",
+      "script_cancel_timeout_and_capture_bounds_are_real_on_each_supported_platform",
+      "approved_script_background_pipe_group_is_retired_without_unbounded_reader_join",
+      "strict_isolation_cannot_be_silently_downgraded_for_scripts",
+      "expected_exit_zero_cannot_accept_missing_or_oversized_output",
+      "artifact_fifo_hardlink_and_replaced_cwd_are_rejected_before_start",
+      "macos_native_system_program_and_expected_exit_are_real",
+      "macos_refuses_writable_program_chain_and_unavailable_sealing_before_spawn"
+    ]
+  },
+  "limits": [
+    "Explicit50ms Linux control is not reproduction of historicalIntel failure reason; BF actualRunReason remained unprinted/unknown",
+    "FreshactualMac ARM/Intel/defaultreleaseaudit/Native/DMGs/exact7 not run here",
+    "No actualProvider/model/account/OSOwnerDialog/production/signing authority used",
+    "PreviousARMblankjudgment alreadywithdrawn as reviewererror; no capture/product change here",
+    "No source/index/remote push/CI trigger/cancel/retry or otherCargo-target use"
+  ],
+  "files": {
+    "clippy.log": "1fdf67df0125aa044fffb9cfa5116103a35f761fa1f9ff0a9ca8a25e23711acb",
+    "command-suite.log": "4729a032008ff2d0c45893286eff89625fe58f10d36100f09c23ccd4b3178f70",
+    "commands.json": "ea9b791c311dd492f06a737cff82a5f8722198ecea0b408271552a8f3229f104",
+    "count-correction.txt": "119b8dc3797d14b29f576b4445daa4d7c112ed8c80fcc04fcf0dc8587d1237cd",
+    "delayed-replay-proof.json": "b57e930e94ad0a7227323549038680dbab93105d792bc4a508c29b198e026a3f",
+    "diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "new-delayed-replay.log": "b5bf1a0166f497e9159dae5b62ed336ee3a3254cf73b69496571c658b1d04352",
+    "old-delayed-replay.log": "e2b959a36e9e85c1f8b98946eb212ee60ffa01813999efb89f5b7e38adfe5c47",
+    "static-proof.json": "4ea62a70ba6ef8cda284c34dca84c3a08acceb7b2c8b9209cd2f7f094c994dae"
+  }
+}

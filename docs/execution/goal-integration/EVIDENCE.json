@@ -533,5 +533,17 @@
     "old_tests": "all28original infrastructuretests remain byteidentical;6meaningful resourcepolicy methods added",
     "reason": "Existing CI budget policy was intentionally narrowed to one documented coldbuild exception; products/process/RPC budgets/assertions unchanged",
     "next": "new exact7 plusactual native pair/defaultaudit/dualDMGs, no old borrowing"
+  },
+  "BF676_final_corrected": {
+    "product_run": 40652731429,
+    "environment_run": 40652731215,
+    "result": "6success/1failure; Intel artifact fixture",
+    "source_fix": "14a20fe15b957f9e41df2e322451f5fed00b7ea7",
+    "local_cherry": "0d6cc55",
+    "independent_review": "docs/execution/artifact-contract-fixture/REVIEW.md",
+    "unique_tests": 27,
+    "limits": "Original infinite30ms remains; finite artifact fixtures use existing1000 default; no historical reason invented; no newMac result/dualpackage yet",
+    "authoritative_native_review": "NATIVE_BF676_REVIEW_CORRECTED.md",
+    "visual_correction": "ARM_BF676_VISUAL_CORRECTION.json"
   }
 }
