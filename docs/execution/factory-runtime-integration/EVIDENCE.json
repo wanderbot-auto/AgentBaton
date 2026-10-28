@@ -77,5 +77,15 @@
     "exit_code": 1,
     "checks": 2,
     "remaining": "normal expectedcompleted not established; cancel/unknown not_run"
+  },
+  "second_actual_browser": {
+    "evidence": "BROWSER_NORMAL_SECOND_FAILURE.json",
+    "status": "failed_or_interrupted",
+    "exit_code": 1,
+    "checks": 2,
+    "screenshots": 2,
+    "cleanup_complete": false,
+    "source": "fc5b08340ec8f5137d240e9b18c8d2602c1a8de1",
+    "remaining": "new observer failure; normal/cancel/unknown acceptance remains open"
   }
 }

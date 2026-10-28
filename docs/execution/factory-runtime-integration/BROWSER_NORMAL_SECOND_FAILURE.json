@@ -1,0 +1,174 @@
+{
+  "recorded_at": "2026-10-28T22:48:59.491980+00:00",
+  "branch": "codex/factory-runtime-integration",
+  "integration_source": "fc5b08340ec8f5137d240e9b18c8d2602c1a8de1",
+  "driver_source": "5de3454a498d3e3843680b4a90e354a08fda844e",
+  "driver_sha256": "ced161acb6d8f308a2fdc0cd27964287de694fcd59e585566d15e7d6b92414c7",
+  "core_source": "0efda24e092e630d84e227d06d43b38442672ffe",
+  "command": [
+    "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+    "apps/desktop/tests/factory-real-ipc.py",
+    "--case",
+    "normal",
+    "--batond",
+    "/workspace/AgentBaton/.onboarding/factory-data-controlled-candidate/batond",
+    "--candidate-manifest",
+    "/workspace/.onboarding/factory-candidate-0ef/manifest.json",
+    "--frontend",
+    "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+    "--output",
+    "/workspace/.onboarding/factory-browser-root/reviewed-5de-normal/evidence"
+  ],
+  "started_at": "2026-10-28T22:44:44.292279+00:00",
+  "ended_at": "2026-10-28T22:44:49.486264+00:00",
+  "exit_code": 1,
+  "inputs_unchanged": true,
+  "checks": 2,
+  "screenshots": 2,
+  "status": "failed_or_interrupted",
+  "primary_failure": {
+    "stage": "browser_runtime",
+    "type": "AssertionError",
+    "message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/factory-runtime-integration/apps/desktop/tests/factory-real-ipc.py\", line 900, in runtime_driver\n    detail = wait(lambda: host.result('factory_runs.get', {'scope_id': scope['id']}), lambda d: d['run']['state'] == terminal)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.worktrees/factory-runtime-integration/apps/desktop/tests/factory-real-ipc.py\", line 689, in wait\n    pump(); value = read(); observe_records()\n                            ^^^^^^^^^^^^^^^^^\n  File \"/workspace/.worktrees/factory-runtime-integration/apps/desktop/tests/factory-real-ipc.py\", line 798, in observe\n    return collect_started_records(runtime, workspace, scope, record_context, verified_records, output)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.worktrees/factory-runtime-integration/apps/desktop/tests/factory-real-ipc.py\", line 277, in collect_started_records\n    assert len(observed)<=8192 and observed.endswith(b'\\0')\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+  },
+  "later_process_observation": "PROC_AFTER_FAILURE.json: ownedProvider absent; same original companion966853/start9756854 later Z/PPID1/emptycmdline. No signal, no wait and not a contemporaneous failure-time stat.",
+  "transactional_diagnostic": "Real private readonly schema13 SQL snapshot:35events/2attempts at that time; no retained/replayable SQLite bytes.",
+  "later_HTTP": "Separate later HTTP seq51/runrunning/childresult_available and parentresumestart; not the same transaction; no completed claim.",
+  "cleanup_complete": false,
+  "private_installation": {
+    "directory": "/tmp/baton-factory-7g_fix21/installed",
+    "operation": "copy both; strip -S private baton only",
+    "tools": {
+      "batond": {
+        "original_path": "/workspace/AgentBaton/.onboarding/factory-data-controlled-candidate/batond",
+        "original_sha256": "081a1e489952a2dc71ecd034930e1ce8cb3927f639a29f625116e101df0f0307",
+        "original_bytes": 111270496,
+        "installed_path": "/tmp/baton-factory-7g_fix21/installed/batond",
+        "copy_sha256": "081a1e489952a2dc71ecd034930e1ce8cb3927f639a29f625116e101df0f0307",
+        "installed_sha256": "081a1e489952a2dc71ecd034930e1ce8cb3927f639a29f625116e101df0f0307",
+        "installed_bytes": 111270496,
+        "original_after_sha256": "081a1e489952a2dc71ecd034930e1ce8cb3927f639a29f625116e101df0f0307"
+      },
+      "baton": {
+        "original_path": "/workspace/AgentBaton/.onboarding/factory-data-controlled-candidate/baton",
+        "original_sha256": "89eb42f559f0df9e4958495a8b9235da7fb54c23727d9bbc079f55d853812a13",
+        "original_bytes": 80838848,
+        "installed_path": "/tmp/baton-factory-7g_fix21/installed/baton",
+        "copy_sha256": "89eb42f559f0df9e4958495a8b9235da7fb54c23727d9bbc079f55d853812a13",
+        "installed_sha256": "1727aa3c9503ea103970134d8068e428df996b8b1ea71aa6d6a5460081984122",
+        "installed_bytes": 2555488,
+        "original_after_sha256": "89eb42f559f0df9e4958495a8b9235da7fb54c23727d9bbc079f55d853812a13"
+      }
+    },
+    "strip_argv": [
+      "/usr/bin/x86_64-linux-gnu-strip",
+      "-S",
+      "/tmp/baton-factory-7g_fix21/installed/baton"
+    ],
+    "strip": {
+      "exitcode": 0,
+      "stdout": "",
+      "stderr": "",
+      "tool_sha256": "a97ae77cd5d88799edc0edb31caa2fc81d32eecaa9619d329bed890f6fd06e3a"
+    }
+  },
+  "archive": {
+    "path": "BROWSER_NORMAL_SECOND_FAILURE.tar.gz",
+    "bytes": 328952,
+    "sha256": "689e674f969f316d92b622a5af6df10526ba236b2e403f4d995aac8b6cd36ff7",
+    "regular_members": 11,
+    "each_payload_roundtrip_verified": true
+  },
+  "files": [
+    {
+      "path": "BEFORE.json",
+      "bytes": 10206,
+      "sha256": "9dff15c8d476c0a3c0b95e4da852945936efa6134f6f9b045bfcad1cfc0c4444"
+    },
+    {
+      "path": "PROC_AFTER_FAILURE.json",
+      "bytes": 1559,
+      "sha256": "1b0b0cc17fc79a249e3b96d608ce9fec443ae1595f2845955174c69f93d29201"
+    },
+    {
+      "path": "RESULT.json",
+      "bytes": 10426,
+      "sha256": "19e34e7d3902d6badab52dd3b1ef3815ada300b3da5e8f5465d80e28f51a5798"
+    },
+    {
+      "path": "evidence/01-real-approved-scope-not-started.png",
+      "bytes": 156681,
+      "sha256": "5456c1e2c1258adeab01fa8fb321ec38202dce762cab2ca07558fd29d5450f57"
+    },
+    {
+      "path": "evidence/daemon.log",
+      "bytes": 59,
+      "sha256": "5b26244469f61442773e57231a11d6f0dc105bc7441039a8f21c68393e73f1be"
+    },
+    {
+      "path": "evidence/diagnostics-c128ffd480db415f8036d4c45401a05c.json",
+      "bytes": 84805,
+      "sha256": "2b245db99b42d08402e600c2605658f21f5bcba6c59fe1e297847d48dfa57b6e"
+    },
+    {
+      "path": "evidence/failure-current-ui.png",
+      "bytes": 156755,
+      "sha256": "8f25bb3c062d1558d733fed99fa6b63149cc40d04962839214281aa9d82840be"
+    },
+    {
+      "path": "evidence/report.json",
+      "bytes": 120702,
+      "sha256": "3535636ed6b57786e25a6bc7126e6ca7f4b23938829cf4b81d10e35b4c804aab"
+    },
+    {
+      "path": "evidence/verified-966850.json",
+      "bytes": 3201,
+      "sha256": "ad6feccddff420342b9dbf784056c3118edbadff90dc8a6a086bc7dc731391c2"
+    },
+    {
+      "path": "runner.log",
+      "bytes": 165,
+      "sha256": "171eae629589c0a6feeb53acd69e3ef95d77ce69e4c83bf2165e6224e0ce630d"
+    },
+    {
+      "path": "runner-source.py",
+      "bytes": 3463,
+      "sha256": "89bc8166a921f1c3fb02ad4de15aa891d4f9f67bb09a7a795a7e18a7eefee7e7"
+    }
+  ],
+  "not_run": [
+    "cancel",
+    "unknown",
+    "successful normal",
+    "FactorymacOS",
+    "fullfailure/budget/recoverymatrix"
+  ],
+  "next": "Fix generated ACP own MCP child close/wait on terminal turn and SIGTERM, preserve1s/5s/15s and process identity assertions; independent review before next changed-source run.",
+  "record_static_validation": {
+    "at": "2026-10-28T22:48:59Z",
+    "commands": [
+      {
+        "command": "python3 scripts/verify_bootstrap_manifest.py",
+        "exit_code": 0,
+        "files": 93
+      },
+      {
+        "command": "python3 scripts/validate_design.py",
+        "exit_code": 0,
+        "requirements": 130,
+        "answered_questions": 27
+      },
+      {
+        "command": "python3 scripts/validate_infrastructure.py",
+        "exit_code": 0,
+        "pinned_references": 15
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ],
+    "scope": "actual static outputs in execution transcript; not new product/macOS/CI tests"
+  }
+}

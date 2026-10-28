@@ -1,12 +1,12 @@
-## Factory isolated integration checkpoint — 2026-10-28 UTC
+## 当前 Factory 本地集成检查点 — 2026-10-28 22:49 UTC
 
-This record applies to local `codex/factory-runtime-integration` (source3346968), separate from PR16 draft head e3ccf86/schema12. Core053b432 + independently reviewed UI40b435b + Native13c8bafa are composed. Linux Native70 library (including13 new Factory tests) +6 controller +30 readonly cases passed, with format/Clippy alltargets; source hashes unchanged. First run29/1 readonly failure and the narrow schema13 fixture correction are retained and independently reviewed. This is not real Factory UI/IPC, macOS, live Provider or installer acceptance.
+本地分支 codex/factory-runtime-integration，最新实际测试源 fc5b08340ec8f5137d240e9b18c8d2602c1a8de1；尚未创建 Factory PR 或推送。Core0ef、UI40b（643/41/type/build）及 Native13 叶子已组合。早期 Core053 的 Linux Native106项通过记录保留，不借成当前 Core或macOS通过。
 
-Core053 still has independent P2 FD053-01 elapsed-accounting early-return omission and the known cooperative Data restore deadline/cancellation gap. Subsequent author fixes and tests remain a separate candidate until reviewed. New Factory browser harness also has independently found late-browser-error and missing-cleanup-evidence false-green paths under correction; no runtime pass claimed. Full130 requirements/WP01–14 remain open.
+两次真实 normal 均失败且证据保留：第一次旧CLI预检到期，child未启动；第二次 reviewed5de 使用独立私有压缩CLI，推进到child结果及父新attempt，但观察器遇空cmdline而失败。稍后原MCP同一PID/start身份为Z/PPID1；不算消失，不发送信号。真实只读SQL快照35events/2attempt与稍后seq51 HTTP分时记录，未证明completed。第二次2检查/2截图、cleanupfalse；作者正在修生成ACP对自己MCP子进程的close/wait，cancel/unknown仍未运行。详见 factory-runtime-integration/BROWSER_NORMAL_SECOND_FAILURE.json 与无损归档。
 
-Root's Native build resource staging overlooked tauri-build copying old sidecars into shared target/debug. Later fc5/906 binary labels as053 are rejected; original wrong manifest and source mechanism are preserved in `factory-runtime-integration/SIDECAR_COPY_CORRECTION.json`. Core rebuilt/froze new source-bound tools; those are not the old incorrectly labelled binaries. Future Native leases require explicit tool-copy preservation and hash verification. No Cargo operation remains at Root; lease returned to Core.
+Core Owner读取移出Actor的独立审查发现未选文件变化漏检，修前真实负控失败已保留；作者补完整有界metadata观察，新增源、完整测试及独立签收尚待完成。没有借WIP结果宣布范围完成。历史Native缓存仅按已完成日志精确清理10个测试EXE，原hash/inode与无运行映射记录保存在Cloud检查点；源、失败日志和冻结工具保留。Core独占Cargo。
 
-PR16 exact e3cc Environment3/Rust/UI succeeded; both Mac lanes remain pending separately. No Factory PR, remote push, formal Approve/merge/new package or permission expansion. Latest main remains a1be94 (PR15); OWNER001/002 reread and ACK, no003. Detailed commands/raw logs/failures are in `docs/execution/factory-runtime-integration/`.
+独立 PR16 远端仍fb7ff7d/schema12，Product40779542803和Environment40779542808：三Environment、Rust及UI成功，Linux原始检出6131661/treebcfd已独审。双Mac仍Core/native进行中，尚无新Owner或安装包证据。既有Playwright关闭警告已保留，正在隔离诊断，不声称无警告。main仍a1be94，OWNER001/002已重读ACK无003；无formalApprove/合入/权限扩张。下方保留较早阶段状态，不能替代本段当前结果。完整130需求、27决定和WP01–14不缩减；真实Provider/私人身份、额外费用/资源、正式签名、生产和最终许可证仍关闭。
 
 # AgentBaton 执行状态
 
