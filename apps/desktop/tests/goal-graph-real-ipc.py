@@ -1236,8 +1236,8 @@ def owner_only_driver(args, output: Path) -> int:
                 assert task['id'] != bootstrap_scope['task_id']
                 selection = scope_selection(task, grant, count=4 if data_case else 2, max_nodes=5, kind=kind)
                 reference = {'kind': kind, 'policy_id': definition['id'], 'revision': definition['revision']}
-                for i, output in enumerate(selection['outputs']):
-                    output['validators'] = [reference] if i == 0 or data_case and i < 3 else []
+                for i, scoped_output in enumerate(selection['outputs']):
+                    scoped_output['validators'] = [reference] if i == 0 or data_case and i < 3 else []
                 scope = approved('goal_scopes.propose', selection, 'graph:new-scope', 'goal')
                 assert scope['id'] != bootstrap_scope['id'] and scope['workspace_id'] == bootstrap_scope['workspace_id']
             else:
