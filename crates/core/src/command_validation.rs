@@ -388,6 +388,12 @@ impl Store {
         selection: &CommandValidationSelection,
         key: &str,
     ) -> Result<ApprovalProposal> {
+        if let Some(old) =
+            self.data_proposal_replay("command_validation", &json!(selection), key)?
+        {
+            return Ok(old);
+        }
+
         let (rule, refs) = self.resolve_command(selection, "proposal-preview", 1, None)?;
         self.persist_proposal("command_validation",json!({"intent":selection,"contract":rule.contract_view(),"contract_digest":rule.contract_digest(),"refs":refs,"max_runs":1,"scope":SCOPE,"warning":"Executes exactly this approved local program/argv or SHA-bound script from memory once. Arguments are displayed and retained: do not supply credentials. No arbitrary environment values, OS sandbox, continuous input freeze, descendant containment, TaskAccepted, Git adoption or production authority is established."}),key)
     }

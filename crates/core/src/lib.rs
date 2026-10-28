@@ -2,6 +2,8 @@
 pub mod command_validation;
 pub mod command_workers;
 pub mod data_validation;
+mod data_workspace_workers;
+pub mod data_workspaces;
 pub mod execution;
 pub mod goal_plan;
 pub mod goal_store;

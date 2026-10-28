@@ -54,6 +54,16 @@ struct ImportProject {
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
+struct DataPreviewId {
+    preview_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct DataCreationId {
+    creation_id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct ProjectId {
     project_id: String,
 }
@@ -274,10 +284,10 @@ fn private_file(path: &Path) -> Result<File> {
         .open(path)
         .map_err(|_| CoreError::new("PERMISSION_DENIED", "Cannot open private runtime state"))
 }
-struct ReadyRequest {
-    raw: String,
-    reply: SyncSender<Value>,
-    deadline: Instant,
+pub(crate) struct ReadyRequest {
+    pub(crate) raw: String,
+    pub(crate) reply: SyncSender<Value>,
+    pub(crate) deadline: Instant,
 }
 fn configure_accepted_stream(stream: &UnixStream) -> std::io::Result<()> {
     // BSD/Darwin can inherit O_NONBLOCK from the listener. Deadline-based frame
@@ -323,10 +333,12 @@ pub struct Daemon {
     managed_root: PathBuf,
     supervisor: Supervisor,
     command_workers: crate::command_workers::CommandWorkers,
+    data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
 }
 impl Daemon {
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
         ensure_runtime(runtime_dir)?;
+        let data_workers = crate::data_workspace_workers::DataWorkspaceWorkers::new(runtime_dir)?;
         let lock = private_file(&runtime_dir.join("writer.lock"))?;
         FileExt::try_lock_exclusive(&lock)
             .map_err(|_| CoreError::new("WORKSPACE_BUSY", "A daemon already owns this runtime"))?;
@@ -376,6 +388,7 @@ impl Daemon {
             managed_root,
             supervisor: Supervisor::new(runtime_dir),
             command_workers: Default::default(),
+            data_workers,
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
@@ -384,18 +397,17 @@ impl Daemon {
         while !stop.load(Ordering::Relaxed) {
             self.supervisor.tick(&mut self.store)?;
             self.command_workers.tick(&mut self.store)?;
+            self.data_workers.tick(&mut self.store)?;
+            self.finish_data_admission();
             for _ in 0..16 {
                 let Ok(job) = ready.try_recv() else {
                     break;
                 };
-                let response = if Instant::now() > job.deadline {
-                    json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before execution"),"revision":0,"warnings":[]})
-                } else {
-                    self.handle(&job.raw)
-                };
-                let _ = job.reply.try_send(response);
+                self.handle_ready_request(job);
                 self.supervisor.tick(&mut self.store)?;
                 self.command_workers.tick(&mut self.store)?;
+                self.data_workers.tick(&mut self.store)?;
+                self.finish_data_admission();
             }
             readers.retain(|reader| !reader.is_finished());
             match self.listener.accept() {
@@ -417,6 +429,7 @@ impl Daemon {
         }
         drop(ready);
         drop(requests);
+        self.data_workers.shutdown(&mut self.store)?;
         self.command_workers.shutdown(&mut self.store)?;
         self.supervisor.shutdown(&mut self.store)?;
         for reader in readers {
@@ -457,7 +470,9 @@ impl Daemon {
         if r.request_id.is_empty() || r.request_id.len() > 128 {
             return Err(invalid());
         }
-        if (self.supervisor.has_workers() || self.command_workers.has_workers())
+        if (self.supervisor.has_workers()
+            || self.command_workers.has_workers()
+            || self.data_workers.has_workers())
             && matches!(
                 r.method.as_str(),
                 "projects.import"
@@ -481,6 +496,18 @@ impl Daemon {
             }
         }
         match r.method.as_str() {
+            "data_workspace_previews.start" => {
+                let selection:crate::data_workspaces::DataWorkspaceSelection=params(r.params)?;
+                Ok(json!(self.data_workers.preview(&mut self.store,&selection,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))
+            }
+            "data_workspace_previews.get" => {let p:DataPreviewId=params(r.params)?;Ok(json!(self.store.get_data_workspace_preview(&p.preview_id)?))}
+            "data_workspace_previews.list" => {let p:ProjectId=params(r.params)?;Ok(json!(self.store.list_data_workspace_previews(&p.project_id)?))}
+            "data_workspace_previews.cancel" => {let p:DataPreviewId=params(r.params)?;let record=self.store.cancel_data_workspace_preview(&p.preview_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;self.data_workers.cancel(&p.preview_id);Ok(json!(record))}
+            "data_workspaces.propose" => {let p:DataPreviewId=params(r.params)?;Ok(json!(self.store.propose_data_workspace(&p.preview_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?,&self.managed_root)?))}
+            "data_workspaces.get" => {let p:DataCreationId=params(r.params)?;Ok(json!(self.store.get_data_workspace_creation(&p.creation_id)?))}
+            "data_workspaces.list" => {let p:ProjectId=params(r.params)?;Ok(json!(self.store.list_data_workspace_creations(&p.project_id)?))}
+            "data_workspaces.cancel" => {let p:DataCreationId=params(r.params)?;let record=self.store.cancel_data_workspace_creation(&p.creation_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;self.data_workers.cancel(&p.creation_id);Ok(json!(record))}
+            "data_workspaces.create" | "data_workspaces.approve" => Err(CoreError::new("AUTH_REQUIRED","A server-fixed preview and native data_workspace owner confirmation are required before copying")),
             "goal_scopes.propose" => {
                 let selection:crate::goal_store::GoalScopeSelection=params(r.params)?;
                 let key=r.idempotency_key.ok_or_else(invalid)?;
@@ -512,7 +539,21 @@ impl Daemon {
             "approvals.finalize" => {
                 let p: ProposalId = params(r.params)?;
                 let revision = r.expected_revision.ok_or_else(invalid)?;
+                let already_confirmed = self.store.conn.query_row("SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",[&p.proposal_id],|row|row.get::<_,bool>(0)).unwrap_or(false);
                 let result = self.store.finalize_proposal(&p.proposal_id, revision)?;
+                if !already_confirmed && result.get("dataset_revision").is_some() && result.get("preview_id").is_some() {
+                    if let Some(id)=result["id"].as_str() {
+                        if let Err(mut error)=self.data_workers.copy(&mut self.store,id) {
+                            // The native owner receipt and creation intent have
+                            // committed, even when no filesystem worker started.
+                            // Keep unknown when a later local write is uncertain.
+                            if error.side_effect_state=="not_started" {error.side_effect_state="confirmed".into();}
+                            error.details_ref=Some(format!("data-copy-intent:{id}"));
+                            error.message=format!("{}; owner approval and copy intent are recorded. Read the existing creation; this does not confirm filesystem copy or Ready",error.message);
+                            return Err(error);
+                        }
+                    }
+                }
                 if result.get("provider").is_some() {
                     if let Some(id) = result["id"].as_str() {
                         if let Err(mut error) = self.supervisor.probe(&self.store, id) {
@@ -686,10 +727,9 @@ impl Daemon {
             }
             "data_validation_policies.revoke" => {
                 let p: ValidationPolicyId = params(r.params)?;
-                Ok(json!(self.store.revoke_data_validation_policy(
-                    &p.policy_id,
-                    r.expected_revision.ok_or_else(invalid)?
-                )?))
+                let policy=self.store.revoke_data_validation_policy(&p.policy_id,r.expected_revision.ok_or_else(invalid)?)?;
+                self.data_workers.cancel_validation_policy(&p.policy_id);
+                Ok(json!(policy))
             }
             "data_validations.list" => {
                 let p: ValidationTaskId = params(r.params)?;
@@ -725,10 +765,9 @@ impl Daemon {
             }
             "validation_policies.revoke" => {
                 let p: ValidationPolicyId = params(r.params)?;
-                Ok(json!(self.store.revoke_validation_policy(
-                    &p.policy_id,
-                    r.expected_revision.ok_or_else(invalid)?
-                )?))
+                let record=self.store.revoke_validation_policy(&p.policy_id,r.expected_revision.ok_or_else(invalid)?)?;
+                self.data_workers.cancel_validation_policy(&p.policy_id);
+                Ok(json!(record))
             }
             "validations.list" => {
                 let p: ValidationTaskId = params(r.params)?;
@@ -858,6 +897,7 @@ impl Daemon {
                 let rev = r.expected_revision.ok_or_else(invalid)?;
                 let task = self.store.cancel(&p.task_id, rev)?;
                 self.command_workers.cancel_task(&task.id);
+                self.data_workers.cancel_task(&task.id);
                 Ok(json!(task))
             }
             "events.subscribe" => {
@@ -881,6 +921,7 @@ impl Drop for Daemon {
     fn drop(&mut self) {
         // Error/unwind paths also retain authority until every owned worker is
         // cancelled and joined. Unpersisted outcomes are reconciled on restart.
+        self.data_workers.reap_owned_workers();
         self.command_workers.reap_owned_workers();
         self.supervisor.reap_owned_workers();
         let _ = fs::remove_file(&self.socket);
@@ -1105,4 +1146,385 @@ mod frame_tests {
 #[serde(deny_unknown_fields)]
 struct CommandRunId {
     run_id: String,
+}
+
+impl Daemon {
+    fn data_contexts_for_request(
+        &self,
+        raw: &str,
+    ) -> Result<Vec<crate::data_workspaces::DataInputContext>> {
+        let request: Request = match serde_json::from_str(raw) {
+            Ok(request) => request,
+            Err(_) => return Ok(vec![]),
+        };
+        if request.token != self.token
+            || request.api_version != API_VERSION
+            || request.request_id.is_empty()
+            || request.request_id.len() > 128
+        {
+            return Ok(vec![]);
+        }
+        let mut ids = Vec::new();
+        match request.method.as_str() {
+            "grants.propose" => {
+                let p: CreateGrant = params(request.params)?;
+                let intent = json!({"project_id":p.project_id,"workspace_id":p.workspace_id,"connection_id":p.connection_id,"max_attempts":p.max_attempts,"max_concurrency":p.max_concurrency,"max_duration_ms":p.max_duration_ms});
+                if let Some(key) = request.idempotency_key.as_deref() {
+                    if self
+                        .store
+                        .data_proposal_replay("grant", &intent, key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                ids.push(p.workspace_id);
+            }
+            "sessions.create" => {
+                let p: CreateSession = params(request.params)?;
+                if let Some(key) = request.idempotency_key.as_ref() {
+                    use rusqlite::OptionalExtension;
+                    let old: Option<String> = self
+                        .store
+                        .conn
+                        .query_row(
+                            "SELECT id FROM sessions WHERE task_id=?1 AND idempotency_key=?2",
+                            rusqlite::params![p.task_id, key],
+                            |r| r.get(0),
+                        )
+                        .optional()
+                        .map_err(crate::storage::db_error)?;
+                    if old.is_some() {
+                        return Ok(vec![]);
+                    }
+                }
+                ids.push(p.workspace_id);
+            }
+            "sessions.send" => {
+                let p: SendSession = params(request.params)?;
+                ids.push(self.store.get_session(&p.session_id)?.workspace_id);
+            }
+            "goal_plans.propose" | "goal_plans.revise" => {
+                let p: crate::goal_store::GoalPlanRawSubmission = params(request.params)?;
+                if let Some(key) = request.idempotency_key.as_deref() {
+                    let scope = format!("goal:{}:plan", p.scope_id);
+                    let old: bool = self
+                        .store
+                        .conn
+                        .query_row(
+                            "SELECT EXISTS(SELECT 1 FROM idempotency WHERE scope=?1 AND key=?2)",
+                            rusqlite::params![scope, key],
+                            |r| r.get(0),
+                        )
+                        .map_err(crate::storage::db_error)?;
+                    if old {
+                        return Ok(vec![]);
+                    }
+                }
+                ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
+            }
+            "goal_plans.ready_preview" => {
+                let p: GoalScopeId = params(request.params)?;
+                ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
+            }
+            "goal_scopes.propose" => {
+                let p: crate::goal_store::GoalScopeSelection = params(request.params)?;
+                if let Some(key) = request.idempotency_key.as_deref() {
+                    if self
+                        .store
+                        .data_proposal_replay("goal", &json!(p), key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                ids.extend(self.store.get_grant(&p.grant_id)?.scope.workspace_ids);
+            }
+            "validation_policies.propose" => {
+                let p: crate::validation::ValidationSelection = params(request.params)?;
+                if let Some(key) = request.idempotency_key.as_deref() {
+                    if self
+                        .store
+                        .data_proposal_replay("validation", &json!(p), key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                ids.push(self.store.get_session(&p.session_id)?.workspace_id);
+            }
+            "data_validation_policies.propose" => {
+                let p: crate::data_validation::DataValidationSelection = params(request.params)?;
+                if let Some(key) = request.idempotency_key.as_deref() {
+                    if self
+                        .store
+                        .data_proposal_replay("data_validation", &json!(p), key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                ids.push(self.store.get_session(&p.session_id)?.workspace_id);
+            }
+            "command_validation_policies.propose" => {
+                let p: crate::command_validation::CommandValidationSelection =
+                    params(request.params)?;
+                if let Some(key) = request.idempotency_key.as_deref() {
+                    if self
+                        .store
+                        .data_proposal_replay("command_validation", &json!(p), key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                ids.push(self.store.get_session(&p.session_id)?.workspace_id);
+            }
+            "validations.run" | "data_validations.run" | "command_validations.run" => {
+                let p: ValidationPolicyId = params(request.params)?;
+                let table = match request.method.as_str() {
+                    "validations.run" => "validation_runs",
+                    "data_validations.run" => "data_validation_runs",
+                    _ => "command_validation_runs",
+                };
+                if let Some(key) = request.idempotency_key.as_ref() {
+                    let q=format!("SELECT EXISTS(SELECT 1 FROM {table} WHERE policy_id=?1 AND idempotency_key=?2)");
+                    if self
+                        .store
+                        .conn
+                        .query_row(&q, rusqlite::params![p.policy_id, key], |r| {
+                            r.get::<_, bool>(0)
+                        })
+                        .map_err(crate::storage::db_error)?
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                let workspace = match request.method.as_str() {
+                    "validations.run" => {
+                        self.store.get_validation_policy(&p.policy_id)?.workspace_id
+                    }
+                    "data_validations.run" => {
+                        self.store
+                            .get_data_validation_policy(&p.policy_id)?
+                            .workspace_id
+                    }
+                    _ => {
+                        self.store
+                            .get_command_validation_policy(&p.policy_id)?
+                            .workspace_id
+                    }
+                };
+                ids.push(workspace);
+            }
+            "approvals.finalize" => {
+                let p: ProposalId = params(request.params)?;
+                let raw: Option<String> = {
+                    use rusqlite::OptionalExtension;
+                    self.store.conn.query_row("SELECT document FROM approval_proposals WHERE id=?1 AND result IS NULL AND octet_length(document)<=4194304",[p.proposal_id],|r|r.get(0)).optional().map_err(crate::storage::db_error)?
+                };
+                if let Some(raw) = raw {
+                    let proposal: crate::sessions::ApprovalProposal = crate::storage::decode(&raw)?;
+                    match proposal.kind.as_str() {
+                        "goal" => {
+                            if let Some(id) = proposal.snapshot["intent"]["grant_id"].as_str() {
+                                ids.extend(self.store.get_grant(id)?.scope.workspace_ids);
+                            }
+                        }
+                        "grant" => {
+                            if let Some(id) = proposal.snapshot["intent"]["workspace_id"].as_str() {
+                                ids.push(id.to_owned())
+                            }
+                        }
+                        "validation" | "data_validation" | "command_validation" => {
+                            if let Some(session) =
+                                proposal.snapshot["intent"]["session_id"].as_str()
+                            {
+                                ids.push(self.store.get_session(session)?.workspace_id)
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+        ids.sort();
+        ids.dedup();
+        self.store.prepare_data_input_contexts(&ids)
+    }
+    fn ready_error(&self, raw: &str, error: CoreError) -> Value {
+        let request_id = serde_json::from_str::<Value>(raw)
+            .ok()
+            .and_then(|v| v["request_id"].as_str().map(str::to_owned));
+        json!({"request_id":request_id,"error":error,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
+    }
+    fn handle_ready_request(&mut self, job: ReadyRequest) {
+        if Instant::now() > job.deadline {
+            let _ = job.reply.try_send(self.ready_error(
+                &job.raw,
+                CoreError::new("RESOURCE_LIMIT", "Queued request expired before admission"),
+            ));
+            return;
+        }
+        match self.data_contexts_for_request(&job.raw) {
+            Err(error) => {
+                let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+            }
+            Ok(contexts) if !contexts.is_empty() => {
+                if let Err(failure) = self.data_workers.defer(contexts, job) {
+                    let (error, job) = *failure;
+                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                }
+            }
+            Ok(_) => {
+                let response = self.handle(&job.raw);
+                let _ = job.reply.try_send(response);
+            }
+        }
+    }
+    fn finish_data_admission(&mut self) {
+        use crate::data_workspace_workers::CompletedDataRequest;
+        let Some(completed) = self.data_workers.take_admission() else {
+            return;
+        };
+        match completed {
+            CompletedDataRequest::Input(job, result) => match *result {
+                Err(error) => {
+                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                }
+                Ok(witness) => {
+                    if Instant::now() > job.deadline || !witness.for_request(&job.raw) {
+                        let _ = job.reply.try_send(self.ready_error(
+                            &job.raw,
+                            CoreError::new(
+                                "DEADLINE_EXCEEDED",
+                                "Data observation expired or belongs to another request",
+                            ),
+                        ));
+                        return;
+                    }
+                    debug_assert!(self.store.data_input.is_none());
+                    self.store.data_input = Some(witness);
+                    let request = serde_json::from_str::<Request>(&job.raw)
+                        .expect("authenticated deferred request");
+                    if request.method == "data_validations.run" {
+                        let plan = (|| {
+                            let p: ValidationPolicyId = params(request.params)?;
+                            self.store.prepare_data_validation(
+                                &p.policy_id,
+                                request.expected_revision.ok_or_else(invalid)?,
+                                &request.idempotency_key.ok_or_else(invalid)?,
+                            )
+                        })();
+                        let witness = self.store.data_input.take().unwrap();
+                        match plan {
+                            Err(error) => {
+                                let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                            }
+                            Ok(crate::data_validation::DataValidationPlan::Replay(record)) => {
+                                let _ = job
+                                    .reply
+                                    .try_send(self.ready_success(&job.raw, json!(record)));
+                            }
+                            Ok(crate::data_validation::DataValidationPlan::Check(prepared)) => {
+                                if let Err(failure) =
+                                    self.data_workers.validate_data(prepared, witness, job)
+                                {
+                                    let (error, job) = *failure;
+                                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                                }
+                            }
+                        }
+                    } else if request.method == "validations.run" {
+                        let plan = (|| {
+                            let p: ValidationPolicyId = params(request.params)?;
+                            self.store.prepare_artifact_validation(
+                                &p.policy_id,
+                                request.expected_revision.ok_or_else(invalid)?,
+                                &request.idempotency_key.ok_or_else(invalid)?,
+                            )
+                        })();
+                        let witness = self.store.data_input.take().unwrap();
+                        match plan {
+                            Err(error) => {
+                                let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                            }
+                            Ok(crate::validation::ArtifactValidationPlan::Replay(record)) => {
+                                let _ = job
+                                    .reply
+                                    .try_send(self.ready_success(&job.raw, json!(record)));
+                            }
+                            Ok(crate::validation::ArtifactValidationPlan::Check(prepared)) => {
+                                if let Err(failure) =
+                                    self.data_workers.validate_integrity(prepared, witness, job)
+                                {
+                                    let (error, job) = *failure;
+                                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                                }
+                            }
+                        }
+                    } else {
+                        let response = self.handle(&job.raw);
+                        self.store.data_input = None;
+                        let _ = job.reply.try_send(response);
+                    }
+                }
+            },
+            CompletedDataRequest::Validation(job, result) => {
+                match *result {
+                    Err(error) => {
+                        let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    }
+                    Ok((checked, witness)) => {
+                        if Instant::now() > job.deadline || !witness.for_request(&job.raw) {
+                            let _=job.reply.try_send(self.ready_error(&job.raw,CoreError::new("DEADLINE_EXCEEDED","Data validation receipt arrived after its exact request deadline")));
+                            return;
+                        }
+                        debug_assert!(self.store.data_input.is_none());
+                        self.store.data_input = Some(witness);
+                        let record = self.store.finish_data_validation(checked);
+                        self.store.data_input = None;
+                        let response = match record {
+                            Ok(record) => self.ready_success(&job.raw, json!(record)),
+                            Err(error) => self.ready_error(&job.raw, error),
+                        };
+                        let _ = job.reply.try_send(response);
+                    }
+                }
+            }
+            CompletedDataRequest::Integrity(job, result) => match *result {
+                Err(error) => {
+                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                }
+                Ok((checked, witness)) => {
+                    if Instant::now() > job.deadline || !witness.for_request(&job.raw) {
+                        let _ = job.reply.try_send(self.ready_error(
+                            &job.raw,
+                            CoreError::new(
+                                "DEADLINE_EXCEEDED",
+                                "Integrity receipt arrived after its exact request deadline",
+                            ),
+                        ));
+                        return;
+                    }
+                    debug_assert!(self.store.data_input.is_none());
+                    self.store.data_input = Some(witness);
+                    let record = self.store.finish_artifact_validation(checked);
+                    self.store.data_input = None;
+                    let response = match record {
+                        Ok(record) => self.ready_success(&job.raw, json!(record)),
+                        Err(error) => self.ready_error(&job.raw, error),
+                    };
+                    let _ = job.reply.try_send(response);
+                }
+            },
+        }
+    }
+    fn ready_success(&self, raw: &str, result: Value) -> Value {
+        let request_id = serde_json::from_str::<Value>(raw)
+            .ok()
+            .and_then(|v| v["request_id"].as_str().map(str::to_owned));
+        json!({"request_id":request_id,"result":result,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
+    }
 }

@@ -15,8 +15,56 @@ use std::{
         unix::{ffi::OsStrExt, fs::MetadataExt},
     },
     path::{Component, Path, PathBuf},
+    sync::atomic::{AtomicBool, Ordering},
+    time::Instant,
 };
 // st_mode kind bits are represented as u32 by MetadataExt on Linux and Darwin.
+const CHUNK_BYTES: usize = 64 * 1024;
+/// A host-owned restriction, not copy authority. Blocking kernel calls cannot
+/// be forcibly interrupted; observations are checked between bounded chunks.
+pub struct CopyControl<'a> {
+    cancelled: &'a AtomicBool,
+    deadline: Instant,
+    excluded_directory: Option<(u64, u64)>,
+}
+impl<'a> CopyControl<'a> {
+    pub fn new(cancelled: &'a AtomicBool, deadline: Instant) -> Self {
+        Self {
+            cancelled,
+            deadline,
+            excluded_directory: None,
+        }
+    }
+    /// Additional host-owned source restriction. It never grants read or copy
+    /// authority; destination/approved-restore access uses separate private paths.
+    pub fn exclude_directory(mut self, device: u64, inode: u64) -> Self {
+        self.excluded_directory = Some((device, inode));
+        self
+    }
+    fn check_source_directory(&self, file: &File) -> Result<(), DataWorkspaceError> {
+        self.check()?;
+        let metadata = file.metadata().map_err(|_| DataWorkspaceError::Io)?;
+        if self.excluded_directory == Some((metadata.dev(), metadata.ino())) {
+            return Err(DataWorkspaceError::ExcludedSource);
+        }
+        Ok(())
+    }
+    fn check(&self) -> Result<(), DataWorkspaceError> {
+        if Instant::now() >= self.deadline {
+            return Err(DataWorkspaceError::DeadlineExceeded);
+        }
+        if self.cancelled.load(Ordering::Relaxed) {
+            return Err(DataWorkspaceError::CancelRequested);
+        }
+        Ok(())
+    }
+}
+fn checkpoint(control: Option<&CopyControl<'_>>) -> Result<(), DataWorkspaceError> {
+    if let Some(control) = control {
+        control.check()?;
+    }
+    Ok(())
+}
 const FORMAT: u32 = 1;
 const MAX_FILE: u64 = 64 * 1024 * 1024;
 const MAX_TOTAL: u64 = 256 * 1024 * 1024;
@@ -30,8 +78,11 @@ const FAILED: &str = ".baton-data-failed.json";
 #[cfg(test)]
 type PublicationHook = Box<dyn Fn(&Path, bool)>;
 #[cfg(test)]
+type WriteChunkHook = Box<dyn Fn(usize)>;
+#[cfg(test)]
 thread_local! {
     static PUBLICATION_HOOK: std::cell::RefCell<Option<PublicationHook>> = const { std::cell::RefCell::new(None) };
+    static WRITE_CHUNK_HOOK: std::cell::RefCell<Option<WriteChunkHook>> = const { std::cell::RefCell::new(None) };
 }
 #[cfg(test)]
 fn publication_observed(path: &Path, ready_written: bool) {
@@ -178,6 +229,9 @@ pub enum DataWorkspaceError {
     DestinationChanged,
     Io,
     MetadataInvalid,
+    CancelRequested,
+    DeadlineExceeded,
+    ExcludedSource,
 }
 impl std::fmt::Display for DataWorkspaceError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -238,10 +292,47 @@ impl ApprovedRestoreContract {
 pub struct VerifiedDataWorkspace {
     contract: DataWorkspaceContract,
     directory: File,
+    marker_pins: [FilePin; 2],
 }
 impl VerifiedDataWorkspace {
     pub fn contract_view(&self) -> DataWorkspaceContract {
         self.contract.clone()
+    }
+    /// Recheck the private verified observation at a worker/actor handoff. Hashes
+    /// were checked by restore/copy; this detects subsequent identity/stat drift,
+    /// not continuous immutability or changes by privileged filesystem actors.
+    pub fn recheck_observed_identities(&self) -> Result<(), DataWorkspaceError> {
+        check_directory(&self.directory, &self.contract.destination)?;
+        check_private_dir(&self.directory)?;
+        for (name, expected) in [CREATING, READY].iter().zip(&self.marker_pins) {
+            let metadata = open_child(&self.directory, OsStr::new(name), false)?
+                .metadata()
+                .map_err(|_| DataWorkspaceError::Io)?;
+            if !metadata.is_file() || metadata.nlink() != 1 || FilePin::from(&metadata) != *expected
+            {
+                return Err(DataWorkspaceError::DestinationChanged);
+            }
+        }
+        for pin in &self.contract.directories {
+            let relative = pin
+                .canonical_root
+                .strip_prefix(&self.contract.destination.canonical_root)
+                .map_err(|_| DataWorkspaceError::MetadataInvalid)?;
+            let directory = open_relative(&self.directory, relative)?;
+            check_directory(&directory, pin)?;
+            check_private_dir(&directory)?;
+        }
+        for copied in &self.contract.files {
+            let file = open_relative(&self.directory, &copied.input.destination_relative_path)?;
+            let metadata = file.metadata().map_err(|_| DataWorkspaceError::Io)?;
+            if !metadata.is_file()
+                || metadata.nlink() != 1
+                || FilePin::from(&metadata) != copied.destination_identity
+            {
+                return Err(DataWorkspaceError::DestinationChanged);
+            }
+        }
+        check_directory(&self.directory, &self.contract.destination)
     }
     pub fn directory_identity(&self) -> Result<DirectoryPin, DataWorkspaceError> {
         check_directory(&self.directory, &self.contract.destination)?;
@@ -476,7 +567,9 @@ fn open_child(parent: &File, value: &OsStr, directory: bool) -> Result<File, Dat
     Ok(unsafe { File::from_raw_fd(fd) })
 }
 fn open_relative(root: &File, path: &Path) -> Result<File, DataWorkspaceError> {
-    if !safe_relative(path) {
+    // Source declarations remain <=16 components/4096 bytes. Only this fixed
+    // generated internal prefix may add one component to copied paths.
+    if !safe_relative(path) && !path.strip_prefix("inputs").ok().is_some_and(safe_relative) {
         return Err(DataWorkspaceError::UnauthorizedPath);
     }
     let mut directory = root.try_clone().map_err(|_| DataWorkspaceError::Io)?;
@@ -489,7 +582,44 @@ fn open_relative(root: &File, path: &Path) -> Result<File, DataWorkspaceError> {
     }
     Ok(directory)
 }
-fn read_file(mut file: File, max: u64) -> Result<(Vec<u8>, FilePin), DataWorkspaceError> {
+fn open_source_relative(
+    root: &File,
+    path: &Path,
+    control: Option<&CopyControl<'_>>,
+) -> Result<File, DataWorkspaceError> {
+    if !safe_relative(path) {
+        return Err(DataWorkspaceError::UnauthorizedPath);
+    }
+    let mut directory = root.try_clone().map_err(|_| DataWorkspaceError::Io)?;
+    if let Some(control) = control {
+        control.check_source_directory(&directory)?;
+    }
+    let parts: Vec<_> = path.components().collect();
+    for (i, part) in parts.iter().enumerate() {
+        let Component::Normal(component) = part else {
+            return Err(DataWorkspaceError::UnauthorizedPath);
+        };
+        if let Some(control) = control {
+            control.check_source_directory(&directory)?;
+        }
+        directory = open_child(&directory, component, i + 1 < parts.len())?;
+        if i + 1 < parts.len() {
+            if let Some(control) = control {
+                control.check_source_directory(&directory)?;
+            }
+        }
+    }
+    Ok(directory)
+}
+fn read_file(file: File, max: u64) -> Result<(Vec<u8>, FilePin), DataWorkspaceError> {
+    read_file_controlled(file, max, None)
+}
+fn read_file_controlled(
+    mut file: File,
+    max: u64,
+    control: Option<&CopyControl<'_>>,
+) -> Result<(Vec<u8>, FilePin), DataWorkspaceError> {
+    checkpoint(control)?;
     let before = file.metadata().map_err(|_| DataWorkspaceError::Io)?;
     if !before.is_file() || before.nlink() != 1 {
         return Err(DataWorkspaceError::UnsafeFile);
@@ -499,13 +629,29 @@ fn read_file(mut file: File, max: u64) -> Result<(Vec<u8>, FilePin), DataWorkspa
     }
     let stamp = FilePin::from(&before);
     let mut bytes = vec![];
-    Read::by_ref(&mut file)
-        .take(
-            max.checked_add(1)
-                .ok_or(DataWorkspaceError::ResourceLimit)?,
-        )
-        .read_to_end(&mut bytes)
-        .map_err(|_| DataWorkspaceError::Io)?;
+    let mut chunk = [0u8; CHUNK_BYTES];
+    loop {
+        checkpoint(control)?;
+        let remaining = max
+            .checked_add(1)
+            .ok_or(DataWorkspaceError::ResourceLimit)?
+            .saturating_sub(bytes.len() as u64);
+        if remaining == 0 {
+            return Err(DataWorkspaceError::ResourceLimit);
+        }
+        let cap = CHUNK_BYTES.min(remaining as usize);
+        let count = file
+            .read(&mut chunk[..cap])
+            .map_err(|_| DataWorkspaceError::Io)?;
+        checkpoint(control)?;
+        if count == 0 {
+            break;
+        }
+        bytes.extend_from_slice(&chunk[..count]);
+        if bytes.len() as u64 > max {
+            return Err(DataWorkspaceError::ResourceLimit);
+        }
+    }
     let after = file.metadata().map_err(|_| DataWorkspaceError::Io)?;
     if bytes.len() as u64 > max {
         return Err(DataWorkspaceError::ResourceLimit);
@@ -573,16 +719,20 @@ fn dataset_revision(files: &[SourceFileObservation]) -> Result<String, DataWorks
         .collect();
     digest(&(FORMAT, "explicit_selected_file_bytes", content))
 }
-fn observe(
+fn observe_controlled(
     root: &File,
     requirement: &ArtifactRequirement,
     max: u64,
+    control: Option<&CopyControl<'_>>,
 ) -> Result<(Vec<u8>, FilePin, String), DataWorkspaceError> {
-    let (bytes, pin) = read_file(
-        open_relative(root, &requirement.relative_path)?,
+    checkpoint(control)?;
+    let (bytes, pin) = read_file_controlled(
+        open_source_relative(root, &requirement.relative_path, control)?,
         max.min(requirement.max_bytes),
+        control,
     )?;
     let hash = sha256(&bytes);
+    checkpoint(control)?;
     if requirement
         .expected_sha256
         .as_ref()
@@ -590,7 +740,7 @@ fn observe(
     {
         return Err(DataWorkspaceError::SourceChanged);
     }
-    let current = open_relative(root, &requirement.relative_path)?
+    let current = open_source_relative(root, &requirement.relative_path, control)?
         .metadata()
         .map_err(|_| DataWorkspaceError::Io)?;
     if current.nlink() != 1 || FilePin::from(&current) != pin {
@@ -601,6 +751,19 @@ fn observe(
 pub fn verify_dataset(
     selection: &ApprovedDataSelection,
 ) -> Result<VerifiedDatasetSnapshot, DataWorkspaceError> {
+    verify_dataset_inner(selection, None)
+}
+pub fn verify_dataset_controlled(
+    selection: &ApprovedDataSelection,
+    control: &CopyControl<'_>,
+) -> Result<VerifiedDatasetSnapshot, DataWorkspaceError> {
+    verify_dataset_inner(selection, Some(control))
+}
+fn verify_dataset_inner(
+    selection: &ApprovedDataSelection,
+    control: Option<&CopyControl<'_>>,
+) -> Result<VerifiedDatasetSnapshot, DataWorkspaceError> {
+    checkpoint(control)?;
     check_directory(&selection.root, &selection.contract.source)
         .map_err(|_| DataWorkspaceError::SourceChanged)?;
     let mut files = vec![];
@@ -613,7 +776,7 @@ pub fn verify_dataset(
             .max_total_bytes
             .checked_sub(total)
             .ok_or(DataWorkspaceError::ResourceLimit)?;
-        let (bytes, pin, hash) = observe(&selection.root, r, remaining)?;
+        let (bytes, pin, hash) = observe_controlled(&selection.root, r, remaining, control)?;
         if !identities.insert((pin.device, pin.inode)) {
             return Err(DataWorkspaceError::InvalidSelection);
         }
@@ -629,10 +792,11 @@ pub fn verify_dataset(
         });
     }
     for item in &files {
-        let (_, pin, hash) = observe(
+        let (_, pin, hash) = observe_controlled(
             &selection.root,
             &item.requirement,
             item.requirement.max_bytes,
+            control,
         )?;
         if pin != item.source_identity || hash != item.sha256 {
             return Err(DataWorkspaceError::SourceChanged);
@@ -649,6 +813,7 @@ pub fn verify_dataset(
         source_observation_scope: "selected_files_before_after_only".into(),
         atomic_directory_freeze: false,
     };
+    checkpoint(control)?;
     Ok(VerifiedDatasetSnapshot {
         view,
         root: selection
@@ -809,6 +974,15 @@ fn create_directory(parent: &File, child: &OsStr) -> Result<File, DataWorkspaceE
     Ok(file)
 }
 fn write_new(parent: &File, child: &OsStr, bytes: &[u8]) -> Result<FilePin, DataWorkspaceError> {
+    write_new_controlled(parent, child, bytes, None)
+}
+fn write_new_controlled(
+    parent: &File,
+    child: &OsStr,
+    bytes: &[u8],
+    control: Option<&CopyControl<'_>>,
+) -> Result<FilePin, DataWorkspaceError> {
+    checkpoint(control)?;
     let n = name(child)?;
     let fd = unsafe {
         libc::openat(
@@ -840,9 +1014,19 @@ fn write_new(parent: &File, child: &OsStr, bytes: &[u8]) -> Result<FilePin, Data
     if unsafe { libc::fchmod(file.as_raw_fd(), 0o600) } < 0 {
         return Err(DataWorkspaceError::Io);
     }
-    file.write_all(bytes)
-        .and_then(|_| file.sync_all())
-        .map_err(|_| DataWorkspaceError::Io)?;
+    for chunk in bytes.chunks(CHUNK_BYTES) {
+        checkpoint(control)?;
+        file.write_all(chunk).map_err(|_| DataWorkspaceError::Io)?;
+        #[cfg(test)]
+        WRITE_CHUNK_HOOK.with(|hook| {
+            if let Some(hook) = &*hook.borrow() {
+                hook(bytes.len());
+            }
+        });
+        checkpoint(control)?;
+    }
+    file.sync_all().map_err(|_| DataWorkspaceError::Io)?;
+    checkpoint(control)?;
     let after = file.metadata().map_err(|_| DataWorkspaceError::Io)?;
     if after.nlink() != 1 || after.mode() & 0o7777 != 0o600 || after.len() != bytes.len() as u64 {
         return Err(DataWorkspaceError::DestinationChanged);
@@ -919,6 +1103,23 @@ pub fn create_data_workspace(
     managed: &ApprovedManagedRoot,
     creation_id: &str,
 ) -> Result<DataWorkspaceCreation, DataWorkspaceError> {
+    create_data_workspace_inner(snapshot, managed, creation_id, None)
+}
+pub fn create_data_workspace_controlled(
+    snapshot: &VerifiedDatasetSnapshot,
+    managed: &ApprovedManagedRoot,
+    creation_id: &str,
+    control: &CopyControl<'_>,
+) -> Result<DataWorkspaceCreation, DataWorkspaceError> {
+    create_data_workspace_inner(snapshot, managed, creation_id, Some(control))
+}
+fn create_data_workspace_inner(
+    snapshot: &VerifiedDatasetSnapshot,
+    managed: &ApprovedManagedRoot,
+    creation_id: &str,
+    control: Option<&CopyControl<'_>>,
+) -> Result<DataWorkspaceCreation, DataWorkspaceError> {
+    checkpoint(control)?;
     if !safe_id(creation_id) {
         return Err(DataWorkspaceError::InvalidSelection);
     }
@@ -930,6 +1131,20 @@ pub fn create_data_workspace(
     ensure_outside_source(snapshot, managed)?;
     let base = format!("data-{creation_id}");
     let destination_path = managed.pin.canonical_root.join(&base);
+    // Public absolute path references must remain within the complete path
+    // budget, including the host root, unique ID and generated inputs prefix.
+    // Validate all targets before mkdir so this is a pre-effect refusal.
+    if !canonical_shape(&destination_path)
+        || snapshot.view.files.iter().any(|input| {
+            destination_path
+                .join(&input.destination_relative_path)
+                .as_os_str()
+                .len()
+                > 4096
+        })
+    {
+        return Err(DataWorkspaceError::ResourceLimit);
+    }
     let mut view = initial_view(&snapshot.view, creation_id, destination_path.clone());
     // Once mkdir succeeds, no subsequent error may imply that nothing happened.
     reserve_directory(&managed.root, OsStr::new(&base))?;
@@ -955,22 +1170,29 @@ pub fn create_data_workspace(
         destination: destination.clone(),
         managed_root: managed.pin.clone(),
     };
-    let result = (|| -> Result<DataWorkspaceContract, DataWorkspaceError> {
+    let result = (|| -> Result<(DataWorkspaceContract, [FilePin; 2]), DataWorkspaceError> {
         verify_destination_location(managed, &directory, &destination)?;
-        write_new(&directory, OsStr::new(CREATING), &json_bytes(&intent)?)?;
+        write_new_controlled(
+            &directory,
+            OsStr::new(CREATING),
+            &json_bytes(&intent)?,
+            control,
+        )?;
         #[cfg(test)]
         publication_observed(&destination.canonical_root, false);
         directory.sync_all().map_err(|_| DataWorkspaceError::Io)?;
         let mut known = BTreeMap::new();
         let mut copied = vec![];
         for input in &snapshot.view.files {
+            checkpoint(control)?;
             check_directory(&snapshot.root, &snapshot.view.contract.source)
                 .map_err(|_| DataWorkspaceError::SourceChanged)?;
             verify_destination_location(managed, &directory, &destination)?;
-            let (bytes, pin, hash) = observe(
+            let (bytes, pin, hash) = observe_controlled(
                 &snapshot.root,
                 &input.requirement,
                 input.requirement.max_bytes,
+                control,
             )?;
             if pin != input.source_identity
                 || hash != input.sha256
@@ -984,7 +1206,8 @@ pub fn create_data_workspace(
                 &input.destination_relative_path,
                 &mut known,
             )?;
-            let stamp = write_new(&parent, OsStr::from_bytes(leaf.as_bytes()), &bytes)?;
+            let stamp =
+                write_new_controlled(&parent, OsStr::from_bytes(leaf.as_bytes()), &bytes, control)?;
             drop(bytes);
             parent.sync_all().map_err(|_| DataWorkspaceError::Io)?;
             copied.push(CopiedDataFile {
@@ -996,10 +1219,12 @@ pub fn create_data_workspace(
         // This second source pass is an explicit observation, never proof that the
         // files simultaneously existed or remained immutable during the operation.
         for input in &snapshot.view.files {
-            let (_, pin, hash) = observe(
+            checkpoint(control)?;
+            let (_, pin, hash) = observe_controlled(
                 &snapshot.root,
                 &input.requirement,
                 input.requirement.max_bytes,
+                control,
             )?;
             if pin != input.source_identity || hash != input.sha256 {
                 return Err(DataWorkspaceError::SourceChanged);
@@ -1019,11 +1244,17 @@ pub fn create_data_workspace(
         };
         contract.contract_digest = completed_digest(&contract)?;
         validate_completed_contract(&contract)?;
-        verify_copy_bytes(&directory, &contract)?;
+        verify_copy_bytes_controlled(&directory, &contract, control)?;
         verify_destination_location(managed, &directory, &destination)?;
         directory.sync_all().map_err(|_| DataWorkspaceError::Io)?;
+        checkpoint(control)?;
         verify_intent(&directory, &contract)?;
-        write_new(&directory, OsStr::new(READY), &json_bytes(&contract)?)?;
+        write_new_controlled(
+            &directory,
+            OsStr::new(READY),
+            &json_bytes(&contract)?,
+            control,
+        )?;
         #[cfg(test)]
         publication_observed(&destination.canonical_root, true);
         directory.sync_all().map_err(|_| DataWorkspaceError::Io)?;
@@ -1031,18 +1262,21 @@ pub fn create_data_workspace(
             .root
             .sync_all()
             .map_err(|_| DataWorkspaceError::Io)?;
-        verify_publication(&directory, &contract)?;
+        checkpoint(control)?;
+        let marker_pins = verify_publication(&directory, &contract)?;
         verify_destination_location(managed, &directory, &destination)?;
-        Ok(contract)
+        checkpoint(control)?;
+        Ok((contract, marker_pins))
     })();
     match result {
-        Ok(contract) => {
+        Ok((contract, marker_pins)) => {
             view.state = CreationState::Ready;
             Ok(DataWorkspaceCreation {
                 view,
                 ready: Some(VerifiedDataWorkspace {
                     contract,
                     directory,
+                    marker_pins,
                 }),
             })
         }
@@ -1072,6 +1306,14 @@ fn verify_copy_bytes(
     directory: &File,
     c: &DataWorkspaceContract,
 ) -> Result<(), DataWorkspaceError> {
+    verify_copy_bytes_controlled(directory, c, None)
+}
+fn verify_copy_bytes_controlled(
+    directory: &File,
+    c: &DataWorkspaceContract,
+    control: Option<&CopyControl<'_>>,
+) -> Result<(), DataWorkspaceError> {
+    checkpoint(control)?;
     for pin in &c.directories {
         let relative = pin
             .canonical_root
@@ -1082,9 +1324,10 @@ fn verify_copy_bytes(
         check_private_dir(&subdirectory)?;
     }
     for copied in &c.files {
-        let (bytes, stamp) = read_file(
+        let (bytes, stamp) = read_file_controlled(
             open_relative(directory, &copied.input.destination_relative_path)?,
             copied.input.requirement.max_bytes,
+            control,
         )?;
         let reopened = open_relative(directory, &copied.input.destination_relative_path)?;
         let current = reopened.metadata().map_err(|_| DataWorkspaceError::Io)?;
@@ -1105,6 +1348,12 @@ fn read_metadata<T: for<'a> Deserialize<'a>>(
     directory: &File,
     name: &str,
 ) -> Result<T, DataWorkspaceError> {
+    read_metadata_observed(directory, name).map(|(value, _)| value)
+}
+fn read_metadata_observed<T: for<'a> Deserialize<'a>>(
+    directory: &File,
+    name: &str,
+) -> Result<(T, FilePin), DataWorkspaceError> {
     let (bytes, pin) = read_file(
         open_child(directory, OsStr::new(name), false)?,
         MAX_METADATA,
@@ -1119,7 +1368,8 @@ fn read_metadata<T: for<'a> Deserialize<'a>>(
     {
         return Err(DataWorkspaceError::MetadataInvalid);
     }
-    serde_json::from_slice(&bytes).map_err(|_| DataWorkspaceError::MetadataInvalid)
+    let value = serde_json::from_slice(&bytes).map_err(|_| DataWorkspaceError::MetadataInvalid)?;
+    Ok((value, pin))
 }
 fn verify_intent(
     directory: &File,
@@ -1139,13 +1389,22 @@ fn verify_intent(
 fn verify_publication(
     directory: &File,
     contract: &DataWorkspaceContract,
-) -> Result<(), DataWorkspaceError> {
-    verify_intent(directory, contract)?;
-    let ready: DataWorkspaceContract = read_metadata(directory, READY)?;
+) -> Result<[FilePin; 2], DataWorkspaceError> {
+    let (intent, intent_pin): (Intent, FilePin) = read_metadata_observed(directory, CREATING)?;
+    if intent.format_version != FORMAT
+        || intent.creation_id != contract.creation_id
+        || intent.snapshot != contract.snapshot
+        || intent.destination != contract.destination
+        || intent.managed_root != contract.managed_root
+    {
+        return Err(DataWorkspaceError::MetadataInvalid);
+    }
+    let (ready, ready_pin): (DataWorkspaceContract, FilePin) =
+        read_metadata_observed(directory, READY)?;
     if &ready != contract {
         return Err(DataWorkspaceError::MetadataInvalid);
     }
-    Ok(())
+    Ok([intent_pin, ready_pin])
 }
 /// Restores only from an independently authenticated persisted host contract.
 /// No original source path is reopened: an unchanged Ready copy survives source
@@ -1170,10 +1429,12 @@ pub fn restore_data_workspace(
     verify_destination_location(managed, &directory, &contract.destination)?;
     verify_publication(&directory, contract)?;
     verify_copy_bytes(&directory, contract)?;
+    let marker_pins = verify_publication(&directory, contract)?;
     verify_destination_location(managed, &directory, &contract.destination)?;
     Ok(VerifiedDataWorkspace {
         contract: contract.clone(),
         directory,
+        marker_pins,
     })
 }
 /// Inspect retained incomplete work without retry/cleanup. A Ready label here
@@ -1285,5 +1546,70 @@ mod publication_tests {
     #[test]
     fn ready_marker_drift_cannot_publish_a_verified_token() {
         marker_fault(true);
+    }
+}
+
+#[cfg(test)]
+mod controlled_write_tests {
+    use super::*;
+    use std::{os::unix::fs::PermissionsExt, sync::Arc, time::Duration};
+    #[test]
+    fn cancellation_after_a_real_bounded_write_retains_partial_file_without_ready_or_cleanup() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().canonicalize().unwrap();
+        let source = root.join("source");
+        let managed = root.join("managed");
+        fs::create_dir(&source).unwrap();
+        fs::create_dir(&managed).unwrap();
+        fs::set_permissions(&managed, fs::Permissions::from_mode(0o700)).unwrap();
+        fs::write(source.join("data"), vec![b'x'; CHUNK_BYTES * 2]).unwrap();
+        let selection = ApprovedDataSelection::from_verified_host(
+            &source,
+            "host".into(),
+            vec![ArtifactRequirement {
+                artifact_id: "data".into(),
+                relative_path: "data".into(),
+                max_bytes: (CHUNK_BYTES * 2) as u64,
+                expected_sha256: None,
+            }],
+            DataLimits::default(),
+        )
+        .unwrap();
+        let snapshot = verify_dataset(&selection).unwrap();
+        let managed = ApprovedManagedRoot::from_verified_host(&managed).unwrap();
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let flag = cancelled.clone();
+        WRITE_CHUNK_HOOK.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move |total| {
+                if total > CHUNK_BYTES {
+                    flag.store(true, Ordering::Relaxed);
+                }
+            }))
+        });
+        let control = CopyControl::new(&cancelled, Instant::now() + Duration::from_secs(30));
+        let result =
+            create_data_workspace_controlled(&snapshot, &managed, "partial-cancel", &control);
+        WRITE_CHUNK_HOOK.with(|hook| *hook.borrow_mut() = None);
+        let creation = result.unwrap();
+        assert!(creation.verified().is_none());
+        assert_eq!(creation.view().state, CreationState::Failed);
+        assert_eq!(
+            creation.view().error,
+            Some(DataWorkspaceError::CancelRequested)
+        );
+        let path = creation.view().destination;
+        assert_eq!(
+            fs::metadata(path.join("inputs/data")).unwrap().len(),
+            CHUNK_BYTES as u64
+        );
+        assert!(!path.join(READY).exists());
+        assert!(path.join(FAILED).exists());
+        fs::write(path.join("owner-added"), b"keep").unwrap();
+        cancelled.store(false, Ordering::Relaxed);
+        assert_eq!(
+            create_data_workspace_controlled(&snapshot, &managed, "partial-cancel", &control).err(),
+            Some(DataWorkspaceError::DestinationConflict)
+        );
+        assert_eq!(fs::read(path.join("owner-added")).unwrap(), b"keep");
     }
 }

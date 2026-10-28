@@ -622,7 +622,11 @@ fn resolve_validator(
         source_run_states,
     })
 }
-fn resolve_selection(db: &Connection, s: &GoalScopeSelection) -> Result<GoalRefs> {
+fn resolve_selection(
+    db: &Connection,
+    s: &GoalScopeSelection,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<GoalRefs> {
     key(&s.task_id)?;
     key(&s.grant_id)?;
     if s.owner_acceptance_criteria.trim().is_empty()
@@ -666,13 +670,24 @@ fn resolve_selection(db: &Connection, s: &GoalScopeSelection) -> Result<GoalRefs
     if unmapped_goal_history(db, &task.id, &g.id)? {
         return Err(err("WORKSPACE_BUSY","Retained Goal evidence/action history requires actual scheduler reconciliation; a new scope cannot reset it"));
     }
-    let grant = crate::policy::validate_grant_from(
-        db,
-        &g.id,
-        &task.project_id,
-        &g.scope.workspace_ids[0],
-        &g.scope.connection_ids[0],
-    )?;
+    let grant = if data.is_none() {
+        crate::policy::validate_grant_from(
+            db,
+            &g.id,
+            &task.project_id,
+            &g.scope.workspace_ids[0],
+            &g.scope.connection_ids[0],
+        )?
+    } else {
+        crate::policy::validate_grant_from_with_data(
+            db,
+            &g.id,
+            &task.project_id,
+            &g.scope.workspace_ids[0],
+            &g.scope.connection_ids[0],
+            data,
+        )?
+    };
     let grant_confirmation_id = grant_origin(db, &grant)?;
     limits_fit(s, &grant)?;
     no_writers(db, &task, &grant)?;
@@ -700,10 +715,26 @@ fn resolve_selection(db: &Connection, s: &GoalScopeSelection) -> Result<GoalRefs
             return Err(limited());
         }
         BoundArtifact::from_approved_root(&workspace.root, a.clone()).map_err(|_| changed())?;
-        let bytes =
-            agentbaton_workspaces::read_artifact(&workspace.root, &a.relative_path, a.max_bytes)
-                .map_err(|_| changed())?;
-        let digest = agentbaton_workspaces::validation::sha256(&bytes);
+        let digest = if matches!(
+            workspace.identity.as_ref().map(|i| &i.kind),
+            Some(agentbaton_workspaces::WorkspaceKind::Directory)
+        ) {
+            data.ok_or_else(|| {
+                err(
+                    "WORKSPACE_BUSY",
+                    "Goal data inputs require a fresh exact-request dataset observation",
+                )
+            })?
+            .selected_input_hash(db, &workspace, a)?
+        } else {
+            let bytes = agentbaton_workspaces::read_artifact(
+                &workspace.root,
+                &a.relative_path,
+                a.max_bytes,
+            )
+            .map_err(|_| changed())?;
+            agentbaton_workspaces::validation::sha256(&bytes)
+        };
         if a.expected_sha256.as_ref().is_some_and(|h| h != &digest) {
             return Err(changed());
         }
@@ -1089,7 +1120,11 @@ fn recorded_scope_view(record: &ScopeRecord) -> Result<GoalScopeView> {
         edit_context: Some(edit_context),
     })
 }
-fn read_scope(db: &Connection, id: &str) -> Result<(ScopeRecord, ApprovedGoalScope)> {
+fn read_scope(
+    db: &Connection,
+    id: &str,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<(ScopeRecord, ApprovedGoalScope)> {
     key(id)?;
     let r: ScopeRecord = raw(db, "goal_scopes", id)?;
     let columns: (i64, bool, String, String) = db
@@ -1164,33 +1199,49 @@ fn read_scope(db: &Connection, id: &str) -> Result<(ScopeRecord, ApprovedGoalSco
         return Err(changed());
     }
     let workspace: ManagedWorkspace = raw(db, "managed_workspaces", &r.refs.workspace.id)?;
-    if encode(&workspace)? != encode(&r.refs.workspace)?
-        || workspace.state != "ready"
-        || !crate::policy::live_workspace_matches(
+    if encode(&workspace)? != encode(&r.refs.workspace)? || workspace.state != "ready" {
+        return Err(changed());
+    }
+    let data_workspace = matches!(
+        workspace.identity.as_ref().map(|i| &i.kind),
+        Some(agentbaton_workspaces::WorkspaceKind::Directory)
+    );
+    if data_workspace {
+        crate::data_workspaces::require_data_input_from(db, &workspace, data)?;
+    } else {
+        if !crate::policy::live_workspace_matches(
             &workspace.root,
             workspace.identity.as_ref().ok_or_else(changed)?,
         )
         .map_err(|_| changed())?
-    {
-        return Err(changed());
-    }
-    let current_input = agentbaton_workspaces::inspect(&workspace.root).map_err(|_| changed())?;
-    if !matches!(&current_input.kind,agentbaton_workspaces::WorkspaceKind::Git {head,dirty:false,..} if head==&workspace.base_revision)
-    {
-        return Err(changed());
+        {
+            return Err(changed());
+        }
+        let current_input =
+            agentbaton_workspaces::inspect(&workspace.root).map_err(|_| changed())?;
+        if !matches!(&current_input.kind,agentbaton_workspaces::WorkspaceKind::Git {head,dirty:false,..} if head==&workspace.base_revision)
+        {
+            return Err(changed());
+        }
     }
     let connection: Value = raw(db, "connections", &original.scope.connection_ids[0])?;
     if connection != r.refs.connection {
         return Err(changed());
     }
     for i in &r.refs.inputs {
-        let bytes = agentbaton_workspaces::read_artifact(
-            &workspace.root,
-            &i.artifact.relative_path,
-            i.artifact.max_bytes,
-        )
-        .map_err(|_| changed())?;
-        if agentbaton_workspaces::validation::sha256(&bytes) != i.sha256 {
+        let digest = if data_workspace {
+            data.ok_or_else(changed)?
+                .selected_input_hash(db, &workspace, &i.artifact)?
+        } else {
+            let bytes = agentbaton_workspaces::read_artifact(
+                &workspace.root,
+                &i.artifact.relative_path,
+                i.artifact.max_bytes,
+            )
+            .map_err(|_| changed())?;
+            agentbaton_workspaces::validation::sha256(&bytes)
+        };
+        if digest != i.sha256 {
             return Err(changed());
         }
     }
@@ -1333,7 +1384,7 @@ impl Store {
             // it neither refreshes authority nor bypasses finalizer rechecks.
             return Ok(proposal);
         }
-        let refs = resolve_selection(&self.conn, selection)?;
+        let refs = resolve_selection(&self.conn, selection, self.data_input.as_ref())?;
         let policy = host_policy(selection, &refs)?;
         // Display-only proposed data. No ApprovedGoalScope is constructed until
         // native Goal confirmation has entered the private finalizer below.
@@ -1376,7 +1427,7 @@ impl Store {
         }
         let selection: GoalScopeSelection =
             serde_json::from_value(p.snapshot["intent"].clone()).map_err(|_| invalid())?;
-        let refs = resolve_selection(&tx, &selection)?;
+        let refs = resolve_selection(&tx, &selection, self.data_input.as_ref())?;
         if p.snapshot["resolved"] != approval_refs(&refs)?
             || p.snapshot["resolved_digest"] != json!(sha(&refs)?)
             || p.snapshot["goal_policy"] != json!(host_policy(&selection, &refs)?)
@@ -1909,7 +1960,7 @@ impl Store {
             // authority is revoked. This data is never a new ready/dispatch grant.
             return Ok(view);
         }
-        let (_, scope) = read_scope(&tx, &submission.scope_id)?;
+        let (_, scope) = read_scope(&tx, &submission.scope_id, self.data_input.as_ref())?;
         let exists: bool = tx
             .query_row(
                 "SELECT EXISTS(SELECT 1 FROM goal_plan_heads WHERE scope_id=?1)",
@@ -1993,7 +2044,7 @@ impl Store {
         if unmapped_goal_history(&tx, &retained.refs.task_id, &retained.refs.grant_after.id)? {
             return blocked_history_preview(&tx, &retained, expected_revision);
         }
-        let (record, scope) = read_scope(&tx, scope_id)?;
+        let (record, scope) = read_scope(&tx, scope_id, self.data_input.as_ref())?;
         let (plan, view) = current_plan(&tx, scope_id, &scope)?;
         if view.proposal.revision != expected_revision {
             return Err(err(

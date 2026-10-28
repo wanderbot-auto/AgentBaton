@@ -64,6 +64,57 @@ pub struct DataValidationRecord {
     pub evidence: Value,
     pub created_at: String,
 }
+pub(crate) enum DataValidationPlan {
+    Replay(Box<DataValidationRecord>),
+    Check(Box<PreparedDataValidation>),
+}
+pub(crate) struct PreparedDataValidation {
+    pub(crate) policy: DataValidationPolicy,
+    rule: ApprovedJsonTableRule,
+    payload: String,
+    idempotency_key: String,
+    expected_revision: u64,
+    data_root: bool,
+}
+pub(crate) struct CheckedDataValidation {
+    prepared: PreparedDataValidation,
+    evidence: agentbaton_workspaces::deterministic::JsonTableEvidence,
+    view: agentbaton_workspaces::deterministic::JsonTableValidationView,
+    pins: Option<crate::data_workspaces::DataArtifactPins>,
+}
+impl PreparedDataValidation {
+    pub(crate) fn execute(self) -> Result<CheckedDataValidation> {
+        let evidence = validate_json_table(&self.rule).map_err(changed)?;
+        let contracts: Vec<_> = self
+            .policy
+            .file_contract
+            .inputs
+            .iter()
+            .chain(&self.policy.file_contract.outputs)
+            .cloned()
+            .collect();
+        let pins = if self.data_root {
+            Some(crate::data_workspaces::DataArtifactPins::capture(
+                &contracts,
+            )?)
+        } else {
+            None
+        };
+        if pins.is_some() {
+            evidence.verify_current().map_err(changed)?;
+        }
+        let view = evidence.view();
+        if view.passed {
+            let _contract_only = evidence.accept_contract(&self.rule).map_err(changed)?;
+        }
+        Ok(CheckedDataValidation {
+            prepared: self,
+            evidence,
+            view,
+            pins,
+        })
+    }
+}
 fn invalid() -> CoreError {
     CoreError::new(
         "INVALID_REQUEST",
@@ -200,6 +251,12 @@ impl Store {
         selection: &DataValidationSelection,
         idempotency_key: &str,
     ) -> Result<ApprovalProposal> {
+        if let Some(old) =
+            self.data_proposal_replay("data_validation", &json!(selection), idempotency_key)?
+        {
+            return Ok(old);
+        }
+
         let (contract, refs) = self.resolve_data_validation_selection(selection)?;
         let digest = contract.digest().map_err(selection_error)?;
         self.persist_proposal("data_validation",json!({"intent":selection,"refs":refs,"file_contract":contract.artifact_policy,"table":contract.table,"validator_id":VALIDATOR_ID,"contract_digest":digest,"scope":"data_contract_only","correctness":"approved_schema_ranges_metadata_only","warning":"Approves local JSON schema/ranges/exact metadata and hash-bound artifact checks only. Dataset population, units and timezone are approved declarations, not algorithmic or scientific proof. No scripts, Provider calls, TaskAccepted, Git adoption or production release are authorized."}),idempotency_key)
@@ -352,6 +409,20 @@ impl Store {
         expected_revision: u64,
         idempotency_key: &str,
     ) -> Result<DataValidationRecord> {
+        match self.prepare_data_validation(policy_id, expected_revision, idempotency_key)? {
+            DataValidationPlan::Replay(record) => Ok(*record),
+            DataValidationPlan::Check(prepared) => {
+                let checked = prepared.execute()?;
+                self.finish_data_validation(checked)
+            }
+        }
+    }
+    pub(crate) fn prepare_data_validation(
+        &self,
+        policy_id: &str,
+        expected_revision: u64,
+        idempotency_key: &str,
+    ) -> Result<DataValidationPlan> {
         key(idempotency_key)?;
         let payload = encode(&json!({"policy_id":policy_id,"revision":expected_revision}))?;
         let old:Option<(i64,i64)>=self.conn.query_row("SELECT octet_length(payload),octet_length(document) FROM data_validation_runs WHERE policy_id=?1 AND idempotency_key=?2",params![policy_id,idempotency_key],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
@@ -367,7 +438,7 @@ impl Store {
                 ));
             }
             // Historical result, never a new check after revocation or drift.
-            return decode(&record);
+            return Ok(DataValidationPlan::Replay(Box::new(decode(&record)?)));
         }
         let policy = self.get_data_validation_policy(policy_id)?;
         if policy.revoked {
@@ -465,12 +536,61 @@ impl Store {
                 "Persisted data contract digest is inconsistent",
             ));
         }
-        let evidence = validate_json_table(&rule).map_err(changed)?;
-        evidence.verify_current().map_err(changed)?;
-        let view = evidence.view();
-        if view.passed {
-            let _contract_only = evidence.accept_contract(&rule).map_err(changed)?;
+        Ok(DataValidationPlan::Check(Box::new(
+            PreparedDataValidation {
+                data_root: matches!(
+                    workspace.identity.as_ref().map(|i| &i.kind),
+                    Some(agentbaton_workspaces::WorkspaceKind::Directory)
+                ),
+                policy,
+                rule,
+                payload,
+                idempotency_key: idempotency_key.into(),
+                expected_revision,
+            },
+        )))
+    }
+    pub(crate) fn finish_data_validation(
+        &mut self,
+        checked: CheckedDataValidation,
+    ) -> Result<DataValidationRecord> {
+        let CheckedDataValidation {
+            prepared,
+            evidence,
+            view,
+            pins,
+        } = checked;
+        let PreparedDataValidation {
+            policy,
+            rule: _,
+            payload,
+            idempotency_key,
+            expected_revision,
+            data_root: _,
+        } = prepared;
+        // Rebuild only the fixed rule/refs (no artifact bytes) under the fresh
+        // request witness and require the same live approval/fence/subject.
+        match self.prepare_data_validation(&policy.id, expected_revision, &idempotency_key)? {
+            DataValidationPlan::Replay(record) => return Ok(*record),
+            DataValidationPlan::Check(current) => {
+                if encode(&current.policy)? != encode(&policy)? {
+                    return Err(changed(
+                        agentbaton_workspaces::validation::ValidationError::StaleEvidence,
+                    ));
+                }
+            }
         }
+        if evidence.view().digest != view.digest {
+            return Err(changed(
+                agentbaton_workspaces::validation::ValidationError::StaleEvidence,
+            ));
+        }
+        if let Some(pins) = pins {
+            pins.verify(view.passed)?;
+        } else {
+            evidence.verify_current().map_err(changed)?;
+        }
+        let policy_id = policy.id.as_str();
         let record = DataValidationRecord {
             id: Uuid::new_v4().to_string(),
             policy_id: policy.id.clone(),

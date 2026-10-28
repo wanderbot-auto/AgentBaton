@@ -746,3 +746,140 @@ fn managed_and_relative_path_shapes_are_bounded_before_allocation_or_root_io() {
         );
     }
 }
+
+#[test]
+fn verified_handoff_detects_selected_file_drift_but_allows_unrelated_workspace_outputs() {
+    let f = Fixture::new();
+    f.put("input", b"fixed");
+    let ready = f.ready(&["input"], "handoff");
+    ready.recheck_observed_identities().unwrap();
+    let destination = ready.contract_view().destination.canonical_root;
+    fs::write(
+        destination.join("report.txt"),
+        b"unrelated permitted output",
+    )
+    .unwrap();
+    ready.recheck_observed_identities().unwrap();
+    fs::write(destination.join("inputs/input"), b"changed").unwrap();
+    assert_eq!(
+        ready.recheck_observed_identities().err(),
+        Some(DataWorkspaceError::DestinationChanged)
+    );
+}
+#[test]
+fn controlled_preview_copy_cancel_and_elapsed_deadline_are_not_copy_authority() {
+    use std::sync::atomic::AtomicBool;
+    let f = Fixture::new();
+    f.put("input", b"fixed");
+    let cancelled = AtomicBool::new(true);
+    let control = CopyControl::new(&cancelled, Instant::now() + Duration::from_secs(30));
+    assert_eq!(
+        verify_dataset_controlled(&f.selection(&["input"]), &control).err(),
+        Some(DataWorkspaceError::CancelRequested)
+    );
+    let snapshot = f.snapshot(&["input"]);
+    assert_eq!(
+        create_data_workspace_controlled(&snapshot, &f.managed(), "cancelled", &control).err(),
+        Some(DataWorkspaceError::CancelRequested)
+    );
+    let active = AtomicBool::new(false);
+    let expired = CopyControl::new(&active, Instant::now());
+    assert_eq!(
+        create_data_workspace_controlled(&snapshot, &f.managed(), "expired", &expired).err(),
+        Some(DataWorkspaceError::DeadlineExceeded)
+    );
+    assert_eq!(fs::read_dir(&f.managed).unwrap().count(), 0);
+}
+
+#[test]
+fn maximum_source_depth_remains_valid_after_private_inputs_prefix_without_widening_source_scope() {
+    let f = Fixture::new();
+    let relative = (0..16)
+        .map(|i| format!("p{i}"))
+        .collect::<Vec<_>>()
+        .join("/");
+    f.put(&relative, b"deep fixed dataset");
+    let ready = f.ready(&[&relative], "depth-16");
+    assert_eq!(
+        fs::read(
+            ready
+                .contract_view()
+                .destination
+                .canonical_root
+                .join("inputs")
+                .join(&relative)
+        )
+        .unwrap(),
+        b"deep fixed dataset"
+    );
+    let invalid = relative.clone() + "/seventeenth";
+    assert_eq!(
+        ApprovedDataSelection::from_verified_host(
+            &f.source,
+            "owner".into(),
+            requirements(&[&invalid]),
+            DataLimits::default()
+        )
+        .err(),
+        Some(DataWorkspaceError::InvalidSelection)
+    );
+}
+
+#[test]
+fn full_internal_target_path_budget_is_rejected_before_reserving_any_directory() {
+    let f = Fixture::new();
+    let root_bytes = f.source.as_os_str().len();
+    let component_bytes = ((4090 - root_bytes - 16) / 16).min(250);
+    assert!(component_bytes >= 2);
+    let relative = (0..16)
+        .map(|i| format!("{i:02}{}", "x".repeat(component_bytes - 2)))
+        .collect::<Vec<_>>()
+        .join("/");
+    f.put(&relative, b"fixed input");
+    let snapshot = f.snapshot(&[&relative]);
+    let id = "i".repeat(80);
+    assert!(
+        f.managed
+            .join(format!("data-{id}"))
+            .join("inputs")
+            .join(&relative)
+            .as_os_str()
+            .len()
+            > 4096
+    );
+    assert_eq!(
+        create_data_workspace(&snapshot, &f.managed(), &id).err(),
+        Some(DataWorkspaceError::ResourceLimit)
+    );
+    assert_eq!(fs::read_dir(&f.managed).unwrap().count(), 0);
+}
+
+#[test]
+fn host_excluded_directory_identity_blocks_source_walk_even_after_rename_into_selected_path() {
+    use std::sync::atomic::AtomicBool;
+    let f = Fixture::new();
+    f.put("selected/marker", b"public original marker");
+    let runtime = f.source.join("private-runtime");
+    fs::create_dir(&runtime).unwrap();
+    fs::write(runtime.join("marker"), b"benign private-runtime marker").unwrap();
+    let held = File::open(&runtime).unwrap();
+    let metadata = held.metadata().unwrap();
+    let selection = f.selection(&["selected/marker"]);
+    fs::rename(
+        f.source.join("selected"),
+        f.source.join("old-public-selected"),
+    )
+    .unwrap();
+    fs::rename(runtime, f.source.join("selected")).unwrap();
+    let active = AtomicBool::new(false);
+    let control = CopyControl::new(&active, Instant::now() + Duration::from_secs(30))
+        .exclude_directory(metadata.dev(), metadata.ino());
+    assert_eq!(
+        verify_dataset_controlled(&selection, &control).err(),
+        Some(DataWorkspaceError::ExcludedSource)
+    );
+    assert_eq!(
+        fs::read(f.source.join("old-public-selected/marker")).unwrap(),
+        b"public original marker"
+    );
+}
