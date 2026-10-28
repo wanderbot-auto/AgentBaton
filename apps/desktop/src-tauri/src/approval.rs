@@ -977,7 +977,18 @@ fn graph_node_snapshot_matches(
                                     .all(|item| graph_artifact_matches(item, &binding["workspace"]))
                         })
                         && check["source"] == "baton_goal_validator"
-                        && check["correctness"] == "not_established"
+                        && match check["scope"].as_str() {
+                            Some("artifact_integrity_only") => {
+                                check["correctness"] == "not_established"
+                            }
+                            Some("data_contract_only") => {
+                                check["correctness"] == "approved_schema_ranges_metadata_only"
+                            }
+                            Some("approved_deterministic_command_only") => {
+                                check["correctness"] == "approved_fixed_command_observations_only"
+                            }
+                            _ => false,
+                        }
                         && check["task_acceptance"] == "not_established"
                         && ["passed", "failed", "cancelled"]
                             .iter()
@@ -1013,6 +1024,44 @@ fn graph_node_snapshot_matches(
                 })
         })
 }
+fn bind_graph_owner_finish(
+    response: Value,
+    proposal_id: &Value,
+    selection: &Value,
+    run_revision: u64,
+    decision: &str,
+) -> Result<Value, String> {
+    if let Some(error) = response.get("error") {
+        if error.is_object()
+            && error["code"].is_string()
+            && error["message"].is_string()
+            && error["retryable"].is_boolean()
+            && error["side_effect_state"].is_string()
+        {
+            return Ok(response);
+        }
+    } else {
+        let result = &response["result"];
+        if result["graph_contract_version"] == 1
+            && result["approval_id"] == *proposal_id
+            && result["run_id"] == selection["run_id"]
+            && result["node_id"] == selection["node_id"]
+            && result["plan_revision"] == selection["expected_plan_revision"]
+            && result["decision"] == decision
+            && graph_id(&result["owner_decision_id"])
+            && result["run_revision"].as_u64().is_some_and(|revision| {
+                revision > run_revision && revision <= 9_007_199_254_740_991
+            })
+            && result["task_accepted"].is_boolean()
+            && (decision != "rejected" || result["task_accepted"] == false)
+        {
+            return Ok(response);
+        }
+    }
+    Ok(
+        json!({"request_id":null,"error":{"code":"OUTCOME_UNKNOWN","message":"Owner finalization returned an unbound receipt; reconcile this exact original request before any further action","retryable":false,"side_effect_state":"unknown","details_ref":null},"revision":0,"warnings":[]}),
+    )
+}
 /// Fixed Owner acceptance only; the renderer cannot select the private decision.
 pub fn confirm_goal_node_and_finalize(
     response: Value,
@@ -1031,12 +1080,21 @@ pub fn confirm_goal_node_and_finalize(
     ) {
         return graph_refused("Owner node proposal does not match the exact current run, node, CAS, criterion and complete artifact/validation bindings");
     }
+    let proposal_id = response["result"]["id"].clone();
     confirm_paged_graph_and_finalize(
         response,
         GraphApprovalKind::NodeAcceptance,
         GraphDecision::Approve,
         confirm_native,
-        finalize,
+        |frame| {
+            bind_graph_owner_finish(
+                finalize(frame)?,
+                &proposal_id,
+                selection,
+                expected_revision,
+                "accepted",
+            )
+        },
     )
 }
 /// Fixed explicit Owner rejection; review Cancel never reaches this route.
@@ -1057,12 +1115,21 @@ pub fn confirm_goal_node_rejection_and_decline(
     ) {
         return graph_refused("Owner rejection proposal does not match the exact current run, node, CAS, criterion and complete artifact/validation bindings");
     }
+    let proposal_id = response["result"]["id"].clone();
     confirm_paged_graph_and_finalize(
         response,
         GraphApprovalKind::NodeAcceptance,
         GraphDecision::Reject,
         confirm_native,
-        decline,
+        |frame| {
+            bind_graph_owner_finish(
+                decline(frame)?,
+                &proposal_id,
+                selection,
+                expected_revision,
+                "rejected",
+            )
+        },
     )
 }
 
@@ -1165,7 +1232,7 @@ fn confirm_paged_graph_and_finalize(
     let mut offset = 0;
     for (index, page) in pages.iter().enumerate() {
         let end = offset + page.len();
-        let message=format!("{}\n\nNative application review — {} / proposal {} / revision {}. Page {}/{}; exact JSON UTF-8 bytes {}..{} of {}. This is a CONTINUATION of complete compact JSON; no field is omitted. Read every page before final approval. OK reviews this page only and does not authorize execution or acceptance. Cancel stops review without an Owner decision receipt.\n\n完整原生审查分页：OK仅确认读完本页，全部页后仍需最终批准。取消不生成验收或拒绝凭据。\n\n{}",format!("{}\nRequested final decision: {}. / 最终请求决定：{}。",kind.action(),decision_name,decision_name),kind.kind(),id,revision,index+1,pages.len(),offset,end,total,page);
+        let message=format!("{}\n\nNative application review — {} / proposal {} / revision {}. Page {}/{}; exact JSON UTF-8 bytes {}..{} of {}. This is a CONTINUATION of complete compact JSON; no field is omitted. Read every page before final approval. OK reviews this page only and does not authorize execution or acceptance. Cancel stops review without an Owner decision receipt.\n\n完整原生审查分页：OK仅确认读完本页，全部页后仍需最终批准。取消不生成验收或拒绝凭据。\n\n{}",format_args!("{}\nRequested final decision: {}. / 最终请求决定：{}。",kind.action(),decision_name,decision_name),kind.kind(),id,revision,index+1,pages.len(),offset,end,total,page);
         if message.len() > 16_384 {
             return graph_refused("Native graph review page exceeds the display limit");
         }
@@ -2052,8 +2119,8 @@ mod tests {
     #[test]
     fn owner_fixed_native_accept_and_reject_bind_exact_refs_and_separate_private_actions() {
         let (proposal, selection) = graph_node_proposal_fixture();
-        confirm_goal_node_and_finalize(proposal.clone(),&selection,9,|message|{assert!(message.contains("APPROVE"));true},|frame|{assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":"owner-proposal"},"expected_revision":2,"idempotency_key":"proposal:owner-proposal"}));Ok(json!({"result":"accepted"}))}).unwrap();
-        confirm_goal_node_rejection_and_decline(proposal.clone(),&selection,9,|message|{assert!(message.contains("REJECT"));true},|frame|{assert_eq!(frame,json!({"method":"approvals.decline","params":{"proposal_id":"owner-proposal"},"expected_revision":2,"idempotency_key":"proposal-decline:owner-proposal"}));Ok(json!({"result":"rejected"}))}).unwrap();
+        confirm_goal_node_and_finalize(proposal.clone(),&selection,9,|message|{assert!(message.contains("APPROVE"));true},|frame|{assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":"owner-proposal"},"expected_revision":2,"idempotency_key":"proposal:owner-proposal"}));Ok(json!({"result":{"graph_contract_version":1,"approval_id":"owner-proposal","run_id":"run-1","node_id":"owner-1","plan_revision":3,"decision":"accepted","owner_decision_id":"decision-1","run_revision":10,"task_accepted":false}}))}).unwrap();
+        confirm_goal_node_rejection_and_decline(proposal.clone(),&selection,9,|message|{assert!(message.contains("REJECT"));true},|frame|{assert_eq!(frame,json!({"method":"approvals.decline","params":{"proposal_id":"owner-proposal"},"expected_revision":2,"idempotency_key":"proposal-decline:owner-proposal"}));Ok(json!({"result":{"graph_contract_version":1,"approval_id":"owner-proposal","run_id":"run-1","node_id":"owner-1","plan_revision":3,"decision":"rejected","owner_decision_id":"decision-1","run_revision":10,"task_accepted":false}}))}).unwrap();
         let decline = confirm_goal_node_rejection_and_decline(
             proposal,
             &selection,
@@ -2063,6 +2130,14 @@ mod tests {
         )
         .unwrap();
         assert_eq!(decline["error"]["code"], "PERMISSION_DENIED");
+    }
+    #[test]
+    fn owner_postfinalize_unbound_success_is_unknown_and_never_a_not_started_receipt() {
+        let (proposal, selection) = graph_node_proposal_fixture();
+        let result=confirm_goal_node_and_finalize(proposal,&selection,9,|_|true,|_|Ok(json!({"result":{"graph_contract_version":1,"approval_id":"another-proposal","run_id":"run-1","node_id":"owner-1","plan_revision":3,"decision":"accepted","owner_decision_id":"other-decision","run_revision":10,"task_accepted":true}}))).unwrap();
+        assert_eq!(result["error"]["code"], "OUTCOME_UNKNOWN");
+        assert_eq!(result["error"]["side_effect_state"], "unknown");
+        assert!(result.get("result").is_none());
     }
     #[test]
     fn owner_foreign_snapshot_cas_input_artifact_and_scope_are_refused_without_prompt() {
@@ -2081,17 +2156,27 @@ mod tests {
             "/candidate_refs/0/root/inode",
             "/candidate_refs/0/relative_path",
             "/candidate_refs/0/file_pin/bytes",
+            "/candidate_refs/0/sha256",
+            "/candidate_receipts/0/input_revision",
+            "/candidate_receipts/0/plan_digest",
+            "/candidate_receipts/0/stop_receipt_sequence",
+            "/candidate_receipts/0/capture_receipt_sequence",
+            "/candidate_receipts/0/artifacts/0/sha256",
+            "/candidate_receipts/0/source",
         ] {
             let mut changed = proposal.clone();
             let value = changed["result"]["snapshot"].pointer_mut(pointer).unwrap();
             *value = if value.is_number() {
                 json!(999)
+            } else if pointer.ends_with("sha256") || pointer.ends_with("plan_digest") {
+                json!("f".repeat(64))
+            } else if pointer.ends_with("producer_attempt_id")
+                || pointer.ends_with("input_revision")
+            {
+                json!("foreign-valid-reference")
             } else {
                 json!("../foreign")
             };
-            // A syntactically valid changed producer attempt remains server
-            // evidence and must be compared with complete origin receipts;
-            // this adversarial control uses an invalid reference value.
             let result = confirm_goal_node_and_finalize(
                 changed,
                 &selection,
