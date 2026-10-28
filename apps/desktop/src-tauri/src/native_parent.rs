@@ -1,5 +1,8 @@
 //! Caller-owned production dialogs. The web renderer never supplies a parent,
 //! window label, native handle, confirmation result or private finalize method.
+use raw_window_handle::{
+    DisplayHandle, HandleError, HasDisplayHandle, HasWindowHandle, WindowHandle,
+};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::{
@@ -7,9 +10,6 @@ use std::sync::{
     mpsc, Arc, Mutex, OnceLock, Weak,
 };
 use std::time::{Duration, Instant};
-use tauri::wry::raw_window_handle::{
-    DisplayHandle, HandleError, HasDisplayHandle, HasWindowHandle, WindowHandle,
-};
 use tauri::{Manager, WebviewWindow, WindowEvent};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
@@ -153,7 +153,7 @@ impl<'a> CheckedParent<'a> {
         #[cfg(target_os = "macos")]
         if !matches!(
             window.as_raw(),
-            tauri::wry::raw_window_handle::RawWindowHandle::AppKit(_)
+            raw_window_handle::RawWindowHandle::AppKit(_)
         ) {
             return Err("Calling window did not supply an AppKit parent".into());
         }
