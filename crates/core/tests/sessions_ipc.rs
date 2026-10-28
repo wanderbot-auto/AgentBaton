@@ -2,7 +2,7 @@
 use agentbaton_core::ipc::{call, Daemon};
 use serde_json::{json, Value};
 use std::{
-    os::unix::fs::PermissionsExt,
+    os::unix::fs::{DirBuilderExt, PermissionsExt},
     path::{Path, PathBuf},
     process::Command,
     sync::{
@@ -202,15 +202,24 @@ fn approve(server: &Server, proposal: Value) -> Value {
     result(server.request(json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":format!("proposal:{}",proposal["id"])})))
 }
 struct Scenario {
+    // Fields drop in declaration order: shutdown and join the daemon before
+    // deleting the workspace it still authenticates during worker cleanup.
+    server: Server,
     _dir: tempfile::TempDir,
     root: PathBuf,
-    server: Server,
     project: Value,
     workspace: Value,
     connection: Value,
     grant: Value,
     task: Value,
 }
+fn graph_artifact_path(name: impl AsRef<Path>) -> PathBuf {
+    let directory =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../artifacts/goal-validation-graph");
+    std::fs::create_dir_all(&directory).unwrap();
+    directory.join(name)
+}
+
 impl Scenario {
     fn new(duration: u64) -> Self {
         Self::with_provider(duration, "custom_acp")
@@ -2938,9 +2947,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     assert_eq!(result(f.server.request(request)), proposal);
     let raw = serde_json::to_vec_pretty(&proposal).unwrap();
     let digest = agentbaton_workspaces::validation::sha256(&raw);
-    let dir =
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../artifacts/goal-validation-graph");
-    std::fs::create_dir_all(&dir).unwrap();
+    let dir = graph_artifact_path("");
     let path = dir.join(format!("actual-graph-proposal-{digest}.json"));
     use std::io::Write;
     let mut file = std::fs::OpenOptions::new()
@@ -3216,8 +3223,7 @@ fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_in
         p["snapshot"]["candidate_refs"][0]["sha256"],
         agentbaton_workspaces::validation::sha256(b"fixed report")
     );
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../artifacts/goal-validation-graph/actual-node-proposal.json");
+    let path = graph_artifact_path("actual-node-proposal.json");
     std::fs::write(path, serde_json::to_vec_pretty(&p).unwrap()).unwrap();
     eprintln!("GRAPH_PIPELINE exact Owner proposal persisted");
     let decision = approve(&f.server, p.clone());
@@ -3304,9 +3310,7 @@ fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_in
     let evidence = json!({"build_source_hashes":build_source_hashes,"graph_details":accepted,"task":task,"final_owner_proposal":final_proposal,"final_owner_decision":final_decision});
     let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
     let hash = agentbaton_workspaces::validation::sha256(&bytes);
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
-        "../../artifacts/goal-validation-graph/actual-task-accepted-{hash}.json"
-    ));
+    let path = graph_artifact_path(format!("actual-task-accepted-{hash}.json"));
     std::fs::OpenOptions::new()
         .create_new(true)
         .write(true)
@@ -3801,9 +3805,67 @@ fn actual_last_owner_rechecks_all_original_products_and_never_accepts_changed_ca
     }
 }
 
+static CAPTURE_DELAY_CALLS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static CAPTURE_DELAY_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+unsafe extern "C" fn capture_delay_sql(
+    context: *mut rusqlite::ffi::sqlite3_context,
+    _argc: std::ffi::c_int,
+    _values: *mut *mut rusqlite::ffi::sqlite3_value,
+) {
+    let began = Instant::now();
+    std::thread::sleep(Duration::from_millis(1500));
+    CAPTURE_DELAY_MS.store(
+        began.elapsed().as_millis().try_into().unwrap_or(u64::MAX),
+        Ordering::SeqCst,
+    );
+    CAPTURE_DELAY_CALLS.fetch_add(1, Ordering::SeqCst);
+    unsafe {
+        rusqlite::ffi::sqlite3_result_int(context, 1);
+    }
+}
+unsafe extern "C" fn capture_delay_extension(
+    db: *mut rusqlite::ffi::sqlite3,
+    _error: *mut *mut std::ffi::c_char,
+    _api: *const rusqlite::ffi::sqlite3_api_routines,
+) -> std::ffi::c_int {
+    unsafe {
+        rusqlite::ffi::sqlite3_create_function_v2(
+            db,
+            c"goal_fixture_capture_delay".as_ptr(),
+            0,
+            rusqlite::ffi::SQLITE_UTF8 | rusqlite::ffi::SQLITE_INNOCUOUS,
+            std::ptr::null_mut(),
+            Some(capture_delay_sql),
+            None,
+            None,
+            None,
+        )
+    }
+}
+struct CaptureDelayRegistration;
+impl CaptureDelayRegistration {
+    fn new() -> Self {
+        CAPTURE_DELAY_CALLS.store(0, Ordering::SeqCst);
+        CAPTURE_DELAY_MS.store(0, Ordering::SeqCst);
+        assert_eq!(
+            unsafe { rusqlite::ffi::sqlite3_auto_extension(Some(capture_delay_extension)) },
+            rusqlite::ffi::SQLITE_OK
+        );
+        Self
+    }
+}
+impl Drop for CaptureDelayRegistration {
+    fn drop(&mut self) {
+        unsafe {
+            rusqlite::ffi::sqlite3_cancel_auto_extension(Some(capture_delay_extension));
+        }
+    }
+}
+
 #[test]
 fn actual_capture_prestart_queue_exhaustion_never_spawns_or_claims_an_io_join() {
     eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let _registration = CaptureDelayRegistration::new();
     let f = Scenario::new(10_000);
     let scope = goal_scope_and_plan(&f, "goal-report");
     let current = result(
@@ -3816,10 +3878,10 @@ fn actual_capture_prestart_queue_exhaustion_never_spawns_or_claims_an_io_join() 
     plan["nodes"][0]["reservation"]["runtime_ms"] = json!(1200);
     result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"queue-delay-approved-1200ms"})));
     let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
-    // Actual bounded SQLite work delays the already stopped producer's capture
-    // preparation. No test clock, extended production timeout, fake worker join
-    // or private Provider process is used.
-    db.execute_batch("CREATE TRIGGER controlled_capture_prepare_delay AFTER INSERT ON goal_graph_jobs BEGIN SELECT sum(n) FROM (WITH RECURSIVE delay(n) AS(VALUES(1) UNION ALL SELECT n+1 FROM delay WHERE n<4000000) SELECT n FROM delay); END;").unwrap();
+    // Hold the actual daemon transaction after its capture queue clock starts.
+    // This real monotonic delay is independent of host CPU speed and remains
+    // inside the unchanged 5s RPC bound. No capture worker or fake stop exists.
+    db.execute_batch("CREATE TRIGGER controlled_capture_prepare_delay AFTER INSERT ON goal_graph_jobs BEGIN SELECT goal_fixture_capture_delay(); END;").unwrap();
     drop(db);
     let approved = approve_graph_at(&f, &scope, 2);
     let run_id = &approved["run"]["id"];
@@ -3828,6 +3890,12 @@ fn actual_capture_prestart_queue_exhaustion_never_spawns_or_claims_an_io_join() 
         "goal_graph_runs.get",
         json!({"run_id":run_id}),
         |d| d["run"]["state"] == "blocked",
+    );
+    assert_eq!(CAPTURE_DELAY_CALLS.load(Ordering::SeqCst), 1);
+    let actual_delay = CAPTURE_DELAY_MS.load(Ordering::SeqCst);
+    assert!(actual_delay >= 1500);
+    eprintln!(
+        "CONTROLLED_CAPTURE_DELAY elapsed_ms={actual_delay} calls=1 approved_runtime_ms=1200"
     );
     assert_eq!(blocked["task_accepted"], false);
     assert!(blocked["candidates"].as_array().unwrap().is_empty());
@@ -4095,9 +4163,7 @@ fn actual_graph_integrity_validator_is_a_charged_owned_attempt_before_owner_and_
     let evidence = json!({"build_source_hashes":graph_build_source_hashes(),"task":task,"scope":scope,"definition":definition,"graph_details":accepted,"owner_proposal":owner_proposal,"first_decision":first_decision,"final_owner_proposal":final_proposal,"final_decision":decision});
     let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
     let sha = agentbaton_workspaces::validation::sha256(&bytes);
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
-        "../../artifacts/goal-validation-graph/actual-integrity-graph-{sha}.json"
-    ));
+    let path = graph_artifact_path(format!("actual-integrity-graph-{sha}.json"));
     use std::io::Write;
     std::fs::OpenOptions::new()
         .create_new(true)
@@ -4384,9 +4450,7 @@ fn export_graph_fixture(kind: &str, evidence: &Value) {
     use std::io::Write;
     let bytes = serde_json::to_vec_pretty(evidence).unwrap();
     let sha = agentbaton_workspaces::validation::sha256(&bytes);
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
-        "../../artifacts/goal-validation-graph/actual-{kind}-graph-{sha}.json"
-    ));
+    let path = graph_artifact_path(format!("actual-{kind}-graph-{sha}.json"));
     std::fs::OpenOptions::new()
         .create_new(true)
         .write(true)
@@ -4757,11 +4821,19 @@ fn actual_graph_interrupted_validator_snapshot_is_unknown_fenced_and_never_autom
     let id = &approved["run"]["id"];
     let _pid = wait_actual_graph_command_child(&f);
     let recovery = f._dir.path().join("validator-interrupted-runtime");
-    std::fs::create_dir(&recovery).unwrap();
+    std::fs::DirBuilder::new()
+        .mode(0o700)
+        .create(&recovery)
+        .unwrap();
     let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
     db.execute(
         "VACUUM INTO ?1",
         [recovery.join("baton.sqlite3").to_str().unwrap()],
+    )
+    .unwrap();
+    std::fs::set_permissions(
+        recovery.join("baton.sqlite3"),
+        std::fs::Permissions::from_mode(0o600),
     )
     .unwrap();
     drop(db);
