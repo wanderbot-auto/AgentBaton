@@ -56,7 +56,7 @@ def linux_start_ticks(pid):
 # The same generated program services every scenario. Its executable bytes are
 # approved once before invocation; no per-run script mutation or real vendor.
 FIXTURE = r'''
-import json,os,sys
+import json,os,re,sys
 from pathlib import Path
 if sys.argv[1:]==['--version']:
  print('AgentBaton generated Goal ACP 1.0');sys.exit(0)
@@ -79,17 +79,27 @@ for line in sys.stdin:
   assert v['return_location']['run_id']==v['run_id'] and v['return_location']['attempt_id']==v['lineage']['attempt_id']
   assert v['inputs'][0]['artifact']['relative_path'] in ('file','inputs/file')
   assert v['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
+  assert len(v['outputs']) in (1,2)
+  if len(v['outputs'])==2:
+   assert [(x['artifact']['artifact_id'],x['artifact']['relative_path']) for x in v['outputs']]==[('report','reports/report.txt'),('summary','reports/summary.txt')]
   assert v['policy']['enforced']=={'filesystem_sandbox':False,'network_sandbox':False,'output_quota':False}
   assert v['budget']['reservation']==v['node']['reservation'] and v['budget']['limits']==v['node']['budget']
   Path('reports').mkdir(exist_ok=True)
   Path('reports/task-request.json').write_text(text)
   ticks=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]
   Path('reports/fixture-owned.json').write_text(json.dumps({'pid':os.getpid(),'pgid':os.getpgrp(),'start_ticks':ticks}))
+  if len(v['outputs'])==2:
+   attempt=v['lineage']['attempt_id'];assert re.fullmatch(r'[A-Za-z0-9._:-]{1,128}',attempt)
+   Path('reports/task-request-'+attempt+'.json').write_text(text)
+   Path('reports/fixture-owned-'+attempt+'.json').write_text(json.dumps({'pid':os.getpid(),'pgid':os.getpgrp(),'start_ticks':ticks}))
   goal=v['goal']
   if goal in ('goal-report','goal-report-v2'):
    Path('reports/report.txt').write_bytes(b'fixed report' if goal=='goal-report' else b'fixed report v2')
   elif goal=='goal-partial-hang':
    Path('reports/report.txt').write_bytes(b'partial report')
+  elif goal=='goal-summary':
+   assert len(v['outputs'])==2 and v['node']['kind']=='summary' and v['node']['outputs']==[{'artifact_id':'summary','contract_id':'output:summary'}]
+   Path('reports/summary.txt').write_bytes(b'fixed summary')
   elif goal!='hang':raise AssertionError('Unexpected fixed fixture goal')
   if goal in ('hang','goal-partial-hang'):
    Path('reports/fixture-hang').write_text(str(os.getpid()));continue
@@ -206,7 +216,7 @@ def main():
             wait(lambda: result('connections.list', {}), lambda rows: any(row['id'] == connection['id'] and row['probe_state'] == 'ready' for row in rows))
             git_env = {**os.environ, 'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null', 'GIT_TERMINAL_PROMPT': '0', 'GIT_NO_LAZY_FETCH': '1'}
 
-            def prepare(name, node_goal, data=False):
+            def prepare(name, node_goal, data=False, frontier=False):
                 source = root / ('source-' + name); source.mkdir(mode=0o700); (source / 'file').write_bytes(b'baseline')
                 def git(*argv):
                     return subprocess.check_output(['git', '-C', str(source), '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', *argv], env=git_env, text=True).strip()
@@ -238,8 +248,11 @@ def main():
                 grant = owner('grants.propose', {'project_id': project['id'], 'workspace_id': workspace['id'], 'connection_id': connection['id'], 'max_attempts': 2, 'max_concurrency': 1, 'max_duration_ms': 600_000}, 'grant:' + name, 'grant')
                 task = result('tasks.create', {'project_id': project['id'], 'goal': 'Generated bounded Goal ' + name}, 'task:' + name)
                 budget = {'attempts': 2, 'parallel': 1, 'runtime_ms': 20_000, 'output_bytes': 8192, 'children': 1, 'reworks': 1, 'tokens': None, 'cost_microunits': None}
-                scope = owner('goal_scopes.propose', {'task_id': task['id'], 'expected_task_revision': task['revision'], 'grant_id': grant['id'], 'expected_grant_revision': grant['revision'], 'max_nodes': 2, 'new_max_children': 1, 'new_max_depth': 1, 'root_budget': budget, 'project_budget': budget, 'inputs': [{'artifact_id': 'fixed-input', 'relative_path': input_path, 'max_bytes': 1024, 'expected_sha256': sha(b'baseline')}], 'outputs': [{'artifact': {'artifact_id': 'report', 'relative_path': 'reports/report.txt', 'max_bytes': 1024, 'expected_sha256': None}, 'validators': []}], 'writable_prefixes': ['reports'], 'owner_acceptance_criteria': 'Owner reviews exact report; execution is candidate evidence only'}, 'scope:' + name, 'goal')
-                scenario = {'source': source, 'project': project, 'workspace': workspace, 'task': task, 'grant': grant, 'scope': scope, 'node_goal': node_goal, 'data': data}
+                outputs = [{'artifact': {'artifact_id': 'report', 'relative_path': 'reports/report.txt', 'max_bytes': 1024, 'expected_sha256': None}, 'validators': []}]
+                if frontier:
+                    outputs.append({'artifact': {'artifact_id': 'summary', 'relative_path': 'reports/summary.txt', 'max_bytes': 1024, 'expected_sha256': None}, 'validators': []})
+                scope = owner('goal_scopes.propose', {'task_id': task['id'], 'expected_task_revision': task['revision'], 'grant_id': grant['id'], 'expected_grant_revision': grant['revision'], 'max_nodes': 2, 'new_max_children': 1, 'new_max_depth': 1, 'root_budget': budget, 'project_budget': budget, 'inputs': [{'artifact_id': 'fixed-input', 'relative_path': input_path, 'max_bytes': 1024, 'expected_sha256': sha(b'baseline')}], 'outputs': outputs, 'writable_prefixes': ['reports'], 'owner_acceptance_criteria': 'Owner reviews exact report; execution is candidate evidence only'}, 'scope:' + name, 'goal')
+                scenario = {'source': source, 'project': project, 'workspace': workspace, 'task': task, 'grant': grant, 'scope': scope, 'node_goal': node_goal, 'data': data, 'frontier': frontier}
                 scenarios[name] = scenario
                 return scenario
 
@@ -247,6 +260,7 @@ def main():
             prepare('data', 'goal-report', data=True)
             prepare('cancel', 'goal-partial-hang')
             prepare('timeout', 'hang')
+            prepare('frontier', 'goal-report', frontier=True)
             assert database()['attempts'] == database()['goal_runs'] == 0
             passed('private host approves generated local inputs and planning scopes; no execution or SQL-forged authority')
 
@@ -255,7 +269,12 @@ def main():
                 node_budget = {'attempts': 1 if revision == 1 else 2, 'parallel': 1, 'runtime_ms': 12_000, 'output_bytes': 2048 if revision == 1 else 4096, 'children': 0, 'reworks': 0 if revision == 1 else 1, 'tokens': None, 'cost_microunits': None}
                 reservation = 1200 if scenario['node_goal'] == 'hang' else 8000 if scenario['node_goal'] == 'goal-partial-hang' else 4000
                 node = {'id': 'produce-report', 'parent_id': None, 'kind': 'work', 'goal': scenario['node_goal'] if revision == 1 else 'goal-report-v2', 'dependencies': [], 'workspace_id': scope['workspace_id'], 'executor': {'kind': 'connection', 'binding': scope['binding'], 'program_sha256': scope['program_sha256']}, 'recipients': [], 'required_inputs': [{'goal_task_id': scenario['task']['id'], 'artifact_id': 'fixed-input', 'contract_id': scope['inputs']['fixed-input']['contract_id'], 'source': {'kind': 'approved_external', 'sha256': scope['inputs']['fixed-input']['sha256']}}], 'outputs': [{'artifact_id': 'report', 'contract_id': contract}], 'required_validators': scope['contracts'][contract], 'side_effect': 'workspace_write', 'write_set': [{'kind': 'workspace', 'path': 'reports/report.txt'}], 'budget': node_budget, 'reservation': {'runtime_ms': reservation, 'output_bytes': 2048, 'tokens': None, 'cost_microunits': None}, 'retry': {'max_attempts': 1 if revision == 1 else 2, 'max_reworks': 0 if revision == 1 else 1, 'retry_classes': [] if revision == 1 else ['validation_failed']}, 'idempotency_key': 'produce-report-once', 'external_action_id': None}
-                return {'schema_version': 1, 'plan_id': 'browser-execution:' + scenario['task']['id'], 'goal': scope['goal'], 'scope_revision': scope['authority_revision'], 'revision': revision, 'expected_revision': revision - 1, 'acceptance_rules': scope['required_acceptance_rules'], 'nodes': [node]}
+                nodes = [node]
+                if scenario['frontier']:
+                    assert revision == 1
+                    summary = {**node, 'id': 'produce-summary', 'kind': 'summary', 'goal': 'goal-summary', 'outputs': [{'artifact_id': 'summary', 'contract_id': scope['outputs']['summary']}], 'required_validators': scope['contracts'][scope['outputs']['summary']], 'write_set': [{'kind': 'workspace', 'path': 'reports/summary.txt'}], 'idempotency_key': 'produce-summary-once'}
+                    nodes.append(summary)
+                return {'schema_version': 1, 'plan_id': 'browser-execution:' + scenario['task']['id'], 'goal': scope['goal'], 'scope_revision': scope['authority_revision'], 'revision': revision, 'expected_revision': revision - 1, 'acceptance_rules': scope['required_acceptance_rules'], 'nodes': nodes}
 
             def run_view(run_id):
                 return result('goal_runs.get', {'run_id': run_id})
@@ -278,10 +297,12 @@ def main():
                 scenario['run_id'] = started['id']; scenario['execution_proposal'] = proposal
                 return started
 
-            def assert_reaped(scenario, view):
-                node = view['nodes'][-1]
+            def assert_reaped(scenario, view, node=None):
+                selected_node = node is not None
+                node = view['nodes'][-1] if node is None else node
                 assert node['stop_confirmed'] is True
-                marker = Path(scenario['workspace']['root']) / 'reports/fixture-owned.json'
+                suffix = '-' + node['attempt_id'] if selected_node else ''
+                marker = Path(scenario['workspace']['root']) / ('reports/fixture-owned' + suffix + '.json')
                 owned = json.loads(marker.read_text())
                 try:
                     os.kill(owned['pid'], 0)
@@ -293,7 +314,7 @@ def main():
                 assert session['state'] == 'stopped'
                 assert view['task_accepted'] is False and view['run']['task_accepted'] is False
                 assert result('tasks.get', {'task_id': scenario['task']['id']})['state'] != 'accepted'
-                raw = (Path(scenario['workspace']['root']) / 'reports/task-request.json').read_bytes()
+                raw = (Path(scenario['workspace']['root']) / ('reports/task-request' + suffix + '.json')).read_bytes()
                 request = json.loads(raw)
                 assert request['run_id'] == view['run']['id'] and request['plan_revision'] == node['plan_revision'] and request['lineage']['attempt_id'] == node['attempt_id']
                 assert request['node'] == node['node'] and request['workspace']['canonical_root'] == scenario['workspace']['root']
@@ -602,6 +623,52 @@ def main():
                     page.set_viewport_size({'width': 390, 'height': 844}); shot('08-timeout-mobile-unknown', timeout_node.locator(':scope > summary')); assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
                     report['observations']['timeout'] = {'before_cancel': unknown, 'after_cancel': still_unknown}
                     passed('actual1200ms owned timeout remains unknown after reaping and cancellation; UI blocks new approval/adoption and never fabricates TaskAccepted')
+
+                    # Same approved initial plan: neither explicit replan nor a
+                    # second Owner action may be needed to drain ready nodes.
+                    page.set_viewport_size({'width': 1488, 'height': 981})
+                    scenario = scenarios['frontier']; panel, execution = open_scenario('frontier')
+                    initial_plan = store_plan(panel, scenario)
+                    assert initial_plan['proposal']['revision'] == 1 and len(initial_plan['proposal']['nodes']) == 2
+                    assert [node['kind'] for node in initial_plan['proposal']['nodes']] == ['work', 'summary']
+                    assert all(node['dependencies'] == [] for node in initial_plan['proposal']['nodes'])
+                    before_frontier = database(); started = host_execute(scenario)
+                    frontier_view = wait(lambda: run_view(started['id']), lambda view: len(view['nodes']) == 2 and all(node['state'] == 'candidate' for node in view['nodes']))
+                    assert frontier_view['run']['state'] == 'awaiting_acceptance' and frontier_view['run']['plan_revision'] == 1
+                    assert [node['plan_revision'] for node in frontier_view['nodes']] == [1, 1]
+                    assert len({node['attempt_id'] for node in frontier_view['nodes']}) == len({node['session_id'] for node in frontier_view['nodes']}) == 2
+                    assert [node['actual_output_bytes'] for node in frontier_view['nodes']] == [12, 13]
+                    for node in frontier_view['nodes']:
+                        assert node['actual_runtime_ms'] > 0 and node['tokens'] is None and node['cost_microunits'] is None
+                        assert_reaped(scenario, frontier_view, node)
+                    workspace = Path(scenario['workspace']['root'])
+                    assert (workspace / 'reports/report.txt').read_bytes() == b'fixed report'
+                    assert (workspace / 'reports/summary.txt').read_bytes() == b'fixed summary'
+                    after_frontier = database()
+                    assert after_frontier['attempts'] == before_frontier['attempts'] + 2
+                    assert after_frontier['sessions'] == before_frontier['sessions'] + 2
+                    assert after_frontier['goal_run_reservations'] == before_frontier['goal_run_reservations'] + 2
+                    assert after_frontier['execution_approvals'] == before_frontier['execution_approvals'] + 1
+                    for key in ['project:' + scenario['project']['id'], 'root:' + scenario['task']['id']]:
+                        assert after_frontier['budgets'][key] == {'consumed': 2, 'active': 0}
+                    for key in ['project:' + scenario['project']['id'], 'root-grant:' + scenario['grant']['id']]:
+                        ledger = after_frontier['goal_ledgers'][key]
+                        assert ledger['observed_attempts'] == 2 and ledger['output_bytes'] == 25
+                        assert ledger['runtime_ms'] == sum(node['actual_runtime_ms'] for node in frontier_view['nodes'])
+                        assert ledger['limits'] == before_frontier['goal_ledgers'][key]['limits']
+                    request_rows = [row for row in report['observations']['complete_task_requests'] if row['request']['run_id'] == started['id']]
+                    assert len(request_rows) == 2 and [row['request']['node'] for row in request_rows] == [node['node'] for node in frontier_view['nodes']]
+                    chains = [row for row in report['observations']['owned_stop_receipt_chains'] if row['run_id'] == started['id']]
+                    assert len(chains) == 2 and chains[0]['events'][-1]['sql_sequence'] < chains[1]['events'][0]['sql_sequence'], 'parallel1 must stop/settle the first owned attempt before reserving the second'
+                    refresh(execution)
+                    history = execution.get_by_role('region', name='Node and attempt history', exact=True)
+                    expect(history.locator('details')).to_have_count(2)
+                    expect(history.locator('summary').nth(0)).to_contain_text('produce-report · candidate · Plan revision 1')
+                    expect(history.locator('summary').nth(1)).to_contain_text('produce-summary · candidate · Plan revision 1')
+                    shot('09-same-plan-work-and-summary-frontier', execution.get_by_role('heading', name='Node and attempt history', exact=True))
+                    report['observations']['same_plan_frontier'] = {'initial_plan_digest': initial_plan['digest'], 'view': frontier_view, 'before': before_frontier, 'after': after_frontier, 'outputs': {'reports/report.txt': {'bytes': 12, 'sha256': sha(b'fixed report')}, 'reports/summary.txt': {'bytes': 13, 'sha256': sha(b'fixed summary')}}, 'sequential_owned_chains': chains, 'additional_advance_requests': len([row for row in report['requests'] if row['method'] == 'goal_runs.advance_plan' and row['params']['run_id'] == started['id']])}
+                    assert report['observations']['same_plan_frontier']['additional_advance_requests'] == 0
+                    passed('one initial approved plan automatically drains independent Work and Summary nodes with distinct outputs, owned-stop lineage and cumulative two-attempt budgets; UI shows both same-plan candidates')
                     for scenario in scenarios.values():
                         assert (scenario['source'] / 'file').read_bytes() == b'baseline'
                     assert not errors, errors
@@ -630,25 +697,31 @@ def main():
             # On a failed fixture, additionally signal ONLY a still-live exact
             # generated process identity/group, never global pkill/user PIDs.
             cleanup = []
+            inspected = set()
             for scenario in scenarios.values():
                 marker = Path(scenario['workspace']['root']) / 'reports/fixture-owned.json'
-                if not marker.is_file():
-                    continue
-                try:
-                    owned = json.loads(marker.read_text()); pid = owned['pid']
-                    if linux_start_ticks(pid) != owned['start_ticks']:
+                for marker in [marker, *marker.parent.glob('fixture-owned-*.json')]:
+                    if not marker.is_file():
                         continue
-                    assert owned['pgid'] == pid and os.getpgid(pid) == pid
-                    argv = Path(f'/proc/{pid}/cmdline').read_bytes().split(b'\0')
-                    assert str(provider).encode() in argv
-                    os.killpg(pid, signal.SIGKILL)
-                    cleanup.append({'scenario': scenario['task']['id'], 'action': 'killed only still-live exact generated private process group after daemon teardown', 'stop_proof': False})
-                    report['status'] = 'failed_or_interrupted'
-                except ProcessLookupError:
-                    pass
-                except (AssertionError, OSError, ValueError, KeyError) as failure:
-                    cleanup.append({'scenario': scenario['task']['id'], 'action': 'refused unsafe or unavailable cleanup identity', 'error': safe(failure), 'stop_proof': False})
-                    report['status'] = 'failed_or_interrupted'
+                    try:
+                        owned = json.loads(marker.read_text()); pid = owned['pid']
+                        identity = (pid, owned['start_ticks'])
+                        if identity in inspected:
+                            continue
+                        inspected.add(identity)
+                        if linux_start_ticks(pid) != owned['start_ticks']:
+                            continue
+                        assert owned['pgid'] == pid and os.getpgid(pid) == pid
+                        argv = Path(f'/proc/{pid}/cmdline').read_bytes().split(b'\0')
+                        assert str(provider).encode() in argv
+                        os.killpg(pid, signal.SIGKILL)
+                        cleanup.append({'scenario': scenario['task']['id'], 'action': 'killed only still-live exact generated private process group after daemon teardown', 'stop_proof': False})
+                        report['status'] = 'failed_or_interrupted'
+                    except ProcessLookupError:
+                        pass
+                    except (AssertionError, OSError, ValueError, KeyError) as failure:
+                        cleanup.append({'scenario': scenario['task']['id'], 'action': 'refused unsafe or unavailable cleanup identity', 'error': safe(failure), 'stop_proof': False})
+                        report['status'] = 'failed_or_interrupted'
             report['observations']['failure_cleanup'] = cleanup
             daemon_log.close()
             (output / 'report.json').write_text(safe(json.dumps(report, ensure_ascii=False, indent=2)) + '\n')
