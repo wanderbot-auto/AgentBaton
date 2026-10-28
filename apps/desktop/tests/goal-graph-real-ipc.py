@@ -651,6 +651,33 @@ def verify_candidate(binary: Path, manifest_raw: bytes) -> dict:
     return manifest
 
 
+def verify_public_graph_request(request, scope, reuse):
+    assert set(request) == GRAPH_TASK_FIELDS
+    binding = {'task_id': scope['task_id'], 'attempt_id': request['lineage']['attempt_id'],
+        'spec_revision': scope['goal']['spec_revision'], 'input_revision': scope['input_revision']}
+    assert request['task_binding'] == binding
+    public = []
+    selected_outputs = {o['artifact_id'] for o in request['node']['outputs']}
+    for permission in reuse:
+        artifacts = [artifact for artifact in permission['artifact_ids'] if artifact in selected_outputs]
+        if not artifacts:
+            continue
+        definition = permission['definition']; kind = permission['source']['kind']
+        if kind == 'integrity':
+            context = {'file_contract': definition['contract']}
+        elif kind == 'data':
+            context = {'file_contract': definition['file_contract'], 'table': definition['table']}
+        else:
+            assert kind == 'command'
+            context = {'file_contract': definition['contract']['file_contract'], 'script': definition['contract']['script'], 'validator_id': definition['validator_id']}
+            assert not {'arguments', 'environment', 'argv0', 'environment_sha256'} & set(context)
+        version = {'kind': 'data', 'dataset_revision': binding['input_revision']} if kind == 'data' else {'kind': 'workspace_artifacts', 'workspace_id': scope['workspace_id'], 'base_revision': binding['input_revision']}
+        public.append({'rule_id': permission['rule_id'], 'definition_digest': permission['definition_digest'], 'artifacts': artifacts,
+            'context': context, 'current_subject': {**binding, 'version': version}, 'task_acceptance': 'not_established'})
+    assert request['validation_contracts'] == public, 'Complete public constraints must match approved definitions; no generic/extra context'
+    return public
+
+
 def verify_validation_receipt(runtime: Path, detail: dict, definition: dict, case: str) -> dict:
     """Observe actual receipt/owned-job provenance, never execute a legacy policy."""
     kind = validation_kind(case)
@@ -681,6 +708,7 @@ def verify_validation_receipt(runtime: Path, detail: dict, definition: dict, cas
         assert expected_new == 0
     elif case == 'command':
         assert expected_new == 22 and receipt['observation']['stdout']['captured_bytes'] == 22
+        assert receipt['observation']['stdout']['sha256_of_captured'] == sha(b'fixed command observed')
     observed_subject = receipt['observation']['subject'] if kind == 'integrity' else receipt['observation']['file_integrity']['subject']
     producer = next(c for c in detail['candidates'] if c['node_id'] == 'produce-report')
     assert observed_subject['task_id'] == detail['run']['task_id'] and observed_subject['attempt_id'] == producer['attempt_id']
@@ -1242,6 +1270,7 @@ def owner_only_driver(args, output: Path) -> int:
                             report['observations']['owned_command_child'] = command_identity
                         failed = wait(view, lambda d: len(d['validations']) == 1)
                         proof = verify_validation_receipt(runtime, failed, definition, case)
+                        assert proof['receipt']['definition_digest'] == proposal['snapshot']['definition_reuse'][0]['definition_digest']
                         assert proof['receipt']['passed'] is False and proof['receipt']['state'] == 'failed'
                         assert failed['run']['state'] == 'blocked' and failed['task_accepted'] is False and failed['task_acceptance'] is None
                         assert not failed['owner_decisions'] and len(failed['candidates']) == 1
@@ -1262,6 +1291,7 @@ def owner_only_driver(args, output: Path) -> int:
                         assert session['state'] == 'stopped'
                         raw = (workspace_root / ('reports/task-request-' + candidate['attempt_id'] + '.json')).read_bytes()
                         request = json.loads(raw); assert set(request) == GRAPH_TASK_FIELDS
+                        verify_public_graph_request(request, scope, proposal['snapshot']['definition_reuse'])
                         assert request['run_id'] == run_id and request['lineage']['attempt_id'] == candidate['attempt_id']
                         owned = json.loads((workspace_root / ('reports/fixture-owned-' + candidate['attempt_id'] + '.json')).read_text())
                         assert ticks(owned['pid']) != owned['start_ticks']
@@ -1308,6 +1338,7 @@ def owner_only_driver(args, output: Path) -> int:
                             pinned_artifact(workspace_root, artifact, expected_first[artifact['artifact_id']])
                         if case:
                             validation_proof = verify_validation_receipt(runtime, initial, definition, case)
+                            assert validation_proof['receipt']['definition_digest'] == proposal['snapshot']['definition_reuse'][0]['definition_digest']
                             assert validation_proof['receipt']['passed'] is True and validation_proof['node']['state'] == 'validated'
                             assert validation_proof['node']['acceptance_state'] == 'validated'
                             assert next(n for n in initial['nodes'] if n['node']['id'] == 'produce-report')['acceptance_state'] == 'validated'
@@ -1375,6 +1406,8 @@ def owner_only_driver(args, output: Path) -> int:
                                 raw = (workspace_root / ('reports/task-request-' + candidate['attempt_id'] + '.json')).read_bytes()
                                 request = json.loads(raw)
                                 assert set(request) == (GRAPH_TASK_FIELDS if case else LEGACY_TASK_FIELDS)
+                                if case:
+                                    verify_public_graph_request(request, scope, proposal['snapshot']['definition_reuse'])
                                 assert request['node'] == node['node'] and request['run_id'] == run_id and request['lineage']['attempt_id'] == candidate['attempt_id']
                                 assert request['inputs'][0]['candidate'] == candidate['consumed_inputs'][0]['candidate']
                                 owned = json.loads((workspace_root / ('reports/fixture-owned-' + candidate['attempt_id'] + '.json')).read_text())
