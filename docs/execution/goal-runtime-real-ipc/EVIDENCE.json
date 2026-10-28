@@ -2,6 +2,8 @@
   "approval": "AB-START-001",
   "baseline": "ee374d1e67fd4b8671bba5f4d25b2659be846480",
   "branch": "codex/goal-runtime-real-ipc",
+  "source_commit": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+  "script_sha256": "e5db2bed25b98a5d7b03fa72adf8e332a91d98e1d2ac43a089d697ea93bade5e",
   "requirements": {
     "AB-TSK-001": "partial, complete typed TaskRequest; no generated NLP planner claim",
     "AB-TSK-003": "fixed capability boundary, no authority from HTTP/plan text",
@@ -13,45 +15,43 @@
     "AB-TSK-012": "same root/project cumulative attempts/output not reset",
     "AB-SEC-002": "finite HTTP allowlist, no generic execution/native approval",
     "AB-SEC-004": "generated local data only, no network/model",
-    "AB-REL-001": "separate syntax/browser/generated protocol/native/Provider dimensions"
+    "AB-REL-001": "separate syntax/browser/generated protocol/native/Provider dimensions",
+    "AB-TSK-009": "partial: fixed initial approved same-plan independent Work+Summary frontier auto-drains with no second Owner/adoption; not complete NLP/child/factory/validator orchestration"
   },
   "mapping_note": "No AB-ORC IDs exist in the immutable requirements baseline; actual AB-TSK/WP08 identifiers are used without editing specs.",
-  "status": "actual_generated_protocol_browser_verified; independent final capture re-run pending",
-  "harness_source_commit": "503c20161fa7a39cfa1101a319cd5d06312f9325",
-  "harness_sha256": "6c75746a2402710ccb7eb58c9c2e9e91c0bc697a5d39974652b830d9adcf8114",
-  "actual_command": [
-    "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
-    "apps/desktop/tests/goal-execution-real-ipc.py",
-    "--batond",
-    "/workspace/.onboarding/goal-runtime-schema11-9f833738/batond",
-    "--candidate-manifest",
-    "/workspace/.onboarding/goal-runtime-schema11-9f833738/manifest.json",
-    "--frontend",
-    "/workspace/.worktrees/goal-runtime-integration/apps/desktop/dist",
-    "--chromium",
-    "/usr/bin/chromium",
-    "--output",
-    "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed"
-  ],
-  "core_attribution": {
-    "source_head": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
-    "source_tree_sha256": "76ba31c43c03709e106a5d015d78ebce063d430b721af25ae593e9164a40fa13",
-    "manifest": "/workspace/.onboarding/goal-runtime-schema11-9f833738/manifest.json",
-    "manifest_sha256": "2114390f03df55e6d48c5f1b20864f2c22f9351c88e1eb66c5c19e80703f04dc",
+  "status": "actual04ba browser/generated-ACP10checks9images PASS; independent new-source review pending",
+  "core": {
+    "source_head": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
     "schema": 11,
-    "daemon_sha256": "081b84b5813e46f1f111b2a5c80bd6888563e9673147df1a9b831576149aa4ca",
+    "manifest": "/workspace/.onboarding/goal-ready-frontier-schema11-04ba180/manifest.json",
+    "manifest_sha256": "2488e2a01f80c537284d34ad2e06006149cdd25737850daadfb0ff7da93865ac",
+    "batond_sha256": "0a94e3da9f59975b1e7ce6955cdeda80dd9137428f9cca8ffad171514e1d5fdb",
+    "source_tree_sha256": "d6082cf6bee17dc6a12ee28b1519e3faeb3da1cf1b281b9d3daab5ba272509c0",
     "dirty": false
   },
-  "frontend_attribution": {
+  "frontend": {
     "path": "/workspace/.worktrees/goal-runtime-integration/apps/desktop/dist",
-    "root_reported_composition_head": "ed8b91dd7b66e590730c06ec66819a289a3103a0",
     "assets_sha256": {
       "assets/index-Bkjos9Ky.js": "5eea38cf06da58b61700f0a8b65db0de04e257ab245636400e8b1d9797bc4af4",
       "assets/index-CJjrxlpo.css": "0371179f77391e82fb051c1305d3c045f4b7b0717c3a944e56e0ff892aca5aa9",
       "index.html": "53cc0107621bae682121ea3d0c3d1ccdc7f8d7cb747ddda697664a7d27f0f941"
     },
-    "limits": "Root binds94Rust files:93 equal and sole difference upstream14a command_validation test file; production source/locks equal to frozen9f daemon, not whole-tree identity. Root445/24/type/build reported separately, not rerun by harness author."
+    "limit": "Root reports same445-tested frontend bytes plus separately integrated04ba production/Native776. Harness records actual assets; does not claim full Rust/Native checkout identity or platform validation."
   },
+  "actual_command": [
+    "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+    "apps/desktop/tests/goal-execution-real-ipc.py",
+    "--batond",
+    "/workspace/.onboarding/goal-ready-frontier-schema11-04ba180/batond",
+    "--candidate-manifest",
+    "/workspace/.onboarding/goal-ready-frontier-schema11-04ba180/manifest.json",
+    "--frontend",
+    "/workspace/.worktrees/goal-runtime-integration/apps/desktop/dist",
+    "--chromium",
+    "/usr/bin/chromium",
+    "--output",
+    "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary"
+  ],
   "actual_result": {
     "exit_code": 0,
     "checks": [
@@ -88,14 +88,18 @@
         "status": "passed"
       },
       {
+        "name": "one initial approved plan automatically drains independent Work and Summary nodes with distinct outputs, owned-stop lineage and cumulative two-attempt budgets; UI shows both same-plan candidates",
+        "status": "passed"
+      },
+      {
         "name": "original generated sources unchanged, real scoped history retained and no browser runtime errors",
         "status": "passed"
       }
     ],
     "screenshots": [
       {
-        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/01-stored-plan-no-execution.png",
-        "sha256": "ca48570b6deba77a5f1c58563403f930151448728bf8819aebf8e7ac0947a48c",
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/01-stored-plan-no-execution.png",
+        "sha256": "12cda8a2b997903de845b57671cffc3602ed098f133dee24d01dd0884e6d7b03",
         "viewport": {
           "width": 1488,
           "height": 981
@@ -103,8 +107,8 @@
         "dimension": "actual Linux Chromium, not macOS/native"
       },
       {
-        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/02-real-generated-candidate.png",
-        "sha256": "8789206552ddfd05078ccf4acfda631b2e6c8e3086010bc935e792f9fe8361fb",
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/02-real-generated-candidate.png",
+        "sha256": "7a3c00a58514b732ceda5e0b09076d87224656041ceeff9a4bc85d512ab259c8",
         "viewport": {
           "width": 1488,
           "height": 981
@@ -112,8 +116,8 @@
         "dimension": "actual Linux Chromium, not macOS/native"
       },
       {
-        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/03-real-plan-advance-response-lost.png",
-        "sha256": "4af5cdcaa657dfe74d91e515affb4baf840f6e69a0d9b91bd29cdc1c5f4450a5",
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/03-real-plan-advance-response-lost.png",
+        "sha256": "c551adf6a90e5f0aa15b5e0b43464cc1359666c8bb3498bc095d24cdd5da7327",
         "viewport": {
           "width": 1488,
           "height": 981
@@ -121,8 +125,8 @@
         "dimension": "actual Linux Chromium, not macOS/native"
       },
       {
-        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/04-same-scope-replan-history-kept.png",
-        "sha256": "872f9f87eaee946c0ae8f5985675a054c9669b3904e4c02089e6b86a9aa0e0a8",
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/04-same-scope-replan-history-kept.png",
+        "sha256": "ab6d2997e5f900e9449fb49991c963381483069a3fb147c0550726094c41ceb9",
         "viewport": {
           "width": 1488,
           "height": 981
@@ -130,8 +134,8 @@
         "dimension": "actual Linux Chromium, not macOS/native"
       },
       {
-        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/05-real-data-workspace-goal-candidate.png",
-        "sha256": "8d99d3939eec6e82be73bf39a5f0a552c85881ff91cffb01df80f644219ede3b",
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/05-real-data-workspace-goal-candidate.png",
+        "sha256": "fa5c10d83958cf41a918ea41ac790365e14fd5132ade101f3e32be5007279faa",
         "viewport": {
           "width": 1488,
           "height": 981
@@ -139,8 +143,8 @@
         "dimension": "actual Linux Chromium, not macOS/native"
       },
       {
-        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/06-real-owned-cancel-retains-partial-report.png",
-        "sha256": "9f6b89cf4def1f335bcd82ace20cc89cbb1d98b8d83dc1455604ae4daf951b6b",
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/06-real-owned-cancel-retains-partial-report.png",
+        "sha256": "1e0c445002eaa8fd7f4d19adbf981d80682d93e20fd60e4ce03321dbe1f837e3",
         "viewport": {
           "width": 1488,
           "height": 981
@@ -148,8 +152,8 @@
         "dimension": "actual Linux Chromium, not macOS/native"
       },
       {
-        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/07-timeout-owned-stop-effects-still-unknown.png",
-        "sha256": "c8207f7469fe464df37c2e47ed25eb50306e8f83a2b4d092870d8e19cd381f6a",
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/07-timeout-owned-stop-effects-still-unknown.png",
+        "sha256": "e370b5036d1857a71208f059125011091f0f8b9a19908edb414230d7569ac6ee",
         "viewport": {
           "width": 1488,
           "height": 981
@@ -157,115 +161,120 @@
         "dimension": "actual Linux Chromium, not macOS/native"
       },
       {
-        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/08-timeout-mobile-unknown.png",
-        "sha256": "ce8d43c4fe4dec5950e44e6761f811af4c4b9776eb49971c7f04b0049dd72df2",
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/08-timeout-mobile-unknown.png",
+        "sha256": "30558cec4711eba675d89824f8a9bda44291c46ccd273a7f1a4edc428d91dded",
         "viewport": {
           "width": 390,
           "height": 844
         },
         "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/09-same-plan-work-and-summary-frontier.png",
+        "sha256": "786eb65bf9a0769dfb674c561faf76cc8e8c7bb3f59b56a7b0f3943a9e26c514",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
       }
     ],
-    "report": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/report.json",
-    "report_sha256": "211a5f8541122171038d19a32d13100129af0ed5e9afb51813ce9b30b8f6ce41",
-    "log_sha256": "e871db357c6489fd7a95e6325f909cbc6e66aad38f2f245aa72936d389b61231",
+    "report": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/report.json",
+    "report_sha256": "547e2c71ac07b7989ee12d29b05539b3e1b9632026c98d6ef2c31e2fb79e18f7",
+    "log_sha256": "d1a517214a025ef995e043241c7f066b9b0cba5ed54e3f39a3d05f247684ec6c",
     "page_errors": [],
-    "fallback_cleanup_used": false,
+    "fallback_cleanup": [],
     "final_counts": {
-      "attempts": 5,
-      "sessions": 5,
-      "dispatch_intents": 5,
-      "goal_runs": 4,
-      "goal_run_nodes": 5,
-      "goal_run_reservations": 5,
-      "goal_plan_revisions": 5,
+      "attempts": 7,
+      "sessions": 7,
+      "dispatch_intents": 7,
+      "goal_runs": 5,
+      "goal_run_nodes": 7,
+      "goal_run_reservations": 7,
+      "goal_plan_revisions": 6,
       "goal_node_evidence": 0,
-      "sequence": 156,
-      "execution_approvals": 4
+      "sequence": 205,
+      "execution_approvals": 5
     }
   },
-  "actual_task_requests": [
-    {
-      "utf8_bytes": 3499,
-      "sha256": "c69ea07761eda1b981fbfd74cdc1546c2a82b4fb0ec661243650c3c4fc0b3b29",
+  "new_G19_frontier": {
+    "initial_plan_digest": "9a292e7260c97911f5d5401b26faadd2e3ed57a75a012b7c57b642c7a244bcaf",
+    "run": {
+      "cancel_requested": false,
+      "created_at": "2026-10-28T11:20:42.834065303Z",
+      "id": "2547bbcb-58f1-4bcc-a78a-230ae6820f38",
+      "plan_digest": "9a292e7260c97911f5d5401b26faadd2e3ed57a75a012b7c57b642c7a244bcaf",
       "plan_revision": 1,
-      "goal": "goal-report",
-      "owned_stop_observed": true
+      "project_id": "d8e4be21-3438-416c-950d-a50a049a1778",
+      "revision": 5,
+      "root_grant_id": "3a0968d6-f7b1-464a-b2fe-27076f1b40e8",
+      "scope_id": "8ab7fe3f-74d1-4d78-9c67-80b68c48d4f6",
+      "state": "awaiting_acceptance",
+      "task_accepted": false,
+      "task_id": "19a998b5-edbd-4ad7-9e60-76fc49a4a334",
+      "updated_at": "2026-10-28T11:20:43.465520041Z"
     },
-    {
-      "utf8_bytes": 3524,
-      "sha256": "81f436626785f07f91117878f27a20f76666f3dcca0a7e2467f0d07bafd3c801",
-      "plan_revision": 2,
-      "goal": "goal-report-v2",
-      "owned_stop_observed": true
-    },
-    {
-      "utf8_bytes": 3559,
-      "sha256": "ee87755c67860a0ff0e56c3dbd4db14e78531f5c566c6dda467ef4d71f0aa2ae",
-      "plan_revision": 1,
-      "goal": "goal-report",
-      "owned_stop_observed": true
-    },
-    {
-      "utf8_bytes": 3511,
-      "sha256": "f09999a664246618739e4d888a2bcaa749d79a16d64988ab0d24f092722cb19e",
-      "plan_revision": 1,
-      "goal": "goal-partial-hang",
-      "owned_stop_observed": true
-    },
-    {
-      "utf8_bytes": 3485,
-      "sha256": "3525dcdbc7479d54636e592030a0246f0f61c5f3d9ed807311038efb23d7e086",
-      "plan_revision": 1,
-      "goal": "hang",
-      "owned_stop_observed": true
-    }
-  ],
-  "same_scope_replan": {
-    "first_nodes": [
+    "nodes": [
       {
-        "revision": 1,
-        "runtime_ms": 101,
-        "selected_output_bytes": 12,
-        "attempt_id": "72e843bd-ba32-4392-b929-f77e47c4d157"
-      }
-    ],
-    "second_nodes": [
-      {
-        "revision": 1,
-        "runtime_ms": 101,
-        "selected_output_bytes": 12,
-        "attempt_id": "72e843bd-ba32-4392-b929-f77e47c4d157"
+        "kind": "work",
+        "node_id": "produce-report",
+        "plan_revision": 1,
+        "state": "candidate",
+        "attempt_id": "4a4499ea-b68e-43c7-8305-d2b66aae8950",
+        "session_id": "c509b06e-d4b3-4af4-84c6-beb50a167d32",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 156,
+        "actual_output_bytes": 12,
+        "tokens": null,
+        "cost_microunits": null
       },
       {
-        "revision": 2,
-        "runtime_ms": 118,
-        "selected_output_bytes": 15,
-        "attempt_id": "decb5bc9-f993-4847-870f-be41cafb25db"
+        "kind": "summary",
+        "node_id": "produce-summary",
+        "plan_revision": 1,
+        "state": "candidate",
+        "attempt_id": "1ff0a5f3-2950-4cae-b4a0-b05e2ee9cfa9",
+        "session_id": "28d9bdf3-aa23-4df4-b3dc-d76f057f128b",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 185,
+        "actual_output_bytes": 13,
+        "tokens": null,
+        "cost_microunits": null
       }
     ],
-    "first_budgets": {
-      "project:bb4198c0-6af6-4790-ad34-74b267add900": {
-        "consumed": 1,
+    "inputs": "Both no-dependency nodes use the same exact approved external fixed-input; full TaskRequests checked against real node/scope/workspace/lineage and declared artifacts.",
+    "distinct_outputs": {
+      "reports/report.txt": {
+        "bytes": 12,
+        "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591"
+      },
+      "reports/summary.txt": {
+        "bytes": 13,
+        "sha256": "f80dbe32ee9f1c8f5f84ff2acf26510ab92075cbbb75ecc2760ed12a08129c22"
+      }
+    },
+    "before_budgets": {
+      "project:d8e4be21-3438-416c-950d-a50a049a1778": {
+        "consumed": 0,
         "active": 0
       },
-      "root:d18cb931-f8be-4e16-b8d7-d3074e0553c4": {
-        "consumed": 1,
+      "root:19a998b5-edbd-4ad7-9e60-76fc49a4a334": {
+        "consumed": 0,
         "active": 0
       }
     },
-    "second_budgets": {
-      "project:bb4198c0-6af6-4790-ad34-74b267add900": {
+    "after_budgets": {
+      "project:d8e4be21-3438-416c-950d-a50a049a1778": {
         "consumed": 2,
         "active": 0
       },
-      "root:d18cb931-f8be-4e16-b8d7-d3074e0553c4": {
+      "root:19a998b5-edbd-4ad7-9e60-76fc49a4a334": {
         "consumed": 2,
         "active": 0
       }
     },
-    "first_ledgers": {
-      "project:bb4198c0-6af6-4790-ad34-74b267add900": {
+    "before_ledgers": {
+      "project:d8e4be21-3438-416c-950d-a50a049a1778": {
         "limits": {
           "attempts": 2,
           "parallel": 1,
@@ -276,13 +285,13 @@
           "tokens": null,
           "cost_microunits": null
         },
-        "observed_attempts": 1,
-        "runtime_ms": 101,
-        "output_bytes": 12,
-        "tokens": null,
-        "cost_microunits": null
+        "observed_attempts": 0,
+        "runtime_ms": 0,
+        "output_bytes": 0,
+        "tokens": 0,
+        "cost_microunits": 0
       },
-      "root-grant:49f01eb3-4c78-4f2e-bef5-8b0f5ab35940": {
+      "root-grant:3a0968d6-f7b1-464a-b2fe-27076f1b40e8": {
         "limits": {
           "attempts": 2,
           "parallel": 1,
@@ -293,15 +302,15 @@
           "tokens": null,
           "cost_microunits": null
         },
-        "observed_attempts": 1,
-        "runtime_ms": 101,
-        "output_bytes": 12,
-        "tokens": null,
-        "cost_microunits": null
+        "observed_attempts": 0,
+        "runtime_ms": 0,
+        "output_bytes": 0,
+        "tokens": 0,
+        "cost_microunits": 0
       }
     },
-    "second_ledgers": {
-      "project:bb4198c0-6af6-4790-ad34-74b267add900": {
+    "after_ledgers": {
+      "project:d8e4be21-3438-416c-950d-a50a049a1778": {
         "limits": {
           "attempts": 2,
           "parallel": 1,
@@ -313,12 +322,12 @@
           "cost_microunits": null
         },
         "observed_attempts": 2,
-        "runtime_ms": 219,
-        "output_bytes": 27,
+        "runtime_ms": 341,
+        "output_bytes": 25,
         "tokens": null,
         "cost_microunits": null
       },
-      "root-grant:49f01eb3-4c78-4f2e-bef5-8b0f5ab35940": {
+      "root-grant:3a0968d6-f7b1-464a-b2fe-27076f1b40e8": {
         "limits": {
           "attempts": 2,
           "parallel": 1,
@@ -330,361 +339,284 @@
           "cost_microunits": null
         },
         "observed_attempts": 2,
-        "runtime_ms": 219,
-        "output_bytes": 27,
+        "runtime_ms": 341,
+        "output_bytes": 25,
         "tokens": null,
         "cost_microunits": null
       }
     },
-    "only_one_execution_approval_before_other_scenarios": 1,
-    "actual_CAS_refusals": [
-      {
-        "status": 200,
-        "body": {
-          "error": {
-            "code": "STALE_REVISION",
-            "details_ref": null,
-            "message": "Plan advancement requires the exact current run and shared ledger",
-            "retryable": false,
-            "side_effect_state": "not_started"
-          },
-          "request_id": "af243ae0-87ff-4669-98d4-34adb88bacc0",
-          "revision": 81,
-          "warnings": []
-        }
-      },
-      {
-        "status": 200,
-        "body": {
-          "error": {
-            "code": "STALE_REVISION",
-            "details_ref": null,
-            "message": "Plan advancement requires the exact current run and shared ledger",
-            "retryable": false,
-            "side_effect_state": "not_started"
-          },
-          "request_id": "203c31c9-4c2f-44c8-8b7c-bf7d0ebc134c",
-          "revision": 81,
-          "warnings": []
-        }
-      }
-    ],
-    "advance_response_dropped_after_real_commit": true,
-    "explicit_same_key_recovery": true,
-    "old_node_unchanged": true
-  },
-  "actual_data": {
-    "state": "awaiting_acceptance",
-    "selected_output_bytes": 12,
-    "runtime_ms": 143,
+    "new_attempts": 2,
+    "new_sessions": 2,
+    "new_execution_approvals": 1,
+    "additional_advance_requests": 0,
+    "complete_native_snapshot_compact_utf8_bytes": 9550,
+    "original_complete_review_bound": 16384,
     "task_accepted": false,
-    "source_and_output_bytes_asserted": "baseline input preserved; real output bfixed report; actual native-confirmed Directory copy, no Git initialization"
+    "owned_stop_chains": [
+      {
+        "node_id": "produce-report",
+        "sql_sequences": [
+          175,
+          186,
+          188,
+          189
+        ],
+        "kinds": [
+          "goal.node_reserved",
+          "attempt.stopped",
+          "session.stopped",
+          "goal.node_settled"
+        ]
+      },
+      {
+        "node_id": "produce-summary",
+        "sql_sequences": [
+          191,
+          202,
+          204,
+          205
+        ],
+        "kinds": [
+          "goal.node_reserved",
+          "attempt.stopped",
+          "session.stopped",
+          "goal.node_settled"
+        ]
+      }
+    ],
+    "parallel1_proof": "First settled sequence189 < second reservation sequence191; each reservation<attempt.stopped<session.stopped<Goalsettled, actual unique process IDs gone."
   },
-  "actual_cancel": {
-    "request_state": "cancel_requested",
-    "terminal_state": "cancelled",
-    "node_state": "cancelled",
-    "owned_stop": true,
-    "selected_output_bytes": 14,
-    "runtime_ms": 349,
-    "partial_report_retained": true,
-    "request_response_dropped_after_real_commit": true,
-    "same_key_historical_result_replayed_without_execution": true,
-    "automatic_replay": false
-  },
-  "actual_timeout": {
-    "reservation_ms": 1200,
-    "actual_runtime_ms": 1201,
-    "before_cancel_state": "outcome_unknown",
-    "after_cancel_state": "outcome_unknown",
-    "owned_stop": true,
-    "selected_output_bytes": null,
-    "tokens": null,
-    "cost_microunits": null,
-    "new_approval_blocked_in_UI": true,
-    "task_accepted": false
-  },
-  "actual_owned_stop_chains": [
-    {
-      "plan_revision": 1,
-      "sql_sequences": [
-        66,
-        77,
-        79,
-        80
+  "original_scenarios_reexecuted_on04ba": {
+    "normal_first": [
+      {
+        "kind": "work",
+        "node_id": "produce-report",
+        "plan_revision": 1,
+        "state": "candidate",
+        "attempt_id": "81e495e4-9f1b-4ab7-9d68-383ac51f08b0",
+        "session_id": "00a8da6c-ae29-4880-8ee4-5d5ac282e2a0",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 136,
+        "actual_output_bytes": 12,
+        "tokens": null,
+        "cost_microunits": null
+      }
+    ],
+    "normal_second": [
+      {
+        "kind": "work",
+        "node_id": "produce-report",
+        "plan_revision": 1,
+        "state": "candidate",
+        "attempt_id": "81e495e4-9f1b-4ab7-9d68-383ac51f08b0",
+        "session_id": "00a8da6c-ae29-4880-8ee4-5d5ac282e2a0",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 136,
+        "actual_output_bytes": 12,
+        "tokens": null,
+        "cost_microunits": null
+      },
+      {
+        "kind": "work",
+        "node_id": "produce-report",
+        "plan_revision": 2,
+        "state": "candidate",
+        "attempt_id": "a3110923-a919-4ca2-b5fb-72e575d464aa",
+        "session_id": "ae70fc73-4c8e-4fa8-9c31-650ed8468ea4",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 181,
+        "actual_output_bytes": 15,
+        "tokens": null,
+        "cost_microunits": null
+      }
+    ],
+    "Data": [
+      {
+        "kind": "work",
+        "node_id": "produce-report",
+        "plan_revision": 1,
+        "state": "candidate",
+        "attempt_id": "c7b4f66f-a20c-4cd0-ae1c-18b1228bdde4",
+        "session_id": "7f86aca2-0ba9-43fa-b042-eee02ac4559f",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 143,
+        "actual_output_bytes": 12,
+        "tokens": null,
+        "cost_microunits": null
+      }
+    ],
+    "cancel": {
+      "intent_state": "cancel_requested",
+      "terminal_state": "cancelled",
+      "nodes": [
+        {
+          "kind": "work",
+          "node_id": "produce-report",
+          "plan_revision": 1,
+          "state": "cancelled",
+          "attempt_id": "c5d27ac8-d476-49c8-8d3f-4ac57167486f",
+          "session_id": "c408dd42-1238-49cc-b55c-3ea88488d1e1",
+          "stop_confirmed": true,
+          "actual_runtime_ms": 424,
+          "actual_output_bytes": 14,
+          "tokens": null,
+          "cost_microunits": null
+        }
       ],
-      "kinds": [
-        "goal.node_reserved",
-        "attempt.stopped",
-        "session.stopped",
-        "goal.node_settled"
+      "partial_bytes": 14
+    },
+    "timeout": {
+      "before": "outcome_unknown",
+      "after_cancel": "outcome_unknown",
+      "nodes": [
+        {
+          "kind": "work",
+          "node_id": "produce-report",
+          "plan_revision": 1,
+          "state": "outcome_unknown",
+          "attempt_id": "fa75410f-e92a-4d2e-be21-a2906d0e1cf4",
+          "session_id": "bf31fbfe-1af3-4b20-970c-04d31771e0ba",
+          "stop_confirmed": true,
+          "actual_runtime_ms": 1202,
+          "actual_output_bytes": null,
+          "tokens": null,
+          "cost_microunits": null
+        }
       ]
     },
+    "old_scope_advance": {
+      "one_approval": 1,
+      "history_retained": true,
+      "two_actual_stale_CAS_refusals": [
+        {
+          "status": 200,
+          "body": {
+            "error": {
+              "code": "STALE_REVISION",
+              "details_ref": null,
+              "message": "Plan advancement requires the exact current run and shared ledger",
+              "retryable": false,
+              "side_effect_state": "not_started"
+            },
+            "request_id": "5b6d334f-260c-4358-846a-75df492e69fd",
+            "revision": 94,
+            "warnings": []
+          }
+        },
+        {
+          "status": 200,
+          "body": {
+            "error": {
+              "code": "STALE_REVISION",
+              "details_ref": null,
+              "message": "Plan advancement requires the exact current run and shared ledger",
+              "retryable": false,
+              "side_effect_state": "not_started"
+            },
+            "request_id": "3982cdc5-57bb-411b-a323-1d251f2bbd44",
+            "revision": 94,
+            "warnings": []
+          }
+        }
+      ],
+      "exact_key_replay_kept": true
+    },
+    "real_dropped_responses": 2
+  },
+  "full_task_requests": [
     {
+      "sha256": "411f3fa2f76ad740d01128a13c37f3f26559d8b312e770202028faf98c9a381c",
+      "utf8_bytes": 3499,
+      "node_id": "produce-report",
+      "node_kind": "work",
+      "plan_revision": 1,
+      "attempt_id": "81e495e4-9f1b-4ab7-9d68-383ac51f08b0",
+      "owned_stop_observed": true
+    },
+    {
+      "sha256": "a611ee8bcc6ecf4656e582c0295a114f35e9b20be9c15d8b8968af26efe694ab",
+      "utf8_bytes": 3524,
+      "node_id": "produce-report",
+      "node_kind": "work",
       "plan_revision": 2,
-      "sql_sequences": [
-        84,
-        95,
-        97,
-        98
-      ],
-      "kinds": [
-        "goal.node_reserved",
-        "attempt.stopped",
-        "session.stopped",
-        "goal.node_settled"
-      ]
+      "attempt_id": "a3110923-a919-4ca2-b5fb-72e575d464aa",
+      "owned_stop_observed": true
     },
     {
+      "sha256": "65ef29cb0bab4c343cdb8631234f7b02456735a71304b0053eb89cd62de1d6ba",
+      "utf8_bytes": 3559,
+      "node_id": "produce-report",
+      "node_kind": "work",
       "plan_revision": 1,
-      "sql_sequences": [
-        104,
-        115,
-        117,
-        118
-      ],
-      "kinds": [
-        "goal.node_reserved",
-        "attempt.stopped",
-        "session.stopped",
-        "goal.node_settled"
-      ]
+      "attempt_id": "c7b4f66f-a20c-4cd0-ae1c-18b1228bdde4",
+      "owned_stop_observed": true
     },
     {
+      "sha256": "868e9a8024cfe4b07a0f60638e583cd469dd1e12679bb018755b902c130a2f70",
+      "utf8_bytes": 3511,
+      "node_id": "produce-report",
+      "node_kind": "work",
       "plan_revision": 1,
-      "sql_sequences": [
-        124,
-        134,
-        136,
-        137
-      ],
-      "kinds": [
-        "goal.node_reserved",
-        "attempt.stopped",
-        "session.stopped",
-        "goal.node_settled"
-      ]
+      "attempt_id": "c5d27ac8-d476-49c8-8d3f-4ac57167486f",
+      "owned_stop_observed": true
     },
     {
+      "sha256": "a94829481e74ad0df31b152572e9583fc8794e3d849a237f925a1e5fcb9c8b86",
+      "utf8_bytes": 3485,
+      "node_id": "produce-report",
+      "node_kind": "work",
       "plan_revision": 1,
-      "sql_sequences": [
-        143,
-        152,
-        154,
-        155
-      ],
-      "kinds": [
-        "goal.node_reserved",
-        "attempt.stopped",
-        "session.stopped",
-        "goal.node_settled"
-      ]
+      "attempt_id": "fa75410f-e92a-4d2e-be21-a2906d0e1cf4",
+      "owned_stop_observed": true
+    },
+    {
+      "sha256": "17f5ae2c62e7ec53e5c3dcbd9dd88f58b1c5683ef4ef6d4facc042cc7b3d8cb7",
+      "utf8_bytes": 3632,
+      "node_id": "produce-report",
+      "node_kind": "work",
+      "plan_revision": 1,
+      "attempt_id": "4a4499ea-b68e-43c7-8305-d2b66aae8950",
+      "owned_stop_observed": true
+    },
+    {
+      "sha256": "8bda79a157c619e9b5c113824da17242a60273280f1474280bf99280c917c641",
+      "utf8_bytes": 3643,
+      "node_id": "produce-summary",
+      "node_kind": "summary",
+      "plan_revision": 1,
+      "attempt_id": "1ff0a5f3-2950-4cae-b4a0-b05e2ee9cfa9",
+      "owned_stop_observed": true
     }
   ],
-  "private_complete_reviews": [
-    {
-      "id": "a8f51ce5-7c88-41d6-9ec1-cfd474bf4da0",
-      "kind": "connection",
-      "snapshot_utf8_bytes": 632,
-      "snapshot_sha256": "f2cbd621940f3f4ded2ee0a5062f3fe13e8e12855145bea49be3eac08782fadf",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "f49d5f69-5471-4945-9352-cded65aa81bd",
-      "kind": "grant",
-      "snapshot_utf8_bytes": 1870,
-      "snapshot_sha256": "ce6fc559a8d6a830e87346c8505b7fc902b230604e014863c55800c4d731362b",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "f2a2120b-6933-4b7f-b150-a0482d296293",
-      "kind": "goal",
-      "snapshot_utf8_bytes": 7254,
-      "snapshot_sha256": "2416f4cd95ac026d63e3f4ddc03352c227115afdfb0d7c7a5b5d32b58ec9fcc0",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "65f8de81-8813-4a23-8b6d-6b77547133b9",
-      "kind": "data_workspace",
-      "snapshot_utf8_bytes": 2210,
-      "snapshot_sha256": "e7fa555ea7eeb354c3db94f182a5b0498708c1dbe02310aa9020546361c35a5c",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "38818f66-d4a5-48ea-8399-8aef2a7aa061",
-      "kind": "grant",
-      "snapshot_utf8_bytes": 2266,
-      "snapshot_sha256": "b237960b4ac1b55d340c611f45da06e7ada12403442effe4b363ae85712715e0",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "616c679a-0419-43fe-9e56-aba53a21ef0f",
-      "kind": "goal",
-      "snapshot_utf8_bytes": 7202,
-      "snapshot_sha256": "ad8f99af404378522e211026b7d089ae1aba9350da5970a09afd193242622a3f",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "5d6dec65-cb8c-4f3d-84f5-db8cc7adae01",
-      "kind": "grant",
-      "snapshot_utf8_bytes": 1870,
-      "snapshot_sha256": "b43c4b827a0ac2e15d182918761b35b05dbb18ad581d6eddc74d8ec435e13e7d",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "c602fcbe-d3c9-4ff9-8b48-b7cd187447d9",
-      "kind": "goal",
-      "snapshot_utf8_bytes": 7254,
-      "snapshot_sha256": "61c1b93ea600ce040a39bb20133d0e728008a4cefc7e4d73999902abd926c2b3",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "093f1c89-fad6-4f42-b0d3-f122f4190522",
-      "kind": "grant",
-      "snapshot_utf8_bytes": 1872,
-      "snapshot_sha256": "2d5e13a31f9129ec82fb86fe659e3699e2dfa46c4ea414ee2c98aeda5ac7d5a0",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "a66fff23-ae11-4964-9f94-b2b4abae72e2",
-      "kind": "goal",
-      "snapshot_utf8_bytes": 7256,
-      "snapshot_sha256": "b4e4c0ea83b436e1a59ac0fa99daf0e23556a80e14c16537f76b9f6f415652e8",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "cf2c07ee-db4c-4fdf-a298-dfe4cdb0dae7",
-      "kind": "goal_execution",
-      "snapshot_utf8_bytes": 7721,
-      "snapshot_sha256": "7be8bc7ca24c7063dd3ed5d502fb63d0e2a8c738a2c418a3491e08a75e8cadc9",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "4dba25fe-6538-4ea4-8ed1-18ec4c060b2e",
-      "kind": "goal_execution",
-      "snapshot_utf8_bytes": 7719,
-      "snapshot_sha256": "dbe07c81fa9a2c867b105efdb91f4e5c614647fcebc0d50c262bfe51db7d0c42",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "637a1030-05f0-48af-b02d-c4b49d3d8434",
-      "kind": "goal_execution",
-      "snapshot_utf8_bytes": 7728,
-      "snapshot_sha256": "b17431501a067472c45f629fe5fe27f9a6a075f1dc2db87498f6fb31af3dba26",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    },
-    {
-      "id": "c82f8ccb-da52-498a-a253-428b39529efe",
-      "kind": "goal_execution",
-      "snapshot_utf8_bytes": 7716,
-      "snapshot_sha256": "167a44df084afa3c9a72e5128184015418ca82f84fd619ea69516440e1bc97f8",
-      "review_format": "complete compact UTF-8; host fixture, not OS dialog"
-    }
-  ],
-  "preserved_first_actual_run": {
-    "source_commit": "d1932d62608157fefc328a46d7705bda677f8598",
-    "harness_sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
-    "report": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-primary/report.json",
-    "report_sha256": "a7b1650be02d22c9c04559129a59db37a4e5a3ee528e6405a1c0451ebc6912c7",
-    "exit_code": 0,
-    "checks": 9,
-    "screenshots": 8,
-    "capture_limit": "04/05/06 and mobile08 did not frame their target record; original bytes retained. This is a capture defect, not failed runtime checks or native proof.503c only scrolls actual target/expands actual node before taking new screenshots; no image editing/product/timeout/assertion weakening."
+  "preserved_prior_evidence": {
+    "prior_docs_commit": "64e03ee1203c3936f74fa0c3b18dcfbeee4ebe3d",
+    "prior_evidence_json_sha256": "6f0b996322ff093fca81364db1315a4ee509ecdd4d304198a4aa7865bb0e88d5",
+    "prior_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+    "prior9f_report": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/report.json",
+    "prior9f_report_sha256": "211a5f8541122171038d19a32d13100129af0ed5e9afb51813ce9b30b8f6ce41",
+    "old_files_and_logs_rehashed_unchanged": 22,
+    "old_author_manifest_sha256": "9cb06fb2cbc702521c39c20f6a110f664eb460c76fb2e48b2352a6c8a99ebde7",
+    "limit": "Prior9f actual9/8 single-node/replan/Data/cancel/timeout logs retained as historical only; G19/G20 were uncovered then and old no-blocking product signoff withdrawn. Prior captures with missing framing and corrected503c evidence remain unmodified; none counted as new04ba proof."
   },
-  "visual_inspection": {
-    "opened_all_final8": true,
-    "desktop": "1488x981",
-    "mobile": "390x844",
-    "specific_content": "02 candidate/Yes/reserved4000+2048 vs measured101ms+12/null meters;04runrev2 and Plan1/2history;05Data candidate;06cancelled/Yes/14;07unknown+Yes+1201/nulloutput;08mobile unknown+Yes (lower observed meter requires scrolling, available in desktop07/actualJSON).",
-    "no_document_horizontal_overflow": true
+  "new_author_manifest": "/workspace/.onboarding/goal-execution-real-ipc/author-frontier-04ba-verification.json",
+  "new_author_manifest_sha256": "e905f319b76c98dcef451321a34a00ff15796b9e8aa5b71fb61a8c169ec346be",
+  "visual_review": {
+    "all9_original_newPNGs_opened": true,
+    "09": "Runplan1, runawaiting_acceptance, produce-report candidate Plan1 and produce-summary candidate Plan1 visible in same actual frame; no accepted state",
+    "04": "Original same-scope rev2 run and Plan1/2history visible",
+    "06": "Original realpartial cancelled/ownedStopYes/14B",
+    "07": "Timeout remainsunknown/ownedStopYes/runtime1202/selectedoutputunknown",
+    "08": "Mobileunknown/ownedStopYes; lower observed meters offviewport and checked in07/JSON",
+    "format": "actual1488x981 desktop /390x844 mobile LinuxChromium, not macOS"
   },
-  "author_verification_manifest": "/workspace/.onboarding/goal-execution-real-ipc/author-verification-manifest.json",
-  "author_verification_manifest_sha256": "9cb06fb2cbc702521c39c20f6a110f664eb460c76fb2e48b2352a6c8a99ebde7",
-  "preparation_history": {
-    "approval": "AB-START-001",
-    "baseline": "ee374d1e67fd4b8671bba5f4d25b2659be846480",
-    "branch": "codex/goal-runtime-real-ipc",
-    "worktree": "/workspace/.worktrees/goal-runtime-real-ipc",
-    "requirements": {
-      "AB-TSK-001": "partial, complete typed TaskRequest; no generated NLP planner claim",
-      "AB-TSK-003": "fixed capability boundary, no authority from HTTP/plan text",
-      "AB-TSK-004": "exact-key advance/cancel receipt recovery",
-      "AB-TSK-007": "request acknowledgement versus actual owned reap",
-      "AB-TSK-008": "timeout unknown effects remain unknown after stop/cancel",
-      "AB-TSK-010": "observed selected output/runtime versus reservations and unknown token/cost",
-      "AB-TSK-011": "same-scope stored plan revision/explicit adoption/history",
-      "AB-TSK-012": "same root/project cumulative attempts/output not reset",
-      "AB-SEC-002": "finite HTTP allowlist, no generic execution/native approval",
-      "AB-SEC-004": "generated local data only, no network/model",
-      "AB-REL-001": "separate syntax/browser/generated protocol/native/Provider dimensions"
-    },
-    "mapping_note": "No AB-ORC IDs exist in the immutable requirements baseline; actual AB-TSK/WP08 identifiers are used without editing specs.",
-    "script_sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
-    "status": "prepared_not_executed",
-    "actual_checks": [
-      "Python ast.parse",
-      "compile extracted generated ACP body without executing it",
-      "py_compile harness to /tmp",
-      "git diff --check"
-    ],
-    "syntax_report": "/workspace/.onboarding/goal-execution-real-ipc/preparation/syntax.json",
-    "syntax_report_sha256": "1c282bf86f5a0378e70085bad6e0902bd0d760fbeda82aaecdf198b4f140d0ed",
-    "runtime_not_run": [
-      "No schema11 final coherent daemon supplied",
-      "No composed actual Goal Execution frontend supplied",
-      "No browser/Unix Goal execution/Owner fixture/ACP process/timeout/cancel run",
-      "No new native/macOS/CI/real Provider/account/model or Task acceptance"
-    ],
-    "authority": [
-      "Private host calls actual proposal/finalize outside HTTP, whole compact16KiB review bound retained",
-      "HTTP fixed metadata/plan-store/readonly-run/cancel/advance only; no approve/propose/finalize/generic/session dispatch",
-      "SQLite readonly/query_only observation; no SQL-forged Goal/state/budget/approval/Ready rows",
-      "Generated process private group stop proof distinct from protocol response and partial output",
-      "No Cargo/target/native/Node/lock/CI/STATUS/spec changes or new credentials/accounts/fees"
-    ],
-    "next": "Review static allowlist/cleanup/races; await Core author immutable schema11 binary+manifest and Root composed frontend, then run exclusive outputs and record real failures/results/source/asset hashes. Independent review required before acceptance.",
-    "static_followup": {
-      "dimension": "syntax/static contract preparation only, no runtime",
-      "script_sha256": "180f4deb748d3d23ce04c3c7233c45a26944ac5d4358d4bd055749ac51443bba",
-      "actual_syntax": "AST/py_compile and extracted generated ACP compile passed",
-      "static_followups": [
-        "Root-task and project budgets both consumed1→2 active0; root-grant/project Goal ledger attempts1→2 output12→27 runtime increases limits unchanged tokens/costnull",
-        "Per owned terminal: actual PID gone, sessionstopped, readonly reserved→attemptstopped→supervisorstopped→Goalsettled SQLPK order and exact correlated actual meter payloads",
-        "Any fallback cleanup of still-live private generated group prevents a pass; cleanup identity failure preserves failed report"
-      ],
-      "runtime": "not_run; explicit schema11 candidate+composed UI pending"
-    },
-    "static_followup_report_sha256": "01447aa5b32f1339e03f1a50945ef35207544f3d3dc8de7a7d654c3c3a1d899c",
-    "latest_static_followup": {
-      "status": "passed",
-      "dimension": "syntax/static preparation only; no Core/ACP/browser execution",
-      "script_sha256": "3dfeed46a5bb68092f8c05ef3ed06119babd76606a821aa81267613183771ef4",
-      "followups": [
-        "Correct exact-key result equality compares immutable result; fresh transport request_id/current envelope journal revision are not idempotent receipt fields",
-        "Planned actual stale-run and stale-ledger CAS negatives each require Core STALE_REVISION and no DB mutation before fresh successful UI adoption",
-        "Private Goal execution host review matches entire saved plan/scope/current grant/connection summary and explicit no-new-workspace/enforcement fields",
-        "Private Data copy fixture reviews actual source/managed dev-inode and fixed UUID-derived destination before finalize"
-      ]
-    },
-    "latest_static_followup_report_sha256": "477f5cac76d6662eb125038bf7b0a403300a6233305364c63184ba33911b990e",
-    "review_key_and_output_followup": {
-      "source_sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
-      "actual": "AST/py_compile and extracted generated ACP compile PASS",
-      "runtime": "not_run; final Core11 immutable candidate pending",
-      "review_narrow_changes": [
-        "Every one of four allowed mutation methods rejects null/missing/empty/invalid idempotency key at HTTP boundary; read-only remains keyless",
-        "Preserve15/12 selected output meter assertions and add actual rev2/Data bytes equality fixed report v2/fixed report"
-      ]
-    },
-    "review_followup_syntax_sha256": "5e032010fc5c34aaefd4e9c97f02268f93ae78bdf634246c3e2c47f5f3d18f1d"
-  },
-  "independent_review": "Separate reviewer artifact_contract_fixture static40 passed on d193; actual oldd193 independent9/8 reported; final503c independent actual+capture rerun in progress, not counted as accepted by author.",
   "limits": [
-    "Only generated, account-free local ACP over actual owned process/Unix Core; not a real vendor/account/model test.",
-    "Private host fixture reviews/finalizes complete actual snapshots outside HTTP; OS OwnerDialog not run.",
-    "Selected output accounting measures declared report files only, not capture stream/cumulative writes/whole filesystem quota; token/cost unknown remain null.",
-    "Owned direct generated processes actually gone/session stopped/correlated receipts; no general descendant containment or adversarial OS sandbox claim.",
-    "No Native/WebView/macOS/minimumOS/CI/dualDMG/signing/TaskAccepted/whole130 completion proof.",
-    "No Cargo/Node/dependency/targets/Core/UI/Native/lock/CI/STATUS/spec/remote/account/credential/extra-fee actions by this unit."
+    "No new HTTP methods/approval/proposal/finalize/generic/session dispatch authority; fixed allowlist and four mutation key checks retained.",
+    "Private Owner fixture outside HTTP verifies complete actual snapshots <=16384; OS OwnerDialog not run.",
+    "Generated local credential-free ACP is real owned process/protocol, not actual vendor/account/model.",
+    "Each node candidate is not validation success/Owner acceptance/TaskAccepted. New G19 case has no dependency edge/child/factory/validator/Owner-node scheduling and does not prove those missing dimensions.",
+    "Selected output12+13 and cumulative25 cover declared artifact sizes only, not streams/cumulative FS writes/allworkspacequota; token/costunknown staynull.",
+    "No forced cleanup used; all7 generated processes actually gone, sessionsstopped and7 SQLPKstopchains. General descendant containment/OSsandbox not claimed.",
+    "No Cargo/Node/sharedtarget/native/productsrc/lock/CI/STATUS/spec/remote/credential/account/fee/release changes by this unit.",
+    "Independentnewsource/runtime/capture review pending; Core/platform/macOS/CI/packages/full130 acceptance remain separate."
   ]
 }

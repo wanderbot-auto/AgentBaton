@@ -13,3 +13,9 @@ Original task AB-START-001/Designv0.2 full130 scope remains. Baselineee374d1e67f
 ## Actual execution completion of this leaf
 
 Final Core9f833 schema11 immutable candidate and Root-composed445-test frontend were supplied and hash-verified. Initiald193 actual9checks/8images passed. Its viewport captures missed several target records; preserved unchanged and narrowed only the test capture scrolling/expansion. Exact503c source re-executed all9 checks and8new captures successfully. Independent final-context runtime and capture review remains primary/reviewer-owned, followed by actual native/platform/CI work and continuing full product scope. No real Provider or OS native-owner claim.
+
+## G19 additional initial-plan regression
+
+Original64e03/503c9f proof remains historical, not proof of newly found G19/G20 closure. Root requested one meaningful additional fifth scenario only: same initial approvedplan contains independent Work and Summary, both fixedexternalinput and distinct approvedoutputs, parallel1/sharedattempts2. Keep every prior nineflow/assertion/01–08capture and all HTTP/approval/16KiB/product time limits. New TaskRequest/PID metadata is preserved per attempt only for this two-output fixture; default original paths/behavior remain, and cleanup checks every exact generated private process identity.
+
+Source d118 frozen before actual new04ba run. Complete whole Owner snapshot9550B is below unchanged16384 cap. Actual10checks/9images passed; new09 shows both sameplanrev1candidate nodes. Independent newdiff/runtime review and fresh full platform validation remain required.
