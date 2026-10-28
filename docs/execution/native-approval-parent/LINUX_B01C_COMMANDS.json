@@ -1,0 +1,55 @@
+[
+  {
+    "name": "native-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--manifest-path",
+      "apps/desktop/src-tauri/Cargo.toml",
+      "--features",
+      "native-smoke,custom-protocol"
+    ],
+    "exit_code": 0,
+    "seconds": 28.85,
+    "log": "/workspace/.onboarding/native-approval-parent-composition-b01c/native-tests.log",
+    "sha256": "6507fe0e6da6abe13167815cad7c1db5535c6434816c1b93c553be50508c6ab9"
+  },
+  {
+    "name": "native-clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "--manifest-path",
+      "apps/desktop/src-tauri/Cargo.toml",
+      "--features",
+      "native-smoke,custom-protocol",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "seconds": 8.78,
+    "log": "/workspace/.onboarding/native-approval-parent-composition-b01c/native-clippy.log",
+    "sha256": "da74a76ed548aaa4f66d549070f3d19026a39321498c7775912bc087a9afa3a7"
+  },
+  {
+    "name": "native-fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--manifest-path",
+      "apps/desktop/src-tauri/Cargo.toml",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.25,
+    "log": "/workspace/.onboarding/native-approval-parent-composition-b01c/native-fmt.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

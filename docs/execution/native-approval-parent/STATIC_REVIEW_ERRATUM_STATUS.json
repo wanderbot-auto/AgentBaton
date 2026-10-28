@@ -1,0 +1,27 @@
+{
+  "source": "e942d566baa6647fee98ba244b3a2c24b4f0309b",
+  "status": "COMPILE_BLOCKED_E0433; original static no-blocker/reexport feasibility conclusion superseded for desktop import",
+  "reviewer_missed_cfg": "Read reexport but failed to inspect preceding cfg(all(feature=wry,target_os=android)). tauri::wry is unavailable on desktop; Wry own raw_window_handle reexport does not bypass this cfg.",
+  "actual_execution": {
+    "name": "native-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--manifest-path",
+      "apps/desktop/src-tauri/Cargo.toml",
+      "--features",
+      "native-smoke,custom-protocol"
+    ],
+    "exit_code": 101,
+    "seconds": 15.86,
+    "log": "/workspace/.onboarding/native-approval-parent-composition/native-tests.log",
+    "sha256": "86cab016e88f05214ba243677a0eb25fa497922cac3430d2875d532452522192"
+  },
+  "original_review_sha256": "537158e96a08804bae7ba5258c23866435ca61240ca0ff3909803823875e41a4",
+  "original_verification_sha256": "663da09af5697436ada59abc3a45d73ad9cec83e7a75fd2c9a8975b41e6b9b70",
+  "original_full_files_preserved": true,
+  "correction": "New explicit direct dependency on already locked raw-window-handle0.6.2 plus direct import is a valid narrow source repair candidate, pending actual compile. No version/checksum bump or OS/permission claim.",
+  "future_gate": "Real Root compile/tests required; noMacNSAlert/lifecycle acceptance inferred."
+}

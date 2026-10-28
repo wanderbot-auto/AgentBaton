@@ -262,7 +262,7 @@
     "connected_assertions": [
       "Built UI stores exact initial plan1/revised plan2 through finite HTTP; planning launches no sessions",
       "HTTP owner/propose/finalize/decline/generic commands forbidden; explicit private resource/Graph/Owner fixture authority outside HTTP",
-      "Generated account-free ACP consumes full real 16-field TaskRequest, external baseline then actual accepted upstream candidate physical SHA, full two-output scope",
+      "Generated account-free ACP consumes full real 15-field TaskRequest (the original exact key set; earlier oral 16 count was wrong), external baseline then actual accepted upstream candidate physical SHA, full two-output scope",
       "Owner1 gates Summary; Owner2 required for Summary output; candidate/owned stop/validation are not TaskAccepted",
       "Readonly O_NOFOLLOW component walk verifies root/FilePin/regular single-link bytes/SHA; no minted private witness or SQL write",
       "Private same-key Owner prepare/finalize replay compares durable result, cross-action rejection must CONFIG_CONFLICT",
