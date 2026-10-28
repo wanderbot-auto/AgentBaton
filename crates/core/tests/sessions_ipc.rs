@@ -4820,7 +4820,7 @@ fn actual_graph_interrupted_validator_snapshot_is_unknown_fenced_and_never_autom
     let approved = approve_graph_at(&f, &scope, 2);
     let id = &approved["run"]["id"];
     let _pid = wait_actual_graph_command_child(&f);
-    let recovery = f._dir.path().join("validator-interrupted-runtime");
+    let recovery = f.root.join("validator-interrupted-runtime");
     std::fs::DirBuilder::new()
         .mode(0o700)
         .create(&recovery)
