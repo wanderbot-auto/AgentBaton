@@ -1022,5 +1022,54 @@
       "large Data/capture cancel/revoke/deadline and post-effect DB-fault matrix",
       "full current workspace/native/macOS validation and full product acceptance"
     ]
+  },
+  "scoped_bounds_checkpoint": {
+    "production_source_commit": "12e14913d6bc7471cf902e2110097de8e814ddc8",
+    "production_sources": "all46 reverified byte-exact narrow_scope_budget_checkpoint.sources",
+    "test_sha256": {
+      "crates/core/tests/factory_runtime_ipc.rs": "bd7e4e774ef6dac32c2c8de4381417a6bdfcbd1b37f5f7ec050a00575c084669"
+    },
+    "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc actual_scoped_mcp_depth_fanout_and_forged_parent_ -- --nocapture",
+    "result": "PASS1 first run2.23s;0ignored/0failed;13filtered;not a complete28run",
+    "logs": {
+      "scoped-bounds-first.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-bounds-first.log",
+        "sha256": "c1290089e6f564d0d436830ba438821978ef74d6b6e75a2826438ad0b6ff7970"
+      },
+      "scoped-bounds-first-exit.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-bounds-first-exit.json",
+        "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01"
+      },
+      "scoped-bounds-real-events.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-bounds-real-events.json",
+        "sha256": "0550b5f6364c7047bbeeb29b5f8b6fe444882c4c2d7d7e59aef73adcff075db2"
+      }
+    },
+    "conditions": {
+      "scope_max_depth": 1,
+      "scope_max_children": 1,
+      "scope_max_total_nodes": 4,
+      "root_children_budget": 3,
+      "child_children_budget": 1,
+      "actual_lineage_nodes": 2,
+      "actual_max_depth": 1,
+      "actual_delegations": 1,
+      "actual_attempts": 3,
+      "derived_grants": 0,
+      "accepted_tasks": 0,
+      "rejected_keys_persisted": 0
+    },
+    "actual_denials": [
+      "forged root/parent self-cycle fields:INVALID_REQUEST before mutable authority",
+      "second root child:RESOURCE_LIMIT with rootchildren and totalnodes remaining",
+      "child grandchild:RESOURCE_LIMIT with childchildren and totalnodes remaining",
+      "child reading ancestor task:AUTH_REQUIRED"
+    ],
+    "limitations": [
+      "forged cyclic-parent declaration rejected; no claim of dynamic corrupt-DB-cycle test",
+      "owned leader/worker stop receipts, not escaped tree containment",
+      "no current full28case or repeated lints performed",
+      "queued deadline/large Data/fault/unknown/fullproduct matrix remains"
+    ]
   }
 }

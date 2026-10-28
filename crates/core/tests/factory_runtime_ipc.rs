@@ -190,6 +190,13 @@ def tool(name,args):
  result=mcp_call('tools/call',{'name':name,'arguments':args})
  actual=json.loads(result['content'][0]['text']);assert 'error' not in actual,actual
  return actual['result']
+def denied_tool(name,args,code):
+ result=mcp_call('tools/call',{'name':name,'arguments':args})
+ actual=json.loads(result['content'][0]['text'])
+ assert actual['error']['code']==code,actual
+ print('BOUNDED_SCOPED_DENIAL '+name+' '+code,file=sys.stderr,flush=True)
+def bounded_child_request(key):
+ return {'goal':'Generated bounded negative request','connection_id':status_connection,'workspace_id':status_workspace,'input_artifact_ids':['input'],'output_artifact_ids':['report'],'budget':{'attempts':1,'parallel':1,'runtime_ms':1000,'output_bytes':4096,'children':0,'reworks':0,'tokens':None,'cost_microunits':None},'wait_for_child':True,'idempotency_key':key}
 mcp=None;mid=0
 for line in sys.stdin:
  r=json.loads(line);method=r.get('method')
@@ -235,8 +242,13 @@ for line in sys.stdin:
   stage='child' if c['parent_task_id'] else ('parent-resumed' if c['handoff_result'] or c.get('handoff_results') else 'parent-initial')
   with open('reports/mcp-stages.txt','a')as f:f.write(stage+'\n')
   if stage=='parent-initial':
-   child=tool('delegate_task',{'goal':'Write the fixed local child report','connection_id':status_connection,'workspace_id':status_workspace,'input_artifact_ids':['input'],'output_artifact_ids':['report_a' if fixture_mode=='two_children' else 'report'],'budget':{'attempts':2,'parallel':1,'runtime_ms':5000,'output_bytes':4096,'children':0,'reworks':0,'tokens':None,'cost_microunits':None},'wait_for_child':True,'idempotency_key':'generated-delegate'})
+   if fixture_mode=='scope_bounds':
+    forged=bounded_child_request('forged-parent-cycle')
+    forged['parent_task_id']=c['task_id'];forged['root_task_id']=c['task_id']
+    denied_tool('delegate_task',forged,'INVALID_REQUEST')
+   child=tool('delegate_task',{'goal':'Write the fixed local child report','connection_id':status_connection,'workspace_id':status_workspace,'input_artifact_ids':['input'],'output_artifact_ids':['report_a' if fixture_mode=='two_children' else 'report'],'budget':{'attempts':2,'parallel':1,'runtime_ms':5000,'output_bytes':4096,'children':(1 if fixture_mode=='scope_bounds' else 0),'reworks':0,'tokens':None,'cost_microunits':None},'wait_for_child':True,'idempotency_key':'generated-delegate'})
    assert child['state']=='blocked_on_live_parent'
+   if fixture_mode=='scope_bounds':denied_tool('delegate_task',bounded_child_request('denied-fanout'),'RESOURCE_LIMIT')
    if fixture_mode=='two_children':
     second=tool('delegate_task',{'goal':'Write the second fixed local child report','connection_id':status_connection,'workspace_id':status_workspace,'input_artifact_ids':['input'],'output_artifact_ids':['report_b'],'budget':{'attempts':2,'parallel':1,'runtime_ms':5000,'output_bytes':4096,'children':0,'reworks':0,'tokens':None,'cost_microunits':None},'wait_for_child':True,'idempotency_key':'generated-delegate-second'})
     assert second['task_id']!=child['task_id']
@@ -245,6 +257,9 @@ for line in sys.stdin:
     assert cancelled['state']=='cancelled' and cancelled['confirmed_stop'] is True
    info=tool('get_task_result',{'task_id':child['task_id']});assert info['task']['result_available'] is False and info['acceptance_state']=='not_established'
   else:
+   if fixture_mode=='scope_bounds' and stage=='child':
+    denied_tool('delegate_task',bounded_child_request('denied-depth'),'RESOURCE_LIMIT')
+    denied_tool('get_task_status',{'task_id':c['parent_task_id']},'AUTH_REQUIRED')
    if stage=='parent-resumed':
     if fixture_mode=='two_children':
      results=c['handoff_results'];assert len(results)==2 and c['handoff_digest']
@@ -308,6 +323,10 @@ fn real_scoped_handle_expiry_denies_all_four_tools_without_replaying_or_faking_s
 #[test]
 fn mixed_narrow_factory_root_uses_original_ledger_without_refunding_prior_work() {
     run_mode("mixed_narrow");
+}
+#[test]
+fn actual_scoped_mcp_depth_fanout_and_forged_parent_are_bounded_without_grant_derivation() {
+    run_mode("scope_bounds");
 }
 fn run_mode(mode: &str) {
     use agentbaton_core::ipc::{call, Daemon};
@@ -449,6 +468,11 @@ fn run_mode(mode: &str) {
     if mode == "scope_ttl" {
         f.selection.ttl_ms = 5000;
     }
+    if mode == "scope_bounds" {
+        f.selection.max_depth = 1;
+        f.selection.max_children = 1;
+    }
+
     let mixed = if mode.starts_with("mixed_") {
         Some(prepare_mixed_goal(&mut f))
     } else {
@@ -602,7 +626,11 @@ fn run_mode(mode: &str) {
     .unwrap();
     assert_eq!(
         final_run["result"]["run"]["state"],
-        if mode == "normal" || mode == "two_children" || mode.starts_with("mixed_") {
+        if mode == "normal"
+            || mode == "two_children"
+            || mode == "scope_bounds"
+            || mode.starts_with("mixed_")
+        {
             "completed"
         } else if mode == "cancel_queued" {
             "blocked"
@@ -613,7 +641,11 @@ fn run_mode(mode: &str) {
         },
         "{final_run}"
     );
-    if !(mode == "normal" || mode == "two_children" || mode.starts_with("mixed_")) {
+    if !(mode == "normal"
+        || mode == "two_children"
+        || mode == "scope_bounds"
+        || mode.starts_with("mixed_"))
+    {
         assert_eq!(
             final_run["result"]["tasks"].as_array().unwrap().len(),
             if mode == "cancel_queued" { 2 } else { 1 }
@@ -731,6 +763,53 @@ fn run_mode(mode: &str) {
         .unwrap(),
         0
     );
+    if mode == "scope_bounds" {
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM factory_task_lineage", [], |r| r
+                .get::<_, i64>(0))
+                .unwrap(),
+            2
+        );
+        assert_eq!(
+            db.query_row("SELECT max(depth) FROM factory_task_lineage", [], |r| r
+                .get::<_, i64>(0))
+                .unwrap(),
+            1
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM factory_delegations", [], |r| r
+                .get::<_, i64>(0))
+                .unwrap(),
+            1
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL",
+                [],
+                |r| r.get::<_, i64>(0)
+            )
+            .unwrap(),
+            0
+        );
+        let errors = fs::read_to_string(workspace.join("reports/fixture-stderr.txt")).unwrap();
+        for expected in [
+            "BOUNDED_SCOPED_DENIAL delegate_task INVALID_REQUEST",
+            "BOUNDED_SCOPED_DENIAL delegate_task RESOURCE_LIMIT",
+            "BOUNDED_SCOPED_DENIAL get_task_status AUTH_REQUIRED",
+        ] {
+            assert!(
+                errors.contains(expected),
+                "missing actual MCP denial: {errors}"
+            );
+        }
+        assert_eq!(
+            errors
+                .matches("BOUNDED_SCOPED_DENIAL delegate_task RESOURCE_LIMIT")
+                .count(),
+            2
+        );
+        assert_eq!(db.query_row("SELECT count(*) FROM idempotency WHERE key IN ('forged-parent-cycle','denied-fanout','denied-depth')",[],|r|r.get::<_,i64>(0)).unwrap(),0);
+    }
     if mode.starts_with("mixed_") {
         assert_mixed_cumulative_receipts(&db, &scope);
     }
