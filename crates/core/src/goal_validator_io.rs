@@ -4,7 +4,8 @@
 use crate::{CoreError, Result};
 use agentbaton_workspaces::{
     command_validation::{
-        run_approved_command, ApprovedCommandRule, CommandMode, CommandRun, CommandSettings,
+        run_approved_command_with_deadline, ApprovedCommandRule, CommandMode, CommandRun,
+        CommandSettings,
     },
     data_workspace::FilePin,
     deterministic::{validate_json_table, ApprovedJsonTableRule, JsonTableContract},
@@ -467,6 +468,13 @@ impl PreparedGoalValidator {
         if !all_pins_bound(&self) {
             return Err(invalid());
         }
+        // Outputs belong to an actual captured producer. A fresh hash alone
+        // must never replace the producer's original file-identity witness.
+        for output in &self.outputs {
+            if candidate_pin(output, &self.candidate_pins)?.is_none() {
+                return Err(invalid());
+            }
+        }
         let mut io = ArtifactIo::new();
         let mut bind = |requirement: &ArtifactRequirement| -> Result<BoundArtifact> {
             let expected = candidate_pin(requirement, &self.candidate_pins)?;
@@ -581,7 +589,7 @@ impl PreparedGoalValidator {
                 if deadline.saturating_duration_since(Instant::now()) < budget {
                     return Err(CoreError::new("DEADLINE_EXCEEDED", "Goal runtime reservation cannot fit the unchanged approved command and cleanup budgets"));
                 }
-                let run = run_approved_command(&rule, cancel)
+                let run = run_approved_command_with_deadline(&rule, cancel, deadline)
                     .map_err(crate::command_validation::command_error)?;
                 let view = run.view();
                 // No fallible early return after this point: the manager must
@@ -736,6 +744,16 @@ mod tests {
         assert_eq!(rejection(prepared), "INPUT_CHANGED");
         let (_directory, mut prepared) = fixture();
         prepared.candidate_pins[0].0.max_bytes += 1;
+        assert_eq!(rejection(prepared), "INVALID_REQUEST");
+    }
+
+    #[test]
+    fn producer_output_without_original_pin_cannot_accept_same_hash_replacement() {
+        let (_directory, mut prepared) = fixture();
+        let root = &prepared.workspace.canonical_root;
+        fs::rename(root.join("report"), root.join("held-original")).unwrap();
+        fs::write(root.join("report"), b"fixed report").unwrap();
+        prepared.candidate_pins.clear();
         assert_eq!(rejection(prepared), "INVALID_REQUEST");
     }
 
