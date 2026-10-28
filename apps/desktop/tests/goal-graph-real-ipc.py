@@ -40,6 +40,9 @@ MAX_LEGACY_REVIEW_BYTES = 16_384
 SAFE_INTEGER = 9_007_199_254_740_991
 GRAPH_KINDS = frozenset({'goal_graph_execution', 'goal_node_acceptance'})
 MUTATION_METHODS = frozenset({'goal_plans.propose', 'goal_plans.revise', 'goal_graph_runs.cancel', 'goal_graph_runs.advance_plan'})
+READ_ONLY_HTTP_METHODS = frozenset({'system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
+    'workspaces.list', 'grants.list', 'goal_scopes.list', 'goal_scopes.get', 'goal_plans.get', 'goal_plans.list',
+    'goal_plans.ready_preview', 'goal_graph_runs.list', 'goal_graph_runs.get', 'goal_runs.list', 'events.subscribe'})
 PENDING_DEPENDENCIES = (
     'Exact approved deterministic Validate definition and producer subject-rebinding fixture',
     'Drift, owned-stop unknown, cancellation, ledger/CAS and explicit rejection actual negative fixtures',
@@ -314,6 +317,31 @@ def sha(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def readonly_reply_abort(failure: BaseException, method: str | None, stage: str) -> bool:
+    # Only a known socket disconnect WHILE SENDING an already-observed readonly
+    # Core response is harmless to authority. Never classify an IPC call failure,
+    # unknown handler exception, denial, or mutation's lost reply as successful.
+    return isinstance(failure, (BrokenPipeError, ConnectionResetError)) and method in READ_ONLY_HTTP_METHODS and stage in {'response_headers', 'response_body'}
+
+
+def transport_self_check() -> dict:
+    cases = [
+        ('readonly body broken pipe', BrokenPipeError(), 'goal_graph_runs.get', 'response_body', True),
+        ('readonly header reset', ConnectionResetError(), 'system.snapshot', 'response_headers', True),
+        ('mutation lost body reply', BrokenPipeError(), 'goal_plans.revise', 'response_body', False),
+        ('cancel lost reply', ConnectionResetError(), 'goal_graph_runs.cancel', 'response_headers', False),
+        ('unknown method broken pipe', BrokenPipeError(), None, 'response_body', False),
+        ('read Core transport failure', ConnectionResetError(), 'goal_graph_runs.get', 'core_call', False),
+        ('read unexpected error', ValueError(), 'goal_graph_runs.get', 'response_body', False),
+        ('read timeout', TimeoutError(), 'goal_graph_runs.get', 'response_body', False),
+        ('denial write failure', BrokenPipeError(), None, 'boundary_denial', False)]
+    rows = []
+    for name, error, method, stage, expected in cases:
+        assert readonly_reply_abort(error, method, stage) is expected, name
+        rows.append({'name': name, 'method': method, 'stage': stage, 'readonly_reply_abort': expected, 'status': 'passed'})
+    return {'status': 'passed', 'dimension': 'static disconnect classification controls, no HTTP/Core/browser execution', 'count': len(rows), 'checks': rows}
+
+
 def owner_only_plans(scope: dict[str, Any]) -> tuple[dict, dict]:
     """50a53bf sessions_ipc::graph_owner_summary_plan, not a new plan DSL."""
     node = {
@@ -543,9 +571,13 @@ def owner_only_driver(args, output: Path) -> int:
             'macOS', 'real Provider/model', 'OS sandbox', 'whole product completion'],
         'candidate': manifest, 'manifest_sha256': sha(manifest_raw), 'daemon_sha256': sha(binary.read_bytes()),
         'harness_sha256': sha(Path(__file__).read_bytes()), 'frontend_assets_sha256': assets(),
-        'checks': [], 'http_requests': [], 'private_reviews': [], 'observations': {}, 'screenshots': [], 'cleanup': []}
+        'checks': [], 'http_requests': [], 'private_reviews': [], 'observations': {}, 'screenshots': [], 'cleanup': [],
+        'http_readonly_reply_aborts': [], 'http_unexpected_errors': []}
     pump = lambda: None
     token = ''
+    phase = {'value': 'private_bootstrap'}
+    http_lock = threading.Lock()
+    http_contexts = {}
     def clean(value):
         text = str(value)
         return text.replace(token, '[redacted generated fixture token]') if token else text
@@ -618,10 +650,42 @@ def owner_only_driver(args, output: Path) -> int:
             known_runs = {}
             bounds = FixtureBounds(frozenset({project['id']}), frozenset({task['id']}), frozenset({scope['id']}), known_runs)
             url = ''
+            def record_http_failure(failure, context, *, allow_readonly_abort=False):
+                item = {**context, 'exception': type(failure).__name__, 'message': clean(failure),
+                    'observed_phase': phase['value'], 'authority_mutation': context.get('method') in MUTATION_METHODS,
+                    'readonly_core_response_observed': allow_readonly_abort and context.get('method') in READ_ONLY_HTTP_METHODS}
+                expected_abort = allow_readonly_abort and readonly_reply_abort(failure, context.get('method'), context['stage'])
+                item['classification'] = 'readonly_reply_aborted; no write action' if expected_abort else 'unexpected_handler_or_mutation_reply_failure'
+                with http_lock:
+                    report['http_readonly_reply_aborts' if expected_abort else 'http_unexpected_errors'].append(item)
+            class FixtureServer(http.server.ThreadingHTTPServer):
+                # Join request handlers too, before inspecting the error lists;
+                # daemon request threads could otherwise report AFTER a green result.
+                daemon_threads = False
+                block_on_close = True
+                def process_request_thread(self, request, client_address):
+                    identity = threading.get_ident()
+                    with http_lock:
+                        http_contexts[identity] = {'method': None, 'stage': 'request_setup', 'path': None, 'started_phase': phase['value']}
+                    try:
+                        super().process_request_thread(request, client_address)
+                    finally:
+                        with http_lock:
+                            http_contexts.pop(identity, None)
+                def handle_error(self, request, client_address):
+                    failure = sys.exc_info()[1]
+                    with http_lock:
+                        context = dict(http_contexts.get(threading.get_ident(), {'method': None, 'stage': 'unknown_request_thread', 'path': None}))
+                    record_http_failure(failure, context)
             class Handler(http.server.SimpleHTTPRequestHandler):
+                def setup(self):
+                    self.request.settimeout(5)
+                    super().setup()
                 def log_message(self, *_):
                     pass
                 def do_POST(self):
+                    context = http_contexts[threading.get_ident()]
+                    context.update(path=self.path, stage='boundary_decode')
                     if self.path != '/__test_goal_graph_ipc':
                         self.send_error(404); return
                     try:
@@ -631,7 +695,9 @@ def owner_only_driver(args, output: Path) -> int:
                         call = decode_http(self.rfile.read(size), origin=self.headers.get('Origin', ''), host=self.headers.get('Host', ''),
                             content_type=self.headers.get('Content-Type', ''), expected_origin=url, bounds=bounds)
                     except BoundaryRefusal as failure:
+                        context['stage'] = 'boundary_denial'
                         self.send_error(failure.status); return
+                    context.update(method=call.method, stage='core_call', idempotency_key=call.key)
                     try:
                         response = host.call(call)
                         if call.method == 'goal_graph_runs.list' and isinstance(response.get('result'), list):
@@ -640,17 +706,26 @@ def owner_only_driver(args, output: Path) -> int:
                                 known_runs[row['run']['id']] = task['id']
                         report['http_requests'].append({'method': call.method, 'params': call.params, 'key': call.key, 'revision': call.revision, 'response': response})
                         raw = json.dumps(response).encode(); assert len(raw) <= MAX_RESPONSE_BYTES
-                    except Exception:
+                    except Exception as failure:
+                        record_http_failure(failure, dict(context))
                         self.send_error(502); return
-                    self.send_response(200); self.send_header('Content-Type', 'application/json'); self.send_header('Content-Length', str(len(raw))); self.end_headers(); self.wfile.write(raw)
-            server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(frontend)))
+                    try:
+                        context['stage'] = 'response_headers'
+                        self.send_response(200); self.send_header('Content-Type', 'application/json'); self.send_header('Content-Length', str(len(raw))); self.end_headers()
+                        context['stage'] = 'response_body'
+                        self.wfile.write(raw)
+                        context['stage'] = 'response_complete'
+                    except (BrokenPipeError, ConnectionResetError) as failure:
+                        record_http_failure(failure, dict(context), allow_readonly_abort=True)
+                        self.close_connection = True
+            server = FixtureServer(('127.0.0.1', 0), partial(Handler, directory=str(frontend)))
             url = 'http://127.0.0.1:' + str(server.server_port)
             thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
             passed('actual private resource approvals and scope prepared; HTTP has no authority path')
 
             with sync_playwright() as playwright:
                 browser = playwright.chromium.launch(executable_path=args.chromium, headless=True, args=['--no-sandbox'])
-                context = browser.new_context(viewport={'width': 1488, 'height': 981}, locale='en-US')
+                context = browser.new_context(viewport={'width': 1488, 'height': 1200}, locale='en-US')
                 context.add_init_script("localStorage.setItem('agentbaton.language','en');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{const r=await fetch('/__test_goal_graph_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!r.ok)throw new Error('Fixed Graph adapter refused request');return r.json();}};")
                 context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(url + '/') else route.abort())
                 page = context.new_page(); errors = []; page.on('pageerror', lambda error: errors.append(str(error)))
@@ -658,11 +733,23 @@ def owner_only_driver(args, output: Path) -> int:
                 def expand(detail):
                     if not detail.evaluate('element=>element.open'):
                         detail.locator(':scope > summary').click()
-                def shot(name, focus):
-                    focus.evaluate("element=>element.scrollIntoView({block:'start'})")
+                def shot(name, focus, owner_node_id=None):
+                    owner_metrics = []
+                    if owner_node_id is not None:
+                        owner_button = graph.locator('[data-testid=goal-graph-owner-approve][data-node-id="' + owner_node_id + '"]')
+                        expect(owner_button).to_be_visible()
+                        owner_button.locator('..').evaluate("element=>element.scrollIntoView({block:'center'})")
+                        for action in ['approve', 'reject']:
+                            button = graph.locator('[data-testid=goal-graph-owner-' + action + '][data-node-id="' + owner_node_id + '"]')
+                            metrics = button.evaluate("""element=>{const r=element.getBoundingClientRect();const points=[[r.left+2,r.top+2],[r.right-2,r.top+2],[r.left+2,r.bottom-2],[r.right-2,r.bottom-2],[r.left+r.width/2,r.top+r.height/2]];return {testid:element.dataset.testid,node:element.dataset.nodeId,rect:{x:r.x,y:r.y,width:r.width,height:r.height},viewport:{width:innerWidth,height:innerHeight},unobscured:points.every(([x,y])=>x>=0&&x<innerWidth&&y>=0&&y<innerHeight&&element.contains(document.elementFromPoint(x,y)))};}""")
+                            owner_metrics.append(metrics)
+                            assert metrics['unobscured'], ('Owner capture target is occluded/outside viewport', metrics)
+                    else:
+                        focus.evaluate("element=>element.scrollIntoView({block:'start'})")
                     path = output / (name + '.png'); page.screenshot(path=str(path))
-                    report['screenshots'].append({'path': str(path), 'sha256': sha(path.read_bytes()), 'viewport': page.viewport_size, 'dimension': 'Linux Chromium; not native/macOS'})
+                    report['screenshots'].append({'path': str(path), 'sha256': sha(path.read_bytes()), 'viewport': page.viewport_size, 'owner_controls': owner_metrics, 'dimension': 'Linux Chromium; not native/macOS'})
                 try:
+                    phase['value'] = 'browser_active'
                     page.goto(url)
                     page.get_by_test_id('task-card').filter(has_text=task['goal']).click(); page.locator('#tab-details').click()
                     panel = page.get_by_test_id('goal-planning'); expand(panel.locator(':scope > details'))
@@ -731,7 +818,7 @@ def owner_only_driver(args, output: Path) -> int:
                     first_artifact = initial['candidates'][0]['artifacts'][0]
                     pinned_artifact(workspace_root, first_artifact, b'fixed report')
                     refresh(); expect(graph.get_by_test_id('goal-graph-node')).to_have_count(4)
-                    shot('01-work-candidate-before-owner', graph.get_by_test_id('goal-graph-history'))
+                    shot('01-work-candidate-before-owner', graph.get_by_test_id('goal-graph-history'), 'owner-report')
                     report['observations']['before_first_owner'] = initial
                     first_decision = owner_decision(initial, 'owner-report', 'graph:owner-report')
                     assert first_decision['task_accepted'] is False
@@ -740,7 +827,7 @@ def owner_only_driver(args, output: Path) -> int:
                     summary_candidate = next(c for c in after['candidates'] if c['node_id'] == 'independent-2')
                     assert summary_candidate['consumed_inputs'][0]['candidate'] == first_artifact
                     pinned_artifact(workspace_root, summary_candidate['artifacts'][0], b'extra report 2')
-                    refresh(); shot('02-summary-candidate-before-final-owner', graph.get_by_test_id('goal-graph-history'))
+                    refresh(); shot('02-summary-candidate-before-final-owner', graph.get_by_test_id('goal-graph-history'), 'owner-summary')
                     report['observations']['before_final_owner'] = after
                     final_decision = owner_decision(after, 'owner-summary', 'graph:owner-summary')
                     assert final_decision['task_accepted'] is True
@@ -795,7 +882,7 @@ def owner_only_driver(args, output: Path) -> int:
                             assert ticks(owned['pid']) != owned['start_ticks'], 'Actual owned worker must be gone'
                             assert node['actual_output_bytes'] == candidate['artifacts'][0]['bytes'] and node['actual_runtime_ms'] > 0
                             assert node['tokens'] is None and node['cost_microunits'] is None
-                            report['observations'].setdefault('owned_task_requests', []).append({'utf8_bytes': len(raw), 'sha256': sha(raw), 'raw_utf8': raw.decode('utf-8'), 'request': request, 'candidate': candidate, 'reserved': reserved[0], 'intent_stopped': intent_stopped[0], 'stop': stops[0], 'capture': captures[0], 'owned_process_gone': True})
+                            report['observations'].setdefault('owned_task_requests', []).append({'utf8_bytes': len(raw), 'sha256': sha(raw), 'raw_utf8': raw.decode('utf-8'), 'request': request, 'candidate': candidate, 'reserved': reserved[0], 'intent_stopped': intent_stopped[0], 'stop': stops[0], 'capture': captures[0], 'owned_process_identity': owned, 'owned_process_gone': True})
                         for decision in accepted['owner_decisions']:
                             raw_decision = db.execute('SELECT document FROM goal_graph_owner_decisions WHERE id=?', [decision['id']]).fetchone()[0]
                             assert json.loads(raw_decision) == decision
@@ -844,38 +931,84 @@ def owner_only_driver(args, output: Path) -> int:
                     shot('failure-current-ui', page.locator('body'))
                     raise
                 finally:
+                    phase['value'] = 'browser_closing'
                     browser.close(); browser = None
         except BaseException as failure:
             report['failure'] = {'type': type(failure).__name__, 'message': clean(failure), 'traceback': clean(traceback.format_exc())}
         finally:
             pump = lambda: None
+            phase['value'] = 'http_shutdown'
             if server is not None:
-                server.shutdown(); server.server_close()
+                server.shutdown()
             if thread is not None:
                 thread.join(timeout=5)
+                report['cleanup'].append({'action': 'HTTP serve thread joined', 'thread_alive': thread.is_alive()})
+                if thread.is_alive():
+                    report['status'] = 'failed_or_interrupted'
+            if server is not None:
+                server.server_close()  # block_on_close joins every non-daemon handler
+                with http_lock:
+                    active_handlers = [dict(value) for value in http_contexts.values()]
+                report['cleanup'].append({'action': 'HTTP server closed and request handlers joined', 'active_handlers': active_handlers})
+                if active_handlers:
+                    report['status'] = 'failed_or_interrupted'
+            phase['value'] = 'daemon_shutdown'
+            termination_requested = daemon.poll() is None
             if daemon.poll() is None:
                 daemon.terminate()
+            forced_daemon_kill = False
             try:
-                daemon.wait(timeout=5)
+                daemon_exit = daemon.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                os.killpg(daemon.pid, signal.SIGKILL); daemon.wait()
+                forced_daemon_kill = True
+                os.killpg(daemon.pid, signal.SIGKILL); daemon_exit = daemon.wait()
                 report['status'] = 'failed_or_interrupted'; report['cleanup'].append({'action': 'owned daemon needed SIGKILL; not stop proof'})
+            report['cleanup'].append({'action': 'owned daemon wait completed', 'pid': daemon.pid,
+                'termination_requested': termination_requested, 'wait_exitcode': daemon_exit, 'forced_sigkill': forced_daemon_kill,
+                'process_not_alive': ticks(daemon.pid) is None})
+            if daemon_exit != 0 or ticks(daemon.pid) is not None:
+                report['status'] = 'failed_or_interrupted'
+            phase['value'] = 'generated_process_identity_check'
+            inspected_identities = []
             if workspace is not None:
                 for marker in (Path(workspace['root']) / 'reports').glob('fixture-owned-*.json'):
                     try:
                         owned = json.loads(marker.read_text()); pid = owned['pid']
-                        if ticks(pid) != owned['start_ticks']:
+                        assert type(pid) is int and pid > 1 and owned['pgid'] == pid and re.fullmatch('[0-9]+', owned['start_ticks'])
+                        expected_records = [r for r in report['observations'].get('owned_task_requests', []) if r['owned_process_identity'] == owned]
+                        observed_ticks = ticks(pid)
+                        inspected_identities.append(owned)
+                        if observed_ticks != owned['start_ticks']:
+                            report['cleanup'].append({'action': 'generated process original identity not alive', 'marker': marker.name,
+                                'marker_sha256': sha(marker.read_bytes()), 'expected_identity': owned, 'observed_start_ticks': observed_ticks,
+                                'original_process_not_alive': True, 'pid_exists': observed_ticks is not None,
+                                'matched_real_task_request': len(expected_records) == 1, 'signal_sent': False})
                             continue
                         assert owned['pgid'] == pid and os.getpgid(pid) == pid
                         assert str(provider).encode() in Path(f'/proc/{pid}/cmdline').read_bytes().split(b'\0')
                         os.killpg(pid, signal.SIGKILL)
-                        report['cleanup'].append({'action': 'killed only identity-checked generated private process group; not stop proof', 'pid': pid})
+                        deadline = time.monotonic() + 2
+                        while ticks(pid) == owned['start_ticks'] and time.monotonic() < deadline:
+                            time.sleep(.02)
+                        report['cleanup'].append({'action': 'killed only identity-checked generated private process group; not stop proof',
+                            'expected_identity': owned, 'observed_start_ticks_after_kill': ticks(pid), 'original_process_not_alive': ticks(pid) != owned['start_ticks']})
                         report['status'] = 'failed_or_interrupted'
                     except ProcessLookupError:
-                        pass
+                        report['cleanup'].append({'action': 'generated process exited during identity check', 'expected_identity': owned,
+                            'original_process_not_alive': ticks(owned['pid']) != owned['start_ticks'], 'signal_sent': False})
                     except Exception as failure:
                         report['cleanup'].append({'action': 'refused unsafe cleanup', 'failure': clean(failure)})
                         report['status'] = 'failed_or_interrupted'
+            expected_identities = [r['owned_process_identity'] for r in report['observations'].get('owned_task_requests', [])]
+            if report['status'] == 'passed':
+                if len(expected_identities) != 2 or len(inspected_identities) != 2 or any(i not in inspected_identities for i in expected_identities):
+                    report['status'] = 'failed_or_interrupted'
+                    report['cleanup'].append({'action': 'required two generated worker identities were not fully inspected', 'expected': expected_identities, 'inspected': inspected_identities})
+            if report['http_unexpected_errors']:
+                report['status'] = 'failed_or_interrupted'
+            if report['status'] == 'passed':
+                passed('HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and both exact generated worker identities gone')
+            phase['value'] = 'closed'
             log.close()
             if token:
                 log_path = output / 'daemon.log'
@@ -889,6 +1022,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--self-check', action='store_true')
     parser.add_argument('--driver-self-check', action='store_true')
+    parser.add_argument('--transport-self-check', action='store_true')
     parser.add_argument('--owner-only', action='store_true')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--batond', type=Path)
@@ -898,7 +1032,12 @@ def main():
     args = parser.parse_args()
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
     attribution = {'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'schema_required': 12}
-    assert sum([args.self_check, args.driver_self_check, args.owner_only]) <= 1, 'Choose one explicit mode'
+    assert sum([args.self_check, args.driver_self_check, args.transport_self_check, args.owner_only]) <= 1, 'Choose one explicit mode'
+    if args.transport_self_check:
+        report = {**attribution, **transport_self_check()}
+        (output / 'transport-static-checks.json').write_text(json.dumps(report, indent=2) + '\n')
+        print(json.dumps({'dimension': report['dimension'], 'count': report['count'], 'status': report['status']}))
+        return 0
     if args.driver_self_check:
         report = {**attribution, **driver_self_check()}
         (output / 'driver-static-checks.json').write_text(json.dumps(report, indent=2) + '\n')
