@@ -1599,6 +1599,15 @@ impl Daemon {
         json!({"request_id":request_id,"error":error,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
     }
     fn handle_ready_request(&mut self, job: ReadyRequest) {
+        if serde_json::from_str::<Value>(&job.raw)
+            .ok()
+            .is_some_and(|v| v.get("scoped_token").is_some())
+        {
+            let response = self.handle_factory_scoped(&job.raw);
+            let _ = job.reply.try_send(response);
+            return;
+        }
+
         if Instant::now() > job.deadline {
             let _ = job.reply.try_send(self.ready_error(
                 &job.raw,
@@ -1844,4 +1853,97 @@ struct FactoryScopeId {
 #[serde(deny_unknown_fields)]
 struct FactoryRootTaskId {
     root_task_id: String,
+}
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FactoryScopedRequest {
+    api_version: u32,
+    request_id: String,
+    handle_id: String,
+    scoped_token: String,
+    method: String,
+    params: Value,
+    #[serde(default)]
+    expected_revision: Option<u64>,
+    #[serde(default)]
+    idempotency_key: Option<String>,
+}
+impl Daemon {
+    fn handle_factory_scoped(&mut self, raw: &str) -> Value {
+        let request = match serde_json::from_str::<FactoryScopedRequest>(raw) {
+            Ok(r) => r,
+            Err(_) => {
+                return json!({"request_id":null,"error":CoreError::new("AUTH_REQUIRED","Only the fixed scoped Factory envelope is accepted"),"revision":0,"warnings":[]})
+            }
+        };
+        let id = request.request_id.clone();
+        if request.api_version != 1
+            || id.is_empty()
+            || id.len() > 128
+            || !matches!(
+                request.method.as_str(),
+                "delegate_task" | "get_task_status" | "get_task_result" | "cancel_task"
+            )
+        {
+            return json!({"request_id":id,"error":CoreError::new("AUTH_REQUIRED","Scoped Factory callers cannot access owner approval, configuration or arbitrary IPC"),"revision":0,"warnings":[]});
+        }
+        let caller = match self
+            .store
+            .authenticate_factory_handle(&request.handle_id, &request.scoped_token)
+        {
+            Ok(c) => c,
+            Err(_) => {
+                return json!({"request_id":id,"error":CoreError::new("AUTH_REQUIRED","Factory scoped credential is unavailable, expired or does not own this active session"),"revision":0,"warnings":[]})
+            }
+        };
+        let result = (|| match request.method.as_str() {
+            "delegate_task" => {
+                if request.expected_revision.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::factory::FactoryDelegateRequest = params(request.params)?;
+                self.store.factory_delegate(
+                    caller,
+                    &p,
+                    &request.idempotency_key.ok_or_else(invalid)?,
+                )
+            }
+            "get_task_status" => {
+                if request.expected_revision.is_some() || request.idempotency_key.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::factory::FactoryTaskRequest = params(request.params)?;
+                self.store.factory_status(&caller, &p.task_id)
+            }
+            "get_task_result" => {
+                if request.expected_revision.is_some() || request.idempotency_key.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::factory::FactoryTaskRequest = params(request.params)?;
+                self.store.factory_result(&caller, &p.task_id)
+            }
+            "cancel_task" => {
+                let p: crate::factory::FactoryTaskRequest = params(request.params)?;
+                self.store.factory_cancel_task(
+                    &caller,
+                    &p.task_id,
+                    request.expected_revision.ok_or_else(invalid)?,
+                    &request.idempotency_key.ok_or_else(invalid)?,
+                )
+            }
+            _ => Err(invalid()),
+        })();
+        match result {
+            Ok(outcome) => {
+                for session in outcome.stops {
+                    self.supervisor.cancel(&session);
+                }
+                json!({"request_id":id,"result":outcome.result,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
+            }
+            Err(error) => {
+                json!({"request_id":id,"error":error,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
+            }
+        }
+    }
 }

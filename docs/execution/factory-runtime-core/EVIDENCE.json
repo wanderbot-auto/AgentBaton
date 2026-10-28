@@ -113,5 +113,29 @@
     "Factory Task permission does not modify original Grant or old Goal",
     "No new workspace or child Goal/planning capability",
     "Pending budget/runtime code has not been compiled or executed"
-  ]
+  ],
+  "admission_fix": {
+    "source_snapshot": {
+      "crates/core/src/factory.rs": "246107748bd5233f4076f0f92336b8a609c237419ef0bb7759f2477d9719cd52",
+      "crates/core/src/factory_store.rs": "134142124496890fb4b8013c4528f0cbcea181ad1860102fc0ac46a20c2c5e82",
+      "crates/core/src/factory_runtime.rs": "9333b977156e75f0f0566c1392606516cc2a6b2a4f096b44304c6b69427b1486",
+      "crates/core/src/ipc.rs": "f1ec1fbe87b6d83bd3738ba91d244f983a99ec9aab5b16da145a1a76bdb01191",
+      "crates/providers/src/driver.rs": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+      "crates/providers/src/lib.rs": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+      "crates/providers/src/session_configuration.rs": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+      "crates/providers/src/transport.rs": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff",
+      "crates/core/tests/factory_scope.rs": "9ea657bf06b23ff7156652724c13cf2b58c09f61fd8ca06bbce432d30e29ea5f",
+      "crates/core/tests/factory_migration.rs": "95b121a5a43c645860a3d637712566b920690d3a4a74c344fc44363e8a76afdf"
+    },
+    "source_snapshot_sha256": "7cd44609c19158a44d480622544aab13a79f10da03e9ed0cc1139c26baf03905",
+    "command": "cargo test --locked -p agentbaton-core --test factory_scope --test factory_migration -- --nocapture",
+    "result": "PASS 11 scope +3 migration =14 unique, 0ignored; replaces subset count10, not additive",
+    "log_sha256": "20cfc06a707daa92fb744cff95915e92f80c01faf76a1102ed188058ea18ae03",
+    "old_controls": {
+      "old-start-binding-control.log": "9963e69e482c435d8bf90aaa5ca3b114d89c54d086237cf279ee098e6adb304b",
+      "old-scope-expiry-control.log": "b550535571af3fd8c840c9b12535b56afc89c76cac827a8b0d024addcb2992ad",
+      "pre-admission-fix/manifest.json": "66ffa2d4eb7e7813725c1fc5baff2f3a2cb63de5de1a94de2405f566236568e6"
+    },
+    "runtime": "NOT_RUN: actual MCP parent-child-parent, mixed accounting and full regression remain incomplete"
+  }
 }

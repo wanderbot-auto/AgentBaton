@@ -277,7 +277,7 @@ fn companion(path: &std::path::Path) -> Result<FactoryCompanionBinding> {
     })
 }
 impl Store {
-    fn resolve_factory_bindings(
+    pub(super) fn resolve_factory_bindings(
         &self,
         selection: &FactoryScopeSelection,
         companion_path: &std::path::Path,
@@ -435,6 +435,7 @@ impl Store {
         }
         let root_request = json!({"schema_version":1,"kind":"agentbaton_factory_task_request","goal":task.goal,"root_task_id":task.id,"inputs":inputs,"outputs":outputs,"root_budget":selection.root_budget,"capabilities":selection.capabilities});
         Ok(FactoryScopeBindings {
+            project,
             root_task: task,
             approved_grant: grant,
             connections,
@@ -517,6 +518,25 @@ pub(super) fn scope(db: &Connection, id: &str) -> Result<FactoryScope> {
     let (p, r) = row.ok_or_else(denied)?;
     let p: crate::sessions::ApprovalProposal = decode(&p.ok_or_else(limited)?)?;
     let result: FactoryScope = decode(&r.ok_or_else(limited)?)?;
+    let mut immutable_current = serde_json::to_value(&s).map_err(|_| changed())?;
+    immutable_current["revision"] = json!(1);
+    immutable_current["revoked"] = json!(false);
+    if immutable_current != serde_json::to_value(&result).map_err(|_| changed())?
+        || result.revision != 1
+        || result.revoked
+        || s.revision != if s.revoked { 2 } else { 1 }
+        || s.root_task_id != s.selection.root_task_id
+        || s.root_task_id != s.bindings.root_task.id
+        || s.project_id != s.bindings.project.id
+        || s.project_id != s.bindings.root_task.project_id
+        || s.root_grant_id != s.selection.grant_id
+        || s.root_grant_id != s.bindings.approved_grant.id
+        || s.root_grant_revision != s.selection.expected_grant_revision
+        || s.root_grant_revision != s.bindings.approved_grant.revision
+        || s.expires_at_ms > s.bindings.approved_grant.expires_at_ms
+    {
+        return Err(denied());
+    }
     let original_digest =
         sha(&json!({"schema_version":1,"selection":s.selection,"bindings":s.bindings}))?;
     if p.kind != "factory"
@@ -694,6 +714,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
+        check_admission_db(&tx, &record.bindings)?;
         let(current_task,current_grant):(String,String)=tx.query_row("SELECT t.document,g.document FROM tasks t JOIN execution_grants g ON g.id=?1 WHERE t.id=?2",params![record.root_grant_id,record.root_task_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
         if encode(&decode::<Task>(&current_task)?)? != encode(&record.bindings.root_task)?
             || encode(&decode::<ExecutionGrant>(&current_grant)?)?
@@ -730,6 +751,7 @@ impl Store {
             "local_owner_confirmation",
         )?;
         tx.execute("INSERT INTO factory_scopes(id,root_task_id,project_id,root_grant_id,revision,revoked,owner_sequence,document) VALUES(?1,?2,?3,?4,1,0,?5,?6)",params![record.id,record.root_task_id,record.project_id,record.root_grant_id,owner_sequence,encode(&record)?]).map_err(db_error)?;
+        check_admission_db(&tx, &record.bindings)?;
         tx.commit().map_err(db_error)?;
         Ok(json!(record))
     }
@@ -748,6 +770,9 @@ impl Store {
         let mut s = scope(&self.conn, id)?;
         if s.revision != revision {
             return Err(CoreError::new("STALE_REVISION", "Factory scope changed"));
+        }
+        if s.revoked {
+            return Err(denied());
         }
         s.revoked = true;
         s.revision += 1;
@@ -842,4 +867,52 @@ impl Store {
             budget_reservations,
         })
     }
+}
+
+/// Recheck all server DB predicates under the caller's IMMEDIATE transaction.
+/// External bytes/identities are observed separately; this is not an OS freeze.
+pub(super) fn check_admission_db(db: &Connection, b: &FactoryScopeBindings) -> Result<()> {
+    let task: Task = read_bound(db, "tasks", &b.root_task.id)?;
+    let project: crate::registry::Project = read_bound(db, "projects", &b.project.id)?;
+    if task.state != crate::storage::TaskState::Draft
+        || encode(&task)? != encode(&b.root_task)?
+        || project.archived
+        || encode(&project)? != encode(&b.project)?
+        || encode(&crate::policy::checked_lineage(db, &b.approved_grant.id)?)?
+            != encode(&b.approved_grant)?
+    {
+        return Err(changed());
+    }
+    let unresolved:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE a.task_id=?1 AND d.state!='stopped')",[&task.id],|r|r.get(0)).map_err(db_error)?;
+    if unresolved {
+        return Err(changed());
+    }
+    for c in &b.connections {
+        let actual: crate::sessions::ProviderConnection = read_bound(db, "connections", &c.id)?;
+        if encode(&actual)? != encode(c)? {
+            return Err(changed());
+        }
+    }
+    for w in &b.workspaces {
+        let actual: crate::registry::ManagedWorkspace =
+            read_bound(db, "managed_workspaces", &w.id)?;
+        if encode(&actual)? != encode(w)? {
+            return Err(changed());
+        }
+    }
+    Ok(())
+}
+fn read_bound<T: for<'de> Deserialize<'de>>(db: &Connection, table: &str, id: &str) -> Result<T> {
+    let query=match table {
+      "tasks"=>"SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM tasks WHERE id=?1",
+      "projects"=>"SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM projects WHERE id=?1",
+      "connections"=>"SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM connections WHERE id=?1",
+      "managed_workspaces"=>"SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM managed_workspaces WHERE id=?1",
+      _=>return Err(invalid()),
+    };
+    let raw: Option<Option<String>> = db
+        .query_row(query, [id], |r| r.get(0))
+        .optional()
+        .map_err(db_error)?;
+    decode(&raw.flatten().ok_or_else(changed)?)
 }

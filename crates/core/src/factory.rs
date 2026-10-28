@@ -147,6 +147,7 @@ pub struct FactoryGuarantees {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FactoryScopeBindings {
+    pub project: crate::registry::Project,
     pub root_task: Task,
     pub approved_grant: ExecutionGrant,
     pub connections: Vec<ProviderConnection>,

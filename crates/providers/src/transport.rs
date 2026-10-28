@@ -254,6 +254,21 @@ impl ProviderProcess {
             crate::session_configuration::validate(configuration, self.claude_managed)?;
         Ok(())
     }
+    pub fn configure_factory_session_configuration(
+        &mut self,
+        configuration: &Value,
+        approved: &crate::ApprovedFactoryMcp,
+    ) -> Result<(), TransportFailure> {
+        if self.pending_prompt.is_some() || !self.client.sessions.is_empty() {
+            return Err(TransportFailure::protocol(ProtocolError::UnexpectedState));
+        }
+        self.session_configuration = crate::session_configuration::validate_factory(
+            configuration,
+            self.claude_managed,
+            approved,
+        )?;
+        Ok(())
+    }
     /// Create a session in the explicitly approved workspace, without enabling
     /// arbitrary additional roots or automatically connecting MCP servers.
     pub fn new_session(&mut self, local_binding: &str) -> Result<String, TransportFailure> {

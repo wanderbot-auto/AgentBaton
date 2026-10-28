@@ -495,3 +495,128 @@ fn factory_cannot_reset_existing_project_caps_or_an_unknown_shared_meter() {
         meter.to_string()
     );
 }
+
+#[test]
+fn approved_factory_start_rejects_input_and_companion_drift_without_run_intent() {
+    for drift in ["input", "companion"] {
+        let mut f = Fixture::new();
+        let s = f.scope();
+        if drift == "input" {
+            fs::write(
+                s.bindings.workspaces[0].root.join("input.txt"),
+                b"unapproved changed bytes\n",
+            )
+            .unwrap();
+        } else {
+            fs::write(&f.companion, b"unapproved companion bytes\n").unwrap();
+        }
+        let before = f.store.sequence().unwrap();
+        let result = f
+            .store
+            .start_factory_run(&s.id, s.revision, "stale-binding");
+        assert!(result.is_err(), "{drift} drift was admitted: {result:?}");
+        assert_eq!(
+            f.store.factory_record_counts(&s.root_task_id).unwrap().runs,
+            0
+        );
+        assert_eq!(f.store.sequence().unwrap(), before);
+    }
+}
+
+#[test]
+fn stored_factory_expiry_cannot_outlive_the_native_confirmed_envelope() {
+    let mut f = Fixture::new();
+    let s = f.scope();
+    let db = Connection::open(&f.path).unwrap();
+    db.execute(
+        "UPDATE factory_scopes SET document=json_set(document,'$.expires_at_ms',?1) WHERE id=?2",
+        params![s.expires_at_ms + 60_000, s.id],
+    )
+    .unwrap();
+    assert!(
+        f.store.get_factory_scope(&s.id).is_err(),
+        "corrupt expiry remained authoritative"
+    );
+    assert!(f
+        .store
+        .start_factory_run(&s.id, s.revision, "extended-expiry")
+        .is_err());
+    assert_eq!(
+        f.store.factory_record_counts(&s.root_task_id).unwrap().runs,
+        0
+    );
+}
+
+#[test]
+fn factory_commit_rechecks_selected_db_bindings_and_draft_even_if_a_journal_trigger_changes_them() {
+    for boundary in ["finalize", "start"] {
+        for target in ["task", "connection", "workspace", "project"] {
+            let mut f = Fixture::new();
+            let p = f.proposal();
+            let s = if boundary == "start" {
+                Some(
+                    serde_json::from_value::<FactoryScope>(
+                        f.store.finalize_proposal(&p.id, p.revision).unwrap(),
+                    )
+                    .unwrap(),
+                )
+            } else {
+                None
+            };
+            let db = Connection::open(&f.path).unwrap();
+            let mutation=match target {
+                "task"=>format!("UPDATE tasks SET document=json_set(document,'$.state','running','$.revision',999) WHERE id='{}';",f.selection.root_task_id),
+                "connection"=>"UPDATE connections SET document=json_set(document,'$.config_revision','changed-in-commit');".into(),
+                "workspace"=>"UPDATE managed_workspaces SET document=json_set(document,'$.revision',999);".into(),
+                _=>"UPDATE projects SET document=json_set(document,'$.revision',999);".into(),
+            };
+            let kind = if boundary == "start" {
+                "factory.run_started"
+            } else {
+                "approval.confirmed"
+            };
+            db.execute_batch(&format!("CREATE TRIGGER concurrent_binding AFTER INSERT ON events WHEN json_extract(NEW.document,'$.kind')='{kind}' BEGIN {mutation} END;")).unwrap();
+            let result = if let Some(s) = &s {
+                f.store
+                    .start_factory_run(&s.id, s.revision, "raced-start")
+                    .map(|_| ())
+            } else {
+                f.store.finalize_proposal(&p.id, p.revision).map(|_| ())
+            };
+            assert!(result.is_err(), "{boundary}/{target} mutation was admitted");
+            let counts = f
+                .store
+                .factory_record_counts(&f.selection.root_task_id)
+                .unwrap();
+            assert_eq!(counts.runs, 0, "{boundary}/{target}");
+            assert_eq!(counts.scopes, u64::from(boundary == "start"));
+            assert_eq!(
+                f.store.get(&f.selection.root_task_id).unwrap().revision,
+                f.selection.expected_task_revision
+            );
+        }
+    }
+}
+
+#[test]
+fn generated_factory_wire_bundle_comes_from_real_owner_commit_and_durable_start() {
+    let mut f = Fixture::new();
+    let proposal = f.proposal();
+    let scope: FactoryScope = serde_json::from_value(
+        f.store
+            .finalize_proposal(&proposal.id, proposal.revision)
+            .unwrap(),
+    )
+    .unwrap();
+    f.store
+        .start_factory_run(&scope.id, scope.revision, "export-run")
+        .unwrap();
+    let details = f.store.get_factory_run(&scope.id).unwrap();
+    let bundle = json!({"provenance":"generated files; real Store native-owner finalizer fixture; no actual OS dialog or Provider execution","selection":f.selection,"proposal":proposal,"scope":scope,"run_details":details});
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../artifacts/factory-runtime-core");
+    fs::create_dir_all(&dir).unwrap();
+    let bytes = serde_json::to_vec_pretty(&bundle).unwrap();
+    let hash = sha256(&bytes);
+    fs::write(dir.join(format!("wire-bundle-{hash}.json")), bytes).unwrap();
+    eprintln!("FACTORY_WIRE_BUNDLE sha256={hash}");
+}
