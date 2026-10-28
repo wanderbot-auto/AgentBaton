@@ -16,7 +16,7 @@ fn schema10() -> (tempfile::TempDir, PathBuf, String) {
             r.get(0)
         })
         .unwrap();
-    db.execute_batch("DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;CREATE TABLE original_blob(raw BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=10;").unwrap();
+    db.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;CREATE TABLE original_blob(raw BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=10;").unwrap();
     (d, path, raw)
 }
 fn backups(d: &std::path::Path) -> Vec<PathBuf> {
@@ -40,7 +40,7 @@ fn schema10_upgrade_preserves_original_rows_in_private_logical_backup_without_se
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        11
+        12
     );
     assert_eq!(
         db.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -134,11 +134,11 @@ fn schema11_collision_rolls_back_all_runtime_tables_without_deleting_unknown_row
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema12_is_refused_without_modification_or_migration_backup() {
+fn future_schema13_is_refused_without_modification_or_migration_backup() {
     let (d, path, _) = schema10();
     Connection::open(&path)
         .unwrap()
-        .execute_batch("PRAGMA user_version=12")
+        .execute_batch("PRAGMA user_version=13")
         .unwrap();
     let before = fs::read(&path).unwrap();
     assert_eq!(

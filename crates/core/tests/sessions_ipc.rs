@@ -123,6 +123,8 @@ for line in sys.stdin:
   if text.startswith('{'):
    contract=json.loads(text)
    assert contract['kind']=='agentbaton_goal_task_request' and contract['schema_version']==1
+   assert len(contract)==(18 if 'task_binding' in contract else 16)
+   assert ('validation_contracts' in contract)==('task_binding' in contract)
    assert contract['workspace']['canonical_root']==os.getcwd()
    assert contract['lineage']['attempt_id'] and contract['plan_digest'] and contract['return_location']['node_id']==contract['node']['id']
    if contract['inputs'][0].get('candidate'):
@@ -137,7 +139,7 @@ for line in sys.stdin:
    text=contract['goal']
    if text in ('goal-data-report','goal-data-report-bad'):
     import hashlib
-    binding=contract['task_binding'];root=contract['workspace']['input_revision']
+    root=contract['workspace']['input_revision']
     outputs={o['artifact']['artifact_id']:o['artifact']['relative_path'] for o in contract['outputs']}
     assert {o['artifact_id'] for o in contract['node']['outputs']}=={'report','report-2','report-3'}
     os.makedirs('reports',exist_ok=True)
@@ -4410,7 +4412,11 @@ fn actual_command_definition_graph_fixture(command_case: &str) -> (Scenario, Val
     let executable = if command_case == "normal" {
         "/usr/bin/printf"
     } else {
-        "/usr/bin/sleep"
+        if Path::new("/usr/bin/sleep").exists() {
+            "/usr/bin/sleep"
+        } else {
+            "/bin/sleep"
+        }
     };
     let arguments = if command_case == "normal" {
         vec!["fixed command observed"]
@@ -4611,7 +4617,7 @@ fn wait_actual_graph_command_child(_f: &Scenario) -> u32 {
     let started = Instant::now();
     loop {
         let output = Command::new("ps")
-            .args(["-axo", "pid=,ppid=,comm="])
+            .args(["-axo", "pid=,ppid=,args="])
             .output()
             .unwrap();
         assert!(output.status.success());
@@ -4724,7 +4730,7 @@ fn actual_graph_command_wall_timeout_reaps_without_owner_or_acceptance() {
     assert_eq!(v["passed"], false);
     assert_eq!(v["stop_confirmed"], true);
     assert_eq!(v["io_completion"], "worker_joined");
-    assert_eq!(v["observation"]["reason"], "timed_out");
+    assert_eq!(v["observation"]["reason"], "deadline_exceeded");
     assert_eq!(failed["task_accepted"], false);
     assert!(!command_pid_exists(pid));
     assert!(failed["owner_decisions"].as_array().unwrap().is_empty());

@@ -1316,19 +1316,21 @@ impl Store {
             sha(&(r.id.clone(), r.plan_revision, n.node.id.clone()))?
         );
         let record: ScopeRecord = raw(&self.conn, "goal_scopes", &r.scope_id)?;
-        let inputs = if graph::is_graph_run(&self.conn, &r.id)? {
+        let is_graph = graph::is_graph_run(&self.conn, &r.id)?;
+        let inputs = if is_graph {
             graph::prompt_inputs(self, &r, &n.node)?
         } else {
             json!(record.refs.inputs)
         };
-        let validation_contracts = if graph::is_graph_run(&self.conn, &r.id)? {
-            graph::prompt_validation_contracts(&record, &n.node, &s)?
-        } else {
-            json!([])
-        };
-        let text = encode(
-            &json!({"schema_version":1,"kind":"agentbaton_goal_task_request","goal":n.node.goal,"node":n.node,"run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"workspace":{"id":record.refs.workspace.id,"canonical_root":record.refs.workspace.root,"input_revision":record.refs.workspace.base_revision},"inputs":inputs,"validation_contracts":validation_contracts,"task_binding":{"task_id":r.task_id,"attempt_id":s.attempt_id,"spec_revision":record.refs.spec_revision,"input_revision":record.refs.workspace.base_revision},"outputs":record.selection.outputs,"policy":{"requested":record.refs.grant_after.scope,"enforced":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false}},"lineage":{"root_task_id":r.task_id,"parent_node_id":n.node.parent_id,"attempt_id":s.attempt_id},"budget":{"reservation":n.node.reservation,"limits":n.node.budget},"idempotency_key":key,"return_location":{"run_id":r.id,"node_id":n.node.id,"attempt_id":s.attempt_id}}),
-        )?;
+        let mut task_request = json!({"schema_version":1,"kind":"agentbaton_goal_task_request","goal":n.node.goal,"node":n.node,"run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"workspace":{"id":record.refs.workspace.id,"canonical_root":record.refs.workspace.root,"input_revision":record.refs.workspace.base_revision},"inputs":inputs,"outputs":record.selection.outputs,"policy":{"requested":record.refs.grant_after.scope,"enforced":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false}},"lineage":{"root_task_id":r.task_id,"parent_node_id":n.node.parent_id,"attempt_id":s.attempt_id},"budget":{"reservation":n.node.reservation,"limits":n.node.budget},"idempotency_key":key,"return_location":{"run_id":r.id,"node_id":n.node.id,"attempt_id":s.attempt_id}});
+        // The new graph capability owns these versioned bindings. Legacy v1
+        // requests retain their original exact sixteen-field contract.
+        if is_graph {
+            task_request["validation_contracts"] =
+                graph::prompt_validation_contracts(&record, &n.node, &s)?;
+            task_request["task_binding"] = json!({"task_id":r.task_id,"attempt_id":s.attempt_id,"spec_revision":record.refs.spec_revision,"input_revision":record.refs.workspace.base_revision});
+        }
+        let text = encode(&task_request)?;
         if text.len() > 65536 {
             return Err(err("RESOURCE_LIMIT","Complete Goal TaskRequest exceeds the existing 64KiB turn bound; nothing was truncated"));
         }
