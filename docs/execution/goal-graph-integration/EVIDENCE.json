@@ -1,5 +1,5 @@
 {
-  "status": "ci_portability_patch_reviewed_locally_new_exact7_ci_pending",
+  "status": "pr16_652_exact_ci_five_success_two_mac_failure_diagnosis_active",
   "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
   "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
   "postmerge_doc_commands": [
@@ -234,5 +234,27 @@
     "independent_review": "CI_PORTABILITY_REVIEW.md",
     "independent_manifest": "CI_PORTABILITY_REVIEW_MANIFEST.json",
     "portable_import": "CI_PORTABILITY_REVIEW_IMPORT.json"
+  },
+  "ci_652": {
+    "feature_head": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+    "actual_checkout": "1e04de31b8c44b37a48c6ac2cfe3282001326fd1",
+    "product_run": 40740806703,
+    "environment_run": 40740806162,
+    "success": [
+      "Environment ubuntu",
+      "Environment macos-15",
+      "Environment macos-15-intel",
+      "Product Rust",
+      "Product UI"
+    ],
+    "failure": [
+      "Product macos-15",
+      "Product macos-15-intel"
+    ],
+    "linux_review": "CI_652_LINUX_REVIEW.md",
+    "portable_import": "CI_652_LINUX_IMPORT.json",
+    "mac_logs": "ci-652/MANIFEST.json",
+    "native_and_packages": "not_reached",
+    "next": "diagnose;review test changes;exact candidate seven CI"
   }
 }

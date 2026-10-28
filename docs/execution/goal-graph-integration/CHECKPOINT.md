@@ -107,3 +107,13 @@ Core CI portability最终source a2c48b7e399ab298047e838f2d6c4475de6f8a4f / docs 
 原固定NativeExecutable-sh方案被库正确拒绝并保留失败；post-command删除回归现用既有PosixShStdin模式、空argv、固定字面script SHA+FD pin，真实删除report且持有OwnedRun直到reap，原300ms不足预算拒绝仍在。原系统rm的Mac提前IO拒绝根因没有伪造确认，保留原失败及program metadata诊断，须在新双Mac CI读取事实。旧CI/本地NotFound、权限、Drop竞态、E0509等失败均保留。
 
 Root的STATUS-only bootstrap修复已独审并保持93条完整校验；此段最新执行状态将对应更新同一STATUS哈希，其他92条/算法/校验器/workflows不动。唯一Native缓存已由独审正式释放，无活动Cargo/测试writer。准备一次normalpush新head并读取全7实际结果，旧6912仅UI114/70成功、Env3/Rust/双Mac失败仍完整记录；未合入、未formalApprove、未生成新包或宣称Mac通过。全130及所有原权限门禁不变。
+
+## PR16 第二轮准确 CI 已结束：五成功、双 Mac 失败，继续诊断修复
+
+功能分支 codex/goal-graph-integration / head652c5f0bc4983f53375ccb10d897c1088cd0e57f，实际 merge checkout1e04de31b8c44b37a48c6ac2cfe3282001326fd1（tree e0873c6b5bb51eff0843801004522ab9322e42d2）。Product40740806703 / Environment40740806162已结束：Environment三平台、Rust、UI共五SUCCESS；Intel123001572356与ARM123001572522均FAILURE。main重新fetch仍a1be94d，OWNER001/002已ACK，无新增。PR16保持draft，未formalApprove、未合入。
+
+独立Linux证据126文件已逐hash并完整portable归档，见CI_652_LINUX_REVIEW.md、CI_652_LINUX_MANIFEST.json、CI_652_LINUX_IMPORT.json。实际593唯一外层+7compilefail docs、Node564/37、12条真实UI/Unix IPC报告114检查/70PNG；新六Graph同一准确候选34/14，5代表图已独立目视，其余仅hash。所有原UTF8/Owner refs/事件/预算4/3/2/真实owned清理独立核验；本CI实际inode在安全整数内，大u64仅原真实packet回归及Node维度，不能声称本CI已实际复现该分支。不是真实Provider或Mac桌面证明。
+
+原IO修复在双Mac69单元均通过；Intel实际metadata确认/bin/rm nlink2，原严格single-link guard正确拒绝，不是已证实var/private错误。Intel新失败在既有真实ACP失败生命周期夹具：新Grant剩997ms但sessions.create耗1011ms，Task返回cancelled而断言unknown；尚需原stop原因和事件时序判断，不把两态都接受，不用fixture掩盖生产错误。ARM命令14项通过，但sessions53pass2fail：Integrity Graph某请求PERMISSION_DENIED execution Grant到期；恢复snapshot新daemon socket bind失败。精确日志与API在ci-652/，不以日志单独推断根因。
+
+继续隔离诊断：Core生命周期单元唯一Cargo writer；ARM独立源码/日志调查；test-only Native WebView新增真实WebCrypto原UTF8哈希与unsafe-u64文字验证，不能用Node/Linux替代Mac。保持负授权、未知结果、owned join、预算/执行期限及全部旧断言。新三失败修复需独审和真实回归后才一次normalpush新准确候选；不为无变化重跑，不跳过保护/测试。Mac Native/NSAlert/defaultrelease/双架构新包均未到达，最新有效包仍PR15，130项完整产品未完成，剩余Factory/NL/SkillsMCP/history/remote等不删除。
