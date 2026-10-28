@@ -82,6 +82,18 @@
           "cross_compile_darwin": "bothpassed; notMacexecution",
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -133,6 +145,18 @@
           "cross_compile_darwin": "bothpassed; notMacexecution",
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -214,6 +238,18 @@
           "cross_compile_darwin": "bothpassed; notMacexecution",
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -1187,6 +1223,18 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1279,6 +1327,18 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1465,6 +1525,30 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1566,6 +1650,18 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1643,6 +1739,18 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1737,6 +1845,18 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1832,6 +1952,18 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -2099,6 +2231,18 @@
           "cross_compile_darwin": "bothpassed; notMacexecution",
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -2266,6 +2410,18 @@
           "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
           "exact_new_mac_ci": "not_run_yet",
           "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -2713,6 +2869,18 @@
           "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
           "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
           "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ]
     },
@@ -2782,6 +2950,30 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -2840,6 +3032,30 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -2884,7 +3100,21 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        }
+      ]
     },
     {
       "id": "AB-SEC-006",
@@ -2927,6 +3157,18 @@
           "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
           "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
           "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ]
     },
@@ -2977,7 +3219,21 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        }
+      ]
     },
     {
       "id": "AB-SEC-008",
@@ -3049,6 +3305,30 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -4363,6 +4643,18 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -4457,6 +4749,18 @@
           "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
           "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
           "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -4897,6 +5201,18 @@
           "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
           "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
           "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ]
     },

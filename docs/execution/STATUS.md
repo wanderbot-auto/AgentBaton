@@ -1,5 +1,15 @@
 # AgentBaton 执行状态
 
+## Goal PR15 最终本地组合已通过
+
+Core04ba180、Native776e02e、harnessd118a3c均独审通过；旧9f初签撤回及全部失败保留。Root最终组合完整554 Rust+7compilefail docs、workspaceClippy/fmt/build、Native28lib+17harness/Python21/lints PASS。新冻结Linuxdaemon d1099e7e/CLIaffa199a、manifest4b86b40a；94Rust源与作者04ba唯一差异是已保护Data FD测试，生产源一致。
+
+Root用新二进制fresh实际quiet38/24PNG、commands5/2、Goal9/6、editor10/9、Data8/6、新execution10/9全部通过，共80检查/56图。作者与独立harness各10/9；完整7TaskRequest/stopchain、sameplan1 Work12+Summary13=25、1初始执行审批/0advance、旧rev2与cancel/unknown/CAS均实证。归档脚本09名称错误已更正，未改测试/原图/结果。
+
+PR15准备ready并转main后normalpush最终head一次，需全新七项、双Native新只读flags+schema11/三表零计数/序列、默认releaseaudit与新双包；当前尚无Goal15远程结果，不借Data14绿。保护main为a014283，OWNER001/002 ACK；Data14双包和210证据已交付，见data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md。
+
+下一阶段Goal验证/依赖/Owner接纳Core/schema12与UI/Native已在隔离分支实现，复用同GoalPlan/Scope和累计预算，独立新Native能力、完整候选SHA/FD/版本；不在PR15，不升级旧cap。Factory/NL/能力管理/完整会话历史/远程等全130继续；真实Provider/新费用/账号/远程资源/生产/正式签名/许可证门禁不变。尚非完整Goal或产品完工。
+
 ## Data 已保护合入，继续 Goal 执行
 
 PR14已在2026-10-28 11:05:36UTC按expectedhead f9c6保护合入main **a014283c36814c8fbff1ce7b7071ab7e484f2651**。准确Product40672455553/Env40672455569七项、双Native/原PNG/defaultreleaseaudit/新双DMG均通过；Root复核210项并实际重跑success-only包校验器。交付 data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md，ARM6deb3087...临时签名，Intelcc652834...未签名，均未公证。未做formalApprove、未绕保护、未生产发布。
