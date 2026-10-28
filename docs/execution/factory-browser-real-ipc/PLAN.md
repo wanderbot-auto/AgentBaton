@@ -41,3 +41,8 @@ Keep the strict zombie/argv/PIDstart/true-join and six-identity checks. Generate
 ## SIGKILL cancellation and test-controller descendant reap
 
 Frozen Core terminate uses group SIGKILL then direct provider.wait; TERM handler cannot intercept SIGKILL. Preserve normal851PASS and actualcancelFAIL as separate cases. Do not close active MCP early or change Core. Only the independently launched Linux harness process enables subreaper before daemon spawn and restores it in outermostfinally. For an already bound record, revalidate all fresh Core/session/attempt/run/raw-turn/nonce/FD semantics before inspecting an adopted companion. Exact same PID/start, PPID=this controller, stateZ and original PGID permit only knownPID waitpid(WNOHANG); prove disappearance after real wait and record raw status/exitcode as test-controller reap, never Core-all-descendants join. Wrong identity, nonchild or unknown/first-unbound record cannot authorize wait. No global scan/signal/wait(-1); strict2/6 disappearance and failedpartial cleanupfalse stay mandatory. Original5s/15s/fixturewait1 unchanged.
+
+
+## Bound MCP stop-transition race and strict manifest schema
+
+Independent202blocked showed early reaper may see R, then concurrent groupSIGKILL precedes cmdline read. On empty or vanished cmdline only for the same previously bound MCP, repeat exact FD/identity/adopted-child reap and require original identity actually gone; otherwise fail. No accepting Z itself, foreign/unbound/live identity, nonempty malformed argv or a missing wait as success. No retries with new deadlines/sleep, no new permissions. Manifest preflight accepts only type(schema)is int and value13; float13.0 rejected just like12/14; actual runtime SQLite schema13 remains separately required.

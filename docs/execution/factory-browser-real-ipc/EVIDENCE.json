@@ -1938,5 +1938,365 @@
     "old_orphans": "966853 and971338 not read/signaled/waited by these controls",
     "new_actual_runtime": "NOT_RUN; Root after independent source-ready",
     "unknown_actual_case": "NOT_RUN"
+  },
+  "late_stop_race_revision": {
+    "source_commit": "22cc7b5edef843b88d7ca2b6e952319e4f4c9334",
+    "source_sha256": "b7d9c16c4582ba3d486ad1e4fec693563280d35953b1a73c1290f8fde0ae3ea4",
+    "status": "frozen_pending_exact_independent_review",
+    "prior202": "blocked_by_actual_ownprocess_RtoZ_interleaving despite original13PASS",
+    "prior_blocked_artifacts": [
+      {
+        "path": "/workspace/.onboarding/factory-browser-independent-review/revision-202c997e/REVIEW.md",
+        "sha256": "81b99c175d6682c510f9defc810b5bd2d619aaadc90342964d719b7018ccdc3c",
+        "bytes": 2894
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-independent-review/revision-202c997e/MANIFEST.json",
+        "sha256": "c20bfa39a09d45c25fe684b9d3f4c2c1c6b67e18bd14f2c9d121a44e0affa13d",
+        "bytes": 2818
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-independent-review/revision-202c997e/race-controls/race-result.json",
+        "sha256": "3a245ba06cf2f9c8ed2a9fc6afe928e386f2c6f670c887609d8cff50e1280e1b",
+        "bytes": 2384
+      }
+    ],
+    "fix": "only bound MCP empty/ENOENTcmdline: fresh exactadoptionwait and actualoldidentitygone required; otherwise assert; no Z accepted",
+    "unchanged": "5s/15s/1s/noextraSleep/HTTP/authority/scope/6or2identitygone/Core untouched",
+    "schema": "strict type is int and value13; declaredmanifest not actualDBproof",
+    "commands": {
+      "source_sha256": "b7d9c16c4582ba3d486ad1e4fec693563280d35953b1a73c1290f8fde0ae3ea4",
+      "commands": [
+        {
+          "name": "race-fixed",
+          "command": [
+            "python3",
+            "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/race-fixed/controls.py"
+          ],
+          "exitcode": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "race-without-actual-late-wait",
+          "command": [
+            "python3",
+            "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/race-without-actual-late-wait/controls.py"
+          ],
+          "exitcode": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "original-own13",
+          "command": [
+            "python3",
+            "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/original-own13/controls.py"
+          ],
+          "exitcode": 0,
+          "log_sha256": "1ccce19dfcdf0a935ad750d0d87e006d86cb714ef2cd22755eba1d23856457eb"
+        },
+        {
+          "name": "boundary",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/boundary"
+          ],
+          "exitcode": 0,
+          "log_sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f"
+        },
+        {
+          "name": "fixture",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--fixture-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/fixture"
+          ],
+          "exitcode": 0,
+          "log_sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1"
+        },
+        {
+          "name": "cleanup",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--cleanup-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/cleanup"
+          ],
+          "exitcode": 0,
+          "log_sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479"
+        },
+        {
+          "name": "diagnostic",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--diagnostic-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/diagnostic"
+          ],
+          "exitcode": 0,
+          "log_sha256": "28b0586c7edc0fe66831c37654122f938ca36ecd9f3a1d3ef1554bf12bb62025"
+        }
+      ],
+      "typed_schema_controls": 6,
+      "Core_browser": "NOT_RUN"
+    },
+    "race_positive": {
+      "source_sha256": "b7d9c16c4582ba3d486ad1e4fec693563280d35953b1a73c1290f8fde0ae3ea4",
+      "interleaving": "own groupSIGKILL only after actual early reaper returned on live prior-bound child",
+      "failure": null,
+      "before_transition": [
+        {
+          "pid": 996707,
+          "parent_pid": 996706,
+          "start_ticks": "10082987",
+          "state": "R"
+        }
+      ],
+      "after_transition": null,
+      "real_wait_receipts": [
+        {
+          "role": "owned_companion",
+          "expected": {
+            "pid": 996707,
+            "pgid": 996706,
+            "start_ticks": "10082987"
+          },
+          "observed_before_wait": {
+            "pid": 996707,
+            "parent_pid": 996703,
+            "start_ticks": "10082987",
+            "state": "Z"
+          },
+          "waited_pid": 996707,
+          "raw_wait_status": 9,
+          "exitcode": -9,
+          "original_identity_gone_after_wait": true,
+          "session_id": "session",
+          "attempt_id": "attempt",
+          "record_sha256": "b239eeb421a819cb798bebd55700b20446d8b5544a68c79ed19f95e05a638d4c",
+          "reaped_by": "test_controller",
+          "Core_reaped_this_descendant": false,
+          "signal_sent": false
+        }
+      ],
+      "controller_subreaper_restored": true,
+      "all_own_processes_waited_no_old_orphans_touched": true,
+      "dimension": "real own Python processes + synthetic schema0 bindings; no Core/browser/MCP service"
+    },
+    "race_negative": {
+      "source_sha256": "b7d9c16c4582ba3d486ad1e4fec693563280d35953b1a73c1290f8fde0ae3ea4",
+      "interleaving": "own groupSIGKILL only after actual early reaper returned on live prior-bound child",
+      "failure": {
+        "type": "AssertionError",
+        "message": "Bound MCP still exists after late adopted-child wait",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/race-without-actual-late-wait/controls.py\", line 75, in <module>\n    try:collect()\n        ^^^^^^^^^\n  File \"/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/race-without-actual-late-wait/controls.py\", line 58, in collect\n    def collect():return s.collect_started_records(runtime,{'id':'workspace','root':str(workspace)},scope,context,saved,out,r)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.worktrees/factory-browser-diagnostics/apps/desktop/tests/factory-real-ipc.py\", line 358, in collect_started_records\n    assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Bound MCP still exists after late adopted-child wait\n"
+      },
+      "before_transition": [
+        {
+          "pid": 996712,
+          "parent_pid": 996711,
+          "start_ticks": "10083004",
+          "state": "R"
+        }
+      ],
+      "after_transition": {
+        "pid": 996712,
+        "parent_pid": 996708,
+        "start_ticks": "10083004",
+        "state": "Z"
+      },
+      "real_wait_receipts": [
+        {
+          "role": "owned_companion",
+          "expected": {
+            "pid": 996712,
+            "pgid": 996711,
+            "start_ticks": "10083004"
+          },
+          "observed_before_wait": {
+            "pid": 996712,
+            "parent_pid": 996708,
+            "start_ticks": "10083004",
+            "state": "Z"
+          },
+          "waited_pid": 996712,
+          "raw_wait_status": 9,
+          "exitcode": -9,
+          "original_identity_gone_after_wait": true,
+          "session_id": "session",
+          "attempt_id": "attempt",
+          "record_sha256": "e9bf4150d5bc95c534c7aab609777b8eca7dafd4132bd4cb5e58c5aea9789d8a",
+          "reaped_by": "test_controller",
+          "Core_reaped_this_descendant": false,
+          "signal_sent": false
+        }
+      ],
+      "controller_subreaper_restored": true,
+      "all_own_processes_waited_no_old_orphans_touched": true,
+      "dimension": "real own Python processes + synthetic schema0 bindings; no Core/browser/MCP service"
+    },
+    "schema_controls": {
+      "source_sha256": "b7d9c16c4582ba3d486ad1e4fec693563280d35953b1a73c1290f8fde0ae3ea4",
+      "count": 6,
+      "status": "passed",
+      "controls": [
+        {
+          "schema": 13,
+          "python_type": "int",
+          "accepted": true,
+          "expected": true
+        },
+        {
+          "schema": 13.0,
+          "python_type": "float",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "schema": 12,
+          "python_type": "int",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "schema": 14,
+          "python_type": "int",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "schema": true,
+          "python_type": "bool",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "schema": null,
+          "python_type": "NoneType",
+          "accepted": false,
+          "expected": false
+        }
+      ],
+      "dimension": "manifest-only synthetic files; never binary executed or actualDB proof"
+    },
+    "artifacts": [
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/boundary/boundary-checks.json",
+        "sha256": "404cacb7375a5b03466f6a47a41610e0914834e0843b2394c142512b620a8c46",
+        "bytes": 5294
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/boundary.log",
+        "sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/cleanup/cleanup-unit-checks.json",
+        "sha256": "6ac25c9f48e576001671f5861dc462bc182210e75d3a6ba4279640d6b60575c6",
+        "bytes": 2986
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/cleanup.log",
+        "sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/commands.json",
+        "sha256": "47a04782a5cd5116307af01028381a93a0f0dc68ded564c526f391dd531f2e44",
+        "bytes": 2626
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/diagnostic/diagnostic-unit-checks.json",
+        "sha256": "98b01d8db0fc9918bf845e5ea05327333f4cb85bf7ae26840765a15843ba009f",
+        "bytes": 3238
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/diagnostic.log",
+        "sha256": "28b0586c7edc0fe66831c37654122f938ca36ecd9f3a1d3ef1554bf12bb62025",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/fixture/fixture-unit-checks.json",
+        "sha256": "f199cb4e5b85ec6571fa019c25c166c852394ac23fd92e546d9c4eddb108a0fd",
+        "bytes": 1685
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/fixture.log",
+        "sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/original-own13/controls.py",
+        "sha256": "7da4cf2438bfb9c554785ef696ef4c1fd23660d8f2982d0b1d92a9f611353f88",
+        "bytes": 9761
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/original-own13/results.json",
+        "sha256": "b5eb4f8abd2bd4ba1c3d5caa5bdadc0dc76ac482f7679a97c74d197db249b576",
+        "bytes": 2744
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/original-own13/run.log",
+        "sha256": "1ccce19dfcdf0a935ad750d0d87e006d86cb714ef2cd22755eba1d23856457eb",
+        "bytes": 57
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/race-fixed/controls.py",
+        "sha256": "a7098cf6b7caa8d36bcc214bf146e3c930fbc310f46c868963fce6aef093ff5f",
+        "bytes": 11701
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/race-fixed/race-result.json",
+        "sha256": "2a7db5dfca4b5a94a17d871ac347804a885e5dd97a59fe1acd677cd2ff64ce40",
+        "bytes": 1311
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/race-fixed/run.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/race-without-actual-late-wait/controls.py",
+        "sha256": "93fd19ebb1cade1105117645be7da6aded4ba306d74c68f46c11788b16658912",
+        "bytes": 11681
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/race-without-actual-late-wait/race-result.json",
+        "sha256": "9a814295f944d477be578dad9d64e55a6a0d120d86c60a8772a01ef2ebbb2642",
+        "bytes": 2561
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/race-without-actual-late-wait/run.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/late-reap-final/schema-checks.json",
+        "sha256": "447652eb1fc4aaa8da878aa7c72cf19d571ab29802cf9f8e3ae6f516919bb41e",
+        "bytes": 907
+      }
+    ],
+    "dimension": "real ownprocess race+synthetic schema0 bindings,6declaredmanifest controls,NO Core/browser/MCPservice/OSacceptance",
+    "root_prior851unknown": {
+      "attribution": "Root actualsource851, not22cc",
+      "status": "passed",
+      "checks": 4,
+      "PNG": 2,
+      "cleanup_complete": true,
+      "report": {
+        "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-unknown/evidence/report.json",
+        "sha256": "89e6a3cc63ac21e2839cb73c4fb1e822221cac8778b398911b48d3cfc1aef1f8",
+        "bytes": 181800
+      }
+    },
+    "independent": "original reviewer followup_task resumed exact22cc; pending",
+    "new_actualcancel": "NOT_RUN by this leaf; Root after source-ready",
+    "old_orphans": "966853/971338 untouched"
   }
 }
