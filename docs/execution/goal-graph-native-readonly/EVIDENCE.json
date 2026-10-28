@@ -1,0 +1,167 @@
+{
+  "recorded_utc": "2026-10-28T13:18:03.304275+00:00",
+  "status": "source prepared and author Python/static checks passed; actual Core12/Rust/native validation not_run",
+  "source_commit": "85cc8e7e8be9ba660b7755c1df320cbc776c7eca",
+  "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "branch": "codex/goal-graph-native-readonly",
+  "worktree": "/workspace/.worktrees/goal-graph-native-readonly",
+  "source_sha256": {
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "01519ecf98e71f941007e3fa3b00158f3bc8be0f4820b0bbc1e1ea24e7cb8992",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "d21afd62483feb2423e67485352b10fb2ec458bd19df78d7cfff683f36ff3d02",
+    "scripts/native-run.py": "f5ed6d82b93dceb4913e250b5ff8ac50577a9c8675979ad09ae76bbddaf2ed23",
+    "scripts/native-macos-smoke.sh": "aff60d635cc9a7ef11a7f4004f89ac3cd485b92ecaaa7bb9cf8fae7ca899ec10"
+  },
+  "requirements_partial": [
+    "AB-SEC-002",
+    "AB-TSK-003",
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-REL-001",
+    "AB-REL-008"
+  ],
+  "contracts": {
+    "Core_author": "schema12 six tables; goal_graph_runs.list{task_id}=[] and get{run_id} missing NOT_FOUND/not_started/noresult; pipeline not claimed",
+    "UI_author": "goal_graph_runs_list({taskId}) and goal_graph_runs_get({runId}); scopefree no execution/Graph wrapper; UI owns bridge"
+  },
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 apps/desktop/src-tauri/tests/test_native_runner.py",
+      "exit_code": 0,
+      "tests": 25,
+      "original_test_functions_byte_identical": 21,
+      "new_test_functions": 4,
+      "unittest_seconds": 2.578,
+      "log": "/workspace/.onboarding/goal-graph-native-readonly/python-tests.log"
+    },
+    {
+      "command": "rustfmt --edition 2021 --check apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "env": {
+        "CARGO_HOME": "/workspace/.toolchains/cargo",
+        "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+        "PATH_prefix": "/workspace/.toolchains/cargo/bin"
+      },
+      "exit_code": 0,
+      "dimension": "parser/format only, not Rust typecheck"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 .onboarding/goal-graph-native-readonly/preservation_static.py",
+      "exit_code": 0,
+      "standalone_validator_negative_controls": 81,
+      "old_rust_module_prefix": "17 original tests preserved after enumerated necessary schema normalization",
+      "new_rust_source_harness_tests": 22,
+      "dimension": "preservation, Python unit controls and JS/shell syntax only"
+    },
+    {
+      "command": "node --check extracted first.js and second.js; bash -n scripts/native-macos-smoke.sh",
+      "exit_code": 0,
+      "dimension": "syntax only"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "schema_dependency_changes": [
+    "native execution error string schema11->12",
+    "valid_goal_execution_counts Some11->Some12",
+    "execution_counts_fixture schema11->12",
+    "old wrong12 drift becomes wrong13 and new wrong11 added, wrong10 retained",
+    "native-run existing execution start/finish strict12 only",
+    "Python GOOD existing execution before/after strict12",
+    "native-macos existing execution schema guard12 only"
+  ],
+  "runtime_not_run": [
+    "Cargo/Rust typecheck,22 source harness tests and Native lib suite",
+    "Clippy",
+    "Actual Core12 private daemon/SQLite migration/table drift tests",
+    "New macOS Tauri WebView invokes/flags",
+    "Native Owner dialog",
+    "Real Provider/model",
+    "Graph approval/dispatch/validation/acceptance/TaskAccepted",
+    "Production/signing/release"
+  ],
+  "reason": "No Cargo lease. This isolated tree intentionally retains protectedmain Core schema11 and baseline bridge. Run only after Root combines final Core12 and UI bridge, not cached schema11 or altered Core/path dependencies.",
+  "target_access": "none; no Main/native target/cache writes, no new cache",
+  "independent_review": "pending data_native_integration_review; current checks are author checks",
+  "artifact_count": 15,
+  "artifacts": [
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/first-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/first.js",
+      "sha256": "1d3ab135687baeeb7913cf31af555643a121477471e044611bb28f7b1cb30956",
+      "bytes": 12833
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/preservation-and-static.json",
+      "sha256": "66c72b2408201b18206a9f3b1d3b68bd98bfb896df97c51e321eeb63ad37b387",
+      "bytes": 12796
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/preservation-static.log",
+      "sha256": "ef90128ff380a37ef5a2e21dac8f2fc6931b46627daf6e5464e6e0a7f86d0f1d",
+      "bytes": 247
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/preservation_static.py",
+      "sha256": "1bd0ef6dcc9eb6b56fe1d99a224969bfdd53ccc93f18e198cd039689d68e061b",
+      "bytes": 6835
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/python-tests-addition.txt",
+      "sha256": "540e81972958a8982ad18b9632fd31da5b99552263776e5679a6d7afba1e7051",
+      "bytes": 4602
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/python-tests.log",
+      "sha256": "721be13bfbbf078e9c0c353c314d7c7bd4feca7ba02fc28a5fb7a68b004d1435",
+      "bytes": 124
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/rust-tests-addition.txt",
+      "sha256": "c1de4fa5b07ac1ce9e63d13d8b316daf49134d9aa342db21520676b6160084c3",
+      "bytes": 12131
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/rustfmt-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/rustfmt-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/rustfmt-write.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/second-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/second.js",
+      "sha256": "06b0142f582ccca1dd1c493842e002c93160c57958f9f85dfd6ea14ebace1816",
+      "bytes": 1452
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-native-readonly/shell-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "cloud_task_url": "not supplied; native delegated task /root/artifact_contract_fixture",
+  "authority": "AB-START-001; OWNER001/002 ACK; no credential/model/spend/release expansion; Root corrected existing test path",
+  "verification_manifest_sha256": "5f31e26f6b0501f6d96880d662522c0fca5994f6231bb7e4600f60707db4a015"
+}
