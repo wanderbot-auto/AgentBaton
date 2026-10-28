@@ -197,7 +197,10 @@ for line in sys.stdin:
   assert not any(k in os.environ for k in ('GH_TOKEN','GITHUB_TOKEN','OPENAI_API_KEY'))
   response(r,{'protocolVersion':1,'agentCapabilities':{}})
  elif method=='session/new':
-  servers=r['params']['mcpServers'];assert len(servers)==1
+  servers=r['params']['mcpServers']
+  if not servers:
+   response(r,{'sessionId':'generated-native'});continue
+  assert len(servers)==1
   server=servers[0];assert server['name']=='agentbaton-factory' and server['env']==[]
   mcp=subprocess.Popen([server['command']]+server['args'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
   mcp_call('initialize',{'protocolVersion':'2024-11-05','capabilities':{},'clientInfo':{'name':'generated-local-fixture','version':'1'}})
@@ -205,6 +208,15 @@ for line in sys.stdin:
   assert names==['delegate_task','get_task_status','get_task_result','cancel_task']
   response(r,{'sessionId':'generated-native'})
  elif method=='session/prompt':
+  if mcp is None:
+   text=r['params']['prompt'][0]['text']
+   emit({'jsonrpc':'2.0','method':'session/update','params':{'sessionId':'generated-native','update':{'sessionUpdate':'agent_message_chunk','content':{'type':'text','text':'generated managed non-Factory turn'}}}})
+   if text=='generated-hold-ordinary':continue
+   if text.startswith('{'):
+    goal=json.loads(text);assert goal['kind']=='agentbaton_goal_task_request'
+    assert goal['outputs'][0]['artifact']['relative_path']=='reports/goal-report.txt'
+    with open('reports/goal-report.txt','w')as f:f.write('fixed generated Goal report\n')
+   response(r,{'stopReason':'end_turn'});continue
   c=json.loads(r['params']['prompt'][0]['text']);assert c['kind']=='agentbaton_factory_task_request'
   status=tool('get_task_status',{'task_id':c['task_id']});assert status['task_id']==c['task_id']
   mid+=1;mcp.stdin.write(json.dumps({'jsonrpc':'2.0','id':mid,'method':'tools/call','params':{'name':'approvals.finalize','arguments':{'proposal_id':'forbidden'}}})+'\n');mcp.stdin.flush()
@@ -276,6 +288,14 @@ fn two_actual_children_keep_both_hash_bound_results_in_the_new_parent_attempt() 
 #[test]
 fn cancelled_queued_child_reaches_explicit_blocked_join_without_child_dispatch() {
     run_mode("cancel_queued");
+}
+#[test]
+fn mixed_ordinary_goal_and_actual_factory_share_cumulative_project_and_root_grant_meters() {
+    run_mode("mixed_sequence");
+}
+#[test]
+fn mixed_live_ordinary_owned_process_blocks_factory_dispatch_without_refunding_shared_budget() {
+    run_mode("mixed_busy");
 }
 fn run_mode(mode: &str) {
     use agentbaton_core::ipc::{call, Daemon};
@@ -414,6 +434,11 @@ fn run_mode(mode: &str) {
     }
     f.selection.root_budget.output_bytes = 12288;
     f.selection.project_budget.output_bytes = 12288;
+    let mixed = if mode.starts_with("mixed_") {
+        Some(prepare_mixed_goal(&mut f))
+    } else {
+        None
+    };
     let scope = f.scope();
     let workspace = scope.bindings.workspaces[0].root.clone();
     let runtime = f._temp.path().canonicalize().unwrap();
@@ -423,6 +448,16 @@ fn run_mode(mode: &str) {
     let stop = Arc::new(AtomicBool::new(false));
     let worker_stop = stop.clone();
     let daemon_thread = std::thread::spawn(move || daemon.run(worker_stop));
+    if let Some((goal, ordinary)) = &mixed {
+        mixed_ordinary_then_goal(
+            &f.path,
+            &runtime,
+            &scope,
+            goal,
+            ordinary,
+            mode == "mixed_busy",
+        );
+    }
     let start=call(&runtime,json!({"method":"factory_runs.start","params":{"scope_id":scope.id},"expected_revision":scope.revision,"idempotency_key":"actual-run"})).unwrap();
     assert!(start.get("error").is_none(), "{start}");
     if mode == "pin_drift" {
@@ -536,7 +571,10 @@ fn run_mode(mode: &str) {
     .unwrap();
     assert_eq!(
         final_run["result"]["run"]["state"],
-        if mode == "normal" || mode == "two_children" {
+        if matches!(
+            mode,
+            "normal" | "two_children" | "mixed_sequence" | "mixed_busy"
+        ) {
             "completed"
         } else if mode == "cancel_queued" {
             "blocked"
@@ -547,7 +585,10 @@ fn run_mode(mode: &str) {
         },
         "{final_run}"
     );
-    if mode != "normal" && mode != "two_children" {
+    if !matches!(
+        mode,
+        "normal" | "two_children" | "mixed_sequence" | "mixed_busy"
+    ) {
         assert_eq!(
             final_run["result"]["tasks"].as_array().unwrap().len(),
             if mode == "cancel_queued" { 2 } else { 1 }
@@ -583,7 +624,7 @@ fn run_mode(mode: &str) {
     );
     let db = Connection::open(&f.path).unwrap();
     assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='factory.internal_stop_prepared'",[],|r|r.get::<_,u32>(0)).unwrap(),if mode=="two_children"{4}else{3});
-    assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.payload.process_reaped')=1 AND json_extract(document,'$.payload.no_process_started')=0",[],|r|r.get::<_,u32>(0)).unwrap(),if mode=="two_children"{4}else{3});
+    assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.payload.process_reaped')=1 AND json_extract(document,'$.payload.no_process_started')=0",[],|r|r.get::<_,u32>(0)).unwrap(),if mode.starts_with("mixed_"){5}else if mode=="two_children"{4}else{3});
     assert_eq!(
         db.query_row(
             "SELECT sum(consumed) FROM budgets WHERE scope LIKE 'root:%'",
@@ -591,7 +632,13 @@ fn run_mode(mode: &str) {
             |r| r.get::<_, u32>(0)
         )
         .unwrap(),
-        if mode == "two_children" { 4 } else { 3 }
+        if mode.starts_with("mixed_") {
+            5
+        } else if mode == "two_children" {
+            4
+        } else {
+            3
+        }
     );
     assert_eq!(
         db.query_row(
@@ -600,7 +647,7 @@ fn run_mode(mode: &str) {
             |r| r.get::<_, u32>(0)
         )
         .unwrap(),
-        1
+        if mode.starts_with("mixed_") { 3 } else { 1 }
     );
     assert_eq!(
         db.query_row("SELECT count(*) FROM factory_attempts", [], |r| r
@@ -615,7 +662,7 @@ fn run_mode(mode: &str) {
             |r| r.get::<_, u32>(0)
         )
         .unwrap(),
-        1
+        if mode.starts_with("mixed_") { 3 } else { 1 }
     );
     assert_eq!(
         db.query_row(
@@ -648,13 +695,464 @@ fn run_mode(mode: &str) {
         db.query_row("SELECT count(*) FROM execution_grants", [], |r| r
             .get::<_, u32>(0))
             .unwrap(),
-        1
+        if mode.starts_with("mixed_") { 2 } else { 1 }
     );
     assert_eq!(
         db.query_row(
             "SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'",
             [],
             |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        0
+    );
+    if mode.starts_with("mixed_") {
+        assert_mixed_cumulative_receipts(&db, &scope);
+    }
+}
+
+// Explicit trusted-host Goal approval fixture. It changes only the Grant
+// ceilings that the native Goal snapshot actually reviews, then Factory gets a
+// separate approval of that resulting exact Grant. This is not an old Goal
+// scope being upgraded to Factory authority.
+fn prepare_mixed_goal(
+    f: &mut Fixture,
+) -> (
+    agentbaton_core::goal_store::GoalScopeView,
+    agentbaton_core::storage::Task,
+) {
+    use agentbaton_core::{goal_plan::*, goal_store::*};
+    let project = f.store.get(&f.selection.root_task_id).unwrap().project_id;
+    // Goal requires an actual native-confirmed Grant origin. The unused base
+    // synthetic Grant stays unchanged; no confirmation journal is forged here.
+    let grant_proposal = f
+        .store
+        .propose_grant(
+            &project,
+            &f.selection.workspace_ids[0],
+            &f.selection.connection_ids[0],
+            8,
+            1,
+            30_000,
+            "mixed-native-grant",
+        )
+        .unwrap();
+    let grant = f
+        .store
+        .finalize_proposal(&grant_proposal.id, grant_proposal.revision)
+        .unwrap();
+    f.selection.grant_id = grant["id"].as_str().unwrap().into();
+    f.selection.expected_grant_revision = grant["revision"].as_u64().unwrap();
+
+    let task = f
+        .store
+        .create_registered(
+            &project,
+            "Produce the fixed mixed-ledger Goal artifact",
+            "mixed-goal-task",
+        )
+        .unwrap();
+    let ordinary = f
+        .store
+        .create_registered(
+            &project,
+            "Plain managed conversation has no declared artifact contract",
+            "mixed-ordinary-task",
+        )
+        .unwrap();
+    let selection = GoalScopeSelection {
+        task_id: task.id.clone(),
+        expected_task_revision: task.revision,
+        grant_id: f.selection.grant_id.clone(),
+        expected_grant_revision: f.selection.expected_grant_revision,
+        max_nodes: 4,
+        new_max_children: 3,
+        new_max_depth: 1,
+        root_budget: f.selection.root_budget.clone(),
+        project_budget: f.selection.project_budget.clone(),
+        inputs: f.selection.inputs.clone(),
+        outputs: vec![GoalOutputSelection {
+            artifact: ArtifactRequirement {
+                artifact_id: "goal-report".into(),
+                relative_path: "reports/goal-report.txt".into(),
+                max_bytes: 1024,
+                expected_sha256: None,
+            },
+            validators: vec![],
+        }],
+        writable_prefixes: vec!["reports".into()],
+        owner_acceptance_criteria: "An observed Goal candidate is not accepted by this budget test"
+            .into(),
+    };
+    let proposal = f
+        .store
+        .propose_goal_scope(&selection, "mixed-goal-scope")
+        .unwrap();
+    let scope: GoalScopeView = serde_json::from_value(
+        f.store
+            .finalize_proposal(&proposal.id, proposal.revision)
+            .unwrap(),
+    )
+    .unwrap();
+    f.selection.expected_grant_revision =
+        f.store.get_grant(&f.selection.grant_id).unwrap().revision;
+    assert_eq!(scope.root_grant_id, f.selection.grant_id);
+    let output = scope.outputs["goal-report"].clone();
+    let node = PlanNode {
+        id: "mixed-goal-report".into(),
+        parent_id: None,
+        kind: NodeKind::Work,
+        goal: "Write the generated Goal report".into(),
+        dependencies: vec![],
+        workspace_id: scope.workspace_id.clone(),
+        executor: Executor::Connection {
+            binding: Box::new(scope.binding.clone()),
+            program_sha256: scope.program_sha256.clone(),
+        },
+        recipients: vec![],
+        required_inputs: vec![RequiredInput {
+            goal_task_id: task.id,
+            artifact_id: "input".into(),
+            contract_id: scope.inputs["input"].contract_id.clone(),
+            source: InputSource::ApprovedExternal {
+                sha256: scope.inputs["input"].sha256.clone(),
+            },
+        }],
+        outputs: vec![PlannedOutput {
+            artifact_id: "goal-report".into(),
+            contract_id: output.clone(),
+        }],
+        required_validators: scope.contracts[&output].clone(),
+        side_effect: SideEffect::WorkspaceWrite,
+        write_set: vec![WriteTarget::Workspace {
+            path: "reports/goal-report.txt".into(),
+        }],
+        budget: BudgetLimits {
+            attempts: 1,
+            parallel: 1,
+            runtime_ms: 5000,
+            output_bytes: 2048,
+            children: 0,
+            reworks: 0,
+            tokens: None,
+            cost_microunits: None,
+        },
+        reservation: AttemptReservation {
+            runtime_ms: 4000,
+            output_bytes: 2048,
+            tokens: None,
+            cost_microunits: None,
+        },
+        retry: RetryPolicy {
+            max_attempts: 1,
+            max_reworks: 0,
+            retry_classes: vec![],
+        },
+        idempotency_key: "mixed-goal-report-once".into(),
+        external_action_id: None,
+    };
+    let plan = GoalPlanProposal {
+        schema_version: 1,
+        plan_id: "mixed-goal-plan".into(),
+        goal: scope.goal.clone(),
+        scope_revision: scope.authority_revision,
+        revision: 1,
+        expected_revision: 0,
+        acceptance_rules: scope.required_acceptance_rules.clone(),
+        nodes: vec![node],
+    };
+    f.store
+        .submit_goal_plan(
+            &GoalPlanSubmission {
+                scope_id: scope.id.clone(),
+                proposal: plan,
+            },
+            "mixed-goal-plan",
+            0,
+        )
+        .unwrap();
+    (scope, ordinary)
+}
+fn mixed_call(runtime: &Path, request: serde_json::Value) -> serde_json::Value {
+    let reply = agentbaton_core::ipc::call(runtime, request).unwrap();
+    assert!(reply.get("error").is_none(), "{reply}");
+    reply["result"].clone()
+}
+fn mixed_wait(
+    runtime: &Path,
+    method: &str,
+    params: serde_json::Value,
+    predicate: impl Fn(&serde_json::Value) -> bool,
+) -> serde_json::Value {
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    loop {
+        let result = mixed_call(runtime, json!({"method":method,"params":params}));
+        if predicate(&result) {
+            return result;
+        }
+        assert!(
+            std::time::Instant::now() < deadline,
+            "{method} observation timed out: {result}"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(5));
+    }
+}
+fn mixed_ordinary_then_goal(
+    path: &Path,
+    runtime: &Path,
+    scope: &FactoryScope,
+    goal: &agentbaton_core::goal_store::GoalScopeView,
+    task: &agentbaton_core::storage::Task,
+    busy: bool,
+) {
+    let created = mixed_call(
+        runtime,
+        json!({"method":"sessions.create","params":{"task_id":task.id,"workspace_id":scope.bindings.workspaces[0].id,"connection_id":scope.bindings.connections[0].id,"grant_id":scope.root_grant_id},"expected_revision":task.revision,"idempotency_key":"mixed-ordinary-session"}),
+    );
+    let ready = mixed_wait(
+        runtime,
+        "sessions.get",
+        json!({"session_id":created["id"]}),
+        |s| s["state"] == "ready",
+    );
+    let prompt = if busy {
+        "generated-hold-ordinary"
+    } else {
+        "generated ordinary turn"
+    };
+    mixed_call(
+        runtime,
+        json!({"method":"sessions.send","params":{"session_id":ready["id"],"text":prompt},"expected_revision":ready["revision"],"idempotency_key":"mixed-ordinary-prompt"}),
+    );
+    let current = mixed_wait(
+        runtime,
+        "sessions.get",
+        json!({"session_id":ready["id"]}),
+        |s| {
+            if busy {
+                s["state"] == "running"
+            } else {
+                s["state"] == "ready" && s["turn_state"] == "completed"
+            }
+        },
+    );
+    let db = Connection::open(path).unwrap();
+    let before_attempts: i64 = db
+        .query_row("SELECT count(*) FROM attempts", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(before_attempts, 1);
+    assert_eq!(
+        db.query_row(
+            "SELECT active FROM budgets WHERE scope=?1",
+            [format!("project:{}", scope.project_id)],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        1
+    );
+    if busy {
+        let reply=agentbaton_core::ipc::call(runtime,json!({"method":"factory_runs.start","params":{"scope_id":scope.id},"expected_revision":scope.revision,"idempotency_key":"actual-run"})).unwrap();
+        assert_eq!(reply["error"]["code"], "WORKSPACE_BUSY", "{reply}");
+        assert_eq!(reply["error"]["side_effect_state"], "not_started");
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM factory_runs", [], |r| r
+                .get::<_, i64>(0))
+                .unwrap(),
+            0
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM factory_delegations", [], |r| r
+                .get::<_, i64>(0))
+                .unwrap(),
+            0
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM factory_budget_reservations WHERE scope_id IS NOT NULL",
+                [],
+                |r| r.get::<_, i64>(0)
+            )
+            .unwrap(),
+            0
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            before_attempts
+        );
+    }
+    mixed_call(
+        runtime,
+        json!({"method":"sessions.cancel","params":{"session_id":current["id"]},"expected_revision":current["revision"],"idempotency_key":"mixed-ordinary-owned-stop"}),
+    );
+    let stopped = mixed_wait(
+        runtime,
+        "sessions.get",
+        json!({"session_id":current["id"]}),
+        |s| s["state"] == "stopped",
+    );
+    assert_eq!(stopped["id"], created["id"]);
+    let until = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    loop {
+        let settled:bool=db.query_row("SELECT json_extract(document,'$.settled') FROM factory_budget_reservations WHERE scope_id IS NULL",[],|r|r.get(0)).unwrap();
+        if settled {
+            break;
+        }
+        assert!(
+            std::time::Instant::now() < until,
+            "ordinary receipt not joined/settled"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(5));
+    }
+    let ordinary: String = db
+        .query_row(
+            "SELECT document FROM factory_budget_reservations WHERE scope_id IS NULL",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let ordinary: serde_json::Value = serde_json::from_str(&ordinary).unwrap();
+    assert_eq!(ordinary["authority_kind"], "legacy_shared_session");
+    assert_eq!(
+        ordinary["measurement_scope"],
+        "empty_selected_artifacts_no_validator_streams"
+    );
+    assert_eq!(ordinary["actual_output_bytes"], 0);
+    assert!(ordinary["filesystem_total_bytes"].is_null());
+    assert_eq!(ordinary["provider_message_capture_complete"], false);
+    assert!(
+        ordinary["captured_provider_message_bytes"]
+            .as_u64()
+            .unwrap()
+            > 0
+    );
+    assert!(ordinary["actual_runtime_ms"].as_u64().unwrap() > 0);
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", scope.project_id)],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT active FROM budgets WHERE scope=?1",
+            [format!("project:{}", scope.project_id)],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.payload.process_reaped')=1 AND json_extract(document,'$.payload.no_process_started')=0",[created["id"].as_str().unwrap()],|r|r.get::<_,i64>(0)).unwrap(),1);
+    let snapshot = mixed_call(runtime, json!({"method":"system.snapshot","params":{}}));
+    let proposal = mixed_call(
+        runtime,
+        json!({"method":"goal_runs.propose","params":{"scope_id":goal.id,"expected_plan_revision":1,"expected_ledger_revision":snapshot["sequence"]},"idempotency_key":"mixed-actual-goal-execution"}),
+    );
+    // Explicit trusted-host Owner fixture, not exposed through an Agent tool.
+    let run = mixed_call(
+        runtime,
+        json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"mixed-actual-goal-owner-confirm"}),
+    );
+    let goal_state = mixed_wait(runtime, "goal_runs.get", json!({"run_id":run["id"]}), |r| {
+        r["run"]["state"] == "awaiting_acceptance"
+            || r["run"]["state"] == "blocked"
+            || r["run"]["state"] == "outcome_unknown"
+    });
+    assert_eq!(
+        goal_state["run"]["state"], "awaiting_acceptance",
+        "{goal_state}"
+    );
+    assert_eq!(goal_state["run"]["task_accepted"], false);
+    assert_eq!(db.query_row("SELECT count(*) FROM goal_run_reservations WHERE json_extract(document,'$.settled')=1 AND json_extract(document,'$.actual_runtime_ms')>0 AND json_extract(document,'$.actual_output_bytes')>0",[],|r|r.get::<_,i64>(0)).unwrap(),1);
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", scope.project_id)],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        2
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT active FROM budgets WHERE scope=?1",
+            [format!("project:{}", scope.project_id)],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+}
+fn assert_mixed_cumulative_receipts(db: &Connection, scope: &FactoryScope) {
+    let count: i64 = db
+        .query_row("SELECT count(*) FROM attempts", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(count, 5);
+    let prior_runtime:i64=db.query_row("SELECT sum(runtime) FROM (SELECT json_extract(document,'$.actual_runtime_ms') AS runtime FROM factory_budget_reservations WHERE scope_id IS NULL UNION ALL SELECT json_extract(document,'$.actual_runtime_ms') FROM goal_run_reservations)",[],|r|r.get(0)).unwrap();
+    let first_reservation:i64=db.query_row("SELECT json_extract(document,'$.reservation.runtime_ms') FROM factory_budget_reservations WHERE scope_id IS NOT NULL ORDER BY rowid LIMIT 1",[],|r|r.get(0)).unwrap();
+    assert!(prior_runtime > 0);
+    assert_eq!(
+        u64::try_from(first_reservation).unwrap(),
+        scope
+            .selection
+            .root_budget
+            .runtime_ms
+            .checked_sub(u64::try_from(prior_runtime).unwrap())
+            .unwrap()
+    );
+    assert!(
+        u64::try_from(first_reservation).unwrap() < scope.selection.root_budget.runtime_ms,
+        "earlier owned work must not be refunded by a fresh Factory root"
+    );
+    eprintln!("MIXED_REAL_OWNERSHIP attempts={count} prior_runtime_ms={prior_runtime} first_factory_reservation_ms={first_reservation} original_runtime_ceiling_ms={}",scope.selection.root_budget.runtime_ms);
+    for key in [
+        format!("project:{}", scope.project_id),
+        format!("root-grant:{}", scope.root_grant_id),
+    ] {
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM goal_ledgers WHERE scope=?1",
+                [key],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let ledger: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        let (runtime,outputs):(i64,i64)=db.query_row("SELECT sum(runtime),sum(bytes) FROM (SELECT json_extract(document,'$.actual_runtime_ms') AS runtime,json_extract(document,'$.actual_output_bytes') AS bytes FROM factory_budget_reservations UNION ALL SELECT json_extract(document,'$.actual_runtime_ms'),json_extract(document,'$.actual_output_bytes') FROM goal_run_reservations)",[],|r|Ok((r.get(0)?,r.get(1)?))).unwrap();
+        assert!(runtime > 0 && outputs > 0);
+        assert_eq!(ledger["runtime_ms"].as_i64(), Some(runtime));
+        assert_eq!(ledger["output_bytes"].as_i64(), Some(outputs));
+        eprintln!("MIXED_SHARED_METER runtime_ms={runtime} selected_artifact_bytes={outputs} observed_attempts={count} active=0 filesystem_total_bytes=unknown");
+        assert_eq!(ledger["limits"], json!(scope.selection.project_budget));
+    }
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", scope.project_id)],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        5
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT active FROM budgets WHERE scope=?1",
+            [format!("project:{}", scope.project_id)],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(db.query_row("SELECT count(*) FROM factory_budget_reservations WHERE scope_id IS NULL AND json_extract(document,'$.settled')=1",[],|r|r.get::<_,i64>(0)).unwrap(),1);
+    assert_eq!(db.query_row("SELECT count(*) FROM factory_budget_reservations WHERE scope_id IS NOT NULL AND json_extract(document,'$.settled')=1",[],|r|r.get::<_,i64>(0)).unwrap(),3);
+    assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.payload.process_reaped')=1 AND json_extract(document,'$.payload.no_process_started')=0",[],|r|r.get::<_,i64>(0)).unwrap(),5);
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'",
+            [],
+            |r| r.get::<_, i64>(0)
         )
         .unwrap(),
         0
