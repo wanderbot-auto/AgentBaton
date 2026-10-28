@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, DaemonError, type ManagedWorkspace, type Project } from './api';
 import { messages, type Language } from './i18n';
+import { DataWorkspaces } from './DataWorkspaces';
+import { dataWorkspaceMessages } from './data-workspace-i18n';
 
 interface ProjectsProps {
   projects: Project[];
@@ -19,6 +21,7 @@ export function Projects({ projects, selectedId, onSelect, refresh, connected, l
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [workspaces, setWorkspaces] = useState<ManagedWorkspace[]>([]);
+  const [dataVersion,setDataVersion]=useState(0);
   const [workspaceLoad, setWorkspaceLoad] = useState<'loading' | 'loaded' | 'error'>('loading');
   const keys = useRef(new Map<string, string>());
   const workspaceRequest = useRef(0);
@@ -36,7 +39,7 @@ export function Projects({ projects, selectedId, onSelect, refresh, connected, l
       if (request === workspaceRequest.current) { setWorkspaceLoad('error'); setError(e instanceof Error ? e.message : String(e)); }
     });
     return () => { ++workspaceRequest.current; };
-  }, [selected?.id, selected?.revision, connected]);
+  }, [selected?.id, selected?.revision, connected, dataVersion]);
   useEffect(() => { setReplacement(''); }, [selected?.id]);
 
   async function mutate<T>(identity: string, operation: (key: string) => Promise<T>, success?: (value: T) => void) {
@@ -82,6 +85,7 @@ export function Projects({ projects, selectedId, onSelect, refresh, connected, l
         event.preventDefault();
         if (replacement.trim()) void mutate(JSON.stringify(['reassociate',selected.id,replacement.trim()]), key => api.projectsReassociate(selected, replacement.trim(), key), () => setReplacement(''));
       }}><label htmlFor="replacement-path">{t.reassociatePath}</label><input id="replacement-path" disabled={busy} value={replacement} onChange={event => setReplacement(event.target.value)} maxLength={4096} required /><p className="hint">{t.reassociateHelp}</p><button disabled={busy || !connected || selected.archived || !replacement.trim()}>{t.reassociate}</button></form>
+      <DataWorkspaces key={selected.id} project={selected} connected={connected} language={language} onReady={()=>setDataVersion(value=>value+1)}/>
       <section aria-labelledby="workspaces-heading"><h3 id="workspaces-heading">{t.isolatedWorkspace}</h3><p className="hint">{t.workspaceHelp}</p>
         <button disabled={busy || !connected || workspaceLoad !== 'loaded' || selected.archived || !git?.head || workspaces.some(workspace => workspace.state !== 'ready')} onClick={() => {
           if (git?.head) void mutate(JSON.stringify(['workspace',selected.id,git.head]), key => api.workspacesCreate(selected, git.head, key), workspace => setWorkspaces(current => [...current, workspace]));
@@ -89,7 +93,7 @@ export function Projects({ projects, selectedId, onSelect, refresh, connected, l
         {(selected.archived || !git?.head) && <p className="hint">{t.workspaceUnavailable}</p>}
         {workspaceLoad === 'loading' && <p role="status">{t.loadingWorkspaces}</p>}
         {workspaceLoad === 'loaded' && !workspaces.length && <p>{t.noWorkspaces}</p>}
-        <ul className="workspace-list">{workspaces.map(workspace => <li key={workspace.id}><dl><dt>{t.workspaceId}</dt><dd>{workspace.id}</dd><dt>{t.workspaceRoot}</dt><dd>{workspace.root}</dd><dt>{t.workspaceState}</dt><dd>{workspace.state === 'ready' ? t.workspaceReady : workspace.state === 'creating' ? t.workspaceCreating : t.workspaceUnknown}</dd><dt>{t.head}</dt><dd>{workspace.base_revision}</dd></dl>{!workspace.identity && <p>{t.unknownRoot}</p>}<p className="hint">{t.noLeaseEvidence}</p></li>)}</ul>
+        <ul className="workspace-list">{workspaces.map(workspace => <li key={workspace.id}><dl><dt>{t.workspaceId}</dt><dd>{workspace.id}</dd><dt>{t.workspaceRoot}</dt><dd>{workspace.root}</dd><dt>{t.workspaceState}</dt><dd>{workspace.state === 'ready' ? t.workspaceReady : workspace.state === 'creating' ? t.workspaceCreating : t.workspaceUnknown}</dd><dt>{dataWorkspaceMessages[language].baseRevision}</dt><dd>{workspace.base_revision}</dd></dl>{!workspace.identity && <p>{t.unknownRoot}</p>}<p className="hint">{t.noLeaseEvidence}</p></li>)}</ul>
       </section>
     </section>}</div>
   </section>;

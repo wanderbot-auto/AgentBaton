@@ -1,0 +1,59 @@
+{
+  "reviewer": "/root independent of leaf author /root/quiet_canvas_review",
+  "source_commit": "52a06c9c44814217d0734f21be319af43765ccb5",
+  "docs_head": "b7db817076bd9d2a920eede9abd407d1a20e0162",
+  "base": "aa1c2814a30f43405f3c545ec178cf665f96e673",
+  "source_sha256": {
+    "apps/desktop/src/DataWorkspaces.tsx": "89aaaedf8b1efa8d9a61e9f433fc780e4eaf1186437f82e1b2e141fae3af5664",
+    "apps/desktop/src/data-workspace-api.ts": "5e081778fd8404c3db5011a688a2fa9bbf8fb9459d103356fcea4aa1a0da0f9f",
+    "apps/desktop/src/data-workspace-i18n.ts": "a774914cc7b1fed5a0d1942410e9f1d21902602c6fae86d95a994ecd6c58feb8",
+    "apps/desktop/src/DataWorkspaces.cancelled.test.tsx": "23426e31607c17959af62d873a0c14607ef10b2fdc26afac31e39ae3b156c7c3"
+  },
+  "baseline_18_test_files_unchanged": true,
+  "outgoing_methods_bytes_unchanged": true,
+  "actual_results": [
+    {
+      "name": "tests",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 34.85,
+      "log": "/workspace/.onboarding/data-copy-cancel-receipts-root/tests.log",
+      "sha256": "35159384cd1f3f0bfd0d479512fbaf0ad54d70a40560af0c87555ba742de3904"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 1.32,
+      "log": "/workspace/.onboarding/data-copy-cancel-receipts-root/typecheck.log",
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 1.61,
+      "log": "/workspace/.onboarding/data-copy-cancel-receipts-root/build.log",
+      "sha256": "3c314c410c4964e575dee5478c49653ae987ec6a71b0bfbb870e5b089f91b4b0"
+    }
+  ],
+  "unit_tests": 360,
+  "test_files": 19,
+  "real_newCore_IPC": "pending; not substituted by mocked component tests",
+  "limits": [
+    "No real owned worker join or filesystem stop established by UI mocks",
+    "No native Owner dialog or macOS check",
+    "New schema10 Core exact DTO and realIPC combination still pending"
+  ]
+}
