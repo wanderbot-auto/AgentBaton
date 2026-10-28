@@ -18,3 +18,10 @@ Only one Cargo cache writer at a time; retired completed main cache is not recre
 3. 合成后检查源差异、完整证据与STATUS最终内容，独审后只更新93文件登记中的STATUS hash；保留所有其他项、校验器、CI名字和超时。一次normalpush，再实际读取全7准确候选结果。
 4. 必须有双Mac Core/Native/真实Owner/defaultrelease审计与可追溯双架构包，再按保护规则和准确head判断合入；不提交正式GitHub Approve，不借旧PR15包。
 5. Factory Core/UI/schema13只读叶子继续隔离开发审查；仅完整契约/真实scoped MCP parent-child-parent/预算/取消恢复测试和独审后另行集成，不混入PR16。全130与其余依赖ready范围继续。
+
+## 第四轮真实Owner观察失败后的下一步
+
+1. 保留0aa/5ca五绿双Ownerfail、完整Linux148载荷/双Mac原件与原manifest；不把before表0当after，不把readonly截图当sheet。
+2. 诊断7a13不降低原exact/visible/parent/DBpermit与超时门槛，Root6纯Controller已过、AppKit仍未编译。完成源组合/记录/STATUS-only93项独审后仅一次push，实际新Mac必须保存actualclass/text/counts与ownsheetPNG再诊断原因。
+3. 新候选仍需全7、真实Owner/默认release审计/双开发包和保护规则才能合入；diag拒绝本身不是修复成功。无formalApprove或生产权限。
+4. 分离Factory继续Data privateWitness/internalTicket、混合共享预算、取消/期限/未知/多child回归与独审；UI/Native13Rust及schema13真实readonly/IPC/OS验收待组合，不将已知partial当完整130完成。

@@ -1,5 +1,5 @@
 {
-  "status": "641_CI_failure_fixes_independently_reviewed_locally_composed_new_exact_CI_pending",
+  "status": "0aa_CI_final5success2MacOwner_uniqueText_fail_testonly_diagnostics_reviewed_composed_newCI_pending",
   "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
   "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
   "postmerge_doc_commands": [
@@ -268,6 +268,65 @@
         }
       },
       "superseded_for_current_progress": true
+    },
+    {
+      "stage": "0aa_reviewed_fixture_composition_before_fourth_exact_CI",
+      "current_at_that_stage": {
+        "remote_tested_head": "641be86e8b055920787cfebdd48270716d509309",
+        "unpublished_change": "three test/runner files only from641: Node maintenance + Owner private canonical short paths and failure capture",
+        "owner_bootstrap": {
+          "source": "a43cbb181a52b9ebcc0c72a838f68497101759b8",
+          "author_docs": "f8aca83e82dc3614ddc56aad0e3199ee342ccb97",
+          "author_and_independent_tests": "same15 group, not30unique; original11 include1actualCore; new4 mixed controls",
+          "independent_extra_controls": "six retained overlap, not additional unit total; shortalias nofallback/CJK173→40 fallback/realrawalias exit1/earlyexit0+23 rejected",
+          "independent_review": "OWNER_BOOTSTRAP_REVIEW.md",
+          "independent_manifest_sha256": "d831ba24877229b9dd34a9b945684631dfa9151e087afbf1aea9e9c5611e7a23",
+          "Mac_OS_Owner": "not_run",
+          "historical_ARM_exit1_cause": "UNKNOWN",
+          "author_manifest_sha256": "1f767deae5f08053263c774c7f876afc11996fe13dc937a439da5d0a693d3321"
+        },
+        "exact_new_CI": "not_started",
+        "installers": "none for PR16",
+        "formal_approve": "not_submitted",
+        "evidence_imports": [
+          "CI_641_LINUX_IMPORT.json",
+          "CI_641_ARM_IMPORT.json",
+          "COMMAND_UI_AUTHOR_IMPORT.json",
+          "COMMAND_UI_REVIEW_IMPORT.json",
+          "OWNER_BOOTSTRAP_REVIEW_IMPORT.json",
+          "OWNER_BOOTSTRAP_AUTHOR_IMPORT.json"
+        ],
+        "local_source_composition_commit": "cf073d963e25f631502e333647171d19e6b40348",
+        "local_source_composition": "SOURCE_COMPOSITION_641_FAILURE_FIXES.json",
+        "local_head_at_source_composition": "cf073d963e25f631502e333647171d19e6b40348",
+        "integration_validation": {
+          "commands": [
+            "python3 scripts/verify_bootstrap_manifest.py",
+            "python3 scripts/validate_design.py",
+            "python3 scripts/validate_infrastructure.py",
+            "git diff --check"
+          ],
+          "exit_codes": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "scope": "Root static records/integrity only; runtime leaf tests independently attributed; new CI pending",
+          "registered_bootstrap_files": 93,
+          "only_registered_hash_changed": "docs/execution/STATUS.md",
+          "status_sha256": "ff1cd0199804c7aa0a580053e50b5f05dae340a6039610cc8323efdf8f7fcb8d"
+        },
+        "final_independent_integration_review": {
+          "reviewed_commit": "9448918d17ba3a1159edf7051e140ea04e04e6df",
+          "report": "FINAL_944_INTEGRATION_REVIEW.md",
+          "manifest_sha256": "16ce92c1759ce8400f24a0398bc03920b68b7648ffa3438cef9f6fb9b44fa0b4",
+          "scope": "source/records/93-file integrity only; no new product execution or Mac/installer acceptance",
+          "verdict": "no_blocking_finding",
+          "source_and_STATUS_frozen_for_next_documentation_head": true
+        }
+      },
+      "superseded_for_current_progress": true
     }
   ],
   "pull_request": {
@@ -278,55 +337,27 @@
     "first_product_run": 40732467344,
     "first_environment_run": 40732467579,
     "current_ci": {
-      "head": "641be86e8b055920787cfebdd48270716d509309",
-      "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
-      "tree": "67038b21828745f79905a169abb6e57e98bca5a0",
-      "product_run": 40749637133,
-      "environment_run": 40749637046,
-      "outcome": "5success2Macfail",
-      "intel": "early Node563pass1timeout5000; Core/native/packages not_reached",
-      "arm": "Core/native tests and actualWebView succeeded; Ownerfixture daemon exited1/readinessfail; stderr/path not recorded; desktoprelease audit/package skipped",
-      "files": {
-        "product-intel.log": {
-          "stored": "product-intel.log.gz",
-          "sha256": "d581f61c41feac265ef6afb945c4190777d659555f59b91cf897125eda689cef",
-          "bytes": 54747
-        },
-        "product-arm-observed.log": {
-          "stored": "product-arm-observed.log.gz",
-          "sha256": "c911efcd186718b1390a7b22158198f1037ae7e8c095de03b64e95f411bc8e1c",
-          "bytes": 387747
-        },
-        "environment-intel.log": {
-          "stored": "environment-intel.log.gz",
-          "sha256": "a0a902345fd6d80c2900781238632e33a1342694d4f8adadca2b0eee7afed52a",
-          "bytes": 44145
-        },
-        "product-jobs-final.json": {
-          "sha256": "8870324d719a2a8d263795ee08eb2055f9c33ab2d5c1e9e1bf755942c8516409",
-          "bytes": 15327
-        },
-        "environment-jobs-final.json": {
-          "sha256": "9e3d380a3f4b723d7eada9283d707dd258f2d91024e2ec73d70cfa1f982e612c",
-          "bytes": 11410
-        },
-        "arm-job-final.json": {
-          "sha256": "d585a04401f1783aec9dbb3a767009a353bc263e27562d4f10c2d449f8f1f8d3",
-          "bytes": 3948
-        },
-        "branch-rules-read.json": {
-          "sha256": "29e90fe1be55f971c82d39423860d32098ddd7951b43a1174fcd97aa5ef2d0b5",
-          "bytes": 1153
-        },
-        "merge-candidate.json": {
-          "sha256": "6709c7687252368f7c13c4772baab37fbe5bbaa2f664609e64e6de90b264dd9b",
-          "bytes": 2660
-        }
-      }
+      "feature": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+      "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+      "tree": "1943596e0bd12177d852117dab86c81ca30e6858",
+      "product": 40761824261,
+      "environment": 40761824141,
+      "conclusion": "5success2MacOwnerfail",
+      "Linux_evidence": "CI_0AA_LINUX_IMPORT.json",
+      "Mac_evidence": "CI_0AA_MAC_IMPORT.json",
+      "Owner_failure": "firstcancel unique exactNSTextFieldtitle/message guard beforeclick; actualtexts notsaved causeunknown",
+      "bodybytes_by_arch": {
+        "ARM": 3132,
+        "Intel": 3136
+      },
+      "formatter_equal_offline": true,
+      "before_DB": "schema12/seq8/grants0/19zero; noafter",
+      "both_actual_readonly_WebCrypto_lifecycle": "passed",
+      "defaultrelease_audit_installers": "skipped"
     },
     "formal_approve": "not_submitted",
-    "actual_checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
-    "remote_head_at_checkpoint": "641be86e8b055920787cfebdd48270716d509309"
+    "actual_checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+    "remote_head_at_checkpoint": "0aa20c968d493cad895e4a3853bdf106d6b54acf"
   },
   "ci_portability_fix": {
     "source": "a2c48b7e399ab298047e838f2d6c4475de6f8a4f",
@@ -376,12 +407,12 @@
     "tested_snapshot_sha256": "55ee71c6b1fc1deb8abec50d0b00cfdc53a2fad447d5a073dfc18fd9c68f29b8",
     "native_readonly": "c8bafaec docs /12b100cb source: independent43 pure Python pass; actual13daemon+30Rust unrun",
     "ui_frozen_candidate": {
-      "commit": "4279a4417278e88f4fe2024b50fc94c72e916d4a",
-      "author_and_independent_Node": "same626/41, not1252unique",
-      "author_and_independent_typecheck_build": "passed",
-      "Rust10": "source_only_not_run",
-      "independent_review": "originalFR01-04 closed; newFR05 Grant configpin7negativeFAIL blocking; fix in progress",
-      "fixture": "actual Store test-finalizer queuedrun wire0c6f; not Provider/OS/runtime"
+      "commit": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+      "author_and_independent_Node": "same643/41 not1286unique",
+      "type_build": "passed",
+      "Native_Rust13": "sourceOnly_not_run",
+      "independent_review_sha256": "d504f595999f95650767bdeb48f96621522d1c201a5d864d095a5fb000137396",
+      "actualCore13_IPC_Mac": "not_verified"
     },
     "core_fixed_admission_checkpoint": "53e07a08a5ea8bf8878fd226be18e0bccd1f3ced",
     "core_fixed_admission_review": {
@@ -391,37 +422,31 @@
       "actual_test_evidence": "author11scope+3migration=14 verified logs/source; not independently rerun",
       "old_failures": "pre-admission-fix source, not byte-identical0c8, FAIL101 numeric author report",
       "runtime_mixed_accounting_MCP": "incomplete"
+    },
+    "core_current_checkpoint": "137e24698090c73349c9560868c2a38ad97c627b",
+    "core_runtime_review": {
+      "review": "/workspace/AgentBaton/.onboarding/factory-runtime-137-review/REVIEW.md",
+      "sha256": "c7af999705bafbba84da37b42b1826a2b40971486f7e544885e2559270577dd7",
+      "scope": "original343 FR01–04+ownedcapture staticclosed; author6IPC+queueunit1 source/log verified, not independently rerun",
+      "Data_witness_mixedaccounting_largecapture_cancel_fullregression": "not_verified"
     }
   },
   "current_candidate": {
-    "remote_tested_head": "641be86e8b055920787cfebdd48270716d509309",
-    "unpublished_change": "three test/runner files only from641: Node maintenance + Owner private canonical short paths and failure capture",
-    "owner_bootstrap": {
-      "source": "a43cbb181a52b9ebcc0c72a838f68497101759b8",
-      "author_docs": "f8aca83e82dc3614ddc56aad0e3199ee342ccb97",
-      "author_and_independent_tests": "same15 group, not30unique; original11 include1actualCore; new4 mixed controls",
-      "independent_extra_controls": "six retained overlap, not additional unit total; shortalias nofallback/CJK173→40 fallback/realrawalias exit1/earlyexit0+23 rejected",
-      "independent_review": "OWNER_BOOTSTRAP_REVIEW.md",
-      "independent_manifest_sha256": "d831ba24877229b9dd34a9b945684631dfa9151e087afbf1aea9e9c5611e7a23",
-      "Mac_OS_Owner": "not_run",
-      "historical_ARM_exit1_cause": "UNKNOWN",
-      "author_manifest_sha256": "1f767deae5f08053263c774c7f876afc11996fe13dc937a439da5d0a693d3321"
-    },
-    "exact_new_CI": "not_started",
-    "installers": "none for PR16",
-    "formal_approve": "not_submitted",
-    "evidence_imports": [
-      "CI_641_LINUX_IMPORT.json",
-      "CI_641_ARM_IMPORT.json",
-      "COMMAND_UI_AUTHOR_IMPORT.json",
-      "COMMAND_UI_REVIEW_IMPORT.json",
-      "OWNER_BOOTSTRAP_REVIEW_IMPORT.json",
-      "OWNER_BOOTSTRAP_AUTHOR_IMPORT.json"
+    "source_composition_commit": "c730dd833d3aa916feaab093fdc6d9c5cde6e60f",
+    "source_composition": "NATIVE_TEXT_SOURCE_COMPOSITION.json",
+    "source": "7a13cddef4316d520361071ff5e2a263ea058580",
+    "author_docs": "6be599b9112ae81c77bf027d4e8b1bdd46fd41d1",
+    "imports": [
+      "NATIVE_TEXT_AUTHOR_SOURCE_IMPORT.json",
+      "NATIVE_TEXT_REVIEW_IMPORT.json"
     ],
-    "local_source_composition_commit": "cf073d963e25f631502e333647171d19e6b40348",
-    "local_source_composition": "SOURCE_COMPOSITION_641_FAILURE_FIXES.json",
-    "local_head_at_source_composition": "cf073d963e25f631502e333647171d19e6b40348",
-    "integration_validation": {
+    "root_test": "NATIVE_TEXT_ROOT_RESULT.json",
+    "root_tests_passed": 6,
+    "AppKit_compile_and_Mac_GUI": "not_run",
+    "goal": "obtain bounded actualMac failure observations, no acceptance downgrade or claimed rootcause fix",
+    "new_exact_CI": "not_started",
+    "formal_approve": "not_submitted",
+    "Root_static_validation": {
       "commands": [
         "python3 scripts/verify_bootstrap_manifest.py",
         "python3 scripts/validate_design.py",
@@ -434,18 +459,10 @@
         0,
         0
       ],
-      "scope": "Root static records/integrity only; runtime leaf tests independently attributed; new CI pending",
-      "registered_bootstrap_files": 93,
-      "only_registered_hash_changed": "docs/execution/STATUS.md",
-      "status_sha256": "ff1cd0199804c7aa0a580053e50b5f05dae340a6039610cc8323efdf8f7fcb8d"
-    },
-    "final_independent_integration_review": {
-      "reviewed_commit": "9448918d17ba3a1159edf7051e140ea04e04e6df",
-      "report": "FINAL_944_INTEGRATION_REVIEW.md",
-      "manifest_sha256": "16ce92c1759ce8400f24a0398bc03920b68b7648ffa3438cef9f6fb9b44fa0b4",
-      "scope": "source/records/93-file integrity only; no new product execution or Mac/installer acceptance",
-      "verdict": "no_blocking_finding",
-      "source_and_STATUS_frozen_for_next_documentation_head": true
+      "registered_files": 93,
+      "only_changed_registered_hash": "STATUS ff1cd019→4ac42f0f",
+      "full_STATUS_SHA256": "4ac42f0fce63ed9f8b797893665bdb7a2f2144ee8777a9d68434cd672ed6fb32",
+      "scope": "records/staticintegrity not newProduct/GUI proof"
     }
   },
   "ci_641": {
@@ -502,5 +519,26 @@
     "baton_sha256": "9065fa79d6381b51364d9304eb98aea16cf355d0cb81024134a07fb6ddef7c73",
     "not_executed": true,
     "correct_frozen70a_daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd"
+  },
+  "ci_0aa": {
+    "feature": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+    "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+    "tree": "1943596e0bd12177d852117dab86c81ca30e6858",
+    "product": 40761824261,
+    "environment": 40761824141,
+    "conclusion": "5success2MacOwnerfail",
+    "Linux_evidence": "CI_0AA_LINUX_IMPORT.json",
+    "Mac_evidence": "CI_0AA_MAC_IMPORT.json",
+    "Owner_failure": "firstcancel unique exactNSTextFieldtitle/message guard beforeclick; actualtexts notsaved causeunknown",
+    "bodybytes_by_arch": {
+      "ARM": 3132,
+      "Intel": 3136
+    },
+    "formatter_equal_offline": true,
+    "before_DB": "schema12/seq8/grants0/19zero; noafter",
+    "both_actual_readonly_WebCrypto_lifecycle": "passed",
+    "defaultrelease_audit_installers": "skipped",
+    "final_raw_API_manifest": "ci-0aa/MANIFEST.json",
+    "initial_candidate_proof": "CI_0AA_INITIAL_IMPORT.json"
   }
 }

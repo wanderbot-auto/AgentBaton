@@ -1,0 +1,13 @@
+{
+  "recorded_at": "2026-10-28T21:06:07.077799+00:00",
+  "registered_paths": 93,
+  "only_changed_registered_hash": {
+    "path": "docs/execution/STATUS.md",
+    "before": "ff1cd0199804c7aa0a580053e50b5f05dae340a6039610cc8323efdf8f7fcb8d",
+    "after": "4ac42f0fce63ed9f8b797893665bdb7a2f2144ee8777a9d68434cd672ed6fb32"
+  },
+  "other92_registered_and_actual_bytes_unchanged": true,
+  "checker_and_workflows_and_acceptance_limits_unchanged": true,
+  "reason": "accurate0aa final5success2MacOwnerfail record and reviewed test-only diagnostic source; no bypass",
+  "independent_final_integration_review": "pending"
+}

@@ -1,5 +1,17 @@
 # AgentBaton 执行状态
 
+## PR16 第四轮准确 CI：五成功、双 Mac Owner 文本观察失败；诊断已独审合成
+
+远端被测试head0aa20c968d493cad895e4a3853bdf106d6b54acf，实际Environment及Product检出5caecb5f9945b5fdb548f0e071a78e2d97537403 / tree1943596e0bd12177d852117dab86c81ca30e6858；Product40761824261、Environment40761824141全部结束。Environment3、Rust、UI成功，ARM123075460314与Intel123075460377均在Actual native Owner Grant dialog步骤失败。两Mac的Core/native、实际readonly WebView、四处WebCrypto/生命周期已成功，但默认桌面release构建/审计/双包均跳过；当前没有新安装包，最新有效开发交付仍PR15。PR16仍draft、未formalApprove/未合入，main最近fetch仍a1be94d，OWNER001/002 ACK无003。
+
+新Linux独审148载荷完整归档CI_0AA_LINUX_*：593唯一外层+7docs、Node564/37、Python29+15、官方schema8生成消息、12实际UI/UnixIPC114检查/70PNG（Graph6场景34/14），原UTF8/Ownerrefs/原receipt/预算/ownedcleanup独核。Reviewer实看5图，其余65仅hash，Root复看其中首页与CommandAccepted2图；当前actualinode安全，大整数原packet维度单列。Data取消只证before_destination_reservation/join，不夸本CI已验证partialFS/nojoin/ready race。旧各轮失败与manifest不覆盖。
+
+Mac原日志、两16member ZIP、实际before/fixture/transcript/cleanup、固定源码与离线formatter核对已独审并完整归档CI_0AA_MAC_*。daemon都ready，canonical socket92B/0700；首次cancel的attached visible自有sheet在exact NSTextField标题/正文各1门槛失败，尚未controller.validate、sheet截图、DBpermit、performClick。ARM预期正文3132B、Intel3136B，分别逐字等于生产formatter；实际OS文本/数量未保存，不能声称具体同根因、裁剪、视图类型或生产缺陷。仅before的schema12/seq8/grants0/原19表0已证，无Ownerafter记录；不假称失败后再次核0。各架构唯一实际PNG是成功readonly任务页，不是Owner sheet。app退出1/quiescent但cleanup拒绿；daemonSIGTERM→0/ok。Python app-finally遮盖异常原log保留，首Native原因由owner-dialog.json定位。
+
+本地新组合c730dd8含已独审诊断source7a13cdd / source-stage docs6be599b，只改test-only macos/controller及native-smoke可选sha2登记（现有锁版本/checksum集合不变，root只多1依赖名）；生产Core/Native/UI源码、默认权限/feature/CI/原阈值不变，Factory13不在PR16。失败前有界记录256view、class256B、field32768B、总65536B的真实class/text/UTF8len/SHA/geometry/count/首cause，并尽力只捕获确切caller-owned sheet窗口；不截断求绿、不接受部分/多匹配、不先点击。沿用唯一ownedcapture，正常与失败出口均join，原500ms/4s/75s及Python85s/DBpermit→click规则保留。Root独占短租约实际Controller原4+新2=6PASS/0ignore，26.17s编译，4source前后同；仅Linux纯Rust，AppKit cfg与新真实Mac观察未运行。借旧5541 fc5/906 sidecars及旧Rootdist仅macro编译不执行，exact临时链接已移除；租约已交回Core。NATIVE_TEXT_AUTHOR_SOURCE/REVIEW/ROOT_*保留阶段与完整原manifest，独审无必须修复项不等Mac问题已修复。下一步只在最终记录/93完整性独审后正常push一个新候选，读取全7与真实Mac诊断，仍不得借旧绿合入。
+
+Factory另行推进：Core137e246的原343 FR01–04在固定Git slice静态闭合，作者新IPC6+queueunit1通过（含旧3，不叠旧17/14）；旧四类失败source/binary/log与343、137两轮review保留。大capture移ownedworker，truejoin后Actor仅bounded FD metadata+DB；Data私有dispatchTicket/当次witness正在接线，scoped4仍全Grantfresh、Owner/内部stop不需witness，真实Data/混合accounting/大capture取消/完整回归未验。UI40b435b独审643/41+type/build与旧负控分别通过，13Rust仅source未编译；schema13只读c8叶子真实daemon/30Rust未验。仍继续完整130需求/27决定/WP01–14，未缩目标；真实Provider、私人凭据、新费用/资源/主机、签名/生产/最终许可证权限未增加。无原生Goal工具，原生代理和当前执行器实际工作，不承诺无执行器续跑。
+
 ## PR16 第三轮失败修复已独审合成，待新准确候选
 
 远端head641be86e8b055920787cfebdd48270716d509309，准确checkout d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d / tree67038b21828745f79905a169abb6e57e98bca5a0；Product40749637133 / Environment40749637046。三个Environment、Rust、UI成功，双Mac产品作业失败。2026-10-28恢复时重新fetch：main仍a1be94d，OWNER001/002重读ACK，无003。PR16保持draft，未formalApprove/合入，没有该候选开发安装包。

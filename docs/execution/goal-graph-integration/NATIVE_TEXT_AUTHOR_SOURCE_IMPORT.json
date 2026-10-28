@@ -1,0 +1,14 @@
+{
+  "archive": "NATIVE_TEXT_AUTHOR_SOURCE_EVIDENCE.tar.gz",
+  "bytes": 52283,
+  "sha256": "a2eb58da89b3da9c6ca6d82984668185f5db5e1fbbcb9045d37c6ca812d8ec87",
+  "regular_archive_members": 23,
+  "original_manifests": {
+    "MANIFEST.json": {
+      "bytes": 3364,
+      "sha256": "ea17d6f36d3616bc1424681caa09ada7fa837d1ded2b33eab0816b605062853a"
+    }
+  },
+  "all_declared_inputs_outputs_and_manifests_roundtrip_verified": true,
+  "original_relative_paths_preserved_under": "owner-native-text-source-stage/"
+}

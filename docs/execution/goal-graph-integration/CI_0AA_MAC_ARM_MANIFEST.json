@@ -1,0 +1,268 @@
+{
+  "schema": 1,
+  "sealed_at_utc": "2026-10-28T20:49:01.103942+00:00",
+  "review": "ARM_REVIEW.md",
+  "run_id": 40761824261,
+  "attempt": 1,
+  "arm_job_id": 123075460314,
+  "feature_sha": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+  "actual_checkout_sha": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+  "tree_sha": "1943596e0bd12177d852117dab86c81ca30e6858",
+  "downloads": {
+    "arm_joblog": 1,
+    "artifact_list": 1,
+    "arm_native_zip": 1,
+    "actual_checkout_commit_api": 1,
+    "intel_initial_status_api": 1,
+    "other_artifacts": 0
+  },
+  "archive_crc_and_safe_extract": "passed",
+  "source_mutations": false,
+  "cargo_or_daemon_or_model_calls": false,
+  "remote_mutations": false,
+  "arm_result_dimensions": {
+    "core_native_host": "success",
+    "actual_schema12_readonly_webview_and_lifecycle": "success",
+    "actual_webview_webcrypto_four_checkpoints": "success",
+    "owner_bin_pure_tests": "4 passed",
+    "actual_owner_cancel_then_ok": "failed at exact native title/message uniqueness before first click",
+    "owner_postclick_database_acceptance": "not_reached",
+    "default_release_build": "skipped",
+    "default_release_binary_audit": "skipped",
+    "development_package": "skipped",
+    "real_provider_model_calls": "not_run"
+  },
+  "causal_confidence": {
+    "observed_failure": "exact title/message NSTextField uniqueness guard",
+    "bootstrap_failure": "not_supported_by_current_evidence",
+    "specific_AppKit_or_production_cause": "unresolved (raw text/count/view/failure screenshot absent)"
+  },
+  "intel": {
+    "job_id": 123075460377,
+    "initial_status": "in_progress",
+    "last_read_once_utc": "2026-10-28T20:45:42.661844+00:00",
+    "next": "await Root completion notification; no polling"
+  },
+  "files": [
+    {
+      "path": "ARM_REVIEW.md",
+      "bytes": 8507,
+      "sha256": "260d30090ef640cdc29190f4aee7163c642fd9eaf71e23aece770958714b104c"
+    },
+    {
+      "path": "actual-checkout-api-read.json",
+      "bytes": 161,
+      "sha256": "80c02d13956b5e70010fbc81496a7b767c13b8af6772e75e498ab63c8d1453e4"
+    },
+    {
+      "path": "actual-checkout-commit-api.json",
+      "bytes": 2660,
+      "sha256": "28f42456817d28746d4f936a9a4e71fdc30127b9b76957884b16994ea105a2be"
+    },
+    {
+      "path": "arm-artifact-inventory.json",
+      "bytes": 4655,
+      "sha256": "d5ebf9bbd0f4912c4b4afb66f3d99373ddad67d6103c8216742a95cbbf2995d0"
+    },
+    {
+      "path": "arm-job.log",
+      "bytes": 386396,
+      "sha256": "69d678d64aa0170870d327a276d2f9361e593f4175377f78c0bd0aaa42845edc"
+    },
+    {
+      "path": "arm-native-artifact/lane.log",
+      "bytes": 3788,
+      "sha256": "a026b023ac895f892af136e26871d400f02dd78d8be445d3f12a23109303e01c"
+    },
+    {
+      "path": "arm-native-artifact/native-run.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "arm-native-artifact/native-runner.json",
+      "bytes": 359,
+      "sha256": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+    },
+    {
+      "path": "arm-native-artifact/native-screen.png",
+      "bytes": 173528,
+      "sha256": "10349267f14f3af41b74292aed4f628f3aaf5858c936729c12821e776ddf528d"
+    },
+    {
+      "path": "arm-native-artifact/native-smoke.json",
+      "bytes": 5935,
+      "sha256": "047d65b72104c07460cf9bd153d3a6d843f64ed6db37f76d553072a16b98aca7"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/app-cleanup.json",
+      "bytes": 278,
+      "sha256": "5c9ad840b00d6da2a1ae82145927d69fade7d5ffc7b5221571f004a69a0d8353"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/before.json",
+      "bytes": 11224,
+      "sha256": "348cc2a0f38b822402004301727be4413b4662a701eb4480afa535a1e3f5dd84"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/bootstrap-paths.json",
+      "bytes": 963,
+      "sha256": "e41c7c79fc4a3b6a674e32ac0349fe90101d04c85b4e4ad080392e3e779a2a2f"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/bootstrap-state.json",
+      "bytes": 2667,
+      "sha256": "2f175e679b2194a5b175a5e73055e2a2436af6dc9473f096f5d9816f49ddaaba"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/core-bootstrap-transcript.json",
+      "bytes": 12086,
+      "sha256": "bbd752a28e46b709e8f176787175003c4c1994983d78da1684e52898e6453a84"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/daemon-cleanup.json",
+      "bytes": 350,
+      "sha256": "d4e4df04acc35cc3748daba2de7cd1e9c68fcac5ad21b591649f8a560ff44abe"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/daemon-stderr.log",
+      "bytes": 104,
+      "sha256": "5c7735c4327ab48d07d582f0a7009e9cb0e5ae6799de7b1ba90e66fdb0b9cf28"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/daemon-stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/fixture.json",
+      "bytes": 6658,
+      "sha256": "3bc74d507b2c649644bcd82643ece3c64bf142556db0b62cc7410742699fcc26"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/owner-dialog.json",
+      "bytes": 176,
+      "sha256": "6d381daaebc2c82261c3119fa9ced73d900fb0317754bf785af7a4d88e2b6ab2"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/runner-failure.json",
+      "bytes": 122,
+      "sha256": "d64e173745bea39534060b08175c72e9f688e80fc4a842783bfcab7c20e6a068"
+    },
+    {
+      "path": "arm-native-artifact.zip",
+      "bytes": 173721,
+      "sha256": "8274f44b8a6884fcf7d6fcfd4f05bd0d28472018edbb548b823ea241e6b5619d"
+    },
+    {
+      "path": "arm-offline-evidence-checks.json",
+      "bytes": 2214,
+      "sha256": "fc7c5758223bf54d9db524ea77ca27f08931f3d00dcbc87284390ade68c18e6f"
+    },
+    {
+      "path": "artifacts-api.json",
+      "bytes": 2320,
+      "sha256": "60e58607a5510967381847db95f0a533bcf22f09c152c0fb8cc8de6e6c2fd206"
+    },
+    {
+      "path": "download-initial.json",
+      "bytes": 934,
+      "sha256": "36372b2bddaf515ee84159db96f50b4920337613f816571046492ee31a583a9e"
+    },
+    {
+      "path": "execution-boundary-read.txt",
+      "bytes": 16020,
+      "sha256": "8bb127bea83d9228676b6bf19c2143cdf37a80e0f08c9bc107bdcb71d1ce6f5b"
+    },
+    {
+      "path": "intel-status-initial.json",
+      "bytes": 3377,
+      "sha256": "10f732b90b66c74d90dd3c258c379e3c11fb1293b680bba5e69f0fda7ff0a1e7"
+    },
+    {
+      "path": "offline-check-bytecode-cleanup.json",
+      "bytes": 321,
+      "sha256": "6b5fdfa86e87a577251691e4f29d2d080a40e06d1fd0a8428498c740af8e7c16"
+    },
+    {
+      "path": "root-product-jobs-snapshot.json",
+      "bytes": 14744,
+      "sha256": "d5f391b06abe2a6497d8876547eea91ba9156049862c632aaa285fb064564956"
+    },
+    {
+      "path": "source-map.json",
+      "bytes": 2940,
+      "sha256": "9666f947dfad4fded27b32f19973e7e5280e0f0d1f34c4158c0d69c4d83af771"
+    },
+    {
+      "path": "source-preservation.json",
+      "bytes": 3434,
+      "sha256": "65e3f6ca3db728a8752eba0c4b528a628dd22df5145514ae89137ce0534c83e0"
+    },
+    {
+      "path": "source-snapshot/AGENTS.md",
+      "bytes": 6137,
+      "sha256": "623b044437d8e0caa4174e7dd7ac3fef6597c34a67e49bc0a22b9f58ad2c05ab"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/approval.rs",
+      "bytes": 133900,
+      "sha256": "9e5e68431d43a3435f539bac465af998fe300457984ea953a2d402c982399983"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs",
+      "bytes": 3906,
+      "sha256": "3df3613f7f73ebed47a339aba6d3c3aef197f7e3cebd0f33ff61d9bf1d68d724"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs",
+      "bytes": 19736,
+      "sha256": "e032eb04c604edeed76a074009197f2c0be9ca0097eb5cc2921559a97c537cae"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs",
+      "bytes": 760,
+      "sha256": "553b4bd415dd6a794256bf02d4f460ec0f276660ee25eb87472e33c30ab87d19"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/lib.rs",
+      "bytes": 44420,
+      "sha256": "b1889f27230fa1612fd4fac3fa5210d15dbc54ac3506dab7b8b8637dc6c28c0d"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/native_parent.rs",
+      "bytes": 17462,
+      "sha256": "a4a0b2f9feba3848c2a9cd46510abb89e8da7d9f6c0b70dcc0344e8da545fc9f"
+    },
+    {
+      "path": "source-snapshot/codex/GOAL.md",
+      "bytes": 1723,
+      "sha256": "cbb97a4c11f83cd26ca4f0c2f38c0d9c03d8a11b4cfb8eaadda49f132e27405e"
+    },
+    {
+      "path": "source-snapshot/docs/execution/OWNER_INBOX.md",
+      "bytes": 2985,
+      "sha256": "094a77884272d0919bece0654237419f2d226a9245e7d826e0891a8f661f811f"
+    },
+    {
+      "path": "source-snapshot/docs/execution/launch/APPROVAL.md",
+      "bytes": 3389,
+      "sha256": "51aee038d99545f3c6899ee0424c7717124464c80e254cb35487569972dedbc8"
+    },
+    {
+      "path": "source-snapshot/infra/execution-gate.json",
+      "bytes": 1786,
+      "sha256": "313c96753ddd8f89d8a69e58428f834596f3059b0d0a41996dc1059ea8170e7e"
+    },
+    {
+      "path": "source-snapshot/scripts/native-owner-dialog-smoke.py",
+      "bytes": 29106,
+      "sha256": "872b1ba6e7dc0d006b96561bbc36627ac2868bb13407f10768a80e4336f6611a"
+    },
+    {
+      "path": "source-snapshot/scripts/native-run.py",
+      "bytes": 17595,
+      "sha256": "8fa23e107fe92542b95fc5d398aa38a20236d29b2e3fbbe7eb87b92efb0197c1"
+    }
+  ]
+}

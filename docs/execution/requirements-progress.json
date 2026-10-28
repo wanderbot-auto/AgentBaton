@@ -1294,6 +1294,22 @@
             "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
           ],
           "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         }
       ]
     },
@@ -1457,6 +1473,22 @@
             "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
           ],
           "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         }
       ]
     },
@@ -1726,6 +1758,22 @@
             "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
           ],
           "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         }
       ]
     },
@@ -1898,6 +1946,22 @@
             "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
           ],
           "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         }
       ]
     },
@@ -2046,6 +2110,22 @@
             "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
           ],
           "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         }
       ]
     },
@@ -2211,6 +2291,22 @@
             "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
           ],
           "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         }
       ]
     },
@@ -3387,6 +3483,22 @@
             "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
           ],
           "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         }
       ]
     },
@@ -5153,6 +5265,22 @@
             "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
           ],
           "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         }
       ]
     },
@@ -5318,6 +5446,22 @@
             "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
           ],
           "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
         }
       ]
     },

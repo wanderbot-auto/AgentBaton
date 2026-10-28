@@ -1,0 +1,16 @@
+{
+  "archive": "CI_0AA_LINUX_EVIDENCE.tar.gz",
+  "bytes": 18658102,
+  "sha256": "beb3a30a4cb22ad83f2dc0e6a2eb2b0ae4083da94478fb9ada828d7be6fa0f59",
+  "original_receipt": "CI_0AA_LINUX_ORIGINAL_IMPORT.json",
+  "original_receipt_sha256": "6d0f890b33073d0bfa8e5c4d6bee8b3965a631b3eb79b95d37a9d9c71763d835",
+  "payload_files": 148,
+  "archive_regular_members": 149,
+  "independent_allpayload_roundtrip_verified": true,
+  "Root_archive_sha_verified": true,
+  "Root_also_actual_viewed": [
+    "ui-artifact/home-1488x981.png",
+    "ui-artifact/goal-graph-command/03-task-accepted-five-node-command.png"
+  ],
+  "dimension": "Linux only; actualProduct checkout5ca/tree1943; Mac separately failedOwner/noinstallers"
+}

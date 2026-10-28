@@ -1,0 +1,160 @@
+{
+  "recorded_at": "2026-10-28T20:19:17.320329+00:00",
+  "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+  "source_composition": "cf073d963e25f631502e333647171d19e6b40348",
+  "final_integration_reviewed_commit": "9448918d17ba3a1159edf7051e140ea04e04e6df",
+  "status_sha256": "ff1cd0199804c7aa0a580053e50b5f05dae340a6039610cc8323efdf8f7fcb8d",
+  "main": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "pr": "https://github.com/wanderbot-auto/AgentBaton/pull/16",
+  "draft": true,
+  "product_run": 40761824261,
+  "environment_run": 40761824141,
+  "merge_candidate_API_only": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+  "actual_checkout_log_evidence": "independent Env Linux123075459473 and ARM123075459958 original logs; Product logs still not yet independently checked",
+  "jobs_last_captured": [
+    {
+      "id": 123075459595,
+      "name": "Product / UI",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123075460170,
+      "name": "Product / Rust",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "id": 123075460314,
+      "name": "Product / macos-15",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "id": 123075460377,
+      "name": "Product / macos-15-intel",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "id": 123075459473,
+      "name": "Environment / ubuntu-24.04",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123075459922,
+      "name": "Environment / macos-15-intel",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123075459958,
+      "name": "Environment / macos-15",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "next": [
+    "SealIntel/ARMevidence; test-only ownsheet bounded diagnostics author/independentreview+appropriateNativecompile then one newcandidate all7CI, no loweredtext/click gate",
+    "No more docs-only/source-unchanged pushes while this runs",
+    "Continue separateFactory13 source40b435b UI independent643pass13Rustnotrun; Core343eb53 17directed incl3actualIPC incomplete",
+    "Re-read main/inbox/rules/threads before any protected exacthead merge; no formalGitHubApprove"
+  ],
+  "restrictions": [
+    "no real product Provider/model/private identity calls",
+    "no new spending/resources/hosts",
+    "no signing/notarization keys or production/finallicense"
+  ],
+  "native_cargo_holder": "core; unique validation-integration target",
+  "no_manual_retries_cancellations": true,
+  "updated_at": "2026-10-28T20:54:39.726875+00:00",
+  "actual_environment_checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+  "tree": "1943596e0bd12177d852117dab86c81ca30e6858",
+  "candidate_commit_proof": "1175B signedGit payload+gpgsig reconstructed exactSHA; parentsa1be94+0aa20; tree matches localfeature",
+  "current_observed_outcome": "final5success2MacOwnerfail; bothCoreNativeReadonly/WebCrypto passed; no newpackages",
+  "UI_artifact_owner": "data_core_review_resume independent download/audit, Root does not duplicate",
+  "product_jobs_latest": [
+    {
+      "id": 123075459595,
+      "name": "Product / UI",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123075460170,
+      "name": "Product / Rust",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123075460314,
+      "name": "Product / macos-15",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "id": 123075460377,
+      "name": "Product / macos-15-intel",
+      "status": "in_progress",
+      "conclusion": null
+    }
+  ],
+  "actual_Product_checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+  "actual_Product_checkout_proof": "new actual UI and Rust original logs independently reviewed, same tree1943596",
+  "Linux_review": {
+    "path": "/workspace/.onboarding/pr16-0aa-ui-review/LINUX_REVIEW.md",
+    "sha256": "698722d5187f1460cb28be48ab893a3460a5d457918c816af73ffd7d2a87ee6e",
+    "manifest": "/workspace/.onboarding/pr16-0aa-ui-review/LINUX_MANIFEST.json",
+    "manifest_sha256": "76923807560ace4534bafda80efc985ab39327eda1ab33467237ca105e1d193d",
+    "archive": "/workspace/.onboarding/pr16-0aa-linux-evidence.tar.gz",
+    "archive_sha256": "beb3a30a4cb22ad83f2dc0e6a2eb2b0ae4083da94478fb9ada828d7be6fa0f59",
+    "payload_files": 148,
+    "Root_archive_hash_verified": true,
+    "Root_also_visually_viewed": [
+      {
+        "path": "home-1488x981.png",
+        "sha256": "b51d95d3947bbb5b06d53ebf5ad35e8116718e8a61c6a463ec1be49700010d08",
+        "observation": "Connected Chinese task canvas; real six draft cards, composer and last row visible; nonblank."
+      },
+      {
+        "path": "goal-graph-command/03-task-accepted-five-node-command.png",
+        "sha256": "7a8df3c220b5ae7d490af8839d47c9d57040c8df98f20613092347edf85679fa",
+        "observation": "Accepted, five nodes and separate two Owner decisions visible; raw observation collapsed, not expanded-rendering proof."
+      }
+    ],
+    "limits": "Linux generated protocol / true UnixIPC only; notMac/liveProvider; unsafeu64 originalpacket separate; dataCopyCancel before_destination_reservation/join only"
+  },
+  "ARM_failure": {
+    "job": 123075460314,
+    "completed": "2026-10-28T20:41:52Z",
+    "step": "Actual native Owner Grant dialog and private database acceptance",
+    "step_started": "2026-10-28T20:41:27Z",
+    "step_ended": "2026-10-28T20:41:39Z",
+    "default_desktop_build_release_audit_packages": "skipped",
+    "cause": "pending actualnewlogs, no inference",
+    "reader": "desktop independent; Root no duplicate download",
+    "actual_error": "Exact full native title/message not uniquely present",
+    "phase": "first cancel before controller.validate/screenshot/DBpermit/performClick",
+    "daemon": "ready canonical92B<103, not bootstrap failure",
+    "expected_body_bytes": 3132,
+    "expected_formatter_equal_offline": true,
+    "actual_observed_texts_counts": "not_retained_so_specific_cause_unknown",
+    "independent_report": "/workspace/.onboarding/pr16-0aa-mac-review/ARM_REVIEW.md",
+    "independent_report_sha256": "260d30090ef640cdc29190f4aee7163c642fd9eaf71e23aece770958714b104c",
+    "independent_manifest_sha256": "c1aff8970cd6c6aa72319e89ab91a04e9b183537c44796daf72ae37ba07332c3"
+  },
+  "Intel_failure": {
+    "job": 123075460377,
+    "completed": "2026-10-28T20:48:16Z",
+    "step": "Actual native Owner Grant dialog and private database acceptance",
+    "step_started": "2026-10-28T20:47:56Z",
+    "step_ended": "2026-10-28T20:48:09Z",
+    "actual_error": "Exact full native title/message not uniquely present",
+    "phase": "first cancel, before controller.validate/screenshot/ready/DBpermit/performClick",
+    "expected_body_bytes": 3136,
+    "expected_formatter_equal_offline": true,
+    "actual_observed_texts_counts": "not_retained_so_specific_cause_unknown",
+    "defaultreleaseaudit_packages": "skipped"
+  }
+}

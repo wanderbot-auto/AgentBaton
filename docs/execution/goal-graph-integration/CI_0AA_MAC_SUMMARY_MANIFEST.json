@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "sealed_at_utc": "2026-10-28T20:54:31.416840+00:00",
+  "feature_sha": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+  "actual_checkout_sha": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+  "tree_sha": "1943596e0bd12177d852117dab86c81ca30e6858",
+  "checks": {
+    "success": 5,
+    "failure": 2,
+    "job_count": 7,
+    "source": "Root saved Environment and Product job API snapshots"
+  },
+  "actual_mac_readonly_dimension": "passed both architectures",
+  "actual_mac_owner_dimension": "failed both architectures before first click, specific causes unresolved",
+  "current_release_audit_and_package": "skipped both architectures",
+  "no_source_remote_or_authority_mutation": true,
+  "files": [
+    {
+      "path": "ARM_REVIEW.md",
+      "bytes": 8507,
+      "sha256": "260d30090ef640cdc29190f4aee7163c642fd9eaf71e23aece770958714b104c"
+    },
+    {
+      "path": "ARM_MANIFEST.json",
+      "bytes": 9462,
+      "sha256": "c1aff8970cd6c6aa72319e89ab91a04e9b183537c44796daf72ae37ba07332c3"
+    },
+    {
+      "path": "INTEL_REVIEW.md",
+      "bytes": 7958,
+      "sha256": "583e134c0801a71f449bfa52abd1a844a3aec6f45598780d1310196321f68aea"
+    },
+    {
+      "path": "INTEL_MANIFEST.json",
+      "bytes": 6727,
+      "sha256": "c5d0df92d35eacc602015c4554010340cbd4bddd4765b0db589fcf8a84242a27"
+    },
+    {
+      "path": "SUMMARY.md",
+      "bytes": 2624,
+      "sha256": "23f9c21715cc553f34def9a7fa31caf8a6586d48afeaf6c4970bea7eb666423c"
+    },
+    {
+      "path": "summary-root-environment-jobs-snapshot.json",
+      "bytes": 11410,
+      "sha256": "9ef4c814ae669dc8462e0f02ce3794abb692ae4283fddd73eeab419ba5606043"
+    },
+    {
+      "path": "intel-root-product-jobs-snapshot.json",
+      "bytes": 15327,
+      "sha256": "47ff06861943d0b665143495cf3ab7f5d1802170fa98ba1f14791dccba60015b"
+    }
+  ]
+}

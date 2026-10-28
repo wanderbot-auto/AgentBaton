@@ -1,0 +1,17 @@
+{
+  "source_directory": "/workspace/.onboarding/pr16-0aa-ui-review",
+  "subject_feature": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+  "actual_checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+  "archive": "/workspace/.onboarding/pr16-0aa-linux-evidence.tar.gz",
+  "archive_bytes": 18658102,
+  "archive_sha256": "beb3a30a4cb22ad83f2dc0e6a2eb2b0ae4083da94478fb9ada828d7be6fa0f59",
+  "manifest": "/workspace/.onboarding/pr16-0aa-ui-review/LINUX_MANIFEST.json",
+  "manifest_sha256": "76923807560ace4534bafda80efc985ab39327eda1ab33467237ca105e1d193d",
+  "review": "/workspace/.onboarding/pr16-0aa-ui-review/LINUX_REVIEW.md",
+  "review_sha256": "698722d5187f1460cb28be48ab893a3460a5d457918c816af73ffd7d2a87ee6e",
+  "payload_files": 148,
+  "archive_regular_members": 149,
+  "each_payload_roundtrip_hash_size_verified": true,
+  "all_original_paths_relative_inside_archive": true,
+  "limits": "Linux UI/Rust evidence only; both Mac jobs pending in retained snapshot; no formalApprove or merge"
+}

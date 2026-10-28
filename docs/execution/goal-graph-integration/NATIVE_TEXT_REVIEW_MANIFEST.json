@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "sealed_at_utc": "2026-10-28T21:01:57.672025+00:00",
+  "review": "REVIEW.md",
+  "base": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+  "candidate": "7a13cddef4316d520361071ff5e2a263ea058580",
+  "candidate_tree": "c8f099d3f0285ddb07507f59361f4d18c33320c8",
+  "source_scope": "exact fixed Git snapshot, not author active WIP/docs",
+  "mandatory_findings": [],
+  "conclusion": "no mandatory correction found in static source review; actual macOS conditional compile and diagnostic execution pending",
+  "mechanical_source_assertions": 16,
+  "mechanical_result": "PASS",
+  "root_linux_controller_result": {
+    "total": 6,
+    "original": 4,
+    "new": 2,
+    "failed": 0,
+    "ignored": 0,
+    "exit_code": 0,
+    "source_hashes_independently_matched": true,
+    "log_sha256": "05a3613d05059b8c549c781e19900c067b2620cb562862f9053658d2250d8adf"
+  },
+  "actual_mac_candidate_compile": "not_run",
+  "actual_mac_sheet_candidate_diagnostics": "not_run",
+  "new_actual_cancel_ok_acceptance": "not_run",
+  "default_release_binary_audit_package": "not_run",
+  "real_provider_models": "not_run",
+  "reviewer_cargo_daemon_or_remote_mutations": false,
+  "formal_approval": false,
+  "files": [
+    {
+      "path": "REVIEW.md",
+      "bytes": 8916,
+      "sha256": "3c465e82308236f771d47a3fb207a615438bd6fd9f168b7687d0c9510d1596f6"
+    },
+    {
+      "path": "baseline/apps/desktop/src-tauri/Cargo.lock",
+      "bytes": 112691,
+      "sha256": "9a74078ffe6b6ff7e1382ee5db9ddae49395c3660d722d29893b6ed663c8082c"
+    },
+    {
+      "path": "baseline/apps/desktop/src-tauri/Cargo.toml",
+      "bytes": 1617,
+      "sha256": "5f7276d2bdbd99925e1aba38759fccffe8add0e8f62eacc055e2301f0462f723"
+    },
+    {
+      "path": "baseline/apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs",
+      "bytes": 3906,
+      "sha256": "3df3613f7f73ebed47a339aba6d3c3aef197f7e3cebd0f33ff61d9bf1d68d724"
+    },
+    {
+      "path": "baseline/apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs",
+      "bytes": 19736,
+      "sha256": "e032eb04c604edeed76a074009197f2c0be9ca0097eb5cc2921559a97c537cae"
+    },
+    {
+      "path": "candidate/apps/desktop/src-tauri/Cargo.lock",
+      "bytes": 112700,
+      "sha256": "4fd256434d2bb3c0903919bc6474f8a3712be2a27eab1651d42e63f7b876a93c"
+    },
+    {
+      "path": "candidate/apps/desktop/src-tauri/Cargo.toml",
+      "bytes": 1674,
+      "sha256": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49"
+    },
+    {
+      "path": "candidate/apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs",
+      "bytes": 6203,
+      "sha256": "4deff52ca01c91f10958ee0ef833f1aab09d0ccaf52c349e03e67fd2a87d2c5e"
+    },
+    {
+      "path": "candidate/apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs",
+      "bytes": 27763,
+      "sha256": "bb78a3201ed730a6eb87983fc0a91ae1e93081ad4de103949a1b0faa41018f39"
+    },
+    {
+      "path": "check_fixed.py",
+      "bytes": 4595,
+      "sha256": "9e7ab7fc78f1bbfff83c27ef374fe942167d29e8522f75f98fc7e2c6b871aae2"
+    },
+    {
+      "path": "fixed-source.patch",
+      "bytes": 19160,
+      "sha256": "3e0a50e95b25d5d123e9da48f12e3bf5a326eb6058e613095a7bece165d0aee2"
+    },
+    {
+      "path": "installed-api-proof.json",
+      "bytes": 6474,
+      "sha256": "9b2df193831ffa8c0a28cf4eec04bed76b670b5bb8034e419d9d5d8528639dde"
+    },
+    {
+      "path": "mechanical-checks.json",
+      "bytes": 3272,
+      "sha256": "a13c8b0b6329b3c004c8c52b29d170018c36f6e59d785cbe8b4a0ef754e46563"
+    },
+    {
+      "path": "root-lease-proof/RESULT.json",
+      "bytes": 1451,
+      "sha256": "5d06b26f06e39706c0054375bfb5fb9a5f2bd91ab627a657496eb59025eeae02"
+    },
+    {
+      "path": "root-lease-proof/before.json",
+      "bytes": 1968,
+      "sha256": "8760b316d81c32305f1819408ce5603c755adb8bdc5effc2eab551a736393773"
+    },
+    {
+      "path": "root-lease-proof/controller-tests.log",
+      "bytes": 1525,
+      "sha256": "05a3613d05059b8c549c781e19900c067b2620cb562862f9053658d2250d8adf"
+    },
+    {
+      "path": "root-proof-and-lock-verification.json",
+      "bytes": 789,
+      "sha256": "294350f2d55e7dd9e35f10d96222b29fe67ee827e9d5b45055147aba3a4dff17"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "completed_at": "2026-10-28T20:59:49.300360+00:00",
+  "source_commit": "7a13cddef4316d520361071ff5e2a263ea058580",
+  "source_before_after_equal": true,
+  "source_sha256": {
+    "apps/desktop/src-tauri/Cargo.lock": "4fd256434d2bb3c0903919bc6474f8a3712be2a27eab1651d42e63f7b876a93c",
+    "apps/desktop/src-tauri/Cargo.toml": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49",
+    "apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs": "4deff52ca01c91f10958ee0ef833f1aab09d0ccaf52c349e03e67fd2a87d2c5e",
+    "apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs": "bb78a3201ed730a6eb87983fc0a91ae1e93081ad4de103949a1b0faa41018f39"
+  },
+  "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke",
+  "exit_code": 0,
+  "tests": {
+    "total": 6,
+    "original": 4,
+    "new": 2,
+    "failed": 0,
+    "ignored": 0
+  },
+  "build_seconds_from_Cargo": 26.17,
+  "log_sha256": "05a3613d05059b8c549c781e19900c067b2620cb562862f9053658d2250d8adf",
+  "dimension": "Linux pure Rust controller +diagnostic byte/limits only; macOS AppKit cfg notcompiled/GUI notrun; no sidecar orWebView executed",
+  "own_exact_temporary_links_removed": true,
+  "borrowed_compile_assets_label": "old5541 fc5/906, neverexecuted; recorded in before.json",
+  "lease": "Root completed test and releasing toCore; no running Cargo or tests"
+}
