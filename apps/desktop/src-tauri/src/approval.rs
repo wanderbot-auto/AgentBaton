@@ -780,6 +780,47 @@ fn graph_execution_snapshot_matches(snapshot: &Value, selection: &Value) -> bool
             .as_str()
             .is_some_and(|warning| !warning.is_empty())
 }
+fn bind_graph_run_finish(
+    response: Value,
+    proposal: &Value,
+    selection: &Value,
+) -> Result<Value, String> {
+    if let Some(error) = response.get("error") {
+        if error.is_object()
+            && error["code"].is_string()
+            && error["message"].is_string()
+            && error["retryable"].is_boolean()
+            && error["side_effect_state"].is_string()
+        {
+            return Ok(response);
+        }
+    } else {
+        let value = &response["result"];
+        let run = &value["run"];
+        let snapshot = &proposal["snapshot"];
+        if value["graph_contract_version"] == 1
+            && run["id"] == proposal["id"]
+            && run["scope_id"] == selection["scope_id"]
+            && run["project_id"] == snapshot["scope"]["project_id"]
+            && run["task_id"] == snapshot["scope"]["task_id"]
+            && run["root_grant_id"] == snapshot["scope"]["root_grant_id"]
+            && run["plan_revision"] == selection["expected_plan_revision"]
+            && run["plan_digest"] == snapshot["plan"]["digest"]
+            && graph_revision(&run["revision"])
+            && value["ledger_revision"].as_u64().is_some_and(|n| {
+                n <= 9_007_199_254_740_991
+                    && Some(n) >= selection["expected_ledger_revision"].as_u64()
+            })
+            && value["task_accepted"] == false
+            && run["task_accepted"] == false
+        {
+            return Ok(response);
+        }
+    }
+    Ok(
+        json!({"request_id":null,"error":{"code":"OUTCOME_UNKNOWN","message":"Graph finalization returned an unbound receipt; reconcile the exact original request","retryable":false,"side_effect_state":"unknown","details_ref":null},"revision":0,"warnings":[]}),
+    )
+}
 pub fn confirm_goal_graph_and_finalize(
     response: Value,
     selection: &Value,
@@ -792,12 +833,13 @@ pub fn confirm_goal_graph_and_finalize(
     if !graph_execution_snapshot_matches(&response["result"]["snapshot"], selection) {
         return graph_refused("Graph proposal does not match the exact existing scope/plan/ledger, definition reuse, subject rebinding and shared budget boundaries");
     }
+    let proposal = response["result"].clone();
     confirm_paged_graph_and_finalize(
         response,
         GraphApprovalKind::Execution,
         GraphDecision::Approve,
         confirm_native,
-        finalize,
+        |frame| bind_graph_run_finish(finalize(frame)?, &proposal, selection),
     )
 }
 
@@ -2020,6 +2062,11 @@ mod tests {
             assert_goal_execution_refused(value, &selection);
         }
     }
+    fn graph_native_result_fixture(proposal: &Value) -> Value {
+        let snapshot = &proposal["snapshot"];
+        let scope = &snapshot["scope"];
+        json!({"graph_contract_version":1,"run":{"id":proposal["id"],"scope_id":scope["id"],"project_id":scope["project_id"],"task_id":scope["task_id"],"root_grant_id":scope["root_grant_id"],"plan_revision":snapshot["intent"]["expected_plan_revision"],"plan_digest":snapshot["plan"]["digest"],"revision":1,"state":"queued","cancel_requested":false,"task_accepted":false,"created_at":"2026-10-28","updated_at":"2026-10-28"},"ledger_revision":snapshot["intent"]["expected_ledger_revision"].as_u64().unwrap()+2,"task_accepted":false})
+    }
     #[test]
     fn actual_core12_generated_graph_proposal_is_reviewed_completely_with_original_private_reference(
     ) {
@@ -2034,12 +2081,12 @@ mod tests {
         let selection = original["snapshot"]["intent"].clone();
         let snapshot = original["snapshot"].clone();
         let mut pages = Vec::new();
-        let result=confirm_goal_graph_and_finalize(json!({"result":original}),&selection,|message|{assert!(message.len()<=16_384);if !message.contains("FINAL native decision"){pages.push(message.rsplit("\n\n").next().unwrap().to_owned());}true},|frame|{assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":original["id"]},"expected_revision":original["revision"],"idempotency_key":format!("proposal:{}",original["id"].as_str().unwrap())}));Ok(json!({"result":"callback only"}))}).unwrap();
+        let result=confirm_goal_graph_and_finalize(json!({"result":original}),&selection,|message|{assert!(message.len()<=16_384);if !message.contains("FINAL native decision"){pages.push(message.rsplit("\n\n").next().unwrap().to_owned());}true},|frame|{assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":original["id"]},"expected_revision":original["revision"],"idempotency_key":format!("proposal:{}",original["id"].as_str().unwrap())}));Ok(json!({"result":graph_native_result_fixture(&original)}))}).unwrap();
         assert_eq!(
             serde_json::from_str::<Value>(&pages.concat()).unwrap(),
             snapshot
         );
-        assert_eq!(result["result"], "callback only");
+        assert_eq!(result["result"]["run"]["id"], original["id"]);
         let declined = confirm_goal_graph_and_finalize(
             json!({"result":original}),
             &selection,
@@ -2069,12 +2116,12 @@ mod tests {
         let (proposal, selection) = graph_native_proposal_fixture();
         let expected = proposal["result"]["snapshot"].clone();
         let mut pages = Vec::new();
-        let result=confirm_goal_graph_and_finalize(proposal.clone(),&selection,|message|{if !message.contains("FINAL native decision"){pages.push(message.rsplit("\n\n").next().unwrap().to_owned());}true},|command|{assert_eq!(command,json!({"method":"approvals.finalize","params":{"proposal_id":"execution-proposal"},"expected_revision":4,"idempotency_key":"proposal:execution-proposal"}));Ok(json!({"result":"exact receipt"}))}).unwrap();
+        let result=confirm_goal_graph_and_finalize(proposal.clone(),&selection,|message|{if !message.contains("FINAL native decision"){pages.push(message.rsplit("\n\n").next().unwrap().to_owned());}true},|command|{assert_eq!(command,json!({"method":"approvals.finalize","params":{"proposal_id":"execution-proposal"},"expected_revision":4,"idempotency_key":"proposal:execution-proposal"}));Ok(json!({"result":graph_native_result_fixture(&proposal["result"])}))}).unwrap();
         assert_eq!(
             serde_json::from_str::<Value>(&pages.concat()).unwrap(),
             expected
         );
-        assert_eq!(result["result"], "exact receipt");
+        assert_eq!(result["result"]["run"]["id"], proposal["result"]["id"]);
         for pointer in [
             "/intent/scope_id",
             "/scope/root_grant_revision",
@@ -2103,6 +2150,22 @@ mod tests {
             .unwrap();
             assert_eq!(refused["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
         }
+    }
+    #[test]
+    fn graph_postfinalize_wrong_run_id_is_unknown_instead_of_a_new_execution_receipt() {
+        let (proposal, selection) = graph_native_proposal_fixture();
+        let mut receipt = graph_native_result_fixture(&proposal["result"]);
+        receipt["run"]["id"] = json!("another-run");
+        let result = confirm_goal_graph_and_finalize(
+            proposal,
+            &selection,
+            |_| true,
+            |_| Ok(json!({"result":receipt})),
+        )
+        .unwrap();
+        assert_eq!(result["error"]["code"], "OUTCOME_UNKNOWN");
+        assert_eq!(result["error"]["side_effect_state"], "unknown");
+        assert!(result.get("result").is_none());
     }
     fn graph_node_proposal_fixture() -> (Value, Value) {
         let selection = json!({"run_id":"run-1","node_id":"owner-1","expected_plan_revision":3,"expected_ledger_revision":17});
