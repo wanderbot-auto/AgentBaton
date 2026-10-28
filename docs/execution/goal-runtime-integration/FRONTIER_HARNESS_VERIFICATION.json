@@ -1,0 +1,203 @@
+{
+  "recorded_utc": "2026-10-28T11:38:36.707613+00:00",
+  "verdict": "independent scoped04ba same-plan Work/Summary run passed10/9PNG; no blocking source finding; whole Goal/native/Provider acceptance not proved",
+  "source_commit": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+  "source_sha256": "e5db2bed25b98a5d7b03fa72adf8e332a91d98e1d2ac43a089d697ea93bade5e",
+  "core_source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+  "binary_sha256": "0a94e3da9f59975b1e7ce6955cdeda80dd9137428f9cca8ffad171514e1d5fdb",
+  "candidate_manifest_sha256": "2488e2a01f80c537284d34ad2e06006149cdd25737850daadfb0ff7da93865ac",
+  "frontend_assets_sha256": {
+    "assets/index-Bkjos9Ky.js": "5eea38cf06da58b61700f0a8b65db0de04e257ab245636400e8b1d9797bc4af4",
+    "assets/index-CJjrxlpo.css": "0371179f77391e82fb051c1305d3c045f4b7b0717c3a944e56e0ff892aca5aa9",
+    "index.html": "53cc0107621bae682121ea3d0c3d1ccdc7f8d7cb747ddda697664a7d27f0f941"
+  },
+  "review_sha256": "26361753c6a9eca47f0eacfaa1d07220af6da70da37c6791306836c88527fa20",
+  "actual_report_sha256": "a1efa0e672888411b6105c773885f55cfa6021f611bf757b1aa64e5276b392a7",
+  "counts": {
+    "actual_browser_checks": 10,
+    "pngs": 9,
+    "all_complete_requests": 7,
+    "all_stop_receipt_chains": 7,
+    "new_frontier_attempts": 2,
+    "new_frontier_output_bytes": 25,
+    "new_frontier_runtime_ms": 319,
+    "new_frontier_advance_requests": 0,
+    "new_execution_approvals": 1,
+    "adapter_stub_controls": 40,
+    "basename_controls": 5
+  },
+  "artifact_count": 32,
+  "artifacts": [
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/REVIEW.md",
+      "sha256": "26361753c6a9eca47f0eacfaa1d07220af6da70da37c6791306836c88527fa20",
+      "bytes": 9919
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-audit.log",
+      "sha256": "aac7c8aca5150cdb45082e6158e1910a6e4047d9acb04ac20ac8acef20a853d9",
+      "bytes": 415
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-command.json",
+      "sha256": "a9521e8198132fba4426274cbf73c12c77b8f212ed126b15a45091b61778b09a",
+      "bytes": 1855
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/01-stored-plan-no-execution.png",
+      "sha256": "58aba38a4594527b651f5e7a4f19c0d71691c87c8325781f6a07553d21744a6d",
+      "bytes": 124368
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/02-real-generated-candidate.png",
+      "sha256": "d9afb96d96c599ea8cdf64362481fb139e950883f60b17365a95a34c50913a79",
+      "bytes": 137315
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/03-real-plan-advance-response-lost.png",
+      "sha256": "bfbe2c9ae9bb773ab22a8a364d68cbd9271be6a4b72c85f39ea34f28c8795c65",
+      "bytes": 137474
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/04-same-scope-replan-history-kept.png",
+      "sha256": "4bd1f6a1b610e985d4262e0703eaf685a6ae4ace837c3b7a7a4d8c00710c7699",
+      "bytes": 137116
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/05-real-data-workspace-goal-candidate.png",
+      "sha256": "b58a09429df8a40dc0947b0ed56c9ae8459c87d9a67ed55506dbf3dfb34475b4",
+      "bytes": 145646
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/06-real-owned-cancel-retains-partial-report.png",
+      "sha256": "8c9fff7bf53d56a0d2c76a72305817903f7addd53f6a2668548baaa2d5cf091b",
+      "bytes": 138034
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/07-timeout-owned-stop-effects-still-unknown.png",
+      "sha256": "52269edcc60b634a3a49381f66d287199893455b9bb6238ac8a6e7134668d68c",
+      "bytes": 149092
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/08-timeout-mobile-unknown.png",
+      "sha256": "cf6143cf4e374fd780d8d6f4ffab4e0d52ae1bb0f6864b00db8b8c4c04d95c3e",
+      "bytes": 51893
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/09-same-plan-work-and-summary-frontier.png",
+      "sha256": "925a597d4ee3f0481a20b8b304aefc85e71febd3142b42c87b7e42bcebc735de",
+      "bytes": 139101
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/daemon.log",
+      "sha256": "2be8e0b3ebc6d5be95853b752c65a0940fb3d1b94a1344acc965f4135e751cd0",
+      "bytes": 66
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-04ba/report.json",
+      "sha256": "a1efa0e672888411b6105c773885f55cfa6021f611bf757b1aa64e5276b392a7",
+      "bytes": 1223927
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent-audit.json",
+      "sha256": "9ad703faa8b458e4f8000bf7e1a5b7f86770b1cac28cb36306e0a12094938570",
+      "bytes": 9162
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/actual-independent.log",
+      "sha256": "5ec1c24bc4cce35828619c9072e3f1c656bd26335d4b8979d26e50798d2edb2a",
+      "bytes": 164
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/adapter-controls.log",
+      "sha256": "f061f5bf4b989ce53d2e1b07ba05c0cd664eb7c10e11da91b890e44cc93e6b89",
+      "bytes": 247
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/adapter_controls.py",
+      "sha256": "2c0602dd2acf78dbe269c6da5027155179eb57feaff286af8510259a0300af24",
+      "bytes": 8219
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/audit_actual.py",
+      "sha256": "7583270a4cde447c5dabf0f9c7e81e872bc1804c5edc967bc95f8f92b4e494f1",
+      "bytes": 7445
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/audit_frontier.py",
+      "sha256": "3e6661ffcad37f485d7e61a121581d4bcd8d1796c984e028e385dfddb6b85b5a",
+      "bytes": 5834
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/first-static-verifier-fail.log",
+      "sha256": "d119629eb99719e2227aa0347f9d6bda4d70503cd3240c4d8a6daeb84f15adcf",
+      "bytes": 225
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/frontier-audit.json",
+      "sha256": "c65c01fa8b7b5fd4db0f9796f76c9d4d595472001731f185fccb373da4cfda98",
+      "bytes": 1934
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/frontier-audit.log",
+      "sha256": "c65c01fa8b7b5fd4db0f9796f76c9d4d595472001731f185fccb373da4cfda98",
+      "bytes": 1934
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/preflight-static.log",
+      "sha256": "6fd49f8d2359e84ef98a8f72572a6459b4092d72d01892b05b7991f7c4547e5a",
+      "bytes": 166
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/preflight.json",
+      "sha256": "0285ea7cebefd18025fe911ef78e5636cfeeef62f75176a48c39ed7d5917cd38",
+      "bytes": 997
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/preflight_static.py",
+      "sha256": "0bf05030ec29bd0708782afb3e227d9c433f5bdef1e7e5267e5917b1bbf79417",
+      "bytes": 8304
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/primary-report-preserved.json",
+      "sha256": "547e2c71ac07b7989ee12d29b05539b3e1b9632026c98d6ef2c31e2fb79e18f7",
+      "bytes": 1223900
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/revised-static-controls.json",
+      "sha256": "07270f49be3475190c5d2efc643b7bcee7b19cc20925fb3f9521619b809c421a",
+      "bytes": 6205
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/source-503c201.py",
+      "sha256": "6c75746a2402710ccb7eb58c9c2e9e91c0bc697a5d39974652b830d9adcf8114",
+      "bytes": 56805
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/source-d118a3c.py",
+      "sha256": "e5db2bed25b98a5d7b03fa72adf8e332a91d98e1d2ac43a089d697ea93bade5e",
+      "bytes": 64314
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/source-state.json",
+      "sha256": "8c1fd6ac7a87e9b71835d9a83addd72672c6c9fae2306b63900202a8e308cbcb",
+      "bytes": 760
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-frontier-harness-review/static-proof.json",
+      "sha256": "2c3914a08cb65136c669df122cc3ec4606120e3ff5dba5836246af2c13fde5bb",
+      "bytes": 2172
+    }
+  ],
+  "limits": [
+    "independent Work/Summary nodes only, no dependent graph/factory/child runtime acceptance",
+    "generated ACP only, no real Provider/model/account calls",
+    "private host Owner fixture, not native OS dialog",
+    "Linux Chromium/Unix only, not macOS/WebView/dual-architecture CI",
+    "selected artifact bytes only, no OS sandbox or workspace quota",
+    "candidate results, no TaskAccepted or full Goal/product completion"
+  ],
+  "cargo_node_target_writes": false,
+  "formal_github_approve": false,
+  "remote_ci_executed": false
+}

@@ -1,0 +1,717 @@
+{
+  "reviewer": "/root/data_core_review_resume",
+  "reviewed_utc": "2026-10-28T11:18:36.166224+00:00",
+  "review_status": "No blocking finding in the reviewed independent Work/Summary existing-workspace execution slice; full Design v0.2 remains incomplete",
+  "source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+  "observed_docs_only_head": "ec22ecfe8fd4c45d8941e03fa0171b22c6305bfe",
+  "runtime_sha256": "c98b87ba442d9be0b954a44cfff78f4781caae18f8e16d858dc2d473ce384167",
+  "ipc_sha256": "0cb42b280291ee31bbd1e7673b82f0215979e2c91a5d7fd6df2ed9293146c1a4",
+  "frozen_source_binding": {
+    "source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+    "candidate_manifest_sha256": "2488e2a01f80c537284d34ad2e06006149cdd25737850daadfb0ff7da93865ac",
+    "source_tree_sha256": "d6082cf6bee17dc6a12ee28b1519e3faeb3da1cf1b281b9d3daab5ba272509c0",
+    "source_files": {
+      "Cargo.lock": "b22c148dd432426f70586093394eeb9f04c0aeca938764be503e1145659f7d42",
+      "Cargo.toml": "5dc88c14683dc23feac5ee1d6076ee96fc8f4a8eb149fa62cf35818553522c29",
+      "apps/cli/Cargo.toml": "279e279bd616d2e034f11808fb9db0020cab9276afe78de8f23c935f7d43fed1",
+      "apps/cli/src/main.rs": "7d2003574a945a52864593ba857819c1ecae348ab366a8a09b499c0d95663a17",
+      "apps/daemon/Cargo.toml": "20d92630b9f65de42c0913c2fa93749084d1d9eeebc1a01e0d2bafe27683297c",
+      "apps/daemon/src/main.rs": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+      "apps/daemon/tests/signals.rs": "150a794d8659152bcd93d42c9870026d98287e320b7772e9dde719e7364027ff",
+      "crates/config/Cargo.toml": "17843f041172110202c01843bacfd2ae96ddfe0b4ac4ac4aa07a4c30efdc5690",
+      "crates/config/README.md": "6bc727262fd239896aa5ada66daed260d728f68583fb68f399d92fdf12bc1bf6",
+      "crates/config/evidence/native-sources.json": "47beac151869c62e1da654be9a22e96bb57e8d1ece899550f380da69c3677bd7",
+      "crates/config/evidence/runtime-materialization.json": "d49cc5d25fbbed5579b35a77da677b48fb34ce5e788c872f8c14380d654621f1",
+      "crates/config/src/capabilities.rs": "8a5bb9a9814c981c353f89f6cba041d8157e8488c75bb88e10f10136ed16cee5",
+      "crates/config/src/capabilities/native.rs": "3fec218349c9e6b5fe18e288150e276d581711427bf9c558cfcb057caab5ce6a",
+      "crates/config/src/lib.rs": "1611d7511c10b45ba6099ddc30e09ecb080967a3745993137272868e62f47411",
+      "crates/config/src/runtime.rs": "3f88a355dae50ca2ed53e5414d93d5230b67596781310ec348c01c7cb606bfcb",
+      "crates/config/tests/capabilities.rs": "b27c0a7460acd0433734aed8db3ad7a99b577ca003c1a6a270d44416df576acc",
+      "crates/config/tests/native_sources.rs": "13e67f49c4bb434d5655e97ea09234ad17a3af2e89d4d7c2d0af2ced8251aa15",
+      "crates/config/tests/runtime.rs": "f9d3446916a0ec4961c077a2dc9cd85fe39d2eb9cbc7059cce3a90a1c09821ae",
+      "crates/config/tests/transactions.rs": "efb15cab097e5751557e665e3d846e31641a813adbe1604ec39e5318cb768212",
+      "crates/core/Cargo.toml": "d7edfdfe4ee3efe2f718134ff73d63aa040599cc37fbaa4d94a6afa232a9a4bc",
+      "crates/core/src/command_validation.rs": "fe9e4e126fd8089140eaa638accad73849d70a5bc696e9c9d3090baceacffbcd",
+      "crates/core/src/command_workers.rs": "73c26d9f2db4e5e59cdbe13655af536a64d7ceb9f95977f8f90da9a9cc2ddd84",
+      "crates/core/src/data_validation.rs": "a3694819f13551ae250b36be99314376bdba86ec531752c082aa9fa69a2d3bdf",
+      "crates/core/src/data_workspace_workers.rs": "065e2450a133dd308755af04ec588db38633dd3c7089b2b5cc1365aa623dd56a",
+      "crates/core/src/data_workspaces.rs": "4e122675777063be0f2a3acc3f6b0fee110bf509cffc3894128ec7cb66392dc4",
+      "crates/core/src/execution.rs": "0f299dc199f3c0a3e0e8d5689298fe08d87f64956baeb82be3a4633550e3078d",
+      "crates/core/src/goal_plan.rs": "243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21",
+      "crates/core/src/goal_runtime.rs": "c98b87ba442d9be0b954a44cfff78f4781caae18f8e16d858dc2d473ce384167",
+      "crates/core/src/goal_store.rs": "2bffee0225c3c3ee533042c367de1f0b4b1b51f9494c91c86f2accd49925e81c",
+      "crates/core/src/ipc.rs": "0cb42b280291ee31bbd1e7673b82f0215979e2c91a5d7fd6df2ed9293146c1a4",
+      "crates/core/src/lib.rs": "e4be654487d102fe7b74a38f4eb9fba7c79aae718eebdf2e89c905e809cd4d5d",
+      "crates/core/src/policy.rs": "f281c45c5f5057b5f6c83b35eda5129444ebdde625e42962f4a8183f7d3b7ae9",
+      "crates/core/src/registry.rs": "2e364198355ad5c2bea1077c2c3b7aada842c5dee34826a093bd53817fa2fa45",
+      "crates/core/src/routes.rs": "259642508b6bba313f2545b122986d377b434af6f6caccfcf3208a8bb3c128a1",
+      "crates/core/src/runtime_config.rs": "73e326b050e7fe661fe8a83e19775ea1d0d9da431e2909a1cb4e14c51d0ff3da",
+      "crates/core/src/sessions.rs": "768a8c739648c1541f5ebc6fe312b67c2b88fc3f581852d9e323162cde28699a",
+      "crates/core/src/storage.rs": "f62f8d340cf32b3bf4029d4598376d7c7c1a0579598e411177d947c5a28881fb",
+      "crates/core/src/validation.rs": "54dbcb97fcb5cb70c74feb07fb5a737defb8dd0c6af931abbe59ae9143ce71db",
+      "crates/core/tests/admission_performance.rs": "19c9a8fc6df345053bfb5543db5da549455d6323b107fbf790dad4d44fbc7c3b",
+      "crates/core/tests/approval_outcomes.rs": "dbc6adc0de7e2c086e31a022f52df374cf7fc3c7c6d3f71e1ccc53e3acf96a67",
+      "crates/core/tests/command_validation.rs": "e6fcea284422aa9f6dc1c60b8eddcbbf2f3e540e92c4545f9af9ec622e63c4fe",
+      "crates/core/tests/command_validation_migration.rs": "0283fec815dd7bec8d37374aa264b09262d71f2d7d00ccdc5772381970951009",
+      "crates/core/tests/data_workspace_migration.rs": "941d69d6da6cc206771087001797d2f40dc30279296dcac78d328b7a83910f04",
+      "crates/core/tests/data_workspaces.rs": "0a4d19c286568b0eb7b6b0e0c8777f96dac487cb544b3ae37e83eddfdf9769f4",
+      "crates/core/tests/execution.rs": "cc275e1641e4e32aed89f4c3de5b7284cad84824b031bcd5c52b0fbc7b30d113",
+      "crates/core/tests/goal_plan.rs": "8430aa22a3cf76c5d027a0465d1ef4760192e04b482fc4a5a0d88820e037c0e8",
+      "crates/core/tests/goal_runtime_migration.rs": "6575edc116efd8f1eb7ba7218e103c2b1e7c3379a3b9a860a7cc844442c784ab",
+      "crates/core/tests/goal_store.rs": "f2262514d84f51cba76253c060ed47580a5b3efb4ec4e04d25598d031e94e454",
+      "crates/core/tests/goal_store_migration.rs": "87ed0f4f05ce8ed8c145c6b0202d639db81540645824ad41282f040590e5397d",
+      "crates/core/tests/ipc.rs": "26c7540c6ec88df74365268aaa81de4feb4be7e57418e7fc221a1559d4023e28",
+      "crates/core/tests/migration_v3.rs": "5d4626138f8553f4b960d727b0b2702b9d6ccdf102caeedb9d4be410aa81aa0c",
+      "crates/core/tests/migration_v5.rs": "a2e134b967b0016511f48b6dee40e782e939b0648b23aafa7c6a05efb991033a",
+      "crates/core/tests/migration_v6.rs": "d47f4b1ac1c54055741d2ad1cd9d108939d51e99ac2cfa7649a2ec9578b0edf2",
+      "crates/core/tests/migration_v7.rs": "892467ded27222f6220969a03459c5686fdcb8ff2285a6625f6554e6864ce854",
+      "crates/core/tests/policy.rs": "52eb621f116060ec2e7447d0375de14ebd81f7d6043beeef5e1bf0474fa8ed4f",
+      "crates/core/tests/project_ipc.rs": "9b38de8f283a706730edb49060c11124ad6341111ac0e76abdb07930884205f8",
+      "crates/core/tests/registry.rs": "9355f135a16a3f4cb2a2523053f11bc3442d640101be7f5e2b04926891f60e19",
+      "crates/core/tests/sessions_ipc.rs": "7b0749bce7336f7676202038b9afe2d9235127260b74557a4cfd774a6f3694e0",
+      "crates/core/tests/storage.rs": "83862e412b7b57699d34429a0c1c2aa9b00348c3b01da8d94835810bbaef3c0d",
+      "crates/providers/Cargo.toml": "ebcef2dbe3294cf341990be4843da8e9e20fe2f4f65501f90fff06e038ef37c0",
+      "crates/providers/EVIDENCE.json": "621254805509206871b29f1b37630d77eaf266b55daa51e214b4ef1539f0819f",
+      "crates/providers/PROVENANCE.md": "9a5134d403e39060b28b5678797c16bbed17f10f02f6ceb4354ba7836c1bc455",
+      "crates/providers/README.md": "13258f3ec576fd5635f8aa37a7ead9bfe8ec6adfb2ea8ce63b87a6a52f452c3a",
+      "crates/providers/documentation-evidence.json": "d97e8c6040900c542ba3c2e579d6f53b74aa005938a0cf1ceb8aef5a55b05c52",
+      "crates/providers/src/codex.rs": "295a0e5ac624e375e0a5cbae7e419594627f657d6485e2f39098e077958099dd",
+      "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+      "crates/providers/src/driver.rs": "0355f67a6aced685cc665b827519fdd546d4465c11bdff3a54651ff0c52e83ca",
+      "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+      "crates/providers/src/installation.rs": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+      "crates/providers/src/lib.rs": "a7e778a9da1d121a967d05c6aa1de6f99849477a12df0bb5a4a1624cb48d017f",
+      "crates/providers/src/process_io.rs": "ab0ad1edd09f59dd500f1446909f490926e0a2af8d5033fdc403189774973774",
+      "crates/providers/src/session_configuration.rs": "89cd8a8f57f993605904b1fd7250f23fa49a20565a1c771239b397a5763c63a9",
+      "crates/providers/src/transport.rs": "035820c4bb2bc3ae8b0aada9acf704354c79b718a18d25474c5492e871f8ee76",
+      "crates/providers/tests/connections.rs": "31aa177dff7ad010fa147c68f3e338ef5c33f1fdb430322a95cde9b65d4199c3",
+      "crates/providers/tests/contracts.rs": "9a4d3f1a5f5a059e7b446b2d143b5f4ba990deb1bc8c49b399ff5ee31c734c38",
+      "crates/providers/tests/installation.rs": "90724f1d9d6c3fe5641ae7076d9c9442293a6550a4b20bb7baecbfcd6e6b1531",
+      "crates/providers/tests/native_codex.rs": "aff6e9cac154f7877b6f0a969d4cadaaa7e32c2a28638fcb9546b088d7b1c8e3",
+      "crates/providers/tests/routes.rs": "02b6ee5fee49b883adafb704639f0c6245002b142b5901d902f2fa0b586afb93",
+      "crates/providers/tests/stdio.rs": "1be8c06e63a6107e94fc903bcdbcbddf662f77d4d96cf475f3eddb6485972dfd",
+      "crates/providers/tests/validate-native-schema.py": "2704628709cec5be5cb2cfe2faf082ace8e9938f99bf39574153f8bf9fa92597",
+      "crates/workspaces/Cargo.toml": "303ae03186afbb4da35f45b954efbb91155f6d241c174f130ad89c36df9aa897",
+      "crates/workspaces/README.md": "17759786de61866f6dfb929bd9a7013d52e10fe8321940f8da8f4017bace3e30",
+      "crates/workspaces/src/adoption.rs": "be970ed01ee18bebe9b06e62087d0bd7c52e97bfca6db0dcaec60cbedeba9472",
+      "crates/workspaces/src/command_validation.rs": "d5fa7b28d6a694c4fa8f767a021499fb5c984a68937cfbf939fcf553cbd4e870",
+      "crates/workspaces/src/data_workspace.rs": "ff6f6823893bfc1631748863988a9884f52088cf2a9c5850b501e5bc59ae301d",
+      "crates/workspaces/src/deterministic.rs": "44e8feda9a9dbd91d7fb5db1ed0c38424ef380fbb8fc3ec565ea3f1591a97c26",
+      "crates/workspaces/src/lib.rs": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+      "crates/workspaces/src/validation.rs": "92ea96d82f7711bca1e5112a59fdbd9f0617df0ce887ce9f55e2c8ac25cd4c83",
+      "crates/workspaces/tests/command_validation.rs": "3b039348580055680dc7e229c2c26c8d34ee3e434ebe1209f6c166c5c828ea7e",
+      "crates/workspaces/tests/data_workspace.rs": "b61b0896ac373d98ade5c444da314af1dbbce4d85a5205a863f8aa4cf2657157",
+      "crates/workspaces/tests/deterministic.rs": "340f91af93a8550712b2c96daa1e890065843e4ddcf09c4c40907073c55cb286",
+      "crates/workspaces/tests/lazy_fetch.rs": "8f4de1e700b317e9e100a8bff3ec9f4feb9402b9a86f218992a020b577dcf711",
+      "crates/workspaces/tests/safety.rs": "cc5fe6204309fc5a7a678e38830f63e24f30efc1a91faa449ffad6c82afa9b59",
+      "crates/workspaces/tests/validation_adoption.rs": "eba06f2101967215f73705a83bd8f1dbce0cb02e1456bf5df65e8d59c886a6a8"
+    },
+    "source_count": 94
+  },
+  "source_rehashed_after": {
+    "source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+    "observed_head": "ec22ecfe8fd4c45d8941e03fa0171b22c6305bfe",
+    "source_files_rehashed": 94,
+    "unchanged": true,
+    "candidate_manifest_sha256": "2488e2a01f80c537284d34ad2e06006149cdd25737850daadfb0ff7da93865ac",
+    "source_tree_sha256": "d6082cf6bee17dc6a12ee28b1519e3faeb3da1cf1b281b9d3daab5ba272509c0"
+  },
+  "environment": {
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+    "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+    "python": "Python 3.12.14",
+    "kernel": "Linux x86_64"
+  },
+  "cargo_environment": {
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+    "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/target",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_BUILD_JOBS": "2",
+    "RUST_TEST_THREADS": "1"
+  },
+  "verification_mode": "Independent execution using exact-source existing Cargo cache; not a clean rebuild. Generated local ACP and actual SQLite/process/Unix IPC tests; private authority units use synthetic connection readiness. No real Provider.",
+  "commands": [
+    {
+      "name": "core-full-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "working_directory": "/workspace/.worktrees/goal-ready-frontier",
+      "exit_code": 0,
+      "seconds": 198.068,
+      "log_sha256": "099c40285662cd3a01a4351ad44edb92f7750ea95a432bfe1db76476a3d2d52b"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "working_directory": "/workspace/.worktrees/goal-ready-frontier",
+      "exit_code": 0,
+      "seconds": 0.13,
+      "log_sha256": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+    },
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "working_directory": "/workspace/.worktrees/goal-ready-frontier",
+      "exit_code": 0,
+      "seconds": 0.606,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "working_directory": "/workspace/.worktrees/goal-ready-frontier",
+      "exit_code": 0,
+      "seconds": 0.009,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "independent_core_verification": {
+    "unique_outer_tests": 279,
+    "raw_passed_summaries": 280,
+    "excluded_repeated_nested_fifo_child": 1,
+    "suites": [
+      {
+        "suite": "unittests src/lib.rs (/workspace/.worktrees/validation-integration/target/debug/deps/agentbaton_core-6e59569c2275c972)",
+        "result": "ok",
+        "passed": 53,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/admission_performance.rs (/workspace/.worktrees/validation-integration/target/debug/deps/admission_performance-9e5ba8b2f3f6a38b)",
+        "result": "ok",
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/approval_outcomes.rs (/workspace/.worktrees/validation-integration/target/debug/deps/approval_outcomes-4c48cf9af8f1aae1)",
+        "result": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/command_validation.rs (/workspace/.worktrees/validation-integration/target/debug/deps/command_validation-cf34b2e1125ae04a)",
+        "result": "ok",
+        "passed": 14,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/command_validation_migration.rs (/workspace/.worktrees/validation-integration/target/debug/deps/command_validation_migration-2f5493bc8e03ee91)",
+        "result": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/data_workspace_migration.rs (/workspace/.worktrees/validation-integration/target/debug/deps/data_workspace_migration-03a9e956f8a2b93e)",
+        "result": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/data_workspaces.rs (/workspace/.worktrees/validation-integration/target/debug/deps/data_workspaces-54ea90188c19d953)",
+        "result": "ok",
+        "passed": 21,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/execution.rs (/workspace/.worktrees/validation-integration/target/debug/deps/execution-60351f56b427f47e)",
+        "result": "ok",
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/goal_plan.rs (/workspace/.worktrees/validation-integration/target/debug/deps/goal_plan-79955be88d5b83d3)",
+        "result": "ok",
+        "passed": 48,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/goal_runtime_migration.rs (/workspace/.worktrees/validation-integration/target/debug/deps/goal_runtime_migration-60b0e0e7fea8c038)",
+        "result": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/goal_store.rs (/workspace/.worktrees/validation-integration/target/debug/deps/goal_store-9f6f8b45439a2ba3)",
+        "result": "ok",
+        "passed": 34,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/goal_store_migration.rs (/workspace/.worktrees/validation-integration/target/debug/deps/goal_store_migration-01a283bdd43350b9)",
+        "result": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/ipc.rs (/workspace/.worktrees/validation-integration/target/debug/deps/ipc-8b007f1b6c95328d)",
+        "result": "ok",
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/migration_v3.rs (/workspace/.worktrees/validation-integration/target/debug/deps/migration_v3-0754d619b13edb9e)",
+        "result": "ok",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/migration_v5.rs (/workspace/.worktrees/validation-integration/target/debug/deps/migration_v5-02ec4882acde5327)",
+        "result": "ok",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/migration_v6.rs (/workspace/.worktrees/validation-integration/target/debug/deps/migration_v6-fe108da13d9cf7e7)",
+        "result": "ok",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/migration_v7.rs (/workspace/.worktrees/validation-integration/target/debug/deps/migration_v7-8a8d1033531a2399)",
+        "result": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/policy.rs (/workspace/.worktrees/validation-integration/target/debug/deps/policy-40a42c794c089a80)",
+        "result": "ok",
+        "passed": 13,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/project_ipc.rs (/workspace/.worktrees/validation-integration/target/debug/deps/project_ipc-94ef37f60e391310)",
+        "result": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/registry.rs (/workspace/.worktrees/validation-integration/target/debug/deps/registry-4da4ea2ef58d65e9)",
+        "result": "ok",
+        "passed": 10,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/sessions_ipc.rs (/workspace/.worktrees/validation-integration/target/debug/deps/sessions_ipc-8c6cffdcbd333a82)",
+        "result": "ok",
+        "passed": 38,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "tests/storage.rs (/workspace/.worktrees/validation-integration/target/debug/deps/storage-268d9120075d21b9)",
+        "result": "ok",
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "agentbaton_core",
+        "result": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "private_runtime_tests": 15,
+    "sessions_cases": 38,
+    "source_files_rehashed_before_and_after": 94,
+    "all_old_findings_test_names_present_in_new_run": true
+  },
+  "findings_matrix": [
+    {
+      "id": "G1",
+      "subject": "Ordinary session/low-level attempts cannot bypass governed shared budget",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "actual_goal_shared_budget_cannot_be_bypassed_by_normal_session_or_trusted_lowlevel_attempt"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G2",
+      "subject": "Native initial snapshot commitment and ordered version-advance authority",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::native_execution_origin_requires_full_snapshot_commitment_source_and_positive_order",
+        "goal_store::runtime::tests::autonomous_plan_advance_requires_an_unchanged_ordered_core_receipt_chain"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G3",
+      "subject": "Finite optional dimensions are checked at new admission and every supported plan revision",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::zero_history_declared_token_and_cost_reservations_do_not_prove_metering_capability",
+        "actual_goal_replan_cannot_introduce_unmetered_finite_token_or_cost_cap"
+      ],
+      "coverage_limit": "Actual dependent/parent dispatch is explicitly unsupported; no actual subtree execution/measurement claim. Every finite node/ancestor token or cost cap is refused while reliable metering is unavailable.",
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G4",
+      "subject": "Own dirty Git outputs permit bounded replan; original input drift does not",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "actual_goal_same_scope_replan_after_real_writes_keeps_history_and_budget_without_new_owner",
+        "actual_goal_changed_original_git_input_refuses_new_plan_or_advance_after_real_output"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G5",
+      "subject": "Unknown cancellation and missing local controller never manufacture stop",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::actual_process_exit_before_or_after_sent_marker_recovers_unknown_without_replay_or_false_cancel",
+        "actual_goal_live_daemon_sigkill_does_not_replay_or_infer_stop_from_an_empty_supervisor",
+        "actual_goal_cancel_retains_partial_report_and_only_confirms_after_owned_reap"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G6",
+      "subject": "Unknown actual totals stay separate from declared reservations and measured lower bounds",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::actual_process_exit_before_or_after_sent_marker_recovers_unknown_without_replay_or_false_cancel",
+        "actual_goal_live_daemon_sigkill_does_not_replay_or_infer_stop_from_an_empty_supervisor",
+        "actual_goal_timeout_and_malformed_terminal_never_replay_or_become_task_acceptance"
+      ],
+      "coverage_limit": "The stopped=false settlement branch was statically checked; a kernel-level unreapable child fault was not injected. Actual process crash/restart verifies unknown node totals and retained shared accounting.",
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G7",
+      "subject": "The actual generated protocol receives a bounded complete TaskRequest",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "actual_goal_native_approval_reserves_dispatches_complete_contract_and_reaps_candidate_without_accepting_task"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G8",
+      "subject": "Later root/scope cannot raise or remove retained optional project ceilings",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::persisted_project_optional_limits_cannot_be_raised_or_removed_by_a_later_root",
+        "actual_goal_two_roots_share_project_consumption_and_third_root_cannot_reset_it"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G9",
+      "subject": "Fixed node, SQL columns, session and attempt remain bound before prompting",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::reserved_node_tampering_cannot_change_a_fixed_prompt_or_its_session_and_attempt"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G10",
+      "subject": "Candidate consumption requires actual lower owned-stop source and order",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "actual_goal_completed_candidate_requires_unchanged_lower_owned_stop_receipts"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G11",
+      "subject": "Exact Data proposal/plan-advance receipts recover after drift without new execution",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "actual_data_goal_proposal_recovery_is_historical_after_input_drift_but_new_authority_is_refused",
+        "actual_data_goal_executes_and_plan_advance_receipt_recovers_after_drift_without_reexecution"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G12",
+      "subject": "Known past zero and declared future amount do not prove reliable future metering",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::zero_history_declared_token_and_cost_reservations_do_not_prove_metering_capability",
+        "actual_goal_replan_cannot_introduce_unmetered_finite_token_or_cost_cap"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G13",
+      "subject": "Actual selected-output overrun is retained and cannot be escaped by renaming plan nodes",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "actual_goal_output_reservation_overrun_blocks_renamed_replan_without_erasing_observed_bytes"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G14",
+      "subject": "Readiness uses one actual eligibility predicate and preserves waiting dependencies",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::implicit_input_and_parent_edges_do_not_starve_the_real_eligible_producer",
+        "actual_goal_independent_summary_and_long_node_ids_use_the_same_authorized_executor"
+      ],
+      "coverage_limit": "Independent Work/Summary execute, now including two nodes in one approved Git/Data plan. Consumers/parents/validators/owner-acceptance graph execution remains pending; no full graph or factory claim.",
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G15",
+      "subject": "Aggregate raw JSON/TEXT bytes are bounded before materialization and history is retained",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::three_hundred_persisted_nodes_near_four_mib_remain_complete_and_oversize_refuses_before_decode",
+        "goal_store::runtime::tests::reservation_collection_has_total_raw_limit_not_only_per_row_caps",
+        "goal_store::runtime::tests::oversized_sql_metadata_is_bounded_before_node_comparison"
+      ],
+      "coverage_limit": "The 4MiB cap bounds each selected raw collection, not total process RSS. Real stored 300-node history remains complete near the cap and explicit RESOURCE_LIMIT preserves all rows above it.",
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G16",
+      "subject": "Every selected output has an approved artifactID/contract/path mapping; root/leaf stay pinned",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::unapproved_output_alias_never_becomes_zero_observed_output_or_execution_authority",
+        "goal_store::runtime::tests::selected_output_measurement_requires_original_root_and_stable_regular_nofollow_leaf",
+        "actual_data_goal_executes_and_plan_advance_receipt_recovers_after_drift_without_reexecution"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G17",
+      "subject": "Post-commit cancel failure reports recorded intent without claiming confirmed stop",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::recorded_cancel_fault_never_reports_not_started_and_same_key_recovery_does_not_repeat_stop"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G18",
+      "subject": "Unknown persisted run/node tags fail closed",
+      "review_result": "no remaining blocking finding in supported execution slice",
+      "independently_executed_tests": [
+        "goal_store::runtime::tests::unknown_persisted_run_state_is_never_treated_as_an_inactive_finished_run",
+        "goal_store::runtime::tests::reserved_node_tampering_cannot_change_a_fixed_prompt_or_its_session_and_attempt"
+      ],
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G19",
+      "subject": "Candidate settlement must continue the remaining safe independent ready frontier in the same approved plan",
+      "review_result": "closed for supported independent Work/Summary; original 9f signature remains withdrawn",
+      "old_failure_commit": "ab175262580cd49c748b6e6c3a0cf93d19b05006",
+      "old_failure_log": "old-source-two-node-count-fail.log",
+      "independently_executed_tests": [
+        "actual_goal_same_plan_two_independent_nodes_both_execute_before_awaiting_acceptance",
+        "actual_goal_same_plan_frontier_preserves_budget_cancel_unknown_revocation_and_input_guards",
+        "goal_store::runtime::tests::newer_validated_head_pauses_once_without_intent_growth_and_explicit_adoption_replays"
+      ],
+      "coverage_limit": "Generated local ACP Git and Data two-node cases, six negative guards and explicit current-head adoption. No dependent/parent/factory execution.",
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    },
+    {
+      "id": "G20",
+      "subject": "Temporary conservative local-slot occupancy must wait without intents and must not grant concurrent setup authority",
+      "review_result": "closed for the fixed stored goal_execution finalizer classification and conservative global single-slot queue",
+      "old_slot_failure_after_classifier_commit": "68dc521eb0d6e66d680f22efe0df1cda490e7ac1",
+      "old_slot_failure_log": "old-slot-resource-limit-count-fail.log",
+      "independently_executed_tests": [
+        "actual_goal_temporary_global_slot_waits_without_intents_then_executes_after_owned_completion",
+        "actual_goal_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_authority_refused"
+      ],
+      "coverage_limit": "Two actual held-process roots in different existing approved workspaces, including pending validated head. Ten denial controls. Same-workspace public proposal refused; static finalizer no_writers retained. Generic WORKSPACE_BUSY setup failures are distinct from later true slot RESOURCE_LIMIT failure.",
+      "independent_run_source_commit": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+    }
+  ],
+  "new_followup_commits": {
+    "ab17526": "ab175262580cd49c748b6e6c3a0cf93d19b05006",
+    "173aef4": "173aef4597453d1c8c28bdfa853a4714008f5252",
+    "68dc521": "68dc521eb0d6e66d680f22efe0df1cda490e7ac1",
+    "8bc5236": "8bc5236ace03eaa24e72135230f2aa5d50f0df0c",
+    "04ba180": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843"
+  },
+  "author_retained_intermediate_evidence": {
+    "old-source-two-node-count-fail.log": {
+      "path": "/workspace/.worktrees/goal-ready-frontier/artifacts/goal-ready-frontier/old-source-two-node-count-fail.log",
+      "sha256": "a2cfa31e5f658574a0ca50eff809736be694243e1945d3b08df70aa06fa4ef3a",
+      "executed_by": "author; retained and inspected by reviewer; not independently rerun on old source"
+    },
+    "old-temporary-slot-fail.log": {
+      "path": "/workspace/.worktrees/goal-ready-frontier/artifacts/goal-ready-frontier/old-temporary-slot-fail.log",
+      "sha256": "67500f641c7e977789f08ff95659651c55f933fe7f1c7c6c58e65282dffd1a14",
+      "executed_by": "author; retained and inspected by reviewer; not independently rerun on old source"
+    },
+    "old-temporary-slot-2-fail.log": {
+      "path": "/workspace/.worktrees/goal-ready-frontier/artifacts/goal-ready-frontier/old-temporary-slot-2-fail.log",
+      "sha256": "ec911ccf3b6a0d4a00b3a823eab3baa1a48b1d47b3d2d770c0144a12a108aafb",
+      "executed_by": "author; retained and inspected by reviewer; not independently rerun on old source"
+    },
+    "old-slot-with-finalizer-count-fail.log": {
+      "path": "/workspace/.worktrees/goal-ready-frontier/artifacts/goal-ready-frontier/old-slot-with-finalizer-count-fail.log",
+      "sha256": "772d2640540231a1b3d92d559c27f26e5d2ea5ed7416a0f284cdb6d7393d341e",
+      "executed_by": "author; retained and inspected by reviewer; not independently rerun on old source"
+    },
+    "old-slot-with-fixed-finalizer-fail.log": {
+      "path": "/workspace/.worktrees/goal-ready-frontier/artifacts/goal-ready-frontier/old-slot-with-fixed-finalizer-fail.log",
+      "sha256": "30bed57a252e17fe6d80b9a475483b372cf0d7e10b45348c27dd068449fee534",
+      "executed_by": "author; retained and inspected by reviewer; not independently rerun on old source"
+    },
+    "old-slot-resource-limit-count-fail.log": {
+      "path": "/workspace/.worktrees/goal-ready-frontier/artifacts/goal-ready-frontier/old-slot-resource-limit-count-fail.log",
+      "sha256": "4b1f374e3d571fc9763bbb9ea5578b63d5c0d2f5e8cf72186c4f8d9528840370",
+      "executed_by": "author; retained and inspected by reviewer; not independently rerun on old source"
+    },
+    "frontier-positive-and-guards-2.log": {
+      "path": "/workspace/.worktrees/goal-ready-frontier/artifacts/goal-ready-frontier/frontier-positive-and-guards-2.log",
+      "sha256": "d899a3102008092cae2ef8f7ebbb5849297b3b402a2c720a4caa3d6fe75cb072",
+      "executed_by": "author; retained and inspected by reviewer; not independently rerun on old source"
+    },
+    "new-head-pause-1.log": {
+      "path": "/workspace/.worktrees/goal-ready-frontier/artifacts/goal-ready-frontier/new-head-pause-1.log",
+      "sha256": "04a4f17a51980ff3f95f4294a167a8995ae37ed187039f1aa3c2db7481786eac",
+      "executed_by": "author; retained and inspected by reviewer; not independently rerun on old source"
+    },
+    "fixed-kind-guards-2.log": {
+      "path": "/workspace/.worktrees/goal-ready-frontier/artifacts/goal-ready-frontier/fixed-kind-guards-2.log",
+      "sha256": "cb19bd14ee0fba63e9daf51a316d61928cb625ad4cc98c6186046c0962a16d42",
+      "executed_by": "author; retained and inspected by reviewer; not independently rerun on old source"
+    },
+    "new-slot-and-version-2.log": {
+      "path": "/workspace/.worktrees/goal-ready-frontier/artifacts/goal-ready-frontier/new-slot-and-version-2.log",
+      "sha256": "a2b6aa077de1f696ab009a7ee143540c4711bf49dbe743af059d2faae305e08e",
+      "executed_by": "author; retained and inspected by reviewer; not independently rerun on old source"
+    }
+  },
+  "output_accounting": {
+    "domain": "Current bytes of declared and host-mapped selected output artifacts observed at owned stop, accumulated by attempt",
+    "not_domains": [
+      "Provider protocol capture",
+      "cumulative filesystem writes",
+      "whole workspace disk use"
+    ],
+    "read_budget_bytes": 1048576,
+    "unknown_if": "Missing/unsafe/too-large/unmapped artifact, changed root/file observation, or unconfirmed stop",
+    "os_output_quota_enforced": false,
+    "reservation_is_not_actual": true
+  },
+  "authority_and_scope_limits": [
+    "New goal_execution Native confirmation is distinct from preview-only goal permission.",
+    "Same-scope plan advances require exact CAS and retained trusted ordered history; prior confirmation grants no new workspace/identity/host/recipient.",
+    "Only independent Work/Summary in the existing approved Git or Data workspace execute in this slice.",
+    "Execution candidate is not validation, owner acceptance, TaskAccepted, integration or release.",
+    "Actual parent/child delegation, workspace factory, validator/owner graph and complete planning/router/retry lifecycle remain pending."
+  ],
+  "historical_review": {
+    "old_source_commit": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+    "old_verdict": "WITHHELD for G19; not restored for old source",
+    "old_unique_Core_tests": 274,
+    "old_extra_Workspaces_tests": 27,
+    "extra_actual_cwd": "/workspace/.worktrees/data-runtime-integration",
+    "extra_actual_head": "37bd032f0e1b2dfa75fc9ff768e85801f1693a99",
+    "extra_actual_command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/workspace/.worktrees/data-runtime-integration/Cargo.toml",
+      "--locked",
+      "-p",
+      "agentbaton-workspaces",
+      "--test",
+      "command_validation",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "extra_source_sha256": "3b039348580055680dc7e229c2c26c8d34ee3e434ebe1209f6c166c5c828ea7e",
+    "old_extra_log_sha256": "4450abbb650caac8f21604fab689dc4379d605ca29c690db6e103fd6a5be8e71",
+    "original_full_report": "/workspace/.onboarding/goal-runtime-core-review/superseded-initial-no-blockers/REVIEW.md",
+    "original_full_report_sha256": "4724315154b9c31da87208139f1af20371961cbc3cbed09db1d5354a2b790367",
+    "original_full_verification": "/workspace/.onboarding/goal-runtime-core-review/superseded-initial-no-blockers/VERIFICATION.json",
+    "original_full_verification_sha256": "a0bdf69570b2cd783ac75a3ca7b77172c38eea24c5d38c4645dc274fda063df4",
+    "current_old_withheld_report_sha256": "4832ae7085f077d1e506843208c09d51d345f47e192a52f3645f206b35a29a2b",
+    "count_boundary": "Historical 274+27 are not added to current source279. Extra27 was run in Data integration37bd, not Goal composition78b."
+  },
+  "target_lease": "Author explicitly handed Main target to reviewer; all commands finished, then explicitly RELEASED to Root before final documentation; reviewer performs no further Cargo or target writes.",
+  "not_independently_run_here": [
+    "full workspace product test execution on04ba (only Core executed, workspace lint ran)",
+    "workspaces compile-fail docs or repeated protected fixture27 on04ba",
+    "combined UI/browser/Native test suites",
+    "macOS Apple Silicon/Intel desktop/installers",
+    "real Provider, private account, model calls",
+    "signing, notarization, production delivery"
+  ],
+  "requirement_contribution_partial": [
+    "AB-TSK-004",
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-TSK-010",
+    "AB-TSK-011",
+    "AB-TSK-012",
+    "AB-SEC-001",
+    "AB-SEC-002"
+  ],
+  "proof_files_sha256": {
+    "source-binding.json": "4644cbca5a8aac4afd0a68886e12198f0cbc47bccff6db8009ab181d1e01932c",
+    "source-binding-after.json": "6e4e2ae8e9ba4fa1c03413014014039ae6931aa1f3d4ceb19adf9d57abbf8c1c",
+    "test-counts.json": "a5e6a49b8bdd9d524a80c98ae332af6872e0310bd37a458bcd880ac30adc8fa7",
+    "results.json": "4713187302f41115efc8efdffdb0e810648beb2e9cb340206cde2fd27a9f59fa",
+    "core-full-tests.log": "099c40285662cd3a01a4351ad44edb92f7750ea95a432bfe1db76476a3d2d52b",
+    "clippy.log": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
