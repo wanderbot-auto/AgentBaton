@@ -73,7 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           rustup toolchain install stable --profile minimal
-          cargo build --locked --bin batond
+          cargo build --locked --bin batond --bin baton
           python3 -m venv artifacts/browser-venv
           artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt
           artifacts/browser-venv/bin/python -m playwright install --with-deps chromium
@@ -92,11 +92,11 @@ jobs:
               return subprocess.check_output(['git', *args], text=True).strip()
           assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
           candidate = {
-              'schema': 12,
+              'schema': 13,
               'git_head': git('rev-parse', 'HEAD'),
               'git_tree': git('rev-parse', 'HEAD^{tree}'),
               'dirty': False,
-              'binaries': {'batond': hashlib.sha256(pathlib.Path('target/debug/batond').read_bytes()).hexdigest()},
+              'binaries': {name: hashlib.sha256(pathlib.Path('target/debug', name).read_bytes()).hexdigest() for name in ['batond', 'baton']},
               'scope': 'CI-built Linux debug candidate; actual schema checked by read-only SQLite in the harness; acceptance pending',
           }
           pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
@@ -126,6 +126,20 @@ jobs:
                   '--validation-case', case,
                   '--output', 'artifacts/ui-browser/goal-graph-' + case,
               ], check=True)
+          factory_failures = []
+          for case in ['normal', 'cancel', 'unknown']:
+              try:
+                  subprocess.run([
+                      sys.executable, 'apps/desktop/tests/factory-real-ipc.py',
+                      '--case', case, '--batond', 'target/debug/batond',
+                      '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
+                      '--frontend', 'apps/desktop/dist', '--chromium', chromium,
+                      '--output', 'artifacts/ui-browser/factory-' + case,
+                  ], check=True)
+              except subprocess.CalledProcessError as failure:
+                  factory_failures.append({'case': case, 'exit_code': failure.returncode})
+          if factory_failures:
+              raise SystemExit('Factory runtime checks failed: ' + json.dumps(factory_failures))
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()

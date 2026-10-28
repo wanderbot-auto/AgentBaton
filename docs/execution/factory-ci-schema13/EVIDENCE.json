@@ -1,0 +1,80 @@
+{
+  "state": "paused WIP again for independent NativeGrant1839P2closure;77pass+driver13.0 requiredfailure retained",
+  "base": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+  "branch": "codex/factory-ci-schema13",
+  "last_commit": "435ac7b6dfc8810646109c414c244cb403a12954",
+  "lookup_source_pick": "65f7fd26bec8a88307178a69381389de6188efaa",
+  "wip_files": [
+    {
+      "path": ".github/workflows/product.yml",
+      "bytes": 11868,
+      "sha256": "36d344cb70fecd592bf271193282e2f1aec45b8706f90894b8541e584f91c8a4"
+    },
+    {
+      "path": "apps/desktop/tests/goal-execution-real-ipc.py",
+      "bytes": 65368,
+      "sha256": "9a42f13fbf64a8e4cc6d6f6eff2bc5013d115155e665da6e937d6e15c5dd1830"
+    },
+    {
+      "path": "apps/desktop/tests/goal-graph-real-ipc.py",
+      "bytes": 154851,
+      "sha256": "7fed69d086aef2c5aab8cbf5fb5b1d3234b79de01edf90e66e0ef9d8b5ad9b7c"
+    },
+    {
+      "path": "apps/desktop/tests/data-workspace-real-ipc.py",
+      "bytes": 55756,
+      "sha256": "20da2b9f4fbfba6448ed2fb7a844189b9adc851d43a0ac90d621a34109a3c92e"
+    },
+    {
+      "path": "scripts/native-macos-smoke.sh",
+      "bytes": 5422,
+      "sha256": "792692232e1949248c1790e75dc3d2b21dc81988a392956208f5cdd0723c038b"
+    }
+  ],
+  "actual_commands": [
+    "source-onlycherry-pick65f7",
+    "actualparent/harnessASTcompile",
+    "YAML/subprocesspreservation",
+    "finite77controls",
+    "staticinfra15pins",
+    "bashsyntax",
+    "diffcheck"
+  ],
+  "tests_run": [
+    {
+      "command": "check_static.py",
+      "exit": 1,
+      "passed_controls": 77,
+      "required_dependency_failures": [
+        {
+          "path": "apps/desktop/tests/factory-real-ipc.py",
+          "case": "schema13.0 accepted",
+          "owner": "originalFactorydriver author; no concurrent edit"
+        }
+      ]
+    },
+    {
+      "command": "infrastructure",
+      "exit": 0
+    },
+    {
+      "command": "bash -n",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "not_run": [
+    "real Core13/browser15-flow execution",
+    "Cargo/Rust/macOS/CI",
+    "independent code review",
+    "typedFactorydriver dependency regression after author fix"
+  ],
+  "known_followup": "factory-real-ipc.py existing preflight schema==13 lacks exact-int check; typed negative matrix must check it after resume; path not edited/authorized",
+  "no_other_owned_scripts_changed": true,
+  "pause_reason": "RootprioritynewNative1839c6c fixedsource independentclosure",
+  "at_utc": "2026-10-28T23:06:59.967181+00:00",
+  "evidence_directory": "/workspace/.onboarding/factory-ci-schema13-validation"
+}
