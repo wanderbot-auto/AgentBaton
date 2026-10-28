@@ -1,0 +1,14 @@
+{
+  "baseline": "bc0a54b sourceunit32passed yet independentfoundOS1/2/3; rawfailures retained",
+  "repair": "e7f3265d4da38fc772193dfcfc0b35fff327d3ac",
+  "independent_review_sha256": "86e746b1bd9202f266238238a52efcfd7b0ccd40328c7141a78742b96b098261",
+  "actual": "independentPython36/realCore12Linuxbootstrap+corruption/correctSIGTERM cleanup",
+  "not_run": [
+    "Rust4controllers",
+    "actualmacOSGrantNSAlert",
+    "OSdialogpixels/realbuttonclick",
+    "defaultreleaseartifactexclusionaudit"
+  ],
+  "no_cargo_reviewer": true,
+  "no_CI_trigger": true
+}

@@ -106,6 +106,20 @@ jobs:
               '--output', 'artifacts/ui-browser/goal-execution',
               '--chromium', chromium,
           ], check=True)
+          graph_base = [
+              sys.executable, 'apps/desktop/tests/goal-graph-real-ipc.py',
+              '--batond', 'target/debug/batond',
+              '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
+              '--frontend', 'apps/desktop/dist', '--chromium', chromium,
+          ]
+          subprocess.run(graph_base + [
+              '--owner-only', '--output', 'artifacts/ui-browser/goal-graph-owner',
+          ], check=True)
+          for case in ['integrity', 'data', 'command', 'data-range', 'command-timeout']:
+              subprocess.run(graph_base + [
+                  '--validation-case', case,
+                  '--output', 'artifacts/ui-browser/goal-graph-' + case,
+              ], check=True)
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
@@ -160,6 +174,12 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/native-smoke
           bash scripts/native-macos-smoke.sh artifacts/native-smoke 2>&1 | tee artifacts/native-smoke/lane.log
+      - name: Actual native Owner Grant dialog and private database acceptance
+        run: |
+          set -euo pipefail
+          cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke
+          cargo build --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke
+          python3 scripts/native-owner-dialog-smoke.py --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --output artifacts/native-smoke/owner-dialog
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
