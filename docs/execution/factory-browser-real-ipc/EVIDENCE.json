@@ -637,5 +637,179 @@
     "Ordinary key replay is NOT dropped-response recovery",
     "Only readonly SQL query/record reports retained; temporary database bytes are NOT retained or replayable",
     "Token/cost/output complete hard-limit enforcement NOT_RUN"
-  ]
+  ],
+  "diagnostic_revision": {
+    "tree": "/workspace/.worktrees/factory-browser-diagnostics",
+    "branch": "codex/factory-browser-diagnostics",
+    "base": "fc61215b549ec6eef99278313ac20994908f2948",
+    "source_commit": "cfd4b7afd3bd2fe8491f0468f7c1b300cf1a74dc",
+    "source_sha256": "bafe4b8f23e238c905aaacb2d855cc2658ee28868c6e58b37926f90c05bbf666",
+    "independent_review": "pending; source freeze ACK sent, docs-only update follows",
+    "prior_actual_root_failure": {
+      "attribution": "Root execution, not author execution",
+      "report": {
+        "path": "/workspace/.onboarding/factory-browser-root/normal-first/report.json",
+        "sha256": "09586eb70841e65892f3ef780e8791f5c35a0ce1f1f83b5efc5cf7b3a435592d",
+        "bytes": 772278
+      },
+      "retained_events": {
+        "path": "/workspace/.onboarding/factory-browser-root/normal-first/retained-http-events.json",
+        "sha256": "3f500ae8df3e8eb9d02eb955d43e990df7605a1ce3f7a2e06c66a833ae50d340",
+        "bytes": 41428
+      },
+      "checks": 2,
+      "PNG": 2,
+      "status": "failed",
+      "child": "reserved but never_started; preflight cancelled/deadline, no_process_started=true process_reaped=false; no malformed-protocol inference",
+      "causal_hypothesis": "private compact CLI may reduce startup work; timing does not prove hashing caused failure"
+    },
+    "changes": [
+      "exclusive private0700 tool copies; daemon byte-identical; strip -S private CLI only; raw originals unchanged",
+      "record source/copy/installed hashes sizes paths and strip argv; Scope binds installed companion",
+      "incremental FD/content/hash/nonce/program/settings/actual raw Core turn+session+attempt/private argv/PIDstart binding before cleanup authority",
+      "bounded full readonly transaction journal/session/attempt/Factory rows + generatedstderr; generatedsecret-only redaction; no DBbytes/replay claim",
+      "partial failure actual identity inventory separated from required successful3/6 or1/2; cleanup remains incomplete"
+    ],
+    "unchanged": [
+      "5s child deadline",
+      "15s observer",
+      "strict HTTP reads/start/cancel only; Owner outsideHTTP",
+      "normal completed expectation",
+      "exact successful3records6identities or1record2",
+      "fd5 exception/finally nonzero safeguards",
+      "root/project strict meter checks"
+    ],
+    "checks": {
+      "source_sha256": "bafe4b8f23e238c905aaacb2d855cc2658ee28868c6e58b37926f90c05bbf666",
+      "commands": [
+        {
+          "name": "boundary",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/final-controls/boundary"
+          ],
+          "exitcode": 0,
+          "seconds": 0.12391924858093262,
+          "log_sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f"
+        },
+        {
+          "name": "fixture",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--fixture-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/final-controls/fixture"
+          ],
+          "exitcode": 0,
+          "seconds": 0.15743708610534668,
+          "log_sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1"
+        },
+        {
+          "name": "cleanup",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--cleanup-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/final-controls/cleanup"
+          ],
+          "exitcode": 0,
+          "seconds": 0.1190800666809082,
+          "log_sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479"
+        },
+        {
+          "name": "diagnostic",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--diagnostic-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/final-controls/diagnostic"
+          ],
+          "exitcode": 0,
+          "seconds": 0.12155747413635254,
+          "log_sha256": "f2c11b11e30ec3d02461fc188c152e067686dfd869a4190f5f6b8f232aa999f2"
+        }
+      ],
+      "real_Core_browser_runtime": "NOT_RUN",
+      "unit_strip": "executes system strip only on private copies of /usr/bin/true; neither copied ELF executed",
+      "synthetic_SQL": "helper-only schema0 unit, not actual Core or authority"
+    },
+    "helper_counts": {
+      "boundary": 63,
+      "fixture_version": 13,
+      "cleanup_meter": 28,
+      "diagnostics": 19
+    },
+    "dimension": "private publicELF copy+actual systemstrip only, no ELF execution; synthetic schema0 query/record and explicit gone-metadata stub; NO new real Core/browser/MCP/OS stop",
+    "initial_unit_failure": {
+      "source": {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/diagnostic-controls-1/initial-source.py",
+        "sha256": "ef329730bbf17fa9244d6e797397b724ea1bbe64f1c358a6434acd61fbc06fd9",
+        "bytes": 98949
+      },
+      "metadata": {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/diagnostic-controls-1/observed-unit-failure.json",
+        "sha256": "f0c7c76d0191719cb4adbacc322e1301adf2d4c025bdf2b58f0983f84c8a0926",
+        "bytes": 469
+      },
+      "raw_stderr": "only original tool transcript; not reconstructed",
+      "reason": "test reset verified-list then attempted replacing exclusive saved evidence; helper refused. Unit ordering corrected; FD replacement remains negative"
+    },
+    "artifacts": [
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/final-controls/boundary/boundary-checks.json",
+        "sha256": "79d59d3f3c0c250292688e54260695f5c7bd9c0667617553309a5ca7a9e98bdc",
+        "bytes": 5294
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/final-controls/boundary.log",
+        "sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/final-controls/cleanup/cleanup-unit-checks.json",
+        "sha256": "f272e8c5fc8cdf15033b0c982b3a2ece4d077a668a2c27bda48cd575224bdfa0",
+        "bytes": 2986
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/final-controls/cleanup.log",
+        "sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/final-controls/diagnostic/diagnostic-unit-checks.json",
+        "sha256": "49fa2a9db76a8725faa3301a0a84eb39a5f31bea12579471707f2c7611ba5151",
+        "bytes": 2512
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/final-controls/diagnostic.log",
+        "sha256": "f2c11b11e30ec3d02461fc188c152e067686dfd869a4190f5f6b8f232aa999f2",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/final-controls/fixture/fixture-unit-checks.json",
+        "sha256": "6d3043dbdc046f2cd84caa62b965a255763d4c9803277f6cf31963de931f1cbc",
+        "bytes": 1685
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/final-controls/fixture.log",
+        "sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/final-controls/results.json",
+        "sha256": "5954d0c1ed1b3e5c69b6c1de81960161d3c54cafed9464c64c83cacdea74d930",
+        "bytes": 2009
+      }
+    ],
+    "runtime_after_revision": "NOT_RUN; Root runs after independent review",
+    "cancel_unknown_actual_browser": "NOT_RUN",
+    "temporary_DB": "not retained/replayable",
+    "remaining_scope": "full Factory faults/usage/MCP cancel_task/dropresponse/realProvider/OS/macOS/completeDesign still not accepted"
+  }
 }
