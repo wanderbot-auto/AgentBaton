@@ -690,7 +690,7 @@ fn executable_work(n: &RuntimeNode) -> bool {
     n.state == "not_started"
         && n.node.dependencies.is_empty()
         && n.node.parent_id.is_none()
-        && matches!(n.node.kind, NodeKind::Work)
+        && matches!(n.node.kind, NodeKind::Work | NodeKind::Summary)
         && matches!(n.node.executor, Executor::Connection { .. })
         && n.node
             .required_inputs
@@ -1317,10 +1317,10 @@ impl Store {
         n.actual_output_bytes = if stopped { output_bytes } else { None };
         n.state = if !stopped {
             "outcome_unknown"
-        } else if r.cancel_requested {
-            "cancelled"
         } else if session.turn_state.as_deref() == Some("completed") {
             "candidate"
+        } else if r.cancel_requested {
+            "cancelled"
         } else if never_started {
             "failed"
         } else {
@@ -1334,6 +1334,9 @@ impl Store {
             _ => "outcome_unknown",
         }
         .into();
+        if r.cancel_requested && stopped {
+            r.state = "cancelled".into();
+        }
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -1419,7 +1422,31 @@ impl Store {
                 .map_err(db_error)?;
             let mut r = run(&tx, &id)?;
             r.state = "outcome_unknown".into();
-            for mut n in node_records(&tx, &id)? {
+            let nodes = node_records(&tx, &id)?;
+            if nodes
+                .iter()
+                .any(|n| n.session_id.is_some() && !n.stop_confirmed)
+            {
+                for key in [
+                    format!("project:{}", r.project_id),
+                    format!("root-grant:{}", r.root_grant_id),
+                ] {
+                    let document:Option<Option<String>>=tx.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_ledgers WHERE scope=?1",[&key],|row|row.get(0)).optional().map_err(db_error)?;
+                    if let Some(document) = document {
+                        let mut meter: MeterLedger = decode(&document.ok_or_else(limited)?)?;
+                        meter.runtime_ms = None;
+                        meter.output_bytes = None;
+                        meter.tokens = None;
+                        meter.cost_microunits = None;
+                        tx.execute(
+                            "UPDATE goal_ledgers SET document=?1 WHERE scope=?2",
+                            params![encode(&meter)?, key],
+                        )
+                        .map_err(db_error)?;
+                    }
+                }
+            }
+            for mut n in nodes {
                 if matches!(n.state.as_str(), "reserved" | "running" | "stopping") {
                     n.state = "outcome_unknown".into();
                     save_node(&tx, &id, &n)?;
@@ -1951,6 +1978,9 @@ mod tests {
         String::from_utf8(output.stdout).unwrap().trim().into()
     }
     fn fixture(capacity: u32) -> Fixture {
+        fixture_with_outputs(capacity, false)
+    }
+    fn fixture_with_outputs(capacity: u32, two_outputs: bool) -> Fixture {
         let dir = match std::env::var_os("AB_GOAL_CRASH_TEST_PARENT") {
             Some(parent) => tempfile::tempdir_in(parent).unwrap(),
             None => tempfile::tempdir().unwrap(),
@@ -2021,6 +2051,26 @@ mod tests {
             tokens: None,
             cost_microunits: None,
         };
+        let mut declared_outputs = vec![GoalOutputSelection {
+            artifact: ArtifactRequirement {
+                artifact_id: "report".into(),
+                relative_path: "reports/report.txt".into(),
+                max_bytes: 1024,
+                expected_sha256: None,
+            },
+            validators: vec![],
+        }];
+        if two_outputs {
+            declared_outputs.push(GoalOutputSelection {
+                artifact: ArtifactRequirement {
+                    artifact_id: "intermediate".into(),
+                    relative_path: "reports/intermediate.json".into(),
+                    max_bytes: 1024,
+                    expected_sha256: None,
+                },
+                validators: vec![],
+            });
+        }
         let selection = GoalScopeSelection {
             task_id: task.id.clone(),
             expected_task_revision: task.revision,
@@ -2037,22 +2087,14 @@ mod tests {
                 max_bytes: 1024,
                 expected_sha256: Some(agentbaton_workspaces::validation::sha256(b"baseline")),
             }],
-            outputs: vec![GoalOutputSelection {
-                artifact: ArtifactRequirement {
-                    artifact_id: "report".into(),
-                    relative_path: "reports/report.txt".into(),
-                    max_bytes: 1024,
-                    expected_sha256: None,
-                },
-                validators: vec![],
-            }],
+            outputs: declared_outputs,
             writable_prefixes: vec!["reports".into()],
             owner_acceptance_criteria: "Owner independently reviews exact bound artifacts".into(),
         };
         let approved = store.propose_goal_scope(&selection, "scope").unwrap();
         let scope: GoalScopeView =
             serde_json::from_value(store.finalize_proposal(&approved.id, 1).unwrap()).unwrap();
-        let node = PlanNode {
+        let mut node = PlanNode {
             id: "produce-report".into(),
             parent_id: None,
             kind: NodeKind::Work,
@@ -2108,6 +2150,12 @@ mod tests {
             idempotency_key: "produce-report".into(),
             external_action_id: None,
         };
+        if two_outputs {
+            node.outputs.push(PlannedOutput {
+                artifact_id: "intermediate".into(),
+                contract_id: scope.outputs["intermediate"].clone(),
+            });
+        }
         let plan = GoalPlanProposal {
             schema_version: 1,
             plan_id: "unit-runtime-plan".into(),
@@ -2407,6 +2455,24 @@ mod tests {
             assert_eq!(cancelled.state, "outcome_unknown");
             assert!(cancelled.cancel_requested);
             assert!(stops.is_empty());
+            let meter: String = store
+                .conn
+                .query_row(
+                    "SELECT document FROM goal_ledgers WHERE scope=?1",
+                    [format!(
+                        "project:{}",
+                        evidence["project_id"].as_str().unwrap()
+                    )],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            let meter: MeterLedger = decode(&meter).unwrap();
+            assert!(
+                meter.runtime_ms.is_none()
+                    && meter.output_bytes.is_none()
+                    && meter.tokens.is_none()
+                    && meter.cost_microunits.is_none()
+            );
             let usage = store
                 .budget(true, evidence["project_id"].as_str().unwrap())
                 .unwrap()
@@ -2515,6 +2581,236 @@ mod tests {
                 f.store
                     .conn
                     .query_row("SELECT count(*) FROM session_turns", [], |row| row
+                        .get::<_, u32>(0))
+                    .unwrap(),
+                0
+            );
+        }
+    }
+    fn adopt(f: &mut Fixture, plan: GoalPlanProposal) {
+        let revision = plan.revision;
+        f.store
+            .submit_goal_plan(
+                &GoalPlanSubmission {
+                    scope_id: f.scope.id.clone(),
+                    proposal: plan,
+                },
+                &format!("edit-{revision}"),
+                revision - 1,
+            )
+            .unwrap();
+        let current = f.store.get_goal_run(&f.run.id).unwrap();
+        let p = GoalPlanAdvance {
+            run_id: f.run.id.clone(),
+            expected_plan_revision: revision,
+            expected_ledger_revision: f.store.sequence().unwrap(),
+        };
+        f.store
+            .advance_goal_plan(&p, current.revision, &format!("adopt-{revision}"))
+            .unwrap();
+    }
+    #[test]
+    fn implicit_input_and_parent_edges_do_not_starve_the_real_eligible_producer() {
+        for mode in ["implicit_input", "parent"] {
+            let mut f = fixture_with_outputs(2, true);
+            let mut plan = f.store.get_goal_plan(&f.scope.id).unwrap().proposal;
+            let mut producer = plan.nodes[0].clone();
+            producer.id = "producer".into();
+            producer.idempotency_key = "producer-action".into();
+            producer.outputs.retain(|p| p.artifact_id == "intermediate");
+            producer.budget.children = 1;
+            let mut consumer = plan.nodes[0].clone();
+            consumer.id = "consumer".into();
+            consumer.idempotency_key = "consumer-action".into();
+            consumer.outputs.retain(|p| p.artifact_id == "report");
+            consumer.dependencies.clear();
+            if mode == "implicit_input" {
+                consumer.required_inputs = vec![RequiredInput {
+                    goal_task_id: f.scope.task_id.clone(),
+                    artifact_id: "intermediate".into(),
+                    contract_id: f.scope.outputs["intermediate"].clone(),
+                    source: InputSource::Node {
+                        node_id: producer.id.clone(),
+                        candidate_for_validation: false,
+                    },
+                }];
+            } else {
+                consumer.parent_id = Some(producer.id.clone());
+            }
+            plan.nodes = vec![consumer, producer];
+            plan.revision = 2;
+            plan.expected_revision = 1;
+            adopt(&mut f, plan);
+            assert!(f.store.goal_run_needs_advance(&f.run.id).unwrap());
+            let p = GoalRunDispatch {
+                run_id: f.run.id.clone(),
+                expected_ledger_revision: f.store.sequence().unwrap(),
+            };
+            let current = f.store.get_goal_run(&f.run.id).unwrap();
+            let context = f
+                .store
+                .goal_dispatch_context(&p, current.revision)
+                .unwrap()
+                .unwrap();
+            assert_eq!(context.node.id, "producer", "{mode}");
+            f.store.create_goal_session(context).unwrap();
+            let sequence = f.store.sequence().unwrap();
+            for _ in 0..10 {
+                assert!(!f.store.goal_run_needs_advance(&f.run.id).unwrap());
+            }
+            assert_eq!(f.store.sequence().unwrap(), sequence);
+            assert_eq!(
+                f.store
+                    .conn
+                    .query_row("SELECT count(*) FROM attempts", [], |row| row
+                        .get::<_, u32>(0))
+                    .unwrap(),
+                1
+            );
+        }
+    }
+    #[test]
+    fn unapproved_output_alias_never_becomes_zero_observed_output_or_execution_authority() {
+        let mut f = fixture(2);
+        let mut plan = f.store.get_goal_plan(&f.scope.id).unwrap().proposal;
+        let mut alias = plan.nodes[0].clone();
+        alias.id = "alias-first".into();
+        alias.idempotency_key = "alias-action".into();
+        alias.outputs[0].artifact_id = "unapproved-alias".into();
+        plan.nodes.insert(0, alias);
+        plan.revision = 2;
+        plan.expected_revision = 1;
+        f.store
+            .submit_goal_plan(
+                &GoalPlanSubmission {
+                    scope_id: f.scope.id.clone(),
+                    proposal: plan,
+                },
+                "valid-structural-alias",
+                1,
+            )
+            .unwrap();
+        let current = f.store.get_goal_run(&f.run.id).unwrap();
+        let p = GoalPlanAdvance {
+            run_id: f.run.id.clone(),
+            expected_plan_revision: 2,
+            expected_ledger_revision: f.store.sequence().unwrap(),
+        };
+        assert_eq!(
+            f.store
+                .advance_goal_plan(&p, current.revision, "no-physical-alias")
+                .unwrap_err()
+                .code,
+            "CAPABILITY_UNSUPPORTED"
+        );
+        assert_eq!(
+            f.store
+                .conn
+                .query_row("SELECT count(*) FROM attempts", [], |row| row
+                    .get::<_, u32>(0))
+                .unwrap(),
+            0
+        );
+        let status = f.store.goal_run_details(&f.run.id).unwrap();
+        assert!(status["nodes"][0]["actual_output_bytes"].is_null());
+    }
+    #[test]
+    fn persisted_project_optional_limits_cannot_be_raised_or_removed_by_a_later_root() {
+        let f = fixture(2);
+        let key = format!("project:{}", f.run.project_id);
+        let mut historical = f.scope.project_budget.clone();
+        historical.tokens = Some(100);
+        historical.cost_microunits = Some(100);
+        let record = MeterLedger {
+            limits: historical.clone(),
+            observed_attempts: 0,
+            runtime_ms: Some(0),
+            output_bytes: Some(0),
+            tokens: Some(0),
+            cost_microunits: Some(0),
+        };
+        let raw = encode(&record).unwrap();
+        f.store
+            .conn
+            .execute(
+                "INSERT OR REPLACE INTO goal_ledgers(scope,document) VALUES(?1,?2)",
+                params![key, raw],
+            )
+            .unwrap();
+        for dimension in ["tokens", "cost"] {
+            for value in [Some(101), None] {
+                let mut later_root_limits = historical.clone();
+                if dimension == "tokens" {
+                    later_root_limits.tokens = value;
+                } else {
+                    later_root_limits.cost_microunits = value;
+                }
+                assert_eq!(
+                    meter(&f.store.conn, &key, &later_root_limits, 0)
+                        .unwrap_err()
+                        .code,
+                    "PERMISSION_DENIED"
+                );
+                let after: String = f
+                    .store
+                    .conn
+                    .query_row(
+                        "SELECT document FROM goal_ledgers WHERE scope=?1",
+                        [&key],
+                        |r| r.get(0),
+                    )
+                    .unwrap();
+                assert_eq!(after, raw);
+            }
+        }
+        let unchanged = meter(&f.store.conn, &key, &historical, 0).unwrap();
+        assert_eq!(unchanged.tokens, Some(0));
+        assert_eq!(unchanged.cost_microunits, Some(0));
+        let mut narrowed = historical;
+        narrowed.tokens = Some(99);
+        narrowed.cost_microunits = Some(99);
+        assert!(meter(&f.store.conn, &key, &narrowed, 0).is_ok());
+    }
+    #[test]
+    fn zero_history_declared_token_and_cost_reservations_do_not_prove_metering_capability() {
+        for dimension in ["tokens", "cost"] {
+            let mut f = fixture(2);
+            let mut plan = f.store.get_goal_plan(&f.scope.id).unwrap().proposal;
+            plan.revision = 2;
+            plan.expected_revision = 1;
+            if dimension == "tokens" {
+                plan.nodes[0].budget.tokens = Some(100);
+                plan.nodes[0].reservation.tokens = Some(10);
+            } else {
+                plan.nodes[0].budget.cost_microunits = Some(100);
+                plan.nodes[0].reservation.cost_microunits = Some(10);
+            }
+            f.store
+                .submit_goal_plan(
+                    &GoalPlanSubmission {
+                        scope_id: f.scope.id.clone(),
+                        proposal: plan,
+                    },
+                    "finite-unmeasured",
+                    1,
+                )
+                .unwrap();
+            let p = GoalRunSelection {
+                scope_id: f.scope.id.clone(),
+                expected_plan_revision: 2,
+                expected_ledger_revision: f.store.sequence().unwrap(),
+            };
+            assert_eq!(
+                f.store
+                    .propose_goal_run(&p, "finite-cannot-start")
+                    .unwrap_err()
+                    .code,
+                "CAPABILITY_UNSUPPORTED"
+            );
+            assert_eq!(
+                f.store
+                    .conn
+                    .query_row("SELECT count(*) FROM attempts", [], |row| row
                         .get::<_, u32>(0))
                     .unwrap(),
                 0

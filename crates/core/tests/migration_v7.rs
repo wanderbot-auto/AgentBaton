@@ -31,7 +31,7 @@ fn v6_fixture(database: &Path) -> (String, String) {
         .unwrap();
     drop(store);
     let connection = Connection::open(database).unwrap();
-    connection.execute_batch("DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;CREATE TABLE legacy_raw(id TEXT PRIMARY KEY,payload BLOB NOT NULL);PRAGMA user_version=6;").unwrap();
+    connection.execute_batch("DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;CREATE TABLE legacy_raw(id TEXT PRIMARY KEY,payload BLOB NOT NULL);PRAGMA user_version=6;").unwrap();
     let value: serde_json::Value = serde_json::from_str(
         &connection
             .query_row("SELECT document FROM tasks WHERE id=?1", [&task.id], |r| {
@@ -85,7 +85,7 @@ fn real_v6_upgrade_keeps_raw_documents_and_blobs_in_private_reopenable_backup() 
         connection
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        10
+        11
     );
     assert_eq!(
         connection
@@ -188,10 +188,10 @@ fn failed_data_migration_rolls_back_new_table_and_version_without_deleting_unkno
     );
 }
 #[test]
-fn future_v11_database_is_refused_without_changing_its_raw_bytes() {
+fn future_v12_database_is_refused_without_changing_its_raw_bytes() {
     let (_directory, database) = private_database();
     let connection = Connection::open(&database).unwrap();
-    connection.execute_batch("CREATE TABLE sentinel(raw BLOB);INSERT INTO sentinel VALUES(x'00ff');PRAGMA user_version=11;").unwrap();
+    connection.execute_batch("CREATE TABLE sentinel(raw BLOB);INSERT INTO sentinel VALUES(x'00ff');PRAGMA user_version=12;").unwrap();
     drop(connection);
     let before = fs::read(&database).unwrap();
     assert_eq!(
