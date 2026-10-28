@@ -856,6 +856,10 @@ def provider_fixture_self_check():
             binding = {'task_id': 'unit-task', 'attempt_id': 'unit-attempt', 'spec_revision': 1, 'input_revision': 'unit-revision'}
             artifact = {'artifact_id': 'fixed-input', 'relative_path': external_path, 'max_bytes': 1024, 'expected_sha256': sha(b'baseline')}
             outputs = [{'artifact': {'artifact_id': 'report' if i == 1 else f'report-{i}', 'relative_path': 'reports/report.txt' if i == 1 else f'reports/report-{i}.txt', 'max_bytes': 1024, 'expected_sha256': None}, 'validators': []} for i in range(1, count + 1)]
+            if kind:
+                reference = {'kind': kind, 'policy_id': 'unit-definition', 'revision': 1}
+                for index, output in enumerate(outputs):
+                    output['validators'] = [reference] if index == 0 or data and index < 3 else []
             budget = {'attempts': 1, 'parallel': 1, 'runtime_ms': 5000, 'output_bytes': 2048, 'children': 0, 'reworks': 0, 'tokens': None, 'cost_microunits': None}
             reservation = {'runtime_ms': 4000, 'output_bytes': 2048, 'tokens': None, 'cost_microunits': None}
             node = {'id': 'produce-report', 'kind': 'work', 'workspace_id': 'unit-workspace', 'budget': budget,
