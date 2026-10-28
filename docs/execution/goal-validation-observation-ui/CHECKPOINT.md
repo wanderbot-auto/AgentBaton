@@ -22,3 +22,12 @@ Command592 UI projection is honestly unsupported because of original unsafe u64 
 
 Root-authorized paths additionally include goal-graph-api.ts and one readonly History presentation change. Core-derived raw observation text is verified and displayed without altering stored receipts or Native snapshots. Original733 and test-only8a source/evidence remain historical immutable checkpoints.
 Next: freeze new source, run complete Node/type/build and hand it to Root's separate reviewer. Four Native callback tests remain notrun; no Cargo/target/CI/remote action.
+
+## Frozen lossless checkpoint
+
+Source: 4fab558fe126543c23b1410949e6fcd922b770d6; tree 334c75650c30f8c2fc9c1a3ce1c8274dd6714128.
+Author verification: full564/37, selected14/2, type/build/diff pass.
+Separate review: pending Root-assigned reviewer; do not borrow733 signoff.
+Native: approval exactly8a, four added callback functions total relative87, all uncompiled/unrun here.
+Original47 Integrity artifacts are restored and content-hash verified following the recorded private-build-index incident. Old failures and all earlier sources remain preserved.
+Next: complete independent review, then Root may integrate and allocate accurate combined Cargo/macOS validation. No executor/background continuation is promised by this checkpoint.

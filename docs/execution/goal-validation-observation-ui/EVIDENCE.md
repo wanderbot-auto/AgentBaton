@@ -55,3 +55,23 @@ No generic JSON.parse/stringify == Rust f64 digest claim is made. The persisted 
 Exact additional provided packets: Command526a42e1775785b82eaf420af9dd6fd9a3f3c299f885f1535ab23835a812ed19 /102705B; Data97c07926adf05f4bc04bcbeed97adc6d6aea59cbbcaa10d6aaeebad19a456d99 /127780B. Original Owner validation_refs have no new display field; raw exists only on GraphDetails validation views.
 Targeted lossless tests14/2 and typecheck passed; complete frozen-source results follow. Own intermediate async-projection FAIL is preserved at lossless-revision/async-projection-before-fix.log with before-await-fix-guards.ts. Ten other tests listed as skipped in that targeted -t reproduction were filtered only for diagnosis; full suites do not skip them.
 No generic Rust f64 re-encoding digest claim: original raw UTF-8 bytes are hashed directly. Without verified raw text, unsafe numbers remain unsupported; all real candidate/pin/seq/CAS fields keep original safe-integer checks.
+
+## Final lossless source 4fab558fe126543c23b1410949e6fcd922b770d6
+
+Source tree: 334c75650c30f8c2fc9c1a3ce1c8274dd6714128; previous test-only8a remains a separate checkpoint.
+Actual full suite: 564 tests /37 files passed (33.718s). Targeted lossless14/2, typecheck, isolated Vite build and diff check all exit0.
+- full-suite: /workspace/AgentBaton/apps/desktop/node_modules/.bin/vitest run --config /workspace/.onboarding/goal-validation-observation-ui/vitest.config.mts --reporter=verbose → exit0; 33.718s; SHA-256 deb63aeab0b1047e160646c1d8795c3c0f8460b566e95acf76d5bb3f49120918
+- selected: /workspace/AgentBaton/apps/desktop/node_modules/.bin/vitest run src/goal-graph-observation-text.test.ts src/GoalGraphExecution.lossless-observation.test.tsx --config /workspace/.onboarding/goal-validation-observation-ui/vitest.config.mts --reporter=verbose → exit0; 3.137s; SHA-256 bafc50333bf506e8dcbee22abf6ef12b07982fe68f74365c9881d47d6d0c0aca
+- typecheck: /workspace/AgentBaton/apps/desktop/node_modules/.bin/tsc --noEmit → exit0; 1.654s; SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- build: /workspace/AgentBaton/apps/desktop/node_modules/.bin/vite build --config /workspace/.onboarding/goal-validation-observation-ui/lossless-revision/vitest-lossless-build.config.mts → exit0; 0.459s; SHA-256 9a1b128a0e944e3f8936172777c80b0c6a037f17b496a975e4b7e5b339a05a35
+- diff-check: git diff --check 8a0bf0e697947ed08acbdce539a1fbc47dedec62 4fab558fe126543c23b1410949e6fcd922b770d6 → exit0; 0.005s; SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+Frozen provided raw packets are byte-identical to Core artifacts: Data97c07926adf05f4bc04bcbeed97adc6d6aea59cbbcaa10d6aaeebad19a456d99 /127780B and system-Command526a42e1775785b82eaf420af9dd6fd9a3f3c299f885f1535ab23835a812ed19 /102705B. Actual API tests hash the original raw UTF-8 text, then bind the actual Task/graph projection; original592 without raw remains rejected.
+API shape comparison is only agreement of the parsed JavaScript projection. The original Core raw text, including u64/f64 lexical content, is the display source and hash input; no JS re-encoded value is treated as Rust bytes.
+
+Only derived observation_json is ignored by persistent-receipt floor equality. The actual stored receipt fields/result_digest, full candidate origin, FilePin, sequence/CAS and all original byte limits remain enforced.
+All35 preceding renderer test files remain byte-identical. Approval.rs is byte-identical to8a: total four new callback functions relative to87 (three Integrity functions plus one function iterating real Data and Command packets), all still NOT_RUN. Lossless4fab adds no new Native function or Rust execution claim.
+
+Output evidence correction: the first4fab Vite build reused the older private build directory and replaced its index.html. The old index was restored using its already-known content-addressed asset names and validated against its prior SHA; all47 old Integrity artifacts were then rehashed exactly equal. The original new-build command/log and correction record remain. A second build with a separate lossless-revision/build output passed. This record does not claim the old artifact was never touched; no product source/dist was affected.
+
+Independent review of4fab is pending Root's separate reviewer. The previous independent PASS belongs only to733+e889 and is not borrowed. No Cargo/target, macOS, actual OS Owner dialog, live Provider, CI/remote, installer/signing or full product completion is claimed.
