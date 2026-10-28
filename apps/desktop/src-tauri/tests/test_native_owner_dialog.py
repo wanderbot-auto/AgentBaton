@@ -345,5 +345,49 @@ class BootstrapPathControls(unittest.TestCase):
                     self.fail('Nonprivate evidence must be refused')
 
 
+class PresentationControls(unittest.TestCase):
+    def test_lossless_utf8_pages_preserve_whitespace_and_unicode(self):
+        original = '  first\n\t你好🔒\r\n\0\x7f\u202elast  '
+        prompts = runner.presentation_prompts(original)
+        restored = ''.join(runner.json.loads(line.split(' ', 1)[1])
+                           for page in prompts[:-1] for line in page.splitlines() if line.startswith('L'))
+        self.assertEqual(restored, original)
+        self.assertTrue(prompts[-1].startswith('FINAL display confirmation'))
+        self.assertIn('你好🔒', ''.join(prompts))
+        for prompt in prompts:
+            self.assertLess(len(prompt), 1024)
+            self.assertLessEqual(len(prompt.splitlines()), 12)
+            self.assertTrue(all(line and not line[0].isspace() for line in prompt.splitlines()))
+
+    def test_canonical_json_row_matches_production_rust_vector(self):
+        self.assertEqual(runner.presentation_prompts(' \t你好🔒\n')[0],
+            'Native review page 1/1\nOriginal UTF-8 bytes 0..13 of 13.\nRead JSON strings in L order; escapes preserve ALL text.\nOK reads this page only. Cancel stops this review.\nL00001 " \\t你好🔒\\n"')
+
+    def test_existing_snapshot_limits_roundtrip_without_summary_or_truncation(self):
+        for size in [0, 16_384, 1_048_576, 1_048_576 + 32_768]:
+            original = 'x' * size
+            prompts = runner.presentation_prompts(original)
+            restored = ''.join(runner.json.loads(line.split(' ', 1)[1])
+                               for page in prompts[:-1] for line in page.splitlines() if line.startswith('L'))
+            self.assertEqual(restored, original)
+            self.assertTrue(all(len(prompt) < 1024 for prompt in prompts))
+        with self.assertRaises(ValueError):
+            runner.presentation_prompts('x' * (1_048_576 + 32_769))
+
+    def test_partial_or_reordered_foreign_or_offscreen_page_has_no_host_permit(self):
+        proposal = {'id': 'proposal', 'revision': 3}
+        prompts = runner.presentation_prompts('complete exact message')
+        value = {'phase': 'approve', 'presentation_index': 0, 'presentation_count': len(prompts),
+                 'proposal_id': 'proposal', 'proposal_revision': 3, 'message': prompts[0],
+                 'title': 'AgentBaton — Native owner approval', 'parent_matches': True,
+                 'visible': True, 'complete_text_visible': True}
+        self.assertIsNone(runner.presentation_error(value, proposal, prompts, 'approve', 0))
+        for field, wrong in [('message', prompts[0].lstrip()[:-1]), ('presentation_index', 1),
+                             ('presentation_count', 1), ('proposal_id', 'foreign'), ('proposal_revision', 4),
+                             ('visible', False), ('complete_text_visible', False), ('parent_matches', False)]:
+            changed = {**value, field: wrong}
+            self.assertIsNotNone(runner.presentation_error(changed, proposal, prompts, 'approve', 0))
+
+
 if __name__ == '__main__':
     unittest.main()

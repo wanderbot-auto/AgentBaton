@@ -19,12 +19,26 @@ pub fn diagnostic_text(text: &str, total: &mut usize) -> Result<Value, String> {
     )
 }
 
-pub fn validate(observed: &Value, expected: &Value, phase: &str) -> Result<(), String> {
+pub fn validate(
+    observed: &Value,
+    expected: &Value,
+    phase: &str,
+    index: usize,
+) -> Result<(), String> {
     if !matches!(phase, "cancel" | "approve")
         || observed["phase"] != phase
         || observed["proposal_id"] != expected["proposal"]["id"]
         || observed["proposal_revision"] != expected["proposal"]["revision"]
-        || observed["message"] != expected["message"]
+        || expected["presentation"]
+            .as_array()
+            .is_none_or(|pages| pages.is_empty() || pages.len() > 1024 || index >= pages.len())
+        || observed["presentation_index"] != index
+        || observed["presentation_count"]
+            != expected["presentation"]
+                .as_array()
+                .map(Vec::len)
+                .unwrap_or(0)
+        || observed["message"] != expected["presentation"][index]
         || observed["title"] != "AgentBaton — Native owner approval"
         || observed["parent_matches"] != true
         || observed["visible"] != true
@@ -57,9 +71,9 @@ mod tests {
     use super::*;
     use serde_json::json;
     fn fixture() -> (Value, Value) {
-        let expected = json!({"proposal":{"id":"exact-grant", "revision":1}, "message":"complete snapshot\n你好"});
+        let expected = json!({"proposal":{"id":"exact-grant", "revision":1}, "message":"complete snapshot\n你好", "presentation":["exact encoded page","FINAL display confirmation"]});
         let observed = json!({"phase":"cancel", "proposal_id":"exact-grant", "proposal_revision":1,
-            "message":"complete snapshot\n你好", "title":"AgentBaton — Native owner approval",
+            "message":"exact encoded page", "presentation_index":0,"presentation_count":2, "title":"AgentBaton — Native owner approval",
             "parent_matches":true,"visible":true,"complete_text_visible":true,"window_number":7,
             "buttons":[{"title":"OK","enabled":true,"visible":true},{"title":"Cancel","enabled":true,"visible":true}]});
         (expected, observed)
@@ -67,7 +81,36 @@ mod tests {
     #[test]
     fn complete_owned_sheet_observation_is_eligible_for_a_real_click_only() {
         let (expected, observed) = fixture();
-        assert!(validate(&observed, &expected, "cancel").is_ok());
+        assert!(validate(&observed, &expected, "cancel", 0).is_ok());
+    }
+    #[test]
+    fn exact_page_order_count_and_final_text_cannot_be_replaced_with_original_or_partial() {
+        let (expected, observed) = fixture();
+        for (field, wrong) in [
+            ("presentation_index", json!(1)),
+            ("presentation_count", json!(1)),
+            ("message", expected["message"].clone()),
+            ("message", json!("exact encoded")),
+        ] {
+            let mut value = observed.clone();
+            value[field] = wrong;
+            assert!(validate(&value, &expected, "cancel", 0).is_err());
+        }
+        assert!(validate(&observed, &expected, "cancel", 1).is_err());
+        let mut final_page = observed;
+        final_page["presentation_index"] = json!(1);
+        final_page["message"] = expected["presentation"][1].clone();
+        assert!(validate(&final_page, &expected, "cancel", 1).is_ok());
+        final_page["complete_text_visible"] = json!(false);
+        assert!(validate(&final_page, &expected, "cancel", 1).is_err());
+    }
+    #[test]
+    fn missing_or_out_of_bound_page_set_never_grants_a_click() {
+        let (mut expected, observed) = fixture();
+        for pages in [json!(null), json!([]), json!(vec!["x"; 1025])] {
+            expected["presentation"] = pages;
+            assert!(validate(&observed, &expected, "cancel", 0).is_err());
+        }
     }
     #[test]
     fn foreign_parent_and_wrong_proposal_or_revision_never_click() {
@@ -79,7 +122,7 @@ mod tests {
         ] {
             let mut value = observed.clone();
             value[field] = wrong;
-            assert!(validate(&value, &expected, "cancel").is_err());
+            assert!(validate(&value, &expected, "cancel", 0).is_err());
         }
     }
     #[test]
@@ -87,10 +130,10 @@ mod tests {
         let (expected, observed) = fixture();
         let mut value = observed.clone();
         value["complete_text_visible"] = json!(false);
-        assert!(validate(&value, &expected, "cancel").is_err());
+        assert!(validate(&value, &expected, "cancel", 0).is_err());
         let mut value = observed;
         value["message"] = json!("complete snapshot");
-        assert!(validate(&value, &expected, "cancel").is_err());
+        assert!(validate(&value, &expected, "cancel", 0).is_err());
     }
     #[test]
     fn missing_disabled_ambiguous_buttons_and_wrong_phase_are_rejected() {
@@ -103,9 +146,9 @@ mod tests {
         ] {
             let mut value = observed.clone();
             value["buttons"] = buttons;
-            assert!(validate(&value, &expected, "cancel").is_err());
+            assert!(validate(&value, &expected, "cancel", 0).is_err());
         }
-        assert!(validate(&observed, &expected, "approve").is_err());
+        assert!(validate(&observed, &expected, "approve", 0).is_err());
     }
 }
 
@@ -126,7 +169,7 @@ mod diagnostic_tests {
         assert_eq!(value["text"], "你好🔒\n");
         assert_eq!(value["utf8_bytes"], 11);
         assert_eq!(total, 14);
-        assert!(validate(&value, &serde_json::json!({}), "cancel").is_err());
+        assert!(validate(&value, &serde_json::json!({}), "cancel", 0).is_err());
     }
     #[test]
     fn per_field_and_aggregate_limits_reject_without_truncation_or_budget_mutation() {

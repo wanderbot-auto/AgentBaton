@@ -169,6 +169,50 @@ def expected_message(proposal, source):
     return template.replace('{}', action, 1).replace('{table_explanation}', '', 1).replace('{snapshot}', snapshot, 1)
 
 
+def presentation_prompts(message):
+    """Independent reversible mirror of native_parent's bounded display format."""
+    if not isinstance(message, str) or len(message.encode('utf-8')) > 1_048_576 + 32_768:
+        raise ValueError('Complete native message exceeds presentation envelope')
+    rows, encoded, start, offset = [], '', 0, 0
+    for char in message:
+        code = ord(char)
+        escaped = (f'\\u{code:04x}' if code == 127 or 128 <= code <= 159 or 0x200b <= code <= 0x200f
+                   or 0x2028 <= code <= 0x202e or 0x2060 <= code <= 0x206f or code == 0xfeff
+                   else json.dumps(char, ensure_ascii=False)[1:-1])
+        if encoded and len(encoded.encode('utf-8')) + len(escaped.encode('utf-8')) > 40:
+            rows.append((start, offset, encoded))
+            start, encoded = offset, ''
+        encoded += escaped
+        offset += len(char.encode('utf-8'))
+    if encoded or not rows:
+        rows.append((start, offset, encoded))
+    restored = ''.join(json.loads('"' + row[2] + '"') for row in rows)
+    if restored != message:
+        raise ValueError('Presentation did not preserve complete original bytes')
+    total = (len(rows) + 7) // 8
+    pages = []
+    for index in range(total):
+        page = rows[index * 8:(index + 1) * 8]
+        body = '\n'.join(f'L{index * 8 + row + 1:05} "{text}"' for row, (_, _, text) in enumerate(page))
+        pages.append(f'Native review page {index + 1}/{total}\nOriginal UTF-8 bytes {page[0][0]}..{page[-1][1]} of {offset}.\nRead JSON strings in L order; escapes preserve ALL text.\nOK reads this page only. Cancel stops this review.\n{body}')
+    pages.append(f'FINAL display confirmation\nAll {total} pages / {offset} original UTF-8 bytes were reviewed.\nOK confirms the original request exactly as displayed.\nAny further required reviews still apply.\nCancel stops without private approval.')
+    return pages
+
+
+def presentation_error(observed, proposal, prompts, phase, index):
+    if (observed.get('phase') != phase or observed.get('presentation_index') != index
+            or observed.get('presentation_count') != len(prompts)
+            or observed.get('proposal_id') != proposal['id']
+            or observed.get('proposal_revision') != proposal['revision']
+            or observed.get('message') != prompts[index]
+            or observed.get('title') != 'AgentBaton — Native owner approval'
+            or observed.get('parent_matches') is not True
+            or observed.get('visible') is not True
+            or observed.get('complete_text_visible') is not True):
+        return 'Sheet ready does not bind the complete exact visible presentation page'
+    return None
+
+
 def group_helpers():
     # Reuse the independently tested existing ownership/quiescence predicates;
     # the old runner and its readonly evidence contract are never modified.
@@ -424,7 +468,7 @@ def run(binary, daemon_path, output):
                 raise ValueError(error)
             message = expected_message(proposal, (Path(__file__).resolve().parents[1] / 'apps/desktop/src-tauri/src/approval.rs').read_text())
             invoke = generated['invoke']
-            fixture = {'kind': 'native_grant_os_dialog_fixture', 'runtime': str(runtime), 'output': str(output), 'proposal': proposal, 'message': message, 'invoke': invoke, 'baseline_sequence': baseline['sequence']}
+            fixture = {'kind': 'native_grant_os_dialog_fixture', 'runtime': str(runtime), 'output': str(output), 'proposal': proposal, 'message': message, 'presentation': presentation_prompts(message), 'invoke': invoke, 'baseline_sequence': baseline['sequence']}
             save(output / 'fixture.json', fixture)
             save(output / 'before.json', baseline)
             app = subprocess.Popen([str(binary.resolve()), str(output / 'fixture.json')], env=env, start_new_session=True)
@@ -432,26 +476,32 @@ def run(binary, daemon_path, output):
             permits = set()
             while not exited_without_reaping(app) and time.monotonic() < deadline:
                 for phase in ['cancel', 'approve']:
-                    ready = output / f'{phase}-sheet-ready.json'
-                    if ready.exists() and phase not in permits:
-                        observed = json.loads(ready.read_text())
-                        if observed.get('proposal_id') != proposal['id'] or observed.get('proposal_revision') != proposal['revision'] or observed.get('message') != message:
-                            raise ValueError('Sheet ready does not bind expected full proposal')
-                        check = database(runtime, proposal['id'])
-                        error = pending_error(check, proposal, baseline['sequence'])
-                        if error:
-                            raise ValueError(error)
-                        if phase == 'approve':
-                            cancel_reply = json.loads((output / 'cancel-reply.json').read_text())
-                            if cancel_reply.get('error', {}).get('code') != 'PERMISSION_DENIED':
-                                raise ValueError('Prior real Cancel path not recorded')
-                        save(output / f'{phase}-before-click-database.json', check)
-                        save(output / f'{phase}-database-permit.json', {'phase': phase, 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'before_click_sequence': baseline['sequence']})
-                        permits.add(phase)
+                    for index, prompt in enumerate(fixture['presentation']):
+                        key = f'{phase}-page-{index + 1:04}'
+                        ready = output / f'{key}-sheet-ready.json'
+                        if ready.exists() and key not in permits:
+                            observed = json.loads(ready.read_text())
+                            error = presentation_error(observed, proposal, fixture['presentation'], phase, index)
+                            if error:
+                                raise ValueError(error)
+                            if index and f'{phase}-page-{index:04}' not in permits:
+                                raise ValueError('Presentation page arrived out of order')
+                            check = database(runtime, proposal['id'])
+                            error = pending_error(check, proposal, baseline['sequence'])
+                            if error:
+                                raise ValueError(error)
+                            if phase == 'approve':
+                                cancel_reply = json.loads((output / 'cancel-reply.json').read_text())
+                                if cancel_reply.get('error', {}).get('code') != 'PERMISSION_DENIED':
+                                    raise ValueError('Prior real Cancel path not recorded')
+                            save(output / f'{key}-before-click-database.json', check)
+                            save(output / f'{key}-database-permit.json', {'phase': phase, 'presentation_index': index, 'presentation_count': len(fixture['presentation']), 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'before_click_sequence': baseline['sequence']})
+                            permits.add(key)
                 time.sleep(.05)
             if not exited_without_reaping(app):
                 raise TimeoutError('Real OS dialog process did not finish')
-            if permits != {'cancel', 'approve'}:
+            expected_permits = {f'{phase}-page-{index + 1:04}' for phase in ['cancel', 'approve'] for index in range(len(fixture['presentation']))}
+            if permits != expected_permits:
                 raise RuntimeError('Real dialog process failed; inspect retained native report')
             after = database(runtime, proposal['id'])
             save(output / 'after.json', after)
@@ -459,15 +509,15 @@ def run(binary, daemon_path, output):
             if error:
                 raise ValueError(error)
             images = {}
-            for phase in ['cancel', 'approve']:
-                raw = (output / f'{phase}-sheet.png').read_bytes()
+            for key in sorted(expected_permits):
+                raw = (output / f'{key}-sheet.png').read_bytes()
                 if len(raw) < 64 or raw[:8] != b'\x89PNG\r\n\x1a\n' or raw[12:16] != b'IHDR':
                     raise ValueError('Missing actual sheet PNG')
                 width, height = int.from_bytes(raw[16:20], 'big'), int.from_bytes(raw[20:24], 'big')
                 if min(width, height) < 20:
                     raise ValueError('Actual sheet image is empty/tiny')
-                images[phase] = {'sha256': hashlib.sha256(raw).hexdigest(), 'width': width, 'height': height, 'visual_review': 'pending_human_or_independent_image_inspection'}
-            result = {'status': 'automated_os_and_database_checks_passed_visual_review_pending', 'dimension': 'actual_macos_grant_cancel_then_same_key_real_ok', 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'grant_id': after['grants'][0]['id'], 'before_sequence': baseline['sequence'], 'after_sequence': after['sequence'], 'images': images, 'model_calls': 'not_run', 'graph_os_owner': 'not_run', 'human_owner_review': 'not_claimed', 'os': sys.platform, 'architecture': platform.machine(), 'harness_binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'daemon_binary_sha256': hashlib.sha256(daemon_path.read_bytes()).hexdigest()}
+                images[key] = {'sha256': hashlib.sha256(raw).hexdigest(), 'width': width, 'height': height, 'visual_review': 'pending_human_or_independent_image_inspection'}
+            result = {'status': 'automated_os_and_database_checks_passed_visual_review_pending', 'dimension': 'actual_macos_grant_cancel_then_same_key_real_ok', 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'grant_id': after['grants'][0]['id'], 'before_sequence': baseline['sequence'], 'after_sequence': after['sequence'], 'images': images, 'presentation_pages_per_phase': len(fixture['presentation']), 'original_message_sha256': hashlib.sha256(message.encode()).hexdigest(), 'model_calls': 'not_run', 'graph_os_owner': 'not_run', 'human_owner_review': 'not_claimed', 'os': sys.platform, 'architecture': platform.machine(), 'harness_binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'daemon_binary_sha256': hashlib.sha256(daemon_path.read_bytes()).hexdigest()}
         finally:
             cleanup = stop_owned(app, 'app')
             save(output / 'app-cleanup.json', cleanup)

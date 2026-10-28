@@ -21,6 +21,86 @@ const DESTROYED: u8 = 16;
 const FINISHED: u8 = 32;
 const MAIN_THREAD_DEADLINE: Duration = Duration::from_secs(5);
 
+// Presentation bounds are independent of approval snapshot bounds. This permits
+// the existing full 1MiB snapshot plus its host-authored explanatory envelope.
+const REVIEW_MESSAGE_BYTES: usize = 1_048_576 + 32_768;
+const REVIEW_ROW_ENCODED_BYTES: usize = 40;
+const REVIEW_ROWS_PER_PAGE: usize = 8;
+
+/// Entire original message, reversibly encoded. Every display line has a
+/// non-whitespace prefix: native text layout cannot eat original indentation.
+/// JSON escapes make controls/bidi explicit; ordinary Chinese/emoji stay readable.
+/// UTF-8 byte limits bound each row without splitting a Unicode scalar.
+fn review_prompts(message: &str) -> Result<Vec<String>, String> {
+    if message.len() > REVIEW_MESSAGE_BYTES {
+        return Err("Complete native message exceeds the bounded presentation envelope".into());
+    }
+    let mut rows = Vec::new();
+    let mut encoded = String::new();
+    let mut start = 0;
+    let mut end = 0;
+    for (offset, ch) in message.char_indices() {
+        let escaped = if ch == '\x7f'
+            || ('\u{0080}'..='\u{009f}').contains(&ch)
+            || ('\u{200b}'..='\u{200f}').contains(&ch)
+            || ('\u{2028}'..='\u{202e}').contains(&ch)
+            || ('\u{2060}'..='\u{206f}').contains(&ch)
+            || ch == '\u{feff}'
+        {
+            format!("\\u{:04x}", ch as u32)
+        } else {
+            let quoted = serde_json::to_string(&ch.to_string()).map_err(|e| e.to_string())?;
+            quoted[1..quoted.len() - 1].to_owned()
+        };
+        if !encoded.is_empty() && encoded.len() + escaped.len() > REVIEW_ROW_ENCODED_BYTES {
+            rows.push((start, offset, std::mem::take(&mut encoded)));
+            start = offset;
+        }
+        encoded.push_str(&escaped);
+        end = offset + ch.len_utf8();
+    }
+    if !encoded.is_empty() || rows.is_empty() {
+        rows.push((start, end, encoded));
+    }
+    // Verify the exact roundtrip before opening even the first native page.
+    let mut restored = String::new();
+    for (start, end, encoded) in &rows {
+        let decoded: String = serde_json::from_str(&format!("\"{encoded}\""))
+            .map_err(|_| "Native review encoding could not be restored")?;
+        if message.get(*start..*end) != Some(decoded.as_str()) {
+            return Err("Native review encoding changed original bytes".into());
+        }
+        restored.push_str(&decoded);
+    }
+    if restored != message {
+        return Err("Native review encoding omitted original bytes".into());
+    }
+    let total = rows.len().div_ceil(REVIEW_ROWS_PER_PAGE);
+    let mut prompts = Vec::with_capacity(total + 1);
+    for (index, page) in rows.chunks(REVIEW_ROWS_PER_PAGE).enumerate() {
+        let body = page
+            .iter()
+            .enumerate()
+            .map(|(row, (_, _, text))| {
+                format!(
+                    "L{:05} \"{}\"",
+                    index * REVIEW_ROWS_PER_PAGE + row + 1,
+                    text
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+        prompts.push(format!("Native review page {}/{}\nOriginal UTF-8 bytes {}..{} of {}.\nRead JSON strings in L order; escapes preserve ALL text.\nOK reads this page only. Cancel stops this review.\n{}", index + 1, total, page[0].0, page.last().unwrap().1, message.len(), body));
+    }
+    prompts.push(format!("FINAL display confirmation\nAll {} pages / {} original UTF-8 bytes were reviewed.\nOK confirms the original request exactly as displayed.\nAny further required reviews still apply.\nCancel stops without private approval.", total, message.len()));
+    Ok(prompts)
+}
+
+fn present_complete(message: &str, mut show: impl FnMut(&str) -> bool) -> Result<bool, String> {
+    let prompts = review_prompts(message)?;
+    Ok(prompts.iter().all(|prompt| show(prompt)))
+}
+
 #[derive(Default)]
 struct Lifecycle {
     state: AtomicU8,
@@ -238,6 +318,15 @@ impl CallerOwner {
         }
     }
     pub(crate) fn confirm(&self, title: &str, message: &str) -> bool {
+        match present_complete(message, |page| self.confirm_page(title, page)) {
+            Ok(confirmed) => confirmed,
+            Err(error) => {
+                self.fail(error);
+                false
+            }
+        }
+    }
+    fn confirm_page(&self, title: &str, message: &str) -> bool {
         let (sender, receiver) = mpsc::sync_channel(1);
         let caller = self.caller.clone();
         let life = self.life.clone();
@@ -366,6 +455,81 @@ pub(crate) fn with_caller(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn restore_prompts(prompts: &[String]) -> String {
+        prompts[..prompts.len() - 1]
+            .iter()
+            .flat_map(|page| page.lines())
+            .filter(|line| line.starts_with('L'))
+            .map(|line| serde_json::from_str::<String>(line.split_once(' ').unwrap().1).unwrap())
+            .collect()
+    }
+    #[test]
+    fn bounded_utf8_pages_preserve_indent_controls_unicode_and_complete_bytes() {
+        let original = "  first\n\t\t你好🔒\r\n\0\u{007f}\u{202e}last  ";
+        let prompts = review_prompts(original).unwrap();
+        assert_eq!(restore_prompts(&prompts), original);
+        assert!(prompts
+            .last()
+            .unwrap()
+            .starts_with("FINAL display confirmation"));
+        for page in &prompts {
+            assert!(page.len() < 1024);
+            assert!(page.lines().count() <= REVIEW_ROWS_PER_PAGE + 4);
+            assert!(page
+                .lines()
+                .all(|line| !line.starts_with(char::is_whitespace)));
+        }
+        assert!(prompts.concat().contains("\\u202e"));
+        assert!(prompts.concat().contains("你好🔒"));
+    }
+    #[test]
+    fn original_large_limits_are_preserved_and_never_truncated() {
+        for bytes in [0, 16_384, 1_048_576, REVIEW_MESSAGE_BYTES] {
+            let original = "x".repeat(bytes);
+            let prompts = review_prompts(&original).unwrap();
+            assert_eq!(restore_prompts(&prompts), original);
+            assert!(prompts.iter().all(|page| page.len() < 1024));
+        }
+        let mut calls = 0;
+        assert!(
+            present_complete(&"x".repeat(REVIEW_MESSAGE_BYTES + 1), |_| {
+                calls += 1;
+                true
+            })
+            .is_err()
+        );
+        assert_eq!(calls, 0);
+    }
+    #[test]
+    fn cancel_any_page_or_final_short_circuits_without_private_dispatch() {
+        let original = "    bound proposal \n".repeat(80);
+        let count = review_prompts(&original).unwrap().len();
+        assert!(count > 2);
+        for cancel_at in 0..count {
+            let mut calls = 0;
+            let confirmed = present_complete(&original, |_| {
+                let index = calls;
+                calls += 1;
+                index != cancel_at
+            })
+            .unwrap();
+            assert!(!confirmed);
+            assert_eq!(calls, cancel_at + 1);
+        }
+        let mut shown = Vec::new();
+        assert!(present_complete(&original, |page| {
+            shown.push(page.to_owned());
+            true
+        })
+        .unwrap());
+        assert_eq!(shown, review_prompts(&original).unwrap());
+    }
+    #[test]
+    fn canonical_json_row_vector_matches_the_independent_host_runner() {
+        let prompts = review_prompts(" \t你好🔒\n").unwrap();
+        assert_eq!(prompts[0], "Native review page 1/1\nOriginal UTF-8 bytes 0..13 of 13.\nRead JSON strings in L order; escapes preserve ALL text.\nOK reads this page only. Cancel stops this review.\nL00001 \" \\t你好🔒\\n\"");
+    }
     #[test]
     fn close_before_proposal_or_review_never_opens_a_dispatch_gate() {
         let life = Lifecycle::default();
