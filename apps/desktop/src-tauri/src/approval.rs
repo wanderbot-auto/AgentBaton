@@ -1508,6 +1508,7 @@ fn factory_contract_matches(contract: &Value, requirements: &Value, workspaces: 
 fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
     let b = &snapshot["bindings"];
     let task = &b["root_task"];
+    let project = &b["project"];
     let grant = &b["approved_grant"];
     if !exact_fields(
         snapshot,
@@ -1519,6 +1520,7 @@ fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
         || !exact_fields(
             b,
             &[
+                "project",
                 "root_task",
                 "approved_grant",
                 "connections",
@@ -1530,6 +1532,31 @@ fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
                 "start_contract",
             ],
         )
+        || !exact_fields(
+            project,
+            &[
+                "id",
+                "name",
+                "identity",
+                "revision",
+                "archived",
+                "created_at",
+                "updated_at",
+            ],
+        )
+        || project["id"] != task["project_id"]
+        || !graph_revision(&project["revision"])
+        || project["archived"] != false
+        || !project["name"]
+            .as_str()
+            .is_some_and(|s| !s.is_empty() && s.len() <= 4096)
+        || !project["created_at"].is_string()
+        || !project["updated_at"].is_string()
+        || !project["identity"]["canonical_root"]
+            .as_str()
+            .is_some_and(|s| s.starts_with('/') && !s.contains('\0'))
+        || project["identity"]["device"].as_u64().is_none()
+        || project["identity"]["inode"].as_u64().is_none()
         || task["id"] != selection["root_task_id"]
         || task["revision"] != selection["expected_task_revision"]
         || !graph_id(&task["project_id"])
@@ -1548,6 +1575,18 @@ fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
         || grant["project_id"] != task["project_id"]
         || grant["revision"] != selection["expected_grant_revision"]
         || grant["revoked"] != false
+    {
+        return false;
+    }
+    if !factory_ids(&grant["scope"]["host_ids"], true)
+        || !factory_ids(&grant["scope"]["recipients"], false)
+        || !grant["scope"]["recipients"]
+            .as_array()
+            .is_some_and(|allowed| {
+                selection["recipients"]
+                    .as_array()
+                    .is_some_and(|selected| selected.iter().all(|id| allowed.contains(id)))
+            })
     {
         return false;
     }
@@ -1593,6 +1632,9 @@ fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
     if !b["connections"].as_array().is_some_and(|rows| {
         rows.iter().all(|c| {
             graph_hash(&c["executable_sha256"])
+                && grant["scope"]["host_ids"]
+                    .as_array()
+                    .is_some_and(|allowed| allowed.contains(&c["host_id"]))
                 && [
                     "environment_id",
                     "identity_ref",
@@ -3158,7 +3200,7 @@ mod factory_tests {
         let output = json!({"artifact_id":"output","relative_path":"report.txt","max_bytes":1024,"expected_sha256":null});
         let selection = json!({"root_task_id":"task","expected_task_revision":1,"grant_id":"grant","expected_grant_revision":2,"connection_ids":["connection"],"workspace_ids":["workspace"],"inputs":[input],"outputs":[output],"recipients":[],"max_depth":1,"max_children":1,"max_total_nodes":2,"root_budget":budget,"project_budget":budget,"ttl_ms":300000,"capabilities":{"delegate_task":true,"resume_parent_as_new_attempt":true,"child_planning":false,"child_goal_execution":false,"create_workspace":false}});
         let contract = |requirement: Value| json!({"canonical_root":"/managed/factory","root_device":1,"root_inode":9223372036854775809u64,"requirement":requirement});
-        let bindings = json!({"root_task":{"id":"task","project_id":"project","revision":1,"spec_revision":1,"goal":"Bounded local Factory","state":"draft","created_at":"2026-10-28T00:00:00Z","updated_at":"2026-10-28T00:00:00Z"},"approved_grant":{"id":"grant","root_grant_id":"grant","parent_id":null,"project_id":"project","revision":2,"revoked":false,"scope":{"connection_ids":["connection"],"workspace_ids":["workspace"],"max_children":0,"max_depth":0,"max_attempts":8,"max_concurrency":2,"max_duration_ms":120000}},"connections":[{"id":"connection","revision":2,"executable_sha256":"a".repeat(64),"environment_id":"environment","identity_ref":"identity-unknown","host_id":"local","config_revision":"config","capability_snapshot_id":"capability"}],"workspaces":[{"id":"workspace","project_id":"project","revision":1,"root":"/managed/factory","state":"ready"}],"inputs":[{"contract":contract(input),"sha256":"b".repeat(64),"bytes":3}],"outputs":[contract(output)],"companion":{"executable":"/host/baton","executable_sha256":"c".repeat(64),"argument_template":["factory-mcp","${SESSION_HANDLE_FILE}"],"credential_transport":"private_0600_file_reference","global_daemon_token_available":false},"guarantees":{"filesystem_sandbox":false,"network_sandbox":false,"account_isolation":false,"output_quota":false,"continuous_input_immutability":false,"complete_process_tree_containment":false},"start_contract":{"mode":"single_scope_single_run","root_task_request_digest":"d".repeat(64),"context_continuation":"new_attempt_explicit_handoff_only","implicit_start_on_approval":false,"new_workspace_authority":false}});
+        let bindings = json!({"project":{"id":"project","name":"Existing project","identity":{"canonical_root":"/managed/factory","device":1,"inode":9223372036854775809u64,"kind":{"kind":"directory"}},"revision":1,"archived":false,"created_at":"2026-10-28T00:00:00Z","updated_at":"2026-10-28T00:00:00Z"},"root_task":{"id":"task","project_id":"project","revision":1,"spec_revision":1,"goal":"Bounded local Factory","state":"draft","created_at":"2026-10-28T00:00:00Z","updated_at":"2026-10-28T00:00:00Z"},"approved_grant":{"id":"grant","root_grant_id":"grant","parent_id":null,"project_id":"project","revision":2,"revoked":false,"scope":{"connection_ids":["connection"],"workspace_ids":["workspace"],"host_ids":["local"],"recipients":[],"max_children":0,"max_depth":0,"max_attempts":8,"max_concurrency":2,"max_duration_ms":120000}},"connections":[{"id":"connection","revision":2,"executable_sha256":"a".repeat(64),"environment_id":"environment","identity_ref":"identity-unknown","host_id":"local","config_revision":"config","capability_snapshot_id":"capability"}],"workspaces":[{"id":"workspace","project_id":"project","revision":1,"root":"/managed/factory","state":"ready"}],"inputs":[{"contract":contract(input),"sha256":"b".repeat(64),"bytes":3}],"outputs":[contract(output)],"companion":{"executable":"/host/baton","executable_sha256":"c".repeat(64),"argument_template":["factory-mcp","${SESSION_HANDLE_FILE}"],"credential_transport":"private_0600_file_reference","global_daemon_token_available":false},"guarantees":{"filesystem_sandbox":false,"network_sandbox":false,"account_isolation":false,"output_quota":false,"continuous_input_immutability":false,"complete_process_tree_containment":false},"start_contract":{"mode":"single_scope_single_run","root_task_request_digest":"d".repeat(64),"context_continuation":"new_attempt_explicit_handoff_only","implicit_start_on_approval":false,"new_workspace_authority":false}});
         (
             selection.clone(),
             json!({"result":{"id":"factory-proposal","kind":"factory","revision":3,"snapshot":{"schema_version":1,"selection":selection,"bindings":bindings,"contract_digest":"e".repeat(64)}},"revision":8,"warnings":[]}),
@@ -3347,6 +3389,94 @@ mod factory_tests {
             )
             .unwrap();
             assert_eq!(denied["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+        }
+    }
+}
+
+#[cfg(test)]
+mod factory_contract_regression_tests {
+    use super::*;
+    use std::cell::Cell;
+    fn actual_bundle() -> Value {
+        serde_json::from_str(include_str!("../tests/fixtures/factory-wire-bundle-0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64.json")).unwrap()
+    }
+    #[test]
+    fn factory_actual_store_project_snapshot_and_scope_bind_every_original_value() {
+        let wire = actual_bundle();
+        let proposal = &wire["proposal"];
+        let finalized = Cell::new(0);
+        let result=confirm_factory_and_finalize(json!({"result":proposal}),&wire["selection"],|message|{
+            assert!(message.contains(proposal["id"].as_str().unwrap()));true
+        },|frame|{
+            finalized.set(finalized.get()+1);
+            assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":format!("proposal:{}",proposal["id"].as_str().unwrap())}));
+            Ok(json!({"result":wire["scope"]}))
+        }).unwrap();
+        assert_eq!(result["result"], wire["scope"]);
+        assert_eq!(
+            result["result"]["bindings"]["project"],
+            proposal["snapshot"]["bindings"]["project"]
+        );
+        assert_eq!(finalized.get(), 1);
+    }
+    #[test]
+    fn factory_native_rejects_missing_or_foreign_grant_hosts_recipients_and_project_before_prompt()
+    {
+        for kind in [
+            "host",
+            "missing-hosts",
+            "recipient",
+            "missing-recipients",
+            "project",
+            "missing-project",
+        ] {
+            let wire = actual_bundle();
+            let mut proposal = wire["proposal"].clone();
+            let mut selection = wire["selection"].clone();
+            match kind {
+                "host" => {
+                    proposal["snapshot"]["bindings"]["connections"][0]["host_id"] = json!("outside")
+                }
+                "missing-hosts" => {
+                    proposal["snapshot"]["bindings"]["approved_grant"]["scope"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("host_ids");
+                }
+                "recipient" => {
+                    selection["recipients"] = json!(["outside"]);
+                    proposal["snapshot"]["selection"] = selection.clone();
+                }
+                "missing-recipients" => {
+                    proposal["snapshot"]["bindings"]["approved_grant"]["scope"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("recipients");
+                }
+                "project" => proposal["snapshot"]["bindings"]["project"]["id"] = json!("foreign"),
+                "missing-project" => {
+                    proposal["snapshot"]["bindings"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("project");
+                }
+                _ => unreachable!(),
+            }
+            let refused = confirm_factory_and_finalize(
+                json!({"result":proposal}),
+                &selection,
+                |_| panic!("foreign authority must not prompt"),
+                |_| panic!("foreign authority must not finalize"),
+            )
+            .unwrap();
+            assert_eq!(
+                refused["error"]["side_effect_state"], "not_started",
+                "{kind}"
+            );
+            assert_eq!(
+                refused["error"]["code"], "INVALID_APPROVAL_PROPOSAL",
+                "{kind}"
+            );
         }
     }
 }

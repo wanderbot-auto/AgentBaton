@@ -1,6 +1,6 @@
 # Candidate evidence
 
-Actually executed on this source candidate:
+Previously executed on frozen37c source candidate:
 
 - `npm test --prefix apps/desktop`:611 passed/40 files,0 failures/errors/skips;21.22s. Final log `.onboarding/factory-runtime-ui/frozen-candidate/node-full.log`.
 - `npm run typecheck --prefix apps/desktop`:exit0.
@@ -33,3 +33,15 @@ Source SHA256:
 Core contract source read directly; still no actual Factory JSON/runtime integration fixture at this freeze. Core confirmed Draft-only initial scopes, lineage-derived task budget roots and full-root historical unknown-run gate; do not infer these from renderer flags. Filesystem metadata is not reconstructed/digested in JS. New Native handler/source tests use original serde values and preserve high-u64 literals but are not yet compiled.
 
 NOT_RUN: new8 Rust tests/Clippy, composed Core13/storage/realMCP/shared-ledger runtime tests, browser and real IPC, actual Owner popup, macOS ARM/Intel Factory behavior, real Provider/account/model calls. Root will assign independent review and target lease. No paid resource, credentials, OS permission, signing, production deployment or license changes.
+
+## Post-review actual revision evidence
+
+- `npm test --prefix apps/desktop`:626 passed/41 files; final Vitest duration23.35s. `revision-two/node-full.log`.
+- `npm run typecheck --prefix apps/desktop`, `npm run build --prefix apps/desktop`:exit0; exact commands/codes/timing in `revision-two/results.json`.
+- Standalone rustfmt on Native approval.rs/lib.rs and `git diff --check`:exit0; not Cargo/type compilation.
+- Targeted guards/component/actual wire tests:59 passed before the final extra Project-floor regression; full626 includes it.
+- Prior independent37c FR01–03 controls failed as preserved in `.onboarding/factory-runtime-ui-independent-review/independent-negative-probes.log` SHA9ef44cf09ce4603033398b2e563216b887c690f64867d19f931e2564f38a8de0; FR04 was static Native recipient omission. These are Renderer/Native defensive evidence defects, not an actual Core authority bypass.
+- Initial new test typecheck failure: `revision-two/typecheck-initial.log`; no dependency installed. Final source uses existing Node WebCrypto test environment for immutable fixture SHA, not browser/Mac proof.
+- Copied actual fixture source `/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/wire-bundle-0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64.json`; destination `apps/desktop/src-tauri/tests/fixtures/factory-wire-bundle-0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64.json`; original SHA2560c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64 unchanged. Generated actual Store propose→trusted Owner-finalizer fixture→scope→durable queuedRun, generated Git/input and synthetic connection; no actual Provider, OS dialog, runtime parent/child or shared-ledger success inferred.
+- New10 Rust bodies SOURCE ONLY (original8 plus actual wire/private-frame binding and negative host/recipient/Project controls). No Cargo/target use. Await independent review and composed compile.
+- Source preservation `revision-two/source-preservation.json`; current source/log/fixture SHA in `revision-two/manifest.json`. Prior37c manifest and logs unchanged.

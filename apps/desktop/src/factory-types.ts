@@ -1,4 +1,4 @@
-import type { Task, ManagedWorkspace } from './api';
+import type { Task, ManagedWorkspace, Project } from './api';
 import type { ExecutionGrant, NamedConnection } from './session-api';
 import type { GoalBudget } from './goal-api';
 import type { ArtifactRequirement } from './validation-api';
@@ -17,7 +17,7 @@ export interface FactoryInputBinding { contract:FactoryContract; sha256:string; 
 export interface FactoryCompanionBinding { executable:string; executable_sha256:string; argument_template:string[]; credential_transport:string; global_daemon_token_available:boolean }
 export interface FactoryGuarantees { filesystem_sandbox:boolean; network_sandbox:boolean; account_isolation:boolean; output_quota:boolean; continuous_input_immutability:boolean; complete_process_tree_containment:boolean }
 export interface FactoryStartContract { mode:string; root_task_request_digest:string; context_continuation:string; implicit_start_on_approval:boolean; new_workspace_authority:boolean }
-export interface FactoryBindings { root_task:Task; approved_grant:ExecutionGrant; connections:NamedConnection[]; workspaces:ManagedWorkspace[]; inputs:FactoryInputBinding[]; outputs:FactoryContract[]; companion:FactoryCompanionBinding; guarantees:FactoryGuarantees; start_contract:FactoryStartContract }
+export interface FactoryBindings { project:Project; root_task:Task; approved_grant:ExecutionGrant; connections:NamedConnection[]; workspaces:ManagedWorkspace[]; inputs:FactoryInputBinding[]; outputs:FactoryContract[]; companion:FactoryCompanionBinding; guarantees:FactoryGuarantees; start_contract:FactoryStartContract }
 export interface FactoryScope { id:string; approval_id:string; project_id:string; root_task_id:string; root_grant_id:string; root_grant_revision:number; revision:number; revoked:boolean; expires_at_ms:number; selection:FactorySelection; bindings:FactoryBindings; contract_digest:string; created_at:string }
 export interface FactoryTaskHandle { task_id:string; parent_task_id:string|null; root_task_id:string; delegation_id:string; factory_scope_id:string; revision:number; state:string; attempt_id:string|null; cancel_requested:boolean; confirmed_stop:boolean; result_available:boolean }
 export interface FactoryWaitingRelation { parent_task_id:string; child_task_id:string; parent_session_id:string; parent_stop_confirmed:boolean; handoff_digest:string|null }

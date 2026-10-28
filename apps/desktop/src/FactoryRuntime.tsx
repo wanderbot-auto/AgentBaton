@@ -26,7 +26,7 @@ function recall(id:string):Memory{
 }
 
 const uncertain=(error:unknown)=>!(error instanceof DaemonError)||error.code==='OUTCOME_UNKNOWN'||!['none','not_started'].includes(error.sideEffectState);
-const scopeImmutable=(s:FactoryScope)=>factorySafeFingerprint([s.id,s.root_task_id,s.project_id,s.root_grant_id,s.root_grant_revision,s.contract_digest,s.expires_at_ms,s.selection]);
+const scopeImmutable=(s:FactoryScope)=>factorySafeFingerprint([s.id,s.root_task_id,s.project_id,s.root_grant_id,s.root_grant_revision,s.contract_digest,s.expires_at_ms,s.selection,s.bindings.project.id,s.bindings.project.revision,s.bindings.project.archived]);
 const scopeFingerprint=(s:FactoryScope)=>factorySafeFingerprint([scopeImmutable(s),s.revoked]);
 function advanceScopeFloor(map:Map<string,ScopeFloor>,value:FactoryScope,historical=false){
  const previous=map.get(value.id),immutable=scopeImmutable(value),fingerprint=scopeFingerprint(value);
