@@ -515,16 +515,20 @@ impl Daemon {
             "goal_runs.get"=>{let p:GoalRunId=params(r.params)?;self.store.goal_run_details(&p.run_id)}
             "goal_runs.list"=>{let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_runs(&p.task_id)?))}
             "goal_runs.cancel"=>{let p:GoalRunId=params(r.params)?;let run=self.store.cancel_goal_run(&p.run_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;for id in self.store.goal_stop_requests()? {self.supervisor.cancel(&id);}Ok(json!(run))}
+            "goal_runs.advance_plan"=>{let p:crate::goal_store::GoalPlanAdvance=params(r.params)?;Ok(json!(self.store.advance_goal_plan(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
             "goal_runs.dispatch"=>{
-                let p:crate::goal_store::GoalRunDispatch=params(r.params)?;let revision=r.expected_revision.ok_or_else(invalid)?;
-                let _key=r.idempotency_key.ok_or_else(invalid)?;
+                let mut p:crate::goal_store::GoalRunDispatch=params(r.params)?;let revision=r.expected_revision.ok_or_else(invalid)?;let key=r.idempotency_key.ok_or_else(invalid)?;
+                let (receipt,new)=self.store.admit_goal_advance(&p,revision,&key)?;if !new{return Ok(receipt);}
+                p.expected_ledger_revision=self.store.sequence()?;
                 let started=Instant::now();
-                if let Some(session)=self.store.goal_dispatch_session(&p,revision)? {
-                    if let Err(error)=self.supervisor.launch(&mut self.store,&session.id){self.supervisor.record_local_launch_failure(&mut self.store,&session.id)?;self.store.settle_goal_worker(&session.id,u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),true,true)?;return Err(error);}
-                    return self.store.goal_run_details(&p.run_id);
-                }
-                if let Some((id,text))=self.store.goal_prompt(&p,revision)? {if let Err(error)=self.supervisor.send(&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}
-                self.store.goal_run_details(&p.run_id)
+                let action=(||->Result<()> {
+                    if let Some(session)=self.store.goal_dispatch_session(&p,revision)? {
+                        if let Err(error)=self.supervisor.launch(&mut self.store,&session.id){self.supervisor.record_local_launch_failure(&mut self.store,&session.id)?;self.store.settle_goal_worker(&session.id,u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),true,true)?;return Err(error);}
+                        return Ok(());
+                    }
+                    if let Some((id,text))=self.store.goal_prompt(&p,revision)?{if let Err(error)=self.supervisor.send(&id,&text){self.store.record_turn_queue_failure(&id)?;self.supervisor.cancel(&id);return Err(error);}}Ok(())
+                })();
+                if let Err(mut error)=action {if error.side_effect_state=="not_started"{error.side_effect_state="confirmed".into();}error.details_ref=receipt["intent_id"].as_str().map(|id|format!("recorded-goal-advance:{id}"));return Err(error);}Ok(receipt)
             }
             "goal_scopes.propose" => {
                 let selection:crate::goal_store::GoalScopeSelection=params(r.params)?;
@@ -1243,10 +1247,44 @@ impl Daemon {
             }
             "goal_runs.propose" => {
                 let p: crate::goal_store::GoalRunSelection = params(request.params)?;
+                if let Some(key) = request.idempotency_key.as_deref() {
+                    if self
+                        .store
+                        .goal_execution_proposal_replay(&p, key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
                 ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
+            }
+            "goal_runs.advance_plan" => {
+                let p: crate::goal_store::GoalPlanAdvance = params(request.params)?;
+                if let (Some(key), Some(revision)) = (
+                    request.idempotency_key.as_deref(),
+                    request.expected_revision,
+                ) {
+                    if self
+                        .store
+                        .goal_plan_advance_replay(&p, revision, key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                let run = self.store.get_goal_run(&p.run_id)?;
+                ids.push(self.store.get_goal_scope(&run.scope_id)?.workspace_id);
             }
             "goal_runs.dispatch" => {
                 let p: crate::goal_store::GoalRunDispatch = params(request.params)?;
+                if let (Some(key), Some(revision)) = (
+                    request.idempotency_key.as_deref(),
+                    request.expected_revision,
+                ) {
+                    if self.store.goal_advance_replay(&p, revision, key)?.is_some() {
+                        return Ok(vec![]);
+                    }
+                }
                 let run = self.store.get_goal_run(&p.run_id)?;
                 ids.push(self.store.get_goal_scope(&run.scope_id)?.workspace_id);
             }
@@ -1593,14 +1631,14 @@ impl Daemon {
         if self.data_workers.has_workers() {
             return Ok(());
         }
-        let Some(run) = self
-            .store
-            .active_goal_runs()?
-            .into_iter()
-            .find(|r| matches!(r.state.as_str(), "queued" | "running"))
-        else {
-            return Ok(());
-        };
+        let mut next = None;
+        for r in self.store.active_goal_runs()? {
+            if self.store.goal_run_needs_advance(&r.id)? {
+                next = Some(r);
+                break;
+            }
+        }
+        let Some(run) = next else { return Ok(()) };
         let ledger = self.store.sequence()?;
         let raw=serde_json::to_string(&json!({"api_version":API_VERSION,"request_id":Uuid::new_v4().to_string(),"token":self.token,"method":"goal_runs.dispatch","params":{"run_id":run.id,"expected_ledger_revision":ledger},"expected_revision":run.revision,"idempotency_key":format!("goal-advance:{}:{}:{}",run.id,run.revision,ledger)})).map_err(|_|CoreError::new("INTERNAL_ERROR","Cannot construct private Goal advancement"))?;
         let (reply, receive) = mpsc::sync_channel(1);

@@ -20,11 +20,12 @@ use uuid::Uuid;
 
 #[path = "goal_runtime.rs"]
 mod runtime;
+use runtime::runtime_scope_for_revision;
 pub(crate) use runtime::{
     migrate as migrate_runtime, ordinary_session_budget_gate, owns_session,
     permits_continuing_task, reserve_session, GoalDispatchContext,
 };
-pub use runtime::{GoalRun, GoalRunDispatch, GoalRunSelection};
+pub use runtime::{GoalPlanAdvance, GoalRun, GoalRunDispatch, GoalRunSelection};
 
 pub const MAX_GOAL_PLAN_BYTES: usize = 262_144;
 const MAX_STORED_BYTES: i64 = 1_048_576;
@@ -1962,7 +1963,14 @@ impl Store {
             // authority is revoked. This data is never a new ready/dispatch grant.
             return Ok(view);
         }
-        let (_, scope) = read_scope(&tx, &submission.scope_id, self.data_input.as_ref())?;
+        let (_, scope) = match runtime_scope_for_revision(
+            &tx,
+            &submission.scope_id,
+            self.data_input.as_ref(),
+        )? {
+            Some(resolved) => resolved,
+            None => read_scope(&tx, &submission.scope_id, self.data_input.as_ref())?,
+        };
         let exists: bool = tx
             .query_row(
                 "SELECT EXISTS(SELECT 1 FROM goal_plan_heads WHERE scope_id=?1)",

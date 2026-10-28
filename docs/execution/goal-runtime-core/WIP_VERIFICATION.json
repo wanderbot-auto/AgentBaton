@@ -1,0 +1,61 @@
+{
+  "status": "WIP, not final source/independent integration acceptance",
+  "runtime_module_sha256_latest_real_tests": "cb13237bdeeeff4de075045ce759a9454b8c1107f62c3b18bc2e751001d933b6",
+  "latest_passed_new_git_goal_tests": 10,
+  "latest_passed_new_data_goal_tests": 2,
+  "full_workspace_run": false,
+  "actual_macOS": false,
+  "real_provider_models": false,
+  "logs": [
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/check-10.log",
+      "sha256": "e6aafcbb1d04e19c820a7f12e131c4d5b2916d490d878a4e405c79730cc61c83",
+      "bytes": 162
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/real-goal-bounds-1.log",
+      "sha256": "cac875c8f986e1ed823cac4b6adf41aefeec392d7d4a13512bd5768b3b62901d",
+      "bytes": 7044
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/real-data-goal-1.log",
+      "sha256": "7f9f8e78723347540f2bd785bd568572d6bf6508915b56db3ac3c54894c2ff89",
+      "bytes": 1489
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/export-real-proposal.log",
+      "sha256": "b1831a5a044759ce1038019a97958ad4ad6aadcfffc1c4030fcec5ba958d47af",
+      "bytes": 963
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/export-large-review-2.log",
+      "sha256": "3801a848faa3777f021417cbb2dfbab4fdd7cdc9dbcd525baf78133e4603a21c",
+      "bytes": 944
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/real-goal-failures-1.log",
+      "sha256": "ba66a68a6b146215865f05457c275698a770dd8fce132bd4b0057ba8c35ec91e",
+      "bytes": 4159
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/first-real-dispatch.log",
+      "sha256": "2fd628557e9b5696e014eb839e7ac66d2b6274388a7a95ac04848f3b7803419b",
+      "bytes": 1594
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/real-dispatch-2.log",
+      "sha256": "7e2b5d903f97f2ddadcea61c763c25601461ad28884bbd88ea65e7f2560bf538",
+      "bytes": 1069
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/real-dispatch-history.log",
+      "sha256": "c4bf4bb00c1f8357f1dc7ac469e6f8633b827249d167016bac9c273d4c26329b",
+      "bytes": 4425
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/export-large-review.log",
+      "sha256": "c2f33898c32c0d5d756c976fdadf7d6a6acb2566adefa2ab06d910d23fd22a13",
+      "bytes": 1246
+    }
+  ]
+}

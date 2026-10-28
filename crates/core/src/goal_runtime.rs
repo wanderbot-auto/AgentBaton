@@ -64,10 +64,10 @@ fn sequence(db: &Connection) -> Result<u64> {
 fn run(db: &Connection, id: &str) -> Result<GoalRun> {
     key(id)?;
     let raw: Option<Option<String>> = db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_runs WHERE id=?1",[id],|r|r.get(0)).optional().map_err(db_error)?;
-    let r: GoalRun = decode(
-        &raw.flatten()
-            .ok_or_else(|| err("NOT_FOUND", "Bounded Goal run does not exist"))?,
-    )?;
+    let stored = raw
+        .ok_or_else(|| err("NOT_FOUND", "Goal run does not exist"))?
+        .ok_or_else(limited)?;
+    let r: GoalRun = decode(&stored)?;
     let cols: (String, i64, String) = db
         .query_row(
             "SELECT scope_id,revision,state FROM goal_runs WHERE id=?1",
@@ -85,11 +85,20 @@ fn run(db: &Connection, id: &str) -> Result<GoalRun> {
 }
 fn node_records(db: &Connection, id: &str) -> Result<Vec<RuntimeNode>> {
     let r = run(db, id)?;
+    node_records_at(db, &r, r.plan_revision, &r.plan_digest)
+}
+fn node_records_at(
+    db: &Connection,
+    r: &GoalRun,
+    revision: u64,
+    digest: &str,
+) -> Result<Vec<RuntimeNode>> {
+    let id = r.id.as_str();
     let plan = historical_plan_views(db, &r.scope_id)?
         .into_iter()
-        .find(|p| p.proposal.revision == r.plan_revision && p.digest == r.plan_digest)
+        .find(|p| p.proposal.revision == revision && p.digest == digest)
         .ok_or_else(changed)?;
-    let mut q=db.prepare("SELECT node_id,ordinal,state,session_id,attempt_id,CASE WHEN octet_length(document)<=262144 THEN document END FROM goal_run_nodes WHERE run_id=?1 ORDER BY ordinal LIMIT 257").map_err(db_error)?;
+    let mut q=db.prepare("SELECT node_id,ordinal,state,session_id,attempt_id,CASE WHEN octet_length(document)<=262144 THEN document END FROM goal_run_nodes WHERE run_id=?1 AND plan_revision=?2 ORDER BY ordinal LIMIT 257").map_err(db_error)?;
     type Row = (
         String,
         i64,
@@ -99,7 +108,7 @@ fn node_records(db: &Connection, id: &str) -> Result<Vec<RuntimeNode>> {
         Option<String>,
     );
     let rows = q
-        .query_map([id], |row| {
+        .query_map(params![id, sql_num(revision)?], |row| {
             Ok((
                 row.get(0)?,
                 row.get(1)?,
@@ -120,7 +129,7 @@ fn node_records(db: &Connection, id: &str) -> Result<Vec<RuntimeNode>> {
         let n: RuntimeNode = decode(&doc.ok_or_else(limited)?)?;
         let ordinal = usize::try_from(ordinal).map_err(|_| changed())?;
         if n.node.id != node_id
-            || n.plan_revision != r.plan_revision
+            || n.plan_revision != revision
             || n.state != state
             || n.session_id != session_id
             || n.attempt_id != attempt_id
@@ -149,22 +158,42 @@ fn node_records(db: &Connection, id: &str) -> Result<Vec<RuntimeNode>> {
             let receipt: ReservationRecord = decode(&raw)?;
             if receipt.run_id != id
                 || receipt.node_id != node_id
-                || receipt.plan_revision != r.plan_revision
+                || receipt.plan_revision != revision
                 || receipt.reservation != n.node.reservation
             {
                 return Err(changed());
             }
-            let committed:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.node_id')=?2 AND json_extract(document,'$.payload.attempt_id')=?3 AND json_extract(document,'$.payload.session_id')=?4 AND json_extract(document,'$.payload.plan_revision')=?5 AND json_extract(document,'$.payload.plan_digest')=?6)",params![id,node_id,sess.attempt_id,session,sql_num(r.plan_revision)?,r.plan_digest],|row|row.get(0)).map_err(db_error)?;
+            let committed:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.node_id')=?2 AND json_extract(document,'$.payload.attempt_id')=?3 AND json_extract(document,'$.payload.session_id')=?4 AND json_extract(document,'$.payload.plan_revision')=?5 AND json_extract(document,'$.payload.plan_digest')=?6)",params![id,node_id,sess.attempt_id,session,sql_num(revision)?,digest],|row|row.get(0)).map_err(db_error)?;
             if !committed {
                 return Err(denied());
             }
+            if n.state == "candidate" && sess.turn_state.as_deref() != Some("completed") {
+                return Err(changed());
+            }
             if n.stop_confirmed {
-                let committed:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='goal.node_settled' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.node_id')=?2 AND json_extract(document,'$.payload.attempt_id')=?3 AND json_extract(document,'$.payload.session_id')=?4 AND json_extract(document,'$.payload.stop_confirmed')=1)",params![id,node_id,sess.attempt_id,session],|row|row.get(0)).map_err(db_error)?;
+                let supervisor_sequence = trusted_session_stop(db, id, &sess)?;
+                let committed:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='goal.node_settled' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.node_id')=?2 AND json_extract(document,'$.payload.attempt_id')=?3 AND json_extract(document,'$.payload.session_id')=?4 AND json_extract(document,'$.payload.stop_confirmed')=1 AND json_extract(document,'$.payload.state')=?5 AND sequence>?6 AND json_extract(document,'$.payload.actual_runtime_ms') IS ?7 AND json_extract(document,'$.payload.actual_output_bytes') IS ?8 AND json_extract(document,'$.payload.tokens') IS ?9 AND json_extract(document,'$.payload.cost_microunits') IS ?10)",params![id,node_id,sess.attempt_id,session,n.state,supervisor_sequence,n.actual_runtime_ms.map(sql_num).transpose()?,n.actual_output_bytes.map(sql_num).transpose()?,n.tokens.map(sql_num).transpose()?,n.cost_microunits.map(sql_num).transpose()?],|row|row.get(0)).map_err(db_error)?;
                 if !committed {
                     return Err(denied());
                 }
             }
         } else if attempt_id.is_some() || n.state != "not_started" {
+            return Err(changed());
+        } else {
+            let prior:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_reservations WHERE run_id=?1 AND node_id=?2 AND json_extract(document,'$.plan_revision')=?3)",params![id,node_id,sql_num(revision)?],|row|row.get(0)).map_err(db_error)?;
+            if prior {
+                return Err(changed());
+            }
+        }
+        if !n.stop_confirmed
+            && (n.actual_runtime_ms.is_some()
+                || n.actual_output_bytes.is_some()
+                || n.tokens.is_some()
+                || n.cost_microunits.is_some())
+        {
+            return Err(changed());
+        }
+        if matches!(n.state.as_str(), "candidate" | "cancelled" | "failed") && !n.stop_confirmed {
             return Err(changed());
         }
         result.push(n);
@@ -198,7 +227,7 @@ fn save_run(db: &Connection, r: &mut GoalRun, kind: &str, payload: Value) -> Res
     event(db, &r.id, r.revision, kind, payload)
 }
 fn save_node(db: &Connection, id: &str, n: &RuntimeNode) -> Result<()> {
-    if db.execute("UPDATE goal_run_nodes SET state=?1,session_id=?2,attempt_id=?3,document=?4 WHERE run_id=?5 AND node_id=?6",params![n.state,n.session_id,n.attempt_id,encode(n)?,id,n.node.id]).map_err(db_error)?!=1{return Err(changed());}
+    if db.execute("UPDATE goal_run_nodes SET state=?1,session_id=?2,attempt_id=?3,document=?4 WHERE run_id=?5 AND node_id=?6 AND plan_revision=?7",params![n.state,n.session_id,n.attempt_id,encode(n)?,id,n.node.id,sql_num(n.plan_revision)?]).map_err(db_error)?!=1{return Err(changed());}
     Ok(())
 }
 pub(crate) fn migrate(db: &mut Connection, version: u32) -> Result<()> {
@@ -208,10 +237,36 @@ pub(crate) fn migrate(db: &mut Connection, version: u32) -> Result<()> {
             .map_err(db_error)?;
         tx.execute_batch("CREATE TABLE goal_runs(id TEXT PRIMARY KEY REFERENCES approval_proposals(id),scope_id TEXT NOT NULL REFERENCES goal_scopes(id),project_id TEXT NOT NULL REFERENCES projects(id),task_id TEXT NOT NULL REFERENCES tasks(id),revision INTEGER NOT NULL CHECK(revision>0),state TEXT NOT NULL,document TEXT NOT NULL);
 CREATE UNIQUE INDEX goal_one_running_scope ON goal_runs(scope_id) WHERE state IN('queued','running','cancel_requested','outcome_unknown');
-CREATE TABLE goal_run_nodes(run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,ordinal INTEGER NOT NULL,state TEXT NOT NULL,session_id TEXT REFERENCES sessions(id),attempt_id TEXT REFERENCES attempts(id),document TEXT NOT NULL,PRIMARY KEY(run_id,node_id));
+CREATE TABLE goal_run_nodes(run_id TEXT NOT NULL REFERENCES goal_runs(id),plan_revision INTEGER NOT NULL CHECK(plan_revision>0),node_id TEXT NOT NULL,ordinal INTEGER NOT NULL,state TEXT NOT NULL,session_id TEXT REFERENCES sessions(id),attempt_id TEXT REFERENCES attempts(id),document TEXT NOT NULL,PRIMARY KEY(run_id,plan_revision,node_id));
 CREATE TABLE goal_run_reservations(attempt_id TEXT PRIMARY KEY REFERENCES attempts(id),run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,parent_node_id TEXT,document TEXT NOT NULL);
 PRAGMA user_version=11;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
+    }
+    Ok(())
+}
+fn connection_summary(refs: &GoalRefs) -> Result<Value> {
+    let id = refs
+        .grant_after
+        .scope
+        .connection_ids
+        .first()
+        .ok_or_else(changed)?;
+    let binding = refs
+        .grant_after
+        .connection_bindings
+        .get(id)
+        .ok_or_else(changed)?;
+    let mut summary = json!(binding);
+    summary["id"] = json!(id);
+    Ok(summary)
+}
+fn require_metered_capabilities(plan: &GoalPlanProposal) -> Result<()> {
+    if plan
+        .nodes
+        .iter()
+        .any(|n| n.budget.tokens.is_some() || n.budget.cost_microunits.is_some())
+    {
+        return Err(err("CAPABILITY_UNSUPPORTED","Reliable Provider token/cost measurement is unavailable for a finite Goal node or ancestor cap"));
     }
     Ok(())
 }
@@ -234,9 +289,10 @@ fn snapshot(
     if plan.proposal.nodes.is_empty() {
         return Err(invalid());
     }
+    require_metered_capabilities(&plan.proposal)?;
     // A complete plan is reviewed; neither IDs nor a digest-only surrogate grant
     // unseen nodes or permissions. Large owner reviews must use a separate UI design.
-    let v = json!({"intent":s,"scope":scope_view(&r,&scope)?,"plan":plan,"execution":"bounded_existing_workspace_only","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"warning":"Runs execute the displayed fixed plan within existing exact permissions. Node completion is only candidate evidence. Unknown effects block replay. New child workspaces require a separate native factory capability."});
+    let v = json!({"intent":s,"scope":scope_view(&r,&scope)?,"root_grant":r.refs.grant_after,"existing_connection":connection_summary(&r.refs)?,"plan":plan,"execution":"bounded_existing_workspace_only","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"warning":"Approve autonomous execution of this plan and later validated versions within this exact Goal scope, fixed inputs/capabilities and shared cumulative budgets. Each version requires exact Store compare-and-swap and retained lineage. No new workspace, identity, host or recipient is granted. Node completion is only candidate evidence. Unknown effects and budget overrun block further execution. Output accounting observes declared selected artifacts at stop; it is not an OS filesystem quota."});
     if encode(&v)?.len() > 16_384 {
         return Err(err(
             "RESOURCE_LIMIT",
@@ -252,16 +308,7 @@ impl Store {
         key_id: &str,
     ) -> Result<ApprovalProposal> {
         key(key_id)?;
-        if let Some((_, old)) =
-            idempotency_entry(&self.conn, "local:approvals.propose:goal_execution", key_id)?
-        {
-            let p: ApprovalProposal = decode(&old)?;
-            if p.kind != "goal_execution" || p.snapshot["intent"] != json!(s) {
-                return Err(err(
-                    "CONFIG_CONFLICT",
-                    "Goal execution key belongs to another exact intent",
-                ));
-            }
+        if let Some(p) = self.goal_execution_proposal_replay(s, key_id)? {
             return Ok(p);
         }
         let v = snapshot(&self.conn, s, self.data_input.as_ref())?;
@@ -284,6 +331,14 @@ impl Store {
                 return Err(changed());
             }
             return Ok(json!(v));
+        }
+        if p.snapshot["execution"] != "bounded_existing_workspace_only"
+            || p.snapshot["allow_in_scope_plan_revisions"] != true
+            || p.snapshot["new_workspace_authority"] != false
+            || p.snapshot["enforcement"]
+                != json!({"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false})
+        {
+            return Err(changed());
         }
         if p.consumed || p.expires_at_ms <= ms()? {
             return Err(denied());
@@ -313,6 +368,8 @@ impl Store {
         if plan.proposal.revision != s.expected_plan_revision
             || p.snapshot["plan"] != json!(plan)
             || p.snapshot["scope"] != json!(scope_view(&scope_record, &scope)?)
+            || p.snapshot["root_grant"] != json!(scope_record.refs.grant_after)
+            || p.snapshot["existing_connection"] != connection_summary(&scope_record.refs)?
         {
             return Err(changed());
         }
@@ -352,8 +409,14 @@ impl Store {
                 cost_microunits: None,
             };
             tx.execute(
-                "INSERT INTO goal_run_nodes VALUES(?1,?2,?3,'not_started',NULL,NULL,?4)",
-                params![r.id, n.node.id, i as i64, encode(&n)?],
+                "INSERT INTO goal_run_nodes VALUES(?1,?2,?3,?4,'not_started',NULL,NULL,?5)",
+                params![
+                    r.id,
+                    sql_num(r.plan_revision)?,
+                    n.node.id,
+                    i as i64,
+                    encode(&n)?
+                ],
             )
             .map_err(db_error)?;
         }
@@ -368,14 +431,14 @@ impl Store {
             id,
             1,
             "approval.confirmed",
-            json!({"kind":"goal_execution","run_id":id,"plan_digest":r.plan_digest,"new_workspace_authority":false}),
+            json!({"kind":"goal_execution","run_id":id,"plan_digest":r.plan_digest,"execution_snapshot_digest":sha(&p.snapshot)?,"new_workspace_authority":false}),
         )?;
         event(
             &tx,
             id,
             1,
             "goal.run_authorized",
-            json!({"scope_id":r.scope_id,"plan_digest":r.plan_digest,"plan_revision":r.plan_revision,"reservation_made":false,"dispatched":false,"task_accepted":false}),
+            json!({"scope_id":r.scope_id,"plan_digest":r.plan_digest,"plan_revision":r.plan_revision,"execution_snapshot_digest":sha(&p.snapshot)?,"reservation_made":false,"dispatched":false,"task_accepted":false}),
         )?;
         tx.commit().map_err(db_error)?;
         Ok(json!(r))
@@ -385,7 +448,7 @@ impl Store {
     }
     pub fn goal_run_details(&self, id: &str) -> Result<Value> {
         Ok(
-            json!({"run":run(&self.conn,id)?,"nodes":node_records(&self.conn,id)?,"ledger_revision":sequence(&self.conn)?,"usage_kind":"conservative_charged_reservations","task_accepted":false}),
+            json!({"run":run(&self.conn,id)?,"nodes":self.goal_node_history(&run(&self.conn,id)?)?,"ledger_revision":sequence(&self.conn)?,"usage_kind":"conservative_charged_reservations","task_accepted":false}),
         )
     }
     pub fn list_goal_runs(&self, task_id: &str) -> Result<Vec<GoalRun>> {
@@ -458,6 +521,14 @@ fn checked_runtime_scope(
     r: &GoalRun,
     data: Option<&crate::data_workspaces::DataInputWitness>,
 ) -> Result<(ScopeRecord, ApprovedGoalScope)> {
+    checked_runtime_scope_at(db, r, data, true)
+}
+fn checked_runtime_scope_at(
+    db: &Connection,
+    r: &GoalRun,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+    require_head: bool,
+) -> Result<(ScopeRecord, ApprovedGoalScope)> {
     let (p, approved) = native_confirmation(db, &r.id, "goal_execution")?;
     if approved["scope_id"] != r.scope_id
         || approved["task_id"] != r.task_id
@@ -471,17 +542,12 @@ fn checked_runtime_scope(
     {
         return Err(changed());
     }
-    let confirmation:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='approval.confirmed' AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.kind')='goal_execution' AND json_extract(document,'$.payload.run_id')=?1 AND json_extract(document,'$.payload.plan_digest')=?2 ORDER BY sequence LIMIT 1",params![r.id,approved["plan_digest"].as_str().ok_or_else(changed)?],|row|row.get(0)).optional().map_err(db_error)?;
-    let authorized:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='goal.run_authorized' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.scope_id')=?2 AND json_extract(document,'$.payload.plan_digest')=?3 AND json_extract(document,'$.payload.plan_revision')=?4 AND json_extract(document,'$.payload.dispatched')=0 AND json_extract(document,'$.payload.reservation_made')=0 ORDER BY sequence LIMIT 1",params![r.id,r.scope_id,approved["plan_digest"].as_str().ok_or_else(changed)?,approved["plan_revision"].as_i64().ok_or_else(changed)?],|row|row.get(0)).optional().map_err(db_error)?;
+    let confirmation:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='approval.confirmed' AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.kind')='goal_execution' AND json_extract(document,'$.payload.run_id')=?1 AND json_extract(document,'$.payload.plan_digest')=?2 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3 ORDER BY sequence LIMIT 1",params![r.id,approved["plan_digest"].as_str().ok_or_else(changed)?,sha(&p.snapshot)?],|row|row.get(0)).optional().map_err(db_error)?;
+    let authorized:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='goal.run_authorized' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.scope_id')=?2 AND json_extract(document,'$.payload.plan_digest')=?3 AND json_extract(document,'$.payload.plan_revision')=?4 AND json_extract(document,'$.payload.dispatched')=0 AND json_extract(document,'$.payload.reservation_made')=0 AND json_extract(document,'$.payload.execution_snapshot_digest')=?5 ORDER BY sequence LIMIT 1",params![r.id,r.scope_id,approved["plan_digest"].as_str().ok_or_else(changed)?,approved["plan_revision"].as_i64().ok_or_else(changed)?,sha(&p.snapshot)?],|row|row.get(0)).optional().map_err(db_error)?;
     if !matches!((confirmation,authorized),(Some(a),Some(b)) if a>0 && b>a) {
         return Err(denied());
     }
-    if approved["plan_digest"] != r.plan_digest || approved["plan_revision"] != r.plan_revision {
-        return Err(err(
-            "STALE_REVISION",
-            "Goal revision lacks a trusted native-origin and bounded plan-advance chain",
-        ));
-    }
+    verify_plan_advances(db, r, &p, &approved, authorized.ok_or_else(denied)?)?;
     stored_scope_view(db, &r.scope_id)?;
     let record: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
     if record.revoked
@@ -543,10 +609,22 @@ fn checked_runtime_scope(
     }
     let scope = approved_scope(&task, &record)?;
     let (_, plan) = current_plan(db, &r.scope_id, &scope)?;
-    if plan.proposal.revision != r.plan_revision || plan.digest != r.plan_digest {
+    require_metered_capabilities(&plan.proposal)?;
+    if require_head && (plan.proposal.revision != r.plan_revision || plan.digest != r.plan_digest) {
         return Err(err("STALE_REVISION","An in-scope plan revision must advance atomically before dispatch; old receipts never start it"));
     }
     Ok((record, scope))
+}
+fn executable_work(n: &RuntimeNode) -> bool {
+    n.state == "not_started"
+        && n.node.dependencies.is_empty()
+        && n.node.parent_id.is_none()
+        && matches!(n.node.kind, NodeKind::Work)
+        && matches!(n.node.executor, Executor::Connection { .. })
+        && n.node
+            .required_inputs
+            .iter()
+            .all(|input| matches!(input.source, InputSource::ApprovedExternal { .. }))
 }
 impl Store {
     pub(crate) fn goal_dispatch_context(
@@ -574,15 +652,9 @@ impl Store {
             return Ok(None);
         }
         checked_runtime_scope(&self.conn, &r, self.data_input.as_ref())?;
-        let next = nodes
-            .iter()
-            .find(|n| n.state == "not_started" && n.node.dependencies.is_empty());
-        let Some(n) = next else { return Ok(None) };
-        if !matches!(n.node.kind, NodeKind::Work)
-            || !matches!(n.node.executor, Executor::Connection { .. })
-        {
+        let Some(n) = nodes.iter().find(|n| executable_work(n)) else {
             return Ok(None);
-        }
+        };
         if n.node.external_action_id.is_some()
             || matches!(
                 n.node.side_effect,
@@ -771,6 +843,7 @@ pub(crate) fn reserve_session(
             "The approved conservative local Goal resource limit is occupied",
         ));
     }
+    refuse_retained_overrun(db, &r.root_grant_id, &r.project_id)?;
     let records = reservations(db, &r.root_grant_id, &r.project_id)?;
     let task: Task = raw(db, "tasks", &r.task_id)?;
     let (pc, _, rc, _) = counts(db, &task, &scope.refs.grant_after)?;
@@ -887,6 +960,17 @@ pub(crate) fn reserve_session(
                     "Ancestor child-node budget is exhausted",
                 ));
             }
+        }
+        let previous_revisions = relevant
+            .iter()
+            .filter(|old| old.node_id == n.node.id)
+            .map(|old| old.plan_revision)
+            .collect::<BTreeSet<_>>();
+        if previous_revisions.len() > budget.reworks as usize {
+            return Err(err(
+                "RESOURCE_LIMIT",
+                "The cumulative node rework budget is exhausted",
+            ));
         }
         if relevant.len() >= budget.attempts as usize
             || relevant.iter().filter(|x| !x.settled).count() >= budget.parallel as usize
@@ -1072,7 +1156,10 @@ impl Store {
                 let id = n.session_id.clone().ok_or_else(changed)?;
                 let s = self.get_session(&id)?;
                 if cancel
-                    || s.turn_state.is_some()
+                    || matches!(
+                        s.turn_state.as_deref(),
+                        Some("completed" | "cancelled" | "interrupted" | "outcome_unknown")
+                    )
                     || matches!(s.state.as_str(), "failed" | "outcome_unknown")
                 {
                     if n.state != "stopping" {
@@ -1147,6 +1234,9 @@ impl Store {
                 }
             }
         }
+        if never_started {
+            output_bytes = Some(0);
+        }
         n.stop_confirmed = stopped;
         n.actual_runtime_ms = if stopped { Some(elapsed_ms) } else { None };
         n.actual_output_bytes = if stopped { output_bytes } else { None };
@@ -1219,8 +1309,20 @@ impl Store {
             )
             .map_err(db_error)?;
         }
+        let overrun = n
+            .actual_runtime_ms
+            .is_some_and(|v| v > reservation.reservation.runtime_ms)
+            || n.actual_output_bytes
+                .is_some_and(|v| v > reservation.reservation.output_bytes)
+            || n.actual_runtime_ms
+                .is_some_and(|v| v > n.node.budget.runtime_ms)
+            || n.actual_output_bytes
+                .is_some_and(|v| v > n.node.budget.output_bytes);
+        if overrun && r.state == "awaiting_acceptance" {
+            r.state = "blocked".into();
+        }
         save_node(&tx, &r.id, &n)?;
-        let payload = json!({"node_id":n.node.id,"attempt_id":session.attempt_id,"session_id":id,"stop_confirmed":stopped,"state":n.state,"reservation":reservation.reservation,"observed_runtime_lower_bound_ms":elapsed_ms,"actual_runtime_ms":n.actual_runtime_ms,"actual_output_bytes":n.actual_output_bytes,"tokens":null,"cost_microunits":null,"task_accepted":false});
+        let payload = json!({"budget_overrun":overrun,"node_id":n.node.id,"attempt_id":session.attempt_id,"session_id":id,"stop_confirmed":stopped,"state":n.state,"reservation":reservation.reservation,"observed_runtime_lower_bound_ms":elapsed_ms,"actual_runtime_ms":n.actual_runtime_ms,"actual_output_bytes":n.actual_output_bytes,"tokens":null,"cost_microunits":null,"task_accepted":false});
         save_run(&tx, &mut r, "goal.node_settled", payload)?;
         tx.commit().map_err(db_error)
     }
@@ -1290,5 +1392,415 @@ impl Store {
             )?;
         }
         tx.commit().map_err(db_error)
+    }
+}
+
+impl Store {
+    pub(crate) fn goal_execution_proposal_replay(
+        &self,
+        s: &GoalRunSelection,
+        key_id: &str,
+    ) -> Result<Option<ApprovalProposal>> {
+        key(key_id)?;
+        let Some((_, raw)) =
+            idempotency_entry(&self.conn, "local:approvals.propose:goal_execution", key_id)?
+        else {
+            return Ok(None);
+        };
+        let p: ApprovalProposal = decode(&raw)?;
+        if p.kind != "goal_execution" || p.snapshot["intent"] != json!(s) {
+            return Err(err(
+                "CONFIG_CONFLICT",
+                "Goal execution key belongs to another exact intent",
+            ));
+        }
+        Ok(Some(p))
+    }
+    pub(crate) fn goal_run_needs_advance(&self, id: &str) -> Result<bool> {
+        let r = run(&self.conn, id)?;
+        if r.cancel_requested || !matches!(r.state.as_str(), "queued" | "running") {
+            return Ok(false);
+        }
+        let nodes = node_records(&self.conn, id)?;
+        for n in &nodes {
+            if n.state == "reserved" {
+                let session = self.get_session(n.session_id.as_deref().ok_or_else(changed)?)?;
+                return Ok(session.state == "ready" && session.turn_state.is_none());
+            }
+            if matches!(n.state.as_str(), "running" | "stopping" | "outcome_unknown") {
+                return Ok(false);
+            }
+        }
+        Ok(nodes.iter().any(executable_work))
+    }
+    /// A durable exact-request intent is not a dispatch receipt. It can always
+    /// be recovered without repeating an execution boundary; get shows effects.
+    pub(crate) fn admit_goal_advance(
+        &mut self,
+        p: &GoalRunDispatch,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<(Value, bool)> {
+        key(key_id)?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let scope = format!("goal-run:{}:advance", p.run_id);
+        let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
+        if let Some(v) = replay(&tx, &scope, key_id, &payload)? {
+            return Ok((v, false));
+        }
+        let r = run(&tx, &p.run_id)?;
+        if r.revision != revision || sequence(&tx)? != p.expected_ledger_revision {
+            return Err(err(
+                "STALE_REVISION",
+                "Goal advancement no longer matches its exact run/ledger observation",
+            ));
+        }
+        if r.cancel_requested || !matches!(r.state.as_str(), "queued" | "running") {
+            return Err(denied());
+        }
+        checked_runtime_scope(&tx, &r, self.data_input.as_ref())?;
+        let receipt = json!({"run_id":r.id,"intent_id":Uuid::new_v4().to_string(),"requested_run_revision":revision,"requested_ledger_revision":p.expected_ledger_revision,"observation":"advance_intent_recorded","execution_state_requires_get":true,"task_accepted":false});
+        remember(&tx, &scope, key_id, &payload, &receipt)?;
+        event(
+            &tx,
+            &r.id,
+            r.revision,
+            "goal.advance_intent_recorded",
+            json!({"receipt":receipt,"idempotency_key":key_id,"provider_started":false}),
+        )?;
+        tx.commit().map_err(db_error)?;
+        Ok((receipt, true))
+    }
+    pub(crate) fn goal_advance_replay(
+        &self,
+        p: &GoalRunDispatch,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<Option<Value>> {
+        key(key_id)?;
+        let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
+        replay(
+            &self.conn,
+            &format!("goal-run:{}:advance", p.run_id),
+            key_id,
+            &payload,
+        )
+    }
+}
+
+fn verify_plan_advances(
+    db: &Connection,
+    r: &GoalRun,
+    p: &ApprovalProposal,
+    approved: &Value,
+    authorized_sequence: i64,
+) -> Result<()> {
+    let mut revision = approved["plan_revision"].as_u64().ok_or_else(changed)?;
+    let mut digest = approved["plan_digest"]
+        .as_str()
+        .ok_or_else(changed)?
+        .to_string();
+    let mut q=db.prepare("SELECT sequence,CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.run_plan_advanced' ORDER BY sequence LIMIT 257").map_err(db_error)?;
+    let events = q
+        .query_map([&r.id], |row| {
+            Ok((row.get::<_, i64>(0)?, row.get::<_, Option<String>>(1)?))
+        })
+        .map_err(db_error)?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    if events.len() > 256 {
+        return Err(limited());
+    }
+    let history = historical_plan_views(db, &r.scope_id)?;
+    let mut previous = authorized_sequence;
+    for (seq, raw) in events {
+        let e: Event = decode(&raw.ok_or_else(limited)?)?;
+        let next = e.payload["plan_revision"].as_u64().ok_or_else(changed)?;
+        if p.snapshot["allow_in_scope_plan_revisions"] != true
+            || e.source != "goal_core"
+            || e.payload["scope_id"] != r.scope_id
+            || e.payload["previous_plan_revision"] != revision
+            || e.payload["previous_plan_digest"] != digest
+            || seq <= previous
+            || next <= revision
+        {
+            return Err(changed());
+        }
+        let plan = history
+            .iter()
+            .find(|plan| {
+                plan.proposal.revision == next && json!(plan.digest) == e.payload["plan_digest"]
+            })
+            .ok_or_else(changed)?;
+        revision = next;
+        digest = plan.digest.clone();
+        previous = seq;
+    }
+    if revision != r.plan_revision || digest != r.plan_digest {
+        return Err(changed());
+    }
+    Ok(())
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct GoalPlanAdvance {
+    pub run_id: String,
+    pub expected_plan_revision: u64,
+    pub expected_ledger_revision: u64,
+}
+pub(super) fn runtime_scope_for_revision(
+    db: &Connection,
+    scope_id: &str,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<Option<(ScopeRecord, ApprovedGoalScope)>> {
+    let id:Option<String>=db.query_row("SELECT id FROM goal_runs WHERE scope_id=?1 AND state IN('queued','running','awaiting_acceptance','blocked') ORDER BY rowid DESC LIMIT 1",[scope_id],|row|row.get(0)).optional().map_err(db_error)?;
+    let Some(id) = id else { return Ok(None) };
+    let r = run(db, &id)?;
+    let old = node_records(db, &id)?;
+    if old.iter().any(|n| {
+        n.session_id.is_some() && !n.stop_confirmed
+            || matches!(
+                n.state.as_str(),
+                "reserved" | "running" | "stopping" | "outcome_unknown"
+            )
+    }) {
+        return Err(err(
+            "WORKSPACE_BUSY",
+            "Stop and reconcile exact Goal attempts before proposing a replacement plan",
+        ));
+    }
+    let out = checked_runtime_scope_at(db, &r, data, false)?;
+    no_writers(
+        db,
+        &raw::<Task>(db, "tasks", &r.task_id)?,
+        &out.0.refs.grant_after,
+    )?;
+    Ok(Some(out))
+}
+impl Store {
+    pub fn advance_goal_plan(
+        &mut self,
+        p: &GoalPlanAdvance,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<GoalRun> {
+        key(key_id)?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let idem = format!("goal-run:{}:advance-plan", p.run_id);
+        let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
+        if let Some(r) = replay(&tx, &idem, key_id, &payload)? {
+            return Ok(r);
+        }
+        let mut r = run(&tx, &p.run_id)?;
+        if r.revision != revision || sequence(&tx)? != p.expected_ledger_revision {
+            return Err(err(
+                "STALE_REVISION",
+                "Plan advancement requires the exact current run and shared ledger",
+            ));
+        }
+        if r.cancel_requested
+            || matches!(r.state.as_str(), "outcome_unknown" | "cancelled" | "failed")
+        {
+            return Err(denied());
+        }
+        refuse_retained_overrun(&tx, &r.root_grant_id, &r.project_id)?;
+        let (_, scope) = runtime_scope_for_revision(&tx, &r.scope_id, self.data_input.as_ref())?
+            .ok_or_else(denied)?;
+        let (_, plan) = current_plan(&tx, &r.scope_id, &scope)?;
+        if plan.proposal.revision != p.expected_plan_revision
+            || plan.proposal.revision <= r.plan_revision
+        {
+            return Err(err(
+                "STALE_REVISION",
+                "The proposed plan revision is not a newer validated version",
+            ));
+        }
+        let is_rework = node_records(&tx, &r.id)?
+            .iter()
+            .any(|n| n.attempt_id.is_some());
+        if is_rework {
+            let record: ScopeRecord = raw(&tx, "goal_scopes", &r.scope_id)?;
+            for (project, id, max) in [
+                (
+                    true,
+                    r.project_id.as_str(),
+                    record.selection.project_budget.reworks,
+                ),
+                (
+                    false,
+                    r.root_grant_id.as_str(),
+                    record.selection.root_budget.reworks,
+                ),
+            ] {
+                let used:u32=tx.query_row("SELECT count(*) FROM events e JOIN goal_runs g ON g.id=json_extract(e.document,'$.aggregate_id') WHERE octet_length(e.document)<=1048576 AND json_extract(e.document,'$.kind')='goal.run_plan_advanced' AND json_extract(e.document,'$.source')='goal_core' AND json_extract(e.document,'$.payload.rework')=1 AND ((?1=1 AND g.project_id=?2) OR (?1=0 AND json_extract(g.document,'$.root_grant_id')=?2))",params![project,id],|row|row.get(0)).map_err(db_error)?;
+                if used >= max {
+                    return Err(err(
+                        "RESOURCE_LIMIT",
+                        "The cumulative shared rework budget is exhausted",
+                    ));
+                }
+            }
+        }
+        let previous_digest = r.plan_digest.clone();
+        let previous_revision = r.plan_revision;
+        for (ordinal, node) in plan.proposal.nodes.iter().enumerate() {
+            let n = RuntimeNode {
+                node: node.clone(),
+                plan_revision: plan.proposal.revision,
+                state: "not_started".into(),
+                session_id: None,
+                attempt_id: None,
+                started_at_ms: None,
+                stop_confirmed: false,
+                actual_runtime_ms: None,
+                actual_output_bytes: None,
+                tokens: None,
+                cost_microunits: None,
+            };
+            tx.execute(
+                "INSERT INTO goal_run_nodes VALUES(?1,?2,?3,?4,'not_started',NULL,NULL,?5)",
+                params![
+                    r.id,
+                    sql_num(n.plan_revision)?,
+                    node.id,
+                    ordinal as i64,
+                    encode(&n)?
+                ],
+            )
+            .map_err(db_error)?;
+        }
+        r.plan_revision = plan.proposal.revision;
+        r.plan_digest = plan.digest;
+        r.state = "queued".into();
+        let payload_event = json!({"scope_id":r.scope_id,"previous_plan_revision":previous_revision,"previous_plan_digest":previous_digest,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"cumulative_consumption_reset":false,"new_permissions":false,"rework":is_rework});
+        save_run(&tx, &mut r, "goal.run_plan_advanced", payload_event)?;
+        remember(&tx, &idem, key_id, &payload, &r)?;
+        tx.commit().map_err(db_error)?;
+        Ok(r)
+    }
+    fn goal_node_history(&self, r: &GoalRun) -> Result<Vec<RuntimeNode>> {
+        let mut q=self.conn.prepare("SELECT DISTINCT plan_revision FROM goal_run_nodes WHERE run_id=?1 ORDER BY plan_revision LIMIT 257").map_err(db_error)?;
+        let revisions = q
+            .query_map([&r.id], |row| row.get::<_, i64>(0))
+            .map_err(db_error)?
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .map_err(db_error)?;
+        if revisions.len() > 256 {
+            return Err(limited());
+        }
+        let plans = historical_plan_views(&self.conn, &r.scope_id)?;
+        let mut nodes = Vec::new();
+        let mut bytes = 0usize;
+        for rev in revisions {
+            let rev = u64::try_from(rev).map_err(|_| changed())?;
+            let plan = plans
+                .iter()
+                .find(|p| p.proposal.revision == rev)
+                .ok_or_else(changed)?;
+            let current = node_records_at(&self.conn, r, rev, &plan.digest)?;
+            bytes = bytes
+                .checked_add(encode(&current)?.len())
+                .ok_or_else(limited)?;
+            if bytes > 4_194_304 {
+                return Err(limited());
+            }
+            nodes.extend(current);
+        }
+        Ok(nodes)
+    }
+}
+
+fn trusted_session_stop(
+    db: &Connection,
+    run_id: &str,
+    s: &crate::sessions::ManagedSession,
+) -> Result<i64> {
+    let (state,executor,raw):(String,Option<String>,String)=db.query_row("SELECT state,executor_instance,document FROM dispatch_intents WHERE id=?1 AND octet_length(document)<=1048576",[&s.intent_id],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?))).map_err(db_error)?;
+    let intent: crate::execution::DispatchIntent = decode(&raw)?;
+    if state != "stopped"
+        || intent.state != crate::execution::IntentState::Stopped
+        || intent.id != s.intent_id
+        || intent.attempt_id != s.attempt_id
+        || intent.task_id != s.task_id
+        || intent.executor_instance != executor
+        || s.state != "stopped"
+    {
+        return Err(changed());
+    }
+    let mut q=db.prepare("SELECT sequence,CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.kind')='attempt.stopped' AND json_extract(document,'$.source')='user_action' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.intent_id')=?2 ORDER BY sequence LIMIT 2").map_err(db_error)?;
+    let events = q
+        .query_map(params![s.task_id, s.intent_id], |row| {
+            Ok((row.get::<_, i64>(0)?, row.get::<_, Option<String>>(1)?))
+        })
+        .map_err(db_error)?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    if events.len() != 1 {
+        return Err(denied());
+    }
+    let (stop_sequence, raw) = &events[0];
+    let event: Event = decode(raw.as_deref().ok_or_else(limited)?)?;
+    let evidence = &event.payload["stop_evidence"];
+    let valid = match evidence["kind"].as_str() {
+        Some("never_dispatched") => executor.is_none(),
+        Some("executor_not_started") => {
+            executor.as_deref() == Some(&s.id)
+                && evidence["executor_instance"] == s.id
+                && evidence["receipt_ref"] == format!("owned-worker-no-start:{}", s.id)
+        }
+        Some("executor_stop") => {
+            executor.as_deref() == Some(&s.id)
+                && evidence["executor_instance"] == s.id
+                && evidence["receipt_ref"] == format!("owned-worker-stop:{}", s.id)
+        }
+        _ => false,
+    };
+    if !valid || *stop_sequence <= 0 {
+        return Err(denied());
+    }
+    let reserved:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.attempt_id')=?2 AND json_extract(document,'$.payload.session_id')=?3 ORDER BY sequence LIMIT 1",params![run_id,s.attempt_id,s.id],|row|row.get(0)).optional().map_err(db_error)?;
+    if reserved.is_none_or(|n| n <= 0 || n >= *stop_sequence) {
+        return Err(denied());
+    }
+    let supervisor:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.source')='baton_supervisor' AND json_extract(document,'$.aggregate_id')=?1 AND (json_extract(document,'$.payload.process_reaped')=1 OR json_extract(document,'$.payload.no_process_started')=1) ORDER BY sequence LIMIT 1",[&s.id],|row|row.get(0)).optional().map_err(db_error)?;
+    let sequence = supervisor.ok_or_else(denied)?;
+    if sequence <= *stop_sequence {
+        return Err(denied());
+    }
+    Ok(sequence)
+}
+
+fn refuse_retained_overrun(db: &Connection, root: &str, project: &str) -> Result<()> {
+    if reservations(db, root, project)?.iter().any(|r| {
+        r.actual_runtime_ms
+            .is_some_and(|n| n > r.reservation.runtime_ms)
+            || r.actual_output_bytes
+                .is_some_and(|n| n > r.reservation.output_bytes)
+    }) {
+        return Err(err("RESOURCE_LIMIT","Retained actual execution exceeded a declared per-attempt reservation; reconcile the budget before any new dispatch"));
+    }
+    Ok(())
+}
+impl Store {
+    pub(crate) fn goal_plan_advance_replay(
+        &self,
+        p: &GoalPlanAdvance,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<Option<GoalRun>> {
+        key(key_id)?;
+        let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
+        replay(
+            &self.conn,
+            &format!("goal-run:{}:advance-plan", p.run_id),
+            key_id,
+            &payload,
+        )
     }
 }
