@@ -739,5 +739,18 @@
     "scope": "metadata-only parentPython asyncPlaywright publiccontext; alloldchildcalls/checknames/runners/limits/pins/permissions preserved",
     "actual_driver_controls": "authorold2warning/new2clean; independentold1warning/new1clean, noBrowser/Core/model; notinflatedproductflows",
     "newCI": "pending"
+  },
+  "final_921_integration_review": {
+    "subject": "92120ed4f613522422c7cf0da3de55cf2c3afb56",
+    "review_sha256": "32afa04a34e84d07e93b456341b77c070da35513d9bad45472105da01f3592ed",
+    "manifest_sha256": "0e0eda5e2856cee1785806511f5666b634c17913d0a3b2cbf093279ec750a6bf",
+    "git_snapshot_sha256": "5025cab8a7b0a8023acf03a10536ee44fc28208eab714f1de15717a0d7f1f1de",
+    "Root_independent_rehashed_git_archive_files": 1239,
+    "archive": "FINAL_921_INTEGRATION_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "fa210c81648c8ec8cce1194cc84f5211e5fff03f202e3d319425c9713e235240",
+    "regular_members_roundtrip": 28,
+    "source_STATUS_unchanged_by_review_import": true,
+    "scope": "source-ready fornewexactCI only; notformalApprove/mergeclearance/Mac/package/fullDesignacceptance",
+    "reviewer_import_note": "reported IMPORT.json filename was shorthand; actual REVIEW_EVIDENCE_IMPORT.json discovered via rg; no evidence modified"
   }
 }
