@@ -3,9 +3,10 @@
 
 The finite HTTP boundary permits scoped reads, existing plan storage and Graph
 cancel/advance. Actual Graph/Owner proposals and Accept/Reject belong only to
-an authenticated private host fixture OUTSIDE HTTP. --owner-only connects the
-four-node Work/Owner/Summary/Owner contract; it does not verify deterministic
-Validate. Both self-check modes are static checks, never execution evidence.
+an authenticated private host fixture OUTSIDE HTTP. --owner-only is the current
+four-node Graph contract; --validation-case prepares three five-node validator
+flows and bounded negative cases. Graph uses its exact extended key set; legacy
+bootstrap retains its base set. Self-check results never count as Core evidence.
 """
 from __future__ import annotations
 
@@ -44,10 +45,9 @@ READ_ONLY_HTTP_METHODS = frozenset({'system.snapshot', 'projects.list', 'connect
     'workspaces.list', 'grants.list', 'goal_scopes.list', 'goal_scopes.get', 'goal_plans.get', 'goal_plans.list',
     'goal_plans.ready_preview', 'goal_graph_runs.list', 'goal_graph_runs.get', 'goal_runs.list', 'events.subscribe'})
 PENDING_DEPENDENCIES = (
-    'Exact approved deterministic Validate definition and producer subject-rebinding fixture',
-    'Drift, owned-stop unknown, cancellation, ledger/CAS and explicit rejection actual negative fixtures',
-    'Core canonical connection|validator|owner execution kinds and fresh acceptance_state projection fixes',
-    'Root-frozen schema12 binary/manifest and composed Graph UI with stable selectors',
+    'Root-frozen updated schema12 binary/manifest and new composed Graph UI assets',
+    'Actual current Graph Owner and Integrity/Data/Command five-node browser runs plus Data-range/Command-timeout negative runs',
+    'Independent review plus remaining drift, unknown, cancellation, ledger/CAS, explicit rejection and transport-drop matrix',
 )
 
 
@@ -506,53 +506,6 @@ def definition_selection(kind, session_id, case):
 # Generated account-free child consumes the complete actual Core TaskRequest.
 # A normal ACP response is only process output: this program cannot grant,
 # validate, accept a Goal, or mint Core candidates/receipts.
-GRAPH_ACP = r'''
-import hashlib,json,os,re,sys
-from pathlib import Path
-if sys.argv[1:]==['--version']:
- print('AgentBaton generated Graph ACP 1.0');sys.exit(0)
-assert not sys.argv[1:]
-def send(value):print(json.dumps(value),flush=True)
-for line in sys.stdin:
- r=json.loads(line);m=r.get('method');i=r.get('id')
- if m=='initialize':send({'jsonrpc':'2.0','id':i,'result':{'protocolVersion':1,'agentCapabilities':{}}})
- elif m=='session/new':
-  assert r['params']['cwd']==os.getcwd() and r['params']['mcpServers']==[]
-  send({'jsonrpc':'2.0','id':i,'result':{'sessionId':'generated-graph-owned'}})
- elif m=='session/prompt':
-  text=r['params']['prompt'][0]['text'];v=json.loads(text)
-  assert set(v)=={'schema_version','kind','goal','node','run_id','plan_revision','plan_digest','workspace','inputs','outputs','policy','lineage','budget','idempotency_key','return_location'}
-  assert v['schema_version']==1 and v['kind']=='agentbaton_goal_task_request'
-  assert v['workspace']['canonical_root']==os.getcwd() and v['node']['workspace_id']==v['workspace']['id']
-  assert v['plan_revision']==2 and v['plan_digest'] and v['lineage']['attempt_id']
-  assert v['return_location']=={'run_id':v['run_id'],'node_id':v['node']['id'],'attempt_id':v['lineage']['attempt_id']}
-  assert v['budget']['limits']==v['node']['budget'] and v['budget']['reservation']==v['node']['reservation']
-  assert v['policy']['enforced']=={'filesystem_sandbox':False,'network_sandbox':False,'output_quota':False}
-  assert len(v['inputs'])==1 and len(v['outputs'])==2
-  assert [(x['artifact']['artifact_id'],x['artifact']['relative_path']) for x in v['outputs']]==[('report','reports/report.txt'),('report-2','reports/report-2.txt')]
-  binding=v['inputs'][0];artifact=binding['artifact'];p=Path(artifact['relative_path'])
-  assert not p.is_absolute() and '..' not in p.parts and not p.is_symlink()
-  data=p.read_bytes();assert hashlib.sha256(data).hexdigest()==binding['sha256']
-  if v['node']['id']=='produce-report':
-   assert v['goal']=='goal-report' and v['node']['kind']=='work'
-   assert artifact['relative_path']=='file' and binding['candidate'] is None and data==b'baseline'
-   destination=Path('reports/report.txt');content=b'fixed report'
-  elif v['node']['id']=='independent-2':
-   assert v['goal']=='goal-report-extra-2' and v['node']['kind']=='summary'
-   assert v['node']['dependencies']==['owner-report'] and artifact['relative_path']=='reports/report.txt'
-   assert binding['candidate']['sha256']==binding['sha256'] and binding['candidate']['relative_path']==str(p)
-   assert data==b'fixed report';destination=Path('reports/report-2.txt');content=b'extra report 2'
-  else:raise AssertionError('Only the fixed two agent nodes may launch')
-  Path('reports').mkdir(exist_ok=True);attempt=v['lineage']['attempt_id']
-  assert re.fullmatch(r'[A-Za-z0-9._:-]{1,128}',attempt)
-  Path('reports/task-request-'+attempt+'.json').write_text(text)
-  ticks=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]
-  Path('reports/fixture-owned-'+attempt+'.json').write_text(json.dumps({'pid':os.getpid(),'pgid':os.getpgrp(),'start_ticks':ticks}))
-  destination.write_bytes(content)
-  send({'jsonrpc':'2.0','id':i,'result':{'stopReason':'end_turn'}})
-'''
-
-
 VALIDATION_ACP = r'''
 import hashlib,json,os,re,sys
 from pathlib import Path
@@ -607,11 +560,12 @@ for line in sys.stdin:
      assert table['columns']==[{'name':'x','required':True,'nullable':False,'scalar':{'type':'integer','min':0,'max':10}}]
      assert table['analysis']=={'script_artifact_id':'report-2','environment_artifact_id':'report-3','units':{'x':'bytes'},'timezone':'UTC','seed':7,'scope':{'kind':'full'}}
     if kind=='command':assert context['script'] is None and context['validator_id']=='builtin.fixed-command.v1'
-  assert len(v['validation_contracts'])==(1 if v['node']['id']=='produce-report' else 0)
-  if binding['candidate'] is not None:
-   assert binding['candidate']['sha256']==binding['sha256'] and binding['candidate']['relative_path']==str(p)
- else:
-  assert artifact['relative_path']=='inputs/file' and data==b'baseline' and 'candidate' not in binding
+   required_definitions=[rule for rule in v['node']['required_validators'] if rule.split(':')[0] in ('integrity','data','command')]
+   assert len(v['validation_contracts'])==len(required_definitions) and len(required_definitions)<=1
+   if binding['candidate'] is not None:
+    assert binding['candidate']['sha256']==binding['sha256'] and binding['candidate']['relative_path']==str(p)
+  else:
+   assert artifact['relative_path']=='inputs/file' and data==b'baseline' and 'candidate' not in binding
   Path('reports').mkdir(exist_ok=True);attempt=v['lineage']['attempt_id'];assert re.fullmatch(r'[A-Za-z0-9._:-]{1,128}',attempt)
   Path('reports/task-request-'+attempt+'.json').write_text(text)
   ticks=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]
@@ -632,7 +586,9 @@ for line in sys.stdin:
     assert v['goal']=='goal-report' and set(outputs)==({'report','report-2'} if graph else {'report'})
     Path(outputs['report']).write_bytes(b'fixed report')
   elif v['node']['kind']=='summary':
-   assert graph and binding['candidate'] is not None and {'owner-report','validate-report'}==set(v['node']['dependencies'])
+   assert graph and binding['candidate'] is not None
+   expected_dependencies={'owner-report','validate-report'} if any(output['validators'] for output in v['outputs']) else {'owner-report'}
+   assert expected_dependencies==set(v['node']['dependencies'])
    index=v['node']['id'].removeprefix('independent-');assert index in ('2','4') and v['goal']=='goal-report-extra-'+index
    artifact_id='report-'+index;assert v['node']['outputs']==[{'artifact_id':artifact_id,'contract_id':'output:'+artifact_id}]
    Path(outputs[artifact_id]).write_bytes(('extra report '+index).encode())
@@ -814,6 +770,61 @@ def validation_self_check():
     return {'status': 'passed', 'dimension': 'static five-node plans/legacy/Graph exact named-key contracts/generated Python/explicit bounded policy controls; no daemon/browser/validator run', 'count': len(rows), 'checks': rows}
 
 
+def provider_fixture_self_check():
+    """Unit-test our generated program, never a synthetic Core candidate/run."""
+    rows = []
+    for scenario in ('legacy-bootstrap', 'owner-graph', 'integrity-graph', 'data-graph', 'command-graph'):
+        graph = scenario != 'legacy-bootstrap'
+        kind = scenario.split('-')[0] if scenario not in ('legacy-bootstrap', 'owner-graph') else None
+        data = kind == 'data'; count = 4 if data else 2 if graph else 1
+        with tempfile.TemporaryDirectory(prefix='graph-provider-unit-') as temporary:
+            root = Path(temporary); (root / 'inputs').mkdir(); (root / 'inputs/file').write_bytes(b'baseline')
+            program = root / 'generated-unit-acp'; program.write_text(VALIDATION_ACP); program.chmod(0o700)
+            binding = {'task_id': 'unit-task', 'attempt_id': 'unit-attempt', 'spec_revision': 1, 'input_revision': 'unit-revision'}
+            artifact = {'artifact_id': 'fixed-input', 'relative_path': 'inputs/file', 'max_bytes': 1024, 'expected_sha256': sha(b'baseline')}
+            outputs = [{'artifact': {'artifact_id': 'report' if i == 1 else f'report-{i}', 'relative_path': 'reports/report.txt' if i == 1 else f'reports/report-{i}.txt', 'max_bytes': 1024, 'expected_sha256': None}, 'validators': []} for i in range(1, count + 1)]
+            budget = {'attempts': 1, 'parallel': 1, 'runtime_ms': 5000, 'output_bytes': 2048, 'children': 0, 'reworks': 0, 'tokens': None, 'cost_microunits': None}
+            reservation = {'runtime_ms': 4000, 'output_bytes': 2048, 'tokens': None, 'cost_microunits': None}
+            node = {'id': 'produce-report', 'kind': 'work', 'workspace_id': 'unit-workspace', 'budget': budget,
+                'reservation': reservation, 'required_validators': [kind + ':unit-definition'] if kind else ['goal-owner-review'],
+                'outputs': [{'artifact_id': o['artifact']['artifact_id'], 'contract_id': 'output:' + o['artifact']['artifact_id']} for o in outputs[:3 if data else 1]]}
+            request = {'schema_version': 1, 'kind': 'agentbaton_goal_task_request', 'goal': 'goal-data-report' if data else 'goal-report',
+                'node': node, 'run_id': 'unit-not-a-Core-run', 'plan_revision': 2, 'plan_digest': 'a' * 64,
+                'workspace': {'id': 'unit-workspace', 'canonical_root': str(root), 'input_revision': 'unit-revision'},
+                'inputs': [{'artifact': artifact, 'artifact_id': 'fixed-input', 'contract_id': 'input:fixed-input', 'sha256': sha(b'baseline'), **({'candidate': None} if graph else {})}],
+                'outputs': outputs, 'policy': {'enforced': {'filesystem_sandbox': False, 'network_sandbox': False, 'output_quota': False}},
+                'lineage': {'root_task_id': 'unit-task', 'attempt_id': 'unit-attempt'}, 'budget': {'limits': budget, 'reservation': reservation},
+                'idempotency_key': 'unit-program-only', 'return_location': {'run_id': 'unit-not-a-Core-run', 'node_id': 'produce-report', 'attempt_id': 'unit-attempt'}}
+            if graph:
+                request.update(task_binding=binding, validation_contracts=[])
+                if kind:
+                    context = {'file_contract': {'fixture': 'unit-only not authority'}}
+                    if data:
+                        context['table'] = definition_selection('data', 'unit-session', 'data')[2]['table']
+                    elif kind == 'command':
+                        context.update(script=None, validator_id='builtin.fixed-command.v1')
+                    version = {'kind': 'data', 'dataset_revision': 'unit-revision'} if data else {'kind': 'workspace_artifacts', 'workspace_id': 'unit-workspace', 'base_revision': 'unit-revision'}
+                    request['validation_contracts'] = [{'rule_id': kind + ':unit-definition', 'definition_digest': 'b' * 64,
+                        'artifacts': ['report', 'report-2', 'report-3'] if data else ['report'], 'context': context,
+                        'current_subject': {**binding, 'version': version}, 'task_acceptance': 'not_established'}]
+            frames = [{'jsonrpc': '2.0', 'id': 1, 'method': 'initialize', 'params': {}},
+                {'jsonrpc': '2.0', 'id': 2, 'method': 'session/new', 'params': {'cwd': str(root), 'mcpServers': []}},
+                {'jsonrpc': '2.0', 'id': 3, 'method': 'session/prompt', 'params': {'prompt': [{'text': json.dumps(request)}]}}]
+            result = subprocess.run([sys.executable, str(program)], input=''.join(json.dumps(frame) + '\n' for frame in frames),
+                text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=root, timeout=5)
+            assert result.returncode == 0, (scenario, result.stderr)
+            responses = [json.loads(line) for line in result.stdout.splitlines()]
+            assert [value['id'] for value in responses] == [1, 2, 3] and responses[-1]['result'] == {'stopReason': 'end_turn'}
+            expected = expected_data_files('unit-revision', sha(b'baseline')) if data else {'report': b'fixed report'}
+            for name, content in expected.items():
+                path = root / ('reports/report.txt' if name == 'report' else f'reports/{name}.txt')
+                assert path.read_bytes() == content
+            saved = json.loads((root / 'reports/task-request-unit-attempt.json').read_bytes())
+            assert saved == request and set(saved) == (GRAPH_TASK_FIELDS if graph else LEGACY_TASK_FIELDS)
+            rows.append({'name': scenario, 'status': 'passed', 'request_fields': sorted(saved), 'expected_output_bytes': {name: len(content) for name, content in expected.items()}, 'Core_or_validator_executed': False, 'candidate_or_TaskAccepted_created': False})
+    return {'status': 'passed', 'dimension': 'generated account-free ACP stdio program unit tests only with synthetic external-input requests; no Core/DB/candidate/validator/browser/TaskAccepted', 'count': len(rows), 'checks': rows}
+
+
 def pinned_artifact(root: Path, reference: dict, expected: bytes) -> dict:
     """Readonly observation; never constructs a Core acceptance/witness row."""
     path = Path(reference['relative_path'])
@@ -874,7 +885,7 @@ def driver_self_check() -> dict:
     check('Owner nodes only review and never write/spawn', all(x['executor']['kind'] == 'owner' and not x['outputs'] and not x['write_set'] and x['side_effect'] == 'advisory_read_only' for x in revised['nodes'] if x['kind'] == 'owner_approval'))
     check('both outputs have separate Owner subjects', [revised['nodes'][i]['required_inputs'][0]['artifact_id'] for i in [1, 3]] == ['report', 'report-2'])
     check('no deterministic validation falsely included', not any(x['kind'] == 'validate' for x in revised['nodes']))
-    compile(GRAPH_ACP, '<generated-graph-acp>', 'exec')
+    compile(VALIDATION_ACP, '<generated-graph-acp>', 'exec')
     check('generated ACP syntax', True)
     for schema in [11, None]:
         try:
@@ -925,8 +936,7 @@ def owner_only_driver(args, output: Path) -> int:
         binary, frontend = args.batond.resolve(strict=True), args.frontend.resolve(strict=True)
         manifest_raw = args.candidate_manifest.resolve(strict=True).read_bytes()
         manifest = verify_candidate(binary, manifest_raw)  # before any process/token/listener
-        if case:
-            assert sha(binary.read_bytes()) != 'fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e', 'Old Owner-only Core5541 is not the new Graph validation-contract API'
+        assert sha(binary.read_bytes()) != 'fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e', 'Old Owner-only Core5541 is not the new Graph validation-contract API'
         assert (frontend / 'index.html').is_file()
         from playwright.sync_api import expect, sync_playwright
     except (AssertionError, OSError, ValueError, KeyError, ImportError) as failure:
@@ -974,7 +984,7 @@ def owner_only_driver(args, output: Path) -> int:
         root = Path(temporary).resolve(); root.chmod(0o700)
         runtime = root / 'runtime'; runtime.mkdir(mode=0o700)
         provider = root / 'generated-graph-acp'
-        provider.write_text('#!' + sys.executable + '\n' + (VALIDATION_ACP if case else GRAPH_ACP)); provider.chmod(0o700)
+        provider.write_text('#!' + sys.executable + '\n' + VALIDATION_ACP); provider.chmod(0o700)
         report['generated_program_sha256'] = sha(provider.read_bytes())
         log = (output / 'daemon.log').open('wb')
         daemon = subprocess.Popen([str(binary)], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)},
@@ -1405,9 +1415,8 @@ def owner_only_driver(args, output: Path) -> int:
                                 assert intent_stopped[0][1]['payload']['stop_evidence'] == {'kind': 'executor_stop', 'executor_instance': session['id'], 'receipt_ref': 'owned-worker-stop:' + session['id']}
                                 raw = (workspace_root / ('reports/task-request-' + candidate['attempt_id'] + '.json')).read_bytes()
                                 request = json.loads(raw)
-                                assert set(request) == (GRAPH_TASK_FIELDS if case else LEGACY_TASK_FIELDS)
-                                if case:
-                                    verify_public_graph_request(request, scope, proposal['snapshot']['definition_reuse'])
+                                assert set(request) == GRAPH_TASK_FIELDS
+                                verify_public_graph_request(request, scope, proposal['snapshot']['definition_reuse'])
                                 assert request['node'] == node['node'] and request['run_id'] == run_id and request['lineage']['attempt_id'] == candidate['attempt_id']
                                 assert request['inputs'][0]['candidate'] == candidate['consumed_inputs'][0]['candidate']
                                 owned = json.loads((workspace_root / ('reports/fixture-owned-' + candidate['attempt_id'] + '.json')).read_text())
@@ -1585,6 +1594,7 @@ def main():
     parser.add_argument('--driver-self-check', action='store_true')
     parser.add_argument('--transport-self-check', action='store_true')
     parser.add_argument('--validation-self-check', action='store_true')
+    parser.add_argument('--provider-self-check', action='store_true')
     parser.add_argument('--owner-only', action='store_true')
     parser.add_argument('--validation-case', choices=VALIDATION_CASES)
     parser.add_argument('--output', type=Path, required=True)
@@ -1595,7 +1605,12 @@ def main():
     args = parser.parse_args()
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
     attribution = {'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'schema_required': 12}
-    assert sum([args.self_check, args.driver_self_check, args.transport_self_check, args.validation_self_check, args.owner_only, bool(args.validation_case)]) <= 1, 'Choose one explicit mode'
+    assert sum([args.self_check, args.driver_self_check, args.transport_self_check, args.validation_self_check, args.provider_self_check, args.owner_only, bool(args.validation_case)]) <= 1, 'Choose one explicit mode'
+    if args.provider_self_check:
+        report = {**attribution, **provider_fixture_self_check()}
+        (output / 'provider-fixture-unit-checks.json').write_text(json.dumps(report, indent=2) + '\n')
+        print(json.dumps({'dimension': report['dimension'], 'count': report['count'], 'status': report['status']}))
+        return 0
     if args.validation_self_check:
         report = {**attribution, **validation_self_check()}
         (output / 'validation-static-checks.json').write_text(json.dumps(report, indent=2) + '\n')
