@@ -17,6 +17,40 @@ import sys
 import time
 
 
+WEBCRYPTO_INPUT = '{"text":"原文证据🔒","inode":1152921504606846979,"u64":9223372036854775809,"max":18446744073709551615}\n'
+WEBCRYPTO_UTF8_BYTES = 109
+WEBCRYPTO_SHA256 = "d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892"
+
+
+def webcrypto_expected(checkpoint):
+    return {'version': 1, 'checkpoint': checkpoint, 'available': True,
+            'source': 'window.crypto.subtle.digest', 'algorithm': 'SHA-256',
+            'encoding': 'UTF-8', 'input': WEBCRYPTO_INPUT,
+            'input_bytes': WEBCRYPTO_UTF8_BYTES, 'sha256': WEBCRYPTO_SHA256}
+
+
+def webcrypto_error(proof, checkpoint):
+    if (not isinstance(proof, dict) or proof.get('available') is not True
+            or type(proof.get('version')) is not int or type(proof.get('input_bytes')) is not int
+            or proof != webcrypto_expected(checkpoint)):
+        return 'native report lacks exact real WebView UTF-8 WebCrypto SHA-256 evidence'
+    return None
+
+
+def webcrypto_report_error(report):
+    checkpoints = report.get('webcrypto_checkpoints')
+    if not isinstance(checkpoints, dict) or set(checkpoints) != {'before', 'after'}:
+        return 'native report lacks complete ordered WebCrypto checkpoints'
+    proofs = [(checkpoints.get('before'), 'before'), (checkpoints.get('after'), 'after'),
+              (report['first_webview'].get('webCrypto'), 'first'),
+              (report['reopened_webview'].get('webCrypto'), 'reopened')]
+    for proof, checkpoint in proofs:
+        error = webcrypto_error(proof, checkpoint)
+        if error:
+            return error
+    return None
+
+
 def native_report_error(report):
     if report.get('status') != 'passed':
         return 'native report did not confirm success'
@@ -27,6 +61,9 @@ def native_report_error(report):
         values = report.get(section)
         if not isinstance(values, dict) or not all(values.get(field) is True for field in fields):
             return 'native report lacks required WebView/invoke evidence'
+    crypto_error = webcrypto_report_error(report)
+    if crypto_error:
+        return crypto_error
     task = report['first_webview'].get('taskId')
     if not isinstance(task, str) or not task or report['reopened_webview'].get('taskId') != task:
         return 'native report does not bind the same persisted task'
