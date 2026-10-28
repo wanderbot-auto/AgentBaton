@@ -12,3 +12,7 @@ Next: independent reviewer verifies exact delta; Root-safe Rust/Clippy; exact ne
 ## Latest typed freeze
 
 Source1839c6c8ca82319ad18cd6c5dd3825b19dde5ee7; newmanifest `/workspace/AgentBaton/.onboarding/native-grant-contract/typed-json/MANIFEST.json`, SHA `82633948722ad6d1de99262020606ed4842a4c24dd91fd20fd72310832d2c430`. Oldmanifest496d9f... is immutable, verified unchanged. Current source frozen for config closingreview. Root may use unchangedfbfdRust artifact tests; author owns noCargo/target lease. FullnewPython28 actual6.823s; old24 AST and OS runfunction unchanged, only exactcomparison semantics strengthened. NewMac stillNOT_RUN.
+
+## Latest scalar-CAS freeze
+
+Source655c6d2985dd8d2d0dcfa16864d12edf2dfca374; newmanifest `/workspace/AgentBaton/.onboarding/native-grant-contract/scalar-cas/MANIFEST.json` SHA `483d0ccac98bf44733d13f641dd45ec5d51d559f236ca6be65ab67064d33d0f6`. All older496/826 manifests and oldMac/24/28/typed-counter evidence hash-verified unchanged. Currentsource/doc tree will be paused for config independent finalreview. No Cargo/target lease.
