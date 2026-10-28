@@ -1,0 +1,12 @@
+.factory-runtime { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }
+.factory-runtime summary { cursor: pointer; }
+.factory-runtime summary h2 { display: inline; font-size: var(--fs-title); font-weight: 500; }
+.factory-panel { display: grid; gap: 12px; margin-top: 12px; }
+.factory-panel form, .factory-panel fieldset, .factory-panel label { display: grid; gap: 8px; }
+.factory-panel fieldset { border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.factory-panel input, .factory-panel select, .factory-panel textarea { max-width: 100%; min-height: 30px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: inherit; padding: 5px 8px; }
+.factory-panel input[type="checkbox"] { min-height: auto; justify-self: start; }
+.factory-panel textarea { min-height: 70px; }
+.factory-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.factory-panel pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media(max-width:759px) { .factory-fields { grid-template-columns: 1fr; } .factory-panel input,.factory-panel select,.factory-panel button { min-height: 44px; } }
