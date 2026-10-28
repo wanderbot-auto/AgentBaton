@@ -12,3 +12,8 @@
 - Minimal Native guards require the complete observation object/goal_io namespace and passed => owned stop + worker_joined. Old private actions/kinds/CAS/ref binding and byte limits are unchanged.
 - Core supplied actual same-run TaskProjection packet 74c44f... (73,333 bytes), then final immutable packet 5821176997487a594416b740e7e40538ae7d1dfa1c9e133a1531a5e4e093a0d2 (73,731 bytes), including the corresponding first Owner decision. Portable final fixture uses these exact latest bytes, with original 7cc packet retained separately.
 - Selected tests passed 10/2 and typecheck passed before the final packet refresh; final full verification follows at the frozen source commit. Earlier type failures (missing Node type definitions and readonly assignment) are preserved; tests use the existing standard WebCrypto API instead and no dependencies/tsconfig/locks were changed.
+
+- Frozen application source 733fff526f88d3438f7533a0b474ba0474954e4f: actual full Node547/34, selected10/2, type/build/diff all passed. Exact commands/hashes are in EVIDENCE and local verification.json.
+- All old32 renderer files, four old actual/failure JSON fixtures, 36 original Native test blocks and byte-limit constants independently byte-checked against baseline; lib/native_parent/Core/CI/locks untouched.
+- Standalone rustfmt parse/check passed. Three new actual nonempty-validation callback tests are still uncompiled/unrun, not macOS/OS-dialog evidence.
+- Source remains frozen for Root's separate reviewer; only these four records are finalized. No formal GitHub Approve, PR, CI or remote action.
