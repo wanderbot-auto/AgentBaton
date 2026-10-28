@@ -223,7 +223,72 @@ REQUEST_FIELDS = frozenset({'schema_version','kind','task_id','root_task_id','pa
     'input_artifacts','output_artifacts','handoff_result','handoff_results','handoff_digest','context_continuation','acceptance_state'})
 
 
-def collect_started_records(runtime, workspace, scope, context, verified, output):
+class FixtureControllerReaper:
+    """Linux test-controller only; wait just a bound adopted MCP zombie, never signal."""
+    def __init__(self, record):
+        import ctypes
+        self.ctypes = ctypes
+        self.libc = ctypes.CDLL(None, use_errno=True)
+        self.enabled = False
+        self.record = record
+
+    def get(self):
+        value = self.ctypes.c_int()
+        assert self.libc.prctl(37, self.ctypes.byref(value), 0, 0, 0) == 0
+        return value.value
+
+    def enable(self):
+        assert sys.platform == 'linux'
+        self.prior = self.get()
+        assert self.libc.prctl(36, 1, 0, 0, 0) == 0
+        self.enabled = True
+        self.pid = os.getpid()
+        self.identity = support.proc_identity(self.pid)
+        self.record.update(controller_pid=self.pid, controller_start_ticks=self.identity['start_ticks'],
+            prior_subreaper=self.prior, enabled=self.get() == 1, restored=False, adopted_mcp_waits=[],
+            dimension='Linux test controller reaps only bound adopted MCP children; NOT Core descendant join')
+        assert self.record['enabled']
+
+    def reap(self, fixed):
+        assert self.enabled and os.getpid() == self.pid
+        assert support.proc_identity(self.pid)['start_ticks'] == self.identity['start_ticks']
+        raw, pin = bounded_file(Path(fixed['path']), MAX_HTTP_BYTES)
+        assert pin == fixed['file_pin'] and sha(raw) == fixed['sha256']
+        saved = json.loads(raw, object_pairs_hook=unique_object)
+        assert saved['owned_companion'] == fixed['owned_companion'] and saved['owned_provider'] == fixed['owned_provider']
+        expected = fixed['owned_companion']; pid = expected['pid']
+        assert type(pid) is int and pid > 1 and re.fullmatch('[0-9]+', expected['start_ticks'])
+        try:
+            current = support.proc_identity(pid)
+        except FileNotFoundError:
+            return
+        assert current['start_ticks'] == expected['start_ticks'], 'Bound companion PID identity changed; no wait'
+        if current['parent_pid'] != self.pid or current['state'] != 'Z':
+            return  # Live/non-adopted identities still face the original argv/gone checks.
+        assert os.getpgid(pid) == expected['pgid'] == fixed['owned_provider']['pid']
+        assert support.proc_identity(pid) == current
+        waited_pid, status = os.waitpid(pid, os.WNOHANG)
+        assert waited_pid == pid, 'Bound adopted zombie was not actually waited'
+        try:
+            after = support.proc_identity(pid)
+        except FileNotFoundError:
+            after = None
+        assert after is None or after['start_ticks'] != expected['start_ticks'], 'Wait did not remove original identity'
+        self.record['adopted_mcp_waits'].append({'role': 'owned_companion', 'expected': dict(expected),
+            'observed_before_wait': current, 'waited_pid': waited_pid, 'raw_wait_status': status,
+            'exitcode': os.waitstatus_to_exitcode(status), 'original_identity_gone_after_wait': True,
+            'session_id': fixed['session_id'], 'attempt_id': fixed['attempt_id'], 'record_sha256': fixed['sha256'],
+            'reaped_by': 'test_controller', 'Core_reaped_this_descendant': False, 'signal_sent': False})
+
+    def restore(self):
+        if self.enabled:
+            assert self.libc.prctl(36, self.prior, 0, 0, 0) == 0
+            assert self.get() == self.prior
+            self.record.update(restored=True, restored_subreaper=self.prior)
+            self.enabled = False
+
+
+def collect_started_records(runtime, workspace, scope, context, verified, output, reaper=None):
     """A discovery glob cannot authorize cleanup: bind every FD to actual Core text/session."""
     if workspace is None or scope is None: return []
     directory = Path(workspace['root']) / 'reports'
@@ -267,6 +332,13 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
             assert row['provider_argv'] == [context['provider'], '--fixture-settings', context['settings']]
             argv = row['companion_argv']; assert len(argv)==3 and argv[:2]==[context['companion'],'factory-mcp']
             assert Path(argv[2]).resolve().is_relative_to(runtime / 'factory-scoped-handles')
+            fixed = {'path':str(path),'sha256':sha(raw),'file_pin':pin,'session_id':session['id'],
+                'attempt_id':session['attempt_id'],'stage':row['stage'],'native_session_id':row['native_session_id'],
+                'owned_provider':dict(row['owned_provider']),'owned_companion':dict(row['owned_companion'])}
+            old = next((r for r in verified if r['path']==fixed['path']),None)
+            assert old is None or old==fixed, 'Previously bound generated record changed'
+            if reaper is not None and old is not None:
+                reaper.reap(old)  # Only previously bound identities after fresh full Core/record validation.
             for field, expected_argv in [('owned_provider', row['provider_argv']), ('owned_companion', argv)]:
                 expected = row[field]
                 try: current = support.proc_identity(expected['pid'])
@@ -278,11 +350,6 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                     actual = [x.decode() for x in observed[:-1].split(b'\0')]
                     assert actual[-len(expected_argv):] == expected_argv and os.getpgid(expected['pid'])==expected['pgid']
                     assert support.proc_identity(expected['pid'])['start_ticks']==expected['start_ticks']
-            fixed = {'path':str(path),'sha256':sha(raw),'file_pin':pin,'session_id':session['id'],
-                'attempt_id':session['attempt_id'],'stage':row['stage'],'native_session_id':row['native_session_id'],
-                'owned_provider':dict(row['owned_provider']),'owned_companion':dict(row['owned_companion'])}
-            old = next((r for r in verified if r['path']==fixed['path']),None)
-            assert old is None or old==fixed, 'Previously bound generated record changed'
             if old is None:
                 copy = output / ('verified-' + str(pid) + '.json')
                 write_private_json(copy, {'dimension':'verified generated fixture record, not authority from an Agent',
@@ -704,7 +771,11 @@ def runtime_driver(args, output, attribution, prepared):
     def passed(name):
         report['checks'].append({'name': name, 'status': 'passed'})
     temporary_owner = tempfile.TemporaryDirectory(prefix='baton-factory-')
+    controller_reaper = None
     try:
+        report['test_controller_reaper'] = {}
+        controller_reaper = FixtureControllerReaper(report['test_controller_reaper'])
+        controller_reaper.enable()
         temporary = temporary_owner.name
         root = Path(temporary).resolve(); root.chmod(0o700)
         report['private_installation'] = {}
@@ -805,7 +876,7 @@ def runtime_driver(args, output, attribution, prepared):
                 if not directory.is_dir() or not any(directory.glob('fixture-request-*.json')): return []
                 current = host.result('factory_runs.get', {'scope_id':scope['id']})
                 record_context['run_id'] = current['run']['id']
-                return collect_started_records(runtime, workspace, scope, record_context, verified_records, output)
+                return collect_started_records(runtime, workspace, scope, record_context, verified_records, output, controller_reaper)
             observe_records = observe
             assert host.result('sessions.list', {}) == []
             stale, _ = host.wire(FixedCall('factory_runs.start', {'scope_id': scope['id']}, 'factory:wrong-cas', scope['revision'] + 1))
@@ -1046,6 +1117,8 @@ def runtime_driver(args, output, attribution, prepared):
                 assert exitcode == 0 and not forced, 'Private daemon cleanup failed or needed forced kill'
                 return True
             daemon_complete = cleanup_call(report, 'daemon_wait', finish_daemon, clean)
+            cleanup_call(report, 'controller_bound_adopted_mcp_waits',
+                lambda: [controller_reaper.reap(fixed) for fixed in verified_records], clean)
             identity_complete = cleanup_call(report, 'fixed_owned_identity_inspection',
                 lambda: inspect_owned_records(report, verified_records, 3 if args.case == 'normal' else 1,
                     provider, settings, companion, runtime, clean,
@@ -1065,6 +1138,8 @@ def runtime_driver(args, output, attribution, prepared):
     except BaseException as failure:
         note_failure(report, failure, 'runtime_setup_or_cleanup', clean)
     finally:
+        if controller_reaper is not None:
+            cleanup_call(report, 'test_controller_subreaper_restore', controller_reaper.restore, clean)
         cleanup_call(report, 'temporary_directory_cleanup', temporary_owner.cleanup, clean)
         report['cleanup_complete'] = report['cleanup_complete'] and not report.get('failure')
         if not report['cleanup_complete']:
