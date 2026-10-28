@@ -40,6 +40,17 @@ assert record['first_webview']['readonlyCommandNoMutation'] is True
 assert record['first_webview']['goalScopeLists'] is True
 assert record['first_webview']['goalScopeEmptyControls'] is True
 assert record['first_webview']['readonlyGoalNoMutation'] is True
+assert record['first_webview']['goalExecutionLists'] is True
+assert record['first_webview']['goalExecutionMissingRunDenied'] is True
+assert record['first_webview']['readonlyGoalExecutionNoMutation'] is True
+assert record['goal_execution_readonly_database']['read_only'] is True
+assert record['goal_execution_readonly_database']['unchanged'] is True
+assert record['goal_execution_readonly_database']['before'] == record['goal_execution_readonly_database']['after']
+assert record['goal_execution_readonly_database']['before']['schema_version'] == 11
+assert all(record['goal_execution_readonly_database']['before'][field] == 0 for field in ['run_count','node_count','reservation_count'])
+assert record['first_webview']['goalExecutionReadonlySequence'] == record['first_webview']['goalReadonlySequence']
+assert record['first_webview']['goalExecutionReadonlySequence']['before'] == record['goal_execution_readonly_database']['before']['sequence']
+assert record['first_webview']['goalExecutionMissingRun'] == {'run_id':'native-readonly-missing-goal-run','code':'NOT_FOUND','side_effect_state':'not_started'}
 assert record['reopened_webview']['restartPersisted']
 assert record['window_close_daemon_survived']
 assert record['second_writer_rejected']

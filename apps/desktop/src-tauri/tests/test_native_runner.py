@@ -24,6 +24,10 @@ GOOD = {
     'goal_readonly_database': dict(read_only=True, unchanged=True, before=dict(scope_count=0, plan_count=0, attempt_count=0, sequence=2), after=dict(scope_count=0, plan_count=0, attempt_count=0, sequence=2)),
 }
 
+# New evidence is additive; the original GOOD fields and all old test bodies stay intact.
+GOOD['first_webview'].update(goalExecutionLists=True, goalExecutionMissingRunDenied=True, readonlyGoalExecutionNoMutation=True, goalExecutionReadonlySequence=dict(before=2, after=2), goalExecutionMissingRun=dict(run_id='native-readonly-missing-goal-run', code='NOT_FOUND', side_effect_state='not_started'))
+GOOD['goal_execution_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=11,run_count=0,node_count=0,reservation_count=0,sequence=2), after=dict(schema_version=11,run_count=0,node_count=0,reservation_count=0,sequence=2))
+
 
 class NativeRunnerTests(unittest.TestCase):
     def run_fixture(self, code, timeout=3, stale=False):
@@ -167,6 +171,66 @@ class NativeRunnerTests(unittest.TestCase):
         result = subprocess.CompletedProcess([], 0, stdout='42 42 Zs\n43 42 Z\n', stderr='')
         with mock.patch.object(native_run.subprocess, 'run', return_value=result):
             self.assertTrue(native_run.owned_group_is_quiescent(42))
+
+
+class GoalExecutionReadonlyEvidenceTests(unittest.TestCase):
+    def test_execution_flags_are_required_actual_booleans(self):
+        self.assertIsNone(native_run.native_report_error(copy.deepcopy(GOOD)))
+        for field in ['goalExecutionLists','goalExecutionMissingRunDenied','readonlyGoalExecutionNoMutation']:
+            missing=copy.deepcopy(GOOD);del missing['first_webview'][field]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+            for value in [False,None,'true','false',1,0,[],{}]:
+                with self.subTest(field=field,value=value):
+                    changed=copy.deepcopy(GOOD);changed['first_webview'][field]=value
+                    self.assertIsNotNone(native_run.native_report_error(changed))
+
+    def test_execution_database_is_independent_complete_schema11_and_all_zero(self):
+        for location in ['goal_execution_readonly_database','before','after']:
+            missing=copy.deepcopy(GOOD)
+            if location=='goal_execution_readonly_database':del missing[location]
+            else:del missing['goal_execution_readonly_database'][location]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+        for field in ['schema_version','run_count','node_count','reservation_count','sequence']:
+            missing=copy.deepcopy(GOOD);del missing['goal_execution_readonly_database']['after'][field]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+            for value in [True,False,'0',None,-1,0.0]:
+                with self.subTest(field=field,value=value):
+                    changed=copy.deepcopy(GOOD);changed['goal_execution_readonly_database']['after'][field]=value
+                    self.assertIsNotNone(native_run.native_report_error(changed))
+        for field in ['schema_version','run_count','node_count','reservation_count']:
+            changed=copy.deepcopy(GOOD)
+            for phase in ['before','after']:changed['goal_execution_readonly_database'][phase][field]+=1
+            self.assertIsNotNone(native_run.native_report_error(changed))
+        extra=copy.deepcopy(GOOD);extra['goal_execution_readonly_database']['before']['claimed_by_js']=True
+        self.assertIsNotNone(native_run.native_report_error(extra))
+
+    def test_execution_interval_cannot_replace_or_drift_from_original_goal_interval(self):
+        for value in [False,'true',1,None]:
+            for field in ['read_only','unchanged']:
+                changed=copy.deepcopy(GOOD);changed['goal_execution_readonly_database'][field]=value
+                self.assertIsNotNone(native_run.native_report_error(changed))
+        for value in [True,2.0,'2',None,-1,3]:
+            changed=copy.deepcopy(GOOD);changed['first_webview']['goalExecutionReadonlySequence']['after']=value
+            self.assertIsNotNone(native_run.native_report_error(changed))
+        missing=copy.deepcopy(GOOD);del missing['first_webview']['goalExecutionReadonlySequence']
+        self.assertIsNotNone(native_run.native_report_error(missing))
+        replayed=copy.deepcopy(GOOD)
+        for phase in ['before','after']:
+            replayed['goal_execution_readonly_database'][phase]['sequence']=3
+            replayed['first_webview']['goalExecutionReadonlySequence'][phase]=3
+        self.assertIsNotNone(native_run.native_report_error(replayed))
+        old_missing=copy.deepcopy(GOOD);del old_missing['goal_readonly_database']
+        self.assertIsNotNone(native_run.native_report_error(old_missing))
+
+    def test_missing_run_requires_exact_absent_reference_and_not_started_core_error(self):
+        for field,value in [('run_id','another-run'),('code','PERMISSION_DENIED'),('code',True),('side_effect_state','unknown')]:
+            changed=copy.deepcopy(GOOD);changed['first_webview']['goalExecutionMissingRun'][field]=value
+            self.assertIsNotNone(native_run.native_report_error(changed))
+        for field in ['run_id','code','side_effect_state']:
+            missing=copy.deepcopy(GOOD);del missing['first_webview']['goalExecutionMissingRun'][field]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+        fabricated=copy.deepcopy(GOOD);fabricated['first_webview']['goalExecutionMissingRun']['result']={}
+        self.assertIsNotNone(native_run.native_report_error(fabricated))
 
 
 class NativeArtifactAuditTests(unittest.TestCase):
