@@ -337,6 +337,31 @@ impl Store {
         expected_revision: u64,
         key: &str,
     ) -> Result<ManagedSession> {
+        self.create_session_inner(
+            (
+                task_id,
+                workspace_id,
+                connection_id,
+                grant_id,
+                expected_revision,
+                key,
+            ),
+            None,
+        )
+    }
+    pub(crate) fn create_session_for_goal(
+        &mut self,
+        request: (&str, &str, &str, &str, u64, &str),
+        context: crate::goal_store::GoalDispatchContext,
+    ) -> Result<ManagedSession> {
+        self.create_session_inner(request, Some(context))
+    }
+    fn create_session_inner(
+        &mut self,
+        request: (&str, &str, &str, &str, u64, &str),
+        goal: Option<crate::goal_store::GoalDispatchContext>,
+    ) -> Result<ManagedSession> {
+        let (task_id, workspace_id, connection_id, grant_id, expected_revision, key) = request;
         key_valid(key)?;
         let payload = encode(
             &json!({"task_id":task_id,"workspace_id":workspace_id,"connection_id":connection_id,"grant_id":grant_id,"expected_revision":expected_revision}),
@@ -383,19 +408,27 @@ impl Store {
             .map_err(db_error)?;
         let mut task: Task =
             decode(&raw.ok_or_else(|| CoreError::new("NOT_FOUND", "Task does not exist"))?)?;
+        if goal.is_none() {
+            crate::goal_store::ordinary_session_budget_gate(&tx, &task.project_id)?;
+        }
         if task.revision != expected_revision {
             return Err(CoreError::new(
                 "STALE_REVISION",
                 "Task changed before session creation",
             ));
         }
-        if task.state != TaskState::Draft {
+        if task.state != TaskState::Draft && !(goal.is_some() && task.state == TaskState::Running) {
             return Err(CoreError::new(
                 "PERMISSION_DENIED",
-                "Only a draft task can start a new managed session",
+                "Only a draft task or current privately bound Goal node can start a managed session",
             ));
         }
-        let grant = validate_grant_from_with_data(
+        let validate = if goal.is_some() {
+            validate_grant_live_from_with_data
+        } else {
+            validate_grant_from_with_data
+        };
+        let grant = validate(
             &tx,
             grant_id,
             &task.project_id,
@@ -576,6 +609,15 @@ impl Store {
             ],
         )
         .map_err(db_error)?;
+        if let Some(context) = goal.as_ref() {
+            crate::goal_store::reserve_session(
+                &tx,
+                context,
+                &session,
+                &intent.binding,
+                self.data_input.as_ref(),
+            )?;
+        }
         task.revision += 1;
         task.updated_at = timestamp;
         tx.execute(
@@ -601,7 +643,32 @@ impl Store {
         revision: u64,
         key: &str,
     ) -> Result<(ManagedSession, bool)> {
+        self.send_session_inner(id, text, revision, key, false)
+    }
+    pub(crate) fn send_goal_session(
+        &mut self,
+        id: &str,
+        text: &str,
+        revision: u64,
+        key: &str,
+    ) -> Result<(ManagedSession, bool)> {
+        self.send_session_inner(id, text, revision, key, true)
+    }
+    fn send_session_inner(
+        &mut self,
+        id: &str,
+        text: &str,
+        revision: u64,
+        key: &str,
+        goal: bool,
+    ) -> Result<(ManagedSession, bool)> {
         key_valid(key)?;
+        if crate::goal_store::owns_session(&self.conn, id)? != goal {
+            return Err(CoreError::new(
+                "AUTH_REQUIRED",
+                "Goal-owned turns require their private fixed-node dispatcher",
+            ));
+        }
         if text.trim().is_empty() || text.len() > 65536 {
             return Err(invalid("Message must be nonempty and at most 64 KiB"));
         }
@@ -837,6 +904,7 @@ enum Outcome {
     Failure(String, String),
 }
 struct WorkerReceipt {
+    elapsed_ms: u64,
     reason: String,
     process_reaped: bool,
     never_started: bool,
@@ -968,12 +1036,24 @@ impl Supervisor {
         }
         let c = store.get_connection(&s.connection_id)?;
         let plan = crate::runtime_config::approved_plan(&c)?;
-        let grant = store.validate_grant(
-            &s.grant_id,
-            &s.project_id,
-            &s.workspace_id,
-            &s.connection_id,
-        )?;
+        let goal_duration = store.goal_session_duration(id)?;
+        let grant = if goal_duration.is_some() {
+            crate::policy::validate_grant_live_from_with_data(
+                &store.conn,
+                &s.grant_id,
+                &s.project_id,
+                &s.workspace_id,
+                &s.connection_id,
+                store.data_input.as_ref(),
+            )?
+        } else {
+            store.validate_grant(
+                &s.grant_id,
+                &s.project_id,
+                &s.workspace_id,
+                &s.connection_id,
+            )?
+        };
         let workspace = store
             .list_workspaces(&s.project_id)?
             .into_iter()
@@ -1065,7 +1145,11 @@ impl Supervisor {
         let worker_cancel = cancel.clone();
         let sender = self.sender.clone();
         let id = s.id.clone();
-        let duration = Duration::from_millis(grant.scope.max_duration_ms);
+        let duration = Duration::from_millis(
+            goal_duration
+                .unwrap_or(grant.scope.max_duration_ms)
+                .min(grant.scope.max_duration_ms),
+        );
         let thread = std::thread::Builder::new()
             .name("baton-provider".into())
             .spawn(move || {
@@ -1136,6 +1220,7 @@ impl Supervisor {
                 reason: "local_launch_failed_before_worker_start".into(),
                 process_reaped: false,
                 never_started: true,
+                elapsed_ms: 0,
             },
         )
     }
@@ -1164,6 +1249,7 @@ impl Supervisor {
             let task = store.get(&s.task_id)?;
             if (receipt.reason == "cancelled" || s.state == "cancel_requested")
                 && task.state != TaskState::CancelRequested
+                && !crate::goal_store::owns_session(&store.conn, id)?
             {
                 store.cancel(&task.id, task.revision)?;
             }
@@ -1202,7 +1288,13 @@ impl Supervisor {
             json!({"reason":receipt.reason,"process_reaped":receipt.process_reaped,"no_process_started":receipt.never_started,"task_accepted":false}),
             "baton_supervisor",
         )?;
-        tx.commit().map_err(db_error)
+        tx.commit().map_err(db_error)?;
+        store.settle_goal_worker(
+            id,
+            receipt.elapsed_ms,
+            receipt.process_reaped || receipt.never_started,
+            receipt.never_started,
+        )
     }
     pub fn shutdown(&mut self, store: &mut Store) -> Result<()> {
         for worker in self.workers.values() {
@@ -1348,6 +1440,7 @@ impl Supervisor {
                 reason: "generated_drop_fixture".into(),
                 process_reaped: true,
                 never_started: true,
+                elapsed_ms: 0,
             }
         });
         self.workers.insert(
@@ -1379,6 +1472,18 @@ fn run_worker(
     cancel: Arc<AtomicBool>,
     events: SyncSender<Outcome>,
 ) -> WorkerReceipt {
+    let started = Instant::now();
+    let mut receipt = run_worker_inner(id, launch, commands, cancel, events);
+    receipt.elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
+    receipt
+}
+fn run_worker_inner(
+    id: String,
+    launch: WorkerLaunch,
+    commands: Receiver<Work>,
+    cancel: Arc<AtomicBool>,
+    events: SyncSender<Outcome>,
+) -> WorkerReceipt {
     let WorkerLaunch {
         route,
         installation,
@@ -1392,6 +1497,7 @@ fn run_worker(
             reason: "cancelled".into(),
             process_reaped: false,
             never_started: true,
+            elapsed_ms: 0,
         };
     }
     let mut process = match ManagedProviderProcess::start(
@@ -1410,6 +1516,7 @@ fn run_worker(
                 process_reaped: false,
                 never_started: failure.side_effect_state
                     == agentbaton_providers::transport::SideEffectState::None,
+                elapsed_ms: 0,
             };
         }
     };
@@ -1419,6 +1526,7 @@ fn run_worker(
             reason: "launch_cancelled_or_timeout".into(),
             process_reaped: process.diagnostics().process_reaped,
             never_started: false,
+            elapsed_ms: 0,
         };
     }
     let _ = process.set_io_timeout(
@@ -1436,6 +1544,7 @@ fn run_worker(
                 reason: "provider_configuration_unsupported".into(),
                 process_reaped: process.diagnostics().process_reaped,
                 never_started: false,
+                elapsed_ms: 0,
             };
         }
     }
@@ -1451,6 +1560,7 @@ fn run_worker(
                 reason: "session_creation_failed".into(),
                 process_reaped: process.diagnostics().process_reaped,
                 never_started: false,
+                elapsed_ms: 0,
             };
         }
     };
@@ -1460,6 +1570,7 @@ fn run_worker(
             reason: "event_backpressure".into(),
             process_reaped: process.diagnostics().process_reaped,
             never_started: false,
+            elapsed_ms: 0,
         };
     }
     let mut pending = false;
@@ -1509,6 +1620,7 @@ fn run_worker(
                     reason: "event_backpressure".into(),
                     process_reaped: process.diagnostics().process_reaped,
                     never_started: false,
+                    elapsed_ms: 0,
                 };
             }
         }
@@ -1543,6 +1655,7 @@ fn run_worker(
         reason: reason.into(),
         process_reaped: process.diagnostics().process_reaped,
         never_started: false,
+        elapsed_ms: 0,
     }
 }
 
@@ -1693,6 +1806,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "goal_execution" {
+            return self.finalize_goal_run(id, revision);
+        }
         if proposal.kind == "data_workspace" {
             return self.finalize_data_workspace_proposal(id, revision);
         }

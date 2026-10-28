@@ -18,6 +18,14 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 use uuid::Uuid;
 
+#[path = "goal_runtime.rs"]
+mod runtime;
+pub(crate) use runtime::{
+    migrate as migrate_runtime, ordinary_session_budget_gate, owns_session,
+    permits_continuing_task, reserve_session, GoalDispatchContext,
+};
+pub use runtime::{GoalRun, GoalRunDispatch, GoalRunSelection};
+
 pub const MAX_GOAL_PLAN_BYTES: usize = 262_144;
 const MAX_STORED_BYTES: i64 = 1_048_576;
 const MAX_SCOPES: i64 = 256;
@@ -1308,13 +1316,7 @@ fn meter(
             record.cost_microunits = None;
         }
         // Scope overrides cannot widen an established shared cumulative policy.
-        if limits.attempts > record.limits.attempts
-            || limits.parallel > record.limits.parallel
-            || limits.runtime_ms > record.limits.runtime_ms
-            || limits.output_bytes > record.limits.output_bytes
-            || limits.children > record.limits.children
-            || limits.reworks > record.limits.reworks
-        {
+        if !limits.narrower(&record.limits) {
             return Err(denied());
         }
         return Ok(record);

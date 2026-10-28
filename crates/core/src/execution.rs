@@ -279,7 +279,10 @@ impl Store {
             ));
         }
         let mut task = self.get(&intent.task_id)?;
-        if task.state != TaskState::Draft {
+        if task.state != TaskState::Draft
+            && !(task.state == TaskState::Running
+                && crate::goal_store::permits_continuing_task(&self.conn, &intent)?)
+        {
             return Err(CoreError::new(
                 "PERMISSION_DENIED",
                 "Task no longer permits dispatch",
@@ -358,6 +361,8 @@ impl Store {
         intent.state = IntentState::Stopped;
         task.state = if task.state == TaskState::CancelRequested {
             TaskState::Cancelled
+        } else if crate::goal_store::permits_continuing_task(&tx, &intent)? {
+            TaskState::Running
         } else if receipt["kind"] == "executor_not_started" || receipt["kind"] == "never_dispatched"
         {
             TaskState::Draft
