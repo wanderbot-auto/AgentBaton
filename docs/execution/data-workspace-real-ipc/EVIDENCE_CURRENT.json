@@ -1,0 +1,250 @@
+{
+  "approval": "AB-START-001",
+  "scope": "existing Data real IPC harness delta; no Core/product/native/CI acceptance inferred",
+  "harness_source": "2746548a805d2036e991d502d4c389d22ea95c58",
+  "harness_sha256": "62fcc24db50cad5d4cde663a2d4110c151cb7d0db941d94ef6e4dc17f5bcded4",
+  "core_source_commit": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+  "core_manifest": "/workspace/.onboarding/data-workspace-candidate-binaries/schema10-c82bcff50353/manifest.json",
+  "core_manifest_sha256": "bc67e69d0bcc9857909346126329ea6ed7ac904770ce51dc53b01cb9d34354ce",
+  "candidate_attribution": {
+    "manifest_sha256": "bc67e69d0bcc9857909346126329ea6ed7ac904770ce51dc53b01cb9d34354ce",
+    "status": "Frozen implemented code with passing author Linux checks; independent review, composition and platform CI pending",
+    "git_head": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+    "dirty": true,
+    "source_tree_sha256": "d8653106ca699eb38599c0f5803c0f5669802664b3d934899b8ac53111c4a627",
+    "not_final_review_or_ci_acceptance": true
+  },
+  "batond_sha256": "8323e9ad8229c51762f92fd9f581e41a95414652513e9ff3a4016c83475a955b",
+  "frontend": {
+    "path": "/workspace/.worktrees/data-runtime-integration/apps/desktop/dist",
+    "aggregate_head_observed_before_run": "25ab185d186f6711ecad6d304c469c15e1c0e36b",
+    "assets_sha256": {
+      "assets/index-BdI-OwiJ.js": "b9b2307b9d40b5e8a34a142a4565148e7c832cbf3e3c4093931e866782232ae0",
+      "assets/index-D6UB0Jo6.css": "1208bc54eb8aeea54bca803a4d78dc7435688106f6b6eb0224dfbf1b5b390595",
+      "index.html": "771cf3663e3e2f5a8d2f2f03aeb9b501a34fb9b62febbe690425c66f9f3acc1a"
+    },
+    "composition": "baseUIa436 + cancelled/ioCompletion52a + personalGoal78; Root independently367/20/type/build, not rerun by this author"
+  },
+  "actual_author_command": [
+    "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+    "apps/desktop/tests/data-workspace-real-ipc.py",
+    "--batond",
+    "/workspace/.onboarding/data-workspace-candidate-binaries/schema10-c82bcff50353/batond",
+    "--candidate-manifest",
+    "/workspace/.onboarding/data-workspace-candidate-binaries/schema10-c82bcff50353/manifest.json",
+    "--frontend",
+    "/workspace/.worktrees/data-runtime-integration/apps/desktop/dist",
+    "--chromium",
+    "/usr/bin/chromium",
+    "--output",
+    "/workspace/.onboarding/data-workspace-real-ipc/c82bc-new-274-run1"
+  ],
+  "author": {
+    "exit_code": 0,
+    "status": "passed",
+    "checks": [
+      {
+        "name": "real UI relative selection and bounded preview show actual hashes/bytes with no copy or source writes",
+        "status": "passed",
+        "preview_id": "4afb31a8-65a0-4c0e-9a53-c9e4fb406d02"
+      },
+      {
+        "name": "HTTP refuses Renderer approval, finalize, generic IPC, execution and arbitrary source/foreign references",
+        "status": "passed"
+      },
+      {
+        "name": "outside-HTTP owner fixture produces actual ready copy, exact inputs bytes/registry identity and unchanged source mtime",
+        "status": "passed"
+      },
+      {
+        "name": "exact-key preview/owner replay and UI readonly history refresh do not create another copy or journal entry",
+        "status": "passed"
+      },
+      {
+        "name": "preview terminal fact retained with no copy; actual dropped-response reconciliation is reported only if exercised",
+        "status": "passed",
+        "requested_through_ui": true,
+        "terminal": "cancelled"
+      },
+      {
+        "name": "actual copy request and persisted completion are reconciled without replay/deletion or inferred legacy join",
+        "status": "passed",
+        "requested_through_ui": true,
+        "terminal": "cancelled",
+        "owned_copy_worker_join_observed": true
+      },
+      {
+        "name": "real invalid-hash preview and post-observation source drift cannot authorize a ready resnapshot or new copy",
+        "status": "passed"
+      },
+      {
+        "name": "private-runtime benign source is rejected before preview persistence; generated sources unchanged and no session/execution occurred",
+        "status": "passed"
+      }
+    ],
+    "screenshots": [
+      {
+        "path": "/workspace/.onboarding/data-workspace-real-ipc/c82bc-new-274-run1/01-real-selected-file-preview.png",
+        "sha256": "feb65ca1e7f114d546a033d240b0c8198ca695320d19b8cd3811bd104ced94c8",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Chromium, not OS-native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/data-workspace-real-ipc/c82bc-new-274-run1/02-real-ready-data-copy.png",
+        "sha256": "ae09f6c5183a9e4f3c95fb206c39c31538d6c4adb679cc0c1311099da509d112",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Chromium, not OS-native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/data-workspace-real-ipc/c82bc-new-274-run1/03-real-ready-mobile.png",
+        "sha256": "a17b3985fbfda390a36f55aa94e2add08359198a31c3794b50c7aab843a80087",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "dimension": "actual Chromium, not OS-native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/data-workspace-real-ipc/c82bc-new-274-run1/04-real-cancel-response-lost.png",
+        "sha256": "387dc0ce27a224821283524250f4288fee978470d5662c5fb7f79be068e06675",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Chromium, not OS-native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/data-workspace-real-ipc/c82bc-new-274-run1/05-real-copy-terminal-observation.png",
+        "sha256": "b66ca27433005e53b894732a07aa8e7245c7653c95ff05f345fe750d97e5f1f8",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Chromium, not OS-native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/data-workspace-real-ipc/c82bc-new-274-run1/06-real-historical-failure-and-drift.png",
+        "sha256": "8da81fd10f03c1a821ae189a19eba06a88035d2cfe4f850fff4a37facc28d0ff",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Chromium, not OS-native/macOS"
+      }
+    ],
+    "page_errors": [],
+    "report": "/workspace/.onboarding/data-workspace-real-ipc/c82bc-new-274-run1/report.json",
+    "report_sha256": "965f96969e0e7cb109bbc66c3bd3981d169f1970eae3f5450609a3617e4f87fb",
+    "log": "/workspace/.onboarding/data-workspace-real-ipc/c82bc-new-274-run1.log",
+    "log_sha256": "9c135f7286360b4e7eeda0bc8389ff33c48a567dce336540f0f1f19b5640dc09",
+    "normal_completion": {
+      "io_completion": "worker_joined",
+      "owned_copy_worker_join_observed": true,
+      "cancelled_owned_worker_join_observed": false,
+      "completion_unrecorded": false,
+      "general_filesystem_quiescence_claimed": false,
+      "finished_sequence": 10,
+      "finished_event": {
+        "sequence": 0,
+        "event_id": "720dc866-609c-4aad-95df-eb748a9a5396",
+        "aggregate_id": "7b4a7792-1234-4743-84fc-9c5cccfdabdc",
+        "revision": 2,
+        "kind": "data_workspace.copy_finished",
+        "occurred_at": "2026-10-28T06:56:58.054621554Z",
+        "payload": {
+          "approval_id": "2fd915c8-1c9a-4904-b0a7-365c030fef44",
+          "automatic_retry": false,
+          "cancel_requested": false,
+          "contract_digest": "ec7e06099d5abb8ba5f7ae49a46cdbb18675423446cec618255eab69e481b10d",
+          "dataset_revision": "cbb4158423a34afdfe3eae8c52469250a2c9c0b437015203d9a8c14b59939392",
+          "io_completion": "worker_joined",
+          "source_write": false,
+          "state": "ready",
+          "workspace_id": "84c188a9-0c13-4b02-a91d-3e4536ec800d"
+        },
+        "source": "data_workspace_core"
+      }
+    },
+    "copy_cancel": {
+      "requested_through_ui": true,
+      "retained_destination_exists": false,
+      "completion_receipt": {
+        "io_completion": "worker_joined",
+        "owned_copy_worker_join_observed": true,
+        "cancelled_owned_worker_join_observed": true,
+        "completion_unrecorded": false,
+        "general_filesystem_quiescence_claimed": false,
+        "finished_sequence": 20,
+        "finished_event": {
+          "sequence": 0,
+          "event_id": "c8ad35c6-a322-4425-bc0d-93f8dbc0cd7d",
+          "aggregate_id": "ce04878d-86ee-4a90-a7d5-39cd577ebccf",
+          "revision": 3,
+          "kind": "data_workspace.copy_finished",
+          "occurred_at": "2026-10-28T06:57:04.148528543Z",
+          "payload": {
+            "approval_id": "3cf90645-a2aa-4659-9303-0d9d212c28ab",
+            "automatic_retry": false,
+            "cancel_requested": true,
+            "contract_digest": null,
+            "dataset_revision": "8c6d5fcb6cfb859d28156e175fa518f13b519ea6b7bdacb3de4564fe58cc3ca0",
+            "io_completion": "worker_joined",
+            "source_write": false,
+            "state": "cancelled",
+            "workspace_id": "89e15b37-2bf7-4112-b221-95c649cd5c62"
+          },
+          "source": "data_workspace_core"
+        }
+      },
+      "cancellation_specific_receipt_observed": true,
+      "cancellation_stage": "before_destination_reservation",
+      "in_copy_cancellation_observation": false,
+      "retained_selected_files": [],
+      "selected_output_progress_observed": false,
+      "partial_selected_output_observed": false,
+      "partial_copy_stop_not_established": true,
+      "no_join_unknown_case_exercised": false,
+      "ready_race_exercised": false,
+      "not_a_stop_claim": false
+    }
+  },
+  "preserved_old_script_negative": {
+    "source": "ca35dc82200033feb15d106839c29762b1d85284",
+    "script_sha256": "a736ee8b125effe304d59f15ed3c042913773126e69a4029c9b11100162c5d02",
+    "same_daemon_and_frontend": true,
+    "exit_code": 1,
+    "checks_before_failure": 2,
+    "failure": "old exact Ready copy_finished payload comparison lacks the new actual io_completion field; old script line223",
+    "report": "/workspace/.onboarding/data-workspace-real-ipc/c82bc-old-ca35-run1/report.json",
+    "report_sha256": "3e181c37739832cfd6a44e914ce15ac3ab6fb5fcb01e925dd7cc76e0d3ca50f0",
+    "log_sha256": "8b5edd31bfc81c7ce3e920bc5a17cba876fc5c41c912a61b85edacdf44f0f543"
+  },
+  "root_independent_execution": {
+    "reported_by": "/root (separate execution)",
+    "exit_code": 0,
+    "checks": 8,
+    "screenshots": 6,
+    "report": "/workspace/.onboarding/data-workspace-real-ipc/root-independent-c82-274-run1/report.json",
+    "report_sha256": "b0fbacdf00d7d1fe2c1722a773472a91b81dc61488ca0303bb658f90a4b010de",
+    "formal_review": "Root maintains separately; author does not sign independent review"
+  },
+  "synthetic_classifier_controls": {
+    "passed": 18,
+    "dimension": "synthetic dictionaries executing actual harness classifier; not Core/IPC/UI",
+    "report_sha256": "1be3ec73e2b04af8536564e0f7db14e997abb5544ad3369b6b7b54ce6b60dbc3"
+  },
+  "limits": [
+    "Actual browser copy cancellation occurred before destination reservation, with null observation, no destination/selected copied bytes, actual cancelled/worker_joined and copy_finished event; no partial-copy stop proof.",
+    "Ready-wins and interrupted-no-join branches supported by classifier and script, not exercised by this browser run.",
+    "All6 author screenshots opened and visually inspected: actual Chromium desktop1488x981/mobile390x844, not native macOS.",
+    "Private outside-HTTP host approval fixture is not OS OwnerDialog; no HTTP approval/finalize/generic authority.",
+    "No actual model/provider/account, new resources/credentials, signing/release, final CI/macOS or whole-product completion.",
+    "Original candidate636e8/6 and originalca35 source remain unchanged historical evidence."
+  ]
+}
