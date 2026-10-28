@@ -892,6 +892,51 @@ mod tests {
         let program_root = program_path.parent().unwrap().to_path_buf();
         let m = fs::metadata(&program_root).unwrap();
         let bytes = fs::read(&program_path).unwrap();
+        // Actual host evidence for the original Mac system-rm preflight
+        // failure. These values never alter the production identity checks.
+        let path_metadata = fs::symlink_metadata(&program_path).unwrap();
+        let held_metadata = File::open(&program_path).unwrap().metadata().unwrap();
+        eprintln!(
+            "COMMAND_FIXTURE_PROGRAM_METADATA {}",
+            json!({
+                "requested":program,"canonical_program":program_path,
+                "canonical_root":program_root,
+                "root_device":m.dev(),"root_inode":m.ino(),"root_mode":m.mode(),
+                "path_pin":pin(&path_metadata),"path_nlink":path_metadata.nlink(),
+                "path_is_symlink":path_metadata.file_type().is_symlink(),
+                "held_pin":pin(&held_metadata),"held_nlink":held_metadata.nlink(),
+                "known_sha256":sha256(&bytes)
+            })
+        );
+        let preflight_cancel = AtomicBool::new(false);
+        let preflight_guard = Guard {
+            cancel: &preflight_cancel,
+            deadline: Instant::now() + Duration::from_secs(5),
+        };
+        let program_preflight = ArtifactIo::new().bind(
+            ArtifactContractView {
+                canonical_root: program_root.clone(),
+                root_device: m.dev(),
+                root_inode: m.ino(),
+                requirement: ArtifactRequirement {
+                    artifact_id: "diagnostic-program".into(),
+                    relative_path: program_path.file_name().unwrap().into(),
+                    max_bytes: MAX_IO_BYTES,
+                    expected_sha256: Some(sha256(&bytes)),
+                },
+            },
+            None,
+            &preflight_guard,
+        );
+        eprintln!(
+            "COMMAND_FIXTURE_PROGRAM_PREFLIGHT {}",
+            match program_preflight {
+                Ok(_) =>
+                    json!({"requested":program,"program_only_fd_preflight":"accepted","command_launched":false}),
+                Err(error) =>
+                    json!({"requested":program,"program_only_fd_preflight":"rejected","error":error,"command_launched":false}),
+            }
+        );
         prepared.definition = GoalValidatorDefinition::Command {
             program_root,
             program_device: m.dev(),
@@ -945,11 +990,38 @@ mod tests {
 
     #[test]
     fn post_command_file_failure_keeps_run_and_insufficient_budget_never_spawns() {
-        let (_directory, prepared) = command_fixture("/usr/bin/rm", vec!["report".into()]);
+        let (_original_rm_directory, _original_rm_definition) =
+            command_fixture("/usr/bin/rm", vec!["report".into()]);
+        eprintln!("ORIGINAL_SYSTEM_RM_DIAGNOSTIC_ONLY: no original rm command was launched");
+        // The existing fixed stdin-script mode binds both the shell image and
+        // literal script bytes. NativeExecutable shell -c is correctly refused
+        // by the command library and must not be used to evade that boundary.
+        let (_directory, mut prepared) = command_fixture("/bin/sh", vec![]);
+        let root = prepared.workspace.canonical_root.clone();
+        fs::write(root.join("delete-report.sh"), b"exec /bin/rm report\n").unwrap();
+        let deletion = requirement(&root, "delete-report.sh");
+        prepared.candidate_pins.push((
+            deletion.clone(),
+            pin(&fs::metadata(root.join("delete-report.sh")).unwrap()),
+        ));
+        let GoalValidatorDefinition::Command { script, .. } = &mut prepared.definition else {
+            panic!("command fixture definition");
+        };
+        *script = Some(deletion);
         let observed = execute(prepared).unwrap();
         assert!(!observed.passed);
         assert_eq!(observed.view["goal_io"]["error_code"], "INPUT_CHANGED");
         assert!(observed.command.as_ref().unwrap().view().process_started);
+        assert!(
+            observed
+                .command
+                .as_ref()
+                .unwrap()
+                .view()
+                .cleanup
+                .owned_leader_reaped
+        );
+        assert!(!root.join("report").exists());
         let (_directory, prepared) = command_fixture("/usr/bin/true", vec![]);
         let result = prepared.execute(
             &AtomicBool::new(false),
