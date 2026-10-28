@@ -1,0 +1,107 @@
+# Evidence — Goal readonly source9244
+
+Latest source9244f652af1c08ec1eea5a5851b3627ef34eee50; initial sliceee4024e93ad5adaee8e9fee14dc5ba8fc548e28c; isolated baselineb71492fd49fb9e72a775572d4933cbc2789e6939. OWNER001/002/gate ACK. Product/Core/Models/lock/action and original default release audit unchanged. No author model/account/paid/signing/production call, push or CI trigger. Only native debug harness, strict scripts/tests and browser test allowlist changed.
+
+## Implemented observations, not Goal execution
+
+| Evidence | Actual condition |
+| --- | --- |
+| goalScopeLists (strict boolean) | real fixed grants_list and goal_scopes_list; no fabricated grant/scope |
+| goalScopeEmptyControls (strict boolean) | folded by default, successful empty state, no alert, approve disabled, plan/preview absent or disabled |
+| readonlyGoalNoMutation (strict boolean) | JS sequence unchanged, plus independently recorded direct-DB snapshots and exact project/task binding |
+| goal_readonly_database | fixed known SQLite path; mode=ro/query_only/BEGIN;0 scopes/plans/attempts and identical integer sequence before/after |
+
+Root clarified the count as3JS flags+DB, not4 flags. Empty scope deliberately omits plan/preview controls; tests do not create fake disabled buttons. Two fixed native_smoke_report checkpoints stay in phase0/main and create no action authority; original CAS/terminal/deadline behavior remains. SQL/file paths/program cannot be supplied by renderer. Python uses-I -S isolated stdlib;4KiB stdout and2s owned subprocess deadline/kill/wait, no global PID signalling. Final result binds actual UI task and selected generated Project across restart and binds JS sequence to actual DB sequence.
+
+Project fixture is an actual generated directory registered through Core projects.import outside HTTP, then chosen in the real UI composer. This simulates selecting a project, not OS file-dialog/Goal confirmation. No Git/workspace/grant/Goal scope/model/attempt is seeded. No direct task.project_id SQL mutation or NOT_FOUND→[] adapter translation. Browser allowlist adds only goal_scopes_list, preserves existing grants_list, and adds no HTTP approval/finalize/run/plan/dispatch method. Scoped success is for registered Project; personal/unregistered draft Goal eligibility is a separate product follow-up.
+
+## Actual checks and dimensions
+
+- npm run build: typecheck + actual Vite bundle PASS. No product source changed. Borrowed root node_modules link removed afterward.
+- python3 -m unittest discover -s apps/desktop/src-tauri/tests -p test_native_runner.py -v:17 PASS, old15 retained plus strict Goal flag/database negative controls. Missing/false/string/number/null flags, malformed/changed/noninteger counters, wrong task/project/sequence binding reject. Synthetic cleanup controls are not GUI evidence.
+- python3 apps/desktop/tests/quiet-canvas-real-ipc.py --batond /workspace/.onboarding/goal-editor-compatible-binaries/batond --chromium /usr/bin/chromium --output /workspace/.onboarding/goal-native-readonly-browser-final:38 checks/24 PNG PASS. Actual React/Chromium154.0.8037.57/Playwright1.62.0 and private adapter to actual Unix daemon; no native GUI/model. Four Goal viewport checks1488x981/1440x900/1024x768/390x844 each observe DB scope_count=plan_count=attempt_count=0, sequence7 unchanged, actual corresponding list requests and disabled-or-absent writes.
+- cargo test --locked --offline --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol, with validation-shell umask022:13 host+11 harness PASS;0 doctests. Old6 harness tests remain and5 new cases cover generated-project no authority/actual600+Daemonbind, existing valid DB refusal without byte/mode change, real readonly counts/sequence, phase/window/replay/type rejection, raw capture and real owned-child timeout/reap.
+- cargo clippy --locked --offline --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --all-targets -- -D warnings:PASS after exact P2 fix.
+- cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml -- --check; node --check extracted exact FIRST; Python py_compile; bash -n scripts/native-macos-smoke.sh; git diff --check:PASS.
+
+Native env: CARGO_HOME=/workspace/.toolchains/cargo; RUSTUP_HOME=/workspace/.toolchains/rustup; CARGO_TARGET_DIR=/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target; CARGO_INCREMENTAL=0; CARGO_BUILD_JOBS=2; PKG_CONFIG_SYSROOT_DIR=/workspace/.toolchains/linux-ui/sysroot; PKG_CONFIG_PATH its usr/lib/x86_64-linux-gnu/pkgconfig and usr/share/pkgconfig. No Core-main target use, new target/dependency/lock/download. Explicit windows with primary/reviewer; target released after commands, not inferred from process listing.
+
+Frozen debug compatibility daemon2b4a302c4e992df9c01cde404c03ba526cf411eb24ecbc7aadc4e85fb8be771e and batonab5962a6fa6cc981026572f9b0950db8743fc4cc69a492d7202b14413824d979 are actual supplied schema9 Linux debug binaries, manifest .onboarding/goal-editor-compatible-binaries/manifest.json. Local compile-resource copies match byte-for-byte. They are not release, Data10, current Mac packages or newly signed artifacts.
+
+## Preserved real failures
+
+First built-browser run: .onboarding/goal-native-readonly-browser-first/failure-evidence.json and /tmp/goal-native-readonly-browser-first.log. Real unregisteredlocal project grants.list returnedNOT_FOUND while scope.list succeeded; actual reconciliation wait expired at unchanged30s. This is a retained premise failure, not adapter fabrication. Primary then explicitly approved the registered generated-project fixture; all original assertions remained.
+
+Independent review P2 on exactee402 helper/Core9 under umask022: actual DBmode644 and Daemon::bind PERMISSION_DENIED (existing permissions not changed), exit101. Raw .onboarding/goal-native-readonly-review/old-private-db-failure.log, exact helper probe source and binary preserved. Previous13+10 passing leaves did not prove startup under022. Fix uses fresh create_new mode0600/dropFD, never chmod/reuse/replace an existing DB, never changes process umask or production guards. New actual-bind600 and existing-history byte/mode regression passed under022. The shell umask is a validation environment, not a production workaround.
+
+## SHA-256
+
+| File/log | SHA-256 |
+| --- | --- |
+| apps/desktop/src-tauri/src/bin/native_smoke.rs | e63ae80dc190b1884e96b55b127ef648325b583585bad939a94f0eae60a842b9 |
+| apps/desktop/src-tauri/tests/test_native_runner.py | 844fd6410315d6c3fb99828b212d46b1f1d5caf76e02a471a04a0caf5e84dd2e |
+| apps/desktop/tests/quiet-canvas-real-ipc.py | d6a3f683e7ffcd354fb21c200488c25e228ebbf5a7ef290bef56c952e7598ebd |
+| scripts/native-run.py | c46145848ec5ae4ee966f0781b92d5a4079232a4cb054dda4ce82e0505bb1845 |
+| scripts/native-macos-smoke.sh | 29ea54f7e94229a46934686f73a73c7e215c5dc5da3d123523c2b2734b29bb61 |
+| built dist/index.html | e072964df52904b36aac43d1a25978e66812d24fb148ddb8849d99a03128e954 |
+| built dist/assets/index-B3WfCqru.css | 3dc2b0859eaa5552936928bc10dbf03b008f52e582a8195a3a1b6466005cf98f |
+| built dist/assets/index-ojfhYZcd.js | 232b7024a08f05ba75c01ad77232c464e1187bfef647cd0e2eeb80c6c1db32bc |
+| /tmp/goal-native-readonly-runner-final.log | d01e90349c58363732e30028e5214f8df4c9c5181e0fca59a242cac0ed1d63cd |
+| /tmp/goal-native-readonly-private-db-fixed.log | 1a4e02ebd8bfe577fd7c7889e16bdb3269450c73094d5a31acdafbbc2f0ea1f7 |
+| /tmp/goal-native-readonly-private-db-clippy.log | 8b667f5dfe61bc3678281e50ec853d50af81e361de610a4c3b47709a713288bb |
+| /tmp/goal-native-readonly-private-db-fmt.log | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
+| .onboarding/goal-native-readonly-browser-final/evidence.json | 02b48a8b3091614e43458446dedae5b4bc54b87ef110e7136c7acdde1c1b4b8a |
+| /tmp/goal-native-readonly-browser-first.log | 1330ee595cf19b823521ae587be17a563f45f329824eaa385716037c39e8cb46 |
+| .onboarding/goal-native-readonly-browser-first/failure-evidence.json | cd6a073bc8d9e76353c5d021bf165318a15e2dbc43e6f7f689f82002ba8f81ea |
+| .onboarding/goal-native-readonly-review/old-private-db-failure.log | 0c19b02b32aad36d645bd094b881df199d786437005121151b4130273b5b41a9 |
+| .onboarding/goal-native-readonly-review/old-private-db-probe.rs | 4826ec89aa8a90a5ad5ea270b178dee7e7bf3f3f98a1052808de50bc250e61e1 |
+
+Earlier native13+9/13+10, pre-Project Clippy and intermediate logs remain /tmp/goal-native-readonly-*; no failure deleted. Four actual browser Goal images were generated; desktop image visually inspected as actual Details/Goal UI, not a Mac screenshot. Independent follow-up on9244 and fresh exact Mac CI are pending. No actual Native Goal flags were emitted by a new Mac window yet, no OS owner/file dialog, Goal dispatch/reservation/acceptance, model or installation result is claimed. Original10/60/80/3-second and six existing RO fields remain intact; default release marker audit unchanged and not newly claimed run locally.
+
+## Independent follow-up closed
+
+Reviewer independently closed P2 on exact9244, reran the original private-db probe main/assertions unchanged with only the exact corrected helper: under umask022 schema9/mode600 actual Daemon::bind succeeds, exit0. Original old helper/schema9/mode644/PermissionDenied exit101 remains intact. Native13+11 and Clippy/fmt/diff, strict runner17 and separate actual browser38/24 all independently passed. This is independent engineering verification, not an OS owner authorization or Mac window test. Reviewer-owned REVIEW.md and its final identity belong to reviewer/primary; author does not stage or edit it. Shared Native target formally released to primary/DataUI reviewer; no author writer or source changes.
+
+## Actual Mac failure and owned-runtime alias correction — source8fde
+
+Actual run Product40471245384, ARM job122078603054, checkout1b990b0853ab837ffb97cc97e0436bae6c09370e (reported aeff candidate). Raw /workspace/.onboarding/pr13-aeff-failures/arm.log SHA cb4d8d7e20483a538ed4d2a697cc7754613d3cce426c92bffcbd2d9b2237e636. Feature harness11:10passed/1failed at generated_registered_project_setup...:1022; DBmode600 but actual Daemonbind returned PERMISSION_DENIED:Runtime paths must not contain symbolic links. WebView and package acceptance did not run/pass. This is distinct from prior0644 and1000ms issues.
+
+Independent pre-fix mechanism control /workspace/.onboarding/goal-native-aeff/controlled-runtime-alias.json SHA18122d87067db7605cdfba6590e49d928ef4a243c25b597d5ba74e620cdbfbf6 used the existing fixed-helper ELF on Linux: owned symlink-parent runtime alias exit101; canonical runtime exit0. It proves that mechanism on controlled Linux, not the exact historical Darwin temp path, a fresh current Core build or new Mac success. Preserved alias log SHA049ad009b071550837e80a970ef39756752aa8e4e33e74f8f354beea9ddf1d89 and canonical log6ccc0bf31da5abc73f81347c39f216938a020126fc8097a53ebfa16bd7c80935.
+
+Correction source8fde8b658bf49d18bd1f88290d16e3adc6278b5c changes only nativebin cfg(test). Main already canonicalizes TempDir and production Core correctly rejects aliases. The introduced leaf now canonicalizes owned runtime before prepare/Store/snapshot/actualbind;600 and real bind/all old assertions remain. Added one real owned parent-symlink alias negative: actual bind rejects PERMISSION_DENIED/symbolic-links, DB bytes unchanged; same canonical DB genuinely binds, Goal counts remain empty, alias identity and600 mode remain. No Core guard, production helper, TMPDIR, umask, timeout, UI, scripts or CI was changed.
+
+Before Cargo, own crates/core/src/lib.rs, crates/workspaces/src/lib.rs and native src/lib.rs were touched only for mtime to avoid shared-target stale rmeta. Before/after SHA manifests identical86da789faeb29c937cee2338fff820f97d2cb0d97ffba8f539046c3a9301df5a, stored /tmp/goal-native-alias-entrypoints-{before,after}.sha256. Native-only existing target/SDK/INC0/JOBS2 as above; no main target, new target/deps/download or environment/path bypass.
+
+Actual authored commands/results:
+
+- cargo test --locked --offline --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol:13host+12harness PASS,0 doctests; old11 retained plus1 alias mechanism regression.
+- cargo clippy with same manifest/features --all-targets -- -D warnings:PASS.
+- cargo fmt with same manifest -- --check and git diff --check:PASS.
+- Unchanged runner/browser/Frontend/SQL/3flags were not rerun to create redundant green; previous evidence retains its exact-source scope. No new actual macOS WebView/owner dialog/Provider/model/install result is claimed.
+
+| Current source/log | SHA-256 |
+| --- | --- |
+| native_smoke.rs (fixture-only correction) | 775f355327660a3d21c51ddc317c9ac958c870b58dd7c1ee8c633efba8c12309 |
+| /tmp/goal-native-alias-native-tests.log | 198b10714c5e48752a9e0a34a0b69979af33e0a958426e3e9781ce65ac6db072 |
+| /tmp/goal-native-alias-clippy.log | d3e06f63124166c2a799a7b39309f9a37fc5c096221b0934afd2db54906eeb72 |
+| /tmp/goal-native-alias-fmt.log | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
+
+Source frozen, target formally released to primary for independent review. Reviewer's prior9244 closure does not automatically accept this correction; new exact-source review and actual dualMac CI remain required. Intel run was not cancelled and no author CI was retried. All failed evidence and reviewer-owned REVIEW remain preserved.
+
+## Actual Intel bind failure and short owned fixture — source6a79820
+
+Actual Product40475194913 / PR13 head0a0beac38260cc426b4a0887b2bf59937ec9ff90 / checkout3d958a30235090aa7c3e86c75fde6b14df6575e5, Inteljob122091591770. Raw /workspace/.onboarding/goal-native-0a0b/product-job-122091591770.log SHAacf186178c4b94ad3ae41d6febc0282fccdb8f929d753d90971fdd0b94759d50.13host pass; original generated_registered_project_setup canonical actualbind passed; new alias fixture failed at1065 with INTERNAL_ERROR Cannot bind private daemon socket, harness11passed/1failed. The step did not reach a real WebView. Uploaded tiny1213-byte artifact12721123165 is not GUI/package success. Raw log does not retain the failing Darwin path or OS errno (Core maps bind errors); do not claim its exact cause is measured.
+
+Independent pre-fix Linux controls read and preserved: /workspace/.onboarding/goal-native-0a0b/controlled-socket-length.json SHAea57b07d2a85badc1065c810c1e60fa373e38e6b909a4a630890591e93c9d683. Existing helper/Core9 ELF SHA206069f7ef188ec7fb345537cd31c1d91c42b40afa3c659127f94e9b28e58221. Long canonical socket132B, schema9/DB600, same mapped INTERNAL_ERROR and exit101; controlled-long-canonical-socket.log SHA4a0293c819fe4936f97e4ab9864ad47f92dfe949ff5554152e5aa69d9e2e88b5. Separate short canonical socket41B, schema9/DB600 bindPASS exit0; controlled-short-canonical-socket.log SHA4fb2e714f1b5a61e6f1f0a78cd1ab24d00e9a4cc07e36244ec3692de40bd3fd9. Direct Linux Unix socket returned AF_UNIX path too long. These generated controls establish Linux mechanism, not historical Darwin errno/path or fresh current-Core compilation. Root explicitly requested reuse rather than redundant rerun.
+
+Source6a798204a9160c2bf86b9c0fd2b951dd912d102d only replaces the alias fixture's unnecessary nested actual runtime with private_fixture_runtime().canonicalize(), matching main/original successful fixture depth. Another700 temporary namespace contains a symlink-parent; its child resolves to the exact same owned runtime and actual Daemonbind denies it. Retained DB600/before-byte equality/sameDB canonical actualbind/Goal empty counts/unchanged link assertions. Diagnostic adds canonical socket byte count only. SHA3c9a05ee705f9a049e289244dbfc8c7a04df712493a5f0515664efc574a5b913. Automated source comparison proves all other cases unchanged and cfgtest-external prefix byte-identical, SHA d1d78cfae44d2065ca130613c9eba65216506e5619c84422fd4359cee571a3ef.
+
+Actual commands (same SDK environment described above; Native-only target/INC0/JOBS2):
+
+- cargo test --locked --offline --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol:13host+12harness PASS (no ignored/filtered),0docs. /tmp/goal-native-socket-tests.log SHA1b5f184419efe50b24b53d5dd862d5bd9f264d9922b010858c1bfbece75084d6. First root-alias variant pass retained separately; final source keeps a parent-component alias, not just final-component alias.
+- cargo clippy --locked --offline --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --all-targets -- -D warnings:PASS. /tmp/goal-native-socket-clippy.log SHA1349d1f06646b36d7c9fb13a03a0c2e144ced1f1d0e482caa040d90e0d577e85.
+- cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml -- --check plus git diff --check:PASS; empty fmt log SHAe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.
+
+Entry mtime refresh for own Core/workspaces/native-lib after DataNative target use: before/after manifests compare byte-identical, SHA86da789faeb29c937cee2338fff820f97d2cb0d97ffba8f539046c3a9301df5a. Ambient umask observed0077 without changing it. No Core production/no_symlinks/TMPDIR/environment/timeout/CI/locks changes. Main Core target never used. Native target released after last Cargo ended. Manifest artifacts/goal-native-socket-fix/verification-manifest.json SHAb532187db6b003d07c1b92f67775210090a3422fb4e190edd4200da5aff366db.
+
+Independent follow-up and new exact dualMac CI remain pending; no new actual WebView, OS owner dialog, package, Provider/model or Goal dispatch claim. ARM Provider initialization500ms failure is separately owned and not fixed or reclassified by this fixture change. All historical failures and reviewer-owned records remain intact.

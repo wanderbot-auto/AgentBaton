@@ -1,0 +1,165 @@
+{
+  "subject_head": "a2c5bcf47fd60d66207e2cc93c94db4f7f648057",
+  "actual_checkout": "c67d741713c35af95ef146799f36c52b2f268f6c",
+  "parents": [
+    "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+    "a2c5bcf47fd60d66207e2cc93c94db4f7f648057"
+  ],
+  "equal_tree": "f94524652da859991b2af9eada2d39ea26a60607",
+  "product_run": 40646347414,
+  "environment_run": 40646347269,
+  "verdict": "NOT_ACCEPTED: Product cancelled; Intel release application build exceeded 30-minute overall job budget",
+  "required_checks": "6 success / 1 cancelled",
+  "native_pair_accepted": true,
+  "native_artifacts": [
+    {
+      "artifact_id": 12797824062,
+      "name": "native-webview-macos-15-c67d741713c35af95ef146799f36c52b2f268f6c",
+      "api_sha256": "sha256:9fd87df10fadfad13966507dc7928a69b464719ff4f3eb62dffccd186ac87881",
+      "local_sha256": "9fd87df10fadfad13966507dc7928a69b464719ff4f3eb62dffccd186ac87881",
+      "size": 162036,
+      "entries": 5,
+      "safe_zip_crc": "passed",
+      "commit": "c67d741713c35af95ef146799f36c52b2f268f6c",
+      "architecture": "aarch64",
+      "report_status": "passed",
+      "command_readonly_checks": 3,
+      "data_readonly_checks": 3,
+      "goal_strict_js_checks": 3,
+      "goal_readonly_database": {
+        "after": {
+          "attempt_count": 0,
+          "plan_count": 0,
+          "scope_count": 0,
+          "sequence": 3
+        },
+        "before": {
+          "attempt_count": 0,
+          "plan_count": 0,
+          "scope_count": 0,
+          "sequence": 3
+        },
+        "read_only": true,
+        "unchanged": true
+      },
+      "fixture_project_id": "024ce47d-c2b3-4a61-b944-b8dc66c418ff",
+      "task_id": "e2946057-d93b-47b2-9ad1-49c5eeb75a1d",
+      "lifecycle": "passed",
+      "native_dialog": "not_run_manual_acceptance_required",
+      "provider_models": "not_run_not_authorized",
+      "png": "/workspace/.onboarding/goal-native-a2c5/resumed-independent/arm-native-verified-aarch64/native-screen.png",
+      "png_dimensions": [
+        1136,
+        793
+      ],
+      "files": {
+        "native-smoke.json": "e8195dd9fe1d3338ce7fef3b4a5ba98e45f3f5d1f2d02fa06683dcdc3ed13d6d",
+        "native-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "native-screen.png": "d6a19853e10b8422a9943b2e10e08fb4e97691f22c4a93adaadc769d42c1f7c6",
+        "lane.log": "08d6baf2d99474421eb68fd392958faf016cc747bca5268d1ef202c66819b249",
+        "native-runner.json": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+      }
+    },
+    {
+      "artifact_id": 12798925619,
+      "name": "native-webview-macos-15-intel-c67d741713c35af95ef146799f36c52b2f268f6c",
+      "api_sha256": "sha256:9ff273e4a1779df6192ca11b799960303e92e8146eaea450170947f0600307d4",
+      "local_sha256": "9ff273e4a1779df6192ca11b799960303e92e8146eaea450170947f0600307d4",
+      "size": 200115,
+      "entries": 5,
+      "safe_zip_crc": "passed",
+      "commit": "c67d741713c35af95ef146799f36c52b2f268f6c",
+      "architecture": "x86_64",
+      "report_status": "passed",
+      "command_readonly_checks": 3,
+      "data_readonly_checks": 3,
+      "goal_strict_js_checks": 3,
+      "goal_readonly_database": {
+        "after": {
+          "attempt_count": 0,
+          "plan_count": 0,
+          "scope_count": 0,
+          "sequence": 3
+        },
+        "before": {
+          "attempt_count": 0,
+          "plan_count": 0,
+          "scope_count": 0,
+          "sequence": 3
+        },
+        "read_only": true,
+        "unchanged": true
+      },
+      "fixture_project_id": "ed50291a-9689-4189-a4c4-362fa9b64403",
+      "task_id": "9056c144-ffb7-4862-bc65-0d2aeba4d03c",
+      "lifecycle": "passed",
+      "native_dialog": "not_run_manual_acceptance_required",
+      "provider_models": "not_run_not_authorized",
+      "png": "/workspace/.onboarding/goal-native-a2c5/resumed-independent/intel-native-verified/native-screen.png",
+      "png_dimensions": [
+        1292,
+        912
+      ],
+      "files": {
+        "native-smoke.json": "8bfb16fc187bccb682020939f08608a50567a0c997ef5d16240efa422033f989",
+        "native-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "native-screen.png": "19beeac91f91b03be0857669943ffb7cdffc8247e5665725f794f1a4fa5a0d70",
+        "lane.log": "43de4d81c487e228200e46441c0b09e753ee729c7f4eb8d5fe309c6e51cbeb3f",
+        "native-runner.json": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+      }
+    }
+  ],
+  "development_package_pair_accepted": false,
+  "single_ARM_package_integrity": {
+    "artifact_id": 12798695626,
+    "api_zip_digest": "sha256:c77340119268b118ee7635859000f5078116efd2f35d20303abdd62d6797c629",
+    "dmg": "AgentBaton-arm64-c67d741713c35af95ef146799f36c52b2f268f6c-development.dmg",
+    "dmg_sha256": "d99d96148806aea3b1076ffa9205e1f1d5c74408ab7d45901c9cf3aac6f1e117",
+    "udif_trailer": "koly",
+    "SHA256SUMS": "matched",
+    "build_record_commit": "c67d741713c35af95ef146799f36c52b2f268f6c",
+    "architecture": "arm64",
+    "actual_signing": "adhoc/linker-signed; no Developer ID or notarization; TeamIdentifier not set",
+    "known_limits": "single ARM dev artifact only; run cancelled and Intel package absent; no package pair accepted",
+    "build_record": "commit=c67d741713c35af95ef146799f36c52b2f268f6c\narchitecture=arm64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: aarch64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.20.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\nExecutable=/Users/runner/work/AgentBaton/AgentBaton/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop\nIdentifier=agentbaton_desktop-49528096917a5b7e\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=102472 flags=0x20002(adhoc,linker-signed) hashes=3198+0 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=984320\nHash type=sha256 size=32\nCandidateCDHash sha256=5da4078288e820838eab24814df84b22144202a9\nCandidateCDHashFull sha256=5da4078288e820838eab24814df84b22144202a90c3a11373dbacccb561dcfdc\nHash choices=sha256\nCMSDigest=5da4078288e820838eab24814df84b22144202a90c3a11373dbacccb561dcfdc\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=8470528\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=5da4078288e820838eab24814df84b22144202a9\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements=none\n"
+  },
+  "intel_failure": {
+    "job": 122675947130,
+    "started_at": "2026-10-28T06:50:51Z",
+    "completed_at": "2026-10-28T07:21:08Z",
+    "conclusion": "cancelled",
+    "exact_annotation": "The job has exceeded the maximum execution time of 30m0s",
+    "stage": "Build desktop UI and application",
+    "last_logged_compilation": "agentbaton-core",
+    "default_release_audit": "skipped",
+    "package": "skipped; absent from final artifact API",
+    "raw_log_sha256": "6bbe1a20a9303442258175f8ec916b57ef641ee3619525e95a446cd6a7492073",
+    "native_tests": "13host+12harness, realWebView/lifecycle passed",
+    "grant_original_duration_ms": 1000,
+    "fresh_remaining_ms": 997,
+    "actual_session_admission_rpc_ms": 699
+  },
+  "ARM": {
+    "job": 122675947044,
+    "whole_job": "success",
+    "raw_log_sha256": "47cde4871ad629ef7eaa8242495c666ce0a0b33b06c57088e83a7e80da70febe",
+    "native_tests": "13host+12harness; Provider20, command14",
+    "grant_original_duration_ms": 1000,
+    "fresh_remaining_ms": 998,
+    "actual_session_admission_rpc_ms": 654,
+    "default_release_audit": "passed; actual binary has no native harness identifiers"
+  },
+  "independent_reviewer": "/root/data_native_integration_review resumed after predecessor platform capacity interruption; predecessor evidence retained",
+  "source_objects": "commit-verification.json; exact source hashes checked against Git subject",
+  "reviewer_correction": "initial arm64/aarch64 audit caller mismatch preserved, corrected on unchanged artifact in exclusive directory",
+  "historical_limits": [
+    "Old0a ARM initialize500ms cause remains unknown; failure-only diagnostics are not production performance fix",
+    "Old0a Intel generic socket error path/errno not observed; new direct-depth fixture now actually passed bothMac, no historical errno invented",
+    "No native OS Owner dialog, live Provider/model, minimum-OS/user installation/signing/notarization acceptance",
+    "Goal read-only empty-scope check is not populated plan execution/reservation/dispatch/acceptance",
+    "Intel screenshot long project label creates visible sidebar horizontal scrollbar",
+    "No new successful dual development package pair or permission to merge failed/cancelled checks"
+  ],
+  "new_change": "Only desktop job wall-clock build budget30\u219245 +comments; all check steps/product deadlines/parallelism unchanged, independently reviewed",
+  "not_accepted": "No Intel release audit/package; exact new7 and newdualDMGs still required"
+}

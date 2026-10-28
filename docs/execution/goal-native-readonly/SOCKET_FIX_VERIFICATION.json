@@ -1,0 +1,24 @@
+{
+  "source_commit": "6a798204a9160c2bf86b9c0fd2b951dd912d102d",
+  "docs_head": "1c2e78134ebfff24bc68646eef12844f0a89f9ac",
+  "source_sha256": "3c9a05ee705f9a049e289244dbfc8c7a04df712493a5f0515664efc574a5b913",
+  "results": {
+    "Linux_native_host": 13,
+    "Linux_feature_harness": 12,
+    "clippy": "passed",
+    "fmt": "passed",
+    "whitespace": "passed",
+    "umask": "022",
+    "new_macOS_run": "not_run",
+    "native_target": "formally released"
+  },
+  "files": {
+    "clippy.log": "cd82d2ee1d1d2062792b8b293814f87e7243fea25da2d347430a0fba06ed8c6e",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lint-commands.json": "2de6c0b26eccda301fc67593ab07c85d94b24b9205d0e957c68cefeba4e8ccda",
+    "native-tests.log": "b1c8eb975962543da831a56fe6d7c3a3259f0bafdf4f7e96b768049abef238fe",
+    "static-proof.json": "2dbb7b1249f55a24cf06900f2d5171348c308ee9efea58a72f29b5ee3e952135",
+    "test-command.json": "ddcffa428ee494dbc99478226a93f4f26460f21331d8fb3da9a6097fe0ab0710",
+    "whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

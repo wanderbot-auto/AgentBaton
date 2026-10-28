@@ -1,0 +1,703 @@
+{
+  "status": "passed",
+  "dimension": "actual built React / Chromium / fixed test-only localhost adapter / real Unix Goal IPC",
+  "native_owner_dialog": "not_run; fixture owner finalizes actual proposals outside HTTP",
+  "provider": "generated credential-free local --version probe only; no session or model",
+  "not_claimed": [
+    "native WebView",
+    "macOS",
+    "dispatch",
+    "reservation",
+    "task acceptance",
+    "generated planner"
+  ],
+  "daemon_sha256": "dcbab69b9d0abcdca8c1da5c80da7ab5d6453a6890cf7ed0cd059df8f16da6bd",
+  "harness_sha256": "f7d13bbbdd378ab4ab8e70c5b85bed1d6f806a36c5ef0eed2c060ba982a09c52",
+  "frontend_assets_sha256": {
+    "assets/index-BR4yu0OJ.js": "24c4d859c877d16fd058454fe8e2e6d1235f9f12ce6dd980346bb1f7606b3a76",
+    "assets/index-CDZLaXF_.css": "7f9270521b6dee457e9bf9cb85f3269ed5b8079d0cae9f34fe5cdf06e92508dd",
+    "index.html": "502ad14607feb22d03e2e3803517805bdf7a76113ddf952c2cb5d8dd4c7675fb"
+  },
+  "checks": [
+    {
+      "name": "actual outside-HTTP Goal approval preserves execution bindings and does not accept task",
+      "status": "passed",
+      "scope_id": "01c88f4e-8358-441c-a114-89b072b8c824",
+      "task_id": "79656452-d1c8-4502-8e27-7ea36ef26633"
+    },
+    {
+      "name": "real UI lazily lists an independently approved Goal and empty immutable plan history",
+      "status": "passed"
+    },
+    {
+      "name": "actual UI stores original raw plan bytes and server-derived scope references without dispatch",
+      "status": "passed",
+      "plan_digest": "9cea322cd8e68f254796a9ce3097f9001b2762db9639322230a6bcde7a217ea2",
+      "raw_sha256": "1c665b7b697239a99cffca894e1ab296355ef9fe585c90e87e21a5d9dac4f0e9"
+    },
+    {
+      "name": "real UI preview and direct repeat leave journal, ledgers, attempts, leases and execution unchanged",
+      "status": "passed"
+    },
+    {
+      "name": "exact-key replay is read-only; whitespace/key conflict, stale CAS and raw nested duplicates are refused by actual Core",
+      "status": "passed"
+    },
+    {
+      "name": "actual UI revises with correct CAS and retains immutable first revision; stale preview is refused",
+      "status": "passed"
+    },
+    {
+      "name": "test HTTP adapter refuses approval, generic IPC, execution, forged scope, extra fields and boolean revisions",
+      "status": "passed"
+    },
+    {
+      "name": "real input drift refuses live preview, clears old observation and disables new UI writes while retaining strict history",
+      "status": "passed"
+    },
+    {
+      "name": "revoked scope permits strict historical reads/exact-key replay while UI and Core deny new plans and previews",
+      "status": "passed"
+    }
+  ],
+  "requests": [
+    {
+      "method": "system.snapshot",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "events.subscribe",
+      "args": {
+        "cursor": 0,
+        "limit": 100
+      },
+      "error": null
+    },
+    {
+      "method": "connections.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "projects.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "sessions.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "grants.list",
+      "args": {
+        "projectId": "645818a9-7863-436d-80f7-e777b04c5967"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_scopes.list",
+      "args": {
+        "taskId": "79656452-d1c8-4502-8e27-7ea36ef26633"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.list",
+      "args": {
+        "scopeId": "01c88f4e-8358-441c-a114-89b072b8c824"
+      },
+      "error": null
+    },
+    {
+      "method": "grants.list",
+      "args": {
+        "projectId": "645818a9-7863-436d-80f7-e777b04c5967"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_scopes.list",
+      "args": {
+        "taskId": "79656452-d1c8-4502-8e27-7ea36ef26633"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.list",
+      "args": {
+        "scopeId": "01c88f4e-8358-441c-a114-89b072b8c824"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.propose",
+      "args": {
+        "scopeId": "01c88f4e-8358-441c-a114-89b072b8c824",
+        "planJson": "\n  {\n  \"schema_version\": 1,\n  \"plan_id\": \"browser-goal-plan\",\n  \"goal\": {\n    \"input_revision\": \"c7ecdf10da028962d21064ab27664d7c3b122cd4\",\n    \"project_id\": \"645818a9-7863-436d-80f7-e777b04c5967\",\n    \"root_task_id\": \"79656452-d1c8-4502-8e27-7ea36ef26633\",\n    \"spec_revision\": 1,\n    \"task_id\": \"79656452-d1c8-4502-8e27-7ea36ef26633\"\n  },\n  \"scope_revision\": 2,\n  \"revision\": 1,\n  \"expected_revision\": 0,\n  \"acceptance_rules\": [\n    \"goal-owner-review\"\n  ],\n  \"nodes\": [\n    {\n      \"id\": \"write-report\",\n      \"parent_id\": null,\n      \"kind\": \"work\",\n      \"goal\": \"Write report using fixed input\",\n      \"dependencies\": [],\n      \"workspace_id\": \"c120cc5d-933c-4dbe-ac0f-acab7cbeac0c\",\n      \"executor\": {\n        \"kind\": \"connection\",\n        \"binding\": {\n          \"capability_snapshot_id\": \"client-no-tools:782f5411-d3e6-4355-a086-f4da0f809b5c\",\n          \"config_revision\": \"4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e\",\n          \"connection_id\": \"782f5411-d3e6-4355-a086-f4da0f809b5c\",\n          \"environment_id\": \"64b6a9a0-faf6-4d4a-b04d-49d95f8bd465\",\n          \"host_id\": \"local\",\n          \"identity_ref\": \"unknown:782f5411-d3e6-4355-a086-f4da0f809b5c\",\n          \"input_revision\": \"c7ecdf10da028962d21064ab27664d7c3b122cd4\",\n          \"policy_revision\": \"e1f4f81f-1d0c-41d0-b602-5f2a2dc0dcf5:2\",\n          \"workspace_id\": \"c120cc5d-933c-4dbe-ac0f-acab7cbeac0c\"\n        },\n        \"program_sha256\": \"78873695308fc985ac11eebad80ae6fcb97cdf1d18e648e69df98f0e8cb7b1ef\"\n      },\n      \"recipients\": [],\n      \"required_inputs\": [\n        {\n          \"goal_task_id\": \"79656452-d1c8-4502-8e27-7ea36ef26633\",\n          \"artifact_id\": \"source\",\n          \"contract_id\": \"input:source\",\n          \"source\": {\n            \"kind\": \"approved_external\",\n            \"sha256\": \"f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1\"\n          }\n        }\n      ],\n      \"outputs\": [\n        {\n          \"artifact_id\": \"report\",\n          \"contract_id\": \"output:report\"\n        }\n      ],\n      \"required_validators\": [\n        \"goal-owner-review\"\n      ],\n      \"side_effect\": \"workspace_write\",\n      \"write_set\": [\n        {\n          \"kind\": \"workspace\",\n          \"path\": \"outputs/report.txt\"\n        }\n      ],\n      \"budget\": {\n        \"attempts\": 2,\n        \"parallel\": 1,\n        \"runtime_ms\": 1000,\n        \"output_bytes\": 1024,\n        \"children\": 0,\n        \"reworks\": 0,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"reservation\": {\n        \"runtime_ms\": 500,\n        \"output_bytes\": 1024,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"retry\": {\n        \"max_attempts\": 2,\n        \"max_reworks\": 0,\n        \"retry_classes\": [\n          \"before_dispatch_transient\"\n        ]\n      },\n      \"idempotency_key\": \"report-action\",\n      \"external_action_id\": null\n    }\n  ]\n}\n ",
+        "expectedRevision": 0,
+        "idempotencyKey": "d1a6bbe8-6646-46bc-80dd-4fd49dd9c3c1"
+      },
+      "error": null,
+      "plan_json_sha256": "1c665b7b697239a99cffca894e1ab296355ef9fe585c90e87e21a5d9dac4f0e9"
+    },
+    {
+      "method": "goal_plans.ready_preview",
+      "args": {
+        "scopeId": "01c88f4e-8358-441c-a114-89b072b8c824",
+        "expectedRevision": 1
+      },
+      "error": null
+    },
+    {
+      "method": "system.snapshot",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "goal_plans.propose",
+      "args": {
+        "scopeId": "01c88f4e-8358-441c-a114-89b072b8c824",
+        "planJson": "\n  {\n  \"schema_version\": 1,\n  \"plan_id\": \"browser-goal-plan\",\n  \"goal\": {\n    \"input_revision\": \"c7ecdf10da028962d21064ab27664d7c3b122cd4\",\n    \"project_id\": \"645818a9-7863-436d-80f7-e777b04c5967\",\n    \"root_task_id\": \"79656452-d1c8-4502-8e27-7ea36ef26633\",\n    \"spec_revision\": 1,\n    \"task_id\": \"79656452-d1c8-4502-8e27-7ea36ef26633\"\n  },\n  \"scope_revision\": 2,\n  \"revision\": 1,\n  \"expected_revision\": 0,\n  \"acceptance_rules\": [\n    \"goal-owner-review\"\n  ],\n  \"nodes\": [\n    {\n      \"id\": \"write-report\", \"id\": \"write-report\",\n      \"parent_id\": null,\n      \"kind\": \"work\",\n      \"goal\": \"Write report using fixed input\",\n      \"dependencies\": [],\n      \"workspace_id\": \"c120cc5d-933c-4dbe-ac0f-acab7cbeac0c\",\n      \"executor\": {\n        \"kind\": \"connection\",\n        \"binding\": {\n          \"capability_snapshot_id\": \"client-no-tools:782f5411-d3e6-4355-a086-f4da0f809b5c\",\n          \"config_revision\": \"4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e\",\n          \"connection_id\": \"782f5411-d3e6-4355-a086-f4da0f809b5c\",\n          \"environment_id\": \"64b6a9a0-faf6-4d4a-b04d-49d95f8bd465\",\n          \"host_id\": \"local\",\n          \"identity_ref\": \"unknown:782f5411-d3e6-4355-a086-f4da0f809b5c\",\n          \"input_revision\": \"c7ecdf10da028962d21064ab27664d7c3b122cd4\",\n          \"policy_revision\": \"e1f4f81f-1d0c-41d0-b602-5f2a2dc0dcf5:2\",\n          \"workspace_id\": \"c120cc5d-933c-4dbe-ac0f-acab7cbeac0c\"\n        },\n        \"program_sha256\": \"78873695308fc985ac11eebad80ae6fcb97cdf1d18e648e69df98f0e8cb7b1ef\"\n      },\n      \"recipients\": [],\n      \"required_inputs\": [\n        {\n          \"goal_task_id\": \"79656452-d1c8-4502-8e27-7ea36ef26633\",\n          \"artifact_id\": \"source\",\n          \"contract_id\": \"input:source\",\n          \"source\": {\n            \"kind\": \"approved_external\",\n            \"sha256\": \"f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1\"\n          }\n        }\n      ],\n      \"outputs\": [\n        {\n          \"artifact_id\": \"report\",\n          \"contract_id\": \"output:report\"\n        }\n      ],\n      \"required_validators\": [\n        \"goal-owner-review\"\n      ],\n      \"side_effect\": \"workspace_write\",\n      \"write_set\": [\n        {\n          \"kind\": \"workspace\",\n          \"path\": \"outputs/report.txt\"\n        }\n      ],\n      \"budget\": {\n        \"attempts\": 2,\n        \"parallel\": 1,\n        \"runtime_ms\": 1000,\n        \"output_bytes\": 1024,\n        \"children\": 0,\n        \"reworks\": 0,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"reservation\": {\n        \"runtime_ms\": 500,\n        \"output_bytes\": 1024,\n        \"tokens\": null,\n        \"cost_microunits\": null\n      },\n      \"retry\": {\n        \"max_attempts\": 2,\n        \"max_reworks\": 0,\n        \"retry_classes\": [\n          \"before_dispatch_transient\"\n        ]\n      },\n      \"idempotency_key\": \"report-action\",\n      \"external_action_id\": null\n    }\n  ]\n}\n ",
+        "expectedRevision": 0,
+        "idempotencyKey": "duplicate-plan"
+      },
+      "error": "INVALID_REQUEST",
+      "plan_json_sha256": "e76886ccbddd93ba5438a15cc95d66766aebc977613b8d454799fa2c9fa92caa"
+    },
+    {
+      "method": "projects.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "events.subscribe",
+      "args": {
+        "cursor": 0,
+        "limit": 100
+      },
+      "error": null
+    },
+    {
+      "method": "sessions.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "connections.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "goal_plans.revise",
+      "args": {
+        "scopeId": "01c88f4e-8358-441c-a114-89b072b8c824",
+        "planJson": "\n{\n   \"schema_version\": 1,\n   \"plan_id\": \"browser-goal-plan\",\n   \"goal\": {\n      \"input_revision\": \"c7ecdf10da028962d21064ab27664d7c3b122cd4\",\n      \"project_id\": \"645818a9-7863-436d-80f7-e777b04c5967\",\n      \"root_task_id\": \"79656452-d1c8-4502-8e27-7ea36ef26633\",\n      \"spec_revision\": 1,\n      \"task_id\": \"79656452-d1c8-4502-8e27-7ea36ef26633\"\n   },\n   \"scope_revision\": 2,\n   \"revision\": 2,\n   \"expected_revision\": 1,\n   \"acceptance_rules\": [\n      \"goal-owner-review\"\n   ],\n   \"nodes\": [\n      {\n         \"id\": \"write-report\",\n         \"parent_id\": null,\n         \"kind\": \"work\",\n         \"goal\": \"Refine the report within unchanged approved scope\",\n         \"dependencies\": [],\n         \"workspace_id\": \"c120cc5d-933c-4dbe-ac0f-acab7cbeac0c\",\n         \"executor\": {\n            \"kind\": \"connection\",\n            \"binding\": {\n               \"capability_snapshot_id\": \"client-no-tools:782f5411-d3e6-4355-a086-f4da0f809b5c\",\n               \"config_revision\": \"4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e\",\n               \"connection_id\": \"782f5411-d3e6-4355-a086-f4da0f809b5c\",\n               \"environment_id\": \"64b6a9a0-faf6-4d4a-b04d-49d95f8bd465\",\n               \"host_id\": \"local\",\n               \"identity_ref\": \"unknown:782f5411-d3e6-4355-a086-f4da0f809b5c\",\n               \"input_revision\": \"c7ecdf10da028962d21064ab27664d7c3b122cd4\",\n               \"policy_revision\": \"e1f4f81f-1d0c-41d0-b602-5f2a2dc0dcf5:2\",\n               \"workspace_id\": \"c120cc5d-933c-4dbe-ac0f-acab7cbeac0c\"\n            },\n            \"program_sha256\": \"78873695308fc985ac11eebad80ae6fcb97cdf1d18e648e69df98f0e8cb7b1ef\"\n         },\n         \"recipients\": [],\n         \"required_inputs\": [\n            {\n               \"goal_task_id\": \"79656452-d1c8-4502-8e27-7ea36ef26633\",\n               \"artifact_id\": \"source\",\n               \"contract_id\": \"input:source\",\n               \"source\": {\n                  \"kind\": \"approved_external\",\n                  \"sha256\": \"f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1\"\n               }\n            }\n         ],\n         \"outputs\": [\n            {\n               \"artifact_id\": \"report\",\n               \"contract_id\": \"output:report\"\n            }\n         ],\n         \"required_validators\": [\n            \"goal-owner-review\"\n         ],\n         \"side_effect\": \"workspace_write\",\n         \"write_set\": [\n            {\n               \"kind\": \"workspace\",\n               \"path\": \"outputs/report.txt\"\n            }\n         ],\n         \"budget\": {\n            \"attempts\": 2,\n            \"parallel\": 1,\n            \"runtime_ms\": 1000,\n            \"output_bytes\": 1024,\n            \"children\": 0,\n            \"reworks\": 0,\n            \"tokens\": null,\n            \"cost_microunits\": null\n         },\n         \"reservation\": {\n            \"runtime_ms\": 500,\n            \"output_bytes\": 1024,\n            \"tokens\": null,\n            \"cost_microunits\": null\n         },\n         \"retry\": {\n            \"max_attempts\": 2,\n            \"max_reworks\": 0,\n            \"retry_classes\": [\n               \"before_dispatch_transient\"\n            ]\n         },\n         \"idempotency_key\": \"report-action\",\n         \"external_action_id\": null\n      }\n   ]\n}\n",
+        "expectedRevision": 1,
+        "idempotencyKey": "3c401b28-bba6-44f7-a728-efd94e93eb01"
+      },
+      "error": null,
+      "plan_json_sha256": "a6cceace05bef8115ee9a824389a1ba81427be1688000fe313a5e9f1b4638b4b"
+    },
+    {
+      "method": "goal_plans.ready_preview",
+      "args": {
+        "scopeId": "01c88f4e-8358-441c-a114-89b072b8c824",
+        "expectedRevision": 2
+      },
+      "error": "INPUT_CHANGED"
+    },
+    {
+      "method": "goal_scopes.list",
+      "args": {
+        "taskId": "79656452-d1c8-4502-8e27-7ea36ef26633"
+      },
+      "error": null
+    },
+    {
+      "method": "grants.list",
+      "args": {
+        "projectId": "645818a9-7863-436d-80f7-e777b04c5967"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.list",
+      "args": {
+        "scopeId": "01c88f4e-8358-441c-a114-89b072b8c824"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_scopes.revoke",
+      "args": {
+        "scopeId": "01c88f4e-8358-441c-a114-89b072b8c824",
+        "expectedRevision": 1,
+        "idempotencyKey": "867cea38-4498-450b-a126-70daf2668648"
+      },
+      "error": null
+    },
+    {
+      "method": "grants.list",
+      "args": {
+        "projectId": "645818a9-7863-436d-80f7-e777b04c5967"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_scopes.list",
+      "args": {
+        "taskId": "79656452-d1c8-4502-8e27-7ea36ef26633"
+      },
+      "error": null
+    },
+    {
+      "method": "goal_plans.list",
+      "args": {
+        "scopeId": "01c88f4e-8358-441c-a114-89b072b8c824"
+      },
+      "error": null
+    },
+    {
+      "method": "system.snapshot",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "connections.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "projects.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "events.subscribe",
+      "args": {
+        "cursor": 0,
+        "limit": 100
+      },
+      "error": null
+    },
+    {
+      "method": "sessions.list",
+      "args": {},
+      "error": null
+    }
+  ],
+  "observations": {
+    "connection": {
+      "kind": "connection",
+      "snapshot_utf8_bytes": 713,
+      "snapshot_sha256": "a9611690f60804b1f877e2759c3cb0c7d96998549077abc3eb1db53571c6bd14"
+    },
+    "root-grant": {
+      "kind": "grant",
+      "snapshot_utf8_bytes": 2205,
+      "snapshot_sha256": "d018f0c6a1f852a67ff28b983605c2895784695917ab5f0022353a95d6deedde"
+    },
+    "goal-scope": {
+      "kind": "goal",
+      "snapshot_utf8_bytes": 9607,
+      "snapshot_sha256": "37f092c432ce025348513fd26499bf4d430fa0a6fc186ec44f1c87dc6f69ee27"
+    },
+    "empty_history_response": {
+      "request_id": "56eb7e66-ad37-4c71-9ad8-c15501a5cd57",
+      "result": [],
+      "revision": 17,
+      "warnings": []
+    },
+    "ready_preview": {
+      "blocked_reasons": [],
+      "budget_usage": {
+        "project": {
+          "active": 0,
+          "attempts": 0,
+          "children": 0,
+          "cost_microunits": 0,
+          "output_bytes": 0,
+          "runtime_ms": 0,
+          "tokens": 0
+        },
+        "root": {
+          "active": 0,
+          "attempts": 0,
+          "children": 0,
+          "cost_microunits": 0,
+          "output_bytes": 0,
+          "runtime_ms": 0,
+          "tokens": 0
+        }
+      },
+      "decision": {
+        "admissions": [
+          {
+            "executor": {
+              "binding": {
+                "capability_snapshot_id": "client-no-tools:782f5411-d3e6-4355-a086-f4da0f809b5c",
+                "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+                "connection_id": "782f5411-d3e6-4355-a086-f4da0f809b5c",
+                "environment_id": "64b6a9a0-faf6-4d4a-b04d-49d95f8bd465",
+                "host_id": "local",
+                "identity_ref": "unknown:782f5411-d3e6-4355-a086-f4da0f809b5c",
+                "input_revision": "c7ecdf10da028962d21064ab27664d7c3b122cd4",
+                "policy_revision": "e1f4f81f-1d0c-41d0-b602-5f2a2dc0dcf5:2",
+                "workspace_id": "c120cc5d-933c-4dbe-ac0f-acab7cbeac0c"
+              },
+              "kind": "connection",
+              "program_sha256": "78873695308fc985ac11eebad80ae6fcb97cdf1d18e648e69df98f0e8cb7b1ef"
+            },
+            "external_action": null,
+            "idempotency_key": "a184ee7c05a1574d2e1707d0c3cc2527b58b185e4014131f0625f059d428e727",
+            "next_attempt": 1,
+            "node_id": "write-report",
+            "reservation": {
+              "cost_microunits": null,
+              "output_bytes": 1024,
+              "runtime_ms": 500,
+              "tokens": null
+            },
+            "resolved_inputs": [
+              {
+                "artifact_id": "source",
+                "contract_id": "input:source",
+                "source": {
+                  "kind": "approved_external",
+                  "scope_revision": 2,
+                  "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+                }
+              }
+            ],
+            "rework": false,
+            "workspace_id": "c120cc5d-933c-4dbe-ac0f-acab7cbeac0c"
+          }
+        ],
+        "blocked": {},
+        "expected_ledger_revision": 18,
+        "expected_plan_revision": 1,
+        "plan_digest": "9cea322cd8e68f254796a9ce3097f9001b2762db9639322230a6bcde7a217ea2",
+        "required_checks_satisfied": false,
+        "requires_atomic_store_commit": true
+      },
+      "dispatched": false,
+      "journal_sequence": 18,
+      "plan_id": "browser-goal-plan",
+      "plan_revision": 1,
+      "read_only": true,
+      "reservation_made": false,
+      "scope_id": "01c88f4e-8358-441c-a114-89b072b8c824",
+      "unknown_dimensions": []
+    },
+    "revoked_history_response": {
+      "request_id": "47ab654e-1542-49e0-841d-84ed1095edb9",
+      "result": [
+        {
+          "created_at": "2026-10-27T04:57:52.449740649Z",
+          "digest": "9cea322cd8e68f254796a9ce3097f9001b2762db9639322230a6bcde7a217ea2",
+          "dispatched": false,
+          "proposal": {
+            "acceptance_rules": [
+              "goal-owner-review"
+            ],
+            "expected_revision": 0,
+            "goal": {
+              "input_revision": "c7ecdf10da028962d21064ab27664d7c3b122cd4",
+              "project_id": "645818a9-7863-436d-80f7-e777b04c5967",
+              "root_task_id": "79656452-d1c8-4502-8e27-7ea36ef26633",
+              "spec_revision": 1,
+              "task_id": "79656452-d1c8-4502-8e27-7ea36ef26633"
+            },
+            "nodes": [
+              {
+                "budget": {
+                  "attempts": 2,
+                  "children": 0,
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "parallel": 1,
+                  "reworks": 0,
+                  "runtime_ms": 1000,
+                  "tokens": null
+                },
+                "dependencies": [],
+                "executor": {
+                  "binding": {
+                    "capability_snapshot_id": "client-no-tools:782f5411-d3e6-4355-a086-f4da0f809b5c",
+                    "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+                    "connection_id": "782f5411-d3e6-4355-a086-f4da0f809b5c",
+                    "environment_id": "64b6a9a0-faf6-4d4a-b04d-49d95f8bd465",
+                    "host_id": "local",
+                    "identity_ref": "unknown:782f5411-d3e6-4355-a086-f4da0f809b5c",
+                    "input_revision": "c7ecdf10da028962d21064ab27664d7c3b122cd4",
+                    "policy_revision": "e1f4f81f-1d0c-41d0-b602-5f2a2dc0dcf5:2",
+                    "workspace_id": "c120cc5d-933c-4dbe-ac0f-acab7cbeac0c"
+                  },
+                  "kind": "connection",
+                  "program_sha256": "78873695308fc985ac11eebad80ae6fcb97cdf1d18e648e69df98f0e8cb7b1ef"
+                },
+                "external_action_id": null,
+                "goal": "Write report using fixed input",
+                "id": "write-report",
+                "idempotency_key": "report-action",
+                "kind": "work",
+                "outputs": [
+                  {
+                    "artifact_id": "report",
+                    "contract_id": "output:report"
+                  }
+                ],
+                "parent_id": null,
+                "recipients": [],
+                "required_inputs": [
+                  {
+                    "artifact_id": "source",
+                    "contract_id": "input:source",
+                    "goal_task_id": "79656452-d1c8-4502-8e27-7ea36ef26633",
+                    "source": {
+                      "kind": "approved_external",
+                      "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+                    }
+                  }
+                ],
+                "required_validators": [
+                  "goal-owner-review"
+                ],
+                "reservation": {
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "runtime_ms": 500,
+                  "tokens": null
+                },
+                "retry": {
+                  "max_attempts": 2,
+                  "max_reworks": 0,
+                  "retry_classes": [
+                    "before_dispatch_transient"
+                  ]
+                },
+                "side_effect": "workspace_write",
+                "workspace_id": "c120cc5d-933c-4dbe-ac0f-acab7cbeac0c",
+                "write_set": [
+                  {
+                    "kind": "workspace",
+                    "path": "outputs/report.txt"
+                  }
+                ]
+              }
+            ],
+            "plan_id": "browser-goal-plan",
+            "revision": 1,
+            "schema_version": 1,
+            "scope_revision": 2
+          },
+          "scope_id": "01c88f4e-8358-441c-a114-89b072b8c824",
+          "state": "validated_proposal"
+        },
+        {
+          "created_at": "2026-10-27T04:57:53.593041665Z",
+          "digest": "bb6d0a68e5d9d2695ecc2dd395c0be4bc8fae5a604dd2e34e83670d53d17a7fc",
+          "dispatched": false,
+          "proposal": {
+            "acceptance_rules": [
+              "goal-owner-review"
+            ],
+            "expected_revision": 1,
+            "goal": {
+              "input_revision": "c7ecdf10da028962d21064ab27664d7c3b122cd4",
+              "project_id": "645818a9-7863-436d-80f7-e777b04c5967",
+              "root_task_id": "79656452-d1c8-4502-8e27-7ea36ef26633",
+              "spec_revision": 1,
+              "task_id": "79656452-d1c8-4502-8e27-7ea36ef26633"
+            },
+            "nodes": [
+              {
+                "budget": {
+                  "attempts": 2,
+                  "children": 0,
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "parallel": 1,
+                  "reworks": 0,
+                  "runtime_ms": 1000,
+                  "tokens": null
+                },
+                "dependencies": [],
+                "executor": {
+                  "binding": {
+                    "capability_snapshot_id": "client-no-tools:782f5411-d3e6-4355-a086-f4da0f809b5c",
+                    "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+                    "connection_id": "782f5411-d3e6-4355-a086-f4da0f809b5c",
+                    "environment_id": "64b6a9a0-faf6-4d4a-b04d-49d95f8bd465",
+                    "host_id": "local",
+                    "identity_ref": "unknown:782f5411-d3e6-4355-a086-f4da0f809b5c",
+                    "input_revision": "c7ecdf10da028962d21064ab27664d7c3b122cd4",
+                    "policy_revision": "e1f4f81f-1d0c-41d0-b602-5f2a2dc0dcf5:2",
+                    "workspace_id": "c120cc5d-933c-4dbe-ac0f-acab7cbeac0c"
+                  },
+                  "kind": "connection",
+                  "program_sha256": "78873695308fc985ac11eebad80ae6fcb97cdf1d18e648e69df98f0e8cb7b1ef"
+                },
+                "external_action_id": null,
+                "goal": "Refine the report within unchanged approved scope",
+                "id": "write-report",
+                "idempotency_key": "report-action",
+                "kind": "work",
+                "outputs": [
+                  {
+                    "artifact_id": "report",
+                    "contract_id": "output:report"
+                  }
+                ],
+                "parent_id": null,
+                "recipients": [],
+                "required_inputs": [
+                  {
+                    "artifact_id": "source",
+                    "contract_id": "input:source",
+                    "goal_task_id": "79656452-d1c8-4502-8e27-7ea36ef26633",
+                    "source": {
+                      "kind": "approved_external",
+                      "sha256": "f2567f257754a3b1a97eb98577322172a809eb460b96b1646c089a30823556a1"
+                    }
+                  }
+                ],
+                "required_validators": [
+                  "goal-owner-review"
+                ],
+                "reservation": {
+                  "cost_microunits": null,
+                  "output_bytes": 1024,
+                  "runtime_ms": 500,
+                  "tokens": null
+                },
+                "retry": {
+                  "max_attempts": 2,
+                  "max_reworks": 0,
+                  "retry_classes": [
+                    "before_dispatch_transient"
+                  ]
+                },
+                "side_effect": "workspace_write",
+                "workspace_id": "c120cc5d-933c-4dbe-ac0f-acab7cbeac0c",
+                "write_set": [
+                  {
+                    "kind": "workspace",
+                    "path": "outputs/report.txt"
+                  }
+                ]
+              }
+            ],
+            "plan_id": "browser-goal-plan",
+            "revision": 2,
+            "schema_version": 1,
+            "scope_revision": 2
+          },
+          "scope_id": "01c88f4e-8358-441c-a114-89b072b8c824",
+          "state": "validated_proposal"
+        }
+      ],
+      "revision": 20,
+      "warnings": []
+    },
+    "final_database": {
+      "attempts": 0,
+      "dispatch_intents": 0,
+      "workspace_leases": 0,
+      "sessions": 0,
+      "command_validation_runs": 0,
+      "command_workspace_fences": 0,
+      "goal_node_evidence": 0,
+      "goal_external_action_journal": 0,
+      "goal_plan_heads": 1,
+      "goal_plan_revisions": 2,
+      "goal_plan_proposals": 2,
+      "budgets": [
+        [
+          "project:645818a9-7863-436d-80f7-e777b04c5967",
+          8,
+          2,
+          0,
+          0
+        ],
+        [
+          "root:79656452-d1c8-4502-8e27-7ea36ef26633",
+          8,
+          2,
+          0,
+          0
+        ]
+      ],
+      "goal_ledgers": [
+        [
+          "project:645818a9-7863-436d-80f7-e777b04c5967",
+          "{\"limits\":{\"attempts\":8,\"parallel\":2,\"runtime_ms\":60000,\"output_bytes\":8192,\"children\":3,\"reworks\":2,\"tokens\":null,\"cost_microunits\":null},\"observed_attempts\":0,\"runtime_ms\":0,\"output_bytes\":0,\"tokens\":0,\"cost_microunits\":0}"
+        ],
+        [
+          "root-grant:e1f4f81f-1d0c-41d0-b602-5f2a2dc0dcf5",
+          "{\"limits\":{\"attempts\":8,\"parallel\":2,\"runtime_ms\":60000,\"output_bytes\":8192,\"children\":3,\"reworks\":2,\"tokens\":null,\"cost_microunits\":null},\"observed_attempts\":0,\"runtime_ms\":0,\"output_bytes\":0,\"tokens\":0,\"cost_microunits\":0}"
+        ]
+      ],
+      "journal_sequence": 20
+    },
+    "browser_page_errors": []
+  },
+  "screenshots": [
+    {
+      "path": "/workspace/.onboarding/goal-ui-real-ipc-history-primary-capture/01-fresh-goal-expanded.png",
+      "sha256": "e2ae2c2a21e66de70c082e76361526f59b2b5bd0d6c8ef5be3b13ba12331f9df",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-ui-real-ipc-history-primary-capture/02-read-only-preview-desktop.png",
+      "sha256": "dda8c3dc1ff3b8c913a32ee4a832b50bf52cbc8f5406dfc08ac41a4b40165362",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-ui-real-ipc-history-primary-capture/03-read-only-preview-mobile.png",
+      "sha256": "667eb45c40bd99eb63adce2e62e2dc3c523e12d0d570e0a90830315e11a9d274",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-ui-real-ipc-history-primary-capture/04-versioned-plan-history.png",
+      "sha256": "11c1f91cfdc52f328afdbd8babf1b287e198188ba5dad6ce5fbcd9727c892bf7",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-ui-real-ipc-history-primary-capture/05-input-drift-read-refused.png",
+      "sha256": "29381168b11b83b5ba6196d1064f2b7979763ddc7aea75cec3789a03072bd270",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-ui-real-ipc-history-primary-capture/06-revoked-historical-scope.png",
+      "sha256": "b98ec83e43e4b47289219f58236b9c650f248613e844504e5ed8f0c53214a4a2",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Chromium, not native WebView/macOS"
+    }
+  ]
+}

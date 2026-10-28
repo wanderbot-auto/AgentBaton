@@ -1,0 +1,68 @@
+{
+  "source_head": "aeffd473ec4cf9db5cc48c9aa666ed9811e511e1",
+  "actual_checkout": "1b990b0853ab837ffb97cc97e0436bae6c09370e",
+  "tree": "541d5e54b89394972d0ffd07bb6010a2b863b2f7",
+  "protected_main": "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+  "product_run": 40471245384,
+  "environment_run": 40471315226,
+  "superseded_environment": {
+    "run": 40471245438,
+    "conclusion": "cancelled",
+    "replacement_reason": "existing Env workflow listens ready_for_review with same-ref cancel-in-progress; normal PR ready transition, not manual replacement or changed protection",
+    "latest_entire_environment_3": "success"
+  },
+  "completed_success_jobs": {
+    "Environment / ubuntu-24.04": 122078865617,
+    "Environment / macos-15": 122078865925,
+    "Environment / macos-15-intel": 122078866063,
+    "Product / Rust": 122078603051,
+    "Product / UI": 122078602855
+  },
+  "arm_failure": {
+    "job": 122078603054,
+    "failed_step": "Actual macOS WebView and daemon lifecycle acceptance",
+    "test": "fixture_tests::generated_registered_project_setup_creates_no_goal_or_attempt_authority",
+    "harness_passed": 10,
+    "harness_failed": 1,
+    "db_mode": "0600",
+    "actual_error": "PERMISSION_DENIED: Runtime paths must not contain symbolic links",
+    "production_guard": "unchanged and correctly refused alias",
+    "core_and_host_step": "success, not a command1000ms admission failure",
+    "webview": "not_started",
+    "desktop_build_audit_development_package": "not_run",
+    "raw_log": "/workspace/.onboarding/pr13-aeff-failures/arm.log",
+    "raw_log_sha256": "cb4d8d7e20483a538ed4d2a697cc7754613d3cce426c92bffcbd2d9b2237e636"
+  },
+  "initial_independent_review_sha256": "cb2f2dc47533c0188f1ebefb457d47c6efae53a5f248b2ef5110ff6c8e2306fa",
+  "fix_plan": "only new native fixture test must use host-canonical runtime, plus owned alias rejection/canonical bind control; all production permissions/deadlines/checks unchanged; sourcefix+independent validation+new exact7 required before merge",
+  "overall": "failed candidate; cannot merge or borrow old native/package evidence",
+  "initial_snapshot": {
+    "completed_success_checks": 5,
+    "arm": "failure",
+    "intel": "in_progress at initial independent report cb2f2dc; final data added after actual completion"
+  },
+  "intel_failure": {
+    "job": 122078603267,
+    "failed_step": "Actual macOS WebView and daemon lifecycle acceptance",
+    "test": "fixture_tests::generated_registered_project_setup_creates_no_goal_or_attempt_authority",
+    "harness_passed": 10,
+    "harness_failed": 1,
+    "db_mode": "0600",
+    "actual_error": "PERMISSION_DENIED: Runtime paths must not contain symbolic links",
+    "core_and_host_step": "success",
+    "webview": "not_started",
+    "desktop_build_audit_development_package": "not_run",
+    "raw_log": "/workspace/.onboarding/pr13-aeff-failures/intel.log",
+    "raw_log_sha256": "16e9c3b2dd86e0fb3da5868152791f48ebdf2a19a464db352e205220011d75bb"
+  },
+  "final_independent_review_sha256": "0e8f1f51a7d8e4563ecbd76b939ef3fe4c5349715ee43f599e10a5e698d2b19f",
+  "final_independent_manifest_sha256": "53b1dd2da11f29c1daeef2dae454d34af3257c68ff8a7b18cf7081fbe0e51881",
+  "linux_mechanism_control": "same fixed-helper ELF + owned alias runtime actualFAIL101; canonical path actualPASS0; no claim captured exact Darwin alias pathname",
+  "narrow_fixture_fix": {
+    "source": "8fde8b658bf49d18bd1f88290d16e3adc6278b5c",
+    "native_source_sha256": "775f355327660a3d21c51ddc317c9ac958c870b58dd7c1ee8c633efba8c12309",
+    "scope": "cfg(test) only: same generated tempdir canonicalized before prepare/Store/DBsnapshot/actualbind; add one owned-alias actual denial plus canonical bind regression; all old11/production/deadlines unchanged",
+    "author_and_independent_native_units": "13host+12harness/lints passed",
+    "new_macOS_CI": "not_run yet"
+  }
+}

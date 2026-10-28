@@ -1,0 +1,16 @@
+# Goal approval and versioned plan persistence — WP08
+
+Authorization AB-START-001, Design v0.2. ACK OWNER-001/002 on protected-main snapshots febe7c7 and 66061439c79fa44b66a33782febc1fb0f31c73df; no new owner sequence. Full product development continues. This unit adds real Backend persistence, separate Owner Goal approval, versioned untrusted plans and read-only ready-preview Unix IPC. No Provider/model/account/paid-resource/production/signing authority is added.
+
+Worktree /workspace/.worktrees/goal-store, branch codex/goal-store; base 3d369e9 (reviewed Goal contracts 9acf86c). Core schema 8 source 8009824 and final correction 88ca6bc were safely merged before changing shared paths. Merge HEAD before final freeze: fd78d03eb98e4e1d84f4ce0a71aedd038ffd59bb. Parent owns integration with later main/Command CI fixture changes.
+
+Implementation sequence:
+
+1. Resolve actual Task/Project/native-confirmed root grant/immutable connection/workspace/fixed input bytes/approved validator definitions. Strict selections identify references and requested limits, never host authority flags.
+2. Separate native kindgoal confirms only displayed children/depth changes on the same root grant. CAS, complete old/new history, scope/result, unchanged shared counters and events commit atomically; active/unknown intents or command fences block approval.
+3. Persist schema 9 scopes/revocations, plan proposals/revisions/CAS heads, journal, idempotency and shared meters. Rebuild private authority from actual trusted records on restart, never Deserialize a token or adopt JSON passed flags.
+4. Unix plan submission carries original plan_json bounded at 256KiB and decoded directly into strict DTOs. Exact raw payload identifies replay; changed revisions/spec/input/acceptance fail closed.
+5. Ready preview returns actual counters/unknown dimensions/candidates only. No reservation, attempt, dispatch, quota reset, passed verification or TaskAccepted. Retained unknown action/evidence and historical unmetered use block safely.
+6. Preserve real failures, run SQLite/Unix/restart/migration/rollback/adversarial tests, correct independent findings, freeze exact source and hand exclusive Cargo to independent review.
+
+Scheduler/Router/reservation/settlement, generated planner, GUI/native dialog, macOS and installation evidence remain dependent work. This Backend dependency does not complete the whole Goal product.

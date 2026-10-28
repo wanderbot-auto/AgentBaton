@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import re
 import socket
+import sqlite3
 import subprocess
 import tempfile
 import threading
@@ -68,6 +69,20 @@ def main():
                 response = json.loads(line)
                 report['requests'].append({'method': method, 'error': response.get('error', {}).get('code'), 'side_effect_state': response.get('error', {}).get('side_effect_state')})
                 return response
+            def goal_database_state():
+                with sqlite3.connect((runtime / 'baton.sqlite3').resolve().as_uri() + '?mode=ro', uri=True, timeout=1, isolation_level=None) as database:
+                    database.execute('PRAGMA query_only=ON')
+                    database.execute('BEGIN')
+                    row = database.execute('SELECT (SELECT count(*) FROM goal_scopes),(SELECT count(*) FROM goal_plan_revisions),(SELECT count(*) FROM attempts),(SELECT COALESCE(max(sequence),0) FROM events)').fetchone()
+                    return dict(zip(['scope_count', 'plan_count', 'attempt_count', 'sequence'], row))
+            # Trusted private fixture setup, outside the HTTP allowlist. This
+            # simulates choosing a generated directory, not an OS owner dialog
+            # or approval of any grant/Goal/model/workspace.
+            project_directory = Path(temporary) / 'goal-readonly-project'
+            project_directory.mkdir(mode=0o700)
+            (project_directory / 'generated.txt').write_text('Generated readonly project fixture; no execution authority.\n')
+            fixture_project = ipc('projects.import', {'path': str(project_directory), 'name': 'Goal readonly generated project'}, key='goal-readonly-project')['result']
+            report['fixture_project'] = {'id': fixture_project['id'], 'source': 'real Core projects.import over private Unix IPC', 'os_file_dialog': 'not_run', 'goal_authority': 'not_created'}
             class Handler(http.server.SimpleHTTPRequestHandler):
                 def log_message(self, *_args):
                     pass
@@ -96,6 +111,7 @@ def main():
                             'command_validations_list': ('command_validations.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'workspaces_list': ('workspaces.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
                             'grants_list': ('grants.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
+                            'goal_scopes_list': ('goal_scopes.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'events_subscribe': ('events.subscribe', {'cursor': values.get('cursor', 0), 'limit': values.get('limit', 100)}, {'cursor', 'limit'}),
                             'tasks_create': ('tasks.create', {'goal': values.get('goal', ''), **({'project_id': values['projectId']} if values.get('projectId') else {})}, {'goal', 'projectId', 'idempotencyKey'}),
                             'tasks_cancel': ('tasks.cancel', {'task_id': values.get('taskId', '')}, {'taskId', 'expectedRevision', 'idempotencyKey'}),
@@ -134,6 +150,7 @@ def main():
                 page.get_by_text('本地后台已连接', exact=True).wait_for()
                 assert page.get_by_test_id('task-card').count() == 0
                 passed('empty state contains no demonstration task')
+                page.locator('.composer-project select').select_option(fixture_project['id'])
                 goals = ['梳理工作区权限边界', '整理已记录的测试证据', '检查取消与恢复状态', '准备开发安装包验收清单', '检查项目配置的来源']
                 task_ids = []
                 for goal in goals:
@@ -213,6 +230,8 @@ def main():
                     report['screenshots'].append(str(screenshot))
                     before_integrity = ipc('system.snapshot', {})['result']['sequence']
                     selected_task = page.get_by_test_id('task-thread').get_attribute('data-task-id')
+                    actual_task = next(task for task in ipc('system.snapshot', {})['result']['tasks'] if task['id'] == selected_task)
+                    assert actual_task['project_id'] == fixture_project['id']
                     page.get_by_role('tab', name='产物', exact=True).click()
                     page.get_by_text('尚无产物完整性记录。', exact=True).wait_for()
                     page.wait_for_function("()=>[...document.querySelectorAll('button')].some(button=>button.textContent==='刷新完整性记录'&&!button.disabled)")
@@ -264,6 +283,33 @@ def main():
                     assert ipc('system.snapshot', {})['result']['sequence'] == before_integrity
                     assert not any(request['method'] in ['command_validation_policies.propose', 'approvals.finalize', 'command_validations.run', 'command_validations.cancel'] for request in report['requests'])
                     passed(f'actual read-only command lists and no fabricated execution {width}x{height}', task_id=selected_task)
+                    before_goal = goal_database_state()
+                    assert all(before_goal[field] == 0 for field in ['scope_count', 'plan_count', 'attempt_count'])
+                    goal_request_start = len(report['requests'])
+                    page.locator('#tab-details').click()
+                    goal_panel = page.get_by_test_id('goal-planning')
+                    goal_panel.wait_for()
+                    assert not goal_panel.locator(':scope > details').evaluate('(e)=>e.open')
+                    goal_panel.locator(':scope > details > summary').click()
+                    page.wait_for_function("()=>document.querySelector('[data-testid=\"goal-planning\"] form>fieldset')?.disabled===false&&document.querySelector('[data-testid=\"goal-planning\"] [aria-busy]')?.getAttribute('aria-busy')==='false'")
+                    goal_panel.get_by_text('尚无独立原生批准的 Goal 范围。', exact=True).wait_for()
+                    assert goal_panel.get_by_role('button', name='刷新 Goal 记录', exact=True).is_enabled()
+                    assert goal_panel.get_by_role('button', name='在原生对话框中审阅 Goal 范围', exact=True).is_disabled()
+                    assert goal_panel.get_by_role('alert').count() == 0
+                    for name in ['保存初始计划提议', '保存修订计划提议', '读取就绪预览']:
+                        actions = goal_panel.get_by_role('button', name=name, exact=True)
+                        assert actions.count() == 0 or all(actions.nth(index).is_disabled() for index in range(actions.count()))
+                    for method in ['grants.list', 'goal_scopes.list']:
+                        assert any(request['method'] == method and request['error'] is None for request in report['requests'][goal_request_start:])
+                    after_goal = goal_database_state()
+                    assert before_goal == after_goal
+                    assert ipc('system.snapshot', {})['result']['sequence'] == before_goal['sequence']
+                    assert not any(request['method'] in ['goal_scopes.propose', 'goal_scopes.revoke', 'goal_plans.propose', 'goal_plans.revise', 'goal_plans.ready_preview', 'goal_plans.dispatch', 'goal_plans.reserve', 'goal_plans.accept', 'approvals.finalize'] for request in report['requests'])
+                    assert not page.evaluate('document.documentElement.scrollWidth > innerWidth')
+                    goal_screenshot = output / f'goal-readonly-{width}x{height}.png'
+                    page.screenshot(path=str(goal_screenshot))
+                    report['screenshots'].append(str(goal_screenshot))
+                    passed(f'actual read-only empty Goal scope and disabled-or-absent writes {width}x{height}', task_id=selected_task, before_database=before_goal, after_database=after_goal, native_owner_dialog='not_run', dispatch='not_run')
                     page.get_by_role('button', name='返回任务', exact=True).click()
                 page.set_viewport_size({'width': 1488, 'height': 981})
                 page.get_by_role('button', name='搜索', exact=True).click()

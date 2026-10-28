@@ -1,0 +1,152 @@
+{
+  "subject_head": "bf67629f7911531fec52ec31e59c9508f814f9fd",
+  "actual_checkout": "b0daefb57a35a47e2f708e02df8d14b578e76148",
+  "parents": [
+    "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+    "bf67629f7911531fec52ec31e59c9508f814f9fd"
+  ],
+  "equal_tree": "e447a3a18ed193ee439dcfa341d438573b5ec80b",
+  "product_run": 40652731429,
+  "environment_run": 40652731215,
+  "verdict": "NOT_ACCEPTED:6success/1Intel workspaces fixture failure; ARMmachineNative+visualPASS; noIntelNative/DMG",
+  "native_pair_accepted": false,
+  "package_pair_accepted": false,
+  "failure_detail": {
+    "head": "bf67629f7911531fec52ec31e59c9508f814f9fd",
+    "actual_checkout": "b0daefb57a35a47e2f708e02df8d14b578e76148",
+    "product_run": 40652731429,
+    "environment_run": 40652731215,
+    "failure_job": 122696734328,
+    "failure_stage": "Core and native host tests / workspace workspaces command_validation",
+    "test": "scripts::expected_exit_zero_cannot_accept_missing_or_oversized_output",
+    "source_line": 898,
+    "actual_assertion": {
+      "left": null,
+      "right": "Some(0)"
+    },
+    "test_result": "12passed/1failed/0ignored in platform script suite",
+    "prior_assertions_passed": [
+      "run.passed=false",
+      "file_integrity.passed=false"
+    ],
+    "actual_RunReason": "not printed; unknown",
+    "source_fixture": "First finite printf stdout-only branch and second infinite oversized-output loop both override wall_time_ms30; normal Fixture.settings has1000",
+    "not_this_failure": [
+      "Core command14 actuallypassed",
+      "Provider20/original4MiB500ms case actuallypassed",
+      "not45minute overall budget cancellation"
+    ],
+    "raw_log_sha256": "49438587967d786eee591b202b9c3774bbf346e6352da1d6d8e22c481db51008",
+    "test_source_sha256": "1ec8708817bb72197be4fb44afec25155810e70dc4c0fc6e3973f86fe912cfd5",
+    "native_Intel": "not reached/no artifact peractualAPI+no-files upload annotation",
+    "Intel_default_release_audit_and_DMG": "not reached/absent",
+    "ARM": "wholejobsuccess; machineNative+actual visual taskscreen+defaultreleaseauditPASS; oneDMG; noNativecapturefailureestablished",
+    "result": "NOT_ACCEPTED:6success/1Intel workspaces fixture failure; ARMmachineNative+visualPASS; noIntelNative/DMG",
+    "observed_utc": "2026-10-28T08:10:47.374898+00:00",
+    "ARM_visual_correction": "ARM_VISUAL_CORRECTION.json"
+  },
+  "arm_visual": {
+    "subject_head": "bf67629f7911531fec52ec31e59c9508f814f9fd",
+    "actual_checkout": "b0daefb57a35a47e2f708e02df8d14b578e76148",
+    "artifact_id": 12800709441,
+    "png": "/workspace/.onboarding/goal-native-bf676/arm-native-verified/native-screen.png",
+    "png_sha256_before_and_after_recheck": "ec5d9903e51d4a1bb33df7edabbc6b12ab9bf78dec9ec913db508d95551939d7",
+    "dimensions": [
+      1136,
+      793
+    ],
+    "reviewer": "/root/data_native_integration_review",
+    "observed_utc": "2026-10-28T08:19:45.855610+00:00",
+    "reinspection_method": "tools.view_image(path exact originalPNG,detail original) followed by image(result.image_url, original); actual image forwarded to visual context",
+    "correct_visual_result": "PASS for captured actual task screen",
+    "visible_content": [
+      "AgentBaton title and icon",
+      "sidebar icons and local daemon connected status",
+      "task title \u539f\u751f WebView\u2192IPC persistent task",
+      "Draft state",
+      "Conversation/Artifacts/Details tabs",
+      "chat bubble",
+      "execution configuration affordance",
+      "message composer with project/connection selectors"
+    ],
+    "previous_judgment": "The prior nearly blank/no task UI observation was incorrect and is withdrawn. It is a reviewer interpretation error, not evidence of a product or capture fault.",
+    "cause_of_prior_error": "not established; no inference about tools, compositor, paint timing or product display regression",
+    "supersedes_visual_failure_claims_in": [
+      "ARM_VISUAL_FAILURE.json",
+      "CI_BF_FAILURE.json",
+      "CHECKPOINT.json",
+      "verification-manifest.json",
+      "NATIVE_BF676_REVIEW.md"
+    ],
+    "preservation": "All original reports/manifests/image bytes remain unchanged and hashverified as history; only new correction/final files written",
+    "unchanged_actual_blocker": "Intel scripts::expected_exit_zero_cannot_accept_missing_or_oversized_output failed Some(0) versus None;6success/1failure; noIntelNative/DMG; stillnotaccepted",
+    "no_action": "No image editing or substitution, source/capture/product change, CI trigger/retry/cancel, account/model action"
+  },
+  "arm_machine_native": {
+    "artifact_id": 12800709441,
+    "name": "native-webview-macos-15-b0daefb57a35a47e2f708e02df8d14b578e76148",
+    "api_sha256": "sha256:eb1c3cc0c13893f5f81ea7142d9d2978917279ced5552200e81a0c8d9944c531",
+    "local_sha256": "eb1c3cc0c13893f5f81ea7142d9d2978917279ced5552200e81a0c8d9944c531",
+    "size": 163241,
+    "entries": 5,
+    "safe_zip_crc": "passed",
+    "commit": "b0daefb57a35a47e2f708e02df8d14b578e76148",
+    "architecture": "aarch64",
+    "report_status": "passed",
+    "command_readonly_checks": 3,
+    "data_readonly_checks": 3,
+    "goal_strict_js_checks": 3,
+    "goal_readonly_database": {
+      "after": {
+        "attempt_count": 0,
+        "plan_count": 0,
+        "scope_count": 0,
+        "sequence": 3
+      },
+      "before": {
+        "attempt_count": 0,
+        "plan_count": 0,
+        "scope_count": 0,
+        "sequence": 3
+      },
+      "read_only": true,
+      "unchanged": true
+    },
+    "fixture_project_id": "520d95bb-c69b-49bf-8121-f700cb97931c",
+    "task_id": "8683fb07-4093-4d55-8f86-d4a6ffb0ad10",
+    "lifecycle": "passed",
+    "native_dialog": "not_run_manual_acceptance_required",
+    "provider_models": "not_run_not_authorized",
+    "png": "/workspace/.onboarding/goal-native-bf676/arm-native-verified/native-screen.png",
+    "png_dimensions": [
+      1136,
+      793
+    ],
+    "files": {
+      "native-smoke.json": "7b84edb1173ba78c567f66c116d604bd46048ec8be4dea245b471a9b051b21aa",
+      "native-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native-screen.png": "ec5d9903e51d4a1bb33df7edabbc6b12ab9bf78dec9ec913db508d95551939d7",
+      "lane.log": "eb1674078901ffdcd84a50543e2cf6e7cd87f5b3ca8f1f7bb9e1c4b311545270",
+      "native-runner.json": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+    }
+  },
+  "single_arm_package": {
+    "artifact_id": 12801096492,
+    "zip_digest": "sha256:e9683a0dfb607eb8d33a40ed63ca239d9a9fe7c539169a39b5ffdb2524bda851",
+    "dmg": "AgentBaton-arm64-b0daefb57a35a47e2f708e02df8d14b578e76148-development.dmg",
+    "dmg_sha256": "645c8c688b4b95479c23fd9173d923a9e9869d8cb67a1f16cf17413972da5a43",
+    "UDIF_SHA256SUMS_buildrecord_checklist": "PASS",
+    "actual_build_record": "commit=b0daefb57a35a47e2f708e02df8d14b578e76148\narchitecture=arm64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: aarch64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.20.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\nExecutable=/Users/runner/work/AgentBaton/AgentBaton/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop\nIdentifier=agentbaton_desktop-49528096917a5b7e\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=102472 flags=0x20002(adhoc,linker-signed) hashes=3198+0 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=984320\nHash type=sha256 size=32\nCandidateCDHash sha256=5da4078288e820838eab24814df84b22144202a9\nCandidateCDHashFull sha256=5da4078288e820838eab24814df84b22144202a90c3a11373dbacccb561dcfdc\nHash choices=sha256\nCMSDigest=5da4078288e820838eab24814df84b22144202a90c3a11373dbacccb561dcfdc\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=8470528\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=5da4078288e820838eab24814df84b22144202a9\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements=none\n",
+    "pair_accepted": false,
+    "limit": "singleARMartifact from failedProduct run; noIntelpackage/no full7 acceptance"
+  },
+  "source_proof": "source-and-candidate-verification.json contains exactactualcheckout all3completedEnvlogs plusGitAPI/sourcehash binding",
+  "limits": [
+    "Historical0a ARM500ms rootcauseunknown; newdiagnostics not productionfix",
+    "NoIntelNative/defaultreleaseaudit/DMG reached",
+    "NoactualOwnerDialog/liveProvider/minOS/userinstall/formalsigning acceptance",
+    "No oldsource/screenshots/checks/packages borrowed",
+    "No Cargo/source/index/CItrigger/cancel/retry/push/merge/account/model actions; boundedreadonlywatcher naturally ended"
+  ],
+  "review_correction": "Earlier blankPNG judgment withdrawn as reviewer error. Original wrong reports/manifests preserved unchanged, not silentrewrites. Corrected final only Intel fixture blocks required7."
+}

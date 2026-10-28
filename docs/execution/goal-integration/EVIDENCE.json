@@ -1,0 +1,549 @@
+{
+  "approval": "AB-START-001",
+  "composition_source": "21e2ce2",
+  "backend_source": "2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7",
+  "frontend_source": "98a38d4cd486afa2a4fe476d0f464f1763d0805a",
+  "frontend_actual": {
+    "tests": 229,
+    "files": 15,
+    "typecheck_build": "passed",
+    "log": "/workspace/.onboarding/goal-integration-ui-tests.log"
+  },
+  "workspace": "6c first composition447unique+4docs passed; history delta2cad independently+integratedCore210 passed; no claim new fullworkspace rerun",
+  "integration_gaps": "H1/H2 fixed; R1/R2 remain closed; independent Backend review passed",
+  "actual_goal_browser": {
+    "status": "passed",
+    "checks": [
+      {
+        "name": "actual outside-HTTP Goal approval preserves execution bindings and does not accept task",
+        "status": "passed",
+        "scope_id": "01c88f4e-8358-441c-a114-89b072b8c824",
+        "task_id": "79656452-d1c8-4502-8e27-7ea36ef26633"
+      },
+      {
+        "name": "real UI lazily lists an independently approved Goal and empty immutable plan history",
+        "status": "passed"
+      },
+      {
+        "name": "actual UI stores original raw plan bytes and server-derived scope references without dispatch",
+        "status": "passed",
+        "plan_digest": "9cea322cd8e68f254796a9ce3097f9001b2762db9639322230a6bcde7a217ea2",
+        "raw_sha256": "1c665b7b697239a99cffca894e1ab296355ef9fe585c90e87e21a5d9dac4f0e9"
+      },
+      {
+        "name": "real UI preview and direct repeat leave journal, ledgers, attempts, leases and execution unchanged",
+        "status": "passed"
+      },
+      {
+        "name": "exact-key replay is read-only; whitespace/key conflict, stale CAS and raw nested duplicates are refused by actual Core",
+        "status": "passed"
+      },
+      {
+        "name": "actual UI revises with correct CAS and retains immutable first revision; stale preview is refused",
+        "status": "passed"
+      },
+      {
+        "name": "test HTTP adapter refuses approval, generic IPC, execution, forged scope, extra fields and boolean revisions",
+        "status": "passed"
+      },
+      {
+        "name": "real input drift refuses live preview, clears old observation and disables new UI writes while retaining strict history",
+        "status": "passed"
+      },
+      {
+        "name": "revoked scope permits strict historical reads/exact-key replay while UI and Core deny new plans and previews",
+        "status": "passed"
+      }
+    ],
+    "screenshots": 6,
+    "primary_report": "docs/execution/goal-integration/BROWSER_HISTORY_PRIMARY.json",
+    "primary_report_sha256": "f349971f037f253a2fbdc307888e35791213fd7abd3cfdb2f2937c981b45c6f6",
+    "independent_report": "/workspace/.onboarding/goal-ui-real-ipc-history-independent-capture/report.json",
+    "independent_report_sha256": "7d6f789f3c7fd744f5bc9f502eed6e52c9a5abf5256dac787fa99a67dd1f066e",
+    "review": "docs/execution/goal-ui-real-ipc/REVIEW.md",
+    "review_sha256": "7331dfca04a424042cda8b3b7d620a6f4610a63a8f5c9e26e3271bd1d6bb3d1c",
+    "script_sha256": "f7d13bbbdd378ab4ab8e70c5b85bed1d6f806a36c5ef0eed2c060ba982a09c52",
+    "daemon_sha256": "dcbab69b9d0abcdca8c1da5c80da7ab5d6453a6890cf7ed0cd059df8f16da6bd",
+    "dimension": "actual Linux builtReact/privateUnixIPC; no OS native Owner dialog or actual Goal dispatch",
+    "screenshot_limit": "06 is upper form framing; revoked behavior proven by actual UI/Core checks rather than the PNG alone"
+  },
+  "actual_native_owner_dialog": "not_run",
+  "actual_macOS": "not_run",
+  "goal_dispatch": "not_implemented",
+  "task_acceptance": "not_established",
+  "first_composition": {
+    "source": "6c023f0",
+    "backend": "1a3236a94b1b6a6346d1ee604bb23b1a595425bc",
+    "workspace_unique": 447,
+    "compilefail_docs": 4,
+    "raw_passed_sum": 452,
+    "nested_fifo_child": 1,
+    "clippy_fmt": "passed",
+    "frontend_229_type_build": "passed",
+    "logs": {
+      "goal-integration-workspace-tests.log": "1af31a63d6112b1ca53c6629e2006c6e4cbbeb98f7632d53366bb0b3eca8d8ca",
+      "goal-integration-workspace-clippy.log": "b3eb772ffd304ae7fc880386b0ffd4a8521178c3bc2879cb5c55b3bf30b886be",
+      "goal-integration-workspace-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "goal-integration-ui-tests.log": "d24f08715eeef6c42eabb1c57ddf9404ddce8805c9e42f2551aee4f10d4c073b",
+      "goal-integration-ui-build.log": "b6bf3116152c85173b1e960f061f74e24d996f2174b4f7e3903f3ad72a4bb7f4",
+      "goal-integration-old-sidecars-build.log": "22c88deca3a0fe8f21e4ec27e0be2871d565b42d5723127a8a020da06cde58f2"
+    },
+    "old_daemon": "/workspace/.onboarding/goal-composition-old-binaries/manifest.json",
+    "old_daemon_sha256": "66663629d716ec8dbd999aa45b375a9c6100a3392dc80ae9a7f92fa12144f303"
+  },
+  "history_core_actual": {
+    "unique_tests": 210,
+    "raw_passed_sum": 211,
+    "nested_fifo_child": 1,
+    "clippy_fmt_sidecars": "passed",
+    "source_sha256": "7641899c7289293857fe21d16e08c7422376a319b2ea049be6618e548009f0aa",
+    "logs": {
+      "goal-integration-history-core-tests.log": "b07067bbafdb9a67eccf017e03b3145aea0c1f7766d293147030783ddbc08fe6",
+      "goal-integration-history-clippy.log": "6da8afc11c52ce14ced80f5707acaa910e1837e56c130edabeda64145c2b4eaf",
+      "goal-integration-history-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "goal-integration-history-sidecars.log": "e95b0d4fc32025a7ecd68fb67c28c54abdb6aabeb5ce039fb8e15974c1368dff"
+    },
+    "independent_review_sha256": "d044e277ef5738a86b3b2414ab748a36ad1e963ec72a7e7cc7604b9959772a3c"
+  },
+  "ci": "PR13 aeff exact Product40471245384 Rust/UI succeeded; full replacement Environment40471315226 all3success; bothMac failed newfixture10/11 beforeWebView; retained CI_AEFF_FAILURE and independent NATIVE_AEFF_REVIEW. cfg(test)-only canonicalfixture fix8fde +13/12/lints author/independent passed; newexact7/native/dualpackages pending",
+  "resource_cache_retirement": "/workspace/.onboarding/completed-worktree-cache-retirement.json",
+  "protected_main": "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+  "upstream_command_acceptance": "docs/execution/command-integration/MERGE_58B5.json",
+  "same_model_editor": {
+    "source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
+    "ui_tests": 259,
+    "type_build": "passed independently and composed before upstream merge",
+    "review_sha256": "ef1271edc064eb8c4989295e0de34fb445476acbff6882910f560d990edf192a",
+    "known_local_draft_bug": "F1 exactnodeid numeric-cache collision closed; same semantic oldFAIL retained",
+    "actual_structured_flow": {
+      "script_source": "1707ada6a0a11379214af4300c0a23433bc2e807",
+      "script_sha256": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018",
+      "frozen_daemon_sha256": "2b4a302c4e992df9c01cde404c03ba526cf411eb24ecbc7aadc4e85fb8be771e",
+      "independent_default_checks": 9,
+      "independent_structured_checks": 10,
+      "screenshots": 15,
+      "report_default": "docs/execution/goal-integration/BROWSER_EDITOR_DEFAULT.json",
+      "report_structured": "docs/execution/goal-integration/BROWSER_EDITOR_STRUCTURED.json",
+      "review_sha256": "c4fec155aeadd600ccdd50fe4467039c745e915a395f672b075e8c6fdf672e7d",
+      "dimension": "LinuxChromium actualbuiltUI/privateUnixIPC; freshstore, not nativeOwner/Mac/dispatch"
+    }
+  },
+  "editing_context": {
+    "source": "589b1a8",
+    "source_sha256": "1b040978a6de912a69e6c7d5d82588965fc7291a48774b60e0019157f377d539",
+    "actual_store_tests": 34,
+    "independent_original_legacy_probe": "oldactualFAIL101/fixedunchangedprobePASS, fourAPIs read withoutjournalchange",
+    "clippy_fmt": "passed",
+    "review_sha256": "d28756abb6f03a3b428445c2704159222f4094fd505eb947317e0999f108c772",
+    "legacy_cache": "missingnewdisplayfield compatible only, everyoriginalfield/presentorNulltamperstrict; realpersistedcachebyteunchanged"
+  },
+  "resource_cache_retirement_latest": "/workspace/.onboarding/original-completed-target-retirement.json",
+  "native_goal_readonly_candidate": {
+    "source": "9244f652af1c08ec1eea5a5851b3627ef34eee50",
+    "author_linux_host_tests": 13,
+    "author_linux_harness_tests": 11,
+    "author_python_runner_tests": 17,
+    "author_built_ui_checks": 38,
+    "author_built_ui_png": 24,
+    "final_postfixture_clippy_fmt": "passed author and independent",
+    "independent_review": "passed; P2 oldactualFAIL101 -> samecontrol actualbindPASS0; unchanged production private permissions",
+    "macOS": "aeff bothMac fixture10/11failed beforeGUI, not verified; new8fde canonicalfixture awaits newexactCI",
+    "goal_assertions": "3 strict JS boolean flags plus independent fixed readonly DB counts/sequence invariant; no fourth JS flag claimed",
+    "review": "docs/execution/goal-native-readonly/REVIEW.md",
+    "review_sha256": "6851f0510c0c580045dec63d8301d8e2ddf972a0c918d465d9a74e06187e4bd3",
+    "independent_manifest_sha256": "7dc96abc0468c6527124048a33ff2694c46488db6857dbdddfef8872584fdd21",
+    "root_rehashed_source_evidence_png_items": 46,
+    "independent_linux_host_tests": 13,
+    "independent_linux_harness_tests": 11,
+    "independent_runner_tests": 17,
+    "independent_browser_checks": 38,
+    "independent_browser_png": 24,
+    "independent_browser_daemon_sha256": "2b4a302c4e992df9c01cde404c03ba526cf411eb24ecbc7aadc4e85fb8be771e"
+  },
+  "current_composed_frontend_actual": {
+    "source": "2b8b6d7",
+    "tests": 259,
+    "files": 16,
+    "typecheck_build": "passed",
+    "logs_manifest": "/workspace/.onboarding/goal-integration-current-ui.json",
+    "dimension": "current composed frontend; native fixture review still pending"
+  },
+  "native_runner_current_actual": {
+    "source": "a6bad87",
+    "tests": 17,
+    "status": "passed",
+    "dimension": "Python failure contracts only, not real macOS or native DBbind"
+  },
+  "current_composed_rust_actual": {
+    "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+    "workspace_unique_unit_integration": 462,
+    "compilefail_docs": 4,
+    "nested_fifo_child_not_double_counted": 1,
+    "raw_passed_sum": 467,
+    "failed": 0,
+    "ignored": 0,
+    "fmt_clippy_sidecars": "passed",
+    "log_manifest": "/workspace/.onboarding/goal-integration-current-rust.json",
+    "workspace_log_sha256": "c6503adb1aea9ae20e1932ba6e51f0508434beb449c0e3780f3c17096099a43d",
+    "current_binary_manifest": "/workspace/.onboarding/goal-integration-current-binaries/manifest.json",
+    "local_smoke": "passed exact frozen new daemon/CLI; Unicode/idempotency/cancel/journal/SIGKILL-restart",
+    "RUST_TEST_THREADS": 1
+  },
+  "current_composed_browser_actual": {
+    "source": "f35cdb1f85e416edb3bf16c55f0a8275bdd59ae1",
+    "daemon_sha256": "4fa6a499042e99cb5b718ffb8f6f4a26613ddb64222d35d13d7d21527475d01c",
+    "dimension": "fresh actual built React + fixed test-only HTTP adapter + real private Unix IPC/SQLite; no native Owner dialog/real Provider/Mac/Goal dispatch",
+    "manifest": "/workspace/.onboarding/goal-integration-current-browser/manifest.json",
+    "manifest_sha256": "8a39f570e66c97ecbea74753bc0fb12a648666d8f5255dcd132856c064dcb898",
+    "flows": [
+      {
+        "name": "quiet",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "apps/desktop/tests/quiet-canvas-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/goal-integration-current-binaries/batond",
+          "--chromium",
+          "/usr/bin/chromium",
+          "--output",
+          "/workspace/.onboarding/goal-integration-current-browser/quiet"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 9.03,
+        "log": "/workspace/.onboarding/goal-integration-current-browser/quiet.log",
+        "log_sha256": "2ec52b37d9b68432fb0b4c4902ba4b698f97a266c04d35f5ab71088e1e1826be",
+        "checks": 38,
+        "screenshots": 24,
+        "report": "/workspace/.onboarding/goal-integration-current-browser/quiet/evidence.json",
+        "report_sha256": "a2d441692af0acc7bab5e56f666558400768eb7f43db969f605cd7fcaf93210c"
+      },
+      {
+        "name": "commands",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "apps/desktop/tests/command-validation-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/goal-integration-current-binaries/batond",
+          "--chromium",
+          "/usr/bin/chromium",
+          "--output",
+          "/workspace/.onboarding/goal-integration-current-browser/commands"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 6.36,
+        "log": "/workspace/.onboarding/goal-integration-current-browser/commands.log",
+        "log_sha256": "f03998c5b8452d8ff93c34d82e8fdb9a0e430e378001862cf398032e86225515",
+        "checks": 5,
+        "screenshots": 2,
+        "report": "/workspace/.onboarding/goal-integration-current-browser/commands/evidence.json",
+        "report_sha256": "280b006461643906e937ced68098bf1791428b69c06494453fd1c9868ec8ddfa"
+      },
+      {
+        "name": "goal-default",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "apps/desktop/tests/goal-planning-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/goal-integration-current-binaries/batond",
+          "--chromium",
+          "/usr/bin/chromium",
+          "--output",
+          "/workspace/.onboarding/goal-integration-current-browser/goal-default"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 5.07,
+        "log": "/workspace/.onboarding/goal-integration-current-browser/goal-default.log",
+        "log_sha256": "a9472e60a7988474e24b913667246ee38c0e5b34976ca58b99cb1ffadde50829",
+        "checks": 9,
+        "screenshots": 6,
+        "report_sha256": "ffff2795f490e322f7d01c41d7ccefc1fc93f640ecc86ca6f5d184766c7f8af8",
+        "report": "/workspace/.onboarding/goal-integration-current-browser/goal-default/report.json"
+      },
+      {
+        "name": "goal-editor",
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "apps/desktop/tests/goal-planning-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/goal-integration-current-binaries/batond",
+          "--chromium",
+          "/usr/bin/chromium",
+          "--output",
+          "/workspace/.onboarding/goal-integration-current-browser/goal-editor",
+          "--structured-editor"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 6.13,
+        "log": "/workspace/.onboarding/goal-integration-current-browser/goal-editor.log",
+        "log_sha256": "58e205d594c0e06e89a484e8be69764d59d32b4fb03982dca59cd0e21740298e",
+        "checks": 10,
+        "screenshots": 9,
+        "report_sha256": "257349112891d86372883cefbce56918002a76d4364fd3f09b41033a0ebc319b",
+        "report": "/workspace/.onboarding/goal-integration-current-browser/goal-editor/report.json"
+      }
+    ],
+    "root_visual_review": [
+      "quiet/home-1440x900.png",
+      "quiet/goal-readonly-1440x900.png",
+      "goal-editor/editor-02-applied-local-draft.png"
+    ],
+    "screenshot_limit": "Goal readonly1440 capture frames panel heading; below-fold disabled/empty controls proved by actual DOM/IPC assertions, not PNG alone"
+  },
+  "native_fixture_alias_correction": {
+    "source": "8fde8b658bf49d18bd1f88290d16e3adc6278b5c",
+    "source_sha256": "775f355327660a3d21c51ddc317c9ac958c870b58dd7c1ee8c633efba8c12309",
+    "change": "cfg(test) only, production paths/guards/timeouts unchanged; original11 tests retained plus actual ownedalias regression",
+    "author_host_harness_clippy_fmt": "13+12 passed",
+    "independent_host_harness_clippy_fmt": "13+12 passed; source outsidecfg(test) byte-identical, report830d67fc andmanifest3f153c2b independently rehashed",
+    "fresh_macOS": "not_run yet",
+    "review_sha256": "830d67fc2153ded6ce8fd9aac760147655758f2b4a2ebb798b2588395791328c",
+    "verification_manifest_sha256": "3f153c2b19cbca1a05bbfdd9aaf941af1b6e25b5db3476e57b4a87f15bee23b3"
+  },
+  "quota_resume_2026_10_28": {
+    "subject_head": "0a0beac38260cc426b4a0887b2bf59937ec9ff90",
+    "actual_checkout": "3d958a30235090aa7c3e86c75fde6b14df6575e5",
+    "main": "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+    "product_run": 40475194913,
+    "environment_run": 40475194909,
+    "result": "FAILED: 5 success / 2 macOS failure; no merge",
+    "arm": {
+      "job": 122091591692,
+      "failure": "native_codex fault-mode startup helper: Timeout/Unknown; 18/19; original500ms",
+      "original_mode": "unknown",
+      "root_cause": "unknown; not reproduced",
+      "new_change": "f61842cf failure-only bounded safe diagnostics, not production performance fix",
+      "independent_local": "20/20 plus all-target Clippy/fmt; same500ms and fixture bytes",
+      "raw_log_sha256": "dcd64d5e1475e0acbf3f9042f76db918840d31f735b92d6aa04822d53dd6da0f"
+    },
+    "intel": {
+      "job": 122091591770,
+      "failure": "new alias control canonical socket bind INTERNAL_ERROR; host13 passed, harness11/12; original canonical test passed",
+      "historical_path_errno": "not observed; socket length hypothesis, independent Linux132-byte FAIL/41-byte PASS only mechanism",
+      "new_change": "6a798204 cfg(test) actual runtime at original helper depth; separate alias namespace; production unchanged",
+      "independent_local": "13host+12harness/Clippy/fmt pass under umask022",
+      "raw_log_sha256": "acf186178c4b94ad3ae41d6febc0282fccdb8f929d753d90971fdd0b94759d50"
+    },
+    "not_established": [
+      "new macOS WebView/native report/PNG/lifecycle/default-release audit",
+      "new dual development DMGs",
+      "real Provider/model/Owner dialog/minimumOS/user installation",
+      "full Goal dispatch/acceptance/full130 completion"
+    ],
+    "resume": {
+      "date_utc": "2026-10-28T06:50:29.507416+00:00",
+      "main_fetched": true,
+      "owner_inbox": "001/002 reread ACK; no003",
+      "local_code_head": "ab2d810",
+      "next": "normalpush one new proof head, exact 7 checks and independent new native/package evidence; no ready toggle or manual duplicate"
+    },
+    "independent_reviews": {
+      "socket": "docs/execution/goal-native-readonly/SOCKET_FIX_REVIEW.md",
+      "provider": "docs/execution/provider-startup-evidence/REVIEW.md",
+      "CI": "docs/execution/goal-integration/NATIVE_0A0B_REVIEW.md"
+    }
+  },
+  "A2C5_final": {
+    "subject_head": "a2c5bcf47fd60d66207e2cc93c94db4f7f648057",
+    "actual_checkout": "c67d741713c35af95ef146799f36c52b2f268f6c",
+    "parents": [
+      "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+      "a2c5bcf47fd60d66207e2cc93c94db4f7f648057"
+    ],
+    "equal_tree": "f94524652da859991b2af9eada2d39ea26a60607",
+    "product_run": 40646347414,
+    "environment_run": 40646347269,
+    "verdict": "NOT_ACCEPTED: Product cancelled; Intel release application build exceeded 30-minute overall job budget",
+    "required_checks": "6 success / 1 cancelled",
+    "native_pair_accepted": true,
+    "native_artifacts": [
+      {
+        "artifact_id": 12797824062,
+        "name": "native-webview-macos-15-c67d741713c35af95ef146799f36c52b2f268f6c",
+        "api_sha256": "sha256:9fd87df10fadfad13966507dc7928a69b464719ff4f3eb62dffccd186ac87881",
+        "local_sha256": "9fd87df10fadfad13966507dc7928a69b464719ff4f3eb62dffccd186ac87881",
+        "size": 162036,
+        "entries": 5,
+        "safe_zip_crc": "passed",
+        "commit": "c67d741713c35af95ef146799f36c52b2f268f6c",
+        "architecture": "aarch64",
+        "report_status": "passed",
+        "command_readonly_checks": 3,
+        "data_readonly_checks": 3,
+        "goal_strict_js_checks": 3,
+        "goal_readonly_database": {
+          "after": {
+            "attempt_count": 0,
+            "plan_count": 0,
+            "scope_count": 0,
+            "sequence": 3
+          },
+          "before": {
+            "attempt_count": 0,
+            "plan_count": 0,
+            "scope_count": 0,
+            "sequence": 3
+          },
+          "read_only": true,
+          "unchanged": true
+        },
+        "fixture_project_id": "024ce47d-c2b3-4a61-b944-b8dc66c418ff",
+        "task_id": "e2946057-d93b-47b2-9ad1-49c5eeb75a1d",
+        "lifecycle": "passed",
+        "native_dialog": "not_run_manual_acceptance_required",
+        "provider_models": "not_run_not_authorized",
+        "png": "/workspace/.onboarding/goal-native-a2c5/resumed-independent/arm-native-verified-aarch64/native-screen.png",
+        "png_dimensions": [
+          1136,
+          793
+        ],
+        "files": {
+          "native-smoke.json": "e8195dd9fe1d3338ce7fef3b4a5ba98e45f3f5d1f2d02fa06683dcdc3ed13d6d",
+          "native-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "native-screen.png": "d6a19853e10b8422a9943b2e10e08fb4e97691f22c4a93adaadc769d42c1f7c6",
+          "lane.log": "08d6baf2d99474421eb68fd392958faf016cc747bca5268d1ef202c66819b249",
+          "native-runner.json": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+        }
+      },
+      {
+        "artifact_id": 12798925619,
+        "name": "native-webview-macos-15-intel-c67d741713c35af95ef146799f36c52b2f268f6c",
+        "api_sha256": "sha256:9ff273e4a1779df6192ca11b799960303e92e8146eaea450170947f0600307d4",
+        "local_sha256": "9ff273e4a1779df6192ca11b799960303e92e8146eaea450170947f0600307d4",
+        "size": 200115,
+        "entries": 5,
+        "safe_zip_crc": "passed",
+        "commit": "c67d741713c35af95ef146799f36c52b2f268f6c",
+        "architecture": "x86_64",
+        "report_status": "passed",
+        "command_readonly_checks": 3,
+        "data_readonly_checks": 3,
+        "goal_strict_js_checks": 3,
+        "goal_readonly_database": {
+          "after": {
+            "attempt_count": 0,
+            "plan_count": 0,
+            "scope_count": 0,
+            "sequence": 3
+          },
+          "before": {
+            "attempt_count": 0,
+            "plan_count": 0,
+            "scope_count": 0,
+            "sequence": 3
+          },
+          "read_only": true,
+          "unchanged": true
+        },
+        "fixture_project_id": "ed50291a-9689-4189-a4c4-362fa9b64403",
+        "task_id": "9056c144-ffb7-4862-bc65-0d2aeba4d03c",
+        "lifecycle": "passed",
+        "native_dialog": "not_run_manual_acceptance_required",
+        "provider_models": "not_run_not_authorized",
+        "png": "/workspace/.onboarding/goal-native-a2c5/resumed-independent/intel-native-verified/native-screen.png",
+        "png_dimensions": [
+          1292,
+          912
+        ],
+        "files": {
+          "native-smoke.json": "8bfb16fc187bccb682020939f08608a50567a0c997ef5d16240efa422033f989",
+          "native-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "native-screen.png": "19beeac91f91b03be0857669943ffb7cdffc8247e5665725f794f1a4fa5a0d70",
+          "lane.log": "43de4d81c487e228200e46441c0b09e753ee729c7f4eb8d5fe309c6e51cbeb3f",
+          "native-runner.json": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+        }
+      }
+    ],
+    "development_package_pair_accepted": false,
+    "single_ARM_package_integrity": {
+      "artifact_id": 12798695626,
+      "api_zip_digest": "sha256:c77340119268b118ee7635859000f5078116efd2f35d20303abdd62d6797c629",
+      "dmg": "AgentBaton-arm64-c67d741713c35af95ef146799f36c52b2f268f6c-development.dmg",
+      "dmg_sha256": "d99d96148806aea3b1076ffa9205e1f1d5c74408ab7d45901c9cf3aac6f1e117",
+      "udif_trailer": "koly",
+      "SHA256SUMS": "matched",
+      "build_record_commit": "c67d741713c35af95ef146799f36c52b2f268f6c",
+      "architecture": "arm64",
+      "actual_signing": "adhoc/linker-signed; no Developer ID or notarization; TeamIdentifier not set",
+      "known_limits": "single ARM dev artifact only; run cancelled and Intel package absent; no package pair accepted",
+      "build_record": "commit=c67d741713c35af95ef146799f36c52b2f268f6c\narchitecture=arm64\nchannel=development; no Developer ID signing or notarization configured\nProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nrustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: aarch64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1\nv24.20.0\nXcode 16.4\nBuild version 16F6\nSignature inspection follows; ad hoc signatures do not establish a trusted publisher.\nExecutable=/Users/runner/work/AgentBaton/AgentBaton/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop\nIdentifier=agentbaton_desktop-49528096917a5b7e\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=102472 flags=0x20002(adhoc,linker-signed) hashes=3198+0 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=984320\nHash type=sha256 size=32\nCandidateCDHash sha256=5da4078288e820838eab24814df84b22144202a9\nCandidateCDHashFull sha256=5da4078288e820838eab24814df84b22144202a90c3a11373dbacccb561dcfdc\nHash choices=sha256\nCMSDigest=5da4078288e820838eab24814df84b22144202a90c3a11373dbacccb561dcfdc\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=8470528\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=5da4078288e820838eab24814df84b22144202a9\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements=none\n"
+    },
+    "intel_failure": {
+      "job": 122675947130,
+      "started_at": "2026-10-28T06:50:51Z",
+      "completed_at": "2026-10-28T07:21:08Z",
+      "conclusion": "cancelled",
+      "exact_annotation": "The job has exceeded the maximum execution time of 30m0s",
+      "stage": "Build desktop UI and application",
+      "last_logged_compilation": "agentbaton-core",
+      "default_release_audit": "skipped",
+      "package": "skipped; absent from final artifact API",
+      "raw_log_sha256": "6bbe1a20a9303442258175f8ec916b57ef641ee3619525e95a446cd6a7492073",
+      "native_tests": "13host+12harness, realWebView/lifecycle passed",
+      "grant_original_duration_ms": 1000,
+      "fresh_remaining_ms": 997,
+      "actual_session_admission_rpc_ms": 699
+    },
+    "ARM": {
+      "job": 122675947044,
+      "whole_job": "success",
+      "raw_log_sha256": "47cde4871ad629ef7eaa8242495c666ce0a0b33b06c57088e83a7e80da70febe",
+      "native_tests": "13host+12harness; Provider20, command14",
+      "grant_original_duration_ms": 1000,
+      "fresh_remaining_ms": 998,
+      "actual_session_admission_rpc_ms": 654,
+      "default_release_audit": "passed; actual binary has no native harness identifiers"
+    },
+    "independent_reviewer": "/root/data_native_integration_review resumed after predecessor platform capacity interruption; predecessor evidence retained",
+    "source_objects": "commit-verification.json; exact source hashes checked against Git subject",
+    "reviewer_correction": "initial arm64/aarch64 audit caller mismatch preserved, corrected on unchanged artifact in exclusive directory",
+    "historical_limits": [
+      "Old0a ARM initialize500ms cause remains unknown; failure-only diagnostics are not production performance fix",
+      "Old0a Intel generic socket error path/errno not observed; new direct-depth fixture now actually passed bothMac, no historical errno invented",
+      "No native OS Owner dialog, live Provider/model, minimum-OS/user installation/signing/notarization acceptance",
+      "Goal read-only empty-scope check is not populated plan execution/reservation/dispatch/acceptance",
+      "Intel screenshot long project label creates visible sidebar horizontal scrollbar",
+      "No new successful dual development package pair or permission to merge failed/cancelled checks"
+    ],
+    "new_change": "Only desktop job wall-clock build budget30→45 +comments; all check steps/product deadlines/parallelism unchanged, independently reviewed",
+    "not_accepted": "No Intel release audit/package; exact new7 and newdualDMGs still required"
+  },
+  "03BB_failure_policy_correction": {
+    "head": "03bbec858c73b4c461fb63e98d50a51de79b37eb",
+    "product_run": 40650374473,
+    "environment_run": 40650374542,
+    "checkout": "cb41f7f94aa1850a1c33e2cdb75f86325928b855",
+    "tree": "cd9480e92e3a4b287d455c7bd91fed86014661a8",
+    "environment": "3fail: static blanket30m guard rejects desktop45; real failure preserved",
+    "product_before_replacement": "Rust/UI success; dualMac stillrunning; not accepted/merged",
+    "policy_change": "exactproduct/desktop fixed2Mac/runner/maxparallel2/failfastfalse limited45; every otherjob/workflow capped30; no Environmentworkflow bytes changed",
+    "local_checks": {
+      "Python": 34,
+      "Node": 4,
+      "static_infra": "passed",
+      "design": "passed",
+      "bootstrap": 93
+    },
+    "independent_checks": {
+      "guard_subset": 6,
+      "full_Python": 34,
+      "Node": 4,
+      "actual_main_controls": 12,
+      "static_infra_design_bootstrap93": "passed"
+    },
+    "old_tests": "all28original infrastructuretests remain byteidentical;6meaningful resourcepolicy methods added",
+    "reason": "Existing CI budget policy was intentionally narrowed to one documented coldbuild exception; products/process/RPC budgets/assertions unchanged",
+    "next": "new exact7 plusactual native pair/defaultaudit/dualDMGs, no old borrowing"
+  },
+  "BF676_final_corrected": {
+    "product_run": 40652731429,
+    "environment_run": 40652731215,
+    "result": "6success/1failure; Intel artifact fixture",
+    "source_fix": "14a20fe15b957f9e41df2e322451f5fed00b7ea7",
+    "local_cherry": "0d6cc55",
+    "independent_review": "docs/execution/artifact-contract-fixture/REVIEW.md",
+    "unique_tests": 27,
+    "limits": "Original infinite30ms remains; finite artifact fixtures use existing1000 default; no historical reason invented; no newMac result/dualpackage yet",
+    "authoritative_native_review": "NATIVE_BF676_REVIEW_CORRECTED.md",
+    "visual_correction": "ARM_BF676_VISUAL_CORRECTION.json"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "pr": 12,
+  "url": "https://github.com/wanderbot-auto/AgentBaton/pull/12",
+  "approved_head": "58b5d329ff009f07eef5ec9776b15a2676504dc6",
+  "actual_ci_checkout": "8f19d8f7a4c6db032351a28c7629d8df7882c383",
+  "merge": {
+    "sha": "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+    "merged": true,
+    "message": "Pull Request successfully merged"
+  },
+  "product_run": 40458672955,
+  "environment_run": 40458672868,
+  "actual_checks": [
+    {
+      "id": 122037850702,
+      "name": "Product / macos-15-intel",
+      "conclusion": "success"
+    },
+    {
+      "id": 122037850985,
+      "name": "Product / UI",
+      "conclusion": "success"
+    },
+    {
+      "id": 122037851006,
+      "name": "Product / macos-15",
+      "conclusion": "success"
+    },
+    {
+      "id": 122037851303,
+      "name": "Product / Rust",
+      "conclusion": "success"
+    },
+    {
+      "id": 122037850036,
+      "name": "Environment / macos-15-intel",
+      "conclusion": "success"
+    },
+    {
+      "id": 122037850193,
+      "name": "Environment / macos-15",
+      "conclusion": "success"
+    },
+    {
+      "id": 122037850248,
+      "name": "Environment / ubuntu-24.04",
+      "conclusion": "success"
+    }
+  ],
+  "review_sha256": "55d900b7695861fc2d435e899dd28f13e2751bc08d7434e2c737dcc3155118f1",
+  "packages": "docs/execution/command-integration/PACKAGES_58B5.json",
+  "acceptance": "command slice accepted after source/native/packages review and expectedhead/currentmain/all7/clean protection; full product not complete",
+  "limits": [
+    "serial independent CI fixtures; intra-test concurrency preserved; prior Linux uncontrolled cross-fixture pressure failed and not claimed satisfied",
+    "no actual native Owner dialog/model accounts/minimumOS/user-machine installation proof",
+    "root/project command shared budget/full raw stream history/Goal dispatch remain dependent work"
+  ]
+}

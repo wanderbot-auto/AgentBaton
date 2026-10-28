@@ -1,0 +1,23 @@
+# Goal scope/plan UI progress
+
+Read current AGENTS/gate and protectedmain OWNER001/002, QuietCanvas design and backend GoalStore/goal_plan contracts. Public DTO and rawplan_json wire were confirmed directly with backend author/primary before implementation. Backend accepted two relevant improvements: readonly budget_usage includes real consumed/active/children and nullablemeters; same-key nativeapproval proposal replay precedes new CAS resolution, preserving already-consumed history without granting new authority. Backend owns that implementation, not this branch.
+
+Source8ee7c10 adds a default-folded Details panel. First expansion loads actual rootgrants/Goalcopes via fixed commands; it keeps the homepage2N/singlecomposer intact. Scope form selects existing local rootgrant, exactCAS, child/depth/node ceilings, requested root/project limits, fixedSHA inputs and explicit outputs/validatorrefs/writableprefixes/Ownercriteria. NativeGoal kind independently reviews complete server-resolved before/after authority/counters; old kinds cannot substitute. Parent's pre-finalize not_started boundary is retained.
+
+Full manual versioned GoalPlanProposal graph JSON editing is wired to propose/revise/history. Original UTF8 text, whitespace, nestedduplicatefields and CAS/key are forwarded unchanged so Core typeddecoder can actually refuse them. Local bounded parser catches duplicates/unknown/unsafeinteger/depth/size before transport, supports multiple nodes, and blocks unavailable remote/external/production scopes. No dispatch, resource reservation or fake generated planner runs. Readonly previews show exact actual-returned budgetusage, unknownmeter names, reasons and candidateIDs only. Null is displayedunknown, never0; historicalmissingruntime/output blocks are preserved.
+
+Actual224UI in15files/typecheck/build pass; original182tests in13files remain byte-identical. Actual Linux native13unit/check/Clippy/fmt pass using the parent-approved existingcache/JOBS2/incremental0/sysroot. The resources are actualschema8LinuxDEBUG binaries with verified parentSHA, solely compilation resources; no Core9/nativewindow/Mac delivery claim. Native target released after completion; no new large dependencies/targets or deletion of user data/logs/artifacts.
+
+Failed evidence retained: initial37-case run had one summary/time DOMquery mismatch; corrected query retains full visibletext assertion. Initial full219 run exposed hidden Goalalert collision with an unchanged oldApp assertion; real progressive-disclosure fix defers reads and livealerts until user expansion, with regression. Two additional negative controls failed for fixed-key recovery after revoked authority, then narrow recovery-only handling passed. New actions still reject stale/revoked authority, exacthistorical recovery is manual/samepayload-key-CAS only and Core must reject new commits under stale authority. All224/assertions/limits retained.
+
+Nine source fingerprints plus all failure/pass/resource hashes are recorded. Worker exact dependency symlink removed; no push. Independent full UI/native review and safe Core9 composition/real IPC/actualmacOS remain next; fullGoal product delivery is not claimed.
+
+
+## Defensive read-shape correction
+
+Independent review identified missing/unsafeexpires permitting freshnewplan/preview and malformedblockedreason objects crashing React. Added four negativecontrols first and actually observed4fails, including the unhandled Reactchild-object error (log retained). Narrow source98a38d4 changes only GoalPlanning and its tests: scope/grant expiry must be signed safeinteger, dimension/reason arrays must containstrings, blockedmap values must bestrings with existingplan nodeIDs. Invalidlatestread clears priorpreview/freshness and disables writes.
+
+Added a fifth positivehistory guard: a legitimate signedpast expiry remains readable and exactoriginalraw/key/CAS manual recovery still works, while a newcommit is denied. No new authority, receipt or zero meter invented. Original224tests/assertions/limits preserved. Actual component31/full229UI/types/build pass. Native/API/Core/locks untouched; original8eeLinuxnative13/Clippy/fmt evidence reused against identicalRust, no redundantCargo or nativeharness claim. Parent-assigned reviewer is checking the small delta; its report/link are not modified by this worker.
+
+
+Final independent review closed F1 at98a38d4. Reviewer independently ran final229UI/typecheck/build and previously native13 on unchangedRust; no unresolvedblocking finding. Exact REVIEW.md hash recorded in EVIDENCE; report left untracked for primary staging. Reviewer removed only its own dependency link, nowabsent. Core9/realGoalIPC/OSdialog/Mac/dispatcher acceptance remain separate.

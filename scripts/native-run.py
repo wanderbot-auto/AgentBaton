@@ -21,7 +21,7 @@ def native_report_error(report):
     if report.get('status') != 'passed':
         return 'native report did not confirm success'
     for section, fields in {
-        'first_webview': ['domMounted', 'realComposerSubmitted', 'realTaskRendered', 'idempotent', 'invalidInputRejected', 'journal'],
+        'first_webview': ['domMounted', 'realComposerSubmitted', 'realTaskRendered', 'idempotent', 'invalidInputRejected', 'journal', 'goalScopeLists', 'goalScopeEmptyControls', 'readonlyGoalNoMutation'],
         'reopened_webview': ['domMounted', 'restartPersisted', 'draftCancelled', 'stopEvidence'],
     }.items():
         values = report.get(section)
@@ -30,6 +30,27 @@ def native_report_error(report):
     task = report['first_webview'].get('taskId')
     if not isinstance(task, str) or not task or report['reopened_webview'].get('taskId') != task:
         return 'native report does not bind the same persisted task'
+    project = report.get('fixture_project_id')
+    if (not isinstance(project, str) or not project
+            or report['first_webview'].get('projectId') != project
+            or report['reopened_webview'].get('projectId') != project):
+        return 'native report does not bind the actual chosen registered project'
+    database = report.get('goal_readonly_database')
+    if not isinstance(database, dict) or database.get('read_only') is not True or database.get('unchanged') is not True:
+        return 'native report lacks readonly Goal database evidence'
+    before, after = database.get('before'), database.get('after')
+    fields = {'scope_count', 'plan_count', 'attempt_count', 'sequence'}
+    if (not isinstance(before, dict) or set(before) != fields
+            or not isinstance(after, dict) or set(after) != fields
+            or any(type(value) is not int or value < 0 for value in [*before.values(), *after.values()])
+            or any(before[field] != 0 or after[field] != 0 for field in fields - {'sequence'})
+            or before != after):
+        return 'native report readonly Goal counts or sequence changed or are incomplete'
+    sequence = report['first_webview'].get('goalReadonlySequence')
+    if (not isinstance(sequence, dict) or set(sequence) != {'before', 'after'}
+            or any(type(value) is not int for value in sequence.values())
+            or sequence['before'] != before['sequence'] or sequence['after'] != after['sequence']):
+        return 'native report does not bind Goal UI and readonly database sequences'
     for field in ['window_close_daemon_survived', 'second_writer_rejected', 'owned_daemon_restarted', 'owned_daemon_cleanup']:
         if report.get(field) is not True:
             return 'native report lacks required daemon lifecycle evidence'

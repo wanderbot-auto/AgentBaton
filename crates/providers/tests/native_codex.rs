@@ -6,7 +6,8 @@ use agentbaton_providers::transport::{ApprovedInstallation, FailureKind, SideEff
 use agentbaton_providers::{TurnState, UpdateKind, MAX_FRAME_BYTES};
 use serde_json::json;
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::io::Read;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration, Instant};
 
@@ -112,12 +113,100 @@ fn installation(mode: &str) -> (tempfile::TempDir, ApprovedInstallation) {
     (dir, installation)
 }
 fn start(mode: &str) -> (tempfile::TempDir, ManagedProviderProcess) {
+    let preparing = Instant::now();
     let (d, i) = installation(mode);
-    (
-        d,
+    let preparation_elapsed = preparing.elapsed();
+    let starting = Instant::now();
+    let process =
         ManagedProviderProcess::start(ProtocolRoute::CodexAppServer, i, Duration::from_millis(500))
-            .unwrap(),
-    )
+            .unwrap_or_else(|failure| {
+                let start_elapsed = starting.elapsed();
+                panic!(
+                    "native fixture startup failed: {}",
+                    startup_failure_diagnostic(
+                        mode,
+                        d.path(),
+                        preparation_elapsed,
+                        start_elapsed,
+                        failure,
+                    )
+                )
+            });
+    (d, process)
+}
+
+// Inspect only after a failed start, after the owned child has been dropped.
+// Never forward wire values, paths, stderr, argv or environment values. Existing
+// fixture records show receipt/recording, not whether stdout was flushed/read.
+fn startup_failure_diagnostic(
+    mode: &str,
+    directory: &Path,
+    preparation_elapsed: Duration,
+    start_elapsed: Duration,
+    failure: agentbaton_providers::transport::TransportFailure,
+) -> serde_json::Value {
+    const SCAN_LIMIT: u64 = 4096;
+    let wire = directory.join("wire.ndjson");
+    let wire_bytes = std::fs::metadata(&wire).ok().map(|m| m.len());
+    let mut bytes = Vec::new();
+    let wire_read_ok = std::fs::File::open(&wire)
+        .and_then(|file| file.take(SCAN_LIMIT).read_to_end(&mut bytes))
+        .is_ok();
+    let mut initialize_received = 0;
+    let mut initialize_response_recorded = 0;
+    let mut initialized_received = 0;
+    let mut invalid_records = 0;
+    for record in bytes.split_inclusive(|b| *b == b'\n') {
+        if !record.ends_with(b"\n") {
+            continue;
+        }
+        let Ok(value) = serde_json::from_slice::<serde_json::Value>(record) else {
+            invalid_records += 1;
+            continue;
+        };
+        let frame = &value["frame"];
+        match value["direction"].as_str() {
+            Some("client") if frame["method"] == "initialize" => initialize_received += 1,
+            Some("provider") if frame["id"] == 1 && frame.get("result").is_some() => {
+                initialize_response_recorded += 1;
+            }
+            Some("client") if frame["method"] == "initialized" => initialized_received += 1,
+            _ => {}
+        }
+    }
+    let fixture_pid_recorded = directory.join("fixture.pid").is_file();
+    let last_observed_stage = if initialized_received > 0 {
+        "initialized_received"
+    } else if initialize_response_recorded > 0 {
+        "initialize_response_recorded"
+    } else if initialize_received > 0 {
+        "initialize_received"
+    } else if fixture_pid_recorded {
+        "fixture_pid_recorded"
+    } else {
+        "no_fixture_record_observed"
+    };
+    json!({
+        "mode": mode,
+        "timeout_ms": 500,
+        // Start includes digest verification/spawn; initialize's deadline begins
+        // later inside exchange, so this is not initialize-only elapsed time.
+        "preparation_elapsed_us": preparation_elapsed.as_micros(),
+        "start_elapsed_us": start_elapsed.as_micros(),
+        "kind": failure.kind,
+        "side_effect_state": failure.side_effect_state,
+        "protocol_error": failure.protocol_error,
+        "last_observed_stage": last_observed_stage,
+        "fixture_pid_recorded": fixture_pid_recorded,
+        "wire_bytes": wire_bytes,
+        "wire_scanned_bytes": bytes.len(),
+        "wire_read_ok": wire_read_ok,
+        "wire_scan_truncated": wire_bytes.is_some_and(|n| n > SCAN_LIMIT),
+        "invalid_complete_records": invalid_records,
+        "initialize_received": initialize_received,
+        "initialize_response_recorded": initialize_response_recorded,
+        "initialized_received": initialized_received,
+    })
 }
 fn reaped(pid: u32) {
     assert_eq!(unsafe { libc::kill(pid as i32, 0) }, -1);
@@ -125,6 +214,71 @@ fn reaped(pid: u32) {
         std::io::Error::last_os_error().raw_os_error(),
         Some(libc::ESRCH)
     );
+}
+#[test]
+fn native_startup_failure_diagnostics_are_bounded_and_raw_free() {
+    let (dir, installation) = installation("normal");
+    // A generated local process that records entry but cannot initialize before
+    // the original deadline. No vendor program, environment or identity is used.
+    std::fs::write(
+        dir.path().join("native-fixture.py"),
+        "import os,time\nwith open('fixture.pid','w') as f:f.write(str(os.getpid()))\ntime.sleep(60)\n",
+    )
+    .unwrap();
+    let starting = Instant::now();
+    let failure = match ManagedProviderProcess::start(
+        ProtocolRoute::CodexAppServer,
+        installation,
+        Duration::from_millis(500),
+    ) {
+        Ok(_) => panic!("accepted fixture without initialize response"),
+        Err(failure) => failure,
+    };
+    let start_elapsed = starting.elapsed();
+    assert_eq!(failure.kind, FailureKind::Timeout);
+    assert_eq!(failure.side_effect_state, SideEffectState::Unknown);
+    // A loaded runner may not schedule Python before the deadline. That is
+    // itself useful startup evidence; do not add a new availability assumption.
+    let fixture_pid = std::fs::read_to_string(dir.path().join("fixture.pid")).ok();
+    if let Some(pid) = &fixture_pid {
+        reaped(pid.parse().unwrap());
+    }
+    let diagnostic =
+        startup_failure_diagnostic("normal", dir.path(), Duration::ZERO, start_elapsed, failure);
+    assert_eq!(
+        diagnostic["last_observed_stage"],
+        if fixture_pid.is_some() {
+            "fixture_pid_recorded"
+        } else {
+            "no_fixture_record_observed"
+        }
+    );
+    assert_eq!(diagnostic["initialize_received"], 0);
+    eprintln!("expected generated delayed-start failure: {diagnostic}");
+
+    // Malicious/raw values in otherwise recognizable records must not escape;
+    // scanning remains bounded even with a giant or incomplete trailing frame.
+    let mut wire = String::from(
+        "{\"direction\":\"client\",\"frame\":{\"method\":\"initialize\",\"params\":\"secret fixture credential\"}}\n\
+         {\"direction\":\"provider\",\"frame\":{\"id\":1,\"result\":{\"codexHome\":\"secret fixture credential\"}}}\n\
+         secret fixture credential\n",
+    );
+    wire.push_str(&"secret fixture credential".repeat(1024));
+    std::fs::write(dir.path().join("wire.ndjson"), wire).unwrap();
+    let diagnostic =
+        startup_failure_diagnostic("normal", dir.path(), Duration::ZERO, start_elapsed, failure);
+    assert_eq!(
+        diagnostic["last_observed_stage"],
+        "initialize_response_recorded"
+    );
+    assert_eq!(diagnostic["initialize_received"], 1);
+    assert_eq!(diagnostic["initialize_response_recorded"], 1);
+    assert_eq!(diagnostic["invalid_complete_records"], 1);
+    assert_eq!(diagnostic["wire_scanned_bytes"], 4096);
+    assert_eq!(diagnostic["wire_scan_truncated"], true);
+    let rendered = diagnostic.to_string();
+    assert!(!rendered.contains("secret fixture"));
+    assert!(!rendered.contains(dir.path().to_str().unwrap()));
 }
 #[test]
 fn native_roundtrip_has_distinct_envelope_bound_thread_and_no_shell() {

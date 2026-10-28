@@ -1,0 +1,6 @@
+project=15afa2b9-b288-42fc-ae6c-f6d0898fcbb9 schema=9 db_mode=644
+actual_daemon_bind_error=PERMISSION_DENIED message=Runtime state must be owned by this user and private; existing permissions were not changed
+
+thread 'main' (2061884) panicked at /workspace/.onboarding/goal-native-readonly-review/old-private-db-probe.rs:42:2:
+actual native main must bind the helper-created private database
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

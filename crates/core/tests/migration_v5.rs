@@ -12,7 +12,7 @@ fn v4_runtime_upgrade_preserves_original_tasks_and_private_backup() {
         .unwrap();
     drop(store);
     let db = Connection::open(&path).unwrap();
-    db.execute_batch("DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs;DROP TABLE validation_policies;DROP TABLE session_runtime_snapshots; PRAGMA user_version=4;")
+    db.execute_batch("DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs;DROP TABLE validation_policies;DROP TABLE session_runtime_snapshots; PRAGMA user_version=4;")
         .unwrap();
     let original: String = db
         .query_row(
@@ -29,7 +29,7 @@ fn v4_runtime_upgrade_preserves_original_tasks_and_private_backup() {
     assert_eq!(
         db.pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
             .unwrap(),
-        8
+        9
     );
     assert_eq!(
         db.query_row(
@@ -89,7 +89,7 @@ fn failed_runtime_migration_preserves_v4_version_and_unknown_table() {
     let path = dir.path().join("db.sqlite3");
     drop(Store::open(&path).unwrap());
     let db = Connection::open(&path).unwrap();
-    db.execute_batch("DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs;DROP TABLE validation_policies;DROP TABLE session_runtime_snapshots; CREATE TABLE session_runtime_snapshots(sentinel TEXT); INSERT INTO session_runtime_snapshots VALUES('preserve unknown data'); PRAGMA user_version=4;").unwrap();
+    db.execute_batch("DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs;DROP TABLE validation_policies;DROP TABLE session_runtime_snapshots; CREATE TABLE session_runtime_snapshots(sentinel TEXT); INSERT INTO session_runtime_snapshots VALUES('preserve unknown data'); PRAGMA user_version=4;").unwrap();
     drop(db);
     assert!(Store::open(&path).is_err());
     let db = Connection::open(&path).unwrap();

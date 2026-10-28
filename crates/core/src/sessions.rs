@@ -1681,6 +1681,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "goal" {
+            return self.finalize_goal_scope_proposal(id, revision);
+        }
         if let Some(result) = result {
             return decode(&result);
         }

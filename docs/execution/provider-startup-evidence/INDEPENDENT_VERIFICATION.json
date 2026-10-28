@@ -1,0 +1,35 @@
+{
+  "source_commit": "f61842cf7d03b3967ceff60a0e6883d0d37dd682",
+  "docs_head": "fe76c4e157f88a92eb39c3dea23b732ffdd29f15",
+  "test_source_sha256": "aff6e9cac154f7877b6f0a969d4cadaaa7e32c2a28638fcb9546b088d7b1c8e3",
+  "fixture_sha256": "62f269de6fdd2e2bd4f163bbfc38b5b5f41513d0eeee3cd18e4977a82c07efb1",
+  "results": {
+    "targeted_native_protocol_tests": 20,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 70.14,
+    "RUST_TEST_THREADS": "1 (current CI condition)",
+    "clippy_all_targets": "PASS",
+    "fmt": "PASS",
+    "diff_whitespace": "PASS",
+    "deliberate_delayed_fixture": "Timeout/Unknown, recorded PID reaped; start elapsed 1427835us includes pre-exchange work/cleanup",
+    "historical_ARM_failure_reproduced": false,
+    "historical_ARM_root_cause": "unknown",
+    "target": "private Provider target formally released"
+  },
+  "files": {
+    "clippy.log": "2aad795fbc07f122085e9c4ff321f519d25937645babcdb01aa2e3ac5951a4b4",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lint-commands.json": "ab8cce3c0dc57c11b74c6ef2f3d12aff7ba3ef989e7db6278b6d56ba94fe0436",
+    "native-codex-tests.log": "3205a248559110181963d6d11ca19225c5f17a04c229d834b484e45846eecb73",
+    "static-proof.json": "d43b9f22c7d22e1e4461841aabf3cfba33421317a71bbef984af1605497f783d",
+    "test-command.json": "c23fe778db28f531c1d30530232ec5223e38a0fc976ac2775d844389f4c61106",
+    "whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "original_failure": {
+    "subject": "0a0beac38260cc426b4a0887b2bf59937ec9ff90",
+    "run": 40475194913,
+    "job": 122091591692,
+    "raw_log_sha256": "dcd64d5e1475e0acbf3f9042f76db918840d31f735b92d6aa04822d53dd6da0f"
+  }
+}

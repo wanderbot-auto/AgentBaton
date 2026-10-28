@@ -78,6 +78,8 @@ jobs:
           set -euo pipefail
           artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser
           artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/approved-commands
+          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/goal-planning
+          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --structured-editor --output artifacts/ui-browser/goal-plan-editor
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -88,7 +90,9 @@ jobs:
   desktop:
     name: Product / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    # Native tests, two application profiles, release audit and DMG packaging
+    # must finish on the same exact checkout. Per-test/product limits stay fixed.
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       max-parallel: 2

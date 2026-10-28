@@ -1,0 +1,135 @@
+# Evidence — latest Backend source freeze 2cad05b
+
+Latest source: 2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7, local codex/goal-store. The history integration correction passed 48+30+3 targeted, 210 unique full Core tests, all-target Clippy, format and diff checks. Independent follow-up passed those same exact-source checks and closed H1/H2. Initial 1a evidence below remains historical and is not substituted for the new freeze.
+
+## Initial persistence freeze 1a3236a
+
+Source commit: 1a3236a94b1b6a6346d1ee604bb23b1a595425bc, codex/goal-store, /workspace/.worktrees/goal-store. Base Goal contracts 9acf86c/docs3d369; Core 8 source 8009824 and final correction 88ca6bc safely merged in fd78d03. WIP checkpoint d1a544a saved earlier work. No source change after final Cargo tests. No push, PR, CI, Provider/model/account call, signing or production action by this author.
+
+Read AGENTS/gate/approval/Goal/runbook, orchestration/data contracts/decisions27, actual registry/grant/Store/execution/approval/validation APIs. At recovery/integration boundary, origin/main 66061439c79fa44b66a33782febc1fb0f31c73df OWNER_INBOX has only OWNER-001/002; ACK both. Main metadata/CI fixture integration remains primary's responsibility. No native platform Goal tool was available/used.
+
+## Requirement evidence
+
+| Requirement | Actually implemented and verified here | Dependent work remaining |
+| --- | --- | --- |
+| AB-TSK-001 | Strict server-resolved Goal selection, fixed real task/spec/input/artifact/acceptance definitions and persisted typed proposals | Natural-language compiler, missing-field experience, real approved planner connection |
+| AB-TSK-002 | Persisted plan lineage and unexpanded executor/binding contracts | Real Router/Provider delegation/results and child lifecycle |
+| AB-TSK-003 | Separate native-kind authority; exact grant CAS/history, immutable capabilities, actual writer/fence checks, private reconstruction | Actual native UI/Owner dialog and runtime dispatch rechecks |
+| AB-TSK-009 | Durable plan/read-only ready decision and retained unknown history barriers | Continuous scheduler, reservations/settlement, reconciliation/rework and escalation |
+| AB-TSK-010 | Real attempt/active/shared child counts; unmetered dimensions nullable/blocked, no fabricated zero or cost enforcement | Actual Provider metering and estimates |
+| AB-TSK-011 | Immutable revisions/head CAS/journal/idempotency, original raw JSON duplicate rejection, unchanged acceptance rules | End-to-end native GUI editing and generated plan integration |
+| AB-TSK-012 | Root/project history seeded into actual admission rows, upward-only reconciliation, preserved ceilings; unknown/history cannot reset through new scope/key/revision | Real scheduler root/child reservation, safe pause and settlement |
+
+This evidence is a Backend dependency, not full requirement acceptance. Existing specs remain immutable specified snapshots. Partial integrity/data/command checks are never Goal acceptance; scope approval supplies no passed result or TaskAccepted.
+
+## Environment and exact commands
+
+Linux cloud. CARGO_HOME=/workspace/.toolchains/cargo; RUSTUP_HOME=/workspace/.toolchains/rustup; PATH includes Cargo bin; CARGO_TARGET_DIR=/workspace/.worktrees/validation-integration/target; CARGO_BUILD_JOBS=2; CARGO_INCREMENTAL=0. Shared target windows were explicitly coordinated with Core/primary/reviewer; no concurrent writer, new target/node_modules/dependency/lock change or another writer's cache deletion.
+
+Fixtures use actual SQLite, private runtime/database modes, generated local Git worktrees and the real private proposal/finalizer/event paths. Registered connection readiness is explicitly synthetic, not real executable/account/provider proof. Owner confirmation is simulated by trusted Core tests, not a claimed OS dialog. Unix IPC uses the actual private daemon/socket; no generic HTTP approve/dispatch path. One generated fixed local shell command is actually run to prove existing one-shot Command use is not reset; it is not a model/Provider call.
+
+- Initial cargo check -p agentbaton-core failed on 9 unchecked SQLite u64 sites; fixed checked i64 conversion. Second check passed.
+- First GoalStore run failed on a nonexistent physical sessions.attempt_id column; corrected actual JSON-owned attempt joins. A later deliberate corrupt-fence injection failed SQLite FK before setup; only its fault injector explicitly disables/re-enables FK to create the dangling row. Real Store FK/read guards stay enforced.
+- Earlier full Core 202 then 204 passed, before final independent R1/R2 controls. These are historical, not final review proof.
+- Complete real Command snapshot initially18,058 then16,398 bytes was correctly rejected by16KiB cap. No cap increase/truncation/path-shortening was used. Lossless shared immutable grant projection/full contract JSON passes, reconstructs exactly, detects permission/source drift and rejects consumed command rights. OS readability is unrun.
+- An80-error old-rmeta failure was a shared-worktree build-cache handoff, not a product test outcome. Touched this tree's lib.rs (unchanged content SHA) and rebuilt correct schema 9 source; no global clean or old metadata treated as valid proof.
+- Old-source reviewer controls: cargo test -p agentbaton-core --test goal_store -- --test-threads=2 — exit 101, 23 passed / 2 failed. R1 actual newly created root consumed0 versus expected1; R2 oversized existing ledger returned Ok decisionSome/known0. Old source/tests/SHA preserved as /tmp/goal-store-review-old.rs, /tmp/goal-store-review-controls-old.rs, /tmp/goal-store-review-old.sha256.
+- Corrected targeted: cargo test -p agentbaton-core --test goal_store --test goal_store_migration --test goal_plan -- --test-threads=2 — exit 0, 48+27+3 passed, zero failed/ignored/filtered. Original 24 Store scenarios retained; new meter/idempotency/history rollback regressions do not change the original External/Command/Integrity semantics.
+- Final cargo test --locked -p agentbaton-core --offline — exit 0, 207 unique tests passed. Raw report 208 includes one existing FIFO nested subtest reported again; not counted as extra coverage. Includes all prior 129 Core tests, 48 Goal contracts, 27 Store tests and 3 schema 9 tests. Core has 0 doc tests.
+- Final cargo clippy --locked -p agentbaton-core --all-targets --offline -- -D warnings — exit 0.
+- cargo fmt --all -- --check and git diff --check — exit 0. No lint allowances/skips/timeouts/assertions weakened.
+
+New regression detail: a real stopped attempt under the same grant but another task is recovered even without session mapping; the new actual root ledger starts consumed1, allows only 7 further attempts under limit 8, and rejects the ninth shared-root use while project still has room. Existing ceilings remain unchanged even when Goal limits are narrower. Simulated low counters reconcile from durable attempts; an approval.confirmed trigger failure rolls counters/events/grant/scope/result back together; committed replay adds no event. Oversize meter and both payload/result fields of both approval/plan idempotency rows return RESOURCE_LIMIT before fallback, authority lookup or history mutation.
+
+Schema 9 tests use actual schema 8 shape after physically removing v9 tables (not merely relabeling a v9 database); verify exact raw task/blob preservation and private reopenable pre-v9 backup, migration failure rollback preserving unknown named table, and future schema 10 refusal without byte changes. Existing legacy pre7/pre8 fixtures remove v9 tables before their old-shape simulation; old assertions remain.
+
+## SHA-256 — source
+
+| File | SHA-256 |
+| --- | --- |
+| crates/core/src/goal_store.rs | 38bfe1f629831ffd1ae5b951590e89a7b82cc909ac2b825c0daf4f74d1588421 |
+| crates/core/src/goal_plan.rs | 243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21 |
+| crates/core/src/storage.rs | 8a7e75de1bf7006672cd32999d48022509497d253cbd84a32ec1d4cd7b078b52 |
+| crates/core/src/sessions.rs | 6bccef078d6f4fa4201fd8cb7405469d6f362f9ff45a28d4650a6e1ae24ebee9 |
+| crates/core/src/ipc.rs | a18e3508921d466db8619e857687a9e11d91bb513754904cd5be9f3d099ae1b2 |
+| crates/core/src/lib.rs | 2d732f787e7e8e416c8473323be922aa1e1fe5fbe70dae8ce5733a5fb9e1ad43 |
+| crates/core/tests/goal_store.rs | 8b2735ca7646a83695461afed0481e4aad80d9f9d2eeaedf7fcf2cafe8102fbb |
+| crates/core/tests/goal_store_migration.rs | 91862b7cb28b1ce7dac88ec3c3befbdad1e05cfa2dec07ae8db072567de65752 |
+
+## SHA-256 — preserved actual logs
+
+All paths are local evidence for this session; no fictitious remote URL is supplied.
+
+| /tmp log | SHA-256 |
+| --- | --- |
+| goal-store-check-first.log | a44697d658f7f867ab3b5eaac098c8ede6bdead2d701d5a124f7aa253cddf723 |
+| goal-store-targeted-first.log | 3cc15fb60c1a00b0d108ae41db7daf3698fdfae23e710b1035f763b0b6486526 |
+| goal-store-targeted-third.log | 088f1e8ecd61aca1fd5a18e0dac41ced78f61d3bc720efe62fd343c056f3a8bd |
+| goal-store-command-snapshot-bound.log | 2bdfdc249527241ebc2244cfb0f77653881fa4cc1cfe3cac4fcb16227b8daeb8 |
+| goal-store-command-snapshot-full-json.log | 8b6f35fb72f6089fc174895a713138f6768ecb5c0ff938620d50e8459490ec6f |
+| goal-store-projection-controls.log (cache failure) | a73bf6380284b91ff9df483dbbda0c9cd2dc1f46c830ae5198f6e908fc63bba3 |
+| goal-store-review-controls-old.log | 83dfdcfc18541c298499bfc35152ca0b753f7aa396d0f14683d19985bff2191f |
+| goal-store-review-controls-fixed.log | 2b3e8bfcb43dd58b8f3f6af9c4b1123eb3b66a79ca01a21ee22216635288bb86 |
+| goal-store-core-review-fixed.log | 4b273c359aaa180e9a6eb0a5cbd923b624567d0ee41a5939458fe61d8667fb4e |
+| goal-store-clippy-review-fixed.log | caf0ca6b206b9f84fee3fd90fc4d698f2f3bbd855aff1d7a9d3a6765b471dc38 |
+| goal-store-fmt-review-fixed.log (empty successful output) | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
+
+Other initial diagnostic/intermediate/success logs remain /tmp/goal-store-*.log; no failure was deleted. Independent review owns REVIEW.md and final replay evidence, not authored or claimed by this implementation agent. Source frozen and shared target formally released to integration_review; only this unit's documentation changes continue.
+
+## Explicit unverified and blocked boundaries
+
+No actual Goal native/Cocoa dialog, browser/GUI, macOS architecture/build/package or Provider/model was exercised by this Backend unit. The complete displayed contract is escaped native JSON; manual readability is still unverified. Local Git/daemon tests are not OS sandbox proof. Multiple/remote connection authorities, reliable monetary/token enforcement, actual Goal node/action runtime receipts and dispatch are unsupported/blocked rather than fabricated. Retained legacy/unmapped runtime/action histories prevent ready decisions until real reconciliation. Real generated planning/scheduler/Router/child settlement and TaskAccepted remain next dependency work, not declared complete.
+
+## Independent review closed
+
+Reviewer integration_review independently verified exact source 1a3236a (no author source changes afterward). Its actual targeted48+27+3, complete Core207 unique (raw208 minus existing nested FIFO1), all-target Clippy and fmt passed. Both real old-source defects R1/R2 were closed with no remaining blocking finding. Review explicitly retains private-SQLite/verified-host trust assumptions and Backend-only scope: no actual native Goal dialog, dispatch or TaskAccepted proof.
+
+Reviewer owns the separate REVIEW.md; its exact identity is recorded below when finalized. The author did not stage or edit it. Reviewer formally released shared Cargo to primary, which is combining the reviewed Backend and separately reviewed Goal UI/native bridge in goal-integration; integrated workspace/browser/native/macOS/CI results belong to that later exact source, not this Backend freeze. No author Cargo was run after release.
+
+## Subsequent integration history findings — correction pending
+
+The prior review closed R1/R2 but does not imply the later integrated UI history contract was already correct. H1: fresh scope plan list returned NOT_FOUND rather than []. H2: get/list required current live authority, preventing immutable historical reading after revoke/expiry/input changes. Old-source actual Store29 run: exit101,27passed/2failed; /tmp/goal-store-history-controls-old.log with original source/test/hash copies. Correction first run preserved as /tmp/goal-store-history-controls-fixed-first.log, exit101 (48 Goal passed, Store22passed/8failed); it caught using proposal-only rather than existing scope-bound (scope_digest,proposal) digest. Check fixed to the exact existing algorithm; no assertion/hash constraint weakened. Fresh corrected verification is underway.
+
+Primary's independent built React/Chromium/fixed test-only adapter/real Unix schema9-daemon negative control was read directly: /workspace/.onboarding/goal-ui-real-ipc-old-1a3236a-control2/report.json SHA eb7eba304de94b2143e9a281f021159f37d53f6c8dde83140b5ddc362508b719. Overall failed_or_interrupted/exit1: actual outside-HTTP fixture native-kind Goal approval preserved bindings/TaskDraft, then actual goal_plans.list returned NOT_FOUND; no adapter translation/preseed. Daemon SHA66663629d716ec8dbd999aa45b375a9c6100a3392dc80ae9a7f92fa12144f303. Native Owner dialog was explicitly not run; it used a trusted private fixture finalizer. Raw plan/preview/revoke downstream did not execute. First unrelated harness route-pump error is separate evidence retained by primary, not counted as this product defect.
+
+## History correction authored verification — source 2cad05b
+
+Source commit 2cad05b6a4fcc28dda32cce81be7cfdbd506c1f7 changes only goal_store.rs and its integration tests. No lock/migration/IPC/UI/root worktree changes. The final source is frozen; shared Cargo has been formally handed to integration_review for independent follow-up, no author writer remains.
+
+- cargo test --locked -p agentbaton-core --test goal_store --test goal_store_migration --test goal_plan --offline -- --test-threads=2: exit0,48+30+3 passed, zero failed/ignored/filtered.
+- cargo test --locked -p agentbaton-core --offline: exit0,210 unique tests passed (raw211 minus one preexisting nested FIFO duplicate),0 doctests.
+- cargo clippy --locked -p agentbaton-core --all-targets --offline -- -D warnings: exit0.
+- cargo fmt --all -- --check and git diff --check: exit0.
+
+All original27 Store scenarios remain. Two old-source H1/H2 negatives now pass, including original empty scope followed by actual first submission and five failure-state loops (Goal revoke, grant revoke, expiry, input and Task spec drift). Strict get/list returns historical plans with no journal/counter changes. New revisions and ready preview remain rejected with PERMISSION_DENIED/INPUT_CHANGED. Added13 corruption cases and retained-journal-only orphan check reject no-head/revision/proposal inconsistencies, wrong plan metadata/body/digest chain, missing plan/scope journal, mismatched scope columns/native snapshot and oversized original proposal. Actual Unix IPC validates fresh[], revoke, continued original history and denied ready preview. Original Integrity/used-Command strong permission assertions now exercise both actual preview and new-revision admission; no rejection was dropped to make history readable. Real one-shot command executes once and remains unrenewed.
+
+History returns plain DTOs only. It checks the exact native approval/result, recorded scope columns and full policy projection, original immutable grant/native root history, canonical existing (scope_digest,proposal) digest, typed raw/typed proposal equality, contiguous revision/previous-digest/head commitments and original goal_core plan journal. It never constructs ApprovedGoalScope/ValidatedPlan from expired data or fake host time. Live submission/current_plan/ready checks remain separate and unchanged.
+
+| Source/log | SHA-256 |
+| --- | --- |
+| crates/core/src/goal_store.rs | 7641899c7289293857fe21d16e08c7422376a319b2ea049be6618e548009f0aa |
+| crates/core/tests/goal_store.rs | b8a4eb0dfa86478c24df086ced1805ac177428f71be8466703ab5bd4808482f2 |
+| /tmp/goal-store-history-controls-old.log | 2da72980b97001da97344f3015327935b70511fcfa3e35a501a861de7561b513 |
+| /tmp/goal-store-history-controls-fixed-first.log | e14c478080bf1044451c0e8243376b74ccc9b358959958a9075922f64ea968e7 |
+| /tmp/goal-store-history-controls-fixed.log | ae4bbefdf1beac8798b5ba11e406c321f813b16b31438372411a5d5dc404e911 |
+| /tmp/goal-store-core-history-final.log | ad198be2505ab78d4c52b74282495104f280c829b057db186b62074df810e3e1 |
+| /tmp/goal-store-clippy-history-final.log | d3b16ee227a3e5f738eaedefc77b17297888ddfacfe1e289a160af4411263430 |
+| /tmp/goal-store-fmt-history-final.log | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
+
+The primary's real built-UI old-daemon failure remains preserved, as does the first correction digest mismatch. New actual GUI/native/macOS/Provider/model/dispatch/TaskAccepted evidence is not claimed by these Core tests. Independent follow-up disposition must be recorded before final combination approval.
+
+## Final independent follow-up closed on 2cad05b
+
+Reviewer integration_review independently completed targeted48+30+3, full210 unique Core, all-target Clippy, fmt and diff checks on the exact new freeze. H1/H2 have no remaining blocking finding; R1/R2 remain closed. It additionally ran an independent temporary probe covering five broken native-confirmation/fixed-grant/row-count/commitment-chain cases: all were rejected without mutation. A first probe incorrectly used grant.approval_id and deleted zero rows; that fixture failure was preserved, then corrected to the actual native proposal ID with an assertion that exactly one row was deleted. It was not a production defect or weakened test.
+
+Source2cad remains frozen and no author Cargo/source change followed review. Reviewer formally released target to primary for combined integration. Reviewer-owned REVIEW.md and its final SHA are recorded separately; this author neither edits nor stages that file. Actual combined UI/native/macOS/CI results remain primary's later evidence, not inferred from these Backend tests.
+
+Final reviewer-owned docs/execution/goal-store/REVIEW.md SHA-256: d044e277ef5738a86b3b2414ab748a36ad1e963ec72a7e7cc7604b9959772a3c. It remains untracked for primary to include, deliberately not staged by this author. Independent final manifest /tmp/goal-store-history-independent-manifest.json SHA8a1327cf1a672d6e49578ff320265d5e8b15266396cd2785911b2f82900da89e.
+
+Independent final log identities (full list and probe source in REVIEW):
+
+- /tmp/goal-store-history-independent-controls.log:09f740ce1bbe55a89d76009e510a609feda7faa1dbce67b974bca8ac16248f67.
+- /tmp/goal-store-history-independent-core.log:deb290800823a1fb196ef09b2c757f7fc93143dc03299ed4f2b5b79909c1a45d.
+- /tmp/goal-store-history-independent-clippy.log:2120762613d2716a7c1bf134effdb704b16e1e5147a7727eeed4369ba005b463.
+- /tmp/goal-store-history-independent-probe.log:f7e66d0b395766a6b2722fb86394b9eb3bb5d93c627a3d3e68fa2f6add462023.
+- Preserved reviewer fixture-injection failure /tmp/goal-store-history-independent-probe-fixture-failed.log:9ce9e90cfb3d53eb140099d738353732ebf987700c20f5454078fa128b8ef622.

@@ -1,0 +1,35 @@
+{
+  "source_commit": "8fde8b658bf49d18bd1f88290d16e3adc6278b5c",
+  "source_path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+  "source_sha256": "775f355327660a3d21c51ddc317c9ac958c870b58dd7c1ee8c633efba8c12309",
+  "baseline_docs_source": "ad30ad0b77dba3a2992ba881d28ce0a6d7e3dc13",
+  "dimension": "independent Linux native host/feature-harness; no new macOS GUI execution",
+  "results": {
+    "host": 13,
+    "harness": 12,
+    "ignored": 0,
+    "clippy": "PASS",
+    "fmt": "PASS",
+    "whitespace": "PASS",
+    "umask": "022",
+    "native_target": "formally released after tests/lints"
+  },
+  "files": {
+    "clippy.log": "cd93cf2be1064eeda9fc0aa2644e40b82e589b98c24df04bce7c2cb01fdd2452",
+    "entrypoint-mtime-refresh.json": "712e09937fdf9b015e56e683c3da2559f9cb5c76a22fb260cda3c081ec3232f5",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lint-commands.json": "8df3d07ddc26b409671d9c0e103e96a097f897e5acc8d51ad91f09dc9bc9a0ce",
+    "native-tests.log": "9beb57b6e78b2522f03581435db8795e17f39ba58972cb08c09fb94d7abdf264",
+    "static-source-proof.json": "c3ba30f01be8a75b87d0524dda1fb46b7aa421241573a46233473cdb521cf5ad",
+    "test-command.json": "ddcffa428ee494dbc99478226a93f4f26460f21331d8fb3da9a6097fe0ab0710",
+    "whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "prior_ci_failure": {
+    "subject": "aeffd473ec4cf9db5cc48c9aa666ed9811e511e1",
+    "product_run": 40471245384,
+    "arm_job": 122078603054,
+    "intel_job": 122078603267,
+    "final_review_sha256": "0e8f1f51a7d8e4563ecbd76b939ef3fe4c5349715ee43f599e10a5e698d2b19f"
+  },
+  "unrepeated": "unchanged JS/runner/browser/source-leaf checks remain separate previous evidence; fresh exact Mac CI required"
+}

@@ -1,0 +1,37 @@
+{
+  "subject_head": "bf67629f7911531fec52ec31e59c9508f814f9fd",
+  "actual_checkout": "b0daefb57a35a47e2f708e02df8d14b578e76148",
+  "artifact_id": 12800709441,
+  "png": "/workspace/.onboarding/goal-native-bf676/arm-native-verified/native-screen.png",
+  "png_sha256_before_and_after_recheck": "ec5d9903e51d4a1bb33df7edabbc6b12ab9bf78dec9ec913db508d95551939d7",
+  "dimensions": [
+    1136,
+    793
+  ],
+  "reviewer": "/root/data_native_integration_review",
+  "observed_utc": "2026-10-28T08:19:45.855610+00:00",
+  "reinspection_method": "tools.view_image(path exact originalPNG,detail original) followed by image(result.image_url, original); actual image forwarded to visual context",
+  "correct_visual_result": "PASS for captured actual task screen",
+  "visible_content": [
+    "AgentBaton title and icon",
+    "sidebar icons and local daemon connected status",
+    "task title 原生 WebView→IPC persistent task",
+    "Draft state",
+    "Conversation/Artifacts/Details tabs",
+    "chat bubble",
+    "execution configuration affordance",
+    "message composer with project/connection selectors"
+  ],
+  "previous_judgment": "The prior nearly blank/no task UI observation was incorrect and is withdrawn. It is a reviewer interpretation error, not evidence of a product or capture fault.",
+  "cause_of_prior_error": "not established; no inference about tools, compositor, paint timing or product display regression",
+  "supersedes_visual_failure_claims_in": [
+    "ARM_VISUAL_FAILURE.json",
+    "CI_BF_FAILURE.json",
+    "CHECKPOINT.json",
+    "verification-manifest.json",
+    "NATIVE_BF676_REVIEW.md"
+  ],
+  "preservation": "All original reports/manifests/image bytes remain unchanged and hashverified as history; only new correction/final files written",
+  "unchanged_actual_blocker": "Intel scripts::expected_exit_zero_cannot_accept_missing_or_oversized_output failed Some(0) versus None;6success/1failure; noIntelNative/DMG; stillnotaccepted",
+  "no_action": "No image editing or substitution, source/capture/product change, CI trigger/retry/cancel, account/model action"
+}

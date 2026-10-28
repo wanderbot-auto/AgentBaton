@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "authority": "AB-START-001",
+  "owner_ack": ["OWNER-001", "OWNER-002"],
+  "task": "/root/provider_startup_diag",
+  "baseline_commit": "0a0beac38260cc426b4a0887b2bf59937ec9ff90",
+  "source_commit": "f61842cf7d03b3967ceff60a0e6883d0d37dd682",
+  "branch": "codex/provider-startup-evidence",
+  "worktree": "/workspace/.worktrees/provider-startup-evidence",
+  "environment": {
+    "os_arch": "Linux x86_64",
+    "rustc": "1.99.1 (58cf8f9c3 2026-10-13)",
+    "python": "3.12.14",
+    "cargo_home": "/workspace/.toolchains/cargo",
+    "rustup_home": "/workspace/.toolchains/rustup",
+    "path_prefix": "/workspace/.toolchains/cargo/bin",
+    "cargo_target_dir": "/workspace/.worktrees/provider-startup-evidence/target",
+    "cargo_incremental": "0",
+    "cargo_build_jobs": "2",
+    "target_disk_usage": "151MiB",
+    "initial_workspace_available": "8.9GiB",
+    "final_workspace_available": "8.8GiB"
+  },
+  "preserved_failure": {
+    "product_run": "40475194913",
+    "arm_job": "122091591692",
+    "path": "/workspace/.onboarding/goal-native-0a0b/product-job-122091591692.log",
+    "sha256": "dcd64d5e1475e0acbf3f9042f76db918840d31f735b92d6aa04822d53dd6da0f",
+    "passed": 18,
+    "failed": 1,
+    "ignored": 0,
+    "test": "native_faults_reap_child_without_replay_or_secret_error_text",
+    "failure": "start helper line119: Timeout/Unknown/protocol_error None",
+    "mode": "unknown; original log did not record it",
+    "stderr_four_mib_five_hundred_ms_test": "passed",
+    "local_reproduction": false,
+    "root_cause": "unknown"
+  },
+  "preservation": {
+    "baseline_test_count": 19,
+    "final_test_count": 20,
+    "removed_tests": [],
+    "added_test": "native_startup_failure_diagnostics_are_bounded_and_raw_free",
+    "fixture_bytes_unchanged": true,
+    "fixture_sha256": "62f269de6fdd2e2bd4f163bbfc38b5b5f41513d0eeee3cd18e4977a82c07efb1",
+    "test_source_sha256": "aff6e9cac154f7877b6f0a969d4cadaaa7e32c2a28638fcb9546b088d7b1c8e3",
+    "production_source_changes": false,
+    "timeout_or_deadline_changes": false,
+    "startup_retries_or_warmup_added": false
+  },
+  "checks": [
+    {
+      "command": "cargo test -p agentbaton-providers --test native_codex --locked",
+      "source": "pre-self-review worktree; original 19 tests + new regression",
+      "passed": 20, "failed": 0, "ignored": 0, "filtered": 0,
+      "seconds": 20.67, "exit_code": 0,
+      "log": "/workspace/.onboarding/provider-startup-evidence/native-codex.log",
+      "sha256": "fb62d312e611f0f8fae8479189aaf0168a0e5c71b3bbbe64225767478ff74767"
+    },
+    {
+      "command": "cargo test -p agentbaton-providers --test native_codex --locked -- --show-output",
+      "source": "f61842cf7d03b3967ceff60a0e6883d0d37dd682",
+      "passed": 20, "failed": 0, "ignored": 0, "filtered": 0,
+      "seconds": 20.44, "exit_code": 0,
+      "log": "/workspace/.onboarding/provider-startup-evidence/native-codex-final.log",
+      "sha256": "731a7e06c10b7377f46f88e661fb070178386d7c1e2286f16fa8c6b9646f490b"
+    },
+    {
+      "command": "rustfmt --check --edition 2021 crates/providers/tests/native_codex.rs",
+      "exit_code": 0
+    },
+    {"command": "git diff --check", "exit_code": 0}
+  ],
+  "python_profile": {
+    "command": "python3 /workspace/.onboarding/provider-startup-evidence/profile.py",
+    "script_sha256": "a173c22be8666a058227795493c4e4f299f16aa18da68464a3b759ef6b0d6eeb",
+    "report": "/workspace/.onboarding/provider-startup-evidence/profile.json",
+    "report_sha256": "6ca5b8e1a629609fb9d4dd9ec65aa0a022f73122a6ad8778ed6ae7f28acbe8f0",
+    "exit_code": 0,
+    "scope": "Python client with exact unchanged generated fixture; handshake only, not Rust transport or Mac",
+    "planned_samples": 5, "valid_initialize_responses": 5, "reaped_children": 5,
+    "warmup": false, "retry": false, "timeout_ms": 500,
+    "executable_bytes": 30894944,
+    "rows": [
+      {"mode": "malformed", "digest_us": 46096, "spawn_us": 1045, "initialize_us": 22246},
+      {"mode": "duplicate", "digest_us": 36018, "spawn_us": 657, "initialize_us": 18111},
+      {"mode": "oversized", "digest_us": 23075, "spawn_us": 436, "initialize_us": 17616},
+      {"mode": "error", "digest_us": 24176, "spawn_us": 522, "initialize_us": 19292},
+      {"mode": "eof", "digest_us": 24094, "spawn_us": 419, "initialize_us": 19101}
+    ]
+  },
+  "actual_expected_delayed_fixture_failure_example": {
+    "mode": "normal", "timeout_ms": 500,
+    "preparation_elapsed_us": 0, "start_elapsed_us": 1552292,
+    "kind": "timeout", "side_effect_state": "unknown", "protocol_error": null,
+    "last_observed_stage": "fixture_pid_recorded", "fixture_pid_recorded": true,
+    "wire_bytes": null, "wire_scanned_bytes": 0, "wire_read_ok": false,
+    "wire_scan_truncated": false, "invalid_complete_records": 0,
+    "initialize_received": 0, "initialize_response_recorded": 0, "initialized_received": 0
+  },
+  "diagnostic_limits": [
+    "Example is intentional delayed local fixture, not a reproduction of ARM failure.",
+    "preparation_elapsed_us is zero in the focused regression; normal helper measures real preparation.",
+    "start_elapsed_us includes digest verification/spawn and failure cleanup; it is not initialize-only duration.",
+    "Wire prefix scan is capped at 4096 bytes; counts/stage describe only complete recognized records in that prefix.",
+    "Recorded initialize response does not prove stdout flush or client read.",
+    "No raw stderr, wire, credential text, paths, environment or account identifiers are emitted."
+  ],
+  "review": "author self-review only; Root arranges independent review",
+  "not_run": ["macOS ARM rerun", "macOS Intel inspection/rerun", "Goal aliascfgtest", "actual Mac GUI", "Mac packaging", "real vendor/model/identity test"],
+  "external_actions": "No push/merge/CI trigger/rerun/cancel, no model/network/identity/spending/signing/production action."
+}

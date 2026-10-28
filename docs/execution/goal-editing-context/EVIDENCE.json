@@ -1,0 +1,23 @@
+{
+  "approval": "AB-START-001",
+  "base": "4798a189910367bf3038e19729c9d2daf2d138b7",
+  "source_sha256": "6bb8f618d7c56a47855b431e3e908250a2b3abc441a1c68b8ccad48a8e5fa2e0",
+  "test_sha256": "d2181ef025a3b98f6ff4ddb94329970da8776469b33616b13d2ff6a5da4e8228",
+  "actual_tests": "34 GoalStore tests PASS, including4new vs2cad; Core alltargetsClippy/fmt/sidecars PASS; composedUI259/type/build PASS",
+  "format_first": "failed expected formatting-only check, fixed by formatter; rawlog /workspace/.onboarding/goal-editing-context-format-first.log",
+  "backend_authority": "unchanged; metadata never a token",
+  "new_schema_or_mutation_method": false,
+  "compatible_source_sha256": "1b040978a6de912a69e6c7d5d82588965fc7291a48774b60e0019157f377d539",
+  "compatible_test_sha256": "f2262514d84f51cba76253c060ed47580a5b3efb4ec4e04d25598d031e94e454",
+  "legacy_old_actual_failure": "/workspace/.onboarding/goal-editing-context-persisted-legacy-old.log; actual runtimeFAIL101 INPUT_CHANGED",
+  "independent_old_probe_sha256": "7da05717af981b79b2921bbe5dab11302c399c95320c3431c155a905aadac3e5",
+  "first_fix_test_mistake": "compatible-store-tests.log 33pass1fail: assertion inspected regeneratedfinalize response instead of persistedcache. Corrected to SELECT actualcache before/after byteequality; production unchanged",
+  "final_logs": {
+    "goal-editing-context-compatible-store-final.log": "4d554982f95133b36f1af3641ddd3baf674caf7386fc0ecfa6e836b8b14d48f2",
+    "goal-editing-context-compatible-clippy-final.log": "722cbc02cfe915f252dd916ab29bc31ffa80a47f601d7cae29440a2939069203",
+    "goal-editing-context-compatible-fmt-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "goal-editing-context-compatible-sidecars-final.log": "d7a49212965ef4bef0923236c71fbd9af5640f98c36473a005ddd84b8d9360bb"
+  },
+  "new_frozen_binary_manifest": "/workspace/.onboarding/goal-editor-compatible-binaries/manifest.json",
+  "independent_fixed_compatibility": "pending exactnewsource review; prior32 alone did not prove compatibility"
+}
