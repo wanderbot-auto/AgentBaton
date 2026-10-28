@@ -22,8 +22,8 @@
     "AB-SEC-004",
     "AB-REL-001"
   ],
-  "status": "review_fix_source_ready_Root_actual_runtime_in_progress",
-  "source_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+  "status": "observer_independently_reviewed_Root_exact_source_timeout_pass_remaining_integration_pending",
+  "source_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
   "wire_at_preparation": {
     "path": "/workspace/.worktrees/goal-validation-graph/docs/execution/goal-validation-graph/WIRE_CONTRACT.json",
     "sha256": "034c2103b294502ee57ae5706530327a48e951395a4b329877c6b006e5e2931a",
@@ -343,9 +343,9 @@
   },
   "old80checks56captures": "Existing baseline independent evidence preserved; NOT rerun or replaced by these58static boundary controls. No old schema11 daemon/model invoked.",
   "pending_exact_dependencies": [
-    "Root complete final exact-source Owner and Integrity/Data/Command normal plus Data-range/Command-timeout browser runs; do not borrow partial Validator/Owner1/Summary evidence as complete acceptance",
-    "Independent final code/evidence artifacts and actual independent regression as Root assigns",
-    "Remaining full Graph fault matrix and Native OS dialog/macOS/real Provider/CI/development packages/full130Design remain separate"
+    "Root final exact-source Owner-only actual result and final integration/CI",
+    "Remaining Graph fault matrix: drift, unknown, cancellation, CAS/ledger conflicts, actual explicit Reject, true dropped-response recovery; same-key replay alone is not response loss",
+    "Native OS owner dialog/macOS/live Provider/fullDesign delivery remain Root-managed and distinct"
   ],
   "limits": [
     "Latest code160e0a0/source9b1b includes only diagnosed fixture corrections; Root final five-mode replay in progress. Author controls are not Core/browser/TaskAccepted runs.",
@@ -379,7 +379,7 @@
     "budget": "bounded parallel1/root-project cumulative, real bootstrap usage retained; charging awaits actual Core fixture",
     "runtime": "not_run"
   },
-  "source_commit": "160e0a07d0bebb19e7ff1881e1cd25cf4ac3875a",
+  "source_commit": "a94140ebebf22624899b8b815d868f2971bb51f4",
   "owner_only_driver": {
     "mode": "--owner-only",
     "contract_source": "50a53bf sessions_ipc::graph_owner_summary_plan / actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input, plus mandatory OO-WIRE4 canonical/fresh projection fix",
@@ -1110,5 +1110,258 @@
       "bytes": 680
     },
     "fact": "Root reported output Path shadowed by dict; both failure screenshot and finally report writing TypeError, so original first exception cannot be determined. No guessed original cause or success claimed. Root preserved files/process scan."
+  },
+  "Root_shared_history_actual_runs": [
+    {
+      "case": "integrity",
+      "path": "/workspace/.onboarding/goal-graph-final-browser-shared-history/integrity/report.json",
+      "sha256": "bc7c7d44edec22127589a5330e3dd893fbe8ee29d0c01b2030ff3ea9d30fb603",
+      "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+      "status": "passed",
+      "checks": 6,
+      "screenshots": 3,
+      "failure": null,
+      "attribution": "Root actual Core70a/UI4fab; exact source160e, not a941 source runtime proof"
+    },
+    {
+      "case": "data",
+      "path": "/workspace/.onboarding/goal-graph-final-browser-shared-history/data/report.json",
+      "sha256": "d6a7b5a8bc03c031d63f4fcc79bebbd64babf809e146ec4aab45a0d078ff5bab",
+      "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+      "status": "passed",
+      "checks": 6,
+      "screenshots": 3,
+      "failure": null,
+      "attribution": "Root actual Core70a/UI4fab; exact source160e, not a941 source runtime proof"
+    },
+    {
+      "case": "command",
+      "path": "/workspace/.onboarding/goal-graph-final-browser-shared-history/command/report.json",
+      "sha256": "78973b577e017c540efd0f205c001d4b12fce18553b31ffef85930301a8ac5cb",
+      "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+      "status": "passed",
+      "checks": 6,
+      "screenshots": 3,
+      "failure": null,
+      "attribution": "Root actual Core70a/UI4fab; exact source160e, not a941 source runtime proof"
+    },
+    {
+      "case": "data-range",
+      "path": "/workspace/.onboarding/goal-graph-final-browser-shared-history/data-range/report.json",
+      "sha256": "eba3c72c48666d5e8e1fe0c140dd5b1167d9b9d0ed5b250fc28c0fc7b8fcd4d8",
+      "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+      "status": "passed",
+      "checks": 5,
+      "screenshots": 1,
+      "failure": null,
+      "attribution": "Root actual Core70a/UI4fab; exact source160e, not a941 source runtime proof"
+    },
+    {
+      "case": "command-timeout",
+      "path": "/workspace/.onboarding/goal-graph-final-browser-shared-history/command-timeout/report.json",
+      "sha256": "2d9f6ca805bb8aa9d67bcd6d52737cc997b6f588f172a5df93d913268f1dbac3",
+      "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+      "status": "failed_or_interrupted",
+      "checks": 2,
+      "screenshots": 1,
+      "failure": {
+        "type": "AssertionError",
+        "message": "('Observation timed out', None)",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1430, in owner_only_driver\n    command_identity = wait(lambda: owned_command_child(daemon.pid), lambda p: p is not None, seconds=5)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1126, in wait\n    assert time.monotonic() < deadline, clean(('Observation timed out', value))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ('Observation timed out', None)\n"
+      },
+      "attribution": "Root actual Core70a/UI4fab; exact source160e, not a941 source runtime proof"
+    }
+  ],
+  "private_command_observer_repair": {
+    "source_commit": "a94140ebebf22624899b8b815d868f2971bb51f4",
+    "source_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+    "status": "author7 and independent13 observer controls pass; Root actual timeout5/1 pass",
+    "cause": "Managed private task directories exist but children files are absent; actual owned sleep3 observer old helper None reproduced twice independently. Not a claim about kernel build flags.",
+    "limits": {
+      "max_pid_stat_entries": 8192,
+      "max_stat_bytes": 4096,
+      "max_private_children_file_bytes": 65536,
+      "max_private_argv_bytes": 1024,
+      "max_retained_samples": 64,
+      "max_private_candidates_per_sample": 16,
+      "observer_seconds_unchanged": 5,
+      "command_wall_ms_unchanged": 1500,
+      "command_cleanup_ms_unchanged": 500
+    },
+    "discovery_boundary": "Prefer exact private task children; only if absent, read bounded PID/stat PPID metadata; full identity/argv/PGID only after private PPID match. ENOENT/ESRCH races only; permission/unexpected failures propagate. No unrelated argv/global signal.",
+    "failure_evidence": "Record timeout discovery and actual Graph response; cleanup observer exception marks failure but daemonwait continues.",
+    "actual_author_controls": {
+      "checks": 7,
+      "status": "passed",
+      "dimension": "Actual self-owned local Popen observer only; no Core/browser/validator/model",
+      "positive_seconds": 0.06521738099399954,
+      "pid_stat_entries": 3876,
+      "children": [
+        {
+          "pid": 814210,
+          "wait_exitcode": -15,
+          "process_not_alive": true
+        },
+        {
+          "pid": 814211,
+          "wait_exitcode": -15,
+          "process_not_alive": true
+        }
+      ]
+    },
+    "commands_executed": [
+      "python3 stdin: runpy exact source; actual self-owned Popen sleep3 and sleep2 with positive/wrong-parent/wrong-argv/identity/bounds/terminate-wait-gone controls; report persisted in exclusive directory",
+      "python3 stdin: py_compile to /tmp/goal-graph-observer.pyc and AST comparisons against160e",
+      "git diff --check"
+    ],
+    "artifacts": [
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/command-child-self-control-1/report.json",
+        "sha256": "76d1640ab2d8a1c2b644f5932f54d6a8a798149cb1d53d2257835799e20e7121",
+        "bytes": 6246
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/command-child-self-control-1/proc-feature.json",
+        "sha256": "cb82de0977f0dfc2f318ca86cdf70b3697e35b0edddcfaf9379deacaa2281957",
+        "bytes": 863
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/command-child-fallback-controls-1/report.json",
+        "sha256": "54b8e9fd9766e92ff73e2225203627d2387436deec74ce11d2d4f71295d2794b",
+        "bytes": 3299
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/command-child-fallback-controls-1/ast-scope.json",
+        "sha256": "5a720107e0ee4cf5778b26322711129c84d16aac76737fc57ea47e2577682b6c",
+        "bytes": 352
+      }
+    ],
+    "independent_review": {
+      "path": "/workspace/.onboarding/goal-graph-driver-90d-review/observer-a941/controls.json",
+      "sha256": "fb26af45b224f271f8c084fc950c5f22dcaad165d7508159cea690d083c8e179",
+      "checks": 13,
+      "status": "passed",
+      "dimension": "Independent own subprocess + explicit lightweight fault controls; no Core/Chromium/Cargo",
+      "reviewer": "data_native_integration_review"
+    },
+    "Root_actual_timeout_replay": {
+      "executor": "Root",
+      "path": "/workspace/.onboarding/goal-graph-command-timeout-proc-fallback/report.json",
+      "sha256": "e13e38633ba0d145133c6a362fdf957a3cabc4ddfb27fdecf42ca0438599ed9f",
+      "status": "passed",
+      "harness_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+      "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+      "frontend_assets_sha256": {
+        "assets/index-CbM2OhF1.js": "ca70891148fb3da167ee7219e2b0b4dcf867390cc9b3b81241b15256f6db4626",
+        "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+        "index.html": "a91ec9ba22205a07e7c0e285ffe77ed67e5d731c7e6fb7edf04b50d658d29450"
+      },
+      "checks": 5,
+      "screenshots": [
+        {
+          "path": "/workspace/.onboarding/goal-graph-command-timeout-proc-fallback/01-five-node-command-timeout-blocked-before-owner.png",
+          "sha256": "bf4e039e2e1c2984f00a776f80c4f96f0a049515aebd61f1bc6586751c3ff2f8",
+          "viewport": {
+            "width": 1488,
+            "height": 1400
+          },
+          "owner_controls": [],
+          "dimension": "Linux Chromium; not native/macOS"
+        }
+      ],
+      "cleanup": [
+        {
+          "action": "HTTP serve thread joined",
+          "thread_alive": false
+        },
+        {
+          "action": "HTTP server closed and request handlers joined",
+          "active_handlers": []
+        },
+        {
+          "action": "owned daemon wait completed",
+          "pid": 814349,
+          "termination_requested": true,
+          "wait_exitcode": 0,
+          "forced_sigkill": false,
+          "process_not_alive": true
+        },
+        {
+          "action": "actual owned Command original identity not alive",
+          "expected_identity": {
+            "pid": 814635,
+            "parent_pid": 814349,
+            "start_ticks": "7698052",
+            "state": "S",
+            "pgid": 814635,
+            "argv": [
+              "/usr/bin/sleep",
+              "3"
+            ]
+          },
+          "observed_start_ticks": null,
+          "pid_exists": false,
+          "original_process_not_alive": true,
+          "signal_sent": false
+        },
+        {
+          "action": "generated process original identity not alive",
+          "marker": "fixture-owned-f125de1e-ae41-49f3-89b7-0a12368c4fc1.json",
+          "marker_sha256": "8a5c2ebd58fb7a0f64925e9364bab13f7edb86290c3f35cf9317795a13a142cf",
+          "expected_identity": {
+            "pid": 814619,
+            "pgid": 814619,
+            "start_ticks": "7697933"
+          },
+          "observed_start_ticks": null,
+          "original_process_not_alive": true,
+          "pid_exists": false,
+          "matched_real_task_request": true,
+          "signal_sent": false
+        },
+        {
+          "action": "generated process original identity not alive",
+          "marker": "fixture-owned-49de0ad4-495d-45c5-84e7-e27204001c51.json",
+          "marker_sha256": "59cbad10abf5fbc1dd00a513cf0152f42a49a5ffd7c848d9f6932c0ee120d23d",
+          "expected_identity": {
+            "pid": 814395,
+            "pgid": 814395,
+            "start_ticks": "7697557"
+          },
+          "observed_start_ticks": null,
+          "original_process_not_alive": true,
+          "pid_exists": false,
+          "matched_real_task_request": true,
+          "signal_sent": false
+        }
+      ],
+      "owned_command_child": {
+        "pid": 814635,
+        "parent_pid": 814349,
+        "start_ticks": "7698052",
+        "state": "S",
+        "pgid": 814635,
+        "argv": [
+          "/usr/bin/sleep",
+          "3"
+        ]
+      },
+      "observed_budgets": {
+        "project:3d6397c6-01d8-442a-99db-d5d99750c777": {
+          "consumed": 3,
+          "active": 0
+        },
+        "root:54b67d7c-0fae-40b5-bf59-3cc3956287ae": {
+          "consumed": 1,
+          "active": 0
+        },
+        "root:c70b9978-3197-4482-af0c-8485ab5a9040": {
+          "consumed": 3,
+          "active": 0
+        }
+      },
+      "limits_changed": false,
+      "author_visual_inspection": "Viewed original PNG: Blocked/task acceptance pending; Validate Failed, both Owners and Summary Not started; candidate1/check1/Ownerdecisions0. Linux Chromium only."
+    }
   }
 }
