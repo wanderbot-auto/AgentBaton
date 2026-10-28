@@ -124,7 +124,17 @@
           },
           "archive": "final-linux/browser-shared-history-first/results.json"
         }
-      ]
+      ],
+      "final_independent_review": {
+        "source": "a94140ebebf22624899b8b815d868f2971bb51f4",
+        "verdict": "PASS scoped source/evidence, not macOS/CI/fullproduct",
+        "report": "DRIVER_A941_REVIEW.md",
+        "manifest": "DRIVER_A941_MANIFEST.json",
+        "portable_import": "DRIVER_A941_IMPORT.json",
+        "files": 135,
+        "raw_checks": 34,
+        "screenshots_actually_viewed": 14
+      }
     },
     "new_ci": "not_run",
     "new_macos": "not_run",
@@ -184,5 +194,15 @@
     "fmt": "PASS",
     "evidence": "ROOT_NATIVE_FINAL.json",
     "dimension": "Linux composed current sources; macOS code and NSAlert not_run"
+  },
+  "pull_request": {
+    "number": 16,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/pull/16",
+    "state": "draft",
+    "first_head": "3af6b5c391dbce8c7eb4df15844acd255029b919",
+    "first_product_run": 40732467344,
+    "first_environment_run": 40732467579,
+    "current_ci": "pending final documentation head; no success claim",
+    "formal_approve": "not_submitted"
   }
 }

@@ -1,5 +1,13 @@
 # AgentBaton 执行状态
 
+## PR16 已建立，最终独审证据已封存
+
+PR https://github.com/wanderbot-auto/AgentBaton/pull/16 当前draft/base main。首head3af6b5c触发Product40732467344和Environment40732467579，本次导入最终独审后将一次normalpush最终文档head，须读取新head七项真实结果；先前run按真实状态保留，不借用成功。没有提交正式Approve。
+
+最终driver source a94140e/4bc91f独审PASS：报告DRIVER_A941_REVIEW.md SHA b11fc679231b99ec15e5dd153e25b201cef8f25a5600ebe7bbe2b2a54fef09a7，manifest8174d8eec77d1d023b2a7965b6e6acdd1c5d764066fa13890f8fae8ab9a223c0；135证据/六raw报告/14原PNG已Root逐hash，完整portable archive与映射DRIVER_A941_IMPORT.json，旧17blocked与NativeCI20manifest未改。独立decoder核完整TaskRequest/原UTF8SHA、Owner refs、原receipt与派生raw、事件、4/3/2预算与真实ownedcleanup；14图作者独审均已实际查看。自写decoder首误假定negative保留reserved字段的KeyError原失败保留，仅修checker对实际retained capture/stop序，不改source/report。
+
+Root亲看最终timeoutBlocked与OwnerAccepted原PNG，源码都4bc91f；另外CommandAccepted/DataRangeBlocked对应160e。全部6实际场景34/14已明确分别归因，不把Linux/浏览器/生成ACP/私有fixture当Mac或真实Provider。新CI将同候选重跑全6及全部旧流程、真实Native/Owner对话框和双架构开发安装包；macOS/签名/安装包结果仍pending。最终独审不替代formalApprove或扩大权限。后续无产品变更时不为单纯日志反复推新head打断CI。
+
 ## 新 Graph 本地六场景验证完成，进入 PR/CI
 
 Core70a/冻daemon40322b、新4fab资产ca708在实际Linux React/Unix IPC中完成六场景：Integrity6/3、Data6/3、Command6/3、Data-range5/1（上述harness160e/9b1），最终Command-timeout5/1与Owner-only6/3（harnessa941/4bc）。共34检查/14原PNG；ROOT_GRAPH_BROWSER_FINAL.json逐命令/报告/源码归因。没有把四个旧源结果写成最终a941全部同SHA执行；CI必须在同一准确候选重跑六项。Root已目视CommandAccepted、DataRangeBlocked，独立reviewer逐张核验四场景原图，正封存最终两项实际证据。
