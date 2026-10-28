@@ -117,6 +117,27 @@ def pending_error(value, proposal, sequence):
     return None
 
 
+def opaque_id(value):
+    if not isinstance(value, str) or not value.strip():
+        return False
+    try:
+        return len(value.encode('utf-8')) <= 512
+    except UnicodeEncodeError:
+        return False
+
+
+def grant_scope(intent):
+    return {'workspace_ids': [intent['workspace_id']], 'connection_ids': [intent['connection_id']],
+            'host_ids': ['local'], 'max_attempts': intent['max_attempts'],
+            'max_concurrency': intent['max_concurrency'], 'max_duration_ms': intent['max_duration_ms'],
+            'recipients': [], 'network': {'mode': 'deny'}, 'max_depth': 0, 'max_children': 0}
+
+
+def grant_enforcement():
+    return {'baton_mediated_scope': True, 'os_filesystem_sandbox': False,
+            'os_network_sandbox': False, 'native_identity_isolation': False}
+
+
 def approved_error(value, proposal, baseline, response):
     grants = value.get('grants')
     current = value.get('proposal', {})
@@ -125,7 +146,7 @@ def approved_error(value, proposal, baseline, response):
             or current.get('id') != proposal['id'] or current.get('snapshot') != proposal['snapshot']
             or current.get('kind') != 'grant' or current.get('consumed') is not True
             or type(current.get('revision')) is not int or current['revision'] != proposal['revision'] + 1
-            or grants[0].get('approval_id') != proposal['id']
+            or not opaque_id(grants[0].get('id')) or not opaque_id(grants[0].get('approval_id'))
             or value.get('proposal_result') != grants[0] or response.get('result') != grants[0]
             or response.get('error') is not None or type(value.get('sequence')) is not int or value['sequence'] != baseline + 2
             or not isinstance(value.get('counts'), dict)
@@ -134,16 +155,28 @@ def approved_error(value, proposal, baseline, response):
         return 'Exact production Grant commit/CAS/result/zero execution evidence missing'
     grant = grants[0]
     intent = proposal['snapshot']['intent']
-    if (grant.get('project_id') != intent['project_id'] or grant.get('parent_id') is not None
-            or grant.get('root_grant_id') != grant.get('id') or grant.get('depth') != 0 or grant.get('revision') != 1
+    if (grant.get('project_id') != intent['project_id']
+            or grant.get('scope') != grant_scope(intent)
+            or any(type(grant['scope'].get(k)) is not int for k in ['max_attempts', 'max_concurrency', 'max_duration_ms', 'max_depth', 'max_children'])
+            or grant.get('enforcement') != grant_enforcement()
+            or any(type(grant['enforcement'].get(k)) is not bool for k in grant_enforcement()) or grant.get('parent_id') is not None
+            or grant.get('root_grant_id') != grant.get('id') or type(grant.get('depth')) is not int or grant['depth'] != 0
+            or type(grant.get('revision')) is not int or grant['revision'] != 1
             or grant.get('revoked') is not False or grant.get('scope', {}).get('workspace_ids') != [intent['workspace_id']]
             or grant['scope'].get('connection_ids') != [intent['connection_id']]
             or any(grant['scope'].get(k) != intent[k] for k in ['max_attempts', 'max_concurrency', 'max_duration_ms'])
-            or grant.get('workspace_bindings', {}).get(intent['workspace_id']) != proposal['snapshot']['refs']['workspace_identity']
-            or grant.get('connection_bindings', {}).get(intent['connection_id']) != proposal['snapshot']['refs']['connection']):
+            or grant.get('workspace_bindings') != {intent['workspace_id']: proposal['snapshot']['refs']['workspace_identity']}
+            or grant.get('connection_bindings') != {intent['connection_id']: proposal['snapshot']['refs']['connection']}):
         return 'Committed root Grant does not match the exact bounded intent and resolved bindings'
-    grant_events = [e for e in value.get('events', []) if e.get('aggregate_id') == grant['id'] and e.get('kind') == 'execution_grant.approved']
-    if len(grant_events) != 1 or grant_events[0].get('source') != 'user_action' or grant_events[0].get('revision') != grant['revision'] or type(grant_events[0].get('sequence')) is not int or grant_events[0]['sequence'] != baseline + 1:
+    grant_events = [e for e in value.get('events', []) if e.get('kind') == 'execution_grant.approved']
+    expected_grant_event = {'grant_id': grant['id'], 'project_id': grant['project_id'],
+                            'root_grant_id': grant['root_grant_id'], 'approval_id': grant['approval_id'],
+                            'scope': grant['scope'], 'enforcement': grant['enforcement']}
+    if (len(grant_events) != 1 or grant_events[0].get('aggregate_id') != grant['id']
+            or grant_events[0].get('source') != 'user_action'
+            or type(grant_events[0].get('revision')) is not int or grant_events[0]['revision'] != grant['revision']
+            or type(grant_events[0].get('sequence')) is not int or grant_events[0]['sequence'] != baseline + 1
+            or grant_events[0].get('payload') != expected_grant_event):
         return 'Exact persisted execution_grant.approved event missing'
     confirmations = [event for event in value.get('events', []) if event.get('aggregate_id') == proposal['id'] and event.get('kind') == 'approval.confirmed']
     if (len(confirmations) != 1 or confirmations[0].get('source') != 'local_owner_confirmation'

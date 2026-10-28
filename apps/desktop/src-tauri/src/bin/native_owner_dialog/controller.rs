@@ -19,6 +19,61 @@ pub fn diagnostic_text(text: &str, total: &mut usize) -> Result<Value, String> {
     )
 }
 
+fn opaque_id(value: &Value) -> bool {
+    value
+        .as_str()
+        .is_some_and(|id| !id.trim().is_empty() && id.len() <= 512)
+}
+/// Test-driver response check only. The Grant approval ID is an independent
+/// Core-generated opaque ID, not the Owner proposal ID. The host subsequently
+/// binds this entire result to readonly DB/proposal result and both real events.
+pub fn validate_grant_response(response: &Value, expected: &Value) -> Result<(), String> {
+    let proposal = &expected["proposal"];
+    let intent = &proposal["snapshot"]["intent"];
+    let grant = &response["result"];
+    if response.get("error").is_some()
+        || proposal["kind"] != "grant"
+        || !opaque_id(&proposal["id"])
+        || !opaque_id(&grant["id"])
+        || !opaque_id(&grant["approval_id"])
+        || grant["project_id"] != intent["project_id"]
+        || grant["root_grant_id"] != grant["id"]
+        || !grant["parent_id"].is_null()
+        || grant["depth"].as_u64() != Some(0)
+        || grant["revision"].as_u64() != Some(1)
+        || grant["revoked"] != false
+    {
+        return Err("Grant result identity or immutable root shape mismatch".into());
+    }
+    let workspace = intent["workspace_id"]
+        .as_str()
+        .ok_or("Missing workspace intent")?;
+    let connection = intent["connection_id"]
+        .as_str()
+        .ok_or("Missing connection intent")?;
+    let scope = serde_json::json!({"workspace_ids":[workspace],"connection_ids":[connection],"host_ids":["local"],
+        "max_attempts":intent["max_attempts"],"max_concurrency":intent["max_concurrency"],"max_duration_ms":intent["max_duration_ms"],
+        "recipients":[],"network":{"mode":"deny"},"max_depth":0,"max_children":0});
+    let enforcement = serde_json::json!({"baton_mediated_scope":true,"os_filesystem_sandbox":false,"os_network_sandbox":false,"native_identity_isolation":false});
+    if grant["scope"] != scope
+        || grant["enforcement"] != enforcement
+        || !proposal["snapshot"]["refs"]["workspace_identity"].is_object()
+        || !proposal["snapshot"]["refs"]["connection"].is_object()
+        || grant["workspace_bindings"]
+            .as_object()
+            .is_none_or(|bindings| bindings.len() != 1)
+        || grant["connection_bindings"]
+            .as_object()
+            .is_none_or(|bindings| bindings.len() != 1)
+        || grant["workspace_bindings"][workspace]
+            != proposal["snapshot"]["refs"]["workspace_identity"]
+        || grant["connection_bindings"][connection] != proposal["snapshot"]["refs"]["connection"]
+    {
+        return Err("Grant result scope, enforcement or exact approved bindings mismatch".into());
+    }
+    Ok(())
+}
+
 pub fn validate(
     observed: &Value,
     expected: &Value,
@@ -77,6 +132,53 @@ mod tests {
             "parent_matches":true,"visible":true,"complete_text_visible":true,"window_number":7,
             "buttons":[{"title":"OK","enabled":true,"visible":true},{"title":"Cancel","enabled":true,"visible":true}]});
         (expected, observed)
+    }
+    fn grant_response_fixture() -> (Value, Value) {
+        let expected = json!({"proposal":{"id":"owner-proposal","kind":"grant","snapshot":{"intent":{"project_id":"project","workspace_id":"workspace","connection_id":"connection","max_attempts":1,"max_concurrency":1,"max_duration_ms":1000},"refs":{"workspace_identity":{"root":"fixed"},"connection":{"revision":2}}}}});
+        let response = json!({"result":{"id":"grant","approval_id":"independent-grant-approval","project_id":"project","root_grant_id":"grant","parent_id":null,"depth":0,"revision":1,"revoked":false,
+            "scope":{"workspace_ids":["workspace"],"connection_ids":["connection"],"host_ids":["local"],"max_attempts":1,"max_concurrency":1,"max_duration_ms":1000,"recipients":[],"network":{"mode":"deny"},"max_depth":0,"max_children":0},
+            "enforcement":{"baton_mediated_scope":true,"os_filesystem_sandbox":false,"os_network_sandbox":false,"native_identity_isolation":false},"workspace_bindings":{"workspace":{"root":"fixed"}},"connection_bindings":{"connection":{"revision":2}}}});
+        (expected, response)
+    }
+    #[test]
+    fn grant_response_uses_independent_opaque_approval_identity_and_exact_scope() {
+        let (expected, response) = grant_response_fixture();
+        assert_ne!(
+            response["result"]["approval_id"],
+            expected["proposal"]["id"]
+        );
+        assert!(validate_grant_response(&response, &expected).is_ok());
+        for field in ["id", "approval_id"] {
+            for bad in [json!(null), json!(""), json!(" "), json!("x".repeat(513))] {
+                let mut changed = response.clone();
+                changed["result"][field] = bad;
+                assert!(validate_grant_response(&changed, &expected).is_err());
+            }
+        }
+    }
+    #[test]
+    fn foreign_or_expanded_grant_response_and_error_never_complete_os_fixture() {
+        let (expected, response) = grant_response_fixture();
+        for path in [
+            "/result/project_id",
+            "/result/root_grant_id",
+            "/result/scope/host_ids",
+            "/result/scope/network",
+            "/result/scope/max_attempts",
+            "/result/workspace_bindings/workspace",
+            "/result/connection_bindings/connection",
+            "/result/enforcement/os_filesystem_sandbox",
+        ] {
+            let mut changed = response.clone();
+            *changed.pointer_mut(path).unwrap() = json!("foreign");
+            assert!(
+                validate_grant_response(&changed, &expected).is_err(),
+                "{path}"
+            );
+        }
+        let mut changed = response;
+        changed["error"] = json!({"code":"OUTCOME_UNKNOWN"});
+        assert!(validate_grant_response(&changed, &expected).is_err());
     }
     #[test]
     fn complete_owned_sheet_observation_is_eligible_for_a_real_click_only() {

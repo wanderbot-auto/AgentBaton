@@ -35,15 +35,18 @@ def approved():
     after['sequence'] = 11
     after['proposal']['revision'] = 2
     after['proposal']['consumed'] = True
-    grant = {'id': 'grant', 'approval_id': proposal['id'], 'project_id': 'project', 'root_grant_id': 'grant',
+    grant = {'id': 'grant', 'approval_id': 'independent-grant-approval', 'project_id': 'project', 'root_grant_id': 'grant',
              'parent_id': None, 'depth': 0, 'revision': 1, 'revoked': False,
              'scope': {'workspace_ids': ['workspace'], 'connection_ids': ['connection'], 'max_attempts': 1,
-                       'max_concurrency': 1, 'max_duration_ms': 1000},
+                       'max_concurrency': 1, 'max_duration_ms': 1000, 'host_ids': ['local'],
+                       'recipients': [], 'network': {'mode': 'deny'}, 'max_depth': 0, 'max_children': 0},
+             'enforcement': runner.grant_enforcement(),
              'workspace_bindings': {'workspace': proposal['snapshot']['refs']['workspace_identity']},
              'connection_bindings': {'connection': proposal['snapshot']['refs']['connection']}}
     after['grants'] = [grant]
     after['proposal_result'] = grant
-    after['events'] = [{'aggregate_id': 'grant', 'kind': 'execution_grant.approved', 'source': 'user_action', 'revision': 1, 'sequence': 10},
+    after['events'] = [{'aggregate_id': 'grant', 'kind': 'execution_grant.approved', 'source': 'user_action', 'revision': 1, 'sequence': 10,
+                        'payload': {key: grant[field] for key, field in [('grant_id', 'id'), ('project_id', 'project_id'), ('root_grant_id', 'root_grant_id'), ('approval_id', 'approval_id'), ('scope', 'scope'), ('enforcement', 'enforcement')]}},
                        {'aggregate_id': proposal['id'], 'kind': 'approval.confirmed', 'source': 'local_owner_confirmation', 'revision': 2, 'sequence': 11,
                         'payload': {'kind': 'grant', 'proposal_id': proposal['id'], 'consumed': True}}]
     return proposal, after, {'result': grant}
@@ -99,6 +102,37 @@ class OwnerRunnerControls(unittest.TestCase):
                     fixture['client'].call('approvals.finalize', {'proposal_id': proposal['id']})
             self.assertTrue(runner.json.loads((output / 'daemon-cleanup.json').read_text())['ok'])
 
+    def test_real_core_grant_contract_binds_independent_approval_and_owner_proposal(self):
+        daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            with runner.bootstrap(daemon, output) as fixture:
+                runtime, proposal = fixture['runtime'], fixture['proposal']
+                before = runner.database(runtime, proposal['id'])
+                self.assertIsNone(runner.pending_error(before, proposal, before['sequence']))
+                # Private test-only Owner fixture. The host bootstrap client
+                # STILL cannot finalize a Grant; no OS/human approval is claimed.
+                frame = {'api_version': 1, 'request_id': str(runner.uuid.uuid4()),
+                         'token': (runtime / 'session.token').read_text(),
+                         'method': 'approvals.finalize', 'params': {'proposal_id': proposal['id']},
+                         'expected_revision': proposal['revision'],
+                         'idempotency_key': 'proposal:' + proposal['id']}
+                with runner.socket.socket(runner.socket.AF_UNIX) as stream:
+                    stream.settimeout(20)
+                    stream.connect(str(runtime / 'batond.sock'))
+                    stream.sendall(runner.json.dumps(frame).encode() + b'\n')
+                    raw = bytearray()
+                    while not raw.endswith(b'\n'):
+                        chunk = stream.recv(65536)
+                        self.assertTrue(chunk)
+                        self.assertLessEqual(len(raw) + len(chunk), 4 * 1024 * 1024)
+                        raw.extend(chunk)
+                response = runner.json.loads(raw)
+                after = runner.database(runtime, proposal['id'])
+                print('REAL_CORE_GRANT_CONTRACT=' + runner.json.dumps({'proposal': proposal, 'after': after, 'response': response}))
+                self.assertIsNone(runner.approved_error(after, proposal, before['sequence'], response))
+            self.assertTrue(runner.json.loads((output / 'daemon-cleanup.json').read_text())['ok'])
+
     def test_exact_root_grant_commit_event_and_reply_bindings_are_required(self):
         proposal, after, response = approved()
         self.assertIsNone(runner.approved_error(after, proposal, 9, response))
@@ -130,6 +164,50 @@ class OwnerRunnerControls(unittest.TestCase):
         response = copy.deepcopy(response)
         response['result']['approval_id'] = 'other-proposal'
         self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
+
+    def test_opaque_approval_id_is_bound_across_complete_records_and_event_payload(self):
+        proposal, after, response = approved()
+        self.assertNotEqual(after['grants'][0]['approval_id'], proposal['id'])
+        for bad in [None, '', ' ', 'x' * 513, '批' * 171, True]:
+            changed = copy.deepcopy(after)
+            changed['grants'][0]['approval_id'] = bad
+            changed['events'][0]['payload']['approval_id'] = bad
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, {'result': changed['grants'][0]}))
+        # Opaque role IDs are not required to be different either: consistency
+        # with the persisted Grant, not an invented equality/inequality, binds it.
+        changed = copy.deepcopy(after)
+        changed['grants'][0]['approval_id'] = proposal['id']
+        changed['events'][0]['payload']['approval_id'] = proposal['id']
+        self.assertIsNone(runner.approved_error(changed, proposal, 9, {'result': changed['grants'][0]}))
+
+    def test_each_grant_result_and_unique_event_association_is_exact(self):
+        proposal, after, response = approved()
+        for layer in ['database_grant', 'proposal_result', 'response']:
+            changed = copy.deepcopy(after)
+            changed['proposal_result'] = copy.deepcopy(changed['proposal_result'])
+            reply = copy.deepcopy(response)
+            target = {'database_grant': changed['grants'][0], 'proposal_result': changed['proposal_result'], 'response': reply['result']}[layer]
+            target['approval_id'] = 'foreign-opaque-id'
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, reply), layer)
+        for field in ['grant_id', 'project_id', 'root_grant_id', 'approval_id', 'scope', 'enforcement']:
+            changed = copy.deepcopy(after)
+            changed['events'][0]['payload'][field] = 'foreign'
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response), field)
+        changed = copy.deepcopy(after)
+        extra = copy.deepcopy(changed['events'][0])
+        extra['aggregate_id'] = 'foreign-grant'
+        changed['events'].append(extra)
+        self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response))
+
+    def test_self_consistent_expanded_scope_or_false_enforcement_is_not_accepted(self):
+        proposal, after, _ = approved()
+        for container, field, wrong in [('scope', 'host_ids', ['foreign']), ('scope', 'recipients', ['new']),
+                                         ('scope', 'network', {'mode': 'unrestricted'}), ('scope', 'max_depth', 1),
+                                         ('scope', 'max_attempts', True), ('enforcement', 'os_filesystem_sandbox', True),
+                                         ('enforcement', 'baton_mediated_scope', 1)]:
+            changed = copy.deepcopy(after)
+            changed['grants'][0][container][field] = wrong
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, {'result': changed['grants'][0]}), (container, field))
 
     def test_host_client_cannot_finalize_grant_or_generic_mutation(self):
         client = runner.NativeCoreClient(Path('/does-not-exist'))
