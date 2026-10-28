@@ -1,0 +1,38 @@
+{
+  "subject_head": "0a0beac38260cc426b4a0887b2bf59937ec9ff90",
+  "actual_checkout": "3d958a30235090aa7c3e86c75fde6b14df6575e5",
+  "main": "bcf10bb802258645c554f37581237a6c0cb3cbe6",
+  "product_run": 40475194913,
+  "environment_run": 40475194909,
+  "result": "FAILED: 5 success / 2 macOS failure; no merge",
+  "arm": {
+    "job": 122091591692,
+    "failure": "native_codex fault-mode startup helper: Timeout/Unknown; 18/19; original500ms",
+    "original_mode": "unknown",
+    "root_cause": "unknown; not reproduced",
+    "new_change": "f61842cf failure-only bounded safe diagnostics, not production performance fix",
+    "independent_local": "20/20 plus all-target Clippy/fmt; same500ms and fixture bytes",
+    "raw_log_sha256": "dcd64d5e1475e0acbf3f9042f76db918840d31f735b92d6aa04822d53dd6da0f"
+  },
+  "intel": {
+    "job": 122091591770,
+    "failure": "new alias control canonical socket bind INTERNAL_ERROR; host13 passed, harness11/12; original canonical test passed",
+    "historical_path_errno": "not observed; socket length hypothesis, independent Linux132-byte FAIL/41-byte PASS only mechanism",
+    "new_change": "6a798204 cfg(test) actual runtime at original helper depth; separate alias namespace; production unchanged",
+    "independent_local": "13host+12harness/Clippy/fmt pass under umask022",
+    "raw_log_sha256": "acf186178c4b94ad3ae41d6febc0282fccdb8f929d753d90971fdd0b94759d50"
+  },
+  "not_established": [
+    "new macOS WebView/native report/PNG/lifecycle/default-release audit",
+    "new dual development DMGs",
+    "real Provider/model/Owner dialog/minimumOS/user installation",
+    "full Goal dispatch/acceptance/full130 completion"
+  ],
+  "resume": {
+    "date_utc": "2026-10-28T06:50:29.507416+00:00",
+    "main_fetched": true,
+    "owner_inbox": "001/002 reread ACK; no003",
+    "local_code_head": "ab2d810",
+    "next": "normalpush one new proof head, exact 7 checks and independent new native/package evidence; no ready toggle or manual duplicate"
+  }
+}

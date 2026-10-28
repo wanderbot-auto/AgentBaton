@@ -1,5 +1,14 @@
 # AgentBaton 执行状态
 
+## Quota-resume checkpoint — 2026-10-28
+
+Runtime actually connected/running and network enforced; tools and native agents are executing again. Actual fetch main remains bcf10bb802258645c554f37581237a6c0cb3cbe6; OWNER001/002 reread ACK, no003. PR13 remote0a0beac completed5success/2MacFAIL, not merged. Exactcheckout3d958a/tree d232, ARM native protocol startup18/19 TimeoutUnknown(original500ms, historical mode/cause unknown), Intel workspace+host13 pass then alias positive socket bind11/12; no new native pair/default-release audit/DMGs. CI_0A0B_FAILURE/VERIFICATION and independent NATIVE_0A0B_REVIEW preserve actual failure and all raw hashes.
+
+Local codehead ab2d810 integrates cfg(test)-only shorter actual socket-layout source6a798→bfef422 and failure-only safe Provider diagnostics f61842→cfe5838. Independent socket13+12/lints REVIEW5f84a13d and Provider20/lints REVIEW4ebc1059, complete verification manifests and source bytes rehashed by Root at resume. Original protocol500ms/4MiB/all tests/guards/Environment unchanged. ARM historical failure is not reproduced or fixed by diagnostics; fresh actual CI required. Next normalpush one proof head, no ready toggle/manualduplicate, no merge until exact7/newdualnative/packages independently accepted.
+
+DataCore schema10 WIP preserved in codex/data-workspace-runtime HEAD152725 with dedicated author and separate reviewer resumed, exclusive main Cargo target to author. Latest receipt-chain order/source, deepGit compatibility, new cancelled/io_completion and full migration/workspace/lints/build remain subject to final source freeze+independent proof. Old candidate636e/8browserchecks/6PNG/onlybefore-destination cancel facts remain intact. Nativefull lossless64-file display071e569 independent22/lints/oldFAIL/newPASS+fullValue roundtrip14809bytes reviewedc77e979f; no OSdialog/macOS/final Data10 claim. CancelUI52a06c9 Root actually360/19/type/build PASS; final independent static review and newCore realIPC still pending. PersonalUI78badec independent266+actualoldFAIL/new41checks26PNG saved remotea4c4d795 separate noPR. Full130 scope/residual requirements remain. No extra fee/model/private credentials/signing/production authorized.
+
+
 当前保护main已为bcf10bb802258645c554f37581237a6c0cb3cbe6（PR12）。实际Owner001/002已重读ACK无新序号；源58b5/CI8f19d8f七项、双native与实际双DMG独审/哈希/签名记录全部通过后按expectedhead+clean保护合入。交付链接/完整SHA/实际签名状态/人工清单见command-integration/DEVELOPMENT_DELIVERY_58B5.md。过去Mac/Linux失败和crossfixture压力限制均保留；此是命令纵切，不是完整产品完工。
 
 当前PR13首个准确aeff/checkout1b990：Rust/UI及替代Environment三项全success，但双Mac在新增fixture10/11同因非canonical路径拒绝而失败，真实WebView/默认发布audit/双包均未运行，禁止合入。完整失败/原正常ready事件取消记录见goal-integration/CI_AEFF_FAILURE.json、NATIVE_AEFF_REVIEW.md（0e8f1f51）。已完成cfg(test)限定修8fde，独审13host+12harness/Clippy/fmt通过（830d67fc）；生产no_symlinks、JS、所有时限与CI保留，准备normalpush新准确七检查。
