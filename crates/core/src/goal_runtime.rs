@@ -1302,9 +1302,7 @@ impl Store {
         let record: ScopeRecord = raw(&self.conn, "goal_scopes", &r.scope_id)?;
         // Current available selected artifact bytes; cap work on the actor. A
         // missing/unsafe/too-large observation stays unknown rather than zero.
-        let root_matches = record.refs.workspace.identity.as_ref().is_some_and(|pin| {
-            crate::policy::live_workspace_matches(&record.refs.workspace.root, pin).unwrap_or(false)
-        });
+        let root_matches = current_output_root(&self.conn, &record.refs.workspace);
         let mut output_bytes = if root_matches { Some(0u64) } else { None };
         for output in &n.node.outputs {
             let Some(approved) = record.selection.outputs.iter().find(|o| {
@@ -1319,17 +1317,22 @@ impl Store {
                 .artifact
                 .max_bytes
                 .min(1_048_576u64.saturating_sub(measured));
-            match agentbaton_workspaces::read_artifact(
-                &record.refs.workspace.root,
-                &approved.artifact.relative_path,
-                limit,
-            ) {
-                Ok(bytes) => output_bytes = measured.checked_add(bytes.len() as u64),
+            let pin = record
+                .refs
+                .workspace
+                .identity
+                .as_ref()
+                .ok_or_else(changed)?;
+            match read_pinned_output(pin, &approved.artifact.relative_path, limit) {
+                Ok(bytes) => output_bytes = measured.checked_add(bytes),
                 Err(_) => {
                     output_bytes = None;
                     break;
                 }
             }
+        }
+        if !current_output_root(&self.conn, &record.refs.workspace) {
+            output_bytes = None;
         }
         if never_started {
             output_bytes = Some(0);
@@ -1843,6 +1846,112 @@ impl Store {
     }
 }
 
+// Read only from the approved directory inode. A separate path check followed
+// by read_artifact(root, ...) could otherwise open a replacement root in between.
+fn read_pinned_output(
+    pin: &agentbaton_workspaces::WorkspaceIdentity,
+    relative: &std::path::Path,
+    limit: u64,
+) -> Result<u64> {
+    use rustix::fs::{open, openat, Mode, OFlags};
+    use std::{fs::File, io::Read, os::unix::fs::MetadataExt, path::Component};
+    let flags = OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC;
+    let mut root: File = open("/", flags | OFlags::DIRECTORY, Mode::empty())
+        .map_err(|_| changed())?
+        .into();
+    for part in pin.canonical_root.components() {
+        match part {
+            Component::RootDir => {}
+            Component::Normal(name) => {
+                root = openat(&root, name, flags | OFlags::DIRECTORY, Mode::empty())
+                    .map_err(|_| changed())?
+                    .into()
+            }
+            _ => return Err(changed()),
+        }
+    }
+    let meta = root.metadata().map_err(|_| changed())?;
+    if !pin.canonical_root.is_absolute()
+        || !meta.is_dir()
+        || (meta.dev(), meta.ino()) != (pin.device, pin.inode)
+    {
+        return Err(changed());
+    }
+    fn leaf(root: &File, relative: &std::path::Path) -> Result<File> {
+        let parts: Vec<_> = relative.components().collect();
+        if parts.is_empty() {
+            return Err(changed());
+        }
+        let mut file = root.try_clone().map_err(|_| changed())?;
+        for (i, part) in parts.iter().enumerate() {
+            let Component::Normal(name) = part else {
+                return Err(changed());
+            };
+            let mut flags = OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::NONBLOCK | OFlags::CLOEXEC;
+            if i + 1 < parts.len() {
+                flags |= OFlags::DIRECTORY;
+            }
+            file = openat(&file, *name, flags, Mode::empty())
+                .map_err(|_| changed())?
+                .into();
+        }
+        Ok(file)
+    }
+    fn identity(m: &std::fs::Metadata) -> (u64, u64, u64, u64, u32, u32, u32, i64, i64, i64, i64) {
+        (
+            m.dev(),
+            m.ino(),
+            m.len(),
+            m.nlink(),
+            m.mode(),
+            m.uid(),
+            m.gid(),
+            m.mtime(),
+            m.mtime_nsec(),
+            m.ctime(),
+            m.ctime_nsec(),
+        )
+    }
+    let file = leaf(&root, relative)?;
+    let before = file.metadata().map_err(|_| changed())?;
+    if !before.is_file() || before.nlink() != 1 {
+        return Err(changed());
+    }
+    if before.len() > limit {
+        return Err(limited());
+    }
+    let mut bytes = Vec::new();
+    (&file)
+        .take(limit.checked_add(1).ok_or_else(limited)?)
+        .read_to_end(&mut bytes)
+        .map_err(|_| changed())?;
+    if bytes.len() as u64 > limit {
+        return Err(limited());
+    }
+    let held = file.metadata().map_err(|_| changed())?;
+    let current = leaf(&root, relative)?.metadata().map_err(|_| changed())?;
+    if identity(&before) != identity(&held)
+        || identity(&before) != identity(&current)
+        || bytes.len() as u64 != held.len()
+    {
+        return Err(changed());
+    }
+    Ok(bytes.len() as u64)
+}
+fn current_output_root(db: &Connection, workspace: &ManagedWorkspace) -> bool {
+    let Some(pin) = workspace.identity.as_ref() else {
+        return false;
+    };
+    match pin.kind {
+        agentbaton_workspaces::WorkspaceKind::Directory => {
+            crate::data_workspaces::data_live_workspace(db, workspace).is_ok()
+        }
+        agentbaton_workspaces::WorkspaceKind::Git { .. } => {
+            crate::policy::live_workspace_matches(&workspace.root, pin).unwrap_or(false)
+        }
+    }
+}
+
 fn trusted_session_stop(
     db: &Connection,
     run_id: &str,
@@ -2353,6 +2462,43 @@ mod tests {
                 .code,
             "RESOURCE_LIMIT"
         );
+    }
+    #[test]
+    fn selected_output_measurement_requires_original_root_and_stable_regular_nofollow_leaf() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().join("output-root");
+        fs::create_dir(&root).unwrap();
+        fs::write(root.join("report"), b"actual").unwrap();
+        let pin = agentbaton_workspaces::inspect(&root).unwrap();
+        assert_eq!(read_pinned_output(&pin, Path::new("report"), 6).unwrap(), 6);
+        assert_eq!(
+            read_pinned_output(&pin, Path::new("report"), 5)
+                .unwrap_err()
+                .code,
+            "RESOURCE_LIMIT"
+        );
+        assert!(read_pinned_output(&pin, Path::new("../report"), 100).is_err());
+        let old = dir.path().join("preserved-original");
+        fs::rename(&root, &old).unwrap();
+        fs::create_dir(&root).unwrap();
+        fs::write(root.join("report"), b"foreign").unwrap();
+        assert!(read_pinned_output(&pin, Path::new("report"), 100).is_err());
+        fs::remove_dir_all(&root).unwrap();
+        fs::rename(old, &root).unwrap();
+        fs::rename(root.join("report"), root.join("original-report")).unwrap();
+        std::os::unix::fs::symlink("original-report", root.join("report")).unwrap();
+        assert!(read_pinned_output(&pin, Path::new("report"), 100).is_err());
+        fs::remove_file(root.join("report")).unwrap();
+        fs::hard_link(root.join("original-report"), root.join("report")).unwrap();
+        assert!(read_pinned_output(&pin, Path::new("report"), 100).is_err());
+        fs::remove_file(root.join("report")).unwrap();
+        assert!(Command::new("/usr/bin/mkfifo")
+            .args(["-m", "600"])
+            .arg(root.join("report"))
+            .status()
+            .unwrap()
+            .success());
+        assert!(read_pinned_output(&pin, Path::new("report"), 100).is_err());
     }
     #[test]
     fn unknown_persisted_run_state_is_never_treated_as_an_inactive_finished_run() {
