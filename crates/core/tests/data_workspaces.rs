@@ -1077,15 +1077,79 @@ fn actual_copy_cancellation_only_claims_cancelled_after_join_and_preserves_ready
     let file = fs::File::create(f.source.join("copy.bin")).unwrap();
     file.set_len(32 * 1024 * 1024).unwrap();
     drop(file);
+    let preparing = Instant::now();
     let initial=f.ok("data_workspace_previews.start",json!({"project_id":p["id"],"files":[{"artifact_id":"large","relative_path":"copy.bin","max_bytes":33554432,"expected_sha256":null}],"limits":{"max_file_bytes":33554432,"max_total_bytes":33554432,"max_files":1}}),Some("copy-large-preview"),p["revision"].as_u64());
-    let preview = f.wait(
-        "data_workspace_previews.get",
-        "preview_id",
-        initial["id"].as_str().unwrap(),
-        &["checking"],
+    let start_elapsed = preparing.elapsed();
+    eprintln!(
+        "stage=large_preview_start elapsed_ms={} state={} io_receipt={}",
+        start_elapsed.as_millis(),
+        initial["state"],
+        initial["io_completion"]
     );
+    assert!(start_elapsed < Duration::from_secs(3));
+    assert_eq!(initial["state"], "checking");
+    assert!(initial["snapshot"].is_null());
+    // This 32 MiB preparation may use the existing 30 s worker I/O budget.
+    // Observe it for at most 35 s including IPC/scheduling margin; this does
+    // not change the product deadline, ordinary waits or the copy/join wait.
+    let preview_deadline = preparing + Duration::from_secs(35);
+    let mut preview = std::thread::scope(|scope| {
+        let snapshot = scope.spawn(|| {
+            let requested = Instant::now();
+            let value = f.ok("system.snapshot", json!({}), None, None);
+            (value, requested.elapsed())
+        });
+        let read = scope.spawn(|| {
+            let requested = Instant::now();
+            let value = f.ok(
+                "data_workspace_previews.get",
+                json!({"preview_id":initial["id"]}),
+                None,
+                None,
+            );
+            (value, requested.elapsed())
+        });
+        let (snapshot, snapshot_elapsed) = snapshot.join().unwrap();
+        let (value, read_elapsed) = read.join().unwrap();
+        eprintln!(
+            "stage=large_preview_parallel_reads snapshot_ms={} read_ms={} state={} io_receipt={}",
+            snapshot_elapsed.as_millis(),
+            read_elapsed.as_millis(),
+            value["state"],
+            value["io_completion"]
+        );
+        assert!(snapshot_elapsed < Duration::from_secs(3));
+        assert!(read_elapsed < Duration::from_secs(3));
+        assert!(snapshot["sequence"].is_u64());
+        value
+    });
+    loop {
+        let terminal = preview["state"] != "checking";
+        let elapsed = preparing.elapsed();
+        assert!(Instant::now() < preview_deadline,
+            "stage=large_preview_preparation elapsed_ms={} terminal={} state={} revision={} io_receipt={} error_code={}",
+            elapsed.as_millis(), terminal, preview["state"], preview["revision"], preview["io_completion"], preview["error"]["code"]);
+        if terminal {
+            eprintln!("stage=large_preview_preparation elapsed_ms={} terminal=true state={} revision={} io_receipt={} error_code={}", elapsed.as_millis(), preview["state"], preview["revision"], preview["io_completion"], preview["error"]["code"]);
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(5));
+        let requested = Instant::now();
+        preview = f.ok(
+            "data_workspace_previews.get",
+            json!({"preview_id":initial["id"]}),
+            None,
+            None,
+        );
+        assert!(
+            requested.elapsed() < Duration::from_secs(3),
+            "stage=large_preview_poll response_ms={}",
+            requested.elapsed().as_millis()
+        );
+    }
     assert_eq!(preview["state"], "verified");
     let proposal = f.proposal(&preview, "copy-large-proposal");
+    let cancelling = Instant::now();
     let started = f.approve(&proposal);
     let receipt = f.ok(
         "data_workspaces.cancel",
@@ -1098,6 +1162,16 @@ fn actual_copy_cancellation_only_claims_cancelled_after_join_and_preserves_ready
         "creation_id",
         started["id"].as_str().unwrap(),
         &["creating", "cancel_requested"],
+    );
+    eprintln!(
+        "stage=copy_cancel_join elapsed_ms={} terminal={} state={} io_receipt={}",
+        cancelling.elapsed().as_millis(),
+        !matches!(
+            current["state"].as_str(),
+            Some("creating" | "cancel_requested")
+        ),
+        current["state"],
+        current["io_completion"]
     );
     assert_eq!(current["io_completion"], "worker_joined");
     match current["state"].as_str().unwrap() {
