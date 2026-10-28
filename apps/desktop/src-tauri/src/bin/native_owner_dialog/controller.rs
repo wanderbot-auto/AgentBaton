@@ -1,5 +1,23 @@
 //! Pure validation of observations. These tests are NOT OS-dialog evidence.
 use serde_json::Value;
+use sha2::{Digest, Sha256};
+
+// Evidence limits only: an over-limit observation fails; it is never truncated
+// and used as an eligible title/message. This helper grants no click authority.
+pub const DIAGNOSTIC_TEXT_BYTES: usize = 32_768;
+pub const DIAGNOSTIC_TOTAL_TEXT_BYTES: usize = 65_536;
+pub fn diagnostic_text(text: &str, total: &mut usize) -> Result<Value, String> {
+    let next = total
+        .checked_add(text.len())
+        .ok_or("Diagnostic text size overflow")?;
+    if text.len() > DIAGNOSTIC_TEXT_BYTES || next > DIAGNOSTIC_TOTAL_TEXT_BYTES {
+        return Err("Own sheet diagnostic text byte limit".into());
+    }
+    *total = next;
+    Ok(
+        serde_json::json!({"text":text,"utf8_bytes":text.len(),"sha256":format!("{:x}", Sha256::digest(text.as_bytes()))}),
+    )
+}
 
 pub fn validate(observed: &Value, expected: &Value, phase: &str) -> Result<(), String> {
     if !matches!(phase, "cancel" | "approve")
@@ -88,5 +106,42 @@ mod tests {
             assert!(validate(&value, &expected, "cancel").is_err());
         }
         assert!(validate(&observed, &expected, "approve").is_err());
+    }
+}
+
+#[cfg(test)]
+mod diagnostic_tests {
+    use super::*;
+    #[test]
+    fn raw_utf8_text_hash_and_length_are_not_a_partial_match_or_click_permit() {
+        let mut total = 0;
+        let value = diagnostic_text("abc", &mut total).unwrap();
+        assert_eq!(value["text"], "abc");
+        assert_eq!(value["utf8_bytes"], 3);
+        assert_eq!(
+            value["sha256"],
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+        );
+        let value = diagnostic_text("你好🔒\n", &mut total).unwrap();
+        assert_eq!(value["text"], "你好🔒\n");
+        assert_eq!(value["utf8_bytes"], 11);
+        assert_eq!(total, 14);
+        assert!(validate(&value, &serde_json::json!({}), "cancel").is_err());
+    }
+    #[test]
+    fn per_field_and_aggregate_limits_reject_without_truncation_or_budget_mutation() {
+        let mut total = 0;
+        let field = "x".repeat(DIAGNOSTIC_TEXT_BYTES);
+        assert!(diagnostic_text(&field, &mut total).is_ok());
+        assert!(diagnostic_text(&field, &mut total).is_ok());
+        assert_eq!(total, DIAGNOSTIC_TOTAL_TEXT_BYTES);
+        assert!(diagnostic_text("x", &mut total).is_err());
+        assert_eq!(total, DIAGNOSTIC_TOTAL_TEXT_BYTES);
+        let mut zero = 0;
+        assert!(diagnostic_text(&(field + "x"), &mut zero).is_err());
+        assert_eq!(zero, 0);
+        let mut overflow = usize::MAX;
+        assert!(diagnostic_text("x", &mut overflow).is_err());
+        assert_eq!(overflow, usize::MAX);
     }
 }

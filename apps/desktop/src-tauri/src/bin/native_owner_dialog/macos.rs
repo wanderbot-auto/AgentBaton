@@ -31,6 +31,7 @@ struct Phase {
     capture: Option<CaptureResult>,
     capture_worker: Option<std::thread::JoinHandle<()>>,
     sheet_seen: Option<(isize, Instant)>,
+    observation_failure: Option<Value>,
 }
 fn write(path: &Path, value: &Value) -> Result<(), String> {
     let temporary = path.with_extension("json.partial");
@@ -47,9 +48,18 @@ fn fail(app: &tauri::AppHandle, reason: &str) {
     if state.failed.swap(true, Ordering::AcqRel) {
         return;
     }
+    let observation_failure = state
+        .phase
+        .lock()
+        .ok()
+        .and_then(|p| p.observation_failure.clone());
+    let reason = observation_failure
+        .as_ref()
+        .and_then(|v| v["reason"].as_str())
+        .unwrap_or(reason);
     let _ = write(
         &state.output.join("owner-dialog.json"),
-        &json!({"status":"failed","reason":reason,"dimension":"macos_own_process_real_sheet","provider_model_calls":"not_run"}),
+        &json!({"status":"failed","reason":reason,"observation_failure":observation_failure,"dimension":"macos_own_process_real_sheet","provider_model_calls":"not_run"}),
     );
     state.done.store(true, Ordering::Release);
     app.exit(1);
@@ -88,6 +98,7 @@ fn record_report(
             capture: None,
             capture_worker: None,
             sheet_seen: None,
+            observation_failure: None,
         };
         drop(phase);
         window
@@ -152,11 +163,21 @@ struct Observation {
     cancel: Retained<NSButton>,
     number: isize,
 }
+struct SheetDiagnostic {
+    // Set only after caller pointer, attached-sheet parent, visibility and stable
+    // window identity checks. Never obtained from a file or foreign window scan.
+    number: isize,
+    value: Value,
+}
+fn rect(rect: NSRect) -> Value {
+    json!({"x":rect.origin.x,"y":rect.origin.y,"width":rect.size.width,"height":rect.size.height})
+}
 fn observe(
     caller: &WebviewWindow,
     expected: &Value,
     phase: &str,
     sheet_seen: &mut Option<(isize, Instant)>,
+    diagnostic: &mut Option<SheetDiagnostic>,
 ) -> Result<Option<Observation>, String> {
     let _main = MainThreadMarker::new().ok_or("NSAlert observation must be on main")?;
     let pointer = caller.ns_window().map_err(|e| e.to_string())?;
@@ -191,24 +212,70 @@ fn observe(
         Some((_, when)) if when.elapsed() < Duration::from_millis(500) => return Ok(None),
         _ => {}
     }
+    *diagnostic = Some(SheetDiagnostic {
+        number,
+        value: json!({"phase":phase,"validation_stage":"content_view","window_number":number,
+            "parent_window_number":parent.windowNumber(),"parent_matches":parent_matches,
+            "parent_visible":parent.isVisible(),"sheet_visible":sheet.isVisible(),
+            "parent_frame":rect(parent.frame()),"sheet_frame":rect(sheet.frame()),
+            "on_screen":sheet.screen().is_some_and(|screen|contains(screen.visibleFrame(),sheet.frame())),
+            "expected_message":controller::diagnostic_text(expected["message"].as_str().ok_or("Missing expected message")?, &mut 0)?,
+            "expected_title":controller::diagnostic_text("AgentBaton — Native owner approval", &mut 0)?,
+            "title_matches":0,"message_matches":0,"views":[],"buttons":[],
+            "limits":{"views":256,"class_bytes":256,"field_text_utf8_bytes":controller::DIAGNOSTIC_TEXT_BYTES,"total_text_utf8_bytes":controller::DIAGNOSTIC_TOTAL_TEXT_BYTES},
+            "automated_fixture_not_human_owner":true,"diagnostic_not_click_authority":true}),
+    });
+    let diagnostic = &mut diagnostic.as_mut().unwrap().value;
     let content = sheet.contentView().ok_or("Sheet has no content")?;
     content.displayIfNeeded();
-    let mut queue = vec![content];
+    let mut queue = vec![(content, None)];
+    let mut text_bytes = 0;
+    diagnostic["validation_stage"] = json!("view_traversal");
     let mut count = 0;
     let mut message = Vec::new();
     let mut title = Vec::new();
+    let mut title_matches = 0;
+    let mut message_matches = 0;
     let mut buttons = Vec::new();
     let mut ok = None;
     let mut cancel = None;
     let mut complete = true;
-    while let Some(view) = queue.pop() {
+    while let Some((view, parent_index)) = queue.pop() {
         count += 1;
         if count > 256 {
             return Err("Own sheet view traversal limit".into());
         }
         let object: &AnyObject = &view;
+        let class = object.class().name();
+        if class.to_bytes().len() > 256 {
+            return Err("Own sheet diagnostic class byte limit".into());
+        }
+        let index = diagnostic["views"].as_array().unwrap().len();
+        diagnostic["views"].as_array_mut().unwrap().push(json!({
+            "index":index,"parent_index":parent_index,"class":class.to_string_lossy(),
+            "window_matches":view.window().is_some_and(|w|std::ptr::eq(&*w,&*sheet)),
+            "hidden_or_hidden_ancestor":view.isHiddenOrHasHiddenAncestor(),
+            "visible":view_visible(&view,&sheet),"frame":rect(view.frame()),
+            "bounds":rect(view.bounds()),"visible_rect":rect(view.visibleRect())}));
         if let Some(text) = object.downcast_ref::<NSTextField>() {
-            let value = text.stringValue().to_string();
+            let native_text = text.stringValue();
+            diagnostic["views"][index]["text_utf16_units"] = json!(native_text.len_utf16());
+            if native_text.len_utf16() > controller::DIAGNOSTIC_TEXT_BYTES {
+                return Err("Own sheet diagnostic text UTF-16 preallocation limit".into());
+            }
+            let value = native_text.to_string();
+            diagnostic["views"][index]["text_utf8_bytes"] = json!(value.len());
+            diagnostic["views"][index]["text"] =
+                controller::diagnostic_text(&value, &mut text_bytes)?;
+            title_matches += usize::from(value == "AgentBaton — Native owner approval");
+            message_matches += usize::from(
+                value
+                    == expected["message"]
+                        .as_str()
+                        .ok_or("Missing expected message")?,
+            );
+            diagnostic["title_matches"] = json!(title_matches);
+            diagnostic["message_matches"] = json!(message_matches);
             if value
                 == expected["message"]
                     .as_str()
@@ -225,6 +292,8 @@ fn observe(
                     && required.width.is_finite()
                     && required.height <= bounds.size.height + 0.5
                     && required.width <= bounds.size.width + 0.5;
+                diagnostic["views"][index]["required_cell_size"] =
+                    json!({"width":required.width,"height":required.height});
                 if value == "AgentBaton — Native owner approval" {
                     title.push(value);
                 } else {
@@ -233,8 +302,16 @@ fn observe(
             }
         }
         if let Some(button) = object.downcast_ref::<NSButton>() {
-            let name = button.title().to_string();
+            let native_name = button.title();
+            if native_name.len_utf16() > 256 {
+                return Err("Own sheet diagnostic button title limit".into());
+            }
+            let name = native_name.to_string();
+            if name.len() > 256 {
+                return Err("Own sheet diagnostic button title byte limit".into());
+            }
             buttons.push(json!({"title":name,"enabled":button.isEnabled(),"visible":view_visible(button,&sheet)}));
+            diagnostic["buttons"] = json!(buttons);
             let retained = button.retain();
             if name == "OK" {
                 if ok.replace(retained).is_some() {
@@ -245,9 +322,13 @@ fn observe(
             }
         }
         for child in &view.subviews() {
-            queue.push(child.retain());
+            if count + queue.len() >= 256 {
+                return Err("Own sheet view traversal limit".into());
+            }
+            queue.push((child.retain(), Some(index)));
         }
     }
+    diagnostic["validation_stage"] = json!("exact_title_message_counts");
     if title.len() != 1 || message.len() != 1 {
         return Err("Exact full native title/message not uniquely present".into());
     }
@@ -256,6 +337,7 @@ fn observe(
         .is_some_and(|screen| contains(screen.visibleFrame(), sheet.frame()));
     let number = sheet.windowNumber();
     let value = json!({"phase":phase,"proposal_id":expected["proposal"]["id"],"proposal_revision":expected["proposal"]["revision"],"title":title[0],"message":message[0],"parent_matches":parent_matches,"visible":parent.isVisible() && sheet.isVisible() && on_screen,"complete_text_visible":complete,"window_number":number,"buttons":buttons,"capture_api":"/usr/sbin/screencapture -x -l exact_attached_sheet_window_number","click_api":"NSControl.performClick(None)","automated_fixture_not_human_owner":true});
+    diagnostic["validation_stage"] = json!("controller_validate");
     controller::validate(&value, expected, phase)?;
     Ok(Some(Observation {
         value,
@@ -304,6 +386,68 @@ fn capture(number: isize, path: PathBuf) -> Result<(), String> {
         std::thread::sleep(Duration::from_millis(20));
     }
 }
+fn start_capture(phase: &mut Phase, number: isize, path: PathBuf) {
+    // Exactly one owned capture process/thread per phase, including failure.
+    // Existing normal capture is reused, never detached or replaced.
+    if phase.capture.is_none() {
+        let result = Arc::new(Mutex::new(None));
+        phase.capture = Some(result.clone());
+        phase.capture_worker = Some(std::thread::spawn(move || {
+            let captured = capture(number, path);
+            *result
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner()) = Some(captured);
+        }));
+    }
+}
+fn save_failure(state: &State, phase: &mut Phase) {
+    let path = state
+        .output
+        .join(format!("{}-sheet-diagnostic.json", phase.name));
+    if let Some(failure) = &mut phase.observation_failure {
+        if let Err(error) = write(&path, failure) {
+            // The final owner-dialog failure report also retains this secondary
+            // error; it must not replace the earliest observation rejection.
+            failure["diagnostic_write_error"] = json!(error);
+        }
+    }
+}
+fn poll_failure(state: &State, phase: &mut Phase) -> Result<(), String> {
+    let captured = phase.capture.as_ref().and_then(|r| {
+        r.lock()
+            .map(|r| r.clone())
+            .unwrap_or_else(|_| Some(Err("Capture lock".into())))
+    });
+    let pending = phase.capture.is_some() && captured.is_none();
+    if let Some(failure) = &mut phase.observation_failure {
+        failure["capture"] = match captured {
+            None if pending => json!({"status":"pending"}),
+            None => {
+                json!({"status":"not_started","reason":"No verified positive owned sheet window number"})
+            }
+            Some(Ok(())) => {
+                json!({"status":"captured_diagnostic_only","path":format!("{}-sheet.png",phase.name)})
+            }
+            Some(Err(error)) => json!({"status":"failed","secondary_error":error}),
+        };
+    }
+    if !pending {
+        if let Some(worker) = phase.capture_worker.take() {
+            if worker.join().is_err() {
+                phase.observation_failure.as_mut().unwrap()["capture_join_error"] =
+                    json!("Sheet capture worker panicked");
+            }
+        }
+    }
+    save_failure(state, phase);
+    if pending {
+        return Ok(());
+    }
+    Err(phase.observation_failure.as_ref().unwrap()["reason"]
+        .as_str()
+        .unwrap()
+        .to_owned())
+}
 fn poll(app: &tauri::AppHandle) -> Result<(), String> {
     let state = app.state::<State>();
     if state.done.load(Ordering::Acquire) {
@@ -313,6 +457,9 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
     if phase.clicked {
         return Ok(());
     }
+    if phase.observation_failure.is_some() {
+        return poll_failure(&state, &mut phase);
+    }
     let caller = state
         .caller
         .lock()
@@ -320,17 +467,33 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
         .clone()
         .ok_or("Missing actual caller")?;
     let name = phase.name;
-    let Some(observed) = observe(&caller, &state.expected, name, &mut phase.sheet_seen)? else {
-        return Ok(());
+    let mut diagnostic = None;
+    let observed = match observe(
+        &caller,
+        &state.expected,
+        name,
+        &mut phase.sheet_seen,
+        &mut diagnostic,
+    ) {
+        Ok(Some(observed)) => observed,
+        Ok(None) => return Ok(()),
+        Err(reason) => {
+            let number = diagnostic.as_ref().map(|d| d.number).filter(|n| *n > 0);
+            phase.observation_failure = Some(json!({"status":"failed","reason":reason,
+                "failure_phase":"observation_before_click","observation":diagnostic.map(|d|d.value),
+                "capture_api":"/usr/sbin/screencapture -x -l exact_attached_sheet_window_number",
+                "no_click_or_database_permit":true}));
+            save_failure(&state, &mut phase);
+            if let Some(number) = number {
+                let path = state.output.join(format!("{}-sheet.png", phase.name));
+                start_capture(&mut phase, number, path);
+            }
+            return poll_failure(&state, &mut phase);
+        }
     };
     if phase.capture.is_none() {
-        let result = Arc::new(Mutex::new(None));
-        phase.capture = Some(result.clone());
         let path = state.output.join(format!("{}-sheet.png", phase.name));
-        let number = observed.number;
-        phase.capture_worker = Some(std::thread::spawn(move || {
-            *result.lock().unwrap() = Some(capture(number, path));
-        }));
+        start_capture(&mut phase, observed.number, path);
         return Ok(());
     }
     let captured = phase
@@ -344,6 +507,9 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
         None => return Ok(()),
         Some(Err(error)) => return Err(error),
         Some(Ok(())) => {}
+    }
+    if let Some(worker) = phase.capture_worker.take() {
+        worker.join().map_err(|_| "Sheet capture worker panicked")?;
     }
     write(
         &state
@@ -434,6 +600,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
             capture: None,
             capture_worker: None,
             sheet_seen: None,
+            observation_failure: None,
         }),
         done: AtomicBool::new(false),
         failed: AtomicBool::new(false),
