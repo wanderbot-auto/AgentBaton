@@ -1,0 +1,9 @@
+# Checkpoint
+
+Worktree /workspace/.worktrees/data-native-full-review; branch codex/data-native-full-review; base aa1c2814a30f43405f3c545ec178cf665f96e673. Source freeze071e5698a455e11779f26b8392d9c9311a7ca084, only apps/desktop/src-tauri/src/approval.rs; SHA8210a22a7a5ace764228b0885bcd5429e91d135fb93ee35fb6ad45c74ae415be. Four owned records follow separately; no push/merge/CI trigger. Existing Goal review records untouched.
+
+Generated64 exact tested private artifact: artifacts/data-native-full-review/generated-sixty-four-file-owner-proposal.json SHA18f711d75eda729c31f693ff405b2ca08066b88d40fb5269675ea7b73e7a10f4. It contains generated source/temporary paths only and is not reusable finalization authority. Snapshot display14809 bytes<=16384, full original Value restored exactly; current-source callback control preserves proposal ID/revision. Artifact manifest SHA887f06da6426415b747e92f4de1cb6c213dc3cebe4171746bb417f51edba50cf.
+
+Actual SDK22, alltargetClippy/fmt/diff PASS; old17 preserved. Complete command/log/hash records in EVIDENCE. Native-only target /workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target formally released with no writer after final Cargo/rustc ended. Core-main target untouched. Source entrypoint mtime touches proved byte-identical to avoid cross-worktree cache artifacts; INC0/JOBS2, no new target/deps.
+
+Next: primary arranges independent source/boundary review and combines the frozen native change with separately frozen Core10/UI. Actual OS owner-dialog usability, Mac native confirmation/finalize and full64 copy end-to-end remain unverified here. No approval/dispatch/model/TaskAccepted result is implied by callback tests.
