@@ -494,7 +494,11 @@ impl Daemon {
                 "approvals.finalize"=>self.store.conn.query_row("SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",[r.params["proposal_id"].as_str().unwrap_or("")],|row|row.get::<_,bool>(0)).unwrap_or(false),
                 _=>false,
             };
-            if !replay {
+            let fixed_goal_execution = r.method == "approvals.finalize"
+                && self.store.pending_goal_execution_approval(
+                    r.params["proposal_id"].as_str().unwrap_or(""),
+                )?;
+            if !replay && !fixed_goal_execution {
                 return Err(CoreError::new("WORKSPACE_BUSY","Stop active sessions before adding projects, workspaces, connections, grants or sessions. Concurrent setup is not yet supported"));
             }
         }

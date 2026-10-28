@@ -708,6 +708,13 @@ fn checked_runtime_scope_at(
     }
     Ok((record, scope))
 }
+// This metadata can only pause scheduling; it cannot authorize a new plan.
+fn adopted_plan_is_current_head(db: &Connection, r: &GoalRun) -> Result<bool> {
+    db.query_row("SELECT EXISTS(SELECT 1 FROM goal_plan_heads WHERE scope_id=?1 AND revision=?2 AND digest=?3)",params![r.scope_id,sql_num(r.plan_revision)?,r.plan_digest],|row|row.get(0)).map_err(db_error)
+}
+fn local_goal_slot_is_occupied(db: &Connection) -> Result<bool> {
+    db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents WHERE state!='stopped') OR EXISTS(SELECT 1 FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))",[],|row|row.get(0)).map_err(db_error)
+}
 fn executable_work(n: &RuntimeNode) -> bool {
     n.state == "not_started"
         && n.node.dependencies.is_empty()
@@ -742,6 +749,9 @@ impl Store {
                 "reserved" | "running" | "stopping" | "outcome_unknown"
             )
         }) {
+            return Ok(None);
+        }
+        if local_goal_slot_is_occupied(&self.conn)? {
             return Ok(None);
         }
         checked_runtime_scope(&self.conn, &r, self.data_input.as_ref())?;
@@ -929,14 +939,14 @@ pub(crate) fn reserve_session(
     }
     let all_active: u32 = db
         .query_row(
-            "SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",
+            "SELECT (SELECT count(*) FROM dispatch_intents WHERE state!='stopped')+(SELECT count(*) FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))",
             [],
             |r| r.get(0),
         )
         .map_err(db_error)?;
     if all_active > 1 {
         return Err(err(
-            "RESOURCE_LIMIT",
+            "WORKSPACE_BUSY",
             "The approved conservative local Goal resource limit is occupied",
         ));
     }
@@ -1200,6 +1210,15 @@ impl Store {
         tx.commit().map_err(db_error)?;
         Ok(Some((id, text)))
     }
+    /// Only a stored pending fixed execution proposal may reach its normal
+    /// finalizer while another unrelated root is running. This is no approval.
+    pub(crate) fn pending_goal_execution_approval(&self, id: &str) -> Result<bool> {
+        key(id)?;
+        let row:Option<Option<String>>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM approval_proposals WHERE id=?1 AND result IS NULL",[id],|r|r.get(0)).optional().map_err(db_error)?;
+        let Some(raw) = row else { return Ok(false) };
+        let proposal: ApprovalProposal = decode(&raw.ok_or_else(limited)?)?;
+        Ok(proposal.id == id && proposal.kind == "goal_execution" && !proposal.consumed)
+    }
     pub(crate) fn active_goal_runs(&self) -> Result<Vec<GoalRun>> {
         raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE (state IN('queued','running','cancel_requested') OR (state='blocked' AND EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=goal_runs.id AND n.state IN('reserved','running','stopping'))))",[],256,MAX_STORED_BYTES)?;
         let mut q=self.conn.prepare("SELECT id FROM goal_runs WHERE (state IN('queued','running','cancel_requested') OR (state='blocked' AND EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=goal_runs.id AND n.state IN('reserved','running','stopping')))) ORDER BY rowid LIMIT 257").map_err(db_error)?;
@@ -1250,6 +1269,18 @@ impl Store {
                 tx.commit().map_err(db_error)?;
                 continue;
             }
+            if live == 0 && !cancel && !adopted_plan_is_current_head(&self.conn, &r)? {
+                let tx = self.conn.transaction().map_err(db_error)?;
+                r.state = "awaiting_acceptance".into();
+                save_run(
+                    &tx,
+                    &mut r,
+                    "goal.run_plan_pending",
+                    json!({"cause":"validated_plan_requires_explicit_adoption","automatic_adoption":false,"new_dispatch":false,"task_accepted":false}),
+                )?;
+                tx.commit().map_err(db_error)?;
+                continue;
+            }
             for mut n in nodes {
                 if !matches!(n.state.as_str(), "reserved" | "running" | "stopping") {
                     continue;
@@ -1294,6 +1325,9 @@ impl Store {
         }
         let (run_id,doc):(String,String)=self.conn.query_row("SELECT run_id,document FROM goal_run_nodes WHERE session_id=?1 AND octet_length(document)<=262144",[id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
         let mut r = run(&self.conn, &run_id)?;
+        let was_blocked = r.state == "blocked";
+        let can_continue = matches!(r.state.as_str(), "queued" | "running") && !r.cancel_requested;
+        let prior_nodes = node_records(&self.conn, &run_id)?;
         let mut n: RuntimeNode = decode(&doc)?;
         let session = self.get_session(id)?;
         if !matches!(n.state.as_str(), "reserved" | "running" | "stopping") {
@@ -1353,6 +1387,7 @@ impl Store {
         }
         .into();
         r.state = match n.state.as_str() {
+            "candidate" if was_blocked => "blocked",
             "candidate" => "awaiting_acceptance",
             "cancelled" => "cancelled",
             "failed" => "failed",
@@ -1422,6 +1457,22 @@ impl Store {
                 .is_some_and(|v| v > n.node.budget.output_bytes);
         if overrun && r.state == "awaiting_acceptance" {
             r.state = "blocked".into();
+        }
+        if r.state == "awaiting_acceptance"
+            && can_continue
+            && !record.revoked
+            && crate::policy::checked_lineage(&tx, &r.root_grant_id).is_ok()
+            && prior_nodes.iter().all(|old| {
+                old.node.id == n.node.id
+                    || old.state == "not_started"
+                    || old.state == "candidate" && old.stop_confirmed
+            })
+            && prior_nodes.iter().any(executable_work)
+            && adopted_plan_is_current_head(&tx, &r)?
+        {
+            // Queued is readiness, never admission. The next daemon advance must
+            // re-observe inputs/authority and reserve all budgets atomically.
+            r.state = "queued".into();
         }
         save_node(&tx, &r.id, &n)?;
         let payload = json!({"budget_overrun":overrun,"node_id":n.node.id,"attempt_id":session.attempt_id,"session_id":id,"stop_confirmed":stopped,"state":n.state,"reservation":reservation.reservation,"observed_runtime_lower_bound_ms":elapsed_ms,"actual_runtime_ms":n.actual_runtime_ms,"actual_output_bytes":n.actual_output_bytes,"tokens":null,"cost_microunits":null,"task_accepted":false});
@@ -1548,6 +1599,9 @@ impl Store {
         if r.cancel_requested || !matches!(r.state.as_str(), "queued" | "running") {
             return Ok(false);
         }
+        if !adopted_plan_is_current_head(&self.conn, &r)? {
+            return Ok(false);
+        }
         let nodes = node_records(&self.conn, id)?;
         for n in &nodes {
             if n.state == "reserved" {
@@ -1558,7 +1612,7 @@ impl Store {
                 return Ok(false);
             }
         }
-        Ok(nodes.iter().any(executable_work))
+        Ok(nodes.iter().any(executable_work) && !local_goal_slot_is_occupied(&self.conn)?)
     }
     /// A durable exact-request intent is not a dispatch receipt. It can always
     /// be recovered without repeating an execution boundary; get shows effects.
@@ -2793,6 +2847,73 @@ mod tests {
         f.store
             .advance_goal_plan(&p, current.revision, &format!("adopt-{revision}"))
             .unwrap();
+    }
+    #[test]
+    fn newer_validated_head_pauses_once_without_intent_growth_and_explicit_adoption_replays() {
+        let mut f = fixture(2);
+        let mut plan = f.store.get_goal_plan(&f.scope.id).unwrap().proposal;
+        plan.revision = 2;
+        plan.expected_revision = 1;
+        f.store
+            .submit_goal_plan(
+                &GoalPlanSubmission {
+                    scope_id: f.scope.id.clone(),
+                    proposal: plan,
+                },
+                "save-only-v2",
+                1,
+            )
+            .unwrap();
+        assert!(!f.store.goal_run_needs_advance(&f.run.id).unwrap());
+        f.store.goal_stop_requests().unwrap();
+        let paused = f.store.get_goal_run(&f.run.id).unwrap();
+        assert_eq!(paused.state, "awaiting_acceptance");
+        assert_eq!(paused.plan_revision, 1);
+        let seq = f.store.sequence().unwrap();
+        for _ in 0..10 {
+            assert!(!f.store.goal_run_needs_advance(&f.run.id).unwrap());
+            assert!(f.store.goal_stop_requests().unwrap().is_empty());
+        }
+        assert_eq!(f.store.sequence().unwrap(), seq);
+        assert_eq!(
+            f.store
+                .conn
+                .query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            0
+        );
+        let request = GoalPlanAdvance {
+            run_id: f.run.id.clone(),
+            expected_plan_revision: 2,
+            expected_ledger_revision: seq,
+        };
+        let adopted = f
+            .store
+            .advance_goal_plan(&request, paused.revision, "explicit-adopt-v2")
+            .unwrap();
+        assert_eq!(adopted.plan_revision, 2);
+        assert_eq!(adopted.state, "queued");
+        let seq = f.store.sequence().unwrap();
+        assert_eq!(
+            encode(
+                &f.store
+                    .advance_goal_plan(&request, paused.revision, "explicit-adopt-v2")
+                    .unwrap()
+            )
+            .unwrap(),
+            encode(&adopted).unwrap()
+        );
+        assert_eq!(f.store.sequence().unwrap(), seq);
+        assert!(f.store.goal_run_needs_advance(&f.run.id).unwrap());
+        let dispatched = reserve(&mut f);
+        assert_eq!(dispatched.task_id, f.run.task_id);
+        assert_eq!(
+            f.store
+                .conn
+                .query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            1
+        );
     }
     #[test]
     fn implicit_input_and_parent_edges_do_not_starve_the_real_eligible_producer() {
