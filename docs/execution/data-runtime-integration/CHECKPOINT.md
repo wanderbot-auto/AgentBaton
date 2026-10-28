@@ -15,3 +15,11 @@ Data草稿PR：https://github.com/wanderbot-auto/AgentBaton/pull/14，仍堆叠�
 依赖PR13最新bf67629：Env40652731215实际三项成功，Product40652731429仍运行；旧03BB因三Env静态30分钟规则失败不可接受，Product在正常新push后由既有并发规则取代，旧失败/原ARM成功/Intel未完成均保留。新bf仍须准确七项、新双Native/默认release审计/真实双DMG再保护合入，不能借旧ARM包。
 
 Goal实际执行Core/UI单元另在goal-runtime-core/ui开发，已有39dd WIP及两条真实生成协议正常/同scope修订验证，独审与取消/超时/崩溃/预算等尚未完成。它们不在本Data PR内，不计为完整产品完成。当前仍继续全部130需求；无真实Provider账号/费用/生产/签名新增授权。
+
+## Data 转入 main 精确验证
+
+PR13已按expected-head保护合入main18f4261da9285bec5446101d47786839b1020d9c；源e384、实测checkoutb6756c3的完整七检查/双Native/实际原图/默认release审计/双DMG均独审通过，Root复核91项与双包后合入。交付记录goal-integration/DEVELOPMENT_DELIVERY_E384.md；ARM24ef220c...临时签名，Intelc21eb84d...未签名，均未公证。不是整个产品完成。
+
+Data分支已合入该实际main，仍保持c82/schema10与已审UI/取消回执/64文件完整审批/侧栏修复。新fixture14a合入后Root在实际Data源码重跑command27/全workspaces Clippy/fmt全部PASS；原完整515+7及UI367在此前组合、CSS之后另有39/28的范围分别保留，未谎称这些全部重跑。即将把PR14从已完成Goal依赖分支转main并normalpush新head，触发全新七项/双Native/双包；现在尚未称Data远程CI通过。
+
+实际Goal执行Core工作另有27eadf WIP远程备份、UI3daa/a11独审445及Native28+12通过；live生成协议SIGKILL恢复保持unknown、1attempt/active不退款，其他安全/迁移/全回归仍在推进，尚未合入该Data组合。新真实HTTP/IPC harness只准备中，须用最终schema11 binary和组合dist实跑。全部130需求继续，生产/额外费用/私人Provider身份/正式签名/最终许可证授权未扩大。

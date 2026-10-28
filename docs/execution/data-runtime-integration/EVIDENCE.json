@@ -337,5 +337,68 @@
       "static-infrastructure-final.log": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
       "design-final.log": "a373e2073eff8ff94ea8e5aced4392a64577d2d8582aaafaf167aaca5cf614e4"
     }
+  },
+  "main_after_goal_merge": {
+    "main": "18f4261da9285bec5446101d47786839b1020d9c",
+    "goal_source": "e384ccaa2d05aa403327867c0d6c5b50baf437e0",
+    "all7": "success",
+    "new_native_package_pair": "independent PASS, packages linked in goal-integration/DEVELOPMENT_DELIVERY_E384.md",
+    "owner_inbox": "001/002 rereadACK no003",
+    "artifact_fixture_after_data_merge": [
+      {
+        "name": "command-tests",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-workspaces",
+          "--test",
+          "command_validation",
+          "--",
+          "--show-output"
+        ],
+        "exit_code": 0,
+        "seconds": 11.31,
+        "log": "/workspace/.onboarding/data-runtime-integration/artifact-fixture-after-merge/command-tests.log",
+        "sha256": "49c3853c81f9358101a4aa50dfb94d5d4c9c3a02bee1cfcf6fb6a7c1977f379b"
+      },
+      {
+        "name": "clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-workspaces",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "seconds": 2.09,
+        "log": "/workspace/.onboarding/data-runtime-integration/artifact-fixture-after-merge/clippy.log",
+        "sha256": "46247db17ec70b4ce8937d46487d022a1cb125f875e8ab4589206faefd2dcc3e"
+      },
+      {
+        "name": "fmt",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 0.6,
+        "log": "/workspace/.onboarding/data-runtime-integration/artifact-fixture-after-merge/fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "data_ci": "not yet triggered; PR14 becoming ready/main then final normalpush",
+    "scope": "DataCore10/c82; currentGoalCore11/UI445 are separate followups"
   }
 }

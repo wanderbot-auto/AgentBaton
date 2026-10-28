@@ -1,5 +1,15 @@
 # AgentBaton 执行状态
 
+## Data 转入 main 精确验证
+
+PR13已按expected-head保护合入main18f4261da9285bec5446101d47786839b1020d9c；源e384、实测checkoutb6756c3的完整七检查/双Native/实际原图/默认release审计/双DMG均独审通过，Root复核91项与双包后合入。交付记录goal-integration/DEVELOPMENT_DELIVERY_E384.md；ARM24ef220c...临时签名，Intelc21eb84d...未签名，均未公证。不是整个产品完成。
+
+Data分支已合入该实际main，仍保持c82/schema10与已审UI/取消回执/64文件完整审批/侧栏修复。新fixture14a合入后Root在实际Data源码重跑command27/全workspaces Clippy/fmt全部PASS；原完整515+7及UI367在此前组合、CSS之后另有39/28的范围分别保留，未谎称这些全部重跑。即将把PR14从已完成Goal依赖分支转main并normalpush新head，触发全新七项/双Native/双包；现在尚未称Data远程CI通过。
+
+实际Goal执行Core工作另有27eadf WIP远程备份、UI3daa/a11独审445及Native28+12通过；live生成协议SIGKILL恢复保持unknown、1attempt/active不退款，其他安全/迁移/全回归仍在推进，尚未合入该Data组合。新真实HTTP/IPC harness只准备中，须用最终schema11 binary和组合dist实跑。全部130需求继续，生产/额外费用/私人Provider身份/正式签名/最终许可证授权未扩大。
+
+以下为历史检查点。
+
 ## BF676 最终失败与产物夹具窄修
 
 PR13 bf67629 / Product40652731429 / Env40652731215，实际checkoutb0daefb57a35a47e2f708e02df8d14b578e76148，最终六项成功、一项失败。环境三项、Rust、UI、ARM整作业通过；Intel在workspaces scripts::expected_exit_zero_cannot_accept_missing_or_oversized_output失败，12/13，该分支实际exit_code=None、期望Some(0)，reason旧日志未打印，历史原因保持未知。原Core命令14和Provider20/500ms均通过，不能把这一失败称为30分钟或Provider问题。没有Intel原生报告/DMG，不合入。
