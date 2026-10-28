@@ -263,6 +263,32 @@ class OwnerRunnerControls(unittest.TestCase):
         pending_value['proposal']['snapshot']['refs']['workspace_identity']['device'] = True
         self.assertIsNotNone(runner.pending_error(pending_value, proposal, 9))
 
+    def test_scalar_schema_and_event_cas_types_never_coerce(self):
+        cases = ['confirmed_revision_float', 'approved_schema_float', 'pending_schema_float',
+                 'grant_revision_bool', 'grant_revision_float', 'reference_revision_bool',
+                 'reference_revision_float']
+        for mode in cases:
+            with self.subTest(mode=mode):
+                proposal, after, response = runner.json.loads(runner.json.dumps(approved()))
+                if mode == 'pending_schema_float':
+                    reference, value = pending()
+                    value['schema_version'] = 12.0
+                    self.assertIsNotNone(runner.pending_error(value, reference, 9))
+                    continue
+                if mode == 'confirmed_revision_float':
+                    after['events'][1]['revision'] = 2.0
+                elif mode == 'approved_schema_float':
+                    after['schema_version'] = 12.0
+                elif mode == 'grant_revision_bool':
+                    after['events'][0]['revision'] = True
+                elif mode == 'grant_revision_float':
+                    after['events'][0]['revision'] = 1.0
+                elif mode == 'reference_revision_bool':
+                    proposal['revision'] = True
+                else:
+                    proposal['revision'] = 1.0
+                self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
+
     def test_host_client_cannot_finalize_grant_or_generic_mutation(self):
         client = runner.NativeCoreClient(Path('/does-not-exist'))
         client.connection_proposal = 'generated-connection-only'
