@@ -8,8 +8,8 @@ use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
-use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 mod approval;
+mod native_parent;
 
 struct Runtime {
     directory: PathBuf,
@@ -33,22 +33,22 @@ async fn call(runtime: &Runtime, command: Value, connect: bool) -> Result<Value,
 
 async fn confirm_proposed(
     runtime: &Runtime,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     kind: approval::ApprovalKind,
     params: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let proposal = ipc::call(&directory, json!({"method":kind.proposal_method(),"params":params,"idempotency_key":idempotency_key})).map_err(|error| error.to_string())?;
-        approval::confirm_and_finalize(proposal, kind, |message| {
-            // This is a Rust-native dialog. No dialog plugin permission, receipt
-            // or approvals.finalize command is granted to the web renderer.
-            app.dialog().message(message).title("AgentBaton — Native owner approval")
-                .kind(MessageDialogKind::Warning)
-                .buttons(MessageDialogButtons::OkCancel)
-                .blocking_show()
-        }, |command| ipc::call(&directory, command).map_err(|error| error.to_string()))
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(&directory, json!({"method":kind.proposal_method(),"params":params,"idempotency_key":idempotency_key})).map_err(|error| error.to_string())?;
+            approval::confirm_and_finalize(
+                proposal,
+                kind,
+                |message| parent.confirm("AgentBaton — Native owner approval", message),
+                |command| parent.finalize(|| ipc::call(&directory, command).map_err(|error| error.to_string())),
+            )
+        })
     }).await.map_err(|error| error.to_string())?
 }
 
@@ -199,32 +199,31 @@ fn data_workspace_proposal_frame(
 #[tauri::command]
 async fn data_workspace_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     preview_id: String,
     expected_revision: u64,
     idempotency_key: String,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let proposal = ipc::call(
-            &directory,
-            data_workspace_proposal_frame(&preview_id, expected_revision, &idempotency_key),
-        )
-        .map_err(|error| error.to_string())?;
-        approval::confirm_data_workspace_and_finalize(
-            proposal,
-            &preview_id,
-            expected_revision,
-            |message| {
-                app.dialog()
-                    .message(message)
-                    .title("AgentBaton — Native data copy approval")
-                    .kind(MessageDialogKind::Warning)
-                    .buttons(MessageDialogButtons::OkCancel)
-                    .blocking_show()
-            },
-            |command| ipc::call(&directory, command).map_err(|error| error.to_string()),
-        )
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                data_workspace_proposal_frame(&preview_id, expected_revision, &idempotency_key),
+            )
+            .map_err(|error| error.to_string())?;
+            approval::confirm_data_workspace_and_finalize(
+                proposal,
+                &preview_id,
+                expected_revision,
+                |message| parent.confirm("AgentBaton — Native data copy approval", message),
+                |command| {
+                    parent.finalize(|| {
+                        ipc::call(&directory, command).map_err(|error| error.to_string())
+                    })
+                },
+            )
+        })
     })
     .await
     .map_err(|error| error.to_string())?
@@ -276,7 +275,7 @@ async fn connections_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, S
 #[tauri::command]
 async fn connections_register(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     name: String,
     executable: String,
     arguments: Vec<String>,
@@ -285,7 +284,7 @@ async fn connections_register(
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
-        app,
+        window,
         approval::ApprovalKind::Connection,
         json!({"name":name,"executable":executable,"arguments":arguments,"provider":provider}),
         idempotency_key,
@@ -311,7 +310,7 @@ async fn grants_list(
 #[allow(clippy::too_many_arguments)]
 async fn grants_create(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     project_id: String,
     workspace_id: String,
     connection_id: String,
@@ -320,7 +319,7 @@ async fn grants_create(
     max_duration_ms: u64,
     idempotency_key: String,
 ) -> Result<Value, String> {
-    confirm_proposed(&runtime, app, approval::ApprovalKind::Grant, json!({"project_id":project_id,"workspace_id":workspace_id,"connection_id":connection_id,"max_attempts":max_attempts,"max_concurrency":max_concurrency,"max_duration_ms":max_duration_ms}), idempotency_key).await
+    confirm_proposed(&runtime, window, approval::ApprovalKind::Grant, json!({"project_id":project_id,"workspace_id":workspace_id,"connection_id":connection_id,"max_attempts":max_attempts,"max_concurrency":max_concurrency,"max_duration_ms":max_duration_ms}), idempotency_key).await
 }
 
 #[tauri::command]
@@ -415,13 +414,13 @@ async fn validation_policies_list(
 #[tauri::command]
 async fn validation_policy_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
-        app,
+        window,
         approval::ApprovalKind::Validation,
         selection,
         idempotency_key,
@@ -473,13 +472,13 @@ async fn data_validation_policies_list(
 #[tauri::command]
 async fn data_validation_policy_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
-        app,
+        window,
         approval::ApprovalKind::DataValidation,
         selection,
         idempotency_key,
@@ -531,13 +530,13 @@ async fn command_validation_policies_list(
 #[tauri::command]
 async fn command_validation_policy_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
-        app,
+        window,
         approval::ApprovalKind::CommandValidation,
         selection,
         idempotency_key,
@@ -621,30 +620,29 @@ fn goal_graph_advance_frame(
 #[tauri::command]
 async fn goal_graph_run_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let proposal = ipc::call(
-            &directory,
-            goal_graph_proposal_frame(&selection, &idempotency_key),
-        )
-        .map_err(|error| error.to_string())?;
-        approval::confirm_goal_graph_and_finalize(
-            proposal,
-            &selection,
-            |message| {
-                app.dialog()
-                    .message(message)
-                    .title("AgentBaton — Review Goal graph execution")
-                    .kind(MessageDialogKind::Warning)
-                    .buttons(MessageDialogButtons::OkCancel)
-                    .blocking_show()
-            },
-            |command| ipc::call(&directory, command).map_err(|error| error.to_string()),
-        )
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                goal_graph_proposal_frame(&selection, &idempotency_key),
+            )
+            .map_err(|error| error.to_string())?;
+            approval::confirm_goal_graph_and_finalize(
+                proposal,
+                &selection,
+                |message| parent.confirm("AgentBaton — Review Goal graph execution", message),
+                |command| {
+                    parent.finalize(|| {
+                        ipc::call(&directory, command).map_err(|error| error.to_string())
+                    })
+                },
+            )
+        })
     })
     .await
     .map_err(|error| error.to_string())?
@@ -652,32 +650,31 @@ async fn goal_graph_run_approve(
 #[tauri::command]
 async fn goal_node_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     expected_revision: u64,
     idempotency_key: String,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let proposal = ipc::call(
-            &directory,
-            goal_node_proposal_frame(&selection, expected_revision, &idempotency_key),
-        )
-        .map_err(|error| error.to_string())?;
-        approval::confirm_goal_node_and_finalize(
-            proposal,
-            &selection,
-            expected_revision,
-            |message| {
-                app.dialog()
-                    .message(message)
-                    .title("AgentBaton — Review exact Goal node result")
-                    .kind(MessageDialogKind::Warning)
-                    .buttons(MessageDialogButtons::OkCancel)
-                    .blocking_show()
-            },
-            |command| ipc::call(&directory, command).map_err(|error| error.to_string()),
-        )
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                goal_node_proposal_frame(&selection, expected_revision, &idempotency_key),
+            )
+            .map_err(|error| error.to_string())?;
+            approval::confirm_goal_node_and_finalize(
+                proposal,
+                &selection,
+                expected_revision,
+                |message| parent.confirm("AgentBaton — Review exact Goal node result", message),
+                |command| {
+                    parent.finalize(|| {
+                        ipc::call(&directory, command).map_err(|error| error.to_string())
+                    })
+                },
+            )
+        })
     })
     .await
     .map_err(|error| error.to_string())?
@@ -685,32 +682,31 @@ async fn goal_node_approve(
 #[tauri::command]
 async fn goal_node_reject(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     expected_revision: u64,
     idempotency_key: String,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let proposal = ipc::call(
-            &directory,
-            goal_node_proposal_frame(&selection, expected_revision, &idempotency_key),
-        )
-        .map_err(|error| error.to_string())?;
-        approval::confirm_goal_node_rejection_and_decline(
-            proposal,
-            &selection,
-            expected_revision,
-            |message| {
-                app.dialog()
-                    .message(message)
-                    .title("AgentBaton — Reject exact Goal node result")
-                    .kind(MessageDialogKind::Warning)
-                    .buttons(MessageDialogButtons::OkCancel)
-                    .blocking_show()
-            },
-            |command| ipc::call(&directory, command).map_err(|error| error.to_string()),
-        )
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                goal_node_proposal_frame(&selection, expected_revision, &idempotency_key),
+            )
+            .map_err(|error| error.to_string())?;
+            approval::confirm_goal_node_rejection_and_decline(
+                proposal,
+                &selection,
+                expected_revision,
+                |message| parent.confirm("AgentBaton — Reject exact Goal node result", message),
+                |command| {
+                    parent.finalize(|| {
+                        ipc::call(&directory, command).map_err(|error| error.to_string())
+                    })
+                },
+            )
+        })
     })
     .await
     .map_err(|error| error.to_string())?
@@ -816,30 +812,29 @@ async fn goal_run_advance_plan(
 #[tauri::command]
 async fn goal_run_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let proposal = ipc::call(
-            &directory,
-            goal_run_proposal_frame(&selection, &idempotency_key),
-        )
-        .map_err(|error| error.to_string())?;
-        approval::confirm_goal_execution_and_finalize(
-            proposal,
-            &selection,
-            |message| {
-                app.dialog()
-                    .message(message)
-                    .title("AgentBaton — Native Goal execution approval")
-                    .kind(MessageDialogKind::Warning)
-                    .buttons(MessageDialogButtons::OkCancel)
-                    .blocking_show()
-            },
-            |command| ipc::call(&directory, command).map_err(|error| error.to_string()),
-        )
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                goal_run_proposal_frame(&selection, &idempotency_key),
+            )
+            .map_err(|error| error.to_string())?;
+            approval::confirm_goal_execution_and_finalize(
+                proposal,
+                &selection,
+                |message| parent.confirm("AgentBaton — Native Goal execution approval", message),
+                |command| {
+                    parent.finalize(|| {
+                        ipc::call(&directory, command).map_err(|error| error.to_string())
+                    })
+                },
+            )
+        })
     })
     .await
     .map_err(|error| error.to_string())?
@@ -886,13 +881,13 @@ async fn goal_runs_cancel(
 #[tauri::command]
 async fn goal_scope_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
-        app,
+        window,
         approval::ApprovalKind::Goal,
         selection,
         idempotency_key,
@@ -1213,6 +1208,7 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
 pub fn desktop_builder(directory: PathBuf) -> tauri::Builder<tauri::Wry> {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .on_window_event(native_parent::on_window_event)
         .manage(Runtime { directory })
         .invoke_handler(dispatch_production)
 }

@@ -1,0 +1,7 @@
+# Checkpoint
+
+Tree `/workspace/.worktrees/native-approval-parent`, branch `codex/native-approval-parent`, parent `f094d217f6ca62e1b753e6d6a13ddc43021487ea`. Frozen old graph UI tree untouched. Source implementation ready for initial compile review; current commit is recorded by the git history following this checkpoint.
+
+Native cache and Main target are not leased to this agent; no Cargo, dependency installation, target creation or remote action. Root/Core retain their leases. Next: Root schedules a compile window; run original 43 library tests plus ten new state tests, existing harness, Clippy and fmt, record exact results and failures, then release cache. Root independent review and later macOS tests remain necessary.
+
+Limits: Linux source/compile cannot prove NSAlert presentation or actual window-close behavior on macOS. Source inspection supports parented NSAlert and retained NSWindow lifetime; the old parentless CFUserNotification path is not called NSAlert. The framework does not provide an atomic transaction spanning UI lifetime and daemon commit. Normal close is deferred once finalization starts; force destroy or app termination after that point can race a commit and must remain an actual Core result/transport uncertainty. This change does not add process-global shutdown control or invent rollback. A conservative stale framework label can invalidate a newer operation; it cannot select a foreign parent or authorize anything.
