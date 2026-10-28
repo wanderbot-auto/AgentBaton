@@ -80,6 +80,7 @@ pub struct Store {
     pub(crate) conn: Connection,
     // Ephemeral, exact-request authority; set only while dispatching a worker result.
     pub(crate) data_input: Option<crate::data_workspaces::DataInputWitness>,
+    pub(crate) graph_input: Option<crate::goal_store::GraphReadWitness>,
 }
 impl Store {
     pub fn open(path: &Path) -> Result<Self> {
@@ -224,12 +225,14 @@ impl Store {
         let mut store = Self {
             conn,
             data_input: None,
+            graph_input: None,
         };
         store.recover_dispatches()?;
         store.recover_workspace_creations()?;
         store.recover_sessions()?;
         store.recover_command_validations()?;
         store.recover_data_workspace_operations()?;
+        store.recover_graph_jobs()?;
         store.recover_goal_runs()?;
         Ok(store)
     }

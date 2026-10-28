@@ -2905,8 +2905,17 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
             .request(json!({"method":"goal_graph_runs.list","params":{"task_id":f.task["id"]}})),
     );
     assert_eq!(list, json!([]));
-    let refused=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"no-unimplemented-dispatch"}));
-    assert_eq!(refused["error"]["code"], "CAPABILITY_UNSUPPORTED");
+    let finalize=json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"native-graph-finalize"});
+    let authorized=result(f.server.request(finalize.clone()));
+    assert_eq!(authorized["run"]["id"],proposal["id"]);
+    assert_eq!(authorized["graph_contract_version"],1);
+    assert_eq!(result(f.server.request(finalize)),authorized);
+    assert_eq!(result(f.server.request(json!({"method":"goal_runs.list","params":{"task_id":f.task["id"]}}))),json!([]));
+    let legacy=f.server.request(json!({"method":"goal_runs.get","params":{"run_id":proposal["id"]}}));
+    assert_eq!(legacy["error"]["code"],"CAPABILITY_UNSUPPORTED");
+    let details=result(f.server.request(json!({"method":"goal_graph_runs.get","params":{"run_id":proposal["id"]}})));
+    assert_eq!(details["run"]["id"],proposal["id"]);
+    assert_eq!(details["task_accepted"],false);
     let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
@@ -2914,11 +2923,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
         12
     );
     for table in [
-        "goal_runs",
-        "goal_run_reservations",
-        "goal_graph_capabilities",
-        "goal_graph_jobs",
-        "attempts",
+        "goal_run_reservations", "goal_graph_jobs", "attempts",
     ] {
         assert_eq!(
             db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
@@ -2929,7 +2934,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     }
     assert_eq!(
         db.query_row(
-            "SELECT result IS NULL FROM approval_proposals WHERE id=?1",
+            "SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",
             [proposal["id"].as_str().unwrap()],
             |r| r.get::<_, bool>(0)
         )
@@ -2960,7 +2965,7 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
     let raw_node: String = db
         .query_row("SELECT document FROM goal_run_nodes", [], |r| r.get(0))
         .unwrap();
-    db.execute_batch("DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;PRAGMA user_version=11;").unwrap();
+    db.execute_batch("DROP TRIGGER graph_fence_lease_insert; DROP TRIGGER graph_fence_lease_update; DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;PRAGMA user_version=11;").unwrap();
     drop(db);
     let store = agentbaton_core::storage::Store::open(&path).unwrap();
     let current = store.goal_run_details(run["id"].as_str().unwrap()).unwrap();

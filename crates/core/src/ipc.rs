@@ -335,6 +335,7 @@ pub struct Daemon {
     command_workers: crate::command_workers::CommandWorkers,
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
     goal_pending: Option<(String, Receiver<Value>)>,
+    graph_workers: crate::goal_store::GraphWorkers,
 }
 impl Daemon {
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
@@ -391,6 +392,7 @@ impl Daemon {
             command_workers: Default::default(),
             data_workers,
             goal_pending: None,
+            graph_workers: Default::default(),
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
@@ -398,6 +400,7 @@ impl Daemon {
         let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {
             self.supervisor.tick(&mut self.store)?;
+            self.graph_workers.tick(&mut self.store)?;
             self.command_workers.tick(&mut self.store)?;
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
@@ -435,6 +438,7 @@ impl Daemon {
         self.data_workers.shutdown(&mut self.store)?;
         self.command_workers.shutdown(&mut self.store)?;
         self.supervisor.shutdown(&mut self.store)?;
+        self.graph_workers.shutdown(&mut self.store)?;
         for reader in readers {
             let _ = reader.join();
         }
@@ -475,7 +479,8 @@ impl Daemon {
         }
         if (self.supervisor.has_workers()
             || self.command_workers.has_workers()
-            || self.data_workers.has_workers())
+            || self.data_workers.has_workers()
+            || self.graph_workers.has_workers())
             && matches!(
                 r.method.as_str(),
                 "projects.import"
@@ -1443,6 +1448,11 @@ impl Daemon {
         ids.dedup();
         self.store.prepare_data_input_contexts(&ids)
     }
+    fn graph_context_for_request(&self, raw:&str)->Result<Option<crate::goal_store::GraphReadContext>> {
+        let request:Request=serde_json::from_str(raw).map_err(|_|invalid())?;
+        if request.token!=self.token || request.api_version!=API_VERSION {return Ok(None);}
+        self.store.graph_request_read_context(&request.method,&request.params,request.expected_revision,request.idempotency_key.as_deref())
+    }
     fn ready_error(&self, raw: &str, error: CoreError) -> Value {
         let request_id = serde_json::from_str::<Value>(raw)
             .ok()
@@ -1457,12 +1467,13 @@ impl Daemon {
             ));
             return;
         }
+        let graph = match self.graph_context_for_request(&job.raw) {Ok(g)=>g,Err(error)=>{let _=job.reply.try_send(self.ready_error(&job.raw,error));return;}};
         match self.data_contexts_for_request(&job.raw) {
             Err(error) => {
                 let _ = job.reply.try_send(self.ready_error(&job.raw, error));
             }
-            Ok(contexts) if !contexts.is_empty() => {
-                if let Err(failure) = self.data_workers.defer(contexts, job) {
+            Ok(contexts) if !contexts.is_empty() || graph.is_some() => {
+                if let Err(failure) = self.data_workers.defer(contexts, graph, job) {
                     let (error, job) = *failure;
                     let _ = job.reply.try_send(self.ready_error(&job.raw, error));
                 }
@@ -1483,7 +1494,7 @@ impl Daemon {
                 Err(error) => {
                     let _ = job.reply.try_send(self.ready_error(&job.raw, error));
                 }
-                Ok(witness) => {
+                Ok(mut witness) => {
                     if Instant::now() > job.deadline || !witness.for_request(&job.raw) {
                         let _ = job.reply.try_send(self.ready_error(
                             &job.raw,
@@ -1495,6 +1506,7 @@ impl Daemon {
                         return;
                     }
                     debug_assert!(self.store.data_input.is_none());
+                    self.store.graph_input = witness.graph.take();
                     self.store.data_input = Some(witness);
                     let request = serde_json::from_str::<Request>(&job.raw)
                         .expect("authenticated deferred request");
@@ -1557,6 +1569,7 @@ impl Daemon {
                     } else {
                         let response = self.handle(&job.raw);
                         self.store.data_input = None;
+                        self.store.graph_input = None;
                         let _ = job.reply.try_send(response);
                     }
                 }
@@ -1648,7 +1661,7 @@ impl Daemon {
                 }
             }
         }
-        if self.data_workers.has_workers() {
+        if self.data_workers.has_workers() || self.graph_workers.has_workers() {
             return Ok(());
         }
         let mut next = None;

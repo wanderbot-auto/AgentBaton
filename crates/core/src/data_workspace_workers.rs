@@ -268,7 +268,7 @@ impl DataWorkspaceWorkers {
         &mut self,
         id: &str,
         preview: bool,
-        f: impl FnOnce(&AtomicBool, Instant) -> Output + Send + 'static,
+        f: impl FnOnce(&Arc<AtomicBool>, Instant) -> Output + Send + 'static,
     ) -> Result<()> {
         let cancel = Arc::new(AtomicBool::new(false));
         let flag = cancel.clone();
@@ -386,6 +386,7 @@ impl DataWorkspaceWorkers {
     pub(crate) fn defer(
         &mut self,
         contexts: Vec<crate::data_workspaces::DataInputContext>,
+        graph: Option<crate::goal_store::GraphReadContext>,
         job: crate::ipc::ReadyRequest,
     ) -> std::result::Result<(), Box<(CoreError, crate::ipc::ReadyRequest)>> {
         if self.has_workers() {
@@ -396,7 +397,8 @@ impl DataWorkspaceWorkers {
         let request_deadline = job.deadline;
         let result=self.spawn(&id,false,move|cancel,deadline|Output::admission((||{
             if cancel.load(Ordering::Relaxed) { return Err(cancelled()); }
-            let witness=crate::data_workspaces::DataInputWitness::restore(contexts,hash,request_deadline.min(deadline))?;
+            let mut witness=crate::data_workspaces::DataInputWitness::restore(contexts,hash,request_deadline.min(deadline))?;
+            if let Some(graph)=graph {witness.graph=Some(graph.execute(cancel.clone(),request_deadline.min(deadline))?);}
             if cancel.load(Ordering::Relaxed) { return Err(cancelled()); }
             if Instant::now()>=request_deadline.min(deadline) { return Err(CoreError::new("DEADLINE_EXCEEDED","The data read observation arrived after admission deadline; no new action was admitted")); }
             Ok(witness)
