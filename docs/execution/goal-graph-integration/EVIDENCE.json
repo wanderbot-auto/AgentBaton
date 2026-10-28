@@ -1,5 +1,5 @@
 {
-  "status": "fb7_exactCI5success2MacOwnerassociationFAIL; pages/realGrant observed; fbfdtestcontract24+Root10 passed but independenttypedJSONP2open; no newCI/package",
+  "status": "fb7exactCI5success2MacGrantassociationFAIL retained; test-only655c29Python+RootRust10 andCIlookup65f7 independentlyreviewed; newexactCIpending",
   "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
   "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
   "postmerge_doc_commands": [
@@ -717,5 +717,27 @@
     "sidecars": "old5541 fc5/906 physicalmacroresources only; actual sharednew1ee/fec7 sameinode/nlink restored; not executed as currentCore",
     "review": "P2NG-FBFD-01 OPEN: Python bool/int equality across separate JSON records; independent4subcase counterexamples actualFAIL; author newtyped-jsonrevision pending fulltests/review",
     "scope": "no newMac/CI claim"
+  },
+  "grant_contract_current": {
+    "source": "655c6d2985dd8d2d0dcfa16864d12edf2dfca374",
+    "author_docs": "0fa8a879f7e30bb6cb69a86c076eb6e02928b3b7",
+    "current_composition": "GRANT_655C_COMPOSITION.json",
+    "history_evidence": "GRANT_TYPED_HISTORY_IMPORT.json",
+    "author_actualPython": 29,
+    "independent_actualPython": 29,
+    "same_unique_cases_not58": true,
+    "Root_owner_Rust": 10,
+    "Root_Rust_unchanged_from_fbfd": true,
+    "Root_fmt_and_alltargets_clippy_exit": 0,
+    "P2": "NG-FBFD-01 closed by independent655c source/static/originalrepro+actual29; originalfbfd/1839failurecontrols preserved",
+    "NativeParent_Core_approval_permissions_locks": "unchanged fromfb7",
+    "current_Mac_CI_release_audit_installers": "not_run; originalfb7bothFAIL retained"
+  },
+  "playwright_lookup_current": {
+    "source": "65f7fd26bec8a88307178a69381389de6188efaa",
+    "independent_report_sha256": "9bdeb63d4411a8ca931250337741d0769b9179fe545f670ce1db6b8dfff0504b",
+    "scope": "metadata-only parentPython asyncPlaywright publiccontext; alloldchildcalls/checknames/runners/limits/pins/permissions preserved",
+    "actual_driver_controls": "authorold2warning/new2clean; independentold1warning/new1clean, noBrowser/Core/model; notinflatedproductflows",
+    "newCI": "pending"
   }
 }

@@ -1,0 +1,54 @@
+{
+  "source655c": "655c6d2985dd8d2d0dcfa16864d12edf2dfca374",
+  "archives": [
+    {
+      "archive": "GRANT_TYPED_1839_AUTHOR_EVIDENCE.tar.gz",
+      "sha256": "b0cfec001e4202b3de04e8ce15dec3a775afd7f99101c14e0a2a7fbb70ab2f6c",
+      "bytes": 15561,
+      "regular_members": 10,
+      "original_manifest_sha256": "82633948722ad6d1de99262020606ed4842a4c24dd91fd20fd72310832d2c430",
+      "payloads_rehashed": 9,
+      "roundtrip": true
+    },
+    {
+      "archive": "GRANT_SCALAR_655C_AUTHOR_EVIDENCE.tar.gz",
+      "sha256": "ee0f3e085ec470f8aae8c2d23692aeb4807cde314f551398ca697d75672e4b0b",
+      "bytes": 15402,
+      "regular_members": 7,
+      "original_manifest_sha256": "483d0ccac98bf44733d13f641dd45ec5d51d559f236ca6be65ab67064d33d0f6",
+      "payloads_rehashed": 6,
+      "roundtrip": true
+    },
+    {
+      "archive": "GRANT_FBFD_BLOCKED_REVIEW_EVIDENCE.tar.gz",
+      "sha256": "bf87bf6e1fe398cd0253f7e5693932c140e10650393fa9b04522e5f5ddc13598",
+      "bytes": 210041,
+      "regular_members": 51,
+      "original_manifest_sha256": "98a3f10e0a26f20330880f6a32fdbb9ede28bc43a916da46f702d4dfa9b4b20c",
+      "payloads_rehashed": 50,
+      "roundtrip": true
+    },
+    {
+      "archive": "GRANT_1839_BLOCKED_REVIEW_EVIDENCE.tar.gz",
+      "sha256": "f780ec2461fd423f86896e93412b489f568788597a70c4757c675a142d13941a",
+      "bytes": 124854,
+      "regular_members": 46,
+      "original_manifest_sha256": "486418c46506484c39cb8bf1de3fa41a0febcabc25f3e66ac30c8074df1d4e36",
+      "payloads_rehashed": 45,
+      "roundtrip": true
+    }
+  ],
+  "independent655c_review": {
+    "state": "source-ready; NG-FBFD-01 limitedtyped/scalarCAS closed",
+    "report_sha256": "2226c41ef4d484ffbbbe3916fad622bd8f68c584fafb86df8b143daa82b2075c",
+    "manifest_sha256": "4ee424ff48c2bd73e7a80d8aeafd70006814c123cf1481b58b951bbc990cb060",
+    "archive": "GRANT_655C_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "3fae8c8dbec410963739bca2ae4301f6666e0d8d077fd4ebd417de3b38a75b9a",
+    "archive_bytes": 125472,
+    "regular_members": 41,
+    "all_payloads_rehashed_and_roundtrip": true,
+    "actual_independentPython": 29,
+    "old_repro_scripts_unchanged_and_now_rejected": true,
+    "newMac_or_CI": "not_run"
+  }
+}

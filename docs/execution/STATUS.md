@@ -1,3 +1,13 @@
+## 当前 PR16：窄测试契约修复已独审，等待新准确 CI — 2026-10-28 23:38 UTC
+
+本地codex/goal-graph-integration基于fb7，当前源码组合4e712823；尚未推送。实际源差异仅5文件：Native测试controller/macos回执、Python runner/测试，以及父CI路径查询。生产Parent/Core/普通approval/权限/锁及前端均与fb7逐字相同。Grant独立approval_id按正式Core契约绑定response、持久记录、proposal_result和完整事件链；跨记录与所有CAS/版本类型也严格一致。原19表零执行、完整Native页文本/可见性/取消/Final守卫及500ms稳定/4s截图/75s watchdog/85s外层原门槛保留。
+
+最终source655c作者/独立各29Python通过（同29组，不相加58）；原反例脚本原字节重放均被拒，限定P2已独立闭合。Root实际10Owner Rust/fmt/Clippy通过，最终两Rust文件与该测试源fbfd逐字同；后续仅Python严格比较修复，不虚称重跑Rust。全部原24/28通过和对应类型失败控制、旧Mac失败包原字节保留。async CI查询叶65f7已独审，现有检查名、runner、权限、时限、pins和全部旧child调用不变，旧Playwright警告不掩盖。
+
+远端PR16仍draft/headfb7，实际已结束的CI是6131661/treebcfd：Environment3+Rust+UI成功、双Mac在错误关联断言FAIL；实际24页/架构、lateCancel和唯一Grant提交证据独立核验且50图已真查看，但release/audit/双安装包均跳过。新候选尚未跑Mac/CI，不能借旧绿合入或把PR15包算新版。下一步最终组合独审、一次普通push、准确全7结果与真实双包；formalApprove从未提交。
+
+main仍a1be94，OWNER001/002于23:33重读ACK，无003。完整130需求/27决定/WP01–14保留。独立Factory/schema13线继续真实MCP/数据/预算实现与测试，不在PR16，也不借其结果填本分支。真实Provider/私人身份、额外费用或资源、正式签名、生产和最终许可证仍关闭。下方保留历史阶段状态，不能替代本段当前结果。
+
 ## 当前 PR16 检查点 — 2026-10-28 23:18 UTC
 
 最新远端被测head fb7ff7d，实际检出6131661/treebcfd；Product40779542803与Environment40779542808已结束：Environment三平台、Rust及UI成功，两Mac仍失败。每架构真实Native62lib/26readonly/8Owner纯测试及WebView生命周期成功；取消/确认各12页（含Final）全部原字节无损、逐页可见与19表零执行已核，50原图均独立查看。FinalOK实际产生唯一Grant、proposal消费及两条事件；失败来自测试误将Grant独立approval_id当proposal.id。release构建/审计/双安装包均跳过，最新有效包仍PR15；不得把分页成功写成整条Mac CI成功。
