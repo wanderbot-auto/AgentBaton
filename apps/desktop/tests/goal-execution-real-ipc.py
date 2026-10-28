@@ -422,7 +422,9 @@ def main():
                 page = context.new_page(); errors = []; page.on('pageerror', lambda error: errors.append(str(error)))
                 event_pump = lambda: page.wait_for_timeout(1)
 
-                def shot(name):
+                def shot(name, focus=None):
+                    if focus is not None:
+                        focus.evaluate("element=>element.scrollIntoView({block:'start'})")
                     path = output / (name + '.png'); page.screenshot(path=str(path))
                     report['screenshots'].append({'path': str(path), 'sha256': sha(path.read_bytes()), 'viewport': page.viewport_size, 'dimension': 'actual Linux Chromium, not macOS/native'})
 
@@ -489,7 +491,7 @@ def main():
                     assert (Path(scenario['workspace']['root']) / 'reports/report.txt').read_bytes() == b'fixed report'
                     refresh(execution); expect(execution.get_by_text('Execution candidate; acceptance pending', exact=False).first).to_be_visible()
                     node_detail = execution.locator('section[aria-label="Node and attempt history"] details').first; expand(node_detail)
-                    expect(node_detail.get_by_text('Not measured / unknown', exact=True).first).to_be_visible(); shot('02-real-generated-candidate')
+                    expect(node_detail.get_by_text('Not measured / unknown', exact=True).first).to_be_visible(); shot('02-real-generated-candidate', node_detail.locator(':scope > summary'))
                     first_db = database(); project_budget = 'project:' + scenario['project']['id']
                     assert first_db['budgets'][project_budget] == {'consumed': 1, 'active': 0}
                     task_budget = 'root:' + scenario['task']['id']; root_ledger = 'root-grant:' + scenario['grant']['id']
@@ -545,14 +547,14 @@ def main():
                     # idempotent *result* must match the original receipt.
                     assert writes[0]['response']['result'] == writes[1]['response']['result']
                     before_read = database(); refresh(execution); assert database() == before_read
-                    shot('04-same-scope-replan-history-kept')
+                    shot('04-same-scope-replan-history-kept', execution.get_by_role('heading', name='Node and attempt history', exact=True))
                     report['observations']['normal_second'] = {'view': second, 'database': before_recovery, 'exact_advance_replay': writes}
                     passed('UI stores rev2 then explicitly adopts same-scope plan; dropped real response recovers exact key without new Owner, attempt replay or budget/history reset')
 
                     scenario = scenarios['data']; panel, execution = open_scenario('data'); store_plan(panel, scenario); started = host_execute(scenario)
                     data_view = wait(lambda: run_view(started['id']), lambda view: view['run']['state'] in {'awaiting_acceptance', 'blocked', 'failed', 'outcome_unknown'})
                     assert data_view['run']['state'] == 'awaiting_acceptance' and data_view['nodes'][0]['actual_output_bytes'] == 12
-                    assert_reaped(scenario, data_view); refresh(execution); shot('05-real-data-workspace-goal-candidate')
+                    assert_reaped(scenario, data_view); refresh(execution); shot('05-real-data-workspace-goal-candidate', execution.locator('summary').filter(has_text=started['id']))
                     assert (Path(scenario['workspace']['root']) / 'reports/report.txt').read_bytes() == b'fixed report'
                     assert not (Path(scenario['workspace']['root']) / '.git').exists() and (scenario['source'] / 'file').read_bytes() == b'baseline'
                     report['observations']['data_candidate'] = data_view
@@ -578,7 +580,8 @@ def main():
                     request = cancel_fault['request']; replay = ipc(request['method'], request['params'], request['key'], request['revision'])
                     assert not replay.get('error') and replay['result'] == request['response']['result'] and database() == before_read
                     assert len([row for row in report['requests'] if row['method'] == 'goal_runs.cancel' and row['params']['run_id'] == started['id']]) == 1
-                    shot('06-real-owned-cancel-retains-partial-report')
+                    cancel_node = execution.locator('section[aria-label="Node and attempt history"] details').first; expand(cancel_node)
+                    shot('06-real-owned-cancel-retains-partial-report', cancel_node.locator(':scope > summary'))
                     report['observations']['cancel'] = {'request_receipt': request['response'], 'terminal': stopped, 'partial_bytes': 14, 'no_automatic_replay': True}
                     passed('real partial-write Goal cancellation keeps request receipt separate from actual owned stop; dropped response reconciles by current reads without a second mutation')
 
@@ -593,8 +596,10 @@ def main():
                     still_unknown = wait(lambda: run_view(started['id']), lambda view: view['run']['cancel_requested'])
                     assert still_unknown['run']['state'] == 'outcome_unknown' and still_unknown['nodes'][0]['state'] == 'outcome_unknown'
                     assert still_unknown['nodes'][0]['stop_confirmed'] is True
-                    refresh(execution); shot('07-timeout-owned-stop-effects-still-unknown')
-                    page.set_viewport_size({'width': 390, 'height': 844}); shot('08-timeout-mobile-unknown'); assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+                    refresh(execution)
+                    timeout_node = execution.locator('section[aria-label="Node and attempt history"] details').first; expand(timeout_node)
+                    shot('07-timeout-owned-stop-effects-still-unknown', timeout_node.locator(':scope > summary'))
+                    page.set_viewport_size({'width': 390, 'height': 844}); shot('08-timeout-mobile-unknown', timeout_node.locator(':scope > summary')); assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
                     report['observations']['timeout'] = {'before_cancel': unknown, 'after_cancel': still_unknown}
                     passed('actual1200ms owned timeout remains unknown after reaping and cancellation; UI blocks new approval/adoption and never fabricates TaskAccepted')
                     for scenario in scenarios.values():
