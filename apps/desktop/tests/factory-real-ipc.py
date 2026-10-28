@@ -892,8 +892,8 @@ def runtime_driver(args, output, attribution, prepared):
             observe_records = observe
             assert host.result('sessions.list', {}) == []
             stale, _ = host.wire(FixedCall('factory_runs.start', {'scope_id': scope['id']}, 'factory:wrong-cas', scope['revision'] + 1))
-            assert stale['error']['code'] == 'STALE_REVISION' and host.result('sessions.list', {}) == []
             report['observations']['actual_wrong_start_CAS_refusal'] = stale
+            assert stale['error']['code'] == 'STALE_REVISION' and host.result('sessions.list', {}) == []
             bounds = Bounds(project['id'], task['id'], scope['id'])
             passed('actual generated resources and complete private Factory approval; approval starts no Provider')
             lock = threading.Lock(); active = {}; phase = {'value': 'serving'}
