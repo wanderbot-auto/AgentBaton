@@ -33,14 +33,13 @@
     "webcrypto_original_full_helper_block_identical": true,
     "FIRST_original_restored_by_removing_only_factory_additions": true,
     "SECOND_byte_identical": true,
-    "all_nine_SQL_tables_match_frozen_core_DDL": true,
     "record_count_DTO_fields_exact": true,
     "query_only_and_real_readonly_uri": true,
     "owner_original_19_tables_preserved_plus_exact_factory9": true,
     "only_allowed_test_sources_changed": true,
-    "owner_OS_controller_and_wrapper_untouched": true
+    "owner_OS_controller_and_wrapper_untouched": true,
+    "match_observed_WIP_table_names": true
   },
-  "factory_core_contract_observed_source_sha256": "f9a70f9601ff2b3480a49fb6875222ee6bb06a47dc14025ee921ef599593a290",
   "checks": [
     {
       "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s apps/desktop/src-tauri/tests -p test_native_runner.py -v",
@@ -113,5 +112,32 @@
     "Root compose frozen Core schema13 and UI Native bridge",
     "Root grant unique Cargo/Native lease",
     "designated actual schema13 daemon for real Owner database test"
-  ]
+  ],
+  "factory_core_observation": {
+    "state": "observed WIP source only; final schema13 DDL and runtime were not frozen or tested",
+    "source_path": "/workspace/.worktrees/factory-runtime-core/crates/core/src/factory_store.rs",
+    "observed_entire_source_file_sha256": "f9a70f9601ff2b3480a49fb6875222ee6bb06a47dc14025ee921ef599593a290",
+    "observation_record_written_at_utc": "2026-10-28T19:15:36.013515+00:00",
+    "time_basis": "Retained source-checks.json write timestamp; not a Core freeze or runtime execution timestamp",
+    "comparison_scope": "Only the set of nine CREATE TABLE factory_* table names was compared with the native readonly SQL list; no column, nullability, primary-key, unique-constraint, authority-kind or final DDL compatibility was established",
+    "table_names": [
+      "factory_scopes",
+      "factory_runs",
+      "factory_task_lineage",
+      "factory_task_bindings",
+      "factory_delegations",
+      "factory_attempts",
+      "factory_scoped_handles",
+      "factory_handoffs",
+      "factory_budget_reservations"
+    ],
+    "retained_inspector_original_label": "all_nine_SQL_tables_match_frozen_core_DDL",
+    "label_correction": "The prior inspector label overstated its table-name-only observation. This documentation-only correction does not rerun it or claim that WIP columns were frozen.",
+    "runtime_test_status": "not_run"
+  },
+  "documentation_correction": {
+    "recorded_at_utc": "2026-10-28T19:35:13.366226+00:00",
+    "source_commit_unchanged": "12b100cb2d6679525eb74750d35371fd2428e2a3",
+    "scope": "Observed WIP table-name wording only; no source changes or checks rerun"
+  }
 }
