@@ -20,7 +20,7 @@ tauri-plugin-dialog = "2"
 tempfile = { version = "3", optional = true }
 
 [features]
-native-smoke = ["dep:tempfile", "dep:objc2"]
+native-smoke = ["dep:tempfile", "dep:objc2", "dep:objc2-app-kit", "dep:objc2-foundation"]
 custom-protocol = ["tauri/custom-protocol"]
 
 # Separate main-thread WebView/IPC harness. Not enabled in application bundles.
@@ -32,3 +32,21 @@ required-features = ["native-smoke"]
 [target.'cfg(target_os = "macos")'.dependencies]
 # Native test screenshot uses only this app window, never the entire desktop.
 objc2 = { version = "0.6", optional = true }
+
+# Own-process public AppKit test driver; excluded from default/release builds.
+[target.'cfg(target_os = "macos")'.dependencies.objc2-app-kit]
+version = "=0.3.2"
+optional = true
+default-features = false
+features = ["std", "NSWindow", "NSView", "NSResponder", "NSButton", "NSControl", "NSTextField", "NSCell", "NSScreen"]
+
+[target.'cfg(target_os = "macos")'.dependencies.objc2-foundation]
+version = "=0.3.2"
+optional = true
+default-features = false
+features = ["std", "NSGeometry", "NSString", "NSArray", "NSObject"]
+
+[[bin]]
+name = "agentbaton-native-owner-dialog-smoke"
+path = "src/bin/native_owner_dialog_smoke.rs"
+required-features = ["native-smoke"]
