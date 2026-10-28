@@ -1,0 +1,126 @@
+{
+  "approval": "AB-START-001",
+  "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "branch": "codex/goal-graph-real-ipc",
+  "allowed_paths": [
+    "apps/desktop/tests/goal-graph-real-ipc.py",
+    "docs/execution/goal-graph-real-ipc/PLAN.md",
+    "docs/execution/goal-graph-real-ipc/PROGRESS.md",
+    "docs/execution/goal-graph-real-ipc/CHECKPOINT.md",
+    "docs/execution/goal-graph-real-ipc/EVIDENCE.json"
+  ],
+  "requirements": [
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-TSK-010",
+    "AB-TSK-011",
+    "AB-TSK-012",
+    "AB-SEC-002",
+    "AB-SEC-004",
+    "AB-REL-001"
+  ],
+  "status": "prepared_not_runtime_verified",
+  "source_sha256": "9c683292eef68dd4d3930e701f20dc7f273d8a74a9ee865d43d463117a5bb3f5",
+  "wire_at_preparation": {
+    "path": "/workspace/.worktrees/goal-validation-graph/docs/execution/goal-validation-graph/WIRE_CONTRACT.json",
+    "sha256": "034c2103b294502ee57ae5706530327a48e951395a4b329877c6b006e5e2931a",
+    "status": "Core WIP c4b8b70 and live followups; not a freeze/accepted runtime",
+    "native_kinds": [
+      "goal_graph_execution",
+      "goal_node_acceptance"
+    ],
+    "contract_version": 1,
+    "schema_required": 12,
+    "graph_new_kind_row_and_snapshot_cap": 1048576,
+    "legacy_owner_cap_unchanged": 16384,
+    "aggregate_response_cap": 4194304
+  },
+  "ui_at_preparation": {
+    "types_sha256": "be79671f3d79f21feb13269f00225dc9f033191b6835c967b0f282d0ea4ca3cc",
+    "api_sha256": "54f6b43d0fdb51c608d518dbbc1e2d717d32d52c429fef9bd38d61a011d279e6",
+    "runtime_status": "UI MOCK/callback fixtures and WIP native tests are separate, no Graph execution closure established",
+    "stable_markers_reported_by_author": [
+      "goal-execution[data-execution-mode=legacy|graph]",
+      "goal-execution-options",
+      "goal-execution-switch[data-mode-target=graph|legacy]",
+      "goal-graph-panel[data-task-id][data-scope-id]",
+      "goal-graph-refresh",
+      "goal-graph-inspect/cancel[data-run-id]",
+      "goal-graph-advance/recover/approve",
+      "goal-graph-run/history[data-run-id]",
+      "goal-graph-node[data-node-id][data-plan-revision]",
+      "goal-graph-owner-approve/reject[data-node-id] (HTTP denied)"
+    ]
+  },
+  "actual_commands": [
+    {
+      "command": "python3 -c py_compile.compile(new harness,cfile=/tmp/goal-graph-real-ipc.pyc,doraise=True)",
+      "result": "PASS syntax only"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --self-check --output /workspace/.onboarding/goal-graph-real-ipc/preparation-boundary-2",
+      "exit_code": 0,
+      "dimension": "pure outgoing HTTP boundary checks with synthetic arguments; no Core/browser/model/candidate/TaskAccepted execution",
+      "count": 58,
+      "report_sha256": "58cfc818f7175067d3d5f22ef62ca167d08391e6a85a0a61553231da8b275f89"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --output /workspace/.onboarding/goal-graph-real-ipc/preparation-pending-runtime-1",
+      "exit_code": 2,
+      "result": "explicit pending_dependencies; actual_runtime not_run; no listener/process/daemon/provider started",
+      "report_sha256": "3c98b167288fecc812d39c7debf507afd7154b6d51b1a631d7da64e092e944be"
+    },
+    {
+      "command": "same self-check reused output preparation-boundary-2 (expected negative)",
+      "exit_code": 1,
+      "result": "FileExistsError before checks; original report SHA unchanged",
+      "log_sha256": "922c247276ce858056f3e9353118862ada3cd9e01f339bcb9dd11b1910b6cf1c"
+    },
+    {
+      "command": "pending CLI with previous schema11 manifest only, no binary invocation",
+      "exit_code": 2,
+      "result": "explicit older-schema refusal, pending no runtime",
+      "report_sha256": "39316cd03164545f3b58a0d43b338cc31f293e10a964c3fd73c6b0ac4269fbed",
+      "log_sha256": "27d718b372d197819da935c19e2492b82a5c3789350a6fa32ccbf033e7280115"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  ],
+  "boundary_guarantees": [
+    "Finite fixed metadata/scoped read/plan-store/Graph cancel+advance only; all graph/node approval/proposal/finalize/decline/reject/generic/session dispatch HTTP403",
+    "Four mutation methods require exact legal nonempty keys and safe numeric CAS; readonly remains keyless",
+    "Foreign task/scope/run, extra permission/token/method fields, malformed types/UTF8/duplicate envelope JSON, bad Origin/Host/content-type refused",
+    "Inner plan JSON text sent byte-exact/opaque for actual Core schema/CAS checks; no duplicate-key repair",
+    "Exact new Graph proposal row/snapshot review bound, no hash-only/truncated snapshot, no widening legacy kinds",
+    "Host Owner actions have no HTTP route; explicit Reject separate from native dialog cancel"
+  ],
+  "old_harness_bytes_unchanged": {
+    "apps/desktop/tests/quiet-canvas-real-ipc.py": "d6a3f683e7ffcd354fb21c200488c25e228ebbf5a7ef290bef56c952e7598ebd",
+    "apps/desktop/tests/command-validation-real-ipc.py": "05b37fbb969ca750b93887ad1125a5c5e7ebb459ff7151edc5d055315673a41d",
+    "apps/desktop/tests/goal-planning-real-ipc.py": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018",
+    "apps/desktop/tests/data-workspace-real-ipc.py": "7e1bc37ac2837a2121ddc01480232ab2a6dbba2522806fa940b86dae529ff26b",
+    "apps/desktop/tests/goal-execution-real-ipc.py": "e5db2bed25b98a5d7b03fa72adf8e332a91d98e1d2ac43a089d697ea93bade5e"
+  },
+  "old80checks56captures": "Existing baseline independent evidence preserved; NOT rerun or replaced by these58static boundary controls. No old schema11 daemon/model invoked.",
+  "pending_exact_dependencies": [
+    "Actual Core12 Graph TaskRequest kind/fields, owned-work dispatch and capture job/receipt sources with fresh SHA/FD/writer_epoch",
+    "Complete approved deterministic Validate definition GoalValidatorRef/pinned digest/actions and reusable new-producer subject binding; validation correctness/goal_acceptance distinction",
+    "Actual GoalPlan Work→Validate→Owner→Summary dependencies, required inputs/artifact contracts/criterion mapping from authoritative fixture",
+    "Private finalize/decline replay and cancellation/unknown response semantics, durable Owner result source/sequence/criterion/candidate bindings",
+    "Actual all-required GraphTaskAcceptance source/event/sequence and Task accepted projection acceptance_ref/acceptance_sequence, terminal no-reopen behavior",
+    "Real drift/unknown-owned-stop/cancel/CAS/ledger/explicit reject/fault recovery fixtures and new schema12 frozen binary+manifest",
+    "Root composed actual Graph UI build and final stable selectors"
+  ],
+  "limits": [
+    "Prepared skeleton and pure outgoing boundary controls only; no schema12 Core/browser/provider/validator/owner/TaskAccepted execution.",
+    "Runtime driver intentionally returns pending exit2 until actual Graph fixture is connected; it cannot produce fake success/acceptance.",
+    "No SQL writes/synthetic candidates/acceptances/Renderer Owner authority. PrivateUnixFixture is not instantiated by preparation self-checks; no auth file actually read.",
+    "No Cargo/sharedtarget/Node/dependency install/oldtest/product/Core/Native/UI/lock/schema/gate/STATUS changes; no models/accounts/host/extra fee/recursive agents.",
+    "Independent review and real Linux/browser/native/macOS/provider/CI/package acceptance remain separate."
+  ]
+}
