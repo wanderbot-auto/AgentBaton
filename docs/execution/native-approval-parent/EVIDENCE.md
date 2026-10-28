@@ -8,12 +8,12 @@ Commands actually executed in this tree:
 
 - `RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 --check apps/desktop/src-tauri/src/lib.rs apps/desktop/src-tauri/src/native_parent.rs`: exit 0 (syntax/format only).
 - `git diff --check`: exit 0.
-- Python comparison against git-show baseline: original entire `#[cfg(test)] mod tests` suffix in lib is byte-identical; approval.rs byte-identical; exactly eleven fixed command signatures take framework WebviewWindow; six private wrappers and six parent.finalize adapters; shared builder has one global lifecycle hook; no blocking_show remains in lib. Exit 0. Nine new unit bodies counted; not executed.
+- Python comparison against git-show baseline: original entire `#[cfg(test)] mod tests` suffix in lib is byte-identical; approval.rs byte-identical; exactly eleven fixed command signatures take framework WebviewWindow; six private wrappers and six parent.finalize adapters; shared builder has one global lifecycle hook; no blocking_show remains in lib. Exit 0. Ten new unit bodies counted; not executed.
 
 Current source SHA-256:
 
 - lib.rs `b1889f27230fa1612fd4fac3fa5210d15dbc54ac3506dab7b8b8637dc6c28c0d`
-- native_parent.rs `b2621d4489329d63cd15b33c8c620f93da0c34940c37129dc865c1a054414e34`
+- native_parent.rs `4cf7125cd41c9dcbca816cb6e8de75e8d353838784c504a524cbce159f9b71e3`
 - unchanged approval.rs `ed15fe18bca38f102c41f77cd87c31b2a644f23201652d367670465ebc7bb80a`
 
 Not run: Rust compilation/tests/lints, macOS build, actual NSAlert/Owner buttons, close/destroy on a real GUI, native integration smoke or Core approval dispatch. Earlier 43-test evidence applies to the old approval/lib source, not this revision. No account, Provider/model, production secret, fee, signing or release activity.

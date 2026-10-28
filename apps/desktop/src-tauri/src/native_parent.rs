@@ -3,7 +3,7 @@
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::{
-    atomic::{AtomicU8, Ordering},
+    atomic::{AtomicBool, AtomicU8, Ordering},
     mpsc, Arc, Mutex, OnceLock, Weak,
 };
 use std::time::{Duration, Instant};
@@ -243,6 +243,8 @@ impl CallerOwner {
         let life = self.life.clone();
         let title = title.to_owned();
         let message = message.to_owned();
+        let review_started = Arc::new(AtomicBool::new(false));
+        let started_on_main = review_started.clone();
         if let Err(error) = self.caller.run_on_main_thread(move || {
             // Wry executes plugin's nested run_on_main_thread inline here.
             // rfd retains NSWindow while constructing the real sheet before
@@ -259,6 +261,9 @@ impl CallerOwner {
                 let _ = sender.send(Err("Caller closed before native review".into()));
                 return;
             }
+            // This flag is monotonic for this one page. Lifecycle returns to
+            // idle after a human response; it is NOT a startup-timeout signal.
+            started_on_main.store(true, Ordering::Release);
             let keep_caller = caller.clone();
             caller
                 .app_handle()
@@ -285,7 +290,10 @@ impl CallerOwner {
         }
         let waiting_since = Instant::now();
         loop {
-            if waiting_since.elapsed() >= MAIN_THREAD_DEADLINE && self.life.expire_waiting() {
+            if !review_started.load(Ordering::Acquire)
+                && waiting_since.elapsed() >= MAIN_THREAD_DEADLINE
+                && self.life.expire_waiting()
+            {
                 self.fail("Caller review did not start on the UI thread".into());
                 return false;
             }
@@ -430,6 +438,19 @@ mod tests {
         assert!(reviewing.begin_review());
         assert!(!reviewing.expire_waiting()); // no deadline on human review
         assert!(reviewing.complete_review());
+    }
+    #[test]
+    fn human_completion_idle_state_is_not_a_startup_timeout_signal() {
+        let life = Lifecycle::default();
+        let review_started = AtomicBool::new(false);
+        assert!(life.begin_review());
+        review_started.store(true, Ordering::Release);
+        assert!(life.complete_review());
+        // Even after the startup deadline, a queued genuine callback remains
+        // valid: this page already started, despite the idle lifecycle state.
+        let expired = !review_started.load(Ordering::Acquire) && life.expire_waiting();
+        assert!(!expired);
+        assert!(life.begin_finalize());
     }
     #[test]
     fn unavailable_before_dispatch_is_an_explicit_non_authority_result() {
