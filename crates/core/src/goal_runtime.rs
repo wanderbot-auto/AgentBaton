@@ -909,6 +909,8 @@ impl Store {
 }
 #[derive(Debug, Serialize, Deserialize)]
 struct ReservationRecord {
+    #[serde(skip)]
+    shared_root_grant_id: Option<String>,
     run_id: String,
     node_id: String,
     plan_revision: u64,
@@ -931,9 +933,26 @@ fn reservations(db: &Connection, root: &str, project: &str) -> Result<Vec<Reserv
     if docs.len() > 100000 {
         return Err(limited());
     }
-    docs.into_iter()
+    let mut records = docs
+        .into_iter()
         .map(|x| decode(&x.ok_or_else(limited)?))
-        .collect()
+        .collect::<Result<Vec<ReservationRecord>>>()?;
+    for shared in crate::factory::budget_records(db, root, project)? {
+        records.push(ReservationRecord {
+            shared_root_grant_id: Some(shared.root_grant_id.clone()),
+            run_id: format!("shared-session:{}", shared.attempt_id),
+            node_id: shared.task_id.clone(),
+            plan_revision: 0,
+            ancestors: shared.ancestors.clone(),
+            reservation: shared.reservation.clone(),
+            settled: shared.settled,
+            actual_runtime_ms: shared.actual_runtime_ms,
+            actual_output_bytes: shared.actual_output_bytes,
+            tokens: None,
+            cost_microunits: None,
+        });
+    }
+    Ok(records)
 }
 fn reserve_meter(
     db: &Connection,
@@ -1089,13 +1108,16 @@ fn reserve_attempt(
     let project_active = records.iter().filter(|x| !x.settled).collect::<Vec<_>>();
     let mut root_active = Vec::new();
     for x in records.iter().filter(|x| !x.settled) {
-        let own: bool = db
-            .query_row(
+        let own = if let Some(shared_root) = &x.shared_root_grant_id {
+            shared_root == &r.root_grant_id
+        } else {
+            db.query_row(
                 "SELECT json_extract(document,'$.root_grant_id')=?1 FROM goal_runs WHERE id=?2",
                 params![r.root_grant_id, x.run_id],
-                |row| row.get(0),
+                |row| row.get::<_, bool>(0),
             )
-            .map_err(db_error)?;
+            .map_err(db_error)?
+        };
         if own {
             root_active.push(x);
         }
@@ -1227,6 +1249,7 @@ fn reserve_attempt(
         }
     }
     let receipt = ReservationRecord {
+        shared_root_grant_id: None,
         run_id: r.id.clone(),
         node_id: n.node.id.clone(),
         plan_revision: r.plan_revision,
@@ -3396,5 +3419,88 @@ mod tests {
                 0
             );
         }
+    }
+}
+
+impl Store {
+    /// Existing shared Goal meters account both Factory and bounded ordinary
+    /// sessions. The caller's private reservation context is checked separately.
+    pub(crate) fn reserve_shared_execution_meter(
+        db: &Connection,
+        record: &crate::factory::FactoryReservation,
+        root_limits: &BudgetLimits,
+        project_limits: &BudgetLimits,
+    ) -> Result<()> {
+        let task: Task = raw(db, "tasks", &record.root_task_id)?;
+        let grant = crate::policy::checked_lineage(db, &record.root_grant_id)?;
+        let (pc, _, rc, _) = counts(db, &task, &grant)?;
+        let pc = pc.checked_sub(1).ok_or_else(changed)?;
+        let rc = rc.checked_sub(1).ok_or_else(changed)?;
+        let records = reservations(db, &record.root_grant_id, &record.project_id)?;
+        let active = records.iter().filter(|x| !x.settled).collect::<Vec<_>>();
+        let mut root_active = Vec::new();
+        for old in &active {
+            let same = if let Some(root) = &old.shared_root_grant_id {
+                root == &record.root_grant_id
+            } else {
+                db.query_row(
+                    "SELECT json_extract(document,'$.root_grant_id')=?1 FROM goal_runs WHERE id=?2",
+                    params![record.root_grant_id, old.run_id],
+                    |r| r.get::<_, bool>(0),
+                )
+                .map_err(db_error)?
+            };
+            if same {
+                root_active.push(*old);
+            }
+        }
+        for (key, limits, before, active) in [
+            (
+                format!("project:{}", record.project_id),
+                project_limits,
+                pc,
+                &active,
+            ),
+            (
+                format!("root-grant:{}", record.root_grant_id),
+                root_limits,
+                rc,
+                &root_active,
+            ),
+        ] {
+            remember_meter(db, &key, limits, before)?;
+            reserve_meter(db, &key, limits, before, &record.reservation, active)?;
+        }
+        Ok(())
+    }
+    pub(crate) fn settle_shared_execution_meter(
+        db: &Connection,
+        record: &crate::factory::FactoryReservation,
+    ) -> Result<()> {
+        for key in [
+            format!("project:{}", record.project_id),
+            format!("root-grant:{}", record.root_grant_id),
+        ] {
+            let raw:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_ledgers WHERE scope=?1",[&key],|r|r.get(0)).optional().map_err(db_error)?;
+            let mut meter: MeterLedger = decode(&raw.flatten().ok_or_else(changed)?)?;
+            meter.runtime_ms = meter.runtime_ms.and_then(|before| {
+                record
+                    .actual_runtime_ms
+                    .and_then(|elapsed| before.checked_add(elapsed))
+            });
+            meter.output_bytes = meter.output_bytes.and_then(|before| {
+                record
+                    .actual_output_bytes
+                    .and_then(|bytes| before.checked_add(bytes))
+            });
+            meter.tokens = None;
+            meter.cost_microunits = None;
+            db.execute(
+                "UPDATE goal_ledgers SET document=?1 WHERE scope=?2",
+                params![encode(&meter)?, key],
+            )
+            .map_err(db_error)?;
+        }
+        Ok(())
     }
 }

@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "unit": "factory-runtime-core",
+  "baseline": "e751992780a778d78edbc6b577359f9bbc3759ec",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "state": "wip_not_runtime_complete",
+  "tested_source_snapshot": {
+    "baseline": "e751992780a778d78edbc6b577359f9bbc3759ec",
+    "state": "WIP_scope_persistence_companion_only_not_actual_runtime",
+    "files": {
+      "apps/cli/src/main.rs": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+      "crates/core/src/lib.rs": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+      "crates/core/src/storage.rs": "925002caeb223b8e181100848cea204bd46721c7759e9ac4de8d7f0c56f7f4cf",
+      "crates/core/src/sessions.rs": "fc8b9a1d01a966597ab5946e3a9e970aeb2b3f83e41f939b27554215f8e9fcd0",
+      "crates/core/src/ipc.rs": "b3ae094fafaf4dab7bd3c78213e483c44897c6bdf168d2f2660a42c1ea4c10fc",
+      "crates/core/src/factory.rs": "4941b32f841bcc7325c8996241e7d7d1a93bf07b6c033c28749a0a10bca1dcfc",
+      "crates/core/src/factory_store.rs": "043fa10f7fcdbc79ee085ea2ab221a6382aa51489ba179e33db9bcff5a726d1c",
+      "crates/core/src/factory_runtime.rs": "95896b6aee671fd11b445fc3d808640e46ae75a6b5dbd5417eb7bf78b81fbc93",
+      "crates/core/src/factory_companion.rs": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+      "crates/core/tests/factory_scope.rs": "6c6cecf0251853f01d3953a7341798ff295c634c94b4fe09cbbf59e42ed707ab",
+      "crates/core/tests/factory_migration.rs": "95b121a5a43c645860a3d637712566b920690d3a4a74c344fc44363e8a76afdf"
+    }
+  },
+  "tested_source_snapshot_sha256": "55ee71c6b1fc1deb8abec50d0b00cfdc53a2fad447d5a073dfc18fd9c68f29b8",
+  "tested_commands": [
+    {
+      "command": "cargo test --locked -p agentbaton-core --test factory_scope --test factory_migration",
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "environment": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_BUILD_JOBS": "2",
+        "RUST_TEST_THREADS": "1",
+        "umask": "022"
+      },
+      "result": "PASS",
+      "unique_tests": 10,
+      "ignored": 0,
+      "dimension": "real filesystem/SQLite scope+start-intent persistence; trusted synthetic connection/owner; no Provider or MCP process"
+    }
+  ],
+  "logs": {
+    "first-check.log": {
+      "path": "artifacts/factory-runtime-core/first-check.log",
+      "sha256": "a8c67f63b9d58529e6dcc3c9ca222ae723b97b1a7a08977215bae28877dcbb99"
+    },
+    "scope-check.log": {
+      "path": "artifacts/factory-runtime-core/scope-check.log",
+      "sha256": "aa0d6ea4bccf71ebab3ef05b5c46554355b66adda693a0399f33da5120f009a3"
+    },
+    "first-scope-tests.log": {
+      "path": "artifacts/factory-runtime-core/first-scope-tests.log",
+      "sha256": "0165df670b5f585f20a847151b64a9b07343f1273a1178ec0611a8e947091e8b"
+    },
+    "companion-migration-tests.log": {
+      "path": "artifacts/factory-runtime-core/companion-migration-tests.log",
+      "sha256": "6369fa75aee07a64a593fb2294d8322a9d713f3b0250b3915b024d64eae9bccc"
+    },
+    "runtime-records-check.log": {
+      "path": "artifacts/factory-runtime-core/runtime-records-check.log",
+      "sha256": "3f642049ad2841601749b86f9ce5198b9560303ba11baec80ce89cc932fdf5d2"
+    },
+    "runtime-persistence-tests.log": {
+      "path": "artifacts/factory-runtime-core/runtime-persistence-tests.log",
+      "sha256": "d6d5e7b7fdd01e231b1abc15435d465c1cdb8820abb066f99ead757e067e7ea7"
+    },
+    "persistence-snapshot-tests.log": {
+      "path": "artifacts/factory-runtime-core/persistence-snapshot-tests.log",
+      "sha256": "08e4b4b02b0278b18b57b4c45b73dbe3704c877fd098753103258e3ac423352c"
+    }
+  },
+  "current_wip_source_hashes": {
+    "apps/cli/src/main.rs": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+    "crates/core/src/lib.rs": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+    "crates/core/src/storage.rs": "925002caeb223b8e181100848cea204bd46721c7759e9ac4de8d7f0c56f7f4cf",
+    "crates/core/src/sessions.rs": "fc8b9a1d01a966597ab5946e3a9e970aeb2b3f83e41f939b27554215f8e9fcd0",
+    "crates/core/src/ipc.rs": "b3ae094fafaf4dab7bd3c78213e483c44897c6bdf168d2f2660a42c1ea4c10fc",
+    "crates/core/src/factory.rs": "20b4c8a2f9645d0443bf6274229794fa9d9545c69a04fdcd2df02e30a254af93",
+    "crates/core/src/factory_store.rs": "9703ec9c2f903c2604655a39ad0889c0332b70020063c06406b7f5d141f137ca",
+    "crates/core/src/factory_runtime.rs": "bfebcb5fc15612e82e5b034f1276b70dc5118a07da43995459dbe585a3089004",
+    "crates/core/src/factory_companion.rs": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+    "crates/core/tests/factory_scope.rs": "6c6cecf0251853f01d3953a7341798ff295c634c94b4fe09cbbf59e42ed707ab",
+    "crates/core/tests/factory_migration.rs": "95b121a5a43c645860a3d637712566b920690d3a4a74c344fc44363e8a76afdf",
+    "crates/core/src/goal_runtime.rs": "b5fdb9f5b4dd9a474115a3af0bd3d963e2053671656ed2d86dfda58f2fc28e07",
+    "crates/core/src/factory_budget.rs": "13c43d3f310c88f71bbd2a028fac5b4abc4b351ef6d6a10ea957dbbb68209ed5"
+  },
+  "current_wip_delta_not_compiled": [
+    "nullable legacy shared-budget reservation with explicit measurement_scope",
+    "shared Goal ledger adapter",
+    "no scoped request backend or session worker integration yet"
+  ],
+  "failed_evidence": [
+    {
+      "path": "artifacts/factory-runtime-core/runtime-records-check.log",
+      "reason": "E0425/E0308: run dispatcher arms accidentally inserted into preflight match; corrected, later persistence snapshot10 passed"
+    }
+  ],
+  "not_run": [
+    "full workspace tests",
+    "final Clippy",
+    "scoped authorization/MCP tool requests",
+    "generated actual parent-child-parent lifecycle",
+    "queued delay and output metering",
+    "ordinary/Goal/Factory mixed ledger tests",
+    "native dialogs/UI/macOS runtime",
+    "real Provider accounts/models"
+  ],
+  "limitations": [
+    "WIP; not product or Factory acceptance",
+    "Scope approval never spawns",
+    "Factory Task permission does not modify original Grant or old Goal",
+    "No new workspace or child Goal/planning capability",
+    "Pending budget/runtime code has not been compiled or executed"
+  ]
+}

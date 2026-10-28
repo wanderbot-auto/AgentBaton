@@ -1807,6 +1807,14 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "factory" {
+            let companion: crate::factory::FactoryCompanionBinding =
+                serde_json::from_value(proposal.snapshot["bindings"]["companion"].clone())
+                    .map_err(|_| {
+                        CoreError::new("INPUT_CHANGED", "Factory companion contract is invalid")
+                    })?;
+            return self.finalize_factory_scope(id, revision, &companion.executable);
+        }
         if proposal.kind == "goal_node_acceptance" {
             return self.decide_goal_node(id, revision, true);
         }

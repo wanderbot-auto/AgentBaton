@@ -547,6 +547,30 @@ impl Daemon {
                 })();
                 if let Err(mut error)=action {if error.side_effect_state=="not_started"{error.side_effect_state="confirmed".into();}error.details_ref=receipt["intent_id"].as_str().map(|id|format!("recorded-goal-advance:{id}"));return Err(error);}Ok(receipt)
             }
+            "factory_runs.start" => {
+                let p: FactoryScopeId = params(r.params)?;
+                Ok(json!(self.store.start_factory_run(
+                    &p.scope_id,
+                    r.expected_revision.ok_or_else(invalid)?,
+                    &r.idempotency_key.ok_or_else(invalid)?
+                )?))
+            }
+            "factory_runs.get" => {
+                let p: FactoryScopeId = params(r.params)?;
+                Ok(json!(self.store.get_factory_run(&p.scope_id)?))
+            }
+            "factory_runs.cancel" => {
+                let p: FactoryScopeId = params(r.params)?;
+                Ok(json!(self.store.cancel_factory_run(
+                    &p.scope_id,
+                    r.expected_revision.ok_or_else(invalid)?,
+                    &r.idempotency_key.ok_or_else(invalid)?
+                )?))
+            }
+            "factory_scopes.propose"=>{let p:crate::factory::FactoryScopeSelection=params(r.params)?;let path=crate::factory::companion_path()?;Ok(json!(self.store.propose_factory_scope(&p,&r.idempotency_key.ok_or_else(invalid)?,&path)?))}
+            "factory_scopes.get"=>{let p:FactoryScopeId=params(r.params)?;Ok(json!(self.store.get_factory_scope(&p.scope_id)?))}
+            "factory_scopes.list"=>{let p:FactoryRootTaskId=params(r.params)?;Ok(json!(self.store.list_factory_scopes(&p.root_task_id)?))}
+            "factory_scopes.revoke"=>{let p:FactoryScopeId=params(r.params)?;Ok(json!(self.store.revoke_factory_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
             "goal_scopes.propose" => {
                 let selection:crate::goal_store::GoalScopeSelection=params(r.params)?;
                 let key=r.idempotency_key.ok_or_else(invalid)?;
@@ -1240,6 +1264,10 @@ impl Daemon {
         }
         let mut ids = Vec::new();
         match request.method.as_str() {
+            "factory_scopes.propose" => {
+                let p: crate::factory::FactoryScopeSelection = params(request.params)?;
+                ids.extend(p.workspace_ids);
+            }
             "grants.propose" => {
                 let p: CreateGrant = params(request.params)?;
                 let intent = json!({"project_id":p.project_id,"workspace_id":p.workspace_id,"connection_id":p.connection_id,"max_attempts":p.max_attempts,"max_concurrency":p.max_concurrency,"max_duration_ms":p.max_duration_ms});
@@ -1495,6 +1523,21 @@ impl Daemon {
                 if let Some(raw) = raw {
                     let proposal: crate::sessions::ApprovalProposal = crate::storage::decode(&raw)?;
                     match proposal.kind.as_str() {
+                        "factory" => {
+                            if let Some(workspaces) =
+                                proposal.snapshot["bindings"]["workspaces"].as_array()
+                            {
+                                if workspaces.len() > 1 {
+                                    return Err(invalid());
+                                }
+                                for workspace in workspaces {
+                                    ids.push(
+                                        workspace["id"].as_str().ok_or_else(invalid)?.to_owned(),
+                                    );
+                                }
+                            }
+                        }
+
                         "goal_execution" | "goal_graph_execution" => {
                             if let Some(id) = proposal.snapshot["intent"]["scope_id"].as_str() {
                                 ids.push(self.store.get_goal_scope(id)?.workspace_id);
@@ -1790,4 +1833,15 @@ impl Daemon {
         });
         Ok(())
     }
+}
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FactoryScopeId {
+    scope_id: String,
+}
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FactoryRootTaskId {
+    root_task_id: String,
 }
