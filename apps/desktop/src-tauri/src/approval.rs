@@ -1012,6 +1012,11 @@ fn graph_node_snapshot_matches(
                         && graph_hash(&check["plan_digest"])
                         && graph_hash(&check["definition_digest"])
                         && graph_hash(&check["result_digest"])
+                        && check["observation"].is_object()
+                        && check["observation"]["goal_io"].is_object()
+                        && check["observation"]["goal_io"]["state"]
+                            .as_str()
+                            .is_some_and(|state| !state.is_empty() && state.len() <= 128)
                         && check["candidate_refs"].as_array().is_some_and(|items| {
                             items.len() <= 64
                                 && items
@@ -1049,6 +1054,9 @@ fn graph_node_snapshot_matches(
                             == check["passed"].as_bool().unwrap_or(false)
                         && check["passed"].is_boolean()
                         && check["stop_confirmed"].is_boolean()
+                        && (check["passed"] != true
+                            || check["stop_confirmed"] == true
+                                && check["io_completion"] == "worker_joined")
                         && check["input_bindings"].is_array()
                 })
         })
@@ -2126,6 +2134,178 @@ mod tests {
         .unwrap();
         assert_eq!(denied["error"]["code"], "PERMISSION_DENIED");
     }
+    #[test]
+    fn actual_integrity_validator_observation_roundtrips_every_native_review_byte() {
+        // Actual Core packet, including nonempty validation_refs. Callbacks
+        // exercise the host bridge only; no OS dialog or Core write runs here.
+        let packet: Value = serde_json::from_str(include_str!(
+            "../../src/goal-graph-actual-integrity-task-fixture.json"
+        ))
+        .unwrap();
+        let proposal = &packet["owner_proposal"];
+        let selection = proposal["snapshot"]["intent"].clone();
+        let revision = proposal["snapshot"]["expected_run_revision"]
+            .as_u64()
+            .unwrap();
+        let expected = proposal["snapshot"].clone();
+        let validation = &expected["validation_refs"][0];
+        assert!(!expected["validation_refs"].as_array().unwrap().is_empty());
+        assert_eq!(validation["scope"], "artifact_integrity_only");
+        assert_eq!(validation["correctness"], "not_established");
+        assert_eq!(validation["task_acceptance"], "not_established");
+        assert_eq!(validation["stop_confirmed"], true);
+        assert_eq!(validation["io_completion"], "worker_joined");
+        assert!(validation["observation"]["goal_io"].is_object());
+        let mut pages = Vec::new();
+        let writes = Cell::new(0);
+        let result = confirm_goal_node_and_finalize(
+            json!({"result":proposal}),
+            &selection,
+            revision,
+            |message| {
+                assert!(message.len() <= 16_384);
+                if !message.contains("FINAL native decision") {
+                    pages.push(message.rsplit("\n\n").next().unwrap().to_owned());
+                }
+                true
+            },
+            |frame| {
+                writes.set(writes.get() + 1);
+                assert_eq!(
+                    frame,
+                    json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":format!("proposal:{}",proposal["id"].as_str().unwrap())})
+                );
+                // The preserved matching actual first decision is returned
+                // by this callback; this callback is not a new Core run.
+                Ok(json!({"result":packet["first_decision"]}))
+            },
+        )
+        .unwrap();
+        assert_eq!(writes.get(), 1);
+        let reviewed: Value = serde_json::from_str(&pages.concat()).unwrap();
+        assert_eq!(reviewed, expected);
+        assert_eq!(
+            reviewed["validation_refs"][0]["observation"],
+            validation["observation"]
+        );
+        assert_eq!(result["result"]["approval_id"], proposal["id"]);
+        assert_eq!(result["result"], packet["first_decision"]);
+    }
+
+    #[test]
+    fn actual_integrity_native_cancel_on_each_page_and_final_never_finalizes_or_rejects() {
+        let packet: Value = serde_json::from_str(include_str!(
+            "../../src/goal-graph-actual-integrity-task-fixture.json"
+        ))
+        .unwrap();
+        let proposal = &packet["owner_proposal"];
+        let selection = &proposal["snapshot"]["intent"];
+        let revision = proposal["snapshot"]["expected_run_revision"]
+            .as_u64()
+            .unwrap();
+        let prompt_count = graph_review_pages(&proposal["snapshot"]).unwrap().len() + 1;
+        for explicit_rejection in [false, true] {
+            for cancel_at in 0..prompt_count {
+                let prompts = Cell::new(0);
+                let writes = Cell::new(0);
+                let confirm = |_message: &str| {
+                    let current = prompts.get();
+                    prompts.set(current + 1);
+                    current != cancel_at
+                };
+                let finalize = |_frame: Value| -> Result<Value, String> {
+                    writes.set(writes.get() + 1);
+                    panic!("Cancelled native review wrote a decision")
+                };
+                let result = if explicit_rejection {
+                    confirm_goal_node_rejection_and_decline(
+                        json!({"result":proposal}),
+                        selection,
+                        revision,
+                        confirm,
+                        finalize,
+                    )
+                } else {
+                    confirm_goal_node_and_finalize(
+                        json!({"result":proposal}),
+                        selection,
+                        revision,
+                        confirm,
+                        finalize,
+                    )
+                }
+                .unwrap();
+                assert_eq!(prompts.get(), cancel_at + 1);
+                assert_eq!(writes.get(), 0);
+                assert_eq!(result["error"]["code"], "PERMISSION_DENIED");
+                assert_eq!(result["error"]["side_effect_state"], "not_started");
+                assert!(result.get("result").is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn actual_integrity_missing_observation_or_unjoined_pass_never_opens_native_review() {
+        let packet: Value = serde_json::from_str(include_str!(
+            "../../src/goal-graph-actual-integrity-task-fixture.json"
+        ))
+        .unwrap();
+        let original = &packet["owner_proposal"];
+        let selection = &original["snapshot"]["intent"];
+        let revision = original["snapshot"]["expected_run_revision"]
+            .as_u64()
+            .unwrap();
+        for mode in [
+            "missing",
+            "null",
+            "not_object",
+            "missing_goal_io",
+            "not_stopped",
+            "not_joined",
+        ] {
+            let mut proposal = original.clone();
+            let validation = &mut proposal["snapshot"]["validation_refs"][0];
+            match mode {
+                "missing" => {
+                    validation.as_object_mut().unwrap().remove("observation");
+                }
+                "null" => validation["observation"] = Value::Null,
+                "not_object" => validation["observation"] = json!("opaque-details-only"),
+                "missing_goal_io" => {
+                    validation["observation"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("goal_io");
+                }
+                "not_stopped" => validation["stop_confirmed"] = json!(false),
+                "not_joined" => validation["io_completion"] = json!("not_started"),
+                _ => unreachable!(),
+            }
+            let prompts = Cell::new(0);
+            let writes = Cell::new(0);
+            let result = confirm_goal_node_and_finalize(
+                json!({"result":proposal}),
+                selection,
+                revision,
+                |_| {
+                    prompts.set(prompts.get() + 1);
+                    true
+                },
+                |_| {
+                    writes.set(writes.get() + 1);
+                    panic!("Invalid receipt finalized")
+                },
+            )
+            .unwrap();
+            assert_eq!(prompts.get(), 0, "{mode}");
+            assert_eq!(writes.get(), 0, "{mode}");
+            assert_eq!(
+                result["error"]["side_effect_state"], "not_started",
+                "{mode}"
+            );
+        }
+    }
+
     fn graph_native_proposal_fixture() -> (Value, Value) {
         let (mut response, selection) = goal_execution_proposal();
         response["result"]["kind"] = json!("goal_graph_execution");
