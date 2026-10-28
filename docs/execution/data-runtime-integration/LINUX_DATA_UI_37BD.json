@@ -1,0 +1,48 @@
+{
+  "artifact_id": 12806619258,
+  "zip_sha256": "3a46c9a55e40f43fdead3f197acbca5676b97326d0415b0c159128b1b8b1204f",
+  "safe_zip_crc": "passed",
+  "entries": 57,
+  "report_sha256": "8538f299c0f026da2bd71aed27615584550d1ed666d8ad0787fbcbe32eaa8c3e",
+  "actual_checkout": "e79a267584d1dcbb4f329b1e3044e5c66eb9a6bb",
+  "dimension": "actual built React / Chromium / fixed test-only HTTP / real Unix schema10 daemon / actual generated files",
+  "actual_checks": 8,
+  "reported_unrun": [],
+  "normal_ready": {
+    "files": 2,
+    "bytes": 39,
+    "io_completion": "worker_joined",
+    "journal_sequences": [
+      8,
+      9,
+      10
+    ]
+  },
+  "actual_cancel": {
+    "state": "cancelled",
+    "io_completion": "worker_joined",
+    "owned_join_observed": true,
+    "cancelled_join_observed": true,
+    "stage": "before_destination_reservation",
+    "partial_selected_output_observed": false,
+    "partial_copy_stop_not_established": true,
+    "destination_exists": false,
+    "general_filesystem_quiescence_claimed": false
+  },
+  "final_database": {
+    "data_workspace_previews": 5,
+    "data_workspace_creations": 3,
+    "managed_workspaces": 3,
+    "approval_proposals": 3,
+    "attempts": 0,
+    "sessions": 0,
+    "dispatch_intents": 0,
+    "sequence": 29
+  },
+  "page_errors": [],
+  "limits": [
+    "actualLinuxbuiltReact/fixedtestHTTP/realUnixdaemon; outsideHTTPownerfixture notOSdialog",
+    "partialoutput/cancellationcoverage onlyasactualobservations; no generalFS stop",
+    "notactualMacNative/displayclosure64copy/modelacceptance"
+  ]
+}
