@@ -1,0 +1,44 @@
+{
+  "approval": "AB-START-001",
+  "baseline": "ee374d1e67fd4b8671bba5f4d25b2659be846480",
+  "branch": "codex/goal-runtime-real-ipc",
+  "worktree": "/workspace/.worktrees/goal-runtime-real-ipc",
+  "requirements": {
+    "AB-TSK-001": "partial, complete typed TaskRequest; no generated NLP planner claim",
+    "AB-TSK-003": "fixed capability boundary, no authority from HTTP/plan text",
+    "AB-TSK-004": "exact-key advance/cancel receipt recovery",
+    "AB-TSK-007": "request acknowledgement versus actual owned reap",
+    "AB-TSK-008": "timeout unknown effects remain unknown after stop/cancel",
+    "AB-TSK-010": "observed selected output/runtime versus reservations and unknown token/cost",
+    "AB-TSK-011": "same-scope stored plan revision/explicit adoption/history",
+    "AB-TSK-012": "same root/project cumulative attempts/output not reset",
+    "AB-SEC-002": "finite HTTP allowlist, no generic execution/native approval",
+    "AB-SEC-004": "generated local data only, no network/model",
+    "AB-REL-001": "separate syntax/browser/generated protocol/native/Provider dimensions"
+  },
+  "mapping_note": "No AB-ORC IDs exist in the immutable requirements baseline; actual AB-TSK/WP08 identifiers are used without editing specs.",
+  "script_sha256": "e4e074e2abdc9ba0e3dbfe42d660f2a4cae9ac91cfabeed1ad1cb6f7b61dc9d3",
+  "status": "prepared_not_executed",
+  "actual_checks": [
+    "Python ast.parse",
+    "compile extracted generated ACP body without executing it",
+    "py_compile harness to /tmp",
+    "git diff --check"
+  ],
+  "syntax_report": "/workspace/.onboarding/goal-execution-real-ipc/preparation/syntax.json",
+  "syntax_report_sha256": "1c282bf86f5a0378e70085bad6e0902bd0d760fbeda82aaecdf198b4f140d0ed",
+  "runtime_not_run": [
+    "No schema11 final coherent daemon supplied",
+    "No composed actual Goal Execution frontend supplied",
+    "No browser/Unix Goal execution/Owner fixture/ACP process/timeout/cancel run",
+    "No new native/macOS/CI/real Provider/account/model or Task acceptance"
+  ],
+  "authority": [
+    "Private host calls actual proposal/finalize outside HTTP, whole compact16KiB review bound retained",
+    "HTTP fixed metadata/plan-store/readonly-run/cancel/advance only; no approve/propose/finalize/generic/session dispatch",
+    "SQLite readonly/query_only observation; no SQL-forged Goal/state/budget/approval/Ready rows",
+    "Generated process private group stop proof distinct from protocol response and partial output",
+    "No Cargo/target/native/Node/lock/CI/STATUS/spec changes or new credentials/accounts/fees"
+  ],
+  "next": "Review static allowlist/cleanup/races; await Core author immutable schema11 binary+manifest and Root composed frontend, then run exclusive outputs and record real failures/results/source/asset hashes. Independent review required before acceptance."
+}
