@@ -3578,7 +3578,8 @@
           "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
           "evidence": "docs/execution/goal-graph-integration/NATIVE_PAGES_ROOT_IMPORT.json",
           "dimension": "Linux62lib+8controller/fmt/clippy; Python20 andindependentcontrols; currentMacGUI not_run",
-          "status": "partial"
+          "status": "partial",
+          "coverage_limit": "Supporting Native presentation only; this slice does NOT verify scopedMCP credential expiry/cross-session rejection. Those belong to separateFactoryschema13 tests and are not accepted inPR16."
         }
       ]
     },
@@ -6002,6 +6003,15 @@
           "evidence": "docs/execution/goal-graph-integration/NATIVE_PAGES_ROOT_IMPORT.json",
           "dimension": "Linux62lib+8controller/fmt/clippy; Python20 andindependentcontrols; currentMacGUI not_run",
           "status": "partial"
+        },
+        {
+          "slice": "actualNative lossless boundedGrant presentation/lateCancel/privateFinalOK evidence",
+          "source": "fb7ff7d861872eec18e010f7b64a0ead63740faa",
+          "actual_checkout": "613166104190bedb3730a7510743137422ab05fa",
+          "evidence": "docs/execution/goal-graph-integration/FB7_AND_GRANT_REVIEW_IMPORT.json",
+          "dimension": "bothmacOSarchitectures24pages each, all50imagesindependentlyviewed; originalscope/refs/19zero/lateCancel+oneGranttransaction observed",
+          "status": "partial",
+          "limits": "CI failedoldassociationpredicate; subsequenttest-onlytypedP2open. Not fullProjectPolicy/remote/nativeProviderapproval or installer acceptance."
         }
       ]
     },

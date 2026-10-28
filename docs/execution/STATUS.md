@@ -1,3 +1,13 @@
+## 当前 PR16 检查点 — 2026-10-28 23:18 UTC
+
+最新远端被测head fb7ff7d，实际检出6131661/treebcfd；Product40779542803与Environment40779542808已结束：Environment三平台、Rust及UI成功，两Mac仍失败。每架构真实Native62lib/26readonly/8Owner纯测试及WebView生命周期成功；取消/确认各12页（含Final）全部原字节无损、逐页可见与19表零执行已核，50原图均独立查看。FinalOK实际产生唯一Grant、proposal消费及两条事件；失败来自测试误将Grant独立approval_id当proposal.id。release构建/审计/双安装包均跳过，最新有效包仍PR15；不得把分页成功写成整条Mac CI成功。
+
+本地codex/goal-graph-integration组合到c6bd8a2，尚未推送。新test-only契约fbfd保留完整scope/refs/enforcement/CAS/事件链与24页门槛，作者/独审各24Python通过（不加为48），Root实际10Owner Rust/fmt/Clippy通过，源前后同。独审随后发现跨JSON记录bool/int类型等值P2，负控失败已保存；最小类型严格修复及独审未完成，不能推新候选求绿。Root编译时旧fc5/906仅宏资源，已准确还原shared新1ee/fec7原inode及nlink。父workflow Playwright路径查询的sync初始化竞态有old2+independent1真实复现/new2+independent1无警告对照，最小async CI叶65f7已独审并组合；旧CI警告原日志保留，不声称新CI已验证修复。
+
+本轮297载荷Mac与134载荷Linux原证据、作者旧失败/Root编译/CI叶独审均已按原manifest逐SHA/size重核并无损归档，详见goal-graph-integration/FB7_AND_GRANT_REVIEW_IMPORT.json。原130需求/27决定不变。Factory独立线真实normal4检查/2图/6身份gone通过，cancel失败及强制终止子回收另行修复；Core共享预算真实混合回归发现合法收窄仍误拒绝，继续修而非提高cap。Factory源、schema13和这些测试不在PR16，不借其结果填本分支。
+
+main最新仍a1be94，OWNER001/002重读ACK无003。没有formalApprove、合入或新开发安装包；真实产品Provider/私人身份、额外费用/资源、正式签名、生产与最终许可证仍关闭。下方是历史检查点，不能替代本段当前状态。
+
 # AgentBaton 执行状态
 
 ## PR16 第五轮 CI 已结束：双 Mac 实际诊断；完整 Native 分页修复待新 CI

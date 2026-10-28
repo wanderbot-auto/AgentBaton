@@ -1,5 +1,5 @@
 {
-  "status": "0aa_CI_final5success2MacOwner_uniqueText_fail_testonly_diagnostics_reviewed_composed_newCI_pending",
+  "status": "fb7_exactCI5success2MacOwnerassociationFAIL; pages/realGrant observed; fbfdtestcontract24+Root10 passed but independenttypedJSONP2open; no newCI/package",
   "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
   "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
   "postmerge_doc_commands": [
@@ -681,5 +681,41 @@
       "after": "absent; no afterzero assertion"
     },
     "release_audit_packages": "skipped both, no currentinstallers"
+  },
+  "historical_status_before_fb7_update": "0aa_CI_final5success2MacOwner_uniqueText_fail_testonly_diagnostics_reviewed_composed_newCI_pending",
+  "fb7_exact_ci": {
+    "feature": "fb7ff7d861872eec18e010f7b64a0ead63740faa",
+    "actual_checkout": "613166104190bedb3730a7510743137422ab05fa",
+    "tree": "bcfd8e5aaa3f06b63b88608e6b7ba05e9d5ca262",
+    "Product": 40779542803,
+    "Environment": 40779542808,
+    "results": "Environment3/Rust/UI SUCCESS; bothMac FAILURE at Grant association result guard; release/audit/packages skipped",
+    "Mac": {
+      "library": 62,
+      "readonly": 26,
+      "OwnerController": 8,
+      "architecture_each_real_pages": 24,
+      "total_images_actually_viewed": 50,
+      "cancel_and_approve_each": "11 content+Final; every original UTF8 byte reconstructs; lateCancel19zero/pending, FinalOK oneGrant/seq+2 and19zero",
+      "reason": "test incorrectly assumed independently generated Grant.approval_id equals proposal.id; actual policy.rs814 independentUUID, persistedGrant=response=proposalResult and exactpairedEvents present",
+      "original_failures_retained": true
+    },
+    "Linux": "independent actual593outer+7docs/Node564in37/Python29+20/12flows114checks70PNG; Graph34checks14PNG; existingPlaywrightteardownwarning retained",
+    "portable_import": "FB7_AND_GRANT_REVIEW_IMPORT.json",
+    "new_installers": null
+  },
+  "grant_contract_fbfd": {
+    "source": "fbfd66e0bac5f167592adf9bc75a5e6c70a0655a",
+    "author_docs": "f6a73e6968bd3383c4efd177c949e20a1b9f2dd8",
+    "files": "4test-only; productionParent/Core/permissions/locks/thresholds unchanged",
+    "author_actualPython": 24,
+    "independent_actualPython": 24,
+    "Root_actualRustOwner": 10,
+    "Root_fmt_exit": 0,
+    "Root_clippy_alltargets_Dwarnings_exit": 0,
+    "Root_source_before_after_equal": true,
+    "sidecars": "old5541 fc5/906 physicalmacroresources only; actual sharednew1ee/fec7 sameinode/nlink restored; not executed as currentCore",
+    "review": "P2NG-FBFD-01 OPEN: Python bool/int equality across separate JSON records; independent4subcase counterexamples actualFAIL; author newtyped-jsonrevision pending fulltests/review",
+    "scope": "no newMac/CI claim"
   }
 }
