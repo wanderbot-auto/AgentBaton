@@ -39,6 +39,10 @@ jobs:
       - name: Native evidence runner and artifact audit failure contracts
         run: python3 apps/desktop/src-tauri/tests/test_native_runner.py
       - run: cargo build --locked --bin batond --bin baton && python3 scripts/smoke-local-product.py
+      - name: Native Owner runner contracts against actual Core database
+        env:
+          AGENTBATON_OWNER_FIXTURE_DAEMON: ${{ github.workspace }}/target/debug/batond
+        run: python3 apps/desktop/src-tauri/tests/test_native_owner_dialog.py
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
