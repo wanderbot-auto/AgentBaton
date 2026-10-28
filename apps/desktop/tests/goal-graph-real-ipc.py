@@ -392,6 +392,76 @@ VALIDATION_CASES = ('integrity', 'data', 'command', 'data-range', 'command-timeo
 LEGACY_TASK_FIELDS = frozenset({'schema_version', 'kind', 'goal', 'node', 'run_id', 'plan_revision', 'plan_digest',
     'workspace', 'inputs', 'outputs', 'policy', 'lineage', 'budget', 'idempotency_key', 'return_location'})
 GRAPH_TASK_FIELDS = LEGACY_TASK_FIELDS | {'validation_contracts', 'task_binding'}
+VALIDATION_RECEIPT_FIELDS = frozenset({'id', 'graph_contract_version', 'run_id', 'plan_revision', 'plan_digest',
+    'node_id', 'attempt_id', 'rule_id', 'definition_digest', 'candidate_refs', 'input_bindings', 'state', 'passed',
+    'scope', 'correctness', 'task_acceptance', 'result_digest', 'observation', 'details_ref', 'stop_confirmed',
+    'io_completion', 'actual_runtime_ms', 'created_at', 'source'})
+
+
+def exact_json_value(left, right):
+    # Python's ordinary equality equates bool/int and int/float. The readonly
+    # view must preserve the original JSON kinds, u64 and f64 values instead.
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(exact_json_value(left[k], right[k]) for k in left)
+    if isinstance(left, list):
+        return len(left) == len(right) and all(exact_json_value(a, b) for a, b in zip(left, right))
+    if isinstance(left, float):
+        return left.hex() == right.hex()
+    return left == right
+
+
+def original_validation_receipt(view, original=None):
+    """Separate one known readonly projection field from the durable receipt.
+
+    The exact Core-provided UTF8 string supplies result_digest. Re-encoding the
+    parsed display value cannot stand in for that original observation text.
+    """
+    assert isinstance(view, dict) and set(view) == VALIDATION_RECEIPT_FIELDS | {'observation_json'}
+    text = view['observation_json']; assert isinstance(text, str)
+    encoded = text.encode('utf-8')
+    assert 0 < len(encoded) <= MAX_GRAPH_REVIEW_BYTES
+    assert sha(encoded) == view['result_digest'], 'Original observation UTF8 digest mismatch'
+    def reject_constant(value):
+        raise ValueError('Non-JSON numeric constant in original observation: ' + value)
+    parsed = json.loads(text, object_pairs_hook=unique_object, parse_constant=reject_constant)
+    assert isinstance(parsed, dict) and exact_json_value(parsed, view['observation']), 'Lossless original observation/display projection mismatch'
+    receipt = {key: view[key] for key in VALIDATION_RECEIPT_FIELDS}
+    if original is not None:
+        assert isinstance(original, dict) and set(original) == VALIDATION_RECEIPT_FIELDS
+        assert exact_json_value(receipt, original), 'Whole original receipt mismatch; only observation_json is derived'
+    return receipt
+
+
+def owner_review_receipts(detail, node_id, snapshot):
+    nodes = [n for n in detail['nodes'] if n['node']['id'] == node_id and n['plan_revision'] == detail['run']['plan_revision']]
+    assert len(nodes) == 1 and nodes[0]['node']['kind'] == 'owner_approval'
+    assert exact_json_value(snapshot['node'], nodes[0]['node'])
+    subjects = nodes[0]['node']['required_inputs']
+    expected_refs = []
+    for subject in subjects:
+        assert subject['source']['kind'] == 'node' and subject['source']['candidate_for_validation'] is True
+        matches = [a for candidate in detail['candidates'] if candidate['node_id'] == subject['source']['node_id']
+            and candidate['plan_revision'] == detail['run']['plan_revision'] for a in candidate['artifacts']
+            if a['artifact_id'] == subject['artifact_id'] and a['contract_id'] == subject['contract_id']]
+        assert len(matches) == 1
+        expected_refs.append(matches[0])
+    assert expected_refs and exact_json_value(snapshot['candidate_refs'], expected_refs)
+    expected_candidates = [c for c in detail['candidates'] if c['id'] in {a['candidate_id'] for a in expected_refs}]
+    assert exact_json_value(snapshot['candidate_receipts'], expected_candidates), 'Owner must review the complete actual producer receipts'
+    original_validations = [original_validation_receipt(v) for v in detail['validations']]
+    expected_validations = [v for v in original_validations if any(a in expected_refs for a in v['candidate_refs'])]
+    assert exact_json_value(snapshot['validation_refs'], expected_validations), 'Owner reviews original validation receipts, never derived views'
+    return {'candidate_receipts': expected_candidates, 'validation_refs': expected_validations}
+
+
+def verify_candidate_output_meter(node, candidate):
+    assert candidate['node_id'] == node['node']['id'] and candidate['attempt_id'] == node['attempt_id']
+    assert candidate['artifacts'] and all(type(a['bytes']) is int and a['bytes'] >= 0 for a in candidate['artifacts'])
+    total = sum(a['bytes'] for a in candidate['artifacts'])
+    assert type(node['actual_output_bytes']) is int and node['actual_output_bytes'] == total
+    return total
 
 
 def validation_kind(case: str) -> str:
@@ -536,6 +606,7 @@ for line in sys.stdin:
   assert v['policy']['enforced']=={'filesystem_sandbox':False,'network_sandbox':False,'output_quota':False}
   assert v['budget']['limits']==v['node']['budget'] and v['budget']['reservation']==v['node']['reservation']
   assert len(v['inputs'])==1
+  expected_external_path='file' if graph and not any(output['validators'] for output in v['outputs']) else 'inputs/file'
   binding=v['inputs'][0];artifact=binding['artifact'];p=Path(artifact['relative_path'])
   assert not p.is_absolute() and '..' not in p.parts and not p.is_symlink()
   data=p.read_bytes();assert hashlib.sha256(data).hexdigest()==binding['sha256']
@@ -565,7 +636,7 @@ for line in sys.stdin:
    if binding['candidate'] is not None:
     assert binding['candidate']['sha256']==binding['sha256'] and binding['candidate']['relative_path']==str(p)
   else:
-   assert artifact['relative_path']=='inputs/file' and data==b'baseline' and 'candidate' not in binding
+   assert artifact['relative_path']==expected_external_path and data==b'baseline' and 'candidate' not in binding
   Path('reports').mkdir(exist_ok=True);attempt=v['lineage']['attempt_id'];assert re.fullmatch(r'[A-Za-z0-9._:-]{1,128}',attempt)
   Path('reports/task-request-'+attempt+'.json').write_text(text)
   ticks=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]
@@ -573,7 +644,7 @@ for line in sys.stdin:
   outputs={x['artifact']['artifact_id']:x['artifact']['relative_path'] for x in v['outputs']}
   assert all(not Path(path).is_absolute() and '..' not in Path(path).parts for path in outputs.values())
   if v['node']['id']=='produce-report':
-   assert artifact['relative_path']=='inputs/file' and data==b'baseline'
+   assert artifact['relative_path']==expected_external_path and data==b'baseline'
    if v['goal'] in ('goal-data-report','goal-data-report-bad'):
     assert set(outputs)==({'report','report-2','report-3','report-4'} if graph else {'report','report-2','report-3'})
     assert {x['artifact_id'] for x in v['node']['outputs']}=={'report','report-2','report-3'}
@@ -638,7 +709,8 @@ def verify_validation_receipt(runtime: Path, detail: dict, definition: dict, cas
     """Observe actual receipt/owned-job provenance, never execute a legacy policy."""
     kind = validation_kind(case)
     assert len(detail['validations']) == 1
-    receipt = detail['validations'][0]
+    view = detail['validations'][0]
+    receipt = original_validation_receipt(view)
     node = next(n for n in detail['nodes'] if n['node']['id'] == 'validate-report')
     expected = {'integrity': ('artifact_integrity_only', 'not_established'),
         'data': ('data_contract_only', 'approved_schema_ranges_metadata_only'),
@@ -651,7 +723,6 @@ def verify_validation_receipt(runtime: Path, detail: dict, definition: dict, cas
     assert receipt['rule_id'] == node['node']['executor']['rule_id']
     assert receipt['actual_runtime_ms'] > 0 and node['actual_runtime_ms'] == receipt['actual_runtime_ms']
     assert node['tokens'] is None and node['cost_microunits'] is None
-    assert receipt['result_digest'] == sha(json.dumps(receipt['observation'], sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode())
     refs = next(c for c in detail['candidates'] if c['node_id'] == 'produce-report')['artifacts']
     assert receipt['candidate_refs'] == refs
     io = receipt['observation']['goal_io']
@@ -673,7 +744,7 @@ def verify_validation_receipt(runtime: Path, detail: dict, definition: dict, cas
         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
         assert db.execute('PRAGMA user_version').fetchone()[0] == 12
         raw = db.execute('SELECT document FROM goal_graph_validations WHERE id=?', [receipt['id']]).fetchone()[0]
-        assert json.loads(raw) == receipt
+        original_validation_receipt(view, json.loads(raw, object_pairs_hook=unique_object))
         job_state, origin_raw = db.execute('SELECT state,document FROM goal_graph_jobs WHERE id=?', [node['job_id']]).fetchone()
         origin = json.loads(origin_raw)
         assert origin['job_kind'] == 'validator' and origin['attempt_id'] == node['attempt_id'] and origin['run_id'] == detail['run']['id']
@@ -701,7 +772,7 @@ def verify_validation_receipt(runtime: Path, detail: dict, definition: dict, cas
         assert settled[1]['payload']['io_completion'] == 'worker_joined' and settled[1]['payload']['actual_output_bytes'] == expected_new
         assert not any(e['kind'] == 'attempt.prepared' and e['payload'].get('attempt_id') == receipt['attempt_id'] and e['payload'].get('executor_kind') != 'validator' for _, e in events)
         assert all(db.execute('SELECT count(*) FROM ' + table).fetchone()[0] == 0 for table in ['validation_runs', 'data_validation_runs', 'command_validation_runs'])
-    return {'receipt': receipt, 'node': node, 'origin': origin, 'job_state': job_state, 'dispatch_intent': json.loads(intent_raw),
+    return {'receipt': receipt, 'observation_json': view['observation_json'], 'node': node, 'origin': origin, 'job_state': job_state, 'dispatch_intent': json.loads(intent_raw),
         'prepared': prepared, 'worker_started': started, 'attempt_stopped': stopped, 'settled': settled,
         'receipt_sha256': sha(raw.encode()), 'checked_candidate_bytes': io['checked_candidate_bytes'], 'new_output_bytes': expected_new,
         'provider_session_created_for_validator': False, 'old_policy_executions': 0}
@@ -778,10 +849,12 @@ def provider_fixture_self_check():
         kind = scenario.split('-')[0] if scenario not in ('legacy-bootstrap', 'owner-graph') else None
         data = kind == 'data'; count = 4 if data else 2 if graph else 1
         with tempfile.TemporaryDirectory(prefix='graph-provider-unit-') as temporary:
-            root = Path(temporary); (root / 'inputs').mkdir(); (root / 'inputs/file').write_bytes(b'baseline')
+            root = Path(temporary); (root / 'inputs').mkdir()
+            external_path = 'file' if scenario == 'owner-graph' else 'inputs/file'
+            (root / external_path).write_bytes(b'baseline')
             program = root / 'generated-unit-acp'; program.write_text(VALIDATION_ACP); program.chmod(0o700)
             binding = {'task_id': 'unit-task', 'attempt_id': 'unit-attempt', 'spec_revision': 1, 'input_revision': 'unit-revision'}
-            artifact = {'artifact_id': 'fixed-input', 'relative_path': 'inputs/file', 'max_bytes': 1024, 'expected_sha256': sha(b'baseline')}
+            artifact = {'artifact_id': 'fixed-input', 'relative_path': external_path, 'max_bytes': 1024, 'expected_sha256': sha(b'baseline')}
             outputs = [{'artifact': {'artifact_id': 'report' if i == 1 else f'report-{i}', 'relative_path': 'reports/report.txt' if i == 1 else f'reports/report-{i}.txt', 'max_bytes': 1024, 'expected_sha256': None}, 'validators': []} for i in range(1, count + 1)]
             budget = {'attempts': 1, 'parallel': 1, 'runtime_ms': 5000, 'output_bytes': 2048, 'children': 0, 'reworks': 0, 'tokens': None, 'cost_microunits': None}
             reservation = {'runtime_ms': 4000, 'output_bytes': 2048, 'tokens': None, 'cost_microunits': None}
@@ -821,8 +894,82 @@ def provider_fixture_self_check():
                 assert path.read_bytes() == content
             saved = json.loads((root / 'reports/task-request-unit-attempt.json').read_bytes())
             assert saved == request and set(saved) == (GRAPH_TASK_FIELDS if graph else LEGACY_TASK_FIELDS)
-            rows.append({'name': scenario, 'status': 'passed', 'request_fields': sorted(saved), 'expected_output_bytes': {name: len(content) for name, content in expected.items()}, 'Core_or_validator_executed': False, 'candidate_or_TaskAccepted_created': False})
+            rows.append({'name': scenario, 'status': 'passed', 'request_fields': sorted(saved), 'external_path': external_path, 'expected_output_bytes': {name: len(content) for name, content in expected.items()}, 'Core_or_validator_executed': False, 'candidate_or_TaskAccepted_created': False})
     return {'status': 'passed', 'dimension': 'generated account-free ACP stdio program unit tests only with synthetic external-input requests; no Core/DB/candidate/validator/browser/TaskAccepted', 'count': len(rows), 'checks': rows}
+
+
+def packet_self_check(paths):
+    """Pure Python checks on supplied immutable actual Core bundles."""
+    assert paths, 'Supply actual Core bundle paths for packet controls'
+    rows = []; bundles = []
+    def passed(name, **facts):
+        rows.append({'name': name, 'status': 'passed', **facts})
+    def refused(name, operation):
+        try:
+            operation()
+        except (AssertionError, ValueError, BoundaryRefusal):
+            passed(name, expected_refusal=True)
+        else:
+            raise AssertionError('Tampered actual packet admitted: ' + name)
+    for path in paths:
+        path = path.resolve(strict=True); raw = path.read_bytes()
+        expected_hash = re.search(r'([0-9a-f]{64})\.json$', path.name)
+        assert expected_hash and sha(raw) == expected_hash[1], 'Use immutable actual bundle filename/hash'
+        packet = json.loads(raw, object_pairs_hook=unique_object)
+        detail = packet['graph_details']; assert len(detail['validations']) == 1
+        view = detail['validations'][0]
+        original = next(v for v in packet['owner_proposal']['snapshot']['validation_refs'] if v['id'] == view['id'])
+        receipt = original_validation_receipt(view, original)
+        passed(path.name + ' original UTF8 SHA, typed display projection and whole original Owner receipt',
+            observation_utf8_bytes=len(view['observation_json'].encode()), result_digest=receipt['result_digest'])
+        for field, owner_node in [('owner_proposal', 'owner-report'), ('final_owner_proposal', 'owner-summary')]:
+            check_full_review(packet[field], expected_kind='goal_node_acceptance')
+            expected = owner_review_receipts(detail, owner_node, packet[field]['snapshot'])
+            passed(path.name + ' ' + owner_node + ' complete actual candidate/original validation snapshot',
+                producer_nodes=[c['node_id'] for c in expected['candidate_receipts']], validation_receipts=len(expected['validation_refs']))
+        for candidate in detail['candidates']:
+            node = next(n for n in detail['nodes'] if n['attempt_id'] == candidate['attempt_id'])
+            total = verify_candidate_output_meter(node, candidate)
+            passed(path.name + ' ' + candidate['node_id'] + ' full artifact sum meter', artifacts=len(candidate['artifacts']), bytes=total)
+        missing = {k: v for k, v in view.items() if k != 'observation_json'}
+        refused(path.name + ' missing display raw text', lambda: original_validation_receipt(missing, original))
+        altered = copy.deepcopy(view); altered['observation_json'] += ' '
+        refused(path.name + ' raw UTF8 whitespace changes original digest', lambda: original_validation_receipt(altered, original))
+        changed = copy.deepcopy(view); changed['observation']['untrusted_display_only'] = True
+        refused(path.name + ' display observation drift with original raw unchanged', lambda: original_validation_receipt(changed, original))
+        numeric = copy.deepcopy(view)
+        if 'checked_rows' in numeric['observation']:
+            numeric['observation']['checked_rows'] = float(numeric['observation']['checked_rows'])
+        else:
+            numeric['observation']['stdout']['captured_bytes'] = float(numeric['observation']['stdout']['captured_bytes'])
+        refused(path.name + ' integer versus f64 display coercion', lambda: original_validation_receipt(numeric, original))
+        extra = {**view, 'renderer_note': 'not in the fixed wire'}
+        refused(path.name + ' unknown derived top-level field', lambda: original_validation_receipt(extra, original))
+        rebound = copy.deepcopy(view); rebound['observation_json'] += ' '; rebound['result_digest'] = sha(rebound['observation_json'].encode())
+        refused(path.name + ' self-consistent different raw/digest cannot replace original receipt', lambda: original_validation_receipt(rebound, original))
+        wrong_original = {**original, 'source': 'renderer'}
+        refused(path.name + ' changed durable receipt source', lambda: original_validation_receipt(view, wrong_original))
+        typed = copy.deepcopy(view); typed['passed'] = int(typed['passed'])
+        refused(path.name + ' bool versus number cannot equal original receipt', lambda: original_validation_receipt(typed, original))
+        duplicate = copy.deepcopy(view); duplicate.update(observation_json='{"duplicate":1,"duplicate":1}', observation={'duplicate': 1})
+        duplicate['result_digest'] = sha(duplicate['observation_json'].encode())
+        refused(path.name + ' duplicate original observation fields', lambda: original_validation_receipt(duplicate))
+        non_json = copy.deepcopy(view); non_json.update(observation_json='{"value":NaN}', observation={'value': float('nan')})
+        non_json['result_digest'] = sha(non_json['observation_json'].encode())
+        refused(path.name + ' non-JSON numeric constant', lambda: original_validation_receipt(non_json))
+        bad_review = copy.deepcopy(packet['owner_proposal']['snapshot']); bad_review['validation_refs'] = [view]
+        refused(path.name + ' Owner snapshot cannot contain derived view as original receipt', lambda: owner_review_receipts(detail, 'owner-report', bad_review))
+        bad_summary = copy.deepcopy(packet['final_owner_proposal']['snapshot']); bad_summary['candidate_receipts'] = [next(c for c in detail['candidates'] if c['node_id'] == 'produce-report')]
+        refused(path.name + ' wrong producer in Owner Summary snapshot', lambda: owner_review_receipts(detail, 'owner-summary', bad_summary))
+        candidate = next(c for c in detail['candidates'] if c['node_id'] == 'produce-report')
+        node = next(n for n in detail['nodes'] if n['attempt_id'] == candidate['attempt_id'])
+        bad_meter = {**node, 'actual_output_bytes': node['actual_output_bytes'] - 1}
+        refused(path.name + ' incomplete artifact meter rejected', lambda: verify_candidate_output_meter(bad_meter, candidate))
+        if len(candidate['artifacts']) > 1:
+            first_only = {**node, 'actual_output_bytes': candidate['artifacts'][0]['bytes']}
+            refused(path.name + ' Data first-artifact-only old meter rejected', lambda: verify_candidate_output_meter(first_only, candidate))
+        bundles.append({'path': str(path), 'bytes': len(raw), 'sha256': sha(raw), 'source_attribution': 'Core author actual bundle; not this harness runtime'})
+    return {'status': 'passed', 'dimension': 'pure Python actual saved Core packet positive/negative controls; no daemon/browser/SQL/process execution', 'count': len(rows), 'checks': rows, 'bundles': bundles}
 
 
 def pinned_artifact(root: Path, reference: dict, expected: bytes) -> dict:
@@ -1262,7 +1409,7 @@ def owner_only_driver(args, output: Path) -> int:
                         assert not response.get('error'), response
                         owner = response['result']
                         report['private_reviews'].append(check_full_review(owner, expected_kind='goal_node_acceptance'))
-                        assert owner['snapshot']['candidate_receipts'] == [c for c in detail['candidates'] if c['node_id'] == ('produce-report' if node_id == 'owner-report' else 'independent-2')]
+                        owner_review_receipts(detail, node_id, owner['snapshot'])
                         decision = host.decide_owner(owner, explicit_reject=False, key=key + ':finalize')
                         assert not decision.get('error'), decision
                         receipt = decision['result']; assert receipt['decision'] == 'accepted' and receipt['approval_id'] == owner['id']
@@ -1286,6 +1433,7 @@ def owner_only_driver(args, output: Path) -> int:
                         assert not failed['owner_decisions'] and len(failed['candidates']) == 1
                         assert all(n['state'] == 'not_started' and n['attempt_id'] is None and n['session_id'] is None for n in failed['nodes'] if n['node']['kind'] in ('owner_approval', 'summary'))
                         candidate = failed['candidates'][0]
+                        verify_candidate_output_meter(next(n for n in failed['nodes'] if n['attempt_id'] == candidate['attempt_id']), candidate)
                         expected_files = expected_data_files(scope['input_revision'], scope['inputs']['fixed-input']['sha256'], bad=True) if data_case else {'report': b'fixed report'}
                         for artifact in candidate['artifacts']:
                             pinned_artifact(workspace_root, artifact, expected_files[artifact['artifact_id']])
@@ -1421,7 +1569,8 @@ def owner_only_driver(args, output: Path) -> int:
                                 assert request['inputs'][0]['candidate'] == candidate['consumed_inputs'][0]['candidate']
                                 owned = json.loads((workspace_root / ('reports/fixture-owned-' + candidate['attempt_id'] + '.json')).read_text())
                                 assert ticks(owned['pid']) != owned['start_ticks'], 'Actual owned worker must be gone'
-                                assert node['actual_output_bytes'] == candidate['artifacts'][0]['bytes'] and node['actual_runtime_ms'] > 0
+                                verify_candidate_output_meter(node, candidate)
+                                assert node['actual_runtime_ms'] > 0
                                 assert node['tokens'] is None and node['cost_microunits'] is None
                                 report['observations'].setdefault('owned_task_requests', []).append({'utf8_bytes': len(raw), 'sha256': sha(raw), 'raw_utf8': raw.decode('utf-8'), 'request': request, 'candidate': candidate, 'reserved': reserved[0], 'intent_stopped': intent_stopped[0], 'stop': stops[0], 'capture': captures[0], 'owned_process_identity': owned, 'owned_process_gone': True})
                             for decision in accepted['owner_decisions']:
@@ -1595,6 +1744,8 @@ def main():
     parser.add_argument('--transport-self-check', action='store_true')
     parser.add_argument('--validation-self-check', action='store_true')
     parser.add_argument('--provider-self-check', action='store_true')
+    parser.add_argument('--packet-self-check', action='store_true')
+    parser.add_argument('--packet', type=Path, action='append', default=[])
     parser.add_argument('--owner-only', action='store_true')
     parser.add_argument('--validation-case', choices=VALIDATION_CASES)
     parser.add_argument('--output', type=Path, required=True)
@@ -1605,7 +1756,13 @@ def main():
     args = parser.parse_args()
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
     attribution = {'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'schema_required': 12}
-    assert sum([args.self_check, args.driver_self_check, args.transport_self_check, args.validation_self_check, args.provider_self_check, args.owner_only, bool(args.validation_case)]) <= 1, 'Choose one explicit mode'
+    assert sum([args.self_check, args.driver_self_check, args.transport_self_check, args.validation_self_check, args.provider_self_check, args.packet_self_check, args.owner_only, bool(args.validation_case)]) <= 1, 'Choose one explicit mode'
+    assert args.packet_self_check or not args.packet, 'Actual packet inputs are only for the pure packet check'
+    if args.packet_self_check:
+        report = {**attribution, **packet_self_check(args.packet)}
+        (output / 'actual-packet-checks.json').write_text(json.dumps(report, indent=2) + '\n')
+        print(json.dumps({'dimension': report['dimension'], 'count': report['count'], 'status': report['status']}))
+        return 0
     if args.provider_self_check:
         report = {**attribution, **provider_fixture_self_check()}
         (output / 'provider-fixture-unit-checks.json').write_text(json.dumps(report, indent=2) + '\n')
