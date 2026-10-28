@@ -19,6 +19,65 @@ use std::{
 };
 use tauri::{Manager, RunEvent, WebviewUrl, WebviewWindowBuilder, WindowEvent};
 
+// Fixed original UTF-8 bytes, deliberately never parsed/stringified through a
+// JS Number. A runtime WebView must supply its real WebCrypto digest evidence.
+const WEBCRYPTO_INPUT: &str = "{\"text\":\"原文证据🔒\",\"inode\":1152921504606846979,\"u64\":9223372036854775809,\"max\":18446744073709551615}\n";
+const WEBCRYPTO_UTF8_BYTES: u64 = 109;
+const WEBCRYPTO_SHA256: &str = "d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892";
+fn webcrypto_expected(checkpoint: &str) -> Value {
+    json!({"version":1,"checkpoint":checkpoint,"available":true,"source":"window.crypto.subtle.digest","algorithm":"SHA-256","encoding":"UTF-8","input":WEBCRYPTO_INPUT,"input_bytes":WEBCRYPTO_UTF8_BYTES,"sha256":WEBCRYPTO_SHA256})
+}
+fn validate_webcrypto(proof: &Value, checkpoint: &str) -> Result<(), String> {
+    if proof != &webcrypto_expected(checkpoint) {
+        return Err("Missing or inconsistent real WebView WebCrypto UTF-8 SHA-256 evidence".into());
+    }
+    Ok(())
+}
+fn record_webcrypto_checkpoint(
+    report: &mut Value,
+    checkpoint: &str,
+    proof: &Value,
+) -> Result<(), String> {
+    validate_webcrypto(proof, checkpoint)?;
+    match checkpoint {
+        "before" if report.get("webcrypto_checkpoints").is_none() => {
+            report["webcrypto_checkpoints"] = json!({"before":proof});
+        }
+        "after"
+            if report["webcrypto_checkpoints"]
+                .as_object()
+                .is_some_and(|v| v.len() == 1) =>
+        {
+            validate_webcrypto(&report["webcrypto_checkpoints"]["before"], "before")?;
+            report["webcrypto_checkpoints"]["after"] = proof.clone();
+        }
+        _ => return Err("Mixed, repeated or out-of-order WebCrypto checkpoint".into()),
+    }
+    Ok(())
+}
+fn validate_webcrypto_evidence(
+    result: &Value,
+    report: &Value,
+    reopened: bool,
+) -> Result<(), String> {
+    if !report["webcrypto_checkpoints"]
+        .as_object()
+        .is_some_and(|v| v.len() == 2)
+    {
+        return Err("Incomplete first-WebView WebCrypto checkpoints".into());
+    }
+    validate_webcrypto(&report["webcrypto_checkpoints"]["before"], "before")?;
+    validate_webcrypto(&report["webcrypto_checkpoints"]["after"], "after")?;
+    validate_webcrypto(
+        &result["webCrypto"],
+        if reopened { "reopened" } else { "first" },
+    )?;
+    if reopened {
+        validate_webcrypto(&report["first_webview"]["webCrypto"], "first")?;
+    }
+    Ok(())
+}
+
 const GOAL_READONLY_SQL: &str = r#"
 import json,sqlite3,sys
 from pathlib import Path
@@ -751,6 +810,7 @@ fn native_smoke_report(
                 )
             };
             let mut report = state.report.lock().unwrap();
+            record_webcrypto_checkpoint(&mut report, checkpoint, &result["webCrypto"])?;
             record_goal_checkpoint(
                 state.phase.load(Ordering::SeqCst),
                 window.label(),
@@ -802,6 +862,7 @@ fn native_smoke_report(
                 }
                 validate_goal_execution_evidence(&result, &report)?;
                 validate_goal_graph_evidence(&result, &report)?;
+                validate_webcrypto_evidence(&result, &report, false)?;
                 commit_native_report(&state.phase, &mut report, 0, result)?;
                 report["screenshot"] = json!(screenshot);
                 Ok::<(), String>(())
@@ -816,6 +877,7 @@ fn native_smoke_report(
             state.stage("reopened_report_received")?;
             let committed = (|| {
                 let mut report = state.report.lock().unwrap();
+                validate_webcrypto_evidence(&result, &report, true)?;
                 commit_native_report(&state.phase, &mut report, 2, result)?;
                 fs::write(
                     state.output.join("native-smoke.json"),
@@ -841,6 +903,14 @@ const FIRST: &str = r#"
  const invoke = window.__TAURI_INTERNALS__.invoke;
  const require = (value, message) => { if (!value) throw Error(message); };
  const result = value => { require(!value.error, JSON.stringify(value.error)); return value.result; };
+ const webCryptoProof = async checkpoint => {
+  require(typeof window.TextEncoder==='function' && typeof window.crypto?.subtle?.digest==='function','real WebView WebCrypto/TextEncoder unavailable');
+  const input="{\"text\":\"原文证据🔒\",\"inode\":1152921504606846979,\"u64\":9223372036854775809,\"max\":18446744073709551615}\n";
+  const bytes=new window.TextEncoder().encode(input);
+  const hashed=await window.crypto.subtle.digest('SHA-256',bytes);
+  const sha256=Array.from(new Uint8Array(hashed),byte=>byte.toString(16).padStart(2,'0')).join('');
+  return {version:1,checkpoint,available:true,source:'window.crypto.subtle.digest',algorithm:'SHA-256',encoding:'UTF-8',input,input_bytes:bytes.byteLength,sha256};
+ };
  try {
   const deadline = Date.now() + 10000;
   while (!document.querySelector('#root')?.children.length) {
@@ -915,7 +985,7 @@ const FIRST: &str = r#"
   require(result(await invoke('system_snapshot')).sequence===beforeCommand,'read-only command controls unexpectedly mutated history');
   const beforeGoal=result(await invoke('system_snapshot')).sequence;
   require(typeof task.project_id==='string'&&task.project_id.length>0,'real fixture task lacks its Goal project reference');
-  await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'before'}});
+  await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'before',webCrypto:await webCryptoProof('before')}});
   const goalGrants=result(await invoke('grants_list',{projectId:task.project_id}));
   const goalScopes=result(await invoke('goal_scopes_list',{taskId:task.id}));
   require(Array.isArray(goalGrants)&&goalGrants.length===0&&Array.isArray(goalScopes)&&goalScopes.length===0,'fresh task must have no fabricated root grant or Goal scope');
@@ -953,10 +1023,10 @@ const FIRST: &str = r#"
   require(afterGoalGraph===beforeGoalGraph,'readonly Graph list/get unexpectedly mutated history');
   const afterGoal=result(await invoke('system_snapshot')).sequence;
   require(afterGoal===beforeGoal,'read-only Goal controls unexpectedly mutated history');
-  await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'after'}});
+  await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'after',webCrypto:await webCryptoProof('after')}});
   document.querySelector('#tab-conversation').click();
   while(document.querySelector('#tab-conversation')?.getAttribute('aria-selected')!=='true'){require(Date.now()<deadline,'return to conversation did not settle');await new Promise(r=>setTimeout(r,25));}
-  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal},goalExecutionLists:true,goalExecutionMissingRunDenied:true,readonlyGoalExecutionNoMutation:true,goalExecutionReadonlySequence:{before:beforeGoalExecution,after:afterGoalExecution},goalExecutionMissingRun:{run_id:absentRunId,code:missingExecutionRun.error.code,side_effect_state:missingExecutionRun.error.side_effect_state},goalGraphLists:true,goalGraphMissingRunDenied:true,readonlyGoalGraphNoMutation:true,goalGraphReadonlySequence:{before:beforeGoalGraph,after:afterGoalGraph},goalGraphMissingRun:{run_id:absentGraphRunId,code:missingGraphRun.error.code,side_effect_state:missingGraphRun.error.side_effect_state}}});
+  await invoke('native_smoke_report',{result:{ok:true,webCrypto:await webCryptoProof('first'),domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal},goalExecutionLists:true,goalExecutionMissingRunDenied:true,readonlyGoalExecutionNoMutation:true,goalExecutionReadonlySequence:{before:beforeGoalExecution,after:afterGoalExecution},goalExecutionMissingRun:{run_id:absentRunId,code:missingExecutionRun.error.code,side_effect_state:missingExecutionRun.error.side_effect_state},goalGraphLists:true,goalGraphMissingRunDenied:true,readonlyGoalGraphNoMutation:true,goalGraphReadonlySequence:{before:beforeGoalGraph,after:afterGoalGraph},goalGraphMissingRun:{run_id:absentGraphRunId,code:missingGraphRun.error.code,side_effect_state:missingGraphRun.error.side_effect_state}}});
  } catch (error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;
@@ -965,6 +1035,14 @@ const SECOND: &str = r#"
  const invoke = window.__TAURI_INTERNALS__.invoke;
  const require = (value,message) => { if(!value) throw Error(message); };
  const result = value => { require(!value.error, JSON.stringify(value.error)); return value.result; };
+ const webCryptoProof = async checkpoint => {
+  require(typeof window.TextEncoder==='function' && typeof window.crypto?.subtle?.digest==='function','real WebView WebCrypto/TextEncoder unavailable');
+  const input="{\"text\":\"原文证据🔒\",\"inode\":1152921504606846979,\"u64\":9223372036854775809,\"max\":18446744073709551615}\n";
+  const bytes=new window.TextEncoder().encode(input);
+  const hashed=await window.crypto.subtle.digest('SHA-256',bytes);
+  const sha256=Array.from(new Uint8Array(hashed),byte=>byte.toString(16).padStart(2,'0')).join('');
+  return {version:1,checkpoint,available:true,source:'window.crypto.subtle.digest',algorithm:'SHA-256',encoding:'UTF-8',input,input_bytes:bytes.byteLength,sha256};
+ };
  try {
   const deadline=Date.now()+10000;
   while (!document.querySelector('#root')?.children.length) { require(Date.now()<deadline,'reopened frontend did not mount'); await new Promise(r=>setTimeout(r,25)); }
@@ -975,7 +1053,7 @@ const SECOND: &str = r#"
   require(cancelled.state==='cancelled','draft cancellation failed');
   const events=result(await invoke('events_subscribe',{cursor:0,limit:100}));
   require(events.events.at(-1)?.payload.stop_evidence==='no_attempt_dispatched','stop evidence absent');
-  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,taskId:task.id,projectId:task.project_id,restartPersisted:true,draftCancelled:true,stopEvidence:true}});
+  await invoke('native_smoke_report',{result:{ok:true,webCrypto:await webCryptoProof('reopened'),domMounted:true,taskId:task.id,projectId:task.project_id,restartPersisted:true,draftCancelled:true,stopEvidence:true}});
  } catch(error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;
@@ -2202,5 +2280,90 @@ mod fixture_tests {
             goal_execution_database_snapshot(&runtime).unwrap(),
             execution_before
         );
+    }
+    #[test]
+    fn webcrypto_raw_vector_retains_utf8_and_unsafe_integer_literals() {
+        assert_eq!(WEBCRYPTO_INPUT.len() as u64, WEBCRYPTO_UTF8_BYTES);
+        assert!(WEBCRYPTO_INPUT.contains("1152921504606846979"));
+        assert!(WEBCRYPTO_INPUT.contains("18446744073709551615"));
+        assert_eq!(
+            WEBCRYPTO_SHA256,
+            "d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892"
+        );
+    }
+    #[test]
+    fn webcrypto_digest_algorithm_bytes_availability_and_types_fail_closed() {
+        let proof = webcrypto_expected("before");
+        validate_webcrypto(&proof, "before").unwrap();
+        for (field, value) in [
+            ("available", json!(false)),
+            ("available", json!(1)),
+            ("algorithm", json!("SHA-1")),
+            ("input_bytes", json!(108)),
+            ("input_bytes", json!("109")),
+            ("sha256", json!("0".repeat(64))),
+            ("input", json!("rounded JSON")),
+            ("version", json!(true)),
+            ("checkpoint", json!("after")),
+        ] {
+            let mut changed = proof.clone();
+            changed[field] = value;
+            assert!(validate_webcrypto(&changed, "before").is_err(), "{field}");
+        }
+        assert!(validate_webcrypto(&Value::Null, "before").is_err());
+        let mut extra = proof.clone();
+        extra["mocked"] = json!(true);
+        assert!(validate_webcrypto(&extra, "before").is_err());
+        for key in proof.as_object().unwrap().keys() {
+            let mut missing = proof.clone();
+            missing.as_object_mut().unwrap().remove(key);
+            assert!(validate_webcrypto(&missing, "before").is_err(), "{key}");
+        }
+    }
+    #[test]
+    fn webcrypto_checkpoint_order_and_context_cannot_be_mixed_or_replayed() {
+        let mut report = json!({});
+        assert!(
+            record_webcrypto_checkpoint(&mut report, "after", &webcrypto_expected("after"))
+                .is_err()
+        );
+        record_webcrypto_checkpoint(&mut report, "before", &webcrypto_expected("before")).unwrap();
+        assert!(
+            record_webcrypto_checkpoint(&mut report, "before", &webcrypto_expected("before"))
+                .is_err()
+        );
+        assert!(
+            record_webcrypto_checkpoint(&mut report, "after", &webcrypto_expected("before"))
+                .is_err()
+        );
+        record_webcrypto_checkpoint(&mut report, "after", &webcrypto_expected("after")).unwrap();
+        assert!(
+            record_webcrypto_checkpoint(&mut report, "after", &webcrypto_expected("after"))
+                .is_err()
+        );
+        validate_webcrypto_evidence(
+            &json!({"webCrypto":webcrypto_expected("first")}),
+            &report,
+            false,
+        )
+        .unwrap();
+        assert!(validate_webcrypto_evidence(
+            &json!({"webCrypto":webcrypto_expected("before")}),
+            &report,
+            false
+        )
+        .is_err());
+    }
+    #[test]
+    fn webcrypto_reopened_report_requires_its_own_tag_and_first_window_evidence() {
+        let mut report = json!({});
+        record_webcrypto_checkpoint(&mut report, "before", &webcrypto_expected("before")).unwrap();
+        record_webcrypto_checkpoint(&mut report, "after", &webcrypto_expected("after")).unwrap();
+        let second = json!({"webCrypto":webcrypto_expected("reopened")});
+        assert!(validate_webcrypto_evidence(&second, &report, true).is_err());
+        report["first_webview"] = json!({"webCrypto":webcrypto_expected("first")});
+        validate_webcrypto_evidence(&second, &report, true).unwrap();
+        report["webcrypto_checkpoints"]["before"] = webcrypto_expected("after");
+        assert!(validate_webcrypto_evidence(&second, &report, true).is_err());
     }
 }
