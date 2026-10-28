@@ -9,6 +9,7 @@ pub enum ApprovalKind {
     CommandValidation,
     Goal,
     DataWorkspace,
+    GoalExecution,
 }
 impl ApprovalKind {
     pub fn proposal_method(&self) -> &'static str {
@@ -20,6 +21,7 @@ impl ApprovalKind {
             Self::CommandValidation => "command_validation_policies.propose",
             Self::Goal => "goal_scopes.propose",
             Self::DataWorkspace => "data_workspaces.propose",
+            Self::GoalExecution => "goal_runs.propose",
         }
     }
     fn kind(&self) -> &'static str {
@@ -31,6 +33,7 @@ impl ApprovalKind {
             Self::CommandValidation => "command_validation",
             Self::Goal => "goal",
             Self::DataWorkspace => "data_workspace",
+            Self::GoalExecution => "goal_execution",
         }
     }
     fn action(&self) -> &'static str {
@@ -45,9 +48,139 @@ impl ApprovalKind {
             Self::DataValidation => "Approve only this exact JSON data-table contract: fixed file hashes, field types, numeric ranges and declared metadata. Dataset population, units and timezone are owner-declared values to match, not independently verified scientific facts. No reproduction script is executed; this does not establish algorithm correctness, accept a task or authorize integration.\n\n仅批准以下固定 JSON 数据表合同。行数总体、单位、时区按负责人声明核对；不运行复现脚本，不证明算法或科学结论，不验收任务、不授权采纳。",
             Self::CommandValidation => "Approve ONE run of this exact server-resolved fixed command, executable/script hashes, literal argv, constant environment, working directory, file contracts and time/capture limits. The program can access this user's resources. No OS filesystem/network sandbox, descendant containment, immutable inputs or scientific correctness is promised. Retained output limits are not filesystem quotas. Strict unsupported requirements must deny before spawn. Command results never accept the task, authorize Git integration or production release.\n\n仅批准该精确固定命令的一次运行。请完整核对程序/脚本哈希、参数、环境、工作目录及限额；不保证系统隔离或后代进程收容，命令结果不代表任务、Git 或生产验收。",
             Self::Goal => "Approve this separate Goal scope against the EXACT original root grant revision. Review grant_before and grant_after: only the displayed child/depth orchestration ceilings and grant revision change. Connection, environment, identity, host, workspace, recipients and execution ceilings MUST NOT expand. Review real project/root consumed, active and children counters; shared consumption is retained, never reset. Approval requires no active or unknown execution. Historical runtime/output/token/cost may be unknown and must never be advertised as zero. Owner acceptance criteria define a future review rule, NOT a passed receipt or Task acceptance. This version stores and previews plans only: no reservation, dispatch, model call, Git integration or production release occurs.\n\n独立 Goal 原生确认：核对原根授予版本及新增子任务/深度上限，其他连接、身份、主机、工作区、接收方和执行限额不可扩张。真实共享已消耗/活动计数不重置；历史未计量保持未知。验收条件不是通过凭据；本单元仅保存和预览计划，不预留或派发。",
+            Self::GoalExecution => "Authorize execution within this SERVER-resolved Goal scope, exact initial plan and shared cumulative limits. Only safe plan revisions inside this same scope may advance without another confirmation. Existing connection, identity, host, input and workspace permissions MUST NOT expand. This does not grant child workspace creation, an OS filesystem/network sandbox, a filesystem output quota, Task acceptance, integration or production release. Reserved bounds are not measured usage; unknown effects block automatic replay.\n\n独立 Goal 执行批准：完整核对原有身份、主机、输入、工作区及共享累计限额；仅同范围内的安全计划修订可继续。不得创建新工作区或扩大权限；预留量不等于实测，节点完成不等于任务验收，未知副作用不能自动重放。",
             Self::DataWorkspace => "Approve ONE exact selected-file dataset copy from the server-resolved registered source to its host-managed destination. Review the project, preview revision, every file path, actual SHA-256/bytes, dataset revision and destination in the COMPLETE snapshot. Preview verification alone does not authorize copying. No original source writes, Git initialization, scripts, model calls or execution grant. Selected-file before/after observations are NOT an atomic whole-directory freeze, continuous immutability, DLP or an OS filesystem sandbox. Cancellation is a request; completed or partial copies can remain and must be reconciled, never silently replayed or deleted.\n\n独立数据工作区原生批准：完整核对项目、预览版本、所选文件路径/实际哈希/字节、数据集版本及后台目标。仅批准该精确副本，不修改原源、不初始化 Git、不执行脚本或模型、不授予执行权限；不保证整目录冻结、DLP 或系统隔离。取消请求不等于已停止或删除。",
         }
     }
+}
+
+/// The renderer selects references only. The native confirmation binds the
+/// complete server proposal to those exact references before private finalization.
+pub fn confirm_goal_execution_and_finalize(
+    response: Value,
+    selection: &Value,
+    confirm_native: impl FnOnce(&str) -> bool,
+    finalize: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<Value, String> {
+    let id = |value: &Value| {
+        value.as_str().is_some_and(|id| {
+            !id.is_empty()
+                && id.len() <= 128
+                && id
+                    .bytes()
+                    .all(|c| c.is_ascii_alphanumeric() || b"._:-".contains(&c))
+        })
+    };
+    let revision = |value: &Value| {
+        value
+            .as_u64()
+            .is_some_and(|n| n > 0 && n <= 9_007_199_254_740_991)
+    };
+    let hash = |value: &Value| {
+        value.as_str().is_some_and(|hash| {
+            hash.len() == 64
+                && hash
+                    .bytes()
+                    .all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c))
+        })
+    };
+    let snapshot = &response["result"]["snapshot"];
+    let scope = &snapshot["scope"];
+    let plan = &snapshot["plan"];
+    let complete = exact_fields(
+        selection,
+        &[
+            "scope_id",
+            "expected_plan_revision",
+            "expected_ledger_revision",
+        ],
+    ) && id(&selection["scope_id"])
+        && revision(&selection["expected_plan_revision"])
+        && revision(&selection["expected_ledger_revision"])
+        && snapshot["intent"] == *selection
+        && snapshot["execution"] == "bounded_existing_workspace_only"
+        && snapshot["new_workspace_authority"] == false
+        && snapshot["allow_in_scope_plan_revisions"] == true
+        && snapshot["enforcement"]["filesystem_sandbox"] == false
+        && snapshot["enforcement"]["network_sandbox"] == false
+        && snapshot["enforcement"]["output_quota"] == false
+        && scope["id"] == selection["scope_id"]
+        && id(&scope["task_id"])
+        && id(&scope["project_id"])
+        && id(&scope["root_grant_id"])
+        && id(&scope["workspace_id"])
+        && scope["revoked"] == false
+        && scope["planning_only"] == true
+        && revision(&scope["authority_revision"])
+        && hash(&scope["scope_digest"])
+        && hash(&scope["program_sha256"])
+        && scope["binding"].is_object()
+        && scope["binding"]["workspace_id"] == scope["workspace_id"]
+        && scope["binding"]["input_revision"] == scope["input_revision"]
+        && scope["goal"]["task_id"] == scope["task_id"]
+        && scope["goal"]["root_task_id"] == scope["task_id"]
+        && scope["goal"]["project_id"] == scope["project_id"]
+        && revision(&scope["root_grant_revision"])
+        && revision(&scope["goal"]["spec_revision"])
+        && id(&scope["input_revision"])
+        && scope["goal"]["input_revision"] == scope["input_revision"]
+        && snapshot["root_grant"]["id"] == scope["root_grant_id"]
+        && snapshot["root_grant"]["root_grant_id"] == scope["root_grant_id"]
+        && snapshot["root_grant"]
+            .get("parent_id")
+            .is_some_and(Value::is_null)
+        && snapshot["root_grant"]["project_id"] == scope["project_id"]
+        && snapshot["root_grant"]["revision"] == scope["root_grant_revision"]
+        && snapshot["root_grant"]["revoked"] == false
+        && snapshot["root_grant"]["scope"].is_object()
+        && snapshot["root_grant"]["scope"]["workspace_ids"]
+            .as_array()
+            .is_some_and(|ids| ids.contains(&scope["workspace_id"]))
+        && snapshot["root_grant"]["scope"]["connection_ids"]
+            .as_array()
+            .is_some_and(|ids| ids.contains(&scope["binding"]["connection_id"]))
+        && snapshot["root_grant"]["scope"]["host_ids"]
+            .as_array()
+            .is_some_and(|ids| ids.contains(&scope["binding"]["host_id"]))
+        && id(&scope["binding"]["connection_id"])
+        && snapshot["existing_connection"]["id"] == scope["binding"]["connection_id"]
+        && [
+            "environment_id",
+            "identity_ref",
+            "host_id",
+            "config_revision",
+            "capability_snapshot_id",
+        ]
+        .iter()
+        .all(|field| {
+            id(&scope["binding"][*field])
+                && snapshot["existing_connection"][*field] == scope["binding"][*field]
+        })
+        && snapshot["existing_connection"]["executable_sha256"] == scope["program_sha256"]
+        && scope["root_budget"].is_object()
+        && scope["project_budget"].is_object()
+        && plan["scope_id"] == selection["scope_id"]
+        && plan["proposal"]["schema_version"] == 1
+        && id(&plan["proposal"]["plan_id"])
+        && plan["proposal"]["revision"] == selection["expected_plan_revision"]
+        && plan["proposal"]["scope_revision"] == scope["authority_revision"]
+        && plan["proposal"]["goal"] == scope["goal"]
+        && plan["proposal"]["nodes"]
+            .as_array()
+            .is_some_and(|nodes| !nodes.is_empty() && nodes.len() <= 256)
+        && hash(&plan["digest"])
+        && plan["dispatched"] == false;
+    if response.get("error").is_none() && !complete {
+        return Ok(
+            json!({"request_id":null,"error":{"code":"INVALID_APPROVAL_PROPOSAL","message":"Goal execution proposal does not match the exact requested scope, plan and ledger or its complete existing-permission boundaries; no approval was finalized","retryable":false,"side_effect_state":"not_started","details_ref":null},"revision":0,"warnings":[]}),
+        );
+    }
+    confirm_and_finalize(
+        response,
+        ApprovalKind::GoalExecution,
+        confirm_native,
+        finalize,
+    )
 }
 
 /// Bind this action to its exact preview CAS before any owner prompt. The
@@ -363,6 +496,7 @@ pub fn confirm_and_finalize(
         }
     };
     let uses_data_table = snapshot.len() > 16_384 && matches!(kind, ApprovalKind::DataWorkspace);
+    let uses_compact_goal = snapshot.len() > 16_384 && matches!(kind, ApprovalKind::GoalExecution);
     let snapshot = if snapshot.len() <= 16_384 {
         snapshot
     } else if matches!(kind, ApprovalKind::DataWorkspace) {
@@ -372,11 +506,25 @@ pub fn confirm_and_finalize(
             );
         };
         display
+    } else if matches!(kind, ApprovalKind::GoalExecution) {
+        // Compact JSON still contains every original value. No Goal fields,
+        // permission metadata or plan nodes are summarized or omitted.
+        let Ok(compact) = serde_json::to_string(&proposal["snapshot"]) else {
+            return refused(
+                "Complete Goal execution snapshot could not be serialized; nothing was approved",
+            );
+        };
+        if compact.len() > 16_384 {
+            return refused("Complete Goal execution snapshot exceeds the native review limit; nothing was approved");
+        }
+        compact
     } else {
         return refused("Approval snapshot exceeds the native review limit; nothing was approved");
     };
     let table_explanation = if uses_data_table {
         "Data file table: each JSON-escaped row follows the exact displayed column order. requirement.* values occur identically in contract.files and each observed file's requirement; they are displayed once, with every actual hash, destination, byte count and source_identity field. snapshot_without_file_lists contains ALL remaining original fields. No summary or omitted permission fields.\n\n"
+    } else if uses_compact_goal {
+        "The following is complete compact JSON, including all original Goal scope, plan and permission fields; only formatting whitespace is removed.\n\n"
     } else {
         ""
     };
@@ -940,5 +1088,187 @@ mod tests {
             result.unwrap_err(),
             "finalize response lost: outcome unknown"
         );
+    }
+    fn goal_execution_proposal() -> (Value, Value) {
+        let selection =
+            json!({"scope_id":"scope-1","expected_plan_revision":3,"expected_ledger_revision":7});
+        let binding = json!({"connection_id":"connection-1","environment_id":"environment-1","identity_ref":"identity-1","host_id":"local","workspace_id":"workspace-1","config_revision":"config-1","input_revision":"input-1","capability_snapshot_id":"caps-1","policy_revision":"grant-1:2"});
+        let goal = json!({"task_id":"task-1","root_task_id":"task-1","project_id":"project-1","spec_revision":1,"input_revision":"input-1"});
+        let budget = json!({"attempts":4,"parallel":1,"runtime_ms":10000,"output_bytes":4096,"children":3,"reworks":1,"tokens":null,"cost_microunits":null});
+        let scope = json!({"id":"scope-1","task_id":"task-1","project_id":"project-1","root_grant_id":"grant-1","root_grant_revision":2,"workspace_id":"workspace-1","input_revision":"input-1","revoked":false,"planning_only":true,"authority_revision":2,"scope_digest":"a".repeat(64),"program_sha256":"b".repeat(64),"binding":binding,"goal":goal,"root_budget":budget,"project_budget":budget});
+        let root_grant = json!({"id":"grant-1","root_grant_id":"grant-1","parent_id":null,"project_id":"project-1","revision":2,"revoked":false,"scope":{"workspace_ids":["workspace-1"],"connection_ids":["connection-1"],"host_ids":["local"],"recipients":[],"network":{"mode":"inherited"},"max_attempts":4,"max_concurrency":1,"max_duration_ms":10000,"max_children":3,"max_depth":1}});
+        let connection = json!({"id":"connection-1","environment_id":"environment-1","identity_ref":"identity-1","host_id":"local","config_revision":"config-1","capability_snapshot_id":"caps-1","executable_sha256":"b".repeat(64)});
+        let plan = json!({"scope_id":"scope-1","proposal":{"schema_version":1,"plan_id":"plan-1","revision":3,"scope_revision":2,"goal":goal,"nodes":[{"id":"work","goal":"Read exact input and create a candidate"}]},"digest":"c".repeat(64),"dispatched":false});
+        let snapshot = json!({"intent":selection,"scope":scope,"root_grant":root_grant,"existing_connection":connection,"plan":plan,"execution":"bounded_existing_workspace_only","new_workspace_authority":false,"allow_in_scope_plan_revisions":true,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"warning":"Candidate only; unknown effects block replay"});
+        (
+            json!({"result":{"id":"execution-proposal","kind":"goal_execution","revision":4,"snapshot":snapshot},"warnings":[]}),
+            selection,
+        )
+    }
+    fn assert_goal_execution_refused(value: Value, selection: &Value) {
+        let prompts = Cell::new(0);
+        let finalizations = Cell::new(0);
+        let response = confirm_goal_execution_and_finalize(
+            value,
+            selection,
+            |_| {
+                prompts.set(prompts.get() + 1);
+                true
+            },
+            |_| {
+                finalizations.set(finalizations.get() + 1);
+                Ok(json!({}))
+            },
+        )
+        .unwrap();
+        assert_eq!(response["error"]["side_effect_state"], "not_started");
+        assert_eq!((prompts.get(), finalizations.get()), (0, 0));
+    }
+    #[test]
+    fn goal_execution_native_confirmation_binds_scope_plan_ledger_and_full_existing_permissions() {
+        let (proposal, selection) = goal_execution_proposal();
+        let snapshot = proposal["result"]["snapshot"].clone();
+        let result=confirm_goal_execution_and_finalize(proposal,&selection,|message|{
+            assert!(message.contains(&serde_json::to_string_pretty(&snapshot).unwrap()));
+            assert!(message.contains("Reserved bounds are not measured usage"));
+            assert!(message.contains("Native owner")||message.contains("native application"));
+            assert!(message.contains("same scope"));true
+        },|frame|{assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":"execution-proposal"},"expected_revision":4,"idempotency_key":"proposal:execution-proposal"}));Ok(json!({"result":{"state":"queued","task_accepted":false}}))}).unwrap();
+        assert_eq!(result["result"]["task_accepted"], false);
+    }
+    #[test]
+    fn goal_execution_rejects_wrong_intent_or_new_authority_before_any_native_prompt() {
+        let (proposal, selection) = goal_execution_proposal();
+        for path in [
+            "scope",
+            "plan",
+            "ledger",
+            "workspace",
+            "sandbox",
+            "quota",
+            "revisions",
+            "grant",
+            "connection",
+            "revoked",
+            "kind",
+            "empty",
+        ] {
+            let mut value = proposal.clone();
+            match path {
+                "scope" => value["result"]["snapshot"]["intent"]["scope_id"] = json!("foreign"),
+                "plan" => value["result"]["snapshot"]["plan"]["proposal"]["revision"] = json!(99),
+                "ledger" => {
+                    value["result"]["snapshot"]["intent"]["expected_ledger_revision"] = json!(99)
+                }
+                "workspace" => value["result"]["snapshot"]["new_workspace_authority"] = json!(true),
+                "sandbox" => {
+                    value["result"]["snapshot"]["enforcement"]["network_sandbox"] = json!(true)
+                }
+                "quota" => value["result"]["snapshot"]["enforcement"]["output_quota"] = json!(true),
+                "revisions" => value["result"]["snapshot"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("allow_in_scope_plan_revisions")
+                    .map(|_| ())
+                    .unwrap(),
+                "grant" => value["result"]["snapshot"]["root_grant"]["revision"] = json!(1),
+                "connection" => {
+                    value["result"]["snapshot"]["existing_connection"]["identity_ref"] =
+                        json!("another-account")
+                }
+                "revoked" => value["result"]["snapshot"]["scope"]["revoked"] = json!(true),
+                "kind" => value["result"]["kind"] = json!("goal"),
+                "empty" => value["result"]["snapshot"]["plan"]["proposal"]["nodes"] = json!([]),
+                _ => unreachable!(),
+            }
+            assert_goal_execution_refused(value, &selection);
+        }
+        let mut unknown = selection.clone();
+        unknown["authority"] = json!(true);
+        assert_goal_execution_refused(proposal, &unknown);
+    }
+    #[test]
+    fn goal_execution_decline_never_finalizes_and_postfinalize_uncertainty_is_preserved() {
+        let (proposal, selection) = goal_execution_proposal();
+        let response = confirm_goal_execution_and_finalize(
+            proposal.clone(),
+            &selection,
+            |_| false,
+            |_| panic!("decline finalized"),
+        )
+        .unwrap();
+        assert_eq!(response["error"]["code"], "PERMISSION_DENIED");
+        assert_eq!(response["error"]["side_effect_state"], "not_started");
+        let failure = json!({"error":{"code":"OUTCOME_UNKNOWN","message":"reply lost","side_effect_state":"unknown"}});
+        let response = confirm_goal_execution_and_finalize(
+            proposal.clone(),
+            &selection,
+            |_| true,
+            |_| Ok(failure.clone()),
+        )
+        .unwrap();
+        assert_eq!(response, failure);
+        assert_eq!(
+            confirm_goal_execution_and_finalize(
+                proposal,
+                &selection,
+                |_| true,
+                |_| Err("unresolved after finalize".into())
+            )
+            .unwrap_err(),
+            "unresolved after finalize"
+        );
+    }
+    #[test]
+    fn complete_goal_snapshot_can_use_lossless_compact_json_but_never_raise_the_limit() {
+        let (mut proposal, selection) = goal_execution_proposal();
+        proposal["result"]["snapshot"]["extra_review_metadata"] =
+            json!(vec!["full original value"; 500]);
+        let snapshot = proposal["result"]["snapshot"].clone();
+        let compact = serde_json::to_string(&snapshot).unwrap();
+        let pretty = serde_json::to_string_pretty(&snapshot).unwrap();
+        assert!(pretty.len() > 16384);
+        assert!(compact.len() <= 16384);
+        confirm_goal_execution_and_finalize(
+            proposal.clone(),
+            &selection,
+            |message| {
+                assert!(message.contains(&compact));
+                assert!(message.contains("complete compact JSON"));
+                true
+            },
+            |_| Ok(json!({})),
+        )
+        .unwrap();
+        proposal["result"]["snapshot"]["extra_review_metadata"] = json!("z".repeat(16385));
+        assert_goal_execution_refused(proposal, &selection);
+    }
+    #[test]
+    fn goal_execution_preapproval_core_errors_and_all_original_kind_boundaries_stay_separate() {
+        let (_, selection) = goal_execution_proposal();
+        let denied = json!({"error":{"code":"PERMISSION_DENIED","message":"scope expired","retryable":false,"side_effect_state":"not_started"}});
+        assert_eq!(
+            confirm_goal_execution_and_finalize(
+                denied.clone(),
+                &selection,
+                |_| panic!("error prompted"),
+                |_| panic!("error finalized")
+            )
+            .unwrap(),
+            denied
+        );
+        for kind in [
+            "connection",
+            "grant",
+            "validation",
+            "data_validation",
+            "command_validation",
+            "goal",
+            "data_workspace",
+        ] {
+            let (mut value, selection) = goal_execution_proposal();
+            value["result"]["kind"] = json!(kind);
+            assert_goal_execution_refused(value, &selection);
+        }
     }
 }

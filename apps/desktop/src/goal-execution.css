@@ -1,0 +1,5 @@
+.goal-execution{min-width:0;margin-top:18px;padding-top:18px;border-top:1px solid var(--line);overflow-wrap:anywhere}
+.goal-execution h3{display:inline;font-size:var(--fs-title);font-weight:500}
+.goal-execution details{margin:14px 0}.goal-execution summary{cursor:pointer}.goal-execution dl{margin:14px 0}.goal-execution dd{margin:4px 0 14px}
+.goal-execution code{white-space:pre-wrap;overflow-wrap:anywhere}.goal-execution-actions{display:flex;flex-wrap:wrap;gap:8px}.goal-execution-meter{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:759px){.goal-execution-meter{grid-template-columns:minmax(0,1fr)}.goal-execution button{min-height:44px}}
