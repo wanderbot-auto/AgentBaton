@@ -1008,15 +1008,34 @@ pub(crate) fn reserve_session(
     data: Option<&crate::data_workspaces::DataInputWitness>,
     graph_input: Option<&GraphReadWitness>,
 ) -> Result<()> {
-    reserve_attempt(db,c,GoalAttemptTarget {attempt_id:&s.attempt_id,task_id:&s.task_id,grant_id:&s.grant_id,session:Some(s)},binding,data,graph_input)
+    reserve_attempt(
+        db,
+        c,
+        GoalAttemptTarget {
+            attempt_id: &s.attempt_id,
+            task_id: &s.task_id,
+            grant_id: &s.grant_id,
+            session: Some(s),
+        },
+        binding,
+        data,
+        graph_input,
+    )
 }
 struct GoalAttemptTarget<'a> {
-    attempt_id:&'a str,
-    task_id:&'a str,
-    grant_id:&'a str,
-    session:Option<&'a crate::sessions::ManagedSession>,
+    attempt_id: &'a str,
+    task_id: &'a str,
+    grant_id: &'a str,
+    session: Option<&'a crate::sessions::ManagedSession>,
 }
-fn reserve_attempt(db:&Connection,c:&GoalDispatchContext,target:GoalAttemptTarget<'_>,binding:&ExecutionBinding,data:Option<&crate::data_workspaces::DataInputWitness>,graph_input:Option<&GraphReadWitness>)->Result<()> {
+fn reserve_attempt(
+    db: &Connection,
+    c: &GoalDispatchContext,
+    target: GoalAttemptTarget<'_>,
+    binding: &ExecutionBinding,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+    graph_input: Option<&GraphReadWitness>,
+) -> Result<()> {
     let mut r = run(db, &c.run.id)?;
     if r.revision != c.run.revision
         || r.plan_digest != c.run.plan_digest
@@ -1040,12 +1059,16 @@ fn reserve_attempt(db:&Connection,c:&GoalDispatchContext,target:GoalAttemptTarge
     if n.node != c.node || target.task_id != r.task_id || target.grant_id != r.root_grant_id {
         return Err(changed());
     }
-    let expected=match &n.node.executor {
-        Executor::Connection {binding,..}=>binding.as_ref().clone(),
-        Executor::Validator {..} if graph::is_graph_run(db,&r.id)?=>scope_view(&scope,&approved)?.binding,
-        _=>return Err(denied()),
+    let expected = match &n.node.executor {
+        Executor::Connection { binding, .. } => binding.as_ref().clone(),
+        Executor::Validator { .. } if graph::is_graph_run(db, &r.id)? => {
+            scope_view(&scope, &approved)?.binding
+        }
+        _ => return Err(denied()),
     };
-    if binding!=&expected{return Err(changed());}
+    if binding != &expected {
+        return Err(changed());
+    }
     let all_active: u32 = db
         .query_row(
             "SELECT (SELECT count(*) FROM dispatch_intents WHERE state!='stopped')+(SELECT count(*) FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))+(SELECT count(*) FROM goal_graph_jobs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))",
@@ -1227,7 +1250,7 @@ fn reserve_attempt(db:&Connection,c:&GoalDispatchContext,target:GoalAttemptTarge
     )
     .map_err(db_error)?;
     n.state = "reserved".into();
-    n.session_id = target.session.map(|s|s.id.clone());
+    n.session_id = target.session.map(|s| s.id.clone());
     n.attempt_id = Some(target.attempt_id.to_owned());
     n.started_at_ms = Some(ms()?);
     save_node(db, &r.id, &n)?;
@@ -1298,8 +1321,13 @@ impl Store {
         } else {
             json!(record.refs.inputs)
         };
+        let validation_contracts = if graph::is_graph_run(&self.conn, &r.id)? {
+            graph::prompt_validation_contracts(&record, &n.node, &s)?
+        } else {
+            json!([])
+        };
         let text = encode(
-            &json!({"schema_version":1,"kind":"agentbaton_goal_task_request","goal":n.node.goal,"node":n.node,"run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"workspace":{"id":record.refs.workspace.id,"canonical_root":record.refs.workspace.root,"input_revision":record.refs.workspace.base_revision},"inputs":inputs,"outputs":record.selection.outputs,"policy":{"requested":record.refs.grant_after.scope,"enforced":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false}},"lineage":{"root_task_id":r.task_id,"parent_node_id":n.node.parent_id,"attempt_id":s.attempt_id},"budget":{"reservation":n.node.reservation,"limits":n.node.budget},"idempotency_key":key,"return_location":{"run_id":r.id,"node_id":n.node.id,"attempt_id":s.attempt_id}}),
+            &json!({"schema_version":1,"kind":"agentbaton_goal_task_request","goal":n.node.goal,"node":n.node,"run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"workspace":{"id":record.refs.workspace.id,"canonical_root":record.refs.workspace.root,"input_revision":record.refs.workspace.base_revision},"inputs":inputs,"validation_contracts":validation_contracts,"task_binding":{"task_id":r.task_id,"attempt_id":s.attempt_id,"spec_revision":record.refs.spec_revision,"input_revision":record.refs.workspace.base_revision},"outputs":record.selection.outputs,"policy":{"requested":record.refs.grant_after.scope,"enforced":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false}},"lineage":{"root_task_id":r.task_id,"parent_node_id":n.node.parent_id,"attempt_id":s.attempt_id},"budget":{"reservation":n.node.reservation,"limits":n.node.budget},"idempotency_key":key,"return_location":{"run_id":r.id,"node_id":n.node.id,"attempt_id":s.attempt_id}}),
         )?;
         if text.len() > 65536 {
             return Err(err("RESOURCE_LIMIT","Complete Goal TaskRequest exceeds the existing 64KiB turn bound; nothing was truncated"));
@@ -1401,7 +1429,9 @@ impl Store {
                 if !matches!(n.state.as_str(), "reserved" | "running" | "stopping") {
                     continue;
                 }
-                let Some(id)=n.session_id.clone()else{continue;};
+                let Some(id) = n.session_id.clone() else {
+                    continue;
+                };
                 let s = self.get_session(&id)?;
                 if cancel
                     || matches!(
@@ -1752,7 +1782,9 @@ impl Store {
         let nodes = node_records(&self.conn, id)?;
         for n in &nodes {
             if n.state == "reserved" {
-                let Some(id)=n.session_id.as_deref()else{return Ok(false);};
+                let Some(id) = n.session_id.as_deref() else {
+                    return Ok(false);
+                };
                 let session = self.get_session(id)?;
                 return Ok(session.state == "ready" && session.turn_state.is_none());
             }

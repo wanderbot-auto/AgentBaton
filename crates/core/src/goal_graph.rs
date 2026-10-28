@@ -5,11 +5,11 @@ use super::*;
 mod evidence;
 #[path = "goal_graph_validators.rs"]
 mod validators;
-pub(crate) use validators::PreparedGraphValidation;
 pub use evidence::{
     GraphArtifactReference, GraphCandidateReceipt, GraphInputBinding, GraphOwnerDecision,
     GraphValidationReceipt, GRAPH_CONTRACT_VERSION, MAX_GRAPH_REVIEW_BYTES,
 };
+pub(crate) use validators::PreparedGraphValidation;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -328,9 +328,9 @@ fn graph_snapshot(
     value["definition_reuse"] = json!(definition_permissions(&record)?);
     value["subject_rebinding"] = json!({"mode":"this_run_current_plan_owned_producer_only","project_id":record.refs.project_id,"workspace_id":record.refs.workspace.id,"root_grant_id":record.refs.grant_after.id,"artifact_ids":record.selection.outputs.iter().map(|o|o.artifact.artifact_id.clone()).collect::<Vec<_>>(),"requires_current_scope_and_inputs":true,"requires_owned_stop_and_capture":true,"requires_current_definition_digest":true,"allows_legacy_candidate_backfill":false,"allows_old_policy_execution_reuse":false,"allows_new_workspace":false});
     value["budgets"] = json!({"root":record.selection.root_budget,"project":record.selection.project_budget,"usage":blocked_history_preview(db,&record,s.expected_plan_revision)?.budget_usage});
-    value["io_limits"] = json!({"max_total_artifact_bytes":evidence::MAX_GRAPH_IO_BYTES,"max_artifact_refs":64,"worker_within_attempt_runtime_reservation":true,"cancel_requires_actual_join":true,"timeout_without_join_is_unknown":true});
+    value["io_limits"] = json!({"max_total_artifact_bytes":evidence::MAX_GRAPH_IO_BYTES,"max_artifact_refs":64,"worker_within_attempt_runtime_reservation":true,"cancel_requires_actual_join":true,"timeout_without_join_is_unknown":true,"validator_output_ledger_domain":"new_declared_artifacts_plus_retained_stream_bytes","producer_recheck_bytes_are_new_outputs":false,"total_filesystem_write_bytes_enforced":false});
     value["execution"] = json!("goal_graph_v1_existing_workspace");
-    value["warning"]=json!("Approve this existing GoalPlan/Scope graph and bounded later validated same-scope versions, including explicitly listed validator-definition reuse for new owned producer subjects. Old per-attempt policies are not reused as execution permissions. Each actual dispatch keeps current input/definition/authority checks and shared cumulative budgets. Artifact integrity, JSON/data contracts and fixed command contracts do not establish GoalAcceptance. Exact private Owner decisions are separate. No new workspace/host/identity/recipient/billing or production capability; no OS filesystem/network sandbox or output quota is claimed. Unknown effects, unjoined workers and overrun block execution. Complete review is bounded, never truncated.");
+    value["warning"]=json!("Approve this existing GoalPlan/Scope graph and bounded later validated same-scope versions, including explicitly listed validator-definition reuse for new owned producer subjects. Old per-attempt policies are not reused as execution permissions. Each actual dispatch keeps current input/definition/authority checks and shared cumulative budgets. Artifact integrity, JSON/data contracts and fixed command contracts do not establish GoalAcceptance. Exact private Owner decisions are separate. Validator output accounting counts new declared artifacts and actual retained stdout/stderr; existing producer checks are observations only. No total-filesystem write counter or OS quota is claimed. No new workspace/host/identity/recipient/billing or production capability; no OS filesystem/network sandbox or output quota is claimed. Unknown effects, unjoined workers and overrun block execution. Complete review is bounded, never truncated.");
     Ok(value)
 }
 fn proposal_scope(db: &Connection, scope_id: &str) -> Result<String> {
@@ -482,7 +482,7 @@ impl Store {
                     state: n.state.clone(),
                     session_id: n.session_id.clone(),
                     attempt_id: n.attempt_id.clone(),
-                    job_id: validators::node_job_id(&self.conn,&summary.run,&n)?,
+                    job_id: validators::node_job_id(&self.conn, &summary.run, &n)?,
                     acceptance_state: node_acceptance_state(
                         &self.conn,
                         &summary.run,
@@ -578,9 +578,18 @@ pub(crate) struct GraphWorkers {
     validators: validators::ValidatorWorkers,
 }
 impl GraphWorkers {
-    pub(crate) fn start_validation(&mut self,store:&mut Store,prepared:PreparedGraphValidation)->Result<()> {
-        if self.has_workers(){return Err(err("WORKSPACE_BUSY","Another owned Goal worker holds the local slot"));}
-        self.validators.start(store,prepared)
+    pub(crate) fn start_validation(
+        &mut self,
+        store: &mut Store,
+        prepared: PreparedGraphValidation,
+    ) -> Result<()> {
+        if self.has_workers() {
+            return Err(err(
+                "WORKSPACE_BUSY",
+                "Another owned Goal worker holds the local slot",
+            ));
+        }
+        self.validators.start(store, prepared)
     }
     pub(crate) fn has_workers(&self) -> bool {
         !self.captures.is_empty() || self.validators.has_workers()
@@ -669,7 +678,7 @@ impl GraphWorkers {
             .spawn(move || prepared.execute());
         match thread {
             Ok(thread) => {
-                let id=origin.id.clone();
+                let id = origin.id.clone();
                 self.captures.insert(
                     origin.id.clone(),
                     CaptureWorker {
@@ -681,7 +690,9 @@ impl GraphWorkers {
                         queued_at,
                     },
                 );
-                store.mark_graph_capture_started(&self.captures.get(&id).ok_or_else(changed)?.origin)?;
+                store.mark_graph_capture_started(
+                    &self.captures.get(&id).ok_or_else(changed)?.origin,
+                )?;
             }
             Err(_) => store.finish_graph_capture(
                 &origin,
@@ -724,7 +735,7 @@ impl Store {
         session_id: &str,
         elapsed_at_stop_ms: u64,
     ) -> Result<()> {
-        let queued_at=std::time::Instant::now();
+        let queued_at = std::time::Instant::now();
         let s = self.get_session(session_id)?;
         let (run_id,doc):(String,String)=self.conn.query_row("SELECT run_id,document FROM goal_run_nodes WHERE session_id=?1 AND octet_length(document)<=262144",[session_id],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
         let r = run(&self.conn, &run_id)?;
@@ -787,8 +798,7 @@ impl Store {
             json!({"job_id":origin.id,"origin_digest":sha(&origin)?,"stop_receipt_sequence":origin.stop_receipt_sequence,"task_accepted":false}),
         )?;
         tx.commit().map_err(db_error)?;
-        self.graph_capture_clocks
-            .insert(origin.id, queued_at);
+        self.graph_capture_clocks.insert(origin.id, queued_at);
         Ok(())
     }
     fn verify_capture_origin(
@@ -1168,7 +1178,10 @@ fn graph_candidates(db: &Connection, r: &GoalRun) -> Result<Vec<GraphCandidateRe
             return Err(denied());
         }
         let started:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.capture_worker_started' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.payload.job_id')=?2 AND json_extract(document,'$.payload.origin_digest')=?3 AND json_extract(document,'$.payload.owned_thread_started')=1 ORDER BY sequence LIMIT 1",params![r.id,origin.id,sha(&origin)?],|row|row.get(0)).optional().map_err(db_error)?;
-        if !matches!((prepared,started),(Some(p),Some(s)) if p<s && s<sql_num(c.capture_receipt_sequence).unwrap_or(0)){return Err(denied());}
+        if !matches!((prepared,started),(Some(p),Some(s)) if p<s && s<sql_num(c.capture_receipt_sequence).unwrap_or(0))
+        {
+            return Err(denied());
+        }
         let s: crate::sessions::ManagedSession = raw(db, "sessions", &c.session_id)?;
         if s.attempt_id != c.attempt_id
             || s.workspace_id != c.workspace_id
@@ -1416,8 +1429,17 @@ fn graph_owner_decisions(db: &Connection, r: &GoalRun) -> Result<Vec<GraphOwnerD
     Ok(owners)
 }
 fn graph_validations(db: &Connection, r: &GoalRun) -> Result<Vec<GraphValidationReceipt>> {
-    let records:Vec<GraphValidationReceipt>=graph_records(db,r,"goal_graph_validations","goal.validation_settled","validation_id","goal_core")?;
-    for record in &records {validators::verify_receipt(db,r,record)?;}
+    let records: Vec<GraphValidationReceipt> = graph_records(
+        db,
+        r,
+        "goal_graph_validations",
+        "goal.validation_settled",
+        "validation_id",
+        "goal_core",
+    )?;
+    for record in &records {
+        validators::verify_receipt(db, r, record)?;
+    }
     Ok(records)
 }
 fn graph_records<T: serde::de::DeserializeOwned + Serialize>(
@@ -2230,7 +2252,9 @@ impl Store {
 }
 
 pub(super) fn verify_intrinsic_node(db: &Connection, r: &GoalRun, n: &RuntimeNode) -> Result<()> {
-    if n.node.kind==NodeKind::Validate {return validators::verify_intrinsic(db,r,n);}
+    if n.node.kind == NodeKind::Validate {
+        return validators::verify_intrinsic(db, r, n);
+    }
     if !is_graph_run(db, &r.id)?
         || n.session_id.is_some()
         || n.attempt_id.is_some()
@@ -2328,8 +2352,10 @@ impl Store {
                         json!({"node_id":n.node.id,"plan_revision":n.plan_revision,"executor_started":false,"task_accepted":false}),
                     )?;
                     tx.commit().map_err(db_error)?;
-                } else if matches!(ready.node.kind, NodeKind::Work | NodeKind::Summary | NodeKind::Validate)
-                    && r.state == "awaiting_acceptance"
+                } else if matches!(
+                    ready.node.kind,
+                    NodeKind::Work | NodeKind::Summary | NodeKind::Validate
+                ) && r.state == "awaiting_acceptance"
                 {
                     let tx = self
                         .conn
@@ -2910,33 +2936,154 @@ impl GraphWorkers {
 }
 
 impl Store {
-    fn mark_graph_capture_started(&mut self,origin:&CaptureOrigin)->Result<()> {
-        let (r,_,_)=self.verify_capture_origin(origin)?;
-        let tx=self.conn.transaction_with_behavior(TransactionBehavior::Immediate).map_err(db_error)?;
-        if tx.execute("UPDATE goal_graph_jobs SET state='running' WHERE id=?1 AND state='prepared'",[&origin.id]).map_err(db_error)?!=1{return Err(changed());}
-        event(&tx,&r.id,r.revision,"goal.capture_worker_started",json!({"job_id":origin.id,"origin_digest":sha(origin)?,"owned_thread_started":true,"worker_joined":false,"task_accepted":false}))?;
+    fn mark_graph_capture_started(&mut self, origin: &CaptureOrigin) -> Result<()> {
+        let (r, _, _) = self.verify_capture_origin(origin)?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        if tx
+            .execute(
+                "UPDATE goal_graph_jobs SET state='running' WHERE id=?1 AND state='prepared'",
+                [&origin.id],
+            )
+            .map_err(db_error)?
+            != 1
+        {
+            return Err(changed());
+        }
+        event(
+            &tx,
+            &r.id,
+            r.revision,
+            "goal.capture_worker_started",
+            json!({"job_id":origin.id,"origin_digest":sha(origin)?,"owned_thread_started":true,"worker_joined":false,"task_accepted":false}),
+        )?;
         tx.commit().map_err(db_error)
     }
 }
 impl Drop for GraphWorkers {
-    fn drop(&mut self){self.reap_owned_workers();}
+    fn drop(&mut self) {
+        self.reap_owned_workers();
+    }
 }
 
 #[cfg(test)]
 impl GraphWorkers {
     /// An owned cancellation-observing reader fixture, not a Provider, Goal
     /// candidate, approval or accepted output. Only tests can install it.
-    pub(crate) fn install_drop_fixture(&mut self, root:std::path::PathBuf, checked:impl FnOnce()+Send+'static) {
+    pub(crate) fn install_drop_fixture(
+        &mut self,
+        root: std::path::PathBuf,
+        checked: impl FnOnce() + Send + 'static,
+    ) {
         use std::os::unix::fs::MetadataExt;
-        let meta=std::fs::metadata(&root).unwrap();
-        let identity=agentbaton_workspaces::WorkspaceIdentity {canonical_root:root,device:meta.dev(),inode:meta.ino(),kind:agentbaton_workspaces::WorkspaceKind::Directory};
-        let cancel=std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));let flag=cancel.clone();
-        let thread=std::thread::spawn(move||{while !flag.load(std::sync::atomic::Ordering::SeqCst){std::thread::sleep(std::time::Duration::from_millis(1));}checked();Err(err("CANCEL_REQUESTED","Controlled owned reader observed cancellation"))});
-        let origin=CaptureOrigin {id:"drop-reader-fixture".into(),run_id:"no-authorized-fixture-run".into(),node_id:"not-an-executor".into(),plan_revision:1,plan_digest:"not-authority".into(),attempt_id:"not-a-provider-attempt".into(),session_id:"no-provider-session".into(),workspace_id:"fixture-root-only".into(),root:identity,writer_epoch:0,stop_receipt_sequence:0,capability_digest:"not-authority".into(),elapsed_at_stop_ms:0,prepared_at_ms:0,runtime_reservation_ms:1,consumed_inputs:vec![]};
-        self.captures.insert(origin.id.clone(),CaptureWorker {origin,cancel,thread,deadline:std::time::Instant::now()+std::time::Duration::from_secs(30),unknown_recorded:false,queued_at:std::time::Instant::now()});
+        let meta = std::fs::metadata(&root).unwrap();
+        let identity = agentbaton_workspaces::WorkspaceIdentity {
+            canonical_root: root,
+            device: meta.dev(),
+            inode: meta.ino(),
+            kind: agentbaton_workspaces::WorkspaceKind::Directory,
+        };
+        let cancel = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let flag = cancel.clone();
+        let thread = std::thread::spawn(move || {
+            while !flag.load(std::sync::atomic::Ordering::SeqCst) {
+                std::thread::sleep(std::time::Duration::from_millis(1));
+            }
+            checked();
+            Err(err(
+                "CANCEL_REQUESTED",
+                "Controlled owned reader observed cancellation",
+            ))
+        });
+        let origin = CaptureOrigin {
+            id: "drop-reader-fixture".into(),
+            run_id: "no-authorized-fixture-run".into(),
+            node_id: "not-an-executor".into(),
+            plan_revision: 1,
+            plan_digest: "not-authority".into(),
+            attempt_id: "not-a-provider-attempt".into(),
+            session_id: "no-provider-session".into(),
+            workspace_id: "fixture-root-only".into(),
+            root: identity,
+            writer_epoch: 0,
+            stop_receipt_sequence: 0,
+            capability_digest: "not-authority".into(),
+            elapsed_at_stop_ms: 0,
+            prepared_at_ms: 0,
+            runtime_reservation_ms: 1,
+            consumed_inputs: vec![],
+        };
+        self.captures.insert(
+            origin.id.clone(),
+            CaptureWorker {
+                origin,
+                cancel,
+                thread,
+                deadline: std::time::Instant::now() + std::time::Duration::from_secs(30),
+                unknown_recorded: false,
+                queued_at: std::time::Instant::now(),
+            },
+        );
     }
 }
 
-pub(super) fn ready_dispatch_node<'a>(db:&Connection,r:&GoalRun,nodes:&'a[RuntimeNode])->Result<Option<&'a RuntimeNode>> {
-    Ok(graph_ready_node(db,r,nodes,&graph_candidates(db,r)?)?.filter(|n|matches!(n.node.kind,NodeKind::Work|NodeKind::Summary|NodeKind::Validate)))
+pub(super) fn ready_dispatch_node<'a>(
+    db: &Connection,
+    r: &GoalRun,
+    nodes: &'a [RuntimeNode],
+) -> Result<Option<&'a RuntimeNode>> {
+    Ok(
+        graph_ready_node(db, r, nodes, &graph_candidates(db, r)?)?.filter(|n| {
+            matches!(
+                n.node.kind,
+                NodeKind::Work | NodeKind::Summary | NodeKind::Validate
+            )
+        }),
+    )
+}
+
+pub(super) fn prompt_validation_contracts(
+    record: &ScopeRecord,
+    node: &PlanNode,
+    session: &crate::sessions::ManagedSession,
+) -> Result<Value> {
+    let mut contracts = Vec::new();
+    for def in &record.refs.validators {
+        let artifacts = record
+            .selection
+            .outputs
+            .iter()
+            .filter(|o| {
+                node.outputs
+                    .iter()
+                    .any(|a| a.artifact_id == o.artifact.artifact_id)
+                    && o.validators.contains(&def.reference)
+            })
+            .map(|o| o.artifact.artifact_id.clone())
+            .collect::<Vec<_>>();
+        if artifacts.is_empty() {
+            continue;
+        }
+        // Required artifact/schema context is Provider input. Command environment,
+        // identity settings and argv are private executor configuration, not text
+        // that definition reuse authorizes sending to a model.
+        let context = match def.reference.kind {
+            GoalValidatorKind::Integrity => json!({"file_contract":def.definition["contract"]}),
+            GoalValidatorKind::Data => {
+                json!({"file_contract":def.definition["file_contract"],"table":def.definition["table"]})
+            }
+            GoalValidatorKind::Command => {
+                json!({"file_contract":def.definition["contract"]["file_contract"],"script":def.definition["contract"]["script"],"validator_id":def.definition["validator_id"]})
+            }
+        };
+        let version = if def.reference.kind == GoalValidatorKind::Data {
+            json!({"kind":"data","dataset_revision":record.refs.workspace.base_revision})
+        } else {
+            json!({"kind":"workspace_artifacts","workspace_id":record.refs.workspace.id,"base_revision":record.refs.workspace.base_revision})
+        };
+        contracts.push(json!({"rule_id":def.rule_id,"definition_digest":def.digest,"artifacts":artifacts,"context":context,"current_subject":{"task_id":record.refs.task_id,"attempt_id":session.attempt_id,"spec_revision":record.refs.spec_revision,"input_revision":record.refs.workspace.base_revision,"version":version},"task_acceptance":"not_established"}));
+    }
+    Ok(json!(contracts))
 }
