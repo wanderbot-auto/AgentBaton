@@ -1806,6 +1806,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "goal_graph_execution" {
+            return Err(CoreError::new("CAPABILITY_UNSUPPORTED","Graph execution is not connected yet; no run, reservation, dispatch or acceptance was created"));
+        }
         if proposal.kind == "goal_execution" {
             return self.finalize_goal_run(id, revision);
         }

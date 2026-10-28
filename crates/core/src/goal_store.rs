@@ -20,12 +20,20 @@ use uuid::Uuid;
 
 #[path = "goal_runtime.rs"]
 mod runtime;
+pub(crate) use runtime::migrate_graph;
 use runtime::runtime_scope_for_revision;
 pub(crate) use runtime::{
     migrate as migrate_runtime, ordinary_session_budget_gate, owns_session,
     permits_continuing_task, reserve_session, GoalDispatchContext,
 };
-pub use runtime::{GoalPlanAdvance, GoalRun, GoalRunDispatch, GoalRunSelection};
+pub use runtime::{
+    GoalPlanAdvance, GoalRun, GoalRunDispatch, GoalRunSelection, GraphArtifactReference,
+    GraphCandidateReceipt, GraphCriterionBinding, GraphDefinitionReusePermission,
+    GraphExecutionSnapshot, GraphInputBinding, GraphNodeAcceptanceSnapshot,
+    GraphNodeApprovalSelection, GraphNodeView, GraphOwnerDecision, GraphOwnerDecisionResult,
+    GraphRunBinding, GraphRunDetails, GraphRunSelection, GraphRunSummary, GraphTaskAcceptance,
+    GraphValidationReceipt,
+};
 
 pub const MAX_GOAL_PLAN_BYTES: usize = 262_144;
 const MAX_STORED_BYTES: i64 = 1_048_576;

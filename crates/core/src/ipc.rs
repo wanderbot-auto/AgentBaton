@@ -515,6 +515,9 @@ impl Daemon {
             "data_workspaces.list" => {let p:ProjectId=params(r.params)?;Ok(json!(self.store.list_data_workspace_creations(&p.project_id)?))}
             "data_workspaces.cancel" => {let p:DataCreationId=params(r.params)?;let record=self.store.cancel_data_workspace_creation(&p.creation_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;self.data_workers.cancel(&p.creation_id);Ok(json!(record))}
             "data_workspaces.create" | "data_workspaces.approve" => Err(CoreError::new("AUTH_REQUIRED","A server-fixed preview and native data_workspace owner confirmation are required before copying")),
+            "goal_graph_runs.propose"=>{let p:crate::goal_store::GraphRunSelection=params(r.params)?;Ok(json!(self.store.propose_goal_graph_run(&p,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "goal_graph_runs.get"=>{let p:GoalRunId=params(r.params)?;Ok(json!(self.store.goal_graph_details(&p.run_id)?))}
+            "goal_graph_runs.list"=>{let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_graph_runs(&p.task_id)?))}
             "goal_runs.propose"=>{let p:crate::goal_store::GoalRunSelection=params(r.params)?;Ok(json!(self.store.propose_goal_run(&p,&r.idempotency_key.ok_or_else(invalid)?)?))}
             "goal_runs.get"=>{let p:GoalRunId=params(r.params)?;self.store.goal_run_details(&p.run_id)}
             "goal_runs.list"=>{let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_runs(&p.task_id)?))}
@@ -1249,6 +1252,19 @@ impl Daemon {
                 }
                 ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
             }
+            "goal_graph_runs.propose" => {
+                let p: crate::goal_store::GraphRunSelection = params(request.params)?;
+                if let Some(key) = request.idempotency_key.as_deref() {
+                    if self
+                        .store
+                        .graph_execution_proposal_replay(&p, key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
+            }
             "goal_runs.propose" => {
                 let p: crate::goal_store::GoalRunSelection = params(request.params)?;
                 if let Some(key) = request.idempotency_key.as_deref() {
@@ -1395,7 +1411,7 @@ impl Daemon {
                 if let Some(raw) = raw {
                     let proposal: crate::sessions::ApprovalProposal = crate::storage::decode(&raw)?;
                     match proposal.kind.as_str() {
-                        "goal_execution" => {
+                        "goal_execution" | "goal_graph_execution" => {
                             if let Some(id) = proposal.snapshot["intent"]["scope_id"].as_str() {
                                 ids.push(self.store.get_goal_scope(id)?.workspace_id);
                             }

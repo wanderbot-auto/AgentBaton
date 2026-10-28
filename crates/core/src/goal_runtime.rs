@@ -2,6 +2,17 @@
 //! scope/plan constructors stay private and cannot be populated from IPC labels.
 use super::*;
 
+#[path = "goal_graph.rs"]
+mod graph;
+pub(crate) use graph::migrate as migrate_graph;
+pub use graph::{
+    GraphArtifactReference, GraphCandidateReceipt, GraphCriterionBinding,
+    GraphDefinitionReusePermission, GraphExecutionSnapshot, GraphInputBinding,
+    GraphNodeAcceptanceSnapshot, GraphNodeApprovalSelection, GraphNodeView, GraphOwnerDecision,
+    GraphOwnerDecisionResult, GraphRunBinding, GraphRunDetails, GraphRunSelection, GraphRunSummary,
+    GraphTaskAcceptance, GraphValidationReceipt,
+};
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GoalRunSelection {
@@ -319,7 +330,7 @@ fn require_metered_capabilities(plan: &GoalPlanProposal) -> Result<()> {
     }
     Ok(())
 }
-fn snapshot(
+fn snapshot_base(
     db: &Connection,
     s: &GoalRunSelection,
     data: Option<&crate::data_workspaces::DataInputWitness>,
@@ -343,6 +354,14 @@ fn snapshot(
     // A complete plan is reviewed; neither IDs nor a digest-only surrogate grant
     // unseen nodes or permissions. Large owner reviews must use a separate UI design.
     let v = json!({"intent":s,"scope":scope_view(&r,&scope)?,"root_grant":r.refs.grant_after,"existing_connection":connection_summary(&r.refs)?,"plan":plan,"execution":"bounded_existing_workspace_only","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"warning":"Approve autonomous execution of this plan and later validated versions within this exact Goal scope, fixed inputs/capabilities and shared cumulative budgets. Each version requires exact Store compare-and-swap and retained lineage. No new workspace, identity, host or recipient is granted. Node completion is only candidate evidence. Unknown effects and budget overrun block further execution. Output accounting observes declared selected artifacts at stop; it is not an OS filesystem quota."});
+    Ok(v)
+}
+fn snapshot(
+    db: &Connection,
+    s: &GoalRunSelection,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<Value> {
+    let v = snapshot_base(db, s, data)?;
     if encode(&v)?.len() > 16_384 {
         return Err(err(
             "RESOURCE_LIMIT",

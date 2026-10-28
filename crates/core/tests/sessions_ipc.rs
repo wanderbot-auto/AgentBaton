@@ -2856,3 +2856,146 @@ fn actual_goal_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_autho
     assert_eq!(first["nodes"][0]["stop_confirmed"], true);
     assert_eq!(first["task_accepted"], false);
 }
+
+#[test]
+fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_executor_is_connected(
+) {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let ledger = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let request = json!({"method":"goal_graph_runs.propose","params":{"scope_id":scope["id"],"expected_plan_revision":1,"expected_ledger_revision":ledger},"idempotency_key":"graph-proposal-real-first"});
+    let proposal = result(f.server.request(request.clone()));
+    assert_eq!(proposal["kind"], "goal_graph_execution");
+    assert_eq!(proposal["snapshot"]["graph_contract_version"], 1);
+    assert_eq!(proposal["snapshot"]["new_workspace_authority"], false);
+    assert_eq!(
+        proposal["snapshot"]["execution"],
+        "goal_graph_v1_existing_workspace"
+    );
+    assert_eq!(
+        proposal["snapshot"]["subject_rebinding"]["allows_old_policy_execution_reuse"],
+        false
+    );
+    assert_eq!(result(f.server.request(request)), proposal);
+    let raw = serde_json::to_vec_pretty(&proposal).unwrap();
+    let digest = agentbaton_workspaces::validation::sha256(&raw);
+    let dir =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../artifacts/goal-validation-graph");
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join(format!("actual-graph-proposal-{digest}.json"));
+    use std::io::Write;
+    let mut file = std::fs::OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .open(&path)
+        .unwrap();
+    file.write_all(&raw).unwrap();
+    eprintln!(
+        "ACTUAL_GRAPH_PROPOSAL sha256={digest} compact={} pretty={} path={}",
+        serde_json::to_vec(&proposal).unwrap().len(),
+        raw.len(),
+        path.display()
+    );
+    let list = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.list","params":{"task_id":f.task["id"]}})),
+    );
+    assert_eq!(list, json!([]));
+    let refused=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"no-unimplemented-dispatch"}));
+    assert_eq!(refused["error"]["code"], "CAPABILITY_UNSUPPORTED");
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+            .unwrap(),
+        12
+    );
+    for table in [
+        "goal_runs",
+        "goal_run_reservations",
+        "goal_graph_capabilities",
+        "goal_graph_jobs",
+        "attempts",
+    ] {
+        assert_eq!(
+            db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            0
+        );
+    }
+    assert_eq!(
+        db.query_row(
+            "SELECT result IS NULL FROM approval_proposals WHERE id=?1",
+            [proposal["id"].as_str().unwrap()],
+            |r| r.get::<_, bool>(0)
+        )
+        .unwrap(),
+        true
+    );
+}
+
+#[test]
+fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_hashes_or_authority()
+{
+    let mut f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let run = approve_goal_execution(&f, &scope);
+    let stopped = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":run["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    assert_eq!(stopped["nodes"][0]["actual_output_bytes"], 12);
+    f.server.shutdown();
+    let path = f.server.runtime.join("baton.sqlite3");
+    let db = rusqlite::Connection::open(&path).unwrap();
+    let raw_run: String = db
+        .query_row("SELECT document FROM goal_runs", [], |r| r.get(0))
+        .unwrap();
+    let raw_node: String = db
+        .query_row("SELECT document FROM goal_run_nodes", [], |r| r.get(0))
+        .unwrap();
+    db.execute_batch("DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;PRAGMA user_version=11;").unwrap();
+    drop(db);
+    let store = agentbaton_core::storage::Store::open(&path).unwrap();
+    let current = store.goal_run_details(run["id"].as_str().unwrap()).unwrap();
+    assert_eq!(current["nodes"], stopped["nodes"]);
+    assert_eq!(current["task_accepted"], false);
+    assert_eq!(
+        store
+            .list_goal_graph_runs(f.task["id"].as_str().unwrap())
+            .unwrap()
+            .len(),
+        0
+    );
+    let db = rusqlite::Connection::open(&path).unwrap();
+    assert_eq!(
+        db.query_row("SELECT document FROM goal_runs", [], |r| r
+            .get::<_, String>(0))
+            .unwrap(),
+        raw_run
+    );
+    assert_eq!(
+        db.query_row("SELECT document FROM goal_run_nodes", [], |r| r
+            .get::<_, String>(0))
+            .unwrap(),
+        raw_node
+    );
+    for table in [
+        "goal_graph_capabilities",
+        "goal_graph_candidates",
+        "goal_graph_acceptances",
+    ] {
+        assert_eq!(
+            db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            0
+        );
+    }
+}
