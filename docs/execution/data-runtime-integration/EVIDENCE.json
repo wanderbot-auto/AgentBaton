@@ -301,5 +301,16 @@
       "log": "/workspace/.onboarding/data-runtime-integration/native-runner-contracts.log",
       "sha256": "a334f7b07c367030b32432935c6bb11e77b1a7a2116d1ec138e7c5abc58a046b"
     }
-  ]
+  ],
+  "sidebar_followup": {
+    "source": "25e9fbeda9fab2043f5b167fea86fc7e48d5a8d3",
+    "independent": "docs/execution/sidebar-project-overflow/INDEPENDENT_VERIFICATION.json",
+    "build_log_sha256": "8f47f3a08d29437cc9cce5bedbea216ebfdbc654b41f60255cdf3c0a76c6a7c0",
+    "asset_hashes": {
+      "index.html": "efbfa79fc6a993a17916385de0496dcdb60481b119072842bd8286ddf7a5b80f",
+      "assets/index-iZLr2xM7.css": "b17d03948d859e1957a3be00830e0e592f53c5c5550dfe8e68ad89e9e47f8ea9",
+      "assets/index-Dhlya2zb.js": "b9b2307b9d40b5e8a34a142a4565148e7c832cbf3e3c4093931e866782232ae0"
+    },
+    "scope": "oneCSSdeclaration; Rootactual39/28 newassetset; Rust/source and UI JS unchanged; fresh exactMacCI pending"
+  }
 }
