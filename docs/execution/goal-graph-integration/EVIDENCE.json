@@ -469,7 +469,20 @@
       "cause": "new verbatim controller log trailing blank atEOF",
       "batch_error": "commit followed newline after nonzero check beforeRootobserved output; preserved15e4 history",
       "correction": "losslessgzip rawbyte/sha roundtrip, original archived/localraw retained; checker unchanged",
-      "final_check": "pending below actual command; not silently count initial failure passed"
+      "final_check": {
+        "command": "git diff --check 0aa20c968d493cad895e4a3853bdf106d6b54acf 232b53a832b247964510b8660a7231d167fa9c90",
+        "exit_code": 0,
+        "evidence": "FINAL_232_INTEGRATION_REVIEW_EVIDENCE.tar.gz/validation-checks.json",
+        "initial_failed_check_and_15e4_history_preserved": true
+      }
+    },
+    "final_independent_integration_review": {
+      "subject": "232b53a832b247964510b8660a7231d167fa9c90",
+      "report": "FINAL_232_INTEGRATION_REVIEW.md",
+      "report_sha256": "13b8149ea57dacdd11b43fde554d208c418bc26fce18b6eefb2e977100000046",
+      "manifest_sha256": "fa5be5174abe807f0e46267cdf55b6c95397b42a8bda32144c7c7df7feb71883",
+      "import": "FINAL_232_INTEGRATION_REVIEW_IMPORT.json",
+      "scope": "static composition/records only; no source blocker; no new product/Mac success or formal Approve"
     }
   },
   "ci_641": {

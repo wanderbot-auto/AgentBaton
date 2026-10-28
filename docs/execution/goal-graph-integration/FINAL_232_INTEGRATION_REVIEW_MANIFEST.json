@@ -1,0 +1,39 @@
+{
+  "subject": "232b53a832b247964510b8660a7231d167fa9c90",
+  "baseline": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+  "scope": "final bounded diagnostic composition/record review only; metadata final_check correction noted; no independent product test execution",
+  "files": {
+    "REVIEW.md": {
+      "sha256": "13b8149ea57dacdd11b43fde554d208c418bc26fce18b6eefb2e977100000046",
+      "bytes": 10511
+    },
+    "manifest.json": {
+      "sha256": "ac901666263c7082221138bed490eb0bc1e0a6361923d93a140f93a597fe0c73",
+      "bytes": 224061
+    },
+    "audit.py": {
+      "sha256": "2507bd310ef5f6f7f3f22cb6f1c7cf406ffa168c583834155d9d86921e91b0df",
+      "bytes": 10236
+    },
+    "audit.log": {
+      "sha256": "06f80c00c9c40d866ddc122de82487931671fe988d914a1b28f4395b8b2e3225",
+      "bytes": 9439
+    },
+    "audit-results.json": {
+      "sha256": "06f80c00c9c40d866ddc122de82487931671fe988d914a1b28f4395b8b2e3225",
+      "bytes": 9439
+    },
+    "validation-checks.json": {
+      "sha256": "485659c55cdf32f096e9e90152b952878154e3dc7a667c98a80dd961b0bc405a",
+      "bytes": 2127
+    },
+    "offline-owner-checks.json": {
+      "sha256": "d4f18f1245276350a6680ed172ffc2958e65087d9ed6f1eac0bde6ecddca784e",
+      "bytes": 1352
+    },
+    "controller-original.log": {
+      "sha256": "05a3613d05059b8c549c781e19900c067b2620cb562862f9053658d2250d8adf",
+      "bytes": 1525
+    }
+  }
+}
