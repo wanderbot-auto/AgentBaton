@@ -712,6 +712,9 @@ fn checked_runtime_scope_at(
 fn adopted_plan_is_current_head(db: &Connection, r: &GoalRun) -> Result<bool> {
     db.query_row("SELECT EXISTS(SELECT 1 FROM goal_plan_heads WHERE scope_id=?1 AND revision=?2 AND digest=?3)",params![r.scope_id,sql_num(r.plan_revision)?,r.plan_digest],|row|row.get(0)).map_err(db_error)
 }
+fn local_goal_slot_is_occupied(db: &Connection) -> Result<bool> {
+    db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents WHERE state!='stopped') OR EXISTS(SELECT 1 FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))",[],|row|row.get(0)).map_err(db_error)
+}
 fn executable_work(n: &RuntimeNode) -> bool {
     n.state == "not_started"
         && n.node.dependencies.is_empty()
@@ -746,6 +749,9 @@ impl Store {
                 "reserved" | "running" | "stopping" | "outcome_unknown"
             )
         }) {
+            return Ok(None);
+        }
+        if local_goal_slot_is_occupied(&self.conn)? {
             return Ok(None);
         }
         checked_runtime_scope(&self.conn, &r, self.data_input.as_ref())?;
@@ -933,14 +939,14 @@ pub(crate) fn reserve_session(
     }
     let all_active: u32 = db
         .query_row(
-            "SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",
+            "SELECT (SELECT count(*) FROM dispatch_intents WHERE state!='stopped')+(SELECT count(*) FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))",
             [],
             |r| r.get(0),
         )
         .map_err(db_error)?;
     if all_active > 1 {
         return Err(err(
-            "RESOURCE_LIMIT",
+            "WORKSPACE_BUSY",
             "The approved conservative local Goal resource limit is occupied",
         ));
     }
@@ -1606,7 +1612,7 @@ impl Store {
                 return Ok(false);
             }
         }
-        Ok(nodes.iter().any(executable_work))
+        Ok(nodes.iter().any(executable_work) && !local_goal_slot_is_occupied(&self.conn)?)
     }
     /// A durable exact-request intent is not a dispatch receipt. It can always
     /// be recovered without repeating an execution boundary; get shows effects.
