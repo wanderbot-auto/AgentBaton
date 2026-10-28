@@ -15,3 +15,8 @@ Allowed paths are types/guards and related new tests/portable fixtures, minimal 
 
 After the Integrity733 subject and its four records were frozen, Root explicitly allowed actual Data/Command fixtures and positive callback coverage as a separate revision. No production guard change is planned unless an actual contract issue requires one.
 The real Command592 packet contains unsafe renderer u64 inode values; preserve it as a fail-closed renderer negative and lossless Native callback positive. A separate real private-program-location packet may supply the renderer positive later; no fixture fields or scopes are altered.
+
+## Lossless display projection — separately authorized revision
+
+Root authorized minimal goal-graph-api.ts and GoalGraphExecutionHistory.tsx changes after the real system-program u64 boundary was observed. Core adds derived GraphDetails.validations.observation_json only; original receipts, Owner Native Value and persisted result digests remain unchanged.
+Use original UTF-8 SHA-256 verification through existing standard WebCrypto, reject mismatched/missing cryptographic verification, preserve original text for readonly display, and keep summary cancellation separate. Do not relax candidate FilePin, sequence/CAS, limits or scopes; no new parser/dependency/platform.

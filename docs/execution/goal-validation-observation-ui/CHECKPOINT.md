@@ -17,3 +17,8 @@ Only these four execution records change after source freeze. The separate old 4
 
 Source733 and Integrity review are immutable. New test-only Data/Command coverage is being committed independently. Production types/guards are unchanged; only new tests/real fixtures and a new Native test body are added.
 Command592 UI projection is honestly unsupported because of original unsafe u64 inode fields; its Native Value callback coverage remains valid source-only. Await any separately produced safe-inode real Command packet without editing old bytes or blocking current progress indefinitely.
+
+## Lossless production JS revision in progress
+
+Root-authorized paths additionally include goal-graph-api.ts and one readonly History presentation change. Core-derived raw observation text is verified and displayed without altering stored receipts or Native snapshots. Original733 and test-only8a source/evidence remain historical immutable checkpoints.
+Next: freeze new source, run complete Node/type/build and hand it to Root's separate reviewer. Four Native callback tests remain notrun; no Cargo/target/CI/remote action.

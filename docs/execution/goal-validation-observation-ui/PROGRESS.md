@@ -26,3 +26,13 @@
 - Python inspection found four original Command observation root_inode fields equal to 9223372036855074700, above JavaScript MAX_SAFE_INTEGER. The original packet, initial test source and failed log are retained. No conversion to string or relaxed guard is used.
 - Command592 is now an explicit renderer-unsupported negative, while its original u64 remains a meaningful lossless Native callback test. New Native callback test covers complete original Data/Command snapshots, fixed private frame, corresponding actual first receipt and Cancel/no-rejection.
 - Root/Core agreed future Command UI positive must come from an independently produced real private-program-location packet, not edited inode fields. Current revision does not claim that positive or actual Native execution.
+
+## Lossless display revision in progress
+
+- Root/Core replaced the fixture-location workaround with a generic readonly display projection. New raw system-Command526a42e...ed19 /102705B and Data97c079...6d99 /127780B retain original Value and exact observation_json; received bytes/SHA and raw-text SHA/result_digest equality were verified.
+- API get verifies original UTF-8 text with WebCrypto, compares parsed projection shape, and keeps object-bound verification state in a WeakMap. It never sends raw observation back as authority. No raw/unsafe original592 still fails closed.
+- History displays exact original raw text and envelope metadata without reserializing rounded opaque Value. Existing folded layout and readonly behavior remain.
+- Derived observation_json is excluded only from persistent-receipt floor comparisons; original receipt fields/digests still cannot change. Same-CAS display-only upgrade and changed-digest controls added.
+- Targeted new tests passed14/2 and typecheck passed before source freeze. Covered actual Data/system-Command verification, wrong digest/raw/projection/JSON/no-crypto, candidate Pin invariants, mutation/floor/cancellation boundaries, complete visible original text and HTML escaping.
+- An asynchronous projection mutation control initially failed during this implementation. Original source/log are preserved; final verification captures the pre-await projection and rechecks raw/digest/projection after await. The control now passes.
+- Native production/test source remains exactly the separate8a revision; four new callbacks are still not compiled or run. New production JS changes require a fresh complete suite/type/build before independent review.
