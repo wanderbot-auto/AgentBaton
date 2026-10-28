@@ -10,7 +10,7 @@ Core explicitly released Native target after session17749 exit0/no writer. Root 
 
 Next: Core implement real shared-ledger graph finalize/capture/validation/Owner/dependency acceptance; new real IPC harness prepares only fixed methods in separate worktree. Root reviews integration, updates requirement evidence and keeps remaining130 scope open. Product Provider/private identities/newhost/fees/signing/production/license closed. No executorless background promise.
 
-## Schema12 早期集成检查点 — 13:14UTC
+## Schema12 早期集成检查点 — 2026-10-28
 
 Root codex/goal-graph-integration已合入不可变Core WIP5d9a417，仍非最终Graph签收/无PR。protected main仍a1be94d，OWNER001/002再次读取ACK。Core此快照实际Unix提案→私有finalize→原key回执恢复→legacy API隔离1项通过；自动Graph执行门在该快照仍关闭，不能将作者后来Work/capture测试绑定到此旧源。
 

@@ -1,0 +1,99 @@
+{
+  "reviewer": "/root/data_native_integration_review",
+  "source_commit": "85cc8e7e8be9ba660b7755c1df320cbc776c7eca",
+  "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "author_docs_commit": "b88b77aa545cf38a30a4d384808fa398f3780fc2",
+  "source_sha256": {
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "01519ecf98e71f941007e3fa3b00158f3bc8be0f4820b0bbc1e1ea24e7cb8992",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "d21afd62483feb2423e67485352b10fb2ec458bd19df78d7cfff683f36ff3d02",
+    "scripts/native-macos-smoke.sh": "aff60d635cc9a7ef11a7f4004f89ac3cd485b92ecaaa7bb9cf8fae7ca899ec10",
+    "scripts/native-run.py": "f5ed6d82b93dceb4913e250b5ff8ac50577a9c8675979ad09ae76bbddaf2ed23"
+  },
+  "verdict": "PASS source/preservation/Python25+123metadata+syntheticSQL/syntax only; Rust22/Clippy/Core12/Mac NOT_RUN untilRootcomposition+lease",
+  "files": {
+    "FIRST-js.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "FIRST.js": {
+      "sha256": "1d3ab135687baeeb7913cf31af555643a121477471e044611bb28f7b1cb30956",
+      "bytes": 12833
+    },
+    "REVIEW.md": {
+      "sha256": "d698280a4ce817781427708e577687deaa636fdeccde357e84b41ba1164bd718",
+      "bytes": 7051
+    },
+    "SECOND-js.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "SECOND.js": {
+      "sha256": "06b0142f582ccca1dd1c493842e002c93160c57958f9f85dfd6ea14ebace1816",
+      "bytes": 1452
+    },
+    "author-evidence-audit.json": {
+      "sha256": "5a60e7dfff7439efb4774e646f05fcad4a494adfa927d5af3692ed1d0f8f69c6",
+      "bytes": 3183
+    },
+    "author-verification.json": {
+      "sha256": "782f430a6a6c40a0b2bdb9c77eff0398a0ac86e27e0e827cebc3e3ee5934b94c",
+      "bytes": 7907
+    },
+    "bash-syntax.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "frozen-source/apps/desktop/src-tauri/src/bin/native_smoke.rs": {
+      "sha256": "01519ecf98e71f941007e3fa3b00158f3bc8be0f4820b0bbc1e1ea24e7cb8992",
+      "bytes": 100587
+    },
+    "frozen-source/apps/desktop/src-tauri/tests/test_native_runner.py": {
+      "sha256": "d21afd62483feb2423e67485352b10fb2ec458bd19df78d7cfff683f36ff3d02",
+      "bytes": 21700
+    },
+    "frozen-source/scripts/native-macos-smoke.sh": {
+      "sha256": "aff60d635cc9a7ef11a7f4004f89ac3cd485b92ecaaa7bb9cf8fae7ca899ec10",
+      "bytes": 4927
+    },
+    "frozen-source/scripts/native-run.py": {
+      "sha256": "f5ed6d82b93dceb4913e250b5ff8ac50577a9c8675979ad09ae76bbddaf2ed23",
+      "bytes": 15922
+    },
+    "independent-static-proof.json": {
+      "sha256": "3fab97ccd247926c1601070f739213ceffa0d03705125d305019eaf2a160dfb2",
+      "bytes": 28739
+    },
+    "independent-static-proof.py": {
+      "sha256": "e2c953c6cc7106e3e5610ebf2d45e49e447c11d3c309065fa18ac2c3357da311",
+      "bytes": 9513
+    },
+    "python25-command.json": {
+      "sha256": "6a266c78cc75a34ec91475c3f175c8aaca821831719f8a76348a0fe2bf5a36d2",
+      "bytes": 428
+    },
+    "python25.log": {
+      "sha256": "770e9adbeb443fc7fa9cbc1f4ca57b235fcf36ea8b4cf5e6a19e5951ea2740b3",
+      "bytes": 124
+    },
+    "rustfmt-parse-check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "source-diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "source-verification.json": {
+      "sha256": "cbd6d913d0b9511ddeddfc054900feb30caee83f45b3f1177f92c1f3deafd7b1",
+      "bytes": 951
+    },
+    "syntax-commands.json": {
+      "sha256": "c7248b7ae10943c7b744508ba9bb32aa8b9e49ad29a2746c7ac9c029e8e16920",
+      "bytes": 1591
+    },
+    "tmp/sql-unit.sqlite3": {
+      "sha256": "b531020fd616f54b34efad4637eaa5d8c41e064be95df2cb2d6c268d588b33b3",
+      "bytes": 57344
+    }
+  }
+}

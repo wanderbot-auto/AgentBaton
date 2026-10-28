@@ -1,0 +1,21 @@
+{
+  "recorded_at": "2026-10-28T13:40:50.327354+00:00",
+  "source": "85cc8e7e8be9ba660b7755c1df320cbc776c7eca",
+  "author_docs": "b88b77aa545cf38a30a4d384808fa398f3780fc2",
+  "review_sha256": "d698280a4ce817781427708e577687deaa636fdeccde357e84b41ba1164bd718",
+  "manifest_sha256": "4116a4f765f6c929d84ec7263a57075db9badc0c9e1db9afb8c1ab5b0f571ce0",
+  "root_rehashed_evidence": 21,
+  "root_rehashed_source_files": 4,
+  "actual_reviewed": "independent Python25,123 malformed-report refusals,JS/bash/directrustfmt parse/source-preservation",
+  "sql_controls": "synthetic minimal SQLite SQL-unit observations only, not actual Core12",
+  "not_run": [
+    "Rust22harness",
+    "Native Clippy",
+    "actual composed Core12/UI IPC",
+    "macOS",
+    "OS Owner dialog",
+    "whole Goal acceptance"
+  ],
+  "cargo_lease": "Core author sole writer; Root and reviewers did not Cargo",
+  "final_integration_condition": "Final Core12 and production UI bridge must be composed, actual Native lib+22/Clippy and new exact dual Mac/CI/package evidence required before protected merge"
+}
