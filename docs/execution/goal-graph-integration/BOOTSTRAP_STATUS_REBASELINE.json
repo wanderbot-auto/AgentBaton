@@ -1,0 +1,12 @@
+{
+  "reason": "Reviewed authorized execution status changed since previous baseline; exact CI failure preserved",
+  "paths_count": 93,
+  "changed_entries": {
+    "docs/execution/STATUS.md": {
+      "before": "240aa581da67edcbdef0b4d5c13c8401c68872dd674e65513bdfbc1f02ac715d",
+      "after": "73a689ca3b7c059c88d4c97df1b9619a7f7aaf0747db0ebfc4c8bb8e0599aa28"
+    }
+  },
+  "algorithm_note_checker_and_all_other_92_hashes_unchanged": true,
+  "must_be_independently_reviewed_before_remote_stage": true
+}

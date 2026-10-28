@@ -1,5 +1,5 @@
 {
-  "status": "local_graph_six_scenarios_passed_with_explicit_sources_ci_macos_pending",
+  "status": "pr16_ci_UI_passed_environment3_rust_intel_failed_fixes_in_progress",
   "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
   "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
   "postmerge_doc_commands": [
@@ -202,7 +202,21 @@
     "first_head": "3af6b5c391dbce8c7eb4df15844acd255029b919",
     "first_product_run": 40732467344,
     "first_environment_run": 40732467579,
-    "current_ci": "pending final documentation head; no success claim",
-    "formal_approve": "not_submitted"
+    "current_ci": {
+      "product": 40733070149,
+      "environment": 40733070186,
+      "attempt": 1,
+      "ui": "PASS114checks70PNG exactcandidate",
+      "environment3": "FAIL STATUS manifest mismatch",
+      "rust": "FAIL sessions48pass7fail",
+      "intel": "FAIL IOlibunit",
+      "arm": "FAIL same IOunit;Corelib68pass1fail",
+      "evidence": "ci-6912/MANIFEST.json",
+      "product_conclusion": "failure",
+      "native_macos_and_packages": "not_reached"
+    },
+    "formal_approve": "not_submitted",
+    "current_head": "6912fa9b72bc3ab9fbc1ddba18cd76e7c052677c",
+    "actual_checkout": "a11045e6a8f72bb5264c1f4cdbf792f51370bdfa"
   }
 }

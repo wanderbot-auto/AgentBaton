@@ -1,0 +1,11 @@
+{
+  "archive": "BOOTSTRAP_STATUS_REVIEW_EVIDENCE.tar.gz",
+  "sha256": "f6c46584835762eba3b95b4b298ae7ee67a7ebcb8b197e62beeeecde4e45b2a5",
+  "bytes": 1294919,
+  "source_manifest_sha256": "7e70e78d48b9678ba25aa8e3c27ed335b7766ec75a74fbdde88ab299bb0e16c1",
+  "evidence_files": 58,
+  "manifest_included": true,
+  "all_roundtrip_sha256_verified": true,
+  "root": "pr16-bootstrap-status-review/",
+  "status_subject_sha256": "73a689ca3b7c059c88d4c97df1b9619a7f7aaf0747db0ebfc4c8bb8e0599aa28"
+}

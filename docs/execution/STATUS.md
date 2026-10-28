@@ -1,5 +1,23 @@
 # AgentBaton 执行状态
 
+## PR16 首轮已全部结束：仅 UI 成功，双 Mac 未到达桌面/打包
+
+最新API和原日志证实Product40733070149已completed/failure，Environment40733070186亦failure。Apple Silicon job122974542722在2026-10-28 17:24:37UTC结束，Corelib68pass/1fail，正是Intel同一IO rm fixture execute提前INPUT_CHANGED；不是Mac桌面/原生Owner/签名或安装包通过。三个Environment平台原日志均核STATUS hash过期。前段ARM pending保留为此前读取时的历史快照，以ci-6912/MANIFEST.json latest_api_observation为当前结果。
+
+UI同一准确a110候选114/70成功已存；其余问题均由新隔离Core CI portability修复和独审继续处理。Root只更新经审STATUS内容登记hash，93路径/校验算法与原Env检查器不变。原6912失败/旧3af cancelled均保留，不无变化重跑、不借UI绿合入、不formalApprove。
+
+## PR16 首轮准确 CI 结果与修复中检查点
+
+当前feature head6912fa9b72bc3ab9fbc1ddba18cd76e7c052677c，实际checkout a11045e6a8f72bb5264c1f4cdbf792f51370bdfa/tree3a38fc51c4eb237d2ab0d25b4c9812d096e83f6b，Product40733070149 / Environment40733070186（attempt1）。旧3af6两run实际cancelled，不计通过。
+
+UI job真实SUCCESS：artifact12836776815已下载并Root核12报告全部passed，共114 checks/70 PNG；同一准确CI候选新6Graph34/14全部通过，harness4bc91f，实际CI-built daemon a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3。此为Linux UI/生成ACP/真实Unix/Core证据，不借成Mac/真实Provider/全产品。原报告、候选metadata、日志无损归档ci-6912/MANIFEST.json及UI_SUCCESS_SUMMARY.json。
+
+Environment三平台实际FAIL，均在verify_bootstrap_manifest因STATUS登记hash过期；Root对93项逐核，仅STATUS一项差异。将经审查更新该内容hash，保留全部93路径、算法、校验器及原三check名字。不是环境依赖不可用，也不跳过检查。
+
+Product Rust实际sessions55为48pass/7fail：四处portable artifact输出目录缺失；恢复runtime0755被正确拒绝；queue计算仅1085ms未超1200ms所以成功候选与旧测试预期不符；proposal daemon结束INPUT_CHANGED/Drop joinpanic需核生命周期。Intel Corelib先在IO post-command unit execute提前INPUT_CHANGED失败，尚未确定是fixture还是产品，不能假称var/private已定位。ARM尚pending。本轮没有新Mac包或新NativeOwner成功声明。
+
+Core作者在新隔离goal-graph-ci-portability基线6912只修fixture/测试可靠性（sessions_ipc及IO cfg(test)，不动原70a冻结树/锁/授权/生产），独占Native Cargo target，INC0/jobs2/serial。独审已核原CI与初步因果；保留1200/500/1500等原执行期限和安全断言，不能扩大门限求绿。后续精确新源再跑定向/必要全回归与新七项CI；不无变化重触发既有run。完整130范围与原权限边界仍保持，formalApprove未提交。
+
 ## PR16 已建立，最终独审证据已封存
 
 PR https://github.com/wanderbot-auto/AgentBaton/pull/16 当前draft/base main。首head3af6b5c触发Product40732467344和Environment40732467579，本次导入最终独审后将一次normalpush最终文档head，须读取新head七项真实结果；先前run按真实状态保留，不借用成功。没有提交正式Approve。
