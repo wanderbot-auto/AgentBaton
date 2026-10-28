@@ -51,3 +51,13 @@ Root拿回唯一Native Cargo租约后，精确组合实际57库+4Ownercontroller
 新Core40322b+新4fab资产实际重跑原六条browser/Unix IPC全部PASS，80检查/56原图；Root已目视quiet/home1488和execution09。ROOT_LEGACY_BROWSER_FINAL.json逐绑定命令/报告SHA，final-linux保存实际日志（workspace gzip可无损恢复）。九项需求新增明确partial slice，130需求未减少。新Owner-only和五Validator浏览器场景仍待修脚本的receipt/view、原路径、Summary ID和完整多产物计量四处独审错误后实跑；不是产品权限或验收标准放宽。
 
 无Graph PR/新CI/双Mac新包/实际OS Owner对话框结论。main仍a1be94d，PR15双架构包仍最新交付；新CI仅增真实builder后Owner runner contracts的4行，待独审。完整Design剩余范围及原授权限制不变，未formal Approve。
+
+## 新 Graph 实际四模式通过，超时观测器兼容性修复中
+
+最终Core70a仍冻结且已独审593+7；无产品源码/预算/执行阈值变化。harness160e0a0精确SHA9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452已实际Integrity6/3、Data6/3、Command6/3、Data-range5/1通过；前三完整TaskAccepted，失败Data明确blocked/无Owner/Summary/accepted/无退款。Root实际目视Command03与DataRange01原PNG。
+
+前述原Path变量遮错、私有Grant10s过期拒绝及错误root3期望的所有失败保留。诊断真实新root/project均4active0/旧bootstraproot1；同rootGrant历史先seed1，W/V/S再3，所以现正常严格4、失败W/V严格3，Owner-only仍2。未接受多值或放宽上限。
+
+Command-timeout目前整体验证失败：私有/proc task children observer5s未捕获PID，Core真实journal已记录worker started→settled failed/stopconfirmed/workerjoined/runtime1803ms；不能因此假称未执行或省去真实PID证据。作者独立轻控确证本managed/proc没有task/tid/children文件，原helper对自身实际sleep3也返回None。正在增加有限metadata父PID筛选fallback，先筛私有daemon直接child再读argv/PGID/startticks，不读无关argv、不全局signal、不提高product1500ms/observer5s。
+
+当前无Graph PR/新CI/Mac或新包结论，feature最新已normalpush47eb0d4；最新独审通过新增4行真实Core Python CI接线与RootLinux Native57+4+22证据，原Env3/四Product lanes/45min/权限不变。继续修复→实际timeout/Owner→独审→PR/CI，完整130范围不变。

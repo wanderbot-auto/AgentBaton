@@ -1,0 +1,49 @@
+{
+  "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f",
+  "dimension": "Pure Python inspection of supplied actual Core packets and exact90d source, no Core/Chromium/Cargo/process invocation",
+  "counterexamples": [
+    {
+      "packet": "/workspace/.worktrees/goal-observation-lossless-review/apps/desktop/src/goal-graph-actual-lossless-data-fixture.json",
+      "packet_sha256": "97c07926adf05f4bc04bcbeed97adc6d6aea59cbbcaa10d6aaeebad19a456d99",
+      "view_equals_original_receipt": false,
+      "strip_only_display_equals_original": true,
+      "view_extra_keys": [
+        "observation_json"
+      ],
+      "raw_UTF8_sha_equals_result_digest": true,
+      "summary_actual_node_id": "independent-4",
+      "old_owner_summary_comparison_selected_candidates": 0,
+      "actual_summary_receipt_artifacts": 1,
+      "producer_artifacts_count": 3,
+      "producer_first_artifact_bytes": 633,
+      "producer_sum_artifact_bytes": 734,
+      "producer_actual_output_bytes": 734,
+      "old_first_artifact_byte_assertion_matches": false
+    },
+    {
+      "packet": "/workspace/.worktrees/goal-observation-lossless-review/apps/desktop/src/goal-graph-actual-lossless-command-fixture.json",
+      "packet_sha256": "526a42e1775785b82eaf420af9dd6fd9a3f3c299f885f1535ab23835a812ed19",
+      "view_equals_original_receipt": false,
+      "strip_only_display_equals_original": true,
+      "view_extra_keys": [
+        "observation_json"
+      ],
+      "raw_UTF8_sha_equals_result_digest": true,
+      "summary_actual_node_id": "independent-2",
+      "old_owner_summary_comparison_selected_candidates": 1,
+      "actual_summary_receipt_artifacts": 1,
+      "producer_artifacts_count": 1,
+      "producer_first_artifact_bytes": 12,
+      "producer_sum_artifact_bytes": 12,
+      "producer_actual_output_bytes": 12,
+      "old_first_artifact_byte_assertion_matches": true
+    }
+  ],
+  "scope_path_static": "Owner-only90d goal_scopes.propose supplies relative_path=file, while generated produce-report demands inputs/file; Core prompt_inputs clones bound artifact path, no prefix rewrite",
+  "four_blockers": [
+    "derived view compared directly to original persisted receipt",
+    "Data summary owner comparison hardcodes independent-2 instead of independent-4",
+    "Data producer output count checked against first artifact instead of complete sum",
+    "Owner-only file input mismatches generic ACP inputs/file expectation"
+  ]
+}

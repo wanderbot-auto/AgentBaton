@@ -1,0 +1,7 @@
+{
+  "dimension": "post-failed-driver read-only exact frozen-daemon executable process scan",
+  "known_failed_runtime": "/tmp/baton-graph-ccenm616/runtime",
+  "remaining_exact_daemon_processes": [],
+  "no_signals_sent": true,
+  "not_proof_of_all_possible_descendants": true
+}

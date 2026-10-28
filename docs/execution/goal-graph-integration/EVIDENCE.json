@@ -64,11 +64,67 @@
       "source_map": "ROOT_NATIVE_SOURCES.json"
     },
     "browser_new_modes": {
-      "current_corrected_runtime": "not_run",
-      "prior_current_harness_runtime": "not_run",
+      "current_corrected_runtime": {
+        "status": "awaiting_bounded_private_process_observer_compatibility_fix",
+        "cause_actual_control": "Managed Linux exposes task/tid directories but no task/tid/children files; original helper also returnedNone for actual self-owned sleep3 child with correct argv/pgid",
+        "unchanged": "Core70a full source/locks/budgets/timing and four successful modes remain frozen"
+      },
+      "prior_current_harness_runtime": {
+        "source": "7d80c2cc258669dd82bf235ad8753c5373705e70",
+        "sha256": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
+        "owner_only": "PASS 6checks3PNG",
+        "integrity": "FAIL TypeError output directory parameter shadowed; final report not written, first exception masked",
+        "other_modes": "not_run after stop-on-failure",
+        "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-new",
+        "cleanup_limit": "Exact frozen daemon process scan empty after failure; not proof of all descendants"
+      },
       "prior_static_actual_packet_counterexamples": "four blocking fixture adaptation failures reproduced and retained, no daemon/browser involved",
       "counterexamples_local": "/workspace/.onboarding/goal-graph-driver-90d-review/actual-packet-counterexamples.json",
-      "old_owner_only_runtime": "5b7e401/oldCore5541 actual6checks/3PNG, preserved separately and not borrowed as newGraph pass"
+      "old_owner_only_runtime": "5b7e401/oldCore5541 actual6checks/3PNG, preserved separately and not borrowed as newGraph pass",
+      "prior_static_review": "BROWSER_90D_BLOCKED_REVIEW.md",
+      "prior_static_counterexamples": "BROWSER_90D_STATIC_FAILURES.json",
+      "runtime_attempts": [
+        {
+          "source": "7d80c2cc258669dd82bf235ad8753c5373705e70",
+          "sha256": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
+          "owner_only": "PASS 6checks3PNG",
+          "integrity": "FAIL TypeError output directory parameter shadowed; final report not written, first exception masked",
+          "other_modes": "not_run after stop-on-failure",
+          "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-new",
+          "cleanup_limit": "Exact frozen daemon process scan empty after failure; not proof of all descendants"
+        },
+        {
+          "source": "c3e7e192bfa475c9a6771227550d09667640b3cd",
+          "harness_sha256": "3be92d90f6da058eb8b7c54fb2d1a93979a68418885f83647a537e09c30814c0",
+          "owner_only": "PASS6/3",
+          "integrity": "FAIL final Owner correctly refused expired10s private Grant;2checks3PNG, daemon exited0/no forced kill/owned identities gone",
+          "other_modes": "not_run after stop-on-failure",
+          "evidence": "final-linux/browser-expired-grant/FAILURE.json"
+        },
+        {
+          "source": "fd1654a9224bbcb3c7296381b73c9ad6479fb52e",
+          "integrity": "FAIL post-TaskAccepted strict ordinary root budget expectation3; no actual SQL diagnostic yet",
+          "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-grantfix/integrity/report.json"
+        },
+        {
+          "source": "6a8cf49136545ac800042870426ad61001d5b8a3",
+          "integrity": "FAIL original strict expectation3; actual new root4/project4/oldroot1, active0; same root-grant history inherited correctly",
+          "evidence": "final-linux/browser-budget-diagnostic/DIAGNOSTIC.json"
+        },
+        {
+          "source": "160e0a07d0bebb19e7ff1881e1cd25cf4ac3875a",
+          "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+          "actual_results": {
+            "integrity": "PASS6/3",
+            "data": "PASS6/3",
+            "command": "PASS6/3",
+            "data-range": "PASS5/1",
+            "command-timeout": "FAIL private /proc children observer returnedNone; actual journal validator failed with owned-stop/join, cannot infer absent command",
+            "owner-only": "not_run after stop-on-failure"
+          },
+          "archive": "final-linux/browser-shared-history-first/results.json"
+        }
+      ]
     },
     "new_ci": "not_run",
     "new_macos": "not_run",

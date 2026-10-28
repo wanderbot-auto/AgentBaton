@@ -1,0 +1,49 @@
+[
+  {
+    "case": "owner-only",
+    "command": [
+      "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py",
+      "--batond",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+      "--candidate-manifest",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/manifest.json",
+      "--frontend",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist",
+      "--chromium",
+      "/usr/bin/chromium",
+      "--output",
+      "/workspace/.onboarding/goal-graph-final-browser-new/owner-only",
+      "--owner-only"
+    ],
+    "exit_code": 0,
+    "seconds": 13.63,
+    "log_sha256": "553172691db9bc251d93666f7d37dd16deac855bdce9cd3e71163425cf37babe",
+    "status": "passed",
+    "checks": 6,
+    "screenshots": 3,
+    "report_sha256": "8e817ba7e2c390b92bb2aac654bbed994ab128f4cc9c2b8ed03a3a7dd23b02cd"
+  },
+  {
+    "case": "integrity",
+    "command": [
+      "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py",
+      "--batond",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+      "--candidate-manifest",
+      "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/manifest.json",
+      "--frontend",
+      "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist",
+      "--chromium",
+      "/usr/bin/chromium",
+      "--output",
+      "/workspace/.onboarding/goal-graph-final-browser-new/integrity",
+      "--validation-case",
+      "integrity"
+    ],
+    "exit_code": 1,
+    "seconds": 7.42,
+    "log_sha256": "b887fe1eafd46c3994420b56a835d1003f46ea6fdb2ba3cb902eb8c2ddb65a4d"
+  }
+]

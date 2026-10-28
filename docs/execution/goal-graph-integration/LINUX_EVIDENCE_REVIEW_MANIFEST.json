@@ -1,0 +1,40 @@
+{
+  "verdict": "NO_REMAINING_BLOCKER_IN_CORRECTED_EVIDENCE_SCOPE",
+  "root_head": "93c6beab3a488332567b04ca45b2f489c616d044",
+  "source_core": "70a48d41663108337529915358109026e98ddf98",
+  "original_final_independent_unchanged": true,
+  "cargo_browser_ci_run": false,
+  "findings_closed": [
+    "stale_top_level_stage",
+    "portable_original_evidence_mapping",
+    "latest_checkpoint_state",
+    "quiet_asset_and_graph_attempt_attribution"
+  ],
+  "inputs": {
+    "root_head": "93c6beab3a488332567b04ca45b2f489c616d044",
+    "requirements_comparison_baseline": "12f1a1ad3d6d7ebe20422921f3a45285355230de",
+    "sha256": {
+      "CORE_70A_REVIEW.md": "6fa33c78df8163d8c668099b49a52b79edf75e282ce1397bcea8eb30aa78eb24",
+      "CORE_70A_REVIEW_MANIFEST.json": "7564108900b142dbd73753637c750c99754261b1be1cf39715966472eb123a00",
+      "CORE_70A_COUNTS.json": "175da0c2475afb6a498d55c70236e66f00479ffe9f75ca6f713ae008fac7717d",
+      "CORE_70A_IMPORT.json": "d887be0e6e4cbde941e51d00729dee01e38dba44d244b3a368a76efb2931865d",
+      "CORE_70A_REVIEW_EVIDENCE.tar.gz": "52e43d7e41199bc2a1aede6d2c7dc718dfc3074517705880bf25cc18db24d9f0",
+      "CORE_70A_COMPOSITION.json": "a4bde3b490ab43c7717a273ff9f724a6d1720a4820d2d3654eb803291becc7a0",
+      "ROOT_NATIVE_FINAL.json": "fba24401a8be71fd7a269f7b35af7295062e44717af3f37e38e420a0facae812",
+      "ROOT_NATIVE_SOURCES.json": "848204fd44584a8069934dbf5bfecf9c03c5a13871e10483e0f91d1f29409555",
+      "FINAL_LINUX_LOGS.json": "82e275447995fead83576eb2b5375037dd8491a99161cf426fe5aa3d6d398dfa",
+      "ROOT_LEGACY_BROWSER_FINAL.json": "8f0e311b35dbb25badc0ea0cce0901427783d25c3135f2fa868f4687d29552a0",
+      "EVIDENCE.json": "6256703dca47f8ae220387738d1a2a21618e01f46d7b7b65e3407552d5af486c",
+      "PROGRESS.md": "052913e329653b1c96d538416458d236fa3c98121757b4bd187df6082ac5f63b",
+      "CHECKPOINT.md": "4c3f7cfd1f16cb07babb2691f1c7bdce4da07dad0b7e0cccb702e3d4469ab050",
+      "requirements-progress.json": "49c2db9ce6cabcb2b97fa7fa7ec7c3e0f4afcb4ea404a5379d25b421bdf659e6"
+    }
+  },
+  "evidence_sha256": {
+    "inputs.json": "4b1a1308e7697b6fd74e8037569bef4a08550e11bae562dab4ae8a1f408ae1b1",
+    "check.py": "5e842c1a9c9e386ba49465a9e8e175ec5625c35b1a8ba848d485829981b1faf4",
+    "checks.json": "2170b66fad0c67003b3d2a2cb6a96ce73e926c5cabeafe6f5c81e6bf2fb35824",
+    "REVIEW.md": "006aac401fe1907c1516ad27332d350eaefcfbb147368f65796a41f465e667b0",
+    "CHECKER_NOTES.json": "04f26f59f24761f692ab36f29a8a79547fa54b87150295d3998fa3904e28bc51"
+  }
+}

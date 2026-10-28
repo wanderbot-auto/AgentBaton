@@ -1,0 +1,77 @@
+{
+  "source": "c3e7e192bfa475c9a6771227550d09667640b3cd",
+  "harness_sha256": "3be92d90f6da058eb8b7c54fb2d1a93979a68418885f83647a537e09c30814c0",
+  "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+  "status": "failed_or_interrupted",
+  "exception": "PERMISSION_DENIED: Execution grant or an ancestor is revoked or expired at final Owner",
+  "checks_completed": 2,
+  "screenshots": 3,
+  "private_initial_grant_lifetime_ms": 10000,
+  "seconds": 13.34,
+  "report_raw_sha256": "0be910263244b294ac59c71502411ebfbcdc219ae37fd6641df0b8ad226e7bc9",
+  "report_gzip_sha256": "f5d436dbc3fa2c53bfbe552910a8ec49f567caa6c5d203b33eb3776e0e5ca96b",
+  "all_cleanup": [
+    {
+      "action": "HTTP serve thread joined",
+      "thread_alive": false
+    },
+    {
+      "action": "HTTP server closed and request handlers joined",
+      "active_handlers": []
+    },
+    {
+      "action": "owned daemon wait completed",
+      "pid": 808941,
+      "termination_requested": true,
+      "wait_exitcode": 0,
+      "forced_sigkill": false,
+      "process_not_alive": true
+    },
+    {
+      "action": "generated process original identity not alive",
+      "marker": "fixture-owned-e9c1e8cd-0220-4b63-aada-75bfd3e83c34.json",
+      "marker_sha256": "76947578b2ec6dacd89ffbac379bf3ae004e4b4949025dad40a950b2383f22fe",
+      "expected_identity": {
+        "pid": 809238,
+        "pgid": 809238,
+        "start_ticks": "7538987"
+      },
+      "observed_start_ticks": null,
+      "original_process_not_alive": true,
+      "pid_exists": false,
+      "matched_real_task_request": false,
+      "signal_sent": false
+    },
+    {
+      "action": "generated process original identity not alive",
+      "marker": "fixture-owned-ec913d95-792b-4f65-87c9-3b17eeb3f5ac.json",
+      "marker_sha256": "9095aac9834a7abd16b0a03983b8a0076093a002f45c6d949f6c2a83d24a9b43",
+      "expected_identity": {
+        "pid": 809187,
+        "pgid": 809187,
+        "start_ticks": "7538551"
+      },
+      "observed_start_ticks": null,
+      "original_process_not_alive": true,
+      "pid_exists": false,
+      "matched_real_task_request": false,
+      "signal_sent": false
+    },
+    {
+      "action": "generated process original identity not alive",
+      "marker": "fixture-owned-c6c3096c-9531-4bf6-b3f3-ac23c081f2a3.json",
+      "marker_sha256": "8cdd7abc1a1a410f8e83d058fa6dd5d07a7f29cdab64d029f32f87f446341742",
+      "expected_identity": {
+        "pid": 808987,
+        "pgid": 808987,
+        "start_ticks": "7538231"
+      },
+      "observed_start_ticks": null,
+      "original_process_not_alive": true,
+      "pid_exists": false,
+      "matched_real_task_request": true,
+      "signal_sent": false
+    }
+  ],
+  "note": "Real product refusal preserved. Pending fixture correction affects private initial Grant lifetime only; Goal and node execution/runtime/resource limits remain unchanged."
+}
