@@ -104,7 +104,7 @@ def main():
         binary_entry = manifest['binaries']['batond']
         expected_binary = binary_entry['sha256'] if isinstance(binary_entry, dict) else binary_entry
         assert manifest['schema'] == 11 and expected_binary == report['daemon_sha256']
-        report['candidate'] = {'manifest_sha256': sha(manifest_bytes), 'status': manifest['status'],
+        report['candidate'] = {'manifest_sha256': sha(manifest_bytes), 'status': manifest.get('status'),
                                'git_head': manifest['git_head'], 'dirty': manifest['dirty'],
                                'source_tree_sha256': manifest['source_tree_sha256'],
                                'not_final_review_or_ci_acceptance': True}
