@@ -1463,8 +1463,12 @@ def owner_only_driver(args, output: Path) -> int:
                             assert db.execute('SELECT count(*) FROM attempts').fetchone()[0] == 3
                             assert db.execute('SELECT count(*) FROM sessions').fetchone()[0] == 2
                             assert db.execute('SELECT count(*) FROM goal_graph_acceptances').fetchone()[0] == 0
-                            for scope_name, consumed in [('project:' + project['id'], 3), ('root:' + task['id'], 2)]:
-                                assert db.execute('SELECT consumed,active FROM budgets WHERE scope=?', [scope_name]).fetchone() == (consumed, 0)
+                            report['observations']['observed_budgets'] = {name: {'consumed': used, 'active': active}
+                                for name, used, active in db.execute('SELECT scope,consumed,active FROM budgets')}
+                            # Shared bootstrap1 + Work1 + Validate1; no Summary.
+                            for scope_name, consumed in [('project:' + project['id'], 3), ('root:' + task['id'], 3)]:
+                                actual_budget = db.execute('SELECT consumed,active FROM budgets WHERE scope=?', [scope_name]).fetchone()
+                                assert actual_budget == (consumed, 0), {'key': scope_name, 'actual': actual_budget, 'expected': (consumed, 0)}
                             new_bytes = sum(a['bytes'] for a in candidate['artifacts']) + proof['new_output_bytes']
                             for key in ['project:' + project['id'], 'root-grant:' + grant['id']]:
                                 ledger = json.loads(db.execute('SELECT document FROM goal_ledgers WHERE scope=?', [key]).fetchone()[0])
