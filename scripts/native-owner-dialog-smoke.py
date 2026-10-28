@@ -10,6 +10,7 @@ import hashlib
 import importlib.util
 import ctypes
 import json
+import math
 import os
 import platform
 from pathlib import Path
@@ -104,10 +105,27 @@ def database(runtime, proposal_id):
             'proposal': proposal, 'proposal_result': result, 'grants': grants, 'events': events, 'counts': counts}
 
 
+def json_exact(left, right):
+    """JSON value equality with distinct bool/int/float types; no coercion."""
+    if type(left) is not type(right):
+        return False
+    if type(left) is dict:
+        return (all(type(key) is str for key in left) and all(type(key) is str for key in right)
+                and left.keys() == right.keys()
+                and all(json_exact(left[key], right[key]) for key in left))
+    if type(left) is list:
+        return len(left) == len(right) and all(json_exact(a, b) for a, b in zip(left, right))
+    if type(left) is float:
+        return math.isfinite(left) and math.isfinite(right) and left == right
+    return type(left) in (str, int, bool, type(None)) and left == right
+
+
 def pending_error(value, proposal, sequence):
-    if (value.get('read_only') is not True or value.get('schema_version') != 12
-            or type(value.get('sequence')) is not int or value['sequence'] != sequence
-            or value.get('proposal') != proposal or proposal.get('kind') != 'grant'
+    if (type(sequence) is not int or type(proposal.get('revision')) is not int
+            or proposal['revision'] <= 0
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 12)
+            or type(value.get('sequence')) is not int or not json_exact(value['sequence'], sequence)
+            or not json_exact(value.get('proposal'), proposal) or proposal.get('kind') != 'grant'
             or proposal.get('consumed') is not False or value.get('proposal_result') is not None
             or value.get('grants') != [] or not isinstance(value.get('counts'), dict)
             or set(value['counts']) != set(ZERO_TABLES)
@@ -141,14 +159,16 @@ def grant_enforcement():
 def approved_error(value, proposal, baseline, response):
     grants = value.get('grants')
     current = value.get('proposal', {})
-    if (value.get('read_only') is not True or value.get('schema_version') != 12
+    if (type(baseline) is not int or type(proposal.get('revision')) is not int
+            or proposal['revision'] <= 0
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 12)
             or not isinstance(grants, list) or len(grants) != 1
-            or current.get('id') != proposal['id'] or current.get('snapshot') != proposal['snapshot']
+            or current.get('id') != proposal['id'] or not json_exact(current.get('snapshot'), proposal['snapshot'])
             or current.get('kind') != 'grant' or current.get('consumed') is not True
-            or type(current.get('revision')) is not int or current['revision'] != proposal['revision'] + 1
+            or type(current.get('revision')) is not int or not json_exact(current['revision'], proposal['revision'] + 1)
             or not opaque_id(grants[0].get('id')) or not opaque_id(grants[0].get('approval_id'))
-            or value.get('proposal_result') != grants[0] or response.get('result') != grants[0]
-            or response.get('error') is not None or type(value.get('sequence')) is not int or value['sequence'] != baseline + 2
+            or not json_exact(value.get('proposal_result'), grants[0]) or not json_exact(response.get('result'), grants[0])
+            or response.get('error') is not None or type(value.get('sequence')) is not int or not json_exact(value['sequence'], baseline + 2)
             or not isinstance(value.get('counts'), dict)
             or set(value['counts']) != set(ZERO_TABLES)
             or any(type(n) is not int or n != 0 for n in value['counts'].values())):
@@ -156,17 +176,17 @@ def approved_error(value, proposal, baseline, response):
     grant = grants[0]
     intent = proposal['snapshot']['intent']
     if (grant.get('project_id') != intent['project_id']
-            or grant.get('scope') != grant_scope(intent)
+            or not json_exact(grant.get('scope'), grant_scope(intent))
             or any(type(grant['scope'].get(k)) is not int for k in ['max_attempts', 'max_concurrency', 'max_duration_ms', 'max_depth', 'max_children'])
-            or grant.get('enforcement') != grant_enforcement()
+            or not json_exact(grant.get('enforcement'), grant_enforcement())
             or any(type(grant['enforcement'].get(k)) is not bool for k in grant_enforcement()) or grant.get('parent_id') is not None
             or grant.get('root_grant_id') != grant.get('id') or type(grant.get('depth')) is not int or grant['depth'] != 0
             or type(grant.get('revision')) is not int or grant['revision'] != 1
             or grant.get('revoked') is not False or grant.get('scope', {}).get('workspace_ids') != [intent['workspace_id']]
             or grant['scope'].get('connection_ids') != [intent['connection_id']]
             or any(grant['scope'].get(k) != intent[k] for k in ['max_attempts', 'max_concurrency', 'max_duration_ms'])
-            or grant.get('workspace_bindings') != {intent['workspace_id']: proposal['snapshot']['refs']['workspace_identity']}
-            or grant.get('connection_bindings') != {intent['connection_id']: proposal['snapshot']['refs']['connection']}):
+            or not json_exact(grant.get('workspace_bindings'), {intent['workspace_id']: proposal['snapshot']['refs']['workspace_identity']})
+            or not json_exact(grant.get('connection_bindings'), {intent['connection_id']: proposal['snapshot']['refs']['connection']})):
         return 'Committed root Grant does not match the exact bounded intent and resolved bindings'
     grant_events = [e for e in value.get('events', []) if e.get('kind') == 'execution_grant.approved']
     expected_grant_event = {'grant_id': grant['id'], 'project_id': grant['project_id'],
@@ -174,15 +194,15 @@ def approved_error(value, proposal, baseline, response):
                             'scope': grant['scope'], 'enforcement': grant['enforcement']}
     if (len(grant_events) != 1 or grant_events[0].get('aggregate_id') != grant['id']
             or grant_events[0].get('source') != 'user_action'
-            or type(grant_events[0].get('revision')) is not int or grant_events[0]['revision'] != grant['revision']
-            or type(grant_events[0].get('sequence')) is not int or grant_events[0]['sequence'] != baseline + 1
-            or grant_events[0].get('payload') != expected_grant_event):
+            or type(grant_events[0].get('revision')) is not int or not json_exact(grant_events[0]['revision'], grant['revision'])
+            or type(grant_events[0].get('sequence')) is not int or not json_exact(grant_events[0]['sequence'], baseline + 1)
+            or not json_exact(grant_events[0].get('payload'), expected_grant_event)):
         return 'Exact persisted execution_grant.approved event missing'
     confirmations = [event for event in value.get('events', []) if event.get('aggregate_id') == proposal['id'] and event.get('kind') == 'approval.confirmed']
     if (len(confirmations) != 1 or confirmations[0].get('source') != 'local_owner_confirmation'
-            or confirmations[0].get('revision') != current['revision']
-            or type(confirmations[0].get('sequence')) is not int or confirmations[0]['sequence'] != baseline + 2
-            or confirmations[0].get('payload') != {'kind': 'grant', 'proposal_id': proposal['id'], 'consumed': True}):
+            or not json_exact(confirmations[0].get('revision'), current['revision'])
+            or type(confirmations[0].get('sequence')) is not int or not json_exact(confirmations[0]['sequence'], baseline + 2)
+            or not json_exact(confirmations[0].get('payload'), {'kind': 'grant', 'proposal_id': proposal['id'], 'consumed': True})):
         return 'Exact single Core Owner confirmation event missing'
     return None
 
@@ -233,10 +253,12 @@ def presentation_prompts(message):
 
 
 def presentation_error(observed, proposal, prompts, phase, index):
-    if (observed.get('phase') != phase or observed.get('presentation_index') != index
-            or observed.get('presentation_count') != len(prompts)
+    if (type(index) is not int or not 0 <= index < len(prompts)
+            or type(proposal.get('revision')) is not int or proposal['revision'] <= 0
+            or observed.get('phase') != phase or not json_exact(observed.get('presentation_index'), index)
+            or not json_exact(observed.get('presentation_count'), len(prompts))
             or observed.get('proposal_id') != proposal['id']
-            or observed.get('proposal_revision') != proposal['revision']
+            or not json_exact(observed.get('proposal_revision'), proposal['revision'])
             or observed.get('message') != prompts[index]
             or observed.get('title') != 'AgentBaton — Native owner approval'
             or observed.get('parent_matches') is not True

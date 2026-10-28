@@ -209,6 +209,86 @@ class OwnerRunnerControls(unittest.TestCase):
             changed['grants'][0][container][field] = wrong
             self.assertIsNotNone(runner.approved_error(changed, proposal, 9, {'result': changed['grants'][0]}), (container, field))
 
+    def test_independent_json_records_reject_four_nested_boolean_number_tampers(self):
+        # JSON decode gives distinct records, unlike deepcopy of an aliased
+        # synthetic fixture. Native response/DB/event records are independent.
+        cases = [('grant_event_scope', True), ('grant_event_enforcement', 1),
+                 ('response_scope', True), ('proposal_result_scope', True)]
+        for mode, wrong in cases:
+            with self.subTest(mode=mode):
+                proposal, after, response = runner.json.loads(runner.json.dumps(approved()))
+                if mode == 'grant_event_scope':
+                    after['events'][0]['payload']['scope']['max_attempts'] = wrong
+                elif mode == 'grant_event_enforcement':
+                    after['events'][0]['payload']['enforcement']['baton_mediated_scope'] = wrong
+                elif mode == 'response_scope':
+                    response['result']['scope']['max_attempts'] = wrong
+                else:
+                    after['proposal_result']['scope']['max_attempts'] = wrong
+                self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
+
+    def test_typed_json_equality_preserves_json_types_and_nested_values(self):
+        for left, right in [(True, 1), (1, 1.0), (False, 0.0), ({'x': True}, {'x': 1}),
+                            ([1, {'x': 2}], [1, {'x': 2.0}]), (None, False), ({'x': 1}, {'x': 1, 'y': None})]:
+            self.assertFalse(runner.json_exact(left, right))
+            self.assertFalse(runner.json_exact(right, left))
+        self.assertTrue(runner.json_exact({'id': '你好', 'values': [True, 1, 1.0, None]},
+                                          {'values': [True, 1, 1.0, None], 'id': '你好'}))
+        self.assertFalse(runner.json_exact(float('nan'), float('nan')))
+        self.assertFalse(runner.json_exact(float('inf'), float('inf')))
+
+    def test_independent_snapshots_refs_and_float_payload_tampers_are_rejected(self):
+        cases = ['snapshot_device', 'workspace_binding', 'connection_binding', 'response_float',
+                 'event_float', 'confirmation_bool']
+        for mode in cases:
+            with self.subTest(mode=mode):
+                proposal, after, response = runner.json.loads(runner.json.dumps(approved()))
+                if mode == 'snapshot_device':
+                    after['proposal']['snapshot']['refs']['workspace_identity']['device'] = True
+                elif mode == 'workspace_binding':
+                    for record in [after['grants'][0], after['proposal_result'], response['result']]:
+                        record['workspace_bindings']['workspace']['device'] = True
+                elif mode == 'connection_binding':
+                    for record in [after['grants'][0], after['proposal_result'], response['result']]:
+                        record['connection_bindings']['connection']['revision'] = 2.0
+                elif mode == 'response_float':
+                    response['result']['scope']['max_duration_ms'] = 1000.0
+                elif mode == 'event_float':
+                    after['events'][0]['payload']['scope']['max_duration_ms'] = 1000.0
+                else:
+                    after['events'][1]['payload']['consumed'] = 1
+                self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
+        proposal, pending_value = pending()
+        pending_value = runner.json.loads(runner.json.dumps(pending_value))
+        pending_value['proposal']['snapshot']['refs']['workspace_identity']['device'] = True
+        self.assertIsNotNone(runner.pending_error(pending_value, proposal, 9))
+
+    def test_scalar_schema_and_event_cas_types_never_coerce(self):
+        cases = ['confirmed_revision_float', 'approved_schema_float', 'pending_schema_float',
+                 'grant_revision_bool', 'grant_revision_float', 'reference_revision_bool',
+                 'reference_revision_float']
+        for mode in cases:
+            with self.subTest(mode=mode):
+                proposal, after, response = runner.json.loads(runner.json.dumps(approved()))
+                if mode == 'pending_schema_float':
+                    reference, value = pending()
+                    value['schema_version'] = 12.0
+                    self.assertIsNotNone(runner.pending_error(value, reference, 9))
+                    continue
+                if mode == 'confirmed_revision_float':
+                    after['events'][1]['revision'] = 2.0
+                elif mode == 'approved_schema_float':
+                    after['schema_version'] = 12.0
+                elif mode == 'grant_revision_bool':
+                    after['events'][0]['revision'] = True
+                elif mode == 'grant_revision_float':
+                    after['events'][0]['revision'] = 1.0
+                elif mode == 'reference_revision_bool':
+                    proposal['revision'] = True
+                else:
+                    proposal['revision'] = 1.0
+                self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
+
     def test_host_client_cannot_finalize_grant_or_generic_mutation(self):
         client = runner.NativeCoreClient(Path('/does-not-exist'))
         client.connection_proposal = 'generated-connection-only'
@@ -467,6 +547,20 @@ class PresentationControls(unittest.TestCase):
             self.assertTrue(all(len(prompt) < 1024 for prompt in prompts))
         with self.assertRaises(ValueError):
             runner.presentation_prompts('x' * (1_048_576 + 32_769))
+
+    def test_page_cas_and_index_counts_do_not_coerce_boolean_or_float(self):
+        proposal = {'id': 'proposal', 'revision': 1}
+        prompts = runner.presentation_prompts('complete message')
+        value = {'phase': 'approve', 'presentation_index': 1, 'presentation_count': len(prompts),
+                 'proposal_id': 'proposal', 'proposal_revision': 1, 'message': prompts[1],
+                 'title': 'AgentBaton — Native owner approval', 'parent_matches': True,
+                 'visible': True, 'complete_text_visible': True}
+        self.assertIsNone(runner.presentation_error(value, proposal, prompts, 'approve', 1))
+        for field, wrong in [('presentation_index', True), ('presentation_index', 1.0),
+                             ('presentation_count', float(len(prompts))), ('proposal_revision', True),
+                             ('proposal_revision', 1.0)]:
+            changed = {**value, field: wrong}
+            self.assertIsNotNone(runner.presentation_error(changed, proposal, prompts, 'approve', 1))
 
     def test_partial_or_reordered_foreign_or_offscreen_page_has_no_host_permit(self):
         proposal = {'id': 'proposal', 'revision': 3}
