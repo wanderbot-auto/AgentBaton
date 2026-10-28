@@ -22,8 +22,8 @@
     "AB-SEC-004",
     "AB-REL-001"
   ],
-  "status": "owner_only_driver_connected_runtime_pending",
-  "source_sha256": "fcca93a28914503a531ace98bf777eb2920b5eae4e344f48af47a98e87890a4f",
+  "status": "owner_only_actual_pass_pending_independent_review_not_full_graph",
+  "source_sha256": "84e90a6bf6250441c39da2f4ebf09ca59dc75401b10d870859452f81d5315129",
   "wire_at_preparation": {
     "path": "/workspace/.worktrees/goal-validation-graph/docs/execution/goal-validation-graph/WIRE_CONTRACT.json",
     "sha256": "034c2103b294502ee57ae5706530327a48e951395a4b329877c6b006e5e2931a",
@@ -125,6 +125,66 @@
         "sha256": "8bf86008d4ed7bbb0889ff71ab4ba90b0e6597ea79e8b2d1364b261d5f024a6d",
         "bytes": 350
       }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --self-check --output /workspace/.onboarding/goal-graph-real-ipc/transport-quality-boundary-1",
+      "exit_code": 0,
+      "count": 58,
+      "harness_sha256_at_check": "f612a20cb6f803c37fa67fe8493532eac8eb3cfedffde04ed7a46a68045b501c",
+      "source_at_check": "f0deb2790eb39c9b8d2cb3fadfa5ab797089fa94; later 5b7e401 changes only async plan-observer list, classifier/boundary/constructor unchanged",
+      "dimension": "pure outgoing HTTP boundary checks with synthetic arguments; no Core/browser/model/candidate/TaskAccepted execution",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/transport-quality-boundary-1/boundary-checks.json",
+        "sha256": "efe47120639a0e3f42e67c6f29a9ddbe5fd171a1c91ad20e51030f92b5afc01b",
+        "bytes": 6251
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --driver-self-check --output /workspace/.onboarding/goal-graph-real-ipc/transport-quality-driver-1",
+      "exit_code": 0,
+      "count": 15,
+      "harness_sha256_at_check": "f612a20cb6f803c37fa67fe8493532eac8eb3cfedffde04ed7a46a68045b501c",
+      "source_at_check": "f0deb2790eb39c9b8d2cb3fadfa5ab797089fa94; later 5b7e401 changes only async plan-observer list, classifier/boundary/constructor unchanged",
+      "dimension": "static plan constructor/generated Python syntax/manifest negatives and isolated readonly FD controls; no Core/browser execution or minted receipts",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/transport-quality-driver-1/driver-static-checks.json",
+        "sha256": "c99eff3526d7b9e019fc4d380b35afd5797ff477c461115c141966b88706c7f1",
+        "bytes": 1743
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --transport-self-check --output /workspace/.onboarding/goal-graph-real-ipc/transport-quality-classification-1",
+      "exit_code": 0,
+      "count": 9,
+      "harness_sha256_at_check": "f612a20cb6f803c37fa67fe8493532eac8eb3cfedffde04ed7a46a68045b501c",
+      "source_at_check": "f0deb2790eb39c9b8d2cb3fadfa5ab797089fa94; later 5b7e401 changes only async plan-observer list, classifier/boundary/constructor unchanged",
+      "dimension": "static disconnect classification controls, no HTTP/Core/browser execution",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/transport-quality-classification-1/transport-static-checks.json",
+        "sha256": "f7235fc8c231e101f5072589876455244cb0ee30fc922625716fee27e5988d6b",
+        "bytes": 1896
+      }
+    },
+    {
+      "command": "python3 -c py_compile.compile(new harness,cfile=/tmp/goal-graph-real-ipc-transport.pyc,doraise=True)",
+      "result": "PASS final5b7e401 syntax"
+    },
+    {
+      "command": "/workspace/AgentBaton/artifacts/browser-venv/bin/python apps/desktop/tests/goal-graph-real-ipc.py --owner-only --batond /workspace/.onboarding/goal-graph-owner5541-native94157/batond --candidate-manifest /workspace/.onboarding/goal-graph-owner5541-native94157/manifest.json --frontend /workspace/.worktrees/goal-graph-integration/apps/desktop/dist --output /workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-primary",
+      "exit_code": 1,
+      "result": "f0deb preserved async-observer failure 1check/1failurePNG, no unexpected handler error, no provider attempt yet, cleanup thread joined/daemon wait0"
+    },
+    {
+      "command": "/workspace/AgentBaton/artifacts/browser-venv/bin/python apps/desktop/tests/goal-graph-real-ipc.py --owner-only --batond /workspace/.onboarding/goal-graph-owner5541-native94157/batond --candidate-manifest /workspace/.onboarding/goal-graph-owner5541-native94157/manifest.json --frontend /workspace/.worktrees/goal-graph-integration/apps/desktop/dist --output /workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait",
+      "exit_code": 0,
+      "checks": 6,
+      "screenshots": 3,
+      "result": "5b7e401 actual Owner-only PASS; not deterministic Validate/full Graph acceptance",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait/report.json",
+        "sha256": "ebd3e2042f441ddd2a5f47f63f1893b83ed680bfccbe33ca505e50055b3bbd39",
+        "bytes": 788516
+      }
     }
   ],
   "boundary_guarantees": [
@@ -144,20 +204,19 @@
   },
   "old80checks56captures": "Existing baseline independent evidence preserved; NOT rerun or replaced by these58static boundary controls. No old schema11 daemon/model invoked.",
   "pending_exact_dependencies": [
-    "Core fix/freeze OO-WIRE4 connection|validator|owner and fresh acceptance_state projections; historical da00 does not satisfy runtime assertions",
-    "Root immutable schema12 daemon/manifest with source hash, composed actual Graph UI dist; no daemon supplied for author browser execution yet",
-    "Actual deterministic Validate source definition bootstrap/reuse/producer rebind fixture, then fifth node separate from Owner-only",
-    "Core-author exact drift/reject/cancel/unknown/CAS/ledger fixture contracts and subsequent real negative/transport-drop runs",
-    "Independent code review, independent actual Linux/browser rerun, Native/macOS/real Provider/CI/package checks separately"
+    "Independent review of final5b7e401 transport/cleanup/capture code and independent real Owner-only rerun",
+    "Core dedicated Owner stale/invalidation/unknown/negative boundaries and full regression; current positive cannot close those",
+    "Actual deterministic Validate definition bootstrap/reuse/producer subject rebind fixture and five-node run, with new Root frozen binary when ready",
+    "Fresh explicit Owner rejection, drift, cancel intent/owned stop/unknown, CAS/ledger and actual transport-drop exact-key recovery matrix",
+    "Final built UI/native/macOS/real Provider/CI/development packages and full130Design acceptance remain Root-managed separately"
   ],
   "limits": [
-    "Owner-only real driver is connected but has NEVER executed Core12/browser/generated ACP/Owner/TaskAccepted. No runtime PASS or PNG exists for this source.",
-    "15 static/isolated generated-file FD controls plus 58 outgoing adapter controls are not Graph acceptance evidence. Old 80 checks/56 captures untouched.",
-    "Core historical da00 is author-only JSON, not this harness result. Projection defect must be fixed; strong canonical accepted rules are not relaxed.",
-    "Default full-five-node command still returns explicit pending exit2. No deterministic Validate or Graph failure matrix success claimed.",
-    "No SQL writes/synthetic runtime candidates/acceptances/Renderer Owner authority. Actual preparation did not instantiate PrivateUnixFixture or read session.token.",
-    "No Cargo/sharedtarget/Node/install/oldtest/product/Core/Native/UI/lock/schema/gate/STATUS changes; no models/accounts/host/extra fee/recursive agents; no new remote push/PR/CI action.",
-    "Actual Owner fixture is private local host acceptance, not OS Owner dialog/live Provider/macOS; whole Design v0.2 scope stays unchanged."
+    "Author actual Owner-only4node Core12/browser PASS6/3 is a scoped positive milestone only; independent review pending. It is not Validate5node/fullGraph or whole Design completion.",
+    "FreshReject/drift/cancel/unknown/CAS/ledger and dropped-transport-response scenarios remain unverified. This positive run saw zero readonly aborts; static classifier9 is not live fault injection.",
+    "All old historical outputs, Root prior two positive reports/PNG, da00 defective projection and new first f0deb FAIL are preserved unchanged.",
+    "Owner authority uses explicit private local host fixture outside HTTP; real Native OS dialog, macOS and live Provider/model not run by this harness.",
+    "Requested filesystem/network/quota policies are not OS sandbox claims; process/candidate receipt is not semantic acceptance until true all-required TaskAccepted.",
+    "No Cargo/sharedtarget/Node/dependency install/oldtest/product/Core/Native/UI/lock/schema/gate/STATUS changes; no new credentials/accounts/models/fees/recursive agent/remote push/PR/CI action."
   ],
   "remote_backup": {
     "branch": "codex/goal-graph-real-ipc",
@@ -182,7 +241,7 @@
     "budget": "bounded parallel1/root-project cumulative, real bootstrap usage retained; charging awaits actual Core fixture",
     "runtime": "not_run"
   },
-  "source_commit": "d29180f9bbe4c90f8cdcc97118da586bc5f51f9a",
+  "source_commit": "5b7e401780ab393a13fccd1c54b64362cdbef452",
   "owner_only_driver": {
     "mode": "--owner-only",
     "contract_source": "50a53bf sessions_ipc::graph_owner_summary_plan / actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input, plus mandatory OO-WIRE4 canonical/fresh projection fix",
@@ -198,7 +257,7 @@
       "independent-2/summary",
       "owner-summary/owner_approval"
     ],
-    "actual_runtime": "not_run",
+    "actual_runtime": "author actual Linux Chromium/Unix Core12 generated ACP private Host Owner 6checks/3originalPNG PASS; independent review pending",
     "preflight": "Explicit schema12 + exact daemon SHA + source binding + built index; older schema refuses before auth-file read/process/listener/Playwright import",
     "connected_assertions": [
       "Built UI stores exact initial plan1/revised plan2 through finite HTTP; planning launches no sessions",
@@ -222,7 +281,7 @@
       "ledger/CAS negative matrix",
       "actual lost-response recovery (same-key private replay coded, transport-drop scenario pending)"
     ],
-    "runtime_command_pending": "/workspace/AgentBaton/artifacts/browser-venv/bin/python apps/desktop/tests/goal-graph-real-ipc.py --owner-only --batond <Root-frozen-schema12/batond> --candidate-manifest <Root-frozen-schema12/manifest.json> --frontend <Root-composed-Graph-dist> --output <new-exclusive-directory>"
+    "runtime_command_pending": "Not pending for four-node Owner-only; exact executed command below. Deterministic Validate and Graph failure matrix remain separate."
   },
   "environment_resume_observation": {
     "tool": "cloud_environment.environment_status",
@@ -234,5 +293,333 @@
     "runtime_variables": 0,
     "outbound_identities": 0,
     "extra_configuration_or_credentials_added": false
+  },
+  "owner_only_actual": {
+    "source_commit": "5b7e401780ab393a13fccd1c54b64362cdbef452",
+    "source_sha256": "84e90a6bf6250441c39da2f4ebf09ca59dc75401b10d870859452f81d5315129",
+    "report": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait/report.json",
+      "sha256": "ebd3e2042f441ddd2a5f47f63f1893b83ed680bfccbe33ca505e50055b3bbd39",
+      "bytes": 788516
+    },
+    "log": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait.log",
+      "sha256": "7819def87a0032ac94ec7739684386dd06974fbd049f554548eb4531b81abace",
+      "bytes": 186
+    },
+    "run_manifest": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/owner-transport-run-manifest.json",
+      "sha256": "80decddfe05f397b873e16e6edf3ca94fd06df6fe5337de2809a8938e2b1e1a9",
+      "bytes": 4341
+    },
+    "exit_code": 0,
+    "checks": 6,
+    "screenshots": [
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait/01-work-candidate-before-owner.png",
+        "sha256": "efb9d9c341e56fdf4fd7a06355b7f741f3a0b58ead2d9845a5e492ab120caeb0",
+        "viewport": {
+          "width": 1488,
+          "height": 1200
+        },
+        "owner_controls": [
+          {
+            "testid": "goal-graph-owner-approve",
+            "node": "owner-report",
+            "rect": {
+              "x": 553.59375,
+              "y": 830.890625,
+              "width": 239.453125,
+              "height": 31
+            },
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            },
+            "unobscured": true
+          },
+          {
+            "testid": "goal-graph-owner-reject",
+            "node": "owner-report",
+            "rect": {
+              "x": 801.046875,
+              "y": 830.890625,
+              "width": 233.0625,
+              "height": 31
+            },
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            },
+            "unobscured": true
+          }
+        ],
+        "dimension": "Linux Chromium; not native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait/02-summary-candidate-before-final-owner.png",
+        "sha256": "ba9e2cfea6539a6f58888c2029d6a334a77e932e806e1fe25e72a61ceccefaf8",
+        "viewport": {
+          "width": 1488,
+          "height": 1200
+        },
+        "owner_controls": [
+          {
+            "testid": "goal-graph-owner-approve",
+            "node": "owner-summary",
+            "rect": {
+              "x": 596.4375,
+              "y": 830.890625,
+              "width": 239.453125,
+              "height": 31
+            },
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            },
+            "unobscured": true
+          },
+          {
+            "testid": "goal-graph-owner-reject",
+            "node": "owner-summary",
+            "rect": {
+              "x": 843.890625,
+              "y": 830.890625,
+              "width": 233.0625,
+              "height": 31
+            },
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            },
+            "unobscured": true
+          }
+        ],
+        "dimension": "Linux Chromium; not native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait/03-task-accepted-four-node-owner-chain.png",
+        "sha256": "16f4bd3cb9b6c84cda7b2e46caa68edf4834a549a525bfc69f6c56de3f91e280",
+        "viewport": {
+          "width": 1488,
+          "height": 1200
+        },
+        "owner_controls": [],
+        "dimension": "Linux Chromium; not native/macOS"
+      }
+    ],
+    "dimension": "actual built React/Linux Chromium/finite test HTTP/authenticated Unix Core/generated owned ACP",
+    "not_claimed": [
+      "deterministic Validate five-node flow",
+      "Graph failure matrix",
+      "native OS Owner dialog",
+      "macOS",
+      "real Provider/model",
+      "OS sandbox",
+      "whole product completion"
+    ],
+    "frozen_manifest": {
+      "path": "/workspace/.onboarding/goal-graph-owner5541-native94157/manifest.json",
+      "sha256": "dd76425e46e99fad9e6fdd58c17f232f992ffecde13b8cdb2bd002f546e4b325",
+      "bytes": 12721
+    },
+    "daemon_sha256": "fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e",
+    "candidate_source_head": "94157aed2cb69c6b503c5b6b12af5aff554476af",
+    "Core_checkpoint": "5541c373 canonical Owner-only, composed source94157aed2cb69c6b503c5b6b12af5aff554476af; not latest full Graph/Validator WIP evidence",
+    "frontend": "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist",
+    "frontend_source": "Root supplied corrected UI4eadffe73368c61bc26e9aaf112a572f8b4b675f; exact three asset hashes match old corrected run before/after, no rebuild/edit",
+    "frontend_assets_sha256": {
+      "assets/index-Cxl2UxNp.js": "4472889886faf0fc9f9d1f39faa0e0053ca47a22be7d7e21c191e67a08fa0bd8",
+      "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+      "index.html": "3d83ddee4f79c6d56431ffb6c32f2de936f03cb40a73226360485731d30fac99"
+    },
+    "http_requests": 47,
+    "http_readonly_reply_aborts": [],
+    "http_unexpected_errors": [],
+    "abort_limit": "No actual readonly abort occurred in this new positive run. Nine classifier controls are static; do not call them live disconnect/recovery validation.",
+    "cleanup_raw": [
+      {
+        "action": "HTTP serve thread joined",
+        "thread_alive": false
+      },
+      {
+        "action": "HTTP server closed and request handlers joined",
+        "active_handlers": []
+      },
+      {
+        "action": "owned daemon wait completed",
+        "pid": 593872,
+        "termination_requested": true,
+        "wait_exitcode": 0,
+        "forced_sigkill": false,
+        "process_not_alive": true
+      },
+      {
+        "action": "generated process original identity not alive",
+        "marker": "fixture-owned-a23dcc7d-cb18-47d6-95c9-c2bfc6189fce.json",
+        "marker_sha256": "3cadceb1343dc7496a13bdcc4b1cb5ff0948ad76ee0288054c4ffd18e6f91929",
+        "expected_identity": {
+          "pid": 594355,
+          "pgid": 594355,
+          "start_ticks": "6881829"
+        },
+        "observed_start_ticks": null,
+        "original_process_not_alive": true,
+        "pid_exists": false,
+        "matched_real_task_request": true,
+        "signal_sent": false
+      },
+      {
+        "action": "generated process original identity not alive",
+        "marker": "fixture-owned-58fc64aa-0ef2-43b7-a272-9683765042e0.json",
+        "marker_sha256": "43b5bfc7c1060bc2e3db9306ceee321297ad1475ad6d370fd535c6f8d802e58f",
+        "expected_identity": {
+          "pid": 594326,
+          "pgid": 594326,
+          "start_ticks": "6881628"
+        },
+        "observed_start_ticks": null,
+        "original_process_not_alive": true,
+        "pid_exists": false,
+        "matched_real_task_request": true,
+        "signal_sent": false
+      }
+    ],
+    "cleanup_check": {
+      "name": "HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and both exact generated worker identities gone",
+      "status": "passed"
+    },
+    "task_requests": [
+      {
+        "bytes": 3702,
+        "sha256": "ff167ea1f054a532ddeff7db75cf7abf0375db4244f30e5b0b311c00d8818d03",
+        "node": "produce-report"
+      },
+      {
+        "bytes": 4486,
+        "sha256": "2b5f9c40bd16af91e02fa3c4cc6b0c5630305f8e01be0e20f06549dd7dcd9905",
+        "node": "independent-2"
+      }
+    ],
+    "owner_reviews": [
+      {
+        "kind": "connection",
+        "proposal_id": "27816020-ef9e-4627-b4cb-dc3274462fca",
+        "snapshot_utf8_bytes": 614,
+        "snapshot_sha256": "9a66a7a4d991ea590462f16ad509e4d1a53e0df7419b488f56ed7c2e87d369df",
+        "authority": "explicit private generated resource fixture; not OS dialog"
+      },
+      {
+        "kind": "grant",
+        "proposal_id": "fb12030b-536d-49cb-8729-14d1d832f384",
+        "snapshot_utf8_bytes": 1822,
+        "snapshot_sha256": "5684847ed069b0b2c4328fcd4be4ee90996baaf1880d82d6c3c97aa2797bddb7",
+        "authority": "explicit private generated resource fixture; not OS dialog"
+      },
+      {
+        "kind": "goal",
+        "proposal_id": "345e445f-a7c9-44ed-a62c-6d45ce3b3a7f",
+        "snapshot_utf8_bytes": 7430,
+        "snapshot_sha256": "74b2e370eef872e48eadaed5125b2b16749a97c20c090f27a5cf642ae843b4f0",
+        "authority": "explicit private generated resource fixture; not OS dialog"
+      },
+      {
+        "kind": "goal_graph_execution",
+        "proposal_utf8_bytes": 13089,
+        "snapshot_utf8_bytes": 12896,
+        "proposal_sha256": "d94c662a59fb794d1bdf7fd466bc3dbf3cbf86108352ce7cccb2a1176994e4e5",
+        "snapshot_sha256": "bc29fbab4dbd9362eb10675c957f08031cb2b7f3eea9f2f73d11cabb90c4786d",
+        "os_owner_dialog": "not_run; private host fixture outside HTTP"
+      },
+      {
+        "kind": "goal_node_acceptance",
+        "proposal_utf8_bytes": 6359,
+        "snapshot_utf8_bytes": 6166,
+        "proposal_sha256": "83382df7de332fa646335b9a1bad7802015b0504f75878040c19fe37f550f2c9",
+        "snapshot_sha256": "22241224c9fe6f5de116cfdaf26c68b6619993dbcb3ceaba065e87ba7003bac3",
+        "os_owner_dialog": "not_run; private host fixture outside HTTP"
+      },
+      {
+        "kind": "goal_node_acceptance",
+        "proposal_utf8_bytes": 7166,
+        "snapshot_utf8_bytes": 6973,
+        "proposal_sha256": "d8f77a0ce90e5bee45fc272b8c97b895be69380fc94f0a82c104b95f37e6898a",
+        "snapshot_sha256": "5431e51cb2233adee80cd6559d7775f43bb632def6ff5250f8ed8b2dc45b59a2",
+        "os_owner_dialog": "not_run; private host fixture outside HTTP"
+      }
+    ],
+    "node_projection": [
+      {
+        "node_id": "produce-report",
+        "state": "candidate",
+        "execution_kind": "connection",
+        "acceptance_state": "accepted",
+        "stop_confirmed": true
+      },
+      {
+        "node_id": "owner-report",
+        "state": "accepted",
+        "execution_kind": "owner",
+        "acceptance_state": "accepted",
+        "stop_confirmed": false
+      },
+      {
+        "node_id": "independent-2",
+        "state": "candidate",
+        "execution_kind": "connection",
+        "acceptance_state": "accepted",
+        "stop_confirmed": true
+      },
+      {
+        "node_id": "owner-summary",
+        "state": "accepted",
+        "execution_kind": "owner",
+        "acceptance_state": "accepted",
+        "stop_confirmed": false
+      }
+    ],
+    "visual_review": "Author viewed ALL three ORIGINAL PNGs via view_image+image. 01/02 show pending acceptance, four node states and complete unobscured approve/reject buttons above fixed composer; 03 TaskAccepted, two accepted Owner nodes, two candidate outputs, zero deterministic result checks. No image edits.",
+    "independent_review": "pending Root assignment; author actual run is not independent review"
+  },
+  "transport_quality_change": {
+    "source_commits": [
+      "f0deb2790eb39c9b8d2cb3fadfa5ab797089fa94",
+      "5b7e401780ab393a13fccd1c54b64362cdbef452"
+    ],
+    "classification": "Only BrokenPipeError/ConnectionResetError while writing an already-observed explicit readonly Core response is expected aborted-read. Store/cancel/advance reply loss and all unknown handler/Core exceptions are recorded unexpected and fail final report.",
+    "server": "Non-daemon request threads, block_on_close join, custom handle_error records unexpected exceptions; check error lists only after all handlers joined. Existing fixed permissions/HTTP Owner403 unchanged.",
+    "cleanup": "Raw action HTTP serve thread joined has thread_alive=false; request close has active_handlers=[]; owned daemon wait_exitcode=0, forced_sigkill=false, process_not_alive=true; both exact generated PID+PGID/startticks matched real TaskRequests and observed_start_ticks=null, pid_exists=false, signal_sent=false.",
+    "capture": "1488x1200 viewport; 01/02 scroll actual Owner row into center; four corners + center elementFromPoint must lie in actual button; retain PNG raw original.",
+    "first_failure": {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-primary/report.json",
+        "sha256": "2110f6c8161ff627581df69540c89a1cd434cbe2fc3f989164f7844913c17902",
+        "bytes": 82968
+      },
+      "log": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-primary.log",
+        "sha256": "1db1e2166c4076fee7cd2005ea49131ad2dd80adc7cc159850a0a135fb8e0fc9",
+        "bytes": 199
+      },
+      "exit_code": 1,
+      "checks": 1,
+      "failure_png": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-primary/failure-current-ui.png",
+        "sha256": "db6ffed2c6f81e0641d206597de8568aaa26fc639c6fcd8f8db46045242d578f",
+        "bytes": 131329
+      },
+      "cause": "old immediate get raced browser first plan store and Core correctly returned NOT_FOUND; real goal_plans.propose succeeded afterward",
+      "fix": "readonly goal_plans.list waits empty→matching revision within original15s, then same exact whole proposal/state/dispatched assertions; no timeout/acceptance reduction"
+    },
+    "Root_prior_runs_preserved": [
+      {
+        "path": "/workspace/.onboarding/goal-graph-owner-browser-first",
+        "report_sha256": "f131fe0e78aae324c463b5156723d65e66f20f44d951acb2d98742ab342f86df"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-owner-browser-corrected-ui",
+        "report_sha256": "325e95343c426880e86b56a52d933c9ced235de0a63dd7a5f25484da99496f70"
+      }
+    ]
   }
 }
