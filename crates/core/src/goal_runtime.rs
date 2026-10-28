@@ -79,6 +79,17 @@ fn run(db: &Connection, id: &str) -> Result<GoalRun> {
     if r.id != id
         || cols != (r.scope_id.clone(), sql_num(r.revision)?, r.state.clone())
         || r.task_accepted
+        || !matches!(
+            r.state.as_str(),
+            "queued"
+                | "running"
+                | "cancel_requested"
+                | "cancelled"
+                | "awaiting_acceptance"
+                | "blocked"
+                | "failed"
+                | "outcome_unknown"
+        )
     {
         return Err(changed());
     }
@@ -138,6 +149,17 @@ fn node_records_at(
         if n.node.id != node_id
             || n.plan_revision != revision
             || n.state != state
+            || !matches!(
+                n.state.as_str(),
+                "not_started"
+                    | "reserved"
+                    | "running"
+                    | "stopping"
+                    | "candidate"
+                    | "cancelled"
+                    | "failed"
+                    | "outcome_unknown"
+            )
             || n.session_id != session_id
             || n.attempt_id != attempt_id
             || plan.proposal.nodes.get(ordinal) != Some(&n.node)
@@ -1374,12 +1396,11 @@ impl Store {
                 .and_then(|a| n.actual_output_bytes.and_then(|b| a.checked_add(b)));
             m.tokens = None;
             m.cost_microunits = None;
-            if m.runtime_ms.is_none_or(|v| v > limits.runtime_ms)
-                || m.output_bytes.is_none_or(|v| v > limits.output_bytes)
+            if (m.runtime_ms.is_none_or(|v| v > limits.runtime_ms)
+                || m.output_bytes.is_none_or(|v| v > limits.output_bytes))
+                && r.state == "awaiting_acceptance"
             {
-                if r.state == "awaiting_acceptance" {
-                    r.state = "blocked".into();
-                }
+                r.state = "blocked".into();
             }
             tx.execute(
                 "UPDATE goal_ledgers SET document=?1 WHERE scope=?2",
@@ -1923,8 +1944,7 @@ fn raw_collection_budget(
         .map_err(db_error)?;
     if count < 0
         || count > max_count
-        || bytes < 0
-        || bytes > 4_194_304
+        || !(0..=4_194_304).contains(&bytes)
         || largest < 0
         || largest > max_document
     {
@@ -2335,6 +2355,16 @@ mod tests {
         );
     }
     #[test]
+    fn unknown_persisted_run_state_is_never_treated_as_an_inactive_finished_run() {
+        let f = fixture(2);
+        f.store.conn.execute("UPDATE goal_runs SET state='unexpected_tag',document=json_set(document,'$.state','unexpected_tag')",[]).unwrap();
+        assert_eq!(
+            f.store.get_goal_run(&f.run.id).unwrap_err().code,
+            "INPUT_CHANGED"
+        );
+        assert!(f.store.goal_run_details(&f.run.id).is_err());
+    }
+    #[test]
     fn oversized_sql_metadata_is_bounded_before_node_comparison() {
         let f = fixture(2);
         f.store
@@ -2539,7 +2569,13 @@ mod tests {
     }
     #[test]
     fn reserved_node_tampering_cannot_change_a_fixed_prompt_or_its_session_and_attempt() {
-        for mode in ["goal", "budget", "sql_session", "sql_node_id"] {
+        for mode in [
+            "goal",
+            "budget",
+            "sql_session",
+            "sql_node_id",
+            "unknown_state",
+        ] {
             let mut f = fixture(2);
             let session = reserve(&mut f);
             let mut fake_ready = f.store.get_session(&session.id).unwrap();
@@ -2557,6 +2593,9 @@ mod tests {
                 }
                 "budget" => {
                     f.store.conn.execute("UPDATE goal_run_nodes SET document=json_set(document,'$.node.reservation.runtime_ms',9000)",[]).unwrap();
+                }
+                "unknown_state" => {
+                    f.store.conn.execute("UPDATE goal_run_nodes SET state='unexpected_tag',document=json_set(document,'$.state','unexpected_tag')",[]).unwrap();
                 }
                 "sql_session" => {
                     f.store
@@ -2713,6 +2752,47 @@ mod tests {
         );
         let status = f.store.goal_run_details(&f.run.id).unwrap();
         assert!(status["nodes"][0]["actual_output_bytes"].is_null());
+    }
+    #[test]
+    fn autonomous_plan_advance_requires_an_unchanged_ordered_core_receipt_chain() {
+        for mode in ["missing", "source", "digest", "order"] {
+            let mut f = fixture(2);
+            grow(&mut f, 2, 2);
+            let r = f.store.get_goal_run(&f.run.id).unwrap();
+            let request = GoalRunDispatch {
+                run_id: r.id.clone(),
+                expected_ledger_revision: f.store.sequence().unwrap(),
+            };
+            assert!(f
+                .store
+                .goal_dispatch_context(&request, r.revision)
+                .unwrap()
+                .is_some());
+            let filter = "json_extract(document,'$.kind')='goal.run_plan_advanced'";
+            let sql=match mode {
+                "missing"=>format!("DELETE FROM events WHERE {filter}"),
+                "source"=>format!("UPDATE events SET document=json_set(document,'$.source','generated_agent_output') WHERE {filter}"),
+                "digest"=>format!("UPDATE events SET document=json_set(document,'$.payload.previous_plan_digest','wrong') WHERE {filter}"),
+                _=>format!("UPDATE events SET sequence=-sequence WHERE {filter}"),
+            };
+            f.store.conn.execute(&sql, []).unwrap();
+            let request = GoalRunDispatch {
+                run_id: r.id,
+                expected_ledger_revision: f.store.sequence().unwrap(),
+            };
+            assert!(
+                f.store.goal_dispatch_context(&request, r.revision).is_err(),
+                "{mode}"
+            );
+            assert_eq!(
+                f.store
+                    .conn
+                    .query_row("SELECT count(*) FROM attempts", [], |row| row
+                        .get::<_, u32>(0))
+                    .unwrap(),
+                0
+            );
+        }
     }
     #[test]
     fn persisted_project_optional_limits_cannot_be_raised_or_removed_by_a_later_root() {
