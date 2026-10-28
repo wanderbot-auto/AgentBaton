@@ -778,25 +778,104 @@ def verify_validation_receipt(runtime: Path, detail: dict, definition: dict, cas
         'provider_session_created_for_validator': False, 'old_policy_executions': 0}
 
 
-def owned_command_child(daemon_pid: int) -> dict | None:
-    # Observe only children of threads in this private daemon, never global ps.
-    children = set()
-    for task in Path(f'/proc/{daemon_pid}/task').glob('*/children'):
-        try:
-            children.update(int(pid) for pid in task.read_text().split())
-        except FileNotFoundError:
-            continue
-    for pid in children:
-        try:
-            argv = Path(f'/proc/{pid}/cmdline').read_bytes().split(b'\0')
-            if argv[:2] != [b'/usr/bin/sleep', b'3']:
+def proc_identity(pid):
+    with Path(f'/proc/{pid}/stat').open('rb') as reader:
+        raw = reader.read(4097)
+    assert len(raw) <= 4096, 'Bounded proc stat metadata required'
+    tail = raw.rsplit(b')', 1)[1].split()
+    assert len(tail) >= 20
+    return {'pid': pid, 'parent_pid': int(tail[1]), 'start_ticks': tail[19].decode('ascii'), 'state': tail[0].decode('ascii')}
+
+
+def proc_parent_pid(pid):
+    # Discovery inspects only bounded parent metadata, not unrelated argv or
+    # process-group/start identity. Full identity follows the private PPID gate.
+    with Path(f'/proc/{pid}/stat').open('rb') as reader:
+        raw = reader.read(4097)
+    assert len(raw) <= 4096, 'Bounded proc stat metadata required'
+    tail = raw.rsplit(b')', 1)[1].split()
+    assert len(tail) >= 2
+    return int(tail[1])
+
+
+def owned_command_child(daemon_pid: int, diagnostics=None) -> dict | None:
+    # Prefer private per-thread children. Some managed Linux proc mounts omit
+    # that feature entirely. Fallback reads bounded PID/stat PPID metadata ONLY;
+    # argv/PGID are read only AFTER the exact private parent identity matches.
+    limit = 8192
+    sample = {'parent_pid': daemon_pid, 'discovery': 'task_children', 'pid_stat_examined': 0, 'private_child_candidates': []}
+    try:
+        parent = proc_identity(daemon_pid); sample['parent_start_ticks'] = parent['start_ticks']
+        children = set(); has_children_feature = False
+        with os.scandir(f'/proc/{daemon_pid}/task') as entries:
+            tids = []
+            for entry in entries:
+                if entry.name.isdigit():
+                    tids.append(entry.name)
+                    assert len(tids) <= limit, 'Bounded private task metadata capacity exceeded'
+        for tid in tids:
+            try:
+                with Path(f'/proc/{daemon_pid}/task/{tid}/children').open('rb') as reader:
+                    raw = reader.read(65_537)
+            except (FileNotFoundError, ProcessLookupError):
                 continue
-            tail = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()
-            assert int(tail[1]) == daemon_pid and os.getpgid(pid) == pid
-            return {'pid': pid, 'pgid': pid, 'parent_pid': daemon_pid, 'start_ticks': tail[19], 'argv': ['/usr/bin/sleep', '3']}
-        except FileNotFoundError:
-            continue
-    return None
+            has_children_feature = True
+            assert len(raw) <= 65_536
+            children.update(int(pid) for pid in raw.split())
+            assert len(children) <= limit
+        if not has_children_feature:
+            sample['discovery'] = 'bounded_proc_stat_ppid; task_children_feature_absent'
+            with os.scandir('/proc') as entries:
+                pids = []
+                for entry in entries:
+                    if entry.name.isdigit():
+                        pids.append(int(entry.name))
+                        assert len(pids) <= limit, 'Bounded PID metadata capacity exceeded'
+            for pid in pids:
+                sample['pid_stat_examined'] += 1
+                try:
+                    parent_pid = proc_parent_pid(pid)
+                except (FileNotFoundError, ProcessLookupError):
+                    continue
+                if parent_pid == daemon_pid:
+                    children.add(pid)
+        for pid in sorted(children):
+            try:
+                before = proc_identity(pid)
+                if before['parent_pid'] != daemon_pid:
+                    continue  # racing reparent/PID reuse; never read foreign argv
+                if before['state'] in ('Z', 'X'):
+                    continue  # already exited; cannot claim a live command observation
+                with Path(f'/proc/{pid}/cmdline').open('rb') as reader:
+                    raw = reader.read(1025)
+                after = proc_identity(pid)
+                if after['state'] in ('Z', 'X') or any(before[k] != after[k] for k in ('pid', 'parent_pid', 'start_ticks')):
+                    continue
+                assert len(raw) <= 1024 and raw.endswith(b'\0'), 'Complete bounded private argv required'
+                argv = raw[:-1].split(b'\0'); pgid = os.getpgid(pid)
+                current = proc_identity(pid)
+                if current['state'] in ('Z', 'X') or any(before[k] != current[k] for k in ('pid', 'parent_pid', 'start_ticks')):
+                    continue
+                assert proc_identity(daemon_pid)['start_ticks'] == parent['start_ticks'], 'Private parent identity changed'
+                if len(sample['private_child_candidates']) < 16:
+                    sample['private_child_candidates'].append({**before, 'pgid': pgid,
+                        'argv': [part.decode('utf-8', 'backslashreplace') for part in argv]})
+                if argv != [b'/usr/bin/sleep', b'3']:
+                    continue
+                assert pgid == pid, 'Actual approved command must own its private process group'
+                return {**before, 'pgid': pgid, 'argv': ['/usr/bin/sleep', '3']}
+            except (FileNotFoundError, ProcessLookupError):
+                continue
+        assert proc_identity(daemon_pid)['start_ticks'] == parent['start_ticks'], 'Private parent identity changed'
+        return None
+    except Exception as failure:
+        sample['observer_error'] = {'type': type(failure).__name__, 'message': str(failure)}
+        raise  # Permission errors and unexpected failures never become empty/no-process.
+    finally:
+        if diagnostics is not None:
+            if len(diagnostics) >= 64:
+                del diagnostics[0]
+            diagnostics.append(sample)
 
 
 def expected_data_files(input_revision, input_sha, *, bad=False):
@@ -1427,7 +1506,16 @@ def owner_only_driver(args, output: Path) -> int:
                         return receipt
                     if negative_case:
                         if case == 'command-timeout':
-                            command_identity = wait(lambda: owned_command_child(daemon.pid), lambda p: p is not None, seconds=5)
+                            observer_samples = []
+                            report['observations']['command_child_observer'] = observer_samples
+                            try:
+                                command_identity = wait(lambda: owned_command_child(daemon.pid, observer_samples), lambda p: p is not None, seconds=5)
+                            except BaseException:
+                                try:
+                                    report['observations']['command_child_observer_failure_graph_response'] = host.call(FixedCall('goal_graph_runs.get', {'run_id': run_id}))
+                                except Exception as graph_failure:
+                                    report['observations']['command_child_observer_failure_graph_error'] = {'type': type(graph_failure).__name__, 'message': clean(graph_failure)}
+                                raise
                             report['observations']['owned_command_child'] = command_identity
                         failed = wait(view, lambda d: len(d['validations']) == 1)
                         proof = verify_validation_receipt(runtime, failed, definition, case)
@@ -1667,7 +1755,12 @@ def owner_only_driver(args, output: Path) -> int:
                     report['status'] = 'failed_or_interrupted'
             phase['value'] = 'daemon_shutdown'
             if case == 'command-timeout' and command_identity is None and daemon.poll() is None:
-                command_identity = owned_command_child(daemon.pid)
+                try:
+                    command_identity = owned_command_child(daemon.pid)
+                except Exception as observer_failure:
+                    report['status'] = 'failed_or_interrupted'
+                    report['cleanup'].append({'action': 'private Command cleanup observer failed; daemon cleanup continues',
+                        'type': type(observer_failure).__name__, 'failure': clean(observer_failure)})
             termination_requested = daemon.poll() is None
             if daemon.poll() is None:
                 daemon.terminate()

@@ -22,8 +22,8 @@
     "AB-SEC-004",
     "AB-REL-001"
   ],
-  "status": "current_Graph_Owner_and_five_node_cases_prepared_not_runtime_verified",
-  "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f",
+  "status": "review_fix_source_ready_Root_actual_runtime_in_progress",
+  "source_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
   "wire_at_preparation": {
     "path": "/workspace/.worktrees/goal-validation-graph/docs/execution/goal-validation-graph/WIRE_CONTRACT.json",
     "sha256": "034c2103b294502ee57ae5706530327a48e951395a4b329877c6b006e5e2931a",
@@ -249,6 +249,81 @@
     {
       "command": "py_compile harness to /tmp/goal-graph-validation.pyc and compile embedded generated program",
       "result": "PASS final source syntax only"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --self-check --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-boundary-1",
+      "exit_code": 0,
+      "count": 58,
+      "dimension": "pure outgoing HTTP boundary checks with synthetic arguments; no Core/browser/model/candidate/TaskAccepted execution",
+      "source_sha256_at_check": "135ee0f3341b891581d582cd7e47cb0435966f0ddf2670bdb0a00c35c55dbd25",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-boundary-1/boundary-checks.json",
+        "sha256": "d212afba98674c9b10ce4d223cc2314dd5240db13856a6fdbc2c344e5d35a60b",
+        "bytes": 6251
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --driver-self-check --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-driver-1",
+      "exit_code": 0,
+      "count": 15,
+      "dimension": "static plan constructor/generated Python syntax/manifest negatives and isolated readonly FD controls; no Core/browser execution or minted receipts",
+      "source_sha256_at_check": "135ee0f3341b891581d582cd7e47cb0435966f0ddf2670bdb0a00c35c55dbd25",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-driver-1/driver-static-checks.json",
+        "sha256": "87bcf659fe4bd022e36b3dd7ed7b91ea9d20519c4d8bbbfe2966629a11083c66",
+        "bytes": 1743
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --transport-self-check --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-transport-1",
+      "exit_code": 0,
+      "count": 9,
+      "dimension": "static disconnect classification controls, no HTTP/Core/browser execution",
+      "source_sha256_at_check": "135ee0f3341b891581d582cd7e47cb0435966f0ddf2670bdb0a00c35c55dbd25",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-transport-1/transport-static-checks.json",
+        "sha256": "b6b61f6f367f4c1e323d1d8bd9615616f6512a21b4abc49678edf0be5fd7959a",
+        "bytes": 1896
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --validation-self-check --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-plans-1",
+      "exit_code": 0,
+      "count": 35,
+      "dimension": "static five-node plans/legacy/Graph exact named-key contracts/generated Python/explicit bounded policy controls; no daemon/browser/validator run",
+      "source_sha256_at_check": "135ee0f3341b891581d582cd7e47cb0435966f0ddf2670bdb0a00c35c55dbd25",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-plans-1/validation-static-checks.json",
+        "sha256": "a9c0e6b76c129552a75b4cf27926e5c7d22cdd45d88f04664ada5bff8c105b96",
+        "bytes": 3931
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --provider-self-check --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-provider-2",
+      "exit_code": 0,
+      "count": 5,
+      "dimension": "generated account-free ACP stdio program unit tests only with synthetic external-input requests; no Core/DB/candidate/validator/browser/TaskAccepted",
+      "source_sha256_at_check": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-provider-2/provider-fixture-unit-checks.json",
+        "sha256": "dd2d41074425fda8d061b4901c96a986deae57d74a4a0f464778861516a9465d",
+        "bytes": 3623
+      }
+    },
+    {
+      "command": "python3 new harness --packet-self-check --packet <actual-data-graph-97c079...json> --packet <actual-command-graph-526a42...json> --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-actual-packets-2",
+      "exit_code": 0,
+      "count": 37,
+      "dimension": "pure Python actual saved packet checks, no Core/browser/SQL/process",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-actual-packets-2/actual-packet-checks.json",
+        "sha256": "9d710c224ff62e850fe88b786884afd81bc3320fee74adc100ecc04de03dc6a8",
+        "bytes": 9792
+      }
+    },
+    {
+      "command": "py_compile to /tmp/goal-graph-review-fix.pyc; AST owner_only_driver output parameter Store sites; exact one/two-line diff review",
+      "result": "PASS c3e/fd syntax; zero output Store; reviewer confirmed all unrelated budgets/controls byte-unchanged"
     }
   ],
   "boundary_guarantees": [
@@ -268,20 +343,18 @@
   },
   "old80checks56captures": "Existing baseline independent evidence preserved; NOT rerun or replaced by these58static boundary controls. No old schema11 daemon/model invoked.",
   "pending_exact_dependencies": [
-    "Root final updated schema12 standalone binary/manifest/source binding and NEW composed UI assets; old Core5541 is explicitly preflight-refused for all new driver modes",
-    "Actual current Graph Owner17 four-node rerun and Integrity/Data/Command five-node runs into exclusive outputs; actual Data-range and Command-timeout negatives; inspect raw PNG and source/binary/assets lineage",
-    "Independent code and evidence review, independent real runs; old Owner6/3 and Core-author bundles cannot satisfy this",
-    "Remaining full Graph fault matrix: fresh Reject/drift/unknown/revoke/cancel/CAS/ledger/real dropped-response exact-key recovery; no normal same-key replay substitution",
-    "Native OS dialog/macOS/real Provider/CI/development packages/full130Design remain separate Root-managed acceptance"
+    "Root complete final exact-source Owner and Integrity/Data/Command normal plus Data-range/Command-timeout browser runs; do not borrow partial Validator/Owner1/Summary evidence as complete acceptance",
+    "Independent final code/evidence artifacts and actual independent regression as Root assigns",
+    "Remaining full Graph fault matrix and Native OS dialog/macOS/real Provider/CI/development packages/full130Design remain separate"
   ],
   "limits": [
-    "New source90d12ff is preparation only: zero new Core/browser/validator/Owner/TaskAccepted runtime and zero PNG. Historical source5b Owner6/3 is retained under owner_only_actual; it cannot prove new Graph17 or validator modes.",
-    "Final58/15/9/35 controls and5 generated-program stdio units are separately dimensioned. Three plan constructors exactly match Core-author saved actual nodes, but this readonly comparison is not harness execution.",
-    "Core-author Integrity/Data/Command actual bundles are attributed to author and still WIP; no assumption of final frozen binary/new UI availability.",
-    "Static numeric-count failure and embedded generated-Python compile failure preserved. Actual sets were15/17; no production wire edits here. A compile-only check initially missed producer-loop indentation; direct stdio units now exercise both legacy bootstrap and Graph owner/three validator contexts.",
-    "No synthetic SQL writes/Core candidates/acceptance/Renderer Owner authority; all credentials are generated private runtime tokens only in future actual runs. All HTTP permissions and caps unchanged.",
-    "No Cargo/target/Node/install/old5/product/Core/Native/UI/lock/schema/gate/STATUS changes; no real models/accounts/fees/host provisioning/recursive agents/new push/PR/CI action. No owned process/listener/dependency link left active.",
-    "Full Design v0.2/130 requirements remain unchanged; no MVP reduction or whole Graph completion claimed."
+    "Latest code160e0a0/source9b1b includes only diagnosed fixture corrections; Root final five-mode replay in progress. Author controls are not Core/browser/TaskAccepted runs.",
+    "Root current Owner actual6/3 passed for c432/3be. Root initial Integrity had report-writing shadow bug with original first exception unknown; second Integrity report correctly refused expired10s private Grant and is FAILED, despite earlier stages having genuine evidence. Preserve both.",
+    "Integrity fixture lifetime increase10→30s was explicit Root-directed test-fixture correction; no product/Goal runtime/Node/command/observer/cleanup threshold was relaxed.",
+    "37 actual packet controls plus generated program5 and static58/15/9/35 are separately attributed. The provider unit failure is preserved as a labelled observed summary, not fabricated original log.",
+    "Raw original observation string is authoritative; only known display observation_json is stripped. Full original Values, SQL raw digests, complete Owner snapshots, FD pins and cumulative budgets retained; no universal reencoding or field stripping.",
+    "No product/Core/UI/Native/old5/lock/CI/STATUS/Cargo/target changes or private model credentials/accounts/fees/remote actions; no author Chromium/daemon run in this review repair. All failed and historical output directories remain.",
+    "Later failed Integrity reports reached actual TaskAccepted but failed the old root3 budget expectation. Diagnostic proved inherited-bootstrap root4. Root authorized exact normal4 and negative3; old reports remain FAILED and are not rewritten green."
   ],
   "remote_backup": {
     "branch": "codex/goal-graph-real-ipc",
@@ -306,7 +379,7 @@
     "budget": "bounded parallel1/root-project cumulative, real bootstrap usage retained; charging awaits actual Core fixture",
     "runtime": "not_run"
   },
-  "source_commit": "90d12ff1d60534f53ff45733a3ccf44322f5cc83",
+  "source_commit": "160e0a07d0bebb19e7ff1881e1cd25cf4ac3875a",
   "owner_only_driver": {
     "mode": "--owner-only",
     "contract_source": "50a53bf sessions_ipc::graph_owner_summary_plan / actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input, plus mandatory OO-WIRE4 canonical/fresh projection fix",
@@ -322,7 +395,7 @@
       "independent-2/summary",
       "owner-summary/owner_approval"
     ],
-    "actual_runtime": "Historical source5b7e401 with Core5541: author scoped6checks3PNG PASS. Current source90d12ff Owner17: NOT RUN; wait new candidate/assets.",
+    "actual_runtime": "Historical5b/Core5541 pass remains. Root also actually passed current Graph17 Owner6/3 on c432 and3be with70a, saved exact report hashes below. fd165 final six-mode run still pending Root evidence.",
     "preflight": "Explicit schema12 + exact daemon SHA + source binding + built index; older schema refuses before auth-file read/process/listener/Playwright import",
     "connected_assertions": [
       "Built UI stores exact initial plan1/revised plan2 through finite HTTP; planning launches no sessions",
@@ -346,7 +419,7 @@
       "ledger/CAS negative matrix",
       "actual lost-response recovery (same-key private replay coded, transport-drop scenario pending)"
     ],
-    "runtime_command_pending": "Current --owner-only requires new Root frozen Graph17 binary/assets and separate real rerun. Historical5b actual command/evidence retained under owner_only_actual, not a current-source pass."
+    "runtime_command_pending": "Root owns current final six-mode replay; author did no new Core/Chromium/Cargo run in review repair."
   },
   "environment_resume_observation": {
     "tool": "cloud_environment.environment_status",
@@ -751,7 +824,9 @@
         "total_attempts": 4,
         "Provider_sessions": 3,
         "new_Graph_attempts": 3,
-        "validator_Provider_session": false
+        "validator_Provider_session": false,
+        "ordinary_new_root_and_project_consumed_including_bootstrap": 4,
+        "negative_new_root_and_project_consumed_including_bootstrap": 3
       },
       "Integrity": {
         "project_output_bytes": 38,
@@ -839,6 +914,201 @@
       "sha256": "0141b55b19289eb9924bb3126b0558c3b237047b1db3f1da7144bec91088f2e7",
       "bytes": 522
     },
-    "provider_unit_limit": "Five direct Python stdio fixture tests use only synthetic external baseline requests and generated temporary outputs. They do NOT create a Core DB/candidate/Graph/validator/TaskAccepted and do not count as Core runtime. Each child process is subprocess.run awaited/reaped; no model/account/network call."
+    "provider_unit_limit": "Five direct Python stdio fixture tests use only synthetic external baseline requests and generated temporary outputs. They do NOT create a Core DB/candidate/Graph/validator/TaskAccepted and do not count as Core runtime. Each child process is subprocess.run awaited/reaped; no model/account/network call.",
+    "historical_as_of_source90d12ff": true
+  },
+  "independent_review_fix": {
+    "blocked_original_source": "90d12ff1d60534f53ff45733a3ccf44322f5cc83 /5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f",
+    "original_blocked_review": {
+      "path": "/workspace/.onboarding/goal-graph-driver-90d-review/REVIEW_90D_BLOCKED.md",
+      "sha256": "df9f5b3a071b9d1eff98ffeeb50ec53e48e29b649140b7dba142ebef5bf47852",
+      "bytes": 4237
+    },
+    "original_manifest": {
+      "path": "/workspace/.onboarding/goal-graph-driver-90d-review/90D_MANIFEST.json",
+      "sha256": "053f3727aa1d543373932a0bfb548bba3a5f448594bb718a86d8cbad196b31f9",
+      "bytes": 2718
+    },
+    "original_counterexamples": {
+      "path": "/workspace/.onboarding/goal-graph-driver-90d-review/actual-packet-counterexamples.json",
+      "sha256": "ac4b3393d9338112de34d507497348912a640dee1d7504311bb3116195da0d44",
+      "bytes": 2452
+    },
+    "fix_commits": [
+      "90b340f6feab6e356f6c6893e1c0a01ab75268e9",
+      "7d80c2cc258669dd82bf235ad8753c5373705e70",
+      "c3e7e192bfa475c9a6771227550d09667640b3cd",
+      "fd1654a9224bbcb3c7296381b73c9ad6479fb52e",
+      "6a8cf49136545ac800042870426ad61001d5b8a3",
+      "4ff41be430c6e128d34bd22846776e4e6e4dfc84",
+      "160e0a07d0bebb19e7ff1881e1cd25cf4ac3875a"
+    ],
+    "receipt_view_fix": "Exact fixed GraphValidationReceipt fields plus ONE known observation_json display field. Hash original string UTF8 directly against result_digest; parse without duplicate keys/NaN and compare full display Value with exact JSON kinds/u64/f64. Only then strip that field for full original stored receipt and Owner snapshot comparison. Never JSON-reencode parsed observation as original text.",
+    "SQL_digest_limits_unchanged": "Still compare whole original stored receipt and its original SQL document UTF8 SHA to event receipt_digest; event/intent/job/WorkerJoin linkage retained; no DB writes, no generic unknown-field normalization.",
+    "Owner_snapshot_fix": "Resolve exact current approved Owner required_inputs to real candidate producers; Data Summary uses independent-4. Full candidate_refs/candidate_receipts unchanged and original validation_refs explicitly bind report check/empty Summary check. No display-derived view is inserted into private review.",
+    "input_path_fix": "Pure Owner Graph remains approved file input; validation and legacy-bootstrap retain inputs/file. Generated program derives these exact fixture cases from graph+approved output-validator context; does not rewrite input path or accept an arbitrary path union. Standalone Owner unit now actually supplies file; validator units supply real-shaped nonempty refs.",
+    "meter_fix": "Actual node output equals sum of ALL declared artifacts, not first. Data packet633+58+43=734; all per-artifact FD/pin/SHA observations and cumulative ledgers remain.",
+    "python_controls": {
+      "actual_saved_packet_positives_and_negatives": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-actual-packets-2/actual-packet-checks.json",
+        "sha256": "9d710c224ff62e850fe88b786884afd81bc3320fee74adc100ecc04de03dc6a8",
+        "bytes": 9792
+      },
+      "count": 37,
+      "source": "7d80c2c/c432; later c3e/fd private variable/grant changes do not touch these helpers",
+      "dimension": "Pure Python immutable Core Data97/Command526 bundles; no Core/browser/SQL/process execution"
+    },
+    "generated_program_units": {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-provider-2/provider-fixture-unit-checks.json",
+        "sha256": "dd2d41074425fda8d061b4901c96a986deae57d74a4a0f464778861516a9465d",
+        "bytes": 3623
+      },
+      "count": 5,
+      "dimension": "Generated ACP stdio program units only; no Core/Graph/validator/candidate/TaskAccepted"
+    },
+    "provider_unit_failure_preserved": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-provider-1/observed-unit-failure.json",
+      "sha256": "a496ba924e451de8a30026d3065db0ac7f8c58eb44e5f97184addfed33122c36",
+      "bytes": 749
+    },
+    "provider_failure_log_limit": "The original failed provider-self-check command was not shell-redirected; original stderr exists in tool transcript, the file is an explicitly labelled observation summary, not a claimed original raw log. Source90b is preserved for exact reproduction.",
+    "independent_static_source_ready": "data_native_integration_review confirmed7d80 exact37+5 PASS, c3e exact two identifier replacements/zero output AST stores/compile PASS, fd exact one conditional expression replacement/compile PASS and no remaining blocking finding. Final independent artifact sealing is owned by reviewer; no fictitious report hash.",
+    "output_path_fix": "owner_only_driver output:Path was shadowed by for-loop output dict. Rename only loop binding to scoped_output; AST confirms zero output Store sites. Preserve original failed directory; original first exception was obscured and remains unknown.",
+    "fixture_grant_fix": "Root explicitly directed Integrity private initial Grant10s→30s to match existing Data/Command lifetime after actual expiry rejection. GoalScope/runtime10000ms, node budget5000/reservation4000ms, command1500/500/512x2, observation/cleanup limits unchanged; pure Owner600000ms unchanged.",
+    "new_actual_runs_by_author": 0,
+    "Root_runs": "Read actual reports below; six-mode final rerun remains Root-owned. These controls are not runtime acceptance.",
+    "shared_budget_correction": {
+      "preserved_failure": {
+        "path": "/workspace/.onboarding/goal-graph-final-browser-grantfix/integrity/report.json",
+        "sha256": "26209ab767a1e75231470e8adad7df96c2af901e2732b8ae4908a72a3f1eabab",
+        "bytes": 1166546
+      },
+      "diagnostic_actual_report": {
+        "path": "/workspace/.onboarding/goal-graph-budget-diagnostic/report.json",
+        "sha256": "a2b908069c750b76a4d1301dedce5b2b876e66c3cdabe76c5e26db2892fb0209",
+        "bytes": 1395076
+      },
+      "facts": "Root diagnostic observed new root consumed4/active0, project consumed4/active0 and old bootstrap root1/active0. Core author confirmed goal_store::counts shared same-rootGrant history seeding; earlier normal root3 expectation omitted bootstrap, not a product failure.",
+      "normal_expected": "root/project each EXACT4 active0 = inherited bootstrap1+Work1+Validate1+Summary1; pure Owner eachEXACT2 unchanged",
+      "negative_expected": "root/project each EXACT3 active0 = inherited bootstrap1+Work1+Validate1; Summary not run. Root explicitly directed correction on same proven seeding path; no2|3 union.",
+      "controls_unchanged": "attempts/sessions4/3 normal,3/2 negative; zero acceptance/Owner/Summary for negative; ownedstop, Source Native caps, Goal/Node budgets/command/observer/cleanup thresholds unchanged; preserve observed_budgets and assertion actual/expected/key diagnostics."
+    },
+    "source_ready_budget_diagnostic_review": "Reviewer confirmed6a8 removed observation assignment/assertmsg restores entire module AST tofd165; original equality/expected unchanged then. Final4ff/160 exact corrected shared-history expectations await reviewer/Root final observed cases."
+  },
+  "Root_actual_review_fix_runs": [
+    {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-final-browser-new/owner-only/report.json",
+        "sha256": "8e817ba7e2c390b92bb2aac654bbed994ab128f4cc9c2b8ed03a3a7dd23b02cd",
+        "bytes": 834569
+      },
+      "status": "passed",
+      "mode": "owner_only_four_nodes",
+      "checks": 6,
+      "screenshots": 3,
+      "harness_sha256": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
+      "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+      "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+      "failure": null,
+      "attribution": "Root actual run, inspected saved report; not author or independent rerun"
+    },
+    {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-final-browser-pathfix/owner-only/report.json",
+        "sha256": "b9bf16a20a69cfd9c97e0aa44e473098776b1f75aa79289ec2d1bd3ec00952dd",
+        "bytes": 798388
+      },
+      "status": "passed",
+      "mode": "owner_only_four_nodes",
+      "checks": 6,
+      "screenshots": 3,
+      "harness_sha256": "3be92d90f6da058eb8b7c54fb2d1a93979a68418885f83647a537e09c30814c0",
+      "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+      "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+      "failure": null,
+      "attribution": "Root actual run, inspected saved report; not author or independent rerun"
+    },
+    {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-final-browser-pathfix/integrity/report.json",
+        "sha256": "0be910263244b294ac59c71502411ebfbcdc219ae37fd6641df0b8ad226e7bc9",
+        "bytes": 1311862
+      },
+      "status": "failed_or_interrupted",
+      "mode": "validation_integrity",
+      "checks": 2,
+      "screenshots": 3,
+      "harness_sha256": "3be92d90f6da058eb8b7c54fb2d1a93979a68418885f83647a537e09c30814c0",
+      "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+      "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+      "failure": {
+        "type": "AssertionError",
+        "message": "{'error': {'code': 'PERMISSION_DENIED', 'details_ref': None, 'message': 'Execution grant or an ancestor is revoked or expired', 'retryable': False, 'side_effect_state': 'not_started'}, 'request_id': 'e1866e7a-0121-4d64-a751-f5f69c6085b5', 'revision': 108, 'warnings': []}",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1520, in owner_only_driver\n    final_decision = owner_decision(after, 'owner-summary', 'graph:owner-summary')\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1413, in owner_decision\n    assert not response.get('error'), response\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'error': {'code': 'PERMISSION_DENIED', 'details_ref': None, 'message': 'Execution grant or an ancestor is revoked or expired', 'retryable': False, 'side_effect_state': 'not_started'}, 'request_id': 'e1866e7a-0121-4d64-a751-f5f69c6085b5', 'revision': 108, 'warnings': []}\n"
+      },
+      "attribution": "Root actual run, inspected saved report; not author or independent rerun"
+    },
+    {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-final-browser-grantfix/integrity/report.json",
+        "sha256": "26209ab767a1e75231470e8adad7df96c2af901e2732b8ae4908a72a3f1eabab",
+        "bytes": 1166546
+      },
+      "status": "failed_or_interrupted",
+      "mode": "validation_integrity",
+      "checks": 3,
+      "screenshots": 3,
+      "harness_sha256": "60ea1c9ff8dc13bc688d32dd259f12808000f8cf4ebf32a1d5809af989f3b59d",
+      "failure": {
+        "type": "AssertionError",
+        "message": "",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1597, in owner_only_driver\n    assert budgets[key] == {'consumed': (4 if key.startswith('project:') else 3) if case else 2, 'active': 0}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+      },
+      "observed_budgets": null,
+      "attribution": "Root actual run; failed old fixture expectation, preserved unchanged; actual finalTaskAccepted alone is not whole test success"
+    },
+    {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-budget-diagnostic/report.json",
+        "sha256": "a2b908069c750b76a4d1301dedce5b2b876e66c3cdabe76c5e26db2892fb0209",
+        "bytes": 1395076
+      },
+      "status": "failed_or_interrupted",
+      "mode": "validation_integrity",
+      "checks": 3,
+      "screenshots": 3,
+      "harness_sha256": "e172a5f9797ea487cde514ee2f063e17b9e0407f59e0f6758c73642cbff3cecc",
+      "failure": {
+        "type": "AssertionError",
+        "message": "{'key': 'root:b0313277-b16d-4a00-9afc-ef0066c54c8a', 'actual': {'consumed': 4, 'active': 0}, 'expected': {'consumed': 3, 'active': 0}}",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1598, in owner_only_driver\n    assert budgets[key] == {'consumed': (4 if key.startswith('project:') else 3) if case else 2, 'active': 0}, {'key': key, 'actual': budgets[key], 'expected': {'consumed': (4 if key.startswith('project:') else 3) if case else 2, 'active': 0}}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'key': 'root:b0313277-b16d-4a00-9afc-ef0066c54c8a', 'actual': {'consumed': 4, 'active': 0}, 'expected': {'consumed': 3, 'active': 0}}\n"
+      },
+      "observed_budgets": {
+        "project:bb18273b-0914-4c4b-8970-454a3703b75b": {
+          "consumed": 4,
+          "active": 0
+        },
+        "root:dc47e7c9-c0f6-4b4f-b561-2897887d715c": {
+          "consumed": 1,
+          "active": 0
+        },
+        "root:b0313277-b16d-4a00-9afc-ef0066c54c8a": {
+          "consumed": 4,
+          "active": 0
+        }
+      },
+      "attribution": "Root actual run; failed old fixture expectation, preserved unchanged; actual finalTaskAccepted alone is not whole test success"
+    }
+  ],
+  "Root_shadowed_failure": {
+    "directory": "/workspace/.onboarding/goal-graph-final-browser-new/integrity",
+    "report_absent": true,
+    "log": {
+      "path": "/workspace/.onboarding/goal-graph-final-browser-new/integrity.log",
+      "sha256": "b887fe1eafd46c3994420b56a835d1003f46ea6fdb2ba3cb902eb8c2ddb65a4d",
+      "bytes": 680
+    },
+    "fact": "Root reported output Path shadowed by dict; both failure screenshot and finally report writing TypeError, so original first exception cannot be determined. No guessed original cause or success claimed. Root preserved files/process scan."
   }
 }
