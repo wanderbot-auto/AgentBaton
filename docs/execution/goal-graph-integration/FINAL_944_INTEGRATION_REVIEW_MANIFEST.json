@@ -1,0 +1,35 @@
+{
+  "subject": "9448918d17ba3a1159edf7051e140ea04e04e6df",
+  "baseline": "641be86e8b055920787cfebdd48270716d509309",
+  "scope": "final composition/records only; not formal approval or product/Mac acceptance",
+  "files": {
+    "REVIEW.md": {
+      "sha256": "e3b9976280b6128fcaee048d88569d292aeb4179ec27170cf210c0a3a090b293",
+      "bytes": 10619
+    },
+    "manifest.json": {
+      "sha256": "3d9541219e9b9579820a6e3fbd2921ea2642cc798ef220dfb47c905dcf537e3f",
+      "bytes": 215849
+    },
+    "audit.py": {
+      "sha256": "b8af2c933e4a25060bf701fc37d1b1806732d9601c4a5f5a707dd2dc34fa42dc",
+      "bytes": 8323
+    },
+    "audit-results.json": {
+      "sha256": "9194781cf631d2006a67233c2994a65d2fcdf6bb0aef7b8aef7970d3980c93ec",
+      "bytes": 4010
+    },
+    "audit.log": {
+      "sha256": "9194781cf631d2006a67233c2994a65d2fcdf6bb0aef7b8aef7970d3980c93ec",
+      "bytes": 4010
+    },
+    "validation-checks.json": {
+      "sha256": "b17d7e9587dec3d827f68d8e434f5a6fe6fe076e31aa6e55c1bae7416bba9461",
+      "bytes": 2108
+    },
+    "command-assertion-audit.json": {
+      "sha256": "0d8b36d5ae1c61aec55950682338e9f251a68d76046829761f114eb7023d8f1f",
+      "bytes": 1195
+    }
+  }
+}
