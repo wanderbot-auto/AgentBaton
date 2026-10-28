@@ -86,8 +86,8 @@ jobs:
           artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --structured-editor --output artifacts/ui-browser/goal-plan-editor
           artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --batond target/debug/batond --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
           artifacts/browser-venv/bin/python - <<'PY'
-          import hashlib, json, pathlib, subprocess, sys
-          from playwright.sync_api import sync_playwright
+          import asyncio, hashlib, json, pathlib, subprocess, sys
+          from playwright.async_api import async_playwright
           def git(*args):
               return subprocess.check_output(['git', *args], text=True).strip()
           assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
@@ -100,8 +100,10 @@ jobs:
               'scope': 'CI-built Linux debug candidate; actual schema checked by read-only SQLite in the harness; acceptance pending',
           }
           pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
-          with sync_playwright() as playwright:
-              chromium = playwright.chromium.executable_path
+          async def chromium_executable_path():
+              async with async_playwright() as playwright:
+                  return playwright.chromium.executable_path
+          chromium = asyncio.run(chromium_executable_path())
           subprocess.run([
               sys.executable, 'apps/desktop/tests/goal-execution-real-ipc.py',
               '--batond', 'target/debug/batond',
