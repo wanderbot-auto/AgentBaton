@@ -344,8 +344,20 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                 try: current = support.proc_identity(expected['pid'])
                 except (FileNotFoundError, ProcessLookupError): current = None
                 if current is not None and current['start_ticks']==expected['start_ticks']:
-                    with Path('/proc',str(expected['pid']),'cmdline').open('rb') as reader:
-                        observed = reader.read(8193)
+                    try:
+                        with Path('/proc',str(expected['pid']),'cmdline').open('rb') as reader:
+                            observed = reader.read(8193)
+                    except FileNotFoundError:
+                        observed = None
+                    if observed in (None, b'') and field == 'owned_companion' and old is not None and reaper is not None:
+                        # A live child can be killed after the early reap check.
+                        # Retry only this bound identity, then require real disappearance.
+                        reaper.reap(old)
+                        try: after = support.proc_identity(expected['pid'])
+                        except FileNotFoundError: after = None
+                        assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait'
+                        continue
+                    assert observed is not None
                     assert len(observed)<=8192 and observed.endswith(b'\0')
                     actual = [x.decode() for x in observed[:-1].split(b'\0')]
                     assert actual[-len(expected_argv):] == expected_argv and os.getpgid(expected['pid'])==expected['pgid']
@@ -607,7 +619,7 @@ def preflight(args):
     binary = args.batond.resolve(strict=True)
     raw = args.candidate_manifest.resolve(strict=True).read_bytes()
     manifest = json.loads(raw, object_pairs_hook=unique_object)
-    assert manifest['schema'] == 13, 'Only actual schema13 candidate is Factory runtime evidence'
+    assert type(manifest.get('schema')) is int and manifest['schema'] == 13, 'Only integer schema13 candidate is Factory runtime evidence'
     companion = binary.with_name('baton').resolve(strict=True)
     for name, path in [('batond', binary), ('baton', companion)]:
         assert manifest['binaries'][name] == sha(path.read_bytes()), (name, 'frozen binary SHA mismatch')
