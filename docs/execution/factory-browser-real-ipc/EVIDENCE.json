@@ -1573,5 +1573,370 @@
     "new_real_Core_browser": "NOT_RUN; Root after review",
     "old_orphan": "not signaled or reaped by this unit",
     "no_claim": "wholeFactory/Provider/OS/Mac/TaskAccepted acceptance"
+  },
+  "test_controller_adoption_revision": {
+    "source_commit": "202c997e15977bbd1a8ab32da9c2f9f0b41a8e19",
+    "source_sha256": "a697fe283fd6ae2089483cc8cdcfe0a7936c15428a721ee38300599a0816e5e2",
+    "status": "frozen_pending_independent_review",
+    "previous851review": {
+      "sha256": "29fb790b1c422055f4fb72a4bcb703fc3580accece3b4e453e9a008b5ceb112b",
+      "manifest_sha256": "578d934383b4ff3b440b7351b5f75122fa1b4f6476348daaafcee8d3fe764c0e",
+      "dimension": "7ownhelper+63/13/28/25 only, not actual Core"
+    },
+    "root_actual851": {
+      "reviewed-851-normal": {
+        "attribution": "Root actual851, not author execution",
+        "status": "passed",
+        "checks": 4,
+        "PNG": 2,
+        "cleanup_complete": true,
+        "files": [
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-normal/BEFORE.json",
+            "sha256": "4a93503032d5759847e224ee33593f133e9801dca8da072855e5968cff9665bb",
+            "bytes": 10206
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-normal/RESULT.json",
+            "sha256": "997100ffe62ad250cb32d3204406e0d8db77477325892a03eec000edabc3d323",
+            "bytes": 10426
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-normal/evidence/01-real-approved-scope-not-started.png",
+            "sha256": "08032c7273febe78887952810e6dc5067a5ea560922bda31d4acc265e4447999",
+            "bytes": 155298
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-normal/evidence/02-real-completed-task-history.png",
+            "sha256": "9c700f2b368a855b7867dbbdfd609fcfb09ede508d1d4203c2c9f05e6b84792b",
+            "bytes": 177743
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-normal/evidence/daemon.log",
+            "sha256": "e5ac0b68daa482ff012934fa7984790d084ef74c6e982efdfa6cdd29e3596407",
+            "bytes": 59
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-normal/evidence/report.json",
+            "sha256": "877d5ee02fa52cfc0f33d8a12e218d1eb3267a1e7f7835d73ea09bcbb8d7abd9",
+            "bytes": 334372
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-normal/evidence/verified-970819.json",
+            "sha256": "bf68a1a6e46e13c6b1312ebfda7171d264994831bda02c63a86c751519c74cc2",
+            "bytes": 3201
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-normal/evidence/verified-970836.json",
+            "sha256": "54561e266043652f375d3d60ecbfa116333b52e67a91b20e63b0217ada4b6a29",
+            "bytes": 2923
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-normal/evidence/verified-970850.json",
+            "sha256": "23065bd59da3236a647a9358c68945b9729630b9115638014f650cfa3c31ed9f",
+            "bytes": 5089
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-normal/runner.log",
+            "sha256": "97a225c50a44d270eef9f3a05cc8aae1095f924db94f490fb796248105f13a74",
+            "bytes": 150
+          }
+        ]
+      },
+      "reviewed-851-cancel": {
+        "attribution": "Root actual851, not author execution",
+        "status": "failed_or_interrupted",
+        "checks": 2,
+        "PNG": 2,
+        "cleanup_complete": false,
+        "files": [
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-cancel/BEFORE.json",
+            "sha256": "bb681f73df78e403baa1bbb2f9225730153af48712e379bb9b45336f84757320",
+            "bytes": 10206
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-cancel/RESULT.json",
+            "sha256": "aa701be449a883704ffe7d9b89dd1db08f14bb90ee800a203c72d7434613cf7b",
+            "bytes": 10426
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-cancel/evidence/01-real-approved-scope-not-started.png",
+            "sha256": "a32b5897aee46d2a2bc52af3898c04baf50a9b44828b8c1961bd98fae477fe35",
+            "bytes": 155813
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-cancel/evidence/daemon.log",
+            "sha256": "d6b9a76d2a0f9904bbd4b0ecbee2af1baf7ec96d165c185929d83c496a1936cd",
+            "bytes": 59
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-cancel/evidence/diagnostics-c7d602d1b03f4f91a2702c54ada7e38e.json",
+            "sha256": "3a151a3d5f9b01c1b7c06cdde97ac5c9f9938f2596b63b5078c8517066d645e8",
+            "bytes": 66520
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-cancel/evidence/failure-current-ui.png",
+            "sha256": "d3f9af3e0984789cb676e5cd45a7fa0fe955534a65c955b432abfec3542d1347",
+            "bytes": 168613
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-cancel/evidence/report.json",
+            "sha256": "4b3879ec3547ff36811f56dbf5f5dc9434d20d65adc0cd82a07a24f0948e49f1",
+            "bytes": 167521
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-cancel/evidence/verified-971334.json",
+            "sha256": "8cc43a7097464fa252a5f2bc01a9bab032bd9cc6f1ab0837e09c2a5b8b43bba4",
+            "bytes": 3201
+          },
+          {
+            "path": "/workspace/.onboarding/factory-browser-root/reviewed-851-cancel/runner.log",
+            "sha256": "14e69d09413bd9c3405f12b5464f473f436dbcdae42aacb903e9b3f63feeaaf1",
+            "bytes": 165
+          }
+        ]
+      }
+    },
+    "actual_Core_stop_semantics": "groupSIGKILL then direct provider.wait; no Core all-descendants join assertion",
+    "changes": [
+      "standalone runtime Linuxsubreaper enable-before-daemon/outerfinallyrestore failclosed",
+      "fresh full Core/nonce/rawturn/filepin+exactpriorbound record before callback",
+      "exact savedrawpair/PIDstart/PPIDself/Z/PGID then one knownPIDwaitpid WNOHANG, actualwaitstatus and identitygone",
+      "cleanup boundrecords only; no wait(-1)/global scans/signals/old orphan touch/early active MCP close"
+    ],
+    "strict_unchanged": "HTTP, authority, 5s/15s/1s, budgets, 2/6truegone and partialcleanupfalse",
+    "frozen_controls": {
+      "source_sha256": "a697fe283fd6ae2089483cc8cdcfe0a7936c15428a721ee38300599a0816e5e2",
+      "commands": [
+        {
+          "name": "own-process",
+          "command": [
+            "python3",
+            "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/controls.py"
+          ],
+          "exitcode": 0,
+          "log_sha256": "1ccce19dfcdf0a935ad750d0d87e006d86cb714ef2cd22755eba1d23856457eb"
+        },
+        {
+          "name": "boundary",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/boundary"
+          ],
+          "exitcode": 0,
+          "log_sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f"
+        },
+        {
+          "name": "fixture",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--fixture-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/fixture"
+          ],
+          "exitcode": 0,
+          "log_sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1"
+        },
+        {
+          "name": "cleanup",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--cleanup-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/cleanup"
+          ],
+          "exitcode": 0,
+          "log_sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479"
+        },
+        {
+          "name": "diagnostic",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--diagnostic-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/diagnostic"
+          ],
+          "exitcode": 0,
+          "log_sha256": "28b0586c7edc0fe66831c37654122f938ca36ecd9f3a1d3ef1554bf12bb62025"
+        }
+      ],
+      "Core_browser": "NOT_RUN"
+    },
+    "own_process": {
+      "source_sha256": "a697fe283fd6ae2089483cc8cdcfe0a7936c15428a721ee38300599a0816e5e2",
+      "status": "passed",
+      "count": 13,
+      "checks": [
+        {
+          "name": "setup own provider really waits its companion",
+          "status": "passed"
+        },
+        {
+          "name": "live real private identities bind to synthetic raw turn and are not waited",
+          "status": "passed"
+        },
+        {
+          "name": "groupSIGKILL adopted own companion is real zombie under controller",
+          "status": "passed"
+        },
+        {
+          "name": "wrong nonce cannot authorize knownPID wait",
+          "status": "passed"
+        },
+        {
+          "name": "wrong run cannot authorize knownPID wait",
+          "status": "passed"
+        },
+        {
+          "name": "wrong Core task cannot authorize knownPID wait",
+          "status": "passed"
+        },
+        {
+          "name": "changed saved start identity cannot authorize wait",
+          "status": "passed"
+        },
+        {
+          "name": "actual proc start mismatch forbids knownPID wait even for internally matching proof",
+          "status": "passed"
+        },
+        {
+          "name": "actual bounded knownPID wait removes exact adopted identity",
+          "status": "passed"
+        },
+        {
+          "name": "receipt says controller reap not Core join and records SIGKILL",
+          "status": "passed"
+        },
+        {
+          "name": "nonchild wrongPPID zombie is not waited",
+          "status": "passed"
+        },
+        {
+          "name": "nonchild was reaped only by its real own parent",
+          "status": "passed"
+        },
+        {
+          "name": "standalone unit-controller subreaper restored",
+          "status": "passed"
+        }
+      ],
+      "controller": {
+        "controller_pid": 975236,
+        "controller_start_ticks": "9861376",
+        "prior_subreaper": 0,
+        "enabled": true,
+        "restored": true,
+        "adopted_mcp_waits": [
+          {
+            "role": "owned_companion",
+            "expected": {
+              "pid": 975240,
+              "pgid": 975239,
+              "start_ticks": "9861390"
+            },
+            "observed_before_wait": {
+              "pid": 975240,
+              "parent_pid": 975236,
+              "start_ticks": "9861390",
+              "state": "Z"
+            },
+            "waited_pid": 975240,
+            "raw_wait_status": 9,
+            "exitcode": -9,
+            "original_identity_gone_after_wait": true,
+            "session_id": "session",
+            "attempt_id": "attempt",
+            "record_sha256": "8084096a6adc3ae43889448dd5db10452e03f70da6212a884f7a982e69d61f87",
+            "reaped_by": "test_controller",
+            "Core_reaped_this_descendant": false,
+            "signal_sent": false
+          }
+        ],
+        "dimension": "Linux test controller reaps only bound adopted MCP children; NOT Core descendant join",
+        "restored_subreaper": 0
+      },
+      "actual_Core_browser": "NOT_RUN; synthetic schema0 bindings and real own Python processes only"
+    },
+    "counts": {
+      "own_process_adoption": 13,
+      "boundary": 63,
+      "fixture": 13,
+      "cleanup": 28,
+      "diagnostic": 25
+    },
+    "artifacts": [
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/boundary/boundary-checks.json",
+        "sha256": "2076da8e09a2208530e4ab202ee69840033626bac5c03d2131237df47b4ca0a1",
+        "bytes": 5294
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/boundary.log",
+        "sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/cleanup/cleanup-unit-checks.json",
+        "sha256": "60d1262952c2ce4e776b833c923fc1397e5723a3ee4c52317591f6c082600e64",
+        "bytes": 2986
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/cleanup.log",
+        "sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/commands.json",
+        "sha256": "c6de3f49948c7766991091995eed04a6432b6347ef0457e00351d99edecd7bab",
+        "bytes": 1978
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/controls.py",
+        "sha256": "7da4cf2438bfb9c554785ef696ef4c1fd23660d8f2982d0b1d92a9f611353f88",
+        "bytes": 9761
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/diagnostic/diagnostic-unit-checks.json",
+        "sha256": "bf82afff7838c4db1d055a8fe239debb25a92a683f8d284ca5087beb08fa4ad7",
+        "bytes": 3238
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/diagnostic.log",
+        "sha256": "28b0586c7edc0fe66831c37654122f938ca36ecd9f3a1d3ef1554bf12bb62025",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/fixture/fixture-unit-checks.json",
+        "sha256": "c8b78dc65dfe3a136a8a1b8873b9aa1e56b090e066b8a7c8321f1299bbb8f557",
+        "bytes": 1685
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/fixture.log",
+        "sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/own-process.log",
+        "sha256": "1ccce19dfcdf0a935ad750d0d87e006d86cb714ef2cd22755eba1d23856457eb",
+        "bytes": 57
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/controller-reap-final/results.json",
+        "sha256": "5133fedf982acee2c143c930a8872d92d1248a10e5f07855ff0e0dcd80121eb5",
+        "bytes": 2741
+      }
+    ],
+    "exploratory": "controller-reap-1 success12 then13 iteration; frozen evidence is newexclusivefinal13 only; no runtimeFAIL overwritten",
+    "scope": "synthetic schema0 + real ownPython SIGKILL/adoption, NOT real Core/browser/OS/MCP service",
+    "old_orphans": "966853 and971338 not read/signaled/waited by these controls",
+    "new_actual_runtime": "NOT_RUN; Root after independent source-ready",
+    "unknown_actual_case": "NOT_RUN"
   }
 }
