@@ -539,6 +539,688 @@ pub fn confirm_and_finalize(
     )
 }
 
+fn graph_id(value: &Value) -> bool {
+    value.as_str().is_some_and(|id| {
+        !id.is_empty()
+            && id.len() <= 256
+            && id
+                .bytes()
+                .all(|c| c.is_ascii_alphanumeric() || b"._:-".contains(&c))
+    })
+}
+fn graph_revision(value: &Value) -> bool {
+    value
+        .as_u64()
+        .is_some_and(|n| n > 0 && n <= 9_007_199_254_740_991)
+}
+fn graph_hash(value: &Value) -> bool {
+    value.as_str().is_some_and(|hash| {
+        hash.len() == 64
+            && hash
+                .bytes()
+                .all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c))
+    })
+}
+fn graph_ids(value: &Value, nonempty: bool) -> bool {
+    value.as_array().is_some_and(|ids| {
+        (!nonempty || !ids.is_empty())
+            && ids.len() <= 64
+            && ids.iter().all(graph_id)
+            && ids
+                .iter()
+                .enumerate()
+                .all(|(index, id)| !ids[..index].contains(id))
+    })
+}
+fn graph_artifact_matches(reference: &Value, workspace: &Value) -> bool {
+    [
+        "candidate_id",
+        "artifact_id",
+        "contract_id",
+        "producer_node_id",
+        "producer_attempt_id",
+    ]
+    .iter()
+    .all(|key| graph_id(&reference[*key]))
+        && graph_hash(&reference["sha256"])
+        && reference["bytes"]
+            .as_u64()
+            .is_some_and(|bytes| bytes <= 67_108_864)
+        && reference["writer_epoch"].as_u64().is_some()
+        && reference["root"] == *workspace
+        && reference["relative_path"].as_str().is_some_and(|path| {
+            !path.is_empty()
+                && path.len() <= 4096
+                && !path.starts_with('/')
+                && !path.bytes().any(|c| c < 32 || c == 127 || c == b'\\')
+                && path
+                    .split('/')
+                    .all(|part| !part.is_empty() && part != "." && part != "..")
+        })
+        && ["device", "inode", "bytes", "uid", "gid", "mode"]
+            .iter()
+            .all(|key| reference["file_pin"][*key].as_u64().is_some())
+        && ["mtime", "mtime_nsec", "ctime", "ctime_nsec"]
+            .iter()
+            .all(|key| reference["file_pin"][*key].as_i64().is_some())
+        && reference["file_pin"]["bytes"] == reference["bytes"]
+}
+fn graph_execution_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
+    let scope = &snapshot["scope"];
+    let grant = &snapshot["root_grant"];
+    let plan = &snapshot["plan"];
+    let rebinding = &snapshot["subject_rebinding"];
+    let artifact_ids: Vec<Value> = scope["outputs"]
+        .as_object()
+        .map(|outputs| outputs.keys().map(|id| json!(id)).collect())
+        .unwrap_or_default();
+    exact_fields(
+        selection,
+        &[
+            "scope_id",
+            "expected_plan_revision",
+            "expected_ledger_revision",
+        ],
+    ) && graph_id(&selection["scope_id"])
+        && graph_revision(&selection["expected_plan_revision"])
+        && graph_revision(&selection["expected_ledger_revision"])
+        && snapshot["graph_contract_version"] == 1
+        && snapshot["intent"] == *selection
+        && scope["id"] == selection["scope_id"]
+        && snapshot["execution"] == "goal_graph_v1_existing_workspace"
+        && snapshot["new_workspace_authority"] == false
+        && snapshot["allow_in_scope_plan_revisions"] == true
+        && snapshot["enforcement"]
+            == json!({"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false})
+        && [
+            "task_id",
+            "project_id",
+            "root_grant_id",
+            "workspace_id",
+            "input_revision",
+        ]
+        .iter()
+        .all(|key| graph_id(&scope[*key]))
+        && scope["revoked"] == false
+        && scope["planning_only"] == true
+        && graph_revision(&scope["authority_revision"])
+        && graph_revision(&scope["root_grant_revision"])
+        && graph_hash(&scope["scope_digest"])
+        && graph_hash(&scope["program_sha256"])
+        && scope["goal"]["task_id"] == scope["task_id"]
+        && scope["goal"]["root_task_id"] == scope["task_id"]
+        && scope["goal"]["project_id"] == scope["project_id"]
+        && scope["goal"]["input_revision"] == scope["input_revision"]
+        && graph_revision(&scope["goal"]["spec_revision"])
+        && scope["binding"]["workspace_id"] == scope["workspace_id"]
+        && scope["binding"]["input_revision"] == scope["input_revision"]
+        && grant["id"] == scope["root_grant_id"]
+        && grant["root_grant_id"] == scope["root_grant_id"]
+        && grant.get("parent_id").is_some_and(Value::is_null)
+        && grant["project_id"] == scope["project_id"]
+        && grant["revision"] == scope["root_grant_revision"]
+        && grant["revoked"] == false
+        && [
+            ("workspace_ids", "workspace_id"),
+            ("connection_ids", "connection_id"),
+            ("host_ids", "host_id"),
+        ]
+        .iter()
+        .all(|(ids, key)| {
+            grant["scope"][*ids].as_array().is_some_and(|ids| {
+                ids.contains(if *key == "workspace_id" {
+                    &scope["workspace_id"]
+                } else {
+                    &scope["binding"][*key]
+                })
+            })
+        })
+        && snapshot["existing_connection"]["id"] == scope["binding"]["connection_id"]
+        && graph_id(&scope["binding"]["connection_id"])
+        && [
+            "environment_id",
+            "identity_ref",
+            "host_id",
+            "config_revision",
+            "capability_snapshot_id",
+        ]
+        .iter()
+        .all(|key| {
+            graph_id(&scope["binding"][*key])
+                && snapshot["existing_connection"][*key] == scope["binding"][*key]
+        })
+        && snapshot["existing_connection"]["executable_sha256"] == scope["program_sha256"]
+        && plan["scope_id"] == selection["scope_id"]
+        && plan["proposal"]["schema_version"] == 1
+        && graph_id(&plan["proposal"]["plan_id"])
+        && plan["proposal"]["revision"] == selection["expected_plan_revision"]
+        && plan["proposal"]["scope_revision"] == scope["authority_revision"]
+        && plan["proposal"]["goal"] == scope["goal"]
+        && graph_hash(&plan["digest"])
+        && plan["state"] == "validated_proposal"
+        && plan["dispatched"] == false
+        && plan["proposal"]["nodes"]
+            .as_array()
+            .is_some_and(|nodes| !nodes.is_empty() && nodes.len() <= 256)
+        && snapshot["definition_reuse"]
+            .as_array()
+            .is_some_and(|definitions| {
+                definitions.len() <= 64
+                    && definitions.iter().enumerate().all(|(index, definition)| {
+                        let action = match definition["source"]["kind"].as_str() {
+                            Some("integrity") => "artifact_integrity_only",
+                            Some("data") => "data_contract_only",
+                            Some("command") => "approved_deterministic_command_only",
+                            _ => return false,
+                        };
+                        graph_id(&definition["rule_id"])
+                            && graph_id(&definition["source"]["policy_id"])
+                            && graph_revision(&definition["source"]["revision"])
+                            && graph_hash(&definition["definition_digest"])
+                            && scope["rules"][definition["rule_id"].as_str().unwrap_or("")]
+                                == definition["definition_digest"]
+                            && definition["definition"].is_object()
+                            && definition["allowed_actions"] == json!([action])
+                            && definition["goal_acceptance"] == false
+                            && graph_ids(&definition["artifact_ids"], true)
+                            && definition["artifact_ids"]
+                                .as_array()
+                                .is_some_and(|ids| ids.iter().all(|id| artifact_ids.contains(id)))
+                            && !definitions[..index]
+                                .iter()
+                                .any(|old| old["rule_id"] == definition["rule_id"])
+                    })
+            })
+        && exact_fields(
+            rebinding,
+            &[
+                "mode",
+                "project_id",
+                "workspace_id",
+                "root_grant_id",
+                "artifact_ids",
+                "requires_current_scope_and_inputs",
+                "requires_owned_stop_and_capture",
+                "requires_current_definition_digest",
+                "allows_legacy_candidate_backfill",
+                "allows_old_policy_execution_reuse",
+                "allows_new_workspace",
+            ],
+        )
+        && rebinding["mode"] == "this_run_current_plan_owned_producer_only"
+        && rebinding["project_id"] == scope["project_id"]
+        && rebinding["workspace_id"] == scope["workspace_id"]
+        && rebinding["root_grant_id"] == scope["root_grant_id"]
+        && graph_ids(&rebinding["artifact_ids"], true)
+        && rebinding["artifact_ids"].as_array().is_some_and(|ids| {
+            ids.len() == artifact_ids.len() && artifact_ids.iter().all(|id| ids.contains(id))
+        })
+        && [
+            "requires_current_scope_and_inputs",
+            "requires_owned_stop_and_capture",
+            "requires_current_definition_digest",
+        ]
+        .iter()
+        .all(|key| rebinding[*key] == true)
+        && [
+            "allows_legacy_candidate_backfill",
+            "allows_old_policy_execution_reuse",
+            "allows_new_workspace",
+        ]
+        .iter()
+        .all(|key| rebinding[*key] == false)
+        && snapshot["budgets"]["root"] == scope["root_budget"]
+        && snapshot["budgets"]["project"] == scope["project_budget"]
+        && scope["root_budget"].is_object()
+        && scope["project_budget"].is_object()
+        && snapshot["budgets"]["usage"].is_object()
+        && snapshot["io_limits"]
+            == json!({"max_total_artifact_bytes":16_777_216,"max_artifact_refs":64,"worker_within_attempt_runtime_reservation":true,"cancel_requires_actual_join":true,"timeout_without_join_is_unknown":true})
+        && snapshot["warning"]
+            .as_str()
+            .is_some_and(|warning| !warning.is_empty())
+}
+pub fn confirm_goal_graph_and_finalize(
+    response: Value,
+    selection: &Value,
+    confirm_native: impl FnMut(&str) -> bool,
+    finalize: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<Value, String> {
+    if let Some(error) = graph_server_error(&response) {
+        return error;
+    }
+    if !graph_execution_snapshot_matches(&response["result"]["snapshot"], selection) {
+        return graph_refused("Graph proposal does not match the exact existing scope/plan/ledger, definition reuse, subject rebinding and shared budget boundaries");
+    }
+    confirm_paged_graph_and_finalize(
+        response,
+        GraphApprovalKind::Execution,
+        GraphDecision::Approve,
+        confirm_native,
+        finalize,
+    )
+}
+
+fn graph_candidate_receipts_match(snapshot: &Value, binding: &Value, ledger: &Value) -> bool {
+    let Some(receipts) = snapshot["candidate_receipts"].as_array() else {
+        return false;
+    };
+    let Some(sequence) = ledger.as_u64() else {
+        return false;
+    };
+    if receipts.is_empty() || receipts.len() > 64 {
+        return false;
+    }
+    let valid = receipts.iter().enumerate().all(|(index, c)| {
+        graph_id(&c["id"])
+            && c["graph_contract_version"] == 1
+            && c["run_id"] == binding["run_id"]
+            && c["scope_id"] == binding["scope_id"]
+            && c["task_id"] == binding["task_id"]
+            && c["spec_revision"] == binding["spec_revision"]
+            && c["input_revision"] == binding["input_revision"]
+            && c["workspace_id"] == binding["workspace_id"]
+            && c["capability_digest"] == binding["capability_digest"]
+            && graph_revision(&c["plan_revision"])
+            && c["plan_revision"].as_u64() <= binding["plan_revision"].as_u64()
+            && graph_hash(&c["plan_digest"])
+            && (c["plan_revision"] != binding["plan_revision"]
+                || c["plan_digest"] == binding["plan_digest"])
+            && ["node_id", "attempt_id", "session_id", "capture_job_id"]
+                .iter()
+                .all(|key| graph_id(&c[*key]))
+            && c["stop_receipt_sequence"].as_u64().is_some_and(|stop| {
+                stop > 0
+                    && stop < sequence
+                    && c["capture_receipt_sequence"]
+                        .as_u64()
+                        .is_some_and(|capture| capture > stop && capture <= sequence)
+            })
+            && c["source"] == "baton_goal_evidence"
+            && c["integrity"] == "verified"
+            && c["task_acceptance"] == "not_established"
+            && c["created_at"]
+                .as_str()
+                .is_some_and(|text| !text.is_empty())
+            && c["artifacts"].as_array().is_some_and(|artifacts| {
+                artifacts.len() <= 64
+                    && artifacts.iter().all(|r| {
+                        graph_artifact_matches(r, &binding["workspace"])
+                            && r["candidate_id"] == c["id"]
+                            && r["producer_node_id"] == c["node_id"]
+                            && r["producer_attempt_id"] == c["attempt_id"]
+                    })
+            })
+            && c["consumed_inputs"].as_array().is_some_and(|inputs| {
+                inputs.len() <= 64
+                    && inputs.iter().all(|input| {
+                        graph_id(&input["artifact_id"])
+                            && graph_id(&input["contract_id"])
+                            && graph_hash(&input["sha256"])
+                            && (input["candidate"].is_null()
+                                || graph_artifact_matches(
+                                    &input["candidate"],
+                                    &binding["workspace"],
+                                ) && input["candidate"]["sha256"] == input["sha256"]
+                                    && input["candidate"]["artifact_id"] == input["artifact_id"]
+                                    && input["candidate"]["contract_id"] == input["contract_id"])
+                    })
+            })
+            && !receipts[..index].iter().any(|old| old["id"] == c["id"])
+    });
+    valid
+        && snapshot["candidate_refs"].as_array().is_some_and(|refs| {
+            refs.iter().all(|reference| {
+                receipts.iter().any(|c| {
+                    c["id"] == reference["candidate_id"]
+                        && c["artifacts"]
+                            .as_array()
+                            .is_some_and(|artifacts| artifacts.contains(reference))
+                })
+            })
+        })
+}
+fn graph_node_snapshot_matches(
+    snapshot: &Value,
+    selection: &Value,
+    expected_revision: u64,
+) -> bool {
+    let binding = &snapshot["run_binding"];
+    let node = &snapshot["node"];
+    let criterion = &snapshot["criterion"];
+    let refs = snapshot["candidate_refs"].as_array();
+    let checks = snapshot["validation_refs"].as_array();
+    let inputs = snapshot["input_bindings"].as_array();
+    exact_fields(
+        selection,
+        &[
+            "run_id",
+            "node_id",
+            "expected_plan_revision",
+            "expected_ledger_revision",
+        ],
+    ) && graph_id(&selection["run_id"])
+        && graph_id(&selection["node_id"])
+        && graph_revision(&selection["expected_plan_revision"])
+        && graph_revision(&selection["expected_ledger_revision"])
+        && snapshot["graph_contract_version"] == 1
+        && snapshot["intent"] == *selection
+        && expected_revision > 0
+        && expected_revision <= 9_007_199_254_740_991
+        && snapshot["expected_run_revision"].as_u64() == Some(expected_revision)
+        && snapshot["expected_ledger_revision"] == selection["expected_ledger_revision"]
+        && binding["run_id"] == selection["run_id"]
+        && binding["plan_revision"] == selection["expected_plan_revision"]
+        && [
+            "scope_id",
+            "task_id",
+            "project_id",
+            "root_grant_id",
+            "input_revision",
+            "workspace_id",
+        ]
+        .iter()
+        .all(|key| graph_id(&binding[*key]))
+        && ["plan_digest", "scope_digest", "capability_digest"]
+            .iter()
+            .all(|key| graph_hash(&binding[*key]))
+        && graph_revision(&binding["spec_revision"])
+        && snapshot["capability_digest"] == binding["capability_digest"]
+        && graph_candidate_receipts_match(snapshot, binding, &selection["expected_ledger_revision"])
+        && binding["workspace"]["canonical_root"]
+            .as_str()
+            .is_some_and(|root| root.starts_with('/') && root.len() <= 4096)
+        && binding["workspace"]["device"].as_u64().is_some()
+        && binding["workspace"]["inode"].as_u64().is_some()
+        && binding["workspace"]["kind"]["kind"]
+            .as_str()
+            .is_some_and(|kind| ["directory", "git"].contains(&kind))
+        && node["id"] == selection["node_id"]
+        && node["kind"] == "owner_approval"
+        && node["workspace_id"] == binding["workspace_id"]
+        && node["executor"]["kind"] == "owner"
+        && node["executor"]["rule_id"] == criterion["rule_id"]
+        && graph_id(&criterion["rule_id"])
+        && criterion["criterion_text"]
+            .as_str()
+            .is_some_and(|text| !text.trim().is_empty() && text.len() <= 2048)
+        && graph_hash(&criterion["criterion_digest"])
+        && graph_ids(&criterion["artifact_ids"], true)
+        && refs.is_some_and(|refs| {
+            !refs.is_empty()
+                && refs.len() <= 64
+                && refs
+                    .iter()
+                    .all(|r| graph_artifact_matches(r, &binding["workspace"]))
+                && criterion["artifact_ids"].as_array().is_some_and(|ids| {
+                    ids.iter()
+                        .all(|id| refs.iter().any(|reference| reference["artifact_id"] == *id))
+                })
+        })
+        && checks.is_some_and(|checks| {
+            checks.len() <= 64
+                && checks.iter().all(|check| {
+                    check["graph_contract_version"] == 1
+                        && check["run_id"] == selection["run_id"]
+                        && graph_id(&check["id"])
+                        && graph_id(&check["node_id"])
+                        && graph_id(&check["attempt_id"])
+                        && graph_id(&check["rule_id"])
+                        && graph_revision(&check["plan_revision"])
+                        && graph_hash(&check["plan_digest"])
+                        && graph_hash(&check["definition_digest"])
+                        && graph_hash(&check["result_digest"])
+                        && check["candidate_refs"].as_array().is_some_and(|items| {
+                            items.len() <= 64
+                                && items
+                                    .iter()
+                                    .all(|item| graph_artifact_matches(item, &binding["workspace"]))
+                        })
+                        && check["source"] == "baton_goal_validator"
+                        && check["correctness"] == "not_established"
+                        && check["task_acceptance"] == "not_established"
+                        && ["passed", "failed", "cancelled"]
+                            .iter()
+                            .any(|state| check["state"] == *state)
+                        && ["worker_joined", "not_started"]
+                            .iter()
+                            .any(|state| check["io_completion"] == *state)
+                        && [
+                            "artifact_integrity_only",
+                            "data_contract_only",
+                            "approved_deterministic_command_only",
+                        ]
+                        .iter()
+                        .any(|scope| check["scope"] == *scope)
+                        && (check["state"] == "passed")
+                            == check["passed"].as_bool().unwrap_or(false)
+                        && check["passed"].is_boolean()
+                        && check["stop_confirmed"].is_boolean()
+                        && check["input_bindings"].is_array()
+                })
+        })
+        && inputs.is_some_and(|inputs| {
+            inputs.len() <= 64
+                && inputs.iter().all(|input| {
+                    graph_id(&input["artifact_id"])
+                        && graph_id(&input["contract_id"])
+                        && graph_hash(&input["sha256"])
+                        && (input["candidate"].is_null()
+                            || graph_artifact_matches(&input["candidate"], &binding["workspace"])
+                                && input["candidate"]["sha256"] == input["sha256"]
+                                && input["candidate"]["artifact_id"] == input["artifact_id"]
+                                && input["candidate"]["contract_id"] == input["contract_id"])
+                })
+        })
+}
+/// Fixed Owner acceptance only; the renderer cannot select the private decision.
+pub fn confirm_goal_node_and_finalize(
+    response: Value,
+    selection: &Value,
+    expected_revision: u64,
+    confirm_native: impl FnMut(&str) -> bool,
+    finalize: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<Value, String> {
+    if let Some(error) = graph_server_error(&response) {
+        return error;
+    }
+    if !graph_node_snapshot_matches(
+        &response["result"]["snapshot"],
+        selection,
+        expected_revision,
+    ) {
+        return graph_refused("Owner node proposal does not match the exact current run, node, CAS, criterion and complete artifact/validation bindings");
+    }
+    confirm_paged_graph_and_finalize(
+        response,
+        GraphApprovalKind::NodeAcceptance,
+        GraphDecision::Approve,
+        confirm_native,
+        finalize,
+    )
+}
+/// Fixed explicit Owner rejection; review Cancel never reaches this route.
+pub fn confirm_goal_node_rejection_and_decline(
+    response: Value,
+    selection: &Value,
+    expected_revision: u64,
+    confirm_native: impl FnMut(&str) -> bool,
+    decline: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<Value, String> {
+    if let Some(error) = graph_server_error(&response) {
+        return error;
+    }
+    if !graph_node_snapshot_matches(
+        &response["result"]["snapshot"],
+        selection,
+        expected_revision,
+    ) {
+        return graph_refused("Owner rejection proposal does not match the exact current run, node, CAS, criterion and complete artifact/validation bindings");
+    }
+    confirm_paged_graph_and_finalize(
+        response,
+        GraphApprovalKind::NodeAcceptance,
+        GraphDecision::Reject,
+        confirm_native,
+        decline,
+    )
+}
+
+#[derive(Clone, Copy)]
+enum GraphApprovalKind {
+    Execution,
+    NodeAcceptance,
+}
+impl GraphApprovalKind {
+    fn kind(self) -> &'static str {
+        match self {
+            Self::Execution => "goal_graph_execution",
+            Self::NodeAcceptance => "goal_node_acceptance",
+        }
+    }
+    fn action(self) -> &'static str {
+        match self {
+            Self::Execution => "Review bounded execution of this exact Goal graph within the existing scope. Only same-scope safe plan revisions may advance. Authorizes the displayed pinned validator definitions to be reused for exact declared candidate subjects in the same workspace; review every definition_reuse and subject_rebinding field. Existing permissions and cumulative budgets never reset or expand. Candidate, integrity/schema checks and exit zero are not semantic Task acceptance. No OS filesystem/network sandbox, output quota, integration or release is granted. / 核对同范围内图执行、固定检查定义复用、同工作区产物对象绑定及累计共享限额；不扩大权限，不授予系统隔离、集成或发布。",
+            Self::NodeAcceptance => "Review acceptance of this exact Owner node and its exact candidate artifacts, original attempt, plan/input revisions, validation references and criterion. Acceptance applies only to the complete snapshot below. A stopped process or successful structural check is not proof of semantic correctness. / 核对固定负责人节点、产物哈希/字节、尝试、输入/计划、验证引用与验收条件；不能用进程停止或结构检查代替语义判断。",
+        }
+    }
+}
+fn graph_refused(message: &str) -> Result<Value, String> {
+    Ok(
+        json!({"request_id":null,"error":{"code":"INVALID_APPROVAL_PROPOSAL","message":message,"retryable":false,"side_effect_state":"not_started","details_ref":null},"revision":0,"warnings":[]}),
+    )
+}
+fn graph_declined() -> Result<Value, String> {
+    Ok(
+        json!({"request_id":null,"error":{"code":"PERMISSION_DENIED","message":"Native review was cancelled; no approval or Owner rejection receipt was created","retryable":false,"side_effect_state":"not_started","details_ref":null},"revision":0,"warnings":[]}),
+    )
+}
+fn graph_server_error(response: &Value) -> Option<Result<Value, String>> {
+    response.get("error").map(|error| {
+        if error.is_object()
+            && error["code"].is_string()
+            && error["message"].is_string()
+            && error["retryable"].is_boolean()
+            && error["side_effect_state"].is_string()
+        {
+            Ok(response.clone())
+        } else {
+            graph_refused("Malformed server error before graph review; no approval was finalized")
+        }
+    })
+}
+#[derive(Clone, Copy)]
+enum GraphDecision {
+    Approve,
+    Reject,
+}
+fn confirm_paged_graph_and_finalize(
+    response: Value,
+    kind: GraphApprovalKind,
+    decision: GraphDecision,
+    mut confirm_native: impl FnMut(&str) -> bool,
+    finalize: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<Value, String> {
+    if let Some(error) = graph_server_error(&response) {
+        return error;
+    }
+    if matches!(decision, GraphDecision::Reject)
+        && !matches!(kind, GraphApprovalKind::NodeAcceptance)
+    {
+        return graph_refused("Only an exact Owner node can use the fixed rejection action");
+    }
+    let decision_name = match decision {
+        GraphDecision::Approve => "APPROVE",
+        GraphDecision::Reject => "REJECT",
+    };
+    let proposal = &response["result"];
+    if serde_json::to_vec(&response)
+        .map_or(true, |encoded| encoded.len() > GRAPH_REVIEW_SNAPSHOT_BYTES)
+    {
+        return graph_refused("Complete graph proposal exceeds the native envelope byte limit");
+    }
+    let Some(id) = proposal["id"].as_str().filter(|id| {
+        !id.is_empty()
+            && id.len() <= 128
+            && id
+                .bytes()
+                .all(|c| c.is_ascii_alphanumeric() || b"._:-".contains(&c))
+    }) else {
+        return graph_refused("Invalid graph proposal reference; no review was opened");
+    };
+    let Some(revision) = proposal["revision"]
+        .as_u64()
+        .filter(|n| *n > 0 && *n <= 9_007_199_254_740_991)
+    else {
+        return graph_refused("Invalid graph proposal revision; no review was opened");
+    };
+    if proposal["kind"] != kind.kind() {
+        return graph_refused("Wrong graph approval kind; no review was opened");
+    }
+    let pages = match graph_review_pages(&proposal["snapshot"]) {
+        Ok(pages) => pages,
+        Err(error) => return graph_refused(&error),
+    };
+    let total = pages.iter().map(String::len).sum::<usize>();
+    let mut offset = 0;
+    for (index, page) in pages.iter().enumerate() {
+        let end = offset + page.len();
+        let message=format!("{}\n\nNative application review — {} / proposal {} / revision {}. Page {}/{}; exact JSON UTF-8 bytes {}..{} of {}. This is a CONTINUATION of complete compact JSON; no field is omitted. Read every page before final approval. OK reviews this page only and does not authorize execution or acceptance. Cancel stops review without an Owner decision receipt.\n\n完整原生审查分页：OK仅确认读完本页，全部页后仍需最终批准。取消不生成验收或拒绝凭据。\n\n{}",format!("{}\nRequested final decision: {}. / 最终请求决定：{}。",kind.action(),decision_name,decision_name),kind.kind(),id,revision,index+1,pages.len(),offset,end,total,page);
+        if message.len() > 16_384 {
+            return graph_refused("Native graph review page exceeds the display limit");
+        }
+        if !confirm_native(&message) {
+            return graph_declined();
+        }
+        offset = end;
+    }
+    let final_message=format!("{}\n\nFINAL native decision {} — {} / proposal {} / revision {}. All {} complete JSON pages ({} UTF-8 bytes) were reviewed. OK records the stated decision only for this exact server proposal and revision; changed inputs, scope, artifacts, validation or plan must be proposed again. Cancel does not create an Owner rejection. Unknown effects require reconciliation, never automatic replay.\n\n最终原生决定：仅对已完整审阅的固定提议与版本记录显示的批准或拒绝，输入变化须重新提议。取消不产生负责人拒绝凭据。",kind.action(),decision_name,kind.kind(),id,revision,pages.len(),total);
+    if !confirm_native(&final_message) {
+        return graph_declined();
+    }
+    let (method, key) = match decision {
+        GraphDecision::Approve => ("approvals.finalize", format!("proposal:{id}")),
+        GraphDecision::Reject => ("approvals.decline", format!("proposal-decline:{id}")),
+    };
+    finalize(
+        json!({"method":method,"params":{"proposal_id":id},"expected_revision":revision,"idempotency_key":key}),
+    )
+}
+
+// Graph reviews have a separate bounded host-only review path. Existing kinds
+// keep the original single-dialog 16KiB limit above.
+const GRAPH_REVIEW_SNAPSHOT_BYTES: usize = 1_048_576;
+const GRAPH_REVIEW_PAGE_BYTES: usize = 12_288;
+
+fn graph_review_pages(snapshot: &Value) -> Result<Vec<String>, String> {
+    if !snapshot.is_object() {
+        return Err("Graph approval requires a complete object snapshot".into());
+    }
+    let complete = serde_json::to_string(snapshot).map_err(|error| error.to_string())?;
+    if complete.len() > GRAPH_REVIEW_SNAPSHOT_BYTES {
+        return Err("Graph approval exceeds the complete native review byte limit".into());
+    }
+    let mut pages = Vec::new();
+    let mut start = 0;
+    while start < complete.len() {
+        let mut end = (start + GRAPH_REVIEW_PAGE_BYTES).min(complete.len());
+        while !complete.is_char_boundary(end) {
+            end -= 1;
+        }
+        if end == start {
+            return Err("Graph review could not preserve a UTF-8 boundary".into());
+        }
+        pages.push(complete[start..end].to_owned());
+        start = end;
+    }
+    // A review is a lossless encoding of the entire server snapshot, not a
+    // digest, field allowlist or renderer-provided projection.
+    if pages.concat() != complete {
+        return Err("Graph review could not preserve the complete snapshot".into());
+    }
+    Ok(pages)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1270,5 +1952,331 @@ mod tests {
             value["result"]["kind"] = json!(kind);
             assert_goal_execution_refused(value, &selection);
         }
+    }
+    #[test]
+    fn actual_core12_generated_graph_proposal_is_reviewed_completely_with_original_private_reference(
+    ) {
+        // Actual authenticated Unix-frame Core12 propose fixture SHA256
+        // 6074f58ca57c370ed789b92c8602c2dc5e37e5cf29963f83ee4e76297362f36a.
+        // This callback probe is NOT Core finalization, worker dispatch or an
+        // operating-system owner dialog.
+        let original: Value = serde_json::from_str(include_str!(
+            "../../src/goal-graph-actual-proposal-fixture.json"
+        ))
+        .unwrap();
+        let selection = original["snapshot"]["intent"].clone();
+        let snapshot = original["snapshot"].clone();
+        let mut pages = Vec::new();
+        let result=confirm_goal_graph_and_finalize(json!({"result":original}),&selection,|message|{assert!(message.len()<=16_384);if !message.contains("FINAL native decision"){pages.push(message.rsplit("\n\n").next().unwrap().to_owned());}true},|frame|{assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":original["id"]},"expected_revision":original["revision"],"idempotency_key":format!("proposal:{}",original["id"].as_str().unwrap())}));Ok(json!({"result":"callback only"}))}).unwrap();
+        assert_eq!(
+            serde_json::from_str::<Value>(&pages.concat()).unwrap(),
+            snapshot
+        );
+        assert_eq!(result["result"], "callback only");
+        let declined = confirm_goal_graph_and_finalize(
+            json!({"result":original}),
+            &selection,
+            |_| false,
+            |_| panic!("decline finalized actual proposal"),
+        )
+        .unwrap();
+        assert_eq!(declined["error"]["code"], "PERMISSION_DENIED");
+    }
+    fn graph_native_proposal_fixture() -> (Value, Value) {
+        let (mut response, selection) = goal_execution_proposal();
+        response["result"]["kind"] = json!("goal_graph_execution");
+        let snapshot = &mut response["result"]["snapshot"];
+        snapshot["scope"]["outputs"] = json!({"artifact-1":"output:artifact-1"});
+        snapshot["scope"]["rules"] = json!({"rule-1":"d".repeat(64)});
+        snapshot["plan"]["state"] = json!("validated_proposal");
+        snapshot["graph_contract_version"] = json!(1);
+        snapshot["execution"] = json!("goal_graph_v1_existing_workspace");
+        snapshot["definition_reuse"] = json!([{"rule_id":"rule-1","source":{"kind":"integrity","policy_id":"policy-1","revision":2},"definition_digest":"d".repeat(64),"definition":{"complete":"definition"},"allowed_actions":["artifact_integrity_only"],"artifact_ids":["artifact-1"],"goal_acceptance":false}]);
+        snapshot["subject_rebinding"] = json!({"mode":"this_run_current_plan_owned_producer_only","project_id":"project-1","workspace_id":"workspace-1","root_grant_id":"grant-1","artifact_ids":["artifact-1"],"requires_current_scope_and_inputs":true,"requires_owned_stop_and_capture":true,"requires_current_definition_digest":true,"allows_legacy_candidate_backfill":false,"allows_old_policy_execution_reuse":false,"allows_new_workspace":false});
+        snapshot["budgets"] = json!({"root":snapshot["scope"]["root_budget"],"project":snapshot["scope"]["project_budget"],"usage":{"root":{"attempts":1,"tokens":null},"project":{"attempts":1,"tokens":null}}});
+        snapshot["io_limits"] = json!({"max_total_artifact_bytes":16_777_216,"max_artifact_refs":64,"worker_within_attempt_runtime_reservation":true,"cancel_requires_actual_join":true,"timeout_without_join_is_unknown":true});
+        (response, selection)
+    }
+    #[test]
+    fn graph_fixed_native_snapshot_checks_full_scope_and_new_authority_before_any_prompt() {
+        let (proposal, selection) = graph_native_proposal_fixture();
+        let expected = proposal["result"]["snapshot"].clone();
+        let mut pages = Vec::new();
+        let result=confirm_goal_graph_and_finalize(proposal.clone(),&selection,|message|{if !message.contains("FINAL native decision"){pages.push(message.rsplit("\n\n").next().unwrap().to_owned());}true},|command|{assert_eq!(command,json!({"method":"approvals.finalize","params":{"proposal_id":"execution-proposal"},"expected_revision":4,"idempotency_key":"proposal:execution-proposal"}));Ok(json!({"result":"exact receipt"}))}).unwrap();
+        assert_eq!(
+            serde_json::from_str::<Value>(&pages.concat()).unwrap(),
+            expected
+        );
+        assert_eq!(result["result"], "exact receipt");
+        for pointer in [
+            "/intent/scope_id",
+            "/scope/root_grant_revision",
+            "/existing_connection/identity_ref",
+            "/definition_reuse/0/goal_acceptance",
+            "/definition_reuse/0/allowed_actions/0",
+            "/subject_rebinding/allows_new_workspace",
+            "/subject_rebinding/requires_owned_stop_and_capture",
+            "/enforcement/output_quota",
+            "/io_limits/max_artifact_refs",
+            "/budgets/root/attempts",
+        ] {
+            let mut changed = proposal.clone();
+            let target = changed["result"]["snapshot"].pointer_mut(pointer).unwrap();
+            *target = match target {
+                Value::Bool(value) => json!(!*value),
+                Value::Number(_) => json!(999),
+                _ => json!("foreign-authority"),
+            };
+            let refused = confirm_goal_graph_and_finalize(
+                changed,
+                &selection,
+                |_| panic!("foreign graph authority prompted"),
+                |_| panic!("foreign graph authority finalized"),
+            )
+            .unwrap();
+            assert_eq!(refused["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+        }
+    }
+    fn graph_node_proposal_fixture() -> (Value, Value) {
+        let selection = json!({"run_id":"run-1","node_id":"owner-1","expected_plan_revision":3,"expected_ledger_revision":17});
+        let workspace = json!({"canonical_root":"/generated/workspace","device":1,"inode":2,"kind":{"kind":"directory"}});
+        let reference = json!({"candidate_id":"candidate-1","artifact_id":"artifact-1","contract_id":"output:artifact-1","producer_node_id":"work-1","producer_attempt_id":"attempt-1","sha256":"a".repeat(64),"bytes":12,"relative_path":"outputs/report.txt","root":workspace,"file_pin":{"device":1,"inode":3,"bytes":12,"uid":1000,"gid":1000,"mode":33152,"mtime":1,"mtime_nsec":0,"ctime":1,"ctime_nsec":0},"writer_epoch":12});
+        let snapshot = json!({"graph_contract_version":1,"intent":selection,"run_binding":{"run_id":"run-1","scope_id":"scope-1","task_id":"task-1","project_id":"project-1","root_grant_id":"grant-1","plan_revision":3,"plan_digest":"b".repeat(64),"scope_digest":"c".repeat(64),"spec_revision":1,"input_revision":"input-1","workspace_id":"workspace-1","workspace":workspace,"capability_digest":"d".repeat(64)},"node":{"id":"owner-1","kind":"owner_approval","goal":"Review exact output","workspace_id":"workspace-1","executor":{"kind":"owner","rule_id":"owner-rule"}},"criterion":{"rule_id":"owner-rule","criterion_text":"Compare the complete report with the approved requirement","criterion_digest":"e".repeat(64),"artifact_ids":["artifact-1"]},"candidate_refs":[reference],"validation_refs":[],"input_bindings":[],"capability_digest":"d".repeat(64),"expected_run_revision":9,"expected_ledger_revision":17});
+        let mut snapshot = snapshot;
+        snapshot["candidate_receipts"] = json!([{"id":"candidate-1","graph_contract_version":1,"run_id":"run-1","scope_id":"scope-1","plan_revision":3,"plan_digest":"b".repeat(64),"node_id":"work-1","attempt_id":"attempt-1","session_id":"session-1","task_id":"task-1","spec_revision":1,"input_revision":"input-1","workspace_id":"workspace-1","capability_digest":"d".repeat(64),"consumed_inputs":[],"artifacts":snapshot["candidate_refs"],"stop_receipt_sequence":11,"capture_job_id":"capture-1","capture_receipt_sequence":12,"created_at":"2026-10-28","source":"baton_goal_evidence","integrity":"verified","task_acceptance":"not_established"}]);
+        (
+            json!({"result":{"id":"owner-proposal","kind":"goal_node_acceptance","revision":2,"snapshot":snapshot}}),
+            selection,
+        )
+    }
+    #[test]
+    fn owner_fixed_native_accept_and_reject_bind_exact_refs_and_separate_private_actions() {
+        let (proposal, selection) = graph_node_proposal_fixture();
+        confirm_goal_node_and_finalize(proposal.clone(),&selection,9,|message|{assert!(message.contains("APPROVE"));true},|frame|{assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":"owner-proposal"},"expected_revision":2,"idempotency_key":"proposal:owner-proposal"}));Ok(json!({"result":"accepted"}))}).unwrap();
+        confirm_goal_node_rejection_and_decline(proposal.clone(),&selection,9,|message|{assert!(message.contains("REJECT"));true},|frame|{assert_eq!(frame,json!({"method":"approvals.decline","params":{"proposal_id":"owner-proposal"},"expected_revision":2,"idempotency_key":"proposal-decline:owner-proposal"}));Ok(json!({"result":"rejected"}))}).unwrap();
+        let decline = confirm_goal_node_rejection_and_decline(
+            proposal,
+            &selection,
+            9,
+            |_| false,
+            |_| panic!("Cancel created rejection"),
+        )
+        .unwrap();
+        assert_eq!(decline["error"]["code"], "PERMISSION_DENIED");
+    }
+    #[test]
+    fn owner_foreign_snapshot_cas_input_artifact_and_scope_are_refused_without_prompt() {
+        let (proposal, selection) = graph_node_proposal_fixture();
+        for pointer in [
+            "/intent/node_id",
+            "/run_binding/run_id",
+            "/run_binding/plan_revision",
+            "/run_binding/workspace_id",
+            "/capability_digest",
+            "/expected_run_revision",
+            "/expected_ledger_revision",
+            "/criterion/rule_id",
+            "/criterion/artifact_ids/0",
+            "/candidate_refs/0/producer_attempt_id",
+            "/candidate_refs/0/root/inode",
+            "/candidate_refs/0/relative_path",
+            "/candidate_refs/0/file_pin/bytes",
+        ] {
+            let mut changed = proposal.clone();
+            let value = changed["result"]["snapshot"].pointer_mut(pointer).unwrap();
+            *value = if value.is_number() {
+                json!(999)
+            } else {
+                json!("../foreign")
+            };
+            // A syntactically valid changed producer attempt remains server
+            // evidence and must be compared with complete origin receipts;
+            // this adversarial control uses an invalid reference value.
+            let result = confirm_goal_node_and_finalize(
+                changed,
+                &selection,
+                9,
+                |_| panic!("foreign Owner snapshot prompted"),
+                |_| panic!("foreign Owner snapshot finalized"),
+            )
+            .unwrap();
+            assert_eq!(result["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+        }
+    }
+}
+
+#[cfg(test)]
+mod graph_review_tests {
+    use super::*;
+    use std::cell::Cell;
+    fn graph_proposal(kind: GraphApprovalKind) -> Value {
+        json!({"result":{"id":"graph-proposal","revision":7,"kind":kind.kind(),"snapshot":{"nested":{"retained":true},"text":"完整😀".repeat(5000)}}})
+    }
+    #[test]
+    fn graph_private_finalize_only_after_every_page_and_final_confirmation() {
+        for kind in [
+            GraphApprovalKind::Execution,
+            GraphApprovalKind::NodeAcceptance,
+        ] {
+            let response = graph_proposal(kind);
+            let expected = response["result"]["snapshot"].clone();
+            let mut payloads = Vec::new();
+            let confirmations = Cell::new(0);
+            let result=confirm_paged_graph_and_finalize(response,kind,GraphDecision::Approve,|message| {
+                assert!(message.len()<=16_384);confirmations.set(confirmations.get()+1);
+                if !message.contains("FINAL native decision") {payloads.push(message.rsplit("\n\n").next().unwrap().to_owned());}
+                true
+            },|command| {
+                assert_eq!(command,json!({"method":"approvals.finalize","params":{"proposal_id":"graph-proposal"},"expected_revision":7,"idempotency_key":"proposal:graph-proposal"}));
+                Ok(json!({"result":{"receipt":"exact"}}))
+            }).unwrap();
+            assert_eq!(
+                serde_json::from_str::<Value>(&payloads.concat()).unwrap(),
+                expected
+            );
+            assert_eq!(confirmations.get(), payloads.len() + 1);
+            assert_eq!(result["result"]["receipt"], "exact");
+        }
+    }
+    #[test]
+    fn graph_cancel_on_any_page_or_final_never_creates_a_decision_or_finalizes() {
+        let response = graph_proposal(GraphApprovalKind::NodeAcceptance);
+        let page_count = graph_review_pages(&response["result"]["snapshot"])
+            .unwrap()
+            .len();
+        for decline in 0..=page_count {
+            let prompted = Cell::new(0);
+            let finalized = Cell::new(false);
+            let result = confirm_paged_graph_and_finalize(
+                response.clone(),
+                GraphApprovalKind::NodeAcceptance,
+                GraphDecision::Approve,
+                |_| {
+                    let current = prompted.get();
+                    prompted.set(current + 1);
+                    current != decline
+                },
+                |_| {
+                    finalized.set(true);
+                    Ok(json!({}))
+                },
+            )
+            .unwrap();
+            assert!(!finalized.get());
+            assert_eq!(prompted.get(), decline + 1);
+            assert_eq!(result["error"]["code"], "PERMISSION_DENIED");
+            assert_eq!(result["error"]["side_effect_state"], "not_started");
+            assert!(result.get("result").is_none());
+        }
+    }
+    #[test]
+    fn graph_wrong_kind_bad_reference_and_oversize_fail_before_prompt() {
+        let original = graph_proposal(GraphApprovalKind::Execution);
+        for value in [
+            json!(null),
+            json!({"error":null,"result":original["result"]}),
+            json!({"result":{"id":"foreign\nreference","revision":1,"kind":"goal_graph_execution","snapshot":{}}}),
+            json!({"result":{"id":"valid","revision":1,"kind":"goal_execution","snapshot":{}}}),
+            json!({"result":{"id":"valid","revision":1,"kind":"goal_graph_execution","snapshot":{"large":"a".repeat(GRAPH_REVIEW_SNAPSHOT_BYTES)}}}),
+        ] {
+            let result = confirm_paged_graph_and_finalize(
+                value,
+                GraphApprovalKind::Execution,
+                GraphDecision::Approve,
+                |_| panic!("invalid proposal prompted"),
+                |_| panic!("invalid proposal finalized"),
+            )
+            .unwrap();
+            assert_eq!(result["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+        }
+    }
+    #[test]
+    fn graph_postfinalize_unknown_or_transport_error_is_never_downgraded_or_retried() {
+        let unknown = json!({"error":{"code":"OUTCOME_UNKNOWN","message":"reconcile","retryable":false,"side_effect_state":"unknown"}});
+        assert_eq!(
+            confirm_paged_graph_and_finalize(
+                graph_proposal(GraphApprovalKind::Execution),
+                GraphApprovalKind::Execution,
+                GraphDecision::Approve,
+                |_| true,
+                |_| Ok(unknown.clone())
+            )
+            .unwrap(),
+            unknown
+        );
+        assert_eq!(
+            confirm_paged_graph_and_finalize(
+                graph_proposal(GraphApprovalKind::Execution),
+                GraphApprovalKind::Execution,
+                GraphDecision::Approve,
+                |_| true,
+                |_| Err("transport lost after finalize".into())
+            )
+            .unwrap_err(),
+            "transport lost after finalize"
+        );
+        assert_eq!(
+            confirm_paged_graph_and_finalize(
+                unknown.clone(),
+                GraphApprovalKind::Execution,
+                GraphDecision::Approve,
+                |_| panic!("Core error prompted"),
+                |_| panic!("Core error finalized")
+            )
+            .unwrap(),
+            unknown
+        );
+    }
+
+    #[test]
+    fn explicit_owner_rejection_is_separate_from_cancel_and_graph_execution() {
+        let rejected=confirm_paged_graph_and_finalize(graph_proposal(GraphApprovalKind::NodeAcceptance),GraphApprovalKind::NodeAcceptance,GraphDecision::Reject,|message| {assert!(message.contains("REJECT"));true},|command| {
+            assert_eq!(command,json!({"method":"approvals.decline","params":{"proposal_id":"graph-proposal"},"expected_revision":7,"idempotency_key":"proposal-decline:graph-proposal"}));
+            Ok(json!({"result":{"decision":"rejected"}}))
+        }).unwrap();
+        assert_eq!(rejected["result"]["decision"], "rejected");
+        let invalid = confirm_paged_graph_and_finalize(
+            graph_proposal(GraphApprovalKind::Execution),
+            GraphApprovalKind::Execution,
+            GraphDecision::Reject,
+            |_| panic!("execution cannot reject"),
+            |_| panic!("execution cannot decline"),
+        )
+        .unwrap();
+        assert_eq!(invalid["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+    }
+    #[test]
+    fn graph_pages_preserve_complete_values_and_utf8_with_bounded_payloads() {
+        let snapshot = json!({"untrusted_text":"审查😀\n\"".repeat(4000),"all_fields":{"null":null,"array":[true,false,1,{"field":"retained"}]},"unknown_future_field":{"not_omitted":"完整"}});
+        let pages = graph_review_pages(&snapshot).unwrap();
+        assert!(pages.len() > 1);
+        assert!(pages
+            .iter()
+            .all(|page| page.len() <= GRAPH_REVIEW_PAGE_BYTES));
+        assert_eq!(
+            serde_json::from_str::<Value>(&pages.concat()).unwrap(),
+            snapshot
+        );
+        assert_eq!(pages.concat(), serde_json::to_string(&snapshot).unwrap());
+    }
+    #[test]
+    fn graph_pages_refuse_oversize_or_nonobject_without_truncation() {
+        for snapshot in [
+            json!(null),
+            json!([]),
+            json!("not object"),
+            json!({"value":"a".repeat(GRAPH_REVIEW_SNAPSHOT_BYTES)}),
+        ] {
+            assert!(graph_review_pages(&snapshot).is_err());
+        }
+        let snapshot = json!({"value":"a".repeat(GRAPH_REVIEW_SNAPSHOT_BYTES-12)});
+        assert_eq!(
+            serde_json::to_string(&snapshot).unwrap().len(),
+            GRAPH_REVIEW_SNAPSHOT_BYTES
+        );
+        assert_eq!(
+            graph_review_pages(&snapshot).unwrap().concat(),
+            serde_json::to_string(&snapshot).unwrap()
+        );
     }
 }
