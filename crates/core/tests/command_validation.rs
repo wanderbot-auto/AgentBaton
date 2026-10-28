@@ -947,13 +947,15 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
     let executable = f.runtime.join("generated-malformed-acp");
     let observed_requests = f.runtime.join("generated-acp-observed");
     let observed_literal = serde_json::to_string(&observed_requests).unwrap();
+    let emitted_response = f.runtime.join("generated-acp-malformed-emitted");
+    let emitted_literal = serde_json::to_string(&emitted_response).unwrap();
     let python = Command::new("/usr/bin/env")
         .args(["which", "python3"])
         .output()
         .unwrap();
     assert!(python.status.success());
     let python = String::from_utf8(python.stdout).unwrap();
-    fs::write(&executable,format!("#!{}\nimport sys,json,os\nOBSERVED={}\nif '--version' in sys.argv:\n print('generated-account-free-fixture 0.1')\n sys.exit(0)\nfor line in sys.stdin:\n request=json.loads(line)\n if request.get('method') in ('initialize','session/new'):\n  fd=os.open(OBSERVED,os.O_WRONLY|os.O_CREAT|os.O_APPEND,0o600)\n  os.write(fd,(request['method']+'\\n').encode())\n  os.close(fd)\n if request.get('method')=='initialize':\n  print(json.dumps({{'jsonrpc':'2.0','id':request['id'],'result':{{'protocolVersion':1,'agentCapabilities':{{}}}}}}),flush=True)\n elif request.get('method')=='session/new':\n  print('not-valid-acp-json',flush=True)\n  sys.exit(0)\n",python.trim(),observed_literal)).unwrap();
+    fs::write(&executable,format!("#!{}\nimport sys,json,os,time\nOBSERVED={}\nEMITTED={}\nif '--version' in sys.argv:\n print('generated-account-free-fixture 0.1')\n sys.exit(0)\nfor line in sys.stdin:\n request=json.loads(line)\n if request.get('method') in ('initialize','session/new'):\n  fd=os.open(OBSERVED,os.O_WRONLY|os.O_CREAT|os.O_APPEND,0o600)\n  os.write(fd,(request['method']+'\\n').encode())\n  os.close(fd)\n if request.get('method')=='initialize':\n  print(json.dumps({{'jsonrpc':'2.0','id':request['id'],'result':{{'protocolVersion':1,'agentCapabilities':{{}}}}}}),flush=True)\n elif request.get('method')=='session/new':\n  time.sleep(1.1)\n  fd=os.open(EMITTED,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)\n  os.write(fd,b'malformed-response\\n')\n  os.close(fd)\n  print('not-valid-acp-json',flush=True)\n  sys.exit(0)\n",python.trim(),observed_literal,emitted_literal)).unwrap();
     fs::set_permissions(&executable, fs::Permissions::from_mode(0o700)).unwrap();
     drop(f.store);
     let daemon = Daemon::bind(&runtime).unwrap();
@@ -1063,8 +1065,11 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
     assert_eq!(lease_before, lease_after);
     assert!(!observed_requests.exists());
     drop(before);
+    // Positive malformed-protocol path must survive its real 1100ms startup
+    // latency. Expiry is independently tested above with the original 1000ms
+    // grant; the provider startup/stop and polling limits remain unchanged.
     let grant = call(
-        json!({"method":"grants.propose","params":{"project_id":project,"workspace_id":workspace,"connection_id":connection["id"],"max_attempts":4,"max_concurrency":1,"max_duration_ms":1000},"idempotency_key":"real-grant"}),
+        json!({"method":"grants.propose","params":{"project_id":project,"workspace_id":workspace,"connection_id":connection["id"],"max_attempts":4,"max_concurrency":1,"max_duration_ms":10000},"idempotency_key":"real-grant"}),
     );
     let grant = call(
         json!({"method":"approvals.finalize","params":{"proposal_id":grant["id"]},"expected_revision":1}),
@@ -1075,7 +1080,7 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
             .as_millis() as i64;
-    eprintln!("LIFECYCLE fresh_grant_return ttl_remaining_ms={remaining_ms} duration_ms=1000");
+    eprintln!("LIFECYCLE fresh_grant_return ttl_remaining_ms={remaining_ms} duration_ms=10000");
     eprintln!(
         "LIFECYCLE approved_return_to_admission_request_ms={}",
         granted_return.elapsed().as_millis()
@@ -1093,8 +1098,29 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
         std::thread::sleep(Duration::from_millis(5));
     };
     let current = call(json!({"method":"tasks.get","params":{"task_id":task["id"]}}));
+    // Keep bounded causal evidence before any positive-path assertion: expiry
+    // and malformed startup are distinct outcomes and must not be conflated.
+    let diagnostics = Connection::open(&database).unwrap();
+    let events: Vec<Value> = diagnostics.prepare("SELECT json_object('sequence',sequence,'kind',json_extract(document,'$.kind'),'source',json_extract(document,'$.source'),'revision',json_extract(document,'$.revision'),'occurred_at',json_extract(document,'$.occurred_at'),'payload',json_extract(document,'$.payload')) FROM events WHERE json_extract(document,'$.aggregate_id') IN (?1,?2) ORDER BY sequence LIMIT 64").unwrap()
+        .query_map(params![task["id"].as_str().unwrap(), session["id"].as_str().unwrap()], |r| r.get::<_, String>(0)).unwrap()
+        .map(|r| serde_json::from_str(&r.unwrap()).unwrap()).collect();
+    let budgets: Vec<Value> = diagnostics.prepare("SELECT json_object('scope',scope,'consumed',consumed,'active',active,'total_limit',total_limit,'parallel_limit',parallel_limit) FROM budgets ORDER BY scope LIMIT 16").unwrap()
+        .query_map([], |r| r.get::<_, String>(0)).unwrap()
+        .map(|r| serde_json::from_str(&r.unwrap()).unwrap()).collect();
+    let observed = fs::read_to_string(&observed_requests).unwrap_or_default();
+    assert!(observed.len() <= 512);
+    let evidence = json!({"task":current,"stopped_session":stopped,"observed_requests":observed,"malformed_response_emitted":emitted_response.exists(),"events":events,"budgets":budgets,"grant":grant});
+    eprintln!("LIFECYCLE causal_evidence={evidence}");
+    drop(diagnostics);
     assert_eq!(current["state"], "outcome_unknown");
     assert_eq!(stopped["last_error"], "session_creation_failed");
+    assert_eq!(
+        fs::read_to_string(&emitted_response).unwrap(),
+        "malformed-response\n"
+    );
+    assert!(!events
+        .iter()
+        .any(|e| e["kind"] == "session.policy_stop_requested"));
     assert_eq!(
         fs::read_to_string(&observed_requests).unwrap(),
         "initialize\nsession/new\n"
@@ -1124,7 +1150,39 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
         .unwrap(),
         ""
     );
+    // Historical charged attempts and the original lease must remain settled.
+    let root_budget: (u32, u32) = c
+        .query_row(
+            "SELECT consumed,active FROM budgets WHERE scope=?1",
+            [format!("root:{}", task["id"].as_str().unwrap())],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .unwrap();
+    let project_budget: (u32, u32) = c
+        .query_row(
+            "SELECT consumed,active FROM budgets WHERE scope=?1",
+            [format!("project:{project}")],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(root_budget, (1, 0));
+    assert_eq!(project_budget, (2, 0)); // Includes the original synthetic attempt.
     drop(c);
+    // Explicitly invalidate the runtime grant after true owned stop. Independent
+    // fixed-command approval must neither require a live Provider grant nor
+    // convert an already unknown Task result into cancellation/acceptance.
+    let revoked = call(
+        json!({"method":"grants.revoke","params":{"grant_id":grant["id"]},"expected_revision":grant["revision"],"idempotency_key":"revoke-stopped-runtime-grant"}),
+    );
+    assert_eq!(revoked["revoked"], true);
+    assert_eq!(
+        call(json!({"method":"tasks.get","params":{"task_id":task["id"]}}))["state"],
+        "outcome_unknown"
+    );
+    assert_eq!(
+        call(json!({"method":"sessions.get","params":{"session_id":session["id"]}}))["last_error"],
+        "session_creation_failed"
+    );
     selection["session_id"] = session["id"].clone();
     let p = call(
         json!({"method":"command_validation_policies.propose","params":selection,"idempotency_key":"real-command"}),
@@ -1142,6 +1200,7 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
             r["state"].as_str(),
             Some("prepared" | "running" | "cancel_requested")
         ) {
+            eprintln!("LIFECYCLE independent_command_after_runtime_revoke={r}");
             assert_eq!(r["state"], "command_passed", "{r}");
             assert_eq!(r["task_acceptance"], "not_established");
             break;
@@ -1153,6 +1212,43 @@ fn actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task
         call(json!({"method":"tasks.get","params":{"task_id":task["id"]}}))["state"],
         "outcome_unknown"
     );
+    let settled = Connection::open(&database).unwrap();
+    assert_eq!(
+        settled
+            .query_row(
+                "SELECT count(*) FROM attempts WHERE task_id=?1",
+                [task["id"].as_str().unwrap()],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        settled
+            .query_row(
+                "SELECT count(*) FROM sessions WHERE task_id=?1",
+                [task["id"].as_str().unwrap()],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+        1
+    );
+    for (scope, expected) in [
+        (
+            format!("root:{}", task["id"].as_str().unwrap()),
+            root_budget,
+        ),
+        (format!("project:{project}"), project_budget),
+    ] {
+        let actual: (u32, u32) = settled
+            .query_row(
+                "SELECT consumed,active FROM budgets WHERE scope=?1",
+                [&scope],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(actual, expected);
+    }
     stop.store(true, Ordering::Relaxed);
     thread.join().unwrap();
 }
