@@ -2,6 +2,17 @@
 //! scope/plan constructors stay private and cannot be populated from IPC labels.
 use super::*;
 
+#[path = "goal_graph.rs"]
+mod graph;
+pub(crate) use graph::{migrate as migrate_graph, GraphWorkers, GraphReadContext, GraphReadWitness};
+pub use graph::{
+    GraphArtifactReference, GraphCandidateReceipt, GraphCriterionBinding,
+    GraphDefinitionReusePermission, GraphExecutionSnapshot, GraphInputBinding,
+    GraphNodeAcceptanceSnapshot, GraphNodeApprovalSelection, GraphNodeView, GraphOwnerDecision,
+    GraphOwnerDecisionResult, GraphRunBinding, GraphRunDetails, GraphRunSelection, GraphRunSummary,
+    GraphTaskAcceptance, GraphValidationReceipt,
+};
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GoalRunSelection {
@@ -319,7 +330,7 @@ fn require_metered_capabilities(plan: &GoalPlanProposal) -> Result<()> {
     }
     Ok(())
 }
-fn snapshot(
+fn snapshot_base(
     db: &Connection,
     s: &GoalRunSelection,
     data: Option<&crate::data_workspaces::DataInputWitness>,
@@ -343,6 +354,14 @@ fn snapshot(
     // A complete plan is reviewed; neither IDs nor a digest-only surrogate grant
     // unseen nodes or permissions. Large owner reviews must use a separate UI design.
     let v = json!({"intent":s,"scope":scope_view(&r,&scope)?,"root_grant":r.refs.grant_after,"existing_connection":connection_summary(&r.refs)?,"plan":plan,"execution":"bounded_existing_workspace_only","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"warning":"Approve autonomous execution of this plan and later validated versions within this exact Goal scope, fixed inputs/capabilities and shared cumulative budgets. Each version requires exact Store compare-and-swap and retained lineage. No new workspace, identity, host or recipient is granted. Node completion is only candidate evidence. Unknown effects and budget overrun block further execution. Output accounting observes declared selected artifacts at stop; it is not an OS filesystem quota."});
+    Ok(v)
+}
+fn snapshot(
+    db: &Connection,
+    s: &GoalRunSelection,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<Value> {
+    let v = snapshot_base(db, s, data)?;
     if encode(&v)?.len() > 16_384 {
         return Err(err(
             "RESOURCE_LIMIT",
@@ -365,24 +384,27 @@ impl Store {
         self.persist_proposal("goal_execution", v, key_id)
     }
     pub(crate) fn finalize_goal_run(&mut self, id: &str, revision: u64) -> Result<Value> {
+        self.finalize_goal_run_kind(id, revision, false)
+    }
+    fn finalize_goal_run_kind(&mut self, id: &str, revision: u64, graph: bool) -> Result<Value> {
+        let kind = if graph { "goal_graph_execution" } else { "goal_execution" };
         key(id)?;
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
         let mut p: ApprovalProposal = raw(&tx, "approval_proposals", id)?;
-        if p.kind != "goal_execution" || p.id != id || p.revision != revision {
+        if p.kind != kind || p.id != id || p.revision != revision {
             return Err(changed());
         }
         let old:Option<String>=tx.query_row("SELECT result FROM approval_proposals WHERE id=?1 AND COALESCE(octet_length(result),0)<=1048576",[id],|r|r.get(0)).map_err(db_error)?;
         if let Some(old) = old {
-            let v: GoalRun = decode(&old)?;
-            if !p.consumed || v.id != id {
-                return Err(changed());
-            }
-            return Ok(json!(v));
+            let v: Value = decode(&old)?;
+            let result_id = if graph { &v["run"]["id"] } else { &v["id"] };
+            if !p.consumed || result_id != id { return Err(changed()); }
+            return Ok(v);
         }
-        if p.snapshot["execution"] != "bounded_existing_workspace_only"
+        if p.snapshot["execution"] != if graph { "goal_graph_v1_existing_workspace" } else { "bounded_existing_workspace_only" }
             || p.snapshot["allow_in_scope_plan_revisions"] != true
             || p.snapshot["new_workspace_authority"] != false
             || p.snapshot["enforcement"]
@@ -410,6 +432,7 @@ impl Store {
         if !own {
             return Err(changed());
         }
+        if graph { graph::check_finalization_snapshot(&tx, &p, self.data_input.as_ref())?; }
         let (scope_record, scope) = read_scope(&tx, &s.scope_id, self.data_input.as_ref())?;
         let (_, plan) = current_plan(&tx, &s.scope_id, &scope)?;
         if plan.proposal.nodes.is_empty() {
@@ -471,9 +494,10 @@ impl Store {
             .map_err(db_error)?;
         }
         p.consumed = true;
+        let result = if graph { json!(GraphRunSummary { graph_contract_version:1,run:r.clone(),ledger_revision:seq.checked_add(2).ok_or_else(limited)?,task_accepted:false }) } else { json!(r) };
         tx.execute(
             "UPDATE approval_proposals SET document=?1,result=?2 WHERE id=?3 AND result IS NULL",
-            params![encode(&p)?, encode(&r)?, id],
+            params![encode(&p)?, encode(&result)?, id],
         )
         .map_err(db_error)?;
         event(
@@ -481,7 +505,7 @@ impl Store {
             id,
             1,
             "approval.confirmed",
-            json!({"kind":"goal_execution","run_id":id,"plan_digest":r.plan_digest,"execution_snapshot_digest":sha(&p.snapshot)?,"new_workspace_authority":false}),
+            json!({"kind":kind,"run_id":id,"plan_digest":r.plan_digest,"execution_snapshot_digest":sha(&p.snapshot)?,"new_workspace_authority":false}),
         )?;
         event(
             &tx,
@@ -490,13 +514,16 @@ impl Store {
             "goal.run_authorized",
             json!({"scope_id":r.scope_id,"plan_digest":r.plan_digest,"plan_revision":r.plan_revision,"execution_snapshot_digest":sha(&p.snapshot)?,"reservation_made":false,"dispatched":false,"task_accepted":false}),
         )?;
+        if graph { graph::persist_capability(&tx, &p)?; }
         tx.commit().map_err(db_error)?;
-        Ok(json!(r))
+        Ok(result)
     }
     pub fn get_goal_run(&self, id: &str) -> Result<GoalRun> {
+        graph::require_legacy_run(&self.conn, id)?;
         run(&self.conn, id)
     }
     pub fn goal_run_details(&self, id: &str) -> Result<Value> {
+        graph::require_legacy_run(&self.conn, id)?;
         Ok(
             json!({"run":run(&self.conn,id)?,"nodes":self.goal_node_history(&run(&self.conn,id)?)?,"ledger_revision":sequence(&self.conn)?,"usage_kind":"conservative_charged_reservations","task_accepted":false}),
         )
@@ -505,14 +532,14 @@ impl Store {
         key(task_id)?;
         raw_collection_budget(
             &self.conn,
-            "SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE task_id=?1",
+            "SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE task_id=?1 AND NOT EXISTS(SELECT 1 FROM goal_graph_capabilities g WHERE g.run_id=goal_runs.id)",
             [task_id],
             256,
             MAX_STORED_BYTES,
         )?;
         let mut q = self
             .conn
-            .prepare("SELECT id FROM goal_runs WHERE task_id=?1 ORDER BY rowid DESC LIMIT 257")
+            .prepare("SELECT id FROM goal_runs WHERE task_id=?1 AND NOT EXISTS(SELECT 1 FROM goal_graph_capabilities g WHERE g.run_id=goal_runs.id) ORDER BY rowid DESC LIMIT 257")
             .map_err(db_error)?;
         let ids = q
             .query_map([task_id], |r| r.get::<_, String>(0))
@@ -535,6 +562,7 @@ impl Store {
         key_id: &str,
     ) -> Result<(GoalRun, bool)> {
         key(key_id)?;
+        graph::require_legacy_run(&self.conn, id)?;
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -621,7 +649,10 @@ fn checked_runtime_scope_at(
     data: Option<&crate::data_workspaces::DataInputWitness>,
     require_head: bool,
 ) -> Result<(ScopeRecord, ApprovedGoalScope)> {
-    let (p, approved) = native_confirmation(db, &r.id, "goal_execution")?;
+    let graph = graph::is_graph_run(db,&r.id)?;
+    let kind = if graph { "goal_graph_execution" } else { "goal_execution" };
+    let (p, approved) = native_confirmation(db, &r.id, kind)?;
+    let approved = if graph { graph::checked_capability(db,r)?; approved["run"].clone() } else { approved };
     if approved["scope_id"] != r.scope_id
         || approved["task_id"] != r.task_id
         || approved["root_grant_id"] != r.root_grant_id
@@ -634,7 +665,7 @@ fn checked_runtime_scope_at(
     {
         return Err(changed());
     }
-    let confirmation:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='approval.confirmed' AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.kind')='goal_execution' AND json_extract(document,'$.payload.run_id')=?1 AND json_extract(document,'$.payload.plan_digest')=?2 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3 ORDER BY sequence LIMIT 1",params![r.id,approved["plan_digest"].as_str().ok_or_else(changed)?,sha(&p.snapshot)?],|row|row.get(0)).optional().map_err(db_error)?;
+    let confirmation:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='approval.confirmed' AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.kind')=?4 AND json_extract(document,'$.payload.run_id')=?1 AND json_extract(document,'$.payload.plan_digest')=?2 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3 ORDER BY sequence LIMIT 1",params![r.id,approved["plan_digest"].as_str().ok_or_else(changed)?,sha(&p.snapshot)?,kind],|row|row.get(0)).optional().map_err(db_error)?;
     let authorized:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='goal.run_authorized' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.payload.scope_id')=?2 AND json_extract(document,'$.payload.plan_digest')=?3 AND json_extract(document,'$.payload.plan_revision')=?4 AND json_extract(document,'$.payload.dispatched')=0 AND json_extract(document,'$.payload.reservation_made')=0 AND json_extract(document,'$.payload.execution_snapshot_digest')=?5 ORDER BY sequence LIMIT 1",params![r.id,r.scope_id,approved["plan_digest"].as_str().ok_or_else(changed)?,approved["plan_revision"].as_i64().ok_or_else(changed)?,sha(&p.snapshot)?],|row|row.get(0)).optional().map_err(db_error)?;
     if !matches!((confirmation,authorized),(Some(a),Some(b)) if a>0 && b>a) {
         return Err(denied());
@@ -713,7 +744,7 @@ fn adopted_plan_is_current_head(db: &Connection, r: &GoalRun) -> Result<bool> {
     db.query_row("SELECT EXISTS(SELECT 1 FROM goal_plan_heads WHERE scope_id=?1 AND revision=?2 AND digest=?3)",params![r.scope_id,sql_num(r.plan_revision)?,r.plan_digest],|row|row.get(0)).map_err(db_error)
 }
 fn local_goal_slot_is_occupied(db: &Connection) -> Result<bool> {
-    db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents WHERE state!='stopped') OR EXISTS(SELECT 1 FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))",[],|row|row.get(0)).map_err(db_error)
+    db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents WHERE state!='stopped') OR EXISTS(SELECT 1 FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown')) OR EXISTS(SELECT 1 FROM goal_graph_jobs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))",[],|row|row.get(0)).map_err(db_error)
 }
 fn executable_work(n: &RuntimeNode) -> bool {
     n.state == "not_started"
@@ -939,7 +970,7 @@ pub(crate) fn reserve_session(
     }
     let all_active: u32 = db
         .query_row(
-            "SELECT (SELECT count(*) FROM dispatch_intents WHERE state!='stopped')+(SELECT count(*) FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))",
+            "SELECT (SELECT count(*) FROM dispatch_intents WHERE state!='stopped')+(SELECT count(*) FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))+(SELECT count(*) FROM goal_graph_jobs WHERE state IN('prepared','running','cancel_requested','outcome_unknown'))",
             [],
             |r| r.get(0),
         )
@@ -1320,6 +1351,15 @@ impl Store {
         stopped: bool,
         never_started: bool,
     ) -> Result<()> {
+        if owns_session(&self.conn,id)? && stopped && !never_started {
+            let run_id:String=self.conn.query_row("SELECT run_id FROM goal_run_nodes WHERE session_id=?1",[id],|row|row.get(0)).map_err(db_error)?;
+            if graph::is_graph_run(&self.conn,&run_id)? && self.get_session(id)?.turn_state.as_deref()==Some("completed") {
+                return self.queue_graph_capture(id,elapsed_ms);
+            }
+        }
+        self.settle_goal_worker_observed(id,elapsed_ms,stopped,never_started,None)
+    }
+    fn settle_goal_worker_observed(&mut self,id:&str,elapsed_ms:u64,stopped:bool,never_started:bool,observed:Option<Option<u64>>)->Result<()> {
         if !owns_session(&self.conn, id)? {
             return Ok(());
         }
@@ -1336,6 +1376,7 @@ impl Store {
         let record: ScopeRecord = raw(&self.conn, "goal_scopes", &r.scope_id)?;
         // Current available selected artifact bytes; cap work on the actor. A
         // missing/unsafe/too-large observation stays unknown rather than zero.
+        let output_bytes_observed = if let Some(observed) = observed { observed } else {
         let root_matches = current_output_root(&self.conn, &record.refs.workspace);
         let mut output_bytes = if root_matches { Some(0u64) } else { None };
         for output in &n.node.outputs {
@@ -1368,6 +1409,9 @@ impl Store {
         if !current_output_root(&self.conn, &record.refs.workspace) {
             output_bytes = None;
         }
+        output_bytes
+        };
+        let mut output_bytes=output_bytes_observed;
         if never_started {
             output_bytes = Some(0);
         }
@@ -1596,6 +1640,7 @@ impl Store {
     }
     pub(crate) fn goal_run_needs_advance(&self, id: &str) -> Result<bool> {
         let r = run(&self.conn, id)?;
+        if graph::is_graph_run(&self.conn, id)? { return Ok(false); }
         if r.cancel_requested || !matches!(r.state.as_str(), "queued" | "running") {
             return Ok(false);
         }
@@ -1627,6 +1672,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
+        graph::require_legacy_run(&tx, &p.run_id)?;
         let scope = format!("goal-run:{}:advance", p.run_id);
         let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
         if let Some(v) = replay(&tx, &scope, key_id, &payload)? {
@@ -1662,6 +1708,7 @@ impl Store {
         key_id: &str,
     ) -> Result<Option<Value>> {
         key(key_id)?;
+        graph::require_legacy_run(&self.conn, &p.run_id)?;
         let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
         replay(
             &self.conn,
@@ -1774,6 +1821,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
+        graph::require_legacy_run(&tx, &p.run_id)?;
         let idem = format!("goal-run:{}:advance-plan", p.run_id);
         let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
         if let Some(r) = replay(&tx, &idem, key_id, &payload)? {
@@ -2085,6 +2133,7 @@ impl Store {
         key_id: &str,
     ) -> Result<Option<GoalRun>> {
         key(key_id)?;
+        graph::require_legacy_run(&self.conn, &p.run_id)?;
         let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
         replay(
             &self.conn,
