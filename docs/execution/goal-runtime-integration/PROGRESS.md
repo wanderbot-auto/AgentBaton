@@ -21,3 +21,9 @@ Product UI仅增已独审26行：在原五浏览器流程后从同venv Playwrigh
 Data PR14已normalpush f9c6cf78a71ad66eeb167779cfbdaa83863ecf56；准确Product40672455553/Environment40672455569运行中，actualcheckout4fa2818f3746925a81cfe884be3499f5477ecea4、tree43d4afccfbad93fb2ef9d2e133116aff397f452b。旧37bd准确5success/2Mac路径准备错误保留，新Core21预览/取消join在两Mac已通过；新FD路径修复24+rootFD1作者独审均通过但新Mac/Native/双DMG仍待，不借旧包。main18f4261、OWNER001/002 ACK无003。
 
 完整Designv0.2/130需求/WP01–14继续。平台没有原生Goal工具，使用真实subagents；不虚构持续目标或无执行器后台续跑。真实Provider/私人身份、新费用/资源/未批准远程、正式签名/生产/最终许可证未授权。独立代码review证据不等于GitHub Approve，本轮未提交正式Approve；仍按既有受保护流程处理PR。依赖验证/Owner/factory/NL、完整会话/能力管理/历史/远程等余项均保留，不称完整产品完成。
+
+## Data 已保护合入，继续 Goal 执行
+
+PR14已在2026-10-28 11:05:36UTC按expectedhead f9c6保护合入main **a014283c36814c8fbff1ce7b7071ab7e484f2651**。准确Product40672455553/Env40672455569七项、双Native/原PNG/defaultreleaseaudit/新双DMG均通过；Root复核210项并实际重跑success-only包校验器。交付 data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md，ARM6deb3087...临时签名，Intelcc652834...未签名，均未公证。未做formalApprove、未绕保护、未生产发布。
+
+GoalPR15继续draft，已同步该main保留工作；STATUS冲突保留Goal最新内容，完整incoming状态另存STATUS_F9C6_BEFORE_MERGE.md，没有丢历史。最新OWNER001/002重读ACK无003。G19及G20真实旧失败和新定向通过在独立goal-ready-frontier保存，04ba180正全Core回归/新freeze/独审，旧9f依然WITHHELD。Native新只读776e叶子作者及独审28lib+17harness/21Python/lints通过，尚待集成后真正新Mac检查，不借本Data旧flags。全130/27决定/WP01–14及既有全部额外权限门禁保持。

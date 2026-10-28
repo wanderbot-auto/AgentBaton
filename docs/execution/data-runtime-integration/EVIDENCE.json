@@ -1,5 +1,5 @@
 {
-  "status": "PR14 exact de150 rejected: 5success/2Macfailure; reviewed narrow fixture correction integrated; next exact CI pending",
+  "status": "reviewed source893 pathfixture integrated; new exact CI pending; old37bd5success2fail retained",
   "baseline": "a2c5bcf47fd60d66207e2cc93c94db4f7f648057",
   "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
   "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
@@ -124,7 +124,7 @@
   },
   "data_browser_scope": "real8323/current367UI; both new8/6, cancel before-destination worker_joined; no partial-write browser, nojoin-unknown or Ready-race proof",
   "full130": "incomplete; continue approved work",
-  "platform": "de150 both Mac failed Core preparation fixture; Native and packages not reached; fresh candidate pending",
+  "platform": "37bd both Mac fail longpath fixture before product call; Native/packages not reached; next narrow fixture review pending",
   "frozen_combined_binaries": {
     "manifest": "/workspace/.onboarding/data-runtime-integration-binaries/manifest.json",
     "manifest_sha256": "45a0f2220346076734dea26023a2b6e343ce4c05b3bab800c0315aa998c01b46",
@@ -423,5 +423,59 @@
     ],
     "new_exact_checks": "not yet triggered; normal push after records and integrity checks",
     "fresh_mac_native_and_packages": "not run for corrected candidate"
+  },
+  "latest_ci_37bd": {
+    "head": "37bd032f0e1b2dfa75fc9ff768e85801f1693a99",
+    "checkout": "e79a267584d1dcbb4f329b1e3044e5c66eb9a6bb",
+    "product_run": 40669158389,
+    "environment_run": 40669158380,
+    "final": "5success/2Macfailure; do not merge",
+    "core_data21": "both Mac passed; 0db actual positive evidence, not full job success",
+    "timings_ms": {
+      "arm": {
+        "start": 54,
+        "parallel_snapshot": 27,
+        "parallel_get": 28,
+        "preview_verified": 3748,
+        "copy_cancel_worker_joined": 2104
+      },
+      "intel": {
+        "start": 41,
+        "parallel_snapshot": 17,
+        "parallel_get": 17,
+        "preview_verified": 4869,
+        "copy_cancel_worker_joined": 2352
+      }
+    },
+    "new_failure": {
+      "test": "full_internal_target_path_budget_is_rejected_before_reserving_any_directory",
+      "file": "crates/workspaces/tests/data_workspace.rs",
+      "line": 36,
+      "operation": "Fixture.put fs::create_dir_all(parent).unwrap()",
+      "error": "macOS Os63 InvalidFilename File name too long",
+      "stage": "fixture setup; product create_data_workspace path guard not reached",
+      "suite": "23pass/1fail both Mac",
+      "not_inferred": "No product copy failure or exact OS path-length limit inferred from this log alone"
+    },
+    "not_reached": [
+      "Native22lib+12harness",
+      "actualWebView/newsidebarPNG",
+      "defaultreleaseaudit",
+      "developmentDMGpair"
+    ],
+    "evidence_manifest_sha256": "e12de7d4c1286f99d5287edd1389a84a71312096273a84745047716cd2fb7057",
+    "root_rehashed_files": 107,
+    "root_verifier_note": "Initial local verifier assumed string entries, rejected dict entry before copying; corrected to documented sha256+bytes shape, all original records unchanged"
+  },
+  "path_fixture": {
+    "source": "893efe5aa1dd89844de6d4df00d90d736d2b5e8a",
+    "test_file_sha256": "f1aa9b30b601becab1a9b52e50c090a585f6becfbe4c5a80e1c963ed75b8d77b",
+    "independent_review": "../data-path-fixture/INDEPENDENT_REVIEW.md",
+    "manifest": "../data-path-fixture/INDEPENDENT_VERIFICATION.json",
+    "root_rehashed_files": 16,
+    "local_data_unique": 24,
+    "related_root_fd_unique": 1,
+    "new_mac": "not_run",
+    "scope": "test-only FD construction preserves complete4096 pre-effect refusal; no product limits changed"
   }
 }

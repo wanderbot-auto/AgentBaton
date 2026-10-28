@@ -38,3 +38,19 @@ Data分支已合入该实际main，仍保持c82/schema10与已审UI/取消回执
 准备正常 push 新精确 head，需重新读取全部七项、双 Mac 此用例/Native22+12、Goal3+独立 DB、Command3/Data3、新侧栏实际截图、默认 release 审计及双真实 DMG。PR13 的双包仍可按 goal-integration/DEVELOPMENT_DELIVERY_E384.md 追溯，但不能替代本 Data 候选验证。
 
 Goal 实际运行 Core11 继续独立开发：schema11、原子 reservation/实际生成协议/同 scope 修订/共享预算/取消与未知恢复已有真实局部测试，最新全 workspace 暴露 Data Goal advance/recovery 失败，正在修复；4eb4458 只是候选而非最终 freeze。UI 3daa 已独审 445/type/build，Native28+12 是原叶子字节证据；新真实 IPC harness03943e0仅语法通过，等待最终 Core11 与组合 dist，尚未运行。完整130需求与WP01–14继续，不计完整 Goal 或全产品完成。真实 Provider/私人身份、费用、远程资源、生产、正式签名和最终许可证权限均未扩大。
+
+## Data PR14：新预览检查通过，长路径 fixture 阻塞
+
+精确37bd032f0e1b2dfa75fc9ff768e85801f1693a99 / checkout e79a267584d1dcbb4f329b1e3044e5c66eb9a6bb 的 Product40669158389、Environment40669158380 最终五成功、双Mac失败。新大预览准备及取消/join安全断言均通过：ARM预览3748ms、copycancel2104ms，Intel4869/2352ms；两边cancelled+worker_joined，3秒RPC和5秒join边界满足，旧de150失败保留。
+
+新失败是workspaces长路径fixture在第36行create_dir_all先报macOS Os63 File name too long，尚未进入产品拒绝逻辑；23通过/1失败。Native、WebView、默认release审计、双包未到达，不借PR13绿/包。完整报告/107项manifest和真实LinuxData8已保留，Root逐项SHA+size复核；见CI_37BD_FAILURE.json。Root最初比较器误用旧字符串manifest格式先拒绝，修为sha256/bytes字段后全通过，原记录不改。
+
+下一窄修在codex/data-path-fixture源893efe5aa1dd89844de6d4df00d90d736d2b5e8a：仅目标用例改目录FD逐层创建16层/~4KiB真实输入，保留完整目标>4096、精确ResourceLimit、managed零目录和其它23case；生产限额/代码/超时/工作流不变。作者实际24 Data+相关rootFD1/Clippy/fmt通过；独审和新精确MacCI待，不称已修复Mac。main仍18f4261，OWNER001/002 ACK，无需额外批准的工程步骤继续。
+
+Goal运行组合独立在codex/goal-runtime-integration：author9f833/497冻结schema11，549Rust+7docs/lints/build通过；独立Core274+已保护command27通过。Root445UI、Native28+12、原quiet/command/Goal/editor/Data真实70检查47图通过；新执行作者及独立最终503c实跑各9检查8图通过，取景仅测试定位修正，旧图保留。Root组合最终全Rust仍运行；macOS/OSOwnerDialog/真实Provider、完整依赖验收/factory/NL及全130仍未完成，继续原完整目标和全部权限边界。
+
+## Data 长路径 fixture 修复已独审，准备新 CI
+
+已集成893efe5aa1dd89844de6d4df00d90d736d2b5e8a（本分支13be879）及作者e3949be4：仅目标测试内以FD逐级mkdirat/openat创建实际16层输入，relative4015/source4038/target4132字节、真实11字节SHA快照。其它23case、原长度公式/80字符ID/完整目标>4096/精确ResourceLimit/managed零目录全部保留，生产/锁/CI/超时/4096限额不变。作者及独审分别实际24Data+相关rootFD1/Clippy/fmt/diff PASS；Root重哈希独审16项，报告data-path-fixture/INDEPENDENT_REVIEW.md，manifest fe23cf7746a691a18c9df3bd7eaf1d910d9c95bd891dc5f6d3416d6fdab174e5。
+
+旧37bd准确五成功双失败及107项证据不改；0db新预览与copyjoin均已在双Mac通过，但长路径fixture先失败使Native/新图/audit/DMG未到达。下一normalpush需新准确七项、双Native/实际侧栏图/defaultreleaseaudit和双真实DMG，不推断Mac修复已通过。main18f4261及OWNER001/002已再次fetch确认，无扩权。Goal实际运行Core/UI/真实IPC另在独立组合继续，全130及依赖/验收/factory等余项仍未完成。

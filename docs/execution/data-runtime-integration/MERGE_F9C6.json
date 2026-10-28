@@ -1,0 +1,21 @@
+{
+  "pr": 14,
+  "url": "https://github.com/wanderbot-auto/AgentBaton/pull/14",
+  "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+  "tested_checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+  "merge_commit": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+  "equal_tree": "43d4afccfbad93fb2ef9d2e133116aff397f452b",
+  "old_main": "18f4261da9285bec5446101d47786839b1020d9c",
+  "merged_at": "2026-10-28T11:05:36Z",
+  "product_run": 40672455553,
+  "environment_run": 40672455569,
+  "actual_exact_checks": "7 success",
+  "independent_manifest_sha256": "4962cfe94172a500cf783fc1a2b1ec6696f63e5656aeaba8670a2aad5a50b18d",
+  "root_rehashed_artifacts": 210,
+  "formal_approve_submitted": false,
+  "protected_expected_head_merge": true,
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ]
+}
