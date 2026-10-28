@@ -1584,32 +1584,35 @@ fn run_worker(
 ) -> WorkerReceipt {
     let started = Instant::now();
     let prior = launch.prelaunch_ms;
-    if launch
-        .factory_mcp
-        .as_ref()
-        .is_some_and(|m| m.check_data_boundary().is_err())
-    {
-        return WorkerReceipt {
-            capture: None,
-            reason: "data_observation_expired_before_worker".into(),
-            process_reaped: false,
-            never_started: true,
-            elapsed_ms: prior,
-        };
-    }
-    let data = launch.factory_mcp.as_mut().and_then(|m| m.take_data());
-    let execution_deadline = started + launch.duration;
-    let mut capture_plan = launch
-        .factory_mcp
-        .as_mut()
-        .and_then(|m| m.take_capture_plan());
-    let mut receipt = run_worker_inner(id, launch, commands, cancel, events, data.as_ref());
-    if let (Some(plan), Some(data)) = (capture_plan.as_mut(), data) {
-        plan.attach_observation_contexts(data.into_observation_contexts());
-    }
-    if receipt.process_reaped && !receipt.never_started {
-        receipt.capture = capture_plan.and_then(|p| p.capture(execution_deadline).ok());
-    }
+    let mut receipt = (|| {
+        if launch
+            .factory_mcp
+            .as_ref()
+            .is_some_and(|m| m.check_data_boundary().is_err())
+        {
+            return WorkerReceipt {
+                capture: None,
+                reason: "data_observation_expired_before_worker".into(),
+                process_reaped: false,
+                never_started: true,
+                elapsed_ms: 0,
+            };
+        }
+        let data = launch.factory_mcp.as_mut().and_then(|m| m.take_data());
+        let execution_deadline = started + launch.duration;
+        let mut capture_plan = launch
+            .factory_mcp
+            .as_mut()
+            .and_then(|m| m.take_capture_plan());
+        let mut receipt = run_worker_inner(id, launch, commands, cancel, events, data.as_ref());
+        if let (Some(plan), Some(data)) = (capture_plan.as_mut(), data) {
+            plan.attach_observation_contexts(data.into_observation_contexts());
+        }
+        if receipt.process_reaped && !receipt.never_started {
+            receipt.capture = capture_plan.and_then(|p| p.capture(execution_deadline).ok());
+        }
+        receipt
+    })();
     receipt.elapsed_ms = u64::try_from(started.elapsed().as_millis())
         .unwrap_or(u64::MAX)
         .saturating_add(prior);

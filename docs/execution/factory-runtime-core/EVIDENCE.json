@@ -278,5 +278,79 @@
       "Data restore currently checks deadline around full restore, not cooperative read-chunk checkpoints; next narrow fix",
       "No continuous freeze, OS sandbox, full escaped process-tree containment, TaskAccepted or native context continuation claimed"
     ]
+  },
+  "data_controlled_checkpoint": {
+    "base": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+    "state": "WIP scoped Data negative/cooperative restoration checkpoint; not full Factory acceptance",
+    "sources": {
+      "crates/core/src/data_workspace_workers.rs": "fd37562bac8767396fd530142b594c8f91276472c5d62d5a034493df941081cd",
+      "crates/core/src/data_workspaces.rs": "7105a5434d0748837fe7c0aa6e53b234443fff028289190c3c789f4aa24919d0",
+      "crates/core/src/factory_runtime.rs": "55b43ad1465edebeed1b8f8838f7cfaa03031d0ad2e245ce8cfb6f4efad8a439",
+      "crates/core/src/goal_runtime.rs": "9d57bfeb5e267a8de1f92dbdc2b846efc860511712b157a7ae898ea226370a3b",
+      "crates/core/src/ipc.rs": "228e7a1763afe76e84b5487a6501229cda46eb7427b87ef699ac4c2bcb32df00",
+      "crates/core/src/policy.rs": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+      "crates/core/src/sessions.rs": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+      "crates/core/tests/factory_runtime_ipc.rs": "08b37a8639d559fbd05ffa27a0a478ea96ec0240d27052759182b88cd1b6ff6f",
+      "crates/workspaces/src/data_workspace.rs": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f"
+    },
+    "logs": {
+      "controlled-restore-first-check.log": "3be7191e9660339584747e3f76514aa9d17283acb04013a55384f7e91ce701f1",
+      "controlled-restore-unit-first.log": "45edb4efa8122a0d4698f0e631edfab7335a2e77a693225da07904beac913d2a",
+      "controlled-restore-unit-fixed.log": "92b98695cf4210db7d0cbbb28bc37f703db5f7de719e5c3f8ae56160528769fe",
+      "controlled-wip-forced-binaries.log": "f497341ed64140b897eaeee0f45f550f727a220849fdfc1391d1b6a2efc015be",
+      "data-input-drift-first.log": "60bb3d93e751e1737fbf10e4897a4473e5ba83c5c4e63c66a4f327e2da3ccef7",
+      "controlled-restore-clippy-first.log": "2956a36bd14f3434bff10884912f1d7c6e6308d42432f740b66521e7a737df11",
+      "controlled-restore-clippy-fixed.log": "1b90fde6584642c8b57e0a2287def7cf0f4879a603b1478d14bd93723f3224f9",
+      "controlled-current-forced-binaries.log": "a4e32c80dabeaccfe561f118f4ececb60e12ad497454a7f67bd4b0287476ceb0",
+      "data-controlled-twenty-two.log": "982816f420fed885f4a35fe9bcd4744684a27d925379a83eca9c125b5d714837",
+      "data-controlled-twenty-two-fixed.log": "9b64761c2a7a20ab780871376eeb5d101e1d2313663f2967bf98dfecf204fbc6",
+      "data-controlled-final-clippy.log": "390354ff08a4a1bb21c4b8472a09432ca5f81f2f22c5151d0ff5a07aab336936",
+      "data-controlled-final-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "data-controlled-queue-unit.log": "f8909bfa15222f038741d9d797abf7586cc3fcaee95e09d17247e9f06fed7f7d"
+    },
+    "actual_unique_cases": {
+      "factory_migration": 3,
+      "factory_scope": 11,
+      "factory_runtime_ipc": 8,
+      "controlled_restore_library_units": 2,
+      "queue_gate_order_unit": 1,
+      "total": 25
+    },
+    "results": {
+      "twenty_two_integration": "PASS;8runtime12.83s,11scope9.31s,3migration0.04s",
+      "controlled_restore_units": "PASS2/1.09s",
+      "queue_gate_unit": "PASS1/0.02s",
+      "clippy_all_targets_core_workspaces": "PASS -D warnings",
+      "fmt": "PASS",
+      "new_Data_negative": "real active ACP then selected input replacement; all4scoped methods refuse; zero child, original single reservation; Ownercancel under existing3sec and confirmed leader/ownedworker join plus lease release"
+    },
+    "failure_attribution": {
+      "controlled-restore-unit-first.log": "new test hook initially mistook a 1.3KB publication marker for the 64KiB dataset chunk; fixture-only failure, not old product control",
+      "controlled-restore-clippy-first.log": "five style/lint findings; Option matching/type alias and relocating new helpers before existing cfgtest modules resolved without semantic relaxation",
+      "data-controlled-twenty-two.log": "new test SQL u64 FromSql compile failure, changed test sequence to i64; no execution in this failed command"
+    },
+    "frozen_current_tools": {
+      "manifest": "/workspace/AgentBaton/.onboarding/factory-data-controlled-candidate/manifest.json",
+      "sha256": "69b6744dcf85b26ed7b7308c0f6c7d04ee45f409545db40034724b22bd87dca2",
+      "state": "WIP generated-runtime candidate; current production source hashes bound by manifest; not release/Mac/whole-product acceptance"
+    },
+    "incorrect_previous_tool_freeze": {
+      "original_manifest": "/workspace/AgentBaton/.onboarding/factory-data-053-binaries/manifest-original-misattribution.json",
+      "corrected_manifest": "/workspace/AgentBaton/.onboarding/factory-data-053-binaries/manifest.json",
+      "correction": "Root Native tauri-build copy_binaries replaced shared debug tools with old5541 macro resources after053 runtime tests finished. fc5/906 observed/frozen afterward are not053 and must not be used as Factory candidate. Original053 raw binaries were not frozen before replacement. Current binaries explicitly rebuilt Compiling daemon/CLI and copied immediately."
+    },
+    "not_run": [
+      "authorized real scoped queue expiry control",
+      "Ownercancel/revoke while a large Data hash is actually in flight",
+      "large preflight/capture cancel/fault and mixed ordinary Goal Factory accounting matrix",
+      "full workspace regression/migration fixture updates",
+      "macOS runtime/native Owner confirmation",
+      "full independent Factory runtime review"
+    ],
+    "remaining": [
+      "Owner Factory propose/finalize/start synchronous bounded Git and companion reads still require owned-worker offload",
+      "No full FS quota, continuous freeze, native context continuation or escaped process-tree containment claimed",
+      "FD053-01 unified elapsed footer is source-level repair; no synthetic metadata-stall accounting control run"
+    ]
   }
 }

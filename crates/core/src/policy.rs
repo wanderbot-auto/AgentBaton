@@ -1070,6 +1070,55 @@ impl Store {
     }
 }
 
+/// Cheap liveness/read-preflight observation only. This does NOT authorize a
+/// new action: Directory input bytes still require the request-local witness
+/// through validate_grant_*_with_data before any scoped action or dispatch.
+pub(crate) fn observe_grant_bindings(conn: &Connection, grant: &ExecutionGrant) -> Result<()> {
+    let current = checked_lineage(conn, &grant.id)?;
+    if current != *grant {
+        return Err(denied("Grant revision changed"));
+    }
+    let project: Project = read_document(conn, "projects", &grant.project_id)?;
+    if project.archived {
+        return Err(denied("Execution project is archived"));
+    }
+    for id in &grant.scope.connection_ids {
+        if connection_binding(conn, id)?
+            != *grant
+                .connection_bindings
+                .get(id)
+                .ok_or_else(|| denied("Missing connection pin"))?
+        {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "An original Grant recipient binding changed",
+            ));
+        }
+    }
+    for id in &grant.scope.workspace_ids {
+        let workspace: ManagedWorkspace = read_document(conn, "managed_workspaces", id)?;
+        let expected = grant
+            .workspace_bindings
+            .get(id)
+            .ok_or_else(|| denied("Missing workspace pin"))?;
+        if workspace.project_id != grant.project_id
+            || workspace.state != "ready"
+            || workspace.identity.as_ref() != Some(expected)
+        {
+            return Err(denied("Original Grant workspace record changed"));
+        }
+        if matches!(expected.kind, WorkspaceKind::Directory) {
+            crate::data_workspaces::data_live_workspace(conn, &workspace)?;
+        } else if !live_workspace_matches(&workspace.root, expected).unwrap_or(false) {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Original Grant repository identity changed",
+            ));
+        }
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod live_workspace_tests {
     use super::*;
@@ -1191,53 +1240,4 @@ mod live_workspace_tests {
             std::thread::sleep(std::time::Duration::from_millis(5));
         }
     }
-}
-
-/// Cheap liveness/read-preflight observation only. This does NOT authorize a
-/// new action: Directory input bytes still require the request-local witness
-/// through validate_grant_*_with_data before any scoped action or dispatch.
-pub(crate) fn observe_grant_bindings(conn: &Connection, grant: &ExecutionGrant) -> Result<()> {
-    let current = checked_lineage(conn, &grant.id)?;
-    if current != *grant {
-        return Err(denied("Grant revision changed"));
-    }
-    let project: Project = read_document(conn, "projects", &grant.project_id)?;
-    if project.archived {
-        return Err(denied("Execution project is archived"));
-    }
-    for id in &grant.scope.connection_ids {
-        if connection_binding(conn, id)?
-            != *grant
-                .connection_bindings
-                .get(id)
-                .ok_or_else(|| denied("Missing connection pin"))?
-        {
-            return Err(CoreError::new(
-                "INPUT_CHANGED",
-                "An original Grant recipient binding changed",
-            ));
-        }
-    }
-    for id in &grant.scope.workspace_ids {
-        let workspace: ManagedWorkspace = read_document(conn, "managed_workspaces", id)?;
-        let expected = grant
-            .workspace_bindings
-            .get(id)
-            .ok_or_else(|| denied("Missing workspace pin"))?;
-        if workspace.project_id != grant.project_id
-            || workspace.state != "ready"
-            || workspace.identity.as_ref() != Some(expected)
-        {
-            return Err(denied("Original Grant workspace record changed"));
-        }
-        if matches!(expected.kind, WorkspaceKind::Directory) {
-            crate::data_workspaces::data_live_workspace(conn, &workspace)?;
-        } else if !live_workspace_matches(&workspace.root, expected).unwrap_or(false) {
-            return Err(CoreError::new(
-                "INPUT_CHANGED",
-                "Original Grant repository identity changed",
-            ));
-        }
-    }
-    Ok(())
 }
