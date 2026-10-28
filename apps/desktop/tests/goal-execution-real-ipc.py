@@ -217,7 +217,15 @@ def main():
                     started = result('data_workspace_previews.start', {'project_id': project['id'], 'files': [{'artifact_id': 'source', 'relative_path': 'file', 'max_bytes': 1024, 'expected_sha256': sha(b'baseline')}], 'limits': {'max_file_bytes': 1024, 'max_total_bytes': 1024, 'max_files': 1}}, 'preview:' + name, project['revision'])
                     preview = wait(lambda: result('data_workspace_previews.get', {'preview_id': started['id']}), lambda row: row['state'] not in {'checking', 'cancel_requested'})
                     assert preview['state'] == 'verified'
-                    creation = owner('data_workspaces.propose', {'preview_id': preview['id']}, 'copy:' + name, 'data_workspace', preview['revision'])
+                    proposal = result('data_workspaces.propose', {'preview_id': preview['id']}, 'copy:' + name, preview['revision'])
+                    assert proposal['kind'] == 'data_workspace' and proposal['snapshot']['snapshot'] == preview['snapshot']
+                    intent = proposal['snapshot']['intent']; source_pin = preview['snapshot']['contract']['source']
+                    assert source_pin['canonical_root'] == str(source) and source_pin['device'] == source.stat().st_dev and source_pin['inode'] == source.stat().st_ino
+                    managed = runtime / 'workspaces'; managed_pin = intent['managed_root']
+                    assert managed_pin['canonical_root'] == str(managed) and managed_pin['device'] == managed.stat().st_dev and managed_pin['inode'] == managed.stat().st_ino
+                    assert str(uuid.UUID(intent['creation_id'])) == intent['creation_id']
+                    assert intent['destination'] == str(managed / ('data-' + intent['creation_id']))
+                    creation = finalize(proposal)
                     copied = wait(lambda: result('data_workspaces.get', {'creation_id': creation['id']}), lambda row: row['state'] not in {'creating', 'cancel_requested'})
                     assert copied['state'] == 'ready' and copied['io_completion'] == 'worker_joined'
                     workspace = next(row for row in result('workspaces.list', {'project_id': project['id']}) if row['id'] == copied['workspace_id'])
@@ -257,9 +265,14 @@ def main():
                 seq = result('system.snapshot', {})['sequence']
                 proposal = result('goal_runs.propose', {'scope_id': scope['id'], 'expected_plan_revision': latest['proposal']['revision'], 'expected_ledger_revision': seq}, 'execution:' + scenario['task']['id'])
                 assert proposal['kind'] == 'goal_execution' and proposal['snapshot']['new_workspace_authority'] is False
-                assert proposal['snapshot']['plan'] == latest and proposal['snapshot']['scope']['id'] == scope['id']
+                assert proposal['snapshot']['plan'] == latest and proposal['snapshot']['scope'] == scope
                 assert proposal['snapshot']['scope']['workspace_id'] == scenario['workspace']['id']
                 assert proposal['snapshot']['scope']['program_sha256'] == sha(provider.read_bytes())
+                assert proposal['snapshot']['execution'] == 'bounded_existing_workspace_only' and proposal['snapshot']['allow_in_scope_plan_revisions'] is True
+                assert proposal['snapshot']['enforcement'] == {'filesystem_sandbox': False, 'network_sandbox': False, 'output_quota': False}
+                current_grant = next(row for row in result('grants.list', {'project_id': scenario['project']['id']}) if row['id'] == scope['root_grant_id'])
+                assert proposal['snapshot']['root_grant'] == current_grant
+                assert proposal['snapshot']['existing_connection'] == {**current_grant['connection_bindings'][connection['id']], 'id': connection['id']}
                 started = finalize(proposal)
                 assert started['scope_id'] == scope['id'] and started['task_id'] == scenario['task']['id'] and started['task_accepted'] is False
                 scenario['run_id'] = started['id']; scenario['execution_proposal'] = proposal
@@ -490,6 +503,15 @@ def main():
 
                     second_plan = store_plan(panel, scenario, 2); unchanged = run_view(started['id'])
                     assert unchanged['run']['plan_revision'] == 1 and database()['attempts'] == first_db['attempts']
+                    before_cas = database(); sequence = result('system.snapshot', {})['sequence']
+                    assert unchanged['run']['revision'] > 1 and sequence > 1
+                    stale_responses = []
+                    for expected_run, expected_ledger, key in [(1, sequence, 'stale-run-cas'), (unchanged['run']['revision'], sequence - 1, 'stale-ledger-cas')]:
+                        refused = browser_request('goal_run_advance_plan', {'runId': started['id'], 'expectedPlanRevision': 2, 'expectedLedgerRevision': expected_ledger, 'expectedRevision': expected_run, 'idempotencyKey': key})
+                        assert refused['status'] == 200 and refused['body']['error']['code'] == 'STALE_REVISION', refused
+                        assert database() == before_cas
+                        stale_responses.append(refused)
+                    report['observations']['actual_stale_CAS_refusals'] = stale_responses
                     refresh(execution)
                     advance = execution.get_by_role('button', name='Adopt the validated new plan', exact=True); expect(advance).to_be_enabled()
                     with fault_lock:
@@ -513,8 +535,12 @@ def main():
                     recover = execution.get_by_role('button', name='Recover the same execution request', exact=True); expect(recover).to_be_enabled(); recover.click()
                     expect(execution.get_by_role('button', name='Recover the same execution request', exact=True)).to_have_count(0)
                     assert database() == before_recovery
-                    writes = [row for row in report['requests'] if row['method'] == 'goal_runs.advance_plan']
-                    assert len(writes) == 2 and writes[0]['params'] == writes[1]['params'] and writes[0]['key'] == writes[1]['key'] and writes[0]['revision'] == writes[1]['revision'] and writes[0]['response'] == writes[1]['response']
+                    writes = [row for row in report['requests'] if row['method'] == 'goal_runs.advance_plan' and not row['response'].get('error')]
+                    assert len(writes) == 2 and writes[0]['params'] == writes[1]['params'] and writes[0]['key'] == writes[1]['key'] and writes[0]['revision'] == writes[1]['revision']
+                    # Transport request IDs and the response's current global
+                    # journal revision are fresh observations. The immutable
+                    # idempotent *result* must match the original receipt.
+                    assert writes[0]['response']['result'] == writes[1]['response']['result']
                     before_read = database(); refresh(execution); assert database() == before_read
                     shot('04-same-scope-replan-history-kept')
                     report['observations']['normal_second'] = {'view': second, 'database': before_recovery, 'exact_advance_replay': writes}
@@ -546,7 +572,7 @@ def main():
                     expect(execution.get_by_role('button', name='Recover the same execution request', exact=True)).to_have_count(0)
                     assert database() == before_read
                     request = cancel_fault['request']; replay = ipc(request['method'], request['params'], request['key'], request['revision'])
-                    assert replay == request['response'] and database() == before_read
+                    assert not replay.get('error') and replay['result'] == request['response']['result'] and database() == before_read
                     assert len([row for row in report['requests'] if row['method'] == 'goal_runs.cancel' and row['params']['run_id'] == started['id']]) == 1
                     shot('06-real-owned-cancel-retains-partial-report')
                     report['observations']['cancel'] = {'request_receipt': request['response'], 'terminal': stopped, 'partial_bytes': 14, 'no_automatic_replay': True}
