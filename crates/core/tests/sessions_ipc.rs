@@ -128,7 +128,10 @@ for line in sys.stdin:
    assert contract['inputs'][0]['artifact']['relative_path'] in ('file','inputs/file') and contract['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
    assert contract['policy']['enforced']=={'filesystem_sandbox':False,'network_sandbox':False,'output_quota':False}
    text=contract['goal']
-   if text in ('goal-report','goal-report-v2','goal-report-drift'):
+   if text in ('goal-report','goal-report-v2','goal-report-drift','goal-report-hold'):
+    if text=='goal-report-hold':
+     open('fixture-goal-held','w').write(str(os.getpid()))
+     while not os.path.exists('fixture-goal-release'):time.sleep(.005)
     os.makedirs('reports',exist_ok=True);open('reports/report.txt','w').write('fixed report v2' if text=='goal-report-v2' else 'fixed report')
     if text=='goal-report-drift':open('file','w').write('changed original')
   if text.startswith('goal-report-extra-'):
@@ -2462,4 +2465,118 @@ fn actual_goal_same_plan_frontier_preserves_budget_cancel_unknown_revocation_and
             })
             .exists());
     }
+}
+
+#[test]
+fn actual_goal_temporary_global_slot_waits_without_intents_then_executes_after_owned_completion() {
+    let mut f = Scenario::new(10_000);
+    let first_scope = goal_scope_and_plan(&f, "goal-report-hold");
+    let first_root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+    another_goal_root(&mut f, 42);
+    let second_scope = goal_scope_and_plan(&f, "goal-report");
+    let first = approve_goal_execution(&f, &first_scope);
+    wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":first["id"]}),
+        |r| r["nodes"][0]["state"] == "running" && first_root.join("fixture-goal-held").exists(),
+    );
+    let second = approve_goal_execution(&f, &second_scope);
+    let second_root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+    assert_ne!(first_root, second_root);
+    let quiet = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let until = Instant::now() + Duration::from_millis(200);
+    while Instant::now() < until {
+        let queued = result(
+            f.server
+                .request(json!({"method":"goal_runs.get","params":{"run_id":second["id"]}})),
+        );
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        let total = db
+            .query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap();
+        if queued["run"]["state"] != "queued" {
+            let reason:String=db.query_row("SELECT json_extract(document,'$.payload.reason_code') FROM events WHERE json_extract(document,'$.kind')='goal.run_blocked' AND json_extract(document,'$.aggregate_id')=?1",[second["id"].as_str().unwrap()],|r|r.get(0)).unwrap();
+            eprintln!(
+                "TEMPORARY_GOAL_SLOT second_state={} total_attempts={total} second_node={} reason_code={reason}",
+                queued["run"]["state"], queued["nodes"][0]["state"]
+            );
+        }
+        assert_eq!(queued["run"]["state"], "queued", "{queued}");
+        assert_eq!(queued["nodes"][0]["state"], "not_started");
+        assert!(queued["nodes"][0]["session_id"].is_null());
+        assert!(queued["nodes"][0]["attempt_id"].is_null());
+        assert_eq!(total, 1);
+        assert_eq!(
+            result(
+                f.server
+                    .request(json!({"method":"system.snapshot","params":{}}))
+            )["sequence"],
+            quiet
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    std::fs::write(
+        first_root.join("fixture-goal-release"),
+        b"release generated fixture",
+    )
+    .unwrap();
+    let first_done = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":first["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    let second_done = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":second["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    for done in [&first_done, &second_done] {
+        assert_eq!(done["nodes"][0]["state"], "candidate");
+        assert_eq!(done["nodes"][0]["stop_confirmed"], true);
+        assert_eq!(done["nodes"][0]["actual_output_bytes"], 12);
+        assert_eq!(done["task_accepted"], false);
+    }
+    assert_ne!(
+        first_done["nodes"][0]["attempt_id"],
+        second_done["nodes"][0]["attempt_id"]
+    );
+    assert_eq!(
+        std::fs::read(first_root.join("reports/report.txt")).unwrap(),
+        b"fixed report"
+    );
+    assert_eq!(
+        std::fs::read(second_root.join("reports/report.txt")).unwrap(),
+        b"fixed report"
+    );
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        2
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        2
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT json_extract(document,'$.output_bytes') FROM goal_ledgers WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        24
+    );
 }

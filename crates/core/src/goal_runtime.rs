@@ -1204,6 +1204,15 @@ impl Store {
         tx.commit().map_err(db_error)?;
         Ok(Some((id, text)))
     }
+    /// Only a stored pending fixed execution proposal may reach its normal
+    /// finalizer while another unrelated root is running. This is no approval.
+    pub(crate) fn pending_goal_execution_approval(&self, id: &str) -> Result<bool> {
+        key(id)?;
+        let row:Option<Option<String>>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM approval_proposals WHERE id=?1 AND result IS NULL",[id],|r|r.get(0)).optional().map_err(db_error)?;
+        let Some(raw) = row else { return Ok(false) };
+        let proposal: ApprovalProposal = decode(&raw.ok_or_else(limited)?)?;
+        Ok(proposal.id == id && proposal.kind == "goal_execution" && !proposal.consumed)
+    }
     pub(crate) fn active_goal_runs(&self) -> Result<Vec<GoalRun>> {
         raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE (state IN('queued','running','cancel_requested') OR (state='blocked' AND EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=goal_runs.id AND n.state IN('reserved','running','stopping'))))",[],256,MAX_STORED_BYTES)?;
         let mut q=self.conn.prepare("SELECT id FROM goal_runs WHERE (state IN('queued','running','cancel_requested') OR (state='blocked' AND EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=goal_runs.id AND n.state IN('reserved','running','stopping')))) ORDER BY rowid LIMIT 257").map_err(db_error)?;
