@@ -1651,6 +1651,7 @@ fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
                     .as_array()
                     .is_some_and(|allowed| allowed.contains(&c["host_id"]))
                 && [
+                    "protocol_route",
                     "environment_id",
                     "identity_ref",
                     "host_id",
@@ -3623,6 +3624,47 @@ mod factory_grant_pin_tests {
                 _ => unreachable!(),
             }
             refuse(changed, &wire["selection"]);
+        }
+    }
+}
+
+#[cfg(test)]
+mod factory_protocol_pin_tests {
+    use super::*;
+    #[test]
+    fn factory_protocol_pin_requires_a_nonempty_string_not_merely_equal_values() {
+        for mode in ["missing", "null", "empty"] {
+            let wire:Value=serde_json::from_str(include_str!("../tests/fixtures/factory-wire-bundle-0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64.json")).unwrap();
+            let mut proposal = wire["proposal"].clone();
+            let b = &mut proposal["snapshot"]["bindings"];
+            let id = b["connections"][0]["id"].as_str().unwrap().to_owned();
+            if mode == "missing" {
+                b["connections"][0]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("protocol_route");
+                b["approved_grant"]["connection_bindings"][&id]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("protocol_route");
+            } else {
+                let value = if mode == "null" {
+                    Value::Null
+                } else {
+                    json!("")
+                };
+                b["connections"][0]["protocol_route"] = value.clone();
+                b["approved_grant"]["connection_bindings"][&id]["protocol_route"] = value;
+            }
+            let refused = confirm_factory_and_finalize(
+                json!({"result":proposal}),
+                &wire["selection"],
+                |_| panic!("untyped route must not prompt"),
+                |_| panic!("untyped route must not finalize"),
+            )
+            .unwrap();
+            assert_eq!(refused["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+            assert_eq!(refused["error"]["side_effect_state"], "not_started");
         }
     }
 }

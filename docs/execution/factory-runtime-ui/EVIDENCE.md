@@ -55,3 +55,10 @@ NOT_RUN: new8 Rust tests/Clippy, composed Core13/storage/realMCP/shared-ledger r
 - Native12 new source-only tests; extra two cover original connection pins, full exact workspace identity, artifact contract root device/inode and u64=9223372036854775809 positive versus +1 drift. Not compiled or executed. Root still owns compile/integration scheduling.
 - JS never compares filesystem numeric identity values or reserializes them for authority. Renderer requires pin structure only; Native retains original serde Value equality and complete review bytes. Server freshness checks remain independent and required.
 - Source preservation and source/log SHA: `revision-three/source-preservation.json` and `revision-three/manifest.json`. Prior manifests, original failures and fixture bytes unchanged. Still no Provider/OSdialog/Mac/shared-ledger/parent-child runtime proof from this leaf.
+
+## Final protocol-type refinement
+
+- Exact final current source:643 passed/41 Node files,21.72s Vitest duration; typecheck/build exit0, standalone rustfmt/diff exit0. `revision-four/results.json` and logs hold actual commands/codes. Native13 source-only, no Cargo/target used.
+- Preserved independent d128 protocol-shape old3FAIL: `.onboarding/factory-runtime-ui-independent-review-r3/protocol-shape.log` SHAc88f9de0bb60282aade7d45e0def1131331cca4346ca0a62607a3eb2f0af95b6. Independent required-field matrix24 cases had21PASS/onlyroute3FAIL: `required-field-matrix.log` SHAcdbae2ee11b311cca0b3464b83f03589583a07632f48e6eac0290aafd0c15be8. Existing11 controls and640 Node results remain historical, not reused as current proof.
+- Narrow code addition only: protocol_route belongs in the existing required nonempty string check in JS and Native; exact Grant pin equality still applies. No enum change, field widening, identity-number comparison or new authority. New3 permanent Node regressions plus1 Native source loop retain missing/null/empty rejection.
+- Source hashes/preservation and current logs are `revision-four/manifest.json` and `source-preservation.json`. No new Core run/IPC/Provider/OSdialog/macOS evidence.

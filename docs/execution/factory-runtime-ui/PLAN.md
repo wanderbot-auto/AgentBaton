@@ -13,3 +13,5 @@ Meaningful mocked Node/API/Native callback tests are separate from actual Core I
 Revision after37c independent review: mirror current typed Project binding and share only the specifically approved immutable0c6f Core wire fixture under Native tests/fixtures. Add host/recipient Grant subset, required root/connected lineage and exact waiting-parent guards. Preserve original37c failures; run affected and full Node/type/build. Native10 source bodies remain uncompiled without a lease.
 
 FR05 follow-up4279: compare every original Grant connection pin business scalar, require selected pin maps and identity structure in Renderer; keep filesystem numbers opaque. Native compares original full workspace identity Value and exact artifact contract root device/inode. Frozen old failures remain. No shared session API/Cargo/lock changes.
+
+Final FR05 protocol-type follow-up: require protocol_route nonempty string before original Grant pin equality, mirroring the7 already-validated business fields. Add only3 missing/null/empty Node regressions and1 source-only Native loop; retain24-matrix independent old evidence, no contract enum or scope expansion.
