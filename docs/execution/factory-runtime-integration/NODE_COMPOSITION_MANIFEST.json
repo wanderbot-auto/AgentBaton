@@ -1,0 +1,28 @@
+{
+  "archive": "NODE_COMPOSITION_EVIDENCE.tar.gz",
+  "bytes": 62715,
+  "sha256": "15b4e7acf5546c5f549d8534cb34c528681ba3be80902756c9ae5ea6d5d4a66a",
+  "all_member_hashes_verified": true,
+  "files": {
+    "RESULT.json": {
+      "bytes": 160186,
+      "sha256": "2717978bb35b833008a33c1ac75352e209ffbfb005c5b8beac95438726987b75"
+    },
+    "tests.log": {
+      "bytes": 800,
+      "sha256": "2b8156bbdf74bb4c526f40f987fd23e2482211b29d8b76ef81d6382a4d673a3f"
+    },
+    "typecheck.log": {
+      "bytes": 263,
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    "build.log": {
+      "bytes": 984,
+      "sha256": "e1a8d991c2d14feb7a009f3413da072872a10b6d6304097cc0369762a22a7f00"
+    },
+    "run.py": {
+      "bytes": 1995,
+      "sha256": "6bced0d8b1bba263e2d59c1c68fc86e4414036e616b53e26e0ee0b62f240e789"
+    }
+  }
+}

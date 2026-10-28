@@ -37,7 +37,7 @@
   "artifact_manifest": "NATIVE_COMPOSITION_MANIFEST.json",
   "sidecar_copy_incident": "SIDECAR_COPY_CORRECTION.json",
   "not_run": [
-    "new Factory composed Node/type/build/browser/actual IPC",
+    "actual Factory composed browser/Unix IPC",
     "Factory macOS/AppKit/default production release audit/installers",
     "full workspace and full Factory failure/budget/unknown/recovery regression",
     "live product Provider/accounts/remote hosts"
@@ -46,5 +46,22 @@
     "053 FD053-01 early Data boundary return misses worker check elapsed; author fixing after fixed053",
     "cooperative Data restore chunk cancellation/deadline still not accepted at053; later source/tests separate"
   ],
-  "authority": "AB-START-001 unchanged; no formalApprove/merge/production/private credential/new fee/signing/license grant"
+  "authority": "AB-START-001 unchanged; no formalApprove/merge/production/private credential/new fee/signing/license grant",
+  "composed_Node": {
+    "source": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+    "Node": "v24.19.0",
+    "tests": 643,
+    "test_files": 41,
+    "typecheck_exit": 0,
+    "build_exit": 0,
+    "source_before_after_equal": true,
+    "temporary_module_link_removed": true,
+    "assets": {
+      "apps/desktop/dist/index.html": "409c30ec49aa45a9566e00b0f3ad66fe2324ec8db9b77c8cbbbdd18660968997",
+      "apps/desktop/dist/assets/index-BMwbYbXt.js": "f31b650fa1a794b9572098e51f64b8983a4494f7524c1a428040b7bf88fde1b7",
+      "apps/desktop/dist/assets/index-DczAmFjL.css": "bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944"
+    },
+    "evidence": "NODE_COMPOSITION_MANIFEST.json",
+    "scope": "Node mocked UI/contract tests and real frontend build; not actual Factory browser/IPC"
+  }
 }
