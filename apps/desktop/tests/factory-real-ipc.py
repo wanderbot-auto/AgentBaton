@@ -54,6 +54,94 @@ def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
+def note_failure(report, failure, stage, clean=str):
+    report['status'] = 'failed_or_interrupted'
+    entry = {'stage': stage, 'type': type(failure).__name__, 'message': clean(failure),
+        'traceback': clean(''.join(traceback.format_exception(type(failure), failure, failure.__traceback__)))}
+    if 'failure' not in report:
+        report['failure'] = entry
+    else:
+        report.setdefault('secondary_failures', []).append(entry)
+
+
+def cleanup_call(report, stage, action, clean=str):
+    try:
+        return action()
+    except BaseException as failure:
+        note_failure(report, failure, stage, clean)
+        return None
+
+
+def runtime_exit(report):
+    return 0 if (report.get('status') == 'passed' and report.get('cleanup_complete') is True
+        and not report.get('failure') and not report.get('http_unexpected_errors')) else 1
+
+
+def inspect_owned_records(report, verified, required_count, provider, settings, companion, runtime, clean=str):
+    """Only previously checked fixed identities; a new empty glob is not proof."""
+    complete = True; observations = []; identities = set()
+    if len(verified) != required_count:
+        note_failure(report, AssertionError(('Missing required verified fixture records', len(verified), required_count)), 'cleanup_identity_count', clean)
+        complete = False
+    for row in verified:
+        try:
+            path = Path(row['path'])
+            assert sha(path.read_bytes()) == row['sha256'], 'Previously verified fixture record missing or changed'
+        except BaseException as failure:
+            note_failure(report, failure, 'cleanup_record_integrity', clean); complete = False
+        for field in ['owned_provider', 'owned_companion']:
+            try:
+                expected = row[field]; pid = expected['pid']
+                assert type(pid) is int and pid > 1 and type(expected['pgid']) is int and expected['pgid'] > 1
+                assert re.fullmatch('[0-9]+', expected['start_ticks'])
+                pair = (pid, expected['start_ticks']); assert pair not in identities; identities.add(pair)
+                try:
+                    current = support.proc_identity(pid)
+                except FileNotFoundError:
+                    current = None
+                alive = current is not None and current['start_ticks'] == expected['start_ticks']
+                observation = {'role': field, 'expected': expected, 'observed': current,
+                    'original_identity_gone': not alive, 'signal_sent': False}
+                if alive:
+                    # A signal can only target this saved identity and this exact
+                    # private fixture executable/config/credential path, never ps/pkill.
+                    assert os.getpgid(pid) == expected['pgid']
+                    raw = Path(f'/proc/{pid}/cmdline').read_bytes()
+                    assert len(raw) <= 8192 and raw.endswith(b'\0')
+                    argv = [part.decode() for part in raw[:-1].split(b'\0')]
+                    if field == 'owned_provider':
+                        assert expected['pgid'] == pid and str(provider) in argv
+                        assert argv[-2:] == ['--fixture-settings', str(settings)]
+                    else:
+                        assert expected['pgid'] == row['owned_provider']['pid']
+                        assert len(argv) == 3 and argv[:2] == [str(companion), 'factory-mcp']
+                        assert Path(argv[2]).resolve().is_relative_to(runtime / 'factory-scoped-handles')
+                    assert support.proc_identity(pid)['start_ticks'] == expected['start_ticks']
+                    os.kill(pid, signal.SIGKILL); observation['signal_sent'] = True
+                    observations.append(observation)
+                    raise AssertionError('Exact private fixture identity needed forced cleanup; not Core stop proof')
+                observations.append(observation)
+            except BaseException as failure:
+                note_failure(report, failure, 'cleanup_owned_identity', clean); complete = False
+    if len(identities) != required_count * 2 or len(observations) != required_count * 2:
+        note_failure(report, AssertionError(('Incomplete required identity inspection', len(identities), len(observations), required_count * 2)), 'cleanup_identity_coverage', clean)
+        complete = False
+    report['cleanup'].append({'action': 'fixed previously verified generated identities inspected',
+        'required_records': required_count, 'required_identities': required_count * 2,
+        'verified_records': len(verified), 'inspected_identities': len(observations), 'observations': observations,
+        'complete': complete})
+    return complete
+
+
+def verify_attempt_budgets(rows, task_id, project_id, expected_attempts, expected_active=0):
+    """Exact isolated fixture keys from sessions.rs; no absent project meter green."""
+    expected_keys = {'root:' + task_id, 'project:' + project_id}
+    assert len(rows) == 2 and {r['scope'] for r in rows} == expected_keys, ('Exact root/project rows required', rows, expected_keys)
+    for row in rows:
+        assert type(row['consumed']) is int and row['consumed'] == expected_attempts, ('Cumulative attempts must not refund/reset', row, expected_attempts)
+        assert type(row['active']) is int and row['active'] == expected_active, ('Exact observed active count required', row, expected_active)
+
+
 @dataclass(frozen=True)
 class Bounds:
     # Only filled from private authenticated actual Core results, never HTTP.
@@ -336,7 +424,7 @@ def runtime_driver(args, output, attribution, prepared):
             'Provider disconnect side-effect recovery', 'complete Factory fault matrix', 'full product completion'],
         'candidate': manifest, 'candidate_manifest_sha256': sha(manifest_raw), 'frontend_assets_sha256': assets,
         'checks': [], 'private_owner_reviews': [], 'http': [], 'http_unexpected_errors': [], 'readonly_aborts': [],
-        'observations': {}, 'screenshots': [], 'cleanup': []}
+        'observations': {}, 'screenshots': [], 'cleanup': [], 'cleanup_complete': False}
     token = ''; pump = lambda: None
     def clean(value):
         return str(value).replace(token, '[redacted generated Owner token]') if token else str(value)
@@ -350,7 +438,9 @@ def runtime_driver(args, output, attribution, prepared):
             time.sleep(.02)
     def passed(name):
         report['checks'].append({'name': name, 'status': 'passed'})
-    with tempfile.TemporaryDirectory(prefix='baton-factory-') as temporary:
+    temporary_owner = tempfile.TemporaryDirectory(prefix='baton-factory-')
+    try:
+        temporary = temporary_owner.name
         root = Path(temporary).resolve(); root.chmod(0o700)
         runtime = root / 'runtime'; runtime.mkdir(mode=0o700)
         settings = root / 'generated-settings.json'
@@ -360,7 +450,7 @@ def runtime_driver(args, output, attribution, prepared):
         log = (output / 'daemon.log').open('wb')
         daemon = subprocess.Popen([str(binary)], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)},
             stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
-        server = thread = browser = None; workspace = host = scope = None
+        server = thread = browser = None; workspace = host = scope = None; verified_records = []
         try:
             wait(lambda: ((runtime / 'session.token').is_file(), (runtime / 'batond.sock').exists(), daemon.poll()),
                 lambda v: v[0] and v[1] and v[2] is None)
@@ -521,12 +611,25 @@ def runtime_driver(args, output, attribution, prepared):
                         assert all(t['attempt_id'] is not None and t['confirmed_stop'] is True for t in detail['tasks'])
                     if args.case == 'cancel':
                         assert detail['run']['cancel_requested'] is True
-                    records = [json.loads(p.read_text()) for p in sorted((workspace_root / 'reports').glob('fixture-request-*.json'))]
+                    record_paths = sorted((workspace_root / 'reports').glob('fixture-request-*.json'))
+                    record_bytes = [p.read_bytes() for p in record_paths]
+                    records = [json.loads(raw) for raw in record_bytes]
                     expected_stages = ['child', 'parent-initial', 'parent-resumed'] if args.case == 'normal' else ['parent-initial']
                     assert sorted(r['stage'] for r in records) == expected_stages
                     for row in records:
                         assert sha(row['request_text'].encode()) == row['request_sha256']
                         row['request'] = json.loads(row['request_text'])
+                        assert row['request']['root_task_id'] == task['id']
+                        for field in ['owned_provider', 'owned_companion']:
+                            identity = row[field]
+                            assert type(identity['pid']) is int and identity['pid'] > 1 and type(identity['pgid']) is int and identity['pgid'] > 1
+                            assert re.fullmatch('[0-9]+', identity['start_ticks'])
+                        assert row['owned_provider']['pgid'] == row['owned_provider']['pid']
+                        assert row['owned_companion']['pgid'] == row['owned_provider']['pid']
+                    for path, raw, row in zip(record_paths, record_bytes, records):
+                        assert path.name == 'fixture-request-' + str(row['owned_provider']['pid']) + '.json'
+                        verified_records.append({'path': str(path), 'sha256': sha(raw),
+                            'owned_provider': dict(row['owned_provider']), 'owned_companion': dict(row['owned_companion'])})
                     report['observations']['actual_task_requests'] = records
                     if args.case == 'normal':
                         assert (workspace_root / 'reports/fixture-stages.txt').read_text() == 'parent-initial\nchild\nparent-resumed\n'
@@ -554,10 +657,8 @@ def runtime_driver(args, output, attribution, prepared):
                         assert db.execute("SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'").fetchone()[0] == 0
                         budgets = [dict(zip(['scope', 'consumed', 'active'], row)) for row in db.execute('SELECT scope,consumed,active FROM budgets')]
                         report['observations']['budgets'] = budgets
-                        roots = [r for r in budgets if r['scope'].startswith('root:')]
-                        assert len(roots) == 1 and roots[0]['consumed'] == attempts, roots
+                        verify_attempt_budgets(budgets, task['id'], project['id'], 3 if args.case == 'normal' else 1)
                         if args.case in {'normal', 'cancel'}:
-                            assert roots[0]['active'] == 0, roots
                             assert db.execute("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'").fetchone()[0] == 0
                             assert db.execute("SELECT count(*) FROM workspace_leases WHERE holder!=''").fetchone()[0] == 0
                             assert db.execute('SELECT count(*) FROM factory_scoped_handles WHERE revoked=0').fetchone()[0] == 0
@@ -565,8 +666,9 @@ def runtime_driver(args, output, attribution, prepared):
                         report['observations']['events'] = events
                         owned_stops = [e for e in events if e['kind'] == 'session.stopped' and e['payload'].get('process_reaped') is True and e['payload'].get('no_process_started') is False]
                         report['observations']['actual_owned_session_stops'] = owned_stops
-                        if args.case in {'normal', 'cancel'}:
-                            assert len(owned_stops) == attempts
+                        # Even malformed-result unknown cannot claim active slots
+                        # closed without these actual owned-reap event receipts.
+                        assert len(owned_stops) == attempts
                     starts = [r for r in report['http'] if r['method'] == 'factory_runs.start']
                     assert len(starts) == 1 and not starts[0]['response'].get('error')
                     original_start = starts[0]
@@ -588,16 +690,18 @@ def runtime_driver(args, output, attribution, prepared):
                     assert sha(binary.read_bytes()) == manifest['binaries']['batond'] and sha(companion.read_bytes()) == manifest['binaries']['baton']
                     passed('actual built Factory UI shows terminal history without acceptance or source/asset drift')
                     report['status'] = 'passed'
-                except BaseException:
+                except BaseException as failure:
+                    note_failure(report, failure, 'browser_runtime', clean)
                     try:
                         shot('failure-current-ui', page.locator('body'))
                     except Exception as capture_failure:
                         report['failure_capture_error'] = clean(capture_failure)
                     raise
                 finally:
-                    phase['value'] = 'browser_closing'; browser.close(); browser = None
+                    phase['value'] = 'browser_closing'
+                    cleanup_call(report, 'browser_close', browser.close, clean); browser = None
         except BaseException as failure:
-            report['failure'] = {'type': type(failure).__name__, 'message': clean(failure), 'traceback': clean(traceback.format_exc())}
+            note_failure(report, failure, 'runtime_outer', clean)
             if host is not None:
                 try:
                     report['observations']['failure_snapshot'] = host.result('system.snapshot', {})
@@ -607,73 +711,67 @@ def runtime_driver(args, output, attribution, prepared):
                     report['observations']['failure_diagnostic_error'] = clean(read_failure)
         finally:
             pump = lambda: None
+            if browser is not None:
+                cleanup_call(report, 'browser_close_after_failure', browser.close, clean)
             if server is not None:
-                server.shutdown()
+                cleanup_call(report, 'http_shutdown', server.shutdown, clean)
+            http_complete = True
             if thread is not None:
-                thread.join(timeout=5)
-                report['cleanup'].append({'action': 'HTTP thread join', 'thread_alive_after_join': thread.is_alive()})
-                if thread.is_alive():
-                    report['status'] = 'failed_or_interrupted'
+                cleanup_call(report, 'http_thread_join', lambda: thread.join(timeout=5), clean)
+                alive = cleanup_call(report, 'http_thread_inspection', thread.is_alive, clean)
+                report['cleanup'].append({'action': 'HTTP thread join', 'thread_alive_after_join': alive})
+                if alive is not False:
+                    http_complete = False
+                    note_failure(report, AssertionError('HTTP serve thread did not join'), 'http_thread_join_result', clean)
             if server is not None:
-                server.server_close()
-                report['cleanup'].append({'action': 'HTTP handlers joined', 'active_handlers': list(active.values())})
-                if active:
-                    report['status'] = 'failed_or_interrupted'
-            if daemon.poll() is None:
-                daemon.terminate()
-            forced = False
-            try:
-                exitcode = daemon.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                forced = True; os.killpg(daemon.pid, signal.SIGKILL); exitcode = daemon.wait()
-            report['cleanup'].append({'action': 'private daemon waited', 'pid': daemon.pid, 'exitcode': exitcode, 'forced_sigkill': forced})
-            if exitcode != 0 or forced:
-                report['status'] = 'failed_or_interrupted'
-            owned = []
-            if workspace is not None:
-                for path in (Path(workspace['root']) / 'reports').glob('fixture-request-*.json'):
-                    try:
-                        row = json.loads(path.read_text())
-                        for field in ['owned_provider', 'owned_companion']:
-                            expected = row[field]; pid = expected['pid']
-                            assert type(pid) is int and pid > 1 and expected['pgid'] > 1
-                            try:
-                                current = support.proc_identity(pid)
-                            except FileNotFoundError:
-                                current = None
-                            alive = current is not None and current['start_ticks'] == expected['start_ticks']
-                            observation = {'expected': expected, 'observed': current, 'original_identity_gone': not alive, 'signal_sent': False}
-                            if alive:
-                                # Only this exact recorded private fixture child, never global pgid/pkill.
-                                assert os.getpgid(pid) == expected['pgid']
-                                raw_argv = Path(f'/proc/{pid}/cmdline').read_bytes()
-                                assert len(raw_argv) <= 8192 and raw_argv.endswith(b'\0')
-                                argv = [p.decode() for p in raw_argv[:-1].split(b'\0')]
-                                if field == 'owned_provider':
-                                    assert expected['pgid'] == pid and str(provider) in argv
-                                    assert argv[-2:] == ['--fixture-settings', str(settings)]
-                                else:
-                                    assert expected['pgid'] == row['owned_provider']['pid']
-                                    assert len(argv) == 3 and argv[:2] == [str(companion), 'factory-mcp']
-                                    assert Path(argv[2]).resolve().is_relative_to(runtime / 'factory-scoped-handles')
-                                # PID can disappear/reuse during argv reads: recheck immediately.
-                                assert support.proc_identity(pid)['start_ticks'] == expected['start_ticks']
-                                os.kill(pid, signal.SIGKILL); observation['signal_sent'] = True
-                                report['status'] = 'failed_or_interrupted'
-                            owned.append(observation)
-                    except Exception as cleanup_failure:
-                        report['status'] = 'failed_or_interrupted'
-                        report['cleanup'].append({'action': 'refused unsafe/malformed fixture identity cleanup', 'failure': clean(cleanup_failure)})
-            report['cleanup'].append({'action': 'exact recorded generated identities inspected', 'observations': owned})
+                cleanup_call(report, 'http_handlers_close', server.server_close, clean)
+                remaining = list(active.values())
+                report['cleanup'].append({'action': 'HTTP handlers joined', 'active_handlers': remaining})
+                if remaining:
+                    http_complete = False
+                    note_failure(report, AssertionError('HTTP handlers remain active'), 'http_handlers_join_result', clean)
+            def finish_daemon():
+                if daemon.poll() is None:
+                    daemon.terminate()
+                forced = False
+                try:
+                    exitcode = daemon.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    forced = True; os.killpg(daemon.pid, signal.SIGKILL); exitcode = daemon.wait()
+                report['cleanup'].append({'action': 'private daemon waited', 'pid': daemon.pid,
+                    'exitcode': exitcode, 'forced_sigkill': forced})
+                assert exitcode == 0 and not forced, 'Private daemon cleanup failed or needed forced kill'
+                return True
+            daemon_complete = cleanup_call(report, 'daemon_wait', finish_daemon, clean)
+            identity_complete = cleanup_call(report, 'fixed_owned_identity_inspection',
+                lambda: inspect_owned_records(report, verified_records, 3 if args.case == 'normal' else 1,
+                    provider, settings, companion, runtime, clean), clean)
             if report['http_unexpected_errors']:
+                note_failure(report, AssertionError('Unexpected HTTP errors'), 'http_final_error_check', clean)
+            cleanup_call(report, 'daemon_log_close', log.close, clean)
+            def redact_log():
+                path = output / 'daemon.log'
+                if token:
+                    path.write_bytes(path.read_bytes().replace(token.encode(), b'[redacted generated Owner token]'))
+            cleanup_call(report, 'daemon_log_redaction', redact_log, clean)
+            report['cleanup_complete'] = bool(http_complete and daemon_complete is True and identity_complete is True
+                and not report.get('failure') and not report['http_unexpected_errors'])
+            if not report['cleanup_complete']:
                 report['status'] = 'failed_or_interrupted'
-            log.close()
-            path = output / 'daemon.log'
-            if token:
-                path.write_bytes(path.read_bytes().replace(token.encode(), b'[redacted generated Owner token]'))
+    except BaseException as failure:
+        note_failure(report, failure, 'runtime_setup_or_cleanup', clean)
+    finally:
+        cleanup_call(report, 'temporary_directory_cleanup', temporary_owner.cleanup, clean)
+        report['cleanup_complete'] = report['cleanup_complete'] and not report.get('failure')
+        if not report['cleanup_complete']:
+            report['status'] = 'failed_or_interrupted'
+        try:
             (output / 'report.json').write_text(clean(json.dumps(report, ensure_ascii=False, indent=2)) + '\n')
+        except BaseException as write_failure:
+            note_failure(report, write_failure, 'report_persistence', clean)
+            raise RuntimeError('Could not persist failed report; first failure: ' + clean(report['failure'])) from write_failure
     print(json.dumps({'status': report['status'], 'checks': len(report['checks']), 'screenshots': len(report['screenshots']), 'report': str(output / 'report.json')}))
-    return 0 if report['status'] == 'passed' else 1
+    return runtime_exit(report)
 
 
 def boundary_self_check():
@@ -788,10 +886,82 @@ def fixture_self_check():
         'status': 'passed', 'count': len(rows), 'checks': rows}
 
 
+def cleanup_self_check():
+    rows = []
+    def check(name, condition):
+        assert condition, name
+        rows.append({'name': name, 'status': 'passed'})
+    def report():
+        return {'status': 'passed', 'cleanup_complete': True, 'cleanup': [], 'http_unexpected_errors': []}
+    def throw(message):
+        raise RuntimeError(message)
+    value = report()
+    cleanup_call(value, 'browser_close', lambda: throw('unit-only browser.close failed'))
+    check('original late-exception counterexample now fails and returns nonzero', value['status'] == 'failed_or_interrupted' and runtime_exit(value) == 1)
+    value = report(); note_failure(value, ValueError('original failure'), 'body')
+    cleanup_call(value, 'browser_close', lambda: throw('secondary cleanup failed'))
+    check('primary failure survives later cleanup exception', value['failure']['message'] == 'original failure' and value['secondary_failures'][0]['message'] == 'secondary cleanup failed')
+    value = report(); value['cleanup_complete'] = False
+    check('no complete cleanup cannot return green', runtime_exit(value) == 1)
+    value = report(); value['failure'] = {'message': 'recorded error'}
+    check('recorded failure forbids green even if status was incorrectly reset', runtime_exit(value) == 1)
+    with tempfile.TemporaryDirectory(prefix='factory-cleanup-unit-') as temporary:
+        root = Path(temporary); path = root / 'fixture-record.json'; path.write_text('{"unit":true}\n')
+        fixed = {'path': str(path), 'sha256': sha(path.read_bytes()),
+            'owned_provider': {'pid': 800000001, 'pgid': 800000001, 'start_ticks': '1'},
+            'owned_companion': {'pid': 800000002, 'pgid': 800000001, 'start_ticks': '2'}}
+        original = support.proc_identity
+        support.proc_identity = lambda _: None  # Explicit metadata stub, never process-stop proof.
+        try:
+            def inspect(saved, required=1):
+                value = report()
+                complete = inspect_owned_records(value, saved, required, root/'provider', root/'settings', root/'baton', root/'runtime')
+                value['cleanup_complete'] = complete
+                return value
+            value = inspect([])
+            check('original empty-cleanup counterexample denies missing required records', runtime_exit(value) == 1 and value['cleanup'][-1]['complete'] is False)
+            value = inspect([fixed])
+            check('complete fixed record inspections pass only explicit mocked-gone identities', runtime_exit(value) == 0 and value['cleanup'][-1]['inspected_identities'] == 2)
+            path.unlink(); value = inspect([fixed])
+            check('removed previously verified file fails instead of empty glob success', runtime_exit(value) == 1)
+            path.write_text('changed'); value = inspect([fixed])
+            check('changed verified record hash fails', runtime_exit(value) == 1)
+            path.write_text('{"unit":true}\n'); missing = dict(fixed); del missing['owned_companion']
+            value = inspect([missing])
+            check('incomplete fixed identity pair fails', runtime_exit(value) == 1)
+            value = inspect([fixed], required=3)
+            check('normal requires all three provider/companion records', runtime_exit(value) == 1)
+        finally:
+            support.proc_identity = original
+    for expected in [1, 3]:
+        valid = [{'scope': 'root:task', 'consumed': expected, 'active': 0}, {'scope': 'project:project', 'consumed': expected, 'active': 0}]
+        verify_attempt_budgets(valid, 'task', 'project', expected)
+        check('exact root+project positive consumed' + str(expected), True)
+        for name in ['missing-project', 'wrong-project-key', 'wrong-project-consumed', 'wrong-project-active', 'extra-row', 'missing-root', 'root-refund', 'bool-consumed']:
+            changed = json.loads(json.dumps(valid))
+            if name == 'missing-project': changed.pop()
+            if name == 'wrong-project-key': changed[1]['scope'] = 'project:foreign'
+            if name == 'wrong-project-consumed': changed[1]['consumed'] = expected + 1
+            if name == 'wrong-project-active': changed[1]['active'] = 1
+            if name == 'extra-row': changed.append(dict(changed[1]))
+            if name == 'missing-root': changed.pop(0)
+            if name == 'root-refund': changed[0]['consumed'] = 0
+            if name == 'bool-consumed': changed[0]['consumed'] = True
+            try:
+                verify_attempt_budgets(changed, 'task', 'project', expected)
+            except AssertionError:
+                check(name + ' consumed' + str(expected), True)
+            else:
+                raise AssertionError(name)
+    return {'dimension': 'real report/cleanup/budget helper control execution, explicit gone-process metadata stub; no Core/browser/daemon',
+        'status': 'passed', 'count': len(rows), 'checks': rows}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--self-check', action='store_true')
     parser.add_argument('--fixture-self-check', action='store_true')
+    parser.add_argument('--cleanup-self-check', action='store_true')
     parser.add_argument('--case', choices=['normal', 'cancel', 'unknown'])
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--candidate-manifest', type=Path)
@@ -799,7 +969,7 @@ def main():
     parser.add_argument('--frontend', type=Path)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
     args = parser.parse_args()
-    assert sum([args.self_check, args.fixture_self_check, bool(args.case)]) <= 1
+    assert sum([args.self_check, args.fixture_self_check, args.cleanup_self_check, bool(args.case)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
     attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 13}
     if args.self_check:
@@ -809,6 +979,10 @@ def main():
     if args.fixture_self_check:
         report = {**attribution, **fixture_self_check()}
         (output / 'fixture-unit-checks.json').write_text(json.dumps(report, indent=2) + '\n')
+        print(json.dumps({'status': report['status'], 'count': report['count']})); return 0
+    if args.cleanup_self_check:
+        report = {**attribution, **cleanup_self_check()}
+        (output / 'cleanup-unit-checks.json').write_text(json.dumps(report, indent=2) + '\n')
         print(json.dumps({'status': report['status'], 'count': report['count']})); return 0
     if args.case:
         try:
