@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DaemonError, type Task } from './api';
 import { goalApi, safeInteger, type GoalPlan, type GoalScope } from './goal-api';
-import { goalExecutionApi as api, goalRunShape, goalRunViewShape, goalRunFloor, goalRunMeetsFloor, goalRunNeedsReconciliation, goalRunCanCancel, goalRunPolling, goalRunStates, type GoalRun, type GoalRunView, type GoalRunSelection, type GoalPlanAdvance, type GoalRunFloor } from './goal-execution-api';
+import { goalExecutionApi as api, goalRunShape, goalRunViewShape, goalRunFloor, goalRunMeetsFloor, goalRunNeedsReconciliation, goalRunCanCancel, goalRunPolling, goalRunStates, goalRunNodeStates, goalRunViewSupported, goalRunViewClosed, goalRunCanAdvanceView, type GoalRun, type GoalRunView, type GoalRunSelection, type GoalPlanAdvance, type GoalRunFloor } from './goal-execution-api';
 import { goalExecutionMessages } from './goal-execution-i18n';
 import type { Language } from './i18n';
 import './goal-execution.css';
@@ -62,14 +62,15 @@ function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,ex
       if(!mounted.current||current!==sequence.current)return;
       const currentRows=rows.map(row=>detail?.run.id===row.id?detail.run:row);
       for(const row of currentRows)observed.current.set(row.id,goalRunFloor(row));
+      const supported=!detail||goalRunViewSupported(detail);
       if(detail)ledger.current=detail.ledger_revision;
       selected.current=inspectId??'';setRuns(currentRows);setView(detail);setFresh(true);
       if(op){
         const receipt=op.receipt;
         const acknowledged=receipt?currentRows.find(row=>row.id===receipt.id&&row.revision>=receipt.revision):undefined;
         const cancelled=op.kind==='cancel'&&currentRows.some(row=>row.id===op.runId&&row.revision>op.revision!&&row.cancel_requested);
-        if(acknowledged&&(op.kind!=='cancel'||acknowledged.cancel_requested)||cancelled){intents.delete(task.id);setPending(null);}
-        else{const reconciled={...op,floors:[...observed.current],ledger:ledger.current,reconciled:true};intents.set(task.id,reconciled);setPending(reconciled);}
+        if(supported&&(acknowledged&&(op.kind!=='cancel'||acknowledged.cancel_requested)||cancelled)){intents.delete(task.id);setPending(null);}
+        else{const reconciled={...op,floors:[...observed.current],ledger:ledger.current,reconciled:supported};intents.set(task.id,reconciled);setPending(reconciled);}
       }else setPending(null);
     }catch(failure){if(mounted.current&&current===sequence.current){setFresh(false);setError(failure instanceof Error?failure.message:t.error);}}
     finally{if(mounted.current&&current===sequence.current){setLoading(false);setReadVersion(value=>value+1);}}
@@ -84,9 +85,8 @@ function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,ex
   const disabled=!connected||!fresh||loading||busy;
   const pendingForeign=!!pending&&pending.scopeId!==scope.id;
   const canRecover=!!pending&&pending.uncertain&&pending.reconciled&&!disabled&&!pendingForeign;
-  const canApprove=!disabled&&!pending&&approvalAllowed&&storedPlanInScope(latest,task,scope)&&!runs.some(goalRunNeedsReconciliation);
-  const canAdvanceView=(detail:GoalRunView)=>!detail.run.cancel_requested&&goalRunStates.includes(detail.run.state)&&!['outcome_unknown','cancelled','failed','cancel_requested'].includes(detail.run.state)&&!detail.nodes.some(record=>record.session_id!==null&&!record.stop_confirmed||['reserved','running','stopping','outcome_unknown'].includes(record.state));
-  const canAdvance=!disabled&&!pending&&approvalAllowed&&!!view&&canAdvanceView(view)&&!!latest&&storedPlanInScope(latest,task,scope)&&latest.proposal.revision>view.run.plan_revision;
+  const canApprove=!disabled&&!pending&&approvalAllowed&&storedPlanInScope(latest,task,scope)&&!runs.some(goalRunNeedsReconciliation)&&(!view||goalRunViewClosed(view));
+  const canAdvance=!disabled&&!pending&&approvalAllowed&&!!view&&goalRunCanAdvanceView(view)&&!!latest&&storedPlanInScope(latest,task,scope)&&latest.proposal.revision>view.run.plan_revision;
   async function mutate(op:Pending){
     if(!intents.has(task.id)&&intents.size>=32){if(mounted.current)setError(t.pendingLimit);return;}
     const stored={...op,ledger:Math.max(ledger.current,op.ledger??0),reconciled:false};intents.set(task.id,stored);if(mounted.current){setPending(stored);setError('');}++sequence.current;
@@ -131,7 +131,7 @@ function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,ex
       const detail=await api.get(expected.runId);
       if(!mounted.current)return;
       const now=context.current;
-      if(!goalRunViewShape(detail,now.task,now.scope)||detail.run.id!==expected.runId||detail.ledger_revision<ledger.current||!goalRunMeetsFloor(detail.run,goalRunFloor(view.run))||!canAdvanceView(detail)||now.latest?.proposal.revision!==expected.planRevision||now.latest.digest!==expected.digest||!storedPlanInScope(now.latest,now.task,now.scope)||!now.approvalAllowed||detail.run.plan_revision>=expected.planRevision)throw new Error(t.scope);
+      if(!goalRunViewShape(detail,now.task,now.scope)||detail.run.id!==expected.runId||detail.ledger_revision<ledger.current||!goalRunMeetsFloor(detail.run,goalRunFloor(view.run))||!goalRunCanAdvanceView(detail)||now.latest?.proposal.revision!==expected.planRevision||now.latest.digest!==expected.digest||!storedPlanInScope(now.latest,now.task,now.scope)||!now.approvalAllowed||detail.run.plan_revision>=expected.planRevision)throw new Error(t.scope);
       ledger.current=detail.ledger_revision;
       const selection={run_id:detail.run.id,expected_plan_revision:expected.planRevision,expected_ledger_revision:detail.ledger_revision};
       await mutate({kind:'advance',key:crypto.randomUUID(),scopeId:scope.id,rootGrantId:scope.root_grant_id,runId:detail.run.id,revision:detail.run.revision,advance:selection,planDigest:expected.digest,floors:[...observed.current],uncertain:false,reconciled:false});
@@ -155,6 +155,6 @@ function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,ex
     <div className="goal-execution-actions"><button type="button" onClick={()=>void refresh()} disabled={!connected||busy||loading}>{t.refresh}</button><button type="button" className="primary" onClick={()=>void approve()} disabled={!canApprove}>{t.approve}</button>{latest&&view&&latest.proposal.revision>view.run.plan_revision&&<button type="button" disabled={!canAdvance} onClick={()=>void advance()}>{t.advance}</button>}{pending?.uncertain&&<button type="button" disabled={!canRecover} onClick={()=>void recover()}>{t.recover}</button>}</div>
     {!approvalAllowed||!latest?.proposal.nodes.length?<p>{t.unavailable}</p>:null}{error&&<p role={expanded?'alert':undefined} className="error">{error}</p>}{pending&&<p role={expanded?'status':undefined}>{pending.uncertain?t.pending:t.acknowledged}</p>}{paused&&<p>{t.pollPaused}</p>}
     {!selectedRuns.length&&<p>{t.empty}</p>}{selectedRuns.map(run=><details key={run.id} open={view?.run.id===run.id}><summary>{label(run.state)} · {run.id}</summary><dl><dt>{t.run}</dt><dd>{run.id}</dd><dt>{t.plan}</dt><dd>{run.plan_revision}</dd><dt>{t.digest}</dt><dd><code>{run.plan_digest}</code></dd><dt>{t.revision}</dt><dd>{run.revision}</dd></dl><p>{t.noAccept}</p>{run.cancel_requested&&<p>{t.cancelHint}</p>}<div className="goal-execution-actions"><button type="button" disabled={disabled||!!pending} onClick={()=>{selected.current=run.id;void refresh();}}>{t.inspect}</button>{goalRunCanCancel(run)&&<button type="button" disabled={disabled||!!pending} onClick={()=>void cancel(run)}>{t.cancel}</button>}</div></details>)}
-    {view&&<section aria-label={t.history}><h4>{t.history}</h4><p>{t.ledger}: {view.ledger_revision}</p><p>{t.measuredHint}</p><p>{t.outputHint}</p>{view.nodes.map(record=><details key={JSON.stringify([record.plan_revision,record.node.id,record.attempt_id])}><summary>{record.node.id} · {record.state} · {t.plan} {record.plan_revision}</summary><p>{record.node.goal}</p><dl><dt>{t.attempt}</dt><dd>{record.attempt_id??'—'}</dd><dt>{t.session}</dt><dd>{record.session_id??'—'}</dd><dt>{t.stop}</dt><dd>{record.stop_confirmed?t.yes:t.no}</dd></dl><div className="goal-execution-meter"><div><h4>{t.reserved}</h4><dl>{(['runtime_ms','output_bytes','tokens','cost_microunits']as const).map(key=><div key={key}><dt>{key==='runtime_ms'?t.runtime:key==='output_bytes'?t.output:key==='tokens'?t.tokens:t.cost}</dt><dd>{count(record.node.reservation[key])}</dd></div>)}</dl></div><div><h4>{t.actual}</h4><dl>{(['actual_runtime_ms','actual_output_bytes','tokens','cost_microunits']as const).map(key=><div key={key}><dt>{key==='actual_runtime_ms'?t.runtime:key==='actual_output_bytes'?t.selectedOutput:key==='tokens'?t.tokens:t.cost}</dt><dd>{count(record[key])}</dd></div>)}</dl></div></div></details>)}</section>}
+    {view&&<section aria-label={t.history}><h4>{t.history}</h4><p>{t.ledger}: {view.ledger_revision}</p><p>{t.measuredHint}</p><p>{t.outputHint}</p>{(!goalRunViewSupported(view)||view.nodes.some(record=>record.state==='outcome_unknown'))&&<p>{t.unresolvedNodes}</p>}{view.nodes.map(record=><details key={JSON.stringify([record.plan_revision,record.node.id,record.attempt_id])}><summary>{record.node.id} · {goalRunNodeStates.includes(record.state)?record.state:t.unknown+': '+record.state} · {t.plan} {record.plan_revision}</summary><p>{record.node.goal}</p><dl><dt>{t.attempt}</dt><dd>{record.attempt_id??'—'}</dd><dt>{t.session}</dt><dd>{record.session_id??'—'}</dd><dt>{t.stop}</dt><dd>{record.stop_confirmed?t.yes:t.no}</dd></dl><div className="goal-execution-meter"><div><h4>{t.reserved}</h4><dl>{(['runtime_ms','output_bytes','tokens','cost_microunits']as const).map(key=><div key={key}><dt>{key==='runtime_ms'?t.runtime:key==='output_bytes'?t.output:key==='tokens'?t.tokens:t.cost}</dt><dd>{count(record.node.reservation[key])}</dd></div>)}</dl></div><div><h4>{t.actual}</h4><dl>{(['actual_runtime_ms','actual_output_bytes','tokens','cost_microunits']as const).map(key=><div key={key}><dt>{key==='actual_runtime_ms'?t.runtime:key==='actual_output_bytes'?t.selectedOutput:key==='tokens'?t.tokens:t.cost}</dt><dd>{count(record[key])}</dd></div>)}</dl></div></div></details>)}</section>}
   </div>;
 }

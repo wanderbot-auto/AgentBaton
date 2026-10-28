@@ -25,6 +25,15 @@ const meter=(value:unknown)=>value===null||safeInteger(value);
 export const goalRunFloor=(run:GoalRun):GoalRunFloor=>({revision:run.revision,planRevision:run.plan_revision,digest:run.plan_digest,scopeId:run.scope_id,rootGrantId:run.root_grant_id,state:run.state,cancelRequested:run.cancel_requested,createdAt:run.created_at,updatedAt:run.updated_at});
 export const goalRunMeetsFloor=(run:GoalRun,floor:GoalRunFloor)=>run.scope_id===floor.scopeId&&run.root_grant_id===floor.rootGrantId&&run.revision>=floor.revision&&run.created_at===floor.createdAt&&run.plan_revision>=floor.planRevision&&(run.plan_revision!==floor.planRevision||run.plan_digest===floor.digest)&&(run.revision!==floor.revision||run.plan_revision===floor.planRevision&&run.state===floor.state&&run.cancel_requested===floor.cancelRequested&&run.updated_at===floor.updatedAt);
 export const goalRunStates=['queued','running','cancel_requested','cancelled','awaiting_acceptance','blocked','failed','outcome_unknown'];
+export const goalRunNodeStates=['not_started','reserved','running','stopping','candidate','cancelled','failed','outcome_unknown'];
+// Owned stop is a lifecycle observation, not a proof that effects are known.
+const nodeKnownClosed=(record:GoalRunNode)=>record.state==='not_started'
+  ?record.session_id===null&&record.attempt_id===null&&!record.stop_confirmed
+  :['candidate','cancelled','failed'].includes(record.state)&&record.session_id!==null&&record.attempt_id!==null&&record.stop_confirmed;
+export const goalRunViewSupported=(view:GoalRunView)=>goalRunStates.includes(view.run.state)&&view.nodes.every(record=>goalRunNodeStates.includes(record.state));
+export const goalRunViewClosed=(view:GoalRunView)=>goalRunViewSupported(view)&&view.nodes.every(nodeKnownClosed);
+export const goalRunCanAdvanceView=(view:GoalRunView)=>!view.run.cancel_requested&&['queued','running','blocked','awaiting_acceptance'].includes(view.run.state)&&goalRunViewClosed(view);
+
 export const goalRunNeedsReconciliation=(run:GoalRun)=>!['cancelled','failed'].includes(run.state);
 export const goalRunCanCancel=(run:GoalRun)=>!run.cancel_requested&&['queued','running','blocked','outcome_unknown'].includes(run.state);
 export const goalRunPolling=(run:GoalRun)=>['queued','running','cancel_requested'].includes(run.state);
@@ -42,12 +51,17 @@ export function goalRunViewShape(value:GoalRunView,task:Task,scope:GoalScope):bo
     const node=record?.node;
     if(!record||!node||!safeInteger(record.plan_revision,1)||record.plan_revision>value.run.plan_revision||!id(node.id)||typeof node.goal!=='string'||node.goal.length>16384||!['work','validate','owner_approval','summary'].includes(node.kind)||node.workspace_id!==scope.workspace_id||typeof record.state!=='string'||record.state.length<1||record.state.length>128||typeof record.stop_confirmed!=='boolean')return false;
     if(![record.started_at_ms,record.actual_runtime_ms,record.actual_output_bytes,record.tokens,record.cost_microunits].every(meter)||!(record.session_id===null||id(record.session_id))||!(record.attempt_id===null||id(record.attempt_id))||(record.session_id===null)!==(record.attempt_id===null))return false;
-    if(record.stop_confirmed&&['reserved','running','stopping'].includes(record.state)||record.state==='cancelled'&&record.session_id!==null&&!record.stop_confirmed)return false;
+    if(goalRunNodeStates.includes(record.state)){
+      if(record.state==='not_started'){if(record.session_id!==null||record.attempt_id!==null||record.stop_confirmed)return false;}
+      else if(record.session_id===null||record.attempt_id===null)return false;
+      if(['reserved','running','stopping'].includes(record.state)&&record.stop_confirmed)return false;
+      if(['candidate','cancelled','failed'].includes(record.state)&&!record.stop_confirmed)return false;
+    }
     const reserved=node.reservation;
     if(!reserved||!safeInteger(reserved.runtime_ms,1)||!safeInteger(reserved.output_bytes,1)||![reserved.tokens,reserved.cost_microunits].every(meter))return false;
     const key=JSON.stringify([record.plan_revision,node.id,record.attempt_id]);if(keys.has(key))return false;keys.add(key);
   }
-  return !['cancelled','failed','awaiting_acceptance'].includes(value.run.state)||value.nodes.every(record=>record.session_id===null||record.stop_confirmed);
+  return !['cancelled','failed','awaiting_acceptance'].includes(value.run.state)||goalRunViewClosed(value);
 }
 export const goalExecutionApi={
   approve:(selection:GoalRunSelection,idempotencyKey:string)=>request<GoalRun>('goal_run_approve',{selection,idempotencyKey}),
