@@ -1,0 +1,7 @@
+# Goal runtime checkpoint
+
+2026-10-28. Worktree /workspace/.worktrees/goal-runtime-core, branch codex/goal-runtime-core, baseline16924e82f5ee7d3438007a3f297821fb9249d299. No existing product/source modification has been discarded. Root assigned /workspace/.worktrees/validation-integration/target exclusively to this author after Data composition finished; no Cargo has run in this new tree yet.
+
+Read AGENTS/gate, approval/master/GOAL/RUNBOOK, trusted origin/main OWNER001/002, orchestration, current Goal scope/plan, execution/session/supervisor/policy/storage and existing real fixtures. Found: sessions.create already atomically reserves old root/project attempts but only Draft tasks; mark_dispatch_started/confirm_stop assume one root attempt; Goal scope/plan are explicitly preview-only; private Data witnesses are exact-request and require off-actor restore. These boundaries must be integrated, not bypassed.
+
+Next concrete edits: add nested goal_store runtime module with schema11 additive run/node/attempt reservations and fixed goal_execution native proposal; add crate-private session dispatch context and atomic reservation hook; connect daemon tick through existing typed authenticated request/data-witness pipeline; preserve ordinary session API; implement owned terminal/unknown settlement and restart no-replay; then actual generated process/DB/CAS/failure tests. Existing tests must advance expected latest schema11/future12 while retaining safety assertions. See PLAN/ADR. No implementation or test completion is claimed yet.
