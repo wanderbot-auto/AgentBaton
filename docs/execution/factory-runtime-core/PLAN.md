@@ -1,0 +1,13 @@
+# Factory runtime
+
+Base e751992780a778d78edbc6b577359f9bbc3759ec, branch codex/factory-runtime-core. Fetched protected main a1be94d26d10bb245bb35eb50226b82012c967da and read AGENTS/gate/APPROVAL/OWNER001/002: ACK, no new authority. AB-START-001 permits implementation; actual model/account, paid host, production and signing remain separately gated.
+
+Requirements: AB-TSK-002/003/004/005/006/007/008/012, AB-SEC-003/010, AB-COR-002/003/006, AB-DOM-001/003/005. Existing Goal scopes do not grant Factory or new workspace authority. An independent native factory proposal fixes all root/grant/config/input/output/recipient/limit bindings. Complete proposal/response/event serialization including escaped envelopes must fit1MiB; older kinds keep their bounds.
+
+1. Freeze strict Rust DTOs and fixed owner/scoped-tool contracts with the integration owner.
+2. Add schema13 durable Factory approval, task lineage, scoped-token digests, handoffs/waits and history. All writes and idempotency receipts commit atomically; child roots share existing cumulative ledgers.
+3. Expose only delegate_task/get_task_status/get_task_result/cancel_task to a session/attempt/fence/expiry-bound handle. A fixed Baton companion serves bounded MCP stdio and never receives or forwards the daemon's general token. Runtime MCP configuration accepts only its separately approved fixed binding; external native configuration remains read-only.
+4. Execute a real generated parent→child→parent lifecycle. A live owned parent still occupies all actual resources; stop/join before child admission. Parent continuation uses a new attempt and explicit handoff, not fictitious native context restoration. Unknown effects never replay automatically.
+5. Exercise normal, negative, cancellation, expiry, backpressure, journal/rollback, migration/restart and shared-budget paths, then full applicable tests/lints with an explicitly granted Cargo lease, independent review and precise evidence.
+
+Initial supported authority uses already approved connections/workspaces. create_workspace and child Goal/planning capabilities fail closed until their exact independent runtime contract is implemented. This is a staged implementation of the complete design, not full Factory/product completion. No new dependency/lock changes, UI/native/workflows/global status edits, recursive agents or remote push are allowed in this worktree.

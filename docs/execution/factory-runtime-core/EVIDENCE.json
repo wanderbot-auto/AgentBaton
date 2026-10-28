@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "unit": "factory-runtime-core",
+  "baseline": "e751992780a778d78edbc6b577359f9bbc3759ec",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "state": "wip_not_runtime_complete",
+  "tested_source_snapshot": {
+    "baseline": "e751992780a778d78edbc6b577359f9bbc3759ec",
+    "state": "WIP_scope_persistence_companion_only_not_actual_runtime",
+    "files": {
+      "apps/cli/src/main.rs": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+      "crates/core/src/lib.rs": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+      "crates/core/src/storage.rs": "925002caeb223b8e181100848cea204bd46721c7759e9ac4de8d7f0c56f7f4cf",
+      "crates/core/src/sessions.rs": "fc8b9a1d01a966597ab5946e3a9e970aeb2b3f83e41f939b27554215f8e9fcd0",
+      "crates/core/src/ipc.rs": "b3ae094fafaf4dab7bd3c78213e483c44897c6bdf168d2f2660a42c1ea4c10fc",
+      "crates/core/src/factory.rs": "4941b32f841bcc7325c8996241e7d7d1a93bf07b6c033c28749a0a10bca1dcfc",
+      "crates/core/src/factory_store.rs": "043fa10f7fcdbc79ee085ea2ab221a6382aa51489ba179e33db9bcff5a726d1c",
+      "crates/core/src/factory_runtime.rs": "95896b6aee671fd11b445fc3d808640e46ae75a6b5dbd5417eb7bf78b81fbc93",
+      "crates/core/src/factory_companion.rs": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+      "crates/core/tests/factory_scope.rs": "6c6cecf0251853f01d3953a7341798ff295c634c94b4fe09cbbf59e42ed707ab",
+      "crates/core/tests/factory_migration.rs": "95b121a5a43c645860a3d637712566b920690d3a4a74c344fc44363e8a76afdf"
+    }
+  },
+  "tested_source_snapshot_sha256": "55ee71c6b1fc1deb8abec50d0b00cfdc53a2fad447d5a073dfc18fd9c68f29b8",
+  "tested_commands": [
+    {
+      "command": "cargo test --locked -p agentbaton-core --test factory_scope --test factory_migration",
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "environment": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_BUILD_JOBS": "2",
+        "RUST_TEST_THREADS": "1",
+        "umask": "022"
+      },
+      "result": "PASS",
+      "unique_tests": 10,
+      "ignored": 0,
+      "dimension": "real filesystem/SQLite scope+start-intent persistence; trusted synthetic connection/owner; no Provider or MCP process"
+    }
+  ],
+  "logs": {
+    "first-check.log": {
+      "path": "artifacts/factory-runtime-core/first-check.log",
+      "sha256": "a8c67f63b9d58529e6dcc3c9ca222ae723b97b1a7a08977215bae28877dcbb99"
+    },
+    "scope-check.log": {
+      "path": "artifacts/factory-runtime-core/scope-check.log",
+      "sha256": "aa0d6ea4bccf71ebab3ef05b5c46554355b66adda693a0399f33da5120f009a3"
+    },
+    "first-scope-tests.log": {
+      "path": "artifacts/factory-runtime-core/first-scope-tests.log",
+      "sha256": "0165df670b5f585f20a847151b64a9b07343f1273a1178ec0611a8e947091e8b"
+    },
+    "companion-migration-tests.log": {
+      "path": "artifacts/factory-runtime-core/companion-migration-tests.log",
+      "sha256": "6369fa75aee07a64a593fb2294d8322a9d713f3b0250b3915b024d64eae9bccc"
+    },
+    "runtime-records-check.log": {
+      "path": "artifacts/factory-runtime-core/runtime-records-check.log",
+      "sha256": "3f642049ad2841601749b86f9ce5198b9560303ba11baec80ce89cc932fdf5d2"
+    },
+    "runtime-persistence-tests.log": {
+      "path": "artifacts/factory-runtime-core/runtime-persistence-tests.log",
+      "sha256": "d6d5e7b7fdd01e231b1abc15435d465c1cdb8820abb066f99ead757e067e7ea7"
+    },
+    "persistence-snapshot-tests.log": {
+      "path": "artifacts/factory-runtime-core/persistence-snapshot-tests.log",
+      "sha256": "08e4b4b02b0278b18b57b4c45b73dbe3704c877fd098753103258e3ac423352c"
+    }
+  },
+  "current_wip_source_hashes": {
+    "apps/cli/src/main.rs": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+    "crates/core/src/lib.rs": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+    "crates/core/src/storage.rs": "925002caeb223b8e181100848cea204bd46721c7759e9ac4de8d7f0c56f7f4cf",
+    "crates/core/src/sessions.rs": "fc8b9a1d01a966597ab5946e3a9e970aeb2b3f83e41f939b27554215f8e9fcd0",
+    "crates/core/src/ipc.rs": "b3ae094fafaf4dab7bd3c78213e483c44897c6bdf168d2f2660a42c1ea4c10fc",
+    "crates/core/src/factory.rs": "20b4c8a2f9645d0443bf6274229794fa9d9545c69a04fdcd2df02e30a254af93",
+    "crates/core/src/factory_store.rs": "9703ec9c2f903c2604655a39ad0889c0332b70020063c06406b7f5d141f137ca",
+    "crates/core/src/factory_runtime.rs": "bfebcb5fc15612e82e5b034f1276b70dc5118a07da43995459dbe585a3089004",
+    "crates/core/src/factory_companion.rs": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+    "crates/core/tests/factory_scope.rs": "6c6cecf0251853f01d3953a7341798ff295c634c94b4fe09cbbf59e42ed707ab",
+    "crates/core/tests/factory_migration.rs": "95b121a5a43c645860a3d637712566b920690d3a4a74c344fc44363e8a76afdf",
+    "crates/core/src/goal_runtime.rs": "b5fdb9f5b4dd9a474115a3af0bd3d963e2053671656ed2d86dfda58f2fc28e07",
+    "crates/core/src/factory_budget.rs": "13c43d3f310c88f71bbd2a028fac5b4abc4b351ef6d6a10ea957dbbb68209ed5"
+  },
+  "current_wip_delta_not_compiled": [
+    "nullable legacy shared-budget reservation with explicit measurement_scope",
+    "shared Goal ledger adapter",
+    "no scoped request backend or session worker integration yet"
+  ],
+  "failed_evidence": [
+    {
+      "path": "artifacts/factory-runtime-core/runtime-records-check.log",
+      "reason": "E0425/E0308: run dispatcher arms accidentally inserted into preflight match; corrected, later persistence snapshot10 passed"
+    }
+  ],
+  "not_run": [
+    "full workspace tests",
+    "final Clippy",
+    "scoped authorization/MCP tool requests",
+    "generated actual parent-child-parent lifecycle",
+    "queued delay and output metering",
+    "ordinary/Goal/Factory mixed ledger tests",
+    "native dialogs/UI/macOS runtime",
+    "real Provider accounts/models"
+  ],
+  "limitations": [
+    "WIP; not product or Factory acceptance",
+    "Scope approval never spawns",
+    "Factory Task permission does not modify original Grant or old Goal",
+    "No new workspace or child Goal/planning capability",
+    "Pending budget/runtime code has not been compiled or executed"
+  ],
+  "admission_fix": {
+    "source_snapshot": {
+      "crates/core/src/factory.rs": "246107748bd5233f4076f0f92336b8a609c237419ef0bb7759f2477d9719cd52",
+      "crates/core/src/factory_store.rs": "134142124496890fb4b8013c4528f0cbcea181ad1860102fc0ac46a20c2c5e82",
+      "crates/core/src/factory_runtime.rs": "9333b977156e75f0f0566c1392606516cc2a6b2a4f096b44304c6b69427b1486",
+      "crates/core/src/ipc.rs": "f1ec1fbe87b6d83bd3738ba91d244f983a99ec9aab5b16da145a1a76bdb01191",
+      "crates/providers/src/driver.rs": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+      "crates/providers/src/lib.rs": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+      "crates/providers/src/session_configuration.rs": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+      "crates/providers/src/transport.rs": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff",
+      "crates/core/tests/factory_scope.rs": "9ea657bf06b23ff7156652724c13cf2b58c09f61fd8ca06bbce432d30e29ea5f",
+      "crates/core/tests/factory_migration.rs": "95b121a5a43c645860a3d637712566b920690d3a4a74c344fc44363e8a76afdf"
+    },
+    "source_snapshot_sha256": "7cd44609c19158a44d480622544aab13a79f10da03e9ed0cc1139c26baf03905",
+    "command": "cargo test --locked -p agentbaton-core --test factory_scope --test factory_migration -- --nocapture",
+    "result": "PASS 11 scope +3 migration =14 unique, 0ignored; replaces subset count10, not additive",
+    "log_sha256": "20cfc06a707daa92fb744cff95915e92f80c01faf76a1102ed188058ea18ae03",
+    "old_controls": {
+      "old-start-binding-control.log": "9963e69e482c435d8bf90aaa5ca3b114d89c54d086237cf279ee098e6adb304b",
+      "old-scope-expiry-control.log": "b550535571af3fd8c840c9b12535b56afc89c76cac827a8b0d024addcb2992ad",
+      "pre-admission-fix/manifest.json": "66ffa2d4eb7e7813725c1fc5baff2f3a2cb63de5de1a94de2405f566236568e6"
+    },
+    "runtime": "NOT_RUN: actual MCP parent-child-parent, mixed accounting and full regression remain incomplete"
+  },
+  "runtime_checkpoint": {
+    "state": "wip_normal_actual_generated_ACP_MCP_passed_not_final",
+    "source": {
+      "crates/core/src/execution.rs": "9c9ac5ef8023f155d6c7513ef772c457981372164092f62f34fe9f84f129c455",
+      "crates/core/src/factory.rs": "fc241b2357cc483e656fdf55fd9b45f36bf8dae61759c555824ba33317a6af3e",
+      "crates/core/src/factory_budget.rs": "b922169edf13185f60da0da4073eb3b8d70cb25b65b5d5d0bfba80f5a92837fc",
+      "crates/core/src/factory_runtime.rs": "d54c9d5fb0d11065172a874ea5f1532fc10ff629f719a11a3f9ff2c63b535444",
+      "crates/core/src/factory_store.rs": "2ccb80d2c0e29d8d2ddf26ee778b6a102d11a717b4cb5043647aff7e84407424",
+      "crates/core/src/goal_runtime.rs": "8588707921901259af58224e2ef9f82bf9690cbbaa37195c9444dc9794e4f0be",
+      "crates/core/src/ipc.rs": "d8f775c020108cf08ddc36f27b8ae0d54cd500d4c7bb00617771273b06024849",
+      "crates/core/src/sessions.rs": "098d9975f63c36edecfbcdcc6e69b3fca646156c1c3a4c9d7683025158a4412c",
+      "crates/core/tests/factory_runtime_ipc.rs": "51a576ff94bd966e803a5345b4aad3c1dfff76eb882deb7faeeda5dd0932ce37",
+      "crates/core/tests/factory_scope.rs": "9ea657bf06b23ff7156652724c13cf2b58c09f61fd8ca06bbce432d30e29ea5f",
+      "crates/core/tests/factory_migration.rs": "95b121a5a43c645860a3d637712566b920690d3a4a74c344fc44363e8a76afdf",
+      "crates/providers/src/session_configuration.rs": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+      "crates/providers/src/driver.rs": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+      "crates/providers/src/transport.rs": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff"
+    },
+    "source_manifest_sha256": "2c60e29c9a3c9a5c4ffc24eb64da8c47c031c7b5961dc08a78f2274606793303",
+    "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc --test factory_scope --test factory_migration -- --nocapture",
+    "result": "17unique =11scope+3migration+3actualIPC; prior14 and earlier1 are subsets, not additive",
+    "log_sha256": "dc1f14e47259c235a4fcd4cca1463ad445bf0e0de65596993015f748d55fd0a5",
+    "actual": "generated local schema-valid ACP invokes real Baton MCP stdio; delegate/status/result normal parent-child-new-parent chain; separate actual scoped cancel; malformed protocol no automatic continuation",
+    "limits": [
+      "no native OS owner dialog, real vendor/account/model/network",
+      "No full workspace/lints/new Mac",
+      "Shared null-scope legacy accounting compiled but mixed normal/Goal/Factory tests not run",
+      "Queue/configuration time hooks newly exercised by normal path but dedicated delayed/preflight failure assertions remain",
+      "Result byte reads and owner scope/start preflight are still synchronous bounded reads; offload/fence review remains before final responsive claim",
+      "Unknown recovery/fault/authority isolation negative suite incomplete"
+    ]
+  },
+  "failed_runtime_commands": {
+    "fifth-real-mcp-runtime.log": "e8927f2dc65f2bfd9d1e8e9d16235c31d039f23a028179032db2593bfaf02077",
+    "first-real-mcp-runtime.log": "7c794b098953c8b6e48429935e2bd7e5e9d9d3f7e48b1a1bead41b6ce2b0caa1",
+    "fourth-real-mcp-runtime.log": "b8dd8fb2a34d526dbf310719d7d9dfa8c246c4a5fea8c3a8eac20ab2c1205a49",
+    "second-real-mcp-runtime.log": "08782284d55c1fba703decbca82b41fa4ced8e5314622829a8cbd7922a7e1f7b",
+    "sixth-real-mcp-runtime.log": "bd427657cb22aefcc35ad847928df64daa53bd6f0d65472b43e48cebaa5c7eae",
+    "third-real-mcp-runtime.log": "ea73e8b04e3073b75e259c419ae4634e39040123f08ac426bb320f40c28287c1"
+  },
+  "runtime_review_fixes": {
+    "state": "coherent_git_runtime_capture_and_FR01_FR02_FR03_FR04_controls_not_full_factory",
+    "source": {
+      "crates/core/src/factory.rs": "6554909aba546abd886a2c08a474c03fcbbe1182f97779279bb4333b32704e0b",
+      "crates/core/src/factory_runtime.rs": "c95decb20358db49fc4c777693dc29572090810cc069b8a4d6ff7755a167686b",
+      "crates/core/src/factory_capture.rs": "ed57d365ad55f08ad966f4f6c9e8db60c27a636371146dc5db93aa09040883ea",
+      "crates/core/src/factory_budget.rs": "685f249518f5e567b6b3c8b19389e5469f5407ddc947584292fa45602de69c0b",
+      "crates/core/src/ipc.rs": "0c6a72c337715885e2258bd9d64c36c128d2042a7e9b04f02a0d2c05140be2ef",
+      "crates/core/src/sessions.rs": "d304bebe4477c1036aa87d7cc1a12739f17993766baec2c8f271d2011644fb45",
+      "crates/core/tests/factory_runtime_ipc.rs": "272a91febc4643db9be62ac230b6608ce091bb975d7ab474b61534c9012c182d"
+    },
+    "actual_commands": [
+      {
+        "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc -- --nocapture",
+        "log": "six-runtime-capture-join-final.log",
+        "result": "6unique actualIPC PASS; includes prior3, not additive",
+        "sha256": "5c64c929a0f4e9a90b82c1b502bb759d5ef6796ecf6ad2cb31523cff46d1db90"
+      },
+      {
+        "command": "cargo test --locked -p agentbaton-core --lib factory_queue_deadline_tests -- --nocapture",
+        "result": "1unit PASS, four expired fake-handle envelopes rejected before authentication; not a claim of authorized expired delegation",
+        "log": "fixed-scoped-queue-deadline-control.log",
+        "sha256": "899e69d7a1fe5551e321a9c7d0d1c4c225b0b8908656f2accbb0ba1febe5105b"
+      }
+    ],
+    "old_controls": {
+      "old-unselected-grant-pin-control.log": "379045490adb471a77ff9aab83e743af78b6105b2193e641ff962cbd9db53d75",
+      "old-multiple-child-handoff-control.log": "9c19dcd2f3fcdddc7c747a3d12a33c4c92d1d7fcc3cee41a56fae429b7103188",
+      "old-cancelled-child-join-control.log": "44502aa8ef648f82620c93cdb378ddfb3a054a4459f0490c62fdcc189e54eba2",
+      "old-scoped-queue-deadline-control.log": "feaab6ac57274d6c14616c6e4bb9384b2b1922689dd449dbd267e5572cd2de7b"
+    },
+    "old_control_binary_manifests": {
+      "pre-grant-pin-fix/manifest.json": "b6a6b0c6259d2eca115384e958113c26883463657f750437a696c0d173847a15",
+      "pre-join-fix/manifest.json": "2e3ae738a3d6d24f9993e0a4bde1021f1a381e3da1b8f0caadbe3fe786f69091",
+      "pre-scoped-deadline-fix/manifest.json": "6f64ae60d7e1f447c33ff58fa2cdd22a8efc7336270819e20d23f4933f5ddf04"
+    },
+    "limits": [
+      "Scope/migration earlier14 not newly counted against changed runtime source until final full suite",
+      "No fullworkspace or final lints",
+      "Data Factory private witness integration not done; missing witness rejects",
+      "Dedicated large preflight/time/cancel/fault/mixed accounting cases outstanding",
+      "privateCapture metadata is point observation, not continuous OS freeze/complete tree containment or Task acceptance"
+    ]
+  },
+  "data_normal_checkpoint": {
+    "baseline": "137e24698090c73349c9560868c2a38ad97c627b",
+    "state": "wip_data_normal_pipeline_not_full_factory_acceptance",
+    "sources": {
+      "crates/core/src/data_workspaces.rs": "9f759f969c93f5fe91241d0a32f7bd08c7add52e45b4115aafd084cf9e441323",
+      "crates/core/src/execution.rs": "1deb328b931d6bab1d894a38b3d51e99ace1466f2a5d0910b84a6b37477d728f",
+      "crates/core/src/factory.rs": "77b71b60fdcf68f6590e615aa746205173092c5b251b56373d03240327fa870e",
+      "crates/core/src/factory_budget.rs": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+      "crates/core/src/factory_capture.rs": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+      "crates/core/src/factory_runtime.rs": "65dfe5df848ebd56e1b5b38764f586916fdb0edbe3cf45308bf83cf5a329d6ef",
+      "crates/core/src/factory_store.rs": "045776631910cfbc64c57bb470f79a4d66280b9a9c6af4533e68b471223e30ed",
+      "crates/core/src/goal_runtime.rs": "5bce45e5d78d3de57549d06f6911051c3f6b56e954e644867ddf1ebd9c27473f",
+      "crates/core/src/ipc.rs": "c17ed2e3872af4b4011d242181757284a58c6f24b734ea773de231c0c9470b23",
+      "crates/core/src/policy.rs": "60c5720eddaa19804c9f3342afee166c55796ef329d633a5a89a317f20bce477",
+      "crates/core/src/sessions.rs": "a5e4709fcd997c9e5c8f9fc1060e628ba151c21ee9f17b238b7402485b5e8f2c",
+      "crates/core/tests/factory_runtime_ipc.rs": "f8ddecb3dd39a9519469e9ef9b52b3945796b9de8430bb5720290bf625e0be53"
+    },
+    "logs": {
+      "data-ticket-first-check.log": "8fd4b767d28e0dd078d1495a601931f09677e8a6f6508675099bfac9b70d050f",
+      "data-ticket-second-check.log": "3c854ca2c7a23cc943faa34aeae334178b826fdd62359ffba5da0d908e22d41f",
+      "data-ticket-binaries-build.log": "d98821ca804aeebd0ebba5639f5014b0667a39ee2452e0bc1692f2be43552e80",
+      "data-ticket-binaries-build2.log": "926bb0f317664e6d2b702234fb5ebd4ced33afdba6f8730729cbe4a68b68b88c",
+      "data-factory-first-test.log": "b478f1407184bf05f68d1993e27bd565fe6151608f64441cc46216c7635b899f",
+      "data-and-git-seven-runtime.log": "7b7bd07d24194c532aea41a33f5e7dced901278a2f5d80aea4b9c11f187e8085",
+      "data-ticket-queue-unit.log": "8478821eddc757fedcbceeeb91c2099b4c4a222005182981c44ca1668cb9f431"
+    },
+    "actual_results": {
+      "core_cli_check": "PASS after retained first E0502",
+      "data_full_owner_ipc_mcp_parent_child_parent": {
+        "passed": 1,
+        "seconds": 2.18
+      },
+      "runtime_suite_git_plus_data": {
+        "passed": 7,
+        "seconds": 11.77,
+        "ignored": 0
+      },
+      "expired_fake_handle_queue_unit": {
+        "passed": 1,
+        "seconds": 0.02,
+        "scope": "queue gate order only; not authorized request expiry proof"
+      }
+    },
+    "not_run": [
+      "Data witness cancel/revoke/deadline/drift negative matrix",
+      "authorized scoped queue expiry negative",
+      "mixed ordinary Goal Factory ledger",
+      "large capture cancellation/fault and full migrations/regression",
+      "macOS runtime",
+      "full independent Factory review"
+    ],
+    "known_remaining": [
+      "Owner Factory propose/finalize/start Git input/companion hashes still synchronously bounded; runtime/capture hashes are owned-worker",
+      "Data restore currently checks deadline around full restore, not cooperative read-chunk checkpoints; next narrow fix",
+      "No continuous freeze, OS sandbox, full escaped process-tree containment, TaskAccepted or native context continuation claimed"
+    ]
+  }
+}

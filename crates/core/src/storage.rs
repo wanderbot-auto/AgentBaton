@@ -96,11 +96,26 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 12 {
+        if version > 13 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
             ));
+        }
+        if version > 0 && version < 13 {
+            let backup = path.with_extension(format!("pre-v13-{}.sqlite3", Uuid::new_v4()));
+            drop(
+                OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .mode(0o600)
+                    .open(&backup)
+                    .map_err(|_| {
+                        CoreError::new("INTERNAL_ERROR", "Cannot create Factory migration backup")
+                    })?,
+            );
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
         }
         if version > 0 && version < 12 {
             let backup = path.with_extension(format!("pre-v12-{}.sqlite3", Uuid::new_v4()));
@@ -224,6 +239,7 @@ impl Store {
         crate::data_workspaces::migrate(&mut conn, version)?;
         crate::goal_store::migrate_runtime(&mut conn, version)?;
         crate::goal_store::migrate_graph(&mut conn, version)?;
+        crate::factory::migrate(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -239,6 +255,7 @@ impl Store {
         store.recover_sessions()?;
         store.recover_command_validations()?;
         store.recover_data_workspace_operations()?;
+        store.recover_factory_runs()?;
         store.recover_graph_jobs()?;
         store.recover_goal_runs()?;
         Ok(store)

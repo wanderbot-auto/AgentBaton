@@ -1,0 +1,60 @@
+{
+  "reviewer_executed_Rust_tests": 0,
+  "fixed_source_matches": {
+    "crates/core/src/execution.rs": "9c9ac5ef8023f155d6c7513ef772c457981372164092f62f34fe9f84f129c455",
+    "crates/core/src/factory.rs": "fc241b2357cc483e656fdf55fd9b45f36bf8dae61759c555824ba33317a6af3e",
+    "crates/core/src/factory_budget.rs": "b922169edf13185f60da0da4073eb3b8d70cb25b65b5d5d0bfba80f5a92837fc",
+    "crates/core/src/factory_runtime.rs": "d54c9d5fb0d11065172a874ea5f1532fc10ff629f719a11a3f9ff2c63b535444",
+    "crates/core/src/factory_store.rs": "2ccb80d2c0e29d8d2ddf26ee778b6a102d11a717b4cb5043647aff7e84407424",
+    "crates/core/src/goal_runtime.rs": "8588707921901259af58224e2ef9f82bf9690cbbaa37195c9444dc9794e4f0be",
+    "crates/core/src/ipc.rs": "d8f775c020108cf08ddc36f27b8ae0d54cd500d4c7bb00617771273b06024849",
+    "crates/core/src/sessions.rs": "098d9975f63c36edecfbcdcc6e69b3fca646156c1c3a4c9d7683025158a4412c",
+    "crates/core/tests/factory_runtime_ipc.rs": "51a576ff94bd966e803a5345b4aad3c1dfff76eb882deb7faeeda5dd0932ce37",
+    "crates/core/tests/factory_scope.rs": "9ea657bf06b23ff7156652724c13cf2b58c09f61fd8ca06bbce432d30e29ea5f",
+    "crates/core/tests/factory_migration.rs": "95b121a5a43c645860a3d637712566b920690d3a4a74c344fc44363e8a76afdf",
+    "crates/providers/src/session_configuration.rs": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+    "crates/providers/src/driver.rs": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+    "crates/providers/src/transport.rs": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff"
+  },
+  "artifacts": {
+    "runtime17-source-snapshot.json": {
+      "sha256": "2c60e29c9a3c9a5c4ffc24eb64da8c47c031c7b5961dc08a78f2274606793303",
+      "bytes": 1492
+    },
+    "runtime-and-admission-fixed.log": {
+      "sha256": "dc1f14e47259c235a4fcd4cca1463ad445bf0e0de65596993015f748d55fd0a5",
+      "bytes": 2678,
+      "results": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s",
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.51s",
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.37s"
+      ]
+    }
+  },
+  "failed_log_checks": {
+    "fifth-real-mcp-runtime.log": {
+      "sha256": "e8927f2dc65f2bfd9d1e8e9d16235c31d039f23a028179032db2593bfaf02077",
+      "bytes": 1287
+    },
+    "first-real-mcp-runtime.log": {
+      "sha256": "7c794b098953c8b6e48429935e2bd7e5e9d9d3f7e48b1a1bead41b6ce2b0caa1",
+      "bytes": 2098
+    },
+    "fourth-real-mcp-runtime.log": {
+      "sha256": "b8dd8fb2a34d526dbf310719d7d9dfa8c246c4a5fea8c3a8eac20ab2c1205a49",
+      "bytes": 2766
+    },
+    "second-real-mcp-runtime.log": {
+      "sha256": "08782284d55c1fba703decbca82b41fa4ced8e5314622829a8cbd7922a7e1f7b",
+      "bytes": 2100
+    },
+    "sixth-real-mcp-runtime.log": {
+      "sha256": "bd427657cb22aefcc35ad847928df64daa53bd6f0d65472b43e48cebaa5c7eae",
+      "bytes": 544
+    },
+    "third-real-mcp-runtime.log": {
+      "sha256": "ea73e8b04e3073b75e259c419ae4634e39040123f08ac426bb320f40c28287c1",
+      "bytes": 1205
+    }
+  }
+}

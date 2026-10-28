@@ -1,0 +1,102 @@
+{
+  "subject": "137e24698090c73349c9560868c2a38ad97c627b",
+  "scope": "limited FR343-01\u201304 and owned capture static re-review; no independent product execution",
+  "files": {
+    "REVIEW.md": {
+      "sha256": "c7af999705bafbba84da37b42b1826a2b40971486f7e544885e2559270577dd7",
+      "bytes": 10474
+    },
+    "manifest.json": {
+      "sha256": "914011bdb0c583b0870d07ca58b325b985bed479074f946afdf8081b75574776",
+      "bytes": 3573
+    },
+    "provenance.json": {
+      "sha256": "d4625098beaf83d9328387a59f618f6e7bcda5c98fb8b7a4cade25bc7509772d",
+      "bytes": 6635
+    },
+    "evidence/fixed-scoped-queue-deadline-control.log": {
+      "sha256": "899e69d7a1fe5551e321a9c7d0d1c4c225b0b8908656f2accbb0ba1febe5105b",
+      "bytes": 561
+    },
+    "evidence/old-cancelled-child-join-control.log": {
+      "sha256": "44502aa8ef648f82620c93cdb378ddfb3a054a4459f0490c62fdcc189e54eba2",
+      "bytes": 2545
+    },
+    "evidence/old-multiple-child-handoff-control.log": {
+      "sha256": "9c19dcd2f3fcdddc7c747a3d12a33c4c92d1d7fcc3cee41a56fae429b7103188",
+      "bytes": 3451
+    },
+    "evidence/old-scoped-queue-deadline-control.log": {
+      "sha256": "feaab6ac57274d6c14616c6e4bb9384b2b1922689dd449dbd267e5572cd2de7b",
+      "bytes": 1402
+    },
+    "evidence/old-unselected-grant-pin-control.log": {
+      "sha256": "379045490adb471a77ff9aab83e743af78b6105b2193e641ff962cbd9db53d75",
+      "bytes": 1352
+    },
+    "evidence/pre-grant-pin-fix/factory_capture.rs": {
+      "sha256": "ed57d365ad55f08ad966f4f6c9e8db60c27a636371146dc5db93aa09040883ea",
+      "bytes": 5112
+    },
+    "evidence/pre-grant-pin-fix/factory_runtime.rs": {
+      "sha256": "7973f1c09b17cec8e2f5fe0e02983c19ba1a4620e5d9d6a02e088e8a19a8b0be",
+      "bytes": 71487
+    },
+    "evidence/pre-grant-pin-fix/factory_runtime_ipc.rs": {
+      "sha256": "a77e7112f8fbc216d2646280dbfd3165b2ff72342c36b62ec26bfe092137deb8",
+      "bytes": 26102
+    },
+    "evidence/pre-grant-pin-fix/ipc.rs": {
+      "sha256": "50f89535776e471e198b9304fa64a80e98f565e2b9f04a47bc2e51aae2c1de2e",
+      "bytes": 92934
+    },
+    "evidence/pre-grant-pin-fix/manifest.json": {
+      "sha256": "b6a6b0c6259d2eca115384e958113c26883463657f750437a696c0d173847a15",
+      "bytes": 540
+    },
+    "evidence/pre-grant-pin-fix/sessions.rs": {
+      "sha256": "aab7c16cfd372fe99a3be0ad6904d7af222b895fdbc448896a760b6590619de7",
+      "bytes": 83530
+    },
+    "evidence/pre-join-fix/factory_capture.rs": {
+      "sha256": "ed57d365ad55f08ad966f4f6c9e8db60c27a636371146dc5db93aa09040883ea",
+      "bytes": 5112
+    },
+    "evidence/pre-join-fix/factory_runtime.rs": {
+      "sha256": "8f423ab1281e942bd2b869aec698c72efc17be8092ee7a5260608e6b93c32c12",
+      "bytes": 71863
+    },
+    "evidence/pre-join-fix/factory_runtime_ipc.rs": {
+      "sha256": "30404e520e1e8dbc10132ea7172665f7850f3bd9931e392cfdffe9d6fc837a68",
+      "bytes": 29230
+    },
+    "evidence/pre-join-fix/manifest.json": {
+      "sha256": "2e3ae738a3d6d24f9993e0a4bde1021f1a381e3da1b8f0caadbe3fe786f69091",
+      "bytes": 375
+    },
+    "evidence/pre-scoped-deadline-fix/ipc-final-fixed.rs": {
+      "sha256": "0c6a72c337715885e2258bd9d64c36c128d2042a7e9b04f02a0d2c05140be2ef",
+      "bytes": 94958
+    },
+    "evidence/pre-scoped-deadline-fix/ipc-fixed-before-control.rs": {
+      "sha256": "86442a8f55ba1767ec8b22d0f37e2084022a176a312966aecc1a88bd47581784",
+      "bytes": 94561
+    },
+    "evidence/pre-scoped-deadline-fix/ipc-old-control.rs": {
+      "sha256": "bd6c4b47f23910315af76e063520b52443322045987a6034b94e48c17e155ba4",
+      "bytes": 94561
+    },
+    "evidence/pre-scoped-deadline-fix/ipc-old-gate-order-control.rs": {
+      "sha256": "b5c4929cb185aeb898765f3268cdbd4725ee8ab9e952b6e2bce8db8f9b2fd5fa",
+      "bytes": 94958
+    },
+    "evidence/pre-scoped-deadline-fix/manifest.json": {
+      "sha256": "6f64ae60d7e1f447c33ff58fa2cdd22a8efc7336270819e20d23f4933f5ddf04",
+      "bytes": 615
+    },
+    "evidence/six-runtime-capture-join-final.log": {
+      "sha256": "5c64c929a0f4e9a90b82c1b502bb759d5ef6796ecf6ad2cb31523cff46d1db90",
+      "bytes": 1337
+    }
+  }
+}
