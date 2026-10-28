@@ -3504,3 +3504,44 @@ impl Store {
         Ok(())
     }
 }
+
+impl Store {
+    pub(crate) fn remaining_shared_runtime(
+        db: &Connection,
+        root: &str,
+        project: &str,
+    ) -> Result<Option<u64>> {
+        let all = reservations(db, root, project)?;
+        let mut remaining = None::<u64>;
+        for (key, is_root) in [
+            (format!("project:{project}"), false),
+            (format!("root-grant:{root}"), true),
+        ] {
+            let row:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_ledgers WHERE scope=?1",[key],|r|r.get(0)).optional().map_err(db_error)?;
+            let Some(row) = row else { continue };
+            let ledger: MeterLedger = decode(&row.ok_or_else(limited)?)?;
+            let mut spent=ledger.runtime_ms.ok_or_else(||err("BUDGET_UNKNOWN","The original shared runtime observation is unknown; do not reset it with a new session/root"))?;
+            for old in all.iter().filter(|r| !r.settled) {
+                let same = if !is_root {
+                    true
+                } else if let Some(origin) = &old.shared_root_grant_id {
+                    origin == root
+                } else {
+                    db.query_row("SELECT json_extract(document,'$.root_grant_id')=?1 FROM goal_runs WHERE id=?2",params![root,old.run_id],|r|r.get::<_,bool>(0)).map_err(db_error)?
+                };
+                if same {
+                    spent = spent
+                        .checked_add(old.reservation.runtime_ms)
+                        .ok_or_else(limited)?;
+                }
+            }
+            let left = ledger
+                .limits
+                .runtime_ms
+                .checked_sub(spent)
+                .ok_or_else(limited)?;
+            remaining = Some(remaining.map_or(left, |n| n.min(left)));
+        }
+        Ok(remaining)
+    }
+}

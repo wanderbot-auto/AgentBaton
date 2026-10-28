@@ -114,7 +114,7 @@ CREATE TABLE factory_task_bindings(task_id TEXT NOT NULL REFERENCES tasks(id),sc
 CREATE TABLE factory_attempts(session_id TEXT PRIMARY KEY REFERENCES sessions(id),attempt_id TEXT NOT NULL UNIQUE REFERENCES attempts(id),scope_id TEXT NOT NULL REFERENCES factory_scopes(id),run_id TEXT NOT NULL REFERENCES factory_runs(id),task_id TEXT NOT NULL REFERENCES tasks(id),root_task_id TEXT NOT NULL REFERENCES tasks(id),reservation TEXT NOT NULL,state TEXT NOT NULL,document TEXT NOT NULL);
 CREATE TABLE factory_scoped_handles(id TEXT PRIMARY KEY,scope_id TEXT NOT NULL REFERENCES factory_scopes(id),session_id TEXT NOT NULL UNIQUE REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),task_id TEXT NOT NULL REFERENCES tasks(id),token_digest TEXT NOT NULL UNIQUE,expires_at_ms INTEGER NOT NULL,revoked INTEGER NOT NULL CHECK(revoked IN(0,1)),fencing_token INTEGER NOT NULL,document TEXT NOT NULL);
 CREATE TABLE factory_handoffs(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES factory_runs(id),parent_task_id TEXT NOT NULL REFERENCES tasks(id),child_task_id TEXT NOT NULL REFERENCES tasks(id),parent_session_id TEXT NOT NULL REFERENCES sessions(id),child_attempt_id TEXT REFERENCES attempts(id),state TEXT NOT NULL,document TEXT NOT NULL);
-CREATE TABLE factory_budget_reservations(attempt_id TEXT PRIMARY KEY REFERENCES attempts(id),scope_id TEXT REFERENCES factory_scopes(id),root_task_id TEXT NOT NULL REFERENCES tasks(id),project_id TEXT NOT NULL REFERENCES projects(id),document TEXT NOT NULL,CHECK((scope_id IS NULL AND json_extract(document,'$.authority_kind')='legacy_shared_session') OR (scope_id IS NOT NULL AND json_extract(document,'$.authority_kind')='factory_task')));
+CREATE TABLE factory_budget_reservations(attempt_id TEXT PRIMARY KEY REFERENCES attempts(id),scope_id TEXT REFERENCES factory_scopes(id),root_task_id TEXT NOT NULL REFERENCES tasks(id),project_id TEXT NOT NULL REFERENCES projects(id),document TEXT NOT NULL,CHECK(COALESCE((scope_id IS NULL AND json_extract(document,'$.authority_kind')='legacy_shared_session') OR (scope_id IS NOT NULL AND json_extract(document,'$.authority_kind')='factory_task'),0)));
 PRAGMA user_version=13;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
@@ -191,7 +191,7 @@ fn limits(selection: &FactoryScopeSelection, grant: &ExecutionGrant) -> Result<(
     }
     Ok(())
 }
-fn companion(path: &std::path::Path) -> Result<FactoryCompanionBinding> {
+pub(super) fn companion(path: &std::path::Path) -> Result<FactoryCompanionBinding> {
     use sha2::{Digest, Sha256};
     use std::io::Read;
     use std::os::unix::fs::{MetadataExt, OpenOptionsExt};

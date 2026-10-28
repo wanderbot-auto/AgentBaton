@@ -20,6 +20,8 @@ pub(crate) struct FactoryReservation {
     pub session_id: String,
     pub attempt_id: String,
     pub ancestors: Vec<String>,
+    #[serde(default)]
+    pub queued_ms: u64,
     pub reservation: AttemptReservation,
     pub settled: bool,
     pub actual_runtime_ms: Option<u64>,
@@ -71,6 +73,8 @@ pub(crate) fn budget_records(
             }
             ("legacy_shared_session", None, None) => {
                 r.run_id.is_none()
+                    && !super::runtime::is_factory_task(db, &r.task_id)?
+                    && !super::runtime::owns_session(db, &r.session_id)?
                     && r.measurement_scope == "empty_selected_artifacts_no_validator_streams"
                     && r.reservation.output_bytes == 0
             }
@@ -85,7 +89,7 @@ pub(crate) fn budget_records(
         {
             return Err(CoreError::new("BUDGET_UNKNOWN","Shared reservation origin or measurement scope is inconsistent; no missing history was treated as zero"));
         }
-        let actual:Option<(String,String,String,String)>=db.query_row("SELECT s.id,s.task_id,s.root_grant_id,a.root_task_id FROM sessions s JOIN attempts a ON a.id=s.document->>'$.attempt_id' WHERE a.id=?1",[&id],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?))).optional().map_err(db_error)?;
+        let actual:Option<(String,String,String,String)>=db.query_row("SELECT s.id,s.task_id,s.root_grant_id,a.root_task_id FROM sessions s JOIN attempts a ON a.id=json_extract(s.document,'$.attempt_id') WHERE a.id=?1",[&id],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?))).optional().map_err(db_error)?;
         if actual
             != Some((
                 r.session_id.clone(),
@@ -110,6 +114,11 @@ impl Store {
             decode::<FactoryReservation>(&r.ok_or_else(limited)?).map(|r| r.reservation.runtime_ms)
         })
         .transpose()
+    }
+    pub(crate) fn shared_session_queue(&self, id: &str) -> Result<Option<u64>> {
+        let row:Option<Option<String>>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM factory_budget_reservations WHERE json_extract(document,'$.session_id')=?1",[id],|r|r.get(0)).optional().map_err(db_error)?;
+        row.map(|r| decode::<FactoryReservation>(&r.ok_or_else(limited)?).map(|r| r.queued_ms))
+            .transpose()
     }
     pub(crate) fn reserve_ordinary_shared_budget(
         db: &Connection,
@@ -154,7 +163,14 @@ impl Store {
             .scope
             .max_duration_ms
             .min(root_limits.runtime_ms)
-            .min(project_limits.runtime_ms);
+            .min(project_limits.runtime_ms)
+            .min(
+                Store::remaining_shared_runtime(db, &grant.root_grant_id, &session.project_id)?
+                    .unwrap_or(u64::MAX),
+            );
+        if duration == 0 {
+            return Err(limited());
+        }
         let r = FactoryReservation {
             authority_kind: "legacy_shared_session".into(),
             scope_id: None,
@@ -166,6 +182,7 @@ impl Store {
             session_id: session.id.clone(),
             attempt_id: session.attempt_id.clone(),
             ancestors: vec![session.task_id.clone()],
+            queued_ms: 0,
             reservation: AttemptReservation {
                 runtime_ms: duration,
                 output_bytes: 0,
@@ -190,6 +207,66 @@ impl Store {
             serde_json::json!({"attempt_id":r.attempt_id,"root_task_id":r.root_task_id,"measurement_scope":r.measurement_scope,"filesystem_total_bytes":null,"reservation":r.reservation,"factory_authority":false}),
             "budget_core",
         )?;
+        Ok(())
+    }
+}
+
+impl Store {
+    pub(crate) fn settle_shared_session(
+        &mut self,
+        id: &str,
+        elapsed_ms: u64,
+        stopped: bool,
+        never_started: bool,
+    ) -> Result<()> {
+        let row:Option<Option<String>>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM factory_budget_reservations WHERE json_extract(document,'$.session_id')=?1",[id],|r|r.get(0)).optional().map_err(db_error)?;
+        let Some(row) = row else { return Ok(()) };
+        let mut record: FactoryReservation = decode(&row.ok_or_else(limited)?)?;
+        if record.settled {
+            return Ok(());
+        }
+        record.actual_runtime_ms = if stopped { Some(elapsed_ms) } else { None };
+        record.actual_output_bytes = if never_started || record.scope_id.is_none() {
+            Some(0)
+        } else {
+            let scope = scope(&self.conn, record.scope_id.as_deref().ok_or_else(denied)?)?;
+            let mut total = Some(0u64);
+            for output in &scope.selection.outputs {
+                match agentbaton_workspaces::read_artifact(
+                    &scope.bindings.workspaces[0].root,
+                    &output.relative_path,
+                    output.max_bytes,
+                ) {
+                    Ok(bytes) => {
+                        total = total.and_then(|n| n.checked_add(bytes.len() as u64));
+                    }
+                    Err(agentbaton_workspaces::WorkspaceError::Io(e))
+                        if e.kind() == std::io::ErrorKind::NotFound => {}
+                    Err(_) => {
+                        total = None;
+                        break;
+                    }
+                }
+            }
+            total
+        };
+        record.settled = stopped;
+        let tx = self.conn.transaction().map_err(db_error)?;
+        Store::settle_shared_execution_meter(&tx, &record)?;
+        tx.execute(
+            "UPDATE factory_budget_reservations SET document=?1 WHERE attempt_id=?2",
+            params![encode(&record)?, record.attempt_id],
+        )
+        .map_err(db_error)?;
+        event(
+            &tx,
+            id,
+            1,
+            "shared_budget.session_settled",
+            serde_json::json!({"attempt_id":record.attempt_id,"stopped":stopped,"never_started":never_started,"runtime_ms":record.actual_runtime_ms,"selected_artifact_bytes":record.actual_output_bytes,"measurement_scope":record.measurement_scope,"filesystem_total_bytes":null,"task_accepted":false}),
+            "budget_core",
+        )?;
+        tx.commit().map_err(db_error)?;
         Ok(())
     }
 }

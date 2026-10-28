@@ -187,6 +187,9 @@ impl Store {
         }
         let tx = self.conn.transaction().map_err(db_error)?;
         crate::goal_store::ordinary_session_budget_gate(&tx, &task.project_id)?;
+        if crate::factory::is_factory_task(&tx, &task.id)? {
+            return Err(CoreError::new("AUTH_REQUIRED","Factory tasks require their private dispatcher; ordinary attempt APIs do not carry Factory authority"));
+        }
         let active:i64=tx.query_row("SELECT count(*) FROM attempts a JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.task_id=?1 AND d.state!='stopped'",[task_id],|r|r.get(0)).map_err(db_error)?;
         if active != 0 {
             return Err(CoreError::new(
@@ -283,6 +286,7 @@ impl Store {
         if task.state != TaskState::Draft
             && !(task.state == TaskState::Running
                 && crate::goal_store::permits_continuing_task(&self.conn, &intent)?)
+            && !crate::factory::permits_factory_dispatch(&self.conn, &intent)?
         {
             return Err(CoreError::new(
                 "PERMISSION_DENIED",

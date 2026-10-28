@@ -28,6 +28,7 @@ pub(crate) struct FactoryDispatchContext {
     scope: FactoryScope,
     run: FactoryRun,
     task: TaskBinding,
+    queued_ms: u64,
 }
 pub(crate) struct FactoryCaller {
     scope: FactoryScope,
@@ -190,7 +191,7 @@ fn live(db: &Connection, s: &FactoryScope) -> Result<()> {
         .optional()
         .map_err(db_error)?;
     let project: crate::registry::Project = decode(&project.ok_or_else(changed)?)?;
-    if project.archived {
+    if project.archived || encode(&project)? != encode(&s.bindings.project)? {
         return Err(denied());
     }
     let task: Option<String> = db
@@ -645,6 +646,17 @@ impl Store {
         {
             return Err(denied());
         }
+        if request
+            .input_artifact_ids
+            .iter()
+            .any(|id| !caller.task.request.input_artifact_ids.contains(id))
+            || request
+                .output_artifact_ids
+                .iter()
+                .any(|id| !caller.task.request.output_artifact_ids.contains(id))
+        {
+            return Err(denied());
+        }
         for (selected, allowed) in [
             (
                 &request.input_artifact_ids,
@@ -953,5 +965,767 @@ impl Store {
             result: json!(returned),
             stops,
         })
+    }
+}
+
+impl FactoryDispatchContext {
+    pub(crate) fn set_queued_ms(&mut self, elapsed: u64) {
+        self.queued_ms = elapsed;
+    }
+    pub(crate) fn root_task_id(&self) -> &str {
+        &self.scope.root_task_id
+    }
+    pub(crate) fn request(&self) -> (&str, &str, &str, &str) {
+        (
+            &self.task.handle.task_id,
+            &self.task.request.workspace_id,
+            &self.task.request.connection_id,
+            &self.scope.root_grant_id,
+        )
+    }
+}
+pub(crate) fn reserve_factory_session(
+    db: &Connection,
+    c: &FactoryDispatchContext,
+    s: &ManagedSession,
+    binding: &crate::execution::ExecutionBinding,
+) -> Result<()> {
+    live(db, &c.scope)?;
+    let mut b = self::binding(db, &c.run.id, &s.task_id)?;
+    let mut r = run(db, &c.scope.id)?;
+    if r.cancel_requested
+        || r.revision != c.run.revision
+        || b.handle.revision != c.task.handle.revision
+        || !matches!(b.handle.state.as_str(), "queued" | "resuming")
+        || b.session_id.is_some()
+        || s.task_id != c.task.handle.task_id
+        || s.workspace_id != b.request.workspace_id
+        || s.connection_id != b.request.connection_id
+        || binding.policy_revision
+            != format!("{}:{}", c.scope.root_grant_id, c.scope.root_grant_revision)
+    {
+        return Err(denied());
+    }
+    let ancestors = ancestry(db, &s.task_id)?;
+    let output_bytes = b
+        .request
+        .output_artifact_ids
+        .iter()
+        .try_fold(0u64, |n, id| {
+            let a = c
+                .scope
+                .selection
+                .outputs
+                .iter()
+                .find(|a| &a.artifact_id == id)
+                .ok_or_else(denied)?;
+            n.checked_add(a.max_bytes).ok_or_else(limited)
+        })?;
+    let mut record = FactoryReservation {
+        authority_kind: "factory_task".into(),
+        scope_id: Some(c.scope.id.clone()),
+        run_id: Some(r.id.clone()),
+        root_task_id: c.scope.root_task_id.clone(),
+        root_grant_id: c.scope.root_grant_id.clone(),
+        project_id: s.project_id.clone(),
+        task_id: s.task_id.clone(),
+        session_id: s.id.clone(),
+        attempt_id: s.attempt_id.clone(),
+        ancestors: ancestors.clone(),
+        queued_ms: c.queued_ms,
+        reservation: crate::goal_plan::AttemptReservation {
+            runtime_ms: b
+                .request
+                .budget
+                .runtime_ms
+                .min(c.scope.bindings.approved_grant.scope.max_duration_ms),
+            output_bytes,
+            tokens: None,
+            cost_microunits: None,
+        },
+        settled: false,
+        actual_runtime_ms: None,
+        actual_output_bytes: None,
+        measurement_scope: "selected_artifacts_no_validator_streams".into(),
+        filesystem_total_bytes: None,
+        captured_provider_message_bytes: None,
+        provider_message_capture_complete: false,
+    };
+    // Every ancestor bound is cumulative over actual attempts, not a fresh child budget.
+    for ancestor in &ancestors {
+        let a = self::binding(db, &r.id, ancestor)?;
+        let old = super::budget::budget_records(db, &c.scope.root_grant_id, &s.project_id)?;
+        let same = old
+            .iter()
+            .filter(|x| {
+                x.scope_id.as_deref() == Some(c.scope.id.as_str()) && x.ancestors.contains(ancestor)
+            })
+            .collect::<Vec<_>>();
+        if same.len() >= a.request.budget.attempts as usize
+            || same.iter().filter(|x| !x.settled).count() >= a.request.budget.parallel as usize
+        {
+            return Err(limited());
+        }
+        let spent = same.iter().try_fold(0u64, |n, old| {
+            n.checked_add(if old.settled {
+                old.actual_runtime_ms.ok_or_else(|| {
+                    CoreError::new("BUDGET_UNKNOWN", "An ancestor has unknown runtime")
+                })?
+            } else {
+                old.reservation.runtime_ms
+            })
+            .ok_or_else(limited)
+        })?;
+        let remaining = a
+            .request
+            .budget
+            .runtime_ms
+            .checked_sub(spent)
+            .ok_or_else(limited)?;
+        record.reservation.runtime_ms = record.reservation.runtime_ms.min(remaining);
+        if record.reservation.runtime_ms == 0 {
+            return Err(limited());
+        }
+        let mut runtime = record.reservation.runtime_ms;
+        let mut output = record.reservation.output_bytes;
+        for old in same {
+            runtime = runtime
+                .checked_add(if old.settled {
+                    old.actual_runtime_ms.ok_or_else(|| {
+                        CoreError::new(
+                            "BUDGET_UNKNOWN",
+                            "An ancestor execution has unknown runtime",
+                        )
+                    })?
+                } else {
+                    old.reservation.runtime_ms
+                })
+                .ok_or_else(limited)?;
+            output = output
+                .checked_add(if old.settled {
+                    old.actual_output_bytes.ok_or_else(|| {
+                        CoreError::new(
+                            "BUDGET_UNKNOWN",
+                            "An ancestor execution has unknown selected artifact bytes",
+                        )
+                    })?
+                } else {
+                    old.reservation.output_bytes
+                })
+                .ok_or_else(limited)?;
+        }
+        if runtime > a.request.budget.runtime_ms || output > a.request.budget.output_bytes {
+            return Err(limited());
+        }
+    }
+    if record.queued_ms >= record.reservation.runtime_ms {
+        return Err(limited());
+    }
+    db.execute("INSERT INTO factory_attempts(session_id,attempt_id,scope_id,run_id,task_id,root_task_id,reservation,state,document) VALUES(?1,?2,?3,?4,?5,?6,?7,'reserved',?8)",params![s.id,s.attempt_id,c.scope.id,r.id,s.task_id,c.scope.root_task_id,encode(&record.reservation)?,encode(&json!({"session_id":s.id,"attempt_id":s.attempt_id,"scope_id":c.scope.id,"run_id":r.id,"task_id":s.task_id,"root_task_id":c.scope.root_task_id,"stop_confirmed":false,"never_started":false,"stop_reason":null}))?]).map_err(db_error)?;
+    Store::reserve_shared_execution_meter(
+        db,
+        &record,
+        &c.scope.selection.root_budget,
+        &c.scope.selection.project_budget,
+    )?;
+    db.execute("INSERT INTO factory_budget_reservations(attempt_id,scope_id,root_task_id,project_id,document) VALUES(?1,?2,?3,?4,?5)",params![s.attempt_id,c.scope.id,c.scope.root_task_id,s.project_id,encode(&record)?]).map_err(db_error)?;
+    b.session_id = Some(s.id.clone());
+    b.handle.attempt_id = Some(s.attempt_id.clone());
+    b.handle.state = "starting".into();
+    b.handle.confirmed_stop = false;
+    b.turn_sent = false;
+    b.stop_reason = None;
+    b.handle.revision += 1;
+    save_binding(db, &mut b)?;
+    r.active_task_id = Some(s.task_id.clone());
+    r.active_session_id = Some(s.id.clone());
+    r.state = "running".into();
+    save_run(
+        db,
+        &mut r,
+        "factory.attempt_reserved",
+        json!({"session_id":s.id,"attempt_id":s.attempt_id,"task_id":s.task_id,"root_task_id":c.scope.root_task_id,"canonical_root":c.scope.bindings.workspaces[0].root,"reservation":record.reservation,"stop_confirmed":false}),
+    )?;
+    Ok(())
+}
+
+pub(crate) enum FactoryAction {
+    Launch(FactoryDispatchContext),
+    Prompt { session_id: String, text: String },
+    Stop(String),
+}
+impl Store {
+    pub(crate) fn next_factory_action(&mut self) -> Result<Option<FactoryAction>> {
+        let mut q=self.conn.prepare("SELECT scope_id FROM factory_runs WHERE state NOT IN('completed','cancelled','outcome_unknown','blocked') ORDER BY rowid LIMIT 257").map_err(db_error)?;
+        let ids = q
+            .query_map([], |r| r.get::<_, String>(0))
+            .map_err(db_error)?
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .map_err(db_error)?;
+        drop(q);
+        if ids.len() > 256 {
+            return Err(limited());
+        }
+        for id in ids {
+            let s = scope(&self.conn, &id)?;
+            let mut r = run(&self.conn, &id)?;
+            let authorized = live(&self.conn, &s).is_ok();
+            let all = bindings(&self.conn, &r)?;
+            if r.cancel_requested || !authorized {
+                let tx = self.conn.transaction().map_err(db_error)?;
+                r.cancel_requested = true;
+                let mut active = None;
+                for mut b in all {
+                    b.handle.cancel_requested = true;
+                    if let Some(session) = &b.session_id {
+                        let current: ManagedSession = decode(
+                            &tx.query_row(
+                                "SELECT document FROM sessions WHERE id=?1",
+                                [session],
+                                |r| r.get::<_, String>(0),
+                            )
+                            .map_err(db_error)?,
+                        )?;
+                        if !matches!(current.state.as_str(), "stopped" | "failed") {
+                            active = Some(session.clone());
+                            b.handle.state = "cancel_requested".into();
+                        }
+                    } else {
+                        b.handle.state = "cancelled".into();
+                        b.handle.confirmed_stop = true;
+                    }
+                    b.handle.revision += 1;
+                    save_binding(&tx, &mut b)?;
+                }
+                r.state = if active.is_some() {
+                    "cancel_requested"
+                } else {
+                    "cancelled"
+                }
+                .into();
+                save_run(
+                    &tx,
+                    &mut r,
+                    "factory.run_stop_requested",
+                    json!({"authorized":authorized,"stop_confirmed":active.is_none()}),
+                )?;
+                tx.commit().map_err(db_error)?;
+                if let Some(id) = active {
+                    return Ok(Some(FactoryAction::Stop(id)));
+                }
+                continue;
+            }
+            if let Some(session_id) = r.active_session_id.clone() {
+                let session = self.get_session(&session_id)?;
+                let mut b = binding(&self.conn, &r.id, &session.task_id)?;
+                if b.handle.cancel_requested {
+                    return Ok(Some(FactoryAction::Stop(session_id)));
+                }
+                if session.state == "ready" && !b.turn_sent {
+                    let text = encode(
+                        &json!({"schema_version":1,"kind":"agentbaton_factory_task_request","task_id":b.handle.task_id,"root_task_id":s.root_task_id,"parent_task_id":b.handle.parent_task_id,"goal":b.request.goal,"input_artifacts":s.bindings.inputs.iter().filter(|a|b.request.input_artifact_ids.contains(&a.contract.requirement.artifact_id)).collect::<Vec<_>>(),"output_artifacts":s.bindings.outputs.iter().filter(|a|b.request.output_artifact_ids.contains(&a.requirement.artifact_id)).collect::<Vec<_>>(),"handoff_result":b.result,"context_continuation":"new_attempt_explicit_handoff_only","acceptance_state":"not_established"}),
+                    )?;
+                    let tx = self.conn.transaction().map_err(db_error)?;
+                    b.turn_sent = true;
+                    b.handle.state = "running".into();
+                    b.handle.revision += 1;
+                    save_binding(&tx, &mut b)?;
+                    event(
+                        &tx,
+                        &session.id,
+                        session.revision,
+                        "factory.turn_dispatch_prepared",
+                        json!({"task_id":session.task_id,"request_digest":sha(&text)?}),
+                        "factory_core",
+                    )?;
+                    tx.commit().map_err(db_error)?;
+                    return Ok(Some(FactoryAction::Prompt { session_id, text }));
+                }
+                if session.turn_state.as_deref() == Some("completed") && b.stop_reason.is_none() {
+                    let tx = self.conn.transaction().map_err(db_error)?;
+                    b.stop_reason = Some("completed_turn_handoff".into());
+                    b.handle.state = "stopping_for_handoff".into();
+                    b.handle.revision += 1;
+                    save_binding(&tx, &mut b)?;
+                    event(
+                        &tx,
+                        &session.id,
+                        session.revision,
+                        "factory.internal_stop_prepared",
+                        json!({"attempt_id":session.attempt_id,"turn_state":"completed","task_accepted":false}),
+                        "factory_core",
+                    )?;
+                    tx.commit().map_err(db_error)?;
+                    return Ok(Some(FactoryAction::Stop(session_id)));
+                }
+                if matches!(session.state.as_str(), "failed" | "outcome_unknown")
+                    || matches!(
+                        session.turn_state.as_deref(),
+                        Some("cancelled" | "interrupted" | "outcome_unknown")
+                    )
+                {
+                    let tx = self.conn.transaction().map_err(db_error)?;
+                    r.state = "outcome_unknown".into();
+                    save_run(
+                        &tx,
+                        &mut r,
+                        "factory.run_unknown",
+                        json!({"session_id":session_id,"automatic_retry":false}),
+                    )?;
+                    tx.commit().map_err(db_error)?;
+                    return Ok(Some(FactoryAction::Stop(session_id)));
+                }
+                continue;
+            }
+            // No live parent: queued children can now acquire the same workspace.
+            if let Some(b) = all.iter().find(|b| {
+                matches!(
+                    b.handle.state.as_str(),
+                    "queued" | "blocked_on_live_parent" | "resuming"
+                ) && b.session_id.is_none()
+                    && !b.handle.cancel_requested
+            }) {
+                let mut b = b.clone();
+                if b.handle.state == "blocked_on_live_parent" {
+                    b.handle.state = "queued".into();
+                    let tx = self.conn.transaction().map_err(db_error)?;
+                    save_binding(&tx, &mut b)?;
+                    tx.commit().map_err(db_error)?;
+                }
+                return Ok(Some(FactoryAction::Launch(FactoryDispatchContext {
+                    scope: s,
+                    run: r,
+                    task: b,
+                    queued_ms: 0,
+                })));
+            }
+        }
+        Ok(None)
+    }
+    pub(crate) fn factory_internal_stop_is_current(&self, id: &str) -> Result<bool> {
+        if !owns_session(&self.conn, id)? {
+            return Ok(false);
+        }
+        let session = self.get_session(id)?;
+        let scope_id: String = self
+            .conn
+            .query_row(
+                "SELECT scope_id FROM factory_attempts WHERE session_id=?1",
+                [id],
+                |r| r.get(0),
+            )
+            .map_err(db_error)?;
+        let s = scope(&self.conn, &scope_id)?;
+        let r = run(&self.conn, &scope_id)?;
+        let b = binding(&self.conn, &r.id, &session.task_id)?;
+        let receipt:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='factory.internal_stop_prepared' AND json_extract(document,'$.source')='factory_core' AND json_extract(document,'$.payload.attempt_id')=?2 AND json_extract(document,'$.payload.turn_state')='completed')",params![id,session.attempt_id],|r|r.get(0)).map_err(db_error)?;
+        Ok(receipt
+            && live(&self.conn, &s).is_ok()
+            && !r.cancel_requested
+            && !b.handle.cancel_requested
+            && b.session_id.as_deref() == Some(id)
+            && b.stop_reason.as_deref() == Some("completed_turn_handoff")
+            && session.turn_state.as_deref() == Some("completed"))
+    }
+    pub(crate) fn settle_factory_worker(
+        &mut self,
+        id: &str,
+        reaped: bool,
+        never_started: bool,
+        reason: &str,
+    ) -> Result<()> {
+        if !owns_session(&self.conn, id)? {
+            return Ok(());
+        }
+        let session = self.get_session(id)?;
+        let scope_id: String = self
+            .conn
+            .query_row(
+                "SELECT scope_id FROM factory_attempts WHERE session_id=?1",
+                [id],
+                |r| r.get(0),
+            )
+            .map_err(db_error)?;
+        let s = scope(&self.conn, &scope_id)?;
+        let mut r = run(&self.conn, &scope_id)?;
+        let mut b = binding(&self.conn, &r.id, &session.task_id)?;
+        let normal = reaped
+            && !never_started
+            && reason == "cancelled"
+            && self.factory_internal_stop_is_current(id)?;
+        let cancelled = r.cancel_requested
+            || b.handle.cancel_requested
+            || matches!(
+                self.get(&session.task_id)?.state,
+                TaskState::CancelRequested | TaskState::Cancelled
+            );
+        let mut artifacts = Vec::new();
+        let mut missing = false;
+        if normal {
+            for output in &s.selection.outputs {
+                if !b.request.output_artifact_ids.contains(&output.artifact_id) {
+                    continue;
+                }
+                match agentbaton_workspaces::read_artifact(
+                    &s.bindings.workspaces[0].root,
+                    &output.relative_path,
+                    output.max_bytes,
+                ) {
+                    Ok(bytes) => artifacts.push(FactoryArtifactReference {
+                        artifact_id: output.artifact_id.clone(),
+                        attempt_id: session.attempt_id.clone(),
+                        relative_path: output.relative_path.clone(),
+                        sha256: agentbaton_workspaces::validation::sha256(&bytes),
+                        bytes: bytes.len() as u64,
+                    }),
+                    Err(_) => {
+                        missing = true;
+                    }
+                }
+            }
+        }
+        let tx = self.conn.transaction().map_err(db_error)?;
+        b.handle.confirmed_stop = reaped || never_started;
+        b.handle.revision += 1;
+        let children: i64 = tx
+            .query_row(
+                "SELECT count(*) FROM factory_delegations WHERE run_id=?1 AND parent_task_id=?2",
+                params![r.id, session.task_id],
+                |row| row.get(0),
+            )
+            .map_err(db_error)?;
+        let can_wait = normal && children > 0 && b.round == 0;
+        if normal && (!missing || can_wait) {
+            b.handle.state = if can_wait {
+                "waiting_child"
+            } else {
+                "result_available"
+            }
+            .into();
+            b.handle.result_available = !can_wait;
+            let result = FactoryTaskResult {
+                task: b.handle.clone(),
+                artifacts,
+                validation_refs: vec![],
+                acceptance_state: "not_established".into(),
+                context_continuation: "new_attempt_explicit_handoff_only".into(),
+                handoff_digest: None,
+            };
+            b.result = Some(result);
+            r.active_session_id = None;
+            r.active_task_id = None;
+            r.state = if can_wait { "waiting_child" } else { "running" }.into();
+            if !can_wait {
+                if let Some(parent_id) = b.handle.parent_task_id.clone() {
+                    let mut parent = binding(&tx, &r.id, &parent_id)?;
+                    let pending:i64=tx.query_row("SELECT count(*) FROM factory_task_bindings WHERE run_id=?1 AND json_extract(document,'$.handle.parent_task_id')=?2 AND state!='result_available' AND task_id!=?3",params![r.id,parent_id,session.task_id],|row|row.get(0)).map_err(db_error)?;
+                    if pending == 0 && parent.handle.state == "waiting_child" {
+                        let digest = sha(
+                            &json!({"parent_task_id":parent_id,"child_result":b.result,"parent_session_id":parent.session_id}),
+                        )?;
+                        parent.result = b.result.clone();
+                        if let Some(result) = parent.result.as_mut() {
+                            result.handoff_digest = Some(digest.clone());
+                        }
+                        parent.session_id = None;
+                        parent.turn_sent = false;
+                        parent.stop_reason = None;
+                        parent.round += 1;
+                        parent.handle.state = "resuming".into();
+                        parent.handle.revision += 1;
+                        save_binding(&tx, &mut parent)?;
+                        tx.execute("UPDATE factory_handoffs SET state='ready',child_attempt_id=?1,document=json_set(document,'$.parent_stop_confirmed',json('true'),'$.handoff_digest',?2) WHERE run_id=?3 AND parent_task_id=?4 AND child_task_id=?5",params![session.attempt_id,digest,r.id,parent_id,session.task_id]).map_err(db_error)?;
+                    }
+                } else {
+                    r.state = "completed".into();
+                }
+            }
+        } else {
+            b.handle.state = if (reaped || never_started) && cancelled {
+                "cancelled"
+            } else {
+                "outcome_unknown"
+            }
+            .into();
+            r.state = if (reaped || never_started) && cancelled {
+                "cancelled"
+            } else {
+                "outcome_unknown"
+            }
+            .into();
+            r.active_session_id = None;
+            r.active_task_id = None;
+        }
+        save_binding(&tx, &mut b)?;
+        tx.execute("UPDATE factory_attempts SET state=?1,document=json_set(document,'$.stop_confirmed',?2,'$.never_started',?3,'$.stop_reason',?4) WHERE session_id=?5",params![b.handle.state,reaped||never_started,never_started,reason,id]).map_err(db_error)?;
+        tx.execute(
+            "UPDATE factory_scoped_handles SET revoked=1 WHERE session_id=?1",
+            [id],
+        )
+        .map_err(db_error)?;
+        save_run(
+            &tx,
+            &mut r,
+            "factory.attempt_stopped",
+            json!({"session_id":id,"attempt_id":session.attempt_id,"task_id":session.task_id,"owned_reaped":reaped,"never_started":never_started,"normal_completed_turn":normal,"selected_outputs_missing":missing,"task_accepted":false}),
+        )?;
+        tx.commit().map_err(db_error)?;
+        Ok(())
+    }
+}
+impl Store {
+    pub(crate) fn factory_mcp_for_launch(
+        &mut self,
+        id: &str,
+        runtime: &std::path::Path,
+    ) -> Result<Option<FactoryMcpLaunch>> {
+        use std::io::Write;
+        use std::os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt};
+        if !owns_session(&self.conn, id)? {
+            return Ok(None);
+        }
+        let session = self.get_session(id)?;
+        let scope_id: String = self
+            .conn
+            .query_row(
+                "SELECT scope_id FROM factory_attempts WHERE session_id=?1",
+                [id],
+                |r| r.get(0),
+            )
+            .map_err(db_error)?;
+        let s = scope(&self.conn, &scope_id)?;
+        live(&self.conn, &s)?;
+        let b = binding(
+            &self.conn,
+            &run(&self.conn, &scope_id)?.id,
+            &session.task_id,
+        )?;
+        if b.handle.cancel_requested {
+            return Err(denied());
+        }
+        let handoff = b
+            .result
+            .as_ref()
+            .map(|r| r.artifacts.clone())
+            .unwrap_or_default();
+        if session.state != "starting" || session.project_id != s.project_id {
+            return Err(denied());
+        }
+        let dir = runtime.join("factory-scoped-handles");
+        match std::fs::DirBuilder::new().mode(0o700).create(&dir) {
+            Ok(()) => (),
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => (),
+            Err(_) => return Err(denied()),
+        }
+        let metadata = std::fs::symlink_metadata(&dir).map_err(|_| denied())?;
+        if !metadata.is_dir()
+            || metadata.mode() & 0o7777 != 0o700
+            || metadata.uid() != rustix::process::geteuid().as_raw()
+            || dir.canonicalize().ok().as_deref() != Some(&dir)
+        {
+            return Err(denied());
+        }
+        let record = HandleRecord {
+            id: Uuid::new_v4().to_string(),
+            scope_id: s.id.clone(),
+            run_id: run(&self.conn, &s.id)?.id,
+            session_id: id.into(),
+            attempt_id: session.attempt_id.clone(),
+            task_id: session.task_id.clone(),
+            root_task_id: s.root_task_id.clone(),
+            project_id: s.project_id.clone(),
+            fencing_token: session.fencing_token,
+            expires_at_ms: s.expires_at_ms,
+        };
+        let token = format!("{}{}", Uuid::new_v4().simple(), Uuid::new_v4().simple());
+        let file = dir.join(format!("{}.json", record.id));
+        let bytes = encode(
+            &json!({"schema_version":1,"handle_id":record.id,"socket_path":runtime.join("batond.sock"),"scoped_token":token}),
+        )?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        live(&tx, &s)?;
+        tx.execute("INSERT INTO factory_scoped_handles(id,scope_id,session_id,attempt_id,task_id,token_digest,expires_at_ms,revoked,fencing_token,document) VALUES(?1,?2,?3,?4,?5,?6,?7,0,?8,?9)",params![record.id,s.id,id,session.attempt_id,session.task_id,agentbaton_workspaces::validation::sha256(token.as_bytes()),record.expires_at_ms,i64::try_from(record.fencing_token).map_err(|_|limited())?,encode(&record)?]).map_err(db_error)?;
+        event(
+            &tx,
+            id,
+            session.revision,
+            "factory.scoped_handle_prepared",
+            json!({"handle_id":record.id,"attempt_id":session.attempt_id,"scope_id":s.id,"owner_token_available":false,"private_credential_file":true}),
+            "factory_core",
+        )?;
+        tx.commit().map_err(db_error)?;
+        let mut fd = std::fs::OpenOptions::new()
+            .create_new(true)
+            .write(true)
+            .mode(0o600)
+            .custom_flags(
+                (rustix::fs::OFlags::NOFOLLOW
+                    | rustix::fs::OFlags::NONBLOCK
+                    | rustix::fs::OFlags::CLOEXEC)
+                    .bits() as i32,
+            )
+            .open(&file)
+            .map_err(|_| denied())?;
+        fd.write_all(bytes.as_bytes())
+            .and_then(|()| fd.sync_all())
+            .map_err(|_| denied())?;
+        Ok(Some(FactoryMcpLaunch {
+            scope: s,
+            credential: file,
+            handoff,
+        }))
+    }
+}
+fn recheck_external(s: &FactoryScope) -> Result<()> {
+    if super::store::companion(&s.bindings.companion.executable)? != s.bindings.companion {
+        return Err(changed());
+    }
+    for a in &s.bindings.inputs {
+        let bytes = agentbaton_workspaces::read_artifact(
+            &s.bindings.workspaces[0].root,
+            &a.contract.requirement.relative_path,
+            a.contract.requirement.max_bytes,
+        )
+        .map_err(|_| changed())?;
+        if bytes.len() as u64 != a.bytes
+            || agentbaton_workspaces::validation::sha256(&bytes) != a.sha256
+        {
+            return Err(changed());
+        }
+    }
+    Ok(())
+}
+pub(crate) fn is_factory_task(db: &Connection, id: &str) -> Result<bool> {
+    db.query_row(
+        "SELECT EXISTS(SELECT 1 FROM factory_task_lineage WHERE task_id=?1)",
+        [id],
+        |r| r.get(0),
+    )
+    .map_err(db_error)
+}
+pub(crate) fn permits_factory_dispatch(
+    db: &Connection,
+    i: &crate::execution::DispatchIntent,
+) -> Result<bool> {
+    let row:Option<String>=db.query_row("SELECT scope_id FROM factory_attempts WHERE attempt_id=?1 AND task_id=?2 AND root_task_id=?3 AND state='reserved'",params![i.attempt_id,i.task_id,i.root_task_id],|r|r.get(0)).optional().map_err(db_error)?;
+    let Some(id) = row else { return Ok(false) };
+    let s = scope(db, &id)?;
+    live(db, &s)?;
+    let r = run(db, &id)?;
+    let b = binding(db, &r.id, &i.task_id)?;
+    Ok(!r.cancel_requested
+        && !b.handle.cancel_requested
+        && b.handle.attempt_id.as_deref() == Some(&i.attempt_id)
+        && b.handle.state == "starting"
+        && r.active_task_id.as_deref() == Some(&i.task_id)
+        && s.root_task_id == i.root_task_id)
+}
+
+impl Store {
+    pub(crate) fn factory_launch_error(&mut self, id: &str, error: CoreError) -> Result<()> {
+        let scope_id: String = self
+            .conn
+            .query_row(
+                "SELECT scope_id FROM factory_attempts WHERE session_id=?1",
+                [id],
+                |r| r.get(0),
+            )
+            .map_err(db_error)?;
+        let mut r = run(&self.conn, &scope_id)?;
+        r.last_error = Some(error);
+        let tx = self.conn.transaction().map_err(db_error)?;
+        let payload = json!({"session_id":id,"error":r.last_error.clone()});
+        save_run(&tx, &mut r, "factory.launch_rejected", payload)?;
+        tx.commit().map_err(db_error)?;
+        Ok(())
+    }
+}
+
+pub(crate) struct FactoryMcpLaunch {
+    scope: FactoryScope,
+    credential: std::path::PathBuf,
+    handoff: Vec<FactoryArtifactReference>,
+}
+impl FactoryMcpLaunch {
+    pub(crate) fn authorize(self) -> Result<agentbaton_providers::ApprovedFactoryMcp> {
+        if self.scope.expires_at_ms <= ms()? {
+            return Err(denied());
+        }
+        recheck_external(&self.scope)?;
+        for artifact in &self.handoff {
+            let approved = self
+                .scope
+                .selection
+                .outputs
+                .iter()
+                .find(|a| {
+                    a.artifact_id == artifact.artifact_id
+                        && a.relative_path == artifact.relative_path
+                })
+                .ok_or_else(denied)?;
+            let bytes = agentbaton_workspaces::read_artifact(
+                &self.scope.bindings.workspaces[0].root,
+                &artifact.relative_path,
+                approved.max_bytes,
+            )
+            .map_err(|_| changed())?;
+            if bytes.len() as u64 != artifact.bytes
+                || agentbaton_workspaces::validation::sha256(&bytes) != artifact.sha256
+            {
+                return Err(changed());
+            }
+        }
+        if self.scope.expires_at_ms <= ms()? {
+            return Err(denied());
+        }
+        agentbaton_providers::ApprovedFactoryMcp::from_verified_host(
+            &self.scope.bindings.companion.executable,
+            &agentbaton_providers::installation::BinaryDigest::parse(
+                &self.scope.bindings.companion.executable_sha256,
+            )
+            .map_err(|_| changed())?,
+            &self.credential,
+            &self.scope.approval_id,
+        )
+        .map_err(|_| changed())
+    }
+}
+impl Store {
+    pub(crate) fn factory_session_policy_current(&self, id: &str) -> Result<bool> {
+        if !owns_session(&self.conn, id)? {
+            return Ok(true);
+        }
+        let sid: String = self
+            .conn
+            .query_row(
+                "SELECT scope_id FROM factory_attempts WHERE session_id=?1",
+                [id],
+                |r| r.get(0),
+            )
+            .map_err(db_error)?;
+        let s = scope(&self.conn, &sid)?;
+        let r = run(&self.conn, &sid)?;
+        Ok(live(&self.conn, &s).is_ok() && !r.cancel_requested)
+    }
+}
+
+impl Store {
+    pub(crate) fn block_factory_run(&mut self, id: &str, error: CoreError) -> Result<()> {
+        let mut r = run(&self.conn, id)?;
+        r.state = "blocked".into();
+        r.last_error = Some(error);
+        let payload = json!({"last_error":r.last_error,"automatic_retry":false});
+        let tx = self.conn.transaction().map_err(db_error)?;
+        save_run(&tx, &mut r, "factory.run_blocked", payload)?;
+        tx.commit().map_err(db_error)?;
+        Ok(())
+    }
+}
+impl Store {
+    pub(crate) fn factory_scope_for_task(&self, id: &str) -> Result<String> {
+        Ok(lineage(&self.conn, id)?.factory_scope_id)
     }
 }

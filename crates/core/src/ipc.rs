@@ -335,6 +335,7 @@ pub struct Daemon {
     command_workers: crate::command_workers::CommandWorkers,
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
     goal_pending: Option<(String, Receiver<Value>)>,
+    factory_queue_clocks: std::collections::HashMap<String, Instant>,
     graph_workers: crate::goal_store::GraphWorkers,
 }
 impl Daemon {
@@ -392,6 +393,7 @@ impl Daemon {
             command_workers: Default::default(),
             data_workers,
             goal_pending: None,
+            factory_queue_clocks: Default::default(),
             graph_workers: Default::default(),
         })
     }
@@ -404,6 +406,7 @@ impl Daemon {
             self.command_workers.tick(&mut self.store)?;
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
+            self.tick_factory()?;
             self.tick_goals()?;
             for _ in 0..16 {
                 let Ok(job) = ready.try_recv() else {
@@ -489,6 +492,8 @@ impl Daemon {
                     | "connections.propose"
                     | "grants.propose"
                     | "goal_scopes.propose"
+                    | "factory_scopes.propose"
+                    | "factory_runs.start"
                     | "approvals.finalize"
                     | "sessions.create"
                     | "command_validation_policies.propose"
@@ -549,11 +554,9 @@ impl Daemon {
             }
             "factory_runs.start" => {
                 let p: FactoryScopeId = params(r.params)?;
-                Ok(json!(self.store.start_factory_run(
-                    &p.scope_id,
-                    r.expected_revision.ok_or_else(invalid)?,
-                    &r.idempotency_key.ok_or_else(invalid)?
-                )?))
+                let run=self.store.start_factory_run(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;
+                if run.state=="queued" {self.factory_queue_clocks.entry(run.root_task_id.clone()).or_insert_with(Instant::now);}
+                Ok(json!(run))
             }
             "factory_runs.get" => {
                 let p: FactoryScopeId = params(r.params)?;
@@ -1936,6 +1939,13 @@ impl Daemon {
         })();
         match result {
             Ok(outcome) => {
+                if request.method == "delegate_task" {
+                    if let Some(task) = outcome.result["task_id"].as_str() {
+                        self.factory_queue_clocks
+                            .entry(task.to_owned())
+                            .or_insert_with(Instant::now);
+                    }
+                }
                 for session in outcome.stops {
                     self.supervisor.cancel(&session);
                 }
@@ -1945,5 +1955,75 @@ impl Daemon {
                 json!({"request_id":id,"error":error,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
             }
         }
+    }
+}
+
+impl Daemon {
+    fn tick_factory(&mut self) -> Result<()> {
+        if self.data_workers.has_workers()
+            || self.graph_workers.has_workers()
+            || self.command_workers.has_workers()
+        {
+            return Ok(());
+        }
+        let Some(action) = self.store.next_factory_action()? else {
+            return Ok(());
+        };
+        match action {
+            crate::factory::FactoryAction::Stop(id) => self.supervisor.cancel(&id),
+            crate::factory::FactoryAction::Prompt { session_id, text } => {
+                let s = self.store.get_session(&session_id)?;
+                let (_, queued) = self.store.send_factory_session(
+                    &s.id,
+                    &text,
+                    s.revision,
+                    &format!("factory-turn:{}", s.attempt_id),
+                )?;
+                if queued {
+                    self.supervisor.send(&s.id, &text)?;
+                }
+            }
+            crate::factory::FactoryAction::Launch(mut context) => {
+                let (task, workspace, connection, grant) = context.request();
+                let request = (
+                    task.to_owned(),
+                    workspace.to_owned(),
+                    connection.to_owned(),
+                    grant.to_owned(),
+                );
+                let queued = self
+                    .factory_queue_clocks
+                    .remove(&request.0)
+                    .map(|i| i.elapsed())
+                    .unwrap_or_default();
+                context.set_queued_ms(u64::try_from(queued.as_millis()).unwrap_or(u64::MAX));
+                let rev = self.store.get(&request.0)?.revision;
+                let created = self.store.create_session_for_factory(
+                    (
+                        &request.0,
+                        &request.1,
+                        &request.2,
+                        &request.3,
+                        rev,
+                        &format!("factory-attempt:{}:{}", request.0, rev),
+                    ),
+                    context,
+                );
+                let s = match created {
+                    Ok(s) => s,
+                    Err(error) => {
+                        let scope_id = self.store.factory_scope_for_task(&request.0)?;
+                        self.store.block_factory_run(&scope_id, error)?;
+                        return Ok(());
+                    }
+                };
+                if let Err(error) = self.supervisor.launch(&mut self.store, &s.id) {
+                    self.store.factory_launch_error(&s.id, error)?;
+                    self.supervisor
+                        .record_local_launch_failure(&mut self.store, &s.id)?;
+                }
+            }
+        }
+        Ok(())
     }
 }

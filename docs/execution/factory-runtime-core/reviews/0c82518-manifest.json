@@ -1,0 +1,143 @@
+{
+  "revision": "0c82518a818202be550e1518bfc4e4f075442787",
+  "mode": "static git object export; no Cargo/daemon/provider execution; author WIP untouched",
+  "files": [
+    {
+      "path": "apps/cli/src/main.rs",
+      "sha256": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+      "bytes": 5738
+    },
+    {
+      "path": "crates/core/src/execution.rs",
+      "sha256": "0f299dc199f3c0a3e0e8d5689298fe08d87f64956baeb82be3a4633550e3078d",
+      "bytes": 17229
+    },
+    {
+      "path": "crates/core/src/factory.rs",
+      "sha256": "20b4c8a2f9645d0443bf6274229794fa9d9545c69a04fdcd2df02e30a254af93",
+      "bytes": 8124
+    },
+    {
+      "path": "crates/core/src/factory_budget.rs",
+      "sha256": "13c43d3f310c88f71bbd2a028fac5b4abc4b351ef6d6a10ea957dbbb68209ed5",
+      "bytes": 9366
+    },
+    {
+      "path": "crates/core/src/factory_companion.rs",
+      "sha256": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+      "bytes": 11133
+    },
+    {
+      "path": "crates/core/src/factory_runtime.rs",
+      "sha256": "bfebcb5fc15612e82e5b034f1276b70dc5118a07da43995459dbe585a3089004",
+      "bytes": 16926
+    },
+    {
+      "path": "crates/core/src/factory_store.rs",
+      "sha256": "9703ec9c2f903c2604655a39ad0889c0332b70020063c06406b7f5d141f137ca",
+      "bytes": 38296
+    },
+    {
+      "path": "crates/core/src/goal_plan.rs",
+      "sha256": "243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21",
+      "bytes": 80912
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "sha256": "b5fdb9f5b4dd9a474115a3af0bd3d963e2053671656ed2d86dfda58f2fc28e07",
+      "bytes": 149568
+    },
+    {
+      "path": "crates/core/src/goal_store.rs",
+      "sha256": "358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816",
+      "bytes": 101266
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "sha256": "b3ae094fafaf4dab7bd3c78213e483c44897c6bdf168d2f2660a42c1ea4c10fc",
+      "bytes": 85194
+    },
+    {
+      "path": "crates/core/src/lib.rs",
+      "sha256": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+      "bytes": 1666
+    },
+    {
+      "path": "crates/core/src/policy.rs",
+      "sha256": "f281c45c5f5057b5f6c83b35eda5129444ebdde625e42962f4a8183f7d3b7ae9",
+      "bytes": 46540
+    },
+    {
+      "path": "crates/core/src/sessions.rs",
+      "sha256": "fc8b9a1d01a966597ab5946e3a9e970aeb2b3f83e41f939b27554215f8e9fcd0",
+      "bytes": 78473
+    },
+    {
+      "path": "crates/core/src/storage.rs",
+      "sha256": "925002caeb223b8e181100848cea204bd46721c7759e9ac4de8d7f0c56f7f4cf",
+      "bytes": 28227
+    },
+    {
+      "path": "crates/core/tests/factory_migration.rs",
+      "sha256": "95b121a5a43c645860a3d637712566b920690d3a4a74c344fc44363e8a76afdf",
+      "bytes": 5321
+    },
+    {
+      "path": "crates/core/tests/factory_scope.rs",
+      "sha256": "6c6cecf0251853f01d3953a7341798ff295c634c94b4fe09cbbf59e42ed707ab",
+      "bytes": 17678
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/ADR.md",
+      "sha256": "e8f3a99fb777379eadc39d388aaa11a9f4da007d10a37a7bff5fea8e2c7e1d40",
+      "bytes": 2056
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/CHECKPOINT.md",
+      "sha256": "06e9bcc4065cba94a09316c87bd7bf889de45d4c5137a168b5970aeefe09d322",
+      "bytes": 2462
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/EVIDENCE.json",
+      "sha256": "f4d020da26224174f27879c3a3bc68d1715813795541055ef23662c93546ead2",
+      "bytes": 6190
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/PLAN.md",
+      "sha256": "98352e4581ad00641f69b0c36da9a244750828dd3e0467eda7c7a0e227821489",
+      "bytes": 2390
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/PROGRESS.md",
+      "sha256": "c874bf97e93e373b1b8665b0282f686024145f4ed3a727265a4ca2f31e361f78",
+      "bytes": 1910
+    }
+  ],
+  "baseline": "e751992780a778d78edbc6b577359f9bbc3759ec",
+  "review_outputs": [
+    "REVIEW.md",
+    "provenance.json"
+  ],
+  "authority_reads": {
+    "AGENTS.md": {
+      "sha256": "623b044437d8e0caa4174e7dd7ac3fef6597c34a67e49bc0a22b9f58ad2c05ab",
+      "location": "/workspace/AgentBaton/AGENTS.md"
+    },
+    "infra/execution-gate.json": {
+      "sha256": "313c96753ddd8f89d8a69e58428f834596f3059b0d0a41996dc1059ea8170e7e",
+      "location": "/workspace/AgentBaton/infra/execution-gate.json"
+    },
+    "docs/execution/launch/APPROVAL.md": {
+      "sha256": "51aee038d99545f3c6899ee0424c7717124464c80e254cb35487569972dedbc8",
+      "location": "/workspace/AgentBaton/docs/execution/launch/APPROVAL.md"
+    },
+    "codex/GOAL.md": {
+      "sha256": "cbb97a4c11f83cd26ca4f0c2f38c0d9c03d8a11b4cfb8eaadda49f132e27405e",
+      "location": "/workspace/AgentBaton/codex/GOAL.md"
+    },
+    "docs/execution/OWNER_INBOX.md": {
+      "sha256": "094a77884272d0919bece0654237419f2d226a9245e7d826e0891a8f661f811f",
+      "location": "/workspace/AgentBaton/docs/execution/OWNER_INBOX.md"
+    }
+  }
+}
