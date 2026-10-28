@@ -1,79 +1,84 @@
 {
-  "status": "WIP, not final source/independent integration acceptance",
-  "runtime_module_sha256_latest_real_tests": "cb13237bdeeeff4de075045ce759a9454b8c1107f62c3b18bc2e751001d933b6",
-  "latest_passed_new_git_goal_tests": 10,
-  "latest_passed_new_data_goal_tests": 2,
-  "full_workspace_run": false,
-  "actual_macOS": false,
-  "real_provider_models": false,
-  "logs": [
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/check-10.log",
-      "sha256": "e6aafcbb1d04e19c820a7f12e131c4d5b2916d490d878a4e405c79730cc61c83",
-      "bytes": 162
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/real-goal-bounds-1.log",
-      "sha256": "cac875c8f986e1ed823cac4b6adf41aefeec392d7d4a13512bd5768b3b62901d",
-      "bytes": 7044
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/real-data-goal-1.log",
-      "sha256": "7f9f8e78723347540f2bd785bd568572d6bf6508915b56db3ac3c54894c2ff89",
-      "bytes": 1489
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/export-real-proposal.log",
-      "sha256": "b1831a5a044759ce1038019a97958ad4ad6aadcfffc1c4030fcec5ba958d47af",
-      "bytes": 963
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/export-large-review-2.log",
-      "sha256": "3801a848faa3777f021417cbb2dfbab4fdd7cdc9dbcd525baf78133e4603a21c",
-      "bytes": 944
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/real-goal-failures-1.log",
-      "sha256": "ba66a68a6b146215865f05457c275698a770dd8fce132bd4b0057ba8c35ec91e",
-      "bytes": 4159
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/first-real-dispatch.log",
-      "sha256": "2fd628557e9b5696e014eb839e7ac66d2b6274388a7a95ac04848f3b7803419b",
-      "bytes": 1594
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/real-dispatch-2.log",
-      "sha256": "7e2b5d903f97f2ddadcea61c763c25601461ad28884bbd88ea65e7f2560bf538",
-      "bytes": 1069
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/real-dispatch-history.log",
-      "sha256": "c4bf4bb00c1f8357f1dc7ac469e6f8633b827249d167016bac9c273d4c26329b",
-      "bytes": 4425
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/export-large-review.log",
-      "sha256": "c2f33898c32c0d5d756c976fdadf7d6a6acb2566adefa2ab06d910d23fd22a13",
-      "bytes": 1246
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/crash-authority-units-1.log",
-      "sha256": "305bfec83f8771fe652b99ef3699449f74bab633812f636c8de99bba6b6c9e72",
-      "bytes": 1557
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/raw-limits-units-2.log",
-      "sha256": "6520f361e89795c8834aa74fb6982e6b4ba44851855917ab8d7a4dc22997b4dc",
-      "bytes": 878
-    },
-    {
-      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/ordinary-admission-gates.log",
-      "sha256": "d7ce71f82b06491524593ad6c622504e1a7782f5e82726e6e2bb87964b53864b",
-      "bytes": 945
-    }
+  "state": "author_verified_awaiting_independent_and_composed_platform_validation",
+  "source_commit": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+  "runtime_source_sha256": "65c953ca8ae0a27fcb4377f9222059818d51f4d8287ad34e80630e983a9220b1",
+  "manifest": "/workspace/.onboarding/goal-runtime-schema11-9f833738/manifest.json",
+  "manifest_sha256": "2114390f03df55e6d48c5f1b20864f2c22f9351c88e1eb66c5c19e80703f04dc",
+  "source_tree_sha256": "76ba31c43c03709e106a5d015d78ebce063d430b721af25ae593e9164a40fa13",
+  "rust_tests_outer_unique": 549,
+  "compile_fail_doc_tests": 7,
+  "native_provider_calls": false,
+  "main_target_owner": "/root/data_core_review_resume",
+  "target_released": true,
+  "logs": {
+    "artifacts/goal-runtime-core/actual-daemon-sigkill-1.log": "f75076d91161f603caa64d9c32c817422b5098ce15bbff10b5d551d5db23da34",
+    "artifacts/goal-runtime-core/actual-stop-receipt-controls.log": "59741a4ec70945e7892744fa60857f141d26bb7b9a35a5acfd12f8f77a0a0269",
+    "artifacts/goal-runtime-core/all-actual-goal-1.log": "2fe213451fe704b6fadd2713064603a55f55296388607e9879f8991f091d3d25",
+    "artifacts/goal-runtime-core/check-10.log": "e6aafcbb1d04e19c820a7f12e131c4d5b2916d490d878a4e405c79730cc61c83",
+    "artifacts/goal-runtime-core/check-11.log": "b26282e78f3547c7017b6d1d6002644c38812c244d05fe09f1a3e32be1e03254",
+    "artifacts/goal-runtime-core/check-12.log": "30ea9eef65aff1940c757ddc13323cd752323ce80e4cce0d249a654f666cb8ff",
+    "artifacts/goal-runtime-core/check-2.log": "213b21d55da8897bdacd906459b7716b46c02199ccfe2ac220890dc4d870f3c5",
+    "artifacts/goal-runtime-core/check-3.log": "7816bf456d447b982adb090724f9cedbf16e2d122acc9f6a79d47b2ef6e1d1cc",
+    "artifacts/goal-runtime-core/check-4.log": "d84f9261b00ebe4818efa6e192c248bf25b7793f842250feffb8ce010ff6b035",
+    "artifacts/goal-runtime-core/check-5.log": "6244dc386fd72143fa6e145e05a97e4c933ebdcc86f693160895b66331d06098",
+    "artifacts/goal-runtime-core/check-6.log": "6819c11eff49e67c7839c24e3588732bce198ead7e9b4b20b9c8008a000d3a6f",
+    "artifacts/goal-runtime-core/check-7.log": "2fb8527f5492d20be1cbecde6f82fa9d319e79c54087a591793c3d36e68687f2",
+    "artifacts/goal-runtime-core/check-8.log": "d3cb529b4248c7dcf0ff51354a2c913de957539120d6dcb7058b80d38ac246a6",
+    "artifacts/goal-runtime-core/check-9.log": "16413208da37c26605daab503d77c64e274518174a489ab1a0efd500f05e9bc3",
+    "artifacts/goal-runtime-core/clippy1.log": "1ca9873f03fb5015cd47e464c87dd991a8e091f66f3ecc9b599ee38e712e6e81",
+    "artifacts/goal-runtime-core/clippy2.log": "ad4d9a072744c46512d457eddb10fe220e89ee66f8a333469a6fb79881d539d6",
+    "artifacts/goal-runtime-core/clippy3.log": "dfeaba2a41acc8922f793b5a642894d1b3d7f944f553c05d67a5b24f2e7df26c",
+    "artifacts/goal-runtime-core/crash-authority-units-1.log": "305bfec83f8771fe652b99ef3699449f74bab633812f636c8de99bba6b6c9e72",
+    "artifacts/goal-runtime-core/data-root-measurement-1.log": "40f17454047f924b52217d18df59861acc57ec8dadca4a72c24c90db817df427",
+    "artifacts/goal-runtime-core/entrypoint-touch.json": "bd456f123581e44993cdd0c781ff83c9f5209e05c30b40762ca9dbe93d61b14f",
+    "artifacts/goal-runtime-core/export-large-review-2.log": "3801a848faa3777f021417cbb2dfbab4fdd7cdc9dbcd525baf78133e4603a21c",
+    "artifacts/goal-runtime-core/export-large-review.log": "c2f33898c32c0d5d756c976fdadf7d6a6acb2566adefa2ab06d910d23fd22a13",
+    "artifacts/goal-runtime-core/export-real-proposal.log": "b1831a5a044759ce1038019a97958ad4ad6aadcfffc1c4030fcec5ba958d47af",
+    "artifacts/goal-runtime-core/final-authority-units-1.log": "02d53d7f52f7b22345531e72802d077d652c37fef30a0deac01a05795039ae25",
+    "artifacts/goal-runtime-core/final-authority-units-2.log": "6733f485ade79eed5485a134592cc145a7faf0870b61e704eb9c13c3075ff5ad",
+    "artifacts/goal-runtime-core/final-debug-build.log": "aa3853518ac5e94aafb82d69b15d9d6b96dca4786712d9ca016790d5627ad9a0",
+    "artifacts/goal-runtime-core/final-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/goal-runtime-core/first-real-dispatch.log": "2fd628557e9b5696e014eb839e7ac66d2b6274388a7a95ac04848f3b7803419b",
+    "artifacts/goal-runtime-core/frozen-binaries-smoke.log": "ad5bbe2e3936b18c549df57f1284e2fd5032cab16b8f54e5b55c1c6007c4b1f1",
+    "artifacts/goal-runtime-core/full-workspace-1.log": "48bf6a07aaa609742b09fd3a0037afec5d1c8cbf791f3deae1e04480daccb623",
+    "artifacts/goal-runtime-core/full-workspace-2.log": "d9b448aef73d8bfc30084705185210127e88993554415f1fcd4adeb7461eb9e7",
+    "artifacts/goal-runtime-core/full-workspace-3.log": "b15dd2269482e87adbf8647b3104285e24d71ccad6c01a349cfe01646e228d6d",
+    "artifacts/goal-runtime-core/full-workspace-4-counts.json": "5ca5abf74f3f1679f1e2bff0e59b0ec11c2385f60625ac7e32315a2e6306b8bc",
+    "artifacts/goal-runtime-core/full-workspace-4.log": "6d107c6aadc98462b6e97b68e5c3f7add73077bef7fc608318bfe0b26b3b13ae",
+    "artifacts/goal-runtime-core/initial-check.log": "09ceb1dc19c95fdd10333af366de96ae6f9a22a6e834ab9f8a30b43bb88ba2d8",
+    "artifacts/goal-runtime-core/migration11-1.log": "919e9468b383ec08a2323bc198eb04e2df5a0363bf09a66431ae067219bc44b2",
+    "artifacts/goal-runtime-core/migration11-2.log": "48bb0cd85926b060d54c3120a85453881e91a9f8409c0ff2d06d3f05ca971e4c",
+    "artifacts/goal-runtime-core/ordinary-admission-gates.log": "d7ce71f82b06491524593ad6c622504e1a7782f5e82726e6e2bb87964b53864b",
+    "artifacts/goal-runtime-core/output-root-guard-1.log": "69af526a81d5e595c945b58eaf27467514082e3913bf6e5eb2955e7c4820832e",
+    "artifacts/goal-runtime-core/output-root-guard-2.log": "f55413f8d3b843cbb9e19898aa5faad20e448879d16e023276705ec3413b5b9b",
+    "artifacts/goal-runtime-core/raw-guard-normal.log": "1b0ea249e959ce5515be79372ba79ade569582471074974b3e88891abff46ce7",
+    "artifacts/goal-runtime-core/raw-limits-units-1.log": "d241c78ff4cbdbc12c42ec64ca669a9088edab722ffccb6b15d167ce82c5c2e4",
+    "artifacts/goal-runtime-core/raw-limits-units-2.log": "6520f361e89795c8834aa74fb6982e6b4ba44851855917ab8d7a4dc22997b4dc",
+    "artifacts/goal-runtime-core/real-data-goal-1.log": "7f9f8e78723347540f2bd785bd568572d6bf6508915b56db3ac3c54894c2ff89",
+    "artifacts/goal-runtime-core/real-dispatch-2.log": "7e2b5d903f97f2ddadcea61c763c25601461ad28884bbd88ea65e7f2560bf538",
+    "artifacts/goal-runtime-core/real-dispatch-3.log": "c19e217b4bfab78f35e3ebe6f7051651564ab51ac29d845bfb407e99d411f1db",
+    "artifacts/goal-runtime-core/real-dispatch-history-2.log": "079dfdafd810e736c6edf4a526e87191809f6fe5cc1d0ab0b59b2e90944e9b2c",
+    "artifacts/goal-runtime-core/real-dispatch-history.log": "c4bf4bb00c1f8357f1dc7ac469e6f8633b827249d167016bac9c273d4c26329b",
+    "artifacts/goal-runtime-core/real-dispatch-intent-2.log": "40e67913dc6ebd9498ac0f406bb9fafdd4bc327bb9ced73bd6753f347eca3eb8",
+    "artifacts/goal-runtime-core/real-dispatch-intent.log": "76a68b9ac145a998409835b6be32360fa54e19e78a5f1d73cca0ffc3c49b2a82",
+    "artifacts/goal-runtime-core/real-goal-bounds-1.log": "cac875c8f986e1ed823cac4b6adf41aefeec392d7d4a13512bd5768b3b62901d",
+    "artifacts/goal-runtime-core/real-goal-budget-1.log": "cad6bd594f9070322273952228e3439b3666809141b08add031bb802a3da0f49",
+    "artifacts/goal-runtime-core/real-goal-failures-1.log": "ba66a68a6b146215865f05457c275698a770dd8fce132bd4b0057ba8c35ec91e",
+    "artifacts/goal-runtime-core/real-goal-failures-2.log": "c87092a6e12de6f7f70ba0be79d762bf58b10fd7da95b4571827b74342eda382",
+    "artifacts/goal-runtime-core/real-replan-1.log": "eee684ba6d3312f675c9b4781b42754d17753de487265f6c0a0fcb5f3b7c6ac4",
+    "artifacts/goal-runtime-core/real-replan-stop-proof.log": "a791bbfb2f618d07d0004fcd669c4e9ebb7ebc275e0f8ade01ed046a4f5163cd",
+    "artifacts/goal-runtime-core/remaining-authority-units.log": "0025fc0b05456937d8c3e472818b15286132e5c841bd218124fb67226a91c301"
+  },
+  "unimplemented_scope": [
+    "dependent deterministic/Owner acceptance and TaskAccepted",
+    "parent-child/subtree execution and separate workspace-factory authorization",
+    "larger off-actor output verification"
   ],
-  "third_wip_runtime_source_sha256": "5d6885801e4d75edfba53a3f11d2c055b02bccded528d7566a5b0c24bd4e5066",
-  "private_core_units_passed": 7,
-  "actual_live_provider_crash": false
+  "unverified_scope": [
+    "composed real browser/IPC",
+    "Native Owner dialog",
+    "macOS dual architecture",
+    "real Provider/model calls",
+    "signed packages"
+  ]
 }
