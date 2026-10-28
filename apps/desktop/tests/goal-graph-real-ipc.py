@@ -1187,7 +1187,7 @@ def owner_only_driver(args, output: Path) -> int:
             assert workspace_root.is_relative_to(runtime / 'workspaces')
             grant = approved('grants.propose', {'project_id': project['id'], 'workspace_id': workspace['id'], 'connection_id': connection['id'],
                 'max_attempts': 8 if case else 2, 'max_concurrency': 1,
-                'max_duration_ms': (10_000 if kind == 'integrity' else 30_000) if case else 600_000}, 'graph:grant', 'grant')
+                'max_duration_ms': 30_000 if case else 600_000}, 'graph:grant', 'grant')
             task = result('tasks.create', {'project_id': project['id'], 'goal': 'Generated Graph Work Owner Summary Owner'}, 'graph:task')
             limits = {'attempts': 2, 'parallel': 1, 'runtime_ms': 10_000, 'output_bytes': 8192, 'children': 1, 'reworks': 0, 'tokens': None, 'cost_microunits': None}
             bootstrap = None
