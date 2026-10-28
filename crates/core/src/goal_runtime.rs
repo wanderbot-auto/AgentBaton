@@ -4,7 +4,10 @@ use super::*;
 
 #[path = "goal_graph.rs"]
 mod graph;
-pub(crate) use graph::{migrate as migrate_graph, GraphWorkers, GraphReadContext, GraphReadWitness};
+pub(crate) use graph::{
+    migrate as migrate_graph, verify_task_acceptance_state, GraphReadContext, GraphReadWitness,
+    GraphWorkers,
+};
 pub use graph::{
     GraphArtifactReference, GraphCandidateReceipt, GraphCriterionBinding,
     GraphDefinitionReusePermission, GraphExecutionSnapshot, GraphInputBinding,
@@ -89,7 +92,6 @@ fn run(db: &Connection, id: &str) -> Result<GoalRun> {
         .map_err(db_error)?;
     if r.id != id
         || cols != (r.scope_id.clone(), sql_num(r.revision)?, r.state.clone())
-        || r.task_accepted
         || !matches!(
             r.state.as_str(),
             "queued"
@@ -100,9 +102,13 @@ fn run(db: &Connection, id: &str) -> Result<GoalRun> {
                 | "blocked"
                 | "failed"
                 | "outcome_unknown"
+                | "accepted"
         )
     {
         return Err(changed());
+    }
+    if r.task_accepted || r.state == "accepted" {
+        graph::verify_accepted_state(db, &r)?;
     }
     Ok(r)
 }
@@ -170,6 +176,10 @@ fn node_records_at(
                     | "cancelled"
                     | "failed"
                     | "outcome_unknown"
+                    | "awaiting_owner"
+                    | "accepted"
+                    | "rejected"
+                    | "validated"
             )
             || n.session_id != session_id
             || n.attempt_id != attempt_id
@@ -218,7 +228,7 @@ fn node_records_at(
                 }
             }
         } else if attempt_id.is_some() || n.state != "not_started" {
-            return Err(changed());
+            graph::verify_intrinsic_node(db, r, &n)?;
         } else {
             let prior:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_reservations WHERE run_id=?1 AND node_id=?2 AND json_extract(document,'$.plan_revision')=?3)",params![id,node_id,sql_num(revision)?],|row|row.get(0)).map_err(db_error)?;
             if prior {
@@ -387,7 +397,11 @@ impl Store {
         self.finalize_goal_run_kind(id, revision, false)
     }
     fn finalize_goal_run_kind(&mut self, id: &str, revision: u64, graph: bool) -> Result<Value> {
-        let kind = if graph { "goal_graph_execution" } else { "goal_execution" };
+        let kind = if graph {
+            "goal_graph_execution"
+        } else {
+            "goal_execution"
+        };
         key(id)?;
         let tx = self
             .conn
@@ -401,10 +415,17 @@ impl Store {
         if let Some(old) = old {
             let v: Value = decode(&old)?;
             let result_id = if graph { &v["run"]["id"] } else { &v["id"] };
-            if !p.consumed || result_id != id { return Err(changed()); }
+            if !p.consumed || result_id != id {
+                return Err(changed());
+            }
             return Ok(v);
         }
-        if p.snapshot["execution"] != if graph { "goal_graph_v1_existing_workspace" } else { "bounded_existing_workspace_only" }
+        if p.snapshot["execution"]
+            != if graph {
+                "goal_graph_v1_existing_workspace"
+            } else {
+                "bounded_existing_workspace_only"
+            }
             || p.snapshot["allow_in_scope_plan_revisions"] != true
             || p.snapshot["new_workspace_authority"] != false
             || p.snapshot["enforcement"]
@@ -432,7 +453,9 @@ impl Store {
         if !own {
             return Err(changed());
         }
-        if graph { graph::check_finalization_snapshot(&tx, &p, self.data_input.as_ref())?; }
+        if graph {
+            graph::check_finalization_snapshot(&tx, &p, self.data_input.as_ref())?;
+        }
         let (scope_record, scope) = read_scope(&tx, &s.scope_id, self.data_input.as_ref())?;
         let (_, plan) = current_plan(&tx, &s.scope_id, &scope)?;
         if plan.proposal.nodes.is_empty() {
@@ -494,7 +517,16 @@ impl Store {
             .map_err(db_error)?;
         }
         p.consumed = true;
-        let result = if graph { json!(GraphRunSummary { graph_contract_version:1,run:r.clone(),ledger_revision:seq.checked_add(2).ok_or_else(limited)?,task_accepted:false }) } else { json!(r) };
+        let result = if graph {
+            json!(GraphRunSummary {
+                graph_contract_version: 1,
+                run: r.clone(),
+                ledger_revision: seq.checked_add(2).ok_or_else(limited)?,
+                task_accepted: false
+            })
+        } else {
+            json!(r)
+        };
         tx.execute(
             "UPDATE approval_proposals SET document=?1,result=?2 WHERE id=?3 AND result IS NULL",
             params![encode(&p)?, encode(&result)?, id],
@@ -514,7 +546,9 @@ impl Store {
             "goal.run_authorized",
             json!({"scope_id":r.scope_id,"plan_digest":r.plan_digest,"plan_revision":r.plan_revision,"execution_snapshot_digest":sha(&p.snapshot)?,"reservation_made":false,"dispatched":false,"task_accepted":false}),
         )?;
-        if graph { graph::persist_capability(&tx, &p)?; }
+        if graph {
+            graph::persist_capability(&tx, &p)?;
+        }
         tx.commit().map_err(db_error)?;
         Ok(result)
     }
@@ -561,8 +595,21 @@ impl Store {
         revision: u64,
         key_id: &str,
     ) -> Result<(GoalRun, bool)> {
+        self.record_goal_cancel_kind(id, revision, key_id, false)
+    }
+    fn record_goal_cancel_kind(
+        &mut self,
+        id: &str,
+        revision: u64,
+        key_id: &str,
+        graph: bool,
+    ) -> Result<(GoalRun, bool)> {
         key(key_id)?;
-        graph::require_legacy_run(&self.conn, id)?;
+        if graph {
+            graph::checked_capability(&self.conn, &run(&self.conn, id)?)?;
+        } else {
+            graph::require_legacy_run(&self.conn, id)?;
+        }
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -578,6 +625,9 @@ impl Store {
                 "STALE_REVISION",
                 "Goal run changed before cancellation",
             ));
+        }
+        if r.task_accepted || r.state == "accepted" {
+            return Err(denied());
         }
         r.cancel_requested = true;
         if r.state != "outcome_unknown" {
@@ -649,10 +699,19 @@ fn checked_runtime_scope_at(
     data: Option<&crate::data_workspaces::DataInputWitness>,
     require_head: bool,
 ) -> Result<(ScopeRecord, ApprovedGoalScope)> {
-    let graph = graph::is_graph_run(db,&r.id)?;
-    let kind = if graph { "goal_graph_execution" } else { "goal_execution" };
+    let graph = graph::is_graph_run(db, &r.id)?;
+    let kind = if graph {
+        "goal_graph_execution"
+    } else {
+        "goal_execution"
+    };
     let (p, approved) = native_confirmation(db, &r.id, kind)?;
-    let approved = if graph { graph::checked_capability(db,r)?; approved["run"].clone() } else { approved };
+    let approved = if graph {
+        graph::checked_capability(db, r)?;
+        approved["run"].clone()
+    } else {
+        approved
+    };
     if approved["scope_id"] != r.scope_id
         || approved["task_id"] != r.task_id
         || approved["root_grant_id"] != r.root_grant_id
@@ -685,7 +744,10 @@ fn checked_runtime_scope_at(
         || task.goal != record.refs.task_goal
         || matches!(
             task.state,
-            TaskState::CancelRequested | TaskState::Cancelled | TaskState::OutcomeUnknown
+            TaskState::Accepted
+                | TaskState::CancelRequested
+                | TaskState::Cancelled
+                | TaskState::OutcomeUnknown
         )
     {
         return Err(changed());
@@ -786,7 +848,12 @@ impl Store {
             return Ok(None);
         }
         checked_runtime_scope(&self.conn, &r, self.data_input.as_ref())?;
-        let Some(n) = nodes.iter().find(|n| executable_work(n)) else {
+        let selected = if graph::is_graph_run(&self.conn, &r.id)? {
+            graph::ready_connection_node(&self.conn, &r, &nodes)?
+        } else {
+            nodes.iter().find(|n| executable_work(n))
+        };
+        let Some(n) = selected else {
             return Ok(None);
         };
         if n.node.external_action_id.is_some()
@@ -797,10 +864,11 @@ impl Store {
         {
             return Err(denied());
         }
-        if n.node
-            .required_inputs
-            .iter()
-            .any(|i| !matches!(i.source, InputSource::ApprovedExternal { .. }))
+        if !graph::is_graph_run(&self.conn, &r.id)?
+            && n.node
+                .required_inputs
+                .iter()
+                .any(|i| !matches!(i.source, InputSource::ApprovedExternal { .. }))
         {
             return Ok(None);
         }
@@ -938,6 +1006,7 @@ pub(crate) fn reserve_session(
     s: &crate::sessions::ManagedSession,
     binding: &ExecutionBinding,
     data: Option<&crate::data_workspaces::DataInputWitness>,
+    graph_input: Option<&GraphReadWitness>,
 ) -> Result<()> {
     let mut r = run(db, &c.run.id)?;
     if r.revision != c.run.revision
@@ -951,6 +1020,9 @@ pub(crate) fn reserve_session(
         ));
     }
     let (scope, _) = checked_runtime_scope(db, &r, data)?;
+    if graph::is_graph_run(db, &r.id)? {
+        graph::require_dispatch_read(db, &r, &c.node, graph_input, s)?;
+    }
     let nodes = node_records(db, &r.id)?;
     let mut n = nodes
         .into_iter()
@@ -1215,8 +1287,13 @@ impl Store {
             sha(&(r.id.clone(), r.plan_revision, n.node.id.clone()))?
         );
         let record: ScopeRecord = raw(&self.conn, "goal_scopes", &r.scope_id)?;
+        let inputs = if graph::is_graph_run(&self.conn, &r.id)? {
+            graph::prompt_inputs(self, &r, &n.node)?
+        } else {
+            json!(record.refs.inputs)
+        };
         let text = encode(
-            &json!({"schema_version":1,"kind":"agentbaton_goal_task_request","goal":n.node.goal,"node":n.node,"run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"workspace":{"id":record.refs.workspace.id,"canonical_root":record.refs.workspace.root,"input_revision":record.refs.workspace.base_revision},"inputs":record.refs.inputs,"outputs":record.selection.outputs,"policy":{"requested":record.refs.grant_after.scope,"enforced":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false}},"lineage":{"root_task_id":r.task_id,"parent_node_id":n.node.parent_id,"attempt_id":s.attempt_id},"budget":{"reservation":n.node.reservation,"limits":n.node.budget},"idempotency_key":key,"return_location":{"run_id":r.id,"node_id":n.node.id,"attempt_id":s.attempt_id}}),
+            &json!({"schema_version":1,"kind":"agentbaton_goal_task_request","goal":n.node.goal,"node":n.node,"run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"workspace":{"id":record.refs.workspace.id,"canonical_root":record.refs.workspace.root,"input_revision":record.refs.workspace.base_revision},"inputs":inputs,"outputs":record.selection.outputs,"policy":{"requested":record.refs.grant_after.scope,"enforced":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false}},"lineage":{"root_task_id":r.task_id,"parent_node_id":n.node.parent_id,"attempt_id":s.attempt_id},"budget":{"reservation":n.node.reservation,"limits":n.node.budget},"idempotency_key":key,"return_location":{"run_id":r.id,"node_id":n.node.id,"attempt_id":s.attempt_id}}),
         )?;
         if text.len() > 65536 {
             return Err(err("RESOURCE_LIMIT","Complete Goal TaskRequest exceeds the existing 64KiB turn bound; nothing was truncated"));
@@ -1278,15 +1355,17 @@ impl Store {
                     TaskState::CancelRequested | TaskState::Cancelled
                 );
             let nodes = node_records(&self.conn, &r.id)?;
-            let live = nodes
-                .iter()
-                .filter(|n| {
-                    matches!(
-                        n.state.as_str(),
-                        "reserved" | "running" | "stopping" | "outcome_unknown"
-                    ) || n.session_id.is_some() && !n.stop_confirmed
-                })
-                .count();
+            let graph_live:i64=self.conn.query_row("SELECT count(*) FROM goal_graph_jobs WHERE run_id=?1 AND state IN('prepared','running','cancel_requested','outcome_unknown')",[&r.id],|row|row.get(0)).map_err(db_error)?;
+            let live = usize::try_from(graph_live).map_err(|_| limited())?
+                + nodes
+                    .iter()
+                    .filter(|n| {
+                        matches!(
+                            n.state.as_str(),
+                            "reserved" | "running" | "stopping" | "outcome_unknown"
+                        ) || n.session_id.is_some() && !n.stop_confirmed
+                    })
+                    .count();
             if live == 0 && cancel && r.state != "blocked" {
                 let tx = self.conn.transaction().map_err(db_error)?;
                 r.cancel_requested = true;
@@ -1351,15 +1430,31 @@ impl Store {
         stopped: bool,
         never_started: bool,
     ) -> Result<()> {
-        if owns_session(&self.conn,id)? && stopped && !never_started {
-            let run_id:String=self.conn.query_row("SELECT run_id FROM goal_run_nodes WHERE session_id=?1",[id],|row|row.get(0)).map_err(db_error)?;
-            if graph::is_graph_run(&self.conn,&run_id)? && self.get_session(id)?.turn_state.as_deref()==Some("completed") {
-                return self.queue_graph_capture(id,elapsed_ms);
+        if owns_session(&self.conn, id)? && stopped && !never_started {
+            let run_id: String = self
+                .conn
+                .query_row(
+                    "SELECT run_id FROM goal_run_nodes WHERE session_id=?1",
+                    [id],
+                    |row| row.get(0),
+                )
+                .map_err(db_error)?;
+            if graph::is_graph_run(&self.conn, &run_id)?
+                && self.get_session(id)?.turn_state.as_deref() == Some("completed")
+            {
+                return self.queue_graph_capture(id, elapsed_ms);
             }
         }
-        self.settle_goal_worker_observed(id,elapsed_ms,stopped,never_started,None)
+        self.settle_goal_worker_observed(id, elapsed_ms, stopped, never_started, None)
     }
-    fn settle_goal_worker_observed(&mut self,id:&str,elapsed_ms:u64,stopped:bool,never_started:bool,observed:Option<Option<u64>>)->Result<()> {
+    fn settle_goal_worker_observed(
+        &mut self,
+        id: &str,
+        elapsed_ms: u64,
+        stopped: bool,
+        never_started: bool,
+        observed: Option<Option<u64>>,
+    ) -> Result<()> {
         if !owns_session(&self.conn, id)? {
             return Ok(());
         }
@@ -1376,42 +1471,44 @@ impl Store {
         let record: ScopeRecord = raw(&self.conn, "goal_scopes", &r.scope_id)?;
         // Current available selected artifact bytes; cap work on the actor. A
         // missing/unsafe/too-large observation stays unknown rather than zero.
-        let output_bytes_observed = if let Some(observed) = observed { observed } else {
-        let root_matches = current_output_root(&self.conn, &record.refs.workspace);
-        let mut output_bytes = if root_matches { Some(0u64) } else { None };
-        for output in &n.node.outputs {
-            let Some(approved) = record.selection.outputs.iter().find(|o| {
-                o.artifact.artifact_id == output.artifact_id
-                    && output.contract_id == format!("output:{}", o.artifact.artifact_id)
-            }) else {
-                output_bytes = None;
-                break;
-            };
-            let Some(measured) = output_bytes else { break };
-            let limit = approved
-                .artifact
-                .max_bytes
-                .min(1_048_576u64.saturating_sub(measured));
-            let pin = record
-                .refs
-                .workspace
-                .identity
-                .as_ref()
-                .ok_or_else(changed)?;
-            match read_pinned_output(pin, &approved.artifact.relative_path, limit) {
-                Ok(bytes) => output_bytes = measured.checked_add(bytes),
-                Err(_) => {
+        let output_bytes_observed = if let Some(observed) = observed {
+            observed
+        } else {
+            let root_matches = current_output_root(&self.conn, &record.refs.workspace);
+            let mut output_bytes = if root_matches { Some(0u64) } else { None };
+            for output in &n.node.outputs {
+                let Some(approved) = record.selection.outputs.iter().find(|o| {
+                    o.artifact.artifact_id == output.artifact_id
+                        && output.contract_id == format!("output:{}", o.artifact.artifact_id)
+                }) else {
                     output_bytes = None;
                     break;
+                };
+                let Some(measured) = output_bytes else { break };
+                let limit = approved
+                    .artifact
+                    .max_bytes
+                    .min(1_048_576u64.saturating_sub(measured));
+                let pin = record
+                    .refs
+                    .workspace
+                    .identity
+                    .as_ref()
+                    .ok_or_else(changed)?;
+                match read_pinned_output(pin, &approved.artifact.relative_path, limit) {
+                    Ok(bytes) => output_bytes = measured.checked_add(bytes),
+                    Err(_) => {
+                        output_bytes = None;
+                        break;
+                    }
                 }
             }
-        }
-        if !current_output_root(&self.conn, &record.refs.workspace) {
-            output_bytes = None;
-        }
-        output_bytes
+            if !current_output_root(&self.conn, &record.refs.workspace) {
+                output_bytes = None;
+            }
+            output_bytes
         };
-        let mut output_bytes=output_bytes_observed;
+        let mut output_bytes = output_bytes_observed;
         if never_started {
             output_bytes = Some(0);
         }
@@ -1640,7 +1737,6 @@ impl Store {
     }
     pub(crate) fn goal_run_needs_advance(&self, id: &str) -> Result<bool> {
         let r = run(&self.conn, id)?;
-        if graph::is_graph_run(&self.conn, id)? { return Ok(false); }
         if r.cancel_requested || !matches!(r.state.as_str(), "queued" | "running") {
             return Ok(false);
         }
@@ -1657,7 +1753,12 @@ impl Store {
                 return Ok(false);
             }
         }
-        Ok(nodes.iter().any(executable_work) && !local_goal_slot_is_occupied(&self.conn)?)
+        let ready = if graph::is_graph_run(&self.conn, id)? {
+            graph::ready_connection_node(&self.conn, &r, &nodes)?.is_some()
+        } else {
+            nodes.iter().any(executable_work)
+        };
+        Ok(ready && !local_goal_slot_is_occupied(&self.conn)?)
     }
     /// A durable exact-request intent is not a dispatch receipt. It can always
     /// be recovered without repeating an execution boundary; get shows effects.
@@ -1667,12 +1768,33 @@ impl Store {
         revision: u64,
         key_id: &str,
     ) -> Result<(Value, bool)> {
+        self.admit_goal_advance_kind(p, revision, key_id, false)
+    }
+    pub(crate) fn admit_goal_graph_advance(
+        &mut self,
+        p: &GoalRunDispatch,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<(Value, bool)> {
+        self.admit_goal_advance_kind(p, revision, key_id, true)
+    }
+    fn admit_goal_advance_kind(
+        &mut self,
+        p: &GoalRunDispatch,
+        revision: u64,
+        key_id: &str,
+        graph: bool,
+    ) -> Result<(Value, bool)> {
         key(key_id)?;
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        graph::require_legacy_run(&tx, &p.run_id)?;
+        if graph {
+            graph::checked_capability(&tx, &run(&tx, &p.run_id)?)?;
+        } else {
+            graph::require_legacy_run(&tx, &p.run_id)?;
+        }
         let scope = format!("goal-run:{}:advance", p.run_id);
         let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
         if let Some(v) = replay(&tx, &scope, key_id, &payload)? {
@@ -1816,12 +1938,25 @@ impl Store {
         revision: u64,
         key_id: &str,
     ) -> Result<GoalRun> {
+        self.advance_goal_plan_kind(p, revision, key_id, false)
+    }
+    fn advance_goal_plan_kind(
+        &mut self,
+        p: &GoalPlanAdvance,
+        revision: u64,
+        key_id: &str,
+        graph: bool,
+    ) -> Result<GoalRun> {
         key(key_id)?;
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        graph::require_legacy_run(&tx, &p.run_id)?;
+        if graph {
+            graph::checked_capability(&tx, &run(&tx, &p.run_id)?)?;
+        } else {
+            graph::require_legacy_run(&tx, &p.run_id)?;
+        }
         let idem = format!("goal-run:{}:advance-plan", p.run_id);
         let payload = encode(&json!({"intent":p,"expected_revision":revision}))?;
         if let Some(r) = replay(&tx, &idem, key_id, &payload)? {
@@ -1835,7 +1970,10 @@ impl Store {
             ));
         }
         if r.cancel_requested
-            || matches!(r.state.as_str(), "outcome_unknown" | "cancelled" | "failed")
+            || matches!(
+                r.state.as_str(),
+                "accepted" | "outcome_unknown" | "cancelled" | "failed"
+            )
         {
             return Err(denied());
         }

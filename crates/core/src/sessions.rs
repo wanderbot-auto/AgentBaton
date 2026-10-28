@@ -616,6 +616,7 @@ impl Store {
                 &session,
                 &intent.binding,
                 self.data_input.as_ref(),
+                self.graph_input.as_ref(),
             )?;
         }
         task.revision += 1;
@@ -1806,6 +1807,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "goal_node_acceptance" {
+            return self.decide_goal_node(id, revision, true);
+        }
         if proposal.kind == "goal_graph_execution" {
             return self.finalize_goal_graph_run(id, revision);
         }

@@ -23,8 +23,9 @@ mod runtime;
 pub(crate) use runtime::migrate_graph;
 use runtime::runtime_scope_for_revision;
 pub(crate) use runtime::{
-    migrate as migrate_runtime, ordinary_session_budget_gate, owns_session, GraphWorkers, GraphReadContext, GraphReadWitness,
-    permits_continuing_task, reserve_session, GoalDispatchContext,
+    migrate as migrate_runtime, ordinary_session_budget_gate, owns_session,
+    permits_continuing_task, reserve_session, verify_task_acceptance_state, GoalDispatchContext,
+    GraphReadContext, GraphReadWitness, GraphWorkers,
 };
 pub use runtime::{
     GoalPlanAdvance, GoalRun, GoalRunDispatch, GoalRunSelection, GraphArtifactReference,
@@ -663,7 +664,10 @@ fn resolve_selection(
     }
     if matches!(
         task.state,
-        TaskState::Cancelled | TaskState::CancelRequested | TaskState::OutcomeUnknown
+        TaskState::Accepted
+            | TaskState::Cancelled
+            | TaskState::CancelRequested
+            | TaskState::OutcomeUnknown
     ) {
         return Err(denied());
     }
@@ -1190,7 +1194,10 @@ fn read_scope(
     if r.revoked
         || matches!(
             task.state,
-            TaskState::Cancelled | TaskState::CancelRequested | TaskState::OutcomeUnknown
+            TaskState::Accepted
+                | TaskState::Cancelled
+                | TaskState::CancelRequested
+                | TaskState::OutcomeUnknown
         )
     {
         return Err(denied());
@@ -2262,7 +2269,10 @@ fn blocked_history_preview(
         || grant.expires_at_ms <= ms()?
         || matches!(
             task.state,
-            TaskState::Cancelled | TaskState::CancelRequested | TaskState::OutcomeUnknown
+            TaskState::Accepted
+                | TaskState::Cancelled
+                | TaskState::CancelRequested
+                | TaskState::OutcomeUnknown
         )
     {
         return Err(denied());

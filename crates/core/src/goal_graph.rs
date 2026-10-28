@@ -176,7 +176,12 @@ pub struct GraphExecutionSnapshot {
 /// authority. Positive graph access separately verifies its immutable capability.
 pub(super) fn is_graph_run(db: &Connection, id: &str) -> Result<bool> {
     key(id)?;
-    db.query_row("SELECT EXISTS(SELECT 1 FROM goal_graph_capabilities WHERE run_id=?1)",[id],|row| row.get(0)).map_err(db_error)
+    db.query_row(
+        "SELECT EXISTS(SELECT 1 FROM goal_graph_capabilities WHERE run_id=?1)",
+        [id],
+        |row| row.get(0),
+    )
+    .map_err(db_error)
 }
 pub(super) fn require_legacy_run(db: &Connection, id: &str) -> Result<()> {
     if is_graph_run(db, id)? {
@@ -197,28 +202,68 @@ pub(super) fn checked_capability(db: &Connection, r: &GoalRun) -> Result<Approva
     raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(run_id)+octet_length(approval_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_capabilities WHERE run_id=?1",[&r.id],1,MAX_STORED_BYTES)?;
     let stored: Option<Option<String>> = db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_graph_capabilities WHERE run_id=?1",[&r.id],|row|row.get(0)).optional().map_err(db_error)?;
     let cap: GraphCapability = decode(&stored.ok_or_else(denied)?.ok_or_else(limited)?)?;
-    let (p, result) = native_confirmation(db,&r.id,"goal_graph_execution")?;
-    if cap.version != GRAPH_CONTRACT_VERSION || cap.run_id != r.id || cap.approval_id != p.id || cap.snapshot_digest != sha(&p.snapshot)? || result["graph_contract_version"] != GRAPH_CONTRACT_VERSION || result["run"]["id"] != r.id || p.snapshot["execution"] != "goal_graph_v1_existing_workspace" || p.snapshot["graph_contract_version"] != GRAPH_CONTRACT_VERSION || p.snapshot["new_workspace_authority"] != false {return Err(changed());}
-    let initial=&result["run"];
-    if initial["scope_id"] != r.scope_id || initial["task_id"] != r.task_id || initial["project_id"] != r.project_id || initial["root_grant_id"] != r.root_grant_id || initial["plan_digest"] != p.snapshot["plan"]["digest"] || initial["plan_revision"] != p.snapshot["plan"]["proposal"]["revision"] { return Err(changed()); }
+    let (p, result) = native_confirmation(db, &r.id, "goal_graph_execution")?;
+    if cap.version != GRAPH_CONTRACT_VERSION
+        || cap.run_id != r.id
+        || cap.approval_id != p.id
+        || cap.snapshot_digest != sha(&p.snapshot)?
+        || result["graph_contract_version"] != GRAPH_CONTRACT_VERSION
+        || result["run"]["id"] != r.id
+        || p.snapshot["execution"] != "goal_graph_v1_existing_workspace"
+        || p.snapshot["graph_contract_version"] != GRAPH_CONTRACT_VERSION
+        || p.snapshot["new_workspace_authority"] != false
+    {
+        return Err(changed());
+    }
+    let initial = &result["run"];
+    if initial["scope_id"] != r.scope_id
+        || initial["task_id"] != r.task_id
+        || initial["project_id"] != r.project_id
+        || initial["root_grant_id"] != r.root_grant_id
+        || initial["plan_digest"] != p.snapshot["plan"]["digest"]
+        || initial["plan_revision"] != p.snapshot["plan"]["proposal"]["revision"]
+    {
+        return Err(changed());
+    }
     let confirmation:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='approval.confirmed' AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.payload.kind')='goal_graph_execution' AND json_extract(document,'$.payload.run_id')=?1 AND json_extract(document,'$.payload.execution_snapshot_digest')=?2 ORDER BY sequence LIMIT 1",params![r.id,cap.snapshot_digest],|row|row.get(0)).optional().map_err(db_error)?;
     let authorized:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.run_authorized' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.payload.scope_id')=?2 AND json_extract(document,'$.payload.plan_digest')=?3 AND json_extract(document,'$.payload.plan_revision')=?4 AND json_extract(document,'$.payload.execution_snapshot_digest')=?5 AND json_extract(document,'$.payload.reservation_made')=0 AND json_extract(document,'$.payload.dispatched')=0 ORDER BY sequence LIMIT 1",params![r.id,r.scope_id,initial["plan_digest"].as_str().ok_or_else(changed)?,initial["plan_revision"].as_i64().ok_or_else(changed)?,cap.snapshot_digest],|row|row.get(0)).optional().map_err(db_error)?;
-    if !matches!((confirmation,authorized),(Some(a),Some(b)) if a>0&&b>a) {return Err(denied());}
-    verify_plan_advances(db,r,&p,initial,authorized.ok_or_else(denied)?)?;
+    if !matches!((confirmation,authorized),(Some(a),Some(b)) if a>0&&b>a) {
+        return Err(denied());
+    }
+    verify_plan_advances(db, r, &p, initial, authorized.ok_or_else(denied)?)?;
     Ok(p)
 }
 
 pub(super) fn persist_capability(db: &Connection, p: &ApprovalProposal) -> Result<()> {
-    let cap = GraphCapability { version: GRAPH_CONTRACT_VERSION,run_id:p.id.clone(),approval_id:p.id.clone(),snapshot_digest:sha(&p.snapshot)? };
-    db.execute("INSERT INTO goal_graph_capabilities VALUES(?1,?1,1,?2)",params![p.id,encode(&cap)?]).map_err(db_error)?;
+    let cap = GraphCapability {
+        version: GRAPH_CONTRACT_VERSION,
+        run_id: p.id.clone(),
+        approval_id: p.id.clone(),
+        snapshot_digest: sha(&p.snapshot)?,
+    };
+    db.execute(
+        "INSERT INTO goal_graph_capabilities VALUES(?1,?1,1,?2)",
+        params![p.id, encode(&cap)?],
+    )
+    .map_err(db_error)?;
     Ok(())
 }
-pub(super) fn check_finalization_snapshot(db: &Connection, p: &ApprovalProposal, data: Option<&crate::data_workspaces::DataInputWitness>) -> Result<()> {
-    let original:GraphRunSelection=serde_json::from_value(p.snapshot["intent"].clone()).map_err(|_|changed())?;
-    let current=GraphRunSelection { expected_ledger_revision:sequence(db)?,..original.clone() };
-    let mut expected=graph_snapshot(db,&current,data)?;
-    expected["intent"]=json!(original);
-    if expected != p.snapshot { return Err(changed()); }
+pub(super) fn check_finalization_snapshot(
+    db: &Connection,
+    p: &ApprovalProposal,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<()> {
+    let original: GraphRunSelection =
+        serde_json::from_value(p.snapshot["intent"].clone()).map_err(|_| changed())?;
+    let current = GraphRunSelection {
+        expected_ledger_revision: sequence(db)?,
+        ..original.clone()
+    };
+    let mut expected = graph_snapshot(db, &current, data)?;
+    expected["intent"] = json!(original);
+    if expected != p.snapshot {
+        return Err(changed());
+    }
     Ok(())
 }
 
@@ -406,13 +451,86 @@ impl Store {
     pub fn goal_graph_summary(&self, id: &str) -> Result<GraphRunSummary> {
         let r = run(&self.conn, id)?;
         checked_capability(&self.conn, &r)?;
-        Ok(GraphRunSummary { graph_contract_version: GRAPH_CONTRACT_VERSION, task_accepted: false, run:r, ledger_revision:sequence(&self.conn)? })
+        Ok(GraphRunSummary {
+            graph_contract_version: GRAPH_CONTRACT_VERSION,
+            task_accepted: r.task_accepted,
+            run: r,
+            ledger_revision: sequence(&self.conn)?,
+        })
     }
     pub fn goal_graph_details(&self, id: &str) -> Result<GraphRunDetails> {
         let summary = self.goal_graph_summary(id)?;
-        let nodes=self.goal_node_history(&summary.run)?.into_iter().map(|n| GraphNodeView { execution_kind:match n.node.executor { Executor::Connection{..}=>"agent",Executor::Validator{..}=>"validator",Executor::Owner{..}=>"owner" }.into(),node:n.node,plan_revision:n.plan_revision,state:n.state,session_id:n.session_id,attempt_id:n.attempt_id,job_id:None,acceptance_state:"pending".into(),stop_confirmed:n.stop_confirmed,actual_runtime_ms:n.actual_runtime_ms,actual_output_bytes:n.actual_output_bytes,tokens:n.tokens,cost_microunits:n.cost_microunits,candidate_ids:vec![],validation_ids:vec![],owner_decision_ids:vec![],blocked_reason:None }).collect();
-        let details=GraphRunDetails {graph_contract_version:GRAPH_CONTRACT_VERSION,run:summary.run,nodes,candidates:vec![],validations:vec![],owner_decisions:vec![],ledger_revision:summary.ledger_revision,task_accepted:false,task_acceptance:None};
-        if encode(&details)?.len()>4_194_304 { return Err(limited()); }
+        let candidates = graph_candidates(&self.conn, &summary.run)?;
+        let validations = graph_validations(&self.conn, &summary.run)?;
+        let owners = graph_owner_decisions(&self.conn, &summary.run)?;
+        let nodes = self
+            .goal_node_history(&summary.run)?
+            .into_iter()
+            .map(|n| {
+                Ok(GraphNodeView {
+                    execution_kind: match &n.node.executor {
+                        Executor::Connection { .. } => "connection",
+                        Executor::Validator { .. } => "validator",
+                        Executor::Owner { .. } => "owner",
+                    }
+                    .into(),
+                    node: n.node.clone(),
+                    plan_revision: n.plan_revision,
+                    state: n.state.clone(),
+                    session_id: n.session_id.clone(),
+                    attempt_id: n.attempt_id.clone(),
+                    job_id: None,
+                    acceptance_state: node_acceptance_state(
+                        &self.conn,
+                        &summary.run,
+                        &n,
+                        &candidates,
+                        &validations,
+                        &owners,
+                    )?,
+                    stop_confirmed: n.stop_confirmed,
+                    actual_runtime_ms: n.actual_runtime_ms,
+                    actual_output_bytes: n.actual_output_bytes,
+                    tokens: n.tokens,
+                    cost_microunits: n.cost_microunits,
+                    candidate_ids: candidates
+                        .iter()
+                        .filter(|c| c.node_id == n.node.id && c.plan_revision == n.plan_revision)
+                        .map(|c| c.id.clone())
+                        .collect(),
+                    validation_ids: validations
+                        .iter()
+                        .filter(|v| v.node_id == n.node.id && v.plan_revision == n.plan_revision)
+                        .map(|v| v.id.clone())
+                        .collect(),
+                    owner_decision_ids: owners
+                        .iter()
+                        .filter(|o| o.node_id == n.node.id && o.plan_revision == n.plan_revision)
+                        .map(|o| o.id.clone())
+                        .collect(),
+                    blocked_reason: None,
+                })
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let task_acceptance = if summary.task_accepted {
+            Some(verify_accepted_state(&self.conn, &summary.run)?)
+        } else {
+            None
+        };
+        let details = GraphRunDetails {
+            graph_contract_version: GRAPH_CONTRACT_VERSION,
+            run: summary.run,
+            nodes,
+            candidates,
+            validations,
+            owner_decisions: owners,
+            ledger_revision: summary.ledger_revision,
+            task_accepted: summary.task_accepted,
+            task_acceptance,
+        };
+        if encode(&details)?.len() > 4_194_304 {
+            return Err(limited());
+        }
         Ok(details)
     }
 }
@@ -435,6 +553,12 @@ struct CaptureOrigin {
     elapsed_at_stop_ms: u64,
     prepared_at_ms: i64,
     runtime_reservation_ms: u64,
+    consumed_inputs: Vec<GraphInputBinding>,
+}
+enum CaptureCompletion {
+    NotStarted(CoreError),
+    Joined(Box<Result<evidence::CapturedCandidate>>),
+    UnjoinedUnknown,
 }
 struct CaptureWorker {
     origin: CaptureOrigin,
@@ -442,6 +566,7 @@ struct CaptureWorker {
     thread: std::thread::JoinHandle<Result<evidence::CapturedCandidate>>,
     deadline: std::time::Instant,
     unknown_recorded: bool,
+    queued_at: std::time::Instant,
 }
 #[derive(Default)]
 pub(crate) struct GraphWorkers {
@@ -449,142 +574,603 @@ pub(crate) struct GraphWorkers {
     stopping: bool,
 }
 impl GraphWorkers {
-    pub(crate) fn has_workers(&self) -> bool { !self.captures.is_empty() }
+    pub(crate) fn has_workers(&self) -> bool {
+        !self.captures.is_empty()
+    }
     pub(crate) fn tick(&mut self, store: &mut Store) -> Result<()> {
-        let finished:Vec<_>=self.captures.iter().filter(|(_,w)|w.thread.is_finished()).map(|(id,_)|id.clone()).collect();
+        let finished: Vec<_> = self
+            .captures
+            .iter()
+            .filter(|(_, w)| w.thread.is_finished())
+            .map(|(id, _)| id.clone())
+            .collect();
         for id in finished {
-            let w=self.captures.remove(&id).ok_or_else(changed)?;
-            let result=w.thread.join().map_err(|_|err("OUTCOME_UNKNOWN","Owned evidence worker panicked after an unknown partial observation")).and_then(|r|r);
-            store.finish_graph_capture(&w.origin,result,w.unknown_recorded)?;
+            let w = self.captures.remove(&id).ok_or_else(changed)?;
+            let result = w
+                .thread
+                .join()
+                .map_err(|_| {
+                    err(
+                        "OUTCOME_UNKNOWN",
+                        "Owned evidence worker panicked after an unknown partial observation",
+                    )
+                })
+                .and_then(|r| r);
+            store.finish_graph_capture(
+                &w.origin,
+                CaptureCompletion::Joined(Box::new(result)),
+                w.unknown_recorded,
+                w.queued_at.elapsed(),
+            )?;
         }
         for w in self.captures.values_mut() {
-            let r=run(&store.conn,&w.origin.run_id)?;
-            if r.cancel_requested || crate::policy::checked_lineage(&store.conn,&r.root_grant_id).is_err() {w.cancel.store(true,std::sync::atomic::Ordering::Relaxed);}
-            if std::time::Instant::now()>w.deadline && !w.unknown_recorded {
-                w.cancel.store(true,std::sync::atomic::Ordering::Relaxed);
-                store.mark_graph_capture_unknown(&w.origin)?;
-                w.unknown_recorded=true;
+            let r = run(&store.conn, &w.origin.run_id)?;
+            if r.cancel_requested
+                || crate::policy::checked_lineage(&store.conn, &r.root_grant_id).is_err()
+            {
+                w.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
+            }
+            if std::time::Instant::now() > w.deadline && !w.unknown_recorded {
+                w.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
+                store.finish_graph_capture(
+                    &w.origin,
+                    CaptureCompletion::UnjoinedUnknown,
+                    true,
+                    w.queued_at.elapsed(),
+                )?;
+                w.unknown_recorded = true;
             }
         }
-        if self.has_workers() || self.stopping { return Ok(()); }
+        if self.has_workers() || self.stopping {
+            return Ok(());
+        }
+        store.reconcile_graph_frontiers()?;
         raw_collection_budget(&store.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(state)+octet_length(workspace_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE state='prepared'",[],1,MAX_STORED_BYTES)?;
-        let doc:Option<String>=store.conn.query_row("SELECT document FROM goal_graph_jobs WHERE state='prepared' LIMIT 1",[],|row|row.get(0)).optional().map_err(db_error)?;
-        let Some(doc)=doc else{return Ok(())};
-        let origin:CaptureOrigin=decode(&doc)?;
-        let prepared=match store.prepare_graph_capture_worker(&origin) {Ok(p)=>p,Err(error)=>{store.finish_graph_capture(&origin,Err(error),false)?;return Ok(());}};
-        let cancel=prepared.cancelled.clone();
-        let deadline=prepared.deadline;
-        let thread=std::thread::Builder::new().name("baton-goal-evidence".into()).spawn(move||prepared.execute());
+        let doc: Option<String> = store
+            .conn
+            .query_row(
+                "SELECT document FROM goal_graph_jobs WHERE state='prepared' LIMIT 1",
+                [],
+                |row| row.get(0),
+            )
+            .optional()
+            .map_err(db_error)?;
+        let Some(doc) = doc else { return Ok(()) };
+        let origin: CaptureOrigin = decode(&doc)?;
+        let Some(queued_at) = store.graph_capture_clocks.remove(&origin.id) else {
+            store.mark_graph_capture_unknown(&origin)?;
+            return Ok(());
+        };
+        let prepared = match store.prepare_graph_capture_worker(&origin, queued_at) {
+            Ok(p) => p,
+            Err(error) => {
+                store.finish_graph_capture(
+                    &origin,
+                    CaptureCompletion::NotStarted(error),
+                    false,
+                    queued_at.elapsed(),
+                )?;
+                return Ok(());
+            }
+        };
+        let cancel = prepared.cancelled.clone();
+        let deadline = prepared.deadline;
+        let thread = std::thread::Builder::new()
+            .name("baton-goal-evidence".into())
+            .spawn(move || prepared.execute());
         match thread {
-            Ok(thread)=>{self.captures.insert(origin.id.clone(),CaptureWorker { origin,cancel,thread,deadline,unknown_recorded:false });}
-            Err(_)=>store.finish_graph_capture(&origin,Err(err("RESOURCE_LIMIT","Owned graph evidence worker could not start")),false)?,
+            Ok(thread) => {
+                self.captures.insert(
+                    origin.id.clone(),
+                    CaptureWorker {
+                        origin,
+                        cancel,
+                        thread,
+                        deadline,
+                        unknown_recorded: false,
+                        queued_at,
+                    },
+                );
+            }
+            Err(_) => store.finish_graph_capture(
+                &origin,
+                CaptureCompletion::NotStarted(err(
+                    "RESOURCE_LIMIT",
+                    "Owned graph evidence worker could not start",
+                )),
+                false,
+                queued_at.elapsed(),
+            )?,
         }
         Ok(())
     }
     pub(crate) fn shutdown(&mut self, store: &mut Store) -> Result<()> {
-        self.stopping=true;
-        for w in self.captures.values(){w.cancel.store(true,std::sync::atomic::Ordering::Relaxed);}
+        self.stopping = true;
+        for w in self.captures.values() {
+            w.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
         // Only drain owned handles; never admit a queued job during shutdown.
         // If the OS read does not join, retain its handle until daemon/process
         // teardown and leave durable unknown/fence/no-replay, never a join receipt.
-        let until=std::time::Instant::now()+std::time::Duration::from_secs(2);
-        while self.has_workers() && std::time::Instant::now()<until { self.tick(store)?;std::thread::sleep(std::time::Duration::from_millis(5)); }
-        for w in self.captures.values_mut(){if !w.unknown_recorded {store.mark_graph_capture_unknown(&w.origin)?;w.unknown_recorded=true;}}
+        let until = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        while self.has_workers() && std::time::Instant::now() < until {
+            self.tick(store)?;
+            std::thread::sleep(std::time::Duration::from_millis(5));
+        }
+        for w in self.captures.values_mut() {
+            if !w.unknown_recorded {
+                store.mark_graph_capture_unknown(&w.origin)?;
+                w.unknown_recorded = true;
+            }
+        }
         Ok(())
     }
 }
 impl Store {
-    pub(super) fn queue_graph_capture(&mut self, session_id:&str, elapsed_at_stop_ms:u64)->Result<()> {
-        let s=self.get_session(session_id)?;
+    pub(super) fn queue_graph_capture(
+        &mut self,
+        session_id: &str,
+        elapsed_at_stop_ms: u64,
+    ) -> Result<()> {
+        let s = self.get_session(session_id)?;
         let (run_id,doc):(String,String)=self.conn.query_row("SELECT run_id,document FROM goal_run_nodes WHERE session_id=?1 AND octet_length(document)<=262144",[session_id],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
-        let r=run(&self.conn,&run_id)?;
-        let p=checked_capability(&self.conn,&r)?;
-        let n:RuntimeNode=decode(&doc)?;
-        let stop=trusted_session_stop(&self.conn,&r.id,&s)?;
-        let record:ScopeRecord=raw(&self.conn,"goal_scopes",&r.scope_id)?;
-        if !current_output_root(&self.conn,&record.refs.workspace) {return Err(changed());}
-        let lease=self.workspace_lease(&s.workspace_id)?.ok_or_else(changed)?;
-        if !lease.holder.is_empty() || lease.fencing_token != s.fencing_token {return Err(changed());}
-        let origin=CaptureOrigin {id:format!("capture:{}",s.attempt_id),run_id:r.id.clone(),node_id:n.node.id,plan_revision:r.plan_revision,plan_digest:r.plan_digest,attempt_id:s.attempt_id,session_id:s.id,workspace_id:s.workspace_id,root:record.refs.workspace.identity.ok_or_else(changed)?,writer_epoch:u64::try_from(s.fencing_token).map_err(|_|changed())?,stop_receipt_sequence:u64::try_from(stop).map_err(|_|changed())?,capability_digest:sha(&p.snapshot)?,elapsed_at_stop_ms,prepared_at_ms:ms()?,runtime_reservation_ms:n.node.reservation.runtime_ms};
-        let tx=self.conn.transaction_with_behavior(TransactionBehavior::Immediate).map_err(db_error)?;
-        tx.execute("INSERT INTO goal_graph_jobs VALUES(?1,?2,?3,?4,'prepared',?5,?6,?7)",params![origin.id,r.id,origin.node_id,sql_num(origin.plan_revision)?,origin.attempt_id,origin.workspace_id,encode(&origin)?]).map_err(db_error)?;
-        event(&tx,&r.id,r.revision,"goal.capture_prepared",json!({"job_id":origin.id,"origin_digest":sha(&origin)?,"stop_receipt_sequence":origin.stop_receipt_sequence,"task_accepted":false}))?;
-        tx.commit().map_err(db_error)
+        let r = run(&self.conn, &run_id)?;
+        let p = checked_capability(&self.conn, &r)?;
+        let n: RuntimeNode = decode(&doc)?;
+        let stop = trusted_session_stop(&self.conn, &r.id, &s)?;
+        let record: ScopeRecord = raw(&self.conn, "goal_scopes", &r.scope_id)?;
+        if !current_output_root(&self.conn, &record.refs.workspace) {
+            return Err(changed());
+        }
+        let lease = self.workspace_lease(&s.workspace_id)?.ok_or_else(changed)?;
+        if !lease.holder.is_empty() || lease.fencing_token != s.fencing_token {
+            return Err(changed());
+        }
+        let origin = CaptureOrigin {
+            id: format!("capture:{}", s.attempt_id),
+            run_id: r.id.clone(),
+            node_id: n.node.id.clone(),
+            plan_revision: r.plan_revision,
+            plan_digest: r.plan_digest.clone(),
+            attempt_id: s.attempt_id,
+            session_id: s.id,
+            workspace_id: s.workspace_id,
+            root: record.refs.workspace.identity.clone().ok_or_else(changed)?,
+            writer_epoch: u64::try_from(s.fencing_token).map_err(|_| changed())?,
+            stop_receipt_sequence: u64::try_from(stop).map_err(|_| changed())?,
+            capability_digest: sha(&p.snapshot)?,
+            elapsed_at_stop_ms,
+            prepared_at_ms: ms()?,
+            runtime_reservation_ms: n.node.reservation.runtime_ms,
+            consumed_inputs: input_bindings(
+                &n.node,
+                &record,
+                &graph_candidates(&self.conn, &r)?,
+                r.plan_revision,
+            )?,
+        };
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        tx.execute(
+            "INSERT INTO goal_graph_jobs VALUES(?1,?2,?3,?4,'prepared',?5,?6,?7)",
+            params![
+                origin.id,
+                r.id,
+                origin.node_id,
+                sql_num(origin.plan_revision)?,
+                origin.attempt_id,
+                origin.workspace_id,
+                encode(&origin)?
+            ],
+        )
+        .map_err(db_error)?;
+        event(
+            &tx,
+            &r.id,
+            r.revision,
+            "goal.capture_prepared",
+            json!({"job_id":origin.id,"origin_digest":sha(&origin)?,"stop_receipt_sequence":origin.stop_receipt_sequence,"task_accepted":false}),
+        )?;
+        tx.commit().map_err(db_error)?;
+        self.graph_capture_clocks
+            .insert(origin.id, std::time::Instant::now());
+        Ok(())
     }
-    fn verify_capture_origin(&self, origin:&CaptureOrigin)->Result<(GoalRun,RuntimeNode,ScopeRecord)> {
+    fn verify_capture_origin(
+        &self,
+        origin: &CaptureOrigin,
+    ) -> Result<(GoalRun, RuntimeNode, ScopeRecord)> {
         raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(run_id)+octet_length(node_id)+octet_length(state)+octet_length(attempt_id)+octet_length(workspace_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE id=?1",[&origin.id],1,MAX_STORED_BYTES)?;
         let (run_id,node_id,rev,attempt,workspace,doc):(String,String,i64,String,String,String)=self.conn.query_row("SELECT run_id,node_id,plan_revision,attempt_id,workspace_id,document FROM goal_graph_jobs WHERE id=?1",[&origin.id],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?,row.get(4)?,row.get(5)?))).map_err(db_error)?;
-        if decode::<CaptureOrigin>(&doc)? != *origin || run_id!=origin.run_id || node_id!=origin.node_id || rev!=sql_num(origin.plan_revision)? || attempt!=origin.attempt_id || workspace!=origin.workspace_id {return Err(changed());}
-        let r=run(&self.conn,&origin.run_id)?;
-        let p=checked_capability(&self.conn,&r)?;
-        let n=node_records(&self.conn,&r.id)?.into_iter().find(|n|n.node.id==origin.node_id).ok_or_else(changed)?;
-        let s=self.get_session(&origin.session_id)?;
-        let record:ScopeRecord=raw(&self.conn,"goal_scopes",&r.scope_id)?;
-        let lease=self.workspace_lease(&origin.workspace_id)?.ok_or_else(changed)?;
-        if r.plan_revision!=origin.plan_revision || r.plan_digest!=origin.plan_digest || n.attempt_id.as_deref()!=Some(&origin.attempt_id) || n.session_id.as_deref()!=Some(&origin.session_id) || sha(&p.snapshot)?!=origin.capability_digest || trusted_session_stop(&self.conn,&r.id,&s)?!=sql_num(origin.stop_receipt_sequence)? || !lease.holder.is_empty() || u64::try_from(lease.fencing_token).ok()!=Some(origin.writer_epoch) || record.refs.workspace.identity.as_ref()!=Some(&origin.root) || !current_output_root(&self.conn,&record.refs.workspace) {return Err(changed());}
+        if decode::<CaptureOrigin>(&doc)? != *origin
+            || run_id != origin.run_id
+            || node_id != origin.node_id
+            || rev != sql_num(origin.plan_revision)?
+            || attempt != origin.attempt_id
+            || workspace != origin.workspace_id
+        {
+            return Err(changed());
+        }
+        let r = run(&self.conn, &origin.run_id)?;
+        let p = checked_capability(&self.conn, &r)?;
+        let n = node_records(&self.conn, &r.id)?
+            .into_iter()
+            .find(|n| n.node.id == origin.node_id)
+            .ok_or_else(changed)?;
+        let s = self.get_session(&origin.session_id)?;
+        let record: ScopeRecord = raw(&self.conn, "goal_scopes", &r.scope_id)?;
+        let lease = self
+            .workspace_lease(&origin.workspace_id)?
+            .ok_or_else(changed)?;
+        if r.plan_revision != origin.plan_revision
+            || r.plan_digest != origin.plan_digest
+            || n.attempt_id.as_deref() != Some(&origin.attempt_id)
+            || n.session_id.as_deref() != Some(&origin.session_id)
+            || sha(&p.snapshot)? != origin.capability_digest
+            || trusted_session_stop(&self.conn, &r.id, &s)?
+                != sql_num(origin.stop_receipt_sequence)?
+            || !lease.holder.is_empty()
+            || u64::try_from(lease.fencing_token).ok() != Some(origin.writer_epoch)
+            || record.refs.workspace.identity.as_ref() != Some(&origin.root)
+            || !current_output_root(&self.conn, &record.refs.workspace)
+        {
+            return Err(changed());
+        }
         let prepared:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.capture_prepared' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.payload.job_id')=?2 AND json_extract(document,'$.payload.origin_digest')=?3 AND sequence>?4)",params![r.id,origin.id,sha(origin)?,sql_num(origin.stop_receipt_sequence)?],|row|row.get(0)).map_err(db_error)?;
-        if !prepared {return Err(denied());}
-        Ok((r,n,record))
+        if !prepared {
+            return Err(denied());
+        }
+        Ok((r, n, record))
     }
-    fn prepare_graph_capture_worker(&mut self,origin:&CaptureOrigin)->Result<evidence::PreparedCandidateCapture> {
-        let (_,n,record)=self.verify_capture_origin(origin)?;
-        let inputs=record.refs.inputs.iter().map(|i|{let mut a=i.artifact.clone();a.expected_sha256=Some(i.sha256.clone());a}).collect();
-        let outputs=n.node.outputs.iter().map(|o|record.selection.outputs.iter().find(|a|a.artifact.artifact_id==o.artifact_id && o.contract_id==format!("output:{}",a.artifact.artifact_id)).map(|a|(o.contract_id.clone(),a.artifact.clone())).ok_or_else(changed)).collect::<Result<Vec<_>>>()?;
-        let remaining=origin.runtime_reservation_ms.saturating_sub(origin.elapsed_at_stop_ms).min(30_000);
-        if remaining==0 {return Err(err("RESOURCE_LIMIT","Producer exhausted its evidence runtime reservation"));}
-        Ok(evidence::PreparedCandidateCapture {root:origin.root.clone(),inputs,outputs,cancelled:std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),deadline:std::time::Instant::now()+std::time::Duration::from_millis(remaining)})
+    fn prepare_graph_capture_worker(
+        &mut self,
+        origin: &CaptureOrigin,
+        queued_at: std::time::Instant,
+    ) -> Result<evidence::PreparedCandidateCapture> {
+        let (_, n, record) = self.verify_capture_origin(origin)?;
+        let inputs = origin
+            .consumed_inputs
+            .iter()
+            .map(|i| {
+                let mut a = if let Some(c) = &i.candidate {
+                    ArtifactRequirement {
+                        artifact_id: i.artifact_id.clone(),
+                        relative_path: c.relative_path.clone(),
+                        max_bytes: c.bytes,
+                        expected_sha256: Some(i.sha256.clone()),
+                    }
+                } else {
+                    record
+                        .refs
+                        .inputs
+                        .iter()
+                        .find(|a| a.artifact.artifact_id == i.artifact_id)
+                        .ok_or_else(changed)?
+                        .artifact
+                        .clone()
+                };
+                a.expected_sha256 = Some(i.sha256.clone());
+                Ok(a)
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let outputs = n
+            .node
+            .outputs
+            .iter()
+            .map(|o| {
+                record
+                    .selection
+                    .outputs
+                    .iter()
+                    .find(|a| {
+                        a.artifact.artifact_id == o.artifact_id
+                            && o.contract_id == format!("output:{}", a.artifact.artifact_id)
+                    })
+                    .map(|a| (o.contract_id.clone(), a.artifact.clone()))
+                    .ok_or_else(changed)
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let remaining = origin
+            .runtime_reservation_ms
+            .saturating_sub(origin.elapsed_at_stop_ms)
+            .min(30_000);
+        let deadline = queued_at
+            .checked_add(std::time::Duration::from_millis(remaining))
+            .ok_or_else(limited)?;
+        if remaining == 0 || std::time::Instant::now() >= deadline {
+            return Err(err(
+                "RESOURCE_LIMIT",
+                "Producer exhausted its evidence runtime reservation",
+            ));
+        }
+        Ok(evidence::PreparedCandidateCapture {
+            root: origin.root.clone(),
+            inputs,
+            outputs,
+            cancelled: std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
+            deadline,
+        })
     }
-    fn mark_graph_capture_unknown(&mut self,origin:&CaptureOrigin)->Result<()> {
-        let (mut r,_,_)=self.verify_capture_origin(origin)?;
-        let tx=self.conn.transaction_with_behavior(TransactionBehavior::Immediate).map_err(db_error)?;
-        tx.execute("UPDATE goal_graph_jobs SET state='outcome_unknown' WHERE id=?1",[&origin.id]).map_err(db_error)?;
-        r.state="outcome_unknown".into();
-        save_run(&tx,&mut r,"goal.capture_unknown",json!({"job_id":origin.id,"io_completion":"outcome_unknown","worker_joined":false,"reservation_refunded":false,"task_accepted":false}))?;
+    fn mark_graph_capture_unknown(&mut self, origin: &CaptureOrigin) -> Result<()> {
+        let (mut r, _, _) = self.verify_capture_origin(origin)?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        tx.execute(
+            "UPDATE goal_graph_jobs SET state='outcome_unknown' WHERE id=?1",
+            [&origin.id],
+        )
+        .map_err(db_error)?;
+        r.state = "outcome_unknown".into();
+        save_run(
+            &tx,
+            &mut r,
+            "goal.capture_unknown",
+            json!({"job_id":origin.id,"io_completion":"outcome_unknown","worker_joined":false,"reservation_refunded":false,"task_accepted":false}),
+        )?;
         tx.commit().map_err(db_error)
     }
-    fn finish_graph_capture(&mut self,origin:&CaptureOrigin,result:Result<evidence::CapturedCandidate>,was_unknown:bool)->Result<()> {
-        let (r,n,record)=self.verify_capture_origin(origin)?;
-        let elapsed=u64::try_from(ms()?.saturating_sub(origin.prepared_at_ms)).map_err(|_|limited())?.checked_add(origin.elapsed_at_stop_ms).ok_or_else(limited)?;
-        let output_bytes=result.as_ref().ok().and_then(|c|c.outputs.iter().try_fold(0u64,|a,(_,f)|a.checked_add(f.bytes)));
+    fn finish_graph_capture(
+        &mut self,
+        origin: &CaptureOrigin,
+        completion: CaptureCompletion,
+        was_unknown: bool,
+        queue_elapsed: std::time::Duration,
+    ) -> Result<()> {
+        let (mut result, capture_joined) = match completion {
+            CaptureCompletion::NotStarted(e) => (Err(e), false),
+            CaptureCompletion::Joined(r) => (*r, true),
+            CaptureCompletion::UnjoinedUnknown => return self.mark_graph_capture_unknown(origin),
+        };
+        let (r, n, record) = self.verify_capture_origin(origin)?;
+        if let Ok(c) = &result {
+            if c.inputs.len() != origin.consumed_inputs.len()
+                || c.inputs.iter().zip(&origin.consumed_inputs).any(|(f, i)| {
+                    f.artifact.artifact_id != i.artifact_id
+                        || f.sha256 != i.sha256
+                        || i.candidate
+                            .as_ref()
+                            .is_some_and(|a| a.file_pin != f.pin || a.bytes != f.bytes)
+                })
+            {
+                result = Err(changed());
+            }
+        }
+        let observed = u64::try_from(queue_elapsed.as_millis()).map_err(|_| limited())?;
+        let worker_ms = result
+            .as_ref()
+            .ok()
+            .map(|c| u64::try_from(c.elapsed.as_millis()).unwrap_or(u64::MAX))
+            .unwrap_or(0);
+        let elapsed = observed
+            .max(worker_ms)
+            .checked_add(origin.elapsed_at_stop_ms)
+            .ok_or_else(limited)?;
+        let output_bytes = result.as_ref().ok().and_then(|c| {
+            c.outputs
+                .iter()
+                .try_fold(0u64, |a, (_, f)| a.checked_add(f.bytes))
+        });
         // A real joined result may settle its held reservation; an earlier
         // unjoined deadline remains unknown and cannot restart the graph.
-        self.settle_goal_worker_observed(&origin.session_id,elapsed,true,false,Some(output_bytes))?;
-        let mut current=run(&self.conn,&r.id)?;
-        let tx=self.conn.transaction_with_behavior(TransactionBehavior::Immediate).map_err(db_error)?;
-        let success=result.is_ok() && !was_unknown && !current.cancel_requested && current.state!="blocked";
-        let state=if success {"completed"} else if was_unknown {"outcome_unknown"} else {"failed"};
+        self.settle_goal_worker_observed(
+            &origin.session_id,
+            elapsed,
+            true,
+            false,
+            Some(output_bytes),
+        )?;
+        let mut current = run(&self.conn, &r.id)?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let success = capture_joined
+            && result.is_ok()
+            && !was_unknown
+            && !current.cancel_requested
+            && current.state != "blocked";
+        let state = if success {
+            "completed"
+        } else if was_unknown {
+            "outcome_unknown"
+        } else {
+            "failed"
+        };
         if success {
-            let c=result.map_err(|e|e)?;
-            if c.root!=origin.root || c.outputs.len()!=n.node.outputs.len() {return Err(changed());}
-            let id=Uuid::new_v4().to_string();
-            let artifacts=c.outputs.into_iter().map(|(contract_id,f)|GraphArtifactReference {candidate_id:id.clone(),artifact_id:f.artifact.artifact_id,contract_id,producer_node_id:origin.node_id.clone(),producer_attempt_id:origin.attempt_id.clone(),sha256:f.sha256,bytes:f.bytes,relative_path:f.artifact.relative_path,root:c.root.clone(),file_pin:f.pin,writer_epoch:origin.writer_epoch}).collect();
-            let receipt=GraphCandidateReceipt {id:id.clone(),graph_contract_version:1,run_id:r.id.clone(),scope_id:r.scope_id.clone(),plan_revision:origin.plan_revision,plan_digest:origin.plan_digest.clone(),node_id:origin.node_id.clone(),attempt_id:origin.attempt_id.clone(),session_id:origin.session_id.clone(),task_id:r.task_id.clone(),spec_revision:record.refs.spec_revision,input_revision:record.refs.workspace.base_revision.clone(),workspace_id:origin.workspace_id.clone(),capability_digest:origin.capability_digest.clone(),consumed_inputs:c.inputs.into_iter().map(|f|GraphInputBinding {artifact_id:f.artifact.artifact_id,contract_id:"external-input".into(),sha256:f.sha256,candidate:None}).collect(),artifacts,stop_receipt_sequence:origin.stop_receipt_sequence,capture_job_id:origin.id.clone(),capture_receipt_sequence:sequence(&tx)?.checked_add(1).ok_or_else(limited)?,created_at:now()?,source:"baton_goal_evidence".into(),integrity:"verified".into(),task_acceptance:"not_established".into()};
-            tx.execute("INSERT INTO goal_graph_candidates VALUES(?1,?2,?3,?4,?5,?6)",params![id,r.id,n.node.id,sql_num(r.plan_revision)?,origin.attempt_id,encode(&receipt)?]).map_err(db_error)?;
-            event(&tx,&r.id,current.revision,"goal.candidate_captured",json!({"candidate_id":id,"job_id":origin.id,"receipt_digest":sha(&receipt)?,"io_completion":"worker_joined","stop_receipt_sequence":origin.stop_receipt_sequence,"task_accepted":false}))?;
+            let c = result.map_err(|e| e)?;
+            if c.root != origin.root || c.outputs.len() != n.node.outputs.len() {
+                return Err(changed());
+            }
+            let id = Uuid::new_v4().to_string();
+            let artifacts = c
+                .outputs
+                .into_iter()
+                .map(|(contract_id, f)| GraphArtifactReference {
+                    candidate_id: id.clone(),
+                    artifact_id: f.artifact.artifact_id,
+                    contract_id,
+                    producer_node_id: origin.node_id.clone(),
+                    producer_attempt_id: origin.attempt_id.clone(),
+                    sha256: f.sha256,
+                    bytes: f.bytes,
+                    relative_path: f.artifact.relative_path,
+                    root: c.root.clone(),
+                    file_pin: f.pin,
+                    writer_epoch: origin.writer_epoch,
+                })
+                .collect();
+            let receipt = GraphCandidateReceipt {
+                id: id.clone(),
+                graph_contract_version: 1,
+                run_id: r.id.clone(),
+                scope_id: r.scope_id.clone(),
+                plan_revision: origin.plan_revision,
+                plan_digest: origin.plan_digest.clone(),
+                node_id: origin.node_id.clone(),
+                attempt_id: origin.attempt_id.clone(),
+                session_id: origin.session_id.clone(),
+                task_id: r.task_id.clone(),
+                spec_revision: record.refs.spec_revision,
+                input_revision: record.refs.workspace.base_revision.clone(),
+                workspace_id: origin.workspace_id.clone(),
+                capability_digest: origin.capability_digest.clone(),
+                consumed_inputs: origin.consumed_inputs.clone(),
+                artifacts,
+                stop_receipt_sequence: origin.stop_receipt_sequence,
+                capture_job_id: origin.id.clone(),
+                capture_receipt_sequence: sequence(&tx)?.checked_add(1).ok_or_else(limited)?,
+                created_at: now()?,
+                source: "baton_goal_evidence".into(),
+                integrity: "verified".into(),
+                task_acceptance: "not_established".into(),
+            };
+            tx.execute(
+                "INSERT INTO goal_graph_candidates VALUES(?1,?2,?3,?4,?5,?6)",
+                params![
+                    id,
+                    r.id,
+                    n.node.id,
+                    sql_num(r.plan_revision)?,
+                    origin.attempt_id,
+                    encode(&receipt)?
+                ],
+            )
+            .map_err(db_error)?;
+            event(
+                &tx,
+                &r.id,
+                current.revision,
+                "goal.candidate_captured",
+                json!({"candidate_id":id,"job_id":origin.id,"receipt_digest":sha(&receipt)?,"io_completion":"worker_joined","stop_receipt_sequence":origin.stop_receipt_sequence,"task_accepted":false}),
+            )?;
         }
-        tx.execute("UPDATE goal_graph_jobs SET state=?1 WHERE id=?2",params![state,origin.id]).map_err(db_error)?;
-        if !success && current.state!="cancelled" {current.state=if was_unknown {"outcome_unknown"}else{"blocked"}.into();}
-        save_run(&tx,&mut current,"goal.capture_settled",json!({"job_id":origin.id,"state":state,"io_completion":"worker_joined","actual_runtime_ms":elapsed,"actual_output_bytes":output_bytes,"task_accepted":false}))?;
+        tx.execute(
+            "UPDATE goal_graph_jobs SET state=?1 WHERE id=?2",
+            params![state, origin.id],
+        )
+        .map_err(db_error)?;
+        if was_unknown {
+            current.state = "outcome_unknown".into();
+        }
+        if !success && current.state != "cancelled" {
+            current.state = if was_unknown {
+                "outcome_unknown"
+            } else {
+                "blocked"
+            }
+            .into();
+        }
+        save_run(
+            &tx,
+            &mut current,
+            "goal.capture_settled",
+            json!({"job_id":origin.id,"state":state,"io_completion":if capture_joined {"worker_joined"}else{"not_started"},"capture_worker_joined":capture_joined,"producer_stop_confirmed":true,"actual_runtime_ms":elapsed,"actual_output_bytes":output_bytes,"task_accepted":false}),
+        )?;
         tx.commit().map_err(db_error)
     }
 }
 
-fn graph_candidates(db:&Connection,r:&GoalRun)->Result<Vec<GraphCandidateReceipt>> {
+fn graph_candidates(db: &Connection, r: &GoalRun) -> Result<Vec<GraphCandidateReceipt>> {
     raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(run_id)+octet_length(node_id)+octet_length(attempt_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_candidates WHERE run_id=?1",[&r.id],65536,MAX_STORED_BYTES)?;
     let mut q=db.prepare("SELECT id,node_id,plan_revision,attempt_id,document FROM goal_graph_candidates WHERE run_id=?1 ORDER BY rowid").map_err(db_error)?;
-    let rows=q.query_map([&r.id],|row|Ok((row.get::<_,String>(0)?,row.get::<_,String>(1)?,row.get::<_,i64>(2)?,row.get::<_,String>(3)?,row.get::<_,String>(4)?))).map_err(db_error)?.collect::<std::result::Result<Vec<_>,_>>().map_err(db_error)?;
-    let capability=checked_capability(db,r)?;
-    let mut result=Vec::new();
-    for (id,node,revision,attempt,doc) in rows {
-        let c:GraphCandidateReceipt=decode(&doc)?;
-        if c.id!=id || c.run_id!=r.id || c.node_id!=node || c.plan_revision!=u64::try_from(revision).map_err(|_|changed())? || c.attempt_id!=attempt || c.scope_id!=r.scope_id || c.task_id!=r.task_id || c.capability_digest!=sha(&capability.snapshot)? || c.source!="baton_goal_evidence" || c.integrity!="verified" || c.task_acceptance!="not_established" || c.artifacts.is_empty() || c.artifacts.len()>64 || c.graph_contract_version!=1 || c.capture_receipt_sequence<=c.stop_receipt_sequence {return Err(changed());}
+    let rows = q
+        .query_map([&r.id], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, i64>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, String>(4)?,
+            ))
+        })
+        .map_err(db_error)?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    let capability = checked_capability(db, r)?;
+    let mut result = Vec::new();
+    for (id, node, revision, attempt, doc) in rows {
+        let c: GraphCandidateReceipt = decode(&doc)?;
+        if c.id != id
+            || c.run_id != r.id
+            || c.node_id != node
+            || c.plan_revision != u64::try_from(revision).map_err(|_| changed())?
+            || c.attempt_id != attempt
+            || c.scope_id != r.scope_id
+            || c.task_id != r.task_id
+            || c.capability_digest != sha(&capability.snapshot)?
+            || c.source != "baton_goal_evidence"
+            || c.integrity != "verified"
+            || c.task_acceptance != "not_established"
+            || c.artifacts.is_empty()
+            || c.artifacts.len() > 64
+            || c.graph_contract_version != 1
+            || c.capture_receipt_sequence <= c.stop_receipt_sequence
+        {
+            return Err(changed());
+        }
         let event_raw:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE sequence=?1",[sql_num(c.capture_receipt_sequence)?],|row|row.get(0)).optional().map_err(db_error)?;
-        let e:Event=decode(&event_raw.ok_or_else(denied)?.ok_or_else(limited)?)?;
-        if e.source!="goal_core" || e.kind!="goal.candidate_captured" || e.aggregate_id!=r.id || e.payload["candidate_id"]!=c.id || e.payload["job_id"]!=c.capture_job_id || e.payload["receipt_digest"]!=sha(&c)? || e.payload["io_completion"]!="worker_joined" {return Err(denied());}
-        let s:crate::sessions::ManagedSession=raw(db,"sessions",&c.session_id)?;
-        if s.attempt_id!=c.attempt_id || s.workspace_id!=c.workspace_id || trusted_session_stop(db,&r.id,&s)?!=sql_num(c.stop_receipt_sequence)? {return Err(changed());}
+        let e: Event = decode(&event_raw.ok_or_else(denied)?.ok_or_else(limited)?)?;
+        if e.source != "goal_core"
+            || e.kind != "goal.candidate_captured"
+            || e.aggregate_id != r.id
+            || e.payload["candidate_id"] != c.id
+            || e.payload["job_id"] != c.capture_job_id
+            || e.payload["receipt_digest"] != sha(&c)?
+            || e.payload["io_completion"] != "worker_joined"
+        {
+            return Err(denied());
+        }
+        raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(state)+octet_length(id)+octet_length(run_id)+octet_length(node_id)+octet_length(attempt_id)+octet_length(workspace_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE id=?1",[&c.capture_job_id],1,MAX_STORED_BYTES)?;
+        let (state, origin_raw): (String, String) = db
+            .query_row(
+                "SELECT state,document FROM goal_graph_jobs WHERE id=?1",
+                [&c.capture_job_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .map_err(db_error)?;
+        let origin: CaptureOrigin = decode(&origin_raw)?;
+        if state != "completed"
+            || origin.run_id != r.id
+            || origin.node_id != c.node_id
+            || origin.plan_revision != c.plan_revision
+            || origin.plan_digest != c.plan_digest
+            || origin.session_id != c.session_id
+            || origin.attempt_id != c.attempt_id
+            || origin.workspace_id != c.workspace_id
+            || origin.stop_receipt_sequence != c.stop_receipt_sequence
+            || origin.capability_digest != c.capability_digest
+            || origin.consumed_inputs != c.consumed_inputs
+        {
+            return Err(changed());
+        }
+        let prepared:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.capture_prepared' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.payload.job_id')=?2 AND json_extract(document,'$.payload.origin_digest')=?3 AND json_extract(document,'$.payload.stop_receipt_sequence')=?4 ORDER BY sequence LIMIT 1",params![r.id,origin.id,sha(&origin)?,sql_num(origin.stop_receipt_sequence)?],|row|row.get(0)).optional().map_err(db_error)?;
+        if prepared.is_none_or(|seq| {
+            seq <= sql_num(c.stop_receipt_sequence).unwrap_or(i64::MAX)
+                || seq >= sql_num(c.capture_receipt_sequence).unwrap_or(0)
+        }) {
+            return Err(denied());
+        }
+        let s: crate::sessions::ManagedSession = raw(db, "sessions", &c.session_id)?;
+        if s.attempt_id != c.attempt_id
+            || s.workspace_id != c.workspace_id
+            || trusted_session_stop(db, &r.id, &s)? != sql_num(c.stop_receipt_sequence)?
+        {
+            return Err(changed());
+        }
         for a in &c.artifacts {
-            if a.candidate_id!=c.id || a.producer_attempt_id!=c.attempt_id || a.producer_node_id!=c.node_id || a.writer_epoch!=s.fencing_token || a.bytes!=a.file_pin.bytes || a.sha256.len()!=64 {return Err(changed());}
+            if a.candidate_id != c.id
+                || a.producer_attempt_id != c.attempt_id
+                || a.producer_node_id != c.node_id
+                || a.writer_epoch != s.fencing_token
+                || a.bytes != a.file_pin.bytes
+                || a.sha256.len() != 64
+            {
+                return Err(changed());
+            }
         }
         result.push(c);
     }
@@ -593,165 +1179,1720 @@ fn graph_candidates(db:&Connection,r:&GoalRun)->Result<Vec<GraphCandidateReceipt
 /// A private admission read, not an executor or a validation receipt. Capturing
 /// bytes here cannot mark any required rule passed or consume execution budget.
 pub(crate) struct GraphReadContext {
-    run_id:String,
-    revision:u64,
-    capability_digest:String,
-    root:agentbaton_workspaces::WorkspaceIdentity,
-    epoch:u64,
-    refs:Vec<GraphArtifactReference>,
+    run_id: String,
+    revision: u64,
+    capability_digest: String,
+    root: agentbaton_workspaces::WorkspaceIdentity,
+    epoch: u64,
+    lease_holder: String,
+    refs: Vec<GraphArtifactReference>,
 }
 pub(crate) struct GraphReadWitness {
-    context:GraphReadContext,
-    captured:evidence::CapturedCandidate,
-    deadline:std::time::Instant,
+    context: GraphReadContext,
+    captured: evidence::CapturedCandidate,
+    deadline: std::time::Instant,
 }
 impl GraphReadContext {
-    pub(crate) fn execute(self,cancel:std::sync::Arc<std::sync::atomic::AtomicBool>,deadline:std::time::Instant)->Result<GraphReadWitness> {
-        let inputs=self.refs.iter().map(|a|ArtifactRequirement {artifact_id:a.candidate_id.clone()+":"+&a.artifact_id,relative_path:a.relative_path.clone(),max_bytes:a.bytes,expected_sha256:Some(a.sha256.clone())}).collect();
-        let captured=evidence::PreparedCandidateCapture {root:self.root.clone(),inputs,outputs:vec![],cancelled:cancel,deadline}.execute()?;
-        if captured.inputs.len()!=self.refs.len() || captured.inputs.iter().zip(&self.refs).any(|(f,a)|f.pin!=a.file_pin || f.sha256!=a.sha256 || f.bytes!=a.bytes) {return Err(changed());}
-        Ok(GraphReadWitness {context:self,captured,deadline})
+    pub(crate) fn execute(
+        self,
+        cancel: std::sync::Arc<std::sync::atomic::AtomicBool>,
+        deadline: std::time::Instant,
+    ) -> Result<GraphReadWitness> {
+        let inputs = self
+            .refs
+            .iter()
+            .map(|a| ArtifactRequirement {
+                artifact_id: a.candidate_id.clone() + ":" + &a.artifact_id,
+                relative_path: a.relative_path.clone(),
+                max_bytes: a.bytes,
+                expected_sha256: Some(a.sha256.clone()),
+            })
+            .collect();
+        let captured = evidence::PreparedCandidateCapture {
+            root: self.root.clone(),
+            inputs,
+            outputs: vec![],
+            cancelled: cancel,
+            deadline,
+        }
+        .execute()?;
+        if captured.inputs.len() != self.refs.len()
+            || captured
+                .inputs
+                .iter()
+                .zip(&self.refs)
+                .any(|(f, a)| f.pin != a.file_pin || f.sha256 != a.sha256 || f.bytes != a.bytes)
+        {
+            return Err(changed());
+        }
+        Ok(GraphReadWitness {
+            context: self,
+            captured,
+            deadline,
+        })
     }
 }
 impl Store {
-    pub(crate) fn prepare_graph_read_context(&self,run_id:&str,refs:Vec<GraphArtifactReference>)->Result<Option<GraphReadContext>> {
-        if refs.is_empty(){return Ok(None);}
-        if refs.len()>64 {return Err(limited());}
-        let r=run(&self.conn,run_id)?;
-        let p=checked_capability(&self.conn,&r)?;
-        let candidates=graph_candidates(&self.conn,&r)?;
-        for a in &refs {if !candidates.iter().any(|c|c.artifacts.contains(a)) {return Err(changed());}}
-        let record:ScopeRecord=raw(&self.conn,"goal_scopes",&r.scope_id)?;
-        let lease=self.workspace_lease(&record.refs.workspace.id)?.ok_or_else(changed)?;
-        if !lease.holder.is_empty() || !current_output_root(&self.conn,&record.refs.workspace){return Err(changed());}
+    pub(crate) fn prepare_graph_read_context(
+        &self,
+        run_id: &str,
+        refs: Vec<GraphArtifactReference>,
+    ) -> Result<Option<GraphReadContext>> {
+        if refs.is_empty() {
+            return Ok(None);
+        }
+        if refs.len() > 64 {
+            return Err(limited());
+        }
+        let r = run(&self.conn, run_id)?;
+        let p = checked_capability(&self.conn, &r)?;
+        let candidates = graph_candidates(&self.conn, &r)?;
+        let mut refs = refs;
+        for c in candidates
+            .iter()
+            .filter(|c| c.plan_revision == r.plan_revision)
+        {
+            for a in &c.artifacts {
+                if !refs.contains(a) {
+                    refs.push(a.clone());
+                }
+            }
+        }
+        if refs.len() > 64 {
+            return Err(limited());
+        }
+        for a in &refs {
+            if !candidates.iter().any(|c| c.artifacts.contains(a)) {
+                return Err(changed());
+            }
+        }
+        let record: ScopeRecord = raw(&self.conn, "goal_scopes", &r.scope_id)?;
+        let lease = self
+            .workspace_lease(&record.refs.workspace.id)?
+            .ok_or_else(changed)?;
+        if !current_output_root(&self.conn, &record.refs.workspace) {
+            return Err(changed());
+        }
+        if !lease.holder.is_empty() {
+            let own:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_nodes n JOIN sessions s ON s.id=n.session_id WHERE n.run_id=?1 AND n.session_id=?2 AND n.state='reserved' AND json_extract(s.document,'$.turn_state') IS NULL)",params![r.id,lease.holder],|row|row.get(0)).map_err(db_error)?;
+            if !own {
+                return Err(changed());
+            }
+        }
         // Every later writer must be a stopped, authenticated attempt of this
         // graph. An unrelated identical-byte rewrite cannot borrow provenance.
         for a in &refs {
-            if lease.fencing_token<a.writer_epoch{return Err(changed());}
-            let foreign:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM sessions s WHERE s.workspace_id=?1 AND json_extract(s.document,'$.fencing_token')>?2 AND NOT EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=?3 AND n.session_id=s.id AND n.state='candidate' AND json_extract(n.document,'$.stop_confirmed')=1))",params![record.refs.workspace.id,sql_num(a.writer_epoch)?,r.id],|row|row.get(0)).map_err(db_error)?;
-            if foreign{return Err(changed());}
+            if lease.fencing_token < a.writer_epoch {
+                return Err(changed());
+            }
+            let foreign:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM sessions s WHERE s.workspace_id=?1 AND json_extract(s.document,'$.fencing_token')>?2 AND NOT EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=?3 AND n.session_id=s.id AND ((n.state='candidate' AND json_extract(n.document,'$.stop_confirmed')=1) OR (n.state='reserved' AND n.session_id=?4))))",params![record.refs.workspace.id,sql_num(a.writer_epoch)?,r.id,lease.holder],|row|row.get(0)).map_err(db_error)?;
+            if foreign {
+                return Err(changed());
+            }
         }
-        Ok(Some(GraphReadContext {run_id:r.id,revision:r.revision,capability_digest:sha(&p.snapshot)?,root:record.refs.workspace.identity.ok_or_else(changed)?,epoch:lease.fencing_token,refs}))
-    }
-    fn require_graph_read(&self,db:&Connection,r:&GoalRun,refs:&[GraphArtifactReference])->Result<()> {
-        if refs.is_empty(){return Ok(());}
-        let w=self.graph_input.as_ref().ok_or_else(changed)?;
-        let p=checked_capability(db,r)?;
-        let record:ScopeRecord=raw(db,"goal_scopes",&r.scope_id)?;
-        let lease:(String,i64)=db.query_row("SELECT holder,fencing_token FROM workspace_leases WHERE resource=?1",[&record.refs.workspace.id],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
-        if std::time::Instant::now()>=w.deadline || w.context.run_id!=r.id || w.context.revision!=r.revision || w.context.capability_digest!=sha(&p.snapshot)? || !lease.0.is_empty() || u64::try_from(lease.1).ok()!=Some(w.context.epoch) || record.refs.workspace.identity.as_ref()!=Some(&w.context.root) || w.captured.root!=w.context.root || refs.iter().any(|a|!w.context.refs.contains(a)) || !current_output_root(db,&record.refs.workspace) {return Err(changed());}
-        Ok(())
+        Ok(Some(GraphReadContext {
+            run_id: r.id,
+            revision: r.revision,
+            capability_digest: sha(&p.snapshot)?,
+            root: record.refs.workspace.identity.ok_or_else(changed)?,
+            epoch: lease.fencing_token,
+            lease_holder: lease.holder,
+            refs,
+        }))
     }
 }
 
 impl Store {
-    pub(crate) fn graph_request_read_context(&self,method:&str,params:&Value,_revision:Option<u64>,_key:Option<&str>)->Result<Option<GraphReadContext>> {
-        let run_id=match method {
-            "goal_graph_runs.dispatch"|"goal_node_approvals.propose"=>params["run_id"].as_str(),
-            "approvals.finalize"|"approvals.decline"=>{
-                let Some(id)=params["proposal_id"].as_str() else{return Ok(None)};
-                let p:ApprovalProposal=raw(&self.conn,"approval_proposals",id)?;
-                if p.kind!="goal_node_acceptance" || p.consumed{return Ok(None);}
-                return self.prepare_graph_read_context(p.snapshot["run_binding"]["run_id"].as_str().ok_or_else(changed)?,serde_json::from_value(p.snapshot["candidate_refs"].clone()).map_err(|_|changed())?);
+    pub(crate) fn graph_request_read_context(
+        &self,
+        method: &str,
+        params: &Value,
+        _revision: Option<u64>,
+        _key: Option<&str>,
+    ) -> Result<Option<GraphReadContext>> {
+        if method == "goal_node_approvals.propose" {
+            let s: GraphNodeApprovalSelection =
+                serde_json::from_value(params.clone()).map_err(|_| invalid())?;
+            if let (Some(revision), Some(key)) = (_revision, _key) {
+                if self.node_proposal_replay(&s, revision, key)?.is_some() {
+                    return Ok(None);
+                }
             }
-            _=>None,
+        }
+        let run_id = match method {
+            "goal_graph_runs.dispatch" | "goal_node_approvals.propose" => params["run_id"].as_str(),
+            "approvals.finalize" | "approvals.decline" => {
+                let Some(id) = params["proposal_id"].as_str() else {
+                    return Ok(None);
+                };
+                let p: ApprovalProposal = raw(&self.conn, "approval_proposals", id)?;
+                if p.kind != "goal_node_acceptance" || p.consumed {
+                    return Ok(None);
+                }
+                return self.prepare_graph_read_context(
+                    p.snapshot["run_binding"]["run_id"]
+                        .as_str()
+                        .ok_or_else(changed)?,
+                    serde_json::from_value(p.snapshot["candidate_refs"].clone())
+                        .map_err(|_| changed())?,
+                );
+            }
+            _ => None,
         };
-        let Some(run_id)=run_id else{return Ok(None)};
-        let r=run(&self.conn,run_id)?;
-        checked_capability(&self.conn,&r)?;
-        let candidates=graph_candidates(&self.conn,&r)?;
-        let nodes=node_records(&self.conn,&r.id)?;
-        let target=if method=="goal_node_approvals.propose" {nodes.iter().find(|n|Some(n.node.id.as_str())==params["node_id"].as_str())}else{graph_ready_node(&self.conn,&r,&nodes,&candidates)?};
-        let Some(n)=target else{return Ok(None)};
-        let refs=graph_input_refs(&n.node,&candidates,r.plan_revision)?;
-        self.prepare_graph_read_context(&r.id,refs)
+        let Some(run_id) = run_id else {
+            return Ok(None);
+        };
+        let r = run(&self.conn, run_id)?;
+        checked_capability(&self.conn, &r)?;
+        let candidates = graph_candidates(&self.conn, &r)?;
+        let nodes = node_records(&self.conn, &r.id)?;
+        let target = if method == "goal_node_approvals.propose" {
+            nodes
+                .iter()
+                .find(|n| Some(n.node.id.as_str()) == params["node_id"].as_str())
+        } else if let Some(n) = nodes.iter().find(|n| n.state == "reserved") {
+            Some(n)
+        } else {
+            graph_ready_node(&self.conn, &r, &nodes, &candidates)?
+        };
+        let Some(n) = target else { return Ok(None) };
+        let refs = graph_input_refs(&n.node, &candidates, r.plan_revision)?;
+        self.prepare_graph_read_context(&r.id, refs)
     }
 }
-fn graph_input_refs(node:&PlanNode,candidates:&[GraphCandidateReceipt],revision:u64)->Result<Vec<GraphArtifactReference>> {
-    let mut refs=Vec::new();
+fn graph_input_refs(
+    node: &PlanNode,
+    candidates: &[GraphCandidateReceipt],
+    revision: u64,
+) -> Result<Vec<GraphArtifactReference>> {
+    let mut refs = Vec::new();
     for input in &node.required_inputs {
-        if let InputSource::Node{node_id,..}=&input.source {
-            let found=candidates.iter().filter(|c|c.plan_revision==revision && &c.node_id==node_id).flat_map(|c|&c.artifacts).filter(|a|a.artifact_id==input.artifact_id&&a.contract_id==input.contract_id).collect::<Vec<_>>();
-            if found.len()!=1{return Err(changed());}
-            if !refs.contains(found[0]){refs.push(found[0].clone());}
+        if let InputSource::Node { node_id, .. } = &input.source {
+            let found = candidates
+                .iter()
+                .filter(|c| c.plan_revision == revision && &c.node_id == node_id)
+                .flat_map(|c| &c.artifacts)
+                .filter(|a| {
+                    a.artifact_id == input.artifact_id && a.contract_id == input.contract_id
+                })
+                .collect::<Vec<_>>();
+            if found.len() != 1 {
+                return Err(changed());
+            }
+            if !refs.contains(found[0]) {
+                refs.push(found[0].clone());
+            }
         }
     }
     Ok(refs)
 }
-fn graph_owner_decisions(db:&Connection,r:&GoalRun)->Result<Vec<GraphOwnerDecision>> {
-    graph_records(db,r,"goal_graph_owner_decisions","goal.owner_decided","owner_decision_id","local_owner_confirmation")
+fn graph_owner_decisions(db: &Connection, r: &GoalRun) -> Result<Vec<GraphOwnerDecision>> {
+    let owners: Vec<GraphOwnerDecision> = graph_records(
+        db,
+        r,
+        "goal_graph_owner_decisions",
+        "goal.owner_decided",
+        "owner_decision_id",
+        "local_owner_confirmation",
+    )?;
+    for owner in &owners {
+        verify_owner_decision_receipt(db, r, owner)?;
+    }
+    Ok(owners)
 }
-fn graph_validations(db:&Connection,r:&GoalRun)->Result<Vec<GraphValidationReceipt>> {
-    graph_records(db,r,"goal_graph_validations","goal.validation_settled","validation_id","goal_core")
+fn graph_validations(db: &Connection, r: &GoalRun) -> Result<Vec<GraphValidationReceipt>> {
+    graph_records(
+        db,
+        r,
+        "goal_graph_validations",
+        "goal.validation_settled",
+        "validation_id",
+        "goal_core",
+    )
 }
-fn graph_records<T:serde::de::DeserializeOwned+Serialize>(db:&Connection,r:&GoalRun,table:&str,event_kind:&str,field:&str,source:&str)->Result<Vec<T>> {
-    if !matches!(table,"goal_graph_owner_decisions"|"goal_graph_validations"){return Err(invalid());}
+fn graph_records<T: serde::de::DeserializeOwned + Serialize>(
+    db: &Connection,
+    r: &GoalRun,
+    table: &str,
+    event_kind: &str,
+    field: &str,
+    source: &str,
+) -> Result<Vec<T>> {
+    if !matches!(
+        table,
+        "goal_graph_owner_decisions" | "goal_graph_validations"
+    ) {
+        return Err(invalid());
+    }
     raw_collection_budget(db,&format!("SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(run_id)+octet_length(node_id)),0),COALESCE(max(octet_length(document)),0) FROM {table} WHERE run_id=?1"),[&r.id],65536,MAX_STORED_BYTES)?;
-    let mut q=db.prepare(&format!("SELECT id,node_id,plan_revision,document FROM {table} WHERE run_id=?1 ORDER BY rowid")).map_err(db_error)?;
-    let rows=q.query_map([&r.id],|row|Ok((row.get::<_,String>(0)?,row.get::<_,String>(1)?,row.get::<_,i64>(2)?,row.get::<_,String>(3)?))).map_err(db_error)?.collect::<std::result::Result<Vec<_>,_>>().map_err(db_error)?;
-    let mut records=Vec::new();
-    for (id,node,revision,raw) in rows {
-        let v:Value=decode(&raw)?;
-        if v["id"]!=id||v["node_id"]!=node||v["run_id"]!=r.id||v["plan_revision"]!=revision||v["graph_contract_version"]!=1{return Err(changed());}
-        let trusted:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')=?2 AND json_extract(document,'$.source')=?3 AND json_extract(document,?4)=?5 AND json_extract(document,'$.payload.receipt_digest')=?6)",params![r.id,event_kind,source,format!("$.payload.{field}"),id,sha(&v)?],|row|row.get(0)).map_err(db_error)?;
+    let mut q = db
+        .prepare(&format!(
+            "SELECT id,node_id,plan_revision,document FROM {table} WHERE run_id=?1 ORDER BY rowid"
+        ))
+        .map_err(db_error)?;
+    let rows = q
+        .query_map([&r.id], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, i64>(2)?,
+                row.get::<_, String>(3)?,
+            ))
+        })
+        .map_err(db_error)?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    let mut records = Vec::new();
+    for (id, node, revision, raw) in rows {
+        let v: Value = decode(&raw)?;
+        let record: T = serde_json::from_value(v.clone()).map_err(|_| changed())?;
+        let receipt_digest = sha(&record)?;
+        if v["id"] != id
+            || v["node_id"] != node
+            || v["run_id"] != r.id
+            || v["plan_revision"] != revision
+            || v["graph_contract_version"] != 1
+        {
+            return Err(changed());
+        }
+        let trusted:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')=?2 AND json_extract(document,'$.source')=?3 AND json_extract(document,?4)=?5 AND json_extract(document,'$.payload.receipt_digest')=?6)",params![r.id,event_kind,source,format!("$.payload.{field}"),id,receipt_digest],|row|row.get(0)).map_err(db_error)?;
         // Rejections use their distinct Owner source and never satisfy acceptance.
-        let rejected=if table=="goal_graph_owner_decisions"&&v["decision"]=="rejected" {db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')=?2 AND json_extract(document,'$.source')='local_owner_rejection' AND json_extract(document,'$.payload.owner_decision_id')=?3 AND json_extract(document,'$.payload.receipt_digest')=?4)",params![r.id,event_kind,id,sha(&v)?],|row|row.get::<_,bool>(0)).map_err(db_error)?}else{false};
-        if !trusted&&!rejected{return Err(denied());}
-        records.push(serde_json::from_value(v).map_err(|_|changed())?);
+        let rejected = if table == "goal_graph_owner_decisions" && v["decision"] == "rejected" {
+            db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')=?2 AND json_extract(document,'$.source')='local_owner_rejection' AND json_extract(document,'$.payload.owner_decision_id')=?3 AND json_extract(document,'$.payload.receipt_digest')=?4)",params![r.id,event_kind,id,receipt_digest],|row|row.get::<_,bool>(0)).map_err(db_error)?
+        } else {
+            false
+        };
+        if !trusted && !rejected {
+            return Err(denied());
+        }
+        records.push(record);
     }
     Ok(records)
 }
-fn rules_satisfied(record:&ScopeRecord,node:&PlanNode,refs:&[GraphArtifactReference],validations:&[GraphValidationReceipt],owners:&[GraphOwnerDecision],without_owner:bool)->bool {
+fn rules_satisfied(
+    record: &ScopeRecord,
+    node: &PlanNode,
+    refs: &[GraphArtifactReference],
+    validations: &[GraphValidationReceipt],
+    owners: &[GraphOwnerDecision],
+    without_owner: bool,
+) -> bool {
     node.required_validators.iter().all(|rule| {
-        if rule==INPUT_RULE {return true;} // Capture committed exact approved input SHA values.
-        if rule==OWNER_RULE {return without_owner || refs.iter().all(|a|owners.iter().any(|o|o.rule_id==*rule&&o.decision=="accepted"&&o.candidate_refs.contains(a)));}
-        let Some(def)=record.refs.validators.iter().find(|v|v.rule_id==*rule)else{return false};
-        refs.iter().filter(|a|record.selection.outputs.iter().any(|o|o.artifact.artifact_id==a.artifact_id&&o.validators.contains(&def.reference))).all(|a|validations.iter().any(|v|v.rule_id==*rule&&v.definition_digest==def.digest&&v.passed&&v.state=="passed"&&v.stop_confirmed&&v.io_completion=="worker_joined"&&v.task_acceptance=="not_established"&&v.candidate_refs.contains(a)))
+        if rule == INPUT_RULE {
+            return true;
+        } // Capture committed exact approved input SHA values.
+        if rule == OWNER_RULE {
+            return without_owner
+                || refs.iter().all(|a| {
+                    owners.iter().any(|o| {
+                        o.rule_id == *rule
+                            && o.decision == "accepted"
+                            && o.candidate_refs.contains(a)
+                    })
+                });
+        }
+        let Some(def) = record.refs.validators.iter().find(|v| v.rule_id == *rule) else {
+            return false;
+        };
+        refs.iter()
+            .filter(|a| {
+                record.selection.outputs.iter().any(|o| {
+                    o.artifact.artifact_id == a.artifact_id && o.validators.contains(&def.reference)
+                })
+            })
+            .all(|a| {
+                validations.iter().any(|v| {
+                    v.rule_id == *rule
+                        && v.definition_digest == def.digest
+                        && v.passed
+                        && v.state == "passed"
+                        && v.stop_confirmed
+                        && v.io_completion == "worker_joined"
+                        && v.task_acceptance == "not_established"
+                        && v.candidate_refs.contains(a)
+                })
+            })
     })
 }
-fn graph_ready_node<'a>(db:&Connection,r:&GoalRun,nodes:&'a[RuntimeNode],candidates:&[GraphCandidateReceipt])->Result<Option<&'a RuntimeNode>> {
-    let record:ScopeRecord=raw(db,"goal_scopes",&r.scope_id)?;
-    let validations=graph_validations(db,r)?;
-    let owners=graph_owner_decisions(db,r)?;
+fn graph_ready_node<'a>(
+    db: &Connection,
+    r: &GoalRun,
+    nodes: &'a [RuntimeNode],
+    candidates: &[GraphCandidateReceipt],
+) -> Result<Option<&'a RuntimeNode>> {
+    let record: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
+    let validations = graph_validations(db, r)?;
+    let owners = graph_owner_decisions(db, r)?;
     for n in nodes {
-        if n.state!="not_started" || n.node.parent_id.is_some(){continue;}
-        let refs=match graph_input_refs(&n.node,candidates,r.plan_revision){Ok(r)=>r,Err(_)=>continue};
-        let mut ready=true;
+        if !(n.state == "not_started"
+            || n.node.kind == NodeKind::OwnerApproval && n.state == "awaiting_owner")
+            || n.node.parent_id.is_some()
+        {
+            continue;
+        }
+        let refs = match graph_input_refs(&n.node, candidates, r.plan_revision) {
+            Ok(r) => r,
+            Err(_) => continue,
+        };
+        let mut ready = true;
         for input in &n.node.required_inputs {
-            if let InputSource::Node{node_id,candidate_for_validation}=&input.source {
-                let Some(producer)=nodes.iter().find(|p|&p.node.id==node_id&&p.state=="candidate"&&p.stop_confirmed)else{ready=false;break};
-                let producer_refs=candidates.iter().filter(|c|c.plan_revision==r.plan_revision&&c.node_id==*node_id).flat_map(|c|c.artifacts.clone()).collect::<Vec<_>>();
-                let exemption=matches!(n.node.kind,NodeKind::Validate|NodeKind::OwnerApproval)&&*candidate_for_validation;
-                if producer_refs.is_empty() || (!exemption&&!rules_satisfied(&record,&producer.node,&producer_refs,&validations,&owners,false)) || (n.node.kind==NodeKind::OwnerApproval&&!rules_satisfied(&record,&producer.node,&producer_refs,&validations,&owners,true)){ready=false;break;}
+            if let InputSource::Node {
+                node_id,
+                candidate_for_validation,
+            } = &input.source
+            {
+                let Some(producer) = nodes
+                    .iter()
+                    .find(|p| &p.node.id == node_id && p.state == "candidate" && p.stop_confirmed)
+                else {
+                    ready = false;
+                    break;
+                };
+                let producer_refs = candidates
+                    .iter()
+                    .filter(|c| c.plan_revision == r.plan_revision && c.node_id == *node_id)
+                    .flat_map(|c| c.artifacts.clone())
+                    .collect::<Vec<_>>();
+                let exemption = matches!(n.node.kind, NodeKind::Validate | NodeKind::OwnerApproval)
+                    && *candidate_for_validation;
+                if producer_refs.is_empty()
+                    || (!exemption
+                        && !rules_satisfied(
+                            &record,
+                            &producer.node,
+                            &producer_refs,
+                            &validations,
+                            &owners,
+                            false,
+                        ))
+                    || (n.node.kind == NodeKind::OwnerApproval
+                        && !rules_satisfied(
+                            &record,
+                            &producer.node,
+                            &producer_refs,
+                            &validations,
+                            &owners,
+                            true,
+                        ))
+                {
+                    ready = false;
+                    break;
+                }
             }
         }
         for dependency in &n.node.dependencies {
-            let Some(d)=nodes.iter().find(|d|&d.node.id==dependency)else{ready=false;break};
-            let satisfied=match d.node.kind {
-                NodeKind::Validate=>d.state=="validated"&&validations.iter().any(|v|v.node_id==d.node.id&&v.plan_revision==r.plan_revision&&v.passed&&v.stop_confirmed&&v.io_completion=="worker_joined"),
-                NodeKind::OwnerApproval=>d.state=="accepted"&&owners.iter().any(|o|o.node_id==d.node.id&&o.plan_revision==r.plan_revision&&o.decision=="accepted"),
-                _=>{let output_refs=candidates.iter().filter(|c|c.plan_revision==r.plan_revision&&c.node_id==d.node.id).flat_map(|c|c.artifacts.clone()).collect::<Vec<_>>();d.state=="candidate"&&d.stop_confirmed&&!output_refs.is_empty()&&(matches!(n.node.kind,NodeKind::Validate|NodeKind::OwnerApproval)&&refs.iter().any(|a|a.producer_node_id==d.node.id)||rules_satisfied(&record,&d.node,&output_refs,&validations,&owners,false))}
+            let Some(d) = nodes.iter().find(|d| &d.node.id == dependency) else {
+                ready = false;
+                break;
             };
-            if !satisfied{ready=false;break;}
+            let satisfied = match d.node.kind {
+                NodeKind::Validate => {
+                    d.state == "validated"
+                        && validations.iter().any(|v| {
+                            v.node_id == d.node.id
+                                && v.plan_revision == r.plan_revision
+                                && v.passed
+                                && v.stop_confirmed
+                                && v.io_completion == "worker_joined"
+                        })
+                }
+                NodeKind::OwnerApproval => {
+                    d.state == "accepted"
+                        && owners.iter().any(|o| {
+                            o.node_id == d.node.id
+                                && o.plan_revision == r.plan_revision
+                                && o.decision == "accepted"
+                        })
+                }
+                _ => {
+                    let output_refs = candidates
+                        .iter()
+                        .filter(|c| c.plan_revision == r.plan_revision && c.node_id == d.node.id)
+                        .flat_map(|c| c.artifacts.clone())
+                        .collect::<Vec<_>>();
+                    d.state == "candidate"
+                        && d.stop_confirmed
+                        && !output_refs.is_empty()
+                        && (matches!(n.node.kind, NodeKind::Validate | NodeKind::OwnerApproval)
+                            && refs.iter().any(|a| a.producer_node_id == d.node.id)
+                            || rules_satisfied(
+                                &record,
+                                &d.node,
+                                &output_refs,
+                                &validations,
+                                &owners,
+                                false,
+                            ))
+                }
+            };
+            if !satisfied {
+                ready = false;
+                break;
+            }
         }
-        if ready{return Ok(Some(n));}
+        if ready {
+            return Ok(Some(n));
+        }
     }
     Ok(None)
 }
 
 impl Store {
-    pub(crate) fn recover_graph_jobs(&mut self)->Result<()> {
+    pub(crate) fn recover_graph_jobs(&mut self) -> Result<()> {
         raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(id)+octet_length(run_id)+octet_length(state)+octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_jobs WHERE state IN('prepared','running','cancel_requested')",[],256,MAX_STORED_BYTES)?;
-        let rows={let mut q=self.conn.prepare("SELECT DISTINCT run_id FROM goal_graph_jobs WHERE state IN('prepared','running','cancel_requested')").map_err(db_error)?;let rows=q.query_map([],|row|row.get::<_,String>(0)).map_err(db_error)?.collect::<std::result::Result<Vec<_>,_>>().map_err(db_error)?;rows};
+        let rows = {
+            let mut q=self.conn.prepare("SELECT DISTINCT run_id FROM goal_graph_jobs WHERE state IN('prepared','running','cancel_requested')").map_err(db_error)?;
+            let rows = q
+                .query_map([], |row| row.get::<_, String>(0))
+                .map_err(db_error)?
+                .collect::<std::result::Result<Vec<_>, _>>()
+                .map_err(db_error)?;
+            rows
+        };
         for id in rows {
-            let tx=self.conn.transaction_with_behavior(TransactionBehavior::Immediate).map_err(db_error)?;
-            let mut r=run(&tx,&id)?;
-            checked_capability(&tx,&r)?;
+            let tx = self
+                .conn
+                .transaction_with_behavior(TransactionBehavior::Immediate)
+                .map_err(db_error)?;
+            let mut r = run(&tx, &id)?;
+            checked_capability(&tx, &r)?;
             tx.execute("UPDATE goal_graph_jobs SET state='outcome_unknown' WHERE run_id=?1 AND state IN('prepared','running','cancel_requested')",[&id]).map_err(db_error)?;
-            r.state="outcome_unknown".into();
-            save_run(&tx,&mut r,"goal.graph_jobs_interrupted",json!({"automatic_replay":false,"worker_joined":false,"reservation_refunded":false,"workspace_fence_retained":true,"task_accepted":false}))?;
+            for key_id in [
+                format!("project:{}", r.project_id),
+                format!("root-grant:{}", r.root_grant_id),
+            ] {
+                let raw:Option<Option<String>>=tx.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_ledgers WHERE scope=?1",[&key_id],|row|row.get(0)).optional().map_err(db_error)?;
+                if let Some(raw) = raw {
+                    let mut m: MeterLedger = decode(&raw.ok_or_else(limited)?)?;
+                    m.runtime_ms = None;
+                    m.output_bytes = None;
+                    m.tokens = None;
+                    m.cost_microunits = None;
+                    tx.execute(
+                        "UPDATE goal_ledgers SET document=?1 WHERE scope=?2",
+                        params![encode(&m)?, key_id],
+                    )
+                    .map_err(db_error)?;
+                }
+            }
+            r.state = "outcome_unknown".into();
+            save_run(
+                &tx,
+                &mut r,
+                "goal.graph_jobs_interrupted",
+                json!({"automatic_replay":false,"worker_joined":false,"reservation_refunded":false,"workspace_fence_retained":true,"task_accepted":false}),
+            )?;
             tx.commit().map_err(db_error)?;
         }
         Ok(())
+    }
+}
+
+pub(super) fn ready_connection_node<'a>(
+    db: &Connection,
+    r: &GoalRun,
+    nodes: &'a [RuntimeNode],
+) -> Result<Option<&'a RuntimeNode>> {
+    Ok(
+        graph_ready_node(db, r, nodes, &graph_candidates(db, r)?)?.filter(|n| {
+            matches!(n.node.kind, NodeKind::Work | NodeKind::Summary)
+                && matches!(n.node.executor, Executor::Connection { .. })
+        }),
+    )
+}
+fn input_bindings(
+    node: &PlanNode,
+    record: &ScopeRecord,
+    candidates: &[GraphCandidateReceipt],
+    revision: u64,
+) -> Result<Vec<GraphInputBinding>> {
+    let refs = graph_input_refs(node, candidates, revision)?;
+    node.required_inputs
+        .iter()
+        .map(|i| match &i.source {
+            InputSource::ApprovedExternal { sha256 } => {
+                let source = record
+                    .refs
+                    .inputs
+                    .iter()
+                    .find(|s| s.artifact.artifact_id == i.artifact_id && &s.sha256 == sha256)
+                    .ok_or_else(changed)?;
+                Ok(GraphInputBinding {
+                    artifact_id: source.artifact.artifact_id.clone(),
+                    contract_id: i.contract_id.clone(),
+                    sha256: sha256.clone(),
+                    candidate: None,
+                })
+            }
+            InputSource::Node { node_id, .. } => {
+                let a = refs
+                    .iter()
+                    .find(|a| {
+                        &a.producer_node_id == node_id
+                            && a.artifact_id == i.artifact_id
+                            && a.contract_id == i.contract_id
+                    })
+                    .ok_or_else(changed)?;
+                Ok(GraphInputBinding {
+                    artifact_id: i.artifact_id.clone(),
+                    contract_id: i.contract_id.clone(),
+                    sha256: a.sha256.clone(),
+                    candidate: Some(a.clone()),
+                })
+            }
+        })
+        .collect()
+}
+pub(super) fn require_dispatch_read(
+    db: &Connection,
+    r: &GoalRun,
+    node: &PlanNode,
+    witness: Option<&GraphReadWitness>,
+    session: &crate::sessions::ManagedSession,
+) -> Result<()> {
+    let refs = graph_input_refs(node, &graph_candidates(db, r)?, r.plan_revision)?;
+    require_read(db, r, &refs, witness, Some(session))
+}
+fn require_read(
+    db: &Connection,
+    r: &GoalRun,
+    refs: &[GraphArtifactReference],
+    witness: Option<&GraphReadWitness>,
+    new_session: Option<&crate::sessions::ManagedSession>,
+) -> Result<()> {
+    if refs.is_empty() {
+        return Ok(());
+    }
+    let w = witness.ok_or_else(changed)?;
+    let p = checked_capability(db, r)?;
+    let record: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
+    let lease: (String, i64) = db
+        .query_row(
+            "SELECT holder,fencing_token FROM workspace_leases WHERE resource=?1",
+            [&record.refs.workspace.id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .map_err(db_error)?;
+    let lease_matches = if let Some(s) = new_session {
+        w.context.lease_holder.is_empty()
+            && lease.0 == s.id
+            && u64::try_from(lease.1).ok() == Some(s.fencing_token)
+            && w.context.epoch.checked_add(1) == Some(s.fencing_token)
+    } else {
+        lease.0 == w.context.lease_holder && u64::try_from(lease.1).ok() == Some(w.context.epoch)
+    };
+    if !lease_matches
+        || std::time::Instant::now() >= w.deadline
+        || w.context.run_id != r.id
+        || w.context.revision != r.revision
+        || w.context.capability_digest != sha(&p.snapshot)?
+        || record.refs.workspace.identity.as_ref() != Some(&w.context.root)
+        || w.captured.root != w.context.root
+        || refs.iter().any(|a| !w.context.refs.contains(a))
+        || !current_output_root(db, &record.refs.workspace)
+    {
+        return Err(changed());
+    }
+    Ok(())
+}
+pub(super) fn prompt_inputs(store: &Store, r: &GoalRun, node: &PlanNode) -> Result<Value> {
+    let record: ScopeRecord = raw(&store.conn, "goal_scopes", &r.scope_id)?;
+    let candidates = graph_candidates(&store.conn, r)?;
+    let bindings = input_bindings(node, &record, &candidates, r.plan_revision)?;
+    require_read(
+        &store.conn,
+        r,
+        &graph_input_refs(node, &candidates, r.plan_revision)?,
+        store.graph_input.as_ref(),
+        None,
+    )?;
+    // The session already owns the current lease at prompt time. Its reservation
+    // consumed the fresh input witness atomically before that lease was acquired.
+    let mut inputs = Vec::new();
+    for binding in bindings {
+        let artifact = if let Some(c) = &binding.candidate {
+            ArtifactRequirement {
+                artifact_id: binding.artifact_id.clone(),
+                relative_path: c.relative_path.clone(),
+                max_bytes: c.bytes,
+                expected_sha256: Some(c.sha256.clone()),
+            }
+        } else {
+            record
+                .refs
+                .inputs
+                .iter()
+                .find(|a| a.artifact.artifact_id == binding.artifact_id)
+                .ok_or_else(changed)?
+                .artifact
+                .clone()
+        };
+        let mut view = json!(binding);
+        view["artifact"] = json!(artifact);
+        inputs.push(view);
+    }
+    Ok(json!(inputs))
+}
+impl Store {
+    pub(crate) fn is_goal_graph_run(&self, id: &str) -> Result<bool> {
+        is_graph_run(&self.conn, id)
+    }
+}
+
+fn node_acceptance_snapshot(
+    db: &Connection,
+    r: &GoalRun,
+    s: &GraphNodeApprovalSelection,
+    revision: u64,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+    witness: Option<&GraphReadWitness>,
+) -> Result<Value> {
+    if r.revision != revision
+        || r.plan_revision != s.expected_plan_revision
+        || r.cancel_requested
+        || matches!(
+            r.state.as_str(),
+            "blocked" | "failed" | "outcome_unknown" | "cancelled"
+        )
+    {
+        return Err(err(
+            "STALE_REVISION",
+            "Owner decision requires the exact current unblocked run and plan",
+        ));
+    }
+    let (record, _) = checked_runtime_scope(db, r, data)?;
+    let nodes = node_records(db, &r.id)?;
+    let candidates = graph_candidates(db, r)?;
+    let ready = graph_ready_node(db, r, &nodes, &candidates)?.ok_or_else(denied)?;
+    if ready.node.id != s.node_id
+        || ready.node.kind != NodeKind::OwnerApproval
+        || !matches!(&ready.node.executor,Executor::Owner{rule_id} if rule_id==OWNER_RULE)
+    {
+        return Err(denied());
+    }
+    let refs = graph_input_refs(&ready.node, &candidates, r.plan_revision)?;
+    if refs.is_empty() {
+        return Err(invalid());
+    }
+    require_read(db, r, &refs, witness, None)?;
+    let p = checked_capability(db, r)?;
+    let validations = graph_validations(db, r)?;
+    let candidate_receipts = candidates
+        .into_iter()
+        .filter(|c| refs.iter().any(|a| a.candidate_id == c.id))
+        .collect::<Vec<_>>();
+    let validation_refs = validations
+        .into_iter()
+        .filter(|v| v.candidate_refs.iter().any(|a| refs.contains(a)))
+        .collect::<Vec<_>>();
+    Ok(json!(GraphNodeAcceptanceSnapshot {
+        graph_contract_version: 1,
+        intent: s.clone(),
+        run_binding: GraphRunBinding {
+            run_id: r.id.clone(),
+            scope_id: r.scope_id.clone(),
+            task_id: r.task_id.clone(),
+            project_id: r.project_id.clone(),
+            root_grant_id: r.root_grant_id.clone(),
+            plan_revision: r.plan_revision,
+            plan_digest: r.plan_digest.clone(),
+            scope_digest: record.scope_digest.clone(),
+            spec_revision: record.refs.spec_revision,
+            input_revision: record.refs.workspace.base_revision.clone(),
+            workspace_id: record.refs.workspace.id.clone(),
+            workspace: record.refs.workspace.identity.clone().ok_or_else(changed)?,
+            capability_digest: sha(&p.snapshot)?
+        },
+        node: ready.node.clone(),
+        criterion: GraphCriterionBinding {
+            rule_id: OWNER_RULE.into(),
+            criterion_text: record.selection.owner_acceptance_criteria.clone(),
+            criterion_digest: sha(&(OWNER_RULE, &record.selection.owner_acceptance_criteria))?,
+            artifact_ids: refs.iter().map(|a| a.artifact_id.clone()).collect()
+        },
+        candidate_refs: refs,
+        candidate_receipts,
+        validation_refs,
+        input_bindings: input_bindings(
+            &ready.node,
+            &record,
+            &graph_candidates(db, r)?,
+            r.plan_revision
+        )?,
+        capability_digest: sha(&p.snapshot)?,
+        expected_run_revision: revision,
+        expected_ledger_revision: s.expected_ledger_revision
+    }))
+}
+fn bounded_graph_proposal(p: &ApprovalProposal, event: &Event) -> Result<String> {
+    let doc = encode(p)?;
+    // 128 original UTF8 bytes of ASCII controls are the largest legal JSON
+    // escaping overhead (six serialized bytes per original byte).
+    let envelope = encode(
+        &json!({"request_id":"\0".repeat(128),"result":p,"revision":u64::MAX,"warnings":[]}),
+    )?;
+    if doc.len() > MAX_GRAPH_REVIEW_BYTES
+        || encode(event)?.len() > MAX_GRAPH_REVIEW_BYTES
+        || envelope.len() > MAX_GRAPH_REVIEW_BYTES
+    {
+        return Err(limited());
+    }
+    Ok(doc)
+}
+impl Store {
+    pub(crate) fn node_proposal_replay(
+        &self,
+        s: &GraphNodeApprovalSelection,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<Option<ApprovalProposal>> {
+        key(key_id)?;
+        let scope = format!("goal-graph:{}:owner-propose", s.run_id);
+        let payload = encode(&json!({"intent":s,"expected_revision":revision}))?;
+        let Some((old_payload, raw_result)) = idempotency_entry(&self.conn, &scope, key_id)? else {
+            return Ok(None);
+        };
+        if old_payload != payload {
+            return Err(err(
+                "CONFIG_CONFLICT",
+                "Owner proposal key belongs to a different exact selection/CAS",
+            ));
+        }
+        let original: ApprovalProposal = decode(&raw_result)?;
+        let current: ApprovalProposal = raw(&self.conn, "approval_proposals", &original.id)?;
+        if current.id != original.id
+            || current.kind != "goal_node_acceptance"
+            || current.revision != original.revision
+            || current.snapshot != original.snapshot
+        {
+            return Err(changed());
+        }
+        Ok(Some(current))
+    }
+    pub fn propose_goal_node_acceptance(
+        &mut self,
+        s: &GraphNodeApprovalSelection,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<ApprovalProposal> {
+        if let Some(old) = self.node_proposal_replay(s, revision, key_id)? {
+            return Ok(old);
+        }
+        let r = run(&self.conn, &s.run_id)?;
+        if sequence(&self.conn)? != s.expected_ledger_revision {
+            return Err(err(
+                "STALE_REVISION",
+                "Owner selection requires the current shared ledger",
+            ));
+        }
+        let snapshot = node_acceptance_snapshot(
+            &self.conn,
+            &r,
+            s,
+            revision,
+            self.data_input.as_ref(),
+            self.graph_input.as_ref(),
+        )?;
+        let p = ApprovalProposal {
+            id: Uuid::new_v4().to_string(),
+            kind: "goal_node_acceptance".into(),
+            revision: 1,
+            snapshot,
+            created_at: now()?,
+            expires_at_ms: ms()?.checked_add(300000).ok_or_else(limited)?,
+            consumed: false,
+        };
+        let e = Event {
+            sequence: 0,
+            event_id: Uuid::new_v4().to_string(),
+            aggregate_id: p.id.clone(),
+            revision: 1,
+            kind: "approval.proposed".into(),
+            occurred_at: now()?,
+            payload: json!({"kind":p.kind,"snapshot":p.snapshot}),
+            source: "user_action".into(),
+        };
+        let doc = bounded_graph_proposal(&p, &e)?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        if sequence(&tx)? != s.expected_ledger_revision || run(&tx, &r.id)?.revision != revision {
+            return Err(err(
+                "STALE_REVISION",
+                "Owner snapshot changed before persistence",
+            ));
+        }
+        tx.execute(
+            "INSERT INTO approval_proposals(id,document) VALUES(?1,?2)",
+            params![p.id, doc],
+        )
+        .map_err(db_error)?;
+        remember(
+            &tx,
+            &format!("goal-graph:{}:owner-propose", r.id),
+            key_id,
+            &encode(&json!({"intent":s,"expected_revision":revision}))?,
+            &p,
+        )?;
+        tx.execute("INSERT INTO events(document) VALUES(?1)", [encode(&e)?])
+            .map_err(db_error)?;
+        tx.commit().map_err(db_error)?;
+        Ok(p)
+    }
+    pub(crate) fn decide_goal_node(
+        &mut self,
+        id: &str,
+        revision: u64,
+        accept: bool,
+    ) -> Result<Value> {
+        key(id)?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let mut p: ApprovalProposal = raw(&tx, "approval_proposals", id)?;
+        if p.id != id || p.kind != "goal_node_acceptance" || p.revision != revision {
+            return Err(changed());
+        }
+        let decision = if accept { "accepted" } else { "rejected" };
+        let old:Option<Option<String>>=tx.query_row("SELECT CASE WHEN octet_length(result)<=1048576 THEN result END FROM approval_proposals WHERE id=?1 AND result IS NOT NULL",[id],|row|row.get(0)).optional().map_err(db_error)?;
+        if let Some(old) = old {
+            let old: GraphOwnerDecisionResult = decode(&old.ok_or_else(limited)?)?;
+            if !p.consumed || old.approval_id != id || old.decision != decision {
+                return Err(err(
+                    "CONFIG_CONFLICT",
+                    "This fixed proposal already records a different Owner decision",
+                ));
+            }
+            let run_id = p.snapshot["run_binding"]["run_id"]
+                .as_str()
+                .ok_or_else(changed)?;
+            let r = run(&tx, run_id)?;
+            let owners = graph_owner_decisions(&tx, &r)?;
+            let owner = owners
+                .iter()
+                .find(|o| o.id == old.owner_decision_id)
+                .ok_or_else(changed)?;
+            if serde_json::to_value(verify_owner_decision_receipt(&tx, &r, owner)?)
+                .map_err(|_| changed())?
+                != json!(old)
+            {
+                return Err(changed());
+            }
+            return Ok(json!(old));
+        }
+        if p.consumed || p.expires_at_ms <= ms()? {
+            return Err(denied());
+        }
+        let s: GraphNodeApprovalSelection =
+            serde_json::from_value(p.snapshot["intent"].clone()).map_err(|_| changed())?;
+        let rev = p.snapshot["expected_run_revision"]
+            .as_u64()
+            .ok_or_else(changed)?;
+        let mut r = run(&tx, &s.run_id)?;
+        if sequence(&tx)?
+            != s.expected_ledger_revision
+                .checked_add(1)
+                .ok_or_else(limited)?
+        {
+            return Err(err(
+                "STALE_REVISION",
+                "Execution changed during private Owner review",
+            ));
+        }
+        let proposed:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE sequence=?1 AND octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?2 AND json_extract(document,'$.kind')='approval.proposed' AND json_extract(document,'$.source')='user_action')",params![sql_num(sequence(&tx)?)?,p.id],|row|row.get(0)).map_err(db_error)?;
+        if !proposed
+            || node_acceptance_snapshot(
+                &tx,
+                &r,
+                &s,
+                rev,
+                self.data_input.as_ref(),
+                self.graph_input.as_ref(),
+            )? != p.snapshot
+        {
+            return Err(changed());
+        }
+        let nodes_before = node_records(&tx, &r.id)?;
+        let mut n = nodes_before
+            .iter()
+            .find(|n| n.node.id == s.node_id)
+            .cloned()
+            .ok_or_else(changed)?;
+        let owner = GraphOwnerDecision {
+            id: Uuid::new_v4().to_string(),
+            graph_contract_version: 1,
+            approval_id: p.id.clone(),
+            run_id: r.id.clone(),
+            plan_revision: r.plan_revision,
+            plan_digest: r.plan_digest.clone(),
+            node_id: n.node.id.clone(),
+            rule_id: OWNER_RULE.into(),
+            criterion_digest: p.snapshot["criterion"]["criterion_digest"]
+                .as_str()
+                .ok_or_else(changed)?
+                .into(),
+            candidate_refs: serde_json::from_value(p.snapshot["candidate_refs"].clone())
+                .map_err(|_| changed())?,
+            validation_ids: serde_json::from_value::<Vec<GraphValidationReceipt>>(
+                p.snapshot["validation_refs"].clone(),
+            )
+            .map_err(|_| changed())?
+            .into_iter()
+            .map(|v| v.id)
+            .collect(),
+            decision: decision.into(),
+            created_at: now()?,
+            source: if accept {
+                "local_owner_confirmation"
+            } else {
+                "local_owner_rejection"
+            }
+            .into(),
+        };
+        tx.execute(
+            "INSERT INTO goal_graph_owner_decisions VALUES(?1,?2,?3,?4,?5,?6)",
+            params![
+                owner.id,
+                p.id,
+                r.id,
+                n.node.id,
+                sql_num(r.plan_revision)?,
+                encode(&owner)?
+            ],
+        )
+        .map_err(db_error)?;
+        let e = Event {
+            sequence: 0,
+            event_id: Uuid::new_v4().to_string(),
+            aggregate_id: r.id.clone(),
+            revision: r.revision,
+            kind: "goal.owner_decided".into(),
+            occurred_at: now()?,
+            payload: json!({"owner_decision_id":owner.id,"approval_id":p.id,"receipt_digest":sha(&owner)?,"decision":decision,"task_accepted":false}),
+            source: owner.source.clone(),
+        };
+        tx.execute("INSERT INTO events(document) VALUES(?1)", [encode(&e)?])
+            .map_err(db_error)?;
+        let task_accepted = if accept {
+            maybe_accept_task(
+                &tx,
+                &mut r,
+                &owner,
+                &nodes_before,
+                self.graph_input.as_ref(),
+            )?
+        } else {
+            false
+        };
+        n.state = decision.into();
+        save_node(&tx, &r.id, &n)?;
+        if !task_accepted {
+            r.state = if accept { "queued" } else { "blocked" }.into();
+        }
+        save_run(
+            &tx,
+            &mut r,
+            "goal.owner_node_settled",
+            json!({"node_id":n.node.id,"owner_decision_id":owner.id,"decision":decision,"executor_started":false,"task_accepted":task_accepted}),
+        )?;
+        let receipt = GraphOwnerDecisionResult {
+            graph_contract_version: 1,
+            approval_id: p.id.clone(),
+            run_id: r.id,
+            node_id: n.node.id,
+            plan_revision: r.plan_revision,
+            decision: decision.into(),
+            owner_decision_id: owner.id,
+            run_revision: r.revision,
+            task_accepted,
+        };
+        p.consumed = true;
+        tx.execute(
+            "UPDATE approval_proposals SET document=?1,result=?2 WHERE id=?3 AND result IS NULL",
+            params![encode(&p)?, encode(&receipt)?, id],
+        )
+        .map_err(db_error)?;
+        tx.commit().map_err(db_error)?;
+        Ok(json!(receipt))
+    }
+}
+
+pub(super) fn verify_intrinsic_node(db: &Connection, r: &GoalRun, n: &RuntimeNode) -> Result<()> {
+    if !is_graph_run(db, &r.id)?
+        || n.session_id.is_some()
+        || n.attempt_id.is_some()
+        || n.stop_confirmed
+    {
+        return Err(changed());
+    }
+    checked_capability(db, r)?;
+    match (&n.node.kind, n.state.as_str()) {
+        (NodeKind::OwnerApproval, "awaiting_owner") => {
+            let valid:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.owner_ready' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.payload.node_id')=?2 AND json_extract(document,'$.payload.plan_revision')=?3)",params![r.id,n.node.id,sql_num(n.plan_revision)?],|row|row.get(0)).map_err(db_error)?;
+            if !valid {
+                return Err(denied());
+            }
+        }
+        (NodeKind::OwnerApproval, "accepted" | "rejected") => {
+            let decisions = graph_owner_decisions(db, r)?;
+            let found = decisions
+                .iter()
+                .filter(|o| {
+                    o.node_id == n.node.id
+                        && o.plan_revision == n.plan_revision
+                        && o.decision == n.state
+                })
+                .collect::<Vec<_>>();
+            if found.len() != 1 {
+                return Err(changed());
+            }
+            let owner = found[0];
+            let p: ApprovalProposal = raw(db, "approval_proposals", &owner.approval_id)?;
+            let result:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(result)<=1048576 THEN result END FROM approval_proposals WHERE id=?1 AND result IS NOT NULL",[&owner.approval_id],|row|row.get(0)).optional().map_err(db_error)?;
+            let result: GraphOwnerDecisionResult =
+                decode(&result.ok_or_else(denied)?.ok_or_else(limited)?)?;
+            if !p.consumed
+                || p.kind != "goal_node_acceptance"
+                || result.approval_id != p.id
+                || result.run_id != r.id
+                || result.node_id != n.node.id
+                || result.owner_decision_id != owner.id
+                || result.decision != n.state
+                || p.snapshot["run_binding"]["run_id"] != r.id
+                || p.snapshot["node"] != json!(n.node)
+                || p.snapshot["candidate_refs"] != json!(owner.candidate_refs)
+                || p.snapshot["criterion"]["criterion_digest"] != owner.criterion_digest
+            {
+                return Err(changed());
+            }
+        }
+        _ => return Err(changed()),
+    }
+    Ok(())
+}
+impl Store {
+    fn reconcile_graph_frontiers(&mut self) -> Result<()> {
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(r.id)+octet_length(r.document)+octet_length(g.document)),0),COALESCE(max(octet_length(r.document)),0) FROM goal_runs r JOIN goal_graph_capabilities g ON g.run_id=r.id WHERE r.state IN('queued','running','awaiting_acceptance')",[],256,MAX_STORED_BYTES)?;
+        let ids = {
+            let mut q=self.conn.prepare("SELECT r.id FROM goal_runs r JOIN goal_graph_capabilities g ON g.run_id=r.id WHERE r.state IN('queued','running','awaiting_acceptance') ORDER BY r.rowid").map_err(db_error)?;
+            let rows = q
+                .query_map([], |row| row.get::<_, String>(0))
+                .map_err(db_error)?
+                .collect::<std::result::Result<Vec<_>, _>>()
+                .map_err(db_error)?;
+            rows
+        };
+        for id in ids {
+            let mut r = run(&self.conn, &id)?;
+            checked_capability(&self.conn, &r)?;
+            if r.cancel_requested || !adopted_plan_is_current_head(&self.conn, &r)? {
+                continue;
+            }
+            let nodes = node_records(&self.conn, &r.id)?;
+            if nodes.iter().any(|n| {
+                matches!(
+                    n.state.as_str(),
+                    "reserved" | "running" | "stopping" | "outcome_unknown"
+                )
+            }) {
+                continue;
+            }
+            let candidates = graph_candidates(&self.conn, &r)?;
+            if let Some(ready) = graph_ready_node(&self.conn, &r, &nodes, &candidates)? {
+                if ready.node.kind == NodeKind::OwnerApproval && ready.state == "not_started" {
+                    let mut n = ready.clone();
+                    let tx = self
+                        .conn
+                        .transaction_with_behavior(TransactionBehavior::Immediate)
+                        .map_err(db_error)?;
+                    n.state = "awaiting_owner".into();
+                    save_node(&tx, &r.id, &n)?;
+                    r.state = "awaiting_acceptance".into();
+                    save_run(
+                        &tx,
+                        &mut r,
+                        "goal.owner_ready",
+                        json!({"node_id":n.node.id,"plan_revision":n.plan_revision,"executor_started":false,"task_accepted":false}),
+                    )?;
+                    tx.commit().map_err(db_error)?;
+                } else if matches!(ready.node.kind, NodeKind::Work | NodeKind::Summary)
+                    && r.state == "awaiting_acceptance"
+                {
+                    let tx = self
+                        .conn
+                        .transaction_with_behavior(TransactionBehavior::Immediate)
+                        .map_err(db_error)?;
+                    r.state = "queued".into();
+                    save_run(
+                        &tx,
+                        &mut r,
+                        "goal.graph_frontier_ready",
+                        json!({"node_id":ready.node.id,"new_dispatch":false,"task_accepted":false}),
+                    )?;
+                    tx.commit().map_err(db_error)?;
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+fn maybe_accept_task(
+    db: &Connection,
+    r: &mut GoalRun,
+    pending: &GraphOwnerDecision,
+    nodes: &[RuntimeNode],
+    witness: Option<&GraphReadWitness>,
+) -> Result<bool> {
+    if pending.decision != "accepted" {
+        return Ok(false);
+    }
+    let record: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
+    let candidates = graph_candidates(db, r)?;
+    let validations = graph_validations(db, r)?;
+    let mut owners: Vec<GraphOwnerDecision> = graph_records(
+        db,
+        r,
+        "goal_graph_owner_decisions",
+        "goal.owner_decided",
+        "owner_decision_id",
+        "local_owner_confirmation",
+    )?;
+    for old in owners.iter().filter(|o| o.id != pending.id) {
+        verify_owner_decision_receipt(db, r, old)?;
+    }
+    if !owners.iter().any(|o| o.id == pending.id) {
+        owners.push(pending.clone());
+    }
+    let mut refs = Vec::new();
+    for n in nodes {
+        match n.node.kind {
+            NodeKind::OwnerApproval => {
+                if n.node.id != pending.node_id && n.state != "accepted" {
+                    return Ok(false);
+                }
+            }
+            NodeKind::Validate => {
+                if n.state != "validated"
+                    || !validations.iter().any(|v| {
+                        v.node_id == n.node.id
+                            && v.plan_revision == r.plan_revision
+                            && v.passed
+                            && v.stop_confirmed
+                            && v.io_completion == "worker_joined"
+                    })
+                {
+                    return Ok(false);
+                }
+            }
+            _ => {
+                if n.state != "candidate" || !n.stop_confirmed {
+                    return Ok(false);
+                }
+                let own = candidates
+                    .iter()
+                    .filter(|c| c.node_id == n.node.id && c.plan_revision == r.plan_revision)
+                    .collect::<Vec<_>>();
+                if own.len() != 1
+                    || !rules_satisfied(
+                        &record,
+                        &n.node,
+                        &own[0].artifacts,
+                        &validations,
+                        &owners,
+                        false,
+                    )
+                {
+                    return Ok(false);
+                }
+                refs.extend(own[0].artifacts.clone());
+            }
+        }
+    }
+    for output in &record.selection.outputs {
+        if refs
+            .iter()
+            .filter(|a| {
+                a.artifact_id == output.artifact.artifact_id
+                    && a.contract_id == format!("output:{}", output.artifact.artifact_id)
+            })
+            .count()
+            != 1
+        {
+            return Ok(false);
+        }
+    }
+    require_read(db, r, &refs, witness, None)?;
+    let mut task: Task = raw(db, "tasks", &r.task_id)?;
+    if matches!(
+        task.state,
+        TaskState::Accepted
+            | TaskState::CancelRequested
+            | TaskState::Cancelled
+            | TaskState::OutcomeUnknown
+    ) || task.spec_revision != record.refs.spec_revision
+        || task.goal != record.refs.task_goal
+    {
+        return Err(denied());
+    }
+    let active:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_reservations WHERE run_id=?1 AND json_extract(document,'$.settled')=0) OR EXISTS(SELECT 1 FROM goal_graph_jobs WHERE run_id=?1 AND state IN('prepared','running','cancel_requested','outcome_unknown'))",[&r.id],|row|row.get(0)).map_err(db_error)?;
+    if active {
+        return Ok(false);
+    }
+    let id = Uuid::new_v4().to_string();
+    let seq = sequence(db)?.checked_add(1).ok_or_else(limited)?;
+    task.revision = task.revision.checked_add(1).ok_or_else(limited)?;
+    task.state = TaskState::Accepted;
+    task.acceptance_ref = Some(id.clone());
+    task.acceptance_sequence = Some(seq);
+    task.updated_at = now()?;
+    let acceptance = GraphTaskAcceptance {
+        id: id.clone(),
+        graph_contract_version: 1,
+        task_id: task.id.clone(),
+        task_revision: task.revision,
+        spec_revision: task.spec_revision,
+        project_id: task.project_id.clone(),
+        run_id: r.id.clone(),
+        scope_id: r.scope_id.clone(),
+        root_grant_id: r.root_grant_id.clone(),
+        plan_revision: r.plan_revision,
+        plan_digest: r.plan_digest.clone(),
+        input_revision: record.refs.workspace.base_revision.clone(),
+        workspace_id: record.refs.workspace.id.clone(),
+        capability_digest: sha(&checked_capability(db, r)?.snapshot)?,
+        criterion_digest: sha(&(OWNER_RULE, &record.selection.owner_acceptance_criteria))?,
+        artifact_refs: refs,
+        validation_ids: validations
+            .iter()
+            .filter(|v| v.plan_revision == r.plan_revision && v.passed)
+            .map(|v| v.id.clone())
+            .collect(),
+        owner_decision_ids: owners
+            .iter()
+            .filter(|o| o.plan_revision == r.plan_revision && o.decision == "accepted")
+            .map(|o| o.id.clone())
+            .collect(),
+        accepted_at: task.updated_at.clone(),
+        sequence: seq,
+        source: "baton_goal_acceptance".into(),
+    };
+    db.execute(
+        "INSERT INTO goal_graph_acceptances VALUES(?1,?2,?3,?4,?5,?6)",
+        params![
+            id,
+            task.id,
+            sql_num(task.revision)?,
+            r.id,
+            sql_num(r.plan_revision)?,
+            encode(&acceptance)?
+        ],
+    )
+    .map_err(db_error)?;
+    let e = Event {
+        sequence: 0,
+        event_id: Uuid::new_v4().to_string(),
+        aggregate_id: task.id.clone(),
+        revision: task.revision,
+        kind: "task.accepted".into(),
+        occurred_at: now()?,
+        payload: json!({"acceptance_ref":id,"acceptance_sequence":seq,"run_id":r.id,"receipt_digest":sha(&acceptance)?,"criteria_complete":true,"task_accepted":true}),
+        source: "baton_goal_acceptance".into(),
+    };
+    db.execute("INSERT INTO events(document) VALUES(?1)", [encode(&e)?])
+        .map_err(db_error)?;
+    db.execute(
+        "UPDATE tasks SET document=?1 WHERE id=?2",
+        params![encode(&task)?, task.id],
+    )
+    .map_err(db_error)?;
+    r.state = "accepted".into();
+    r.task_accepted = true;
+    Ok(true)
+}
+pub(super) fn verify_accepted_state(db: &Connection, r: &GoalRun) -> Result<GraphTaskAcceptance> {
+    if !r.task_accepted || r.state != "accepted" || r.cancel_requested {
+        return Err(changed());
+    }
+    let p = checked_capability(db, r)?;
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(task_id)+octet_length(run_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_acceptances WHERE run_id=?1",[&r.id],1,MAX_STORED_BYTES)?;
+    let raw: Option<String> = db
+        .query_row(
+            "SELECT document FROM goal_graph_acceptances WHERE run_id=?1",
+            [&r.id],
+            |row| row.get(0),
+        )
+        .optional()
+        .map_err(db_error)?;
+    let a: GraphTaskAcceptance = decode(&raw.ok_or_else(denied)?)?;
+    let task: Task = raw_task(db, &r.task_id)?;
+    stored_scope_view(db, &r.scope_id)?;
+    let record: ScopeRecord = super::super::raw(db, "goal_scopes", &r.scope_id)?;
+    if a.graph_contract_version != 1
+        || a.run_id != r.id
+        || a.task_id != r.task_id
+        || a.project_id != r.project_id
+        || a.scope_id != r.scope_id
+        || a.root_grant_id != r.root_grant_id
+        || a.plan_revision != r.plan_revision
+        || a.plan_digest != r.plan_digest
+        || a.capability_digest != sha(&p.snapshot)?
+        || a.source != "baton_goal_acceptance"
+        || a.artifact_refs.is_empty()
+        || task.id != a.task_id
+        || task.project_id != a.project_id
+        || task.goal != record.refs.task_goal
+        || record.refs.task_id != task.id
+        || record.refs.project_id != task.project_id
+        || record.refs.spec_revision != task.spec_revision
+        || a.input_revision != record.refs.workspace.base_revision
+        || a.workspace_id != record.refs.workspace.id
+        || p.snapshot["scope"]["scope_digest"] != record.scope_digest
+        || task.state != TaskState::Accepted
+        || task.revision != a.task_revision
+        || task.spec_revision != a.spec_revision
+        || task.acceptance_ref.as_deref() != Some(&a.id)
+        || task.acceptance_sequence != Some(a.sequence)
+    {
+        return Err(changed());
+    }
+    let event:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE sequence=?1",[sql_num(a.sequence)?],|row|row.get(0)).optional().map_err(db_error)?;
+    let e: Event = decode(&event.ok_or_else(denied)?.ok_or_else(limited)?)?;
+    if e.kind != "task.accepted"
+        || e.source != "baton_goal_acceptance"
+        || e.aggregate_id != task.id
+        || e.revision != task.revision
+        || e.payload["acceptance_ref"] != a.id
+        || e.payload["acceptance_sequence"] != a.sequence
+        || e.payload["run_id"] != r.id
+        || e.payload["receipt_digest"] != sha(&a)?
+        || e.payload["criteria_complete"] != true
+    {
+        return Err(denied());
+    }
+    let candidates = graph_candidates(db, r)?;
+    let owners = graph_owner_decisions(db, r)?;
+    let validations = graph_validations(db, r)?;
+    if a.artifact_refs.iter().any(|artifact| {
+        !candidates
+            .iter()
+            .any(|c| c.capture_receipt_sequence < a.sequence && c.artifacts.contains(artifact))
+    }) || a.owner_decision_ids.iter().any(|id| {
+        !owners
+            .iter()
+            .any(|o| o.id == *id && o.plan_revision == a.plan_revision && o.decision == "accepted")
+    }) || a.validation_ids.iter().any(|id| {
+        !validations.iter().any(|v| {
+            v.id == *id
+                && v.plan_revision == a.plan_revision
+                && v.passed
+                && v.stop_confirmed
+                && v.io_completion == "worker_joined"
+        })
+    }) {
+        return Err(changed());
+    }
+    let plans = bounded_plan_history(db, &r.scope_id)?;
+    let plan = plans
+        .iter()
+        .find(|p| p.proposal.revision == r.plan_revision && p.digest == r.plan_digest)
+        .ok_or_else(changed)?;
+    let nodes = node_records_at(db, r, r.plan_revision, &r.plan_digest, plan)?;
+    for n in &nodes {
+        match n.node.kind {
+            NodeKind::OwnerApproval => {
+                if n.state != "accepted"
+                    || !owners.iter().any(|o| {
+                        o.node_id == n.node.id
+                            && o.plan_revision == n.plan_revision
+                            && a.owner_decision_ids.contains(&o.id)
+                    })
+                {
+                    return Err(changed());
+                }
+            }
+            NodeKind::Validate => {
+                if n.state != "validated"
+                    || !validations.iter().any(|v| {
+                        v.node_id == n.node.id
+                            && v.plan_revision == n.plan_revision
+                            && a.validation_ids.contains(&v.id)
+                            && v.passed
+                    })
+                {
+                    return Err(changed());
+                }
+            }
+            _ => {
+                let refs = candidates
+                    .iter()
+                    .filter(|c| c.node_id == n.node.id && c.plan_revision == n.plan_revision)
+                    .flat_map(|c| c.artifacts.clone())
+                    .collect::<Vec<_>>();
+                if n.state != "candidate"
+                    || !n.stop_confirmed
+                    || refs.is_empty()
+                    || refs.iter().any(|a_ref| !a.artifact_refs.contains(a_ref))
+                    || !rules_satisfied(&record, &n.node, &refs, &validations, &owners, false)
+                {
+                    return Err(changed());
+                }
+            }
+        }
+    }
+    for o in owners
+        .iter()
+        .filter(|o| a.owner_decision_ids.contains(&o.id))
+    {
+        let seq:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.kind')='goal.owner_decided' AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.payload.owner_decision_id')=?1 ORDER BY sequence LIMIT 1",[&o.id],|row|row.get(0)).optional().map_err(db_error)?;
+        if seq.is_none_or(|v| v <= 0 || u64::try_from(v).ok().is_none_or(|v| v >= a.sequence)) {
+            return Err(denied());
+        }
+    }
+    for output in &record.selection.outputs {
+        if a.artifact_refs
+            .iter()
+            .filter(|r| {
+                r.artifact_id == output.artifact.artifact_id
+                    && r.contract_id == format!("output:{}", output.artifact.artifact_id)
+            })
+            .count()
+            != 1
+        {
+            return Err(changed());
+        }
+    }
+    Ok(a)
+}
+fn raw_task(db: &Connection, id: &str) -> Result<Task> {
+    raw(db, "tasks", id)
+}
+pub(crate) fn verify_task_acceptance_state(db: &Connection, task: &Task) -> Result<()> {
+    if task.state != TaskState::Accepted {
+        if task.acceptance_ref.is_some() || task.acceptance_sequence.is_some() {
+            return Err(changed());
+        }
+        return Ok(());
+    }
+    let id = task.acceptance_ref.as_deref().ok_or_else(denied)?;
+    let run_id:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(run_id)<=128 THEN run_id END FROM goal_graph_acceptances WHERE id=?1",[id],|row|row.get(0)).optional().map_err(db_error)?;
+    let r = run(db, &run_id.ok_or_else(denied)?.ok_or_else(limited)?)?;
+    let a = verify_accepted_state(db, &r)?;
+    if a.task_id != task.id || a.task_revision != task.revision {
+        return Err(changed());
+    }
+    Ok(())
+}
+
+fn mutation_summary(db: &Connection, r: GoalRun, event_kind: &str) -> Result<GraphRunSummary> {
+    let seq:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.revision')=?2 AND json_extract(document,'$.kind')=?3 AND json_extract(document,'$.source')='goal_core' ORDER BY sequence LIMIT 1",params![r.id,sql_num(r.revision)?,event_kind],|row|row.get(0)).optional().map_err(db_error)?;
+    Ok(GraphRunSummary {
+        graph_contract_version: 1,
+        task_accepted: r.task_accepted,
+        run: r,
+        ledger_revision: u64::try_from(seq.ok_or_else(denied)?).map_err(|_| changed())?,
+    })
+}
+impl Store {
+    pub(crate) fn cancel_goal_graph_with_stops(
+        &mut self,
+        id: &str,
+        revision: u64,
+        key: &str,
+    ) -> Result<(GraphRunSummary, Vec<String>)> {
+        let (r, new) = self.record_goal_cancel_kind(id, revision, key, true)?;
+        let receipt = mutation_summary(&self.conn, r, "goal.run_cancel_requested")?;
+        if !new {
+            return Ok((receipt, vec![]));
+        }
+        match self.goal_stop_requests() {
+            Ok(stops) => Ok((receipt, stops)),
+            Err(mut e) => {
+                e.side_effect_state = "confirmed".into();
+                e.details_ref = Some(format!("recorded-goal-graph-cancel:{id}"));
+                e.message+="; graph cancellation intent is committed, owned stop remains unconfirmed; recover exact original key";
+                Err(e)
+            }
+        }
+    }
+    pub(crate) fn graph_plan_advance_replay(
+        &self,
+        p: &GoalPlanAdvance,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<Option<GoalRun>> {
+        checked_capability(&self.conn, &run(&self.conn, &p.run_id)?)?;
+        key(key_id)?;
+        replay(
+            &self.conn,
+            &format!("goal-run:{}:advance-plan", p.run_id),
+            key_id,
+            &encode(&json!({"intent":p,"expected_revision":revision}))?,
+        )
+    }
+    pub fn advance_goal_graph_plan(
+        &mut self,
+        p: &GoalPlanAdvance,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<GraphRunSummary> {
+        let r = self.advance_goal_plan_kind(p, revision, key_id, true)?;
+        mutation_summary(&self.conn, r, "goal.run_plan_advanced")
+    }
+}
+
+fn node_acceptance_state(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    candidates: &[GraphCandidateReceipt],
+    validations: &[GraphValidationReceipt],
+    owners: &[GraphOwnerDecision],
+) -> Result<String> {
+    if n.state == "outcome_unknown" {
+        return Ok("unknown".into());
+    }
+    if n.node.kind == NodeKind::OwnerApproval {
+        return Ok(if n.state == "accepted" {
+            "accepted"
+        } else {
+            "pending"
+        }
+        .into());
+    }
+    if n.node.kind == NodeKind::Validate {
+        return Ok(if n.state == "validated" {
+            "validated"
+        } else {
+            "pending"
+        }
+        .into());
+    }
+    if n.state != "candidate" || !n.stop_confirmed {
+        return Ok("pending".into());
+    }
+    let refs = candidates
+        .iter()
+        .filter(|c| c.node_id == n.node.id && c.plan_revision == n.plan_revision)
+        .flat_map(|c| c.artifacts.clone())
+        .collect::<Vec<_>>();
+    if refs.is_empty() {
+        return Ok("pending".into());
+    }
+    let record: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
+    Ok(
+        if rules_satisfied(&record, &n.node, &refs, validations, owners, false) {
+            "accepted"
+        } else if n
+            .node
+            .required_validators
+            .iter()
+            .any(|v| v != OWNER_RULE && v != INPUT_RULE)
+            && rules_satisfied(&record, &n.node, &refs, validations, owners, true)
+        {
+            "validated"
+        } else {
+            "pending"
+        }
+        .into(),
+    )
+}
+
+fn verify_owner_decision_receipt(
+    db: &Connection,
+    r: &GoalRun,
+    o: &GraphOwnerDecision,
+) -> Result<GraphOwnerDecisionResult> {
+    let p: ApprovalProposal = raw(db, "approval_proposals", &o.approval_id)?;
+    let old:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(result)<=1048576 THEN result END FROM approval_proposals WHERE id=?1 AND result IS NOT NULL",[&p.id],|row|row.get(0)).optional().map_err(db_error)?;
+    let result: GraphOwnerDecisionResult = decode(&old.ok_or_else(denied)?.ok_or_else(limited)?)?;
+    let intended_revision = p.snapshot["expected_run_revision"]
+        .as_u64()
+        .ok_or_else(changed)?;
+    if !p.consumed
+        || p.kind != "goal_node_acceptance"
+        || o.graph_contract_version != 1
+        || o.run_id != r.id
+        || o.source
+            != if o.decision == "accepted" {
+                "local_owner_confirmation"
+            } else {
+                "local_owner_rejection"
+            }
+        || result.approval_id != p.id
+        || result.run_id != r.id
+        || result.node_id != o.node_id
+        || result.plan_revision != o.plan_revision
+        || result.owner_decision_id != o.id
+        || result.decision != o.decision
+        || result.run_revision != intended_revision.checked_add(1).ok_or_else(limited)?
+        || p.snapshot["run_binding"]["run_id"] != r.id
+        || p.snapshot["run_binding"]["plan_revision"] != o.plan_revision
+        || p.snapshot["run_binding"]["plan_digest"] != o.plan_digest
+        || p.snapshot["node"]["id"] != o.node_id
+        || p.snapshot["candidate_refs"] != json!(o.candidate_refs)
+        || p.snapshot["criterion"]["rule_id"] != o.rule_id
+        || p.snapshot["criterion"]["criterion_digest"] != o.criterion_digest
+    {
+        return Err(changed());
+    }
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='approval.proposed'",[&p.id],1,MAX_STORED_BYTES)?;
+    let proposed:Option<(i64,Option<String>)>=db.query_row("SELECT sequence,CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='approval.proposed'",[&p.id],|row|Ok((row.get(0)?,row.get(1)?))).optional().map_err(db_error)?;
+    let (proposal_seq, doc) = proposed.ok_or_else(denied)?;
+    let event: Event = decode(&doc.ok_or_else(limited)?)?;
+    if proposal_seq <= 0
+        || event.source != "user_action"
+        || event.payload["kind"] != p.kind
+        || event.payload["snapshot"] != p.snapshot
+    {
+        return Err(denied());
+    }
+    let owner_seq:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.owner_decided' AND json_extract(document,'$.source')=?2 AND json_extract(document,'$.payload.owner_decision_id')=?3 AND json_extract(document,'$.payload.approval_id')=?4 AND json_extract(document,'$.payload.receipt_digest')=?5 AND json_extract(document,'$.payload.decision')=?6 ORDER BY sequence LIMIT 1",params![r.id,o.source,o.id,p.id,sha(o)?,o.decision],|row|row.get(0)).optional().map_err(db_error)?;
+    let owner_seq = owner_seq.ok_or_else(denied)?;
+    if owner_seq <= proposal_seq {
+        return Err(denied());
+    }
+    let settled:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.owner_node_settled' AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.revision')=?2 AND json_extract(document,'$.payload.node_id')=?3 AND json_extract(document,'$.payload.owner_decision_id')=?4 AND json_extract(document,'$.payload.decision')=?5 AND json_extract(document,'$.payload.task_accepted')=?6 ORDER BY sequence LIMIT 1",params![r.id,sql_num(result.run_revision)?,o.node_id,o.id,o.decision,result.task_accepted],|row|row.get(0)).optional().map_err(db_error)?;
+    if settled.is_none_or(|seq| seq <= owner_seq) {
+        return Err(denied());
+    }
+    let receipts: Vec<GraphCandidateReceipt> =
+        serde_json::from_value(p.snapshot["candidate_receipts"].clone()).map_err(|_| changed())?;
+    if receipts.is_empty()
+        || receipts.len() > 64
+        || o.candidate_refs
+            .iter()
+            .any(|a| !receipts.iter().any(|c| c.artifacts.contains(a)))
+        || receipts
+            .iter()
+            .any(|c| c.capture_receipt_sequence >= u64::try_from(proposal_seq).unwrap_or(0))
+    {
+        return Err(changed());
+    }
+    let expected_validations = serde_json::from_value::<Vec<GraphValidationReceipt>>(
+        p.snapshot["validation_refs"].clone(),
+    )
+    .map_err(|_| changed())?
+    .into_iter()
+    .map(|v| v.id)
+    .collect::<Vec<_>>();
+    if expected_validations != o.validation_ids {
+        return Err(changed());
+    }
+    Ok(result)
+}
+impl GraphWorkers {
+    pub(crate) fn reap_owned_workers(&mut self) {
+        self.stopping = true;
+        for w in self.captures.values() {
+            w.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+        // Called before the daemon unlocks its sole writer lock. Fatal/unwind
+        // teardown never detaches an owned evidence reader into its successor.
+        for (_, w) in self.captures.drain() {
+            let _ = w.thread.join();
+        }
     }
 }

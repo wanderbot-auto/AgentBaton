@@ -44,6 +44,8 @@ impl Fixture {
             spec_revision: 3,
             state: TaskState::Draft,
             revision: 1,
+            acceptance_ref: None,
+            acceptance_sequence: None,
             created_at: "host-time".into(),
             updated_at: "host-time".into(),
         };
