@@ -1,6 +1,6 @@
 # Verification evidence
 
-Source: `86121385b8a4e4bb40579b7446b8dab2456a1fec`; baseline: `822c3bb46c8ec8ba506e7682b07e2a1384ed0674`. Machine manifest [verification.json](/workspace/.onboarding/goal-runtime-ui/verification.json), SHA256 `a1caf8d3f30491fb1054e148e3b379057fa746c33f2b89e60325b3b0e89f813b`, binds every source file, command, log, failed control, binary and real proposal report.
+Source: `86121385b8a4e4bb40579b7446b8dab2456a1fec`; baseline: `822c3bb46c8ec8ba506e7682b07e2a1384ed0674`. Machine manifest [verification.json](AUTHOR_VERIFICATION_861.json), SHA256 `a1caf8d3f30491fb1054e148e3b379057fa746c33f2b89e60325b3b0e89f813b`, binds every source file, command, log, failed control, binary and real proposal report.
 
 - `npm test`: **425 passed /23files**, no failed/skipped; logSHA `8fa488fe3941fb0f0cb0e84398222697490e23e84d000215be9d2bb2297fc7b4`. Original367 test source bytes preserved;58 new cases cover fixed5 APIs, fresh/scoped references, new Native intent, no automatic replay, same-key recovery/remount, stale/same-version/ledger drift, cancellation uncertainty, actual-versus-reserved domain, bounded polling, historical keys and explicit validated same-scope plan adoption.
 - `npm run typecheck`: PASS; logSHA `642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e`. `npm run build`: PASS; logSHA `eee9444370cbb530fb2a81bf02b834b101c765bc01b97b9324827f6f8da8452e`.

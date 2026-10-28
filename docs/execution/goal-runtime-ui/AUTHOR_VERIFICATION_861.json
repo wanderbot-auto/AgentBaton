@@ -1,0 +1,374 @@
+{
+  "source_commit": "86121385b8a4e4bb40579b7446b8dab2456a1fec",
+  "base_commit": "822c3bb46c8ec8ba506e7682b07e2a1384ed0674",
+  "branch": "codex/goal-runtime-ui",
+  "source_sha256": {
+    "apps/desktop/src-tauri/src/approval.rs": "4e9b02bdf1eda86e98afa727b15826e0858e509de8bf932bf8b312ec6d136896",
+    "apps/desktop/src-tauri/src/lib.rs": "7eb75d1ad51da49f548dd2292bcedff69220c82732df62e81796f25d9919f3d0",
+    "apps/desktop/src/GoalExecution.test.tsx": "ce1be13fa6851a4ef608430494f33e1fdbf2b96f046df32cf3e8f0f6e884bea3",
+    "apps/desktop/src/GoalExecution.tsx": "9d28e5157f31bf0e049c395954af4c2c2633c595673720ff1eefc9cccc8820e1",
+    "apps/desktop/src/GoalPlanning.execution-mount.test.tsx": "98bb58eb36bb7b419975c26f2d419883b58f40b948a5a759abbce6ea16c3d6f9",
+    "apps/desktop/src/GoalPlanning.tsx": "523429090db416338299df0177d9921a66bd2b60d95a8366ec5727f034a0973d",
+    "apps/desktop/src/goal-execution-api.test.ts": "c9b3add2d62172df94edf906b2308b5926c2d197d96a990833e3ef5760a1d5f9",
+    "apps/desktop/src/goal-execution-api.ts": "b4207832e3623c12b21cf17892b6ed7ab99327f0acae97af324b92d629af1e00",
+    "apps/desktop/src/goal-execution-i18n.ts": "3c6b2367a84c0f0ba144e94a993dfb7c8b45d0d2d055bbf52b713c200df3f0cc",
+    "apps/desktop/src/goal-execution-test-fixtures.ts": "76112fe6c1d37826537d23f867694aa3a97ec68d3b2e45cb05c34c56e10aec89",
+    "apps/desktop/src/goal-execution.css": "18abc05573647f2580a9b62b4171cf0e217f15c8348bacb38191f6a4a4ac8b5a"
+  },
+  "results": {
+    "frontend_tests": 425,
+    "frontend_files": 23,
+    "baseline_tests": 367,
+    "new_tests": 58,
+    "typecheck": "PASS",
+    "build": "PASS",
+    "native_library_tests": 28,
+    "native_harness_tests": 12,
+    "native_baseline_library_tests": 22,
+    "native_clippy_all_targets": "PASS",
+    "native_fmt": "PASS",
+    "diff": "PASS",
+    "no_failed_ignored_or_filtered_cases_in_final_runs": true
+  },
+  "ui_commands": [
+    {
+      "name": "ui-full-frozen",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 16.42,
+      "log": "/workspace/.onboarding/goal-runtime-ui/ui-full-frozen.log",
+      "sha256": "8fa488fe3941fb0f0cb0e84398222697490e23e84d000215be9d2bb2297fc7b4"
+    },
+    {
+      "name": "typecheck-frozen",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 0.88,
+      "log": "/workspace/.onboarding/goal-runtime-ui/typecheck-frozen.log",
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    {
+      "name": "build-frozen",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2,
+      "log": "/workspace/.onboarding/goal-runtime-ui/build-frozen.log",
+      "sha256": "eee9444370cbb530fb2a81bf02b834b101c765bc01b97b9324827f6f8da8452e"
+    }
+  ],
+  "native_commands": [
+    {
+      "name": "fmt-write-fixed",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "seconds": 0.14,
+      "log": "/workspace/.onboarding/goal-runtime-ui/native/fmt-write-fixed.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "tests-fixed",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--features",
+        "native-smoke,custom-protocol"
+      ],
+      "exit_code": 0,
+      "seconds": 12.75,
+      "log": "/workspace/.onboarding/goal-runtime-ui/native/tests-fixed.log",
+      "sha256": "ed8338c6897c6b302f35961000390652939f362a6c463e82984992295df23b77"
+    },
+    {
+      "name": "clippy-fixed",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--features",
+        "native-smoke,custom-protocol",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 7.24,
+      "log": "/workspace/.onboarding/goal-runtime-ui/native/clippy-fixed.log",
+      "sha256": "e31f91d50d49843c2b7195f43d0a3d3ae0603f6fc0da2d1b94284d42f4248173"
+    },
+    {
+      "name": "fmt-check-fixed",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11,
+      "log": "/workspace/.onboarding/goal-runtime-ui/native/fmt-check-fixed.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "baseline_preservation": {
+    "baseline": "822c3bb46c8ec8ba506e7682b07e2a1384ed0674",
+    "ui_original_test_files": 20,
+    "all_original_test_bytes_equal": true,
+    "native_original_tests_prefix_bytes_equal": [
+      "approval.rs",
+      "lib.rs"
+    ],
+    "native_harness_source_bytes_equal": true
+  },
+  "real_native_proposals": [
+    {
+      "sha256": "44b8f0ea1045d2da139b33007e153dbee4b0e4d654a1aae83506a30d533442ee",
+      "compact_bytes": 7668,
+      "pretty_bytes": 10188,
+      "displayed_bytes": 10188,
+      "complete_snapshot_value_equal": true
+    },
+    {
+      "sha256": "ac4ac13da6adc838df39b37b62a4e08e6ee4d676f17756a6fd0283352d720b11",
+      "compact_bytes": 13440,
+      "pretty_bytes": 16694,
+      "displayed_bytes": 13440,
+      "complete_snapshot_value_equal": true
+    }
+  ],
+  "large_prior_policy_control": "exact822 common display function, kind-only tag adapter; 0prompt/0finalize refusal; not a claim that old product supported goal_execution",
+  "preserved_initial_failures": [
+    "initial wrong cwd/tsc unavailable before source edits or product checks",
+    "first focused poll fixture:47pass/1fail because fake clock installed after real timer",
+    "fake-user-event fixture variant:39pass/9fail after one timeout; no production timeout changes",
+    "first Native compile:unreachable GoalExecution method arm / missing action arm E0004; mechanically corrected"
+  ],
+  "limits": [
+    "UI/API tests use mocked transport; Native host tests compiled against baseline Core10",
+    "real Core11 proposal source fixtures only; Native callbacks do not invoke OS OwnerDialog or actual private Core finalize",
+    "no whole Core11/frontend real IPC/browser/macOS/default release/package validation here",
+    "only current scoped declared output artifact file bytes are observed; no capture/cumulative filesystem/workspace quota claim",
+    "no new workspace factory/identity/host/recipient authority",
+    "no direct renderer dispatch, generic finalize, SQL, shell or native dialog plugin permission",
+    "full Design v0.2 remains incomplete and independent review/integration required"
+  ],
+  "artifacts": {
+    "baseline-preservation.json": {
+      "bytes": 264,
+      "sha256": "97ab8b56c43c29dab0eadd8222ff23beb9ff122c237e0b329547a71bfdb6423a"
+    },
+    "build-final.log": {
+      "bytes": 624,
+      "sha256": "4d0168662432f6000a495fd3be4179d1f9b1332b0b318da72af9ee26c49b9edc"
+    },
+    "build-first.log": {
+      "bytes": 624,
+      "sha256": "acef037f341f67654223df9c85def186b0b354bd6f0c7319bfd3ee97516074a8"
+    },
+    "build-frozen.log": {
+      "bytes": 624,
+      "sha256": "eee9444370cbb530fb2a81bf02b834b101c765bc01b97b9324827f6f8da8452e"
+    },
+    "controls/GoalExecution.fake-user-event.test.tsx": {
+      "bytes": 16779,
+      "sha256": "f77f67e0fef2db024aec4ff85b9b3862d174594e551c76f7ae5c214992c558b6"
+    },
+    "controls/GoalExecution.first-poll.test.tsx": {
+      "bytes": 16627,
+      "sha256": "c170a7be0b229c546b9248637b7e9c1b521ab4686af94140b60270ef44632cbe"
+    },
+    "initial-wrong-cwd.txt": {
+      "bytes": 306,
+      "sha256": "953bcacc88ac6ea31f56ddd8daebf7009744dd63cec271b31bc0fe33715431eb"
+    },
+    "native/clippy-fixed.log": {
+      "bytes": 552,
+      "sha256": "e31f91d50d49843c2b7195f43d0a3d3ae0603f6fc0da2d1b94284d42f4248173"
+    },
+    "native/compile-resources.json": {
+      "bytes": 533,
+      "sha256": "5316f7eae777de98582364f2918d11c4b8e1454234724397bb88af15d16b1583"
+    },
+    "native/entrypoint-touch.json": {
+      "bytes": 369,
+      "sha256": "8ffda33f4e1aaebb39e1fd60d87a26432e34a5bc0cf346e95f132163bb4d7016"
+    },
+    "native/fmt-check-fixed.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native/fmt-write-fixed.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native/fmt-write.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native/results-fixed.json": {
+      "bytes": 1722,
+      "sha256": "4b36b40664d174737f5c1094320f4a32dec5baaf776bf08d19cdb1ab4a8765c8"
+    },
+    "native/results.json": {
+      "bytes": 804,
+      "sha256": "06f64340509233b86b55adc4157438f9cd411246452d80116fdcdab8636c42a2"
+    },
+    "native/tests-first.log": {
+      "bytes": 3015,
+      "sha256": "754a3bdbf663f60ba459c80538dad779af556530f19b297786ffda4e8fa7e6f3"
+    },
+    "native/tests-fixed.log": {
+      "bytes": 5069,
+      "sha256": "ed8338c6897c6b302f35961000390652939f362a6c463e82984992295df23b77"
+    },
+    "native-fmt-write.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "real-proposal/actual-real-large.log": {
+      "bytes": 65,
+      "sha256": "6e9dc79c6035c9ad9af046c1b348442924881c2eb0bc433c597bc6a76c1f35a5"
+    },
+    "real-proposal/actual-real-proposal.log": {
+      "bytes": 65,
+      "sha256": "6e9dc79c6035c9ad9af046c1b348442924881c2eb0bc433c597bc6a76c1f35a5"
+    },
+    "real-proposal/baseline-common-probe": {
+      "bytes": 7167808,
+      "sha256": "be386bccdcdf41dd2c298f08118aea06c45fc613651c5865b8cecfb12e6ebdf0"
+    },
+    "real-proposal/baseline-common-probe.rs": {
+      "bytes": 950,
+      "sha256": "35b8bfdbc46027d31d511064ad516cd681388d35ba93742667712e5378861672"
+    },
+    "real-proposal/baseline-common-with-kind-adapter.rs": {
+      "bytes": 45989,
+      "sha256": "ba955d09dc9384907c6b34d2ba7c2e48d7d4b17769b91290a5d4636b9b4b2ef3"
+    },
+    "real-proposal/baseline-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "real-proposal/baseline-large-refusal.log": {
+      "bytes": 381,
+      "sha256": "bbc3187b8dfad487688bb4276a4b14e485b39d31235b92eaf7925df2dbef40d7"
+    },
+    "real-proposal/checks.json": {
+      "bytes": 1148,
+      "sha256": "9a0e0957af2c9b6d425482154c08ab9afbdc34e1726dc14095b43302f8b0388d"
+    },
+    "real-proposal/compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "real-proposal/generated-goal-execution-44b8f0ea1045d2da139b33007e153dbee4b0e4d654a1aae83506a30d533442ee.json": {
+      "bytes": 10974,
+      "sha256": "44b8f0ea1045d2da139b33007e153dbee4b0e4d654a1aae83506a30d533442ee"
+    },
+    "real-proposal/generated-goal-execution-ac4ac13da6adc838df39b37b62a4e08e6ee4d676f17756a6fd0283352d720b11.json": {
+      "bytes": 17592,
+      "sha256": "ac4ac13da6adc838df39b37b62a4e08e6ee4d676f17756a6fd0283352d720b11"
+    },
+    "real-proposal/native-goal-probe": {
+      "bytes": 7231496,
+      "sha256": "f21cbe41087b4a5d64f8b6d574e9c083d3b64b3c5682e196fc338798c2a2e7fa"
+    },
+    "real-proposal/native-goal-probe.rs": {
+      "bytes": 4308,
+      "sha256": "766ac79a59e69c28b3fe66b70bd3216621eb04c901e40017b964d5aac1a321a3"
+    },
+    "real-proposal/probe-real-44b8.json": {
+      "bytes": 49788,
+      "sha256": "82971591d2201ad8d651fdd8f3c448848286d56db027e0d1a9c51d36a1d44e87"
+    },
+    "real-proposal/probe-real-large-ac4a.json": {
+      "bytes": 62119,
+      "sha256": "580b1edd77bd62471bcaf569764587d18225554f52abc460001f35775ee1b6e5"
+    },
+    "real-proposal/real-large-source-provenance.json": {
+      "bytes": 492,
+      "sha256": "ac9aa18cfadd4ebef4e6a9f37c892f23ac71ca99bbc6cf1eda57cf0d0874877b"
+    },
+    "typecheck-advance-first.log": {
+      "bytes": 263,
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    "typecheck-final.log": {
+      "bytes": 263,
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    "typecheck-first.log": {
+      "bytes": 263,
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    "typecheck-frozen.log": {
+      "bytes": 263,
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    "typecheck-new-tests.log": {
+      "bytes": 263,
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    "ui-final-results.json": {
+      "bytes": 879,
+      "sha256": "77cb6c05ce39d1085f9235da79b5514047a923a521cfbc3dbf74a8ba967b1e93"
+    },
+    "ui-focused-fences.log": {
+      "bytes": 715,
+      "sha256": "ce3571c663ac87001f43d88fedfe42797bd098693fbf0c16af3bd7eabf416006"
+    },
+    "ui-focused-first.log": {
+      "bytes": 11071,
+      "sha256": "3505e09b8c39eada7633ad96c724c22e45368c8be4fda6dfd4698f7262471392"
+    },
+    "ui-focused-fixed.log": {
+      "bytes": 7271,
+      "sha256": "9b7f2ab54ba8851601a95bf6563c21deafa4f9083697e8a2f465ce2f7f87f58c"
+    },
+    "ui-focused-third.log": {
+      "bytes": 653,
+      "sha256": "d6db783f3922cd6be3e2e7838be6ee518c79a10a92022ba8b5efbc87eeeab498"
+    },
+    "ui-frozen-results.json": {
+      "bytes": 884,
+      "sha256": "0c1ecf3902fb16920edefe22949221dc54954c0d48c34ebf0b086450f7f09223"
+    },
+    "ui-full-final.log": {
+      "bytes": 788,
+      "sha256": "9e2250e7bc71f4b015d48c87c5355de499efda677874a673804df62e7aca0711"
+    },
+    "ui-full-first.log": {
+      "bytes": 788,
+      "sha256": "b8a7567fda5f60bb1066ddaf63d0830169e02d0881d1d2c72768199ba6e6e834"
+    },
+    "ui-full-frozen.log": {
+      "bytes": 788,
+      "sha256": "8fa488fe3941fb0f0cb0e84398222697490e23e84d000215be9d2bb2297fc7b4"
+    }
+  }
+}
