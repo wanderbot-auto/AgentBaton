@@ -36,3 +36,8 @@
 - Targeted new tests passed14/2 and typecheck passed before source freeze. Covered actual Data/system-Command verification, wrong digest/raw/projection/JSON/no-crypto, candidate Pin invariants, mutation/floor/cancellation boundaries, complete visible original text and HTML escaping.
 - An asynchronous projection mutation control initially failed during this implementation. Original source/log are preserved; final verification captures the pre-await projection and rechecks raw/digest/projection after await. The control now passes.
 - Native production/test source remains exactly the separate8a revision; four new callbacks are still not compiled or run. New production JS changes require a fresh complete suite/type/build before independent review.
+
+- Frozen lossless source 4fab558fe126543c23b1410949e6fcd922b770d6: full564/37 + selected14/2 + typecheck/build/diff all passed. Actual system-program unsafe inode is preserved in authenticated original raw text; candidate/authority precision checks remain unchanged.
+- All35 prior renderer files preserved. Native approval exactly8a, so total four new callback functions remain source-only; no4fab Native execution or macOS inference.
+- Corrected a reused evidence build outDir: restored and rehashed all47 original Integrity artifacts, saved correction evidence, rebuilt new source into its own directory. Product files were unaffected.
+- Separate independent4fab review is running. Only these four records are updated after source freeze.
