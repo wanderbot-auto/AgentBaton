@@ -229,5 +229,121 @@ class OwnerRunnerControls(unittest.TestCase):
             self.assertFalse(output.exists())
 
 
+class BootstrapPathControls(unittest.TestCase):
+    def daemon(self):
+        daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
+        self.assertTrue(daemon.is_file(), 'Use the real frozen schema12 daemon')
+        return daemon
+
+    def test_alias_parent_real_core_refuses_raw_alias_but_canonical_bootstrap_is_ready(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary).resolve()
+            real = base / 'real'
+            real.mkdir(mode=0o700)
+            alias = base / 'alias'
+            alias.symlink_to(real, target_is_directory=True)
+            denied = real / 'denied-runtime'
+            denied.mkdir(mode=0o700)
+            env = {**os.environ, 'BATON_RUNTIME_DIR': str(alias / 'denied-runtime')}
+            child = subprocess.Popen([str(self.daemon())], env=env, start_new_session=True,
+                                     stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+            try:
+                deadline = time.monotonic() + 3
+                while not runner.exited_without_reaping(child):
+                    self.assertLess(time.monotonic(), deadline)
+                    time.sleep(.02)
+                cleanup = runner.stop_owned(child, 'daemon')
+                _, stderr = child.communicate(timeout=1)
+                self.assertEqual(cleanup['returncode'], 1)
+                self.assertFalse(cleanup['ok'])
+                self.assertEqual(cleanup['signals'], [])
+                self.assertIn(b'Runtime paths must not contain symbolic links', stderr)
+            finally:
+                if child.returncode is None:
+                    runner.stop_owned(child, 'daemon')
+                child.stderr.close()
+            output = base / 'evidence'
+            output.mkdir(mode=0o700)
+            with mock.patch.object(runner.tempfile, 'tempdir', str(alias)):
+                with runner.bootstrap(self.daemon(), output) as fixture:
+                    runtime = fixture['runtime']
+                    self.assertEqual(runtime, runtime.resolve(strict=True))
+                    observed = runner.database(runtime, fixture['proposal']['id'])
+                    self.assertIsNone(runner.pending_error(observed, fixture['proposal'], observed['sequence']))
+                    paths = runner.json.loads((output / 'bootstrap-paths.json').read_text())
+                    self.assertIn('/alias/', paths['requested_root'])
+                    self.assertNotIn('/alias/', paths['root']['path'])
+                    for name in ['root', 'runtime']:
+                        self.assertEqual(paths[name]['uid'], os.geteuid())
+                        self.assertEqual(paths[name]['mode'], 0o700)
+            state = runner.json.loads((output / 'bootstrap-state.json').read_text())
+            self.assertEqual(state['status'], 'completed')
+            self.assertTrue(state['cleanup_ok'])
+            for name in ['stdout', 'stderr']:
+                self.assertEqual(state[name]['mode'], 0o600)
+
+    def test_long_private_temp_parent_uses_short_canonical_real_core_runtime(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary).resolve()
+            long_parent = base / ('long-parent-' + 'x' * 120)
+            long_parent.mkdir(mode=0o700)
+            output = base / 'evidence'
+            output.mkdir(mode=0o700)
+            with mock.patch.object(runner.tempfile, 'tempdir', str(long_parent)):
+                with runner.bootstrap(self.daemon(), output) as fixture:
+                    paths = runner.json.loads((output / 'bootstrap-paths.json').read_text())
+                    self.assertGreater(paths['initial_socket_utf8_bytes'], 103)
+                    self.assertTrue(paths['private_short_fallback'])
+                    self.assertLessEqual(paths['socket']['utf8_bytes'], 103)
+                    self.assertEqual(fixture['runtime'], fixture['runtime'].resolve(strict=True))
+                    self.assertIsInstance(fixture['client'].call('system.snapshot', {}), dict)
+            self.assertTrue(runner.json.loads((output / 'bootstrap-state.json').read_text())['cleanup_ok'])
+
+    def test_bootstrap_retains_original_exit_and_private_stderr_without_yielding(self):
+        for code in [0, 23]:
+            with self.subTest(code=code), tempfile.TemporaryDirectory() as temporary:
+                base = Path(temporary)
+                output = base / 'evidence'
+                output.mkdir(mode=0o700)
+                failing = base / 'own-exit-fixture'
+                failing.write_text(f'#!/bin/sh\nprintf "owned stdout marker\\n"\nprintf "owned stderr marker\\n" >&2\nexit {code}\n')
+                failing.chmod(0o700)
+                with self.assertRaisesRegex(RuntimeError, 'Fixture daemon exited before readiness'):
+                    with runner.bootstrap(failing, output):
+                        self.fail('An exited daemon must never yield a ready fixture')
+                state = runner.json.loads((output / 'bootstrap-state.json').read_text())
+                cleanup = runner.json.loads((output / 'daemon-cleanup.json').read_text())
+                self.assertEqual(state['status'], 'failed')
+                self.assertEqual(state['phase'], 'daemon_readiness')
+                self.assertEqual(state['original_failure']['message'], 'Fixture daemon exited before readiness')
+                self.assertEqual(state['daemon_exitcode'], code)
+                self.assertFalse(state['cleanup_ok'])
+                self.assertFalse(cleanup['ok'])
+                self.assertEqual(cleanup['signals'], [])
+                self.assertEqual((output / 'daemon-stderr.log').read_bytes(), b'owned stderr marker\n')
+                self.assertEqual((output / 'daemon-stdout.log').read_bytes(), b'owned stdout marker\n')
+                self.assertEqual(state['stderr']['mode'], 0o600)
+                self.assertEqual(state['stderr']['sha256'], runner.hashlib.sha256(b'owned stderr marker\n').hexdigest())
+                self.assertEqual(runner.json.loads((output / 'core-bootstrap-transcript.json').read_text()), [])
+
+    def test_bootstrap_refuses_nonprivate_or_nonempty_evidence_without_overwriting(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / 'evidence'
+            output.mkdir(mode=0o700)
+            marker = output / 'unknown-existing.txt'
+            marker.write_bytes(b'keep existing evidence')
+            with mock.patch.object(runner.subprocess, 'Popen') as spawn:
+                with self.assertRaisesRegex(ValueError, 'fresh empty'):
+                    with runner.bootstrap(Path('/not-started'), output):
+                        self.fail('Nonempty evidence must be refused')
+                spawn.assert_not_called()
+            self.assertEqual(marker.read_bytes(), b'keep existing evidence')
+            marker.unlink()
+            output.chmod(0o755)
+            with self.assertRaisesRegex(ValueError, 'private and owned'):
+                with runner.bootstrap(Path('/not-started'), output):
+                    self.fail('Nonprivate evidence must be refused')
+
+
 if __name__ == '__main__':
     unittest.main()
