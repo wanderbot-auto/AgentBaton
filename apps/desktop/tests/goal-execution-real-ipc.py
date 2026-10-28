@@ -276,7 +276,8 @@ def main():
                     pass
                 else:
                     raise AssertionError('Generated owned process remains alive despite stop confirmation')
-                assert result('sessions.get', {'session_id': node['session_id']})['state'] == 'stopped'
+                session = result('sessions.get', {'session_id': node['session_id']})
+                assert session['state'] == 'stopped'
                 assert view['task_accepted'] is False and view['run']['task_accepted'] is False
                 assert result('tasks.get', {'task_id': scenario['task']['id']})['state'] != 'accepted'
                 raw = (Path(scenario['workspace']['root']) / 'reports/task-request.json').read_bytes()
@@ -286,6 +287,24 @@ def main():
                 assert request['inputs'][0]['artifact']['relative_path'] == ('inputs/file' if scenario['data'] else 'file')
                 assert request['outputs'][0]['artifact']['relative_path'] == 'reports/report.txt'
                 report['observations'].setdefault('complete_task_requests', []).append({'scenario': scenario['task']['id'], 'utf8_bytes': len(raw), 'sha256': sha(raw), 'request': request, 'owned_stop_observed': True})
+                with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
+                    db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
+                    rows = db.execute("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id') IN(?,?,?) ORDER BY sequence LIMIT 513", [view['run']['id'], scenario['task']['id'], node['session_id']]).fetchall()
+                    assert len(rows) <= 512 and all(len(document.encode()) <= 1_048_576 for _, document in rows)
+                    events = [(sequence, json.loads(document)) for sequence, document in rows]
+                    reserved = [(sequence, event) for sequence, event in events if event['kind'] == 'goal.node_reserved' and event['source'] == 'goal_core' and event['payload'].get('attempt_id') == node['attempt_id'] and event['payload'].get('session_id') == node['session_id']]
+                    stopped = [(sequence, event) for sequence, event in events if event['kind'] == 'attempt.stopped' and event['source'] == 'user_action' and event['payload'].get('intent_id') == session['intent_id']]
+                    supervisor = [(sequence, event) for sequence, event in events if event['kind'] == 'session.stopped' and event['source'] == 'baton_supervisor' and event['aggregate_id'] == node['session_id']]
+                    settled = [(sequence, event) for sequence, event in events if event['kind'] == 'goal.node_settled' and event['source'] == 'goal_core' and event['payload'].get('attempt_id') == node['attempt_id'] and event['payload'].get('session_id') == node['session_id']]
+                    assert len(reserved) == len(stopped) == len(supervisor) == len(settled) == 1
+                    assert 0 < reserved[0][0] < stopped[0][0] < supervisor[0][0] < settled[0][0]
+                    assert stopped[0][1]['payload']['stop_evidence'] == {'kind': 'executor_stop', 'executor_instance': node['session_id'], 'receipt_ref': 'owned-worker-stop:' + node['session_id']}
+                    assert supervisor[0][1]['payload']['process_reaped'] is True
+                    observed = settled[0][1]['payload']
+                    assert observed['stop_confirmed'] is True and observed['state'] == node['state']
+                    assert observed['actual_runtime_ms'] == node['actual_runtime_ms'] and observed['actual_output_bytes'] == node['actual_output_bytes']
+                    assert observed['tokens'] is None and observed['cost_microunits'] is None and observed['task_accepted'] is False
+                report['observations'].setdefault('owned_stop_receipt_chains', []).append({'run_id': view['run']['id'], 'attempt_id': node['attempt_id'], 'plan_revision': node['plan_revision'], 'events': [{'sql_sequence': sequence, 'document': event} for sequence, event in [reserved[0], stopped[0], supervisor[0], settled[0]]]})
 
             allowed_task_ids = {s['task']['id'] for s in scenarios.values()}
             allowed_project_ids = {s['project']['id'] for s in scenarios.values()}
@@ -458,6 +477,13 @@ def main():
                     expect(node_detail.get_by_text('Not measured / unknown', exact=True).first).to_be_visible(); shot('02-real-generated-candidate')
                     first_db = database(); project_budget = 'project:' + scenario['project']['id']
                     assert first_db['budgets'][project_budget] == {'consumed': 1, 'active': 0}
+                    task_budget = 'root:' + scenario['task']['id']; root_ledger = 'root-grant:' + scenario['grant']['id']
+                    assert first_db['budgets'][task_budget] == {'consumed': 1, 'active': 0}
+                    for scope_key in [project_budget, root_ledger]:
+                        assert first_db['goal_ledgers'][scope_key]['observed_attempts'] == 1
+                        assert first_db['goal_ledgers'][scope_key]['output_bytes'] == 12
+                        assert first_db['goal_ledgers'][scope_key]['runtime_ms'] > 0
+                        assert first_db['goal_ledgers'][scope_key]['tokens'] is None and first_db['goal_ledgers'][scope_key]['cost_microunits'] is None
                     assert first_db['execution_approvals'] == 1
                     report['observations']['normal_first'] = {'view': first, 'database': first_db}
                     passed('HTTP-external real Owner fixture starts full TaskRequest, real artifact and owned-reaped candidate without acceptance')
@@ -477,7 +503,12 @@ def main():
                     assert_reaped(scenario, second)
                     before_recovery = database()
                     assert before_recovery['execution_approvals'] == 1 and before_recovery['budgets'][project_budget] == {'consumed': 2, 'active': 0}
-                    assert before_recovery['goal_ledgers'][project_budget]['output_bytes'] == 27
+                    assert before_recovery['budgets'][task_budget] == {'consumed': 2, 'active': 0}
+                    for scope_key in [project_budget, root_ledger]:
+                        previous, current = first_db['goal_ledgers'][scope_key], before_recovery['goal_ledgers'][scope_key]
+                        assert current['observed_attempts'] == 2 and current['output_bytes'] == 27
+                        assert current['runtime_ms'] > previous['runtime_ms'] and current['limits'] == previous['limits']
+                        assert current['tokens'] is None and current['cost_microunits'] is None
                     panel, execution = open_scenario('normal'); refresh(execution)
                     recover = execution.get_by_role('button', name='Recover the same execution request', exact=True); expect(recover).to_be_enabled(); recover.click()
                     expect(execution.get_by_role('button', name='Recover the same execution request', exact=True)).to_have_count(0)
@@ -577,6 +608,7 @@ def main():
                     assert str(provider).encode() in argv
                     os.killpg(pid, signal.SIGKILL)
                     cleanup.append({'scenario': scenario['task']['id'], 'action': 'killed only still-live exact generated private process group after daemon teardown', 'stop_proof': False})
+                    report['status'] = 'failed_or_interrupted'
                 except ProcessLookupError:
                     pass
                 except (AssertionError, OSError, ValueError, KeyError) as failure:

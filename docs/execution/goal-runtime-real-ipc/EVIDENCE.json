@@ -17,7 +17,7 @@
     "AB-REL-001": "separate syntax/browser/generated protocol/native/Provider dimensions"
   },
   "mapping_note": "No AB-ORC IDs exist in the immutable requirements baseline; actual AB-TSK/WP08 identifiers are used without editing specs.",
-  "script_sha256": "e4e074e2abdc9ba0e3dbfe42d660f2a4cae9ac91cfabeed1ad1cb6f7b61dc9d3",
+  "script_sha256": "180f4deb748d3d23ce04c3c7233c45a26944ac5d4358d4bd055749ac51443bba",
   "status": "prepared_not_executed",
   "actual_checks": [
     "Python ast.parse",
@@ -40,5 +40,17 @@
     "Generated process private group stop proof distinct from protocol response and partial output",
     "No Cargo/target/native/Node/lock/CI/STATUS/spec changes or new credentials/accounts/fees"
   ],
-  "next": "Review static allowlist/cleanup/races; await Core author immutable schema11 binary+manifest and Root composed frontend, then run exclusive outputs and record real failures/results/source/asset hashes. Independent review required before acceptance."
+  "next": "Review static allowlist/cleanup/races; await Core author immutable schema11 binary+manifest and Root composed frontend, then run exclusive outputs and record real failures/results/source/asset hashes. Independent review required before acceptance.",
+  "static_followup": {
+    "dimension": "syntax/static contract preparation only, no runtime",
+    "script_sha256": "180f4deb748d3d23ce04c3c7233c45a26944ac5d4358d4bd055749ac51443bba",
+    "actual_syntax": "AST/py_compile and extracted generated ACP compile passed",
+    "static_followups": [
+      "Root-task and project budgets both consumed1→2 active0; root-grant/project Goal ledger attempts1→2 output12→27 runtime increases limits unchanged tokens/costnull",
+      "Per owned terminal: actual PID gone, sessionstopped, readonly reserved→attemptstopped→supervisorstopped→Goalsettled SQLPK order and exact correlated actual meter payloads",
+      "Any fallback cleanup of still-live private generated group prevents a pass; cleanup identity failure preserves failed report"
+    ],
+    "runtime": "not_run; explicit schema11 candidate+composed UI pending"
+  },
+  "static_followup_report_sha256": "01447aa5b32f1339e03f1a50945ef35207544f3d3dc8de7a7d654c3c3a1d899c"
 }
