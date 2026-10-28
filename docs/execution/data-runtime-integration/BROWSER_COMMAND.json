@@ -1,0 +1,241 @@
+{
+  "dimension": "actual built React + bounded test-only localhost adapter + real Unix IPC/daemon/owned commands",
+  "native_owner_dialog": "not_run; authenticated owner fixture setup is outside HTTP",
+  "provider": "generated local ACP handshake fixture; session/new intentionally fails; no vendor/account/model",
+  "daemon_sha256": "191daa527ef60a68c2e745ec07b87c0160b03ad7beb74fd7efa7cd5741577554",
+  "frontend_assets_sha256": {
+    "assets/index-BdI-OwiJ.js": "b9b2307b9d40b5e8a34a142a4565148e7c832cbf3e3c4093931e866782232ae0",
+    "assets/index-D6UB0Jo6.css": "1208bc54eb8aeea54bca803a4d78dc7435688106f6b6eb0224dfbf1b5b390595",
+    "index.html": "771cf3663e3e2f5a8d2f2f03aeb9b501a34fb9b62febbe690425c66f9f3acc1a"
+  },
+  "status": "passed",
+  "checks": [
+    {
+      "name": "actual local fixture handshake failure yields confirmed owned stop and distinct task-result uncertainty",
+      "status": "passed",
+      "task_id": "de84c1c7-85e1-40a5-bc50-6231ef73f71c",
+      "session_id": "46e4876c-349c-4082-b791-1b9f53f6e838"
+    },
+    {
+      "name": "actual UI invokes one approved fixed script and renders real command-only success",
+      "status": "passed",
+      "run_id": "327550ec-f265-41fa-b9cd-c0c4348b825e"
+    },
+    {
+      "name": "same-key recovery returns original run; new-key policy replay cannot duplicate effects",
+      "status": "passed"
+    },
+    {
+      "name": "actual UI cancellation reaches the owned command and records reaping without claiming whole-tree containment",
+      "status": "passed",
+      "run_id": "4751f94d-3906-45c3-bd5c-6f631a53242c"
+    },
+    {
+      "name": "HTTP test adapter cannot approve/finalize; real command results do not promote the task or authorize integration",
+      "status": "passed"
+    }
+  ],
+  "requests": [
+    {
+      "method": "system.snapshot",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "events.subscribe",
+      "args": {
+        "cursor": 0,
+        "limit": 100
+      },
+      "error": null
+    },
+    {
+      "method": "projects.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "sessions.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "connections.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "data_validations.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "data_validation_policies.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "validations.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "validation_policies.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "command_validations.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "command_validation_policies.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "command_validations.run",
+      "args": {
+        "policyId": "cba2b15a-5d0c-41d4-85cc-6ba6bbfe9256",
+        "expectedRevision": 1,
+        "idempotencyKey": "659997da-432d-41a5-9179-49aab16de75a"
+      },
+      "error": null
+    },
+    {
+      "method": "command_validation_policies.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "command_validations.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "system.snapshot",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "projects.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "sessions.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "events.subscribe",
+      "args": {
+        "cursor": 0,
+        "limit": 100
+      },
+      "error": null
+    },
+    {
+      "method": "connections.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "command_validations.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "command_validation_policies.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "command_validations.run",
+      "args": {
+        "policyId": "ef9f685c-777a-4cb7-a71c-a2403206e816",
+        "expectedRevision": 1,
+        "idempotencyKey": "ea2153b3-f90f-475e-aa98-c46d571453d2"
+      },
+      "error": null
+    },
+    {
+      "method": "command_validations.cancel",
+      "args": {
+        "runId": "4751f94d-3906-45c3-bd5c-6f631a53242c",
+        "expectedRevision": 1,
+        "idempotencyKey": "5c67b7ae-fc54-421a-9722-ef54eb0c48e8"
+      },
+      "error": null
+    },
+    {
+      "method": "system.snapshot",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "projects.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "connections.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "sessions.list",
+      "args": {},
+      "error": null
+    },
+    {
+      "method": "events.subscribe",
+      "args": {
+        "cursor": 0,
+        "limit": 100
+      },
+      "error": null
+    },
+    {
+      "method": "command_validation_policies.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    },
+    {
+      "method": "command_validations.list",
+      "args": {
+        "taskId": "de84c1c7-85e1-40a5-bc50-6231ef73f71c"
+      },
+      "error": null
+    }
+  ],
+  "screenshots": [
+    "/workspace/.onboarding/data-runtime-integration-browser/command/actual-command-passed.png",
+    "/workspace/.onboarding/data-runtime-integration-browser/command/actual-command-cancelled.png"
+  ],
+  "browser_version": "154.0.8037.57",
+  "daemon_exit_code": 0
+}

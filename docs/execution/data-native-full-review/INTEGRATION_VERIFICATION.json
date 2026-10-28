@@ -1,0 +1,165 @@
+{
+  "reviewer": "/root/data_native_integration_review",
+  "subject_head": "3d4982ca6e575c2709db18b84e9a89d4e3608c3d",
+  "branch": "codex/data-runtime-integration",
+  "source_head_at_finalize": "16924e82f5ee7d3438007a3f297821fb9249d299",
+  "source_files": {
+    "apps/desktop/src-tauri/src/approval.rs": "8210a22a7a5ace764228b0885bcd5429e91d135fb93ee35fb6ad45c74ae415be",
+    "apps/desktop/src-tauri/src/lib.rs": "57db079ba3f96b81ba28616fb83f1496224cab37d506989cc3aae4240b328da4",
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "3c9a05ee705f9a049e289244dbfc8c7a04df712493a5f0515664efc574a5b913",
+    "apps/desktop/src-tauri/Cargo.toml": "d5f7e9e0246f380400b7698f4d87a14e6452856466e5b68e4bd169150f0a7e48",
+    "apps/desktop/src-tauri/Cargo.lock": "1a242354c2716ae834880acd7bcfe50c2b1ad77403d37bda18428794f6aec2ef",
+    "apps/desktop/src-tauri/tauri.conf.json": "ef186a4ea2196f98306259c85577fae86dea20044cb448c16a2eabf336c42ed9",
+    "crates/core/src/lib.rs": "e4be654487d102fe7b74a38f4eb9fba7c79aae718eebdf2e89c905e809cd4d5d",
+    "crates/workspaces/src/lib.rs": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+    "Cargo.lock": "b22c148dd432426f70586093394eeb9f04c0aeca938764be503e1145659f7d42"
+  },
+  "actual_results": {
+    "native_library_tests": 22,
+    "native_feature_harness_tests": 12,
+    "failed": 0,
+    "ignored": 0,
+    "clippy_all_targets": "PASS",
+    "fmt": "PASS",
+    "diff": "PASS",
+    "umask": "022",
+    "RUST_TEST_THREADS": "1",
+    "Linux": "x86_64",
+    "native_target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+    "main_target_accessed": false,
+    "native_target_released": true,
+    "commands": [
+      {
+        "name": "native-tests",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--features",
+          "native-smoke,custom-protocol"
+        ],
+        "exit_code": 0,
+        "seconds": 30.18,
+        "log": "/workspace/.onboarding/data-native-integration-review/native-tests.log",
+        "sha256": "fc6cc1707ac0a5f517e659b941882ce0b2dcfc9fb2069b2e6e2c47d003543f3d"
+      },
+      {
+        "name": "clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--offline",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--features",
+          "native-smoke,custom-protocol",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "seconds": 8.95,
+        "log": "/workspace/.onboarding/data-native-integration-review/clippy.log",
+        "sha256": "3e2d4f2934777039c9074cecd5c425990ab8da6997a698df1443b27d11b5da81"
+      },
+      {
+        "name": "fmt",
+        "command": [
+          "cargo",
+          "fmt",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 0.09,
+        "log": "/workspace/.onboarding/data-native-integration-review/fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "diff",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 0.01,
+        "log": "/workspace/.onboarding/data-native-integration-review/diff.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "generated64_replay": {
+    "fixture_sha256": "18f711d75eda729c31f693ff405b2ca08066b88d40fb5269675ea7b73e7a10f4",
+    "file_count": 64,
+    "display_bytes": 14809,
+    "display_sha256": "ecd1b2c36c92f4ec0b5c5acf62cbad79c7ff5340515ee37ccaed37b035d10af0",
+    "bound_bytes": 16384,
+    "independent_full_snapshot_reconstruction_equal": true,
+    "probe_runs": [
+      {
+        "kind": "old",
+        "command": [
+          "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/old-approval64-probe",
+          "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/generated-sixty-four-file-owner-proposal.json",
+          "/workspace/.onboarding/data-native-integration-review/old-display.json"
+        ],
+        "exit_code": 101,
+        "expected_exit_code": 101,
+        "binary_sha256": "125128f3b13f3b631f9ea6caac1e3698849340382557cc9483c6c2c4ac9226ec",
+        "source_sha256": "3eacbc11672d87b8865001808fe9d7eaefc3d06d571ebeb2d4e24b974a953701",
+        "log_sha256": "f20105bdb7a6cacdb6434dead454c2edc764c869b2e693f1fd5db2041925f237"
+      },
+      {
+        "kind": "fixed",
+        "command": [
+          "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/fixed-approval64-probe",
+          "/workspace/.worktrees/data-native-full-review/artifacts/data-native-full-review/generated-sixty-four-file-owner-proposal.json",
+          "/workspace/.onboarding/data-native-integration-review/fixed-display.json"
+        ],
+        "exit_code": 0,
+        "expected_exit_code": 0,
+        "binary_sha256": "85034f009c146a85e5414496a95eae620f7adf13a475c1e8d011256d8d2ba60f",
+        "source_sha256": "070fd5041b4fd88003a63a1a0e2e5c5f656dedb9fe67da9bce1ccc46befff167",
+        "log_sha256": "12a98893649a790e7280efe50d0d5cdfabf1b446dba35d8da84b405c84388717"
+      }
+    ],
+    "saved_source_prefix_exact_baseline_and_current": true,
+    "os_owner_dialog": false,
+    "real_Core_finalize": false,
+    "author_manifest_entries": 18,
+    "retained_verified": 11,
+    "missing_prior_raw_count": 7,
+    "prior_independent_tmp_manifest_retained": false
+  },
+  "compile_resource_scope": "Frozen schema10 c82 Linux debug sidecars only; no release/native GUI proof",
+  "prior_evidence_retention": "Prior raw /tmp logs and independent /tmp manifest were absent after resume; original report and 11/18 author manifest artifacts survived. This fresh run is new evidence, not reconstruction of missing historical logs.",
+  "limits": [
+    "No actual Linux GUI or OS Owner dialog",
+    "No actual Core finalize from the display probes: closures only",
+    "No macOS runtime, native app lifecycle, default release audit or packages in this review",
+    "No Provider/model/account calls",
+    "No full64 real copy nor whole-product acceptance established here"
+  ],
+  "files": {
+    "clippy.log": "3e2d4f2934777039c9074cecd5c425990ab8da6997a698df1443b27d11b5da81",
+    "commands.json": "710c257f79972c2477766c488ee9e10cd2caffa72f90fe65d019cbab9f500a12",
+    "compile-resources.json": "2ef56ae0c066d4a89c6240781f5e6ce6023b21b7d1f9015ac310ab857f6c0257",
+    "diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "entrypoint-touch.json": "a4cd38c479501cee530009bede3fdd568c9689e61d1aa0d4269857cbfe081631",
+    "fixed-approval64.log": "12a98893649a790e7280efe50d0d5cdfabf1b446dba35d8da84b405c84388717",
+    "fixed-display.json": "ecd1b2c36c92f4ec0b5c5acf62cbad79c7ff5340515ee37ccaed37b035d10af0",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "generated64-replay-verification.json": "38e5279cfb2b99f83a09512db2b0b5eb092366da3c3287f76149cca8391da4e2",
+    "native-tests.log": "fc6cc1707ac0a5f517e659b941882ce0b2dcfc9fb2069b2e6e2c47d003543f3d",
+    "old-approval64.log": "f20105bdb7a6cacdb6434dead454c2edc764c869b2e693f1fd5db2041925f237",
+    "retained-author-artifacts.json": "ab59bc788983e7238cae9a66f51d870b57638f9b8a719be0b44bb230761a6ede"
+  }
+}

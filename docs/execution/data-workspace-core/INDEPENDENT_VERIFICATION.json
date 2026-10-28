@@ -1,0 +1,183 @@
+{
+  "reviewer": "/root/data_core_review_resume",
+  "source_commit": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+  "review_status": "no blocking findings in reviewed local Core/library unit; integration and platform gates remain",
+  "source_files_sha256": {
+    "crates/core/src/command_validation.rs": "fe9e4e126fd8089140eaa638accad73849d70a5bc696e9c9d3090baceacffbcd",
+    "crates/core/src/data_validation.rs": "a3694819f13551ae250b36be99314376bdba86ec531752c082aa9fa69a2d3bdf",
+    "crates/core/src/data_workspace_workers.rs": "065e2450a133dd308755af04ec588db38633dd3c7089b2b5cc1365aa623dd56a",
+    "crates/core/src/data_workspaces.rs": "4e122675777063be0f2a3acc3f6b0fee110bf509cffc3894128ec7cb66392dc4",
+    "crates/core/src/goal_store.rs": "b7330e73e94f5c5d2ecda61d98fe2f3be92d443ba01168901a0269938ec279d4",
+    "crates/core/src/ipc.rs": "a406e7c9cd36b068125dddfc5d3c53fdabe3e2093f7360bff088c109c5a8133b",
+    "crates/core/src/lib.rs": "e4be654487d102fe7b74a38f4eb9fba7c79aae718eebdf2e89c905e809cd4d5d",
+    "crates/core/src/policy.rs": "f281c45c5f5057b5f6c83b35eda5129444ebdde625e42962f4a8183f7d3b7ae9",
+    "crates/core/src/registry.rs": "2e364198355ad5c2bea1077c2c3b7aada842c5dee34826a093bd53817fa2fa45",
+    "crates/core/src/sessions.rs": "992f86c18f166154c0220f9b06471135dbf76977a1baa52e350aa4a006897ab6",
+    "crates/core/src/storage.rs": "fbb46e5c9d95388b259df3d13d9ad902aded5a8c6054f06df3a3bb5aac6ba1c8",
+    "crates/core/src/validation.rs": "54dbcb97fcb5cb70c74feb07fb5a737defb8dd0c6af931abbe59ae9143ce71db",
+    "crates/core/tests/admission_performance.rs": "40fe38b7d24625d9f5051ab0b6a2cd78165afa49a5b411abaa4381704b9ea5c7",
+    "crates/core/tests/command_validation.rs": "d7e3b1470c18887f0382ba5c24ed5f64f695c57f61585db6cf352b54e62b84d2",
+    "crates/core/tests/command_validation_migration.rs": "c675bfd8e97870458d437b4995502110a36fe66da7e9481efd936867bd5acdf9",
+    "crates/core/tests/data_workspace_migration.rs": "5d8cee935f0ad02ba6dace9b6f9bb601b7347e3d6b6a5069db42963123afff18",
+    "crates/core/tests/data_workspaces.rs": "0b2a7693807028873e0e06caaf0ac1495c003d69384fd203ad849838e15bfc49",
+    "crates/core/tests/goal_store_migration.rs": "29505669288b0a5cc404084ee2fe7e284910682959cfa77dfde561763cdc0587",
+    "crates/core/tests/migration_v3.rs": "8437b58299f9a8ef514d8871fe68ac5935f4160a28b4b01219d43802a75ac102",
+    "crates/core/tests/migration_v5.rs": "9e24907d7501da6dac5c8e527802b7cc41e5663ff4c3e75318a507d782df7f3c",
+    "crates/core/tests/migration_v6.rs": "a10d272561f33f5d9598654d1ef77d2e65062bc825b607b650e95fd38e053f9c",
+    "crates/core/tests/migration_v7.rs": "d4b732f4d6fdac2c61da4335bca6f6783759e8b6569bd7462ae4611b9339525b",
+    "crates/core/tests/storage.rs": "47d1704078c3906a27994add8979205e5a2c13a1ca21001c98783845ac48783b",
+    "crates/workspaces/src/data_workspace.rs": "ff6f6823893bfc1631748863988a9884f52088cf2a9c5850b501e5bc59ae301d",
+    "crates/workspaces/tests/data_workspace.rs": "b61b0896ac373d98ade5c444da314af1dbbce4d85a5205a863f8aa4cf2657157"
+  },
+  "environment": {
+    "platform": "x86_64 Linux",
+    "cargo_target": "/workspace/.worktrees/validation-integration/target",
+    "cache": "same frozen-source cache reused; no clean rebuild claimed",
+    "exclusive_target_handoff": "explicit author handoff then explicit reviewer release"
+  },
+  "independent_cargo_checks": [
+    {
+      "name": "cargo-data",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "data_workspaces",
+        "--test",
+        "data_workspace_migration",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "seconds": 6.518,
+      "log_sha256": "ae8713ac48f4bc4337626fd4ed878b03e544f9b1bd36f1b44712e6f04955d5e4"
+    },
+    {
+      "name": "cargo-deep-git",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "existing_git_artifact_contract_allows_deep_regular_paths_without_data_selection_depth_rules",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 0.457,
+      "log_sha256": "83cef509ba270f55a18f6378b8a625660355616f02554f0516fe3a424579f279"
+    },
+    {
+      "name": "cargo-workspaces",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-workspaces",
+        "--test",
+        "data_workspace",
+        "--lib",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 15.363,
+      "log_sha256": "fef66b094fa67de3308105079e2089fb1781d026c5dd5a759e05060c42113cc6"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "agentbaton-core",
+        "-p",
+        "agentbaton-workspaces",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 0.122,
+      "log_sha256": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+    },
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.56,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.003,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "independent_unique_tests": 56,
+  "independent_test_count_details": {
+    "core_data_integration": 21,
+    "schema10_migration": 3,
+    "core_deep_git_regression_unit": 1,
+    "workspaces_units": 7,
+    "data_library_integration": 24,
+    "nested_child_repeats_not_double_counted": true
+  },
+  "earlier_independent_copied_executable_checks": {
+    "unique_tests": 50,
+    "counted_as_overlap_not_added_to_56": true,
+    "manifest": "/workspace/.onboarding/data-core-final-review/copied-executable-results.json",
+    "sha256": "0d8436f1a560df223f05f7be8adf5192b786b37473a9b1c31b92f0853729fac9"
+  },
+  "candidate_manifest": {
+    "path": "/workspace/.onboarding/data-workspace-candidate-binaries/schema10-c82bcff50353/manifest.json",
+    "sha256": "bc67e69d0bcc9857909346126329ea6ed7ac904770ce51dc53b01cb9d34354ce",
+    "authority": "source/binary locator only; browser/native/macOS assertions not inferred"
+  },
+  "evidence_sha256": {
+    "diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "agentbaton_workspaces-controlled_write_tests.log": "73ff8b1ac7e2051111bcb678d7caa3b2ba03f704d7b12bf511d7a8e257abb0db",
+    "agentbaton_core-existing_git_artifact_contract_allows_deep_regular_paths_without_data_selection_depth_rules.log": "a5e29884f34933a59aae6071ba78d7ac70164da295307e229695f81287186014",
+    "data_workspace_migration.log": "d53de2e289b4caed28409a7894d9b3b2b381337560162e26c82ed47cef50db59",
+    "data_workspace.log": "b98b69c778c58cb54cbbd765bf80dc9aff07ce8732be67a90274197f1076696c",
+    "data_workspaces.log": "1471539a2f444de7e30f159fd21050da12203cd3fb0f46fe2c19a8a3a8432758",
+    "cargo-deep-git.log": "83cef509ba270f55a18f6378b8a625660355616f02554f0516fe3a424579f279",
+    "cargo-data.log": "ae8713ac48f4bc4337626fd4ed878b03e544f9b1bd36f1b44712e6f04955d5e4",
+    "cargo-workspaces.log": "fef66b094fa67de3308105079e2089fb1781d026c5dd5a759e05060c42113cc6",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "clippy.log": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+  },
+  "not_run_by_reviewer": [
+    "full workspace tests",
+    "compile-fail docs",
+    "Darwin cross typechecks",
+    "browser UI/new actual IPC flow",
+    "native OS owner dialog",
+    "macOS ARM/Intel CI",
+    "real Provider/model authentication",
+    "package build/signing/install"
+  ],
+  "limitations": [
+    "Cancellation is cooperative at controlled chunks; no blocked-kernel interrupt guarantee.",
+    "A joined panicked worker may report outcome_unknown+worker_joined; this never establishes copied data or confirmed cancellation.",
+    "Only actual Ready contract plus native-owner/intent/finished source-ordered receipt and fresh current-input witness grants Data authority.",
+    "The reviewed code does not implement all remaining Design v0.2 scope or establish TaskAccepted."
+  ]
+}

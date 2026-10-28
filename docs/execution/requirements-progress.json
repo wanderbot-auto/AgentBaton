@@ -62,7 +62,8 @@
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -82,7 +83,16 @@
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
         }
-      ]
+      ],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-PRJ-003",
@@ -103,7 +113,8 @@
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -123,7 +134,16 @@
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
         }
-      ]
+      ],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-PRJ-004",
@@ -174,7 +194,8 @@
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -194,7 +215,16 @@
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
         }
-      ]
+      ],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-PRJ-006",
@@ -1329,7 +1359,8 @@
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1343,7 +1374,16 @@
         "crates/core/tests/policy.rs",
         "apps/daemon/tests/signals.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-TSK-008",
@@ -1604,7 +1644,8 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -1628,7 +1669,16 @@
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
         }
-      ]
+      ],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-VAL-003",
@@ -1797,7 +1847,8 @@
         "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
         "docs/execution/command-core/REVIEW.md",
         "docs/execution/command-integration/EVIDENCE.json",
-        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -1885,7 +1936,16 @@
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
         }
-      ]
+      ],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-VAL-005",
@@ -1963,7 +2023,8 @@
         "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
         "docs/execution/command-core/REVIEW.md",
         "docs/execution/command-integration/EVIDENCE.json",
-        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -2042,7 +2103,16 @@
           "exact_new_mac_ci": "not_run_yet",
           "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
-      ]
+      ],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-VAL-007",
@@ -2431,7 +2501,8 @@
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -2441,7 +2512,16 @@
         "crates/core/tests/policy.rs",
         "apps/desktop/src-tauri/src/approval.rs",
         "crates/config/tests/native_sources.rs"
-      ]
+      ],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-SEC-002",
@@ -2462,7 +2542,8 @@
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -2472,7 +2553,16 @@
         "crates/core/tests/policy.rs",
         "apps/desktop/src-tauri/src/approval.rs",
         "crates/config/tests/native_sources.rs"
-      ]
+      ],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-SEC-003",
@@ -2492,7 +2582,7 @@
     {
       "id": "AB-SEC-004",
       "work_package": "WP12",
-      "status": "not_started",
+      "status": "implementing",
       "implementation_refs": [],
       "verification": {
         "unit": "not_run",
@@ -2501,8 +2591,19 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
+      ],
+      "limitations": [],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-SEC-005",
@@ -2525,7 +2626,8 @@
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -2535,12 +2637,21 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
-      ]
+      ],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-SEC-006",
       "work_package": "WP12",
-      "status": "not_started",
+      "status": "implementing",
       "implementation_refs": [],
       "verification": {
         "unit": "not_run",
@@ -2549,8 +2660,19 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
+      ],
+      "limitations": [],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-SEC-007",
@@ -2577,7 +2699,8 @@
         "docs/execution/provider-adapters/FINAL_REVIEW.md",
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
-        "docs/execution/validation-integration/UI_REVIEW.md"
+        "docs/execution/validation-integration/UI_REVIEW.md",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Actual schema5 backup/failure/future-version tests pass locally; full upgrade/support matrix remains open.",
@@ -2589,7 +2712,16 @@
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
         "apps/desktop/src/validation-api.test.ts"
-      ]
+      ],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-SEC-008",
@@ -2627,7 +2759,8 @@
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
@@ -2636,7 +2769,16 @@
       "verification_refs": [
         "apps/desktop/src-tauri/tests/test_native_runner.py"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-REL-002",
@@ -4391,7 +4533,7 @@
     {
       "id": "AB-SEC-010",
       "work_package": "WP12",
-      "status": "not_started",
+      "status": "implementing",
       "implementation_refs": [],
       "verification": {
         "unit": "not_run",
@@ -4400,8 +4542,19 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/data-runtime-integration/EVIDENCE.json"
+      ],
+      "limitations": [],
+      "data_workspace_contribution": {
+        "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
+        "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+        "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
+        "unit_integration": "composed515+7compilefail/367UI; independentCore56/native22+12",
+        "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
+        "macOS": "not_run_for_this_Data_composition",
+        "full_requirement": "not fully accepted"
+      }
     },
     {
       "id": "AB-REL-008",

@@ -1,5 +1,17 @@
 # AgentBaton 执行状态
 
+## 当前组合检查点 — 2026-10-28 Data workspace
+
+main实际fetch仍bcf10bb802258645c554f37581237a6c0cb3cbe6，OWNER001/002重读ACK无003。PR13最新a2c5bcf的Env40646347269三项/Rust/UI通过；ARM原生artifact已独审通过正buildapp，Intel仍运行，未合入/未新双包验收。历史0a两个Mac不同失败和ARM根因unknown/诊断非生产性能修复继续保留。
+
+Data组合在codex/data-runtime-integration，包含librarya10、Corec82/schema10、UIa436+cancel52a、Native lossless64display071、personalGoal78及真实harness274。完整组合Root已实跑515unique Rust+7compilefail（raw524含2nested）、alltargetClippy/fmt/build；UI367/20/type/build；独审Core56/Native22lib+12harness和lints；新Root daemon191daa/CLI705e冻结后实际CLI SIGKILLrestart与runner17通过。fresh builtUI/真实UnixIPC quiet38/24PNG、commands5/2、Goaldefault9/6、editor10/9、Data8/6全部通过。Data实测2file39bytes Ready、源SHA/mtime未变、真实cancel响应丢失同key恢复、cancelled/worker_joined发生于目标预留前；不把它称partial写入后停止、Ready竞态或nojoin browser验证。Core/library相应独立测试另记。
+
+独审问题已闭：Core R1运行时身份漂移/R2 replay预解码上限/R3可信来源+事件正序，UI F1 floors/F2矛盾Ready，新增CI缺--frontend的实际argparse exit2已修并复核，未发布错误CI。Native64完整重建Value显示14809/16384，禁止提高阈值或丢hash；旧/tmp7条raw+原独审manifest恢复时已缺失，已如实记载且另在workspace保存本轮新完整独审log，旧报告/11个现存authorartifact仍保留。证据主入口data-runtime-integration/EVIDENCE.json及各单元独审。
+
+Data本地组合已通过；下一步feature push/stacked draftPR，等待PR13依赖保护合入后转main再检查新精确7/双native/defaultreleaseaudit/真实双DMG，不能借Goal旧绿或现有58b5包。130需求表新增15项partial贡献、无整条假完成。实际Goal atomic reservation/dispatch/settlement下一工作单元已建立独立tree，尚未实现，不能算产品闭环；其余完整设计继续。真实Provider/私人凭据/新增费用/生产/正式签名/最终许可证仍关闭，原三Environment和保护规则不变。
+
+以下保留先前检查点及历史失败证据，以上为本轮最新状态。
+
 ## Quota-resume checkpoint — 2026-10-28
 
 Runtime actually connected/running and network enforced; tools and native agents are executing again. Actual fetch main remains bcf10bb802258645c554f37581237a6c0cb3cbe6; OWNER001/002 reread ACK, no003. PR13 remote0a0beac completed5success/2MacFAIL, not merged. Exactcheckout3d958a/tree d232, ARM native protocol startup18/19 TimeoutUnknown(original500ms, historical mode/cause unknown), Intel workspace+host13 pass then alias positive socket bind11/12; no new native pair/default-release audit/DMGs. CI_0A0B_FAILURE/VERIFICATION and independent NATIVE_0A0B_REVIEW preserve actual failure and all raw hashes.
