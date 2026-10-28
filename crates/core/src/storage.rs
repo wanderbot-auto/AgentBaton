@@ -78,6 +78,8 @@ pub(crate) fn decode<T: for<'a> Deserialize<'a>>(value: &str) -> Result<T> {
 }
 pub struct Store {
     pub(crate) conn: Connection,
+    // Ephemeral, exact-request authority; set only while dispatching a worker result.
+    pub(crate) data_input: Option<crate::data_workspaces::DataInputWitness>,
 }
 impl Store {
     pub fn open(path: &Path) -> Result<Self> {
@@ -87,11 +89,29 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 9 {
+        if version > 10 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
             ));
+        }
+        if version > 0 && version < 10 {
+            let backup = path.with_extension(format!("pre-v10-{}.sqlite3", Uuid::new_v4()));
+            drop(
+                OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .mode(0o600)
+                    .open(&backup)
+                    .map_err(|_| {
+                        CoreError::new(
+                            "INTERNAL_ERROR",
+                            "Cannot create data-workspace migration backup",
+                        )
+                    })?,
+            );
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
         }
         if version == 0 {
             let tables:u32=conn.query_row("SELECT count(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",[],|r|r.get(0)).map_err(db_error)?;
@@ -158,15 +178,20 @@ impl Store {
                 .map_err(db_error)?;
         }
         crate::goal_store::migrate(&mut conn, version)?;
+        crate::data_workspaces::migrate(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
         .map_err(db_error)?;
-        let mut store = Self { conn };
+        let mut store = Self {
+            conn,
+            data_input: None,
+        };
         store.recover_dispatches()?;
         store.recover_workspace_creations()?;
         store.recover_sessions()?;
         store.recover_command_validations()?;
+        store.recover_data_workspace_operations()?;
         Ok(store)
     }
     /// Authenticated entry point: new tasks require an active registered project or legacy local scope.

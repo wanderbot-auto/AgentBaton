@@ -340,6 +340,7 @@ fn validate_registered(
     project_id: &str,
     scope: &GrantScope,
     check_input: bool,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
 ) -> Result<(
     BTreeMap<String, GrantedConnection>,
     BTreeMap<String, WorkspaceIdentity>,
@@ -374,12 +375,17 @@ fn validate_registered(
         if workspace.id != *id || workspace.project_id != project_id || workspace.state != "ready" {
             return Err(denied("Workspace is not a ready member of this project"));
         }
-        let pinned = workspace.identity.ok_or_else(|| {
+        let pinned = workspace.identity.clone().ok_or_else(|| {
             CoreError::new(
                 "OUTCOME_UNKNOWN",
                 "Workspace identity has not been confirmed",
             )
         })?;
+        if matches!(pinned.kind, WorkspaceKind::Directory) {
+            crate::data_workspaces::require_data_input_from(conn, &workspace, data)?;
+            workspaces.insert(id.clone(), pinned);
+            continue;
+        }
         if !check_input {
             if !live_workspace_matches(&workspace.root, &pinned).unwrap_or(false) {
                 return Err(CoreError::new(
@@ -437,11 +443,12 @@ fn validate_registered(
 
 /// Canonical server-generated references for a native-owner confirmation proposal. Knowing this
 /// snapshot does not grant execution authority; finalization must verify owner confirmation too.
-pub(crate) fn grant_proposal_refs(
+pub(crate) fn grant_proposal_refs_with_data(
     conn: &Connection,
     project_id: &str,
     workspace_id: &str,
     connection_id: &str,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
 ) -> Result<Value> {
     let scope = GrantScope {
         workspace_ids: vec![workspace_id.into()],
@@ -455,19 +462,31 @@ pub(crate) fn grant_proposal_refs(
         max_depth: 0,
         max_children: 0,
     };
-    let (connections, _) = validate_registered(conn, project_id, &scope, true)?;
+    let (connections, _) = validate_registered(conn, project_id, &scope, true, data)?;
     let project: Project = read_document(conn, "projects", project_id)?;
     let workspace: ManagedWorkspace = read_document(conn, "managed_workspaces", workspace_id)?;
     let connection: Value = read_document(conn, "connections", connection_id)?;
-    let identity = inspect(&workspace.root).map_err(|_| {
-        CoreError::new(
-            "INPUT_CHANGED",
-            "Workspace changed before approval snapshot",
-        )
-    })?;
-    Ok(
-        json!({"project_revision":project.revision,"project_name":project.name,"workspace_revision":workspace.revision,"workspace_identity":identity,"connection":connections[connection_id],"execution_recipient":{"connection_id":connection_id,"name":connection["name"],"provider":connection["provider"],"protocol_route":connection["protocol_route"],"executable":connection["executable"],"arguments":connection["arguments"],"executable_sha256":connection["executable_sha256"],"identity_status":connection["identity_status"],"config_status":connection["config_status"]}}),
-    )
+    let identity = if matches!(
+        workspace.identity.as_ref().map(|i| &i.kind),
+        Some(WorkspaceKind::Directory)
+    ) {
+        workspace
+            .identity
+            .clone()
+            .ok_or_else(|| CoreError::new("INPUT_CHANGED", "Data root identity unavailable"))?
+    } else {
+        inspect(&workspace.root).map_err(|_| {
+            CoreError::new(
+                "INPUT_CHANGED",
+                "Workspace changed before approval snapshot",
+            )
+        })?
+    };
+    let mut refs = json!({"project_revision":project.revision,"project_name":project.name,"workspace_revision":workspace.revision,"workspace_identity":identity,"connection":connections[connection_id],"execution_recipient":{"connection_id":connection_id,"name":connection["name"],"provider":connection["provider"],"protocol_route":connection["protocol_route"],"executable":connection["executable"],"arguments":connection["arguments"],"executable_sha256":connection["executable_sha256"],"identity_status":connection["identity_status"],"config_status":connection["config_status"]}});
+    if matches!(identity.kind, WorkspaceKind::Directory) {
+        refs["data_input"] = crate::data_workspaces::data_input_approval_view(conn, &workspace)?;
+    }
+    Ok(refs)
 }
 fn event(tx: &Transaction<'_>, grant: &ExecutionGrant, kind: &str, source: &str) -> Result<()> {
     let value = Event {
@@ -614,6 +633,23 @@ pub(crate) fn validate_grant_from(
     workspace_id: &str,
     connection_id: &str,
 ) -> Result<ExecutionGrant> {
+    validate_grant_from_with_data(
+        conn,
+        grant_id,
+        project_id,
+        workspace_id,
+        connection_id,
+        None,
+    )
+}
+pub(crate) fn validate_grant_from_with_data(
+    conn: &Connection,
+    grant_id: &str,
+    project_id: &str,
+    workspace_id: &str,
+    connection_id: &str,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<ExecutionGrant> {
     validate_grant_inner(
         conn,
         grant_id,
@@ -621,18 +657,20 @@ pub(crate) fn validate_grant_from(
         workspace_id,
         connection_id,
         true,
+        data,
     )
 }
 
 /// Admission of another turn for an existing managed writer permits its own filesystem edits.
 /// This still enforces active ancestry, project, identity and connection snapshots. Cancellation
 /// must remain available independently and must not call this admission predicate.
-pub(crate) fn validate_grant_live_from(
+pub(crate) fn validate_grant_live_from_with_data(
     conn: &Connection,
     grant_id: &str,
     project_id: &str,
     workspace_id: &str,
     connection_id: &str,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
 ) -> Result<ExecutionGrant> {
     validate_grant_inner(
         conn,
@@ -641,6 +679,7 @@ pub(crate) fn validate_grant_live_from(
         workspace_id,
         connection_id,
         false,
+        data,
     )
 }
 
@@ -651,6 +690,7 @@ fn validate_grant_inner(
     workspace_id: &str,
     connection_id: &str,
     check_input: bool,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
 ) -> Result<ExecutionGrant> {
     let grant = checked_lineage(conn, grant_id)?;
     if grant.id != grant_id
@@ -667,7 +707,7 @@ fn validate_grant_inner(
         ));
     }
     let (connections, workspaces) =
-        validate_registered(conn, project_id, &grant.scope, check_input)?;
+        validate_registered(conn, project_id, &grant.scope, check_input, data)?;
     if connections != grant.connection_bindings || workspaces != grant.workspace_bindings {
         return Err(CoreError::new("INPUT_CHANGED","Approved connection, account, environment or workspace binding changed; obtain a new grant"));
     }
@@ -744,7 +784,13 @@ impl Store {
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
         if let Some(expected) = expected_refs {
-            let current = grant_proposal_refs(&tx, project_id, workspace_id, connection_id)?;
+            let current = grant_proposal_refs_with_data(
+                &tx,
+                project_id,
+                workspace_id,
+                connection_id,
+                self.data_input.as_ref(),
+            )?;
             if &current != expected {
                 return Err(CoreError::new("INPUT_CHANGED","Owner-confirmed project, workspace or connection snapshot changed; prepare a new proposal"));
             }
@@ -753,7 +799,7 @@ impl Store {
             return Ok(old);
         }
         let (connection_bindings, workspace_bindings) =
-            validate_registered(&tx, project_id, &scope, true)?;
+            validate_registered(&tx, project_id, &scope, true, self.data_input.as_ref())?;
         let id = Uuid::new_v4().to_string();
         let expires_at_ms = milliseconds()?
             .checked_add(scope.max_duration_ms as i64)
@@ -790,7 +836,13 @@ impl Store {
         workspace_id: &str,
         connection_id: &str,
     ) -> Result<Value> {
-        grant_proposal_refs(&self.conn, project_id, workspace_id, connection_id)
+        grant_proposal_refs_with_data(
+            &self.conn,
+            project_id,
+            workspace_id,
+            connection_id,
+            self.data_input.as_ref(),
+        )
     }
     pub fn get_grant(&self, id: &str) -> Result<ExecutionGrant> {
         read_document(&self.conn, "execution_grants", id)
@@ -824,7 +876,14 @@ impl Store {
         workspace_id: &str,
         connection_id: &str,
     ) -> Result<ExecutionGrant> {
-        validate_grant_from(&self.conn, id, project_id, workspace_id, connection_id)
+        validate_grant_from_with_data(
+            &self.conn,
+            id,
+            project_id,
+            workspace_id,
+            connection_id,
+            self.data_input.as_ref(),
+        )
     }
     pub fn validate_execution_grant(
         &self,
@@ -834,12 +893,13 @@ impl Store {
         binding: &ExecutionBinding,
     ) -> Result<ExecutionGrant> {
         let task: crate::storage::Task = read_document(&self.conn, "tasks", task_id)?;
-        let grant = validate_grant_from(
+        let grant = validate_grant_from_with_data(
             &self.conn,
             id,
             &task.project_id,
             &binding.workspace_id,
             &binding.connection_id,
+            self.data_input.as_ref(),
         )?;
         if grant.revision != expected_revision {
             return Err(CoreError::new(
@@ -955,8 +1015,13 @@ impl Store {
                 "Shared root or parent delegation fanout exhausted",
             ));
         }
-        let (connection_bindings, workspace_bindings) =
-            validate_registered(&tx, &parent.project_id, &scope, true)?;
+        let (connection_bindings, workspace_bindings) = validate_registered(
+            &tx,
+            &parent.project_id,
+            &scope,
+            true,
+            self.data_input.as_ref(),
+        )?;
         for (id, binding) in &connection_bindings {
             if parent.connection_bindings.get(id) != Some(binding) {
                 return Err(CoreError::new(

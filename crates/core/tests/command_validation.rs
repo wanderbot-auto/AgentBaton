@@ -98,8 +98,8 @@ impl Fixture {
                 .unwrap()
                 .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
                 .unwrap(),
-            9,
-            "CI fixture must link exact schema9 source"
+            10,
+            "CI fixture must link exact schema10 source"
         );
         let project = store
             .import_project(&source, "Synthetic project", "import")

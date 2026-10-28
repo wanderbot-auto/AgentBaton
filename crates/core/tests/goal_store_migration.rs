@@ -5,7 +5,7 @@ use std::{
     os::unix::fs::{OpenOptionsExt, PermissionsExt},
     path::{Path, PathBuf},
 };
-const DROP_GOAL:&str="DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;";
+const DROP_GOAL:&str="DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;";
 fn schema8() -> (tempfile::TempDir, PathBuf, String) {
     let dir = tempfile::Builder::new()
         .permissions(fs::Permissions::from_mode(0o700))
@@ -60,7 +60,7 @@ fn actual_schema8_upgrade_preserves_raw_rows_and_private_reopenable_backup() {
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        9
+        10
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -145,10 +145,10 @@ fn migration9_failure_rolls_back_schema_and_preserves_unknown_goal_named_table()
     assert_eq!(backups(dir.path()).len(), 1);
 }
 #[test]
-fn actual_future_schema10_is_rejected_without_modifying_bytes() {
+fn actual_future_schema11_is_rejected_without_modifying_bytes() {
     let (_dir, db, _) = schema8();
     let c = Connection::open(&db).unwrap();
-    c.execute_batch("PRAGMA user_version=10;").unwrap();
+    c.execute_batch("PRAGMA user_version=11;").unwrap();
     drop(c);
     let before = fs::read(&db).unwrap();
     assert_eq!(Store::open(&db).err().unwrap().code, "VERSION_UNSUPPORTED");

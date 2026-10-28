@@ -3,7 +3,7 @@
 //! Private HOME and cleared environment are not OS or native-account isolation.
 use crate::{
     execution::{DispatchIntent, ExecutionBinding, IntentState, StopEvidence},
-    policy::{validate_grant_from, validate_grant_live_from},
+    policy::{validate_grant_from_with_data, validate_grant_live_from_with_data},
     registry::ManagedWorkspace,
     storage::{db_error, decode, encode, now, Event, Store, Task, TaskState},
     CoreError, Result,
@@ -395,8 +395,14 @@ impl Store {
                 "Only a draft task can start a new managed session",
             ));
         }
-        let grant =
-            validate_grant_from(&tx, grant_id, &task.project_id, workspace_id, connection_id)?;
+        let grant = validate_grant_from_with_data(
+            &tx,
+            grant_id,
+            &task.project_id,
+            workspace_id,
+            connection_id,
+            self.data_input.as_ref(),
+        )?;
         let connection = connection_from(&tx, connection_id)?;
         let digest = BinaryDigest::parse(&connection.executable_sha256)
             .map_err(|_| invalid("Connection digest is invalid"))?;
@@ -627,12 +633,13 @@ impl Store {
                 "Session is not ready; unknown outcomes are never replayed",
             ));
         }
-        validate_grant_live_from(
+        validate_grant_live_from_with_data(
             &tx,
             &session.grant_id,
             &session.project_id,
             &session.workspace_id,
             &session.connection_id,
+            self.data_input.as_ref(),
         )?;
         let lease: Option<(String, i64)> = tx
             .query_row(
@@ -1586,11 +1593,16 @@ impl Store {
         max_duration_ms: u64,
         key: &str,
     ) -> Result<ApprovalProposal> {
-        let refs = crate::policy::grant_proposal_refs(
+        let intent = json!({"project_id":project_id,"workspace_id":workspace_id,"connection_id":connection_id,"max_attempts":max_attempts,"max_concurrency":max_concurrency,"max_duration_ms":max_duration_ms});
+        if let Some(old) = self.data_proposal_replay("grant", &intent, key)? {
+            return Ok(old);
+        }
+        let refs = crate::policy::grant_proposal_refs_with_data(
             &self.conn,
             project_id,
             workspace_id,
             connection_id,
+            self.data_input.as_ref(),
         )?;
         let snapshot = json!({"intent":{"project_id":project_id,"workspace_id":workspace_id,"connection_id":connection_id,"max_attempts":max_attempts,"max_concurrency":max_concurrency,"max_duration_ms":max_duration_ms},"refs":refs,"scope":"bounded_local_session_execution","enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"native_identity_isolation":false},"warning":"Selected process may use its native capabilities. Baton-mediated tools deny additional roots/recipients; private environment is not an OS sandbox. Native account identity is unknown."});
         self.persist_proposal("grant", snapshot, key)
@@ -1681,6 +1693,9 @@ impl Store {
         let (document, result) = old
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Owner approval proposal does not exist"))?;
         let mut proposal: ApprovalProposal = decode(&document)?;
+        if proposal.kind == "data_workspace" {
+            return self.finalize_data_workspace_proposal(id, revision);
+        }
         if proposal.kind == "goal" {
             return self.finalize_goal_scope_proposal(id, revision);
         }
