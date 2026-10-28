@@ -1,0 +1,134 @@
+{
+  "recorded_utc": "2026-10-28T11:08:02.336303+00:00",
+  "verdict": "independent review passed with no blocking finding; new macOS WebView flags still not_run",
+  "source_commit": "776e02e1a61a82b676972b9d40c9317524984c56",
+  "baseline": "78b317a4dc42f088f752852bf04028eb0bb51d9c",
+  "source_sha256": {
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "fc12725e5d8ea45b2ebc891cc1d314b5ee709a2778ef555da96e79209bd5182a",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "9fe6bb9c6d70898f7de0c328a7cdce7db88c1cafc2bbc982f72c6a292acb6aeb",
+    "scripts/native-run.py": "3627339eb7f93e76157361c4573669c9b286b1c776c6e28292b85906d8b49f86",
+    "scripts/native-macos-smoke.sh": "ab4ff790b67f3d8c59700a3ba619d464ed0ea61da076d5cb1db54c3763b651c5"
+  },
+  "review_sha256": "199acd31bed400d62272fa829fc3ac275635bc59e52e0fcb0cf3608715b3b77c",
+  "author_verification_sha256": "ea41b5f406d37fa7102058a7379cd668da405df841845b1439475926e8d16f27",
+  "actual_counts": {
+    "rust_library": 28,
+    "rust_harness": 17,
+    "rust_harness_original": 12,
+    "rust_harness_added": 5,
+    "python": 21,
+    "python_original": 17,
+    "python_added": 4,
+    "isolated_additional_validator_controls": 55
+  },
+  "clippy_fmt_diff": "passed",
+  "javascript_dimension": "FIRST/SECOND syntax only, no WebView execution",
+  "linux_ipc_dimension": "actual private Core daemon Unix list/get and real readonly SQLite schema/count/journal probes, including true metadata drift rejection",
+  "core_source_unchanged_from": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+  "G19_proved": false,
+  "native_target_lease": "RELEASED; reviewer has no further Cargo writer",
+  "main_target_accessed": false,
+  "formal_github_approve": false,
+  "remote_ci_executed": false,
+  "artifacts": [
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/REVIEW.md",
+      "sha256": "199acd31bed400d62272fa829fc3ac275635bc59e52e0fcb0cf3608715b3b77c",
+      "bytes": 8699
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/clippy.log",
+      "sha256": "5604fc8f0c276397a55db4bd7008236712075c0ad37d3b3a0f1fe362b1b85a36",
+      "bytes": 72
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/first-js.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/first.js",
+      "sha256": "be183e1fb2e70c8f3af6c6dd8a4e6e449b67de024248943db8fbe9aa6a4ffce8",
+      "bytes": 11553
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/independent-results.json",
+      "sha256": "f6fdbdd2903641c6a03c8907fd27191e8e002d32b61edcc5ae69c786cafb430c",
+      "bytes": 5369
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/native-tests.log",
+      "sha256": "80be4c2709142ed9f5f096d1bc5f3b4723460dac7ee645526b3fb087c1ebf405",
+      "bytes": 5490
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/preservation-and-controls.json",
+      "sha256": "cea11786178b35879e24f8d4e67c77afa889d9e98bf473c7d735b4da02de77fe",
+      "bytes": 8974
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/preservation-and-controls.log",
+      "sha256": "793186d09021871ab49cbed906e94b2f2e3c6e446b95f385bec07db0ca9ea3e5",
+      "bytes": 319
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/preserve_and_controls.py",
+      "sha256": "4d8d9540a26a5590a8f40ac050fa417dd52994300e6ba9d9bc8444526989423d",
+      "bytes": 7906
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/python-tests.log",
+      "sha256": "d31fd5701ac151750c40875eaa6c03237988ebe865076cbb3621d44673d1fef2",
+      "bytes": 120
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/run_checks.py",
+      "sha256": "b07aeee1a04aa9ba3de0d732e8cb978142b233b356da6fa1d0f5f4192aa5c6fd",
+      "bytes": 3897
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/runner.log",
+      "sha256": "67602cc5835114060423608e831aa317b178382ac05257d18a74a954c16ba495",
+      "bytes": 1863
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/second-js.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/second.js",
+      "sha256": "06b0142f582ccca1dd1c493842e002c93160c57958f9f85dfd6ea14ebace1816",
+      "bytes": 1452
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/shell.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/.onboarding/goal-execution-native-readonly-review/source-state.json",
+      "sha256": "204b0d36a937df894c3e3c40d76537575121151c1dec8a30d71293f100445f89",
+      "bytes": 1153
+    }
+  ],
+  "artifact_count": 18,
+  "not_run": [
+    "macOS native WebView new Goal execution invokes/flags",
+    "native Owner dialog",
+    "Apple Silicon/Intel exact integrated CI and packaging",
+    "real Provider/model/accounts",
+    "full Goal/G19 acceptance",
+    "production/signing/release"
+  ]
+}
