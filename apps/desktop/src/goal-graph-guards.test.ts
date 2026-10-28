@@ -44,3 +44,9 @@ it.each(['device','inode','bytes','uid','gid','mode','mtime','mtime_nsec','ctime
 it('enforces signed seconds, nanosecond and unsigned pin ranges without changing wire values',()=>{
   const f=goalGraphFixture(),ref=graphCandidateView(f).candidates[0].artifacts[0];ref.file_pin.mtime=-1;expect(graphArtifactShape(ref,f.scope)).toBe(true);ref.file_pin.mtime_nsec=-1;expect(graphArtifactShape(ref,f.scope)).toBe(false);ref.file_pin.mtime_nsec=1_000_000_000;expect(graphArtifactShape(ref,f.scope)).toBe(false);ref.file_pin.mtime_nsec=999_999_999;ref.file_pin.uid=4_294_967_296;expect(graphArtifactShape(ref,f.scope)).toBe(false);
 });
+it.each(['task','owner'])('rejects %s acceptance refs whose complete safe origin differs from the captured candidate',async kind=>{
+  const {graphAcceptedFixture}=await import('./goal-graph-test-fixtures');const {graphTaskAcceptanceMatchesTask}=await import('./goal-graph-guards');const f=goalGraphFixture(),accepted=graphAcceptedFixture(f),view=mutable(accepted.view);expect(graphDetailsShape(view,accepted.task,f.scope)).toBe(true);
+  if(kind==='task'){view.task_acceptance!.artifact_refs=structuredClone(view.task_acceptance!.artifact_refs);view.task_acceptance!.artifact_refs[0].root.device++;view.task_acceptance!.artifact_refs[0].file_pin.inode=999;}
+  else{view.owner_decisions[0].candidate_refs=structuredClone(view.owner_decisions[0].candidate_refs);view.owner_decisions[0].candidate_refs[0].root.inode++;view.owner_decisions[0].candidate_refs[0].file_pin.ctime_nsec=1;}
+  expect(graphDetailsShape(view,accepted.task,f.scope)).toBe(false);expect(graphTaskAcceptanceMatchesTask(view.task_acceptance,accepted.task,f.scope,view)).toBe(false);
+});

@@ -12,7 +12,7 @@ import { graphGraphLabel } from './goal-graph-labels';
 import type { Language } from './i18n';
 import './goal-graph.css';
 type Props={task:Task;scope:GoalScope;latest:GoalPlan|null;language:Language;connected:boolean;approvalAllowed:boolean;historyScopes?:GoalScope[]};
-type Intent={mode:'graph';kind:'approve'|'advance'|'cancel'|'owner'|'reject';key:string;scopeId:string;rootGrantId:string;inputRevision:string;planRevision:number;planDigest:string;sourcePlanRevision?:number;sourcePlanDigest?:string;runId?:string;nodeId?:string;revision?:number;selection?:GoalGraphSelection;advance?:GoalGraphAdvance;node?:GoalNodeSelection;floors:[string,GraphEvidenceFloor][];ledger:number;uncertain:boolean;reconciled:boolean;receipt?:{runId:string;revision:number;decisionId?:string}};
+type Intent={mode:'graph';kind:'approve'|'advance'|'cancel'|'owner'|'reject';key:string;scopeId:string;rootGrantId:string;inputRevision:string;planRevision:number;planDigest:string;sourcePlanRevision?:number;sourcePlanDigest?:string;runId?:string;nodeId?:string;revision?:number;selection?:GoalGraphSelection;advance?:GoalGraphAdvance;node?:GoalNodeSelection;floors:[string,GraphEvidenceFloor][];ledger:number;uncertain:boolean;reconciled:boolean;receipt?:{runId:string;revision:number;decisionId?:string;approvalId?:string;decision?:'accepted'|'rejected'}};
 const intents=new Map<string,Intent>();
 const uncertain=(failure:unknown)=>!(failure instanceof DaemonError)||failure.code==='OUTCOME_UNKNOWN'||!['none','not_started'].includes(failure.sideEffectState);
 export const goalPlanExecutionSupported=(plan:GoalPlan|null)=>!!plan&&!!plan.proposal&&Array.isArray(plan.proposal.nodes)&&plan.proposal.nodes.length>0&&plan.proposal.nodes.length<=256&&plan.proposal.nodes.every(node=>!!node&&['work','summary','validate','owner_approval'].includes(node.kind)&&Array.isArray(node.dependencies)&&node.dependencies.every(id=>typeof id==='string'));
@@ -67,9 +67,12 @@ function GraphPanel({task,scope,latest,language,connected,approvalAllowed,expand
       selected.current=id??'';setRows(currentRows);setView(detail);setLegacyBlocked(legacy.some(goalRunNeedsReconciliation)||legacyGoalExecutionPending(task.id));setFresh(true);
       if(op){
         const supported=!detail||graphViewConsistent(detail);const receipt=op.receipt;
-        const exact=receipt&&currentRows.some(row=>row.run.id===receipt.runId&&row.run.revision>=receipt.revision)&&(!receipt.decisionId||detail?.owner_decisions.some(d=>d.id===receipt.decisionId));
+        const decision=receipt?.decisionId&&detail?.owner_decisions.find(d=>d.id===receipt.decisionId);
+        const expectedDecision=op.kind==='owner'?'accepted':op.kind==='reject'?'rejected':undefined;
+        const exactDecision=!receipt?.decisionId||!!decision&&!!expectedDecision&&receipt.decision===expectedDecision&&decision.run_id===op.runId&&decision.run_id===receipt.runId&&decision.node_id===op.nodeId&&decision.plan_revision===op.planRevision&&decision.plan_digest===op.planDigest&&decision.approval_id===receipt.approvalId&&decision.decision===expectedDecision&&decision.source===(expectedDecision==='accepted'?'local_owner_confirmation':'local_owner_rejection');
+        const exact=receipt&&currentRows.some(row=>row.run.id===receipt.runId&&row.run.revision>=receipt.revision)&&exactDecision;
         if(exact&&supported){intents.delete(task.id);setPending(null);}
-        else{const reconciled={...op,floors:[...floors.current],ledger:ledger.current,reconciled:supported};intents.set(task.id,reconciled);setPending(reconciled);}
+        else{const foreignDecision=!!decision&&!exactDecision;const reconciled={...op,uncertain:op.uncertain||foreignDecision,floors:[...floors.current],ledger:ledger.current,reconciled:supported};intents.set(task.id,reconciled);setPending(reconciled);if(foreignDecision)setError(t.scope);}
       }else setPending(null);
     }catch(failure){if(mounted.current&&current===sequence.current){setFresh(false);setView(null);setError(failure instanceof Error?failure.message:t.error);}}
     finally{if(mounted.current&&current===sequence.current){setLoading(false);setTick(value=>value+1);}}
@@ -90,7 +93,7 @@ function GraphPanel({task,scope,latest,language,connected,approvalAllowed,expand
       let receipt:NonNullable<Intent['receipt']>;
       if(op.kind==='owner'||op.kind==='reject'){
         if(!graphDecisionShape(result,op.runId!,op.nodeId!,op.planRevision,op.revision!,op.kind==='owner'?'accepted':'rejected'))throw new Error(t.scope);
-        const decision=result as GraphOwnerDecisionResult;receipt={runId:decision.run_id,revision:decision.run_revision,decisionId:decision.owner_decision_id};
+        const decision=result as GraphOwnerDecisionResult;receipt={runId:decision.run_id,revision:decision.run_revision,decisionId:decision.owner_decision_id,approvalId:decision.approval_id,decision:op.kind==='owner'?'accepted':'rejected'};
       }else{
         if(!graphSummaryShape(result,task,scope)||result.run.scope_id!==op.scopeId||result.run.root_grant_id!==op.rootGrantId||result.ledger_revision<ledger.current&&!op.uncertain||op.kind==='approve'&&(result.run.plan_revision!==op.planRevision||result.run.plan_digest!==op.planDigest)||op.kind!=='approve'&&(result.run.id!==op.runId||result.run.revision<=op.revision!)||op.kind==='cancel'&&!result.run.cancel_requested||op.kind==='advance'&&(result.run.plan_revision!==op.planRevision||result.run.plan_digest!==op.planDigest||result.run.cancel_requested))throw new Error(t.scope);
         receipt={runId:result.run.id,revision:result.run.revision};const floor=floors.current.get(result.run.id);if(floor&&!graphReceiptFitsFloor(result,floor.summary,op.uncertain))throw new Error(t.scope);ledger.current=Math.max(ledger.current,result.ledger_revision);if(!floor||graphSummaryMeetsFloor(result,floor.summary))floors.current.set(result.run.id,{summary:structuredClone(result),details:floor?.details??null});
