@@ -63,6 +63,7 @@ fn sequence(db: &Connection) -> Result<u64> {
 }
 fn run(db: &Connection, id: &str) -> Result<GoalRun> {
     key(id)?;
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE id=?1",[id],1,MAX_STORED_BYTES)?;
     let raw: Option<Option<String>> = db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_runs WHERE id=?1",[id],|r|r.get(0)).optional().map_err(db_error)?;
     let stored = raw
         .ok_or_else(|| err("NOT_FOUND", "Goal run does not exist"))?
@@ -85,19 +86,25 @@ fn run(db: &Connection, id: &str) -> Result<GoalRun> {
 }
 fn node_records(db: &Connection, id: &str) -> Result<Vec<RuntimeNode>> {
     let r = run(db, id)?;
-    node_records_at(db, &r, r.plan_revision, &r.plan_digest)
+    let plans = bounded_plan_history(db, &r.scope_id)?;
+    let plan = plans
+        .iter()
+        .find(|p| p.proposal.revision == r.plan_revision && p.digest == r.plan_digest)
+        .ok_or_else(changed)?;
+    node_records_at(db, &r, r.plan_revision, &r.plan_digest, plan)
 }
 fn node_records_at(
     db: &Connection,
     r: &GoalRun,
     revision: u64,
     digest: &str,
+    plan: &GoalPlanView,
 ) -> Result<Vec<RuntimeNode>> {
     let id = r.id.as_str();
-    let plan = historical_plan_views(db, &r.scope_id)?
-        .into_iter()
-        .find(|p| p.proposal.revision == revision && p.digest == digest)
-        .ok_or_else(changed)?;
+    if plan.proposal.revision != revision || plan.digest != digest {
+        return Err(changed());
+    }
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(node_id)+octet_length(state)+COALESCE(octet_length(session_id),0)+COALESCE(octet_length(attempt_id),0)),0),COALESCE(max(octet_length(document)),0) FROM goal_run_nodes WHERE run_id=?1 AND plan_revision=?2",params![id,sql_num(revision)?],256,MAX_GOAL_PLAN_BYTES as i64)?;
     let mut q=db.prepare("SELECT node_id,ordinal,state,session_id,attempt_id,CASE WHEN octet_length(document)<=262144 THEN document END FROM goal_run_nodes WHERE run_id=?1 AND plan_revision=?2 ORDER BY ordinal LIMIT 257").map_err(db_error)?;
     type Row = (
         String,
@@ -260,6 +267,26 @@ fn connection_summary(refs: &GoalRefs) -> Result<Value> {
     summary["id"] = json!(id);
     Ok(summary)
 }
+fn require_output_mappings(selection: &GoalScopeSelection, plan: &GoalPlanProposal) -> Result<()> {
+    for node in &plan.nodes {
+        for output in &node.outputs {
+            let approved = selection
+                .outputs
+                .iter()
+                .find(|o| o.artifact.artifact_id == output.artifact_id)
+                .ok_or_else(|| {
+                    err(
+                        "CAPABILITY_UNSUPPORTED",
+                        "Goal output has no approved physical artifact mapping",
+                    )
+                })?;
+            if output.contract_id != format!("output:{}", approved.artifact.artifact_id) {
+                return Err(changed());
+            }
+        }
+    }
+    Ok(())
+}
 fn require_metered_capabilities(plan: &GoalPlanProposal) -> Result<()> {
     if plan
         .nodes
@@ -289,6 +316,7 @@ fn snapshot(
     if plan.proposal.nodes.is_empty() {
         return Err(invalid());
     }
+    require_output_mappings(&r.selection, &plan.proposal)?;
     require_metered_capabilities(&plan.proposal)?;
     // A complete plan is reviewed; neither IDs nor a digest-only surrogate grant
     // unseen nodes or permissions. Large owner reviews must use a separate UI design.
@@ -453,6 +481,13 @@ impl Store {
     }
     pub fn list_goal_runs(&self, task_id: &str) -> Result<Vec<GoalRun>> {
         key(task_id)?;
+        raw_collection_budget(
+            &self.conn,
+            "SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE task_id=?1",
+            [task_id],
+            256,
+            MAX_STORED_BYTES,
+        )?;
         let mut q = self
             .conn
             .prepare("SELECT id FROM goal_runs WHERE task_id=?1 ORDER BY rowid DESC LIMIT 257")
@@ -468,6 +503,15 @@ impl Store {
         ids.iter().map(|id| run(&self.conn, id)).collect()
     }
     pub fn cancel_goal_run(&mut self, id: &str, revision: u64, key_id: &str) -> Result<GoalRun> {
+        self.record_goal_cancel(id, revision, key_id)
+            .map(|(r, _)| r)
+    }
+    fn record_goal_cancel(
+        &mut self,
+        id: &str,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<(GoalRun, bool)> {
         key(key_id)?;
         let tx = self
             .conn
@@ -476,7 +520,7 @@ impl Store {
         let scope = format!("goal-run:{id}:cancel");
         let payload = encode(&json!({"revision":revision}))?;
         if let Some(v) = replay(&tx, &scope, key_id, &payload)? {
-            return Ok(v);
+            return Ok((v, false));
         }
         let mut r = run(&tx, id)?;
         if revision != r.revision {
@@ -497,7 +541,33 @@ impl Store {
         )?;
         remember(&tx, &scope, key_id, &payload, &r)?;
         tx.commit().map_err(db_error)?;
-        Ok(r)
+        Ok((r, true))
+    }
+    pub(crate) fn cancel_goal_with_stops(
+        &mut self,
+        id: &str,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<(GoalRun, Vec<String>)> {
+        let (receipt, new) = self.record_goal_cancel(id, revision, key_id)?;
+        if !new {
+            return Ok((receipt, Vec::new()));
+        }
+        match self.goal_stop_requests() {
+            Ok(stops) => Ok((receipt, stops)),
+            Err(mut error) => {
+                if error.side_effect_state == "not_started" {
+                    error.side_effect_state = "confirmed".into();
+                }
+                let previous = error.details_ref.take();
+                error.details_ref = Some(match previous {
+                    Some(p) => format!("recorded-goal-cancel:{id};{p}"),
+                    None => format!("recorded-goal-cancel:{id}"),
+                });
+                error.message=format!("{}; cancellation intent is durably recorded, but owned stop remains unconfirmed. Recover the original key and read the existing run",error.message);
+                Err(error)
+            }
+        }
     }
 }
 
@@ -609,6 +679,7 @@ fn checked_runtime_scope_at(
     }
     let scope = approved_scope(&task, &record)?;
     let (_, plan) = current_plan(db, &r.scope_id, &scope)?;
+    require_output_mappings(&record.selection, &plan.proposal)?;
     require_metered_capabilities(&plan.proposal)?;
     if require_head && (plan.proposal.revision != r.plan_revision || plan.digest != r.plan_digest) {
         return Err(err("STALE_REVISION","An in-scope plan revision must advance atomically before dispatch; old receipts never start it"));
@@ -688,7 +759,10 @@ impl Store {
         let workspace = binding.workspace_id.clone();
         let connection = binding.connection_id.clone();
         let grant = c.run.root_grant_id.clone();
-        let key = format!("goal:{}:{}:{}", c.run.id, c.run.plan_revision, c.node.id);
+        let key = format!(
+            "goal-session:{}",
+            sha(&(c.run.id.clone(), c.run.plan_revision, c.node.id.clone()))?
+        );
         self.create_session_for_goal(
             (
                 &task_id,
@@ -702,7 +776,7 @@ impl Store {
         )
     }
 }
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct ReservationRecord {
     run_id: String,
     node_id: String,
@@ -716,6 +790,7 @@ struct ReservationRecord {
     cost_microunits: Option<u64>,
 }
 fn reservations(db: &Connection, root: &str, project: &str) -> Result<Vec<ReservationRecord>> {
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(x.document)+octet_length(x.attempt_id)+octet_length(x.run_id)+octet_length(x.node_id)+COALESCE(octet_length(x.parent_node_id),0)),0),COALESCE(max(octet_length(x.document)),0) FROM goal_run_reservations x JOIN goal_runs r ON r.id=x.run_id WHERE r.project_id=?1 OR json_extract(r.document,'$.root_grant_id')=?2",params![project,root],100000,MAX_GOAL_PLAN_BYTES as i64)?;
     let mut q=db.prepare("SELECT CASE WHEN octet_length(x.document)<=262144 THEN x.document END FROM goal_run_reservations x JOIN goal_runs r ON r.id=x.run_id WHERE r.project_id=?1 OR json_extract(r.document,'$.root_grant_id')=?2 LIMIT 100001").map_err(db_error)?;
     let docs = q
         .query_map(params![project, root], |r| r.get::<_, Option<String>>(0))
@@ -1072,7 +1147,10 @@ impl Store {
             return Ok(None);
         }
         checked_runtime_scope(&self.conn, &r, self.data_input.as_ref())?;
-        let key = format!("goal-node:{}:{}:{}", r.id, r.plan_revision, n.node.id);
+        let key = format!(
+            "goal-turn:{}",
+            sha(&(r.id.clone(), r.plan_revision, n.node.id.clone()))?
+        );
         let record: ScopeRecord = raw(&self.conn, "goal_scopes", &r.scope_id)?;
         let text = encode(
             &json!({"schema_version":1,"kind":"agentbaton_goal_task_request","goal":n.node.goal,"node":n.node,"run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"workspace":{"id":record.refs.workspace.id,"canonical_root":record.refs.workspace.root,"input_revision":record.refs.workspace.base_revision},"inputs":record.refs.inputs,"outputs":record.selection.outputs,"policy":{"requested":record.refs.grant_after.scope,"enforced":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false}},"lineage":{"root_task_id":r.task_id,"parent_node_id":n.node.parent_id,"attempt_id":s.attempt_id},"budget":{"reservation":n.node.reservation,"limits":n.node.budget},"idempotency_key":key,"return_location":{"run_id":r.id,"node_id":n.node.id,"attempt_id":s.attempt_id}}),
@@ -1101,7 +1179,8 @@ impl Store {
         Ok(Some((id, text)))
     }
     pub(crate) fn active_goal_runs(&self) -> Result<Vec<GoalRun>> {
-        let mut q=self.conn.prepare("SELECT id FROM goal_runs WHERE state IN('queued','running','cancel_requested','blocked') ORDER BY rowid LIMIT 257").map_err(db_error)?;
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE (state IN('queued','running','cancel_requested') OR (state='blocked' AND EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=goal_runs.id AND n.state IN('reserved','running','stopping'))))",[],256,MAX_STORED_BYTES)?;
+        let mut q=self.conn.prepare("SELECT id FROM goal_runs WHERE (state IN('queued','running','cancel_requested') OR (state='blocked' AND EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=goal_runs.id AND n.state IN('reserved','running','stopping')))) ORDER BY rowid LIMIT 257").map_err(db_error)?;
         let ids = q
             .query_map([], |r| r.get::<_, String>(0))
             .map_err(db_error)?
@@ -1201,36 +1280,32 @@ impl Store {
         let record: ScopeRecord = raw(&self.conn, "goal_scopes", &r.scope_id)?;
         // Current available selected artifact bytes; cap work on the actor. A
         // missing/unsafe/too-large observation stays unknown rather than zero.
-        let output_budget = record
-            .selection
-            .outputs
-            .iter()
-            .try_fold(0u64, |a, o| a.checked_add(o.artifact.max_bytes));
-        let mut output_bytes = Some(0u64);
-        if output_budget.is_none_or(|n| n > 1_048_576) {
-            output_bytes = None;
-        } else {
-            for output in &record.selection.outputs {
-                if !n
-                    .node
-                    .outputs
-                    .iter()
-                    .any(|p| p.artifact_id == output.artifact.artifact_id)
-                {
-                    continue;
-                }
-                match agentbaton_workspaces::read_artifact(
-                    &record.refs.workspace.root,
-                    &output.artifact.relative_path,
-                    output.artifact.max_bytes,
-                ) {
-                    Ok(bytes) => {
-                        output_bytes = output_bytes.and_then(|a| a.checked_add(bytes.len() as u64));
-                    }
-                    Err(_) => {
-                        output_bytes = None;
-                        break;
-                    }
+        let root_matches = record.refs.workspace.identity.as_ref().is_some_and(|pin| {
+            crate::policy::live_workspace_matches(&record.refs.workspace.root, pin).unwrap_or(false)
+        });
+        let mut output_bytes = if root_matches { Some(0u64) } else { None };
+        for output in &n.node.outputs {
+            let Some(approved) = record.selection.outputs.iter().find(|o| {
+                o.artifact.artifact_id == output.artifact_id
+                    && output.contract_id == format!("output:{}", o.artifact.artifact_id)
+            }) else {
+                output_bytes = None;
+                break;
+            };
+            let Some(measured) = output_bytes else { break };
+            let limit = approved
+                .artifact
+                .max_bytes
+                .min(1_048_576u64.saturating_sub(measured));
+            match agentbaton_workspaces::read_artifact(
+                &record.refs.workspace.root,
+                &approved.artifact.relative_path,
+                limit,
+            ) {
+                Ok(bytes) => output_bytes = measured.checked_add(bytes.len() as u64),
+                Err(_) => {
+                    output_bytes = None;
+                    break;
                 }
             }
         }
@@ -1327,6 +1402,7 @@ impl Store {
         tx.commit().map_err(db_error)
     }
     pub(crate) fn recover_goal_runs(&mut self) -> Result<()> {
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(id)),0),0 FROM goal_runs WHERE state IN('queued','running','cancel_requested')",[],256,0)?;
         let ids = {
             let mut q=self.conn.prepare("SELECT id FROM goal_runs WHERE state IN('queued','running','cancel_requested')").map_err(db_error)?;
             let values = q
@@ -1503,6 +1579,7 @@ fn verify_plan_advances(
         .as_str()
         .ok_or_else(changed)?
         .to_string();
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.run_plan_advanced'",[&r.id],256,MAX_STORED_BYTES)?;
     let mut q=db.prepare("SELECT sequence,CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.run_plan_advanced' ORDER BY sequence LIMIT 257").map_err(db_error)?;
     let events = q
         .query_map([&r.id], |row| {
@@ -1514,7 +1591,7 @@ fn verify_plan_advances(
     if events.len() > 256 {
         return Err(limited());
     }
-    let history = historical_plan_views(db, &r.scope_id)?;
+    let history = bounded_plan_history(db, &r.scope_id)?;
     let mut previous = authorized_sequence;
     for (seq, raw) in events {
         let e: Event = decode(&raw.ok_or_else(limited)?)?;
@@ -1685,6 +1762,8 @@ impl Store {
         Ok(r)
     }
     fn goal_node_history(&self, r: &GoalRun) -> Result<Vec<RuntimeNode>> {
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(run_id)+octet_length(node_id)+octet_length(state)+COALESCE(octet_length(session_id),0)+COALESCE(octet_length(attempt_id),0)),0),COALESCE(max(octet_length(document)),0) FROM goal_run_nodes WHERE run_id=?1",[&r.id],65536,MAX_GOAL_PLAN_BYTES as i64)?;
+
         let mut q=self.conn.prepare("SELECT DISTINCT plan_revision FROM goal_run_nodes WHERE run_id=?1 ORDER BY plan_revision LIMIT 257").map_err(db_error)?;
         let revisions = q
             .query_map([&r.id], |row| row.get::<_, i64>(0))
@@ -1694,7 +1773,7 @@ impl Store {
         if revisions.len() > 256 {
             return Err(limited());
         }
-        let plans = historical_plan_views(&self.conn, &r.scope_id)?;
+        let plans = bounded_plan_history(&self.conn, &r.scope_id)?;
         let mut nodes = Vec::new();
         let mut bytes = 0usize;
         for rev in revisions {
@@ -1703,7 +1782,7 @@ impl Store {
                 .iter()
                 .find(|p| p.proposal.revision == rev)
                 .ok_or_else(changed)?;
-            let current = node_records_at(&self.conn, r, rev, &plan.digest)?;
+            let current = node_records_at(&self.conn, r, rev, &plan.digest, plan)?;
             bytes = bytes
                 .checked_add(encode(&current)?.len())
                 .ok_or_else(limited)?;
@@ -1802,5 +1881,644 @@ impl Store {
             key_id,
             &payload,
         )
+    }
+}
+
+fn raw_collection_budget(
+    db: &Connection,
+    sql: &str,
+    arguments: impl rusqlite::Params,
+    max_count: i64,
+    max_document: i64,
+) -> Result<()> {
+    let (count, bytes, largest): (i64, i64, i64) = db
+        .query_row(sql, arguments, |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))
+        .map_err(db_error)?;
+    if count < 0
+        || count > max_count
+        || bytes < 0
+        || bytes > 4_194_304
+        || largest < 0
+        || largest > max_document
+    {
+        return Err(limited());
+    }
+    Ok(())
+}
+fn bounded_plan_history(db: &Connection, scope_id: &str) -> Result<Vec<GoalPlanView>> {
+    key(scope_id)?;
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(task_id)+octet_length(root_grant_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_scopes WHERE id=?1",[scope_id],1,MAX_STORED_BYTES)?;
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+COALESCE(octet_length(result),0)+octet_length(id)),0),COALESCE(max(max(octet_length(document),COALESCE(octet_length(result),0))),0) FROM approval_proposals WHERE id=?1",[scope_id],1,MAX_STORED_BYTES)?;
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(bytes),0),COALESCE(max(doc_bytes),0) FROM (SELECT octet_length(document) AS doc_bytes,octet_length(document)+octet_length(scope_id)+octet_length(plan_id)+octet_length(digest)+COALESCE(octet_length(previous_digest),0)+octet_length(created_at) AS bytes FROM goal_plan_revisions WHERE scope_id=?1 UNION ALL SELECT octet_length(document),octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(plan_id)+octet_length(digest) FROM goal_plan_proposals WHERE scope_id=?1)",[scope_id],512,MAX_STORED_BYTES)?;
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(scope_id)+octet_length(plan_id)+octet_length(digest)),0),0 FROM goal_plan_heads WHERE scope_id=?1",[scope_id],1,0)?;
+    super::historical_plan_views(db, scope_id)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{fs, os::unix::fs::PermissionsExt, path::Path, process::Command};
+    struct Fixture {
+        store: Store,
+        _directory: tempfile::TempDir,
+        scope: GoalScopeView,
+        run: GoalRun,
+    }
+    fn git(root: &Path, args: &[&str]) -> String {
+        let output = Command::new("git")
+            .env_clear()
+            .env("PATH", "/usr/bin:/bin")
+            .env("GIT_CONFIG_NOSYSTEM", "1")
+            .env("GIT_CONFIG_GLOBAL", "/dev/null")
+            .args([
+                "-c",
+                "user.name=Generated fixture",
+                "-c",
+                "user.email=fixture@invalid",
+                "-c",
+                "core.hooksPath=/dev/null",
+                "-C",
+            ])
+            .arg(root)
+            .args(args)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        String::from_utf8(output.stdout).unwrap().trim().into()
+    }
+    fn fixture(capacity: u32) -> Fixture {
+        let dir = match std::env::var_os("AB_GOAL_CRASH_TEST_PARENT") {
+            Some(parent) => tempfile::tempdir_in(parent).unwrap(),
+            None => tempfile::tempdir().unwrap(),
+        };
+        let base = dir.path().canonicalize().unwrap();
+        let source = base.join("source");
+        fs::create_dir(&source).unwrap();
+        git(&source, &["init", "--initial-branch=main"]);
+        fs::write(source.join("file"), b"baseline").unwrap();
+        git(&source, &["add", "file"]);
+        git(&source, &["commit", "-m", "generated"]);
+        let head = git(&source, &["rev-parse", "HEAD"]);
+        let runtime = base.join("runtime");
+        fs::create_dir(&runtime).unwrap();
+        fs::set_permissions(&runtime, fs::Permissions::from_mode(0o700)).unwrap();
+        let mut store = Store::open(&runtime.join("baton.sqlite3")).unwrap();
+        let project = store
+            .import_project(&source, "Generated unit project", "project")
+            .unwrap();
+        let managed = runtime.join("workspaces");
+        fs::create_dir(&managed).unwrap();
+        fs::set_permissions(&managed, fs::Permissions::from_mode(0o700)).unwrap();
+        let workspace = store
+            .create_workspace(&project.id, project.revision, &head, &managed, "workspace")
+            .unwrap();
+        // Synthetic ready-version metadata only. No Provider is run by these
+        // authority/raw-byte unit controls. Actual protocol tests are separate.
+        let proposal = store
+            .propose_connection(
+                "Synthetic no-process unit connection",
+                "custom_acp",
+                Path::new("/usr/bin/true"),
+                &[],
+                "connection",
+            )
+            .unwrap();
+        let connection = store.finalize_proposal(&proposal.id, 1).unwrap();
+        let mut full = store
+            .get_connection(connection["id"].as_str().unwrap())
+            .unwrap();
+        full.probe_state = "ready".into();
+        store
+            .conn
+            .execute(
+                "UPDATE connections SET document=?1 WHERE id=?2",
+                params![encode(&full).unwrap(), full.id],
+            )
+            .unwrap();
+        let grant = store
+            .propose_grant(&project.id, &workspace.id, &full.id, 4, 1, 60_000, "grant")
+            .unwrap();
+        let grant: ExecutionGrant =
+            serde_json::from_value(store.finalize_proposal(&grant.id, 1).unwrap()).unwrap();
+        let task = store
+            .create_registered(
+                &project.id,
+                "Produce an independently reviewed report",
+                "task",
+            )
+            .unwrap();
+        let limits = BudgetLimits {
+            attempts: 4,
+            parallel: 1,
+            runtime_ms: 20_000,
+            output_bytes: 16384,
+            children: capacity - 1,
+            reworks: 4,
+            tokens: None,
+            cost_microunits: None,
+        };
+        let selection = GoalScopeSelection {
+            task_id: task.id.clone(),
+            expected_task_revision: task.revision,
+            grant_id: grant.id.clone(),
+            expected_grant_revision: grant.revision,
+            max_nodes: capacity,
+            new_max_children: capacity - 1,
+            new_max_depth: 1,
+            root_budget: limits.clone(),
+            project_budget: limits,
+            inputs: vec![ArtifactRequirement {
+                artifact_id: "input".into(),
+                relative_path: "file".into(),
+                max_bytes: 1024,
+                expected_sha256: Some(agentbaton_workspaces::validation::sha256(b"baseline")),
+            }],
+            outputs: vec![GoalOutputSelection {
+                artifact: ArtifactRequirement {
+                    artifact_id: "report".into(),
+                    relative_path: "reports/report.txt".into(),
+                    max_bytes: 1024,
+                    expected_sha256: None,
+                },
+                validators: vec![],
+            }],
+            writable_prefixes: vec!["reports".into()],
+            owner_acceptance_criteria: "Owner independently reviews exact bound artifacts".into(),
+        };
+        let approved = store.propose_goal_scope(&selection, "scope").unwrap();
+        let scope: GoalScopeView =
+            serde_json::from_value(store.finalize_proposal(&approved.id, 1).unwrap()).unwrap();
+        let node = PlanNode {
+            id: "produce-report".into(),
+            parent_id: None,
+            kind: NodeKind::Work,
+            goal: "Produce a report".into(),
+            dependencies: vec![],
+            workspace_id: workspace.id,
+            executor: Executor::Connection {
+                binding: Box::new(scope.binding.clone()),
+                program_sha256: scope.program_sha256.clone(),
+            },
+            recipients: vec![],
+            required_inputs: vec![RequiredInput {
+                goal_task_id: task.id,
+                artifact_id: "input".into(),
+                contract_id: scope.inputs["input"].contract_id.clone(),
+                source: InputSource::ApprovedExternal {
+                    sha256: scope.inputs["input"].sha256.clone(),
+                },
+            }],
+            outputs: vec![PlannedOutput {
+                artifact_id: "report".into(),
+                contract_id: scope.outputs["report"].clone(),
+            }],
+            required_validators: vec!["goal-owner-review".into()],
+            side_effect: SideEffect::WorkspaceWrite,
+            write_set: vec![WriteTarget::Workspace {
+                path: "reports/report.txt".into(),
+            }],
+            budget: BudgetLimits {
+                attempts: 4,
+                parallel: 1,
+                runtime_ms: 10000,
+                output_bytes: 8192,
+                children: 0,
+                reworks: 4,
+                tokens: None,
+                cost_microunits: None,
+            },
+            reservation: AttemptReservation {
+                runtime_ms: 4000,
+                output_bytes: 2048,
+                tokens: None,
+                cost_microunits: None,
+            },
+            retry: RetryPolicy {
+                max_attempts: 4,
+                max_reworks: 4,
+                retry_classes: vec![
+                    FailureClass::BeforeDispatchTransient,
+                    FailureClass::ValidationFailed,
+                ],
+            },
+            idempotency_key: "produce-report".into(),
+            external_action_id: None,
+        };
+        let plan = GoalPlanProposal {
+            schema_version: 1,
+            plan_id: "unit-runtime-plan".into(),
+            goal: scope.goal.clone(),
+            scope_revision: scope.authority_revision,
+            revision: 1,
+            expected_revision: 0,
+            acceptance_rules: scope.required_acceptance_rules.clone(),
+            nodes: vec![node],
+        };
+        store
+            .submit_goal_plan(
+                &GoalPlanSubmission {
+                    scope_id: scope.id.clone(),
+                    proposal: plan,
+                },
+                "plan",
+                0,
+            )
+            .unwrap();
+        let selection = GoalRunSelection {
+            scope_id: scope.id.clone(),
+            expected_plan_revision: 1,
+            expected_ledger_revision: store.sequence().unwrap(),
+        };
+        let proposal = store.propose_goal_run(&selection, "execute").unwrap();
+        let run: GoalRun =
+            serde_json::from_value(store.finalize_proposal(&proposal.id, 1).unwrap()).unwrap();
+        Fixture {
+            store,
+            _directory: dir,
+            scope,
+            run,
+        }
+    }
+    fn reserve(f: &mut Fixture) -> crate::sessions::ManagedSession {
+        let p = GoalRunDispatch {
+            run_id: f.run.id.clone(),
+            expected_ledger_revision: f.store.sequence().unwrap(),
+        };
+        let context = f
+            .store
+            .goal_dispatch_context(&p, f.store.get_goal_run(&f.run.id).unwrap().revision)
+            .unwrap()
+            .unwrap();
+        f.store.create_goal_session(context).unwrap()
+    }
+    fn grow(f: &mut Fixture, count: usize, revision: u64) {
+        let mut plan = f.store.get_goal_plan(&f.scope.id).unwrap().proposal;
+        let work = plan.nodes[0].clone();
+        plan.nodes = vec![work.clone()];
+        for i in 1..count {
+            let mut owner = work.clone();
+            owner.id = format!("owner-{i}");
+            owner.idempotency_key = format!("review-{i}");
+            owner.kind = NodeKind::OwnerApproval;
+            owner.executor = Executor::Owner {
+                rule_id: "goal-owner-review".into(),
+            };
+            owner.side_effect = SideEffect::AdvisoryReadOnly;
+            owner.write_set.clear();
+            owner.outputs.clear();
+            owner.dependencies = vec![work.id.clone()];
+            owner.required_inputs = vec![RequiredInput {
+                goal_task_id: f.scope.task_id.clone(),
+                artifact_id: "report".into(),
+                contract_id: f.scope.outputs["report"].clone(),
+                source: InputSource::Node {
+                    node_id: work.id.clone(),
+                    candidate_for_validation: true,
+                },
+            }];
+            plan.nodes.push(owner);
+        }
+        plan.revision = revision;
+        plan.expected_revision = revision - 1;
+        f.store
+            .submit_goal_plan(
+                &GoalPlanSubmission {
+                    scope_id: f.scope.id.clone(),
+                    proposal: plan,
+                },
+                &format!("plan-{revision}"),
+                revision - 1,
+            )
+            .unwrap();
+        let r = f.store.get_goal_run(&f.run.id).unwrap();
+        let p = GoalPlanAdvance {
+            run_id: r.id,
+            expected_plan_revision: revision,
+            expected_ledger_revision: f.store.sequence().unwrap(),
+        };
+        f.store
+            .advance_goal_plan(&p, r.revision, &format!("advance-{revision}"))
+            .unwrap();
+    }
+    #[test]
+    fn three_hundred_persisted_nodes_near_four_mib_remain_complete_and_oversize_refuses_before_decode(
+    ) {
+        let mut f = fixture(150);
+        grow(&mut f, 150, 2);
+        grow(&mut f, 149, 3);
+        let original = f.store.goal_run_details(&f.run.id).unwrap();
+        assert_eq!(original["nodes"].as_array().unwrap().len(), 300);
+        let size = |db: &Connection| {
+            db.query_row("SELECT sum(octet_length(document)+octet_length(run_id)+octet_length(node_id)+octet_length(state)+COALESCE(octet_length(session_id),0)+COALESCE(octet_length(attempt_id),0)) FROM goal_run_nodes",[],|row|row.get::<_,i64>(0)).unwrap()
+        };
+        let before = size(&f.store.conn);
+        let target = 4_194_304 - 4096;
+        let padding = (target - before) / 300;
+        assert!(padding > 0);
+        f.store
+            .conn
+            .execute(
+                "UPDATE goal_run_nodes SET document=document||printf('%*s',?1,'')",
+                [padding],
+            )
+            .unwrap();
+        let near = size(&f.store.conn);
+        assert!(near <= target && near > 4_180_000);
+        assert_eq!(f.store.goal_run_details(&f.run.id).unwrap(), original);
+        f.store.conn.execute("UPDATE goal_run_nodes SET document=document||printf('%*s',8192,'') WHERE rowid=(SELECT min(rowid) FROM goal_run_nodes)",[]).unwrap();
+        assert!(size(&f.store.conn) > 4_194_304);
+        assert_eq!(
+            f.store.goal_run_details(&f.run.id).unwrap_err().code,
+            "RESOURCE_LIMIT"
+        );
+        assert_eq!(
+            f.store
+                .conn
+                .query_row("SELECT count(*) FROM goal_run_nodes", [], |row| row
+                    .get::<_, u32>(0))
+                .unwrap(),
+            300
+        );
+    }
+    #[test]
+    fn reservation_collection_has_total_raw_limit_not_only_per_row_caps() {
+        let mut f = fixture(2);
+        let session = reserve(&mut f);
+        let original: String = f
+            .store
+            .conn
+            .query_row("SELECT document FROM goal_run_reservations", [], |row| {
+                row.get(0)
+            })
+            .unwrap();
+        let binding = encode(&f.scope.binding).unwrap();
+        f.store
+            .conn
+            .execute(
+                "UPDATE goal_run_reservations SET document=document||printf('%*s',?1,'')",
+                [220000 - original.len() as i64],
+            )
+            .unwrap();
+        for i in 1..20 {
+            let attempt = format!("synthetic-pressure-{i}");
+            f.store.conn.execute("INSERT INTO attempts(id,task_id,root_task_id,binding,idempotency_key) VALUES(?1,?2,?2,?3,?1)",params![attempt,f.scope.task_id,binding]).unwrap();
+            f.store.conn.execute("INSERT INTO goal_run_reservations SELECT ?1,run_id,node_id,parent_node_id,document FROM goal_run_reservations WHERE attempt_id=?2",params![attempt,session.attempt_id]).unwrap();
+        }
+        assert_eq!(
+            f.store
+                .conn
+                .query_row(
+                    "SELECT max(octet_length(document)) FROM goal_run_reservations",
+                    [],
+                    |row| row.get::<_, u32>(0)
+                )
+                .unwrap(),
+            220000
+        );
+        assert_eq!(
+            reservations(&f.store.conn, &f.run.root_grant_id, &f.run.project_id)
+                .unwrap_err()
+                .code,
+            "RESOURCE_LIMIT"
+        );
+    }
+    #[test]
+    fn oversized_sql_metadata_is_bounded_before_node_comparison() {
+        let f = fixture(2);
+        f.store
+            .conn
+            .execute(
+                "UPDATE goal_run_nodes SET node_id=printf('%*s',4194304,'x')",
+                [],
+            )
+            .unwrap();
+        assert_eq!(
+            f.store.goal_run_details(&f.run.id).unwrap_err().code,
+            "RESOURCE_LIMIT"
+        );
+    }
+    #[test]
+    fn recorded_cancel_fault_never_reports_not_started_and_same_key_recovery_does_not_repeat_stop()
+    {
+        for fault in ["journal", "raw_budget"] {
+            let mut f = fixture(2);
+            reserve(&mut f);
+            let current = f.store.get_goal_run(&f.run.id).unwrap();
+            if fault == "journal" {
+                f.store.conn.execute_batch("CREATE TRIGGER generated_goal_stop_journal_fault BEFORE INSERT ON events WHEN json_extract(NEW.document,'$.kind')='goal.node_stop_requested' BEGIN SELECT RAISE(ABORT,'generated stop receipt failure'); END;").unwrap();
+            } else {
+                f.store
+                    .conn
+                    .execute(
+                        "UPDATE goal_run_nodes SET document=document||printf('%*s',300000,'')",
+                        [],
+                    )
+                    .unwrap();
+            }
+            let error = f
+                .store
+                .cancel_goal_with_stops(&f.run.id, current.revision, "recorded-cancel")
+                .unwrap_err();
+            assert_ne!(error.side_effect_state, "not_started");
+            assert!(error
+                .details_ref
+                .as_deref()
+                .unwrap()
+                .starts_with("recorded-goal-cancel:"));
+            assert!(error.message.contains("stop remains unconfirmed"));
+            let persisted = f.store.get_goal_run(&f.run.id).unwrap();
+            assert!(persisted.cancel_requested);
+            assert_eq!(persisted.state, "cancel_requested");
+            let sequence = f.store.sequence().unwrap();
+            let (recovered, stops) = f
+                .store
+                .cancel_goal_with_stops(&f.run.id, current.revision, "recorded-cancel")
+                .unwrap();
+            assert_eq!(recovered.revision, persisted.revision);
+            assert!(stops.is_empty());
+            assert_eq!(f.store.sequence().unwrap(), sequence);
+        }
+    }
+    #[test]
+    fn actual_process_exit_before_or_after_sent_marker_recovers_unknown_without_replay_or_false_cancel(
+    ) {
+        if let Some(manifest) = std::env::var_os("AB_GOAL_CRASH_TEST_MANIFEST") {
+            let mut f = fixture(2);
+            let session = reserve(&mut f);
+            if std::env::var("AB_GOAL_CRASH_TEST_MODE").unwrap() == "sent" {
+                f.store
+                    .mark_dispatch_started(&session.intent_id, &session.id)
+                    .unwrap();
+            }
+            let payload = json!({"database":f._directory.path().join("runtime/baton.sqlite3"),"run_id":f.run.id,"project_id":f.run.project_id,"session_id":session.id,"intent_id":session.intent_id});
+            {
+                use std::io::Write;
+                let mut file = fs::OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .open(manifest)
+                    .unwrap();
+                file.write_all(encode(&payload).unwrap().as_bytes())
+                    .unwrap();
+                file.sync_all().unwrap();
+            }
+            std::mem::forget(f);
+            std::process::exit(73);
+        }
+        for mode in ["prepared", "sent"] {
+            let owned = tempfile::tempdir().unwrap();
+            let manifest = owned.path().join("crash-manifest.json");
+            let mut child=Command::new(std::env::current_exe().unwrap()).args(["--exact","goal_store::runtime::tests::actual_process_exit_before_or_after_sent_marker_recovers_unknown_without_replay_or_false_cancel","--nocapture","--test-threads=1"]).env("AB_GOAL_CRASH_TEST_PARENT",owned.path()).env("AB_GOAL_CRASH_TEST_MANIFEST",&manifest).env("AB_GOAL_CRASH_TEST_MODE",mode).spawn().unwrap();
+            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
+            let status = loop {
+                if let Some(status) = child.try_wait().unwrap() {
+                    break status;
+                }
+                if std::time::Instant::now() >= deadline {
+                    child.kill().unwrap();
+                    child.wait().unwrap();
+                    panic!("owned generated crash child exceeded its bound");
+                }
+                std::thread::sleep(std::time::Duration::from_millis(5));
+            };
+            assert_eq!(status.code(), Some(73));
+            let evidence: Value = serde_json::from_slice(&fs::read(manifest).unwrap()).unwrap();
+            let database = std::path::PathBuf::from(evidence["database"].as_str().unwrap());
+            assert!(database
+                .canonicalize()
+                .unwrap()
+                .starts_with(owned.path().canonicalize().unwrap()));
+            let mut store = Store::open(&database).unwrap();
+            let id = evidence["run_id"].as_str().unwrap();
+            let current = store.goal_run_details(id).unwrap();
+            assert_eq!(current["run"]["state"], "outcome_unknown");
+            assert_eq!(current["nodes"][0]["state"], "outcome_unknown");
+            assert_eq!(current["nodes"][0]["stop_confirmed"], false);
+            assert!(current["nodes"][0]["actual_runtime_ms"].is_null());
+            assert!(current["nodes"][0]["actual_output_bytes"].is_null());
+            let revision = current["run"]["revision"].as_u64().unwrap();
+            let (cancelled, stops) = store
+                .cancel_goal_with_stops(id, revision, "unknown-cancel")
+                .unwrap();
+            assert_eq!(cancelled.state, "outcome_unknown");
+            assert!(cancelled.cancel_requested);
+            assert!(stops.is_empty());
+            let usage = store
+                .budget(true, evidence["project_id"].as_str().unwrap())
+                .unwrap()
+                .unwrap();
+            assert_eq!((usage.consumed, usage.active), (1, 1));
+            assert_eq!(
+                store
+                    .conn
+                    .query_row("SELECT count(*) FROM attempts", [], |row| row
+                        .get::<_, u32>(0))
+                    .unwrap(),
+                1
+            );
+            assert_eq!(
+                store
+                    .conn
+                    .query_row("SELECT count(*) FROM sessions", [], |row| row
+                        .get::<_, u32>(0))
+                    .unwrap(),
+                1
+            );
+        }
+    }
+    #[test]
+    fn native_execution_origin_requires_full_snapshot_commitment_source_and_positive_order() {
+        for mode in ["missing", "source", "snapshot", "late_confirmation"] {
+            let f = fixture(2);
+            match mode {
+                "missing" => {
+                    f.store.conn.execute("DELETE FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.run_authorized'",[&f.run.id]).unwrap();
+                }
+                "source" => {
+                    f.store.conn.execute("UPDATE events SET document=json_set(document,'$.source','generated_untrusted_agent_output') WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.run_authorized'",[&f.run.id]).unwrap();
+                }
+                "snapshot" => {
+                    f.store.conn.execute("UPDATE approval_proposals SET document=json_set(document,'$.snapshot.warning','not the native-reviewed snapshot') WHERE id=?1",[&f.run.id]).unwrap();
+                }
+                _ => {
+                    let doc:String=f.store.conn.query_row("SELECT document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='approval.confirmed'",[&f.run.id],|row|row.get(0)).unwrap();
+                    f.store.conn.execute("DELETE FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='approval.confirmed'",[&f.run.id]).unwrap();
+                    f.store
+                        .conn
+                        .execute("INSERT INTO events(document) VALUES(?1)", [doc])
+                        .unwrap();
+                }
+            }
+            let p = GoalRunDispatch {
+                run_id: f.run.id.clone(),
+                expected_ledger_revision: f.store.sequence().unwrap(),
+            };
+            assert!(
+                f.store.goal_dispatch_context(&p, f.run.revision).is_err(),
+                "{mode}"
+            );
+            assert_eq!(
+                f.store
+                    .conn
+                    .query_row("SELECT count(*) FROM attempts", [], |row| row
+                        .get::<_, u32>(0))
+                    .unwrap(),
+                0
+            );
+        }
+    }
+    #[test]
+    fn reserved_node_tampering_cannot_change_a_fixed_prompt_or_its_session_and_attempt() {
+        for mode in ["goal", "budget", "sql_session", "sql_node_id"] {
+            let mut f = fixture(2);
+            let session = reserve(&mut f);
+            let mut fake_ready = f.store.get_session(&session.id).unwrap();
+            fake_ready.state = "ready".into();
+            f.store
+                .conn
+                .execute(
+                    "UPDATE sessions SET state='ready',document=?1 WHERE id=?2",
+                    params![encode(&fake_ready).unwrap(), session.id],
+                )
+                .unwrap();
+            match mode {
+                "goal" => {
+                    f.store.conn.execute("UPDATE goal_run_nodes SET document=json_set(document,'$.node.goal','unreviewed replacement prompt')",[]).unwrap();
+                }
+                "budget" => {
+                    f.store.conn.execute("UPDATE goal_run_nodes SET document=json_set(document,'$.node.reservation.runtime_ms',9000)",[]).unwrap();
+                }
+                "sql_session" => {
+                    f.store
+                        .conn
+                        .execute("UPDATE goal_run_nodes SET session_id=NULL", [])
+                        .unwrap();
+                }
+                _ => {
+                    f.store
+                        .conn
+                        .execute("UPDATE goal_run_nodes SET node_id='foreign-node'", [])
+                        .unwrap();
+                }
+            }
+            let p = GoalRunDispatch {
+                run_id: f.run.id.clone(),
+                expected_ledger_revision: f.store.sequence().unwrap(),
+            };
+            let revision = f.store.get_goal_run(&f.run.id).unwrap().revision;
+            assert!(f.store.goal_prompt(&p, revision).is_err(), "{mode}");
+            assert_eq!(
+                f.store
+                    .conn
+                    .query_row("SELECT count(*) FROM session_turns", [], |row| row
+                        .get::<_, u32>(0))
+                    .unwrap(),
+                0
+            );
+        }
     }
 }

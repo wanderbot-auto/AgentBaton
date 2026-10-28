@@ -514,7 +514,7 @@ impl Daemon {
             "goal_runs.propose"=>{let p:crate::goal_store::GoalRunSelection=params(r.params)?;Ok(json!(self.store.propose_goal_run(&p,&r.idempotency_key.ok_or_else(invalid)?)?))}
             "goal_runs.get"=>{let p:GoalRunId=params(r.params)?;self.store.goal_run_details(&p.run_id)}
             "goal_runs.list"=>{let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_runs(&p.task_id)?))}
-            "goal_runs.cancel"=>{let p:GoalRunId=params(r.params)?;let run=self.store.cancel_goal_run(&p.run_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;for id in self.store.goal_stop_requests()? {self.supervisor.cancel(&id);}Ok(json!(run))}
+            "goal_runs.cancel"=>{let p:GoalRunId=params(r.params)?;let (run,stops)=self.store.cancel_goal_with_stops(&p.run_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;for id in stops {self.supervisor.cancel(&id);}Ok(json!(run))}
             "goal_runs.advance_plan"=>{let p:crate::goal_store::GoalPlanAdvance=params(r.params)?;Ok(json!(self.store.advance_goal_plan(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
             "goal_runs.dispatch"=>{
                 let mut p:crate::goal_store::GoalRunDispatch=params(r.params)?;let revision=r.expected_revision.ok_or_else(invalid)?;let key=r.idempotency_key.ok_or_else(invalid)?;

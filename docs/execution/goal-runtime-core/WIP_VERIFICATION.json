@@ -56,6 +56,24 @@
       "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/export-large-review.log",
       "sha256": "c2f33898c32c0d5d756c976fdadf7d6a6acb2566adefa2ab06d910d23fd22a13",
       "bytes": 1246
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/crash-authority-units-1.log",
+      "sha256": "305bfec83f8771fe652b99ef3699449f74bab633812f636c8de99bba6b6c9e72",
+      "bytes": 1557
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/raw-limits-units-2.log",
+      "sha256": "6520f361e89795c8834aa74fb6982e6b4ba44851855917ab8d7a4dc22997b4dc",
+      "bytes": 878
+    },
+    {
+      "path": "/workspace/.worktrees/goal-runtime-core/artifacts/goal-runtime-core/ordinary-admission-gates.log",
+      "sha256": "d7ce71f82b06491524593ad6c622504e1a7782f5e82726e6e2bb87964b53864b",
+      "bytes": 945
     }
-  ]
+  ],
+  "third_wip_runtime_source_sha256": "5d6885801e4d75edfba53a3f11d2c055b02bccded528d7566a5b0c24bd4e5066",
+  "private_core_units_passed": 7,
+  "actual_live_provider_crash": false
 }

@@ -119,7 +119,7 @@ for line in sys.stdin:
    contract=json.loads(text)
    assert contract['kind']=='agentbaton_goal_task_request' and contract['schema_version']==1
    assert contract['workspace']['canonical_root']==os.getcwd()
-   assert contract['lineage']['attempt_id'] and contract['plan_digest'] and contract['return_location']['node_id']=='produce-report'
+   assert contract['lineage']['attempt_id'] and contract['plan_digest'] and contract['return_location']['node_id']==contract['node']['id']
    assert contract['inputs'][0]['artifact']['relative_path'] in ('file','inputs/file') and contract['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
    assert contract['policy']['enforced']=={'filesystem_sandbox':False,'network_sandbox':False,'output_quota':False}
    text=contract['goal']
@@ -1846,5 +1846,52 @@ fn actual_data_goal_executes_and_plan_advance_receipt_recovers_after_drift_witho
             .get::<_, u32>(0))
             .unwrap(),
         2
+    );
+}
+
+#[test]
+fn actual_goal_shared_budget_cannot_be_bypassed_by_normal_session_or_trusted_lowlevel_attempt() {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let run = approve_goal_execution(&f, &scope);
+    wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":run["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    let task=result(f.server.request(json!({"method":"tasks.create","params":{"project_id":f.project["id"],"goal":"Ordinary bounded-policy bypass control"},"idempotency_key":"ordinary-bypass-task"})));
+    let refused=f.server.request(json!({"method":"sessions.create","params":{"task_id":task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":task["revision"],"idempotency_key":"ordinary-session-bypass"}));
+    assert_eq!(refused["error"]["code"], "AUTH_REQUIRED");
+    let db_path = f.server.runtime.join("baton.sqlite3");
+    let mut store = agentbaton_core::storage::Store::open(&db_path).unwrap();
+    let task_id = task["id"].as_str().unwrap();
+    store.configure_budget(false, task_id, 2, 1).unwrap();
+    let view: agentbaton_core::goal_store::GoalScopeView = serde_json::from_value(scope).unwrap();
+    let error = store
+        .prepare_attempt(
+            task_id,
+            task["revision"].as_u64().unwrap(),
+            view.binding,
+            "lowlevel-time-output-bypass",
+        )
+        .unwrap_err();
+    assert_eq!(error.code, "AUTH_REQUIRED");
+    drop(store);
+    let db = rusqlite::Connection::open(db_path).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |row| row
+            .get::<_, u32>(0))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |row| row.get::<_, u32>(0)
+        )
+        .unwrap(),
+        1
     );
 }

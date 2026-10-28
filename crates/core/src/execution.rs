@@ -186,6 +186,7 @@ impl Store {
             ));
         }
         let tx = self.conn.transaction().map_err(db_error)?;
+        crate::goal_store::ordinary_session_budget_gate(&tx, &task.project_id)?;
         let active:i64=tx.query_row("SELECT count(*) FROM attempts a JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.task_id=?1 AND d.state!='stopped'",[task_id],|r|r.get(0)).map_err(db_error)?;
         if active != 0 {
             return Err(CoreError::new(
