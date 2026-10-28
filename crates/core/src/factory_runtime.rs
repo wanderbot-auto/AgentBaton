@@ -23,6 +23,10 @@ struct TaskBinding {
     turn_sent: bool,
     stop_reason: Option<String>,
     result: Option<FactoryTaskResult>,
+    #[serde(default)]
+    handoff_results: Vec<FactoryTaskResult>,
+    #[serde(default)]
+    handoff_digest: Option<String>,
 }
 pub(crate) struct FactoryDispatchContext {
     scope: FactoryScope,
@@ -166,6 +170,16 @@ fn live(db: &Connection, s: &FactoryScope) -> Result<()> {
     if encode(&grant)? != encode(&s.bindings.approved_grant)? {
         return Err(changed());
     }
+    // Original Grant authority is indivisible: unselected recipients/workspaces
+    // remain pinned, including every ancestor's current underlying bindings.
+    crate::policy::validate_grant_live_from_with_data(
+        db,
+        &s.root_grant_id,
+        &s.project_id,
+        &s.selection.workspace_ids[0],
+        &s.selection.connection_ids[0],
+        None,
+    )?;
     for original in &s.bindings.connections {
         let row:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM connections WHERE id=?1",[&original.id],|r|r.get(0)).optional().map_err(db_error)?;
         let current: crate::sessions::ProviderConnection =
@@ -358,6 +372,8 @@ impl Store {
             turn_sent: false,
             stop_reason: None,
             result: None,
+            handoff_results: vec![],
+            handoff_digest: None,
         };
         let tx = self
             .conn
@@ -772,6 +788,8 @@ impl Store {
             turn_sent: false,
             stop_reason: None,
             result: None,
+            handoff_results: vec![],
+            handoff_digest: None,
         };
         let line = FactoryTaskLineage {
             task_id: child_id.clone(),
@@ -837,7 +855,7 @@ impl Store {
         id: &str,
     ) -> Result<FactoryToolOutcome> {
         let b = authorized_target(&self.conn, caller, id)?;
-        let result = b.result.unwrap_or_else(|| FactoryTaskResult {
+        let mut result = b.result.clone().unwrap_or_else(|| FactoryTaskResult {
             task: b.handle.clone(),
             artifacts: vec![],
             validation_refs: vec![],
@@ -848,6 +866,7 @@ impl Store {
         check_wire(
             &json!({"request_id":"\0".repeat(128),"result":result,"revision":u64::MAX,"warnings":[]}),
         )?;
+        result.task = b.handle.clone();
         Ok(FactoryToolOutcome {
             result: json!(result),
             stops: vec![],
@@ -1222,9 +1241,7 @@ impl Store {
                     return Ok(Some(FactoryAction::Stop(session_id)));
                 }
                 if session.state == "ready" && !b.turn_sent {
-                    let text = encode(
-                        &json!({"schema_version":1,"kind":"agentbaton_factory_task_request","task_id":b.handle.task_id,"root_task_id":s.root_task_id,"parent_task_id":b.handle.parent_task_id,"goal":b.request.goal,"input_artifacts":s.bindings.inputs.iter().filter(|a|b.request.input_artifact_ids.contains(&a.contract.requirement.artifact_id)).collect::<Vec<_>>(),"output_artifacts":s.bindings.outputs.iter().filter(|a|b.request.output_artifact_ids.contains(&a.requirement.artifact_id)).collect::<Vec<_>>(),"handoff_result":b.result,"context_continuation":"new_attempt_explicit_handoff_only","acceptance_state":"not_established"}),
-                    )?;
+                    let text = task_prompt(&s, &b)?;
                     let tx = self.conn.transaction().map_err(db_error)?;
                     b.turn_sent = true;
                     b.handle.state = "running".into();
@@ -1333,6 +1350,7 @@ impl Store {
         reaped: bool,
         never_started: bool,
         reason: &str,
+        capture: Option<&FactoryCapture>,
     ) -> Result<()> {
         if !owns_session(&self.conn, id)? {
             return Ok(());
@@ -1346,55 +1364,34 @@ impl Store {
                 |r| r.get(0),
             )
             .map_err(db_error)?;
-        let s = scope(&self.conn, &scope_id)?;
+        let _s = scope(&self.conn, &scope_id)?;
         let mut r = run(&self.conn, &scope_id)?;
         let mut b = binding(&self.conn, &r.id, &session.task_id)?;
         let normal = reaped
             && !never_started
             && reason == "cancelled"
-            && self.factory_internal_stop_is_current(id)?;
+            && self.factory_internal_stop_is_current(id)?
+            && capture.is_some_and(|c| c.inputs_current && c.recheck().is_ok())
+            && self.shared_observation_within_reservation(id)?;
         let cancelled = r.cancel_requested
             || b.handle.cancel_requested
             || matches!(
                 self.get(&session.task_id)?.state,
                 TaskState::CancelRequested | TaskState::Cancelled
             );
-        let mut artifacts = Vec::new();
-        let mut missing = false;
-        if normal {
-            for output in &s.selection.outputs {
-                if !b.request.output_artifact_ids.contains(&output.artifact_id) {
-                    continue;
-                }
-                match agentbaton_workspaces::read_artifact(
-                    &s.bindings.workspaces[0].root,
-                    &output.relative_path,
-                    output.max_bytes,
-                ) {
-                    Ok(bytes) => artifacts.push(FactoryArtifactReference {
-                        artifact_id: output.artifact_id.clone(),
-                        attempt_id: session.attempt_id.clone(),
-                        relative_path: output.relative_path.clone(),
-                        sha256: agentbaton_workspaces::validation::sha256(&bytes),
-                        bytes: bytes.len() as u64,
-                    }),
-                    Err(_) => {
-                        missing = true;
-                    }
-                }
-            }
-        }
+        let artifacts = capture.map(|c| c.artifacts.clone()).unwrap_or_default();
+        let missing = !capture.is_some_and(|c| c.outputs_complete);
         let tx = self.conn.transaction().map_err(db_error)?;
         b.handle.confirmed_stop = reaped || never_started;
         b.handle.revision += 1;
         let children: i64 = tx
             .query_row(
-                "SELECT count(*) FROM factory_delegations WHERE run_id=?1 AND parent_task_id=?2",
-                params![r.id, session.task_id],
+                "SELECT count(*) FROM factory_handoffs WHERE run_id=?1 AND parent_session_id=?2",
+                params![r.id, session.id],
                 |row| row.get(0),
             )
             .map_err(db_error)?;
-        let can_wait = normal && children > 0 && b.round == 0;
+        let can_wait = normal && children > 0;
         if normal && (!missing || can_wait) {
             b.handle.state = if can_wait {
                 "waiting_child"
@@ -1415,30 +1412,8 @@ impl Store {
             r.active_session_id = None;
             r.active_task_id = None;
             r.state = if can_wait { "waiting_child" } else { "running" }.into();
-            if !can_wait {
-                if let Some(parent_id) = b.handle.parent_task_id.clone() {
-                    let mut parent = binding(&tx, &r.id, &parent_id)?;
-                    let pending:i64=tx.query_row("SELECT count(*) FROM factory_task_bindings WHERE run_id=?1 AND json_extract(document,'$.handle.parent_task_id')=?2 AND state!='result_available' AND task_id!=?3",params![r.id,parent_id,session.task_id],|row|row.get(0)).map_err(db_error)?;
-                    if pending == 0 && parent.handle.state == "waiting_child" {
-                        let digest = sha(
-                            &json!({"parent_task_id":parent_id,"child_result":b.result,"parent_session_id":parent.session_id}),
-                        )?;
-                        parent.result = b.result.clone();
-                        if let Some(result) = parent.result.as_mut() {
-                            result.handoff_digest = Some(digest.clone());
-                        }
-                        parent.session_id = None;
-                        parent.turn_sent = false;
-                        parent.stop_reason = None;
-                        parent.round += 1;
-                        parent.handle.state = "resuming".into();
-                        parent.handle.revision += 1;
-                        save_binding(&tx, &mut parent)?;
-                        tx.execute("UPDATE factory_handoffs SET state='ready',child_attempt_id=?1,document=json_set(document,'$.parent_stop_confirmed',json('true'),'$.handoff_digest',?2) WHERE run_id=?3 AND parent_task_id=?4 AND child_task_id=?5",params![session.attempt_id,digest,r.id,parent_id,session.task_id]).map_err(db_error)?;
-                    }
-                } else {
-                    r.state = "completed".into();
-                }
+            if !can_wait && b.handle.parent_task_id.is_none() {
+                r.state = "completed".into();
             }
         } else {
             b.handle.state = if (reaped || never_started) && cancelled {
@@ -1469,6 +1444,15 @@ impl Store {
             "factory.attempt_stopped",
             json!({"session_id":id,"attempt_id":session.attempt_id,"task_id":session.task_id,"owned_reaped":reaped,"never_started":never_started,"normal_completed_turn":normal,"selected_outputs_missing":missing,"task_accepted":false}),
         )?;
+        if normal {
+            tx.execute("UPDATE factory_handoffs SET document=json_set(document,'$.parent_stop_confirmed',json('true')) WHERE run_id=?1 AND parent_session_id=?2",params![r.id,session.id]).map_err(db_error)?;
+            if can_wait {
+                join_parent(&tx, &mut r, &session.task_id)?;
+            }
+            if let Some(parent) = b.handle.parent_task_id.as_ref() {
+                join_parent(&tx, &mut r, parent)?;
+            }
+        }
         tx.commit().map_err(db_error)?;
         Ok(())
     }
@@ -1504,10 +1488,10 @@ impl Store {
             return Err(denied());
         }
         let handoff = b
-            .result
-            .as_ref()
-            .map(|r| r.artifacts.clone())
-            .unwrap_or_default();
+            .handoff_results
+            .iter()
+            .flat_map(|r| r.artifacts.clone())
+            .collect();
         if session.state != "starting" || session.project_id != s.project_id {
             return Err(denied());
         }
@@ -1572,18 +1556,36 @@ impl Store {
         fd.write_all(bytes.as_bytes())
             .and_then(|()| fd.sync_all())
             .map_err(|_| denied())?;
+        let capture = FactoryCapturePlan::new(
+            s.clone(),
+            session.task_id.clone(),
+            session.attempt_id.clone(),
+            self.get(&session.task_id)?.spec_revision,
+            b.request.input_artifact_ids.clone(),
+            b.request.output_artifact_ids.clone(),
+        );
         Ok(Some(FactoryMcpLaunch {
             scope: s,
             credential: file,
             handoff,
+            capture: Some(capture),
         }))
     }
 }
-fn recheck_external(s: &FactoryScope) -> Result<()> {
+fn recheck_external(s: &FactoryScope) -> Result<crate::data_workspaces::DataArtifactPins> {
     if super::store::companion(&s.bindings.companion.executable)? != s.bindings.companion {
         return Err(changed());
     }
+    let contracts = s
+        .bindings
+        .inputs
+        .iter()
+        .map(|a| a.contract.clone())
+        .collect::<Vec<_>>();
+    let pins = crate::data_workspaces::DataArtifactPins::capture(&contracts)?;
     for a in &s.bindings.inputs {
+        agentbaton_workspaces::validation::BoundArtifact::from_verified_contract(&a.contract)
+            .map_err(|_| changed())?;
         let bytes = agentbaton_workspaces::read_artifact(
             &s.bindings.workspaces[0].root,
             &a.contract.requirement.relative_path,
@@ -1596,7 +1598,8 @@ fn recheck_external(s: &FactoryScope) -> Result<()> {
             return Err(changed());
         }
     }
-    Ok(())
+    pins.verify(true)?;
+    Ok(pins)
 }
 pub(crate) fn is_factory_task(db: &Connection, id: &str) -> Result<bool> {
     db.query_row(
@@ -1648,14 +1651,34 @@ pub(crate) struct FactoryMcpLaunch {
     scope: FactoryScope,
     credential: std::path::PathBuf,
     handoff: Vec<FactoryArtifactReference>,
+    capture: Option<FactoryCapturePlan>,
 }
 impl FactoryMcpLaunch {
+    pub(crate) fn take_capture_plan(&mut self) -> Option<FactoryCapturePlan> {
+        self.capture.take()
+    }
     pub(crate) fn authorize(self) -> Result<agentbaton_providers::ApprovedFactoryMcp> {
         if self.scope.expires_at_ms <= ms()? {
             return Err(denied());
         }
-        recheck_external(&self.scope)?;
+        let input_pins = recheck_external(&self.scope)?;
+        let mut unique = std::collections::BTreeMap::new();
         for artifact in &self.handoff {
+            if let Some(old) = unique.insert(
+                artifact.relative_path.clone(),
+                (artifact.sha256.clone(), artifact.bytes),
+            ) {
+                if old != (artifact.sha256.clone(), artifact.bytes) {
+                    return Err(changed());
+                }
+            }
+        }
+        for (path, (sha, size)) in unique {
+            let artifact = self
+                .handoff
+                .iter()
+                .find(|a| a.relative_path == path && a.sha256 == sha && a.bytes == size)
+                .ok_or_else(changed)?;
             let approved = self
                 .scope
                 .selection
@@ -1681,16 +1704,19 @@ impl FactoryMcpLaunch {
         if self.scope.expires_at_ms <= ms()? {
             return Err(denied());
         }
-        agentbaton_providers::ApprovedFactoryMcp::from_verified_host(
+        let digest = agentbaton_providers::installation::BinaryDigest::parse(
+            &self.scope.bindings.companion.executable_sha256,
+        )
+        .map_err(|_| changed())?;
+        let approved = agentbaton_providers::ApprovedFactoryMcp::from_verified_host(
             &self.scope.bindings.companion.executable,
-            &agentbaton_providers::installation::BinaryDigest::parse(
-                &self.scope.bindings.companion.executable_sha256,
-            )
-            .map_err(|_| changed())?,
+            &digest,
             &self.credential,
             &self.scope.approval_id,
         )
-        .map_err(|_| changed())
+        .map_err(|_| changed())?;
+        input_pins.verify(true)?;
+        Ok(approved)
     }
 }
 impl Store {
@@ -1728,4 +1754,140 @@ impl Store {
     pub(crate) fn factory_scope_for_task(&self, id: &str) -> Result<String> {
         Ok(lineage(&self.conn, id)?.factory_scope_id)
     }
+}
+
+impl Store {
+    pub(crate) fn factory_start_replay(
+        &self,
+        id: &str,
+        rev: u64,
+        key: &str,
+    ) -> Result<Option<FactoryRun>> {
+        replay(
+            &self.conn,
+            &format!("factory:{id}:start"),
+            key,
+            &encode(&json!({"scope_id":id,"revision":rev}))?,
+        )
+    }
+}
+fn task_prompt(s: &FactoryScope, b: &TaskBinding) -> Result<String> {
+    let singleton = if b.handoff_results.len() == 1 {
+        let mut child = b.handoff_results[0].clone();
+        child.handoff_digest = b.handoff_digest.clone();
+        Some(child)
+    } else {
+        None
+    };
+    let text = encode(
+        &json!({"schema_version":1,"kind":"agentbaton_factory_task_request","task_id":b.handle.task_id,"root_task_id":s.root_task_id,"parent_task_id":b.handle.parent_task_id,"goal":b.request.goal,"input_artifacts":s.bindings.inputs.iter().filter(|a|b.request.input_artifact_ids.contains(&a.contract.requirement.artifact_id)).collect::<Vec<_>>(),"output_artifacts":s.bindings.outputs.iter().filter(|a|b.request.output_artifact_ids.contains(&a.requirement.artifact_id)).collect::<Vec<_>>(),"handoff_result":singleton,"handoff_results":b.handoff_results,"handoff_digest":b.handoff_digest,"context_continuation":"new_attempt_explicit_handoff_only","acceptance_state":"not_established"}),
+    )?;
+    // Preserve the existing Provider text bound; additionally check the complete
+    // worst-escaped Provider wire. A large result set blocks; it is not truncated.
+    if text.len() > agentbaton_providers::MAX_FRAME_BYTES / 8 {
+        return Err(limited());
+    }
+    check_wire(
+        &json!({"jsonrpc":"2.0","id":"\0".repeat(128),"method":"session/prompt","params":{"sessionId":"\0".repeat(256),"prompt":[{"type":"text","text":text}]}}),
+    )?;
+    Ok(text)
+}
+fn join_parent(db: &Connection, r: &mut FactoryRun, parent_id: &str) -> Result<()> {
+    let mut parent = binding(db, &r.id, parent_id)?;
+    if parent.handle.state != "waiting_child" || !parent.handle.confirmed_stop {
+        return Ok(());
+    }
+    let sid = parent.session_id.as_deref().ok_or_else(changed)?;
+    let proof:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE json_extract(document,'$.kind')='factory.attempt_stopped' AND json_extract(document,'$.source')='factory_core' AND json_extract(document,'$.payload.session_id')=?1 AND json_extract(document,'$.payload.normal_completed_turn')=1 AND json_extract(document,'$.payload.owned_reaped')=1)",[sid],|row|row.get(0)).map_err(db_error)?;
+    if !proof {
+        return Err(denied());
+    }
+    let(count,bytes):(i64,i64)=db.query_row("SELECT count(*),COALESCE(sum(octet_length(document)),0) FROM factory_handoffs WHERE run_id=?1 AND parent_session_id=?2",params![r.id,sid],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
+    if count > 1000 || bytes > MAX_FACTORY_BYTES as i64 {
+        return Err(limited());
+    }
+    let mut query=db.prepare("SELECT child_task_id FROM factory_handoffs WHERE run_id=?1 AND parent_session_id=?2 ORDER BY child_task_id").map_err(db_error)?;
+    let ids = query
+        .query_map(params![r.id, sid], |row| row.get::<_, String>(0))
+        .map_err(db_error)?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    drop(query);
+    if ids.is_empty() {
+        return Ok(());
+    }
+    let mut results = Vec::new();
+    for id in &ids {
+        let child = binding(db, &r.id, id)?;
+        if child.handle.state == "cancelled" && child.handle.confirmed_stop {
+            parent.handle.state = "blocked".into();
+            save_binding(db, &mut parent)?;
+            r.state = "blocked".into();
+            let mut error=CoreError::new("CHILD_CANCELLED","A required child was cancelled; no automatic replacement or parent retry was authorized");
+            error.side_effect_state = "confirmed".into();
+            r.last_error = Some(error);
+            return save_run(
+                db,
+                r,
+                "factory.join_blocked",
+                json!({"parent_task_id":parent_id,"child_task_id":id,"reason":"CHILD_CANCELLED","automatic_retry":false}),
+            );
+        }
+        if child.handle.state == "outcome_unknown" {
+            r.state = "outcome_unknown".into();
+            return save_run(
+                db,
+                r,
+                "factory.join_unknown",
+                json!({"parent_task_id":parent_id,"child_task_id":id,"automatic_retry":false}),
+            );
+        }
+        if !child.handle.result_available || !child.handle.confirmed_stop {
+            return Ok(());
+        }
+        let mut result = child.result.ok_or_else(changed)?;
+        if result.task.task_id != *id || result.task.root_task_id != r.root_task_id {
+            return Err(changed());
+        }
+        result.task = child.handle;
+        results.push(result);
+    }
+    let digest = sha(
+        &json!({"scope_id":r.scope_id,"run_id":r.id,"parent_task_id":parent_id,"parent_session_id":sid,"children":results}),
+    )?;
+    let old_session = sid.to_owned();
+    parent.handoff_results = results;
+    parent.handoff_digest = Some(digest.clone());
+    let s = scope(db, &r.scope_id)?;
+    if let Err(mut error) = task_prompt(&s, &parent) {
+        error.side_effect_state = "confirmed".into();
+        parent.handle.state = "blocked".into();
+        save_binding(db, &mut parent)?;
+        r.state = "blocked".into();
+        r.last_error = Some(error);
+        return save_run(
+            db,
+            r,
+            "factory.join_bound_exceeded",
+            json!({"parent_task_id":parent_id,"handoff_digest":digest,"silent_truncation":false,"automatic_retry":false}),
+        );
+    }
+    // All exact sibling receipts are fixed before consuming a new parent attempt.
+    live(db, &s)?;
+    parent.session_id = None;
+    parent.turn_sent = false;
+    parent.stop_reason = None;
+    parent.round = parent.round.checked_add(1).ok_or_else(limited)?;
+    parent.handle.state = "resuming".into();
+    save_binding(db, &mut parent)?;
+    for result in &parent.handoff_results {
+        db.execute("UPDATE factory_handoffs SET state='ready',child_attempt_id=?1,document=json_set(document,'$.parent_stop_confirmed',json('true'),'$.handoff_digest',?2) WHERE run_id=?3 AND parent_session_id=?4 AND child_task_id=?5",params![result.task.attempt_id,digest,r.id,old_session,result.task.task_id]).map_err(db_error)?;
+    }
+    r.state = "resuming".into();
+    save_run(
+        db,
+        r,
+        "factory.handoff_prepared",
+        json!({"parent_task_id":parent_id,"parent_session_id":old_session,"child_task_ids":ids,"handoff_digest":digest,"handoff_results":parent.handoff_results,"context_continuation":"new_attempt_explicit_handoff_only","task_accepted":false}),
+    )
 }

@@ -218,6 +218,7 @@ impl Store {
         elapsed_ms: u64,
         stopped: bool,
         never_started: bool,
+        capture: Option<&super::FactoryCapture>,
     ) -> Result<()> {
         let row:Option<Option<String>>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM factory_budget_reservations WHERE json_extract(document,'$.session_id')=?1",[id],|r|r.get(0)).optional().map_err(db_error)?;
         let Some(row) = row else { return Ok(()) };
@@ -229,27 +230,11 @@ impl Store {
         record.actual_output_bytes = if never_started || record.scope_id.is_none() {
             Some(0)
         } else {
-            let scope = scope(&self.conn, record.scope_id.as_deref().ok_or_else(denied)?)?;
-            let mut total = Some(0u64);
-            for output in &scope.selection.outputs {
-                match agentbaton_workspaces::read_artifact(
-                    &scope.bindings.workspaces[0].root,
-                    &output.relative_path,
-                    output.max_bytes,
-                ) {
-                    Ok(bytes) => {
-                        total = total.and_then(|n| n.checked_add(bytes.len() as u64));
-                    }
-                    Err(agentbaton_workspaces::WorkspaceError::Io(e))
-                        if e.kind() == std::io::ErrorKind::NotFound => {}
-                    Err(_) => {
-                        total = None;
-                        break;
-                    }
-                }
-            }
-            total
+            capture
+                .filter(|c| c.recheck().is_ok())
+                .and_then(|c| c.observed_bytes)
         };
+        record.captured_provider_message_bytes=Some(u64::try_from(self.conn.query_row("SELECT COALESCE(sum(octet_length(json_extract(document,'$.payload.update'))),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.update'",[id],|r|r.get::<_,i64>(0)).map_err(db_error)?).map_err(|_|changed())?);
         record.settled = stopped;
         let tx = self.conn.transaction().map_err(db_error)?;
         Store::settle_shared_execution_meter(&tx, &record)?;
@@ -268,5 +253,19 @@ impl Store {
         )?;
         tx.commit().map_err(db_error)?;
         Ok(())
+    }
+}
+
+impl Store {
+    pub(crate) fn shared_observation_within_reservation(&self, id: &str) -> Result<bool> {
+        let row:Option<Option<String>>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM factory_budget_reservations WHERE json_extract(document,'$.session_id')=?1",[id],|r|r.get(0)).optional().map_err(db_error)?;
+        let record: FactoryReservation = decode(&row.flatten().ok_or_else(changed)?)?;
+        Ok(record.settled
+            && record
+                .actual_runtime_ms
+                .is_some_and(|n| n <= record.reservation.runtime_ms)
+            && record
+                .actual_output_bytes
+                .is_some_and(|n| n <= record.reservation.output_bytes))
     }
 }

@@ -177,5 +177,49 @@
     "second-real-mcp-runtime.log": "08782284d55c1fba703decbca82b41fa4ced8e5314622829a8cbd7922a7e1f7b",
     "sixth-real-mcp-runtime.log": "bd427657cb22aefcc35ad847928df64daa53bd6f0d65472b43e48cebaa5c7eae",
     "third-real-mcp-runtime.log": "ea73e8b04e3073b75e259c419ae4634e39040123f08ac426bb320f40c28287c1"
+  },
+  "runtime_review_fixes": {
+    "state": "coherent_git_runtime_capture_and_FR01_FR02_FR03_FR04_controls_not_full_factory",
+    "source": {
+      "crates/core/src/factory.rs": "6554909aba546abd886a2c08a474c03fcbbe1182f97779279bb4333b32704e0b",
+      "crates/core/src/factory_runtime.rs": "c95decb20358db49fc4c777693dc29572090810cc069b8a4d6ff7755a167686b",
+      "crates/core/src/factory_capture.rs": "ed57d365ad55f08ad966f4f6c9e8db60c27a636371146dc5db93aa09040883ea",
+      "crates/core/src/factory_budget.rs": "685f249518f5e567b6b3c8b19389e5469f5407ddc947584292fa45602de69c0b",
+      "crates/core/src/ipc.rs": "0c6a72c337715885e2258bd9d64c36c128d2042a7e9b04f02a0d2c05140be2ef",
+      "crates/core/src/sessions.rs": "d304bebe4477c1036aa87d7cc1a12739f17993766baec2c8f271d2011644fb45",
+      "crates/core/tests/factory_runtime_ipc.rs": "272a91febc4643db9be62ac230b6608ce091bb975d7ab474b61534c9012c182d"
+    },
+    "actual_commands": [
+      {
+        "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc -- --nocapture",
+        "log": "six-runtime-capture-join-final.log",
+        "result": "6unique actualIPC PASS; includes prior3, not additive",
+        "sha256": "5c64c929a0f4e9a90b82c1b502bb759d5ef6796ecf6ad2cb31523cff46d1db90"
+      },
+      {
+        "command": "cargo test --locked -p agentbaton-core --lib factory_queue_deadline_tests -- --nocapture",
+        "result": "1unit PASS, four expired fake-handle envelopes rejected before authentication; not a claim of authorized expired delegation",
+        "log": "fixed-scoped-queue-deadline-control.log",
+        "sha256": "899e69d7a1fe5551e321a9c7d0d1c4c225b0b8908656f2accbb0ba1febe5105b"
+      }
+    ],
+    "old_controls": {
+      "old-unselected-grant-pin-control.log": "379045490adb471a77ff9aab83e743af78b6105b2193e641ff962cbd9db53d75",
+      "old-multiple-child-handoff-control.log": "9c19dcd2f3fcdddc7c747a3d12a33c4c92d1d7fcc3cee41a56fae429b7103188",
+      "old-cancelled-child-join-control.log": "44502aa8ef648f82620c93cdb378ddfb3a054a4459f0490c62fdcc189e54eba2",
+      "old-scoped-queue-deadline-control.log": "feaab6ac57274d6c14616c6e4bb9384b2b1922689dd449dbd267e5572cd2de7b"
+    },
+    "old_control_binary_manifests": {
+      "pre-grant-pin-fix/manifest.json": "b6a6b0c6259d2eca115384e958113c26883463657f750437a696c0d173847a15",
+      "pre-join-fix/manifest.json": "2e3ae738a3d6d24f9993e0a4bde1021f1a381e3da1b8f0caadbe3fe786f69091",
+      "pre-scoped-deadline-fix/manifest.json": "6f64ae60d7e1f447c33ff58fa2cdd22a8efc7336270819e20d23f4933f5ddf04"
+    },
+    "limits": [
+      "Scope/migration earlier14 not newly counted against changed runtime source until final full suite",
+      "No fullworkspace or final lints",
+      "Data Factory private witness integration not done; missing witness rejects",
+      "Dedicated large preflight/time/cancel/fault/mixed accounting cases outstanding",
+      "privateCapture metadata is point observation, not continuous OS freeze/complete tree containment or Task acceptance"
+    ]
   }
 }

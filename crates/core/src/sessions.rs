@@ -707,7 +707,14 @@ impl Store {
                 "Goal-owned turns require their private fixed-node dispatcher",
             ));
         }
-        if text.trim().is_empty() || text.len() > 65536 {
+        if text.trim().is_empty()
+            || text.len()
+                > if factory {
+                    agentbaton_providers::MAX_FRAME_BYTES / 8
+                } else {
+                    65536
+                }
+        {
             return Err(invalid("Message must be nonempty and at most 64 KiB"));
         }
         let payload = encode(&json!({"text":text,"expected_revision":revision}))?;
@@ -942,6 +949,7 @@ enum Outcome {
     Failure(String, String),
 }
 struct WorkerReceipt {
+    capture: Option<crate::factory::FactoryCapture>,
     elapsed_ms: u64,
     reason: String,
     process_reaped: bool,
@@ -1290,6 +1298,7 @@ impl Supervisor {
             store,
             id,
             WorkerReceipt {
+                capture: None,
                 reason: "local_launch_failed_before_worker_start".into(),
                 process_reaped: false,
                 never_started: true,
@@ -1374,12 +1383,14 @@ impl Supervisor {
             receipt.elapsed_ms,
             receipt.process_reaped || receipt.never_started,
             receipt.never_started,
+            receipt.capture.as_ref(),
         )?;
         store.settle_factory_worker(
             id,
             receipt.process_reaped,
             receipt.never_started,
             &receipt.reason,
+            receipt.capture.as_ref(),
         )
     }
     pub fn shutdown(&mut self, store: &mut Store) -> Result<()> {
@@ -1524,6 +1535,7 @@ impl Supervisor {
             }
             check();
             WorkerReceipt {
+                capture: None,
                 reason: "generated_drop_fixture".into(),
                 process_reaped: true,
                 never_started: true,
@@ -1556,14 +1568,21 @@ struct WorkerLaunch {
 }
 fn run_worker(
     id: String,
-    launch: WorkerLaunch,
+    mut launch: WorkerLaunch,
     commands: Receiver<Work>,
     cancel: Arc<AtomicBool>,
     events: SyncSender<Outcome>,
 ) -> WorkerReceipt {
     let started = Instant::now();
     let prior = launch.prelaunch_ms;
+    let capture_plan = launch
+        .factory_mcp
+        .as_mut()
+        .and_then(|m| m.take_capture_plan());
     let mut receipt = run_worker_inner(id, launch, commands, cancel, events);
+    if receipt.process_reaped && !receipt.never_started {
+        receipt.capture = capture_plan.and_then(|p| p.capture().ok());
+    }
     receipt.elapsed_ms = u64::try_from(started.elapsed().as_millis())
         .unwrap_or(u64::MAX)
         .saturating_add(prior);
@@ -1588,6 +1607,7 @@ fn run_worker_inner(
     let notify = |outcome| events.try_send(outcome).is_ok();
     if cancel.load(Ordering::Relaxed) {
         return WorkerReceipt {
+            capture: None,
             reason: "cancelled".into(),
             process_reaped: false,
             never_started: true,
@@ -1598,6 +1618,7 @@ fn run_worker_inner(
         Ok(mcp) => mcp,
         Err(_) => {
             return WorkerReceipt {
+                capture: None,
                 reason: "factory_launch_binding_changed".into(),
                 process_reaped: false,
                 never_started: true,
@@ -1607,6 +1628,7 @@ fn run_worker_inner(
     };
     if cancel.load(Ordering::Relaxed) || started.elapsed() >= duration {
         return WorkerReceipt {
+            capture: None,
             reason: "factory_preflight_cancelled_or_deadline".into(),
             process_reaped: false,
             never_started: true,
@@ -1625,6 +1647,7 @@ fn run_worker_inner(
                 "provider_initialization_failed".into(),
             ));
             return WorkerReceipt {
+                capture: None,
                 reason: "initialization_failed".into(),
                 process_reaped: false,
                 never_started: failure.side_effect_state
@@ -1636,6 +1659,7 @@ fn run_worker_inner(
     if cancel.load(Ordering::Relaxed) || started.elapsed() >= duration {
         process.terminate();
         return WorkerReceipt {
+            capture: None,
             reason: "launch_cancelled_or_timeout".into(),
             process_reaped: process.diagnostics().process_reaped,
             never_started: false,
@@ -1656,6 +1680,7 @@ fn run_worker_inner(
         if configured.is_err() {
             process.terminate();
             return WorkerReceipt {
+                capture: None,
                 reason: "provider_configuration_unsupported".into(),
                 process_reaped: process.diagnostics().process_reaped,
                 never_started: false,
@@ -1672,6 +1697,7 @@ fn run_worker_inner(
                 "provider_session_creation_failed".into(),
             ));
             return WorkerReceipt {
+                capture: None,
                 reason: "session_creation_failed".into(),
                 process_reaped: process.diagnostics().process_reaped,
                 never_started: false,
@@ -1682,6 +1708,7 @@ fn run_worker_inner(
     if !notify(Outcome::Ready(id.clone(), native.clone())) {
         process.terminate();
         return WorkerReceipt {
+            capture: None,
             reason: "event_backpressure".into(),
             process_reaped: process.diagnostics().process_reaped,
             never_started: false,
@@ -1732,6 +1759,7 @@ fn run_worker_inner(
                 process.terminate();
                 notify(Outcome::Failure(id.clone(), "event_backpressure".into()));
                 return WorkerReceipt {
+                    capture: None,
                     reason: "event_backpressure".into(),
                     process_reaped: process.diagnostics().process_reaped,
                     never_started: false,
@@ -1767,6 +1795,7 @@ fn run_worker_inner(
         notify(Outcome::Failure(id.clone(), reason.into()));
     }
     WorkerReceipt {
+        capture: None,
         reason: reason.into(),
         process_reaped: process.diagnostics().process_reaped,
         never_started: false,
@@ -2076,6 +2105,8 @@ mod tests {
                     environment: BTreeMap::new(),
                 },
                 configuration: None,
+                factory_mcp: None,
+                prelaunch_ms: 0,
                 duration: Duration::from_secs(2),
             },
             receiver,

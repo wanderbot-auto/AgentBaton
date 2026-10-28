@@ -500,6 +500,8 @@ impl Daemon {
             )
         {
             let replay=match r.method.as_str(){
+                "factory_runs.start"=>{let p:FactoryScopeId=params(r.params.clone())?;self.store.factory_start_replay(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,r.idempotency_key.as_deref().ok_or_else(invalid)?)?.is_some()},
+
                 "sessions.create"=>r.idempotency_key.as_ref().is_some_and(|key|self.store.conn.query_row("SELECT EXISTS(SELECT 1 FROM sessions WHERE task_id=?1 AND idempotency_key=?2)",rusqlite::params![r.params["task_id"].as_str().unwrap_or(""),key],|row|row.get::<_,bool>(0)).unwrap_or(false)),
                 "approvals.finalize"=>self.store.conn.query_row("SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",[r.params["proposal_id"].as_str().unwrap_or("")],|row|row.get::<_,bool>(0)).unwrap_or(false),
                 _=>false,
@@ -1602,6 +1604,10 @@ impl Daemon {
         json!({"request_id":request_id,"error":error,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
     }
     fn handle_ready_request(&mut self, job: ReadyRequest) {
+        if Instant::now() > job.deadline {
+            let _ = job.reply.try_send(json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before admission"),"revision":0,"warnings":[]}));
+            return;
+        }
         if serde_json::from_str::<Value>(&job.raw)
             .ok()
             .is_some_and(|v| v.get("scoped_token").is_some())
@@ -1611,13 +1617,6 @@ impl Daemon {
             return;
         }
 
-        if Instant::now() > job.deadline {
-            let _ = job.reply.try_send(self.ready_error(
-                &job.raw,
-                CoreError::new("RESOURCE_LIMIT", "Queued request expired before admission"),
-            ));
-            return;
-        }
         let graph = match self.graph_context_for_request(&job.raw) {
             Ok(g) => g,
             Err(error) => {
@@ -2025,5 +2024,53 @@ impl Daemon {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod factory_queue_deadline_tests {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt;
+    #[test]
+    fn expired_scoped_queue_request_is_rejected_before_authentication_or_any_mutation() {
+        let temp = tempfile::Builder::new()
+            .permissions(std::fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = temp.path().canonicalize().unwrap();
+        let mut daemon = Daemon::bind(&runtime).unwrap();
+        let sequence = daemon.store.sequence().unwrap();
+        for method in [
+            "delegate_task",
+            "get_task_status",
+            "get_task_result",
+            "cancel_task",
+        ] {
+            let (send, recv) = std::sync::mpsc::sync_channel(1);
+            let deadline = Instant::now();
+            std::thread::sleep(Duration::from_millis(2));
+            daemon.handle_ready_request(ReadyRequest{raw:json!({"api_version":1,"request_id":"generated-expired-scoped","handle_id":"missing-generated","scoped_token":"0".repeat(64),"method":method,"params":{},"expected_revision":1,"idempotency_key":"never-admit"}).to_string(),reply:send,deadline});
+            let response = recv.recv_timeout(Duration::from_secs(1)).unwrap();
+            assert_eq!(
+                response["error"]["code"], "RESOURCE_LIMIT",
+                "{method}: {response}"
+            );
+            assert_eq!(response["revision"], 0);
+            assert_eq!(daemon.store.sequence().unwrap(), sequence);
+            for table in [
+                "factory_task_lineage",
+                "factory_delegations",
+                "factory_attempts",
+                "factory_scoped_handles",
+                "idempotency",
+            ] {
+                let count: i64 = daemon
+                    .store
+                    .conn
+                    .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
+                    .unwrap();
+                assert_eq!(count, 0, "{table}");
+            }
+        }
     }
 }
