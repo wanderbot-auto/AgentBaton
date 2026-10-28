@@ -51,6 +51,31 @@ def native_report_error(report):
             or any(type(value) is not int for value in sequence.values())
             or sequence['before'] != before['sequence'] or sequence['after'] != after['sequence']):
         return 'native report does not bind Goal UI and readonly database sequences'
+    execution = report.get('goal_execution_readonly_database')
+    flags = report['first_webview']
+    if any(flags.get(field) is not True for field in ['goalExecutionLists', 'goalExecutionMissingRunDenied', 'readonlyGoalExecutionNoMutation']):
+        return 'native report lacks strict readonly Goal execution invoke evidence'
+    if not isinstance(execution, dict) or execution.get('read_only') is not True or execution.get('unchanged') is not True:
+        return 'native report lacks independent Goal execution database evidence'
+    start, finish = execution.get('before'), execution.get('after')
+    execution_fields = {'schema_version', 'run_count', 'node_count', 'reservation_count', 'sequence'}
+    if (not isinstance(start, dict) or set(start) != execution_fields
+            or not isinstance(finish, dict) or set(finish) != execution_fields
+            or any(type(value) is not int or value < 0 for value in [*start.values(), *finish.values()])
+            or start['schema_version'] != 11 or finish['schema_version'] != 11
+            or any(start[field] != 0 or finish[field] != 0 for field in ['run_count', 'node_count', 'reservation_count'])
+            or start != finish):
+        return 'native report Goal execution schema/counts/sequence changed or are incomplete'
+    execution_sequence = flags.get('goalExecutionReadonlySequence')
+    if (not isinstance(execution_sequence, dict) or set(execution_sequence) != {'before', 'after'}
+            or any(type(value) is not int for value in execution_sequence.values())
+            or execution_sequence['before'] != start['sequence'] or execution_sequence['after'] != finish['sequence']
+            or execution_sequence != sequence):
+        return 'native report does not bind Goal execution and original UI/database intervals'
+    missing = flags.get('goalExecutionMissingRun')
+    if (not isinstance(missing, dict) or set(missing) != {'run_id', 'code', 'side_effect_state'}
+            or missing != {'run_id': 'native-readonly-missing-goal-run', 'code': 'NOT_FOUND', 'side_effect_state': 'not_started'}):
+        return 'native report lacks the exact missing Goal run Core denial'
     for field in ['window_close_daemon_survived', 'second_writer_rejected', 'owned_daemon_restarted', 'owned_daemon_cleanup']:
         if report.get(field) is not True:
             return 'native report lacks required daemon lifecycle evidence'

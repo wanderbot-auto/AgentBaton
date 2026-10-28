@@ -1,0 +1,21 @@
+# Goal execution real IPC plan
+
+Original task AB-START-001/Designv0.2 full130 scope remains. Baselineee374d1e67fd4b8671bba5f4d25b2659be846480; separate codex/goal-runtime-real-ipc worktree. Only new apps/desktop/tests/goal-execution-real-ipc.py plus four unit records allowed; no Core/UI/Native/locks/CI/STATUS/spec edits or Cargo work. Existing planning/default/editor tests stay unchanged. Accurate requirement mapping in EVIDENCE.json; baseline contains no AB-ORC identifier.
+
+1. Load actual current Core goal_runtime/sessions_ipc normal/replan/cancel/Data fixtures and UI861+R1 wire. Coordinate five product capabilities but expose no approval/proposal/finalizer/generic dispatch through HTTP.
+2. Build a generated account-free ACP program that consumes complete real TaskRequest, writes declared selected reports, records its private process identity and returns a protocol result or holds until cancel/timeout. Approved program bytes never mutate after digest approval. Fixture writes stay in generated private sources/workspaces, no vendor/model/network or private credentials.
+3. Wait for explicit frozen schema11 daemon/manifest and Root composed frontend. A schema10 executable cannot run this test. Record exact binary/manifest/source/assets and use exclusive new outputs. Private host reviews complete actual Core snapshots within16KiB and calls actual finalization outside HTTP; this is not OS OwnerDialog evidence.
+4. Real built UI lists empty runs/readiness and stores initial plan with no dispatch. Outside-HTTP Owner fixture approves real bounded execution. Observe complete TaskRequest, actual selected file, attempt/session/cumulative reservation and owned reap; result remains candidate/notaccepted.
+5. UI stores validated same-scope rev2; old execution staysrev1 until explicit fresh-CAS adoption. Drop one actual advance response after Unix commit; remount/read/recover same key, verify original receipt/new history and unchanged consumed2/output27 with onlyone execution approval.
+6. Real native-approved selected-file Directory workspace also supplies actual fixed input to Goal; no Git initialization or source writes. A partial-report hold permits real UI cancellation, dropped reply and read reconciliation; cancel request differs from actual owned stop, and partial output stays. A1200ms hang timeout remains unknown even after actual owned reap and later cancellation, blocking new approval/adoption. No fake TaskAccepted or fabricated terminal DTO.
+7. Preserve assertion/fault evidence and screenshots, source originals and no runtime errors. SQLite observations readonly. Failure cleanup only owned daemon or exact generated private group verified by unique script path/pid/start identity; never pkill. Independent review and platform CI remain primary-owned.
+
+## Actual execution completion of this leaf
+
+Final Core9f833 schema11 immutable candidate and Root-composed445-test frontend were supplied and hash-verified. Initiald193 actual9checks/8images passed. Its viewport captures missed several target records; preserved unchanged and narrowed only the test capture scrolling/expansion. Exact503c source re-executed all9 checks and8new captures successfully. Independent final-context runtime and capture review remains primary/reviewer-owned, followed by actual native/platform/CI work and continuing full product scope. No real Provider or OS native-owner claim.
+
+## G19 additional initial-plan regression
+
+Original64e03/503c9f proof remains historical, not proof of newly found G19/G20 closure. Root requested one meaningful additional fifth scenario only: same initial approvedplan contains independent Work and Summary, both fixedexternalinput and distinct approvedoutputs, parallel1/sharedattempts2. Keep every prior nineflow/assertion/01–08capture and all HTTP/approval/16KiB/product time limits. New TaskRequest/PID metadata is preserved per attempt only for this two-output fixture; default original paths/behavior remain, and cleanup checks every exact generated private process identity.
+
+Source d118 frozen before actual new04ba run. Complete whole Owner snapshot9550B is below unchanged16384 cap. Actual10checks/9images passed; new09 shows both sameplanrev1candidate nodes. Independent newdiff/runtime review and fresh full platform validation remain required.

@@ -186,6 +186,7 @@ impl Store {
             ));
         }
         let tx = self.conn.transaction().map_err(db_error)?;
+        crate::goal_store::ordinary_session_budget_gate(&tx, &task.project_id)?;
         let active:i64=tx.query_row("SELECT count(*) FROM attempts a JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.task_id=?1 AND d.state!='stopped'",[task_id],|r|r.get(0)).map_err(db_error)?;
         if active != 0 {
             return Err(CoreError::new(
@@ -279,7 +280,10 @@ impl Store {
             ));
         }
         let mut task = self.get(&intent.task_id)?;
-        if task.state != TaskState::Draft {
+        if task.state != TaskState::Draft
+            && !(task.state == TaskState::Running
+                && crate::goal_store::permits_continuing_task(&self.conn, &intent)?)
+        {
             return Err(CoreError::new(
                 "PERMISSION_DENIED",
                 "Task no longer permits dispatch",
@@ -358,6 +362,8 @@ impl Store {
         intent.state = IntentState::Stopped;
         task.state = if task.state == TaskState::CancelRequested {
             TaskState::Cancelled
+        } else if crate::goal_store::permits_continuing_task(&tx, &intent)? {
+            TaskState::Running
         } else if receipt["kind"] == "executor_not_started" || receipt["kind"] == "never_dispatched"
         {
             TaskState::Draft

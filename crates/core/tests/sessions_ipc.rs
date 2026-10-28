@@ -32,11 +32,16 @@ impl Server {
     fn request(&self, v: Value) -> Value {
         call(&self.runtime, v).unwrap()
     }
+    fn shutdown(&mut self) {
+        self.stop.store(true, Ordering::Relaxed);
+        if let Some(thread) = self.thread.take() {
+            thread.join().unwrap();
+        }
+    }
 }
 impl Drop for Server {
     fn drop(&mut self) {
-        self.stop.store(true, Ordering::Relaxed);
-        self.thread.take().unwrap().join().unwrap();
+        self.shutdown();
     }
 }
 fn result(v: Value) -> Value {
@@ -115,7 +120,32 @@ for line in sys.stdin:
   send({'jsonrpc':'2.0','id':i,'result':{'sessionId':'native-fixture'}})
  elif m=='session/prompt':
   text=r['params']['prompt'][0]['text'];pending=i
-  if text=='hang':open('fixture-hang','w').write(str(os.getpid()));continue
+  if text.startswith('{'):
+   contract=json.loads(text)
+   assert contract['kind']=='agentbaton_goal_task_request' and contract['schema_version']==1
+   assert contract['workspace']['canonical_root']==os.getcwd()
+   assert contract['lineage']['attempt_id'] and contract['plan_digest'] and contract['return_location']['node_id']==contract['node']['id']
+   assert contract['inputs'][0]['artifact']['relative_path'] in ('file','inputs/file') and contract['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
+   assert contract['policy']['enforced']=={'filesystem_sandbox':False,'network_sandbox':False,'output_quota':False}
+   text=contract['goal']
+   if text in ('goal-report','goal-report-v2','goal-report-drift','goal-report-hold'):
+    if text=='goal-report-hold':
+     open('fixture-goal-held','w').write(str(os.getpid()))
+     while not os.path.exists('fixture-goal-release'):time.sleep(.005)
+    os.makedirs('reports',exist_ok=True);open('reports/report.txt','w').write('fixed report v2' if text=='goal-report-v2' else 'fixed report')
+    if text=='goal-report-drift':open('file','w').write('changed original')
+  if text.startswith('goal-report-extra-'):
+   index=text.removeprefix('goal-report-extra-')
+   artifact='report-'+index;path='reports/'+artifact+'.txt'
+   assert contract['node']['outputs']==[{'artifact_id':artifact,'contract_id':'output:'+artifact}]
+   assert contract['node']['write_set']==[{'kind':'workspace','path':path}]
+   selected=next(o for o in contract['outputs'] if o['artifact']['artifact_id']==artifact)
+   assert selected['artifact']['relative_path']==path and contract['inputs'][0]['sha256']
+   os.makedirs('reports',exist_ok=True);open(path,'w').write('extra report '+index)
+  if text in ('hang','goal-partial-hang'):
+   if text=='goal-partial-hang':
+    os.makedirs('reports',exist_ok=True);open('reports/report.txt','w').write('partial report')
+   open('fixture-hang','w').write(str(os.getpid()));continue
   if text=='malformed':print('invalid-json',flush=True);continue
   if text=='stream':
    for chunk in range(200):
@@ -947,4 +977,1882 @@ fn documented_acp_routes_deliver_only_their_owned_configuration_to_generated_chi
             |s| s["state"] == "stopped",
         );
     }
+}
+
+fn goal_scope_and_plan(f: &Scenario, goal: &str) -> Value {
+    goal_scope_and_plan_with_reworks(f, goal, 0)
+}
+fn goal_scope_and_plan_with_reworks(f: &Scenario, goal: &str, reworks: u32) -> Value {
+    goal_scope_and_plan_with_independent_nodes(f, goal, reworks, 1)
+}
+fn goal_scope_and_plan_with_independent_nodes(
+    f: &Scenario,
+    goal: &str,
+    reworks: u32,
+    count: u32,
+) -> Value {
+    use agentbaton_core::{goal_plan::*, goal_store::*};
+    let limits = BudgetLimits {
+        attempts: 2,
+        parallel: 1,
+        runtime_ms: 10_000,
+        output_bytes: 8192,
+        children: count.max(2) - 1,
+        reworks,
+        tokens: None,
+        cost_microunits: None,
+    };
+    let mut selection = GoalScopeSelection {
+        task_id: f.task["id"].as_str().unwrap().into(),
+        expected_task_revision: f.task["revision"].as_u64().unwrap(),
+        grant_id: f.grant["id"].as_str().unwrap().into(),
+        expected_grant_revision: f.grant["revision"].as_u64().unwrap(),
+        max_nodes: count.max(2),
+        new_max_children: count.max(2) - 1,
+        new_max_depth: 1,
+        root_budget: limits.clone(),
+        project_budget: limits,
+        inputs: vec![agentbaton_workspaces::validation::ArtifactRequirement {
+            artifact_id: "fixed-input".into(),
+            relative_path: if f.workspace["identity"]["kind"]["kind"] == "directory" {
+                "inputs/file".into()
+            } else {
+                "file".into()
+            },
+            max_bytes: 1024,
+            expected_sha256: Some(agentbaton_workspaces::validation::sha256(b"baseline")),
+        }],
+        outputs: vec![GoalOutputSelection {
+            artifact: agentbaton_workspaces::validation::ArtifactRequirement {
+                artifact_id: "report".into(),
+                relative_path: "reports/report.txt".into(),
+                max_bytes: 1024,
+                expected_sha256: None,
+            },
+            validators: vec![],
+        }],
+        writable_prefixes: vec!["reports".into()],
+        owner_acceptance_criteria: "Owner reviews the exact report separately from process success"
+            .into(),
+    };
+    for index in 2..=count {
+        selection.outputs.push(GoalOutputSelection {
+            artifact: agentbaton_workspaces::validation::ArtifactRequirement {
+                artifact_id: format!("report-{index}"),
+                relative_path: format!("reports/report-{index}.txt").into(),
+                max_bytes: 1024,
+                expected_sha256: None,
+            },
+            validators: vec![],
+        });
+    }
+    let proposal = result(f.server.request(
+        json!({"method":"goal_scopes.propose","params":selection,"idempotency_key":format!("goal-scope:{}",f.task["id"].as_str().unwrap())}),
+    ));
+    let scope = approve(&f.server, proposal);
+    let view: GoalScopeView = serde_json::from_value(scope.clone()).unwrap();
+    let contract = view.outputs["report"].clone();
+    let node = PlanNode {
+        id: "produce-report".into(),
+        parent_id: None,
+        kind: NodeKind::Work,
+        goal: goal.into(),
+        dependencies: vec![],
+        workspace_id: view.workspace_id.clone(),
+        executor: Executor::Connection {
+            binding: Box::new(view.binding.clone()),
+            program_sha256: view.program_sha256.clone(),
+        },
+        recipients: vec![],
+        required_inputs: vec![RequiredInput {
+            goal_task_id: view.task_id.clone(),
+            artifact_id: "fixed-input".into(),
+            contract_id: view.inputs["fixed-input"].contract_id.clone(),
+            source: InputSource::ApprovedExternal {
+                sha256: view.inputs["fixed-input"].sha256.clone(),
+            },
+        }],
+        outputs: vec![PlannedOutput {
+            artifact_id: "report".into(),
+            contract_id: contract.clone(),
+        }],
+        required_validators: view.contracts[&contract].clone(),
+        side_effect: SideEffect::WorkspaceWrite,
+        write_set: vec![WriteTarget::Workspace {
+            path: "reports/report.txt".into(),
+        }],
+        budget: BudgetLimits {
+            attempts: 1,
+            parallel: 1,
+            runtime_ms: 5000,
+            output_bytes: 2048,
+            children: 0,
+            reworks: 0,
+            tokens: None,
+            cost_microunits: None,
+        },
+        reservation: AttemptReservation {
+            runtime_ms: if goal == "hang" { 1200 } else { 4000 },
+            output_bytes: 2048,
+            tokens: None,
+            cost_microunits: None,
+        },
+        retry: RetryPolicy {
+            max_attempts: 1,
+            max_reworks: 0,
+            retry_classes: vec![],
+        },
+        idempotency_key: "produce-report-once".into(),
+        external_action_id: None,
+    };
+    let mut nodes = vec![node.clone()];
+    for index in 2..=count {
+        let artifact_id = format!("report-{index}");
+        let contract = view.outputs[&artifact_id].clone();
+        let mut independent = node.clone();
+        independent.id = format!("independent-{index}");
+        independent.idempotency_key = format!("independent-once-{index}");
+        independent.kind = NodeKind::Summary;
+        independent.goal = format!("goal-report-extra-{index}");
+        independent.outputs = vec![PlannedOutput {
+            artifact_id,
+            contract_id: contract.clone(),
+        }];
+        independent.required_validators = view.contracts[&contract].clone();
+        independent.write_set = vec![WriteTarget::Workspace {
+            path: format!("reports/report-{index}.txt"),
+        }];
+        nodes.push(independent);
+    }
+    let plan = GoalPlanProposal {
+        schema_version: 1,
+        plan_id: format!("runtime-plan:{}", f.task["id"].as_str().unwrap()),
+        goal: view.goal.clone(),
+        scope_revision: view.authority_revision,
+        revision: 1,
+        expected_revision: 0,
+        acceptance_rules: view.required_acceptance_rules.clone(),
+        nodes,
+    };
+    result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":view.id,"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":0,"idempotency_key":format!("runtime-plan:{}",f.task["id"].as_str().unwrap())})));
+    scope
+}
+fn prepare_goal_execution(f: &Scenario, scope: &Value) -> Value {
+    prepare_goal_execution_at(f, scope, 1)
+}
+fn prepare_goal_execution_at(f: &Scenario, scope: &Value, plan_revision: u64) -> Value {
+    let snapshot = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    );
+    let proposal=result(f.server.request(json!({"method":"goal_runs.propose","params":{"scope_id":scope["id"],"expected_plan_revision":plan_revision,"expected_ledger_revision":snapshot["sequence"]},"idempotency_key":format!("execute-plan:{}",scope["id"].as_str().unwrap())})));
+    assert_eq!(proposal["kind"], "goal_execution");
+    assert_eq!(proposal["snapshot"]["new_workspace_authority"], false);
+    let raw = serde_json::to_vec_pretty(&proposal).unwrap();
+    let digest = agentbaton_workspaces::validation::sha256(&raw);
+    let directory =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../artifacts/goal-runtime-core");
+    std::fs::create_dir_all(&directory).unwrap();
+    let path = directory.join(format!("generated-goal-execution-{digest}.json"));
+    match std::fs::OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .open(&path)
+    {
+        Ok(mut file) => {
+            use std::io::Write;
+            file.write_all(&raw).unwrap();
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
+            assert_eq!(std::fs::read(&path).unwrap(), raw)
+        }
+        Err(error) => panic!("cannot preserve generated proposal: {error}"),
+    }
+    eprintln!("GENERATED_GOAL_EXECUTION_PROPOSAL sha256={digest} compact_snapshot_bytes={} pretty_snapshot_bytes={} path={} runtime_source_sha256={}",serde_json::to_vec(&proposal["snapshot"]).unwrap().len(),serde_json::to_vec_pretty(&proposal["snapshot"]).unwrap().len(),path.display(),agentbaton_workspaces::validation::sha256(include_bytes!("../src/goal_runtime.rs")));
+    proposal
+}
+fn approve_goal_execution(f: &Scenario, scope: &Value) -> Value {
+    approve(&f.server, prepare_goal_execution(f, scope))
+}
+
+#[test]
+fn actual_goal_native_approval_reserves_dispatches_complete_contract_and_reaps_candidate_without_accepting_task(
+) {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let before = result(
+        f.server
+            .request(json!({"method":"sessions.list","params":{}})),
+    );
+    assert!(before.as_array().unwrap().is_empty());
+    let run = approve_goal_execution(&f, &scope);
+    let current = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":run["id"]}),
+        |r| {
+            matches!(
+                r["run"]["state"].as_str(),
+                Some("awaiting_acceptance" | "failed" | "blocked" | "outcome_unknown")
+            )
+        },
+    );
+    assert_eq!(current["run"]["state"], "awaiting_acceptance", "{current}");
+    assert_eq!(current["nodes"][0]["state"], "candidate");
+    assert_eq!(current["nodes"][0]["stop_confirmed"], true);
+    assert!(current["nodes"][0]["actual_runtime_ms"].as_u64().unwrap() > 0);
+    assert_eq!(current["nodes"][0]["actual_output_bytes"], 12);
+    assert!(current["nodes"][0]["tokens"].is_null());
+    assert!(current["nodes"][0]["cost_microunits"].is_null());
+    let sid = &current["nodes"][0]["session_id"];
+    let session = result(
+        f.server
+            .request(json!({"method":"sessions.get","params":{"session_id":sid}})),
+    );
+    assert_eq!(session["state"], "stopped");
+    assert_eq!(session["turn_state"], "completed");
+    let extra=f.server.request(json!({"method":"sessions.send","params":{"session_id":sid,"text":"unreserved"},"expected_revision":session["revision"],"idempotency_key":"unreserved-turn"}));
+    assert_eq!(extra["error"]["code"], "AUTH_REQUIRED");
+    assert_eq!(
+        std::fs::read(
+            PathBuf::from(f.workspace["root"].as_str().unwrap()).join("reports/report.txt")
+        )
+        .unwrap(),
+        b"fixed report"
+    );
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    assert_ne!(task["state"], "accepted");
+    assert_eq!(current["task_accepted"], false);
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM goal_run_reservations", [], |r| r
+            .get::<_, u32>(0))
+            .unwrap(),
+        1
+    );
+    let counts: (u32, u32) = db
+        .query_row(
+            "SELECT consumed,active FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(counts, (1, 0));
+}
+
+#[test]
+fn actual_goal_same_scope_replan_after_real_writes_keeps_history_and_budget_without_new_owner() {
+    use agentbaton_core::goal_plan::*;
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan_with_reworks(&f, "goal-report", 1);
+    let initial = approve_goal_execution(&f, &scope);
+    let first = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":initial["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    let old_attempt = first["nodes"][0]["attempt_id"].clone();
+    let old_session = first["nodes"][0]["session_id"].clone();
+    let old_plan = result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    );
+    let mut plan: GoalPlanProposal = serde_json::from_value(old_plan["proposal"].clone()).unwrap();
+    plan.revision = 2;
+    plan.expected_revision = 1;
+    plan.nodes[0].goal = "goal-report-v2".into();
+    plan.nodes[0].budget.attempts = 2;
+    plan.nodes[0].budget.output_bytes = 4096;
+    plan.nodes[0].budget.reworks = 1;
+    plan.nodes[0].retry.max_attempts = 2;
+    plan.nodes[0].retry.max_reworks = 1;
+    plan.nodes[0].retry.retry_classes = vec![FailureClass::ValidationFailed];
+    let saved=result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"safe-plan-revision-2"})));
+    assert_eq!(saved["dispatched"], false);
+    let pending = result(
+        f.server
+            .request(json!({"method":"goal_runs.get","params":{"run_id":initial["id"]}})),
+    );
+    assert_eq!(pending["run"]["plan_revision"], 1);
+    let snapshot = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    );
+    let advanced=result(f.server.request(json!({"method":"goal_runs.advance_plan","params":{"run_id":initial["id"],"expected_plan_revision":2,"expected_ledger_revision":snapshot["sequence"]},"expected_revision":pending["run"]["revision"],"idempotency_key":"apply-safe-plan-revision-2"})));
+    assert_eq!(advanced["plan_revision"], 2);
+    let second = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":initial["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance" && r["run"]["plan_revision"] == 2,
+    );
+    let nodes = second["nodes"].as_array().unwrap();
+    assert_eq!(nodes.len(), 2);
+    assert_eq!(nodes[0]["plan_revision"], 1);
+    assert_eq!(nodes[0]["attempt_id"], old_attempt);
+    assert_eq!(nodes[0]["session_id"], old_session);
+    assert_eq!(nodes[0]["actual_output_bytes"], 12);
+    assert_eq!(nodes[1]["plan_revision"], 2);
+    assert_ne!(nodes[1]["attempt_id"], old_attempt);
+    assert_eq!(nodes[1]["state"], "candidate");
+    assert_eq!(nodes[1]["actual_output_bytes"], 15);
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(db.query_row("SELECT count(*) FROM approval_proposals WHERE json_extract(document,'$.kind')='goal_execution'",[],|row|row.get::<_,u32>(0)).unwrap(),1);
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |row| row.get::<_, u32>(0)
+        )
+        .unwrap(),
+        2
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT json_extract(document,'$.output_bytes') FROM goal_ledgers WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |row| row.get::<_, u32>(0)
+        )
+        .unwrap(),
+        27
+    );
+    assert_eq!(second["task_accepted"], false);
+}
+
+#[test]
+fn actual_goal_cancel_retains_partial_report_and_only_confirms_after_owned_reap() {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-partial-hang");
+    let run = approve_goal_execution(&f, &scope);
+    let marker = PathBuf::from(f.workspace["root"].as_str().unwrap()).join("fixture-hang");
+    let live = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":run["id"]}),
+        |r| r["nodes"][0]["state"] == "running" && marker.is_file(),
+    );
+    let cancel_request = json!({"method":"goal_runs.cancel","params":{"run_id":run["id"]},"expected_revision":live["run"]["revision"],"idempotency_key":"one-goal-cancel"});
+    let receipt = result(f.server.request(cancel_request.clone()));
+    assert_eq!(receipt["state"], "cancel_requested");
+    let current = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":run["id"]}),
+        |r| r["run"]["state"] == "cancelled",
+    );
+    assert_eq!(current["nodes"][0]["state"], "cancelled");
+    assert_eq!(current["nodes"][0]["stop_confirmed"], true);
+    assert_eq!(current["nodes"][0]["actual_output_bytes"], 14);
+    assert_eq!(current["task_accepted"], false);
+    assert_eq!(
+        std::fs::read(
+            PathBuf::from(f.workspace["root"].as_str().unwrap()).join("reports/report.txt")
+        )
+        .unwrap(),
+        b"partial report"
+    );
+    assert_eq!(result(f.server.request(cancel_request)), receipt);
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |row| row
+            .get::<_, u32>(0))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+            [],
+            |row| row.get::<_, u32>(0)
+        )
+        .unwrap(),
+        0
+    );
+}
+#[test]
+fn actual_goal_timeout_and_malformed_terminal_never_replay_or_become_task_acceptance() {
+    for goal in ["hang", "malformed"] {
+        let f = Scenario::new(10_000);
+        let scope = goal_scope_and_plan(&f, goal);
+        let run = approve_goal_execution(&f, &scope);
+        let current = wait(
+            &f.server,
+            "goal_runs.get",
+            json!({"run_id":run["id"]}),
+            |r| r["run"]["state"] == "outcome_unknown",
+        );
+        assert_eq!(current["nodes"][0]["state"], "outcome_unknown");
+        assert_eq!(current["nodes"][0]["stop_confirmed"], true);
+        assert_eq!(current["task_accepted"], false);
+        assert!(current["nodes"][0]["actual_output_bytes"].is_null());
+        if goal == "hang" {
+            assert!(PathBuf::from(f.workspace["root"].as_str().unwrap())
+                .join("fixture-hang")
+                .is_file());
+            assert!(current["nodes"][0]["actual_runtime_ms"].as_u64().unwrap() >= 1200);
+        }
+        let cancelled=result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":run["id"]},"expected_revision":current["run"]["revision"],"idempotency_key":"cancel-unknown-effect"})));
+        assert_eq!(cancelled["state"], "outcome_unknown");
+        assert_eq!(cancelled["cancel_requested"], true);
+        let after = result(
+            f.server
+                .request(json!({"method":"goal_runs.get","params":{"run_id":run["id"]}})),
+        );
+        assert_eq!(after["run"]["state"], "outcome_unknown");
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |row| row
+                .get::<_, u32>(0))
+                .unwrap(),
+            1
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM goal_run_reservations", [], |row| row
+                .get::<_, u32>(
+                0
+            ))
+            .unwrap(),
+            1
+        );
+    }
+}
+
+fn another_goal_root(f: &mut Scenario, index: u32) {
+    let source = f.root.join("source");
+    let head = git(&source, &["rev-parse", "HEAD"]);
+    f.workspace=result(f.server.request(json!({"method":"workspaces.create","params":{"project_id":f.project["id"],"expected_head":head},"expected_revision":f.project["revision"],"idempotency_key":format!("new-root-workspace:{index}")})));
+    let p=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":2,"max_concurrency":1,"max_duration_ms":10000},"idempotency_key":format!("new-root-grant:{index}")})));
+    f.grant = approve(&f.server, p);
+    f.task=result(f.server.request(json!({"method":"tasks.create","params":{"project_id":f.project["id"],"goal":format!("Another bounded root {index}")},"idempotency_key":format!("new-root-task:{index}")})));
+}
+#[test]
+fn actual_goal_reservation_failure_rolls_back_attempt_session_lease_and_all_shared_counters() {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let proposal = prepare_goal_execution(&f, &scope);
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    db.execute_batch("CREATE TRIGGER generated_goal_reservation_fault BEFORE INSERT ON goal_run_reservations BEGIN SELECT RAISE(ABORT,'generated exact transaction fault'); END;").unwrap();
+    let run = approve(&f.server, proposal);
+    let current = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":run["id"]}),
+        |r| r["run"]["state"] == "blocked",
+    );
+    assert_eq!(current["nodes"][0]["state"], "not_started");
+    assert!(current["nodes"][0]["attempt_id"].is_null());
+    for table in [
+        "attempts",
+        "sessions",
+        "dispatch_intents",
+        "goal_run_reservations",
+    ] {
+        assert_eq!(
+            db.query_row(&format!("SELECT count(*) FROM {table}"), [], |row| row
+                .get::<_, u32>(0))
+                .unwrap(),
+            0,
+            "{table}"
+        );
+    }
+    let totals: (u32, u32) = db
+        .query_row("SELECT sum(consumed),sum(active) FROM budgets", [], |row| {
+            Ok((row.get(0)?, row.get(1)?))
+        })
+        .unwrap();
+    assert_eq!(totals, (0, 0));
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+            [],
+            |row| row.get::<_, u32>(0)
+        )
+        .unwrap(),
+        0
+    );
+    assert!(!PathBuf::from(f.workspace["root"].as_str().unwrap())
+        .join("fixture-started")
+        .exists());
+    assert_eq!(current["task_accepted"], false);
+}
+#[test]
+fn actual_goal_two_roots_share_project_consumption_and_third_root_cannot_reset_it() {
+    let mut f = Scenario::new(10_000);
+    let first_scope = goal_scope_and_plan(&f, "goal-report");
+    let first = approve_goal_execution(&f, &first_scope);
+    wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":first["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    let root1 = f.task["id"].as_str().unwrap().to_string();
+    another_goal_root(&mut f, 2);
+    let second_scope = goal_scope_and_plan(&f, "goal-report");
+    let second = approve_goal_execution(&f, &second_scope);
+    wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":second["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    let root2 = f.task["id"].as_str().unwrap().to_string();
+    another_goal_root(&mut f, 3);
+    let third_scope = goal_scope_and_plan(&f, "goal-report");
+    let third = approve_goal_execution(&f, &third_scope);
+    let blocked = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":third["id"]}),
+        |r| r["run"]["state"] == "blocked",
+    );
+    assert!(blocked["nodes"][0]["attempt_id"].is_null());
+    assert!(!PathBuf::from(f.workspace["root"].as_str().unwrap())
+        .join("fixture-started")
+        .exists());
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let counts: (u32, u32) = db
+        .query_row(
+            "SELECT consumed,active FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(counts, (2, 0));
+    for root in [root1, root2] {
+        assert_eq!(
+            db.query_row(
+                "SELECT consumed FROM budgets WHERE scope=?1",
+                [format!("root:{root}")],
+                |row| row.get::<_, u32>(0)
+            )
+            .unwrap(),
+            1
+        );
+    }
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |row| row
+            .get::<_, u32>(0))
+            .unwrap(),
+        2
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM goal_run_reservations", [], |row| row
+            .get::<_, u32>(
+            0
+        ))
+        .unwrap(),
+        2
+    );
+}
+
+#[test]
+fn actual_goal_complete_two_node_native_review_crosses_pretty_boundary_without_losing_fields() {
+    use agentbaton_core::goal_plan::*;
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let view = result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    );
+    let mut plan: GoalPlanProposal = serde_json::from_value(view["proposal"].clone()).unwrap();
+    let mut summary = plan.nodes[0].clone();
+    summary.id = "aaa-owner-review".into();
+    summary.kind = NodeKind::OwnerApproval;
+    summary.executor = Executor::Owner {
+        rule_id: "goal-owner-review".into(),
+    };
+    summary.required_validators = vec!["goal-owner-review".into()];
+    summary.dependencies = vec!["produce-report".into()];
+    summary.required_inputs = vec![RequiredInput {
+        goal_task_id: plan.goal.task_id.clone(),
+        artifact_id: "report".into(),
+        contract_id: scope["outputs"]["report"].as_str().unwrap().into(),
+        source: InputSource::Node {
+            node_id: "produce-report".into(),
+            candidate_for_validation: true,
+        },
+    }];
+    summary.goal = format!(
+        "Summarize the fixed input without changing any permission. {}",
+        "bounded-context ".repeat(300)
+    );
+    summary.side_effect = SideEffect::AdvisoryReadOnly;
+    summary.outputs.clear();
+    summary.write_set.clear();
+    summary.idempotency_key = "summary-only-once".into();
+    plan.nodes.insert(0, summary);
+    plan.revision = 2;
+    plan.expected_revision = 1;
+    result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"bounded-large-review-plan"})));
+    let proposal = prepare_goal_execution_at(&f, &scope, 2);
+    let compact = serde_json::to_vec(&proposal["snapshot"]).unwrap();
+    let pretty = serde_json::to_vec_pretty(&proposal["snapshot"]).unwrap();
+    assert!(compact.len() <= 16384);
+    assert!(pretty.len()>16384,"This real Core proposal should exercise lossless native compact display, got compact={} pretty={}",compact.len(),pretty.len());
+    assert_eq!(
+        proposal["snapshot"]["plan"]["proposal"]["nodes"]
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"sessions.list","params":{}}))
+        )
+        .as_array()
+        .unwrap()
+        .len(),
+        0
+    );
+}
+
+#[test]
+fn actual_goal_replan_cannot_introduce_unmetered_finite_token_or_cost_cap() {
+    use agentbaton_core::goal_plan::*;
+    for dimension in ["tokens", "cost_microunits"] {
+        let f = Scenario::new(10_000);
+        let scope = goal_scope_and_plan_with_reworks(&f, "goal-report", 1);
+        let initial = approve_goal_execution(&f, &scope);
+        let before = wait(
+            &f.server,
+            "goal_runs.get",
+            json!({"run_id":initial["id"]}),
+            |r| r["run"]["state"] == "awaiting_acceptance",
+        );
+        let current = result(
+            f.server
+                .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+        );
+        let mut plan: GoalPlanProposal =
+            serde_json::from_value(current["proposal"].clone()).unwrap();
+        plan.revision = 2;
+        plan.expected_revision = 1;
+        plan.nodes[0].budget.attempts = 2;
+        plan.nodes[0].budget.reworks = 1;
+        plan.nodes[0].budget.output_bytes = 4096;
+        plan.nodes[0].retry.max_attempts = 2;
+        plan.nodes[0].retry.max_reworks = 1;
+        if dimension == "tokens" {
+            plan.nodes[0].budget.tokens = Some(100);
+            plan.nodes[0].reservation.tokens = Some(10);
+        } else {
+            plan.nodes[0].budget.cost_microunits = Some(100);
+            plan.nodes[0].reservation.cost_microunits = Some(10);
+        }
+        result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"unsupported-finite-revision"})));
+        let snap = result(
+            f.server
+                .request(json!({"method":"system.snapshot","params":{}})),
+        );
+        let response=f.server.request(json!({"method":"goal_runs.advance_plan","params":{"run_id":initial["id"],"expected_plan_revision":2,"expected_ledger_revision":snap["sequence"]},"expected_revision":before["run"]["revision"],"idempotency_key":"cannot-adopt-unmeasured-cap"}));
+        assert_eq!(
+            response["error"]["code"], "CAPABILITY_UNSUPPORTED",
+            "{dimension}: {response}"
+        );
+        let after = result(
+            f.server
+                .request(json!({"method":"goal_runs.get","params":{"run_id":initial["id"]}})),
+        );
+        assert_eq!(after["run"]["plan_revision"], 1);
+        assert_eq!(after["nodes"].as_array().unwrap().len(), 1);
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |row| row
+                .get::<_, u32>(0))
+                .unwrap(),
+            1
+        );
+    }
+}
+#[test]
+fn actual_goal_output_reservation_overrun_blocks_renamed_replan_without_erasing_observed_bytes() {
+    use agentbaton_core::goal_plan::*;
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan_with_reworks(&f, "goal-report", 1);
+    let current = result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    );
+    let mut plan: GoalPlanProposal = serde_json::from_value(current["proposal"].clone()).unwrap();
+    plan.revision = 2;
+    plan.expected_revision = 1;
+    plan.nodes[0].reservation.output_bytes = 1;
+    result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"tiny-output-reservation"})));
+    let initial = approve(&f.server, prepare_goal_execution_at(&f, &scope, 2));
+    let blocked = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":initial["id"]}),
+        |r| r["run"]["state"] == "blocked",
+    );
+    assert_eq!(blocked["nodes"][0]["actual_output_bytes"], 12);
+    assert_eq!(
+        blocked["nodes"][0]["node"]["reservation"]["output_bytes"],
+        1
+    );
+    assert_eq!(blocked["nodes"][0]["stop_confirmed"], true);
+    plan.revision = 3;
+    plan.expected_revision = 2;
+    plan.nodes[0].id = "renamed-node-must-not-reset-budget".into();
+    plan.nodes[0].reservation.output_bytes = 2048;
+    result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":2,"idempotency_key":"rename-after-overrun"})));
+    let snap = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    );
+    let response=f.server.request(json!({"method":"goal_runs.advance_plan","params":{"run_id":initial["id"],"expected_plan_revision":3,"expected_ledger_revision":snap["sequence"]},"expected_revision":blocked["run"]["revision"],"idempotency_key":"cannot-escape-overrun"}));
+    assert_eq!(response["error"]["code"], "RESOURCE_LIMIT");
+    assert!(response["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("per-attempt reservation"));
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |row| row
+            .get::<_, u32>(0))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT json_extract(document,'$.output_bytes') FROM goal_ledgers WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |row| row.get::<_, u32>(0)
+        )
+        .unwrap(),
+        12
+    );
+}
+#[test]
+fn actual_goal_strict_unknown_requirements_and_unapproved_dispatch_are_rejected() {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let snapshot = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    );
+    for field in [
+        "require_output_quota",
+        "filesystem_sandbox",
+        "network_sandbox",
+        "approved",
+        "tokens_enforced",
+    ] {
+        let mut parameters = json!({"scope_id":scope["id"],"expected_plan_revision":1,"expected_ledger_revision":snapshot["sequence"]});
+        parameters[field] = json!(true);
+        let response=f.server.request(json!({"method":"goal_runs.propose","params":parameters,"idempotency_key":format!("unsupported-strict:{field}")}));
+        assert_eq!(
+            response["error"]["code"], "INVALID_REQUEST",
+            "{field}: {response}"
+        );
+    }
+    let refused=f.server.request(json!({"method":"goal_plans.dispatch","params":{"scope_id":scope["id"]},"expected_revision":1,"idempotency_key":"old-preview-never-executes"}));
+    assert_eq!(refused["error"]["code"], "AUTH_REQUIRED");
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"sessions.list","params":{}}))
+        )
+        .as_array()
+        .unwrap()
+        .len(),
+        0
+    );
+}
+
+fn use_actual_dataset_workspace(f: &mut Scenario) {
+    let source = f.root.join("goal-data-source");
+    std::fs::create_dir(&source).unwrap();
+    std::fs::write(source.join("file"), b"baseline").unwrap();
+    f.project=result(f.server.request(json!({"method":"projects.import","params":{"path":source,"name":"Generated Goal dataset"},"idempotency_key":"goal-data-project"})));
+    let preview=result(f.server.request(json!({"method":"data_workspace_previews.start","params":{"project_id":f.project["id"],"files":[{"artifact_id":"source","relative_path":"file","max_bytes":1024,"expected_sha256":null}],"limits":{"max_file_bytes":1024,"max_total_bytes":1024,"max_files":1}},"expected_revision":f.project["revision"],"idempotency_key":"goal-data-preview"})));
+    let preview = wait(
+        &f.server,
+        "data_workspace_previews.get",
+        json!({"preview_id":preview["id"]}),
+        |p| p["state"] == "verified",
+    );
+    let proposal=result(f.server.request(json!({"method":"data_workspaces.propose","params":{"preview_id":preview["id"]},"expected_revision":preview["revision"],"idempotency_key":"goal-data-copy"})));
+    let started = approve(&f.server, proposal);
+    let ready = wait(
+        &f.server,
+        "data_workspaces.get",
+        json!({"creation_id":started["id"]}),
+        |c| c["state"] == "ready",
+    );
+    let list = result(
+        f.server
+            .request(json!({"method":"workspaces.list","params":{"project_id":f.project["id"]}})),
+    );
+    f.workspace = list
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|w| w["id"] == ready["workspace_id"])
+        .unwrap()
+        .clone();
+    assert_eq!(f.workspace["identity"]["kind"]["kind"], "directory");
+    let proposal=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":2,"max_concurrency":1,"max_duration_ms":10000},"idempotency_key":"goal-data-grant"})));
+    f.grant = approve(&f.server, proposal);
+    f.task=result(f.server.request(json!({"method":"tasks.create","params":{"project_id":f.project["id"],"goal":"Execute bounded data nodes using actual copied inputs"},"idempotency_key":"goal-data-task"})));
+    std::fs::remove_dir_all(source).unwrap();
+}
+#[test]
+fn actual_data_goal_proposal_recovery_is_historical_after_input_drift_but_new_authority_is_refused()
+{
+    let mut f = Scenario::new(10_000);
+    use_actual_dataset_workspace(&mut f);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let proposal = prepare_goal_execution(&f, &scope);
+    let key = format!("execute-plan:{}", scope["id"].as_str().unwrap());
+    std::fs::write(
+        PathBuf::from(f.workspace["root"].as_str().unwrap()).join("inputs/file"),
+        b"changed",
+    )
+    .unwrap();
+    let recovered=result(f.server.request(json!({"method":"goal_runs.propose","params":proposal["snapshot"]["intent"],"idempotency_key":key})));
+    assert_eq!(recovered, proposal);
+    let fresh=f.server.request(json!({"method":"goal_runs.propose","params":proposal["snapshot"]["intent"],"idempotency_key":"do-not-reapprove-changed-data"}));
+    assert_eq!(fresh["error"]["code"], "INPUT_CHANGED");
+    let finalize=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"changed-data-cannot-finalize"}));
+    assert_eq!(finalize["error"]["code"], "INPUT_CHANGED");
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM goal_runs", [], |row| row
+            .get::<_, u32>(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |row| row
+            .get::<_, u32>(0))
+            .unwrap(),
+        0
+    );
+}
+#[test]
+fn actual_data_goal_executes_and_plan_advance_receipt_recovers_after_drift_without_reexecution() {
+    use agentbaton_core::goal_plan::*;
+    let mut f = Scenario::new(10_000);
+    use_actual_dataset_workspace(&mut f);
+    let scope = goal_scope_and_plan_with_reworks(&f, "goal-report", 1);
+    let initial = approve_goal_execution(&f, &scope);
+    let first = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":initial["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    let current = result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    );
+    let mut plan: GoalPlanProposal = serde_json::from_value(current["proposal"].clone()).unwrap();
+    plan.revision = 2;
+    plan.expected_revision = 1;
+    plan.nodes[0].goal = "goal-report-v2".into();
+    plan.nodes[0].budget.attempts = 2;
+    plan.nodes[0].budget.reworks = 1;
+    plan.nodes[0].budget.output_bytes = 4096;
+    plan.nodes[0].retry.max_attempts = 2;
+    plan.nodes[0].retry.max_reworks = 1;
+    result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"data-goal-plan-v2"})));
+    let snapshot = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    );
+    let request = json!({"method":"goal_runs.advance_plan","params":{"run_id":initial["id"],"expected_plan_revision":2,"expected_ledger_revision":snapshot["sequence"]},"expected_revision":first["run"]["revision"],"idempotency_key":"data-goal-adopt-v2"});
+    let receipt = result(f.server.request(request.clone()));
+    let second = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":initial["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance" && r["run"]["plan_revision"] == 2,
+    );
+    assert_eq!(second["nodes"].as_array().unwrap().len(), 2);
+    assert_eq!(second["nodes"][1]["actual_output_bytes"], 15);
+    std::fs::write(
+        PathBuf::from(f.workspace["root"].as_str().unwrap()).join("inputs/file"),
+        b"changed",
+    )
+    .unwrap();
+    assert_eq!(result(f.server.request(request)), receipt);
+    let snapshot = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    );
+    let fresh=f.server.request(json!({"method":"goal_runs.advance_plan","params":{"run_id":initial["id"],"expected_plan_revision":3,"expected_ledger_revision":snapshot["sequence"]},"expected_revision":second["run"]["revision"],"idempotency_key":"changed-data-cannot-advance-new-key"}));
+    assert_eq!(fresh["error"]["code"], "INPUT_CHANGED");
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |row| row
+            .get::<_, u32>(0))
+            .unwrap(),
+        2
+    );
+}
+
+#[test]
+fn actual_goal_shared_budget_cannot_be_bypassed_by_normal_session_or_trusted_lowlevel_attempt() {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let run = approve_goal_execution(&f, &scope);
+    wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":run["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    let task=result(f.server.request(json!({"method":"tasks.create","params":{"project_id":f.project["id"],"goal":"Ordinary bounded-policy bypass control"},"idempotency_key":"ordinary-bypass-task"})));
+    let refused=f.server.request(json!({"method":"sessions.create","params":{"task_id":task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":task["revision"],"idempotency_key":"ordinary-session-bypass"}));
+    assert_eq!(refused["error"]["code"], "AUTH_REQUIRED");
+    let db_path = f.server.runtime.join("baton.sqlite3");
+    let mut store = agentbaton_core::storage::Store::open(&db_path).unwrap();
+    let task_id = task["id"].as_str().unwrap();
+    store.configure_budget(false, task_id, 2, 1).unwrap();
+    let view: agentbaton_core::goal_store::GoalScopeView = serde_json::from_value(scope).unwrap();
+    let error = store
+        .prepare_attempt(
+            task_id,
+            task["revision"].as_u64().unwrap(),
+            view.binding,
+            "lowlevel-time-output-bypass",
+        )
+        .unwrap_err();
+    assert_eq!(error.code, "AUTH_REQUIRED");
+    drop(store);
+    let db = rusqlite::Connection::open(db_path).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |row| row
+            .get::<_, u32>(0))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |row| row.get::<_, u32>(0)
+        )
+        .unwrap(),
+        1
+    );
+}
+
+struct OwnedGoalDaemonProcess {
+    child: std::process::Child,
+}
+impl OwnedGoalDaemonProcess {
+    fn start(runtime: &Path) -> Self {
+        let mut child=Command::new(std::env::current_exe().unwrap()).args(["--exact","actual_goal_live_daemon_sigkill_does_not_replay_or_infer_stop_from_an_empty_supervisor","--nocapture","--test-threads=1"]).env("AB_GOAL_LIVE_CRASH_RUNTIME",runtime).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::piped()).spawn().unwrap();
+        let deadline = Instant::now() + Duration::from_secs(10);
+        loop {
+            if let Some(status) = child.try_wait().unwrap() {
+                panic!("owned generated daemon exited before ready: {status}");
+            }
+            if call(runtime, json!({"method":"system.snapshot","params":{}})).is_ok() {
+                return Self { child };
+            }
+            if Instant::now() >= deadline {
+                child.kill().unwrap();
+                child.wait().unwrap();
+                panic!("owned daemon did not become ready");
+            }
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    }
+    fn kill_now(&mut self) {
+        self.child.kill().unwrap();
+        let status = self.child.wait().unwrap();
+        assert!(!status.success());
+    }
+}
+impl Drop for OwnedGoalDaemonProcess {
+    fn drop(&mut self) {
+        if self.child.try_wait().ok().flatten().is_none() {
+            let _ = self.child.kill();
+        }
+        let _ = self.child.wait();
+    }
+}
+#[test]
+fn actual_goal_live_daemon_sigkill_does_not_replay_or_infer_stop_from_an_empty_supervisor() {
+    if let Some(runtime) = std::env::var_os("AB_GOAL_LIVE_CRASH_RUNTIME") {
+        let daemon = Daemon::bind(Path::new(&runtime)).unwrap();
+        daemon.run(Arc::new(AtomicBool::new(false))).unwrap();
+        return;
+    }
+    let mut f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-partial-hang");
+    f.server.shutdown();
+    let mut daemon = OwnedGoalDaemonProcess::start(&f.server.runtime);
+    let run = approve_goal_execution(&f, &scope);
+    let marker = PathBuf::from(f.workspace["root"].as_str().unwrap()).join("fixture-hang");
+    let running = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":run["id"]}),
+        |r| r["nodes"][0]["state"] == "running" && marker.is_file(),
+    );
+    let original_session = running["nodes"][0]["session_id"].clone();
+    let original_attempt = running["nodes"][0]["attempt_id"].clone();
+    let pid = std::fs::read(&marker).unwrap();
+    daemon.kill_now();
+    let _restarted = OwnedGoalDaemonProcess::start(&f.server.runtime);
+    let current = result(
+        f.server
+            .request(json!({"method":"goal_runs.get","params":{"run_id":run["id"]}})),
+    );
+    assert_eq!(current["run"]["state"], "outcome_unknown");
+    assert_eq!(current["nodes"][0]["session_id"], original_session);
+    assert_eq!(current["nodes"][0]["attempt_id"], original_attempt);
+    assert_eq!(current["nodes"][0]["state"], "outcome_unknown");
+    assert_eq!(current["nodes"][0]["stop_confirmed"], false);
+    assert!(current["nodes"][0]["actual_runtime_ms"].is_null());
+    assert!(current["nodes"][0]["actual_output_bytes"].is_null());
+    let receipt=result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":run["id"]},"expected_revision":current["run"]["revision"],"idempotency_key":"no-owned-controller-is-not-a-stop-proof"})));
+    assert_eq!(receipt["state"], "outcome_unknown");
+    assert_eq!(receipt["cancel_requested"], true);
+    assert_eq!(std::fs::read(marker).unwrap(), pid);
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |row| row
+            .get::<_, u32>(0))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM sessions", [], |row| row
+            .get::<_, u32>(0))
+            .unwrap(),
+        1
+    );
+    let held: (u32, u32) = db
+        .query_row(
+            "SELECT consumed,active FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(held, (1, 1));
+    assert_eq!(current["task_accepted"], false);
+}
+
+#[test]
+fn actual_goal_independent_summary_and_long_node_ids_use_the_same_authorized_executor() {
+    use agentbaton_core::goal_plan::*;
+    for mode in ["summary", "long-id"] {
+        let f = Scenario::new(10_000);
+        let scope = goal_scope_and_plan(&f, "goal-report");
+        let view = result(
+            f.server
+                .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+        );
+        let mut plan: GoalPlanProposal = serde_json::from_value(view["proposal"].clone()).unwrap();
+        plan.revision = 2;
+        plan.expected_revision = 1;
+        if mode == "summary" {
+            plan.nodes[0].kind = NodeKind::Summary;
+        } else {
+            plan.nodes[0].id = "n".repeat(256);
+        }
+        result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"summary-or-long-id-plan"})));
+        let run = approve(&f.server, prepare_goal_execution_at(&f, &scope, 2));
+        let current = wait(
+            &f.server,
+            "goal_runs.get",
+            json!({"run_id":run["id"]}),
+            |r| {
+                matches!(
+                    r["run"]["state"].as_str(),
+                    Some("awaiting_acceptance" | "blocked" | "outcome_unknown")
+                )
+            },
+        );
+        assert_eq!(
+            current["run"]["state"], "awaiting_acceptance",
+            "{mode}: {current}"
+        );
+        assert_eq!(current["nodes"][0]["actual_output_bytes"], 12);
+        assert_eq!(current["nodes"][0]["stop_confirmed"], true);
+        assert_eq!(current["task_accepted"], false);
+    }
+}
+
+#[test]
+fn actual_goal_completed_candidate_requires_unchanged_lower_owned_stop_receipts() {
+    for mode in [
+        "attempt_source",
+        "supervisor_source",
+        "supervisor_order",
+        "goal_state",
+    ] {
+        let mut f = Scenario::new(10_000);
+        let scope = goal_scope_and_plan(&f, "goal-report");
+        let run = approve_goal_execution(&f, &scope);
+        let current = wait(
+            &f.server,
+            "goal_runs.get",
+            json!({"run_id":run["id"]}),
+            |r| r["run"]["state"] == "awaiting_acceptance",
+        );
+        let sid = current["nodes"][0]["session_id"]
+            .as_str()
+            .unwrap()
+            .to_string();
+        f.server.shutdown();
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        match mode {
+            "attempt_source" => {
+                db.execute("UPDATE events SET document=json_set(document,'$.source','generated_untrusted_output') WHERE json_extract(document,'$.kind')='attempt.stopped'",[]).unwrap();
+            }
+            "supervisor_source" => {
+                db.execute("UPDATE events SET document=json_set(document,'$.source','generated_untrusted_output') WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.aggregate_id')=?1",[&sid]).unwrap();
+            }
+            "supervisor_order" => {
+                let doc:String=db.query_row("SELECT document FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.aggregate_id')=?1",[&sid],|row|row.get(0)).unwrap();
+                db.execute("DELETE FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.aggregate_id')=?1",[&sid]).unwrap();
+                db.execute("UPDATE events SET document=?1 WHERE json_extract(document,'$.kind')='session.launch_reserved' AND json_extract(document,'$.aggregate_id')=?2",rusqlite::params![doc,sid]).unwrap();
+            }
+            _ => {
+                db.execute("UPDATE goal_run_nodes SET document=json_set(document,'$.actual_output_bytes',0)",[]).unwrap();
+            }
+        }
+        drop(db);
+        let store =
+            agentbaton_core::storage::Store::open(&f.server.runtime.join("baton.sqlite3")).unwrap();
+        let error = store
+            .goal_run_details(run["id"].as_str().unwrap())
+            .unwrap_err();
+        assert!(
+            matches!(error.code.as_str(), "PERMISSION_DENIED" | "INPUT_CHANGED"),
+            "{mode}: {error:?}"
+        );
+    }
+}
+
+#[test]
+fn actual_goal_changed_original_git_input_refuses_new_plan_or_advance_after_real_output() {
+    use agentbaton_core::goal_plan::*;
+    for action in ["revise", "advance"] {
+        let f = Scenario::new(10_000);
+        let scope = goal_scope_and_plan_with_reworks(&f, "goal-report", 1);
+        let initial = approve_goal_execution(&f, &scope);
+        let first = wait(
+            &f.server,
+            "goal_runs.get",
+            json!({"run_id":initial["id"]}),
+            |r| r["run"]["state"] == "awaiting_acceptance",
+        );
+        let old = result(
+            f.server
+                .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+        );
+        let mut plan: GoalPlanProposal = serde_json::from_value(old["proposal"].clone()).unwrap();
+        plan.revision = 2;
+        plan.expected_revision = 1;
+        plan.nodes[0].goal = "goal-report-v2".into();
+        if action == "advance" {
+            result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"valid-before-drift"})));
+        }
+        std::fs::write(
+            PathBuf::from(f.workspace["root"].as_str().unwrap()).join("file"),
+            b"changed original input",
+        )
+        .unwrap();
+        let denied = if action == "revise" {
+            f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"no-changed-git-plan"}))
+        } else {
+            let snap = result(
+                f.server
+                    .request(json!({"method":"system.snapshot","params":{}})),
+            );
+            f.server.request(json!({"method":"goal_runs.advance_plan","params":{"run_id":initial["id"],"expected_plan_revision":2,"expected_ledger_revision":snap["sequence"]},"expected_revision":first["run"]["revision"],"idempotency_key":"no-changed-git-advance"}))
+        };
+        assert_eq!(
+            denied["error"]["code"], "INPUT_CHANGED",
+            "{action}: {denied}"
+        );
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            1
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT json_extract(document,'$.plan_revision') FROM goal_runs WHERE id=?1",
+                [initial["id"].as_str().unwrap()],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            1
+        );
+    }
+}
+
+#[test]
+fn actual_goal_same_plan_two_independent_nodes_both_execute_before_awaiting_acceptance() {
+    for data in [false, true] {
+        let mut f = Scenario::new(10_000);
+        if data {
+            use_actual_dataset_workspace(&mut f);
+        }
+        let scope = goal_scope_and_plan_with_independent_nodes(&f, "goal-report", 0, 2);
+        let initial = approve_goal_execution(&f, &scope);
+        let observed_first = std::cell::Cell::new(false);
+        let final_state = wait(
+            &f.server,
+            "goal_runs.get",
+            json!({"run_id":initial["id"]}),
+            |r| {
+                if !observed_first.get()
+                    && r["nodes"][0]["state"] == "candidate"
+                    && r["nodes"][1]["state"] == "not_started"
+                {
+                    let db =
+                        rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+                    let attempts = db
+                        .query_row("SELECT count(*) FROM attempts", [], |row| {
+                            row.get::<_, u32>(0)
+                        })
+                        .unwrap();
+                    eprintln!("GOAL_FRONTIER_OBSERVED first=candidate second=not_started attempts={attempts} run_state={}",r["run"]["state"]);
+                    observed_first.set(true);
+                }
+                r["nodes"].as_array().unwrap().len() == 2
+                    && r["nodes"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .all(|n| n["state"] == "candidate")
+            },
+        );
+        assert_eq!(final_state["run"]["state"], "awaiting_acceptance");
+        assert_eq!(final_state["run"]["id"], initial["id"]);
+        assert_eq!(final_state["run"]["plan_revision"], 1);
+        assert_eq!(final_state["task_accepted"], false);
+        let nodes = final_state["nodes"].as_array().unwrap();
+        assert_ne!(nodes[0]["attempt_id"], nodes[1]["attempt_id"]);
+        assert_ne!(nodes[0]["session_id"], nodes[1]["session_id"]);
+        assert_eq!(nodes[0]["actual_output_bytes"], 12);
+        assert_eq!(nodes[1]["actual_output_bytes"], 14);
+        for node in nodes {
+            assert_eq!(node["stop_confirmed"], true);
+            assert_eq!(node["plan_revision"], 1);
+        }
+        let root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+        assert_eq!(
+            std::fs::read(root.join("reports/report.txt")).unwrap(),
+            b"fixed report"
+        );
+        assert_eq!(
+            std::fs::read(root.join("reports/report-2.txt")).unwrap(),
+            b"extra report 2"
+        );
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            2
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM goal_run_reservations", [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            2
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM goal_plan_revisions", [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            1
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+                [],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            0
+        );
+        for key in [
+            format!("project:{}", f.project["id"].as_str().unwrap()),
+            format!(
+                "root-grant:{}",
+                final_state["run"]["root_grant_id"].as_str().unwrap()
+            ),
+        ] {
+            assert_eq!(
+            db.query_row(
+                "SELECT json_extract(document,'$.output_bytes') FROM goal_ledgers WHERE scope=?1",
+                [&key],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            26
+        );
+            assert_eq!(db.query_row("SELECT json_extract(document,'$.observed_attempts') FROM goal_ledgers WHERE scope=?1",[&key],|r|r.get::<_,u32>(0)).unwrap(),2);
+        }
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='task.accepted'",
+                [],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            0
+        );
+        for key in [
+            format!("project:{}", f.project["id"].as_str().unwrap()),
+            format!("root:{}", f.task["id"].as_str().unwrap()),
+        ] {
+            assert_eq!(
+                db.query_row("SELECT consumed FROM budgets WHERE scope=?1", [&key], |r| r
+                    .get::<_, u32>(0))
+                    .unwrap(),
+                2
+            );
+            assert_eq!(
+                db.query_row("SELECT active FROM budgets WHERE scope=?1", [&key], |r| r
+                    .get::<_, u32>(
+                    0
+                ))
+                .unwrap(),
+                0
+            );
+        }
+        assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.source')='baton_supervisor' AND json_extract(document,'$.payload.process_reaped')=1",[],|r|r.get::<_,u32>(0)).unwrap(),2);
+    }
+}
+
+#[test]
+fn actual_goal_same_plan_frontier_preserves_budget_cancel_unknown_revocation_and_input_guards() {
+    use agentbaton_core::goal_plan::*;
+    for mode in [
+        "third_budget",
+        "cancel",
+        "unknown",
+        "overrun",
+        "revoked",
+        "input_drift",
+    ] {
+        let f = Scenario::new(10_000);
+        let goal = match mode {
+            "cancel" | "revoked" => "goal-partial-hang",
+            "unknown" => "malformed",
+            "input_drift" => "goal-report-drift",
+            _ => "goal-report",
+        };
+        let scope = goal_scope_and_plan_with_independent_nodes(
+            &f,
+            goal,
+            0,
+            if mode == "third_budget" { 3 } else { 2 },
+        );
+        let mut approved_revision = 1;
+        if mode == "overrun" {
+            let current = result(
+                f.server
+                    .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+            );
+            let mut plan: GoalPlanProposal =
+                serde_json::from_value(current["proposal"].clone()).unwrap();
+            plan.revision = 2;
+            plan.expected_revision = 1;
+            plan.nodes[0].reservation.output_bytes = 1;
+            result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"frontier-overrun-plan"})));
+            approved_revision = 2;
+        }
+        let run = approve(
+            &f.server,
+            prepare_goal_execution_at(&f, &scope, approved_revision),
+        );
+        if matches!(mode, "cancel" | "revoked") {
+            let marker = PathBuf::from(f.workspace["root"].as_str().unwrap()).join("fixture-hang");
+            let live = wait(
+                &f.server,
+                "goal_runs.get",
+                json!({"run_id":run["id"]}),
+                |r| r["nodes"][0]["state"] == "running" && marker.exists(),
+            );
+            if mode == "cancel" {
+                result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":run["id"]},"expected_revision":live["run"]["revision"],"idempotency_key":"frontier-owned-cancel"})));
+            } else {
+                result(f.server.request(json!({"method":"grants.revoke","params":{"grant_id":scope["root_grant_id"]},"expected_revision":scope["root_grant_revision"],"idempotency_key":"frontier-revoke"})));
+            }
+        }
+        let current = wait(
+            &f.server,
+            "goal_runs.get",
+            json!({"run_id":run["id"]}),
+            |r| {
+                matches!(
+                    r["run"]["state"].as_str(),
+                    Some("blocked" | "cancelled" | "outcome_unknown")
+                ) && r["nodes"][0]["stop_confirmed"] == true
+            },
+        );
+        let nodes = current["nodes"].as_array().unwrap();
+        let expected = if mode == "third_budget" { 2 } else { 1 };
+        for node in &nodes[expected..] {
+            assert_eq!(node["state"], "not_started", "{mode}: {current}");
+            assert!(node["attempt_id"].is_null());
+        }
+        assert_eq!(current["run"]["plan_revision"], approved_revision);
+        assert_eq!(current["task_accepted"], false);
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            expected as u32,
+            "{mode}"
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT consumed FROM budgets WHERE scope=?1",
+                [format!("project:{}", f.project["id"].as_str().unwrap())],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            expected as u32
+        );
+        let seq = result(
+            f.server
+                .request(json!({"method":"system.snapshot","params":{}})),
+        )["sequence"]
+            .clone();
+        for _ in 0..5 {
+            let _ = result(
+                f.server
+                    .request(json!({"method":"goal_runs.get","params":{"run_id":run["id"]}})),
+            );
+        }
+        assert_eq!(
+            result(
+                f.server
+                    .request(json!({"method":"system.snapshot","params":{}}))
+            )["sequence"],
+            seq,
+            "{mode}"
+        );
+        if mode == "overrun" {
+            assert_eq!(nodes[0]["actual_output_bytes"], 12);
+            assert_eq!(current["run"]["state"], "blocked");
+        }
+        if mode == "third_budget" {
+            assert_eq!(nodes[1]["state"], "candidate");
+            assert_eq!(current["run"]["state"], "blocked");
+        }
+        assert!(!PathBuf::from(f.workspace["root"].as_str().unwrap())
+            .join(if mode == "third_budget" {
+                "reports/report-3.txt"
+            } else {
+                "reports/report-2.txt"
+            })
+            .exists());
+    }
+}
+
+#[test]
+fn actual_goal_temporary_global_slot_waits_without_intents_then_executes_after_owned_completion() {
+    for pending_version in [false, true] {
+        let mut f = Scenario::new(10_000);
+        let first_scope = goal_scope_and_plan(&f, "goal-report-hold");
+        let first_root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+        another_goal_root(&mut f, 42);
+        let second_scope = goal_scope_and_plan(&f, "goal-report");
+        let first = approve_goal_execution(&f, &first_scope);
+        wait(
+            &f.server,
+            "goal_runs.get",
+            json!({"run_id":first["id"]}),
+            |r| {
+                r["nodes"][0]["state"] == "running" && first_root.join("fixture-goal-held").exists()
+            },
+        );
+        let second = approve_goal_execution(&f, &second_scope);
+        let second_root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+        assert_ne!(first_root, second_root);
+        let mut advance_request = None;
+        if pending_version {
+            use agentbaton_core::goal_plan::GoalPlanProposal;
+            let current = result(f.server.request(
+                json!({"method":"goal_plans.get","params":{"scope_id":second_scope["id"]}}),
+            ));
+            let mut plan: GoalPlanProposal =
+                serde_json::from_value(current["proposal"].clone()).unwrap();
+            plan.revision = 2;
+            plan.expected_revision = 1;
+            plan.nodes[0].goal = "goal-report-v2".into();
+            result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":second_scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"queued-save-version2-only"})));
+            let paused = wait(
+                &f.server,
+                "goal_runs.get",
+                json!({"run_id":second["id"]}),
+                |r| r["run"]["state"] == "awaiting_acceptance",
+            );
+            assert_eq!(paused["run"]["plan_revision"], 1);
+            assert_eq!(paused["nodes"][0]["state"], "not_started");
+        }
+        let quiet = result(
+            f.server
+                .request(json!({"method":"system.snapshot","params":{}})),
+        )["sequence"]
+            .clone();
+        let until = Instant::now() + Duration::from_millis(200);
+        while Instant::now() < until {
+            let queued = result(
+                f.server
+                    .request(json!({"method":"goal_runs.get","params":{"run_id":second["id"]}})),
+            );
+            let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+            let total = db
+                .query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap();
+            if queued["run"]["state"]
+                != if pending_version {
+                    "awaiting_acceptance"
+                } else {
+                    "queued"
+                }
+            {
+                let reason:String=db.query_row("SELECT json_extract(document,'$.payload.reason_code') FROM events WHERE json_extract(document,'$.kind')='goal.run_blocked' AND json_extract(document,'$.aggregate_id')=?1",[second["id"].as_str().unwrap()],|r|r.get(0)).unwrap();
+                eprintln!(
+                "TEMPORARY_GOAL_SLOT second_state={} total_attempts={total} second_node={} reason_code={reason}",
+                queued["run"]["state"], queued["nodes"][0]["state"]
+            );
+            }
+            assert_eq!(
+                queued["run"]["state"],
+                if pending_version {
+                    "awaiting_acceptance"
+                } else {
+                    "queued"
+                },
+                "{queued}"
+            );
+            assert_eq!(queued["nodes"][0]["state"], "not_started");
+            assert!(queued["nodes"][0]["session_id"].is_null());
+            assert!(queued["nodes"][0]["attempt_id"].is_null());
+            assert_eq!(total, 1);
+            assert_eq!(
+                result(
+                    f.server
+                        .request(json!({"method":"system.snapshot","params":{}}))
+                )["sequence"],
+                quiet
+            );
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        std::fs::write(
+            first_root.join("fixture-goal-release"),
+            b"release generated fixture",
+        )
+        .unwrap();
+        let first_done = wait(
+            &f.server,
+            "goal_runs.get",
+            json!({"run_id":first["id"]}),
+            |r| r["run"]["state"] == "awaiting_acceptance",
+        );
+        if pending_version {
+            let paused = result(
+                f.server
+                    .request(json!({"method":"goal_runs.get","params":{"run_id":second["id"]}})),
+            );
+            assert_eq!(paused["run"]["state"], "awaiting_acceptance");
+            assert_eq!(paused["run"]["plan_revision"], 1);
+            let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+            assert_eq!(
+                db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                    .unwrap(),
+                1
+            );
+            assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='goal.run_plan_pending' AND json_extract(document,'$.aggregate_id')=?1",[second["id"].as_str().unwrap()],|r|r.get::<_,u32>(0)).unwrap(),1);
+            let sequence = result(
+                f.server
+                    .request(json!({"method":"system.snapshot","params":{}})),
+            )["sequence"]
+                .clone();
+            for _ in 0..5 {
+                let _ =
+                    result(f.server.request(
+                        json!({"method":"goal_runs.get","params":{"run_id":second["id"]}}),
+                    ));
+            }
+            assert_eq!(
+                result(
+                    f.server
+                        .request(json!({"method":"system.snapshot","params":{}}))
+                )["sequence"],
+                sequence
+            );
+            let request = json!({"method":"goal_runs.advance_plan","params":{"run_id":second["id"],"expected_plan_revision":2,"expected_ledger_revision":sequence},"expected_revision":paused["run"]["revision"],"idempotency_key":"explicit-adopt-queued-version2"});
+            let receipt = result(f.server.request(request.clone()));
+            advance_request = Some((request, receipt));
+        }
+        let second_done = wait(
+            &f.server,
+            "goal_runs.get",
+            json!({"run_id":second["id"]}),
+            |r| r["run"]["state"] == "awaiting_acceptance",
+        );
+        for (index, done) in [&first_done, &second_done].iter().enumerate() {
+            let node = done["nodes"].as_array().unwrap().last().unwrap();
+            assert_eq!(node["state"], "candidate");
+            assert_eq!(node["stop_confirmed"], true);
+            assert_eq!(
+                node["actual_output_bytes"],
+                if pending_version && index == 1 {
+                    15
+                } else {
+                    12
+                }
+            );
+            assert_eq!(done["task_accepted"], false);
+        }
+        if let Some((request, receipt)) = advance_request {
+            let sequence = result(
+                f.server
+                    .request(json!({"method":"system.snapshot","params":{}})),
+            )["sequence"]
+                .clone();
+            assert_eq!(result(f.server.request(request)), receipt);
+            assert_eq!(
+                result(
+                    f.server
+                        .request(json!({"method":"system.snapshot","params":{}}))
+                )["sequence"],
+                sequence
+            );
+            assert_eq!(second_done["run"]["plan_revision"], 2);
+            assert_eq!(second_done["nodes"].as_array().unwrap().len(), 2);
+            assert_eq!(second_done["nodes"][0]["state"], "not_started");
+            assert!(second_done["nodes"][0]["attempt_id"].is_null());
+        }
+        assert_ne!(
+            first_done["nodes"][0]["attempt_id"],
+            second_done["nodes"].as_array().unwrap().last().unwrap()["attempt_id"]
+        );
+        assert_eq!(
+            std::fs::read(first_root.join("reports/report.txt")).unwrap(),
+            b"fixed report"
+        );
+        assert_eq!(
+            std::fs::read(second_root.join("reports/report.txt")).unwrap(),
+            if pending_version {
+                b"fixed report v2".as_slice()
+            } else {
+                b"fixed report".as_slice()
+            }
+        );
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            2
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT consumed FROM budgets WHERE scope=?1",
+                [format!("project:{}", f.project["id"].as_str().unwrap())],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            2
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT json_extract(document,'$.output_bytes') FROM goal_ledgers WHERE scope=?1",
+                [format!("project:{}", f.project["id"].as_str().unwrap())],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            if pending_version { 27 } else { 24 }
+        );
+        assert_eq!(db.query_row("SELECT count(*) FROM approval_proposals WHERE json_extract(document,'$.kind')='goal_execution'",[],|r|r.get::<_,u32>(0)).unwrap(),2);
+    }
+}
+
+#[test]
+fn actual_goal_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_authority_refused() {
+    let mut f = Scenario::new(10_000);
+    let first_scope = goal_scope_and_plan(&f, "goal-report-hold");
+    let first_root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+    another_goal_root(&mut f, 73);
+    let second_scope = goal_scope_and_plan(&f, "goal-report");
+    let legacy=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":2,"max_concurrency":1,"max_duration_ms":10000},"idempotency_key":"legacy-kind-before-worker"})));
+    let first = approve_goal_execution(&f, &first_scope);
+    wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":first["id"]}),
+        |r| r["nodes"][0]["state"] == "running" && first_root.join("fixture-goal-held").exists(),
+    );
+    let old=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":legacy["id"]},"expected_revision":legacy["revision"],"idempotency_key":"legacy-not-idle"}));
+    assert_eq!(old["error"]["code"], "WORKSPACE_BUSY");
+    let setup=f.server.request(json!({"method":"workspaces.create","params":{"project_id":f.project["id"],"expected_head":"untrusted-not-used"},"expected_revision":f.project["revision"],"idempotency_key":"setup-must-remain-idle"}));
+    assert_eq!(setup["error"]["code"], "WORKSPACE_BUSY");
+    let seq = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let same=f.server.request(json!({"method":"goal_runs.propose","params":{"scope_id":first_scope["id"],"expected_plan_revision":1,"expected_ledger_revision":seq},"idempotency_key":"same-workspace-new-authority-refused"}));
+    assert_eq!(same["error"]["code"], "WORKSPACE_BUSY");
+    let proposal = prepare_goal_execution(&f, &second_scope);
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let id = proposal["id"].as_str().unwrap();
+    let original: String = db
+        .query_row(
+            "SELECT document FROM approval_proposals WHERE id=?1",
+            [id],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let legacy_id = legacy["id"].as_str().unwrap();
+    let legacy_original: String = db
+        .query_row(
+            "SELECT document FROM approval_proposals WHERE id=?1",
+            [legacy_id],
+            |r| r.get(0),
+        )
+        .unwrap();
+    for mode in [
+        "unknown_id",
+        "renderer_kind",
+        "oversize",
+        "wrong_doc_id",
+        "wrong_stored_kind",
+        "tampered_snapshot",
+        "forged_legacy_kind",
+    ] {
+        db.execute(
+            "UPDATE approval_proposals SET document=?1 WHERE id=?2",
+            rusqlite::params![original, id],
+        )
+        .unwrap();
+        db.execute(
+            "UPDATE approval_proposals SET document=?1 WHERE id=?2",
+            rusqlite::params![legacy_original, legacy_id],
+        )
+        .unwrap();
+        let mut request_id = id;
+        match mode {
+            "unknown_id" | "renderer_kind" => request_id = "unknown-owner-proposal",
+            "oversize" => {
+                db.execute(
+                    "UPDATE approval_proposals SET document=?1 WHERE id=?2",
+                    rusqlite::params![original.clone() + &" ".repeat(1048576), id],
+                )
+                .unwrap();
+            }
+            "wrong_doc_id" => {
+                db.execute("UPDATE approval_proposals SET document=json_set(document,'$.id','foreign-stored-proposal') WHERE id=?1",[id]).unwrap();
+            }
+            "wrong_stored_kind" => {
+                db.execute("UPDATE approval_proposals SET document=json_set(document,'$.kind','goal_execution_other') WHERE id=?1",[id]).unwrap();
+            }
+            "tampered_snapshot" => {
+                db.execute("UPDATE approval_proposals SET document=json_set(document,'$.snapshot.new_workspace_authority',json('true')) WHERE id=?1",[id]).unwrap();
+            }
+            _ => {
+                db.execute("UPDATE approval_proposals SET document=json_set(document,'$.kind','goal_execution') WHERE id=?1",[legacy_id]).unwrap();
+                request_id = legacy_id;
+            }
+        }
+        let mut params = json!({"proposal_id":request_id});
+        if mode == "renderer_kind" {
+            params["kind"] = json!("goal_execution");
+        }
+        let response=f.server.request(json!({"method":"approvals.finalize","params":params,"expected_revision":1,"idempotency_key":format!("no-false-goal-authority-{mode}")}));
+        let code = response["error"]["code"]
+            .as_str()
+            .expect("all corrupt/foreign authority must be refused");
+        assert!(
+            matches!(
+                code,
+                "WORKSPACE_BUSY"
+                    | "RESOURCE_LIMIT"
+                    | "INPUT_CHANGED"
+                    | "PERMISSION_DENIED"
+                    | "INVALID_REQUEST"
+            ),
+            "{mode}: {response}"
+        );
+        if mode == "renderer_kind" {
+            assert_eq!(code, "INVALID_REQUEST");
+        }
+        if mode == "oversize" {
+            assert_eq!(code, "RESOURCE_LIMIT");
+        }
+        if matches!(mode, "unknown_id" | "wrong_doc_id" | "wrong_stored_kind") {
+            assert_eq!(code, "WORKSPACE_BUSY");
+        }
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM goal_runs", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            1,
+            "{mode}"
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            1,
+            "{mode}"
+        );
+        assert!(db
+            .query_row(
+                "SELECT result IS NULL FROM approval_proposals WHERE id=?1",
+                [id],
+                |r| r.get::<_, bool>(0)
+            )
+            .unwrap());
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM managed_workspaces", [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            2
+        );
+        eprintln!(
+            "FIXED_GOAL_REVIEW_REFUSED mode={mode} code={code} goal_runs=1 attempts=1 workspaces=2"
+        );
+    }
+    db.execute(
+        "UPDATE approval_proposals SET document=?1 WHERE id=?2",
+        rusqlite::params![original, id],
+    )
+    .unwrap();
+    db.execute(
+        "UPDATE approval_proposals SET document=?1 WHERE id=?2",
+        rusqlite::params![legacy_original, legacy_id],
+    )
+    .unwrap();
+    std::fs::write(
+        first_root.join("fixture-goal-release"),
+        b"release only the real first process",
+    )
+    .unwrap();
+    let first = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":first["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    assert_eq!(first["nodes"][0]["stop_confirmed"], true);
+    assert_eq!(first["task_accepted"], false);
 }

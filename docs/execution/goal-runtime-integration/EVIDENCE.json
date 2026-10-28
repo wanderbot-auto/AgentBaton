@@ -1,0 +1,579 @@
+{
+  "status": "local final checks pass; first remoteEnv3failure from absolute link; docsfix clean-checkout validated; newexactCI pending",
+  "source_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+  "baseline": "37bd032f0e1b2dfa75fc9ff768e85801f1693a99",
+  "ui_source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+  "ui_review": "../goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+  "ui_actual_unique": 445,
+  "ui_actual_files": 24,
+  "ui_results": [
+    {
+      "name": "tests",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration/apps/desktop",
+      "head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+      "exit_code": 0,
+      "seconds": 23.87,
+      "log": "/workspace/.onboarding/goal-runtime-integration-ui/tests.log",
+      "sha256": "1df8bb5bd929b476f22e86546d5420fa87c0fc8032bafef64a86de24aed26735"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration/apps/desktop",
+      "head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+      "exit_code": 0,
+      "seconds": 1.35,
+      "log": "/workspace/.onboarding/goal-runtime-integration-ui/typecheck.log",
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration/apps/desktop",
+      "head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+      "exit_code": 0,
+      "seconds": 1.4,
+      "log": "/workspace/.onboarding/goal-runtime-integration-ui/build.log",
+      "sha256": "a7a0a4794c12c72911d9e4192a7058214b2ebda143ed46f5eef5283c5b72cf27"
+    }
+  ],
+  "frontend_assets": {
+    "assets/index-Bkjos9Ky.js": "5eea38cf06da58b61700f0a8b65db0de04e257ab245636400e8b1d9797bc4af4",
+    "assets/index-CJjrxlpo.css": "0371179f77391e82fb051c1305d3c045f4b7b0717c3a944e56e0ff892aca5aa9",
+    "index.html": "53cc0107621bae682121ea3d0c3d1ccdc7f8d7cb747ddda697664a7d27f0f941"
+  },
+  "harness_source": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+  "harness_sha256": "e5db2bed25b98a5d7b03fa72adf8e332a91d98e1d2ac43a089d697ea93bade5e",
+  "harness_runtime": "author+independent each10checks9PNG on04ba; Root fresh composedbinary also10/9 pass",
+  "core_status": "author and independent279 Core/lints pass; supported G19/G20 blockers closed",
+  "full_design": "incomplete; all130 remain; never fullGoal from Work-only slice",
+  "latest_data_runs": {
+    "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+    "product": 40672455553,
+    "environment": 40672455569,
+    "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+    "merge_commit": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+    "status": "7success/nativepair/defaultaudit/dualDMG verified; protectedmerged"
+  },
+  "core_source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+  "core_review": "../goal-ready-frontier/INDEPENDENT_VERIFICATION.json",
+  "rust_composed": [
+    {
+      "name": "tests",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "78b317a4dc42f088f752852bf04028eb0bb51d9c",
+      "exit_code": 0,
+      "seconds": 378.96,
+      "log": "/workspace/.onboarding/goal-runtime-integration-rust/tests.log",
+      "sha256": "02f7072bb1f47490a7903941622c159b30510e49629c0583e71b22e958ae0880"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "78b317a4dc42f088f752852bf04028eb0bb51d9c",
+      "exit_code": 0,
+      "seconds": 8.96,
+      "log": "/workspace/.onboarding/goal-runtime-integration-rust/clippy.log",
+      "sha256": "182ce3b517b4b9d5faaf0aa5d32718cbda3681d7652b9c0ca8880e4df685676f"
+    },
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "78b317a4dc42f088f752852bf04028eb0bb51d9c",
+      "exit_code": 0,
+      "seconds": 0.58,
+      "log": "/workspace/.onboarding/goal-runtime-integration-rust/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "78b317a4dc42f088f752852bf04028eb0bb51d9c",
+      "exit_code": 0,
+      "seconds": 0.4,
+      "log": "/workspace/.onboarding/goal-runtime-integration-rust/build.log",
+      "sha256": "d651f88ae4ff2da9a2a293bdefdabb65be3f7681e53f55fdf41e346947988ea0"
+    }
+  ],
+  "rust_outer_counts": {
+    "unique": 549,
+    "compilefail_docs": 7,
+    "suites": 48,
+    "counts_sha256": "60d8ff81ae5d3d26a7f8d1474f92bb564f03749b0fd71ad60cbf1d882a8f0c3b"
+  },
+  "native_composed": [
+    {
+      "name": "native-lib",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib"
+      ],
+      "head": "ed8b91dd7b66e590730c06ec66819a289a3103a0",
+      "exit_code": 0,
+      "seconds": 18.8,
+      "log": "/workspace/.onboarding/goal-runtime-integration-native/native-lib.log",
+      "sha256": "f0b8d3a1837e7d53d98ef069f1c02705bf48f62ab814ffa123ee61a8936937fa"
+    },
+    {
+      "name": "native-harness",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--features",
+        "native-smoke",
+        "--bin",
+        "agentbaton-native-smoke"
+      ],
+      "head": "ea735f54e57a306fd4da7375a12e98276efdedbc",
+      "exit_code": 0,
+      "seconds": 11.59,
+      "log": "/workspace/.onboarding/goal-runtime-integration-native/native-harness.log",
+      "sha256": "b4fa6ba3f27582b6e5785f13776eb5db84c7e6f6a2122338ddf13d01b5fdf7f1"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--all-targets",
+        "--features",
+        "native-smoke",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "head": "ea735f54e57a306fd4da7375a12e98276efdedbc",
+      "exit_code": 0,
+      "seconds": 8.05,
+      "log": "/workspace/.onboarding/goal-runtime-integration-native/clippy.log",
+      "sha256": "681f286a9abf7a5c9965185cb23e7f0913801b82a71333b6dc24c41b8c50abb1"
+    },
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "head": "ea735f54e57a306fd4da7375a12e98276efdedbc",
+      "exit_code": 0,
+      "seconds": 0.11,
+      "log": "/workspace/.onboarding/goal-runtime-integration-native/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "original_browser": [
+    {
+      "name": "quiet",
+      "command": [
+        "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+        "apps/desktop/tests/quiet-canvas-real-ipc.py",
+        "--batond",
+        "/workspace/.onboarding/goal-runtime-schema11-9f833738/batond",
+        "--output",
+        "/workspace/.onboarding/goal-runtime-integration-browser/quiet",
+        "--chromium",
+        "/usr/bin/chromium"
+      ],
+      "head": "ea735f54e57a306fd4da7375a12e98276efdedbc",
+      "harness_sha256": "d6a3f683e7ffcd354fb21c200488c25e228ebbf5a7ef290bef56c952e7598ebd",
+      "exit_code": 0,
+      "seconds": 8.43,
+      "log": "/workspace/.onboarding/goal-runtime-integration-browser/quiet.log",
+      "sha256": "676452874dc0b8434ab2fd1f08ae4c9e80d7d3b78e6a0dd43b780b5e15dc1dc7"
+    },
+    {
+      "name": "commands",
+      "command": [
+        "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+        "apps/desktop/tests/command-validation-real-ipc.py",
+        "--batond",
+        "/workspace/.onboarding/goal-runtime-schema11-9f833738/batond",
+        "--output",
+        "/workspace/.onboarding/goal-runtime-integration-browser/commands",
+        "--chromium",
+        "/usr/bin/chromium"
+      ],
+      "head": "ea735f54e57a306fd4da7375a12e98276efdedbc",
+      "harness_sha256": "05b37fbb969ca750b93887ad1125a5c5e7ebb459ff7151edc5d055315673a41d",
+      "exit_code": 0,
+      "seconds": 6.4,
+      "log": "/workspace/.onboarding/goal-runtime-integration-browser/commands.log",
+      "sha256": "f03998c5b8452d8ff93c34d82e8fdb9a0e430e378001862cf398032e86225515"
+    },
+    {
+      "name": "goal",
+      "command": [
+        "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "--batond",
+        "/workspace/.onboarding/goal-runtime-schema11-9f833738/batond",
+        "--output",
+        "/workspace/.onboarding/goal-runtime-integration-browser/goal",
+        "--chromium",
+        "/usr/bin/chromium"
+      ],
+      "head": "ea735f54e57a306fd4da7375a12e98276efdedbc",
+      "harness_sha256": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018",
+      "exit_code": 0,
+      "seconds": 4.75,
+      "log": "/workspace/.onboarding/goal-runtime-integration-browser/goal.log",
+      "sha256": "cc1574ce936f29eaee4f6c6ee553190f8c1d5132e697e0d05faa1fd70127fa10"
+    },
+    {
+      "name": "editor",
+      "command": [
+        "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "--batond",
+        "/workspace/.onboarding/goal-runtime-schema11-9f833738/batond",
+        "--output",
+        "/workspace/.onboarding/goal-runtime-integration-browser/editor",
+        "--chromium",
+        "/usr/bin/chromium",
+        "--structured-editor"
+      ],
+      "head": "ea735f54e57a306fd4da7375a12e98276efdedbc",
+      "harness_sha256": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018",
+      "exit_code": 0,
+      "seconds": 6.1,
+      "log": "/workspace/.onboarding/goal-runtime-integration-browser/editor.log",
+      "sha256": "2b9d1203e86fb9e9f9cb8cb38e1de28f88e369a162544c76aa1c0ba079728b25"
+    },
+    {
+      "name": "data",
+      "command": [
+        "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+        "apps/desktop/tests/data-workspace-real-ipc.py",
+        "--batond",
+        "/workspace/.onboarding/goal-runtime-schema11-9f833738/batond",
+        "--output",
+        "/workspace/.onboarding/goal-runtime-integration-browser/data",
+        "--chromium",
+        "/usr/bin/chromium",
+        "--frontend",
+        "apps/desktop/dist",
+        "--candidate-manifest",
+        "/workspace/.onboarding/goal-runtime-schema11-9f833738/manifest.json"
+      ],
+      "head": "ea735f54e57a306fd4da7375a12e98276efdedbc",
+      "harness_sha256": "7e1bc37ac2837a2121ddc01480232ab2a6dbba2522806fa940b86dae529ff26b",
+      "exit_code": 0,
+      "seconds": 9.82,
+      "log": "/workspace/.onboarding/goal-runtime-integration-browser/data.log",
+      "sha256": "19abacf741c8f992526827d2fe4baefd6e8c81c7fa201bd693b551db52060cc2"
+    }
+  ],
+  "actual_harness_review": "ACTUAL_HARNESS_VERIFICATION.json",
+  "ci_hook_review": "CI_HOOK_REVIEW.md",
+  "ci_hook_current_sha256": "9189ad4eea3d7d0b4f36ab6735aae2b2db06cacf8ec053f9e3cd069942deedfd",
+  "runtime_fix": "in progress in goal-ready-frontier; actualoldfail/newpass and independentreview pending",
+  "native_followup": "goal-execution-native-readonly inprogress; no product source change intended",
+  "pr": {
+    "number": 15,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/pull/15",
+    "draft": true,
+    "base": "codex/data-runtime-integration",
+    "head_at_creation": "3dadeeec1edd3581afd342f2a8d2a500a58e766c",
+    "checks_at_creation": [],
+    "acceptance": "local review/regressions pass; exact newCI/Mac/packages pending",
+    "base_intended": "main at final ready/push boundary"
+  },
+  "legacy_core_9f_review": "withdrawn/WITHHELD history preserved",
+  "frontier_harness_review": "FRONTIER_HARNESS_VERIFICATION.json",
+  "final_composition_results": [
+    {
+      "name": "native-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--features",
+        "native-smoke,custom-protocol"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "3b99f2075b031c1666b9dc4a3466a5b207749983",
+      "exit_code": 0,
+      "seconds": 25.47,
+      "log": "/workspace/.onboarding/goal-runtime-final-composition/native-tests.log",
+      "sha256": "dc230f6a008eecf65bc401d7f08d59e3cf792cf80e534ebbeaf53e65461bb68e"
+    },
+    {
+      "name": "native-clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--features",
+        "native-smoke,custom-protocol",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "3b99f2075b031c1666b9dc4a3466a5b207749983",
+      "exit_code": 0,
+      "seconds": 7.37,
+      "log": "/workspace/.onboarding/goal-runtime-final-composition/native-clippy.log",
+      "sha256": "1ea55ecd9a17254bae3d0443ffb8e1c69b29b8a343424a0cd55c758a931fd58f"
+    },
+    {
+      "name": "native-fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "3b99f2075b031c1666b9dc4a3466a5b207749983",
+      "exit_code": 0,
+      "seconds": 0.11,
+      "log": "/workspace/.onboarding/goal-runtime-final-composition/native-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "native-python",
+      "command": [
+        "python3",
+        "apps/desktop/src-tauri/tests/test_native_runner.py"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "3b99f2075b031c1666b9dc4a3466a5b207749983",
+      "exit_code": 0,
+      "seconds": 2.64,
+      "log": "/workspace/.onboarding/goal-runtime-final-composition/native-python.log",
+      "sha256": "35eb55c127cf04ad63171934f0277706c7c2600c220fa7d558fd10048ea8f19c"
+    },
+    {
+      "name": "workspace-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "3b99f2075b031c1666b9dc4a3466a5b207749983",
+      "exit_code": 0,
+      "seconds": 401.8,
+      "log": "/workspace/.onboarding/goal-runtime-final-composition/workspace-tests.log",
+      "sha256": "9248852c154d7ee632a53fedd9a4fed909f767e78d083343b25cca116b781cf1"
+    },
+    {
+      "name": "workspace-clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "3b99f2075b031c1666b9dc4a3466a5b207749983",
+      "exit_code": 0,
+      "seconds": 7.92,
+      "log": "/workspace/.onboarding/goal-runtime-final-composition/workspace-clippy.log",
+      "sha256": "ee9b2beb913d857237d10f09757644cf1f31122a0579075ca23bcaae3a52ffab"
+    },
+    {
+      "name": "workspace-fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "3b99f2075b031c1666b9dc4a3466a5b207749983",
+      "exit_code": 0,
+      "seconds": 0.57,
+      "log": "/workspace/.onboarding/goal-runtime-final-composition/workspace-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "workspace-build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton"
+      ],
+      "cwd": "/workspace/.worktrees/goal-runtime-integration",
+      "head": "3b99f2075b031c1666b9dc4a3466a5b207749983",
+      "exit_code": 0,
+      "seconds": 0.46,
+      "log": "/workspace/.onboarding/goal-runtime-final-composition/workspace-build.log",
+      "sha256": "e2756f87977c706f0c45b0a005cf3f8360e4af999d934ef6639ee8a9444c8e68"
+    }
+  ],
+  "final_rust_unique": 554,
+  "final_compilefail_docs": 7,
+  "final_native_lib": 28,
+  "final_native_harness": 17,
+  "final_python_runner": 21,
+  "final_browser_reports": [
+    {
+      "name": "quiet",
+      "checks": 38,
+      "screenshots": 24,
+      "report": "/workspace/.onboarding/goal-runtime-pr15-browser-final/quiet/evidence.json",
+      "sha256": "4125a55b05446bedd02cb6e2bf8f943618934aa5526693e7396c6487a3acb664"
+    },
+    {
+      "name": "commands",
+      "checks": 5,
+      "screenshots": 2,
+      "report": "/workspace/.onboarding/goal-runtime-pr15-browser-final/commands/evidence.json",
+      "sha256": "8b6eb8ca2057c81a3bbe499a7e04e80c65477d2122c189498fdacb2856f6666f"
+    },
+    {
+      "name": "goal",
+      "checks": 9,
+      "screenshots": 6,
+      "report": "/workspace/.onboarding/goal-runtime-pr15-browser-final/goal/report.json",
+      "sha256": "a09ebf88f77630a1f45ed96bdc4ec6db8acfb012e915be1e71b78a7acf602e37"
+    },
+    {
+      "name": "editor",
+      "checks": 10,
+      "screenshots": 9,
+      "report": "/workspace/.onboarding/goal-runtime-pr15-browser-final/editor/report.json",
+      "sha256": "4cb402b9e9a158b4aa836a44179e0abf49bf1f93ce01d37ec00c7535cb734e0c"
+    },
+    {
+      "name": "data",
+      "checks": 8,
+      "screenshots": 6,
+      "report": "/workspace/.onboarding/goal-runtime-pr15-browser-final/data/report.json",
+      "sha256": "8d691992119b88ad846bb0a9b6a28d4a0929bc299ad49c144adbda638da213bb"
+    },
+    {
+      "name": "execution",
+      "checks": 10,
+      "screenshots": 9,
+      "report": "/workspace/.onboarding/goal-runtime-pr15-browser-final/execution/report.json",
+      "sha256": "b8cc361901aeec56d546cec28953cf4828df59f81fe332dfd64e1b1671f4b186"
+    }
+  ],
+  "final_actual_browser_checks": 80,
+  "final_actual_pngs": 56,
+  "final_composed_candidate": "/workspace/.onboarding/goal-runtime-pr15-composed-3b99f2/manifest.json",
+  "final_composed_manifest_sha256": "4b86b40aed5d8f65bead50bb5eec8222a64882d75c7f7d9027b76c68dcac2a86",
+  "final_binaries": {
+    "batond": "d1099e7ee128d4cb5ea16668b7f5fbde83d482c4c6b11616fecf8775ea7e5f48",
+    "baton": "affa199a9f0265483005094b621585a89f57993d76f1a4c63252f977801538b9"
+  },
+  "native_new_readonly": "../goal-execution-native-readonly/INDEPENDENT_VERIFICATION.json",
+  "next_work": "isolated Graph/schema12 validation/receipts/Owner acceptance+sameGoalUI; not inPR15",
+  "recording_note": "Metadata assembler first referenced wrong09filename; original80checks/56PNG unchanged; corrected exact filename before final records",
+  "first_goal15_remote_failure": {
+    "head": "1c9e9d58cce8f09e81e25133487251d5d30f3b9e",
+    "checkout": "b0b3d969ccad21c3984822d0468b9d0c895ea8d9",
+    "tree": "26dfbc21ec4f861720cb51491f7402e5ffacd35a",
+    "environment_run": 40683715237,
+    "environment_final": "3failure",
+    "product_run": 40683715213,
+    "product_at_observation": "UI success80actualchecks/445unit; Rust/Mac stillrunning, future supersession notclaimed complete",
+    "failure": "validate_design Broken link docs/execution/goal-runtime-ui/EVIDENCE.md -> /workspace/.onboarding/goal-runtime-ui/verification.json",
+    "root_cause": "Absolute author workspace Markdown link existed in Cloud but unavailable on clean CI runner; local validator was masked by existing file",
+    "fix_source": "43c676a",
+    "fix": "Copy byte-identical a1caf manifest to tracked AUTHOR_VERIFICATION_861.json and use relative Markdown link; checker/standards unchanged",
+    "clean_checkout": {
+      "commit": "43c676a",
+      "directory": "/workspace/.worktrees/goal15-document-check",
+      "design": "PASS130/27/38links",
+      "bootstrap": "PASS93",
+      "static_infrastructure": "PASS",
+      "all_tracked_relative_local_links": "38, no absolute local links"
+    },
+    "raw": {
+      "ubuntu": "579d82dec4fb6a413eab499c9f0ee1ddbac23f922a69295a2a98e5f72cbbbec1",
+      "arm": "afc14361b83a581d99a8c634558320f35edf8262e6ec574255e14524c8ae9f15",
+      "intel": "8d4fe105d1864318eb41a16fd564777bb8fe3a9360e95d844bbff1c0fcd05d2e"
+    },
+    "new_exact_ci": "pending normalpush; no rerun/cancel or borrowed green"
+  }
+}

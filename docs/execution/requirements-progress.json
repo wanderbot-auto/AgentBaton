@@ -82,6 +82,18 @@
           "cross_compile_darwin": "bothpassed; notMacexecution",
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -133,6 +145,18 @@
           "cross_compile_darwin": "bothpassed; notMacexecution",
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -214,6 +238,18 @@
           "cross_compile_darwin": "bothpassed; notMacexecution",
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -1113,7 +1149,10 @@
         "crates/core/src/policy.rs",
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1129,7 +1168,9 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1160,6 +1201,40 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1173,7 +1248,10 @@
         "crates/core/src/execution.rs",
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1187,7 +1265,9 @@
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1225,6 +1305,40 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1346,7 +1460,10 @@
         "crates/core/src/ipc.rs",
         "crates/core/src/execution.rs",
         "crates/core/src/sessions.rs",
-        "crates/core/src/policy.rs"
+        "crates/core/src/policy.rs",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1360,7 +1477,9 @@
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
         "docs/execution/session-supervision/REVIEW.md",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1383,7 +1502,55 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        }
+      ]
     },
     {
       "id": "AB-TSK-008",
@@ -1397,7 +1564,10 @@
         "crates/core/src/policy.rs",
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1414,7 +1584,9 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1456,6 +1628,40 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1466,7 +1672,10 @@
       "implementation_refs": [
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1479,7 +1688,9 @@
       "evidence": [
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -1506,6 +1717,40 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1521,7 +1766,10 @@
         "crates/core/src/policy.rs",
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -1538,7 +1786,9 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1573,6 +1823,40 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -1668,6 +1952,18 @@
           "native_dialog_and_exact_candidate_mac": "not_run",
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -1935,6 +2231,18 @@
           "cross_compile_darwin": "bothpassed; notMacexecution",
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -2102,6 +2410,18 @@
           "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
           "exact_new_mac_ci": "not_run_yet",
           "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
       ],
       "data_workspace_contribution": {
@@ -2503,7 +2823,9 @@
       "implementation_refs": [
         "crates/core/src/policy.rs",
         "apps/desktop/src-tauri/src/approval.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/capabilities/native.rs",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts"
       ],
       "verification": {
         "unit": "not_run",
@@ -2516,7 +2838,9 @@
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
         "docs/execution/session-supervision/REVIEW.md",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -2535,7 +2859,30 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        }
+      ]
     },
     {
       "id": "AB-SEC-002",
@@ -2544,7 +2891,9 @@
       "implementation_refs": [
         "crates/core/src/policy.rs",
         "apps/desktop/src-tauri/src/approval.rs",
-        "crates/config/src/capabilities/native.rs"
+        "crates/config/src/capabilities/native.rs",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts"
       ],
       "verification": {
         "unit": "not_run",
@@ -2557,7 +2906,9 @@
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
         "docs/execution/session-supervision/REVIEW.md",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -2576,7 +2927,55 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        }
+      ]
     },
     {
       "id": "AB-SEC-003",
@@ -2606,7 +3005,8 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -2617,7 +3017,47 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        }
+      ]
     },
     {
       "id": "AB-SEC-005",
@@ -2660,13 +3100,31 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        }
+      ]
     },
     {
       "id": "AB-SEC-006",
       "work_package": "WP12",
       "status": "implementing",
-      "implementation_refs": [],
+      "implementation_refs": [
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -2675,7 +3133,9 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -2686,7 +3146,31 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        }
+      ]
     },
     {
       "id": "AB-SEC-007",
@@ -2735,7 +3219,21 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        }
+      ]
     },
     {
       "id": "AB-SEC-008",
@@ -2774,7 +3272,8 @@
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/provider-adapters/EVIDENCE.json",
         "docs/execution/provider-adapters/FINAL_REVIEW.md",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
@@ -2792,7 +3291,46 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        }
+      ]
     },
     {
       "id": "AB-REL-002",
@@ -4025,7 +4563,10 @@
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
         "apps/desktop/src/GoalPlanning.tsx",
-        "apps/desktop/src/GoalPlanEditor.tsx"
+        "apps/desktop/src/GoalPlanEditor.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -4040,7 +4581,9 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-editing-context/REVIEW.md",
-        "docs/execution/goal-plan-editor-real-ipc/REVIEW.md"
+        "docs/execution/goal-plan-editor-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -4078,6 +4621,40 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -4093,7 +4670,10 @@
         "crates/core/src/policy.rs",
         "crates/core/src/goal_plan.rs",
         "crates/core/src/goal_store.rs",
-        "apps/desktop/src/GoalPlanning.tsx"
+        "apps/desktop/src/GoalPlanning.tsx",
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
         "unit": "not_run",
@@ -4110,7 +4690,9 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -4145,6 +4727,40 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "bounded_goal_existing_workspace_actual_single_node_and_same_scope_version_recovery",
+          "core_source": "9f833738f4bfc5d3a86edc51d71e047662eceb06",
+          "harness_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+          "author_actual_browser_checks": 9,
+          "independent_actual_browser_checks": 9,
+          "each_original_pngs": 8,
+          "real_processes": "generated account-free ACP over real Unix Core; private Owner fixture outsideHTTP",
+          "observed": "fullTaskRequest/actualoutputs12+15=27/sharedhistory/cancelpartial14/ownedreap/timeoutunknown/CAS/exactkey",
+          "acceptance": "WITHHELD G19 multiple independent nodes; passes only scoped covered paths",
+          "evidence": "docs/execution/goal-runtime-integration/ACTUAL_HARNESS_VERIFICATION.json",
+          "limitations": "not Mac/OSOwnerDialog/vendor/model/TaskAccepted; not completeGoal/NL/factory/dependentvalidation; full requirement remains open"
+        },
+        {
+          "slice": "safe_independent_goal_frontier_exact_source_and_real_ui",
+          "source": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+          "harness": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+          "independent_core_unique": 279,
+          "root_rust_unique": 554,
+          "compilefail": 7,
+          "native_local": "28lib17harness21Python",
+          "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
+          "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
+          "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
         }
       ]
     },
@@ -4548,7 +5164,11 @@
       "id": "AB-SEC-010",
       "work_package": "WP12",
       "status": "implementing",
-      "implementation_refs": [],
+      "implementation_refs": [
+        "apps/desktop/src/GoalExecution.tsx",
+        "apps/desktop/src/goal-execution-api.ts",
+        "apps/desktop/src-tauri/src/approval.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -4557,7 +5177,9 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-integration/EVIDENCE.json",
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -4568,7 +5190,31 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
-      }
+      },
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "goal_execution_ui_native_kind_binding_joint_effect_unknown_same_scope_plan_ui_contract",
+          "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+          "independent_ui_unique": 445,
+          "root_composed_ui_unique": 445,
+          "root_composed_ui_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
+          "native_leaf": "28lib+12harness source861, finalNativebytesidentical; callbackfullValue10188/compact13440 reviewed; noOSdialog",
+          "limits": "UI mocks and Native callbacks only; Core11/newrealIPC/macOS notyet integrated; fullPlanner/factory/dependency/acceptance and whole requirement incomplete"
+        },
+        {
+          "slice": "protected_exact_dataset_copy_mac_development_integration",
+          "feature": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+          "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+          "merged": "a014283c36814c8fbff1ce7b7071ab7e484f2651",
+          "product_run": 40672455553,
+          "environment_run": 40672455569,
+          "exact_checks": "7success",
+          "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
+          "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
+          "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        }
+      ]
     },
     {
       "id": "AB-REL-008",

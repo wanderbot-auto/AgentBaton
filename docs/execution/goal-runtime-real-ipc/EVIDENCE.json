@@ -1,0 +1,622 @@
+{
+  "approval": "AB-START-001",
+  "baseline": "ee374d1e67fd4b8671bba5f4d25b2659be846480",
+  "branch": "codex/goal-runtime-real-ipc",
+  "source_commit": "d118a3c40862c2b8feb9529aaa743663201bdd17",
+  "script_sha256": "e5db2bed25b98a5d7b03fa72adf8e332a91d98e1d2ac43a089d697ea93bade5e",
+  "requirements": {
+    "AB-TSK-001": "partial, complete typed TaskRequest; no generated NLP planner claim",
+    "AB-TSK-003": "fixed capability boundary, no authority from HTTP/plan text",
+    "AB-TSK-004": "exact-key advance/cancel receipt recovery",
+    "AB-TSK-007": "request acknowledgement versus actual owned reap",
+    "AB-TSK-008": "timeout unknown effects remain unknown after stop/cancel",
+    "AB-TSK-010": "observed selected output/runtime versus reservations and unknown token/cost",
+    "AB-TSK-011": "same-scope stored plan revision/explicit adoption/history",
+    "AB-TSK-012": "same root/project cumulative attempts/output not reset",
+    "AB-SEC-002": "finite HTTP allowlist, no generic execution/native approval",
+    "AB-SEC-004": "generated local data only, no network/model",
+    "AB-REL-001": "separate syntax/browser/generated protocol/native/Provider dimensions",
+    "AB-TSK-009": "partial: fixed initial approved same-plan independent Work+Summary frontier auto-drains with no second Owner/adoption; not complete NLP/child/factory/validator orchestration"
+  },
+  "mapping_note": "No AB-ORC IDs exist in the immutable requirements baseline; actual AB-TSK/WP08 identifiers are used without editing specs.",
+  "status": "actual04ba browser/generated-ACP10checks9images PASS; independent new-source review pending",
+  "core": {
+    "source_head": "04ba1807af1abaedcc5d6cbbce8f57683f7a0843",
+    "schema": 11,
+    "manifest": "/workspace/.onboarding/goal-ready-frontier-schema11-04ba180/manifest.json",
+    "manifest_sha256": "2488e2a01f80c537284d34ad2e06006149cdd25737850daadfb0ff7da93865ac",
+    "batond_sha256": "0a94e3da9f59975b1e7ce6955cdeda80dd9137428f9cca8ffad171514e1d5fdb",
+    "source_tree_sha256": "d6082cf6bee17dc6a12ee28b1519e3faeb3da1cf1b281b9d3daab5ba272509c0",
+    "dirty": false
+  },
+  "frontend": {
+    "path": "/workspace/.worktrees/goal-runtime-integration/apps/desktop/dist",
+    "assets_sha256": {
+      "assets/index-Bkjos9Ky.js": "5eea38cf06da58b61700f0a8b65db0de04e257ab245636400e8b1d9797bc4af4",
+      "assets/index-CJjrxlpo.css": "0371179f77391e82fb051c1305d3c045f4b7b0717c3a944e56e0ff892aca5aa9",
+      "index.html": "53cc0107621bae682121ea3d0c3d1ccdc7f8d7cb747ddda697664a7d27f0f941"
+    },
+    "limit": "Root reports same445-tested frontend bytes plus separately integrated04ba production/Native776. Harness records actual assets; does not claim full Rust/Native checkout identity or platform validation."
+  },
+  "actual_command": [
+    "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+    "apps/desktop/tests/goal-execution-real-ipc.py",
+    "--batond",
+    "/workspace/.onboarding/goal-ready-frontier-schema11-04ba180/batond",
+    "--candidate-manifest",
+    "/workspace/.onboarding/goal-ready-frontier-schema11-04ba180/manifest.json",
+    "--frontend",
+    "/workspace/.worktrees/goal-runtime-integration/apps/desktop/dist",
+    "--chromium",
+    "/usr/bin/chromium",
+    "--output",
+    "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary"
+  ],
+  "actual_result": {
+    "exit_code": 0,
+    "checks": [
+      {
+        "name": "private host approves generated local inputs and planning scopes; no execution or SQL-forged authority",
+        "status": "passed"
+      },
+      {
+        "name": "actual Goal execution is lazy/read-only with no stored plan and no authority from planning approval",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP denies approval/finalize/generic dispatch or execution and foreign run references without database writes",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP-external real Owner fixture starts full TaskRequest, real artifact and owned-reaped candidate without acceptance",
+        "status": "passed"
+      },
+      {
+        "name": "UI stores rev2 then explicitly adopts same-scope plan; dropped real response recovers exact key without new Owner, attempt replay or budget/history reset",
+        "status": "passed"
+      },
+      {
+        "name": "native-confirmed actual selected-file Directory copy supplies real Goal TaskRequest inputs without Git initialization or source writes",
+        "status": "passed"
+      },
+      {
+        "name": "real partial-write Goal cancellation keeps request receipt separate from actual owned stop; dropped response reconciles by current reads without a second mutation",
+        "status": "passed"
+      },
+      {
+        "name": "actual1200ms owned timeout remains unknown after reaping and cancellation; UI blocks new approval/adoption and never fabricates TaskAccepted",
+        "status": "passed"
+      },
+      {
+        "name": "one initial approved plan automatically drains independent Work and Summary nodes with distinct outputs, owned-stop lineage and cumulative two-attempt budgets; UI shows both same-plan candidates",
+        "status": "passed"
+      },
+      {
+        "name": "original generated sources unchanged, real scoped history retained and no browser runtime errors",
+        "status": "passed"
+      }
+    ],
+    "screenshots": [
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/01-stored-plan-no-execution.png",
+        "sha256": "12cda8a2b997903de845b57671cffc3602ed098f133dee24d01dd0884e6d7b03",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/02-real-generated-candidate.png",
+        "sha256": "7a3c00a58514b732ceda5e0b09076d87224656041ceeff9a4bc85d512ab259c8",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/03-real-plan-advance-response-lost.png",
+        "sha256": "c551adf6a90e5f0aa15b5e0b43464cc1359666c8bb3498bc095d24cdd5da7327",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/04-same-scope-replan-history-kept.png",
+        "sha256": "ab6d2997e5f900e9449fb49991c963381483069a3fb147c0550726094c41ceb9",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/05-real-data-workspace-goal-candidate.png",
+        "sha256": "fa5c10d83958cf41a918ea41ac790365e14fd5132ade101f3e32be5007279faa",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/06-real-owned-cancel-retains-partial-report.png",
+        "sha256": "1e0c445002eaa8fd7f4d19adbf981d80682d93e20fd60e4ce03321dbe1f837e3",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/07-timeout-owned-stop-effects-still-unknown.png",
+        "sha256": "e370b5036d1857a71208f059125011091f0f8b9a19908edb414230d7569ac6ee",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/08-timeout-mobile-unknown.png",
+        "sha256": "30558cec4711eba675d89824f8a9bda44291c46ccd273a7f1a4edc428d91dded",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/09-same-plan-work-and-summary-frontier.png",
+        "sha256": "786eb65bf9a0769dfb674c561faf76cc8e8c7bb3f59b56a7b0f3943a9e26c514",
+        "viewport": {
+          "width": 1488,
+          "height": 981
+        },
+        "dimension": "actual Linux Chromium, not macOS/native"
+      }
+    ],
+    "report": "/workspace/.onboarding/goal-execution-real-ipc/actual-04ba-frontier-primary/report.json",
+    "report_sha256": "547e2c71ac07b7989ee12d29b05539b3e1b9632026c98d6ef2c31e2fb79e18f7",
+    "log_sha256": "d1a517214a025ef995e043241c7f066b9b0cba5ed54e3f39a3d05f247684ec6c",
+    "page_errors": [],
+    "fallback_cleanup": [],
+    "final_counts": {
+      "attempts": 7,
+      "sessions": 7,
+      "dispatch_intents": 7,
+      "goal_runs": 5,
+      "goal_run_nodes": 7,
+      "goal_run_reservations": 7,
+      "goal_plan_revisions": 6,
+      "goal_node_evidence": 0,
+      "sequence": 205,
+      "execution_approvals": 5
+    }
+  },
+  "new_G19_frontier": {
+    "initial_plan_digest": "9a292e7260c97911f5d5401b26faadd2e3ed57a75a012b7c57b642c7a244bcaf",
+    "run": {
+      "cancel_requested": false,
+      "created_at": "2026-10-28T11:20:42.834065303Z",
+      "id": "2547bbcb-58f1-4bcc-a78a-230ae6820f38",
+      "plan_digest": "9a292e7260c97911f5d5401b26faadd2e3ed57a75a012b7c57b642c7a244bcaf",
+      "plan_revision": 1,
+      "project_id": "d8e4be21-3438-416c-950d-a50a049a1778",
+      "revision": 5,
+      "root_grant_id": "3a0968d6-f7b1-464a-b2fe-27076f1b40e8",
+      "scope_id": "8ab7fe3f-74d1-4d78-9c67-80b68c48d4f6",
+      "state": "awaiting_acceptance",
+      "task_accepted": false,
+      "task_id": "19a998b5-edbd-4ad7-9e60-76fc49a4a334",
+      "updated_at": "2026-10-28T11:20:43.465520041Z"
+    },
+    "nodes": [
+      {
+        "kind": "work",
+        "node_id": "produce-report",
+        "plan_revision": 1,
+        "state": "candidate",
+        "attempt_id": "4a4499ea-b68e-43c7-8305-d2b66aae8950",
+        "session_id": "c509b06e-d4b3-4af4-84c6-beb50a167d32",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 156,
+        "actual_output_bytes": 12,
+        "tokens": null,
+        "cost_microunits": null
+      },
+      {
+        "kind": "summary",
+        "node_id": "produce-summary",
+        "plan_revision": 1,
+        "state": "candidate",
+        "attempt_id": "1ff0a5f3-2950-4cae-b4a0-b05e2ee9cfa9",
+        "session_id": "28d9bdf3-aa23-4df4-b3dc-d76f057f128b",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 185,
+        "actual_output_bytes": 13,
+        "tokens": null,
+        "cost_microunits": null
+      }
+    ],
+    "inputs": "Both no-dependency nodes use the same exact approved external fixed-input; full TaskRequests checked against real node/scope/workspace/lineage and declared artifacts.",
+    "distinct_outputs": {
+      "reports/report.txt": {
+        "bytes": 12,
+        "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591"
+      },
+      "reports/summary.txt": {
+        "bytes": 13,
+        "sha256": "f80dbe32ee9f1c8f5f84ff2acf26510ab92075cbbb75ecc2760ed12a08129c22"
+      }
+    },
+    "before_budgets": {
+      "project:d8e4be21-3438-416c-950d-a50a049a1778": {
+        "consumed": 0,
+        "active": 0
+      },
+      "root:19a998b5-edbd-4ad7-9e60-76fc49a4a334": {
+        "consumed": 0,
+        "active": 0
+      }
+    },
+    "after_budgets": {
+      "project:d8e4be21-3438-416c-950d-a50a049a1778": {
+        "consumed": 2,
+        "active": 0
+      },
+      "root:19a998b5-edbd-4ad7-9e60-76fc49a4a334": {
+        "consumed": 2,
+        "active": 0
+      }
+    },
+    "before_ledgers": {
+      "project:d8e4be21-3438-416c-950d-a50a049a1778": {
+        "limits": {
+          "attempts": 2,
+          "parallel": 1,
+          "runtime_ms": 20000,
+          "output_bytes": 8192,
+          "children": 1,
+          "reworks": 1,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "observed_attempts": 0,
+        "runtime_ms": 0,
+        "output_bytes": 0,
+        "tokens": 0,
+        "cost_microunits": 0
+      },
+      "root-grant:3a0968d6-f7b1-464a-b2fe-27076f1b40e8": {
+        "limits": {
+          "attempts": 2,
+          "parallel": 1,
+          "runtime_ms": 20000,
+          "output_bytes": 8192,
+          "children": 1,
+          "reworks": 1,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "observed_attempts": 0,
+        "runtime_ms": 0,
+        "output_bytes": 0,
+        "tokens": 0,
+        "cost_microunits": 0
+      }
+    },
+    "after_ledgers": {
+      "project:d8e4be21-3438-416c-950d-a50a049a1778": {
+        "limits": {
+          "attempts": 2,
+          "parallel": 1,
+          "runtime_ms": 20000,
+          "output_bytes": 8192,
+          "children": 1,
+          "reworks": 1,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "observed_attempts": 2,
+        "runtime_ms": 341,
+        "output_bytes": 25,
+        "tokens": null,
+        "cost_microunits": null
+      },
+      "root-grant:3a0968d6-f7b1-464a-b2fe-27076f1b40e8": {
+        "limits": {
+          "attempts": 2,
+          "parallel": 1,
+          "runtime_ms": 20000,
+          "output_bytes": 8192,
+          "children": 1,
+          "reworks": 1,
+          "tokens": null,
+          "cost_microunits": null
+        },
+        "observed_attempts": 2,
+        "runtime_ms": 341,
+        "output_bytes": 25,
+        "tokens": null,
+        "cost_microunits": null
+      }
+    },
+    "new_attempts": 2,
+    "new_sessions": 2,
+    "new_execution_approvals": 1,
+    "additional_advance_requests": 0,
+    "complete_native_snapshot_compact_utf8_bytes": 9550,
+    "original_complete_review_bound": 16384,
+    "task_accepted": false,
+    "owned_stop_chains": [
+      {
+        "node_id": "produce-report",
+        "sql_sequences": [
+          175,
+          186,
+          188,
+          189
+        ],
+        "kinds": [
+          "goal.node_reserved",
+          "attempt.stopped",
+          "session.stopped",
+          "goal.node_settled"
+        ]
+      },
+      {
+        "node_id": "produce-summary",
+        "sql_sequences": [
+          191,
+          202,
+          204,
+          205
+        ],
+        "kinds": [
+          "goal.node_reserved",
+          "attempt.stopped",
+          "session.stopped",
+          "goal.node_settled"
+        ]
+      }
+    ],
+    "parallel1_proof": "First settled sequence189 < second reservation sequence191; each reservation<attempt.stopped<session.stopped<Goalsettled, actual unique process IDs gone."
+  },
+  "original_scenarios_reexecuted_on04ba": {
+    "normal_first": [
+      {
+        "kind": "work",
+        "node_id": "produce-report",
+        "plan_revision": 1,
+        "state": "candidate",
+        "attempt_id": "81e495e4-9f1b-4ab7-9d68-383ac51f08b0",
+        "session_id": "00a8da6c-ae29-4880-8ee4-5d5ac282e2a0",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 136,
+        "actual_output_bytes": 12,
+        "tokens": null,
+        "cost_microunits": null
+      }
+    ],
+    "normal_second": [
+      {
+        "kind": "work",
+        "node_id": "produce-report",
+        "plan_revision": 1,
+        "state": "candidate",
+        "attempt_id": "81e495e4-9f1b-4ab7-9d68-383ac51f08b0",
+        "session_id": "00a8da6c-ae29-4880-8ee4-5d5ac282e2a0",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 136,
+        "actual_output_bytes": 12,
+        "tokens": null,
+        "cost_microunits": null
+      },
+      {
+        "kind": "work",
+        "node_id": "produce-report",
+        "plan_revision": 2,
+        "state": "candidate",
+        "attempt_id": "a3110923-a919-4ca2-b5fb-72e575d464aa",
+        "session_id": "ae70fc73-4c8e-4fa8-9c31-650ed8468ea4",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 181,
+        "actual_output_bytes": 15,
+        "tokens": null,
+        "cost_microunits": null
+      }
+    ],
+    "Data": [
+      {
+        "kind": "work",
+        "node_id": "produce-report",
+        "plan_revision": 1,
+        "state": "candidate",
+        "attempt_id": "c7b4f66f-a20c-4cd0-ae1c-18b1228bdde4",
+        "session_id": "7f86aca2-0ba9-43fa-b042-eee02ac4559f",
+        "stop_confirmed": true,
+        "actual_runtime_ms": 143,
+        "actual_output_bytes": 12,
+        "tokens": null,
+        "cost_microunits": null
+      }
+    ],
+    "cancel": {
+      "intent_state": "cancel_requested",
+      "terminal_state": "cancelled",
+      "nodes": [
+        {
+          "kind": "work",
+          "node_id": "produce-report",
+          "plan_revision": 1,
+          "state": "cancelled",
+          "attempt_id": "c5d27ac8-d476-49c8-8d3f-4ac57167486f",
+          "session_id": "c408dd42-1238-49cc-b55c-3ea88488d1e1",
+          "stop_confirmed": true,
+          "actual_runtime_ms": 424,
+          "actual_output_bytes": 14,
+          "tokens": null,
+          "cost_microunits": null
+        }
+      ],
+      "partial_bytes": 14
+    },
+    "timeout": {
+      "before": "outcome_unknown",
+      "after_cancel": "outcome_unknown",
+      "nodes": [
+        {
+          "kind": "work",
+          "node_id": "produce-report",
+          "plan_revision": 1,
+          "state": "outcome_unknown",
+          "attempt_id": "fa75410f-e92a-4d2e-be21-a2906d0e1cf4",
+          "session_id": "bf31fbfe-1af3-4b20-970c-04d31771e0ba",
+          "stop_confirmed": true,
+          "actual_runtime_ms": 1202,
+          "actual_output_bytes": null,
+          "tokens": null,
+          "cost_microunits": null
+        }
+      ]
+    },
+    "old_scope_advance": {
+      "one_approval": 1,
+      "history_retained": true,
+      "two_actual_stale_CAS_refusals": [
+        {
+          "status": 200,
+          "body": {
+            "error": {
+              "code": "STALE_REVISION",
+              "details_ref": null,
+              "message": "Plan advancement requires the exact current run and shared ledger",
+              "retryable": false,
+              "side_effect_state": "not_started"
+            },
+            "request_id": "5b6d334f-260c-4358-846a-75df492e69fd",
+            "revision": 94,
+            "warnings": []
+          }
+        },
+        {
+          "status": 200,
+          "body": {
+            "error": {
+              "code": "STALE_REVISION",
+              "details_ref": null,
+              "message": "Plan advancement requires the exact current run and shared ledger",
+              "retryable": false,
+              "side_effect_state": "not_started"
+            },
+            "request_id": "3982cdc5-57bb-411b-a323-1d251f2bbd44",
+            "revision": 94,
+            "warnings": []
+          }
+        }
+      ],
+      "exact_key_replay_kept": true
+    },
+    "real_dropped_responses": 2
+  },
+  "full_task_requests": [
+    {
+      "sha256": "411f3fa2f76ad740d01128a13c37f3f26559d8b312e770202028faf98c9a381c",
+      "utf8_bytes": 3499,
+      "node_id": "produce-report",
+      "node_kind": "work",
+      "plan_revision": 1,
+      "attempt_id": "81e495e4-9f1b-4ab7-9d68-383ac51f08b0",
+      "owned_stop_observed": true
+    },
+    {
+      "sha256": "a611ee8bcc6ecf4656e582c0295a114f35e9b20be9c15d8b8968af26efe694ab",
+      "utf8_bytes": 3524,
+      "node_id": "produce-report",
+      "node_kind": "work",
+      "plan_revision": 2,
+      "attempt_id": "a3110923-a919-4ca2-b5fb-72e575d464aa",
+      "owned_stop_observed": true
+    },
+    {
+      "sha256": "65ef29cb0bab4c343cdb8631234f7b02456735a71304b0053eb89cd62de1d6ba",
+      "utf8_bytes": 3559,
+      "node_id": "produce-report",
+      "node_kind": "work",
+      "plan_revision": 1,
+      "attempt_id": "c7b4f66f-a20c-4cd0-ae1c-18b1228bdde4",
+      "owned_stop_observed": true
+    },
+    {
+      "sha256": "868e9a8024cfe4b07a0f60638e583cd469dd1e12679bb018755b902c130a2f70",
+      "utf8_bytes": 3511,
+      "node_id": "produce-report",
+      "node_kind": "work",
+      "plan_revision": 1,
+      "attempt_id": "c5d27ac8-d476-49c8-8d3f-4ac57167486f",
+      "owned_stop_observed": true
+    },
+    {
+      "sha256": "a94829481e74ad0df31b152572e9583fc8794e3d849a237f925a1e5fcb9c8b86",
+      "utf8_bytes": 3485,
+      "node_id": "produce-report",
+      "node_kind": "work",
+      "plan_revision": 1,
+      "attempt_id": "fa75410f-e92a-4d2e-be21-a2906d0e1cf4",
+      "owned_stop_observed": true
+    },
+    {
+      "sha256": "17f5ae2c62e7ec53e5c3dcbd9dd88f58b1c5683ef4ef6d4facc042cc7b3d8cb7",
+      "utf8_bytes": 3632,
+      "node_id": "produce-report",
+      "node_kind": "work",
+      "plan_revision": 1,
+      "attempt_id": "4a4499ea-b68e-43c7-8305-d2b66aae8950",
+      "owned_stop_observed": true
+    },
+    {
+      "sha256": "8bda79a157c619e9b5c113824da17242a60273280f1474280bf99280c917c641",
+      "utf8_bytes": 3643,
+      "node_id": "produce-summary",
+      "node_kind": "summary",
+      "plan_revision": 1,
+      "attempt_id": "1ff0a5f3-2950-4cae-b4a0-b05e2ee9cfa9",
+      "owned_stop_observed": true
+    }
+  ],
+  "preserved_prior_evidence": {
+    "prior_docs_commit": "64e03ee1203c3936f74fa0c3b18dcfbeee4ebe3d",
+    "prior_evidence_json_sha256": "6f0b996322ff093fca81364db1315a4ee509ecdd4d304198a4aa7865bb0e88d5",
+    "prior_source": "503c20161fa7a39cfa1101a319cd5d06312f9325",
+    "prior9f_report": "/workspace/.onboarding/goal-execution-real-ipc/actual-9f833-framed/report.json",
+    "prior9f_report_sha256": "211a5f8541122171038d19a32d13100129af0ed5e9afb51813ce9b30b8f6ce41",
+    "old_files_and_logs_rehashed_unchanged": 22,
+    "old_author_manifest_sha256": "9cb06fb2cbc702521c39c20f6a110f664eb460c76fb2e48b2352a6c8a99ebde7",
+    "limit": "Prior9f actual9/8 single-node/replan/Data/cancel/timeout logs retained as historical only; G19/G20 were uncovered then and old no-blocking product signoff withdrawn. Prior captures with missing framing and corrected503c evidence remain unmodified; none counted as new04ba proof."
+  },
+  "new_author_manifest": "/workspace/.onboarding/goal-execution-real-ipc/author-frontier-04ba-verification.json",
+  "new_author_manifest_sha256": "e905f319b76c98dcef451321a34a00ff15796b9e8aa5b71fb61a8c169ec346be",
+  "visual_review": {
+    "all9_original_newPNGs_opened": true,
+    "09": "Runplan1, runawaiting_acceptance, produce-report candidate Plan1 and produce-summary candidate Plan1 visible in same actual frame; no accepted state",
+    "04": "Original same-scope rev2 run and Plan1/2history visible",
+    "06": "Original realpartial cancelled/ownedStopYes/14B",
+    "07": "Timeout remainsunknown/ownedStopYes/runtime1202/selectedoutputunknown",
+    "08": "Mobileunknown/ownedStopYes; lower observed meters offviewport and checked in07/JSON",
+    "format": "actual1488x981 desktop /390x844 mobile LinuxChromium, not macOS"
+  },
+  "limits": [
+    "No new HTTP methods/approval/proposal/finalize/generic/session dispatch authority; fixed allowlist and four mutation key checks retained.",
+    "Private Owner fixture outside HTTP verifies complete actual snapshots <=16384; OS OwnerDialog not run.",
+    "Generated local credential-free ACP is real owned process/protocol, not actual vendor/account/model.",
+    "Each node candidate is not validation success/Owner acceptance/TaskAccepted. New G19 case has no dependency edge/child/factory/validator/Owner-node scheduling and does not prove those missing dimensions.",
+    "Selected output12+13 and cumulative25 cover declared artifact sizes only, not streams/cumulative FS writes/allworkspacequota; token/costunknown staynull.",
+    "No forced cleanup used; all7 generated processes actually gone, sessionsstopped and7 SQLPKstopchains. General descendant containment/OSsandbox not claimed.",
+    "No Cargo/Node/sharedtarget/native/productsrc/lock/CI/STATUS/spec/remote/credential/account/fee/release changes by this unit.",
+    "Independentnewsource/runtime/capture review pending; Core/platform/macOS/CI/packages/full130 acceptance remain separate."
+  ]
+}

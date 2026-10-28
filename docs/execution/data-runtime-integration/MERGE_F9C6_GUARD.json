@@ -1,0 +1,167 @@
+{
+  "pr": 14,
+  "head": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+  "base": "18f4261da9285bec5446101d47786839b1020d9c",
+  "checkout": "4fa2818f3746925a81cfe884be3499f5477ecea4",
+  "tree": "43d4afccfbad93fb2ef9d2e133116aff397f452b",
+  "checks": {
+    "headRefOid": "f9c6cf78a71ad66eeb167779cfbdaa83863ecf56",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-28T10:29:23Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40672455569/job/122762408649",
+        "name": "Environment / ubuntu-24.04",
+        "startedAt": "2026-10-28T10:28:58Z",
+        "status": "COMPLETED",
+        "workflowName": "Environment preflight (not product tests)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-28T10:33:04Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40672455553/job/122762408861",
+        "name": "Product / Rust",
+        "startedAt": "2026-10-28T10:28:57Z",
+        "status": "COMPLETED",
+        "workflowName": "Product validation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-28T10:31:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40672455569/job/122762409015",
+        "name": "Environment / macos-15",
+        "startedAt": "2026-10-28T10:30:41Z",
+        "status": "COMPLETED",
+        "workflowName": "Environment preflight (not product tests)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-28T10:30:25Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40672455569/job/122762409044",
+        "name": "Environment / macos-15-intel",
+        "startedAt": "2026-10-28T10:29:26Z",
+        "status": "COMPLETED",
+        "workflowName": "Environment preflight (not product tests)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-28T10:31:26Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40672455553/job/122762408533",
+        "name": "Product / UI",
+        "startedAt": "2026-10-28T10:28:57Z",
+        "status": "COMPLETED",
+        "workflowName": "Product validation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-28T10:47:46Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40672455553/job/122762408858",
+        "name": "Product / macos-15",
+        "startedAt": "2026-10-28T10:29:07Z",
+        "status": "COMPLETED",
+        "workflowName": "Product validation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-28T10:57:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40672455553/job/122762408807",
+        "name": "Product / macos-15-intel",
+        "startedAt": "2026-10-28T10:28:58Z",
+        "status": "COMPLETED",
+        "workflowName": "Product validation"
+      }
+    ]
+  },
+  "ruleset": {
+    "id": 25893455,
+    "name": "AgentBaton main protection",
+    "target": "branch",
+    "source_type": "Repository",
+    "source": "wanderbot-auto/AgentBaton",
+    "enforcement": "active",
+    "conditions": {
+      "ref_name": {
+        "exclude": [],
+        "include": [
+          "refs/heads/main"
+        ]
+      }
+    },
+    "rules": [
+      {
+        "type": "deletion"
+      },
+      {
+        "type": "non_fast_forward"
+      },
+      {
+        "type": "pull_request",
+        "parameters": {
+          "required_approving_review_count": 0,
+          "dismiss_stale_reviews_on_push": true,
+          "required_reviewers": [],
+          "require_code_owner_review": false,
+          "require_last_push_approval": false,
+          "required_review_thread_resolution": true,
+          "require_extra_approval_for_unattributed_changes": true,
+          "allowed_merge_methods": [
+            "merge",
+            "squash",
+            "rebase"
+          ]
+        }
+      },
+      {
+        "type": "required_status_checks",
+        "parameters": {
+          "strict_required_status_checks_policy": true,
+          "do_not_enforce_on_create": false,
+          "required_status_checks": [
+            {
+              "context": "Environment / ubuntu-24.04",
+              "integration_id": 15368
+            },
+            {
+              "context": "Environment / macos-15",
+              "integration_id": 15368
+            },
+            {
+              "context": "Environment / macos-15-intel",
+              "integration_id": 15368
+            }
+          ]
+        }
+      }
+    ],
+    "node_id": "RRS_lACqUmVwb3NpdG9yec5Vf4zdzgGLGk8",
+    "created_at": "2026-10-26T15:55:27.481Z",
+    "updated_at": "2026-10-26T15:55:27.626Z",
+    "bypass_actors": [],
+    "current_user_can_bypass": "never",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/wanderbot-auto/AgentBaton/rulesets/25893455"
+      },
+      "html": {
+        "href": "https://github.com/wanderbot-auto/AgentBaton/rules/25893455"
+      }
+    }
+  },
+  "review_threads": {
+    "nodes": [],
+    "pageInfo": {
+      "hasNextPage": false
+    }
+  },
+  "frozen_independent_manifest_sha256": "4962cfe94172a500cf783fc1a2b1ec6696f63e5656aeaba8670a2aad5a50b18d",
+  "root_rehashed_artifacts": 210,
+  "formal_approve_submitted": false,
+  "decision": "all exact checks/review/package guards pass; authorized protected merge eligible"
+}

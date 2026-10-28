@@ -30,6 +30,117 @@ print(json.dumps(dict(zip(('scope_count','plan_count','attempt_count','sequence'
 db.close()
 "#;
 
+const MISSING_GOAL_RUN_ID: &str = "native-readonly-missing-goal-run";
+const GOAL_EXECUTION_READONLY_SQL: &str = r#"
+import json,sqlite3,sys
+from pathlib import Path
+db=sqlite3.connect(Path(sys.argv[1]).resolve().as_uri()+'?mode=ro',uri=True,timeout=1,isolation_level=None)
+db.execute('PRAGMA query_only=ON')
+db.execute('BEGIN')
+schema=db.execute('PRAGMA user_version').fetchone()[0]
+row=db.execute('SELECT (SELECT count(*) FROM goal_runs),(SELECT count(*) FROM goal_run_nodes),(SELECT count(*) FROM goal_run_reservations),(SELECT COALESCE(max(sequence),0) FROM events)').fetchone()
+print(json.dumps(dict(schema_version=schema,**dict(zip(('run_count','node_count','reservation_count','sequence'),row)))))
+db.close()
+"#;
+
+fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
+    let mut command = Command::new("python3");
+    command
+        .args(["-I", "-S", "-c", GOAL_EXECUTION_READONLY_SQL])
+        .arg(runtime.join("baton.sqlite3"));
+    let bytes = bounded_goal_query(command)?;
+    let snapshot: Value =
+        serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal execution counts")?;
+    if !valid_goal_execution_counts(&snapshot) {
+        return Err(
+            "Goal execution fixture must have schema11 and no run/node/reservation authority"
+                .into(),
+        );
+    }
+    Ok(snapshot)
+}
+fn valid_goal_execution_counts(value: &Value) -> bool {
+    value.as_object().is_some_and(|record| record.len() == 5)
+        && value["schema_version"].as_u64() == Some(11)
+        && ["run_count", "node_count", "reservation_count"]
+            .iter()
+            .all(|key| value[*key].as_u64() == Some(0))
+        && value["sequence"].as_u64().is_some()
+}
+fn record_goal_execution_checkpoint(
+    phase: u8,
+    label: &str,
+    report: &mut Value,
+    checkpoint: &str,
+    snapshot: Value,
+) -> Result<(), String> {
+    if phase != 0
+        || label != "main"
+        || report.get("error").is_some()
+        || report["status"] == "failed"
+        || !valid_goal_execution_counts(&snapshot)
+        || !valid_goal_counts(&report["goal_readonly_database"][checkpoint])
+        || report["goal_readonly_database"][checkpoint]["sequence"] != snapshot["sequence"]
+    {
+        return Err("readonly Goal execution checkpoint is outside the phase, schema or original Goal interval".into());
+    }
+    match checkpoint {
+        "before" if report.get("goal_execution_readonly_database").is_none() => {
+            report["goal_execution_readonly_database"] =
+                json!({"read_only":true,"before":snapshot});
+        }
+        "after"
+            if report["goal_execution_readonly_database"]["before"] == snapshot
+                && report["goal_execution_readonly_database"]
+                    .get("after")
+                    .is_none() =>
+        {
+            report["goal_execution_readonly_database"]["after"] = snapshot;
+            report["goal_execution_readonly_database"]["unchanged"] = json!(true);
+        }
+        _ => {
+            return Err(
+                "readonly Goal execution counts/sequence changed or checkpoint replayed".into(),
+            )
+        }
+    }
+    Ok(())
+}
+fn validate_goal_execution_evidence(result: &Value, report: &Value) -> Result<(), String> {
+    let database = &report["goal_execution_readonly_database"];
+    let sequence = &result["goalExecutionReadonlySequence"];
+    let missing = &result["goalExecutionMissingRun"];
+    if [
+        "goalExecutionLists",
+        "goalExecutionMissingRunDenied",
+        "readonlyGoalExecutionNoMutation",
+    ]
+    .iter()
+    .any(|key| result[*key] != true)
+        || database["read_only"] != true
+        || database["unchanged"] != true
+        || !valid_goal_execution_counts(&database["before"])
+        || !valid_goal_execution_counts(&database["after"])
+        || database["before"] != database["after"]
+        || !sequence.as_object().is_some_and(|values| {
+            values.len() == 2 && values.contains_key("before") && values.contains_key("after")
+        })
+        || ["before", "after"].iter().any(|phase| {
+            sequence[*phase].as_u64().is_none()
+                || sequence[*phase] != database[*phase]["sequence"]
+                || sequence[*phase] != report["goal_readonly_database"][*phase]["sequence"]
+                || sequence[*phase] != result["goalReadonlySequence"][*phase]
+        })
+        || !missing.as_object().is_some_and(|values| values.len() == 3)
+        || missing["run_id"] != MISSING_GOAL_RUN_ID
+        || missing["code"] != "NOT_FOUND"
+        || missing["side_effect_state"] != "not_started"
+    {
+        return Err("missing, fabricated or changed readonly Goal execution evidence".into());
+    }
+    Ok(())
+}
+
 /// A private test host query, never a renderer-selected executable, path or SQL.
 /// It uses only Python's isolated standard library and a read-only transaction.
 fn goal_database_snapshot(runtime: &Path) -> Result<Value, String> {
@@ -505,9 +616,12 @@ fn native_smoke_report(
             if state.phase.load(Ordering::SeqCst) != 0 || window.label() != "main" {
                 return Err("readonly Goal checkpoint outside first window".into());
             }
-            let snapshot = {
+            let (snapshot, execution_snapshot) = {
                 let daemon = state.daemon.lock().unwrap();
-                goal_database_snapshot(&daemon.runtime)?
+                (
+                    goal_database_snapshot(&daemon.runtime)?,
+                    goal_execution_database_snapshot(&daemon.runtime)?,
+                )
             };
             let mut report = state.report.lock().unwrap();
             record_goal_checkpoint(
@@ -516,6 +630,13 @@ fn native_smoke_report(
                 &mut report,
                 checkpoint,
                 snapshot,
+            )?;
+            record_goal_execution_checkpoint(
+                state.phase.load(Ordering::SeqCst),
+                window.label(),
+                &mut report,
+                checkpoint,
+                execution_snapshot,
             )?;
             fs::write(
                 state.output.join("native-smoke.json"),
@@ -545,6 +666,7 @@ fn native_smoke_report(
                 {
                     return Err("missing or inconsistent readonly Goal database evidence".into());
                 }
+                validate_goal_execution_evidence(&result, &report)?;
                 commit_native_report(&state.phase, &mut report, 0, result)?;
                 report["screenshot"] = json!(screenshot);
                 Ok::<(), String>(())
@@ -675,12 +797,22 @@ const FIRST: &str = r#"
   const goalActionNames=['保存初始计划提议','保存修订计划提议','读取就绪预览','Store initial plan proposal','Store revised plan proposal','Read readiness preview'];
   require([...goalPanel.querySelectorAll('button')].filter(button=>goalActionNames.includes(button.textContent.trim())).every(button=>button.matches(':disabled')),'empty scope must not enable plan submission or readiness preview');
   require(!goalPanel.querySelector('textarea[spellcheck="false"]')||goalPanel.querySelector('textarea[spellcheck="false"]').matches(':disabled'),'empty scope must not enable plan JSON editing');
+  require(!goalPanel.querySelector('[data-testid="goal-execution"]'),'scope-free Goal controls must not mount or activate execution UI');
+  const beforeGoalExecution=result(await invoke('system_snapshot')).sequence;
+  require(beforeGoalExecution===beforeGoal,'Goal execution reads must start inside the original readonly interval');
+  const executionRuns=result(await invoke('goal_runs_list',{taskId:task.id}));
+  require(Array.isArray(executionRuns)&&executionRuns.length===0,'fresh task must have no Goal execution runs');
+  const absentRunId='native-readonly-missing-goal-run';
+  const missingExecutionRun=await invoke('goal_runs_get',{runId:absentRunId});
+  require(missingExecutionRun?.error?.code==='NOT_FOUND'&&missingExecutionRun.error.side_effect_state==='not_started'&&!Object.prototype.hasOwnProperty.call(missingExecutionRun,'result'),'a fixed missing run must return the actual Core denial without a fabricated result');
+  const afterGoalExecution=result(await invoke('system_snapshot')).sequence;
+  require(afterGoalExecution===beforeGoalExecution,'readonly execution list/get unexpectedly mutated history');
   const afterGoal=result(await invoke('system_snapshot')).sequence;
   require(afterGoal===beforeGoal,'read-only Goal controls unexpectedly mutated history');
   await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'after'}});
   document.querySelector('#tab-conversation').click();
   while(document.querySelector('#tab-conversation')?.getAttribute('aria-selected')!=='true'){require(Date.now()<deadline,'return to conversation did not settle');await new Promise(r=>setTimeout(r,25));}
-  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal}}});
+  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal},goalExecutionLists:true,goalExecutionMissingRunDenied:true,readonlyGoalExecutionNoMutation:true,goalExecutionReadonlySequence:{before:beforeGoalExecution,after:afterGoalExecution},goalExecutionMissingRun:{run_id:absentRunId,code:missingExecutionRun.error.code,side_effect_state:missingExecutionRun.error.side_effect_state}}});
  } catch (error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;
@@ -1366,5 +1498,263 @@ mod fixture_tests {
         }
         assert!(terminal_phase(3));
         assert!(terminal_phase(4));
+    }
+    fn fresh_execution_fixture() -> (tempfile::TempDir, PathBuf, agentbaton_core::storage::Store) {
+        let directory = private_fixture_runtime().unwrap();
+        let runtime = directory.path().canonicalize().unwrap();
+        drop(
+            fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .mode(0o600)
+                .open(runtime.join("baton.sqlite3"))
+                .unwrap(),
+        );
+        let store = agentbaton_core::storage::Store::open(&runtime.join("baton.sqlite3")).unwrap();
+        (directory, runtime, store)
+    }
+    fn readonly_report_fixture(sequence: u64) -> Value {
+        let goal = json!({"scope_count":0,"plan_count":0,"attempt_count":0,"sequence":sequence});
+        json!({"status":"running","goal_readonly_database":{"read_only":true,"unchanged":true,"before":goal,"after":goal}})
+    }
+    fn execution_counts_fixture(sequence: u64) -> Value {
+        json!({"schema_version":11,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
+    }
+    fn execution_result_fixture(sequence: u64) -> Value {
+        json!({"goalExecutionLists":true,"goalExecutionMissingRunDenied":true,"readonlyGoalExecutionNoMutation":true,"goalReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionMissingRun":{"run_id":MISSING_GOAL_RUN_ID,"code":"NOT_FOUND","side_effect_state":"not_started"}})
+    }
+    #[test]
+    fn execution_readonly_actual_schema_counts_and_journal_observations_never_write() {
+        let (_directory, runtime, mut store) = fresh_execution_fixture();
+        let before = goal_execution_database_snapshot(&runtime).unwrap();
+        assert_eq!(before, execution_counts_fixture(0));
+        assert_eq!(store.sequence().unwrap(), 0);
+        let mut report = readonly_report_fixture(0);
+        record_goal_execution_checkpoint(0, "main", &mut report, "before", before.clone()).unwrap();
+        record_goal_execution_checkpoint(
+            0,
+            "main",
+            &mut report,
+            "after",
+            goal_execution_database_snapshot(&runtime).unwrap(),
+        )
+        .unwrap();
+        validate_goal_execution_evidence(&execution_result_fixture(0), &report).unwrap();
+        assert_eq!(store.sequence().unwrap(), 0);
+        store
+            .create(
+                "local",
+                "Generated sequence mutation, no execution grant",
+                "readonly-exec-sequence",
+            )
+            .unwrap();
+        let changed = goal_execution_database_snapshot(&runtime).unwrap();
+        assert_eq!(changed["sequence"], store.sequence().unwrap());
+        assert_eq!(changed["run_count"], 0);
+        assert_ne!(changed, before);
+        assert!(record_goal_execution_checkpoint(
+            0,
+            "main",
+            &mut readonly_report_fixture(0),
+            "before",
+            changed
+        )
+        .is_err());
+    }
+    #[test]
+    fn execution_readonly_schema_and_each_actual_table_drift_fail_closed() {
+        let controls=[
+            ("schema_version","PRAGMA user_version=10",10),
+            ("schema_version","PRAGMA user_version=12",12),
+            ("run_count","INSERT INTO goal_runs VALUES('count-probe','scope','project','task',1,'queued','{}')",1),
+            ("node_count","INSERT INTO goal_run_nodes VALUES('count-probe',1,'node',0,'not_started',NULL,NULL,'{}')",1),
+            ("reservation_count","INSERT INTO goal_run_reservations VALUES('attempt','count-probe','node',NULL,'{}')",1),
+        ];
+        for (field, sql, expected) in controls {
+            let (_directory, runtime, store) = fresh_execution_fixture();
+            assert!(goal_execution_database_snapshot(&runtime).is_ok());
+            // Deliberately malformed generated metadata, not a Core-approved
+            // Goal, proves the independent query observes every actual table.
+            let status=Command::new("python3").args(["-I","-S","-c","import sqlite3,sys;db=sqlite3.connect(sys.argv[1]);db.execute(sys.argv[2]);db.commit();db.close()"]).arg(runtime.join("baton.sqlite3")).arg(sql).status().unwrap();
+            assert!(status.success());
+            assert!(goal_execution_database_snapshot(&runtime).is_err());
+            let mut command = Command::new("python3");
+            command
+                .args(["-I", "-S", "-c", GOAL_EXECUTION_READONLY_SQL])
+                .arg(runtime.join("baton.sqlite3"));
+            let actual: Value =
+                serde_json::from_slice(&bounded_goal_query(command).unwrap()).unwrap();
+            assert_eq!(actual[field], expected);
+            assert_eq!(actual["sequence"], 0);
+            drop(store);
+        }
+    }
+    #[test]
+    fn execution_checkpoints_reject_wrong_phase_replay_changes_missing_and_fake_values() {
+        let counts = execution_counts_fixture(2);
+        for (phase, label) in [(1, "main"), (2, "native-reopened"), (0, "other")] {
+            let mut report = readonly_report_fixture(2);
+            let original = report.clone();
+            assert!(record_goal_execution_checkpoint(
+                phase,
+                label,
+                &mut report,
+                "before",
+                counts.clone()
+            )
+            .is_err());
+            assert_eq!(report, original);
+        }
+        for field in [
+            "schema_version",
+            "run_count",
+            "node_count",
+            "reservation_count",
+            "sequence",
+        ] {
+            for value in [
+                json!(true),
+                json!(false),
+                json!("0"),
+                json!(null),
+                json!(-1),
+                json!(0.0),
+            ] {
+                let mut invalid = counts.clone();
+                invalid[field] = value;
+                assert!(!valid_goal_execution_counts(&invalid));
+            }
+            let mut missing = counts.clone();
+            missing.as_object_mut().unwrap().remove(field);
+            assert!(!valid_goal_execution_counts(&missing));
+        }
+        let mut report = readonly_report_fixture(2);
+        record_goal_execution_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
+        let original = report.clone();
+        assert!(
+            record_goal_execution_checkpoint(0, "main", &mut report, "before", counts.clone())
+                .is_err()
+        );
+        assert_eq!(report, original);
+        assert!(record_goal_execution_checkpoint(
+            0,
+            "main",
+            &mut report,
+            "after",
+            execution_counts_fixture(3)
+        )
+        .is_err());
+        assert_eq!(report, original);
+        record_goal_execution_checkpoint(0, "main", &mut report, "after", counts.clone()).unwrap();
+        let finished = report.clone();
+        assert!(
+            record_goal_execution_checkpoint(0, "main", &mut report, "after", counts.clone())
+                .is_err()
+        );
+        assert_eq!(report, finished);
+        let mut failed = readonly_report_fixture(2);
+        failed["error"] = json!("original failure");
+        assert!(
+            record_goal_execution_checkpoint(0, "main", &mut failed, "before", counts).is_err()
+        );
+    }
+    #[test]
+    fn execution_final_evidence_requires_real_counts_strict_flags_and_exact_missing_reference() {
+        let mut report = readonly_report_fixture(2);
+        let counts = execution_counts_fixture(2);
+        record_goal_execution_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
+        record_goal_execution_checkpoint(0, "main", &mut report, "after", counts).unwrap();
+        let result = execution_result_fixture(2);
+        validate_goal_execution_evidence(&result, &report).unwrap();
+        for field in [
+            "goalExecutionLists",
+            "goalExecutionMissingRunDenied",
+            "readonlyGoalExecutionNoMutation",
+        ] {
+            for fake in [json!(false), json!("true"), json!(1), json!(null)] {
+                let mut changed = result.clone();
+                changed[field] = fake;
+                assert!(validate_goal_execution_evidence(&changed, &report).is_err());
+            }
+            let mut missing = result.clone();
+            missing.as_object_mut().unwrap().remove(field);
+            assert!(validate_goal_execution_evidence(&missing, &report).is_err());
+        }
+        for field in ["run_id", "code", "side_effect_state"] {
+            let mut missing = result.clone();
+            missing["goalExecutionMissingRun"]
+                .as_object_mut()
+                .unwrap()
+                .remove(field);
+            assert!(validate_goal_execution_evidence(&missing, &report).is_err());
+        }
+        let mut wrong = result.clone();
+        wrong["goalExecutionMissingRun"]["run_id"] = json!("foreign-run");
+        assert!(validate_goal_execution_evidence(&wrong, &report).is_err());
+        let mut wrong = result.clone();
+        wrong["goalExecutionMissingRun"]["side_effect_state"] = json!("unknown");
+        assert!(validate_goal_execution_evidence(&wrong, &report).is_err());
+        for value in [json!(true), json!("2"), json!(2.0), json!(3)] {
+            let mut wrong = result.clone();
+            wrong["goalExecutionReadonlySequence"]["after"] = value;
+            assert!(validate_goal_execution_evidence(&wrong, &report).is_err());
+        }
+        let mut missing = report.clone();
+        missing
+            .as_object_mut()
+            .unwrap()
+            .remove("goal_execution_readonly_database");
+        assert!(validate_goal_execution_evidence(&result, &missing).is_err());
+        let mut changed = report.clone();
+        changed["goal_execution_readonly_database"]["after"]["node_count"] = json!(1);
+        assert!(validate_goal_execution_evidence(&result, &changed).is_err());
+    }
+    #[test]
+    fn execution_actual_private_daemon_empty_list_and_fixed_missing_get_are_readonly() {
+        let directory = private_fixture_runtime().unwrap();
+        let runtime = directory.path().canonicalize().unwrap();
+        let project = prepare_readonly_goal_project(&runtime).unwrap();
+        let daemon = ipc::Daemon::bind(&runtime).unwrap();
+        struct OwnedReadonlyDaemon {
+            stop: Arc<std::sync::atomic::AtomicBool>,
+            worker: Option<std::thread::JoinHandle<agentbaton_core::Result<()>>>,
+        }
+        impl Drop for OwnedReadonlyDaemon {
+            fn drop(&mut self) {
+                self.stop.store(true, Ordering::SeqCst);
+                if let Some(worker) = self.worker.take() {
+                    let _ = worker.join();
+                }
+            }
+        }
+        let stop = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let worker_stop = stop.clone();
+        let worker = std::thread::spawn(move || daemon.run(worker_stop));
+        let _owned = OwnedReadonlyDaemon {
+            stop,
+            worker: Some(worker),
+        };
+        // Original fixture task creation occurs before the readonly interval.
+        let task=ipc::call(&runtime,json!({"method":"tasks.create","params":{"project_id":project,"goal":"Fresh readonly execution fixture"},"idempotency_key":"readonly-execution-task"})).unwrap();
+        assert!(task.get("error").is_none(), "{task}");
+        let task_id = task["result"]["id"].as_str().unwrap();
+        let before = goal_execution_database_snapshot(&runtime).unwrap();
+        let old_before = goal_database_snapshot(&runtime).unwrap();
+        let listed = ipc::call(
+            &runtime,
+            json!({"method":"goal_runs.list","params":{"task_id":task_id}}),
+        )
+        .unwrap();
+        assert_eq!(listed["result"], json!([]));
+        let missing = ipc::call(
+            &runtime,
+            json!({"method":"goal_runs.get","params":{"run_id":MISSING_GOAL_RUN_ID}}),
+        )
+        .unwrap();
+        assert_eq!(missing["error"]["code"], "NOT_FOUND");
+        assert_eq!(missing["error"]["side_effect_state"], "not_started");
+        assert!(missing.get("result").is_none());
+        assert_eq!(goal_execution_database_snapshot(&runtime).unwrap(), before);
+        assert_eq!(goal_database_snapshot(&runtime).unwrap(), old_before);
     }
 }
