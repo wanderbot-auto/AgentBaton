@@ -25,7 +25,7 @@ fn fixture() -> (tempfile::TempDir, PathBuf) {
         .unwrap();
     drop(s);
     let c = Connection::open(&p).unwrap();
-    c.execute_batch("DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;CREATE TABLE original_blob(bytes BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=7;").unwrap();
+    c.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;CREATE TABLE original_blob(bytes BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=7;").unwrap();
     let raw: String = c
         .query_row("SELECT document FROM tasks WHERE id=?1", [&t.id], |r| {
             r.get(0)
@@ -63,7 +63,7 @@ fn real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_a
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        11
+        12
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -141,10 +141,10 @@ fn command_migration_failure_rolls_back_tables_and_version_retains_unknown_data(
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema12_refused_without_touching_bytes() {
+fn future_schema13_refused_without_touching_bytes() {
     let (_d, p) = fixture();
     let c = Connection::open(&p).unwrap();
-    c.execute_batch("PRAGMA user_version=12;").unwrap();
+    c.execute_batch("PRAGMA user_version=13;").unwrap();
     drop(c);
     let raw = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");

@@ -277,6 +277,52 @@ int waitid(idtype_t kind, id_t child, siginfo_t *info, int flags) {
         }
     }
     #[test]
+    fn absolute_host_deadline_preserves_normal_contract_and_retains_short_deadline_child() {
+        for mode in ["normal", "loop"] {
+            let f = Fixture::new();
+            let settings = f.settings(mode);
+            let rule = f.rule(settings);
+            let budget = if mode == "normal" {
+                Duration::from_secs(2)
+            } else {
+                Duration::from_millis(150)
+            };
+            let mut run = run_approved_command_with_deadline(
+                &rule,
+                &AtomicBool::new(false),
+                Instant::now() + budget,
+            )
+            .unwrap();
+            let view = run.view();
+            assert!(view.process_started);
+            assert!(f.root.join("started").exists());
+            assert_eq!(view.contract.wall_time_ms, 1000);
+            assert_eq!(view.contract.cleanup_time_ms, 100);
+            if mode == "normal" {
+                assert!(view.passed);
+                assert!(view.cleanup.owned_leader_reaped);
+                assert!(run.accept_command(&rule).is_ok());
+            } else {
+                assert_eq!(view.reason, RunReason::DeadlineExceeded);
+                assert!(!view.passed);
+                assert!(!view.cleanup_completed_within_budget);
+                assert!(!view.cleanup.owned_leader_reaped);
+                assert!(run.accept_command(&rule).is_err());
+                let end = Instant::now() + Duration::from_secs(2);
+                while !run.try_reap_owned_leader().unwrap() {
+                    assert!(
+                        Instant::now() < end,
+                        "original owned child did not reconcile"
+                    );
+                    std::thread::sleep(Duration::from_millis(1));
+                }
+                assert!(run.view().cleanup.owned_leader_reaped);
+                assert!(!run.view().passed);
+            }
+        }
+    }
+
+    #[test]
     fn real_fixed_native_command_captures_separate_streams_and_only_accepts_command_scope() {
         let f = Fixture::new();
         let rule = f.rule(f.settings("normal"));
