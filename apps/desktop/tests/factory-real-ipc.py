@@ -132,15 +132,25 @@ def diagnostic_snapshot(runtime, workspace, output, owner_token):
     secrets = {owner_token} if owner_token else set()
     credentials = runtime / 'factory-scoped-handles'
     if credentials.is_dir():
-        for path in list(credentials.iterdir())[:257]:
+        paths = []
+        for path in credentials.iterdir():
+            paths.append(path)
+            if len(paths) > 256:
+                result['complete'] = False
+                result['errors'].append({'stage': 'credential', 'type': 'EntryLimit', 'message': 'more than256 generated credential entries'})
+                break
+        for path in paths[:256]:
             try:
                 raw, _ = bounded_file(path, 8192, credentials); value = json.loads(raw)
                 assert value['socket_path'] == str(runtime / 'batond.sock')
                 if isinstance(value.get('scoped_token'), str):
                     secrets.add(value['scoped_token'])
-            except Exception:
+            except FileNotFoundError:
                 # A revoked/deleted credential race does not remove journal data.
                 continue
+            except Exception as failure:
+                result['complete'] = False
+                result['errors'].append({'stage': 'credential', 'name': path.name, 'type': type(failure).__name__})
     def find_secrets(value):
         if isinstance(value, dict):
             for key, item in value.items():
@@ -1292,6 +1302,30 @@ def diagnostic_self_check():
         check('only generated token redacted, business fencing token retained', 'unit-owner-secret' not in saved and '"fencing_token": 7' in data['tables']['events']['rows'][0]['document'])
         check('diagnostic query does not change database bytes', sha(database.read_bytes())==before)
         check('diagnostic artifact private600 and not database replay', stat.S_IMODE(Path(info['path']).stat().st_mode)==0o600 and info['retained_database_bytes'] is False)
+        credentials=runtime/'factory-scoped-handles'; credentials.mkdir(mode=0o700)
+        credential=credentials/'unit.json'; credential.write_text('invalid-sensitive-unit-text')
+        info,data=diagnostic_snapshot(runtime,{'root':str(workspace)},output,'unit-owner-secret')
+        check('invalid credential marks diagnostics incomplete without raw content', not info['complete'] and any(e.get('type')=='JSONDecodeError' for e in data['errors']) and 'invalid-sensitive-unit-text' not in json.dumps(data))
+        original_reader=bounded_file
+        try:
+            def denied_reader(path,*args):
+                if path==credential: raise PermissionError('sensitive-permission-unit-text')
+                return original_reader(path,*args)
+            globals()['bounded_file']=denied_reader
+            info,data=diagnostic_snapshot(runtime,{'root':str(workspace)},output,'unit-owner-secret')
+            check('credential permission error is incomplete and does not leak exception content', not info['complete'] and any(e.get('type')=='PermissionError' for e in data['errors']) and 'sensitive-permission-unit-text' not in json.dumps(data))
+            def missing_reader(path,*args):
+                if path==credential: raise FileNotFoundError('deleted generated credential')
+                return original_reader(path,*args)
+            globals()['bounded_file']=missing_reader
+            info,data=diagnostic_snapshot(runtime,{'root':str(workspace)},output,'unit-owner-secret')
+            check('deleted credential race does not erase otherwise complete diagnostics', info['complete'] and not data['errors'])
+        finally: globals()['bounded_file']=original_reader
+        credential.unlink()
+        for i in range(257):
+            write_private_json(credentials/(str(i)+'.json'),{'socket_path':str(runtime/'batond.sock'),'scoped_token':'unit-scoped-secret'})
+        info,data=diagnostic_snapshot(runtime,{'root':str(workspace)},output,'unit-owner-secret')
+        check('credential entry cap explicitly marks diagnostics incomplete', not info['complete'] and any(e.get('type')=='EntryLimit' for e in data['errors']))
         scope={'id':'scope','root_task_id':'task','root_grant_id':'grant'}
         context={'nonce':'unit-nonce','program_sha256':sha(provider.read_bytes()),'settings_sha256':sha(settings.read_bytes()),
             'connection_id':'connection','run_id':'run','provider':str(provider),'settings':str(settings),
