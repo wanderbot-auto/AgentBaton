@@ -130,6 +130,14 @@ for line in sys.stdin:
    text=contract['goal']
    if text in ('goal-report','goal-report-v2'):
     os.makedirs('reports',exist_ok=True);open('reports/report.txt','w').write('fixed report' if text=='goal-report' else 'fixed report v2')
+  if text.startswith('goal-report-extra-'):
+   index=text.removeprefix('goal-report-extra-')
+   artifact='report-'+index;path='reports/'+artifact+'.txt'
+   assert contract['node']['outputs']==[{'artifact_id':artifact,'contract_id':'output:'+artifact}]
+   assert contract['node']['write_set']==[{'kind':'workspace','path':path}]
+   selected=next(o for o in contract['outputs'] if o['artifact']['artifact_id']==artifact)
+   assert selected['artifact']['relative_path']==path and contract['inputs'][0]['sha256']
+   os.makedirs('reports',exist_ok=True);open(path,'w').write('extra report '+index)
   if text in ('hang','goal-partial-hang'):
    if text=='goal-partial-hang':
     os.makedirs('reports',exist_ok=True);open('reports/report.txt','w').write('partial report')
@@ -971,24 +979,32 @@ fn goal_scope_and_plan(f: &Scenario, goal: &str) -> Value {
     goal_scope_and_plan_with_reworks(f, goal, 0)
 }
 fn goal_scope_and_plan_with_reworks(f: &Scenario, goal: &str, reworks: u32) -> Value {
+    goal_scope_and_plan_with_independent_nodes(f, goal, reworks, 1)
+}
+fn goal_scope_and_plan_with_independent_nodes(
+    f: &Scenario,
+    goal: &str,
+    reworks: u32,
+    count: u32,
+) -> Value {
     use agentbaton_core::{goal_plan::*, goal_store::*};
     let limits = BudgetLimits {
         attempts: 2,
         parallel: 1,
         runtime_ms: 10_000,
         output_bytes: 8192,
-        children: 1,
+        children: count.max(2) - 1,
         reworks,
         tokens: None,
         cost_microunits: None,
     };
-    let selection = GoalScopeSelection {
+    let mut selection = GoalScopeSelection {
         task_id: f.task["id"].as_str().unwrap().into(),
         expected_task_revision: f.task["revision"].as_u64().unwrap(),
         grant_id: f.grant["id"].as_str().unwrap().into(),
         expected_grant_revision: f.grant["revision"].as_u64().unwrap(),
-        max_nodes: 2,
-        new_max_children: 1,
+        max_nodes: count.max(2),
+        new_max_children: count.max(2) - 1,
         new_max_depth: 1,
         root_budget: limits.clone(),
         project_budget: limits,
@@ -1015,6 +1031,17 @@ fn goal_scope_and_plan_with_reworks(f: &Scenario, goal: &str, reworks: u32) -> V
         owner_acceptance_criteria: "Owner reviews the exact report separately from process success"
             .into(),
     };
+    for index in 2..=count {
+        selection.outputs.push(GoalOutputSelection {
+            artifact: agentbaton_workspaces::validation::ArtifactRequirement {
+                artifact_id: format!("report-{index}"),
+                relative_path: format!("reports/report-{index}.txt").into(),
+                max_bytes: 1024,
+                expected_sha256: None,
+            },
+            validators: vec![],
+        });
+    }
     let proposal = result(f.server.request(
         json!({"method":"goal_scopes.propose","params":selection,"idempotency_key":format!("goal-scope:{}",f.task["id"].as_str().unwrap())}),
     ));
@@ -1074,6 +1101,25 @@ fn goal_scope_and_plan_with_reworks(f: &Scenario, goal: &str, reworks: u32) -> V
         idempotency_key: "produce-report-once".into(),
         external_action_id: None,
     };
+    let mut nodes = vec![node.clone()];
+    for index in 2..=count {
+        let artifact_id = format!("report-{index}");
+        let contract = view.outputs[&artifact_id].clone();
+        let mut independent = node.clone();
+        independent.id = format!("independent-{index}");
+        independent.idempotency_key = format!("independent-once-{index}");
+        independent.kind = NodeKind::Summary;
+        independent.goal = format!("goal-report-extra-{index}");
+        independent.outputs = vec![PlannedOutput {
+            artifact_id,
+            contract_id: contract.clone(),
+        }];
+        independent.required_validators = view.contracts[&contract].clone();
+        independent.write_set = vec![WriteTarget::Workspace {
+            path: format!("reports/report-{index}.txt"),
+        }];
+        nodes.push(independent);
+    }
     let plan = GoalPlanProposal {
         schema_version: 1,
         plan_id: format!("runtime-plan:{}", f.task["id"].as_str().unwrap()),
@@ -1082,7 +1128,7 @@ fn goal_scope_and_plan_with_reworks(f: &Scenario, goal: &str, reworks: u32) -> V
         revision: 1,
         expected_revision: 0,
         acceptance_rules: view.required_acceptance_rules.clone(),
-        nodes: vec![node],
+        nodes,
     };
     result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":view.id,"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":0,"idempotency_key":format!("runtime-plan:{}",f.task["id"].as_str().unwrap())})));
     scope
@@ -2151,4 +2197,115 @@ fn actual_goal_changed_original_git_input_refuses_new_plan_or_advance_after_real
             1
         );
     }
+}
+
+#[test]
+fn actual_goal_same_plan_two_independent_nodes_both_execute_before_awaiting_acceptance() {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan_with_independent_nodes(&f, "goal-report", 0, 2);
+    let initial = approve_goal_execution(&f, &scope);
+    let observed_first = std::cell::Cell::new(false);
+    let final_state = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":initial["id"]}),
+        |r| {
+            if !observed_first.get()
+                && r["nodes"][0]["state"] == "candidate"
+                && r["nodes"][1]["state"] == "not_started"
+            {
+                let db =
+                    rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+                let attempts = db
+                    .query_row("SELECT count(*) FROM attempts", [], |row| {
+                        row.get::<_, u32>(0)
+                    })
+                    .unwrap();
+                eprintln!("GOAL_FRONTIER_OBSERVED first=candidate second=not_started attempts={attempts} run_state={}",r["run"]["state"]);
+                observed_first.set(true);
+            }
+            r["nodes"].as_array().unwrap().len() == 2
+                && r["nodes"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .all(|n| n["state"] == "candidate")
+        },
+    );
+    assert_eq!(final_state["run"]["state"], "awaiting_acceptance");
+    assert_eq!(final_state["run"]["id"], initial["id"]);
+    assert_eq!(final_state["run"]["plan_revision"], 1);
+    assert_eq!(final_state["task_accepted"], false);
+    let nodes = final_state["nodes"].as_array().unwrap();
+    assert_ne!(nodes[0]["attempt_id"], nodes[1]["attempt_id"]);
+    assert_ne!(nodes[0]["session_id"], nodes[1]["session_id"]);
+    assert_eq!(nodes[0]["actual_output_bytes"], 12);
+    assert_eq!(nodes[1]["actual_output_bytes"], 14);
+    for node in nodes {
+        assert_eq!(node["stop_confirmed"], true);
+        assert_eq!(node["plan_revision"], 1);
+    }
+    let root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+    assert_eq!(
+        std::fs::read(root.join("reports/report.txt")).unwrap(),
+        b"fixed report"
+    );
+    assert_eq!(
+        std::fs::read(root.join("reports/report-2.txt")).unwrap(),
+        b"extra report 2"
+    );
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        2
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM goal_run_reservations", [], |r| r
+            .get::<_, u32>(0))
+            .unwrap(),
+        2
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM goal_plan_revisions", [], |r| r
+            .get::<_, u32>(0))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+            [],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        0
+    );
+    for key in [
+        format!("project:{}", f.project["id"].as_str().unwrap()),
+        format!(
+            "root-grant:{}",
+            final_state["run"]["root_grant_id"].as_str().unwrap()
+        ),
+    ] {
+        assert_eq!(
+            db.query_row(
+                "SELECT json_extract(document,'$.output_bytes') FROM goal_ledgers WHERE scope=?1",
+                [&key],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            26
+        );
+        assert_eq!(db.query_row("SELECT json_extract(document,'$.observed_attempts') FROM goal_ledgers WHERE scope=?1",[&key],|r|r.get::<_,u32>(0)).unwrap(),2);
+    }
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='task.accepted'",
+            [],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        0
+    );
 }

@@ -1,0 +1,3 @@
+# Checkpoint
+
+Baseline78b317a4dc42f088f752852bf04028eb0bb51d9c; /workspace/.worktrees/goal-ready-frontier branch codex/goal-ready-frontier. Only Core goal_runtime.rs/related tests and four own docs allowed. Parent owns Root/oldfreeze trees. Main target /workspace/.worktrees/validation-integration/target author-exclusive, Native not owned. Original9f review no-blocking conclusion withdrawn for this actual frontier bug; previous274+27 and549 pass evidence preserved, not2node proof. Next: real oldFAIL before source change, narrow fix/controls/full necessary regression/build/immutable manifest, target handoff.
