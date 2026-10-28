@@ -1,0 +1,5 @@
+import type { Language } from './i18n';
+import { graphRunStates,graphNodeStates } from './goal-graph-guards';
+import { goalGraphMessages } from './goal-graph-i18n';
+const labels:Record<string,[string,string]>={queued:['Queued','排队中'],running:['Running','执行中'],cancel_requested:['Cancellation requested; stop not confirmed','已请求取消，尚未确认停止'],cancelled:['Cancellation recorded','已记录取消'],awaiting_acceptance:['Acceptance pending','等待验收'],blocked:['Blocked','受阻'],failed:['Failed','失败'],outcome_unknown:['Effects unknown; reconcile first','副作用未知，须先核对'],accepted:['Accepted','已验收'],not_started:['Not started','尚未开始'],reserved:['Reserved','已预留'],stopping:['Stopping','停止中'],capturing:['Capturing exact artifacts','核对固定产物中'],candidate:['Candidate result','候选结果'],validating:['Checking result','结果检查中'],validated:['Checks complete; acceptance remains separate','检查已完成，验收另行判断'],awaiting_owner:['Owner decision needed','等待负责人决定'],rejected:['Rejected','已拒绝']};
+export function graphGraphLabel(state:string,language:Language){return [...graphRunStates,...graphNodeStates].includes(state)&&labels[state]?labels[state][language==='en'?0:1]:`${goalGraphMessages[language].unknown}: ${state}`;}
