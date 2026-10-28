@@ -125,7 +125,7 @@ pub(super) fn ms() -> Result<i64> {
     i64::try_from(time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000)
         .map_err(|_| invalid())
 }
-fn limits(selection: &FactoryScopeSelection, grant: &ExecutionGrant) -> Result<()> {
+pub(super) fn limits(selection: &FactoryScopeSelection, grant: &ExecutionGrant) -> Result<()> {
     key(&selection.root_task_id)?;
     key(&selection.grant_id)?;
     if selection.connection_ids.is_empty()
@@ -192,6 +192,15 @@ fn limits(selection: &FactoryScopeSelection, grant: &ExecutionGrant) -> Result<(
     Ok(())
 }
 pub(super) fn companion(path: &std::path::Path) -> Result<FactoryCompanionBinding> {
+    companion_controlled(path, None)
+}
+pub(super) fn companion_controlled(
+    path: &std::path::Path,
+    control: Option<&crate::factory::FactoryReadControl>,
+) -> Result<FactoryCompanionBinding> {
+    if let Some(control) = control {
+        control.check()?;
+    }
     use sha2::{Digest, Sha256};
     use std::io::Read;
     use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
@@ -233,7 +242,13 @@ pub(super) fn companion(path: &std::path::Path) -> Result<FactoryCompanionBindin
     let mut hasher = Sha256::new();
     let mut chunk = [0u8; 64 * 1024];
     loop {
+        if let Some(control) = control {
+            control.check()?;
+        }
         let n = file.read(&mut chunk).map_err(|_| changed())?;
+        if let Some(control) = control {
+            control.check()?;
+        }
         if n == 0 {
             break;
         }
@@ -282,6 +297,12 @@ impl Store {
         selection: &FactoryScopeSelection,
         companion_path: &std::path::Path,
     ) -> Result<FactoryScopeBindings> {
+        if let Some(proof) = self.data_input.as_ref().and_then(|d| d.factory.as_deref()) {
+            return proof.recheck(self, selection, companion_path);
+        }
+        if let Some(control) = &self.factory_read_control {
+            control.check()?;
+        }
         let task = self.get(&selection.root_task_id)?;
         let grant = crate::policy::checked_lineage(&self.conn, &selection.grant_id)?;
         if crate::factory::task_budget_root(&self.conn, &task.id)? != task.id {
@@ -391,6 +412,9 @@ impl Store {
         let mut seen = std::collections::BTreeSet::new();
         let mut total = 0usize;
         for r in &selection.inputs {
+            if let Some(control) = &self.factory_read_control {
+                control.check()?;
+            }
             key(&r.artifact_id)?;
             if !seen.insert(&r.artifact_id) || r.max_bytes == 0 || r.max_bytes > 16 * 1024 * 1024 {
                 return Err(invalid());
@@ -417,6 +441,9 @@ impl Store {
                     bytes.len() as u64,
                 )
             };
+            if let Some(control) = &self.factory_read_control {
+                control.check()?;
+            }
             total = total
                 .checked_add(usize::try_from(observed).map_err(|_| limited())?)
                 .ok_or_else(limited)?;
@@ -458,7 +485,7 @@ impl Store {
             workspaces,
             inputs,
             outputs,
-            companion: companion(companion_path)?,
+            companion: companion_controlled(companion_path, self.factory_read_control.as_ref())?,
             guarantees: FactoryGuarantees {
                 filesystem_sandbox: false,
                 network_sandbox: false,

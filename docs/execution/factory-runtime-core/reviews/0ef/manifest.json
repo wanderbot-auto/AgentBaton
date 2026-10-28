@@ -1,0 +1,107 @@
+{
+  "revision": "0efda24e092e630d84e227d06d43b38442672ffe",
+  "baseline": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+  "mode": "limited independent static re-review; no Cargo/daemon/target actions",
+  "files": [
+    {
+      "path": "crates/core/src/data_workspace_workers.rs",
+      "sha256": "fd37562bac8767396fd530142b594c8f91276472c5d62d5a034493df941081cd",
+      "bytes": 25799
+    },
+    {
+      "path": "crates/core/src/data_workspaces.rs",
+      "sha256": "7105a5434d0748837fe7c0aa6e53b234443fff028289190c3c789f4aa24919d0",
+      "bytes": 72382
+    },
+    {
+      "path": "crates/core/src/factory.rs",
+      "sha256": "77b71b60fdcf68f6590e615aa746205173092c5b251b56373d03240327fa870e",
+      "bytes": 8398
+    },
+    {
+      "path": "crates/core/src/factory_budget.rs",
+      "sha256": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+      "bytes": 13332
+    },
+    {
+      "path": "crates/core/src/factory_capture.rs",
+      "sha256": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+      "bytes": 6100
+    },
+    {
+      "path": "crates/core/src/factory_runtime.rs",
+      "sha256": "55b43ad1465edebeed1b8f8838f7cfaa03031d0ad2e245ce8cfb6f4efad8a439",
+      "bytes": 86440
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "sha256": "9d57bfeb5e267a8de1f92dbdc2b846efc860511712b157a7ae898ea226370a3b",
+      "bytes": 152921
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "sha256": "228e7a1763afe76e84b5487a6501229cda46eb7427b87ef699ac4c2bcb32df00",
+      "bytes": 105004
+    },
+    {
+      "path": "crates/core/src/policy.rs",
+      "sha256": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+      "bytes": 48528
+    },
+    {
+      "path": "crates/core/src/sessions.rs",
+      "sha256": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+      "bytes": 85216
+    },
+    {
+      "path": "crates/core/tests/factory_runtime_ipc.rs",
+      "sha256": "08b37a8639d559fbd05ffa27a0a478ea96ec0240d27052759182b88cd1b6ff6f",
+      "bytes": 45752
+    },
+    {
+      "path": "crates/workspaces/src/data_workspace.rs",
+      "sha256": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f",
+      "bytes": 64465
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/ADR.md",
+      "sha256": "83f76afec26a8208170d33ac018249635f745aab06e341ad4bbca0121cf3021b",
+      "bytes": 2903
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/CHECKPOINT.md",
+      "sha256": "83e0e9ad5bbb594003fd770e5095dce36d4731b3dd208e343bcd56061d04024a",
+      "bytes": 9026
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/EVIDENCE.json",
+      "sha256": "8ed087b861685cb87e4cbcea476f1c8e1b4026f99d80262bf3bd4cdc2b9f7d82",
+      "bytes": 24080
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/PROGRESS.md",
+      "sha256": "23f50796cde377b1526d33bbc3b52f078d9e5c25371169a3197d499dcddc8055",
+      "bytes": 3402
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/053/REVIEW.md",
+      "sha256": "57a6febb842545f0925c010f1b8b54077063253eb5d237990fd059195eff0b71",
+      "bytes": 13995
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/053/REVIEW_MANIFEST.json",
+      "sha256": "0bcc4463e5a0d724761e14f265885b19bc306d2bb280f4c13d2ef20e77bd5890",
+      "bytes": 1715
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/053/manifest.json",
+      "sha256": "4ddd7968fdd483a35cee7ad7e73e97e2c353e3cb208f5accc66e2fed8c6f30a0",
+      "bytes": 3520
+    },
+    {
+      "path": "docs/execution/factory-runtime-core/reviews/053/provenance.json",
+      "sha256": "a40b2eed426ab55d65d752639e2d93e5e84fc4d504b05e05cd520454ffe27f8e",
+      "bytes": 3998
+    }
+  ]
+}

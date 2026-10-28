@@ -86,6 +86,7 @@ pub struct Store {
     // Ephemeral, exact-request authority; set only while dispatching a worker result.
     pub(crate) data_input: Option<crate::data_workspaces::DataInputWitness>,
     pub(crate) graph_input: Option<crate::goal_store::GraphReadWitness>,
+    pub(crate) factory_read_control: Option<crate::factory::FactoryReadControl>,
     pub(crate) graph_capture_clocks: std::collections::HashMap<String, std::time::Instant>,
 }
 impl Store {
@@ -248,6 +249,7 @@ impl Store {
             conn,
             data_input: None,
             graph_input: None,
+            factory_read_control: None,
             graph_capture_clocks: Default::default(),
         };
         store.recover_dispatches()?;

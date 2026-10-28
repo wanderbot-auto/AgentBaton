@@ -565,8 +565,11 @@ impl Daemon {
             }
             "factory_runs.start" => {
                 let p: FactoryScopeId = params(r.params)?;
-                let run=self.store.start_factory_run(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;
-                if run.state=="queued" {self.factory_queue_clocks.entry(run.root_task_id.clone()).or_insert_with(Instant::now);}
+                let revision=r.expected_revision.ok_or_else(invalid)?;
+                let key=r.idempotency_key.ok_or_else(invalid)?;
+                let replay=self.store.factory_start_replay(&p.scope_id,revision,&key)?.is_some();
+                let run=self.store.start_factory_run(&p.scope_id,revision,&key)?;
+                if !replay && run.state=="queued" {self.factory_queue_clocks.entry(run.root_task_id.clone()).or_insert_with(Instant::now);}
                 Ok(json!(run))
             }
             "factory_runs.get" => {
@@ -1278,6 +1281,12 @@ impl Daemon {
         match request.method.as_str() {
             "factory_scopes.propose" => {
                 let p: crate::factory::FactoryScopeSelection = params(request.params)?;
+                if self.store.factory_proposal_replay(
+                    &p,
+                    request.idempotency_key.as_deref().ok_or_else(invalid)?,
+                )? {
+                    return Ok(vec![]);
+                }
                 ids.extend(self.store.get_grant(&p.grant_id)?.scope.workspace_ids);
                 ids.extend(p.workspace_ids);
             }
@@ -1552,6 +1561,11 @@ impl Daemon {
                     let proposal: crate::sessions::ApprovalProposal = crate::storage::decode(&raw)?;
                     match proposal.kind.as_str() {
                         "factory" => {
+                            // Declining pending authority performs no input read
+                            // and must remain available while its read is owned.
+                            if request.method == "approvals.decline" {
+                                return Ok(vec![]);
+                            }
                             if let Some(id) = proposal.snapshot["selection"]["grant_id"].as_str() {
                                 ids.extend(self.store.get_grant(id)?.scope.workspace_ids);
                             }
@@ -1608,6 +1622,40 @@ impl Daemon {
         ids.dedup();
         self.store.prepare_data_input_contexts(&ids)
     }
+    fn factory_context_for_request(
+        &self,
+        raw: &str,
+    ) -> Result<Option<crate::factory::FactoryReadPlan>> {
+        let request: Request = serde_json::from_str(raw).map_err(|_| invalid())?;
+        if request.token != self.token
+            || request.api_version != API_VERSION
+            || !matches!(
+                request.method.as_str(),
+                "factory_scopes.propose" | "factory_runs.start" | "approvals.finalize"
+            )
+        {
+            return Ok(None);
+        }
+        let plan = self.store.prepare_factory_owner_read(
+            &request.method,
+            &request.params,
+            request.expected_revision,
+            request.idempotency_key.as_deref(),
+            raw,
+            None,
+        )?;
+        if plan.is_some() {
+            if self.supervisor.has_workers()
+                || self.command_workers.has_workers()
+                || self.graph_workers.has_workers()
+                || self.data_workers.has_workers()
+            {
+                return Err(CoreError::new("WORKSPACE_BUSY","Stop active workers before a new Factory owner read; historical exact-key replies remain available"));
+            }
+            self.data_workers.runtime_privacy_pin()?;
+        }
+        Ok(plan)
+    }
     fn graph_context_for_request(
         &self,
         raw: &str,
@@ -1659,7 +1707,7 @@ impl Daemon {
             match contexts {
                 Err(error) => self.finish_factory_ticket_error(job, error),
                 Ok(contexts) if !contexts.is_empty() => {
-                    if let Err(failure) = self.data_workers.defer(contexts, None, job) {
+                    if let Err(failure) = self.data_workers.defer(contexts, None, None, job) {
                         let (error, job) = *failure;
                         self.finish_factory_ticket_error(job, error);
                     } else {
@@ -1699,7 +1747,8 @@ impl Daemon {
                     let _ = job.reply.try_send(response);
                 }
                 Ok(prepared) if !prepared.inputs.is_empty() => {
-                    if let Err(failure) = self.data_workers.defer(prepared.inputs, None, job) {
+                    if let Err(failure) = self.data_workers.defer(prepared.inputs, None, None, job)
+                    {
                         let (error, job) = *failure;
                         let _ = job
                             .reply
@@ -1717,6 +1766,13 @@ impl Daemon {
             return;
         }
 
+        let factory = match self.factory_context_for_request(&job.raw) {
+            Ok(plan) => plan,
+            Err(error) => {
+                let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                return;
+            }
+        };
         let graph = match self.graph_context_for_request(&job.raw) {
             Ok(g) => g,
             Err(error) => {
@@ -1728,8 +1784,8 @@ impl Daemon {
             Err(error) => {
                 let _ = job.reply.try_send(self.ready_error(&job.raw, error));
             }
-            Ok(contexts) if !contexts.is_empty() || graph.is_some() => {
-                if let Err(failure) = self.data_workers.defer(contexts, graph, job) {
+            Ok(contexts) if !contexts.is_empty() || graph.is_some() || factory.is_some() => {
+                if let Err(failure) = self.data_workers.defer(contexts, graph, factory, job) {
                     let (error, job) = *failure;
                     let _ = job.reply.try_send(self.ready_error(&job.raw, error));
                 }
