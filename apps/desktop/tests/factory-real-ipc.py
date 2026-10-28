@@ -18,6 +18,7 @@ import os
 from pathlib import Path
 import re
 import signal
+import shutil
 import socket
 import sqlite3
 import stat
@@ -54,6 +55,234 @@ def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
+def install_private_tools(raw_daemon, raw_companion, installed, record):
+    """Copy both pinned files; strip ONLY the private CLI, never frozen tools."""
+    installed.mkdir(mode=0o700)
+    assert stat.S_IMODE(installed.stat().st_mode) == 0o700
+    record.update(directory=str(installed), operation='copy both; strip -S private baton only', tools={})
+    for name, source in [('batond', raw_daemon), ('baton', raw_companion)]:
+        before = sha(source.read_bytes()); destination = installed / name
+        with source.open('rb') as reader, destination.open('xb') as writer:
+            shutil.copyfileobj(reader, writer, 1024 * 1024)
+        destination.chmod(0o700)
+        assert not destination.samefile(source) and destination.stat().st_nlink == 1
+        assert sha(destination.read_bytes()) == before == sha(source.read_bytes())
+        record['tools'][name] = {'original_path': str(source), 'original_sha256': before,
+            'original_bytes': source.stat().st_size, 'installed_path': str(destination),
+            'copy_sha256': before}
+    strip = Path('/usr/bin/strip').resolve(strict=True)
+    argv = [str(strip), '-S', str(installed / 'baton')]
+    record['strip_argv'] = argv
+    result = subprocess.run(argv, capture_output=True, timeout=30)
+    record['strip'] = {'exitcode': result.returncode, 'stdout': result.stdout.decode(errors='replace'),
+        'stderr': result.stderr.decode(errors='replace'), 'tool_sha256': sha(strip.read_bytes())}
+    assert len(result.stdout) + len(result.stderr) <= 16384 and result.returncode == 0
+    for name, source in [('batond', raw_daemon), ('baton', raw_companion)]:
+        destination = installed / name
+        info = record['tools'][name]
+        info.update(installed_sha256=sha(destination.read_bytes()), installed_bytes=destination.stat().st_size,
+            original_after_sha256=sha(source.read_bytes()))
+        assert info['original_after_sha256'] == info['original_sha256']
+        if name == 'batond':
+            assert info['installed_sha256'] == info['original_sha256']
+    return installed / 'batond', installed / 'baton'
+
+
+def bounded_file(path, limit, expected_parent=None):
+    parent = path.parent
+    if expected_parent is not None:
+        assert parent == expected_parent
+    parent_fd = os.open(parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent_fd)
+        try:
+            before = os.fstat(fd)
+            assert stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_uid == os.getuid()
+            assert before.st_size <= limit
+            chunks = []; remaining = limit + 1
+            while remaining:
+                chunk = os.read(fd, min(65536, remaining))
+                if not chunk:
+                    break
+                chunks.append(chunk); remaining -= len(chunk)
+            raw = b''.join(chunks); after = os.fstat(fd)
+            fields = ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+            assert len(raw) == before.st_size <= limit
+            assert all(getattr(before, key) == getattr(after, key) for key in fields)
+            return raw, {'device': before.st_dev, 'inode': before.st_ino, 'bytes': len(raw),
+                'mode': stat.S_IMODE(before.st_mode), 'sha256': sha(raw)}
+        finally:
+            os.close(fd)
+    finally:
+        os.close(parent_fd)
+
+
+def write_private_json(path, value):
+    raw = (json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode()
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'wb') as writer:
+        writer.write(raw)
+    return sha(raw)
+
+
+def diagnostic_snapshot(runtime, workspace, output, owner_token):
+    """Bounded complete readonly transaction, never claims a retained DB copy."""
+    result = {'dimension': 'generated-fixture-only readonly query snapshot, NOT retained/replayable SQLite bytes',
+        'complete': True, 'tables': {}, 'generated_stderr': [], 'errors': []}
+    secrets = {owner_token} if owner_token else set()
+    credentials = runtime / 'factory-scoped-handles'
+    if credentials.is_dir():
+        for path in list(credentials.iterdir())[:257]:
+            try:
+                raw, _ = bounded_file(path, 8192, credentials); value = json.loads(raw)
+                assert value['socket_path'] == str(runtime / 'batond.sock')
+                if isinstance(value.get('scoped_token'), str):
+                    secrets.add(value['scoped_token'])
+            except Exception:
+                # A revoked/deleted credential race does not remove journal data.
+                continue
+    def find_secrets(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if key in {'token', 'scoped_token'} and isinstance(item, str): secrets.add(item)
+                else: find_secrets(item)
+        elif isinstance(value, list):
+            for item in value: find_secrets(item)
+        elif isinstance(value, str) and value.startswith(('{', '[')):
+            try: find_secrets(json.loads(value))
+            except ValueError: pass
+    database = runtime / 'baton.sqlite3'
+    try:
+        with sqlite3.connect('file:' + str(database) + '?mode=ro', uri=True, timeout=2) as db:
+            db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
+            result['schema'] = db.execute('PRAGMA user_version').fetchone()[0]
+            names = [r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")]
+            fixed = {'events','sessions','session_turns','attempts','dispatch_intents','workspace_leases',
+                'execution_grants','budgets','tasks','projects','managed_workspaces','connections','session_runtime_snapshots'}
+            total = 0
+            for name in sorted(n for n in names if n in fixed or n.startswith('factory_')):
+                assert re.fullmatch('[a-z_]+', name)
+                count = db.execute('SELECT count(*) FROM "' + name + '"').fetchone()[0]
+                assert count <= 2048, ('diagnostic row cap', name, count)
+                cursor = db.execute('SELECT * FROM "' + name + '" ORDER BY rowid')
+                columns = [c[0] for c in cursor.description]; rows = []
+                for values in cursor:
+                    row = dict(zip(columns, values))
+                    assert all(not isinstance(v, bytes) for v in values), 'Unexpected binary diagnostic field'
+                    encoded = json.dumps(row).encode(); assert len(encoded) <= MAX_RESPONSE_BYTES
+                    total += len(encoded); assert total <= 16 * 1024 * 1024
+                    find_secrets(row); rows.append(row)
+                result['tables'][name] = {'query': 'SELECT * FROM "' + name + '" ORDER BY rowid',
+                    'row_count': count, 'rows': rows}
+            db.rollback()
+    except Exception as failure:
+        result['complete'] = False; result['errors'].append({'stage': 'readonly_query', 'type': type(failure).__name__, 'message': str(failure)})
+    if workspace is not None:
+        directory = Path(workspace['root']) / 'reports'
+        if directory.is_dir():
+            paths = sorted(directory.glob('fixture-stderr-*.txt'))
+            if len(paths) > 8:
+                result['complete'] = False; result['errors'].append({'stage': 'stderr', 'message': 'more than8 stderr files'})
+            for path in paths[:8]:
+                try:
+                    assert re.fullmatch('fixture-stderr-[0-9]+\\.txt', path.name)
+                    raw, pin = bounded_file(path, 1048576, directory)
+                    result['generated_stderr'].append({'name': path.name, 'original_pin': pin, 'text': raw.decode('utf-8', 'replace')})
+                except Exception as failure:
+                    result['complete'] = False; result['errors'].append({'stage': 'stderr', 'name': path.name, 'message': str(failure)})
+    def sanitize(value):
+        if isinstance(value, dict):
+            return {k: '[redacted generated fixture secret]' if k in {'token','scoped_token'} else sanitize(v) for k,v in value.items()}
+        if isinstance(value, list): return [sanitize(v) for v in value]
+        if isinstance(value, str):
+            for secret in secrets:
+                if secret: value = value.replace(secret, '[redacted generated fixture secret]')
+            return value
+        return value
+    for table in result['tables'].values():
+        table['raw_rows_sha256_before_redaction'] = sha(json.dumps(table['rows'], separators=(',', ':')).encode())
+    result = sanitize(result)
+    result['redaction'] = 'Only generated Owner/scoped token values/keys; other evidence retained. Hashes refer to before-redaction query encoding, not DB bytes.'
+    path = output / ('diagnostics-' + uuid.uuid4().hex + '.json')
+    digest = write_private_json(path, result)
+    return {'path': str(path), 'sha256': digest, 'complete': result['complete'], 'schema': result.get('schema'),
+        'table_rows': {k:v['row_count'] for k,v in result['tables'].items()}, 'retained_database_bytes': False}, result
+
+
+REQUEST_FIELDS = frozenset({'schema_version','kind','task_id','root_task_id','parent_task_id','goal',
+    'input_artifacts','output_artifacts','handoff_result','handoff_results','handoff_digest','context_continuation','acceptance_state'})
+
+
+def collect_started_records(runtime, workspace, scope, context, verified, output):
+    """A discovery glob cannot authorize cleanup: bind every FD to actual Core text/session."""
+    if workspace is None or scope is None: return []
+    directory = Path(workspace['root']) / 'reports'
+    if not directory.exists(): return []
+    paths = sorted(directory.glob('fixture-request-*.json')); assert len(paths) <= 8
+    assert sha(Path(context['provider']).read_bytes()) == context['program_sha256']
+    assert sha(Path(context['settings']).read_bytes()) == context['settings_sha256']
+    assert sha(Path(context['companion']).read_bytes()) == context['companion_sha256']
+    with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True, timeout=2) as db:
+        db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
+        sessions = {json.loads(raw)['native_session_id']:json.loads(raw) for raw, in db.execute('SELECT document FROM sessions') if json.loads(raw).get('native_session_id')}
+        turns = [(sid, json.loads(raw)['text']) for sid,raw in db.execute('SELECT session_id,document FROM session_turns')]
+        attempts = {sid:json.loads(raw) for sid,raw in db.execute('SELECT session_id,document FROM factory_attempts WHERE scope_id=?', (scope['id'],))}
+        discovered = []
+        for path in paths:
+            raw, pin = bounded_file(path, MAX_HTTP_BYTES, directory); row = json.loads(raw, object_pairs_hook=unique_object)
+            assert pin['mode'] == 0o600 and row['fixture_nonce'] == context['nonce']
+            assert row['program_sha256'] == context['program_sha256'] and row['settings_sha256'] == context['settings_sha256']
+            request = json.loads(row['request_text'], object_pairs_hook=unique_object)
+            assert set(request) == REQUEST_FIELDS and sha(row['request_text'].encode()) == row['request_sha256']
+            assert request['kind'] == 'agentbaton_factory_task_request' and request['schema_version'] == 1
+            assert request['root_task_id'] == scope['root_task_id'] and request['context_continuation'] == 'new_attempt_explicit_handoff_only'
+            assert request['acceptance_state'] == 'not_established'
+            session = sessions[row['native_session_id']]
+            assert session['task_id'] == request['task_id'] and session['workspace_id'] == workspace['id']
+            assert session['connection_id'] == context['connection_id'] and session['grant_id'] == scope['root_grant_id']
+            assert sum(sid==session['id'] and text==row['request_text'] for sid,text in turns) == 1
+            attempt = attempts[session['id']]
+            assert attempt['attempt_id'] == session['attempt_id'] and attempt['task_id'] == request['task_id']
+            assert attempt['root_task_id'] == scope['root_task_id'] and attempt['run_id'] == context['run_id']
+            expected_stage = 'child' if request['parent_task_id'] is not None else ('parent-resumed' if request['handoff_results'] else 'parent-initial')
+            assert row['stage'] == expected_stage
+            for field in ['owned_provider','owned_companion']:
+                identity = row[field]
+                assert type(identity['pid']) is int and identity['pid']>1 and type(identity['pgid']) is int and identity['pgid']>1
+                assert re.fullmatch('[0-9]+', identity['start_ticks'])
+            pid = row['owned_provider']['pid']
+            assert path.name == 'fixture-request-' + str(pid) + '.json'
+            assert row['native_session_id'] == 'generated-factory-' + str(pid) + '-' + context['nonce']
+            assert row['owned_provider']['pgid'] == pid and row['owned_companion']['pgid'] == pid
+            assert row['provider_argv'] == [context['provider'], '--fixture-settings', context['settings']]
+            argv = row['companion_argv']; assert len(argv)==3 and argv[:2]==[context['companion'],'factory-mcp']
+            assert Path(argv[2]).resolve().is_relative_to(runtime / 'factory-scoped-handles')
+            for field, expected_argv in [('owned_provider', row['provider_argv']), ('owned_companion', argv)]:
+                expected = row[field]
+                try: current = support.proc_identity(expected['pid'])
+                except (FileNotFoundError, ProcessLookupError): current = None
+                if current is not None and current['start_ticks']==expected['start_ticks']:
+                    with Path('/proc',str(expected['pid']),'cmdline').open('rb') as reader:
+                        observed = reader.read(8193)
+                    assert len(observed)<=8192 and observed.endswith(b'\0')
+                    actual = [x.decode() for x in observed[:-1].split(b'\0')]
+                    assert actual[-len(expected_argv):] == expected_argv and os.getpgid(expected['pid'])==expected['pgid']
+                    assert support.proc_identity(expected['pid'])['start_ticks']==expected['start_ticks']
+            fixed = {'path':str(path),'sha256':sha(raw),'file_pin':pin,'session_id':session['id'],
+                'attempt_id':session['attempt_id'],'stage':row['stage'],'native_session_id':row['native_session_id'],
+                'owned_provider':dict(row['owned_provider']),'owned_companion':dict(row['owned_companion'])}
+            old = next((r for r in verified if r['path']==fixed['path']),None)
+            assert old is None or old==fixed, 'Previously bound generated record changed'
+            if old is None:
+                copy = output / ('verified-' + str(pid) + '.json')
+                write_private_json(copy, {'dimension':'verified generated fixture record, not authority from an Agent',
+                    'core_session_id':session['id'],'core_attempt_id':session['attempt_id'],'original_file_pin':pin,'record':row})
+                verified.append(fixed)
+            row['request'] = request; discovered.append(row)
+        db.rollback()
+    return discovered
+
+
 def note_failure(report, failure, stage, clean=str):
     report['status'] = 'failed_or_interrupted'
     entry = {'stage': stage, 'type': type(failure).__name__, 'message': clean(failure),
@@ -77,16 +306,17 @@ def runtime_exit(report):
         and not report.get('failure') and not report.get('http_unexpected_errors')) else 1
 
 
-def inspect_owned_records(report, verified, required_count, provider, settings, companion, runtime, clean=str):
+def inspect_owned_records(report, verified, required_count, provider, settings, companion, runtime, clean=str, require_full=True):
     """Only previously checked fixed identities; a new empty glob is not proof."""
     complete = True; observations = []; identities = set()
-    if len(verified) != required_count:
+    if require_full and len(verified) != required_count:
         note_failure(report, AssertionError(('Missing required verified fixture records', len(verified), required_count)), 'cleanup_identity_count', clean)
         complete = False
     for row in verified:
         try:
             path = Path(row['path'])
-            assert sha(path.read_bytes()) == row['sha256'], 'Previously verified fixture record missing or changed'
+            raw, pin = bounded_file(path, MAX_HTTP_BYTES)
+            assert sha(raw) == row['sha256'] and pin == row['file_pin'], 'Previously verified fixture record missing or changed'
         except BaseException as failure:
             note_failure(report, failure, 'cleanup_record_integrity', clean); complete = False
         for field in ['owned_provider', 'owned_companion']:
@@ -123,11 +353,16 @@ def inspect_owned_records(report, verified, required_count, provider, settings, 
                 observations.append(observation)
             except BaseException as failure:
                 note_failure(report, failure, 'cleanup_owned_identity', clean); complete = False
-    if len(identities) != required_count * 2 or len(observations) != required_count * 2:
-        note_failure(report, AssertionError(('Incomplete required identity inspection', len(identities), len(observations), required_count * 2)), 'cleanup_identity_coverage', clean)
+    inspected_required = required_count if require_full else len(verified)
+    if len(identities) != inspected_required * 2 or len(observations) != inspected_required * 2:
+        note_failure(report, AssertionError(('Incomplete required identity inspection', len(identities), len(observations), inspected_required * 2)), 'cleanup_identity_coverage', clean)
         complete = False
+    if not require_full:
+        complete = False  # An early failed workflow never acquires successful-cleanup status.
     report['cleanup'].append({'action': 'fixed previously verified generated identities inspected',
-        'required_records': required_count, 'required_identities': required_count * 2,
+        'required_records_for_success': required_count, 'required_identities_for_success': required_count * 2,
+        'workflow_successful_before_cleanup': require_full, 'actual_bound_records': len(verified),
+        'actual_bound_identities': len(verified) * 2,
         'verified_records': len(verified), 'inspected_identities': len(observations), 'observations': observations,
         'complete': complete})
     return complete
@@ -345,15 +580,19 @@ try:
    response(request,{'protocolVersion':1,'agentCapabilities':{}})
   elif method=='session/new':
    settings=json.load(open(settings_path));servers=request['params']['mcpServers'];assert len(servers)==1
+   os.makedirs('reports',exist_ok=True)
+   stderr_fd=os.open('reports/fixture-stderr-'+str(os.getpid())+'.txt',os.O_WRONLY|os.O_CREAT|os.O_APPEND|os.O_NOFOLLOW,0o600)
+   sys.stderr=os.fdopen(stderr_fd,'a',buffering=1)
    server=servers[0];assert server['name']=='agentbaton-factory' and server['env']==[]
    assert server['command']==settings['companion'] and server['args'][0]=='factory-mcp' and len(server['args'])==2
    credential=server['args'][1];assert os.path.isabs(credential)
    assert stat.S_IMODE(os.stat(credential).st_mode)==0o600 and stat.S_IMODE(os.stat(os.path.dirname(credential)).st_mode)==0o700
    # Never open the scoped credential or owner session.token; only Baton reads it.
-   mcp=subprocess.Popen([server['command']]+server['args'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
+   mcp=subprocess.Popen([server['command']]+server['args'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=sys.stderr,text=True)
    mcp_call('initialize',{'protocolVersion':'2024-11-05','capabilities':{},'clientInfo':{'name':'generated-browser-fixture','version':'1'}})
    assert [t['name'] for t in mcp_call('tools/list',{})['tools']]==['delegate_task','get_task_status','get_task_result','cancel_task']
-   response(request,{'sessionId':'generated-factory-native'})
+   native_session_id='generated-factory-'+str(os.getpid())+'-'+settings['nonce']
+   response(request,{'sessionId':native_session_id})
   elif method=='session/prompt':
    raw=request['params']['prompt'][0]['text'];assert len(raw.encode())<=131072;c=json.loads(raw)
    assert set(c)=={'schema_version','kind','task_id','root_task_id','parent_task_id','goal','input_artifacts','output_artifacts','handoff_result','handoff_results','handoff_digest','context_continuation','acceptance_state'}
@@ -371,8 +610,14 @@ try:
    stage='child' if c['parent_task_id'] is not None else ('parent-resumed' if c['handoff_results'] else 'parent-initial')
    os.makedirs('reports',exist_ok=True)
    proof={'stage':stage,'request_text':raw,'request_sha256':hashlib.sha256(raw.encode()).hexdigest(),
-    'owned_provider':identity(os.getpid()),'owned_companion':identity(mcp.pid),'denied_owner_tool':denied}
-   with open('reports/fixture-request-'+str(os.getpid())+'.json','w')as f:json.dump(proof,f)
+    'owned_provider':identity(os.getpid()),'owned_companion':identity(mcp.pid),'denied_owner_tool':denied,
+    'fixture_nonce':settings['nonce'],'native_session_id':native_session_id,
+    'program_sha256':file_hash(__file__),'settings_sha256':file_hash(settings_path),
+    'provider_argv':sys.argv,'companion_argv':[server['command']]+server['args']}
+   record_path='reports/fixture-request-'+str(os.getpid())+'.json'
+   record_fd=os.open(record_path+'.tmp',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+   with os.fdopen(record_fd,'w')as f:json.dump(proof,f)
+   os.replace(record_path+'.tmp',record_path)
    with open('reports/fixture-stages.txt','a')as f:f.write(stage+'\n')
    if settings['case']=='cancel':
     assert stage=='parent-initial'
@@ -409,7 +654,7 @@ finally:
 
 
 def runtime_driver(args, output, attribution, prepared):
-    binary, companion, frontend, manifest, manifest_raw = prepared
+    raw_binary, raw_companion, frontend, manifest, manifest_raw = prepared
     try:
         from playwright.sync_api import expect, sync_playwright
     except ImportError as failure:
@@ -425,13 +670,13 @@ def runtime_driver(args, output, attribution, prepared):
         'candidate': manifest, 'candidate_manifest_sha256': sha(manifest_raw), 'frontend_assets_sha256': assets,
         'checks': [], 'private_owner_reviews': [], 'http': [], 'http_unexpected_errors': [], 'readonly_aborts': [],
         'observations': {}, 'screenshots': [], 'cleanup': [], 'cleanup_complete': False}
-    token = ''; pump = lambda: None
+    token = ''; pump = lambda: None; observe_records = lambda: []
     def clean(value):
         return str(value).replace(token, '[redacted generated Owner token]') if token else str(value)
     def wait(read, predicate, seconds=15):
         deadline = time.monotonic() + seconds
         while True:
-            pump(); value = read()
+            pump(); value = read(); observe_records()
             if predicate(value):
                 return value
             assert time.monotonic() < deadline, clean(('Observation timed out', value))
@@ -442,6 +687,8 @@ def runtime_driver(args, output, attribution, prepared):
     try:
         temporary = temporary_owner.name
         root = Path(temporary).resolve(); root.chmod(0o700)
+        report['private_installation'] = {}
+        binary, companion = install_private_tools(raw_binary, raw_companion, root / 'installed', report['private_installation'])
         runtime = root / 'runtime'; runtime.mkdir(mode=0o700)
         settings = root / 'generated-settings.json'
         provider = root / 'generated-factory-acp'
@@ -451,6 +698,33 @@ def runtime_driver(args, output, attribution, prepared):
         daemon = subprocess.Popen([str(binary)], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)},
             stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
         server = thread = browser = None; workspace = host = scope = None; verified_records = []
+        record_context = {}; diagnostic_captured = False
+        def diagnose():
+            nonlocal diagnostic_captured
+            if diagnostic_captured: return
+            diagnostic_captured = True
+            try:
+                discovered = observe_records()
+                report['observations']['failure_actual_task_requests'] = discovered
+            except Exception as record_failure:
+                report['observations']['failure_record_verification_error'] = clean(record_failure)
+            try:
+                info, data = diagnostic_snapshot(runtime, workspace, output, token)
+                report['observations']['failure_diagnostics'] = info
+                table = data['tables'].get('factory_attempts', {}).get('rows', [])
+                events = data['tables'].get('events', {}).get('rows', [])
+                decoded = [json.loads(e['document']) for e in events]
+                never_started = [e['aggregate_id'] for e in decoded if e['kind']=='session.stopped' and e['payload'].get('no_process_started') is True]
+                bound = {r['session_id'] for r in verified_records}
+                report['observations']['failed_record_inventory'] = {'actual_bound_records':len(verified_records),
+                    'actual_bound_identities':len(verified_records)*2,'verified_session_ids':sorted(bound),
+                    'reserved_session_ids':[r['session_id'] for r in table],
+                    'known_never_started_session_ids':never_started,
+                    'reserved_without_verified_request_record':[r['session_id'] for r in table if r['session_id'] not in bound],
+                    'expected_records_if_workflow_successful':3 if args.case=='normal' else 1,
+                    'meaning':'reserved/never-started sessions are not asserted to be spawned processes'}
+            except Exception as diagnostic_failure:
+                report['observations']['failure_diagnostic_capture_error'] = clean(diagnostic_failure)
         try:
             wait(lambda: ((runtime / 'session.token').is_file(), (runtime / 'batond.sock').exists(), daemon.poll()),
                 lambda v: v[0] and v[1] and v[2] is None)
@@ -483,7 +757,7 @@ def runtime_driver(args, output, attribution, prepared):
                 'connection_id': connection['id'], 'max_attempts': 8, 'max_concurrency': 1, 'max_duration_ms': 30_000}, 'grant', 'factory:grant')
             task = host.result('tasks.create', {'project_id': project['id'], 'goal': 'Generated bounded parent child new-parent Factory'}, 'factory:task')
             settings_value = {'case': args.case, 'task_id': task['id'], 'connection_id': connection['id'],
-                'workspace_id': workspace['id'], 'companion': str(companion)}
+                'workspace_id': workspace['id'], 'companion': str(companion), 'nonce':uuid.uuid4().hex}
             settings.write_text(json.dumps(settings_value)); settings.chmod(0o600)
             report['observations']['nonsecret_generated_settings'] = settings_value
             report['generated_settings_sha256'] = sha(settings.read_bytes())
@@ -502,6 +776,17 @@ def runtime_driver(args, output, attribution, prepared):
             scope = host.result('approvals.finalize', {'proposal_id': proposal['id']}, 'proposal:' + proposal['id'], proposal['revision'])
             assert scope['id'] == scope['approval_id'] == proposal['id'] and scope['selection'] == selection
             assert scope['bindings'] == proposal['snapshot']['bindings'] and scope['contract_digest'] == proposal['snapshot']['contract_digest']
+            record_context.update(nonce=settings_value['nonce'], program_sha256=report['generated_program_sha256'],
+                settings_sha256=report['generated_settings_sha256'], connection_id=connection['id'],
+                provider=str(provider), settings=str(settings), companion=str(companion),
+                companion_sha256=report['private_installation']['tools']['baton']['installed_sha256'])
+            def observe():
+                directory = workspace_root / 'reports'
+                if not directory.is_dir() or not any(directory.glob('fixture-request-*.json')): return []
+                current = host.result('factory_runs.get', {'scope_id':scope['id']})
+                record_context['run_id'] = current['run']['id']
+                return collect_started_records(runtime, workspace, scope, record_context, verified_records, output)
+            observe_records = observe
             assert host.result('sessions.list', {}) == []
             stale, _ = host.wire(FixedCall('factory_runs.start', {'scope_id': scope['id']}, 'factory:wrong-cas', scope['revision'] + 1))
             assert stale['error']['code'] == 'STALE_REVISION' and host.result('sessions.list', {}) == []
@@ -611,9 +896,7 @@ def runtime_driver(args, output, attribution, prepared):
                         assert all(t['attempt_id'] is not None and t['confirmed_stop'] is True for t in detail['tasks'])
                     if args.case == 'cancel':
                         assert detail['run']['cancel_requested'] is True
-                    record_paths = sorted((workspace_root / 'reports').glob('fixture-request-*.json'))
-                    record_bytes = [p.read_bytes() for p in record_paths]
-                    records = [json.loads(raw) for raw in record_bytes]
+                    records = observe_records()
                     expected_stages = ['child', 'parent-initial', 'parent-resumed'] if args.case == 'normal' else ['parent-initial']
                     assert sorted(r['stage'] for r in records) == expected_stages
                     for row in records:
@@ -626,10 +909,6 @@ def runtime_driver(args, output, attribution, prepared):
                             assert re.fullmatch('[0-9]+', identity['start_ticks'])
                         assert row['owned_provider']['pgid'] == row['owned_provider']['pid']
                         assert row['owned_companion']['pgid'] == row['owned_provider']['pid']
-                    for path, raw, row in zip(record_paths, record_bytes, records):
-                        assert path.name == 'fixture-request-' + str(row['owned_provider']['pid']) + '.json'
-                        verified_records.append({'path': str(path), 'sha256': sha(raw),
-                            'owned_provider': dict(row['owned_provider']), 'owned_companion': dict(row['owned_companion'])})
                     report['observations']['actual_task_requests'] = records
                     if args.case == 'normal':
                         assert (workspace_root / 'reports/fixture-stages.txt').read_text() == 'parent-initial\nchild\nparent-resumed\n'
@@ -687,11 +966,14 @@ def runtime_driver(args, output, attribution, prepared):
                     assert not errors and not report['http_unexpected_errors'], (errors, report['http_unexpected_errors'])
                     assert sha(Path(__file__).read_bytes()) == attribution['harness_sha256']
                     assert {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(frontend.rglob('*')) if p.is_file()} == assets
-                    assert sha(binary.read_bytes()) == manifest['binaries']['batond'] and sha(companion.read_bytes()) == manifest['binaries']['baton']
+                    assert sha(binary.read_bytes()) == manifest['binaries']['batond']
+                    assert sha(companion.read_bytes()) == report['private_installation']['tools']['baton']['installed_sha256']
+                    assert sha(raw_binary.read_bytes()) == manifest['binaries']['batond'] and sha(raw_companion.read_bytes()) == manifest['binaries']['baton']
                     passed('actual built Factory UI shows terminal history without acceptance or source/asset drift')
                     report['status'] = 'passed'
                 except BaseException as failure:
                     note_failure(report, failure, 'browser_runtime', clean)
+                    diagnose()  # daemon still alive; first cause precedes capture/teardown
                     try:
                         shot('failure-current-ui', page.locator('body'))
                     except Exception as capture_failure:
@@ -702,6 +984,7 @@ def runtime_driver(args, output, attribution, prepared):
                     cleanup_call(report, 'browser_close', browser.close, clean); browser = None
         except BaseException as failure:
             note_failure(report, failure, 'runtime_outer', clean)
+            diagnose()
             if host is not None:
                 try:
                     report['observations']['failure_snapshot'] = host.result('system.snapshot', {})
@@ -745,7 +1028,8 @@ def runtime_driver(args, output, attribution, prepared):
             daemon_complete = cleanup_call(report, 'daemon_wait', finish_daemon, clean)
             identity_complete = cleanup_call(report, 'fixed_owned_identity_inspection',
                 lambda: inspect_owned_records(report, verified_records, 3 if args.case == 'normal' else 1,
-                    provider, settings, companion, runtime, clean), clean)
+                    provider, settings, companion, runtime, clean,
+                    require_full=report['status']=='passed' and not report.get('failure')), clean)
             if report['http_unexpected_errors']:
                 note_failure(report, AssertionError('Unexpected HTTP errors'), 'http_final_error_check', clean)
             cleanup_call(report, 'daemon_log_close', log.close, clean)
@@ -908,6 +1192,7 @@ def cleanup_self_check():
     with tempfile.TemporaryDirectory(prefix='factory-cleanup-unit-') as temporary:
         root = Path(temporary); path = root / 'fixture-record.json'; path.write_text('{"unit":true}\n')
         fixed = {'path': str(path), 'sha256': sha(path.read_bytes()),
+            'file_pin': bounded_file(path, MAX_HTTP_BYTES)[1],
             'owned_provider': {'pid': 800000001, 'pgid': 800000001, 'start_ticks': '1'},
             'owned_companion': {'pid': 800000002, 'pgid': 800000001, 'start_ticks': '2'}}
         original = support.proc_identity
@@ -957,11 +1242,94 @@ def cleanup_self_check():
         'status': 'passed', 'count': len(rows), 'checks': rows}
 
 
+def diagnostic_self_check():
+    checks=[]
+    def check(name, condition=True):
+        assert condition, name; checks.append({'name':name,'status':'passed'})
+    with tempfile.TemporaryDirectory(prefix='factory-diagnostic-unit-') as temporary:
+        root=Path(temporary); output=root/'evidence'; output.mkdir(mode=0o700)
+        installed={}; source=Path('/usr/bin/true').resolve(strict=True); original=sha(source.read_bytes())
+        daemon,cli=install_private_tools(source,source,root/'installed',installed)
+        check('real strip tool acts only on exclusive private CLI copy', installed['strip_argv'][-1]==str(cli) and not cli.samefile(source))
+        check('original public ELF source unchanged', sha(source.read_bytes())==original)
+        check('private daemon copy bytes unchanged', sha(daemon.read_bytes())==original)
+        check('private installed tools/directory modes700', all(stat.S_IMODE(p.stat().st_mode)==0o700 for p in [daemon,cli,cli.parent]))
+        runtime=root/'synthetic-runtime';runtime.mkdir(mode=0o700)
+        workspace=root/'workspace';workspace.mkdir(mode=0o700);reports=workspace/'reports';reports.mkdir(mode=0o700)
+        provider=root/'synthetic-provider';provider.write_bytes(b'Not executed: unit fixture only\n')
+        settings=root/'synthetic-settings';settings.write_text('{"nonce":"unit-nonce"}\n')
+        request={'schema_version':1,'kind':'agentbaton_factory_task_request','task_id':'task','root_task_id':'task',
+            'parent_task_id':None,'goal':'unit','input_artifacts':[],'output_artifacts':[],'handoff_result':None,
+            'handoff_results':[],'handoff_digest':None,'context_continuation':'new_attempt_explicit_handoff_only','acceptance_state':'not_established'}
+        text=json.dumps(request)
+        pid=800000001; native='generated-factory-'+str(pid)+'-unit-nonce'
+        session={'id':'session','native_session_id':native,'task_id':'task','workspace_id':'workspace',
+            'connection_id':'connection','grant_id':'grant','attempt_id':'attempt'}
+        attempt={'attempt_id':'attempt','task_id':'task','root_task_id':'task','run_id':'run','session_id':'session'}
+        database=runtime/'baton.sqlite3'
+        # Deliberately synthetic schema0 data, solely testing readonly helpers;
+        # never a real Core/approval/Provider fixture or execution success.
+        with sqlite3.connect(database) as db:
+            db.executescript('CREATE TABLE sessions(id TEXT,document TEXT); CREATE TABLE session_turns(session_id TEXT,document TEXT); CREATE TABLE factory_attempts(session_id TEXT,scope_id TEXT,document TEXT); CREATE TABLE events(sequence INTEGER,document TEXT);')
+            db.execute('INSERT INTO sessions VALUES(?,?)',('session',json.dumps(session)))
+            db.execute('INSERT INTO session_turns VALUES(?,?)',('session',json.dumps({'text':text})))
+            db.execute('INSERT INTO factory_attempts VALUES(?,?,?)',('session','scope',json.dumps(attempt)))
+            db.execute('INSERT INTO events VALUES(?,?)',(1,json.dumps({'kind':'unit','token':'unit-owner-secret','fencing_token':7})))
+        stderr=reports/'fixture-stderr-800000001.txt';stderr.write_text('unit-owner-secret trace preserved\n')
+        before=sha(database.read_bytes());info,data=diagnostic_snapshot(runtime,{'root':str(workspace)},output,'unit-owner-secret')
+        saved=Path(info['path']).read_text()
+        check('bounded readonly diagnostics retain all synthetic journal/session rows', info['complete'] and data['tables']['events']['row_count']==1 and data['tables']['sessions']['row_count']==1)
+        check('generated stderr retained', len(data['generated_stderr'])==1 and 'trace preserved' in data['generated_stderr'][0]['text'])
+        check('only generated token redacted, business fencing token retained', 'unit-owner-secret' not in saved and '"fencing_token": 7' in data['tables']['events']['rows'][0]['document'])
+        check('diagnostic query does not change database bytes', sha(database.read_bytes())==before)
+        check('diagnostic artifact private600 and not database replay', stat.S_IMODE(Path(info['path']).stat().st_mode)==0o600 and info['retained_database_bytes'] is False)
+        scope={'id':'scope','root_task_id':'task','root_grant_id':'grant'}
+        context={'nonce':'unit-nonce','program_sha256':sha(provider.read_bytes()),'settings_sha256':sha(settings.read_bytes()),
+            'connection_id':'connection','run_id':'run','provider':str(provider),'settings':str(settings),
+            'companion':str(cli),'companion_sha256':sha(cli.read_bytes())}
+        row={'fixture_nonce':'unit-nonce','program_sha256':context['program_sha256'],'settings_sha256':context['settings_sha256'],
+            'native_session_id':native,'request_text':text,'request_sha256':sha(text.encode()),'stage':'parent-initial',
+            'owned_provider':{'pid':pid,'pgid':pid,'start_ticks':'1'},'owned_companion':{'pid':pid+1,'pgid':pid,'start_ticks':'2'},
+            'provider_argv':[str(provider),'--fixture-settings',str(settings)],
+            'companion_argv':[str(cli),'factory-mcp',str(runtime/'factory-scoped-handles/unit.json')]}
+        record=reports/('fixture-request-'+str(pid)+'.json');write_private_json(record,row)
+        original_probe=support.proc_identity;support.proc_identity=lambda _:None
+        try:
+            verified=[];rows=collect_started_records(runtime,{'id':'workspace','root':str(workspace)},scope,context,verified,output)
+            check('record accepted only after matching synthetic Core session/attempt/raw turn', len(rows)==1 and len(verified)==1 and verified[0]['session_id']=='session')
+            collect_started_records(runtime,{'id':'workspace','root':str(workspace)},scope,context,verified,output)
+            check('same FD/content record is not counted twice', len(verified)==1)
+            failed={'status':'failed_or_interrupted','cleanup':[],'cleanup_complete':False,'http_unexpected_errors':[],
+                'failure':{'message':'original failed workflow'}}
+            complete=inspect_owned_records(failed,verified,3,provider,settings,cli,runtime,require_full=False)
+            check('failed one-start workflow reports actual2 identities, not fabricated6', complete is False and failed['cleanup'][-1]['actual_bound_identities']==2 and failed['cleanup'][-1]['inspected_identities']==2)
+            check('partial failed workflow never becomes cleanup complete or green', runtime_exit(failed)==1 and failed['failure']['message']=='original failed workflow')
+            for name in ['nonce','program','request','argv','symlink']:
+                changed=json.loads(json.dumps(row)); record.unlink()
+                if name=='nonce':changed['fixture_nonce']='foreign'
+                if name=='program':changed['program_sha256']='f'*64
+                if name=='request':changed['request_text']=text+' ';changed['request_sha256']=sha(changed['request_text'].encode())
+                if name=='argv':changed['provider_argv']=['foreign']
+                if name=='symlink':record.symlink_to(stderr)
+                else:write_private_json(record,changed)
+                try:collect_started_records(runtime,{'id':'workspace','root':str(workspace)},scope,context,[],output)
+                except (AssertionError,OSError,KeyError):check('unverified '+name+' record cannot authorize identity cleanup')
+                else:raise AssertionError(name)
+            record.unlink();write_private_json(record,row)
+            try:collect_started_records(runtime,{'id':'workspace','root':str(workspace)},scope,context,verified,output)
+            except AssertionError:check('same-content replacement cannot replace previously bound FD identity')
+            else:raise AssertionError('replacement FD')
+        finally:support.proc_identity=original_probe
+    return {'dimension':'real private copy/strip and readonly helper execution; synthetic schema0 records + explicit gone-metadata stub, NO Core/browser/Provider',
+        'status':'passed','count':len(checks),'checks':checks}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--self-check', action='store_true')
     parser.add_argument('--fixture-self-check', action='store_true')
     parser.add_argument('--cleanup-self-check', action='store_true')
+    parser.add_argument('--diagnostic-self-check', action='store_true')
     parser.add_argument('--case', choices=['normal', 'cancel', 'unknown'])
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--candidate-manifest', type=Path)
@@ -969,7 +1337,7 @@ def main():
     parser.add_argument('--frontend', type=Path)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
     args = parser.parse_args()
-    assert sum([args.self_check, args.fixture_self_check, args.cleanup_self_check, bool(args.case)]) <= 1
+    assert sum([args.self_check, args.fixture_self_check, args.cleanup_self_check, args.diagnostic_self_check, bool(args.case)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
     attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 13}
     if args.self_check:
@@ -983,6 +1351,10 @@ def main():
     if args.cleanup_self_check:
         report = {**attribution, **cleanup_self_check()}
         (output / 'cleanup-unit-checks.json').write_text(json.dumps(report, indent=2) + '\n')
+        print(json.dumps({'status': report['status'], 'count': report['count']})); return 0
+    if args.diagnostic_self_check:
+        report = {**attribution, **diagnostic_self_check()}
+        (output / 'diagnostic-unit-checks.json').write_text(json.dumps(report, indent=2) + '\n')
         print(json.dumps({'status': report['status'], 'count': report['count']})); return 0
     if args.case:
         try:
