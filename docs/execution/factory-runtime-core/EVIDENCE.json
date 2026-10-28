@@ -352,5 +352,724 @@
       "No full FS quota, continuous freeze, native context continuation or escaped process-tree containment claimed",
       "FD053-01 unified elapsed footer is source-level repair; no synthetic metadata-stall accounting control run"
     ]
+  },
+  "owner_read_checkpoint": {
+    "state": "WIP owner-read candidate; scoped full Factory acceptance not established",
+    "build_base_commit": "0efda24e092e630d84e227d06d43b38442672ffe",
+    "source_identity": "compiled working tree individually SHA-256 pinned below; checkpoint commit provided separately",
+    "schema": 13,
+    "sources": {
+      "apps/cli/src/main.rs": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+      "apps/daemon/src/main.rs": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+      "crates/core/src/command_validation.rs": "804cede65389ea44810e4646a668d05dac056e0c71069640b5cb9cb55aef14e2",
+      "crates/core/src/command_workers.rs": "73c26d9f2db4e5e59cdbe13655af536a64d7ceb9f95977f8f90da9a9cc2ddd84",
+      "crates/core/src/data_validation.rs": "a3694819f13551ae250b36be99314376bdba86ec531752c082aa9fa69a2d3bdf",
+      "crates/core/src/data_workspace_workers.rs": "b3c3e1dee67d6707d44781d656115df0c2e2a23c6a9442707879ccb2a893dc08",
+      "crates/core/src/data_workspaces.rs": "87ae5614025fb8ce7c6b94603f8f27a34f9ef651a9cafcc6d58cfe2d8887e3cb",
+      "crates/core/src/execution.rs": "1deb328b931d6bab1d894a38b3d51e99ace1466f2a5d0910b84a6b37477d728f",
+      "crates/core/src/factory.rs": "3334a1e32004b2f9406f680cd7eef36f038def917e503ad4d22b73308d309d7d",
+      "crates/core/src/factory_budget.rs": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+      "crates/core/src/factory_capture.rs": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+      "crates/core/src/factory_companion.rs": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+      "crates/core/src/factory_reads.rs": "6759bf4116f858fd94326491eb15ae1a22643ef766c24b5eecd7bb70895c2875",
+      "crates/core/src/factory_runtime.rs": "55b43ad1465edebeed1b8f8838f7cfaa03031d0ad2e245ce8cfb6f4efad8a439",
+      "crates/core/src/factory_store.rs": "a26577fd40abcd3b5b73d631a81ef163415a5f661791f12fa4565b9564269bac",
+      "crates/core/src/goal_evidence.rs": "d786d708aef63e82bdf081a2f5fd5314f184f7f1e7b7b81512d114b74ab1f802",
+      "crates/core/src/goal_graph.rs": "80e01d81cf8ecee3c4e64a046f8413600e7448fca2ed3abdc9b8e479624be7d7",
+      "crates/core/src/goal_graph_validators.rs": "969b6941f6827a9460144d329986c6d0f75d9a99b9856ae204bcc073cb157820",
+      "crates/core/src/goal_plan.rs": "243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21",
+      "crates/core/src/goal_runtime.rs": "9d57bfeb5e267a8de1f92dbdc2b846efc860511712b157a7ae898ea226370a3b",
+      "crates/core/src/goal_store.rs": "358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816",
+      "crates/core/src/goal_validator_io.rs": "bae0720b9324dbd2634f05b39dd42d472da652480288ab9e621b65c44b286f57",
+      "crates/core/src/ipc.rs": "a0707471d9eba23b8fc34be50c39bd6a3ad54eebff6940fdef7ac6eb73ec261e",
+      "crates/core/src/lib.rs": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+      "crates/core/src/policy.rs": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+      "crates/core/src/registry.rs": "2e364198355ad5c2bea1077c2c3b7aada842c5dee34826a093bd53817fa2fa45",
+      "crates/core/src/routes.rs": "259642508b6bba313f2545b122986d377b434af6f6caccfcf3208a8bb3c128a1",
+      "crates/core/src/runtime_config.rs": "73e326b050e7fe661fe8a83e19775ea1d0d9da431e2909a1cb4e14c51d0ff3da",
+      "crates/core/src/sessions.rs": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+      "crates/core/src/storage.rs": "cf1610158d80d40cfd0dfe988cee158abdd412fd2e5cd59c3af448a51f717cbd",
+      "crates/core/src/validation.rs": "54dbcb97fcb5cb70c74feb07fb5a737defb8dd0c6af931abbe59ae9143ce71db",
+      "crates/providers/src/codex.rs": "295a0e5ac624e375e0a5cbae7e419594627f657d6485e2f39098e077958099dd",
+      "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+      "crates/providers/src/driver.rs": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+      "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+      "crates/providers/src/installation.rs": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+      "crates/providers/src/lib.rs": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+      "crates/providers/src/process_io.rs": "ab0ad1edd09f59dd500f1446909f490926e0a2af8d5033fdc403189774973774",
+      "crates/providers/src/session_configuration.rs": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+      "crates/providers/src/transport.rs": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff",
+      "crates/workspaces/src/adoption.rs": "be970ed01ee18bebe9b06e62087d0bd7c52e97bfca6db0dcaec60cbedeba9472",
+      "crates/workspaces/src/command_validation.rs": "76a5eeaa2a1822b40d206af63ec32d643da9278e502e72c82da510d62cf8184e",
+      "crates/workspaces/src/data_workspace.rs": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f",
+      "crates/workspaces/src/deterministic.rs": "44e8feda9a9dbd91d7fb5db1ed0c38424ef380fbb8fc3ec565ea3f1591a97c26",
+      "crates/workspaces/src/lib.rs": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+      "crates/workspaces/src/validation.rs": "92ea96d82f7711bca1e5112a59fdbd9f0617df0ce887ce9f55e2c8ac25cd4c83"
+    },
+    "binaries": {
+      "batond": {
+        "path": "/workspace/AgentBaton/.onboarding/factory-owner-read-candidate-20261028/batond",
+        "sha256": "f33664dbde7da81c1b6f349d5cc9adbb6b32e01d1c16c7ed8198b4226e708dc4",
+        "bytes": 112102640
+      },
+      "baton": {
+        "path": "/workspace/AgentBaton/.onboarding/factory-owner-read-candidate-20261028/baton",
+        "sha256": "54e1053f95c3ca9e7773631a76b7845402eb6acfeac6e26552a02df19c7c69bf",
+        "bytes": 81319704
+      }
+    },
+    "logs": {
+      "owner-read-worker-twelve-tests.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-worker-twelve-tests.log",
+        "sha256": "f8ed4645b1fa836741dc60af213ea279bbc243c2745c0d37e41ca4d8002d372e"
+      },
+      "owner-read-final-debug-build.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-final-debug-build.log",
+        "sha256": "26dc0b548105ce5df76bfa2bf25b463b812e873a55769891a873d39b9dd900b8"
+      },
+      "owner-read-final-two-data-ipc.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-final-two-data-ipc.log",
+        "sha256": "f0958b31f9614a69d6253c42fd4a7a3ade649ca9ae62f3ab5450f5c8422b8a0d"
+      },
+      "owner-read-final-clippy.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-final-clippy.log",
+        "sha256": "dd41f613c0ba19a72b150c050ccc11e85b671fe339dc2f93bc35f85401861441"
+      },
+      "owner-read-final-fmt.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-final-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "owner-read-clean-control/old-tests.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-clean-control/old-tests.log",
+        "sha256": "bd359fbdffe8a19eef98c490a0d9f4be76b944baa73006cfda2981bc9b856fe8"
+      },
+      "owner-read-clean-control/old-exit.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-clean-control/old-exit.json",
+        "sha256": "2b70081b573872dcecace06d8e2b03c30a5c6b495484e8025803a64af1c1e48d"
+      },
+      "owner-read-clean-control/factory_reads-before-fix.rs": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-clean-control/factory_reads-before-fix.rs",
+        "sha256": "daf5648dac5ffdc683464ad03050324894be64e94a2f34549ec368ad6ffec362"
+      },
+      "owner-read-clean-control/old-test-binary": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-clean-control/old-test-binary",
+        "sha256": "077867501f85c0064fd76b4379e12398e32cd7962d547a5c89c325180089ad04"
+      },
+      "owner-read-final-entry-before.sha256": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-final-entry-before.sha256",
+        "sha256": "8e500270dab0b7f0c219cc3f074aec429654e1b39c680ce2fd0e8ce231d1ebce"
+      },
+      "owner-read-final-entry-after.sha256": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-final-entry-after.sha256",
+        "sha256": "8e500270dab0b7f0c219cc3f074aec429654e1b39c680ce2fd0e8ce231d1ebce"
+      },
+      "owner-read-worker-first-check.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-worker-first-check.log",
+        "sha256": "5416b7e270ca98a4556bc9811f444ac2a9054c95c2ef9aed6f308e1b0a54ee83"
+      },
+      "owner-read-worker-first-tests.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-worker-first-tests.log",
+        "sha256": "8c2964e2a78877bbb592090a0cda1cad9d1c132224587873271fbd27b5f79e32"
+      },
+      "owner-read-worker-seven-tests.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-worker-seven-tests.log",
+        "sha256": "190b5be7101bb93681f2039346dc3dc7232798c17bc86254eeb8b786f1378139"
+      },
+      "owner-read-worker-first-clippy.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-worker-first-clippy.log",
+        "sha256": "fc0a893038c4a4b543f4369b2ba258bf9c0946346ff081d92b90299f804813a1"
+      },
+      "owner-read-worker-clean-fixed-first.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-worker-clean-fixed-first.log",
+        "sha256": "1d6fdd43ee8bbe8fd2344e3ad964355b361691c67f25ad12e6c6bcc3c2b11a6d"
+      },
+      "owner-read-two-data-ipc.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-two-data-ipc.log",
+        "sha256": "328743d6409ffd2aa07a2a4e86fe2e81dcae58f8ebcfa6599a982111b45f0fc7"
+      },
+      "owner-read-final-clippy-first.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/owner-read-final-clippy-first.log",
+        "sha256": "9f50241faf9ba85638f46367220eb19779f5b7c336499c5fe48c65967ff17cdd"
+      }
+    },
+    "verification": {
+      "owner_read_units": 12,
+      "actual_data_owner_ipc": 2,
+      "clippy": "PASS",
+      "fmt": "PASS",
+      "no_full_regression_claim": true
+    },
+    "previous_immutable_candidate_manifest_sha256": "69b6744dcf85b26ed7b7308c0f6c7d04ee45f409545db40034724b22bd87dca2",
+    "commands": [
+      {
+        "command": "cargo test --locked -p agentbaton-core --lib factory::reads::tests -- --nocapture",
+        "result": "PASS 12 unique units, 0 ignored, 5.64s"
+      },
+      {
+        "command": "cargo build --locked --bin batond --bin baton",
+        "result": "PASS; actual Compiling lines for both binaries, 16.46s"
+      },
+      {
+        "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc actual_data_ -- --nocapture",
+        "result": "PASS 2 actual generated Data Owner IPC cases, 0 ignored, 3.71s"
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+        "result": "PASS 8.79s"
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "result": "PASS"
+      }
+    ],
+    "candidate_manifest": {
+      "path": "/workspace/AgentBaton/.onboarding/factory-owner-read-candidate-20261028/manifest.json",
+      "sha256": "1db4e6383b93e13785c1cec579249af7d3bee596d23c44af35b3a573cda3e154"
+    },
+    "lease_environment": {
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_BUILD_JOBS": "2",
+      "RUST_TEST_THREADS": "1",
+      "umask": "022"
+    },
+    "not_run": [
+      "full current workspace regression and old migration fixture advancement",
+      "large in-flight owner-hash/Data/capture cancel-revoke-expiry fault matrix",
+      "real authorized scoped request queue-expiry control",
+      "mixed ordinary/Goal/Factory cumulative accounting and unknown recovery matrix",
+      "metadata-stall elapsed dynamic control",
+      "current candidate macOS or native Owner dialog/UI verification",
+      "full Factory and product acceptance"
+    ],
+    "old_failures": {
+      "clean_gate": {
+        "exit_code": 101,
+        "result": "two actual Rust proposal controls unexpectedly accepted after unselected tracked edit/new untracked; selected input replacement passed",
+        "note": "saved pre-clean-fix offload draft, not byte-exact0ef or an already shipped implementation"
+      },
+      "initial_owner_worker_tests": "3failed/3passed: separate companion metadata-purpose pin had wrongly reused64MiB artifact cap; fixed without changing existing artifact cap",
+      "loose_ref_control": "new actual regression passes; no saved old loose-ref runtime failure asserted"
+    }
+  },
+  "mixed_budget_checkpoint": {
+    "state": "WIP mixed shared-budget checkpoint, not full Factory acceptance",
+    "build_base_commit": "6c5b6cc4ca7a30ac190a7b29d7ce86db9023ad23",
+    "source_identity": "compiled working tree individually SHA-256 pinned below; local checkpoint commit reported separately",
+    "schema": 13,
+    "sources": {
+      "apps/cli/src/main.rs": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+      "apps/daemon/src/main.rs": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+      "crates/core/src/command_validation.rs": "804cede65389ea44810e4646a668d05dac056e0c71069640b5cb9cb55aef14e2",
+      "crates/core/src/command_workers.rs": "73c26d9f2db4e5e59cdbe13655af536a64d7ceb9f95977f8f90da9a9cc2ddd84",
+      "crates/core/src/data_validation.rs": "a3694819f13551ae250b36be99314376bdba86ec531752c082aa9fa69a2d3bdf",
+      "crates/core/src/data_workspace_workers.rs": "b3c3e1dee67d6707d44781d656115df0c2e2a23c6a9442707879ccb2a893dc08",
+      "crates/core/src/data_workspaces.rs": "87ae5614025fb8ce7c6b94603f8f27a34f9ef651a9cafcc6d58cfe2d8887e3cb",
+      "crates/core/src/execution.rs": "1deb328b931d6bab1d894a38b3d51e99ace1466f2a5d0910b84a6b37477d728f",
+      "crates/core/src/factory.rs": "3334a1e32004b2f9406f680cd7eef36f038def917e503ad4d22b73308d309d7d",
+      "crates/core/src/factory_budget.rs": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+      "crates/core/src/factory_capture.rs": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+      "crates/core/src/factory_companion.rs": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+      "crates/core/src/factory_reads.rs": "6759bf4116f858fd94326491eb15ae1a22643ef766c24b5eecd7bb70895c2875",
+      "crates/core/src/factory_runtime.rs": "e314992bba95c3d7f7a0d3346499e00cd459ce47fb0c61cea376ddbf1ddd523a",
+      "crates/core/src/factory_store.rs": "a26577fd40abcd3b5b73d631a81ef163415a5f661791f12fa4565b9564269bac",
+      "crates/core/src/goal_evidence.rs": "d786d708aef63e82bdf081a2f5fd5314f184f7f1e7b7b81512d114b74ab1f802",
+      "crates/core/src/goal_graph.rs": "80e01d81cf8ecee3c4e64a046f8413600e7448fca2ed3abdc9b8e479624be7d7",
+      "crates/core/src/goal_graph_validators.rs": "969b6941f6827a9460144d329986c6d0f75d9a99b9856ae204bcc073cb157820",
+      "crates/core/src/goal_plan.rs": "243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21",
+      "crates/core/src/goal_runtime.rs": "9d57bfeb5e267a8de1f92dbdc2b846efc860511712b157a7ae898ea226370a3b",
+      "crates/core/src/goal_store.rs": "358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816",
+      "crates/core/src/goal_validator_io.rs": "bae0720b9324dbd2634f05b39dd42d472da652480288ab9e621b65c44b286f57",
+      "crates/core/src/ipc.rs": "a0707471d9eba23b8fc34be50c39bd6a3ad54eebff6940fdef7ac6eb73ec261e",
+      "crates/core/src/lib.rs": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+      "crates/core/src/policy.rs": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+      "crates/core/src/registry.rs": "2e364198355ad5c2bea1077c2c3b7aada842c5dee34826a093bd53817fa2fa45",
+      "crates/core/src/routes.rs": "259642508b6bba313f2545b122986d377b434af6f6caccfcf3208a8bb3c128a1",
+      "crates/core/src/runtime_config.rs": "73e326b050e7fe661fe8a83e19775ea1d0d9da431e2909a1cb4e14c51d0ff3da",
+      "crates/core/src/sessions.rs": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+      "crates/core/src/storage.rs": "cf1610158d80d40cfd0dfe988cee158abdd412fd2e5cd59c3af448a51f717cbd",
+      "crates/core/src/validation.rs": "54dbcb97fcb5cb70c74feb07fb5a737defb8dd0c6af931abbe59ae9143ce71db",
+      "crates/providers/src/codex.rs": "295a0e5ac624e375e0a5cbae7e419594627f657d6485e2f39098e077958099dd",
+      "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+      "crates/providers/src/driver.rs": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+      "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+      "crates/providers/src/installation.rs": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+      "crates/providers/src/lib.rs": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+      "crates/providers/src/process_io.rs": "ab0ad1edd09f59dd500f1446909f490926e0a2af8d5033fdc403189774973774",
+      "crates/providers/src/session_configuration.rs": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+      "crates/providers/src/transport.rs": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff",
+      "crates/workspaces/src/adoption.rs": "be970ed01ee18bebe9b06e62087d0bd7c52e97bfca6db0dcaec60cbedeba9472",
+      "crates/workspaces/src/command_validation.rs": "76a5eeaa2a1822b40d206af63ec32d643da9278e502e72c82da510d62cf8184e",
+      "crates/workspaces/src/data_workspace.rs": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f",
+      "crates/workspaces/src/deterministic.rs": "44e8feda9a9dbd91d7fb5db1ed0c38424ef380fbb8fc3ec565ea3f1591a97c26",
+      "crates/workspaces/src/lib.rs": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+      "crates/workspaces/src/validation.rs": "92ea96d82f7711bca1e5112a59fdbd9f0617df0ce887ce9f55e2c8ac25cd4c83"
+    },
+    "tests": {
+      "crates/core/tests/factory_runtime_ipc.rs": "15d507c3a968f5d43dd17eb8b4298db084d76984394f611fd764af81b7e8cbb7"
+    },
+    "binaries": {
+      "batond": {
+        "path": "/workspace/AgentBaton/.onboarding/factory-mixed-budget-candidate-20261028/batond",
+        "sha256": "1ee1a7c616019d23e3f19b699391c367cc8042eb08ded09730e271d4b7209181",
+        "bytes": 112107240
+      },
+      "baton": {
+        "path": "/workspace/AgentBaton/.onboarding/factory-mixed-budget-candidate-20261028/baton",
+        "sha256": "fec737a527d9c3f83f74e926b00db0470f2779ae14f9b779b872f58c6c61649d",
+        "bytes": 81323592
+      }
+    },
+    "logs": {
+      "mixed-ledger-first.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-ledger-first.log",
+        "sha256": "c3f68a27d2849b5f5de2d91e220ac7cb7adeb041fd4fbf1608ce1a8ae4f49dff"
+      },
+      "mixed-ledger-first-exit.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-ledger-first-exit.json",
+        "sha256": "2b70081b573872dcecace06d8e2b03c30a5c6b495484e8025803a64af1c1e48d"
+      },
+      "mixed-ledger-second.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-ledger-second.log",
+        "sha256": "8887ea73d11191c4ef6b35ba35b0e1b132dcedf9c4e46fb8e7f4ce4cd8799ba4"
+      },
+      "mixed-ledger-third.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-ledger-third.log",
+        "sha256": "669ec60b3683ddb39d46411e07f1fb4ed1c6f08cbba92e82abdcd2d5e703c362"
+      },
+      "mixed-ledger-runtime-narrow-first.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-ledger-runtime-narrow-first.log",
+        "sha256": "b0000dac5fc66694f243e37f2a3da9ea016ef2819d4fb91324a1f6cebb300c22"
+      },
+      "mixed-final-debug-build.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-final-debug-build.log",
+        "sha256": "3aad3588508983859053926234b301777f8b99b462b4397e5caa0c0e12d10e08"
+      },
+      "mixed-final-factory-twenty-four.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-final-factory-twenty-four.log",
+        "sha256": "16b8ff3a8ea52382c823d04e20b397291c9a304ba05099498a1a40e87a05a4b5"
+      },
+      "mixed-final-clippy.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-final-clippy.log",
+        "sha256": "868cb84dfba02b35baf08e27e83ee00a09e9f7fc934beec58ebbdf251194375f"
+      },
+      "mixed-final-fmt.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-final-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "mixed-final-entry-before.sha256": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-final-entry-before.sha256",
+        "sha256": "8e500270dab0b7f0c219cc3f074aec429654e1b39c680ce2fd0e8ce231d1ebce"
+      },
+      "mixed-final-entry-after.sha256": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-final-entry-after.sha256",
+        "sha256": "8e500270dab0b7f0c219cc3f074aec429654e1b39c680ce2fd0e8ce231d1ebce"
+      },
+      "mixed-ledger-pre-shared-remaining/factory_runtime.rs": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-ledger-pre-shared-remaining/factory_runtime.rs",
+        "sha256": "55b43ad1465edebeed1b8f8838f7cfaa03031d0ad2e245ce8cfb6f4efad8a439"
+      },
+      "mixed-ledger-pre-shared-remaining/factory_runtime_ipc.rs": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-ledger-pre-shared-remaining/factory_runtime_ipc.rs",
+        "sha256": "df42b1008c172b1553880d13580eb51d0007bbc50c055e1df5f289ea9e0f47bf"
+      },
+      "mixed-ledger-pre-shared-remaining/old-test-binary": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-ledger-pre-shared-remaining/old-test-binary",
+        "sha256": "9c63488183db6be2e42bf644c1ae8e98a75b4ad498997bb2285cbbe340cad8b0"
+      },
+      "mixed-ledger-pre-shared-remaining/events.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-ledger-pre-shared-remaining/events.json",
+        "sha256": "1dbb16a93c80b89cf52eb797acc7e414cc2d59f01e4788f9c2c8d9a470e05578"
+      },
+      "mixed-ledger-pre-shared-remaining/files.sha256": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-ledger-pre-shared-remaining/files.sha256",
+        "sha256": "0a68f1260d1c4c37c93ebf43924dd03642f97129dd755a10685bd861c0cca87b"
+      }
+    },
+    "previous_immutable_owner_read_manifest_sha256": "1db4e6383b93e13785c1cec579249af7d3bee596d23c44af35b3a573cda3e154",
+    "verification": {
+      "unique_factory_cases": 24,
+      "scope": 11,
+      "migration": 3,
+      "actual_runtime_ipc": 10,
+      "clippy": "PASS",
+      "fmt": "PASS"
+    },
+    "candidate_manifest": {
+      "path": "/workspace/AgentBaton/.onboarding/factory-mixed-budget-candidate-20261028/manifest.json",
+      "sha256": "972539acc288a7653340136475d0355044502b254d243d5c1e5fcef39a290377"
+    },
+    "commands": [
+      {
+        "command": "cargo test --locked -p agentbaton-core --test factory_scope --test factory_migration --test factory_runtime_ipc -- --nocapture",
+        "result": "PASS24unique:3migration0.04s+10actualIPC19.74s+11scope9.44s;0ignored"
+      },
+      {
+        "command": "cargo build --locked --bin batond --bin baton",
+        "result": "PASS; both actual Compiling lines0.58s"
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+        "result": "PASS11.31s"
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "result": "PASS"
+      }
+    ],
+    "observations": {
+      "mixed_busy": {
+        "attempts": 5,
+        "active": 0,
+        "prior_ordinary_goal_runtime_ms": 201,
+        "first_factory_reservation_ms": 29799,
+        "unchanged_runtime_ceiling_ms": 30000,
+        "summed_receipt_runtime_ms": 1320,
+        "summed_selected_artifact_bytes": 77
+      },
+      "mixed_sequence": {
+        "attempts": 5,
+        "active": 0,
+        "prior_ordinary_goal_runtime_ms": 186,
+        "first_factory_reservation_ms": 29814,
+        "unchanged_runtime_ceiling_ms": 30000,
+        "summed_receipt_runtime_ms": 1382,
+        "summed_selected_artifact_bytes": 77
+      },
+      "whole_filesystem_bytes": "unknown",
+      "complete_provider_output": "unknown",
+      "task_acceptance": "not_established"
+    },
+    "old_failure_classification": {
+      "first": "2fixturefail beforeprocess: Goal correctly refuses synthetic Grant lacking native confirmation origin",
+      "second": "editing script assertion failed; unchanged-source rerun repeats firstfailure, not separate issue",
+      "third": "2actualfail after ordinary+Goal execution and stopped receipts: Factory reservation omitted prior shared runtime, common meter refused full30000 +already spent",
+      "saved_old_source": "mixed-ledger-pre-shared-remaining contains actual pre-narrow production/test source, executable and last-run events; not byte-exact initial fixture failure"
+    },
+    "not_run": [
+      "true authorized scoped expiry/revoke/depth/fanout/cycle matrix",
+      "large Data owned read/capture cancel and original-deadline responsiveness",
+      "post-effect terminal journal faults and unknown/restart mixed history",
+      "complete current workspace regression/native/macOS verification",
+      "full Factory/product acceptance"
+    ]
+  },
+  "scoped_liveness_checkpoint": {
+    "production_source_commit": "1cfa50c53f8866b4cf31a4d38a074e10dea09807",
+    "production_source_map": "mixed_budget_checkpoint.sources (all46 reverified before/after)",
+    "unchanged_candidate_manifest": {
+      "path": "/workspace/AgentBaton/.onboarding/factory-mixed-budget-candidate-20261028/manifest.json",
+      "sha256": "972539acc288a7653340136475d0355044502b254d243d5c1e5fcef39a290377"
+    },
+    "test_sha256": {
+      "crates/core/tests/factory_runtime_ipc.rs": "a961306a93036f2756b655573c23eede0f820e8cf1d369a10adf1d4a862ba7ac"
+    },
+    "logs": {
+      "scoped-liveness-first.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-liveness-first.log",
+        "sha256": "d33de72dc9908e8048734e16c71b211fb7bfdada3c53412e1b1a43b5e7b04f28"
+      },
+      "scoped-liveness-first-exit.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-liveness-first-exit.json",
+        "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01"
+      },
+      "scoped-liveness-clippy.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-liveness-clippy.log",
+        "sha256": "4858599ab5273da2c4e483924ad66fdefafbc54f74e045f68da316ca91695837"
+      },
+      "scoped-liveness-fmt.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-liveness-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "commands": [
+      {
+        "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc real_scoped_handle_ -- --nocapture",
+        "result": "PASS2new cases6.94s;0ignored;first run exit0"
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+        "result": "PASS0.33s"
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "result": "PASS"
+      }
+    ],
+    "meaning": {
+      "valid_issued_scoped_handle_before_restriction": true,
+      "after_scope_expiry_or_revocation": "all4 AUTH_REQUIRED/revision0/noresult",
+      "new_children": 0,
+      "attempts_and_reservations": 1,
+      "consumed_not_refunded": 1,
+      "leader_reaped_and_intent_stopped": true,
+      "project_active": 0,
+      "leases": 0,
+      "task_accepted": false,
+      "complete_escaped_tree_containment": "not_established"
+    },
+    "not_run": [
+      "real authorized scoped queued-request deadline",
+      "depth/fanout/cycle real protocols",
+      "large in-flight Data/capture cancel/revoke/deadline",
+      "terminal fault and unknown/restart mixed accounting",
+      "full current workspace/native/macOS acceptance"
+    ]
+  },
+  "narrow_scope_budget_checkpoint": {
+    "state": "WIP current-scope shared-runtime cap checkpoint; not full Factory acceptance",
+    "build_base_commit": "792da3ef67bf22743e3fe500a95c2aa509f8844a",
+    "source_identity": "compiled working sources individually SHA-256 pinned; checkpoint commit supplied separately",
+    "schema": 13,
+    "sources": {
+      "apps/cli/src/main.rs": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+      "apps/daemon/src/main.rs": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+      "crates/core/src/command_validation.rs": "804cede65389ea44810e4646a668d05dac056e0c71069640b5cb9cb55aef14e2",
+      "crates/core/src/command_workers.rs": "73c26d9f2db4e5e59cdbe13655af536a64d7ceb9f95977f8f90da9a9cc2ddd84",
+      "crates/core/src/data_validation.rs": "a3694819f13551ae250b36be99314376bdba86ec531752c082aa9fa69a2d3bdf",
+      "crates/core/src/data_workspace_workers.rs": "b3c3e1dee67d6707d44781d656115df0c2e2a23c6a9442707879ccb2a893dc08",
+      "crates/core/src/data_workspaces.rs": "87ae5614025fb8ce7c6b94603f8f27a34f9ef651a9cafcc6d58cfe2d8887e3cb",
+      "crates/core/src/execution.rs": "1deb328b931d6bab1d894a38b3d51e99ace1466f2a5d0910b84a6b37477d728f",
+      "crates/core/src/factory.rs": "3334a1e32004b2f9406f680cd7eef36f038def917e503ad4d22b73308d309d7d",
+      "crates/core/src/factory_budget.rs": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+      "crates/core/src/factory_capture.rs": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+      "crates/core/src/factory_companion.rs": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+      "crates/core/src/factory_reads.rs": "6759bf4116f858fd94326491eb15ae1a22643ef766c24b5eecd7bb70895c2875",
+      "crates/core/src/factory_runtime.rs": "471d0cfdde2104e527b29e96c938676dc29399dc32c92cb216866a4c8d7293dd",
+      "crates/core/src/factory_store.rs": "a26577fd40abcd3b5b73d631a81ef163415a5f661791f12fa4565b9564269bac",
+      "crates/core/src/goal_evidence.rs": "d786d708aef63e82bdf081a2f5fd5314f184f7f1e7b7b81512d114b74ab1f802",
+      "crates/core/src/goal_graph.rs": "80e01d81cf8ecee3c4e64a046f8413600e7448fca2ed3abdc9b8e479624be7d7",
+      "crates/core/src/goal_graph_validators.rs": "969b6941f6827a9460144d329986c6d0f75d9a99b9856ae204bcc073cb157820",
+      "crates/core/src/goal_plan.rs": "243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21",
+      "crates/core/src/goal_runtime.rs": "1faa97b5ba7b9fe052e23fa889a7a84109627b374a8cfe0426b419252484de56",
+      "crates/core/src/goal_store.rs": "358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816",
+      "crates/core/src/goal_validator_io.rs": "bae0720b9324dbd2634f05b39dd42d472da652480288ab9e621b65c44b286f57",
+      "crates/core/src/ipc.rs": "a0707471d9eba23b8fc34be50c39bd6a3ad54eebff6940fdef7ac6eb73ec261e",
+      "crates/core/src/lib.rs": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+      "crates/core/src/policy.rs": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+      "crates/core/src/registry.rs": "2e364198355ad5c2bea1077c2c3b7aada842c5dee34826a093bd53817fa2fa45",
+      "crates/core/src/routes.rs": "259642508b6bba313f2545b122986d377b434af6f6caccfcf3208a8bb3c128a1",
+      "crates/core/src/runtime_config.rs": "73e326b050e7fe661fe8a83e19775ea1d0d9da431e2909a1cb4e14c51d0ff3da",
+      "crates/core/src/sessions.rs": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+      "crates/core/src/storage.rs": "cf1610158d80d40cfd0dfe988cee158abdd412fd2e5cd59c3af448a51f717cbd",
+      "crates/core/src/validation.rs": "54dbcb97fcb5cb70c74feb07fb5a737defb8dd0c6af931abbe59ae9143ce71db",
+      "crates/providers/src/codex.rs": "295a0e5ac624e375e0a5cbae7e419594627f657d6485e2f39098e077958099dd",
+      "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+      "crates/providers/src/driver.rs": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+      "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+      "crates/providers/src/installation.rs": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+      "crates/providers/src/lib.rs": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+      "crates/providers/src/process_io.rs": "ab0ad1edd09f59dd500f1446909f490926e0a2af8d5033fdc403189774973774",
+      "crates/providers/src/session_configuration.rs": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+      "crates/providers/src/transport.rs": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff",
+      "crates/workspaces/src/adoption.rs": "be970ed01ee18bebe9b06e62087d0bd7c52e97bfca6db0dcaec60cbedeba9472",
+      "crates/workspaces/src/command_validation.rs": "76a5eeaa2a1822b40d206af63ec32d643da9278e502e72c82da510d62cf8184e",
+      "crates/workspaces/src/data_workspace.rs": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f",
+      "crates/workspaces/src/deterministic.rs": "44e8feda9a9dbd91d7fb5db1ed0c38424ef380fbb8fc3ec565ea3f1591a97c26",
+      "crates/workspaces/src/lib.rs": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+      "crates/workspaces/src/validation.rs": "92ea96d82f7711bca1e5112a59fdbd9f0617df0ce887ce9f55e2c8ac25cd4c83"
+    },
+    "tests": {
+      "crates/core/tests/factory_runtime_ipc.rs": "20e2840abb65305f23aa967395b34359e9894b07444d01a2b6c734fe308f26d6"
+    },
+    "binaries": {
+      "batond": {
+        "path": "/workspace/AgentBaton/.onboarding/factory-narrow-budget-candidate-20261028/batond",
+        "sha256": "88f4676509eb9d50a144c25d90fe301ca5d6fe770d3f38fd38f700be26689968",
+        "bytes": 112099856
+      },
+      "baton": {
+        "path": "/workspace/AgentBaton/.onboarding/factory-narrow-budget-candidate-20261028/baton",
+        "sha256": "961ad172c7455faa862ffd8218cb790198cda42ed1b543d729713255a889ffe7",
+        "bytes": 81314960
+      }
+    },
+    "logs": {
+      "mixed-narrow-old-control.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-old-control.log",
+        "sha256": "2882b6e87cf6900b6160d8ded3a924eea927280e7c31c45b04ba7204715c9859"
+      },
+      "mixed-narrow-old-exit.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-old-exit.json",
+        "sha256": "2b70081b573872dcecace06d8e2b03c30a5c6b495484e8025803a64af1c1e48d"
+      },
+      "mixed-narrow-pre-fix/files.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-pre-fix/files.json",
+        "sha256": "93070252761e23f72b5f03669bd98c4fef6dd742c4ba699b01578a799ba46f60"
+      },
+      "mixed-narrow-pre-fix/observations.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-pre-fix/observations.json",
+        "sha256": "87213cf69be982ed65850f4cdd26e9d5aa6c21d2a1d4342caa2fece4b5f54f58"
+      },
+      "mixed-narrow-pre-fix/factory_runtime.rs": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-pre-fix/factory_runtime.rs",
+        "sha256": "e314992bba95c3d7f7a0d3346499e00cd459ce47fb0c61cea376ddbf1ddd523a"
+      },
+      "mixed-narrow-pre-fix/goal_runtime.rs": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-pre-fix/goal_runtime.rs",
+        "sha256": "9d57bfeb5e267a8de1f92dbdc2b846efc860511712b157a7ae898ea226370a3b"
+      },
+      "mixed-narrow-pre-fix/factory_runtime_ipc.rs": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-pre-fix/factory_runtime_ipc.rs",
+        "sha256": "8973fbf9135471470e3263466c98023433ca8d94f7fe22ec20edaa4c59891652"
+      },
+      "mixed-narrow-pre-fix/old-test-binary": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-pre-fix/old-test-binary",
+        "sha256": "44321f7e91bd637a9cc95f3f98f85cdcc97b7118ff17e664060607ac72a9db2e"
+      },
+      "mixed-narrow-pre-fix/events.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-pre-fix/events.json",
+        "sha256": "8b253f04055ff0971d77358221466aa37da36f94ff730f39d13eff6d0be18723"
+      },
+      "mixed-narrow-entry-before.sha256": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-entry-before.sha256",
+        "sha256": "8e500270dab0b7f0c219cc3f074aec429654e1b39c680ce2fd0e8ce231d1ebce"
+      },
+      "mixed-narrow-entry-after.sha256": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-entry-after.sha256",
+        "sha256": "8e500270dab0b7f0c219cc3f074aec429654e1b39c680ce2fd0e8ce231d1ebce"
+      },
+      "mixed-narrow-final-build.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-final-build.log",
+        "sha256": "361a5ad822ef8c1eb71c7458fc15bd17e880a72dca26341476bf61134c266011"
+      },
+      "mixed-narrow-final-twenty-seven.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-final-twenty-seven.log",
+        "sha256": "e706ae9628b885b7cc82729fda7f42caf7dfbf45eb9567ed606f7a71ec6405b7"
+      },
+      "mixed-narrow-final-twenty-seven-fixed.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-final-twenty-seven-fixed.log",
+        "sha256": "01492c5dd5f2b6402686ee91d4975364fba23cdd9cafcc7bea9850110cf9d526"
+      },
+      "mixed-narrow-final-clippy.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-final-clippy.log",
+        "sha256": "3734e5e56b99c7fdeb242f4db3f507b0cacd45be2786068c8e876d52b15c417e"
+      },
+      "mixed-narrow-final-fmt.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/mixed-narrow-final-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "previous_immutable_mixed_manifest_sha256": "972539acc288a7653340136475d0355044502b254d243d5c1e5fcef39a290377",
+    "verification": {
+      "unique_factory_cases": 27,
+      "migration": 3,
+      "actual_runtime_ipc": 13,
+      "scope": 11,
+      "clippy": "PASS",
+      "fmt": "PASS"
+    },
+    "candidate_manifest": {
+      "path": "/workspace/AgentBaton/.onboarding/factory-narrow-budget-candidate-20261028/manifest.json",
+      "sha256": "84b6a612eebaebaa3f4badc3623f5d6c6302dbc4b652b80d338c4fd3c28b025e"
+    },
+    "commands": [
+      {
+        "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc mixed_narrow_ -- --nocapture",
+        "result": "EXPECTED FAIL1 pre-fix counterexample; actual exit101 preserved"
+      },
+      {
+        "command": "cargo build --locked --bin batond --bin baton",
+        "result": "PASS17.30s with actual Compiling both apps and Core"
+      },
+      {
+        "command": "cargo test --locked -p agentbaton-core --test factory_scope --test factory_migration --test factory_runtime_ipc -- --nocapture",
+        "result": "first attempt:3migration pass/12runtime pass1new fixture terminal-race fail/scope not executed; final attempt:PASS27=3migration0.04s+13IPC29.11s+11scope9.10s"
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+        "result": "PASS9.86s"
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "result": "PASS"
+      }
+    ],
+    "observations": {
+      "pre_fix": {
+        "prior_ms": 177,
+        "old_ledger_cap_ms": 30000,
+        "new_root_cap_ms": 10000,
+        "valid_remaining_ms": 9823,
+        "result": "RESOURCE_LIMIT blocked, no Factory attempt"
+      },
+      "final_narrow": {
+        "prior_ms": 217,
+        "old_ledger_cap_ms": 30000,
+        "new_root_cap_ms": 10000,
+        "first_reservation_ms": 9783,
+        "attempts": 5,
+        "active": 0,
+        "summed_runtime_ms": 1239,
+        "selected_artifact_observations_bytes": 77
+      },
+      "final_busy": {
+        "prior_ms": 201,
+        "first_reservation_ms": 29799,
+        "summed_runtime_ms": 1330
+      },
+      "final_sequence": {
+        "prior_ms": 165,
+        "first_reservation_ms": 29835,
+        "summed_runtime_ms": 1231
+      },
+      "whole_filesystem_and_provider_output": "unknown",
+      "task_acceptance": "not_established"
+    },
+    "not_run": [
+      "all direct helper zero/unknown/history-corruption combinations",
+      "actual scoped depth/fanout/cycle and authorized queue deadline",
+      "large Data/capture cancel/revoke/deadline and post-effect DB-fault matrix",
+      "full current workspace/native/macOS validation and full product acceptance"
+    ]
+  },
+  "scoped_bounds_checkpoint": {
+    "production_source_commit": "12e14913d6bc7471cf902e2110097de8e814ddc8",
+    "production_sources": "all46 reverified byte-exact narrow_scope_budget_checkpoint.sources",
+    "test_sha256": {
+      "crates/core/tests/factory_runtime_ipc.rs": "bd7e4e774ef6dac32c2c8de4381417a6bdfcbd1b37f5f7ec050a00575c084669"
+    },
+    "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc actual_scoped_mcp_depth_fanout_and_forged_parent_ -- --nocapture",
+    "result": "PASS1 first run2.23s;0ignored/0failed;13filtered;not a complete28run",
+    "logs": {
+      "scoped-bounds-first.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-bounds-first.log",
+        "sha256": "c1290089e6f564d0d436830ba438821978ef74d6b6e75a2826438ad0b6ff7970"
+      },
+      "scoped-bounds-first-exit.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-bounds-first-exit.json",
+        "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01"
+      },
+      "scoped-bounds-real-events.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-bounds-real-events.json",
+        "sha256": "0550b5f6364c7047bbeeb29b5f8b6fe444882c4c2d7d7e59aef73adcff075db2"
+      }
+    },
+    "conditions": {
+      "scope_max_depth": 1,
+      "scope_max_children": 1,
+      "scope_max_total_nodes": 4,
+      "root_children_budget": 3,
+      "child_children_budget": 1,
+      "actual_lineage_nodes": 2,
+      "actual_max_depth": 1,
+      "actual_delegations": 1,
+      "actual_attempts": 3,
+      "derived_grants": 0,
+      "accepted_tasks": 0,
+      "rejected_keys_persisted": 0
+    },
+    "actual_denials": [
+      "forged root/parent self-cycle fields:INVALID_REQUEST before mutable authority",
+      "second root child:RESOURCE_LIMIT with rootchildren and totalnodes remaining",
+      "child grandchild:RESOURCE_LIMIT with childchildren and totalnodes remaining",
+      "child reading ancestor task:AUTH_REQUIRED"
+    ],
+    "limitations": [
+      "forged cyclic-parent declaration rejected; no claim of dynamic corrupt-DB-cycle test",
+      "owned leader/worker stop receipts, not escaped tree containment",
+      "no current full28case or repeated lints performed",
+      "queued deadline/large Data/fault/unknown/fullproduct matrix remains"
+    ]
   }
 }

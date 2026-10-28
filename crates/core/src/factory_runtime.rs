@@ -1074,6 +1074,21 @@ pub(crate) fn reserve_factory_session(
         captured_provider_message_bytes: None,
         provider_message_capture_complete: false,
     };
+    // The request's runtime is a ceiling, not a fresh allocation. Ordinary and
+    // Goal work may already have spent this same project/root-Grant budget.
+    // Clamp to the current shared remainder inside the admission transaction;
+    // missing/unknown observations still fail closed in the existing helper.
+    if let Some(remaining) = Store::remaining_shared_runtime_with_limits(
+        db,
+        &c.scope.root_grant_id,
+        &s.project_id,
+        Some((
+            c.scope.selection.root_budget.runtime_ms,
+            c.scope.selection.project_budget.runtime_ms,
+        )),
+    )? {
+        record.reservation.runtime_ms = record.reservation.runtime_ms.min(remaining);
+    }
     // Every ancestor bound is cumulative over actual attempts, not a fresh child budget.
     for ancestor in &ancestors {
         let a = self::binding(db, &r.id, ancestor)?;

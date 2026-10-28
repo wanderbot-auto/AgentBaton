@@ -2469,6 +2469,17 @@ impl Store {
         root: &str,
         project: &str,
     ) -> Result<Option<u64>> {
+        Self::remaining_shared_runtime_with_limits(db, root, project, None)
+    }
+    /// Current request limits can only narrow the original persisted ceilings.
+    /// The optional pair is (root, project), derived from an approved internal
+    /// scope; it is not wire authority and never changes stored history/limits.
+    pub(crate) fn remaining_shared_runtime_with_limits(
+        db: &Connection,
+        root: &str,
+        project: &str,
+        current_limits: Option<(u64, u64)>,
+    ) -> Result<Option<u64>> {
         let all = reservations(db, root, project)?;
         let mut remaining = None::<u64>;
         for (key, is_root) in [
@@ -2493,11 +2504,13 @@ impl Store {
                         .ok_or_else(limited)?;
                 }
             }
-            let left = ledger
-                .limits
-                .runtime_ms
-                .checked_sub(spent)
-                .ok_or_else(limited)?;
+            let cap = current_limits.map_or(ledger.limits.runtime_ms, |(root, project)| {
+                ledger
+                    .limits
+                    .runtime_ms
+                    .min(if is_root { root } else { project })
+            });
+            let left = cap.checked_sub(spent).ok_or_else(limited)?;
             remaining = Some(remaining.map_or(left, |n| n.min(left)));
         }
         Ok(remaining)

@@ -260,3 +260,7 @@ pub(crate) use budget::{budget_records, FactoryReservation};
 #[path = "factory_capture.rs"]
 mod capture;
 pub(crate) use capture::{FactoryCapture, FactoryCapturePlan};
+
+#[path = "factory_reads.rs"]
+mod reads;
+pub(crate) use reads::{FactoryReadControl, FactoryReadPlan, FactoryReadWatch, FactoryReadWitness};

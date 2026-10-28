@@ -925,6 +925,7 @@ pub(crate) struct DataInputContext {
 }
 pub(crate) struct DataInputWitness {
     pub(crate) graph: Option<crate::goal_store::GraphReadWitness>,
+    pub(crate) factory: Option<Box<crate::factory::FactoryReadWitness>>,
     request_hash: String,
     deadline: std::time::Instant,
     inputs: Vec<VerifiedDataInput>,
@@ -1120,10 +1121,14 @@ impl DataInputWitness {
         }
         Ok(Self {
             graph: None,
+            factory: None,
             request_hash,
             deadline,
             inputs,
         })
+    }
+    pub(crate) fn for_hash(&self, hash: &str) -> bool {
+        std::time::Instant::now() < self.deadline && self.request_hash == hash
     }
     pub(crate) fn for_request(&self, raw: &str) -> bool {
         std::time::Instant::now() < self.deadline
