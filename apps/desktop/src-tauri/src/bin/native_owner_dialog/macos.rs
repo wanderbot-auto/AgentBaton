@@ -109,9 +109,7 @@ fn record_report(
             .eval(invoke_script(&state.expected))
             .map_err(|e| e.to_string())?;
     } else {
-        if response.get("error").is_some()
-            || response["result"]["approval_id"] != state.expected["proposal"]["id"]
-        {
+        if controller::validate_grant_response(&response, &state.expected).is_err() {
             drop(phase);
             return Err("Grant response mismatch".into());
         }
