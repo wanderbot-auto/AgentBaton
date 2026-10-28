@@ -378,8 +378,10 @@ def main():
                                 params.update(expected_plan_revision=values['expectedPlanRevision'], expected_ledger_revision=values['expectedLedgerRevision'])
                         else:
                             self.send_error(403); return
-                        if key is not None:
+                        if method in {'goal_plans.propose', 'goal_plans.revise', 'goal_runs.cancel', 'goal_runs.advance_plan'}:
                             assert isinstance(key, str) and re.fullmatch(r'[A-Za-z0-9:_-]{1,128}', key)
+                        else:
+                            assert key is None
                     except (AssertionError, ValueError, TypeError, KeyError):
                         self.send_error(400); return
                     try:
@@ -523,6 +525,7 @@ def main():
                     assert len(second['nodes']) == 2 and second['nodes'][0] == first['nodes'][0]
                     assert second['nodes'][1]['attempt_id'] != first['nodes'][0]['attempt_id'] and second['nodes'][1]['actual_output_bytes'] == 15
                     assert_reaped(scenario, second)
+                    assert (Path(scenario['workspace']['root']) / 'reports/report.txt').read_bytes() == b'fixed report v2'
                     before_recovery = database()
                     assert before_recovery['execution_approvals'] == 1 and before_recovery['budgets'][project_budget] == {'consumed': 2, 'active': 0}
                     assert before_recovery['budgets'][task_budget] == {'consumed': 2, 'active': 0}
@@ -550,6 +553,7 @@ def main():
                     data_view = wait(lambda: run_view(started['id']), lambda view: view['run']['state'] in {'awaiting_acceptance', 'blocked', 'failed', 'outcome_unknown'})
                     assert data_view['run']['state'] == 'awaiting_acceptance' and data_view['nodes'][0]['actual_output_bytes'] == 12
                     assert_reaped(scenario, data_view); refresh(execution); shot('05-real-data-workspace-goal-candidate')
+                    assert (Path(scenario['workspace']['root']) / 'reports/report.txt').read_bytes() == b'fixed report'
                     assert not (Path(scenario['workspace']['root']) / '.git').exists() and (scenario['source'] / 'file').read_bytes() == b'baseline'
                     report['observations']['data_candidate'] = data_view
                     passed('native-confirmed actual selected-file Directory copy supplies real Goal TaskRequest inputs without Git initialization or source writes')

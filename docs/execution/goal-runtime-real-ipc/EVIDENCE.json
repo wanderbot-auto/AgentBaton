@@ -17,7 +17,7 @@
     "AB-REL-001": "separate syntax/browser/generated protocol/native/Provider dimensions"
   },
   "mapping_note": "No AB-ORC IDs exist in the immutable requirements baseline; actual AB-TSK/WP08 identifiers are used without editing specs.",
-  "script_sha256": "3dfeed46a5bb68092f8c05ef3ed06119babd76606a821aa81267613183771ef4",
+  "script_sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
   "status": "prepared_not_executed",
   "actual_checks": [
     "Python ast.parse",
@@ -64,5 +64,15 @@
       "Private Data copy fixture reviews actual source/managed dev-inode and fixed UUID-derived destination before finalize"
     ]
   },
-  "latest_static_followup_report_sha256": "477f5cac76d6662eb125038bf7b0a403300a6233305364c63184ba33911b990e"
+  "latest_static_followup_report_sha256": "477f5cac76d6662eb125038bf7b0a403300a6233305364c63184ba33911b990e",
+  "review_key_and_output_followup": {
+    "source_sha256": "08ed9ed0077761d009a9787b84234cf33a6949c24bd7ed86f57c0064d67355ad",
+    "actual": "AST/py_compile and extracted generated ACP compile PASS",
+    "runtime": "not_run; final Core11 immutable candidate pending",
+    "review_narrow_changes": [
+      "Every one of four allowed mutation methods rejects null/missing/empty/invalid idempotency key at HTTP boundary; read-only remains keyless",
+      "Preserve15/12 selected output meter assertions and add actual rev2/Data bytes equality fixed report v2/fixed report"
+    ]
+  },
+  "review_followup_syntax_sha256": "5e032010fc5c34aaefd4e9c97f02268f93ae78bdf634246c3e2c47f5f3d18f1d"
 }
