@@ -1,0 +1,9 @@
+# Progress
+
+Source `7a13cddef4316d520361071ff5e2a263ea058580` adds diagnostic observation and failure-only capture handling. A sheet number becomes eligible for diagnostic capture only after obtaining the actual caller NSWindow, checking its attached sheet's exact parent, visibility and stable identity for the original 500 ms. Non-NSTextField views contribute class and geometry only; no new text-class fallback is accepted.
+
+Limits: 256 views including queued views, 256 class bytes, 32768 UTF-8 bytes per supported text and 65536 aggregate actual-text bytes; native UTF-16 length is checked before conversion. Over-limit text fails without truncation or click eligibility. Expected message/title retain their own complete raw text/UTF-8/SHA evidence. Each view records parent traversal index, actual window identity, visibility and geometry; supported text records full string and measurable exact-match cell size. Counts and validation stage are saved before the original rejection.
+
+The original exact title/message uniqueness, full visible layout, enabled buttons, proposal binding and host database permit still precede the real click. The capture worker is reused, never replaced or run concurrently in the same phase. Finished normal captures now join before the Cancel-to-Approve phase reset; failure capture joins before reporting rejection, with final teardown still joining any in-flight worker. Original capture child ownership/reap logic, 4-second capture bound, 75-second native deadline and outer 85-second driver deadline remain.
+
+Actual checks: rustfmt parse/check, locked offline no-deps metadata, static preservation proof and diff check all exited 0. Two new pure Rust controls are authored but NOT_RUN without a Cargo lease. No Mac compilation, new OS screenshot, Cancel/OK path, database acceptance or development package verification occurred in this task.

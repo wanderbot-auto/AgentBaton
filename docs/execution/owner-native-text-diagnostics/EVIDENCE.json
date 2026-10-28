@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "base": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+  "source_commit": "7a13cddef4316d520361071ff5e2a263ea058580",
+  "role": "test-only author; independent review pending",
+  "source_hashes": {
+    "apps/desktop/src-tauri/Cargo.toml": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49",
+    "apps/desktop/src-tauri/Cargo.lock": "4fd256434d2bb3c0903919bc6474f8a3712be2a27eab1651d42e63f7b876a93c",
+    "apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs": "4deff52ca01c91f10958ee0ef833f1aab09d0ccaf52c349e03e67fd2a87d2c5e",
+    "apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs": "bb78a3201ed730a6eb87983fc0a91ae1e93081ad4de103949a1b0faa41018f39"
+  },
+  "artifact_directory": "/workspace/.onboarding/owner-native-text-diagnostics",
+  "actual_checks": {
+    "at": "2026-10-28T20:57:07.691561+00:00",
+    "results": [
+      {
+        "name": "rustfmt",
+        "command": [
+          "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+          "--edition",
+          "2021",
+          "--check",
+          "apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs",
+          "apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.026
+      },
+      {
+        "name": "metadata",
+        "command": [
+          "cargo",
+          "metadata",
+          "--manifest-path",
+          "apps/desktop/src-tauri/Cargo.toml",
+          "--locked",
+          "--offline",
+          "--no-deps",
+          "--format-version",
+          "1"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.02
+      },
+      {
+        "name": "static-proof",
+        "command": [
+          "python",
+          "/workspace/.onboarding/owner-native-text-diagnostics/static-proof.py"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.086
+      },
+      {
+        "name": "diff",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.007
+      }
+    ],
+    "Rust_tests": "NOT_RUN_no_Cargo_lease",
+    "Mac_compile_and_GUI": "NOT_RUN"
+  },
+  "historical_failure": {
+    "run_id": 40761824261,
+    "job_id": 123075460314,
+    "actual_checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+    "root_cause": "unknown; actual native strings/classes/counts absent",
+    "retained_artifacts_reused_read_only": true,
+    "new_downloads": 0
+  },
+  "preservation": {
+    "write_byte_identical": true,
+    "invoke_script_byte_identical": true,
+    "owner_dialog_report_byte_identical": true,
+    "contains_byte_identical": true,
+    "view_visible_byte_identical": true,
+    "capture_byte_identical": true,
+    "run_only_failure_state_initialization": true,
+    "record_report_only_failure_state_initialization": true,
+    "controller_acceptance_byte_identical": true,
+    "all_original_four_controller_tests_byte_identical": true,
+    "exact_gate_stability_capture_poll_and_click_invariants_retained": true,
+    "one_phase_capture_owned_number_and_rejection_before_click_source_checks": true,
+    "manifest_only_optional_sha2_feature_root_dependency_no_package_changes": true,
+    "only_four_authorized_source_files_changed": true,
+    "source_hashes": {
+      "apps/desktop/src-tauri/Cargo.toml": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49",
+      "apps/desktop/src-tauri/Cargo.lock": "4fd256434d2bb3c0903919bc6474f8a3712be2a27eab1651d42e63f7b876a93c",
+      "apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs": "4deff52ca01c91f10958ee0ef833f1aab09d0ccaf52c349e03e67fd2a87d2c5e",
+      "apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs": "bb78a3201ed730a6eb87983fc0a91ae1e93081ad4de103949a1b0faa41018f39"
+    },
+    "source_tests_not_run_no_Cargo_lease": true
+  },
+  "not_run": [
+    "new six Rust controller tests (four original, two added)",
+    "Rust compilation/Clippy",
+    "macOS compilation and actual NSAlert observation/capture/buttons",
+    "new macOS release audit and development packages",
+    "live Provider model calls"
+  ],
+  "commands_not_run_without_lease": true,
+  "production_or_authorization_changes": false,
+  "optional_dependency_explicitly_authorized_by_root": true
+}
