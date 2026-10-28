@@ -231,7 +231,7 @@ impl Store {
             Some(0)
         } else {
             capture
-                .filter(|c| c.recheck().is_ok())
+                .filter(|c| c.recheck().is_ok() && c.recheck_data(&self.conn).is_ok())
                 .and_then(|c| c.observed_bytes)
         };
         record.captured_provider_message_bytes=Some(u64::try_from(self.conn.query_row("SELECT COALESCE(sum(octet_length(json_extract(document,'$.payload.update'))),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.update'",[id],|r|r.get::<_,i64>(0)).map_err(db_error)?).map_err(|_|changed())?);

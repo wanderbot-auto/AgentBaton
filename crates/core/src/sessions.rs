@@ -640,7 +640,13 @@ impl Store {
             )?;
         }
         if let Some(context) = factory.as_ref() {
-            crate::factory::reserve_factory_session(&tx, context, &session, &intent.binding)?;
+            crate::factory::reserve_factory_session(
+                &tx,
+                context,
+                &session,
+                &intent.binding,
+                self.data_input.as_ref(),
+            )?;
         } else if goal.is_none() {
             Store::reserve_ordinary_shared_budget(&tx, &session, &grant, &canonical_root)?;
         }
@@ -1191,9 +1197,12 @@ impl Supervisor {
             approval_reference: grant.approval_id,
             environment,
         };
-        let factory_mcp = store.factory_mcp_for_launch(id, &self.runtime)?;
+        let mut factory_mcp = store.factory_mcp_for_launch(id, &self.runtime)?;
         // The durable sent marker precedes worker spawn and any provider code.
         store.mark_dispatch_started(&s.intent_id, &s.id)?;
+        if let Some(mcp) = factory_mcp.as_mut() {
+            mcp.attach_data(store.data_input.take());
+        }
         let (commands, receiver) = mpsc::sync_channel(8);
         let cancel = Arc::new(AtomicBool::new(false));
         let worker_cancel = cancel.clone();
@@ -1575,13 +1584,31 @@ fn run_worker(
 ) -> WorkerReceipt {
     let started = Instant::now();
     let prior = launch.prelaunch_ms;
-    let capture_plan = launch
+    if launch
+        .factory_mcp
+        .as_ref()
+        .is_some_and(|m| m.check_data_boundary().is_err())
+    {
+        return WorkerReceipt {
+            capture: None,
+            reason: "data_observation_expired_before_worker".into(),
+            process_reaped: false,
+            never_started: true,
+            elapsed_ms: prior,
+        };
+    }
+    let data = launch.factory_mcp.as_mut().and_then(|m| m.take_data());
+    let execution_deadline = started + launch.duration;
+    let mut capture_plan = launch
         .factory_mcp
         .as_mut()
         .and_then(|m| m.take_capture_plan());
-    let mut receipt = run_worker_inner(id, launch, commands, cancel, events);
+    let mut receipt = run_worker_inner(id, launch, commands, cancel, events, data.as_ref());
+    if let (Some(plan), Some(data)) = (capture_plan.as_mut(), data) {
+        plan.attach_observation_contexts(data.into_observation_contexts());
+    }
     if receipt.process_reaped && !receipt.never_started {
-        receipt.capture = capture_plan.and_then(|p| p.capture().ok());
+        receipt.capture = capture_plan.and_then(|p| p.capture(execution_deadline).ok());
     }
     receipt.elapsed_ms = u64::try_from(started.elapsed().as_millis())
         .unwrap_or(u64::MAX)
@@ -1594,6 +1621,7 @@ fn run_worker_inner(
     commands: Receiver<Work>,
     cancel: Arc<AtomicBool>,
     events: SyncSender<Outcome>,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
 ) -> WorkerReceipt {
     let WorkerLaunch {
         route,
@@ -1630,6 +1658,15 @@ fn run_worker_inner(
         return WorkerReceipt {
             capture: None,
             reason: "factory_preflight_cancelled_or_deadline".into(),
+            process_reaped: false,
+            never_started: true,
+            elapsed_ms: 0,
+        };
+    }
+    if data.is_some_and(|d| d.check_worker_boundary().is_err()) {
+        return WorkerReceipt {
+            capture: None,
+            reason: "data_changed_or_request_deadline_before_spawn".into(),
             process_reaped: false,
             never_started: true,
             elapsed_ms: 0,

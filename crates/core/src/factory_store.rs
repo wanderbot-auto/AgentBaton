@@ -400,13 +400,29 @@ impl Store {
                 r.clone(),
             )
             .map_err(|_| invalid())?;
-            let bytes = agentbaton_workspaces::read_artifact(root, &r.relative_path, r.max_bytes)
-                .map_err(|_| changed())?;
-            total = total.checked_add(bytes.len()).ok_or_else(limited)?;
+            let (digest, observed) = if matches!(
+                workspaces[0].identity.as_ref().map(|i| &i.kind),
+                Some(agentbaton_workspaces::WorkspaceKind::Directory)
+            ) {
+                self.data_input
+                    .as_ref()
+                    .ok_or_else(denied)?
+                    .selected_input_observation(&self.conn, &workspaces[0], r)?
+            } else {
+                let bytes =
+                    agentbaton_workspaces::read_artifact(root, &r.relative_path, r.max_bytes)
+                        .map_err(|_| changed())?;
+                (
+                    agentbaton_workspaces::validation::sha256(&bytes),
+                    bytes.len() as u64,
+                )
+            };
+            total = total
+                .checked_add(usize::try_from(observed).map_err(|_| limited())?)
+                .ok_or_else(limited)?;
             if total > 64 * 1024 * 1024 {
                 return Err(limited());
             }
-            let digest = agentbaton_workspaces::validation::sha256(&bytes);
             if r.expected_sha256
                 .as_ref()
                 .is_some_and(|expected| expected != &digest)
@@ -416,7 +432,7 @@ impl Store {
             inputs.push(FactoryInputBinding {
                 contract: bound.contract_view(),
                 sha256: digest,
-                bytes: bytes.len() as u64,
+                bytes: observed,
             });
         }
         for r in &selection.outputs {

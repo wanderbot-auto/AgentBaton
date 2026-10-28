@@ -249,7 +249,8 @@ pub struct FactoryRecordCounts {
 mod runtime;
 pub(crate) use runtime::{
     is_factory_task, owns_session, permits_factory_dispatch, reserve_factory_session,
-    task_budget_root, FactoryAction, FactoryDispatchContext, FactoryMcpLaunch,
+    task_budget_root, FactoryAction, FactoryDispatchContext, FactoryDispatchTicket,
+    FactoryMcpLaunch,
 };
 
 #[path = "factory_budget.rs"]

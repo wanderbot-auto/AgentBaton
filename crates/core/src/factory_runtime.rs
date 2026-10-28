@@ -157,7 +157,7 @@ pub(crate) fn owns_session(db: &Connection, id: &str) -> Result<bool> {
     )
     .map_err(db_error)
 }
-fn live(db: &Connection, s: &FactoryScope) -> Result<()> {
+fn base_live(db: &Connection, s: &FactoryScope) -> Result<()> {
     let current = scope(db, &s.id)?;
     if current.revoked
         || current.revision != s.revision
@@ -170,16 +170,7 @@ fn live(db: &Connection, s: &FactoryScope) -> Result<()> {
     if encode(&grant)? != encode(&s.bindings.approved_grant)? {
         return Err(changed());
     }
-    // Original Grant authority is indivisible: unselected recipients/workspaces
-    // remain pinned, including every ancestor's current underlying bindings.
-    crate::policy::validate_grant_live_from_with_data(
-        db,
-        &s.root_grant_id,
-        &s.project_id,
-        &s.selection.workspace_ids[0],
-        &s.selection.connection_ids[0],
-        None,
-    )?;
+    crate::policy::observe_grant_bindings(db, &grant)?;
     for original in &s.bindings.connections {
         let row:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM connections WHERE id=?1",[&original.id],|r|r.get(0)).optional().map_err(db_error)?;
         let current: crate::sessions::ProviderConnection =
@@ -227,6 +218,22 @@ fn live(db: &Connection, s: &FactoryScope) -> Result<()> {
     {
         return Err(denied());
     }
+    Ok(())
+}
+fn live_with_input(
+    db: &Connection,
+    s: &FactoryScope,
+    input: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<()> {
+    base_live(db, s)?;
+    crate::policy::validate_grant_live_from_with_data(
+        db,
+        &s.root_grant_id,
+        &s.project_id,
+        &s.selection.workspace_ids[0],
+        &s.selection.connection_ids[0],
+        input,
+    )?;
     Ok(())
 }
 impl Store {
@@ -277,7 +284,7 @@ impl Store {
             return Ok(old);
         }
         let s = scope(&self.conn, scope_id)?;
-        live(&self.conn, &s)?;
+        live_with_input(&self.conn, &s, self.data_input.as_ref())?;
         if s.revision != revision {
             return Err(CoreError::new(
                 "STALE_REVISION",
@@ -379,7 +386,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        live(&tx, &s)?;
+        live_with_input(&tx, &s, self.data_input.as_ref())?;
         check_admission_db(&tx, &s.bindings)?;
         tx.execute("INSERT INTO factory_runs(id,scope_id,root_task_id,project_id,revision,state,document) VALUES(?1,?2,?3,?4,1,'queued',?5)",params![r.id,r.scope_id,r.root_task_id,r.project_id,encode(&r)?]).map_err(db_error)?;
         tx.execute("INSERT OR IGNORE INTO factory_task_lineage(task_id,root_task_id,parent_task_id,scope_id,delegation_id,depth,document) VALUES(?1,?1,NULL,?2,NULL,0,?3)",params![task.id,s.id,encode(&lineage)?]).map_err(db_error)?;
@@ -564,11 +571,7 @@ fn authorized_target(db: &Connection, caller: &FactoryCaller, target: &str) -> R
     Ok(b)
 }
 impl Store {
-    pub(crate) fn authenticate_factory_handle(
-        &self,
-        handle_id: &str,
-        token: &str,
-    ) -> Result<FactoryCaller> {
+    fn authenticate_factory_base(&self, handle_id: &str, token: &str) -> Result<FactoryBaseCaller> {
         key(handle_id)?;
         if token.len() != 64 || !token.bytes().all(|b| b.is_ascii_hexdigit()) {
             return Err(denied());
@@ -591,7 +594,7 @@ impl Store {
             return Err(denied());
         }
         let scope = scope(&self.conn, &scope_id)?;
-        live(&self.conn, &scope)?;
+        base_live(&self.conn, &scope)?;
         let run = run(&self.conn, &scope_id)?;
         let session = self.get_session(&session_id)?;
         let task = binding(&self.conn, &run.id, &h.task_id)?;
@@ -620,12 +623,12 @@ impl Store {
         if lease.holder != session.id || lease.fencing_token != session.fencing_token {
             return Err(denied());
         }
-        Ok(FactoryCaller {
+        Ok(FactoryBaseCaller(FactoryCaller {
             scope,
             run,
             session,
             task,
-        })
+        }))
     }
     pub(crate) fn factory_delegate(
         &mut self,
@@ -810,7 +813,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        live(&tx, &caller.scope)?;
+        live_with_input(&tx, &caller.scope, self.data_input.as_ref())?;
         tx.execute(
             "INSERT INTO tasks(id,document) VALUES(?1,?2)",
             params![task.id, encode(&task)?],
@@ -1008,8 +1011,9 @@ pub(crate) fn reserve_factory_session(
     c: &FactoryDispatchContext,
     s: &ManagedSession,
     binding: &crate::execution::ExecutionBinding,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
 ) -> Result<()> {
-    live(db, &c.scope)?;
+    live_with_input(db, &c.scope, data)?;
     let mut b = self::binding(db, &c.run.id, &s.task_id)?;
     let mut r = run(db, &c.scope.id)?;
     if r.cancel_requested
@@ -1170,7 +1174,11 @@ pub(crate) fn reserve_factory_session(
 
 pub(crate) enum FactoryAction {
     Launch(FactoryDispatchContext),
-    Prompt { session_id: String, text: String },
+    Prompt {
+        session_id: String,
+        text: String,
+        context: FactoryDispatchContext,
+    },
     Stop(String),
 }
 impl Store {
@@ -1188,7 +1196,7 @@ impl Store {
         for id in ids {
             let s = scope(&self.conn, &id)?;
             let mut r = run(&self.conn, &id)?;
-            let authorized = live(&self.conn, &s).is_ok();
+            let authorized = base_live(&self.conn, &s).is_ok();
             let all = bindings(&self.conn, &r)?;
             if r.cancel_requested || !authorized {
                 let tx = self.conn.transaction().map_err(db_error)?;
@@ -1256,7 +1264,16 @@ impl Store {
                         "factory_core",
                     )?;
                     tx.commit().map_err(db_error)?;
-                    return Ok(Some(FactoryAction::Prompt { session_id, text }));
+                    return Ok(Some(FactoryAction::Prompt {
+                        session_id,
+                        text,
+                        context: FactoryDispatchContext {
+                            scope: s,
+                            run: r,
+                            task: b,
+                            queued_ms: 0,
+                        },
+                    }));
                 }
                 if session.turn_state.as_deref() == Some("completed") && b.stop_reason.is_none() {
                     let tx = self.conn.transaction().map_err(db_error)?;
@@ -1337,7 +1354,7 @@ impl Store {
         let b = binding(&self.conn, &r.id, &session.task_id)?;
         let receipt:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='factory.internal_stop_prepared' AND json_extract(document,'$.source')='factory_core' AND json_extract(document,'$.payload.attempt_id')=?2 AND json_extract(document,'$.payload.turn_state')='completed')",params![id,session.attempt_id],|r|r.get(0)).map_err(db_error)?;
         Ok(receipt
-            && live(&self.conn, &s).is_ok()
+            && base_live(&self.conn, &s).is_ok()
             && !r.cancel_requested
             && !b.handle.cancel_requested
             && b.session_id.as_deref() == Some(id)
@@ -1371,7 +1388,9 @@ impl Store {
             && !never_started
             && reason == "cancelled"
             && self.factory_internal_stop_is_current(id)?
-            && capture.is_some_and(|c| c.inputs_current && c.recheck().is_ok())
+            && capture.is_some_and(|c| {
+                c.inputs_current && c.recheck().is_ok() && c.recheck_data(&self.conn).is_ok()
+            })
             && self.shared_observation_within_reservation(id)?;
         let cancelled = r.cancel_requested
             || b.handle.cancel_requested
@@ -1478,7 +1497,7 @@ impl Store {
             )
             .map_err(db_error)?;
         let s = scope(&self.conn, &scope_id)?;
-        live(&self.conn, &s)?;
+        live_with_input(&self.conn, &s, self.data_input.as_ref())?;
         let b = binding(
             &self.conn,
             &run(&self.conn, &scope_id)?.id,
@@ -1530,7 +1549,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        live(&tx, &s)?;
+        live_with_input(&tx, &s, self.data_input.as_ref())?;
         tx.execute("INSERT INTO factory_scoped_handles(id,scope_id,session_id,attempt_id,task_id,token_digest,expires_at_ms,revoked,fencing_token,document) VALUES(?1,?2,?3,?4,?5,?6,?7,0,?8,?9)",params![record.id,s.id,id,session.attempt_id,session.task_id,agentbaton_workspaces::validation::sha256(token.as_bytes()),record.expires_at_ms,i64::try_from(record.fencing_token).map_err(|_|limited())?,encode(&record)?]).map_err(db_error)?;
         event(
             &tx,
@@ -1569,6 +1588,7 @@ impl Store {
             credential: file,
             handoff,
             capture: Some(capture),
+            data: None,
         }))
     }
 }
@@ -1612,11 +1632,12 @@ pub(crate) fn is_factory_task(db: &Connection, id: &str) -> Result<bool> {
 pub(crate) fn permits_factory_dispatch(
     db: &Connection,
     i: &crate::execution::DispatchIntent,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
 ) -> Result<bool> {
     let row:Option<String>=db.query_row("SELECT scope_id FROM factory_attempts WHERE attempt_id=?1 AND task_id=?2 AND root_task_id=?3 AND state='reserved'",params![i.attempt_id,i.task_id,i.root_task_id],|r|r.get(0)).optional().map_err(db_error)?;
     let Some(id) = row else { return Ok(false) };
     let s = scope(db, &id)?;
-    live(db, &s)?;
+    live_with_input(db, &s, data)?;
     let r = run(db, &id)?;
     let b = binding(db, &r.id, &i.task_id)?;
     Ok(!r.cancel_requested
@@ -1652,8 +1673,21 @@ pub(crate) struct FactoryMcpLaunch {
     credential: std::path::PathBuf,
     handoff: Vec<FactoryArtifactReference>,
     capture: Option<FactoryCapturePlan>,
+    data: Option<crate::data_workspaces::DataInputWitness>,
 }
 impl FactoryMcpLaunch {
+    pub(crate) fn check_data_boundary(&self) -> Result<()> {
+        if let Some(data) = &self.data {
+            data.check_worker_boundary()?;
+        }
+        Ok(())
+    }
+    pub(crate) fn attach_data(&mut self, data: Option<crate::data_workspaces::DataInputWitness>) {
+        self.data = data;
+    }
+    pub(crate) fn take_data(&mut self) -> Option<crate::data_workspaces::DataInputWitness> {
+        self.data.take()
+    }
     pub(crate) fn take_capture_plan(&mut self) -> Option<FactoryCapturePlan> {
         self.capture.take()
     }
@@ -1734,7 +1768,7 @@ impl Store {
             .map_err(db_error)?;
         let s = scope(&self.conn, &sid)?;
         let r = run(&self.conn, &sid)?;
-        Ok(live(&self.conn, &s).is_ok() && !r.cancel_requested)
+        Ok(base_live(&self.conn, &s).is_ok() && !r.cancel_requested)
     }
 }
 
@@ -1748,11 +1782,6 @@ impl Store {
         save_run(&tx, &mut r, "factory.run_blocked", payload)?;
         tx.commit().map_err(db_error)?;
         Ok(())
-    }
-}
-impl Store {
-    pub(crate) fn factory_scope_for_task(&self, id: &str) -> Result<String> {
-        Ok(lineage(&self.conn, id)?.factory_scope_id)
     }
 }
 
@@ -1873,7 +1902,7 @@ fn join_parent(db: &Connection, r: &mut FactoryRun, parent_id: &str) -> Result<(
         );
     }
     // All exact sibling receipts are fixed before consuming a new parent attempt.
-    live(db, &s)?;
+    base_live(db, &s)?;
     parent.session_id = None;
     parent.turn_sent = false;
     parent.stop_reason = None;
@@ -1890,4 +1919,170 @@ fn join_parent(db: &Connection, r: &mut FactoryRun, parent_id: &str) -> Result<(
         "factory.handoff_prepared",
         json!({"parent_task_id":parent_id,"parent_session_id":old_session,"child_task_ids":ids,"handoff_digest":digest,"handoff_results":parent.handoff_results,"context_continuation":"new_attempt_explicit_handoff_only","task_accepted":false}),
     )
+}
+
+struct FactoryBaseCaller(FactoryCaller);
+impl Store {
+    pub(crate) fn authenticate_factory_handle(
+        &self,
+        id: &str,
+        token: &str,
+    ) -> Result<FactoryCaller> {
+        let base = self.authenticate_factory_base(id, token)?;
+        live_with_input(&self.conn, &base.0.scope, self.data_input.as_ref())?;
+        Ok(base.0)
+    }
+    pub(crate) fn factory_scoped_data_contexts(
+        &self,
+        id: &str,
+        token: &str,
+    ) -> Result<Vec<crate::data_workspaces::DataInputContext>> {
+        let base = self.authenticate_factory_base(id, token)?;
+        self.prepare_data_input_contexts(&base.0.scope.bindings.approved_grant.scope.workspace_ids)
+    }
+}
+
+/// Only the internal scheduler constructs this capability. A socket request
+/// cannot deserialize or attach it, even with the separate owner IPC token.
+pub(crate) struct FactoryDispatchTicket {
+    context: FactoryDispatchContext,
+    queued_since: std::time::Instant,
+    raw_hash: String,
+    prompt: Option<(String, String)>,
+}
+impl FactoryDispatchContext {
+    pub(crate) fn ticket(
+        self,
+        queued_since: std::time::Instant,
+    ) -> Result<(String, FactoryDispatchTicket)> {
+        let raw = encode(
+            &json!({"schema_version":1,"kind":"private_factory_dispatch","nonce":Uuid::new_v4().to_string(),"scope_id":self.scope.id,"run_id":self.run.id,"task_id":self.task.handle.task_id,"run_revision":self.run.revision,"task_revision":self.task.handle.revision,"contract_digest":self.scope.contract_digest}),
+        )?;
+        let raw_hash = agentbaton_workspaces::validation::sha256(raw.as_bytes());
+        Ok((
+            raw,
+            FactoryDispatchTicket {
+                context: self,
+                queued_since,
+                raw_hash,
+                prompt: None,
+            },
+        ))
+    }
+}
+impl FactoryDispatchContext {
+    pub(crate) fn prompt_ticket(
+        self,
+        session_id: String,
+        text: String,
+    ) -> Result<(String, FactoryDispatchTicket)> {
+        let (mut raw, mut ticket) = self.ticket(std::time::Instant::now())?;
+        let mut value: Value = decode(&raw)?;
+        value["action"] = json!("send_fixed_prompt");
+        value["session_id"] = json!(session_id);
+        value["prompt_digest"] = json!(agentbaton_workspaces::validation::sha256(text.as_bytes()));
+        raw = encode(&value)?;
+        ticket.raw_hash = agentbaton_workspaces::validation::sha256(raw.as_bytes());
+        ticket.prompt = Some((session_id, text));
+        Ok((raw, ticket))
+    }
+}
+impl FactoryDispatchTicket {
+    pub(crate) fn prompt(&self) -> Option<(&str, &str)> {
+        self.prompt.as_ref().map(|(s, t)| (s.as_str(), t.as_str()))
+    }
+    pub(crate) fn for_request(&self, raw: &str) -> bool {
+        self.raw_hash == agentbaton_workspaces::validation::sha256(raw.as_bytes())
+    }
+    pub(crate) fn scope_id(&self) -> &str {
+        &self.context.scope.id
+    }
+    pub(crate) fn elapsed_ms(&self) -> u64 {
+        u64::try_from(self.queued_since.elapsed().as_millis()).unwrap_or(u64::MAX)
+    }
+    pub(crate) fn into_context(mut self) -> FactoryDispatchContext {
+        self.context.set_queued_ms(self.elapsed_ms());
+        self.context
+    }
+}
+impl Store {
+    pub(crate) fn factory_ticket_data_contexts(
+        &self,
+        ticket: &FactoryDispatchTicket,
+    ) -> Result<Vec<crate::data_workspaces::DataInputContext>> {
+        let context = &ticket.context;
+        base_live(&self.conn, &context.scope)?;
+        let r = run(&self.conn, &context.scope.id)?;
+        let b = binding(&self.conn, &r.id, &context.task.handle.task_id)?;
+        if r.revision != context.run.revision
+            || r.cancel_requested
+            || b.handle.revision != context.task.handle.revision
+            || b.handle.cancel_requested
+            || match ticket.prompt() {
+                None => b.session_id.is_some(),
+                Some((id, _)) => {
+                    b.session_id.as_deref() != Some(id)
+                        || r.active_session_id.as_deref() != Some(id)
+                        || self.get_session(id)?.state != "ready"
+                }
+            }
+        {
+            return Err(changed());
+        }
+        self.prepare_data_input_contexts(&context.scope.bindings.approved_grant.scope.workspace_ids)
+    }
+}
+impl Store {
+    pub(crate) fn fail_factory_preflight(
+        &mut self,
+        id: &str,
+        elapsed: u64,
+        mut error: CoreError,
+    ) -> Result<()> {
+        let s = scope(&self.conn, id)?;
+        let mut r = run(&self.conn, id)?;
+        if r.active_session_id.is_some() {
+            return Err(CoreError::new(
+                "OUTCOME_UNKNOWN",
+                "A preflight result overlaps an existing attempt; preserve its reservation",
+            ));
+        }
+        let payload = encode(
+            &json!({"run_id":r.id,"revision":r.revision,"elapsed_ms":elapsed,"error":error}),
+        )?;
+        let key = format!("preflight:{}:{}", r.id, r.revision);
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        if replay::<Value>(&tx, "factory:preflight-observation", &key, &payload)?.is_some() {
+            return Ok(());
+        }
+        Store::charge_factory_preflight(&tx, &s, elapsed)?;
+        r.state = if r.cancel_requested {
+            "cancelled"
+        } else {
+            "blocked"
+        }
+        .into();
+        error.side_effect_state = "confirmed".into();
+        error.details_ref = Some(format!("recorded-factory-run:{}", r.id));
+        r.last_error = Some(error);
+        let request_cancelled = r.cancel_requested;
+        save_run(
+            &tx,
+            &mut r,
+            "factory.preflight_finished",
+            json!({"runtime_ms":elapsed,"measurement_scope":"owned_queue_preflight_without_provider_attempt","provider_started":false,"selected_artifact_bytes":0,"filesystem_total_bytes":null,"request_cancelled":request_cancelled}),
+        )?;
+        remember(
+            &tx,
+            "factory:preflight-observation",
+            &key,
+            &payload,
+            &json!({"run_id":r.id,"state":r.state,"runtime_ms":elapsed}),
+        )?;
+        tx.commit().map_err(db_error)?;
+        Ok(())
+    }
 }

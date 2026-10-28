@@ -3545,3 +3545,48 @@ impl Store {
         Ok(remaining)
     }
 }
+
+impl Store {
+    /// Recording owned queue/preflight work is cleanup/accounting, not permission
+    /// to start a Provider. Existing caps and unknown history are never reset.
+    pub(crate) fn charge_factory_preflight(
+        db: &Connection,
+        scope: &crate::factory::FactoryScope,
+        elapsed: u64,
+    ) -> Result<()> {
+        let (pc, _, rc, _) = counts(
+            db,
+            &scope.bindings.root_task,
+            &scope.bindings.approved_grant,
+        )?;
+        for (key, limits, before) in [
+            (
+                format!("project:{}", scope.project_id),
+                &scope.selection.project_budget,
+                pc,
+            ),
+            (
+                format!("root-grant:{}", scope.root_grant_id),
+                &scope.selection.root_budget,
+                rc,
+            ),
+        ] {
+            remember_meter(db, &key, limits, before)?;
+            let raw: String = db
+                .query_row(
+                    "SELECT document FROM goal_ledgers WHERE scope=?1",
+                    [&key],
+                    |r| r.get(0),
+                )
+                .map_err(db_error)?;
+            let mut ledger: MeterLedger = decode(&raw)?;
+            ledger.runtime_ms = ledger.runtime_ms.and_then(|n| n.checked_add(elapsed));
+            db.execute(
+                "UPDATE goal_ledgers SET document=?1 WHERE scope=?2",
+                params![encode(&ledger)?, key],
+            )
+            .map_err(db_error)?;
+        }
+        Ok(())
+    }
+}

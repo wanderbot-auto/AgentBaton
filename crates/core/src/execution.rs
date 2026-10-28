@@ -286,7 +286,11 @@ impl Store {
         if task.state != TaskState::Draft
             && !(task.state == TaskState::Running
                 && crate::goal_store::permits_continuing_task(&self.conn, &intent)?)
-            && !crate::factory::permits_factory_dispatch(&self.conn, &intent)?
+            && !crate::factory::permits_factory_dispatch(
+                &self.conn,
+                &intent,
+                self.data_input.as_ref(),
+            )?
         {
             return Err(CoreError::new(
                 "PERMISSION_DENIED",

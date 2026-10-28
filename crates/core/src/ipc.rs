@@ -288,6 +288,7 @@ pub(crate) struct ReadyRequest {
     pub(crate) raw: String,
     pub(crate) reply: SyncSender<Value>,
     pub(crate) deadline: Instant,
+    pub(crate) factory_dispatch: Option<crate::factory::FactoryDispatchTicket>,
 }
 fn configure_accepted_stream(stream: &UnixStream) -> std::io::Result<()> {
     // BSD/Darwin can inherit O_NONBLOCK from the listener. Deadline-based frame
@@ -307,6 +308,7 @@ fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
                 raw,
                 reply,
                 deadline: Instant::now() + Duration::from_secs(60),
+                factory_dispatch: None,
             };
             if requests.try_send(job).is_err() {
                 json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Local request queue is unavailable"),"revision":0,"warnings":[]})
@@ -336,6 +338,8 @@ pub struct Daemon {
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
     goal_pending: Option<(String, Receiver<Value>)>,
     factory_queue_clocks: std::collections::HashMap<String, Instant>,
+    factory_pending: Option<(String, Receiver<Value>)>,
+    factory_fatal_error: Option<CoreError>,
     graph_workers: crate::goal_store::GraphWorkers,
 }
 impl Daemon {
@@ -394,6 +398,8 @@ impl Daemon {
             data_workers,
             goal_pending: None,
             factory_queue_clocks: Default::default(),
+            factory_pending: None,
+            factory_fatal_error: None,
             graph_workers: Default::default(),
         })
     }
@@ -406,6 +412,9 @@ impl Daemon {
             self.command_workers.tick(&mut self.store)?;
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
+            if let Some(error) = self.factory_fatal_error.take() {
+                return Err(error);
+            }
             self.tick_factory()?;
             self.tick_goals()?;
             for _ in 0..16 {
@@ -1271,6 +1280,7 @@ impl Daemon {
         match request.method.as_str() {
             "factory_scopes.propose" => {
                 let p: crate::factory::FactoryScopeSelection = params(request.params)?;
+                ids.extend(self.store.get_grant(&p.grant_id)?.scope.workspace_ids);
                 ids.extend(p.workspace_ids);
             }
             "grants.propose" => {
@@ -1519,6 +1529,21 @@ impl Daemon {
                 };
                 ids.push(workspace);
             }
+            "factory_runs.start" => {
+                let p: FactoryScopeId = params(request.params)?;
+                let scope = self.store.get_factory_scope(&p.scope_id)?;
+                if self
+                    .store
+                    .factory_start_replay(
+                        &p.scope_id,
+                        request.expected_revision.ok_or_else(invalid)?,
+                        request.idempotency_key.as_deref().ok_or_else(invalid)?,
+                    )?
+                    .is_none()
+                {
+                    ids.extend(scope.bindings.approved_grant.scope.workspace_ids);
+                }
+            }
             "approvals.finalize" | "approvals.decline" => {
                 let p: ProposalId = params(request.params)?;
                 let raw: Option<String> = {
@@ -1529,6 +1554,9 @@ impl Daemon {
                     let proposal: crate::sessions::ApprovalProposal = crate::storage::decode(&raw)?;
                     match proposal.kind.as_str() {
                         "factory" => {
+                            if let Some(id) = proposal.snapshot["selection"]["grant_id"].as_str() {
+                                ids.extend(self.store.get_grant(id)?.scope.workspace_ids);
+                            }
                             if let Some(workspaces) =
                                 proposal.snapshot["bindings"]["workspaces"].as_array()
                             {
@@ -1605,15 +1633,84 @@ impl Daemon {
     }
     fn handle_ready_request(&mut self, job: ReadyRequest) {
         if Instant::now() > job.deadline {
+            if job.factory_dispatch.is_some() {
+                self.finish_factory_ticket_error(
+                    job,
+                    CoreError::new(
+                        "RESOURCE_LIMIT",
+                        "Queued private Factory dispatch expired before admission",
+                    ),
+                );
+                return;
+            }
             let _ = job.reply.try_send(json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before admission"),"revision":0,"warnings":[]}));
+            return;
+        }
+        if job.factory_dispatch.is_some() {
+            let contexts = {
+                let ticket = job.factory_dispatch.as_ref().unwrap();
+                if !ticket.for_request(&job.raw) {
+                    Err(CoreError::new(
+                        "AUTH_REQUIRED",
+                        "Private Factory ticket does not match its exact request",
+                    ))
+                } else {
+                    self.store.factory_ticket_data_contexts(ticket)
+                }
+            };
+            match contexts {
+                Err(error) => self.finish_factory_ticket_error(job, error),
+                Ok(contexts) if !contexts.is_empty() => {
+                    if let Err(failure) = self.data_workers.defer(contexts, None, job) {
+                        let (error, job) = *failure;
+                        self.finish_factory_ticket_error(job, error);
+                    }
+                }
+                Ok(_) => self.execute_factory_ticket(job),
+            }
             return;
         }
         if serde_json::from_str::<Value>(&job.raw)
             .ok()
             .is_some_and(|v| v.get("scoped_token").is_some())
         {
-            let response = self.handle_factory_scoped(&job.raw);
-            let _ = job.reply.try_send(response);
+            let contexts = (|| {
+                let request: FactoryScopedRequest =
+                    params(serde_json::from_str(&job.raw).map_err(|_| invalid())?)?;
+                if request.api_version != 1
+                    || request.request_id.is_empty()
+                    || request.request_id.len() > 128
+                    || !matches!(
+                        request.method.as_str(),
+                        "delegate_task" | "get_task_status" | "get_task_result" | "cancel_task"
+                    )
+                {
+                    return Err(CoreError::new(
+                        "AUTH_REQUIRED",
+                        "Only the fixed four scoped methods can request a data observation",
+                    ));
+                }
+                self.store
+                    .factory_scoped_data_contexts(&request.handle_id, &request.scoped_token)
+            })();
+            match contexts {
+                Err(_) => {
+                    let response = self.handle_factory_scoped(&job.raw);
+                    let _ = job.reply.try_send(response);
+                }
+                Ok(contexts) if !contexts.is_empty() => {
+                    if let Err(failure) = self.data_workers.defer(contexts, None, job) {
+                        let (error, job) = *failure;
+                        let _ = job
+                            .reply
+                            .try_send(self.factory_ready_error(&job.raw, error));
+                    }
+                }
+                Ok(_) => {
+                    let response = self.handle_factory_scoped(&job.raw);
+                    let _ = job.reply.try_send(response);
+                }
+            }
             return;
         }
 
@@ -1648,22 +1745,48 @@ impl Daemon {
         match completed {
             CompletedDataRequest::Input(job, result) => match *result {
                 Err(error) => {
-                    let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                    if job.factory_dispatch.is_some() {
+                        self.finish_factory_ticket_error(job, error);
+                    } else {
+                        let _ = job
+                            .reply
+                            .try_send(self.factory_ready_error(&job.raw, error));
+                    }
                 }
                 Ok(mut witness) => {
                     if Instant::now() > job.deadline || !witness.for_request(&job.raw) {
-                        let _ = job.reply.try_send(self.ready_error(
-                            &job.raw,
-                            CoreError::new(
-                                "DEADLINE_EXCEEDED",
-                                "Data observation expired or belongs to another request",
-                            ),
-                        ));
+                        let error = CoreError::new(
+                            "DEADLINE_EXCEEDED",
+                            "Data observation expired or belongs to another exact request",
+                        );
+                        if job.factory_dispatch.is_some() {
+                            self.finish_factory_ticket_error(job, error);
+                        } else {
+                            let _ = job
+                                .reply
+                                .try_send(self.factory_ready_error(&job.raw, error));
+                        }
                         return;
                     }
                     debug_assert!(self.store.data_input.is_none());
                     self.store.graph_input = witness.graph.take();
                     self.store.data_input = Some(witness);
+                    if job.factory_dispatch.is_some() {
+                        self.execute_factory_ticket(job);
+                        self.store.data_input = None;
+                        self.store.graph_input = None;
+                        return;
+                    }
+                    if serde_json::from_str::<Value>(&job.raw)
+                        .ok()
+                        .is_some_and(|v| v.get("scoped_token").is_some())
+                    {
+                        let response = self.handle_factory_scoped(&job.raw);
+                        self.store.data_input = None;
+                        self.store.graph_input = None;
+                        let _ = job.reply.try_send(response);
+                        return;
+                    }
                     let request = serde_json::from_str::<Request>(&job.raw)
                         .expect("authenticated deferred request");
                     if request.method == "data_validations.run" {
@@ -1841,6 +1964,7 @@ impl Daemon {
             raw,
             reply,
             deadline: Instant::now() + Duration::from_secs(60),
+            factory_dispatch: None,
         });
         Ok(())
     }
@@ -1959,6 +2083,24 @@ impl Daemon {
 
 impl Daemon {
     fn tick_factory(&mut self) -> Result<()> {
+        if let Some((scope, receiver)) = self.factory_pending.take() {
+            match receiver.try_recv() {
+                Ok(_) => {}
+                Err(mpsc::TryRecvError::Empty) => {
+                    self.factory_pending = Some((scope, receiver));
+                    return Ok(());
+                }
+                Err(mpsc::TryRecvError::Disconnected) => {
+                    self.store.block_factory_run(
+                        &scope,
+                        CoreError::new(
+                            "OUTCOME_UNKNOWN",
+                            "Private Factory dispatch result was interrupted; no automatic replay",
+                        ),
+                    )?;
+                }
+            }
+        }
         if self.data_workers.has_workers()
             || self.graph_workers.has_workers()
             || self.command_workers.has_workers()
@@ -1970,57 +2112,22 @@ impl Daemon {
         };
         match action {
             crate::factory::FactoryAction::Stop(id) => self.supervisor.cancel(&id),
-            crate::factory::FactoryAction::Prompt { session_id, text } => {
-                let s = self.store.get_session(&session_id)?;
-                let (_, queued) = self.store.send_factory_session(
-                    &s.id,
-                    &text,
-                    s.revision,
-                    &format!("factory-turn:{}", s.attempt_id),
-                )?;
-                if queued {
-                    self.supervisor.send(&s.id, &text)?;
-                }
+            crate::factory::FactoryAction::Prompt {
+                session_id,
+                text,
+                context,
+            } => {
+                let (raw, ticket) = context.prompt_ticket(session_id, text)?;
+                self.schedule_factory_ticket(raw, ticket);
             }
-            crate::factory::FactoryAction::Launch(mut context) => {
-                let (task, workspace, connection, grant) = context.request();
-                let request = (
-                    task.to_owned(),
-                    workspace.to_owned(),
-                    connection.to_owned(),
-                    grant.to_owned(),
-                );
+            crate::factory::FactoryAction::Launch(context) => {
+                let task = context.request().0.to_owned();
                 let queued = self
                     .factory_queue_clocks
-                    .remove(&request.0)
-                    .map(|i| i.elapsed())
-                    .unwrap_or_default();
-                context.set_queued_ms(u64::try_from(queued.as_millis()).unwrap_or(u64::MAX));
-                let rev = self.store.get(&request.0)?.revision;
-                let created = self.store.create_session_for_factory(
-                    (
-                        &request.0,
-                        &request.1,
-                        &request.2,
-                        &request.3,
-                        rev,
-                        &format!("factory-attempt:{}:{}", request.0, rev),
-                    ),
-                    context,
-                );
-                let s = match created {
-                    Ok(s) => s,
-                    Err(error) => {
-                        let scope_id = self.store.factory_scope_for_task(&request.0)?;
-                        self.store.block_factory_run(&scope_id, error)?;
-                        return Ok(());
-                    }
-                };
-                if let Err(error) = self.supervisor.launch(&mut self.store, &s.id) {
-                    self.store.factory_launch_error(&s.id, error)?;
-                    self.supervisor
-                        .record_local_launch_failure(&mut self.store, &s.id)?;
-                }
+                    .remove(&task)
+                    .unwrap_or_else(Instant::now);
+                let (raw, ticket) = context.ticket(queued)?;
+                self.schedule_factory_ticket(raw, ticket);
             }
         }
         Ok(())
@@ -2049,7 +2156,7 @@ mod factory_queue_deadline_tests {
             let (send, recv) = std::sync::mpsc::sync_channel(1);
             let deadline = Instant::now();
             std::thread::sleep(Duration::from_millis(2));
-            daemon.handle_ready_request(ReadyRequest{raw:json!({"api_version":1,"request_id":"generated-expired-scoped","handle_id":"missing-generated","scoped_token":"0".repeat(64),"method":method,"params":{},"expected_revision":1,"idempotency_key":"never-admit"}).to_string(),reply:send,deadline});
+            daemon.handle_ready_request(ReadyRequest{raw:json!({"api_version":1,"request_id":"generated-expired-scoped","handle_id":"missing-generated","scoped_token":"0".repeat(64),"method":method,"params":{},"expected_revision":1,"idempotency_key":"never-admit"}).to_string(),reply:send,deadline,factory_dispatch:None});
             let response = recv.recv_timeout(Duration::from_secs(1)).unwrap();
             assert_eq!(
                 response["error"]["code"], "RESOURCE_LIMIT",
@@ -2072,5 +2179,129 @@ mod factory_queue_deadline_tests {
                 assert_eq!(count, 0, "{table}");
             }
         }
+    }
+}
+impl Daemon {
+    fn factory_ready_error(&self, raw: &str, error: CoreError) -> Value {
+        if serde_json::from_str::<Value>(raw)
+            .ok()
+            .is_some_and(|v| v.get("scoped_token").is_some())
+        {
+            let id = serde_json::from_str::<Value>(raw)
+                .ok()
+                .and_then(|v| v["request_id"].as_str().map(str::to_owned));
+            json!({"request_id":id,"error":error,"revision":0,"warnings":[]})
+        } else {
+            self.ready_error(raw, error)
+        }
+    }
+    fn schedule_factory_ticket(
+        &mut self,
+        raw: String,
+        ticket: crate::factory::FactoryDispatchTicket,
+    ) {
+        let scope = ticket.scope_id().to_owned();
+        let (reply, receive) = mpsc::sync_channel(1);
+        self.factory_pending = Some((scope, receive));
+        self.handle_ready_request(ReadyRequest {
+            raw,
+            reply,
+            deadline: Instant::now() + Duration::from_secs(60),
+            factory_dispatch: Some(ticket),
+        });
+    }
+    fn execute_factory_ticket(&mut self, mut job: ReadyRequest) {
+        let Some(ticket) = job.factory_dispatch.take() else {
+            return;
+        };
+        if Instant::now() > job.deadline || !ticket.for_request(&job.raw) {
+            job.factory_dispatch = Some(ticket);
+            self.finish_factory_ticket_error(
+                job,
+                CoreError::new(
+                    "DEADLINE_EXCEEDED",
+                    "Private Factory request expired before dispatch",
+                ),
+            );
+            return;
+        }
+        let scope = ticket.scope_id().to_owned();
+        let prompt_session = ticket.prompt().map(|(id, _)| id.to_owned());
+        let result = (|| -> Result<Value> {
+            if let Some((id, text)) = ticket.prompt() {
+                self.store.factory_ticket_data_contexts(&ticket)?;
+                let session = self.store.get_session(id)?;
+                let (_, queued) = self.store.send_factory_session(
+                    id,
+                    text,
+                    session.revision,
+                    &format!("factory-turn:{}", session.attempt_id),
+                )?;
+                if queued {
+                    self.supervisor.send(id, text)?;
+                }
+                return Ok(json!({"session_id":id,"turn_queued":queued,"task_accepted":false}));
+            }
+            let context = ticket.into_context();
+            let (task, workspace, connection, grant) = context.request();
+            let args = (
+                task.to_owned(),
+                workspace.to_owned(),
+                connection.to_owned(),
+                grant.to_owned(),
+            );
+            let rev = self.store.get(&args.0)?.revision;
+            let s = self.store.create_session_for_factory(
+                (
+                    &args.0,
+                    &args.1,
+                    &args.2,
+                    &args.3,
+                    rev,
+                    &format!("factory-attempt:{}:{}", args.0, rev),
+                ),
+                context,
+            )?;
+            if let Err(error) = self.supervisor.launch(&mut self.store, &s.id) {
+                self.store.factory_launch_error(&s.id, error)?;
+                self.supervisor
+                    .record_local_launch_failure(&mut self.store, &s.id)?;
+            }
+            Ok(json!({"session_id":s.id,"attempt_id":s.attempt_id,"task_accepted":false}))
+        })();
+        let response = match result {
+            Ok(value) => self.ready_success(&job.raw, value),
+            Err(error) => {
+                if let Some(id) = prompt_session.as_deref() {
+                    self.supervisor.cancel(id);
+                }
+                if let Err(fatal) = self.store.block_factory_run(&scope, error.clone()) {
+                    self.factory_fatal_error = Some(fatal);
+                }
+                self.ready_error(&job.raw, error)
+            }
+        };
+        let _ = job.reply.try_send(response);
+    }
+    fn finish_factory_ticket_error(&mut self, mut job: ReadyRequest, error: CoreError) {
+        if let Some(ticket) = job.factory_dispatch.take() {
+            let result = if let Some((session, _)) = ticket.prompt() {
+                self.supervisor.cancel(session);
+                self.store
+                    .block_factory_run(ticket.scope_id(), error.clone())
+            } else {
+                self.store.fail_factory_preflight(
+                    ticket.scope_id(),
+                    ticket.elapsed_ms(),
+                    error.clone(),
+                )
+            };
+            if let Err(fatal) = result {
+                self.factory_fatal_error = Some(fatal);
+            }
+        }
+        let _ = job
+            .reply
+            .try_send(self.factory_ready_error(&job.raw, error));
     }
 }

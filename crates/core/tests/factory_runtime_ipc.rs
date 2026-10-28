@@ -702,3 +702,240 @@ fn scoped_request(runtime: &Path, request: serde_json::Value) -> serde_json::Val
     BufReader::new(socket).read_line(&mut line).unwrap();
     serde_json::from_str(&line).unwrap()
 }
+
+/// Full public Owner IPC for a generated Directory dataset. Owner finalization
+/// below is an explicit trusted-host fixture, never a Renderer/Agent authority.
+#[test]
+fn actual_data_copy_owner_scope_and_scoped_mcp_parent_child_parent_use_fresh_private_witnesses() {
+    use agentbaton_core::ipc::call;
+    use serde_json::Value;
+    use std::time::{Duration, Instant};
+    struct OwnedDaemon(std::process::Child);
+    impl Drop for OwnedDaemon {
+        fn drop(&mut self) {
+            // Only this original Child is controlled; no PID scanning.
+            let _ = self.0.kill();
+            let _ = self.0.wait();
+        }
+    }
+    let temp = tempfile::Builder::new()
+        .permissions(fs::Permissions::from_mode(0o700))
+        .tempdir()
+        .unwrap();
+    let base = temp.path().canonicalize().unwrap();
+    let runtime = base.join("runtime");
+    let source = base.join("source");
+    let installed = base.join("installed");
+    for path in [&runtime, &source, &installed] {
+        fs::create_dir(path).unwrap();
+        fs::set_permissions(path, fs::Permissions::from_mode(0o700)).unwrap();
+    }
+    fs::write(source.join("input.txt"), b"fixed input\n").unwrap();
+    let before = fs::read(source.join("input.txt")).unwrap();
+    let target = PathBuf::from(std::env::var_os("CARGO_TARGET_DIR").unwrap());
+    for name in ["batond", "baton"] {
+        let output = installed.join(name);
+        fs::copy(target.join("debug").join(name), &output).unwrap();
+        fs::set_permissions(&output, fs::Permissions::from_mode(0o700)).unwrap();
+        assert!(Command::new("strip")
+            .args(["-S"])
+            .arg(&output)
+            .status()
+            .unwrap()
+            .success());
+    }
+    let mut daemon = OwnedDaemon(
+        Command::new(installed.join("batond"))
+            .env_clear()
+            .env("PATH", "/usr/bin:/bin")
+            .env("BATON_RUNTIME_DIR", &runtime)
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+            .unwrap(),
+    );
+    let ready = Instant::now() + Duration::from_secs(5);
+    while !runtime.join("batond.sock").exists() {
+        assert!(
+            Instant::now() < ready,
+            "generated installed daemon did not bind"
+        );
+        assert!(daemon.0.try_wait().unwrap().is_none());
+        std::thread::sleep(Duration::from_millis(5));
+    }
+    let rpc = |method: &str, params: Value, key: Option<&str>, rev: Option<u64>| -> Value {
+        let mut request = json!({"method":method,"params":params});
+        if let Some(key) = key {
+            request["idempotency_key"] = json!(key);
+        }
+        if let Some(rev) = rev {
+            request["expected_revision"] = json!(rev);
+        }
+        let response = call(&runtime, request).unwrap();
+        assert!(response.get("error").is_none(), "{method}: {response}");
+        response["result"].clone()
+    };
+    let approve = |p: &Value, key: &str| {
+        rpc(
+            "approvals.finalize",
+            json!({"proposal_id":p["id"]}),
+            Some(key),
+            p["revision"].as_u64(),
+        )
+    };
+    let wait = |method: &str, field: &str, id: &str, active: &[&str]| -> Value {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            let v = rpc(method, json!({field:id}), None, None);
+            if !active.contains(&v["state"].as_str().unwrap()) {
+                return v;
+            }
+            assert!(Instant::now() < deadline, "{method}: {v}");
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    };
+    let project = rpc(
+        "projects.import",
+        json!({"path":source,"name":"Generated Directory Factory"}),
+        Some("data-project"),
+        None,
+    );
+    let preview = rpc(
+        "data_workspace_previews.start",
+        json!({"project_id":project["id"],"files":[{"artifact_id":"input","relative_path":"input.txt","max_bytes":1024,"expected_sha256":sha256(&before)}],"limits":{"max_file_bytes":1024,"max_total_bytes":1024,"max_files":1}}),
+        Some("data-preview"),
+        project["revision"].as_u64(),
+    );
+    let preview = wait(
+        "data_workspace_previews.get",
+        "preview_id",
+        preview["id"].as_str().unwrap(),
+        &["checking", "cancel_requested"],
+    );
+    assert_eq!(preview["state"], "verified");
+    let copy_proposal = rpc(
+        "data_workspaces.propose",
+        json!({"preview_id":preview["id"]}),
+        Some("data-copy-proposal"),
+        preview["revision"].as_u64(),
+    );
+    assert_eq!(copy_proposal["kind"], "data_workspace");
+    let copying = approve(&copy_proposal, "trusted-data-copy-owner");
+    let copied = wait(
+        "data_workspaces.get",
+        "creation_id",
+        copying["id"].as_str().unwrap(),
+        &["creating", "cancel_requested"],
+    );
+    assert_eq!(copied["state"], "ready");
+    let workspace = PathBuf::from(copied["destination"].as_str().unwrap());
+    let provider = base.join("generated-data-factory-acp");
+    // Connection/workspace IDs are filled only once returned by Core; provider
+    // code reads the approved task prompt for workspace and managed MCP config.
+    let body = ACP_FACTORY
+        .replace("status_connection", "data_connection")
+        .replace("status_workspace", "data_workspace");
+    // Fixture-only, nonsecret host-generated identifier; it grants no rights.
+    let connection_label = base.join("generated-connection-label.txt");
+    fs::write(&provider, body.replace("mcp=None;mid=0", &format!("data_connection=open({0}).read() if os.path.exists({0}) else ''\ndata_workspace={1}\nfixture_mode='normal'\nmcp=None;mid=0",serde_json::to_string(&connection_label).unwrap(),copied["workspace_id"]))).unwrap();
+    fs::set_permissions(&provider, fs::Permissions::from_mode(0o700)).unwrap();
+    let p = rpc(
+        "connections.propose",
+        json!({"name":"Generated data Factory ACP","provider":"custom_acp","executable":provider,"arguments":[]}),
+        Some("data-connection-proposal"),
+        None,
+    );
+    let connection = approve(&p, "trusted-data-connection-owner");
+    let until = Instant::now() + Duration::from_secs(5);
+    loop {
+        let all = rpc("connections.list", json!({}), None, None);
+        let current = all
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["id"] == connection["id"])
+            .unwrap();
+        if current["probe_state"] == "ready" {
+            break;
+        }
+        assert!(Instant::now() < until, "{current}");
+        std::thread::sleep(Duration::from_millis(5));
+    }
+    fs::write(&connection_label, connection["id"].as_str().unwrap()).unwrap();
+    let task = rpc(
+        "tasks.create",
+        json!({"project_id":project["id"],"goal":"Use the explicitly copied data for bounded generated delegation"}),
+        Some("data-root"),
+        None,
+    );
+    let p = rpc(
+        "grants.propose",
+        json!({"project_id":project["id"],"workspace_id":copied["workspace_id"],"connection_id":connection["id"],"max_attempts":8,"max_concurrency":1,"max_duration_ms":30000}),
+        Some("data-grant-proposal"),
+        None,
+    );
+    let grant = approve(&p, "trusted-data-grant-owner");
+    let budget = json!({"attempts":8,"parallel":1,"runtime_ms":30000,"output_bytes":12288,"children":3,"reworks":0,"tokens":null,"cost_microunits":null});
+    let selection = json!({"root_task_id":task["id"],"expected_task_revision":task["revision"],"grant_id":grant["id"],"expected_grant_revision":grant["revision"],"connection_ids":[connection["id"]],"workspace_ids":[copied["workspace_id"]],"inputs":[{"artifact_id":"input","relative_path":"inputs/input.txt","max_bytes":1024,"expected_sha256":sha256(&before)}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":4096,"expected_sha256":null}],"recipients":[],"max_depth":2,"max_children":2,"max_total_nodes":4,"root_budget":budget,"project_budget":budget,"ttl_ms":30000,"capabilities":{"delegate_task":true,"resume_parent_as_new_attempt":true,"child_planning":false,"child_goal_execution":false,"create_workspace":false}});
+    let proposal = rpc(
+        "factory_scopes.propose",
+        selection,
+        Some("data-factory-proposal"),
+        None,
+    );
+    assert_eq!(proposal["kind"], "factory");
+    let scope = approve(&proposal, "trusted-factory-owner");
+    let start = rpc(
+        "factory_runs.start",
+        json!({"scope_id":scope["id"]}),
+        Some("data-factory-run"),
+        scope["revision"].as_u64(),
+    );
+    assert_eq!(start["state"], "queued");
+    let deadline = Instant::now() + Duration::from_secs(12);
+    let final_run = loop {
+        let v = rpc(
+            "factory_runs.get",
+            json!({"scope_id":scope["id"]}),
+            None,
+            None,
+        );
+        if matches!(
+            v["run"]["state"].as_str(),
+            Some("completed" | "blocked" | "outcome_unknown" | "cancelled")
+        ) {
+            break v;
+        }
+        assert!(Instant::now() < deadline, "{v}");
+        std::thread::sleep(Duration::from_millis(10));
+    };
+    save_runtime_diagnostics(&runtime.join("baton.sqlite3"), &workspace);
+    assert_eq!(final_run["run"]["state"], "completed", "{final_run}");
+    assert_eq!(final_run["tasks"].as_array().unwrap().len(), 2);
+    assert_eq!(
+        fs::read_to_string(workspace.join("reports/mcp-stages.txt")).unwrap(),
+        "parent-initial\nchild\nparent-resumed\n"
+    );
+    assert_eq!(fs::read(source.join("input.txt")).unwrap(), before);
+    assert!(!source.join(".git").exists());
+    let db = Connection::open(runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM factory_attempts", [], |r| r
+            .get::<_, u32>(0))
+            .unwrap(),
+        3
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM factory_scoped_handles WHERE revoked=0",
+            [],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(
+        rpc("tasks.get", json!({"task_id":task["id"]}), None, None)["state"],
+        "outcome_unknown"
+    );
+}

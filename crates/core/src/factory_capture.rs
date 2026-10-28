@@ -12,6 +12,7 @@ pub(crate) struct FactoryCapturePlan {
     spec_revision: u64,
     input_ids: Vec<String>,
     output_ids: Vec<String>,
+    data_contexts: Vec<crate::data_workspaces::DataInputContext>,
 }
 pub(crate) struct FactoryCapture {
     pub(crate) artifacts: Vec<FactoryArtifactReference>,
@@ -19,10 +20,17 @@ pub(crate) struct FactoryCapture {
     pub(crate) inputs_current: bool,
     pub(crate) outputs_complete: bool,
     pins: DataArtifactPins,
+    data: Option<crate::data_workspaces::DataInputWitness>,
 }
 impl FactoryCapture {
     pub(crate) fn recheck(&self) -> Result<()> {
         self.pins.verify(false)
+    }
+    pub(crate) fn recheck_data(&self, db: &rusqlite::Connection) -> Result<()> {
+        if let Some(data) = &self.data {
+            data.recheck_all_authority(db)?;
+        }
+        Ok(())
     }
 }
 impl FactoryCapturePlan {
@@ -41,9 +49,27 @@ impl FactoryCapturePlan {
             spec_revision,
             input_ids,
             output_ids,
+            data_contexts: vec![],
         }
     }
-    pub(crate) fn capture(self) -> Result<FactoryCapture> {
+    pub(crate) fn attach_observation_contexts(
+        &mut self,
+        contexts: Vec<crate::data_workspaces::DataInputContext>,
+    ) {
+        self.data_contexts = contexts;
+    }
+    pub(crate) fn capture(self, deadline: std::time::Instant) -> Result<FactoryCapture> {
+        let data = if self.data_contexts.is_empty() {
+            None
+        } else {
+            Some(crate::data_workspaces::DataInputWitness::restore(
+                self.data_contexts,
+                validation::sha256(
+                    format!("factory-capture:{}:{}", self.scope.id, self.attempt_id).as_bytes(),
+                ),
+                deadline,
+            )?)
+        };
         let mut inputs = Vec::new();
         let mut outputs = Vec::new();
         for original in self
@@ -137,6 +163,7 @@ impl FactoryCapturePlan {
             inputs_current,
             outputs_complete: view.outputs.iter().all(|a| a.state == CheckState::Passed),
             pins,
+            data,
         })
     }
 }
