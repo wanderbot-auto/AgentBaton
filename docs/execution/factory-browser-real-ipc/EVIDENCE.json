@@ -2298,5 +2298,69 @@
     "independent": "original reviewer followup_task resumed exact22cc; pending",
     "new_actualcancel": "NOT_RUN by this leaf; Root after source-ready",
     "old_orphans": "966853/971338 untouched"
+  },
+  "CAS_diagnostic_order_revision": {
+    "source_commit": "744bf29d255b618c54a905dff72a784942903f83",
+    "source_sha256": "4aa84fb34529e6712923e5783e7824d3965adbce7742ca8386b22a9d45264162",
+    "status": "frozen_pending_mechanical_independent_review",
+    "prior22cc_review_sha256": "2fa84808c1a085c98255b15bfc8fd2eaa571671f0710f03b725f93701380d093",
+    "prior22cc_manifest_sha256": "b564467645f8cbb266fa5e69385782ad49bb0a803c5a7682b022a3e93bc4d417",
+    "root_actual_failure": {
+      "attribution": "Root12eCore+22ccdriver",
+      "status": "failed_or_interrupted",
+      "checks": 0,
+      "PNG": 0,
+      "stage": "before firstcheck/browser/Provider at unchanged wrongstartCASassert",
+      "actual_reply_code": "NOT_RETAINED by oldassignment order; unknown, not reconstructed",
+      "controller_stage": "not reached; not racefix failure proof",
+      "files": [
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-12e-22cc-normal/BEFORE.json",
+          "sha256": "023cf210b0e02aa2dfbf81a3d071e09758fb8b9c2da077c68e6d9962fa09333a",
+          "bytes": 10390
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-12e-22cc-normal/RESULT.json",
+          "sha256": "fccd1a22cb6b53f1b497991eb8606f5b966dcb9999983c768064a5b443f0e325",
+          "bytes": 10610
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-12e-22cc-normal/evidence/daemon.log",
+          "sha256": "4c0c244aa5b5e1e6e0f82dd22e21b8f0835d301ef8ca86ac94d5914142a4c062",
+          "bytes": 59
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-12e-22cc-normal/evidence/diagnostics-91de81ab47e44b4b926b18b05c6dd050.json",
+          "sha256": "f7de2ed9a80bdb8c8127a5f2e42871d013c9cf686315012fe4f920bc2a2ff557",
+          "bytes": 38798
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-12e-22cc-normal/evidence/report.json",
+          "sha256": "986192a5d558bb92aaa3e7cca62b79500d3bf39c96359dd8fca46e284b7225a3",
+          "bytes": 31340
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-12e-22cc-normal/runner.log",
+          "sha256": "3dfe93e0420c6a265fbce6b27b82f2058fd3b022e00a028b530772bd62da49c7",
+          "bytes": 170
+        }
+      ]
+    },
+    "only_change": "move full stale reply observations assignment before original unchanged assert",
+    "mechanical_proof": {
+      "path": "/workspace/.onboarding/factory-browser-diagnostics/cas-diagnostic-only/proof.json",
+      "sha256": "f565d2567526cd642ce865b6b2b1982dd0575e101568d8136fab5f2041fb0a77",
+      "bytes": 351
+    },
+    "verification": {
+      "source_sha256": "4aa84fb34529e6712923e5783e7824d3965adbce7742ca8386b22a9d45264162",
+      "prior_source": "22cc7b5edef843b88d7ca2b6e952319e4f4c9334",
+      "mechanical_proof": "remove exact one observations assignment from both source strings: byte-identical; unchanged assert and all other behavior",
+      "syntax": "passed",
+      "Core_browser": "NOT_RUN"
+    },
+    "unchanged": "all assertions/calls/boundaries/deadlines/typed13/actualDB13",
+    "new_Core_browser": "NOT_RUN; no unnecessary unchanged suite repeat",
+    "independent": "original reviewer explicitly followup-resumed; pending"
   }
 }

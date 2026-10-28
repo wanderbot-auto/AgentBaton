@@ -46,3 +46,8 @@ Frozen Core terminate uses group SIGKILL then direct provider.wait; TERM handler
 ## Bound MCP stop-transition race and strict manifest schema
 
 Independent202blocked showed early reaper may see R, then concurrent groupSIGKILL precedes cmdline read. On empty or vanished cmdline only for the same previously bound MCP, repeat exact FD/identity/adopted-child reap and require original identity actually gone; otherwise fail. No accepting Z itself, foreign/unbound/live identity, nonempty malformed argv or a missing wait as success. No retries with new deadlines/sleep, no new permissions. Manifest preflight accepts only type(schema)is int and value13; float13.0 rejected just like12/14; actual runtime SQLite schema13 remains separately required.
+
+
+## Wrong-start CAS diagnostic ordering only
+
+Root's12e+22cc actualnormal failed before firstcheck/browser/Provider at the existing wrong-start CAS assertion. Retain complete actual stale reply in observations before that assertion, preserving expected STALE_REVISION, empty sessions and every call/limit. This is diagnostics only; do not guess missing old reply or relax Core error semantics. Root/Core investigate separately and Root runs next exact-source case after mechanical review.
