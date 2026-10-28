@@ -1,0 +1,201 @@
+{
+  "status": "implemented and author-verified; independent review and integration/platform CI pending",
+  "source_commit": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+  "source_tree_git": "47a47375c5bca753d78c8e847ffa8f4422e38f41",
+  "platform": "Linux x86_64 generated local fixtures; no real Provider credentials/model calls",
+  "requirements_partial": [
+    "AB-PRJ-002",
+    "AB-PRJ-005",
+    "AB-VAL-002",
+    "AB-VAL-004",
+    "AB-VAL-006",
+    "AB-SEC-001",
+    "AB-SEC-002",
+    "AB-SEC-004",
+    "AB-SEC-005",
+    "AB-SEC-006",
+    "AB-SEC-007",
+    "AB-REL-001"
+  ],
+  "checks": [
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.75,
+      "log": "/workspace/.worktrees/data-workspace-core/artifacts/data-workspace-core/resume-final/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "workspace",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 281.51,
+      "log": "/workspace/.worktrees/data-workspace-core/artifacts/data-workspace-core/resume-final/workspace.log",
+      "sha256": "f819bee2bd27dbe7c7e7e5bee46cc6d9f9f24d88ca0a2c8811cd06d1d4f9047d"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 0.15,
+      "log": "/workspace/.worktrees/data-workspace-core/artifacts/data-workspace-core/resume-final/clippy.log",
+      "sha256": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+    },
+    {
+      "name": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--bins"
+      ],
+      "exit_code": 0,
+      "seconds": 0.08,
+      "log": "/workspace/.worktrees/data-workspace-core/artifacts/data-workspace-core/resume-final/build.log",
+      "sha256": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+    },
+    {
+      "name": "darwin-arm-types",
+      "command": [
+        "cargo",
+        "check",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--all-targets",
+        "--target",
+        "aarch64-apple-darwin"
+      ],
+      "exit_code": 0,
+      "seconds": 0.08,
+      "log": "/workspace/.worktrees/data-workspace-core/artifacts/data-workspace-core/resume-final/darwin-arm-types.log",
+      "sha256": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+    },
+    {
+      "name": "darwin-intel-types",
+      "command": [
+        "cargo",
+        "check",
+        "--locked",
+        "-p",
+        "agentbaton-workspaces",
+        "--all-targets",
+        "--target",
+        "x86_64-apple-darwin"
+      ],
+      "exit_code": 0,
+      "seconds": 0.07,
+      "log": "/workspace/.worktrees/data-workspace-core/artifacts/data-workspace-core/resume-final/darwin-intel-types.log",
+      "sha256": "ee1d3fffa2022e962e63e0dbe4d35c9c198450a20c29fc09030f635dbb38bfcd"
+    },
+    {
+      "name": "real-restart-smoke",
+      "command": [
+        "python3",
+        "-c",
+        "import runpy,pathlib;d=runpy.run_path('scripts/smoke-local-product.py');d['main'].__globals__['BINARIES']=pathlib.Path('/workspace/.worktrees/validation-integration/target/debug');d['main']()"
+      ],
+      "exit_code": 0,
+      "seconds": 0.21,
+      "log": "/workspace/.worktrees/data-workspace-core/artifacts/data-workspace-core/resume-final/real-restart-smoke.log",
+      "sha256": "3e4b9b3606e773bb0c39912df2ea993aac9bbbc73b7cfe097c06d2081e5dd805"
+    }
+  ],
+  "counts": {
+    "unique_unit_integration": 514,
+    "compile_fail_doctests": 7,
+    "raw_passed": 523,
+    "nested_duplicate_executions": 2,
+    "failed": 0,
+    "ignored": 0,
+    "new_core_data_integration": 21,
+    "new_schema10_migration": 3,
+    "library_data_integration": 24
+  },
+  "candidate_manifest": {
+    "path": "/workspace/.onboarding/data-workspace-candidate-binaries/schema10-c82bcff50353/manifest.json",
+    "sha256": "bc67e69d0bcc9857909346126329ea6ed7ac904770ce51dc53b01cb9d34354ce",
+    "source_tree_sha256": "d8653106ca699eb38599c0f5803c0f5669802664b3d934899b8ac53111c4a627",
+    "git_head": "c82bcff50353d10c2e136125b82428b1c0c2effb",
+    "dirty": true,
+    "dirty_note": "Only untracked unit documentation is pending commit; all committed source and tests exactly equal source_commit",
+    "binaries": {
+      "batond": {
+        "path": "/workspace/.onboarding/data-workspace-candidate-binaries/schema10-c82bcff50353/batond",
+        "sha256": "8323e9ad8229c51762f92fd9f581e41a95414652513e9ff3a4016c83475a955b",
+        "bytes": 93049816
+      },
+      "baton": {
+        "path": "/workspace/.onboarding/data-workspace-candidate-binaries/schema10-c82bcff50353/baton",
+        "sha256": "14a51222fa7db681c22ece7b892b130e9edb1a61092baa41c8e3bd063558cacd",
+        "bytes": 69292368
+      }
+    }
+  },
+  "failed_controls_and_initial_checks_retained": {
+    "artifacts/data-workspace-core/witness-check-1.log": {
+      "sha256": "919f78b93cdd026d18522eb140ce08c002ec81b8c7fa3915e41c06f0644583b4",
+      "bytes": 2005
+    },
+    "artifacts/data-workspace-core/boundary-tests-1.log": {
+      "sha256": "1323da4b3df9906e9655788efc0a90b45279f319d0b20006fb23e40b3f5ec269",
+      "bytes": 1783
+    },
+    "artifacts/data-workspace-core/journal-source-order-old-control.log": {
+      "sha256": "eea77e5f48ba78d91c8355e1da36ce137a0ff1c5575f4f6a4f4e964e6bc13a82",
+      "bytes": 1324
+    },
+    "artifacts/data-workspace-core/journal-source-order-old-control.sha256": {
+      "sha256": "b1fd67a9f21a31ba21837a576c9404f7957dc7c6825943b4b13ccb6bf2134cf2",
+      "bytes": 230
+    },
+    "artifacts/data-workspace-core/journal-source-order-pre-fix.rs": {
+      "sha256": "d67bbc7d0c9ff7bffeeae04736650865c5b726d6c1f88d5546b699a348780378",
+      "bytes": 69173
+    },
+    "artifacts/data-workspace-core/runtime-prefix-only-control.log": {
+      "sha256": "52465848defde020d76f2c76d7d2c0767baae72474820268ddca4ba8fb08351a",
+      "bytes": 1044
+    },
+    "artifacts/data-workspace-core/runtime-prefix-only-control-source.rs": {
+      "sha256": "0d865d9b6acccaca82932fd1c482e5fd7b716d3200a0d557f61949f6cd81f8b4",
+      "bytes": 16677
+    },
+    "artifacts/data-workspace-core/git-artifact-depth-old-control.log": {
+      "sha256": "dff88f7eab7de8798752d938c16c2b26d31d6ca8f3d236b5d5914ff4f21530dd",
+      "bytes": 1322
+    },
+    "artifacts/data-workspace-core/git-artifact-depth-pre-fix.rs": {
+      "sha256": "f32b36c6cef0d06f08818def8a08e242aa1c4a8cdba654104e27f05672907c01",
+      "bytes": 69714
+    }
+  },
+  "not_run_or_not_claimed": [
+    "Combined final UI/real-IPC flow is assigned separately and not yet evidence here",
+    "Actual macOS runtime, OS native Owner dialog and dual architecture packaged build",
+    "Real Provider/model/account tests",
+    "Remote host, OS sandbox or DLP proof",
+    "Goal routing, child workspace factory, reservation/dispatch, settlement or TaskAccepted",
+    "Independent source review is pending; author results do not constitute independent acceptance"
+  ],
+  "target_handoff": "Released explicitly to /root/data_core_review_resume; no author Cargo writer remains"
+}
