@@ -1,3 +1,32 @@
+# Current corrected evidence
+
+Independent review OS-HARNESS-1 caught bc0 querying nonexistent goal_plans; old manually constructed test schema masked it. This was a meaningful test limitation, now fixed without Core changes or if-exists fallback. OS-HARNESS-2 corrected cleanup success ordering, exit/signal/group ownership proof and Rust capture child guard. OS-HISTORY-3 added exact per-event sequence/order.
+
+Actually run on Linux after corrections:
+
+- `AGENTBATON_OWNER_FIXTURE_DAEMON=/workspace/.onboarding/goal-graph-owner5541-native94157/batond python3 -m unittest discover -s apps/desktop/src-tauri/tests -p 'test_native*.py' -v`:36 tests passed,0 failures/errors/skips,5.151s. Log `/workspace/.onboarding/native-owner-dialog-smoke-fix-final/python-tests.log`.
+- Same new-file-only suite:11 passed,2.608s; real Core-created database is required, no optional skip. All original25 runner test bytes unchanged.
+- Direct rustfmt --edition2021 --check on three new Rust files, py_compile of runner/new Python tests, git diff --check:exit0. Rust formatting is not compilation.
+- Exact comparison: seven frozen product/readonly source files unchanged; Cargo lock still only the two authorized root edges, every package/version/checksum/other edge identical.
+
+Actual immutable binary used: batond SHA `fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e`, Root94157/Core5541 schema12 provenance in `/workspace/.onboarding/goal-graph-owner5541-native94157/manifest.json`. No build/cache write. Actual generated local --version connection and pending Grant, actual read-only DB, schema12/sequence8/19zero counts. Transcript excludes auth token. Daemon was alive before cleanup, received owned-group SIGTERM, actually exited0, group quiescent before leader reap, no errors/forced kill. This is pure real Core bootstrap, no OSdialog or Grant finalize.
+
+Old bc0.database actually reproduced `sqlite3.OperationalError: no such table: goal_plans` on this real migrated database; log `/workspace/.onboarding/native-owner-dialog-smoke-schema-fix/old-bc0-real-core-failure.log` SHA `d95225ac6a4d3144e2021a63ac3383e24b7f7546eda5c23642f1bf0a584658f2`. Old bc0/old32 green/independent report preserved; do not call that old test a real schema check.
+
+Current source SHA-256:
+
+- `apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs` `553b4bd415dd6a794256bf02d4f460ec0f276660ee25eb87472e33c30ab87d19`
+- `apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs` `3df3613f7f73ebed47a339aba6d3c3aef197f7e3cebd0f33ff61d9bf1d68d724`
+- `apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs` `e032eb04c604edeed76a074009197f2c0be9ca0097eb5cc2921559a97c537cae`
+- `scripts/native-owner-dialog-smoke.py` `77d52009365d4576e87838cbdb701980101121337fb8a607ea7faa92db33e6c8`
+- `apps/desktop/src-tauri/tests/test_native_owner_dialog.py` `d3cd8d55001b229de5c229f6efa6e3cf2673de82c27cba7afb846dfd948e6403`
+- `apps/desktop/src-tauri/Cargo.toml` `5f7276d2bdbd99925e1aba38759fccffe8add0e8f62eacc055e2301f0462f723`
+- `apps/desktop/src-tauri/Cargo.lock` `9a74078ffe6b6ff7e1382ee5db9ddae49395c3660d722d29893b6ed663c8082c`
+
+Current exact artifact hashes are in `/workspace/.onboarding/native-owner-dialog-smoke-fix-final/manifest.json`. Actual raw bootstrap/cleanup record and readonly DB snapshot remain there; no secrets/production credentials. Mac OS dialog/driver/real screenshot/Grant approval and Rust compile/lints still NOT_RUN. No provider/model/account/OS permission/extra resource/signature/release activity.
+
+# Historical bc0 source-only evidence (superseded, retained)
+
 # Evidence
 
 Candidate source fingerprints (only source checks/runner controls; no OS evidence):

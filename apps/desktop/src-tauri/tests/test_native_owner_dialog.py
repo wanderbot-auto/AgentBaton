@@ -1,17 +1,22 @@
 """Runner/controller unit controls. No OS dialog or real Core success claimed."""
 import copy
 import importlib.util
+import os
+import subprocess
+import select
+import time
 from pathlib import Path
 import sqlite3
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[4]
 spec = importlib.util.spec_from_file_location('owner_runner', ROOT / 'scripts/native-owner-dialog-smoke.py')
 runner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(runner)
-COUNTS = {name: 0 for name in ['attempts', 'sessions', 'goal_scopes', 'goal_plans', 'goal_runs', 'goal_run_nodes', 'goal_run_reservations']}
+COUNTS = {name: 0 for name in runner.ZERO_TABLES}
 
 
 def pending():
@@ -38,8 +43,8 @@ def approved():
              'connection_bindings': {'connection': proposal['snapshot']['refs']['connection']}}
     after['grants'] = [grant]
     after['proposal_result'] = grant
-    after['events'] = [{'aggregate_id': 'grant', 'kind': 'execution_grant.approved', 'source': 'user_action', 'revision': 1},
-                       {'aggregate_id': proposal['id'], 'kind': 'approval.confirmed', 'source': 'local_owner_confirmation', 'revision': 2,
+    after['events'] = [{'aggregate_id': 'grant', 'kind': 'execution_grant.approved', 'source': 'user_action', 'revision': 1, 'sequence': 10},
+                       {'aggregate_id': proposal['id'], 'kind': 'approval.confirmed', 'source': 'local_owner_confirmation', 'revision': 2, 'sequence': 11,
                         'payload': {'kind': 'grant', 'proposal_id': proposal['id'], 'consumed': True}}]
     return proposal, after, {'result': grant}
 
@@ -57,22 +62,42 @@ class OwnerRunnerControls(unittest.TestCase):
         self.assertIsNotNone(runner.pending_error(changed, proposal, 9))
 
     def test_real_readonly_sqlite_observation_rejects_authority_change(self):
-        proposal, _ = pending()
+        daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
+        self.assertTrue(daemon.is_file(), 'Provide the actual frozen/schema12 batond; never substitute test DDL')
         with tempfile.TemporaryDirectory() as temporary:
-            runtime = Path(temporary)
-            with sqlite3.connect(runtime / 'baton.sqlite3') as conn:
-                conn.execute('PRAGMA user_version=12')
-                conn.execute('CREATE TABLE events(sequence INTEGER PRIMARY KEY, document TEXT)')
-                conn.execute('CREATE TABLE approval_proposals(id TEXT, document TEXT, result TEXT)')
-                conn.execute('CREATE TABLE execution_grants(document TEXT)')
-                for table in COUNTS:
-                    conn.execute(f'CREATE TABLE {table}(id TEXT)')
-                conn.execute('INSERT INTO approval_proposals VALUES(?,?,NULL)', (proposal['id'], runner.json.dumps(proposal)))
-            observed = runner.database(runtime, proposal['id'])
-            self.assertIsNone(runner.pending_error(observed, proposal, 0))
-            with sqlite3.connect(runtime / 'baton.sqlite3') as conn:
-                conn.execute('INSERT INTO execution_grants VALUES(?)', ('{"id":"changed"}',))
-            self.assertIsNotNone(runner.pending_error(runner.database(runtime, proposal['id']), proposal, 0))
+            output = Path(temporary)
+            with runner.bootstrap(daemon, output) as fixture:
+                runtime, proposal = fixture['runtime'], fixture['proposal']
+                observed = runner.database(runtime, proposal['id'])
+                self.assertIsNone(runner.pending_error(observed, proposal, observed['sequence']))
+                with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as actual:
+                    actual.execute('PRAGMA query_only=ON')
+                    tables = {row[0] for row in actual.execute("SELECT name FROM sqlite_master WHERE type='table'") if row[0].startswith('goal_')}
+                    self.assertEqual(tables, set(runner.GOAL_TABLES))
+                    clone = output / 'real-core-copy'
+                    clone.mkdir()
+                    with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
+                        actual.backup(copy_db)
+                self.assertEqual(set(observed['counts']), set(runner.ZERO_TABLES))
+                self.assertEqual(len(observed['counts']), 19)
+                # Negative controls mutate only an isolated backup of the REAL
+                # migration DB. The running Core database/schema is untouched.
+                with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
+                    copy_db.execute("INSERT INTO goal_graph_jobs(id,run_id,node_id,plan_revision,state,attempt_id,workspace_id,document) VALUES('negative-job','absent-run','node',1,'running',NULL,'absent-workspace','{}')")
+                self.assertIsNotNone(runner.pending_error(runner.database(clone, proposal['id']), proposal, observed['sequence']))
+                with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
+                    copy_db.execute('DELETE FROM goal_graph_jobs')
+                    copy_db.execute('PRAGMA user_version=13')
+                self.assertIsNotNone(runner.pending_error(runner.database(clone, proposal['id']), proposal, observed['sequence']))
+                with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
+                    copy_db.execute('PRAGMA user_version=12')
+                    copy_db.execute('DROP TABLE goal_plan_heads')
+                with self.assertRaisesRegex(sqlite3.OperationalError, 'goal_plan_heads'):
+                    runner.database(clone, proposal['id'])
+                self.assertIsNone(runner.pending_error(runner.database(runtime, proposal['id']), proposal, observed['sequence']))
+                with self.assertRaisesRegex(ValueError, 'never a Grant'):
+                    fixture['client'].call('approvals.finalize', {'proposal_id': proposal['id']})
+            self.assertTrue(runner.json.loads((output / 'daemon-cleanup.json').read_text())['ok'])
 
     def test_exact_root_grant_commit_event_and_reply_bindings_are_required(self):
         proposal, after, response = approved()
@@ -87,6 +112,14 @@ class OwnerRunnerControls(unittest.TestCase):
         changed = copy.deepcopy(after)
         changed['events'].append(changed['events'][1])
         self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response))
+
+    def test_exact_event_order_cannot_be_missing_old_swapped_or_faked(self):
+        proposal, after, response = approved()
+        for first, second in [(None, 11), (10, None), (8, 11), (11, 10), (True, 11)]:
+            changed = copy.deepcopy(after)
+            changed['events'][0]['sequence'] = first
+            changed['events'][1]['sequence'] = second
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response))
 
     def test_foreign_approval_and_expanded_scope_are_never_accepted(self):
         proposal, after, response = approved()
@@ -117,6 +150,75 @@ class OwnerRunnerControls(unittest.TestCase):
         self.assertIn('"workspace_identity"', message)
         with self.assertRaises(ValueError):
             runner.expected_message(proposal, 'changed formatter')
+
+    def test_cleanup_preserves_unexpected_exit_and_forced_kill_as_failure(self):
+        for code in [0, 1]:
+            child = subprocess.Popen([sys.executable, '-c', f'raise SystemExit({code})'], start_new_session=True)
+            deadline = time.monotonic() + 3
+            while not runner.exited_without_reaping(child):
+                self.assertLess(time.monotonic(), deadline)
+                time.sleep(.02)
+            status = runner.stop_owned(child, 'daemon')
+            self.assertFalse(status['ok'])
+            self.assertEqual(status['returncode'], code)
+        child = subprocess.Popen([sys.executable, '-c', 'import time;time.sleep(30)'], start_new_session=True)
+        status = runner.stop_owned(child, 'daemon')
+        self.assertTrue(status['ok'])
+        self.assertEqual(status['signals'], [{'signal': 'SIGTERM', 'result': 'signalled'}])
+        self.assertEqual(status['returncode'], -runner.signal.SIGTERM)
+        child = subprocess.Popen([sys.executable, '-c', "import signal,time;signal.signal(signal.SIGTERM,signal.SIG_IGN);print('ready',flush=True);time.sleep(30)"], start_new_session=True, stdout=subprocess.PIPE)
+        try:
+            self.assertTrue(select.select([child.stdout], [], [], 3)[0])
+            self.assertEqual(child.stdout.readline(), b'ready\n')
+            status = runner.stop_owned(child, 'daemon')
+            self.assertFalse(status['ok'])
+            self.assertEqual(status['returncode'], -runner.signal.SIGKILL)
+            self.assertIn({'signal': 'SIGKILL', 'result': 'signalled'}, status['signals'])
+        finally:
+            child.stdout.close()
+            if child.returncode is None:
+                runner.stop_owned(child, 'daemon')
+
+
+    def test_exited_app_live_owned_descendant_is_reaped_and_never_green(self):
+        runner.enable_owned_subreaper()
+        child = subprocess.Popen([sys.executable, '-c', "import os,time;pid=os.fork();time.sleep(30) if pid==0 else None"], start_new_session=True)
+        deadline = time.monotonic() + 3
+        while not runner.exited_without_reaping(child):
+            self.assertLess(time.monotonic(), deadline)
+            time.sleep(.02)
+        status = runner.stop_owned(child, 'app')
+        self.assertFalse(status['ok'])
+        self.assertFalse(status['initial_group_quiescent'])
+        self.assertTrue(status['group_quiescent_before_reaping'])
+        self.assertEqual(status['returncode'], 0)
+        self.assertEqual(status['signals'], [{'signal': 'SIGTERM', 'result': 'signalled'}])
+        if sys.platform.startswith('linux'):
+            self.assertGreaterEqual(status['adopted_owned_group_children_reaped'], 1)
+
+    def test_observation_failure_still_reaps_and_reaped_identity_is_not_signalled(self):
+        child = subprocess.Popen([sys.executable, '-c', 'import time;time.sleep(30)'], start_new_session=True)
+        actual = runner.group_helpers()
+        class FirstObservationFails:
+            def __init__(self):
+                self.first = True
+            def owned_child_exited(self, pid):
+                if self.first:
+                    self.first = False
+                    raise OSError('retained injected observation failure')
+                return actual.owned_child_exited(pid)
+            owned_group_is_quiescent = staticmethod(actual.owned_group_is_quiescent)
+        controls = FirstObservationFails()
+        with mock.patch.object(runner, 'group_helpers', return_value=controls):
+            status = runner.stop_owned(child, 'daemon')
+        self.assertFalse(status['ok'])
+        self.assertEqual(status['returncode'], -runner.signal.SIGTERM)
+        self.assertTrue(status['errors'])
+        # Leader was already reaped by the completed cleanup; never signal an
+        # unknown group which could have reused that PID numerically.
+        with mock.patch.object(runner.os, 'killpg') as signal_group:
+            self.assertFalse(runner.stop_owned(child, 'daemon')['ok'])
+            signal_group.assert_not_called()
 
     @unittest.skipIf(sys.platform == 'darwin', 'Linux-only negative; no fake macOS run')
     def test_linux_is_explicitly_not_run_before_creating_mutation_fixture(self):

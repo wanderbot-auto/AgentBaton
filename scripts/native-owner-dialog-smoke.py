@@ -5,7 +5,10 @@ The only approvals.finalize host bootstrap is for this generated local executabl
 --version connection. The target Grant is finalized ONLY by production Tauri UI.
 """
 import argparse
+from contextlib import contextmanager
 import hashlib
+import importlib.util
+import ctypes
 import json
 import os
 import platform
@@ -19,6 +22,17 @@ import sys
 import tempfile
 import time
 import uuid
+
+
+# Exact schema12 tables: never substitute old test DDL or silently skip absent
+# tables. Every Goal store/runtime/graph table is empty in this Grant-only probe.
+GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
+               'goal_plan_revisions', 'goal_plan_proposals', 'goal_ledgers',
+               'goal_node_evidence', 'goal_external_action_journal', 'goal_runs',
+               'goal_run_nodes', 'goal_run_reservations', 'goal_graph_capabilities',
+               'goal_graph_jobs', 'goal_graph_candidates', 'goal_graph_validations',
+               'goal_graph_owner_decisions', 'goal_graph_acceptances')
+ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES)
 
 
 def save(path, value):
@@ -83,7 +97,7 @@ def database(runtime, proposal_id):
             item['sequence'] = seq
             events.append(item)
         counts = {table: conn.execute(f'SELECT count(*) FROM {table}').fetchone()[0]
-                  for table in ['attempts', 'sessions', 'goal_scopes', 'goal_plans', 'goal_runs', 'goal_run_nodes', 'goal_run_reservations']}
+                  for table in ZERO_TABLES}
         conn.rollback()
     return {'read_only': True, 'schema_version': schema, 'sequence': sequence,
             'proposal': proposal, 'proposal_result': result, 'grants': grants, 'events': events, 'counts': counts}
@@ -95,7 +109,7 @@ def pending_error(value, proposal, sequence):
             or value.get('proposal') != proposal or proposal.get('kind') != 'grant'
             or proposal.get('consumed') is not False or value.get('proposal_result') is not None
             or value.get('grants') != [] or not isinstance(value.get('counts'), dict)
-            or set(value['counts']) != {'attempts', 'sessions', 'goal_scopes', 'goal_plans', 'goal_runs', 'goal_run_nodes', 'goal_run_reservations'}
+            or set(value['counts']) != set(ZERO_TABLES)
             or any(type(n) is not int or n != 0 for n in value['counts'].values())
             or any(e.get('aggregate_id') == proposal['id'] and e.get('kind') == 'approval.confirmed' for e in value.get('events', []))):
         return 'Pending Grant authority/sequence/schema changed or absent'
@@ -114,7 +128,7 @@ def approved_error(value, proposal, baseline, response):
             or value.get('proposal_result') != grants[0] or response.get('result') != grants[0]
             or response.get('error') is not None or type(value.get('sequence')) is not int or value['sequence'] != baseline + 2
             or not isinstance(value.get('counts'), dict)
-            or set(value['counts']) != {'attempts', 'sessions', 'goal_scopes', 'goal_plans', 'goal_runs', 'goal_run_nodes', 'goal_run_reservations'}
+            or set(value['counts']) != set(ZERO_TABLES)
             or any(type(n) is not int or n != 0 for n in value['counts'].values())):
         return 'Exact production Grant commit/CAS/result/zero execution evidence missing'
     grant = grants[0]
@@ -128,11 +142,12 @@ def approved_error(value, proposal, baseline, response):
             or grant.get('connection_bindings', {}).get(intent['connection_id']) != proposal['snapshot']['refs']['connection']):
         return 'Committed root Grant does not match the exact bounded intent and resolved bindings'
     grant_events = [e for e in value.get('events', []) if e.get('aggregate_id') == grant['id'] and e.get('kind') == 'execution_grant.approved']
-    if len(grant_events) != 1 or grant_events[0].get('source') != 'user_action' or grant_events[0].get('revision') != grant['revision']:
+    if len(grant_events) != 1 or grant_events[0].get('source') != 'user_action' or grant_events[0].get('revision') != grant['revision'] or type(grant_events[0].get('sequence')) is not int or grant_events[0]['sequence'] != baseline + 1:
         return 'Exact persisted execution_grant.approved event missing'
     confirmations = [event for event in value.get('events', []) if event.get('aggregate_id') == proposal['id'] and event.get('kind') == 'approval.confirmed']
     if (len(confirmations) != 1 or confirmations[0].get('source') != 'local_owner_confirmation'
             or confirmations[0].get('revision') != current['revision']
+            or type(confirmations[0].get('sequence')) is not int or confirmations[0]['sequence'] != baseline + 2
             or confirmations[0].get('payload') != {'kind': 'grant', 'proposal_id': proposal['id'], 'consumed': True}):
         return 'Exact single Core Owner confirmation event missing'
     return None
@@ -153,13 +168,97 @@ def expected_message(proposal, source):
     return template.replace('{}', action, 1).replace('{table_explanation}', '', 1).replace('{snapshot}', snapshot, 1)
 
 
-def run(binary, daemon_path, output):
-    if sys.platform != 'darwin':
-        raise RuntimeError('NOT_RUN: real macOS GUI required; Linux/browser results do not qualify')
-    output.mkdir(mode=0o700, parents=True, exist_ok=True)
-    output = output.resolve()
-    if any(output.iterdir()):
-        raise ValueError('Use a fresh empty evidence directory; old evidence is never reused')
+def group_helpers():
+    # Reuse the independently tested existing ownership/quiescence predicates;
+    # the old runner and its readonly evidence contract are never modified.
+    spec = importlib.util.spec_from_file_location('native_group_helpers', Path(__file__).with_name('native-run.py'))
+    helpers = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helpers)
+    return helpers
+
+
+def exited_without_reaping(child):
+    return group_helpers().owned_child_exited(child.pid)
+
+
+def stop_owned(child, role):
+    record = {'role': role, 'started': child is not None, 'ok': False, 'signals': [], 'errors': [], 'returncode': None}
+    if child is None:
+        return record
+    record['pid'] = child.pid
+    # Any previous poll/wait would permit PID/group reuse. Do not signal an
+    # already-reaped leader, even if an unknown group reused its numeric ID.
+    if child.returncode is not None:
+        record['errors'].append('leader already reaped; no safe group signal')
+        record['returncode'] = child.returncode
+        return record
+    helpers = group_helpers()
+    exited, quiescent = None, False
+    try:
+        exited = helpers.owned_child_exited(child.pid)
+        record['running_before_cleanup'] = not exited
+        quiescent = exited and helpers.owned_group_is_quiescent(child.pid)
+    except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+        record['errors'].append(f'observe:{type(error).__name__}: {error}')
+    record['initial_group_quiescent'] = quiescent
+    if not quiescent:
+        for sig in [signal.SIGTERM, signal.SIGKILL]:
+            try:
+                os.killpg(child.pid, sig)
+                record['signals'].append({'signal': sig.name, 'result': 'signalled'})
+            except ProcessLookupError:
+                record['signals'].append({'signal': sig.name, 'result': 'absent'})
+            except OSError as error:
+                record['errors'].append(f'signal:{sig.name}:{type(error).__name__}: {error}')
+            until = time.monotonic() + (1.5 if sig == signal.SIGTERM else 1)
+            while time.monotonic() < until:
+                try:
+                    if helpers.owned_child_exited(child.pid) and helpers.owned_group_is_quiescent(child.pid):
+                        quiescent = True
+                        break
+                except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+                    record['errors'].append(f'quiescence:{type(error).__name__}: {error}')
+                    break
+                time.sleep(.02)
+            if quiescent:
+                break
+    record['group_quiescent_before_reaping'] = quiescent
+    try:
+        record['returncode'] = child.wait(timeout=1)
+        reaped = 0
+        if sys.platform.startswith('linux'):
+            while True:
+                try:
+                    pid, _ = os.waitpid(-child.pid, os.WNOHANG)
+                except ChildProcessError:
+                    break
+                if not pid:
+                    break
+                reaped += 1
+        record['adopted_owned_group_children_reaped'] = reaped
+    except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+        record['errors'].append(f'reap:{type(error).__name__}: {error}')
+    normal = (exited is True and record['initial_group_quiescent'] and child.returncode == 0 if role == 'app'
+              else exited is False and child.returncode in (0, -signal.SIGTERM))
+    forced = any(item['signal'] == 'SIGKILL' for item in record['signals'])
+    record['ok'] = normal and quiescent and not forced and not record['errors']
+    return record
+
+
+def enable_owned_subreaper():
+    if sys.platform.startswith('linux'):
+        libc = ctypes.CDLL(None, use_errno=True)
+        if libc.prctl(36, 1, 0, 0, 0) != 0:
+            raise OSError(ctypes.get_errno(), 'owned fixture subreaper failed')
+
+
+@contextmanager
+def bootstrap(daemon_path, output):
+    """Actual Core/generated --version fixture only; no GUI or Grant finalize.
+
+    Linux controls use this same pre-OS path, never pretending they ran macOS.
+    The caller must keep the yielded context alive while observing the database.
+    """
     with tempfile.TemporaryDirectory(prefix='baton-owner-os-') as temporary:
         root = Path(temporary)
         root.chmod(0o700)
@@ -177,13 +276,14 @@ def run(binary, daemon_path, output):
         git_env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null')
         for args in [['init', '-q'], ['-c', 'user.name=Native Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--allow-empty', '-qm', 'local owner fixture']]:
             subprocess.run(['git', '-C', str(project), '-c', 'core.hooksPath=/dev/null', '-c', 'init.templateDir=', *args], env=git_env, check=True, timeout=10, capture_output=True)
+        enable_owned_subreaper()
         daemon = subprocess.Popen([str(daemon_path.resolve())], env=env, start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        app = None
         client = NativeCoreClient(runtime)
+        generated = {}
         try:
             deadline = time.monotonic() + 10
             while True:
-                if daemon.poll() is not None:
+                if exited_without_reaping(daemon):
                     raise RuntimeError('Fixture daemon exited before readiness')
                 try:
                     client.call('system.snapshot', {})
@@ -210,19 +310,44 @@ def run(binary, daemon_path, output):
                 time.sleep(.05)
             params = {'project_id': imported['id'], 'workspace_id': workspace['id'], 'connection_id': connection['id'], 'max_attempts': 1, 'max_concurrency': 1, 'max_duration_ms': 1000}
             proposal = client.call('grants.propose', params, 'owner-os-grant')
+            invoke = {'projectId': imported['id'], 'workspaceId': workspace['id'], 'connectionId': connection['id'], 'maxAttempts': 1, 'maxConcurrency': 1, 'maxDurationMs': 1000, 'idempotencyKey': 'owner-os-grant'}
+            generated = {'runtime': runtime, 'env': env, 'client': client, 'proposal': proposal, 'invoke': invoke}
+            yield generated
+        finally:
+            try:
+                save(output / 'core-bootstrap-transcript.json', client.transcript)
+            finally:
+                cleanup = stop_owned(daemon, 'daemon')
+                generated['daemon_cleanup'] = cleanup
+                save(output / 'daemon-cleanup.json', cleanup)
+                if not cleanup['ok']:
+                    raise RuntimeError('Owned daemon exited unexpectedly or required forced cleanup; no successful result')
+
+
+def run(binary, daemon_path, output):
+    if sys.platform != 'darwin':
+        raise RuntimeError('NOT_RUN: real macOS GUI required; Linux/browser results do not qualify')
+    output.mkdir(mode=0o700, parents=True, exist_ok=True)
+    output = output.resolve()
+    if any(output.iterdir()):
+        raise ValueError('Use a fresh empty evidence directory; old evidence is never reused')
+    with bootstrap(daemon_path, output) as generated:
+        runtime, env, proposal = generated['runtime'], generated['env'], generated['proposal']
+        app = None
+        try:
             baseline = database(runtime, proposal['id'])
             error = pending_error(baseline, proposal, baseline['sequence'])
             if error:
                 raise ValueError(error)
             message = expected_message(proposal, (Path(__file__).resolve().parents[1] / 'apps/desktop/src-tauri/src/approval.rs').read_text())
-            invoke = {'projectId': imported['id'], 'workspaceId': workspace['id'], 'connectionId': connection['id'], 'maxAttempts': 1, 'maxConcurrency': 1, 'maxDurationMs': 1000, 'idempotencyKey': 'owner-os-grant'}
+            invoke = generated['invoke']
             fixture = {'kind': 'native_grant_os_dialog_fixture', 'runtime': str(runtime), 'output': str(output), 'proposal': proposal, 'message': message, 'invoke': invoke, 'baseline_sequence': baseline['sequence']}
             save(output / 'fixture.json', fixture)
             save(output / 'before.json', baseline)
             app = subprocess.Popen([str(binary.resolve()), str(output / 'fixture.json')], env=env, start_new_session=True)
             deadline = time.monotonic() + 85
             permits = set()
-            while app.poll() is None and time.monotonic() < deadline:
+            while not exited_without_reaping(app) and time.monotonic() < deadline:
                 for phase in ['cancel', 'approve']:
                     ready = output / f'{phase}-sheet-ready.json'
                     if ready.exists() and phase not in permits:
@@ -241,9 +366,9 @@ def run(binary, daemon_path, output):
                         save(output / f'{phase}-database-permit.json', {'phase': phase, 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'before_click_sequence': baseline['sequence']})
                         permits.add(phase)
                 time.sleep(.05)
-            if app.poll() is None:
+            if not exited_without_reaping(app):
                 raise TimeoutError('Real OS dialog process did not finish')
-            if app.returncode != 0 or permits != {'cancel', 'approve'}:
+            if permits != {'cancel', 'approve'}:
                 raise RuntimeError('Real dialog process failed; inspect retained native report')
             after = database(runtime, proposal['id'])
             save(output / 'after.json', after)
@@ -259,24 +384,14 @@ def run(binary, daemon_path, output):
                 if min(width, height) < 20:
                     raise ValueError('Actual sheet image is empty/tiny')
                 images[phase] = {'sha256': hashlib.sha256(raw).hexdigest(), 'width': width, 'height': height, 'visual_review': 'pending_human_or_independent_image_inspection'}
-            save(output / 'result.json', {'status': 'automated_os_and_database_checks_passed_visual_review_pending', 'dimension': 'actual_macos_grant_cancel_then_same_key_real_ok', 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'grant_id': after['grants'][0]['id'], 'before_sequence': baseline['sequence'], 'after_sequence': after['sequence'], 'images': images, 'model_calls': 'not_run', 'graph_os_owner': 'not_run', 'human_owner_review': 'not_claimed', 'os': sys.platform, 'architecture': platform.machine(), 'harness_binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'daemon_binary_sha256': hashlib.sha256(daemon_path.read_bytes()).hexdigest()})
+            result = {'status': 'automated_os_and_database_checks_passed_visual_review_pending', 'dimension': 'actual_macos_grant_cancel_then_same_key_real_ok', 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'grant_id': after['grants'][0]['id'], 'before_sequence': baseline['sequence'], 'after_sequence': after['sequence'], 'images': images, 'model_calls': 'not_run', 'graph_os_owner': 'not_run', 'human_owner_review': 'not_claimed', 'os': sys.platform, 'architecture': platform.machine(), 'harness_binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'daemon_binary_sha256': hashlib.sha256(daemon_path.read_bytes()).hexdigest()}
         finally:
-            save(output / 'core-bootstrap-transcript.json', client.transcript)
-            for child in [app, daemon]:
-                if child is not None:
-                    if child.poll() is None:
-                        try:
-                            os.killpg(child.pid, signal.SIGTERM)
-                        except ProcessLookupError:
-                            pass
-                        try:
-                            child.wait(timeout=3)
-                        except subprocess.TimeoutExpired:
-                            try:
-                                os.killpg(child.pid, signal.SIGKILL)
-                            except ProcessLookupError:
-                                pass
-                    child.wait(timeout=3)
+            cleanup = stop_owned(app, 'app')
+            save(output / 'app-cleanup.json', cleanup)
+            if not cleanup['ok']:
+                raise RuntimeError('Native app did not exit cleanly; no successful result')
+    result['process_cleanup'] = {'app': cleanup, 'daemon': generated['daemon_cleanup']}
+    save(output / 'result.json', result)
 
 
 if __name__ == '__main__':

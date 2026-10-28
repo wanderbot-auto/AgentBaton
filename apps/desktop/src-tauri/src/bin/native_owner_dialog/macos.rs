@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use std::{
     fs,
     path::{Path, PathBuf},
-    process::{Command, Stdio},
+    process::{Child, Command, Stdio},
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, Mutex,
@@ -21,6 +21,7 @@ struct State {
     caller: Mutex<Option<WebviewWindow>>,
     phase: Mutex<Phase>,
     done: AtomicBool,
+    failed: AtomicBool,
     injected: AtomicBool,
 }
 type CaptureResult = Arc<Mutex<Option<Result<(), String>>>>;
@@ -43,6 +44,9 @@ fn write(path: &Path, value: &Value) -> Result<(), String> {
 
 fn fail(app: &tauri::AppHandle, reason: &str) {
     let state = app.state::<State>();
+    if state.failed.swap(true, Ordering::AcqRel) {
+        return;
+    }
     let _ = write(
         &state.output.join("owner-dialog.json"),
         &json!({"status":"failed","reason":reason,"dimension":"macos_own_process_real_sheet","provider_model_calls":"not_run"}),
@@ -53,10 +57,9 @@ fn fail(app: &tauri::AppHandle, reason: &str) {
 fn invoke_script(expected: &Value) -> String {
     format!("(async()=>{{try{{const response=await window.__TAURI_INTERNALS__.invoke('grants_create',{});await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response}})}}catch(error){{await window.__TAURI_INTERNALS__.invoke('owner_dialog_report',{{response:{{bridge_error:String(error)}}}})}}}})()",expected["invoke"])
 }
-#[tauri::command]
-fn owner_dialog_report(
+fn record_report(
     window: WebviewWindow,
-    app: tauri::AppHandle,
+    app: &tauri::AppHandle,
     response: Value,
 ) -> Result<(), String> {
     let state = app.state::<State>();
@@ -77,7 +80,6 @@ fn owner_dialog_report(
             || response.get("result").is_some()
         {
             drop(phase);
-            fail(&app, "Cancel did not return the production native denial");
             return Err("Cancel response mismatch".into());
         }
         *phase = Phase {
@@ -96,7 +98,6 @@ fn owner_dialog_report(
             || response["result"]["approval_id"] != state.expected["proposal"]["id"]
         {
             drop(phase);
-            fail(&app, "Normal approval did not return the exact Core grant");
             return Err("Grant response mismatch".into());
         }
         write(
@@ -108,6 +109,19 @@ fn owner_dialog_report(
     }
     Ok(())
 }
+#[tauri::command]
+fn owner_dialog_report(
+    window: WebviewWindow,
+    app: tauri::AppHandle,
+    response: Value,
+) -> Result<(), String> {
+    let result = record_report(window, &app, response);
+    if let Err(error) = &result {
+        fail(&app, error);
+    }
+    result
+}
+
 fn contains(outer: NSRect, inner: NSRect) -> bool {
     let a = [
         outer.origin.x,
@@ -250,18 +264,29 @@ fn observe(
         number,
     }))
 }
+struct OwnedCapture(Child);
+impl Drop for OwnedCapture {
+    fn drop(&mut self) {
+        if !matches!(self.0.try_wait(), Ok(Some(_))) {
+            let _ = self.0.kill();
+            let _ = self.0.wait();
+        }
+    }
+}
 fn capture(number: isize, path: PathBuf) -> Result<(), String> {
-    let mut child = Command::new("/usr/sbin/screencapture")
-        .args(["-x", "-l", &number.to_string()])
-        .arg(&path)
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
-        .map_err(|e| e.to_string())?;
+    let mut child = OwnedCapture(
+        Command::new("/usr/sbin/screencapture")
+            .args(["-x", "-l", &number.to_string()])
+            .arg(&path)
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .map_err(|e| e.to_string())?,
+    );
     let deadline = Instant::now() + Duration::from_secs(4);
     loop {
-        if let Some(status) = child.try_wait().map_err(|e| e.to_string())? {
+        if let Some(status) = child.0.try_wait().map_err(|e| e.to_string())? {
             if !status.success() {
                 return Err("Actual sheet capture failed; no permissions were changed".into());
             }
@@ -272,8 +297,8 @@ fn capture(number: isize, path: PathBuf) -> Result<(), String> {
             return Ok(());
         }
         if Instant::now() >= deadline {
-            let _ = child.kill();
-            let _ = child.wait();
+            let _ = child.0.kill();
+            let _ = child.0.wait();
             return Err("Sheet capture deadline".into());
         }
         std::thread::sleep(Duration::from_millis(20));
@@ -411,6 +436,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
             sheet_seen: None,
         }),
         done: AtomicBool::new(false),
+        failed: AtomicBool::new(false),
         injected: AtomicBool::new(false),
     };
     let app = agentbaton_desktop::desktop_builder(runtime)
