@@ -31,3 +31,10 @@ Separate review: pending Root-assigned reviewer; do not borrow733 signoff.
 Native: approval exactly8a, four added callback functions total relative87, all uncompiled/unrun here.
 Original47 Integrity artifacts are restored and content-hash verified following the recorded private-build-index incident. Old failures and all earlier sources remain preserved.
 Next: complete independent review, then Root may integrate and allocate accurate combined Cargo/macOS validation. No executor/background continuation is promised by this checkpoint.
+
+## Independent lossless review acknowledged
+
+Separate reviewer data_native_integration_review completed review of source4fab558fe126543c23b1410949e6fcd922b770d6 + docs2f31fcc7f88d9a1d90442ed5b1120903d5850467: PASS within the source/Node scope, no blocking findings.
+Independent execution: full564/37, selected14/2, type/build/diff/rustfmt parse all exit0, plus18 independent clone/async tamper/floor/precision controls passed. Report SHA-256 9991accc1c081c9e52da523bd171ebf0197369688aa01a51ce8fea2723d38f00; review manifest b9670d97291827840e4e122ef2a57b10836cc9e4b245cfc97be5d80f90c10a92 (59 files), at .onboarding/goal-validation-observation-ui-review/lossless-4fab.
+The reviewer independently verified restored old47 and new39 author evidence artifacts, explicitly retaining the old-index touch/restoration history. All four new Native callback functions remain unrun. Root still must validate the exact combined Native/Core/macOS/browser/CI/installer candidate.
+This is independent engineering review, not a formal GitHub Approve action or product completion; a later source revision needs its own evidence.
