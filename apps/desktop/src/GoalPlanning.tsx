@@ -14,7 +14,9 @@ const sameGoal = (a: GoalBinding,b: GoalBinding) => !!a && ['project_id','root_t
 const uncertain = (error: unknown) => !(error instanceof DaemonError) || error.code === 'OUTCOME_UNKNOWN' || !['none','not_started'].includes(error.sideEffectState);
 export function GoalPlanning(props: Props) {
   const [expanded,setExpanded] = useState(false), [started,setStarted] = useState(false);
-  return <section className="goal-planning" data-testid="goal-planning" aria-labelledby={`goal-planning-${props.task.id}`}><details onToggle={event=>{const open=event.currentTarget.open;setExpanded(open);if(open)setStarted(true);}}><summary><h2 id={`goal-planning-${props.task.id}`}>{goalMessages[props.language].title}</h2></summary>{started&&<GoalPanel key={props.task.id} {...props} expanded={expanded}/>}</details></section>;
+  // Core create_registered reserves "local" for personal tasks without a registry project.
+  const personal = props.task.project_id === 'local';
+  return <section className="goal-planning" data-testid="goal-planning" aria-labelledby={`goal-planning-${props.task.id}`}><details onToggle={event=>{const open=event.currentTarget.open;setExpanded(open);if(open)setStarted(true);}}><summary><h2 id={`goal-planning-${props.task.id}`}>{goalMessages[props.language].title}</h2></summary>{started&&(personal?<p>{goalMessages[props.language].personalProject}</p>:<GoalPanel key={props.task.id} {...props} expanded={expanded}/>)}</details></section>;
 }
 function GoalPanel({ task, language, connected, expanded }: Props & { expanded:boolean }) {
   const t = goalMessages[language], saved = pendingRequests.get(task.id);
