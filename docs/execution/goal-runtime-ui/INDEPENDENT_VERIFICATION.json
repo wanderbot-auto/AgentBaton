@@ -1,0 +1,251 @@
+{
+  "review_status": "PASS after UI-R1/UI-R2 closure; integration gates remain",
+  "source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+  "base": "822c3bb46c8ec8ba506e7682b07e2a1384ed0674",
+  "actual_UI": 445,
+  "UI_type_build": "passed",
+  "actual_native_lib": 28,
+  "actual_native_harness": 12,
+  "native_clippy_fmt": "passed",
+  "native_target": "released to Root; no further Cargo writes",
+  "findings": [
+    {
+      "id": "UI-R1",
+      "title": "Contradictory cancelled run with unknown-effect node can unlock Native approval",
+      "actual_control": "terminal-component-old.log first test expectDisabled FAIL; API shape accepted, reconciliation false",
+      "authority_scope": "UI evidence/action availability; Core authorization remains separate",
+      "status": "CLOSED",
+      "fix_source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada"
+    },
+    {
+      "id": "UI-R2",
+      "title": "Future unknown node state can unlock plan adoption",
+      "actual_control": "terminal-component-old.log second test expectDisabled FAIL; canAdvanceView denylist misses unknown",
+      "authority_scope": "UI action gate; no real server dispatch was exercised",
+      "status": "CLOSED",
+      "fix_source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada"
+    }
+  ],
+  "native_probes": [
+    {
+      "name": "small",
+      "fixture_sha256": "44b8f0ea1045d2da139b33007e153dbee4b0e4d654a1aae83506a30d533442ee",
+      "report_sha256": "82971591d2201ad8d651fdd8f3c448848286d56db027e0d1a9c51d36a1d44e87",
+      "display_bytes": 10188,
+      "compact_bytes": 7668,
+      "pretty_bytes": 10188,
+      "complete_value_equal": true,
+      "decline_foreign_and_unknown": "passed",
+      "OS_dialog_or_real_Core_finalize": false
+    },
+    {
+      "name": "large",
+      "fixture_sha256": "ac4ac13da6adc838df39b37b62a4e08e6ee4d676f17756a6fd0283352d720b11",
+      "report_sha256": "580b1edd77bd62471bcaf569764587d18225554f52abc460001f35775ee1b6e5",
+      "display_bytes": 13440,
+      "compact_bytes": 13440,
+      "pretty_bytes": 16694,
+      "complete_value_equal": true,
+      "decline_foreign_and_unknown": "passed",
+      "OS_dialog_or_real_Core_finalize": false
+    }
+  ],
+  "limits": [
+    "Mocked component transport, no real Core11 IPC/OS Owner dialog/private Core finalization/macOS",
+    "Native dependency uses existing Core10 debug compile resources only",
+    "No remote actions or source/index modifications"
+  ],
+  "files": {
+    "CHECKPOINT.json": "0037a61f3e1e240bb4db2f5cd39fdfe17505fb83c8a4bc6524b963520553e6e9",
+    "REVIEW.md": "b7db0abd1d045a9492c9c36bbb3ae21818068b327ff1237366449e2940fd474a",
+    "baseline-display-negative.log": "bbc3187b8dfad487688bb4276a4b14e485b39d31235b92eaf7925df2dbef40d7",
+    "baseline-display-proof.json": "b2b1dbe9ffc3b1849a58180108f4891a69e75a3a538c94a7ec45ad4876a44927",
+    "build.log": "d35b885fad71a1403aed604e384631e3951fc29de5c105d2c6b61d095085df34",
+    "diff-whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "entrypoint-bytes.json": "0705471921b0a5a6a2a684b70a4e69f6a935d8cac22e2a531b3b9a04d13f5bb6",
+    "fix-source-preservation.json": "8b14b89f53e690af8af555f0778e47c57958238b1a5ff711ba4c91c20db3957f",
+    "fixed-build.log": "c9d6e0c3eea69dd6b9c87f7409c1816f2d4a702ab7ccab0e3035a6d2c4873f8b",
+    "fixed-typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "fixed-ui-results.json": "7bfe7a9297c00e418ec8744e4a49467ad9e09d314e377112f95e70d5bdbcf760",
+    "fixed-ui.log": "0f7142366ead42d275d4139f80ad4f420bb84e572dbf44378d78dc32dc8d8585",
+    "large-proposal.json": "580b1edd77bd62471bcaf569764587d18225554f52abc460001f35775ee1b6e5",
+    "large-proposal.log": "6e9dc79c6035c9ad9af046c1b348442924881c2eb0bc433c597bc6a76c1f35a5",
+    "native-clippy.log": "40600cf2fa32e5733da275b669171c298ae93f7c1139488f1a7c4d7c69fd5e48",
+    "native-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-goal-probe": "5bb2f1c5caf926bc6da469af50d7c58ad1feab193c666470796aed0e6664fdba",
+    "native-goal-probe.rs": "766ac79a59e69c28b3fe66b70bd3216621eb04c901e40017b964d5aac1a321a3",
+    "native-results.json": "5a12895af037b17460ad7e9e23621cce49b9825258e8c795bf95171a3544d847",
+    "native-tests.log": "b0d945ab65d10bb647d801adca0e2398c1360e1bfe404aaa56e75a744bbcea25",
+    "probe-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "probe-results.json": "6222ee02d54b4a3e31a072a24a580fa9f0f80248c558cafa0bc1f442ab1d80c4",
+    "small-proposal.json": "82971591d2201ad8d651fdd8f3c448848286d56db027e0d1a9c51d36a1d44e87",
+    "small-proposal.log": "6e9dc79c6035c9ad9af046c1b348442924881c2eb0bc433c597bc6a76c1f35a5",
+    "source-snapshot-maps.json": "ef1d5bc84470e2b3d60451a30e8b82b97da73a90d1d6fe4e83f2a6550787a43c",
+    "static-preservation.json": "2b3c50a91e9301842acceb1a8f502f45f6f9e8fc2dfaed21c061597904e9bb8a",
+    "terminal-compile-rolldown.log": "c1fe9f3af7996c917d1c7ad843be2501bef40bc929350c521206b05e177c7b1e",
+    "terminal-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "terminal-component-fixed.log": "8027d9c13b025d8a8ef54a859fd46ddd8d3b1471f048ce93d1ac7b28d210d7cb",
+    "terminal-component-old.log": "1f6364ed38970d2f4f442282abd68737184dd4099c63c8be8b62a5ce829c5c9e",
+    "terminal-component.test.tsx": "25decda2129723f3c8521069d8b9536a4184b3afe0868a8c33f81324a93cea2a",
+    "terminal-controls.cjs": "f649ab87b997abaf37dc0d940318a1ff04875207c2cde9c709251e72abc858d8",
+    "terminal-controls.ts": "9f11172f98af4abb93ce776ace20598871476db93b04caadb2821ae0aef54ab2",
+    "terminal-fixed-api.log": "e590effeccb8ea5190e16d6d013647156f8f98e2451637e3a234f4ccfa37c394",
+    "terminal-fixed-compile.log": "2fe5cbeed90d7d8902df84a81466d4684832597164bf5ca6cd72446d7d2eaf6c",
+    "terminal-fixed-controls.cjs": "ca33627548b801f594af3fd0adb24b18e7cc9134a73fb97bae3befb31b4f1183",
+    "terminal-fixed-controls.ts": "55ff8bee466f0628051fc765907be6c7af88f9ec26c02bb0698cd1771acfe3f0",
+    "terminal-old-controls.log": "1dc0d91da67947d620277984419d1430ce0d6015b3a7c5e1a87b29dd60be3385",
+    "typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "ui-results.json": "3728bc5e9bff02c5e94c291af1746350b69201c63d50bc2df90c1868c0c5e35b",
+    "ui.log": "c178995b23f6350bc35b29965c8f3d6cc4ce6b6f7c8985ef14695b249be92601",
+    "vitest.config.ts": "ff7f2a99fe80a02d2c8a0a620a2285e911a934729de01e9ee7cf868645a1a65e"
+  },
+  "final_source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
+  "docs_head": "a11ac8e11af431bb1e3a50aa68d7e07855f00ea9",
+  "source_files": {
+    "apps/desktop/src-tauri/src/approval.rs": "4e9b02bdf1eda86e98afa727b15826e0858e509de8bf932bf8b312ec6d136896",
+    "apps/desktop/src-tauri/src/lib.rs": "7eb75d1ad51da49f548dd2292bcedff69220c82732df62e81796f25d9919f3d0",
+    "apps/desktop/src/GoalExecution.evidence.test.tsx": "be3d77e75ae5a32fad4f3abf6471f4cb5f6477b1a0ef698226f12f3fd18063dc",
+    "apps/desktop/src/GoalExecution.test.tsx": "ce1be13fa6851a4ef608430494f33e1fdbf2b96f046df32cf3e8f0f6e884bea3",
+    "apps/desktop/src/GoalExecution.tsx": "0fe701190fbe33b644dd7f975a09a23001dceb66a398d68e72fb3a892f203ab4",
+    "apps/desktop/src/GoalPlanning.execution-mount.test.tsx": "98bb58eb36bb7b419975c26f2d419883b58f40b948a5a759abbce6ea16c3d6f9",
+    "apps/desktop/src/GoalPlanning.tsx": "523429090db416338299df0177d9921a66bd2b60d95a8366ec5727f034a0973d",
+    "apps/desktop/src/goal-execution-api.test.ts": "c9b3add2d62172df94edf906b2308b5926c2d197d96a990833e3ef5760a1d5f9",
+    "apps/desktop/src/goal-execution-api.ts": "cfd294e94b62fb63e26606705b294cd7dad45e7ea0eda0dca34ae7e6f9abe18a",
+    "apps/desktop/src/goal-execution-i18n.ts": "ca4dda8a51038c2a46ab137a6783c456b510f052cb2056c10770cf6ea144372f",
+    "apps/desktop/src/goal-execution-test-fixtures.ts": "76112fe6c1d37826537d23f867694aa3a97ec68d3b2e45cb05c34c56e10aec89",
+    "apps/desktop/src/goal-execution.css": "18abc05573647f2580a9b62b4171cf0e217f15c8348bacb38191f6a4a4ac8b5a"
+  },
+  "actual_UI_files": 24,
+  "initial_UI": 425,
+  "exact_component_controls_old": "2FAIL",
+  "exact_component_controls_fixed": "2PASS, unchanged test assertions",
+  "additional_fixed_API_controls": "7PASS",
+  "final_UI_results": [
+    {
+      "name": "fixed-ui",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 17.24,
+      "sha256": "0f7142366ead42d275d4139f80ad4f420bb84e572dbf44378d78dc32dc8d8585"
+    },
+    {
+      "name": "fixed-typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 0.79,
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    {
+      "name": "fixed-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 1.18,
+      "sha256": "c9d6e0c3eea69dd6b9c87f7409c1816f2d4a702ab7ccab0e3035a6d2c4873f8b"
+    }
+  ],
+  "initial_UI_results": [
+    {
+      "name": "ui",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 15.74,
+      "sha256": "c178995b23f6350bc35b29965c8f3d6cc4ce6b6f7c8985ef14695b249be92601"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 0.76,
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 1.16,
+      "sha256": "d35b885fad71a1403aed604e384631e3951fc29de5c105d2c6b61d095085df34"
+    }
+  ],
+  "native_results": [
+    {
+      "name": "native-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--features",
+        "native-smoke,custom-protocol"
+      ],
+      "exit_code": 0,
+      "seconds": 21.65,
+      "sha256": "b0d945ab65d10bb647d801adca0e2398c1360e1bfe404aaa56e75a744bbcea25"
+    },
+    {
+      "name": "native-clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--features",
+        "native-smoke,custom-protocol",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 7.11,
+      "sha256": "40600cf2fa32e5733da275b669171c298ae93f7c1139488f1a7c4d7c69fd5e48"
+    },
+    {
+      "name": "native-fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.1,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "native_retested_after_UI_fix": false,
+  "native_retest_reason": "exact Native/harness source bytes unchanged",
+  "dependency_links": "Removed author-path own link after tests and review-directory own link after all controls; original dependencies untouched",
+  "verification_setup_errors": [
+    "Unavailable esbuild before pure API controls; rolldown used for actual execution",
+    "First final source hash assertion included later docs; application hashes scoped correctly, docs bound separately"
+  ],
+  "initial_source": "86121385b8a4e4bb40579b7446b8dab2456a1fec"
+}
