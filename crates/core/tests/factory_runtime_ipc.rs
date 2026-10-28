@@ -225,7 +225,7 @@ for line in sys.stdin:
    stopped=tool('cancel_task',{'task_id':c['task_id'],'expected_revision':status['revision'],'idempotency_key':'self-cancel'})
    assert stopped['cancel_requested'] is True
    continue
-  if fixture_mode=='pin_drift':
+  if fixture_mode in ('pin_drift','scope_revoke','scope_ttl'):
    open('reports/pin-ready','w').write('generated safe gate')
    import time
    while not os.path.exists('reports/proceed'):time.sleep(0.005)
@@ -296,6 +296,14 @@ fn mixed_ordinary_goal_and_actual_factory_share_cumulative_project_and_root_gran
 #[test]
 fn mixed_live_ordinary_owned_process_blocks_factory_dispatch_without_refunding_shared_budget() {
     run_mode("mixed_busy");
+}
+#[test]
+fn real_scoped_handle_revocation_denies_all_four_tools_while_owner_cancel_still_joins() {
+    run_mode("scope_revoke");
+}
+#[test]
+fn real_scoped_handle_expiry_denies_all_four_tools_without_replaying_or_faking_stop() {
+    run_mode("scope_ttl");
 }
 fn run_mode(mode: &str) {
     use agentbaton_core::ipc::{call, Daemon};
@@ -434,6 +442,9 @@ fn run_mode(mode: &str) {
     }
     f.selection.root_budget.output_bytes = 12288;
     f.selection.project_budget.output_bytes = 12288;
+    if mode == "scope_ttl" {
+        f.selection.ttl_ms = 5000;
+    }
     let mixed = if mode.starts_with("mixed_") {
         Some(prepare_mixed_goal(&mut f))
     } else {
@@ -460,6 +471,12 @@ fn run_mode(mode: &str) {
     }
     let start=call(&runtime,json!({"method":"factory_runs.start","params":{"scope_id":scope.id},"expected_revision":scope.revision,"idempotency_key":"actual-run"})).unwrap();
     assert!(start.get("error").is_none(), "{start}");
+    if mode == "scope_revoke" || mode == "scope_ttl" {
+        scope_liveness_tools_and_owner_stop(&f.path, &runtime, &scope, &workspace, mode);
+        stop.store(true, Ordering::Relaxed);
+        assert!(daemon_thread.join().unwrap().is_ok());
+        return;
+    }
     if mode == "pin_drift" {
         let until = Instant::now() + Duration::from_secs(5);
         while !workspace.join("reports/pin-ready").exists() {
@@ -1157,6 +1174,192 @@ fn assert_mixed_cumulative_receipts(db: &Connection, scope: &FactoryScope) {
         .unwrap(),
         0
     );
+}
+
+fn scope_liveness_tools_and_owner_stop(
+    path: &Path,
+    runtime: &Path,
+    scope: &FactoryScope,
+    workspace: &Path,
+    mode: &str,
+) {
+    use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+    let until = Instant::now() + Duration::from_secs(5);
+    while !workspace.join("reports/pin-ready").exists() {
+        assert!(
+            Instant::now() < until,
+            "generated scoped MCP did not reach its actual ready gate"
+        );
+        std::thread::sleep(Duration::from_millis(5));
+    }
+    let files = fs::read_dir(runtime.join("factory-scoped-handles"))
+        .unwrap()
+        .map(|p| p.unwrap().path())
+        .collect::<Vec<_>>();
+    assert_eq!(files.len(), 1);
+    let credential: serde_json::Value =
+        serde_json::from_slice(&fs::read(&files[0]).unwrap()).unwrap();
+    let params = json!({"task_id":scope.root_task_id});
+    let valid = scoped_request(
+        runtime,
+        json!({"api_version":1,"request_id":"valid-before-scope-restriction","handle_id":credential["handle_id"],"scoped_token":credential["scoped_token"],"method":"get_task_status","params":params}),
+    );
+    assert!(
+        valid.get("error").is_none(),
+        "the control must first prove real scoped authorization: {valid}"
+    );
+    assert_eq!(valid["result"]["task_id"], scope.root_task_id);
+    let db = Connection::open(path).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM factory_attempts", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+            [],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        1
+    );
+    if mode == "scope_revoke" {
+        let revoked = mixed_call(
+            runtime,
+            json!({"method":"factory_scopes.revoke","params":{"scope_id":scope.id},"expected_revision":scope.revision,"idempotency_key":"actual-revoke-after-valid-handle"}),
+        );
+        assert_eq!(revoked["revoked"], true);
+        assert_eq!(revoked["revision"], scope.revision + 1);
+    } else {
+        let timeout = Instant::now() + Duration::from_secs(12);
+        while i64::try_from(
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_millis(),
+        )
+        .unwrap()
+            < scope.expires_at_ms
+        {
+            assert!(
+                Instant::now() < timeout,
+                "real approved scope clock did not expire"
+            );
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    }
+    let delegate = json!({"goal":"This real but now invalid handle must never create a child","connection_id":scope.selection.connection_ids[0],"workspace_id":scope.selection.workspace_ids[0],"input_artifact_ids":["input"],"output_artifact_ids":["report"],"budget":{"attempts":1,"parallel":1,"runtime_ms":1000,"output_bytes":4096,"children":0,"reworks":0,"tokens":null,"cost_microunits":null},"wait_for_child":true});
+    for (method, params, revision, key) in [
+        (
+            "get_task_status",
+            json!({"task_id":scope.root_task_id}),
+            None,
+            None,
+        ),
+        (
+            "get_task_result",
+            json!({"task_id":scope.root_task_id}),
+            None,
+            None,
+        ),
+        (
+            "delegate_task",
+            delegate,
+            None,
+            Some("expired-or-revoked-no-child"),
+        ),
+        (
+            "cancel_task",
+            json!({"task_id":scope.root_task_id}),
+            Some(1u64),
+            Some("expired-or-revoked-no-agent-cancel"),
+        ),
+    ] {
+        let reply = scoped_request(
+            runtime,
+            json!({"api_version":1,"request_id":"actual-now-invalid-scope-handle","handle_id":credential["handle_id"],"scoped_token":credential["scoped_token"],"method":method,"params":params,"expected_revision":revision,"idempotency_key":key}),
+        );
+        assert_eq!(
+            reply["error"]["code"], "AUTH_REQUIRED",
+            "{mode} {method}: {reply}"
+        );
+        assert_eq!(reply["revision"], 0);
+        assert!(reply.get("result").is_none());
+        eprintln!("REAL_SCOPED_LIVENESS mode={mode} method={method} authorized_before=true denied_after=true");
+    }
+    let current = mixed_call(
+        runtime,
+        json!({"method":"factory_runs.get","params":{"scope_id":scope.id}}),
+    );
+    // Owner stop is a separate actual authority; it must never require the now
+    // invalid Agent token or a successful scope/input witness.
+    let cancelled = mixed_call(
+        runtime,
+        json!({"method":"factory_runs.cancel","params":{"scope_id":scope.id},"expected_revision":current["run"]["revision"],"idempotency_key":"actual-owner-stop-invalid-agent-scope"}),
+    );
+    assert_eq!(cancelled["cancel_requested"], true);
+    let until = Instant::now() + Duration::from_secs(5);
+    loop {
+        let (pending,active):(i64,i64)=db.query_row("SELECT (SELECT count(*) FROM dispatch_intents WHERE state!='stopped'),(SELECT COALESCE(sum(active),0) FROM budgets WHERE scope LIKE 'project:%')",[],|r|Ok((r.get(0)?,r.get(1)?))).unwrap();
+        let stopped:i64=db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.payload.process_reaped')=1 AND json_extract(document,'$.payload.no_process_started')=0",[],|r|r.get(0)).unwrap();
+        if pending == 0 && active == 0 && stopped == 1 {
+            break;
+        }
+        assert!(Instant::now()<until,"Owner/internal stop must retain authority until its actual join; pending={pending} active={active} stopped={stopped}");
+        std::thread::sleep(Duration::from_millis(5));
+    }
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM factory_delegations", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM factory_attempts", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM factory_budget_reservations",
+            [],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", scope.project_id)],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        1
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+            [],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'",
+            [],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    // process_reaped refers to the original owned leader only. These checks do
+    // not prove that an escaped descendant tree is gone or that effects are known.
 }
 
 fn db_events(path: &Path) -> serde_json::Value {

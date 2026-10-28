@@ -753,5 +753,67 @@
       "complete current workspace regression/native/macOS verification",
       "full Factory/product acceptance"
     ]
+  },
+  "scoped_liveness_checkpoint": {
+    "production_source_commit": "1cfa50c53f8866b4cf31a4d38a074e10dea09807",
+    "production_source_map": "mixed_budget_checkpoint.sources (all46 reverified before/after)",
+    "unchanged_candidate_manifest": {
+      "path": "/workspace/AgentBaton/.onboarding/factory-mixed-budget-candidate-20261028/manifest.json",
+      "sha256": "972539acc288a7653340136475d0355044502b254d243d5c1e5fcef39a290377"
+    },
+    "test_sha256": {
+      "crates/core/tests/factory_runtime_ipc.rs": "a961306a93036f2756b655573c23eede0f820e8cf1d369a10adf1d4a862ba7ac"
+    },
+    "logs": {
+      "scoped-liveness-first.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-liveness-first.log",
+        "sha256": "d33de72dc9908e8048734e16c71b211fb7bfdada3c53412e1b1a43b5e7b04f28"
+      },
+      "scoped-liveness-first-exit.json": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-liveness-first-exit.json",
+        "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01"
+      },
+      "scoped-liveness-clippy.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-liveness-clippy.log",
+        "sha256": "4858599ab5273da2c4e483924ad66fdefafbc54f74e045f68da316ca91695837"
+      },
+      "scoped-liveness-fmt.log": {
+        "path": "/workspace/.worktrees/factory-runtime-core/artifacts/factory-runtime-core/scoped-liveness-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "commands": [
+      {
+        "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc real_scoped_handle_ -- --nocapture",
+        "result": "PASS2new cases6.94s;0ignored;first run exit0"
+      },
+      {
+        "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+        "result": "PASS0.33s"
+      },
+      {
+        "command": "cargo fmt --all -- --check",
+        "result": "PASS"
+      }
+    ],
+    "meaning": {
+      "valid_issued_scoped_handle_before_restriction": true,
+      "after_scope_expiry_or_revocation": "all4 AUTH_REQUIRED/revision0/noresult",
+      "new_children": 0,
+      "attempts_and_reservations": 1,
+      "consumed_not_refunded": 1,
+      "leader_reaped_and_intent_stopped": true,
+      "project_active": 0,
+      "leases": 0,
+      "task_accepted": false,
+      "complete_escaped_tree_containment": "not_established"
+    },
+    "not_run": [
+      "real authorized scoped queued-request deadline",
+      "depth/fanout/cycle real protocols",
+      "large in-flight Data/capture cancel/revoke/deadline",
+      "terminal fault and unknown/restart mixed accounting",
+      "full current workspace/native/macOS acceptance"
+    ]
   }
 }
