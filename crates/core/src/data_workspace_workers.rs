@@ -68,6 +68,7 @@ struct Worker {
     preview: bool,
     pending: Option<crate::ipc::ReadyRequest>,
     projects: Vec<(String, u64)>,
+    factory_scope: Option<(String, u64)>,
     validation: Option<(String, String, u64, bool)>,
     thread: JoinHandle<Output>,
 }
@@ -138,6 +139,22 @@ impl DataWorkspaceWorkers {
     pub(crate) fn cancel(&self, id: &str) {
         if let Some(w) = self.worker.as_ref().filter(|w| w.id == id) {
             w.cancel.store(true, Ordering::Relaxed)
+        }
+    }
+    /// Metadata is derived from a private authenticated/ticket context before
+    /// deferral. It is a stop watch, never a dispatch/approval capability.
+    pub(crate) fn watch_factory(&mut self, id: &str, revision: u64) {
+        if let Some(w) = self.worker.as_mut().filter(|w| w.pending.is_some()) {
+            w.factory_scope = Some((id.into(), revision));
+        }
+    }
+    pub(crate) fn cancel_factory(&self, id: &str) {
+        if let Some(w) = self.worker.as_ref().filter(|w| {
+            w.factory_scope
+                .as_ref()
+                .is_some_and(|(scope, _)| scope == id)
+        }) {
+            w.cancel.store(true, Ordering::Relaxed);
         }
     }
     pub(crate) fn preview(
@@ -282,6 +299,7 @@ impl DataWorkspaceWorkers {
             preview,
             pending: None,
             projects: Vec::new(),
+            factory_scope: None,
             validation: None,
             thread,
         });
@@ -289,6 +307,12 @@ impl DataWorkspaceWorkers {
     }
     pub(crate) fn tick(&mut self, store: &mut Store) -> Result<()> {
         if let Some(w) = &self.worker {
+            if w.factory_scope
+                .as_ref()
+                .is_some_and(|(id, rev)| !store.factory_read_is_current(id, *rev))
+            {
+                w.cancel.store(true, Ordering::Relaxed);
+            }
             let project_changed = w.projects.iter().any(|(id, revision)| {
                 store
                     .get_project(id)
@@ -397,7 +421,7 @@ impl DataWorkspaceWorkers {
         let request_deadline = job.deadline;
         let result=self.spawn(&id,false,move|cancel,deadline|Output::admission((||{
             if cancel.load(Ordering::Relaxed) { return Err(cancelled()); }
-            let mut witness=crate::data_workspaces::DataInputWitness::restore(contexts,hash,request_deadline.min(deadline))?;
+            let mut witness=crate::data_workspaces::DataInputWitness::restore_controlled(contexts,hash,request_deadline.min(deadline),cancel)?;
             if let Some(graph)=graph {witness.graph=Some(graph.execute(cancel.clone(),request_deadline.min(deadline))?);}
             if cancel.load(Ordering::Relaxed) { return Err(cancelled()); }
             if Instant::now()>=request_deadline.min(deadline) { return Err(CoreError::new("DEADLINE_EXCEEDED","The data read observation arrived after admission deadline; no new action was admitted")); }

@@ -577,7 +577,7 @@ impl Store {
             return Err(denied());
         }
         let digest = agentbaton_workspaces::validation::sha256(token.as_bytes());
-        let row:Option<(Option<String>,bool,i64,String,String,String,u64)>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=8192 THEN document END,revoked,expires_at_ms,scope_id,session_id,attempt_id,fencing_token FROM factory_scoped_handles WHERE id=?1 AND token_digest=?2",params![handle_id,digest],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get::<_,i64>(6)? as u64))).optional().map_err(db_error)?;
+        let row:Option<StoredHandleRow>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=8192 THEN document END,revoked,expires_at_ms,scope_id,session_id,attempt_id,fencing_token FROM factory_scoped_handles WHERE id=?1 AND token_digest=?2",params![handle_id,digest],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get::<_,i64>(6)? as u64))).optional().map_err(db_error)?;
         let (raw, revoked, expiry, scope_id, session_id, attempt_id, fence) =
             row.ok_or_else(denied)?;
         if revoked || expiry <= ms()? {
@@ -1921,6 +1921,7 @@ fn join_parent(db: &Connection, r: &mut FactoryRun, parent_id: &str) -> Result<(
     )
 }
 
+type StoredHandleRow = (Option<String>, bool, i64, String, String, String, u64);
 struct FactoryBaseCaller(FactoryCaller);
 impl Store {
     pub(crate) fn authenticate_factory_handle(
@@ -1936,10 +1937,35 @@ impl Store {
         &self,
         id: &str,
         token: &str,
-    ) -> Result<Vec<crate::data_workspaces::DataInputContext>> {
+    ) -> Result<FactoryReadPreparation> {
         let base = self.authenticate_factory_base(id, token)?;
-        self.prepare_data_input_contexts(&base.0.scope.bindings.approved_grant.scope.workspace_ids)
+        Ok(FactoryReadPreparation {
+            scope_id: base.0.scope.id.clone(),
+            revision: base.0.scope.revision,
+            inputs: self.prepare_data_input_contexts(
+                &base.0.scope.bindings.approved_grant.scope.workspace_ids,
+            )?,
+        })
     }
+    pub(crate) fn factory_read_is_current(&self, id: &str, revision: u64) -> bool {
+        let Ok(scope) = scope(&self.conn, id) else {
+            return false;
+        };
+        scope.revision == revision
+            && base_live(&self.conn, &scope).is_ok()
+            && run(&self.conn, id).is_ok_and(|r| {
+                !r.cancel_requested
+                    && !matches!(
+                        r.state.as_str(),
+                        "cancelled" | "outcome_unknown" | "blocked"
+                    )
+            })
+    }
+}
+pub(crate) struct FactoryReadPreparation {
+    pub(crate) scope_id: String,
+    pub(crate) revision: u64,
+    pub(crate) inputs: Vec<crate::data_workspaces::DataInputContext>,
 }
 
 /// Only the internal scheduler constructs this capability. A socket request
@@ -1996,6 +2022,9 @@ impl FactoryDispatchTicket {
     }
     pub(crate) fn scope_id(&self) -> &str {
         &self.context.scope.id
+    }
+    pub(crate) fn scope_revision(&self) -> u64 {
+        self.context.scope.revision
     }
     pub(crate) fn elapsed_ms(&self) -> u64 {
         u64::try_from(self.queued_since.elapsed().as_millis()).unwrap_or(u64::MAX)

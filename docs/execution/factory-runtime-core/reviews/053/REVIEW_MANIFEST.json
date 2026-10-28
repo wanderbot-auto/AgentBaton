@@ -1,0 +1,46 @@
+{
+  "subject": "053b4327bb580cf42cb0fe28688f1465d6c8ce22",
+  "scope": "fixed Data/private-ticket static review; P2 elapsed and known restore controls remain; no independent product execution",
+  "files": {
+    "REVIEW.md": {
+      "sha256": "57a6febb842545f0925c010f1b8b54077063253eb5d237990fd059195eff0b71",
+      "bytes": 13995
+    },
+    "manifest.json": {
+      "sha256": "4ddd7968fdd483a35cee7ad7e73e97e2c353e3cb208f5accc66e2fed8c6f30a0",
+      "bytes": 3520
+    },
+    "provenance.json": {
+      "sha256": "a40b2eed426ab55d65d752639e2d93e5e84fc4d504b05e05cd520454ffe27f8e",
+      "bytes": 3998
+    },
+    "evidence/data-and-git-seven-runtime.log": {
+      "sha256": "7b7bd07d24194c532aea41a33f5e7dced901278a2f5d80aea4b9c11f187e8085",
+      "bytes": 978
+    },
+    "evidence/data-factory-first-test.log": {
+      "sha256": "b478f1407184bf05f68d1993e27bd565fe6151608f64441cc46216c7635b899f",
+      "bytes": 549
+    },
+    "evidence/data-ticket-binaries-build.log": {
+      "sha256": "d98821ca804aeebd0ebba5639f5014b0667a39ee2452e0bc1692f2be43552e80",
+      "bytes": 538
+    },
+    "evidence/data-ticket-binaries-build2.log": {
+      "sha256": "926bb0f317664e6d2b702234fb5ebd4ced33afdba6f8730729cbe4a68b68b88c",
+      "bytes": 330
+    },
+    "evidence/data-ticket-first-check.log": {
+      "sha256": "8fd4b767d28e0dd078d1495a601931f09677e8a6f6508675099bfac9b70d050f",
+      "bytes": 1525
+    },
+    "evidence/data-ticket-queue-unit.log": {
+      "sha256": "8478821eddc757fedcbceeeb91c2099b4c4a222005182981c44ca1668cb9f431",
+      "bytes": 561
+    },
+    "evidence/data-ticket-second-check.log": {
+      "sha256": "3c854ca2c7a23cc943faa34aeae334178b826fdd62359ffba5da0d908e22d41f",
+      "bytes": 696
+    }
+  }
+}

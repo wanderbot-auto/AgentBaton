@@ -707,6 +707,13 @@ fn scoped_request(runtime: &Path, request: serde_json::Value) -> serde_json::Val
 /// below is an explicit trusted-host fixture, never a Renderer/Agent authority.
 #[test]
 fn actual_data_copy_owner_scope_and_scoped_mcp_parent_child_parent_use_fresh_private_witnesses() {
+    run_data_mode("normal");
+}
+#[test]
+fn actual_data_scoped_four_methods_fail_closed_after_input_drift_but_owner_stop_still_joins() {
+    run_data_mode("input_drift");
+}
+fn run_data_mode(mode: &str) {
     use agentbaton_core::ipc::call;
     use serde_json::Value;
     use std::time::{Duration, Instant};
@@ -837,7 +844,7 @@ fn actual_data_copy_owner_scope_and_scoped_mcp_parent_child_parent_use_fresh_pri
         .replace("status_workspace", "data_workspace");
     // Fixture-only, nonsecret host-generated identifier; it grants no rights.
     let connection_label = base.join("generated-connection-label.txt");
-    fs::write(&provider, body.replace("mcp=None;mid=0", &format!("data_connection=open({0}).read() if os.path.exists({0}) else ''\ndata_workspace={1}\nfixture_mode='normal'\nmcp=None;mid=0",serde_json::to_string(&connection_label).unwrap(),copied["workspace_id"]))).unwrap();
+    fs::write(&provider, body.replace("mcp=None;mid=0", &format!("data_connection=open({0}).read() if os.path.exists({0}) else ''\ndata_workspace={1}\nfixture_mode={2}\nmcp=None;mid=0",serde_json::to_string(&connection_label).unwrap(),copied["workspace_id"],serde_json::to_string(if mode=="input_drift"{"pin_drift"}else{"normal"}).unwrap()))).unwrap();
     fs::set_permissions(&provider, fs::Permissions::from_mode(0o700)).unwrap();
     let p = rpc(
         "connections.propose",
@@ -885,6 +892,41 @@ fn actual_data_copy_owner_scope_and_scoped_mcp_parent_child_parent_use_fresh_pri
     );
     assert_eq!(proposal["kind"], "factory");
     let scope = approve(&proposal, "trusted-factory-owner");
+    let check_db = Connection::open(runtime.join("baton.sqlite3")).unwrap();
+    let sequence: i64 = check_db
+        .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| {
+            r.get(0)
+        })
+        .unwrap();
+    for method in ["factory_runs.dispatch", "private_factory_dispatch"] {
+        let denied=call(&runtime,json!({"method":method,"params":{"scope_id":scope["id"],"run_id":"renderer-cannot-mint-ticket","nonce":"self-reported"},"idempotency_key":"forged-private-ticket"})).unwrap();
+        assert!(denied.get("error").is_some(), "{denied}");
+        assert_eq!(denied["error"]["side_effect_state"], "not_started");
+    }
+    assert_eq!(
+        check_db
+            .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| r
+                .get::<_, i64>(0))
+            .unwrap(),
+        sequence
+    );
+    assert_eq!(
+        check_db
+            .query_row("SELECT count(*) FROM factory_attempts", [], |r| r
+                .get::<_, u32>(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        check_db
+            .query_row(
+                "SELECT count(*) FROM factory_budget_reservations",
+                [],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+        0
+    );
     let start = rpc(
         "factory_runs.start",
         json!({"scope_id":scope["id"]}),
@@ -892,6 +934,127 @@ fn actual_data_copy_owner_scope_and_scoped_mcp_parent_child_parent_use_fresh_pri
         scope["revision"].as_u64(),
     );
     assert_eq!(start["state"], "queued");
+    if mode == "input_drift" {
+        let until = Instant::now() + Duration::from_secs(5);
+        while !workspace.join("reports/pin-ready").exists() {
+            assert!(
+                Instant::now() < until,
+                "Data scoped fixture did not reach its actual prompt"
+            );
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        let db = Connection::open(runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM factory_attempts", [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            1
+        );
+        let path = fs::read_dir(runtime.join("factory-scoped-handles"))
+            .unwrap()
+            .next()
+            .unwrap()
+            .unwrap()
+            .path();
+        let credential: Value = serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
+        fs::write(
+            workspace.join("inputs/input.txt"),
+            b"changed data after actual session start\n",
+        )
+        .unwrap();
+        let delegate = json!({"goal":"Must not consume stale dataset","connection_id":connection["id"],"workspace_id":copied["workspace_id"],"input_artifact_ids":["input"],"output_artifact_ids":["report"],"budget":{"attempts":2,"parallel":1,"runtime_ms":5000,"output_bytes":4096,"children":0,"reworks":0,"tokens":null,"cost_microunits":null},"wait_for_child":true});
+        for (method, params, rev, key) in [
+            ("get_task_status", json!({"task_id":task["id"]}), None, None),
+            ("get_task_result", json!({"task_id":task["id"]}), None, None),
+            ("delegate_task", delegate, None, Some("data-drift-delegate")),
+            (
+                "cancel_task",
+                json!({"task_id":task["id"]}),
+                Some(1),
+                Some("data-drift-agent-cancel"),
+            ),
+        ] {
+            let response = scoped_request(
+                &runtime,
+                json!({"api_version":1,"request_id":"generated-data-drift","handle_id":credential["handle_id"],"scoped_token":credential["scoped_token"],"method":method,"params":params,"expected_revision":rev,"idempotency_key":key}),
+            );
+            assert!(
+                matches!(
+                    response["error"]["code"].as_str(),
+                    Some("INPUT_CHANGED" | "AUTH_REQUIRED")
+                ),
+                "{method}: {response}"
+            );
+            assert_eq!(response["revision"], 0);
+            assert!(response.get("result").is_none());
+        }
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM factory_delegations", [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            0
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM factory_budget_reservations",
+                [],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            1
+        );
+        let observed = rpc(
+            "factory_runs.get",
+            json!({"scope_id":scope["id"]}),
+            None,
+            None,
+        );
+        let requested_at = Instant::now();
+        let cancelled = rpc(
+            "factory_runs.cancel",
+            json!({"scope_id":scope["id"]}),
+            Some("owner-stop-after-data-drift"),
+            observed["run"]["revision"].as_u64(),
+        );
+        assert!(requested_at.elapsed() < Duration::from_secs(3));
+        assert_eq!(cancelled["cancel_requested"], true);
+        let until = Instant::now() + Duration::from_secs(5);
+        loop {
+            let current = rpc(
+                "factory_runs.get",
+                json!({"scope_id":scope["id"]}),
+                None,
+                None,
+            );
+            if current["run"]["state"] == "cancelled" {
+                assert!(current["tasks"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .all(|t| t["confirmed_stop"] == true));
+                break;
+            }
+            assert!(Instant::now() < until, "{current}");
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM factory_attempts", [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            1
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM workspace_leases WHERE holder<>''",
+                [],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            0
+        );
+        assert_eq!(fs::read(source.join("input.txt")).unwrap(), before);
+        return;
+    }
     let deadline = Instant::now() + Duration::from_secs(12);
     let final_run = loop {
         let v = rpc(

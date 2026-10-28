@@ -80,8 +80,11 @@ type PublicationHook = Box<dyn Fn(&Path, bool)>;
 #[cfg(test)]
 type WriteChunkHook = Box<dyn Fn(usize)>;
 #[cfg(test)]
+type ReadChunkHook = Box<dyn Fn(usize)>;
+#[cfg(test)]
 thread_local! {
     static PUBLICATION_HOOK: std::cell::RefCell<Option<PublicationHook>> = const { std::cell::RefCell::new(None) };
+    static READ_CHUNK_HOOK: std::cell::RefCell<Option<ReadChunkHook>> = const { std::cell::RefCell::new(None) };
     static WRITE_CHUNK_HOOK: std::cell::RefCell<Option<WriteChunkHook>> = const { std::cell::RefCell::new(None) };
 }
 #[cfg(test)]
@@ -643,6 +646,12 @@ fn read_file_controlled(
         let count = file
             .read(&mut chunk[..cap])
             .map_err(|_| DataWorkspaceError::Io)?;
+        #[cfg(test)]
+        READ_CHUNK_HOOK.with(|hook| {
+            if let Some(hook) = &*hook.borrow() {
+                hook(count);
+            }
+        });
         checkpoint(control)?;
         if count == 0 {
             break;
@@ -1413,6 +1422,23 @@ pub fn restore_data_workspace(
     expected: &ApprovedRestoreContract,
     managed: &ApprovedManagedRoot,
 ) -> Result<VerifiedDataWorkspace, DataWorkspaceError> {
+    restore_data_workspace_inner(expected, managed, None)
+}
+/// A host-owned cancellation/deadline restriction on an already approved
+/// restore. It creates no source/copy authority and cannot interrupt kernel I/O.
+pub fn restore_data_workspace_controlled(
+    expected: &ApprovedRestoreContract,
+    managed: &ApprovedManagedRoot,
+    control: &CopyControl<'_>,
+) -> Result<VerifiedDataWorkspace, DataWorkspaceError> {
+    restore_data_workspace_inner(expected, managed, Some(control))
+}
+fn restore_data_workspace_inner(
+    expected: &ApprovedRestoreContract,
+    managed: &ApprovedManagedRoot,
+    control: Option<&CopyControl<'_>>,
+) -> Result<VerifiedDataWorkspace, DataWorkspaceError> {
+    checkpoint(control)?;
     let contract = &expected.view;
     validate_completed_contract(contract)?;
     if contract.managed_root != managed.pin {
@@ -1428,9 +1454,13 @@ pub fn restore_data_workspace(
     .map_err(|_| DataWorkspaceError::DestinationChanged)?;
     verify_destination_location(managed, &directory, &contract.destination)?;
     verify_publication(&directory, contract)?;
-    verify_copy_bytes(&directory, contract)?;
+    match control {
+        Some(control) => verify_copy_bytes_controlled(&directory, contract, Some(control))?,
+        None => verify_copy_bytes(&directory, contract)?,
+    }
     let marker_pins = verify_publication(&directory, contract)?;
     verify_destination_location(managed, &directory, &contract.destination)?;
+    checkpoint(control)?;
     Ok(VerifiedDataWorkspace {
         contract: contract.clone(),
         directory,
@@ -1611,5 +1641,105 @@ mod controlled_write_tests {
             Some(DataWorkspaceError::DestinationConflict)
         );
         assert_eq!(fs::read(path.join("owner-added")).unwrap(), b"keep");
+    }
+}
+
+#[cfg(test)]
+mod controlled_restore_tests {
+    use super::*;
+    use std::{
+        os::unix::fs::PermissionsExt,
+        sync::{atomic::AtomicUsize, Arc},
+        time::Duration,
+    };
+    fn during_real_chunk(cancel_mode: bool) {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().canonicalize().unwrap();
+        let source = root.join("source");
+        let destination = root.join("managed");
+        fs::create_dir(&source).unwrap();
+        fs::create_dir(&destination).unwrap();
+        fs::set_permissions(&destination, fs::Permissions::from_mode(0o700)).unwrap();
+        fs::write(source.join("input"), vec![b'x'; CHUNK_BYTES * 3]).unwrap();
+        let selection = ApprovedDataSelection::from_verified_host(
+            &source,
+            "generated-owner".into(),
+            vec![ArtifactRequirement {
+                artifact_id: "input".into(),
+                relative_path: "input".into(),
+                max_bytes: (CHUNK_BYTES * 3) as u64,
+                expected_sha256: None,
+            }],
+            DataLimits::default(),
+        )
+        .unwrap();
+        let snapshot = verify_dataset(&selection).unwrap();
+        let managed = ApprovedManagedRoot::from_verified_host(&destination).unwrap();
+        let ready = create_data_workspace(&snapshot, &managed, "controlled-restore")
+            .unwrap()
+            .into_verified()
+            .unwrap();
+        let contract = ready.contract_view();
+        let expected = ApprovedRestoreContract::from_verified_host(contract.clone()).unwrap();
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let flag = cancelled.clone();
+        let calls = Arc::new(AtomicUsize::new(0));
+        let observed = calls.clone();
+        let deadline = Instant::now() + Duration::from_secs(1);
+        READ_CHUNK_HOOK.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move |count| {
+                // Publication markers use this same safe reader; wait for an
+                // actual dataset chunk rather than mistaking marker bytes for it.
+                if count != CHUNK_BYTES {
+                    return;
+                }
+                observed.fetch_add(1, Ordering::Relaxed);
+                if cancel_mode {
+                    flag.store(true, Ordering::Relaxed);
+                } else {
+                    std::thread::sleep(
+                        deadline.saturating_duration_since(Instant::now())
+                            + Duration::from_millis(2),
+                    );
+                }
+            }))
+        });
+        let result = restore_data_workspace_controlled(
+            &expected,
+            &managed,
+            &CopyControl::new(&cancelled, deadline),
+        );
+        READ_CHUNK_HOOK.with(|hook| *hook.borrow_mut() = None);
+        assert_eq!(
+            calls.load(Ordering::Relaxed),
+            1,
+            "stop must be observed after the first actual bounded read"
+        );
+        assert_eq!(
+            result.err(),
+            Some(if cancel_mode {
+                DataWorkspaceError::CancelRequested
+            } else {
+                DataWorkspaceError::DeadlineExceeded
+            })
+        );
+        assert_eq!(
+            fs::read(contract.destination.canonical_root.join("inputs/input")).unwrap(),
+            vec![b'x'; CHUNK_BYTES * 3]
+        );
+        assert_eq!(
+            restore_data_workspace(&expected, &managed)
+                .unwrap()
+                .contract_view(),
+            contract
+        );
+    }
+    #[test]
+    fn cancellation_during_actual_restore_read_never_mints_verified_observation() {
+        during_real_chunk(true);
+    }
+    #[test]
+    fn deadline_observed_after_actual_restore_read_never_mints_verified_observation() {
+        during_real_chunk(false);
     }
 }

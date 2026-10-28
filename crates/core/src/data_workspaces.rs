@@ -1078,8 +1078,22 @@ impl DataInputWitness {
         request_hash: String,
         deadline: std::time::Instant,
     ) -> Result<Self> {
+        Self::restore_controlled(
+            contexts,
+            request_hash,
+            deadline,
+            &std::sync::atomic::AtomicBool::new(false),
+        )
+    }
+    pub(crate) fn restore_controlled(
+        contexts: Vec<DataInputContext>,
+        request_hash: String,
+        deadline: std::time::Instant,
+        cancel: &std::sync::atomic::AtomicBool,
+    ) -> Result<Self> {
         use agentbaton_workspaces::data_workspace::{
-            restore_data_workspace, ApprovedManagedRoot, ApprovedRestoreContract,
+            restore_data_workspace_controlled, ApprovedManagedRoot, ApprovedRestoreContract,
+            CopyControl,
         };
         let mut inputs = Vec::new();
         for context in contexts {
@@ -1099,7 +1113,9 @@ impl DataInputWitness {
             if managed.view() != c.managed_root {
                 return Err(changed());
             }
-            let verified = restore_data_workspace(&restore, &managed).map_err(data_error)?;
+            let control = CopyControl::new(cancel, deadline);
+            let verified = restore_data_workspace_controlled(&restore, &managed, &control)
+                .map_err(data_error)?;
             inputs.push(VerifiedDataInput { context, verified });
         }
         Ok(Self {

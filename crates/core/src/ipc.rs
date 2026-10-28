@@ -575,16 +575,14 @@ impl Daemon {
             }
             "factory_runs.cancel" => {
                 let p: FactoryScopeId = params(r.params)?;
-                Ok(json!(self.store.cancel_factory_run(
-                    &p.scope_id,
-                    r.expected_revision.ok_or_else(invalid)?,
-                    &r.idempotency_key.ok_or_else(invalid)?
-                )?))
+                let record=self.store.cancel_factory_run(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;
+                self.data_workers.cancel_factory(&p.scope_id);
+                Ok(json!(record))
             }
             "factory_scopes.propose"=>{let p:crate::factory::FactoryScopeSelection=params(r.params)?;let path=crate::factory::companion_path()?;Ok(json!(self.store.propose_factory_scope(&p,&r.idempotency_key.ok_or_else(invalid)?,&path)?))}
             "factory_scopes.get"=>{let p:FactoryScopeId=params(r.params)?;Ok(json!(self.store.get_factory_scope(&p.scope_id)?))}
             "factory_scopes.list"=>{let p:FactoryRootTaskId=params(r.params)?;Ok(json!(self.store.list_factory_scopes(&p.root_task_id)?))}
-            "factory_scopes.revoke"=>{let p:FactoryScopeId=params(r.params)?;Ok(json!(self.store.revoke_factory_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "factory_scopes.revoke"=>{let p:FactoryScopeId=params(r.params)?;let record=self.store.revoke_factory_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;self.data_workers.cancel_factory(&p.scope_id);Ok(json!(record))}
             "goal_scopes.propose" => {
                 let selection:crate::goal_store::GoalScopeSelection=params(r.params)?;
                 let key=r.idempotency_key.ok_or_else(invalid)?;
@@ -1646,9 +1644,9 @@ impl Daemon {
             let _ = job.reply.try_send(json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before admission"),"revision":0,"warnings":[]}));
             return;
         }
-        if job.factory_dispatch.is_some() {
+        if let Some(ticket) = job.factory_dispatch.as_ref() {
+            let watch = (ticket.scope_id().to_owned(), ticket.scope_revision());
             let contexts = {
-                let ticket = job.factory_dispatch.as_ref().unwrap();
                 if !ticket.for_request(&job.raw) {
                     Err(CoreError::new(
                         "AUTH_REQUIRED",
@@ -1664,6 +1662,8 @@ impl Daemon {
                     if let Err(failure) = self.data_workers.defer(contexts, None, job) {
                         let (error, job) = *failure;
                         self.finish_factory_ticket_error(job, error);
+                    } else {
+                        self.data_workers.watch_factory(&watch.0, watch.1);
                     }
                 }
                 Ok(_) => self.execute_factory_ticket(job),
@@ -1698,12 +1698,15 @@ impl Daemon {
                     let response = self.handle_factory_scoped(&job.raw);
                     let _ = job.reply.try_send(response);
                 }
-                Ok(contexts) if !contexts.is_empty() => {
-                    if let Err(failure) = self.data_workers.defer(contexts, None, job) {
+                Ok(prepared) if !prepared.inputs.is_empty() => {
+                    if let Err(failure) = self.data_workers.defer(prepared.inputs, None, job) {
                         let (error, job) = *failure;
                         let _ = job
                             .reply
                             .try_send(self.factory_ready_error(&job.raw, error));
+                    } else {
+                        self.data_workers
+                            .watch_factory(&prepared.scope_id, prepared.revision);
                     }
                 }
                 Ok(_) => {
