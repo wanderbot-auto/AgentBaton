@@ -12,3 +12,8 @@ Pending: Root-assigned independent review; explicit Native Cargo window; macOS a
 No PR, CI, remote, target, Provider/account/fee, signing or production action.
 
 Only these four execution records change after source freeze. The separate old 4ead independent review records are not altered. Subsequent Data/Command test-only revisions require their own exact source and evidence; this checkpoint makes no such positive claim.
+
+## Separate revision in progress
+
+Source733 and Integrity review are immutable. New test-only Data/Command coverage is being committed independently. Production types/guards are unchanged; only new tests/real fixtures and a new Native test body are added.
+Command592 UI projection is honestly unsupported because of original unsafe u64 inode fields; its Native Value callback coverage remains valid source-only. Await any separately produced safe-inode real Command packet without editing old bytes or blocking current progress indefinitely.

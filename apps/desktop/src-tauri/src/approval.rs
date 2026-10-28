@@ -2306,6 +2306,78 @@ mod tests {
         }
     }
 
+    #[test]
+    fn actual_data_and_command_native_review_preserves_complete_observations_and_private_receipts()
+    {
+        // Real Core packets are transported unchanged. Callback execution is
+        // not a fresh Core finalization and is not an actual macOS dialog.
+        for (raw, scope, correctness) in [
+            (
+                include_str!("../../src/goal-graph-actual-data-fixture.json"),
+                "data_contract_only",
+                "approved_schema_ranges_metadata_only",
+            ),
+            (
+                include_str!("../../src/goal-graph-actual-command-fixture.json"),
+                "approved_deterministic_command_only",
+                "approved_fixed_command_observations_only",
+            ),
+        ] {
+            let packet: Value = serde_json::from_str(raw).unwrap();
+            let proposal = &packet["owner_proposal"];
+            let expected = &proposal["snapshot"];
+            let selection = &expected["intent"];
+            let revision = expected["expected_run_revision"].as_u64().unwrap();
+            let validation = &expected["validation_refs"][0];
+            assert!(!expected["validation_refs"].as_array().unwrap().is_empty());
+            assert_eq!(validation["scope"], scope);
+            assert_eq!(validation["correctness"], correctness);
+            assert_eq!(validation["task_acceptance"], "not_established");
+            assert_eq!(validation["stop_confirmed"], true);
+            assert_eq!(validation["io_completion"], "worker_joined");
+            assert!(validation["observation"]["goal_io"].is_object());
+            let mut pages = Vec::new();
+            let writes = Cell::new(0);
+            let result = confirm_goal_node_and_finalize(
+                json!({"result":proposal}), selection, revision,
+                |message| {
+                    assert!(message.len() <= 16_384);
+                    if !message.contains("FINAL native decision") {
+                        pages.push(message.rsplit("\n\n").next().unwrap().to_owned());
+                    }
+                    true
+                },
+                |frame| {
+                    writes.set(writes.get() + 1);
+                    assert_eq!(
+                        frame,
+                        json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":format!("proposal:{}",proposal["id"].as_str().unwrap())})
+                    );
+                    Ok(json!({"result":packet["first_decision"]}))
+                },
+            ).unwrap();
+            assert_eq!(writes.get(), 1);
+            let reviewed: Value = serde_json::from_str(&pages.concat()).unwrap();
+            assert_eq!(&reviewed, expected);
+            assert_eq!(
+                reviewed["validation_refs"][0]["observation"],
+                validation["observation"]
+            );
+            assert_eq!(result["result"], packet["first_decision"]);
+            let denied = confirm_goal_node_rejection_and_decline(
+                json!({"result":proposal}),
+                selection,
+                revision,
+                |_| false,
+                |_| panic!("Cancel wrote a private rejection"),
+            )
+            .unwrap();
+            assert_eq!(denied["error"]["code"], "PERMISSION_DENIED");
+            assert_eq!(denied["error"]["side_effect_state"], "not_started");
+            assert!(denied.get("result").is_none());
+        }
+    }
+
     fn graph_native_proposal_fixture() -> (Value, Value) {
         let (mut response, selection) = goal_execution_proposal();
         response["result"]["kind"] = json!("goal_graph_execution");

@@ -17,3 +17,12 @@
 - All old32 renderer files, four old actual/failure JSON fixtures, 36 original Native test blocks and byte-limit constants independently byte-checked against baseline; lib/native_parent/Core/CI/locks untouched.
 - Standalone rustfmt parse/check passed. Three new actual nonempty-validation callback tests are still uncompiled/unrun, not macOS/OS-dialog evidence.
 - Source remains frozen for Root's separate reviewer; only these four records are finalized. No formal GitHub Approve, PR, CI or remote action.
+
+## Subsequent test-only Data / Command revision
+
+- Integrity733 + docs e889 independent review passed in its own detached context; its source, 47-artifact manifest and conclusions remain frozen.
+- Added exact real Data33c63615...867cd (119,716 bytes) and Command592ac803...04f89 (94,218 bytes) packets, including real TaskProjection and matching first Owner decisions.
+- Initial targeted run actually returned 3 passed / 1 failed: Data guard and readonly history passed; Command graphDetailsShape correctly rejected its original unsafe inode. The direct parsed-JSON Command DOM check was not treated as trusted UI acceptance.
+- Python inspection found four original Command observation root_inode fields equal to 9223372036855074700, above JavaScript MAX_SAFE_INTEGER. The original packet, initial test source and failed log are retained. No conversion to string or relaxed guard is used.
+- Command592 is now an explicit renderer-unsupported negative, while its original u64 remains a meaningful lossless Native callback test. New Native callback test covers complete original Data/Command snapshots, fixed private frame, corresponding actual first receipt and Cancel/no-rejection.
+- Root/Core agreed future Command UI positive must come from an independently produced real private-program-location packet, not edited inode fields. Current revision does not claim that positive or actual Native execution.
