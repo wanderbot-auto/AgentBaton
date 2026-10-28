@@ -52,7 +52,7 @@ export function graphDetailsShape(value:unknown,task:Task,scope:GoalScope):value
     for(const input of c.consumed_inputs)if(!object(input)||!id(input.artifact_id)||!id(input.contract_id)||!hash(input.sha256)||!(input.candidate===null||graphArtifactShape(input.candidate,scope)&&input.candidate.sha256===input.sha256&&input.candidate.artifact_id===input.artifact_id&&input.candidate.contract_id===input.contract_id))return false;
     candidates.set(c.id,c);
   }
-  const refMatches=(ref:any)=>graphArtifactShape(ref,scope)&&candidates.get(ref.candidate_id)?.artifacts.some((actual:any)=>actual.artifact_id===ref.artifact_id&&actual.contract_id===ref.contract_id&&actual.sha256===ref.sha256&&actual.bytes===ref.bytes&&actual.relative_path===ref.relative_path&&actual.producer_node_id===ref.producer_node_id&&actual.producer_attempt_id===ref.producer_attempt_id&&actual.writer_epoch===ref.writer_epoch&&actual.root.canonical_root===ref.root.canonical_root);
+  const refMatches=(ref:any)=>graphArtifactShape(ref,scope)&&candidates.get(ref.candidate_id)?.artifacts.some((actual:any)=>actual.artifact_id===ref.artifact_id&&actual.contract_id===ref.contract_id&&actual.sha256===ref.sha256&&actual.bytes===ref.bytes&&actual.relative_path===ref.relative_path&&actual.producer_node_id===ref.producer_node_id&&actual.producer_attempt_id===ref.producer_attempt_id&&actual.writer_epoch===ref.writer_epoch&&canonical(actual)===canonical(ref));
   for(const v of x.validations){
     if(!base(v)||validations.has(v.id)||!id(v.attempt_id)||!id(v.rule_id)||!hash(v.definition_digest)||!Array.isArray(v.candidate_refs)||v.candidate_refs.length>64||!v.candidate_refs.every(refMatches)||!Array.isArray(v.input_bindings)||v.input_bindings.length>64||v.input_bindings.some((input:any)=>!object(input)||!id(input.artifact_id)||!id(input.contract_id)||!hash(input.sha256)||!(input.candidate===null||refMatches(input.candidate)&&input.candidate.sha256===input.sha256&&input.candidate.artifact_id===input.artifact_id&&input.candidate.contract_id===input.contract_id))||!text(v.state,128)||typeof v.passed!=='boolean'||!text(v.scope,128)||!text(v.correctness,128)||!text(v.task_acceptance,128)||!hash(v.result_digest)||!text(v.details_ref,4096)||typeof v.stop_confirmed!=='boolean'||!text(v.io_completion,128)||!meter(v.actual_runtime_ms))return false;
     validations.set(v.id,v);
@@ -127,8 +127,17 @@ export function graphNodeClosed(view:GraphRunDetails,node:GraphRunDetails['nodes
   if(node.execution_kind==='connection')return ['candidate','failed','cancelled'].includes(node.state)&&node.session_id!==null&&node.attempt_id!==null&&node.stop_confirmed&&(node.state!=='candidate'||node.candidate_ids.some(id=>view.candidates.some(c=>c.id===id&&c.attempt_id===node.attempt_id&&c.node_id===node.node.id&&c.plan_revision===node.plan_revision)));
   return ['validated','failed','cancelled'].includes(node.state)&&node.session_id===null&&node.validation_ids.some(id=>view.validations.some(v=>v.id===id&&v.node_id===node.node.id&&v.plan_revision===node.plan_revision&&(v.io_completion==='worker_joined'&&v.stop_confirmed&&node.stop_confirmed&&node.attempt_id!==null&&node.job_id!==null||v.io_completion==='not_started'&&v.state!=='passed')&&(node.state!=='validated'||v.state==='passed'&&v.passed)));
 }
+export function graphReferencesBound(view:GraphRunDetails):boolean {
+  const captured=new Map<string,string>();
+  for(const candidate of view.candidates)for(const ref of candidate.artifacts){
+    if(!graphArtifactPrecision(ref)||ref.candidate_id!==candidate.id||ref.producer_node_id!==candidate.node_id||ref.producer_attempt_id!==candidate.attempt_id)return false;
+    const key=JSON.stringify([ref.candidate_id,ref.artifact_id]);if(captured.has(key))return false;captured.set(key,canonical(ref));
+  }
+  const refs=[...view.candidates.flatMap(c=>c.consumed_inputs.flatMap(input=>input.candidate?[input.candidate]:[])),...view.validations.flatMap(v=>[...v.candidate_refs,...v.input_bindings.flatMap(input=>input.candidate?[input.candidate]:[])]),...view.owner_decisions.flatMap(d=>d.candidate_refs),...(view.task_acceptance?.artifact_refs??[])];
+  return refs.every(ref=>graphArtifactPrecision(ref)&&captured.get(JSON.stringify([ref.candidate_id,ref.artifact_id]))===canonical(ref));
+}
 export function graphViewConsistent(view:GraphRunDetails):boolean {
-  if(!graphViewSupported(view))return false;
+  if(!graphViewSupported(view)||!graphReferencesBound(view))return false;
   const nodesKnown=view.nodes.every(node=>{
     if(node.state==='not_started')return node.session_id===null&&node.attempt_id===null&&node.job_id===null&&!node.stop_confirmed;
     if(node.execution_kind==='owner')return node.session_id===null&&node.attempt_id===null&&node.job_id===null&&(node.state==='awaiting_owner'&&node.acceptance_state==='pending'||graphNodeClosed(view,node));
