@@ -1,0 +1,212 @@
+{
+  "approval": "AB-START-001",
+  "baseline": "bf67629f7911531fec52ec31e59c9508f814f9fd",
+  "source_commit": "14a20fe15b957f9e41df2e322451f5fed00b7ea7",
+  "source_sha256": "3b039348580055680dc7e229c2c26c8d34ee3e434ebe1209f6c166c5c828ea7e",
+  "requirements": [
+    "AB-VAL-001",
+    "AB-VAL-002",
+    "AB-VAL-003",
+    "AB-VAL-006",
+    "AB-REL-001"
+  ],
+  "status": "author_local_checks_passed; independent_review_and_exact_macOS_CI_pending",
+  "historical_intel": {
+    "run": 40652731429,
+    "job": 122696734328,
+    "raw_log": "/workspace/.onboarding/goal-native-bf676/intel-job-122696734328.log",
+    "sha256": "49438587967d786eee591b202b9c3774bbf346e6352da1d6d8e22c481db51008",
+    "actual": "exitNone versusSome0; !passed/file_integrity failure assertions already passed",
+    "reason": "unknown/unprinted"
+  },
+  "change": {
+    "normal_exit_contract_cases": "existing1000ms fixture default; Some0/ArtifactContractFailed retained and strengthened with inbudgetexit/reap and exactMissing/TooLarge states",
+    "new_finite_output": "printf builtin writes exactly5000 bytes; limit4096; observedTooLarge",
+    "original_unbounded_writer": "same original script,30ms budget and both failure booleans preserved",
+    "all_other_test_code": "mechanically byte-identical after reverting only target function/import",
+    "all29_cross_platform_test_functions": "retained",
+    "production_locks_manifests": "byte-identical"
+  },
+  "actual_checks": [
+    {
+      "name": "format-owned-file",
+      "command": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "crates/workspaces/tests/command_validation.rs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.04,
+      "log": "/workspace/.onboarding/artifact-contract-fixture/format-owned-file.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "command-suite",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-workspaces",
+        "--test",
+        "command_validation",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 9.02,
+      "log": "/workspace/.onboarding/artifact-contract-fixture/command-suite.log",
+      "sha256": "ab20999b870dd0c40c1d2e1376de56b9bebf2aa274b28ad8fc0e33007f455de8"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-workspaces",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 1.58,
+      "log": "/workspace/.onboarding/artifact-contract-fixture/clippy.log",
+      "sha256": "97575ffeadff29d41b17da123315aaad105d392a82ac57ff1fbaa5a6591f3410"
+    },
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--package",
+        "agentbaton-workspaces",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12,
+      "log": "/workspace/.onboarding/artifact-contract-fixture/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.08,
+      "log": "/workspace/.onboarding/artifact-contract-fixture/diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "actual_unique_command_tests": 27,
+  "overlapping_nested_children": 3,
+  "old_local_targeted_case": {
+    "exit_code": 0,
+    "note": "not a historical failure reproduction"
+  },
+  "controlled_delay": {
+    "script_change": "explicit50ms delay after stdout-only output",
+    "old": "FAIL101 / DeadlineExceeded / exitNone / false exit-observed / ownedreaped /30ms",
+    "new": "PASS0 / ArtifactContractFailed / Some0 / true exit-observed / ownedreaped /52ms",
+    "scope": "generatedLinux mechanism, not historical Maccause",
+    "records": [
+      {
+        "kind": "old",
+        "source": "/workspace/.onboarding/artifact-contract-fixture/old-delayed-exit-control.rs",
+        "source_sha256": "8e95435207124dacb790edaa666f0649f1af03b83eaef683276dd74cf0de5501",
+        "binary_sha256": "8dffac711b64dce3746a50578f9cf791e8c311d3d500b103db041283789b6a80",
+        "compile_command": [
+          "rustc",
+          "--edition=2021",
+          "--test",
+          "--crate-name",
+          "artifact_contract_old",
+          "/workspace/.onboarding/artifact-contract-fixture/old-delayed-exit-control.rs",
+          "-L",
+          "dependency=/workspace/.worktrees/provider-startup-evidence/target/debug/deps",
+          "--extern",
+          "agentbaton_workspaces=/workspace/.worktrees/provider-startup-evidence/target/debug/deps/libagentbaton_workspaces-3451995e70b3708d.rlib",
+          "--extern",
+          "serde_json=/workspace/.worktrees/provider-startup-evidence/target/debug/deps/libserde_json-906cb9383affae14.rlib",
+          "--extern",
+          "tempfile=/workspace/.worktrees/provider-startup-evidence/target/debug/deps/libtempfile-297f9dfe04515a15.rlib",
+          "--extern",
+          "libc=/workspace/.worktrees/provider-startup-evidence/target/debug/deps/liblibc-ca95d298963f410e.rlib",
+          "-o",
+          "/workspace/.onboarding/artifact-contract-fixture/old-delayed-exit-control"
+        ],
+        "run_command": [
+          "/workspace/.onboarding/artifact-contract-fixture/old-delayed-exit-control",
+          "--exact",
+          "scripts::expected_exit_zero_cannot_accept_missing_or_oversized_output",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 101,
+        "expected_exit": 101,
+        "seconds": 0.17,
+        "log_sha256": "f0877e9b696e36e1308781c53de9c2339932bcb7a8329b29998ed6b88ab0339c",
+        "scope": "Explicit generated50ms delayed exit; mechanism only, not historical macOS cause"
+      },
+      {
+        "kind": "new",
+        "source": "/workspace/.onboarding/artifact-contract-fixture/new-delayed-exit-control.rs",
+        "source_sha256": "b0be21438e1003c62bce0e7d615b89fa5d9ecc11d8412841e73c803813647972",
+        "binary_sha256": "412d5d821778dbd886c514f3b4eb781c636c7013cfd060f43e68dbca2e1b7bbe",
+        "compile_command": [
+          "rustc",
+          "--edition=2021",
+          "--test",
+          "--crate-name",
+          "artifact_contract_new",
+          "/workspace/.onboarding/artifact-contract-fixture/new-delayed-exit-control.rs",
+          "-L",
+          "dependency=/workspace/.worktrees/provider-startup-evidence/target/debug/deps",
+          "--extern",
+          "agentbaton_workspaces=/workspace/.worktrees/provider-startup-evidence/target/debug/deps/libagentbaton_workspaces-3451995e70b3708d.rlib",
+          "--extern",
+          "serde_json=/workspace/.worktrees/provider-startup-evidence/target/debug/deps/libserde_json-906cb9383affae14.rlib",
+          "--extern",
+          "tempfile=/workspace/.worktrees/provider-startup-evidence/target/debug/deps/libtempfile-297f9dfe04515a15.rlib",
+          "--extern",
+          "libc=/workspace/.worktrees/provider-startup-evidence/target/debug/deps/liblibc-ca95d298963f410e.rlib",
+          "-o",
+          "/workspace/.onboarding/artifact-contract-fixture/new-delayed-exit-control"
+        ],
+        "run_command": [
+          "/workspace/.onboarding/artifact-contract-fixture/new-delayed-exit-control",
+          "--exact",
+          "scripts::expected_exit_zero_cannot_accept_missing_or_oversized_output",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "expected_exit": 0,
+        "seconds": 0.47,
+        "log_sha256": "08c8156017231c589e949f867f438d28d588a124f67d1d3db75a5a5bb0a82653",
+        "scope": "Explicit generated50ms delayed exit; mechanism only, not historical macOS cause"
+      }
+    ]
+  },
+  "local_verification_manifest": "/workspace/.onboarding/artifact-contract-fixture/verification-manifest.json",
+  "local_verification_manifest_sha256": "a1671b990df78ce43c45446b9875bf02dfd67bd59ad5587e81f9c213d1261a98",
+  "target_released": true,
+  "independent_review": "pending; author controls are not an independent reviewer",
+  "not_run": [
+    "freshmacOS ARM/Intel runtime",
+    "new exactPRCI",
+    "realProvider/model/account",
+    "OSOwnerDialog",
+    "development packages/fullproduct acceptance"
+  ]
+}

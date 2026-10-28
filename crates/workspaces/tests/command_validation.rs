@@ -611,7 +611,8 @@ mod scripts {
         command_validation::*,
         inspect,
         validation::{
-            sha256, ArtifactRequirement, BoundArtifact, ValidationSubject, VersionBinding,
+            sha256, ArtifactRequirement, BoundArtifact, CheckState, ValidationSubject,
+            VersionBinding,
         },
     };
     use std::{
@@ -884,19 +885,42 @@ mod scripts {
     }
     #[test]
     fn expected_exit_zero_cannot_accept_missing_or_oversized_output() {
-        for script in [
-            "printf stdout-only\n",
-            "while :; do printf 0123456789; done > out\n",
+        for (script, expected_artifact_state) in [
+            ("printf stdout-only\n", Some(CheckState::Missing)),
+            ("printf '%5000s' '' > out\n", Some(CheckState::TooLarge)),
+            ("while :; do printf 0123456789; done > out\n", None),
         ] {
             let f = Fixture::new(script);
             let mut settings = f.settings();
-            settings.wall_time_ms = 30;
+            // Normal-exit cases must reach file validation, rather than pass
+            // this negative test by exhausting an unrelated 30ms deadline.
+            // The original unbounded-writer negative control keeps that bound.
+            if expected_artifact_state.is_none() {
+                settings.wall_time_ms = 30;
+            }
             let run = run_approved_command(&f.rule(settings), &AtomicBool::new(false)).unwrap();
-            assert!(!run.view().passed);
-            assert!(!run.view().file_integrity.unwrap().passed);
-            if script.starts_with("printf") {
-                assert_eq!(run.view().exit_code, Some(0));
-                assert_eq!(run.view().reason, RunReason::ArtifactContractFailed);
+            let view = run.view();
+            eprintln!(
+                "artifact-control expected={expected_artifact_state:?} reason={:?} exit={:?} exit_within_budget={} reaped={} elapsed_ms={}",
+                view.reason,
+                view.exit_code,
+                view.exit_observed_within_budget,
+                view.cleanup.owned_leader_reaped,
+                view.process_and_cleanup_elapsed_ms
+            );
+            assert!(!view.passed);
+            let integrity = view.file_integrity.unwrap();
+            assert!(!integrity.passed);
+            if let Some(expected) = expected_artifact_state {
+                assert_eq!(view.exit_code, Some(0));
+                assert_eq!(view.reason, RunReason::ArtifactContractFailed);
+                assert!(view.exit_observed_within_budget);
+                assert!(view.cleanup.owned_leader_reaped);
+                assert_eq!(integrity.outputs.len(), 1);
+                assert_eq!(integrity.outputs[0].state, expected);
+                if expected == CheckState::TooLarge {
+                    assert_eq!(fs::metadata(f.root.join("out")).unwrap().len(), 5000);
+                }
             }
         }
     }

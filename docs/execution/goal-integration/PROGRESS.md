@@ -47,3 +47,13 @@ Source03bbec8/checkoutcb41f7f Product40650374473 hasRust/UI success andMacrunnin
 Revisedresourcepolicy grants45 onlytoexactproduct.yml/desktop withoriginalmatrix[macos15,Intel], matrixrunnerselector,maxparallel2,failfastfalse; everyotherjob/workflow remainscap30, unknown/malformed/expandedconfigurationdenied. OriginalEnvironmentworkflow/allsteps andall28oldinfrastructuretests byte-identical. New6testmethods joinexistingdiscovery (no skip); local full34Python/4Node/staticinfra/design passed. Independent full34/4 plus12actualmaincontrols,6guard subset and93Bootstrap passed; REVIEW3085b59e/manifest8fe180cf copied/rehashed. AddedonlyoneBootstrapentry(newtest); knownvalidator/CIplanhashesupdated; STATUShash onlynowupdated. OriginalProducttesttimeouts/runneraudit/package scripts unchanged.
 
 mainfetchedstillbcf10bb; OWNER001/002 rereadACK. Normalpush nextheadonce, existingworkflowconcurrency may supersedeoldrunningProduct andmustberecorded; no manual retry/cancel/readytoggle. Newexact7/native/dualpackageevidence stillmandatory. DataPR14draft remainsseparatewithcurrentlocalchecks; independentCSS25e9fbe Root39/28 source/assets confirmed. ActualGoalCoreWIP39dd firstgeneratedruntimePASS only, independentreview/remainingfailure/replan/Factory/acceptance andUIcontinuing; notfullGoalcompletion. Allproduction/privateProvider/extraexpense/signinggatesremainclosed.
+
+## BF676 最终失败与产物夹具窄修
+
+PR13 bf67629 / Product40652731429 / Env40652731215，实际checkoutb0daefb57a35a47e2f708e02df8d14b578e76148，最终六项成功、一项失败。环境三项、Rust、UI、ARM整作业通过；Intel在workspaces scripts::expected_exit_zero_cannot_accept_missing_or_oversized_output失败，12/13，该分支实际exit_code=None、期望Some(0)，reason旧日志未打印，历史原因保持未知。原Core命令14和Provider20/500ms均通过，不能把这一失败称为30分钟或Provider问题。没有Intel原生报告/DMG，不合入。
+
+ARM精确ec5d9903 PNG经Root和独审重新目视均有完整任务页。独审初次“空白”判断错误，原报告/原manifest/错误声明在superseded目录保留；以NATIVE_BF676_REVIEW_CORRECTED和更正63项manifest为准。没有修改、替换截图，也未据误判改动捕获/产品代码。
+
+源码14a20fe→本分支0d6cc55只修目标测试函数及CheckState导入：有限缺失/5000字节超大产物恢复Fixture原1000ms默认，Some(0)/ArtifactContractFailed保留并加强Missing/TooLarge、真实in-budget退出/ownedreap；原无限输出30ms负控和其余28平台函数字节不变，生产/默认限额/CI/锁不改。独审27unique+Clippy/fmt、19作者artifact/hash、旧50ms机制FAIL101/新PASS0全部通过。该对照证明夹具语义而非重现历史Intel原因。
+
+主main仍bcf10bb、OWNER001/002 ACK。下一准确head正常push一次，需重新全部七项、双Native/默认release审计及真实双DMG，不借BF单ARM包或旧绿。DataPR14已保存fad3d61，继续stacked；实际Goal Core/UI另有WIP39dd/8612138、真实运行/修订/取消/预算/Data链和425UI/28Native作者证据，尚在独审与集成，不计完整130项完成。私人Provider/费用/签名/生产仍闭。

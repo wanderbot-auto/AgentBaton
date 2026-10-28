@@ -1,0 +1,14 @@
+{
+  "artifact": 12800709441,
+  "png": "/workspace/.onboarding/goal-native-bf676/arm-native-verified/native-screen.png",
+  "sha256": "ec5d9903e51d4a1bb33df7edabbc6b12ab9bf78dec9ec913db508d95551939d7",
+  "dimensions": [
+    1136,
+    793
+  ],
+  "method": "actual view_image inspection of exactnewPNG",
+  "result": "FAIL visual acceptance: almost entirely blank white WebView, only frame/title/scrollbars/sidebar vertical lines; no task heading, icons, composer or actual app UI",
+  "machine_report": "DOM/Goal3+DB/Command3/Data3/lifecycle contract statuses passed; header/dimensions checker also passed",
+  "cause": "unknown; no claim about actual user-visible window regression or compositor timing without further evidence",
+  "old_screenshot_substitution": false
+}

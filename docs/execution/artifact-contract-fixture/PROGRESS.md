@@ -1,0 +1,9 @@
+# Progress
+
+Exact baseline old test source was saved and built before correction. The unmodified original targeted test actually passed locally; this is not reproduction of the historical Intel failure. That actual CI raw log was independently rehashed to49438587967d786eee591b202b9c3774bbf346e6352da1d6d8e22c481db51008. Its unprinted reason remains unknown.
+
+The only source change is the named artifact test and its CheckState import. Missing output and finite5000-byte output use Fixture's unchanged1000ms default, require actual exit0 and ArtifactContractFailed, confirm exit observation/reaping, and require Missing/TooLarge respectively. The original unbounded-writer case retains30ms and both failure assertions. All other production/script/cleanup/test limits and all29 cross-platform test functions remain byte-identical. This strengthens the oversized-artifact assertion instead of allowing a timeout to masquerade as its validation.
+
+A separately generated control appends an explicit /bin/sleep0.05 to stdout-only script. Old30ms source actually fails101: DeadlineExceeded, exitNone, no in-budget exit, ownedreaped, elapsed30ms. Corrected default1000ms source actually passes0: exitSome0, ArtifactContractFailed at52ms; new5000-byte TooLarge and original30ms writer also pass. This demonstrates fixture intent separation only; neither its script nor observation is claimed as the historical macOS cause. Both full derived sources, binaries, commands and logs are retained.
+
+Final source14a20fe: complete command_validation27unique tests passed; the three nested observation-child reexecutions are overlapping and are not counted again. Workspaces all-target Clippy -Dwarnings, package fmt and diff passed. Private Provider target is formally released; main/native targets were not touched. Independent review and new exact dual-Mac CI remain required.
