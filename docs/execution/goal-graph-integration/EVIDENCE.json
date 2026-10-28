@@ -41,7 +41,7 @@
       "failure": "independent reviewer found new blank line at EOF in CHECKPOINT/PROGRESS; Root removed trailing blank lines, retaining document text"
     }
   ],
-  "graph_runtime": "not_yet_implemented",
+  "graph_runtime": "implemented_owner_and_three_validators; final independent workspace running; new composed browser not_run",
   "native_goal_dialog": "not_verified",
   "task_accepted": "not_implemented_no_claim",
   "current_core_wip": "c4b8b70",
@@ -54,5 +54,24 @@
     "runtime_dimension": "ownCore04/schema11 compile + actualCore12 proposal6074 callbacks; notCore12 runtime/OSDialog/Mac",
     "lease": "UI released12:58 no writers; Root explicitly returned sole Native writer toCore"
   },
-  "full_design": "incomplete"
+  "full_design": "incomplete",
+  "current_candidate": {
+    "core": "70a48d41663108337529915358109026e98ddf98",
+    "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+    "root_composition": "CORE_70A_COMPOSITION.json",
+    "full_workspace_independent": "running_not_yet_pass",
+    "native_composition": "not_run",
+    "browser_new_modes": "not_run",
+    "new_ci": "not_run",
+    "new_macos": "not_run",
+    "lossless_ui_independent": {
+      "source": "4fab558fe126543c23b1410949e6fcd922b770d6",
+      "node": 564,
+      "files": 37,
+      "additional_controls": 18,
+      "evidence_files": 59,
+      "report": "LOSSLESS_4FAB_REVIEW.md",
+      "manifest": "LOSSLESS_4FAB_MANIFEST.json"
+    }
+  }
 }
