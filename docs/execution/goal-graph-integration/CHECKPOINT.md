@@ -31,3 +31,13 @@ Root同Core12冻bin/修UI4ead实际浏览器Owner-only5检查3图通过：两真
 当前仍codex/goal-graph-integration功能分支，无Graph PR/新CI/新双Mac/包；main仍a1be94d（PR15开发包最新）。Core正在整合三类Validator与共同reservation/无Session attempt/job、取消/adopt/恢复/预算负控，持唯一Native Cargo租约。IO-DEADLINE/PIN补修静态与作者41实测通过，仅worker/library层；Owner-only不能冒充整Graph。新完整Observation DTO待实际Validator fixture。独立NativeParent叶子修生产真实caller窗口归属，尚未Cargo/Mac，不把CF弹窗称NSAlert。
 
 新的Owner driver transport/cleanup已由作者修正并实6/3，首NOT_FOUND观测竞态FAIL保留，正在独立实际复跑。完整130需求/WP01–14持续，全部外部费用/凭据/主机/生产/签名/许可证限制不变，正式GitHubApprove仍需具体PR当次用户确认。OWNER001/002已在最新main重读ACK，无003。
+
+## Graph 最终候选恢复核验 · 2026-10-28 UTC
+
+当前 `codex/goal-graph-integration` 功能分支，protected main 仍 `a1be94d26d10bb245bb35eb50226b82012c967da`（PR15），已安全 fetch 并重新读取 OWNER-001/002，ACK，无新增指令。无 Graph PR、新 CI 或新 macOS 包。本次续跑没有观察到模型容量拒绝；没有新建替代 Cloud 任务、账号、费用或凭据，也未提交正式 GitHub Approve。
+
+Core 冻结 `70a48d41663108337529915358109026e98ddf98` / schema12，manifest `c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06`。Root 核对100项：95逐字相同；5项 Native 差异属于另外已审查的 Parent、Observation、readonly 和 test-only macOS dialog 接线，不能借 Core 独审证明最终 Native 组合通过。全部 Core/CLI/daemon/根锁相同。独立全 workspace 正实际运行，原 Core1/2/3 失败及定向修复证据保留，全量尚未结束。Native target 只由独立 Core reviewer 写入；Root 暂不启动浏览器，避免与500ms协议回归争 CPU。
+
+前端无损 Observation `4fab558` / docs `2f31fcc` 已独审：564测试/37文件、selected14/2、type/build，以及18额外异步/WeakMap/篡改控制通过；59份冻结证据 Root 逐哈希核验。原系统 Command 的大 u64 通过精确原文 SHA 验证，只读展示不创造授权；旧无原文592包仍拒绝。Native4个新增函数尚未执行，浏览器新组合尚未运行。正式 review 见 LOSSLESS_4FAB_REVIEW.md / LOSSLESS_4FAB_MANIFEST.json。
+
+接下来执行最终 workspace、Native 合成、旧六条浏览器流程及新 Owner-only/Integrity/Data/Command/失败模式，再经独审、准确新七项 CI 与双 macOS 验证。OS Owner 弹窗叶子虽 Python36和实际 Linux schema/清理控制通过，Rust/macOS/原图仍待验证。PR15 双架构开发包仍是最新真实交付；全130项设计、Factory/NL/SkillsMCP/历史/远程等剩余范围继续，未标产品完成。生产、真实 Provider、私人身份、新费用/资源、签名、公证、最终许可证门禁不变。
