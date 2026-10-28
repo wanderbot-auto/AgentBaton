@@ -2096,6 +2096,36 @@ mod tests {
         .unwrap();
         assert_eq!(declined["error"]["code"], "PERMISSION_DENIED");
     }
+    #[test]
+    fn actual_core_node_proposal_binds_real_capture_origin_and_complete_private_owner_decision() {
+        // Actual Core Work/owned-stop/capture/propose fixture8fe6. This tests
+        // Native callbacks only, not an OS dialog or actual Owner finalization.
+        let proposal: Value = serde_json::from_str(include_str!(
+            "../../src/goal-graph-actual-node-proposal-fixture.json"
+        ))
+        .unwrap();
+        let selection = proposal["snapshot"]["intent"].clone();
+        let revision = proposal["snapshot"]["expected_run_revision"]
+            .as_u64()
+            .unwrap();
+        let expected = proposal["snapshot"].clone();
+        let mut pages = Vec::new();
+        let response=confirm_goal_node_and_finalize(json!({"result":proposal}),&selection,revision,|message|{assert!(message.len()<=16_384);if !message.contains("FINAL native decision"){pages.push(message.rsplit("\n\n").next().unwrap().to_owned());}true},|frame|{assert_eq!(frame,json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":format!("proposal:{}",proposal["id"].as_str().unwrap())}));Ok(json!({"result":{"graph_contract_version":1,"approval_id":proposal["id"],"run_id":selection["run_id"],"node_id":selection["node_id"],"plan_revision":selection["expected_plan_revision"],"decision":"accepted","owner_decision_id":"callback-only-not-Core-receipt","run_revision":revision+1,"task_accepted":false}}))}).unwrap();
+        assert_eq!(
+            serde_json::from_str::<Value>(&pages.concat()).unwrap(),
+            expected
+        );
+        assert_eq!(response["result"]["approval_id"], proposal["id"]);
+        let denied = confirm_goal_node_rejection_and_decline(
+            json!({"result":proposal}),
+            &selection,
+            revision,
+            |_| false,
+            |_| panic!("Cancel wrote a rejection"),
+        )
+        .unwrap();
+        assert_eq!(denied["error"]["code"], "PERMISSION_DENIED");
+    }
     fn graph_native_proposal_fixture() -> (Value, Value) {
         let (mut response, selection) = goal_execution_proposal();
         response["result"]["kind"] = json!("goal_graph_execution");

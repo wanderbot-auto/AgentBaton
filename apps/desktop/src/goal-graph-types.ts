@@ -1,6 +1,7 @@
 // Mirrors the schema12 Core author's goal_graph.rs / goal_evidence.rs DTOs.
-// Workspace/FilePin integer identities are opaque in JavaScript. They are
-// displayed, never roundtripped as approval authority or compared as u64s.
+// Workspace/FilePin integers remain numeric on the wire. Runtime guards
+// reject unsafe or out-of-range identities before trusted projection/actions;
+// references only are sent to Native, never these renderer-parsed pins.
 import type { WorkspaceIdentity } from './api';
 import type { GoalRun } from './goal-execution-api';
 import type { GoalPlanNode } from './goal-api';

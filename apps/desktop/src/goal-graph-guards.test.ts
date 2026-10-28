@@ -15,8 +15,8 @@ describe('Goal graph draft DTO guards; generated fixtures only',()=>{
     if(kind==='attempt')ref.producer_attempt_id='foreign';if(kind==='hash')ref.sha256='missing';if(kind==='bytes')ref.bytes=-1;if(kind==='root')ref.root.canonical_root='relative';if(kind==='path')ref.relative_path='../secret';if(kind==='pin')ref.file_pin.bytes=13;if(kind==='origin')v.nodes[0].stop_confirmed=false;if(kind==='missing')v.nodes[0].candidate_ids=[];
     expect(graphDetailsShape(v,f.task,f.scope)).toBe(false);
   });
-  it('treats inode identities as opaque while retaining actual hash and safe byte-count checks',()=>{
-    const f=goalGraphFixture(),ref=graphCandidateView(f).candidates[0].artifacts[0];ref.root.inode=Number.MAX_SAFE_INTEGER+1;ref.file_pin.inode=Number.MAX_SAFE_INTEGER+1;expect(graphArtifactShape(ref,f.scope)).toBe(true);ref.bytes=Number.MAX_SAFE_INTEGER+1;expect(graphArtifactShape(ref,f.scope)).toBe(false);
+  it('rejects unsafe artifact identities before trusting a renderer projection',()=>{
+    const f=goalGraphFixture(),ref=graphCandidateView(f).candidates[0].artifacts[0];ref.root.inode=Number.MAX_SAFE_INTEGER+1;ref.file_pin.inode=Number.MAX_SAFE_INTEGER+1;expect(graphArtifactShape(ref,f.scope)).toBe(false);ref.bytes=Number.MAX_SAFE_INTEGER+1;expect(graphArtifactShape(ref,f.scope)).toBe(false);
   });
   it('allows future execution state for display but does not mark the view supported',()=>{
     const f=goalGraphFixture(),v=graphCandidateView(f);v.nodes[0].state='future_unknown_effect';expect(graphDetailsShape(v,f.task,f.scope)).toBe(true);expect(graphViewSupported(v)).toBe(false);
@@ -37,4 +37,10 @@ describe('Goal graph draft DTO guards; generated fixtures only',()=>{
 });
 it('requires the complete accepted receipt and exact criterion decisions instead of graph status booleans',async()=>{
   const {graphAcceptedFixture}=await import('./goal-graph-test-fixtures');const f=goalGraphFixture(),accepted=graphAcceptedFixture(f);expect(graphDetailsShape(accepted.view,accepted.task,f.scope)).toBe(true);const missing=mutable(accepted.view);missing.task_acceptance=null;expect(graphDetailsShape(missing,accepted.task,f.scope)).toBe(false);const missingOwner=mutable(accepted.view);missingOwner.task_acceptance!.owner_decision_ids=[];expect(graphDetailsShape(missingOwner,accepted.task,f.scope)).toBe(false);const foreign=mutable(accepted.view);foreign.task_acceptance!.input_revision='foreign';expect(graphDetailsShape(foreign,accepted.task,f.scope)).toBe(false);const ahead=mutable(accepted.view);ahead.task_acceptance!.sequence=23;expect(graphDetailsShape(ahead,accepted.task,f.scope)).toBe(false);
+});
+it.each(['device','inode','bytes','uid','gid','mode','mtime','mtime_nsec','ctime','ctime_nsec'])('rejects unsafe or invalid file pin %s instead of treating rounded JSON as exact evidence',field=>{
+  const f=goalGraphFixture(),ref=graphCandidateView(f).candidates[0].artifacts[0];ref.file_pin[field]=Number.MAX_SAFE_INTEGER+1;expect(graphArtifactShape(ref,f.scope)).toBe(false);
+});
+it('enforces signed seconds, nanosecond and unsigned pin ranges without changing wire values',()=>{
+  const f=goalGraphFixture(),ref=graphCandidateView(f).candidates[0].artifacts[0];ref.file_pin.mtime=-1;expect(graphArtifactShape(ref,f.scope)).toBe(true);ref.file_pin.mtime_nsec=-1;expect(graphArtifactShape(ref,f.scope)).toBe(false);ref.file_pin.mtime_nsec=1_000_000_000;expect(graphArtifactShape(ref,f.scope)).toBe(false);ref.file_pin.mtime_nsec=999_999_999;ref.file_pin.uid=4_294_967_296;expect(graphArtifactShape(ref,f.scope)).toBe(false);
 });

@@ -12,17 +12,23 @@ const ids=(x:unknown):x is string[]=>Array.isArray(x)&&x.length<=65536&&x.every(
 const meter=(x:unknown)=>x===null||safeInteger(x);
 const optionalId=(x:unknown)=>x===null||id(x);
 const relative=(x:unknown):x is string=>text(x,4096)&&!x.startsWith('/')&&!/[\\\u0000-\u001f\u007f]/.test(x)&&x.split('/').every(part=>!!part&&part!=='.'&&part!=='..');
+export function graphArtifactPrecision(value:unknown):boolean {
+  if(!object(value)||!object(value.root)||!object(value.file_pin))return false;
+  const root=value.root,pin=value.file_pin;
+  return safeInteger(root.device)&&safeInteger(root.inode)&&['device','inode','bytes'].every(key=>safeInteger(pin[key]))&&['uid','gid','mode'].every(key=>safeInteger(pin[key],0,4294967295))&&['mtime','ctime'].every(key=>safeInteger(pin[key],Number.MIN_SAFE_INTEGER))&&['mtime_nsec','ctime_nsec'].every(key=>safeInteger(pin[key],0,999999999));
+}
 export function graphArtifactShape(x:unknown,scope:GoalScope):x is GraphArtifactReference {
   if(!object(x)||!id(x.candidate_id)||!id(x.artifact_id)||!id(x.contract_id)||!id(x.producer_node_id)||!id(x.producer_attempt_id)||!hash(x.sha256)||!safeInteger(x.bytes,0,67108864)||!relative(x.relative_path)||!safeInteger(x.writer_epoch)||scope.outputs[x.artifact_id]!==x.contract_id)return false;
-  // Inode/device/pin fields are opaque JS observations, not safe-integer
-  // authority. Native/Core retain the exact original u64 values.
+  // JavaScript may round a Rust u64 before comparison or display. Such a
+  // projection cannot support artifact trust or an Owner action. Native/Core
+  // retain complete original integer Values; no wire field is rewritten.
   const root=x.root,pin=x.file_pin;
-  return object(root)&&text(root.canonical_root,4096)&&root.canonical_root.startsWith('/')&&typeof root.device==='number'&&typeof root.inode==='number'&&object(root.kind)&&['directory','git'].includes(root.kind.kind)&&object(pin)&&['device','inode','bytes','uid','gid','mode','mtime','mtime_nsec','ctime','ctime_nsec'].every(key=>typeof pin[key]==='number'&&Number.isFinite(pin[key]))&&pin.bytes===x.bytes;
+  return graphArtifactPrecision(x)&&object(root)&&text(root.canonical_root,4096)&&root.canonical_root.startsWith('/')&&object(root.kind)&&['directory','git'].includes(root.kind.kind)&&object(pin)&&pin.bytes===x.bytes;
 }
 export function graphSummaryShape(x:unknown,task:Task,scope?:GoalScope):x is GraphRunSummary {
   if(!object(x)||x.graph_contract_version!==1||!safeInteger(x.ledger_revision)||typeof x.task_accepted!=='boolean'||!object(x.run))return false;
   const r=x.run;
-  return id(r.id)&&id(r.scope_id)&&id(r.root_grant_id)&&r.task_id===task.id&&r.project_id===task.project_id&&safeInteger(r.plan_revision,1)&&hash(r.plan_digest)&&safeInteger(r.revision,1)&&text(r.state,128)&&typeof r.cancel_requested==='boolean'&&typeof r.task_accepted==='boolean'&&r.task_accepted===x.task_accepted&&text(r.created_at,128)&&text(r.updated_at,128)&&(!scope||r.scope_id===scope.id&&r.root_grant_id===scope.root_grant_id)&&(r.state!=='cancel_requested'&&r.state!=='cancelled'||r.cancel_requested)&&(!r.task_accepted||r.state==='accepted')&&(r.state!=='accepted'||r.task_accepted);
+  return id(r.id)&&id(r.scope_id)&&id(r.root_grant_id)&&r.task_id===task.id&&r.project_id===task.project_id&&safeInteger(r.plan_revision,1)&&hash(r.plan_digest)&&safeInteger(r.revision,1)&&text(r.state,128)&&typeof r.cancel_requested==='boolean'&&typeof r.task_accepted==='boolean'&&r.task_accepted===x.task_accepted&&text(r.created_at,128)&&text(r.updated_at,128)&&(!scope||r.scope_id===scope.id&&r.root_grant_id===scope.root_grant_id)&&(r.state!=='cancel_requested'&&r.state!=='cancelled'||r.cancel_requested)&&(!r.task_accepted||r.state==='accepted'&&!r.cancel_requested)&&(r.state!=='accepted'||r.task_accepted);
 }
 export function graphDetailsShape(value:unknown,task:Task,scope:GoalScope):value is GraphRunDetails {
   if(!object(value)||!graphSummaryShape(value,task,scope))return false;
@@ -68,7 +74,7 @@ export function graphDetailsShape(value:unknown,task:Task,scope:GoalScope):value
   }else if(accepted!==null)return false;
   return true;
 }
-export function graphTaskAcceptanceMatchesTask(receipt:GraphTaskAcceptance|null,task:Task,scope:GoalScope,view:GraphRunDetails):boolean {
+export function graphTaskAcceptanceMatchesTask(receipt:GraphTaskAcceptance|null,task:Task,scope:Pick<GoalScope,'id'|'root_grant_id'|'input_revision'|'workspace_id'>,view:GraphRunDetails):boolean {
   return taskHasAcceptanceProjection(task)&&graphViewConsistent(view)&&!!receipt&&receipt.graph_contract_version===1&&receipt.source==='baton_goal_acceptance'&&receipt.id===task.acceptance_ref&&receipt.sequence===task.acceptance_sequence&&receipt.task_id===task.id&&receipt.project_id===task.project_id&&receipt.task_revision===task.revision&&receipt.spec_revision===task.spec_revision&&receipt.scope_id===scope.id&&receipt.root_grant_id===scope.root_grant_id&&receipt.input_revision===scope.input_revision&&receipt.workspace_id===scope.workspace_id&&receipt.run_id===view.run.id&&receipt.plan_revision===view.run.plan_revision&&receipt.plan_digest===view.run.plan_digest&&receipt.sequence<=view.ledger_revision;
 }
 export function graphDecisionShape(x:unknown,runId:string,nodeId:string,planRevision:number,revision:number,decision:'accepted'|'rejected'):x is GraphOwnerDecisionResult {
@@ -83,6 +89,9 @@ export function graphSummaryMeetsFloor(next:GraphRunSummary,floor:GraphRunSummar
   const a=next.run,b=floor.run;
   return next.graph_contract_version===floor.graph_contract_version&&next.ledger_revision>=floor.ledger_revision&&a.id===b.id&&a.scope_id===b.scope_id&&a.project_id===b.project_id&&a.task_id===b.task_id&&a.root_grant_id===b.root_grant_id&&a.created_at===b.created_at&&a.revision>=b.revision&&a.plan_revision>=b.plan_revision&&(a.plan_revision!==b.plan_revision||a.plan_digest===b.plan_digest)&&(!b.cancel_requested||a.cancel_requested)&&(!b.task_accepted||a.task_accepted)&&(a.revision!==b.revision||canonical(a)===canonical(b));
 }
+// A replayed exact-key result is historical evidence, not a new observation.
+// It may acknowledge the original request while preserving all newer floors.
+export const graphReceiptFitsFloor=(receipt:GraphRunSummary,observed:GraphRunSummary,exactUncertainReplay:boolean)=>graphSummaryMeetsFloor(receipt,observed)||exactUncertainReplay&&graphSummaryMeetsFloor(observed,receipt);
 export function graphDetailsMeetFloor(next:GraphRunDetails,floor:GraphEvidenceFloor):boolean {
   if(!graphSummaryMeetsFloor(next,floor.summary))return false;
   const before=floor.details;if(!before)return true;
@@ -106,8 +115,9 @@ export function graphDetailsMeetFloor(next:GraphRunDetails,floor:GraphEvidenceFl
 export const graphExecutionKinds:readonly string[]=['connection','validator','owner'];
 export function graphViewSupported(view:GraphRunDetails):boolean {
   return graphRunStates.includes(view.run.state)&&view.nodes.every(node=>graphNodeStates.includes(node.state)&&graphAcceptanceStates.includes(node.acceptance_state)&&graphExecutionKinds.includes(node.execution_kind)&&(node.execution_kind==='connection'?['work','summary'].includes(node.node.kind):node.execution_kind==='validator'?node.node.kind==='validate':node.node.kind==='owner_approval'))
-    &&view.candidates.every(c=>c.source==='baton_goal_evidence'&&c.integrity==='verified'&&c.task_acceptance==='not_established')
+    &&view.candidates.every(c=>c.source==='baton_goal_evidence'&&c.integrity==='verified'&&c.task_acceptance==='not_established'&&c.artifacts.every(graphArtifactPrecision))
     &&view.validations.every(v=>v.source==='baton_goal_validator'&&['passed','failed','cancelled','outcome_unknown'].includes(v.state)&&['worker_joined','not_started','outcome_unknown'].includes(v.io_completion)&&['artifact_integrity_only','data_contract_only','approved_deterministic_command_only'].includes(v.scope)&&v.correctness===(v.scope==='artifact_integrity_only'?'not_established':v.scope==='data_contract_only'?'approved_schema_ranges_metadata_only':'approved_fixed_command_observations_only')&&v.task_acceptance==='not_established'&&(v.state==='passed')===v.passed)
+    &&view.validations.every(v=>v.candidate_refs.every(graphArtifactPrecision))&&view.owner_decisions.every(d=>d.candidate_refs.every(graphArtifactPrecision))&&(!view.task_acceptance||view.task_acceptance.artifact_refs.every(graphArtifactPrecision))
     &&view.owner_decisions.every(d=>d.decision==='accepted'&&d.source==='local_owner_confirmation'||d.decision==='rejected'&&d.source==='local_owner_rejection');
 }
 export function graphNodeClosed(view:GraphRunDetails,node:GraphRunDetails['nodes'][number]):boolean {
@@ -132,4 +142,4 @@ export const graphCanAdvanceView=(view:GraphRunDetails)=>!view.run.cancel_reques
 export const graphCanReviewOwner=(view:GraphRunDetails,node:GraphRunDetails['nodes'][number])=>graphViewConsistent(view)&&!view.run.cancel_requested&&!['accepted','cancelled','failed','outcome_unknown','cancel_requested'].includes(view.run.state)&&!view.nodes.some(record=>record.state==='outcome_unknown'||record.acceptance_state==='unknown'||record.acceptance_state==='stale')&&!view.validations.some(check=>check.state==='outcome_unknown'||check.io_completion==='outcome_unknown')&&node.plan_revision===view.run.plan_revision&&node.node.kind==='owner_approval'&&node.execution_kind==='owner'&&node.state==='awaiting_owner'&&node.acceptance_state==='pending'&&node.session_id===null&&node.attempt_id===null&&node.job_id===null;
 
 export const graphRunPolling=(summary:GraphRunSummary)=>['queued','running','cancel_requested'].includes(summary.run.state);
-export const graphRunCanCancel=(summary:GraphRunSummary)=>!summary.run.cancel_requested&&['queued','running','blocked','outcome_unknown'].includes(summary.run.state);
+export const graphRunCanCancel=(summary:GraphRunSummary)=>!summary.run.cancel_requested&&['queued','running','blocked','outcome_unknown','awaiting_acceptance'].includes(summary.run.state);

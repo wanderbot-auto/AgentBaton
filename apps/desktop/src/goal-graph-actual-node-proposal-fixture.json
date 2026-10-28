@@ -1,0 +1,256 @@
+{
+  "consumed": false,
+  "created_at": "2026-10-28T13:16:14.112490528Z",
+  "expires_at_ms": 1793193674112,
+  "id": "52b5dd9e-df97-49d2-8124-bfce0677a2ad",
+  "kind": "goal_node_acceptance",
+  "revision": 1,
+  "snapshot": {
+    "candidate_receipts": [
+      {
+        "artifacts": [
+          {
+            "artifact_id": "report",
+            "bytes": 12,
+            "candidate_id": "a93ed521-6c9d-449c-a8e2-58b995151529",
+            "contract_id": "output:report",
+            "file_pin": {
+              "bytes": 12,
+              "ctime": 1793193373,
+              "ctime_nsec": 408524423,
+              "device": 34,
+              "gid": 1000,
+              "inode": 296698,
+              "mode": 33152,
+              "mtime": 1793193373,
+              "mtime_nsec": 408524423,
+              "uid": 1000
+            },
+            "producer_attempt_id": "5d6452dc-f762-41af-b08a-30acdcc69b3b",
+            "producer_node_id": "produce-report",
+            "relative_path": "reports/report.txt",
+            "root": {
+              "canonical_root": "/tmp/.tmp28uu9v/runtime/workspaces/c73d8374-f81c-463c-93fc-e56cadf42a44",
+              "device": 34,
+              "inode": 296663,
+              "kind": {
+                "common_dir": "/tmp/.tmp28uu9v/source/.git",
+                "dirty": false,
+                "head": "589e4e84ef5a91c6007ecd5cef19a9f359def0b3",
+                "kind": "git"
+              }
+            },
+            "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+            "writer_epoch": 1
+          }
+        ],
+        "attempt_id": "5d6452dc-f762-41af-b08a-30acdcc69b3b",
+        "capability_digest": "69553bd0702b14353c4a81336dae01c9e1a108398df66f75725b5c47b9172a8a",
+        "capture_job_id": "capture:5d6452dc-f762-41af-b08a-30acdcc69b3b",
+        "capture_receipt_sequence": 40,
+        "consumed_inputs": [
+          {
+            "artifact_id": "fixed-input",
+            "candidate": null,
+            "contract_id": "input:fixed-input",
+            "sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24"
+          }
+        ],
+        "created_at": "2026-10-28T13:16:13.601870811Z",
+        "graph_contract_version": 1,
+        "id": "a93ed521-6c9d-449c-a8e2-58b995151529",
+        "input_revision": "589e4e84ef5a91c6007ecd5cef19a9f359def0b3",
+        "integrity": "verified",
+        "node_id": "produce-report",
+        "plan_digest": "cc76343b363943adfa63784bc9b87f41f21a1887edfa05f7e47494a29f44959a",
+        "plan_revision": 2,
+        "run_id": "ae0d1751-05da-4bb1-8c67-a5c5ec4b4014",
+        "scope_id": "5c5ba942-bf92-404b-aeee-d747880583c1",
+        "session_id": "7286007e-8c2b-4352-bea3-84b092bed7bd",
+        "source": "baton_goal_evidence",
+        "spec_revision": 1,
+        "stop_receipt_sequence": 37,
+        "task_acceptance": "not_established",
+        "task_id": "6d9350c2-ddfb-4ccb-9754-3d305097c129",
+        "workspace_id": "c73d8374-f81c-463c-93fc-e56cadf42a44"
+      }
+    ],
+    "candidate_refs": [
+      {
+        "artifact_id": "report",
+        "bytes": 12,
+        "candidate_id": "a93ed521-6c9d-449c-a8e2-58b995151529",
+        "contract_id": "output:report",
+        "file_pin": {
+          "bytes": 12,
+          "ctime": 1793193373,
+          "ctime_nsec": 408524423,
+          "device": 34,
+          "gid": 1000,
+          "inode": 296698,
+          "mode": 33152,
+          "mtime": 1793193373,
+          "mtime_nsec": 408524423,
+          "uid": 1000
+        },
+        "producer_attempt_id": "5d6452dc-f762-41af-b08a-30acdcc69b3b",
+        "producer_node_id": "produce-report",
+        "relative_path": "reports/report.txt",
+        "root": {
+          "canonical_root": "/tmp/.tmp28uu9v/runtime/workspaces/c73d8374-f81c-463c-93fc-e56cadf42a44",
+          "device": 34,
+          "inode": 296663,
+          "kind": {
+            "common_dir": "/tmp/.tmp28uu9v/source/.git",
+            "dirty": false,
+            "head": "589e4e84ef5a91c6007ecd5cef19a9f359def0b3",
+            "kind": "git"
+          }
+        },
+        "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+        "writer_epoch": 1
+      }
+    ],
+    "capability_digest": "69553bd0702b14353c4a81336dae01c9e1a108398df66f75725b5c47b9172a8a",
+    "criterion": {
+      "artifact_ids": [
+        "report"
+      ],
+      "criterion_digest": "8d346a2043896c382ee4435ad6c7512e53c659ee95f76d2e9602de4ccfb3584f",
+      "criterion_text": "Owner reviews the exact report separately from process success",
+      "rule_id": "goal-owner-review"
+    },
+    "expected_ledger_revision": 42,
+    "expected_run_revision": 5,
+    "graph_contract_version": 1,
+    "input_bindings": [
+      {
+        "artifact_id": "report",
+        "candidate": {
+          "artifact_id": "report",
+          "bytes": 12,
+          "candidate_id": "a93ed521-6c9d-449c-a8e2-58b995151529",
+          "contract_id": "output:report",
+          "file_pin": {
+            "bytes": 12,
+            "ctime": 1793193373,
+            "ctime_nsec": 408524423,
+            "device": 34,
+            "gid": 1000,
+            "inode": 296698,
+            "mode": 33152,
+            "mtime": 1793193373,
+            "mtime_nsec": 408524423,
+            "uid": 1000
+          },
+          "producer_attempt_id": "5d6452dc-f762-41af-b08a-30acdcc69b3b",
+          "producer_node_id": "produce-report",
+          "relative_path": "reports/report.txt",
+          "root": {
+            "canonical_root": "/tmp/.tmp28uu9v/runtime/workspaces/c73d8374-f81c-463c-93fc-e56cadf42a44",
+            "device": 34,
+            "inode": 296663,
+            "kind": {
+              "common_dir": "/tmp/.tmp28uu9v/source/.git",
+              "dirty": false,
+              "head": "589e4e84ef5a91c6007ecd5cef19a9f359def0b3",
+              "kind": "git"
+            }
+          },
+          "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+          "writer_epoch": 1
+        },
+        "contract_id": "output:report",
+        "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591"
+      }
+    ],
+    "intent": {
+      "expected_ledger_revision": 42,
+      "expected_plan_revision": 2,
+      "node_id": "owner-report",
+      "run_id": "ae0d1751-05da-4bb1-8c67-a5c5ec4b4014"
+    },
+    "node": {
+      "budget": {
+        "attempts": 1,
+        "children": 0,
+        "cost_microunits": null,
+        "output_bytes": 2048,
+        "parallel": 1,
+        "reworks": 0,
+        "runtime_ms": 5000,
+        "tokens": null
+      },
+      "dependencies": [
+        "produce-report"
+      ],
+      "executor": {
+        "kind": "owner",
+        "rule_id": "goal-owner-review"
+      },
+      "external_action_id": null,
+      "goal": "Review exact original report",
+      "id": "owner-report",
+      "idempotency_key": "owner-report-once",
+      "kind": "owner_approval",
+      "outputs": [],
+      "parent_id": null,
+      "recipients": [],
+      "required_inputs": [
+        {
+          "artifact_id": "report",
+          "contract_id": "output:report",
+          "goal_task_id": "6d9350c2-ddfb-4ccb-9754-3d305097c129",
+          "source": {
+            "candidate_for_validation": true,
+            "kind": "node",
+            "node_id": "produce-report"
+          }
+        }
+      ],
+      "required_validators": [
+        "goal-owner-review"
+      ],
+      "reservation": {
+        "cost_microunits": null,
+        "output_bytes": 2048,
+        "runtime_ms": 4000,
+        "tokens": null
+      },
+      "retry": {
+        "max_attempts": 1,
+        "max_reworks": 0,
+        "retry_classes": []
+      },
+      "side_effect": "advisory_read_only",
+      "workspace_id": "c73d8374-f81c-463c-93fc-e56cadf42a44",
+      "write_set": []
+    },
+    "run_binding": {
+      "capability_digest": "69553bd0702b14353c4a81336dae01c9e1a108398df66f75725b5c47b9172a8a",
+      "input_revision": "589e4e84ef5a91c6007ecd5cef19a9f359def0b3",
+      "plan_digest": "cc76343b363943adfa63784bc9b87f41f21a1887edfa05f7e47494a29f44959a",
+      "plan_revision": 2,
+      "project_id": "db8fff91-c0ce-4bbd-a7a9-d04137c0bdf1",
+      "root_grant_id": "604809dc-a404-46bd-aad4-7a84f6173ecb",
+      "run_id": "ae0d1751-05da-4bb1-8c67-a5c5ec4b4014",
+      "scope_digest": "25e0703aaa03fec54d3c750d36dd4ed44212d629964d9b036fda17c1e5fa6f69",
+      "scope_id": "5c5ba942-bf92-404b-aeee-d747880583c1",
+      "spec_revision": 1,
+      "task_id": "6d9350c2-ddfb-4ccb-9754-3d305097c129",
+      "workspace": {
+        "canonical_root": "/tmp/.tmp28uu9v/runtime/workspaces/c73d8374-f81c-463c-93fc-e56cadf42a44",
+        "device": 34,
+        "inode": 296663,
+        "kind": {
+          "common_dir": "/tmp/.tmp28uu9v/source/.git",
+          "dirty": false,
+          "head": "589e4e84ef5a91c6007ecd5cef19a9f359def0b3",
+          "kind": "git"
+        }
+      },
+      "workspace_id": "c73d8374-f81c-463c-93fc-e56cadf42a44"
+    },
+    "validation_refs": []
+  }
+}
