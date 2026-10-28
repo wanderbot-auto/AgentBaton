@@ -2720,7 +2720,7 @@ mod fixture_tests {
             ("attempts","INSERT INTO factory_attempts VALUES('session','attempt','scope','run','task','root','{}','starting','{}')"),
             ("scoped_handles","INSERT INTO factory_scoped_handles VALUES('probe','scope','session','attempt','task','digest',1,0,1,'{}')"),
             ("handoffs","INSERT INTO factory_handoffs VALUES('probe','run','parent','child','parent-session',NULL,'pending','{}')"),
-            ("budget_reservations","INSERT INTO factory_budget_reservations VALUES('attempt','scope','root','project','{}')"),
+            ("budget_reservations",r#"INSERT INTO factory_budget_reservations VALUES('attempt','scope','root','project','{"authority_kind":"factory_task"}')"#),
         ];
         for (field, sql) in controls {
             let (_directory, runtime, store) = fresh_execution_fixture();
