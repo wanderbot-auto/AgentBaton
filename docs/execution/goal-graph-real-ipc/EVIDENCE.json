@@ -122,5 +122,28 @@
     "No SQL writes/synthetic candidates/acceptances/Renderer Owner authority. PrivateUnixFixture is not instantiated by preparation self-checks; no auth file actually read.",
     "No Cargo/sharedtarget/Node/dependency install/oldtest/product/Core/Native/UI/lock/schema/gate/STATUS changes; no models/accounts/host/extra fee/recursive agents.",
     "Independent review and real Linux/browser/native/macOS/provider/CI/package acceptance remain separate."
-  ]
+  ],
+  "remote_backup": {
+    "branch": "codex/goal-graph-real-ipc",
+    "sha": "e1cc2629a706b4c9aa259b0310bcef431d7e9e65",
+    "pushes": 1,
+    "force": false,
+    "actual_ls_remote_verified": true,
+    "PR_created": false,
+    "manual_CI_action": false,
+    "existing_workflow_trigger_review": "Product PR/dispatch only; Environment push main + infra/ci-request only, no feature push trigger"
+  },
+  "schema_plan_candidate": {
+    "status": "sent_to_Core_for_confirmation_not_executed",
+    "nodes": [
+      "Work external input→report",
+      "Validate report candidate with exact approved deterministic rule",
+      "Owner1 report current candidate/validation",
+      "Summary consumes accepted report→distinct summary",
+      "Owner2 summary current candidate"
+    ],
+    "reason_for_Owner2": "Connection requires output and each host_policy output requires goal-owner-review; cannot weaken Summary acceptance or call deterministic validation GoalAcceptance",
+    "budget": "bounded parallel1/root-project cumulative, real bootstrap usage retained; charging awaits actual Core fixture",
+    "runtime": "not_run"
+  }
 }

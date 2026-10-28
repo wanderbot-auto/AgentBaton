@@ -7,3 +7,17 @@ Prepare finite scoped HTTP read/plan-store/cancel/advance, private authenticated
 Coordinate authoritative Wire/DTO/real fixture with Core/UI authors. Full future acceptance requires actual generated ACP Work→fresh SHA/FD candidate→approved deterministic Validate on exact current producer→private exact Owner criterion decision→dependent Summary→all required exact-version graph criteria→durable TaskAccepted. Integrity/schema/command success alone never substitutes for semantic acceptance. Preserve failed drift/unknown-stop/cancel/ledger/CAS/rejection/exact-key histories, shared cumulative limits and original source files. Root supplies frozen schema12 binary+composedUI; only then implement/run the full driver with exclusive actual outputs and screenshot inspection. Linux/browser/generated protocols, private Owner fixture and OS Native/live Provider proof remain distinct.
 
 Current preparation intentionally has no executable full graph driver and no successful graph/acceptance path. --self-check runs only pure outgoing boundary cases. Runtime invocation records pending_dependencies/exit2 before any daemon/provider/listener. Need real Core fixture/protocol and TaskAccepted evidence, not guessed DTO or SQL rows, before connecting that driver.
+
+## Minimal real-plan candidate sent to Core for confirmation
+
+This is a schema-derived proposal, not stored/validated/executed evidence. The current GoalPlan contract requires every Connection node to emit outputs, and host_policy adds goal-owner-review to every approved output. Therefore a four-node Work→Validate→Owner→Summary cannot silently accept the Summary output. Proposed minimal honest graph is five nodes:
+
+| Node | Executor / inputs | Required dependencies and result |
+| --- | --- | --- |
+| W Work | Fixed approved connection; exact approved external input | report output; all rules from its scoped contract |
+| V Validate | Exact approved Validator rule; W report with candidate_for_validation=true | depends W; advisory_read_only; no output/write_set; required_validators exactly the rule |
+| O1 Owner | goal-owner-review; W report candidate_for_validation=true | depends W+V; readonly/no output; exact Owner criterion/current candidate+validation refs |
+| S Summary | Same fixed connection; W report candidate_for_validation=false | depends W+V+O1; distinct summary output with full scoped contract |
+| O2 Owner | goal-owner-review; S summary candidate_for_validation=true | depends S; readonly/no output; required Summary acceptance remains explicit |
+
+Report may carry a truly native-approved integrity/data definition, Summary only its required Owner rule; deterministic success still goal_acceptance=false. Same workspace/identity/host/capabilities/no recipients, bounded parallel1 and cumulative budgets retain any real bootstrap consumption. Actual source-policy creation must come from a genuine generated owned producer/Native approval, never fake Task/attempt/SQL or reuse of a legacy one-shot policy as execution authority. Core must confirm actual graph scheduler/criterion mapping and budget charging before this becomes a concrete runtime fixture. No new DSL or product implementation is added here.
