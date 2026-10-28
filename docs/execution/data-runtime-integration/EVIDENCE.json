@@ -312,5 +312,30 @@
       "assets/index-Dhlya2zb.js": "b9b2307b9d40b5e8a34a142a4565148e7c832cbf3e3c4093931e866782232ae0"
     },
     "scope": "oneCSSdeclaration; Rootactual39/28 newassetset; Rust/source and UI JS unchanged; fresh exactMacCI pending"
+  },
+  "dependency_boundary": {
+    "goal_head": "bf67629f7911531fec52ec31e59c9508f814f9fd",
+    "goal_pr": 13,
+    "product_run": 40652731429,
+    "environment_run": 40652731215,
+    "actual_environment": "3success; Productpending, no merge",
+    "data_pr": 14,
+    "data_base": "codex/goal-planning-integration",
+    "data_remote_at_update": "822c3bb46c8ec8ba506e7682b07e2a1384ed0674",
+    "new_local_code": "0197b01 (plus current proof docs), no new Core/UI runtime source beyond reviewedCSS25e9",
+    "composed_workflow": "exact Goalbf workflow plus one reviewed fixedData command, byte-inverse verified",
+    "infrastructure_checks": {
+      "Python": 34,
+      "Node": 4,
+      "static_infra": "passed",
+      "design": "passed",
+      "Bootstrap": 93
+    },
+    "infrastructure_log_sha256": {
+      "node-final.log": "0d41e537f99fda86e0d3738a880ab44ad8166b6b91047969f46b9a608a754f33",
+      "infrastructure-tests-final.log": "31060265fa655280bab0c749fef9c7fefaec04a0e07f871cdb66e03f4d7ebf7d",
+      "static-infrastructure-final.log": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "design-final.log": "a373e2073eff8ff94ea8e5aced4392a64577d2d8582aaafaf167aaca5cf614e4"
+    }
   }
 }

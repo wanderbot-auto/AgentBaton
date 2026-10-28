@@ -2254,7 +2254,9 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/sidebar-project-overflow/EVIDENCE.json",
+        "docs/execution/sidebar-project-overflow/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
@@ -2262,7 +2264,12 @@
       "verification_refs": [
         "apps/desktop/src/App.test.tsx"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "sidebar_layout_contribution": {
+        "source": "25e9fbeda9fab2043f5b167fea86fc7e48d5a8d3",
+        "validation": "author39+Rootindependent39 with actual generated-project IPC/28PNG each; allfour viewport/sidebar metrics passed",
+        "scope": "oneCSS declaration; complete project name/actions retained; current macOS validation pending; full requirement remains partial"
+      }
     },
     {
       "id": "AB-UX-002",
@@ -2410,7 +2417,9 @@
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/sidebar-project-overflow/EVIDENCE.json",
+        "docs/execution/sidebar-project-overflow/INDEPENDENT_VERIFICATION.json"
       ],
       "limitations": [
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending.",
@@ -2421,7 +2430,12 @@
         "crates/core/tests/storage.rs",
         "apps/desktop/src/event-window.test.ts"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "sidebar_layout_contribution": {
+        "source": "25e9fbeda9fab2043f5b167fea86fc7e48d5a8d3",
+        "validation": "author39+Rootindependent39 with actual generated-project IPC/28PNG each; allfour viewport/sidebar metrics passed",
+        "scope": "oneCSS declaration; complete project name/actions retained; current macOS validation pending; full requirement remains partial"
+      }
     },
     {
       "id": "AB-UX-007",
