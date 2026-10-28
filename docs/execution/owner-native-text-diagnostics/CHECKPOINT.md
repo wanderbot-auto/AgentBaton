@@ -1,0 +1,7 @@
+# Checkpoint
+
+Branch `codex/owner-native-text-diagnostics`, source `7a13cddef4316d520361071ff5e2a263ea058580`, base `0aa20c968d493cad895e4a3853bdf106d6b54acf`. Author evidence is `/workspace/.onboarding/owner-native-text-diagnostics`; exact commands/results and source hashes are recorded in EVIDENCE.json. Only the two test-harness Rust files and Root-authorized optional dependency/lock root entry changed.
+
+Retained failure subject: Product `40761824261`, ARM job `123075460314`, actual checkout `5caecb5f9945b5fdb548f0e071a78e2d97537403`. Bootstrap was ready; the 92-byte canonical socket and schema12/sequence8/19-zero baseline are separate from the failed Owner flow. Initial Cancel observation rejected non-unique/missing exact title/message before controller validation, screenshot, database permit or click. Its report did not capture actual strings/classes/counts. The ARM expected formatter message is 3132 bytes; Intel's separately reported message is 3136 bytes. Neither length identifies the native failure's cause, and the two fixtures/results are not interchangeable.
+
+Next: Root assigns an independent reviewer and a short exclusive Native Cargo lease for six controller tests/appropriate Clippy. Actual Mac compilation and the diagnostic sheet capture require a new exact CI candidate. Do not alter acceptance to contains/partial/multiple matches, fake a sheet or permit, or turn failed cleanup into success. No Cargo lease is owned, no background process is promised, and no remote or CI actions were taken.
