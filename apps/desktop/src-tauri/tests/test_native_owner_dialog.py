@@ -24,7 +24,7 @@ def pending():
                 'snapshot': {'intent': {'project_id': 'project', 'workspace_id': 'workspace', 'connection_id': 'connection',
                                         'max_attempts': 1, 'max_concurrency': 1, 'max_duration_ms': 1000},
                              'refs': {'workspace_identity': {'canonical_root': '/fixture', 'device': 1, 'inode': 2}, 'connection': {'revision': 2}}}}
-    value = {'read_only': True, 'schema_version': 12, 'sequence': 9, 'proposal': proposal,
+    value = {'read_only': True, 'schema_version': 13, 'sequence': 9, 'proposal': proposal,
              'proposal_result': None, 'grants': [], 'events': [], 'counts': COUNTS.copy()}
     return proposal, value
 
@@ -63,7 +63,7 @@ class OwnerRunnerControls(unittest.TestCase):
 
     def test_real_readonly_sqlite_observation_rejects_authority_change(self):
         daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
-        self.assertTrue(daemon.is_file(), 'Provide the actual frozen/schema12 batond; never substitute test DDL')
+        self.assertTrue(daemon.is_file(), 'Provide the actual frozen/schema13 batond; never substitute test DDL')
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
             with runner.bootstrap(daemon, output) as fixture:
@@ -74,12 +74,25 @@ class OwnerRunnerControls(unittest.TestCase):
                     actual.execute('PRAGMA query_only=ON')
                     tables = {row[0] for row in actual.execute("SELECT name FROM sqlite_master WHERE type='table'") if row[0].startswith('goal_')}
                     self.assertEqual(tables, set(runner.GOAL_TABLES))
+                    factory_tables = {row[0] for row in actual.execute("SELECT name FROM sqlite_master WHERE type='table'") if row[0].startswith('factory_')}
+                    self.assertEqual(factory_tables, set(runner.FACTORY_TABLES))
                     clone = output / 'real-core-copy'
                     clone.mkdir()
                     with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
                         actual.backup(copy_db)
                 self.assertEqual(set(observed['counts']), set(runner.ZERO_TABLES))
-                self.assertEqual(len(observed['counts']), 19)
+                self.assertEqual(len(observed['counts']), 28)
+                for table in runner.FACTORY_TABLES:
+                    missing_copy = output / ('missing-' + table)
+                    missing_copy.mkdir()
+                    with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as actual:
+                        actual.execute('PRAGMA query_only=ON')
+                        with sqlite3.connect(missing_copy / 'baton.sqlite3') as copy_db:
+                            actual.backup(copy_db)
+                    with sqlite3.connect(missing_copy / 'baton.sqlite3') as copy_db:
+                        copy_db.execute('DROP TABLE ' + table)
+                    with self.assertRaisesRegex(sqlite3.OperationalError, table):
+                        runner.database(missing_copy, proposal['id'])
                 # Negative controls mutate only an isolated backup of the REAL
                 # migration DB. The running Core database/schema is untouched.
                 with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
@@ -87,10 +100,10 @@ class OwnerRunnerControls(unittest.TestCase):
                 self.assertIsNotNone(runner.pending_error(runner.database(clone, proposal['id']), proposal, observed['sequence']))
                 with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
                     copy_db.execute('DELETE FROM goal_graph_jobs')
-                    copy_db.execute('PRAGMA user_version=13')
+                    copy_db.execute('PRAGMA user_version=14')
                 self.assertIsNotNone(runner.pending_error(runner.database(clone, proposal['id']), proposal, observed['sequence']))
                 with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
-                    copy_db.execute('PRAGMA user_version=12')
+                    copy_db.execute('PRAGMA user_version=13')
                     copy_db.execute('DROP TABLE goal_plan_heads')
                 with self.assertRaisesRegex(sqlite3.OperationalError, 'goal_plan_heads'):
                     runner.database(clone, proposal['id'])
@@ -102,7 +115,7 @@ class OwnerRunnerControls(unittest.TestCase):
     def test_exact_root_grant_commit_event_and_reply_bindings_are_required(self):
         proposal, after, response = approved()
         self.assertIsNone(runner.approved_error(after, proposal, 9, response))
-        for field, wrong in [('counts', {}), ('sequence', 10), ('schema_version', 13), ('proposal_result', {}), ('grants', [])]:
+        for field, wrong in [('counts', {}), ('sequence', 10), ('schema_version', 12), ('proposal_result', {}), ('grants', [])]:
             changed = copy.deepcopy(after)
             changed[field] = wrong
             self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response), field)
@@ -120,6 +133,32 @@ class OwnerRunnerControls(unittest.TestCase):
             changed['events'][0]['sequence'] = first
             changed['events'][1]['sequence'] = second
             self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response))
+
+    def test_schema13_requires_original19_plus_all_nine_factory_zero_tables(self):
+        proposal, before = pending()
+        _, after, response = approved()
+        self.assertEqual(len(runner.ZERO_TABLES), 28)
+        self.assertEqual(len(runner.FACTORY_TABLES), 9)
+        self.assertEqual(set(runner.ZERO_TABLES), {'attempts', 'sessions', *runner.GOAL_TABLES, *runner.FACTORY_TABLES})
+        for schema in [11, 12, 14, 13.0, True, '13', None]:
+            changed = copy.deepcopy(before); changed['schema_version'] = schema
+            self.assertIsNotNone(runner.pending_error(changed, proposal, 9), schema)
+            changed = copy.deepcopy(after); changed['schema_version'] = schema
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response), schema)
+        for table in runner.ZERO_TABLES:
+            for wrong in [1, -1, None, True, False, '0', 0.0]:
+                changed = copy.deepcopy(before); changed['counts'][table] = wrong
+                self.assertIsNotNone(runner.pending_error(changed, proposal, 9), table)
+                changed = copy.deepcopy(after); changed['counts'][table] = wrong
+                self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response), table)
+            changed = copy.deepcopy(before); del changed['counts'][table]
+            self.assertIsNotNone(runner.pending_error(changed, proposal, 9), table)
+            changed = copy.deepcopy(after); del changed['counts'][table]
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response), table)
+        for value in [before, after]:
+            value['counts']['unknown_factory_authority'] = 0
+        self.assertIsNotNone(runner.pending_error(before, proposal, 9))
+        self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
 
     def test_foreign_approval_and_expanded_scope_are_never_accepted(self):
         proposal, after, response = approved()
