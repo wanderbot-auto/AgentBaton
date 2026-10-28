@@ -1,0 +1,9 @@
+{
+  "archive": "CI_E3CC_INITIAL_EVIDENCE.tar.gz",
+  "bytes": 74391,
+  "sha256": "bec43ec1472a65341552a2391e7895a4f11755944cf4c80d53cdb6a820deebcf",
+  "members": 23,
+  "all_regular_member_path_hash_size_roundtrip_verified": true,
+  "original_manifest_sha256": "a771eee9dcfb607c33230559b96c3c309aa6acfa4f600c4fe9c08481f609956d",
+  "scope": "independent earlyEnvLinux/ARM actualsignedcheckout4a9; partial jobs pending asoriginalstage, not final Product green"
+}

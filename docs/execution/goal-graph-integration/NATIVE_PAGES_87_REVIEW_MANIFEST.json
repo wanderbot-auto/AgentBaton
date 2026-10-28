@@ -1,0 +1,262 @@
+{
+  "revision": "87ec9ad8647b549311fc90077e9757bc257c4b70",
+  "baseline": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+  "created_at_utc": "2026-10-28T22:06:09.550363+00:00",
+  "scope": "finite independent Native presentation static and Python mirror review; no Cargo/daemon/target/remote/source mutations",
+  "disposition": "NP87-01 P2 open: U061C bidi control not escaped; no other new must-fix within scope",
+  "independent_results": {
+    "presentation_tests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "extra_vectors": 11,
+    "boundary_tests": {
+      "passed": 1,
+      "failed": 1
+    },
+    "fixed_git_diff_check": 0,
+    "provenance_check": 0
+  },
+  "files": [
+    {
+      "path": "REVIEW.md",
+      "bytes": 11354,
+      "sha256": "fdf12232867ae5984ce87433ef80126a1e547e8fb2bfec9ac1363656a4302818"
+    },
+    {
+      "path": "author-daemon-hash-check.json",
+      "bytes": 235,
+      "sha256": "3de7a34a4b97737f1d2d963f69d89cc3ba95b77466a86e9ae8a65f5259aba10d"
+    },
+    {
+      "path": "bidi-control-repro.json",
+      "bytes": 501,
+      "sha256": "9f1ebe1738be3d86ca14f594475bb565989f1c432e948169f82ca1d20808f018"
+    },
+    {
+      "path": "boundary.stderr",
+      "bytes": 1260,
+      "sha256": "e5952e7b24beb0c847e3eb6682346f766687ecfbce731b2869eee96f3e22c807"
+    },
+    {
+      "path": "boundary.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "boundary_controls.py",
+      "bytes": 1182,
+      "sha256": "f84b5dcf1d15d7906532ca770d64863c0de1676f28fe9c308b632b66c3e4b560"
+    },
+    {
+      "path": "commands.json",
+      "bytes": 1262,
+      "sha256": "b938feb56af4c3f80b51446d8bbfa35366f46d500e773e51d0995323602b171a"
+    },
+    {
+      "path": "controls.stderr",
+      "bytes": 804,
+      "sha256": "4404f648a639f077dc65f7b4cbaf065641e11d115904d30d2cfbf88d4a2f17a7"
+    },
+    {
+      "path": "controls.stdout",
+      "bytes": 62,
+      "sha256": "fabb7375aba2419d9bbe1230361ce796a8f43f4d077ac0b2f73b4ff18a54946c"
+    },
+    {
+      "path": "evidence/MANIFEST.json",
+      "bytes": 3971,
+      "sha256": "41894d15b50e793d2059b1291cf0c993dedc5b5d94b758faa086c04627a177c4"
+    },
+    {
+      "path": "evidence/SOURCE_MAP.json",
+      "bytes": 11178,
+      "sha256": "5141ac5f3c9daef7446a4b95d48fd7f82e535ddd940bebe16aaadb65d9fb422a"
+    },
+    {
+      "path": "evidence/actual-e3cc-reversible-pages.json",
+      "bytes": 8035,
+      "sha256": "68b57c4e9e1f145fd2509e45094a5708074e76669a2aad25a757b4a46a20cb43"
+    },
+    {
+      "path": "evidence/actual-e3cc-utf8-reversible-pages.json",
+      "bytes": 7445,
+      "sha256": "3ec96467bf3374b1a2b813da71a286d233831c542f6d93023bcc23ec18eba7fa"
+    },
+    {
+      "path": "evidence/arm-cancel-sheet-diagnostic.json",
+      "bytes": 15606,
+      "sha256": "face607b15d8763c5cd023ad50f415aed326a6fcc1549f844c864eb5259ac78d"
+    },
+    {
+      "path": "evidence/arm-fixture.json",
+      "bytes": 6659,
+      "sha256": "ad7e7f0e55aa17431181191d7aa3816303a23940851c01f347bb79ab1c989b3c"
+    },
+    {
+      "path": "evidence/intel-cancel-sheet-diagnostic.json",
+      "bytes": 15617,
+      "sha256": "d4fd9e006b62f01e1b65712f79a0857dc7999ab3e98cf374825902e72966a189"
+    },
+    {
+      "path": "evidence/intel-fixture.json",
+      "bytes": 6667,
+      "sha256": "e34dee7791076c5b99751cf72f3fb4840d41d5aa46f20aa11789637682b0af4e"
+    },
+    {
+      "path": "evidence/mac-ARM_REVIEW.md",
+      "bytes": 7412,
+      "sha256": "24ce230817e75814c3d47e8ebf2623a9bc41f08f88aae900cb9595c33b519f26"
+    },
+    {
+      "path": "evidence/mac-INTEL_REVIEW.md",
+      "bytes": 7420,
+      "sha256": "9063baf3d0b613992c72820a443c76abddce320799eb80d6cfc83df5092b537c"
+    },
+    {
+      "path": "evidence/mac-MANIFEST.json",
+      "bytes": 19600,
+      "sha256": "3bf875362292cb508706f9ed976847f77726a547ba4dc18fedde369f614f2fb7"
+    },
+    {
+      "path": "evidence/python-final.log",
+      "bytes": 118,
+      "sha256": "dcadd10785c143de7543fe943bae36812ab813ca260208dff293be0a2ab4b44c"
+    },
+    {
+      "path": "evidence/python-first.log",
+      "bytes": 3047,
+      "sha256": "88bd4ebdfddccde5f0594ed2f93787b9c804452c113d768794dc88aa7963db1d"
+    },
+    {
+      "path": "evidence/python-utf8-final.log",
+      "bytes": 118,
+      "sha256": "5db0b75fc731c8451b7141033681bbee1f841f40d0b611c5aecc44ed7ce74aaf"
+    },
+    {
+      "path": "fixed-diff-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fixed-diff-check.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "independent-controls.json",
+      "bytes": 1864,
+      "sha256": "85211281b2fcdd6991ea8cd7f74d8781bf9625aa4c0e8da1f4afbb92f0705d9a"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 2702,
+      "sha256": "19078a61973e770e7ca0ed71a3cdd10dad5a96294ec6959215f9d945a0bc3fbe"
+    },
+    {
+      "path": "provenance.json",
+      "bytes": 21921,
+      "sha256": "79847816559c26332c862f29060104906443d7b414fab3c9fc8f2dba47152285"
+    },
+    {
+      "path": "provenance.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "provenance.stdout",
+      "bytes": 144,
+      "sha256": "57977f6bdcd3395678b3a1884cb6483fa3adcaecedb062ba7033b7aa9ea930b6"
+    },
+    {
+      "path": "run_static_controls.py",
+      "bytes": 1752,
+      "sha256": "28a34b430d91a403abdb4248ab10634d1f2a0b118d33dc1fae55b4024890bff0"
+    },
+    {
+      "path": "separator-controls.json",
+      "bytes": 411,
+      "sha256": "d84b36781829564895f3ba3cd54a949b862cf1b6149cd838d821c845e5b2584d"
+    },
+    {
+      "path": "source/AGENTS.md",
+      "bytes": 6137,
+      "sha256": "623b044437d8e0caa4174e7dd7ac3fef6597c34a67e49bc0a22b9f58ad2c05ab"
+    },
+    {
+      "path": "source/apps/desktop/src-tauri/src/approval.rs",
+      "bytes": 133900,
+      "sha256": "9e5e68431d43a3435f539bac465af998fe300457984ea953a2d402c982399983"
+    },
+    {
+      "path": "source/apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs",
+      "bytes": 8086,
+      "sha256": "c00d4d3a12d8638dde809fbeec05c2bd42b03f0c6177a43e5b653dbdccbf6b19"
+    },
+    {
+      "path": "source/apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs",
+      "bytes": 29205,
+      "sha256": "62fc8cd5ec04e4a774090a17a5018e0e89d3a5aa4830702d4f5320ab1cd6180a"
+    },
+    {
+      "path": "source/apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs",
+      "bytes": 760,
+      "sha256": "553b4bd415dd6a794256bf02d4f460ec0f276660ee25eb87472e33c30ab87d19"
+    },
+    {
+      "path": "source/apps/desktop/src-tauri/src/lib.rs",
+      "bytes": 44420,
+      "sha256": "b1889f27230fa1612fd4fac3fa5210d15dbc54ac3506dab7b8b8637dc6c28c0d"
+    },
+    {
+      "path": "source/apps/desktop/src-tauri/src/native_parent.rs",
+      "bytes": 24572,
+      "sha256": "52b58f021c3d5baf4a9551d931d236aaf3206b925bbfc8ccce77aa197ed328d5"
+    },
+    {
+      "path": "source/apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "bytes": 23990,
+      "sha256": "201fb5460f53f9b90ae88ef96a90e38493dba643ce089b997bd422159c4b1a8e"
+    },
+    {
+      "path": "source/codex/GOAL.md",
+      "bytes": 1723,
+      "sha256": "cbb97a4c11f83cd26ca4f0c2f38c0d9c03d8a11b4cfb8eaadda49f132e27405e"
+    },
+    {
+      "path": "source/codex/MASTER_PROMPT.md",
+      "bytes": 6781,
+      "sha256": "e258ced6b4b65eb631e675c781b1b2cd89aa1829c1e9e59e58c8114b4d52c958"
+    },
+    {
+      "path": "source/codex/RUNBOOK.md",
+      "bytes": 6054,
+      "sha256": "c3d9df1ab8e1791fdbf376b91989d2b61307213cb0b5e94805247c24e45f82aa"
+    },
+    {
+      "path": "source/docs/execution/OWNER_INBOX.md",
+      "bytes": 2985,
+      "sha256": "094a77884272d0919bece0654237419f2d226a9245e7d826e0891a8f661f811f"
+    },
+    {
+      "path": "source/docs/execution/launch/APPROVAL.md",
+      "bytes": 3389,
+      "sha256": "51aee038d99545f3c6899ee0424c7717124464c80e254cb35487569972dedbc8"
+    },
+    {
+      "path": "source/infra/execution-gate.json",
+      "bytes": 1786,
+      "sha256": "313c96753ddd8f89d8a69e58428f834596f3059b0d0a41996dc1059ea8170e7e"
+    },
+    {
+      "path": "source/scripts/native-owner-dialog-smoke.py",
+      "bytes": 32480,
+      "sha256": "efad687e9831e8f7705996960c421f737661e062e32858f50fda67710bdbbccb"
+    },
+    {
+      "path": "verify_provenance.py",
+      "bytes": 3988,
+      "sha256": "6c1291646efd641e4a0175218618ee9a6a7a0d22c2298704d1c62a2ff741c0c3"
+    }
+  ]
+}

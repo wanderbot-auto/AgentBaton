@@ -1310,6 +1310,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -1489,6 +1497,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -1774,6 +1790,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -1962,6 +1986,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -2126,6 +2158,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -2307,6 +2347,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -3499,6 +3547,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -3515,7 +3571,16 @@
         "native_x86_64": "not_run"
       },
       "evidence": [],
-      "limitations": []
+      "limitations": [],
+      "verified_slices": [
+        {
+          "slice": "shipping lossless bounded Native display pages and cancellation/final confirmation guards",
+          "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
+          "evidence": "docs/execution/goal-graph-integration/NATIVE_PAGES_ROOT_IMPORT.json",
+          "dimension": "Linux62lib+8controller/fmt/clippy; Python20 andindependentcontrols; currentMacGUI not_run",
+          "status": "partial"
+        }
+      ]
     },
     {
       "id": "AB-SEC-004",
@@ -5281,6 +5346,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -5462,6 +5535,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -5914,6 +5995,13 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "shipping lossless bounded Native display pages and cancellation/final confirmation guards",
+          "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
+          "evidence": "docs/execution/goal-graph-integration/NATIVE_PAGES_ROOT_IMPORT.json",
+          "dimension": "Linux62lib+8controller/fmt/clippy; Python20 andindependentcontrols; currentMacGUI not_run",
+          "status": "partial"
         }
       ]
     },

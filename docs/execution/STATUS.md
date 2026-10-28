@@ -1,5 +1,15 @@
 # AgentBaton 执行状态
 
+## PR16 第五轮 CI 已结束：双 Mac 实际诊断；完整 Native 分页修复待新 CI
+
+准确远端head e3ccf86、实际检出4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa/tree144ab4e890c06b537c018b609016268513051a56；Product40771243767/Environment40771243761最终5成功2MacOwner失败。Linux Rust593唯一外层+7docs、Node564/37、12实际browser/UnixIPC114检查70PNG均有本轮原件；Root留证自核与早期独立Git绑定分开。双Mac新AppKit诊断确已编译执行，57库/26readonly/6controller和actualreadonly4WebCrypto通过；Owner仍首Cancel观察前失败，完全没有ready/permit/click/afterDB/new installer。独立artifact逐字比较两架构正文分别2880/2884对expected3132/3136，各少252B行首空白；层级原因不猜。两sheet520×1329/onscreenfalse，完整windowPNG不等于屏幕完整可见。默认release/audit/package均跳过；不借旧包或normalized正文求绿。原日志、ZIP、SHA、每架构截图、完整diagnostic及firstcause保存在CI_E3CC_*三归档。
+
+已在本功能分支合成真正生产CallerOwner修复407ab9e（组合607d2c7）：完整原消息以UTF8可读、控制字符可逆转义的短行分页呈现，所有页后仍需独立FINAL确认；晚页Cancel零finalize，同caller/lifecycle/私有proposal-frame/原16KiB与1MiB范围/500ms/4s/75s/85s/DBpermit→真实click守卫保留。不是截断、部分匹配或renderer确认。旧87独审发现061C遗漏，原失败保留，新407涵盖12BidiControl，独审source/Python闭合。作者Python20含原3真实40322bootstrap通过；Root新407实际62库+8controller=70、fmt/alltargetsClippy通过，源码前后不变。旧87的69单列，不重复加总；当前407 AppKit/双Mac真正新呈现仍未运行。
+
+Root安全编译对shareddebug tools先硬链保存原inode，锁定Tauri资源仅stage已知70a工具，验SHA后还原原081a/89eb哈希及inode，3本人symlink清理；本轮纯Native测试不运行这些工具。之前Factory冻结旧fc5/906误标053的sidecarcopy事件已独立留证并纠正；不再凭可变target/debug推断源码。Native Cargo租约已归Core。
+
+另行Factory分支c581e0f保留Core0ef/25作者用例与有限静态复核、 earlierCore053 Native106/Node643及新真实normal失败2checks/2PNG/40events。子任务在原5s预检预算内未启动并保持unknown，完整矩阵未通过；privateinstalled compactCLI/失败只读留证与Owner大hash offload正在分别修复，未扩权限。Factory/schema13不混入PR16。完整130需求/WP01–14仍开放；main最新fetch a1be94、OWNER001/002 ACK无003。当前PR16仍draft，未formalApprove/merge；先最终组合记录审查再一次normalpush/准确7CI，仍需真实双MacOwner和开发包通过。以下保留历次检查点，不作当前通过结论。
+
 ## PR16 第四轮准确 CI：五成功、双 Mac Owner 文本观察失败；诊断已独审合成
 
 远端被测试head0aa20c968d493cad895e4a3853bdf106d6b54acf，实际Environment及Product检出5caecb5f9945b5fdb548f0e071a78e2d97537403 / tree1943596e0bd12177d852117dab86c81ca30e6858；Product40761824261、Environment40761824141全部结束。Environment3、Rust、UI成功，ARM123075460314与Intel123075460377均在Actual native Owner Grant dialog步骤失败。两Mac的Core/native、实际readonly WebView、四处WebCrypto/生命周期已成功，但默认桌面release构建/审计/双包均跳过；当前没有新安装包，最新有效开发交付仍PR15。PR16仍draft、未formalApprove/未合入，main最近fetch仍a1be94d，OWNER001/002 ACK无003。

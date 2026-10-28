@@ -1,0 +1,93 @@
+{
+  "scope": "stage1 only; incomplete jobs explicitly pending",
+  "files": {
+    "FINAL_232_INTEGRATION_REVIEW.md": {
+      "sha256": "13b8149ea57dacdd11b43fde554d208c418bc26fce18b6eefb2e977100000046",
+      "bytes": 10511
+    },
+    "NATIVE_TEXT_SOURCE_COMPOSITION.json": {
+      "sha256": "36cf364c45c3c9d2282f9351630fda88af68ef9c1b6ce4c197ff161b63fac20d",
+      "bytes": 1399
+    },
+    "STAGE1_REVIEW.md": {
+      "sha256": "a9565cdf8aeb5f328cb2d3e003f80e2fefdb9f27a79dfd18d41aba8c1c078579",
+      "bytes": 2190
+    },
+    "environment-arm.log": {
+      "sha256": "86c96a4f2027c7fc4b82fc49176466ac3083beb6be63488a08cee46397abf4c4",
+      "bytes": 44321
+    },
+    "environment-arm.log.request.json": {
+      "sha256": "d33e9123ec35ca72f8ad606c91aba1864b8843b82970d99210f49468696641c8",
+      "bytes": 289
+    },
+    "environment-jobs-initial.json": {
+      "sha256": "2ae2b8c11ff80324d4ec96ad1f654f9ba6819e5186e3b0041f2bc3eda88c5d2f",
+      "bytes": 10362
+    },
+    "environment-jobs-stage1.json": {
+      "sha256": "c0f75bc21b4f8f135bf2e55d1efbb7b8bdc9352aae588b72ed88c5c0e4646d7a",
+      "bytes": 10956
+    },
+    "environment-jobs-stage1.json.request.json": {
+      "sha256": "cdc38a30bc0d706e6c2ca7c95a91e01719ea64b3768c22785e29ee6d39fd0e30",
+      "bytes": 301
+    },
+    "environment-linux.log": {
+      "sha256": "588684f34e27c113447a72bb4f53fc1193716b6520608f709926f797eba3f488",
+      "bytes": 42555
+    },
+    "environment-linux.log.request.json": {
+      "sha256": "8babfaf8870c17bab9b161ade56abe75b32733062708914cfa7de1271e898fe9",
+      "bytes": 289
+    },
+    "expected-source/apps/desktop/src-tauri/Cargo.lock": {
+      "sha256": "4fd256434d2bb3c0903919bc6474f8a3712be2a27eab1651d42e63f7b876a93c",
+      "bytes": 112700
+    },
+    "expected-source/apps/desktop/src-tauri/Cargo.toml": {
+      "sha256": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49",
+      "bytes": 1674
+    },
+    "expected-source/apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs": {
+      "sha256": "4deff52ca01c91f10958ee0ef833f1aab09d0ccaf52c349e03e67fd2a87d2c5e",
+      "bytes": 6203
+    },
+    "expected-source/apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs": {
+      "sha256": "bb78a3201ed730a6eb87983fc0a91ae1e93081ad4de103949a1b0faa41018f39",
+      "bytes": 27763
+    },
+    "merge-candidate-api.json": {
+      "sha256": "bfe8de8086500dab2e7653798007feb9ae1e7628d0d2187ab7f2457c60bbfe54",
+      "bytes": 2660
+    },
+    "merge-candidate-api.json.request.json": {
+      "sha256": "38a49f912a663593e0eced92e19ccffa3a1cfe06063cb89515305fdffa396f45",
+      "bytes": 310
+    },
+    "merge-commit.raw": {
+      "sha256": "023067f27ccf0acab058cc9bf662f055cce17e8c2466c6c6b7bafe27eaa43826",
+      "bytes": 1175
+    },
+    "pr-initial.json": {
+      "sha256": "d2a9fb8e9a180b9bbc082ca810f68af8de6e3dededb6b34d4468791643461241",
+      "bytes": 19129
+    },
+    "product-jobs-initial.json": {
+      "sha256": "875b1637f43188c3f6d06c4c15e5e44618f110f1ea1820d98c57f327fb6f0290",
+      "bytes": 13081
+    },
+    "product-jobs-stage1.json": {
+      "sha256": "bcb33df9595bcdff67eb83c184fd8904bc3b8ac8b4561c65818c141fdbe6501c",
+      "bytes": 13167
+    },
+    "product-jobs-stage1.json.request.json": {
+      "sha256": "30802dbf4ca68454b2a3bfd73dd7d46ffb74daf157c536e1394d3b0f3ed3f21b",
+      "bytes": 301
+    },
+    "stage1-verification.json": {
+      "sha256": "f3fb7c3738dbcc1b3c0fe503d3d64b9fc60707322dc79aa5daa68eac9fcbacff",
+      "bytes": 4020
+    }
+  }
+}

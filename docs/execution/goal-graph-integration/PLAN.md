@@ -25,3 +25,7 @@ Only one Cargo cache writer at a time; retired completed main cache is not recre
 2. 诊断7a13不降低原exact/visible/parent/DBpermit与超时门槛，Root6纯Controller已过、AppKit仍未编译。完成源组合/记录/STATUS-only93项独审后仅一次push，实际新Mac必须保存actualclass/text/counts与ownsheetPNG再诊断原因。
 3. 新候选仍需全7、真实Owner/默认release审计/双开发包和保护规则才能合入；diag拒绝本身不是修复成功。无formalApprove或生产权限。
 4. 分离Factory继续Data privateWitness/internalTicket、混合共享预算、取消/期限/未知/多child回归与独审；UI/Native13Rust及schema13真实readonly/IPC/OS验收待组合，不将已知partial当完整130完成。
+
+## Native presentation candidate407 after actual e3cc failures
+
+Fixed production407/author1864 composed607d2c7; exact e3cc CI5success2MacOwnerfail retained in CI_E3CC_* archives, both actualtext252B leadingwhitespace difference and offscreen1329px height, no click/after/package. Central bounded lossless UTF8 pages+Final genuinely shipping; P2missing061C old87 preserved and source/Pythonclosed at407. Root407 Linux62+8=70/fmt/clippy0, original69 separate; correctCore70a resources macroonly/shareddebug081a89eb inode+SHA restoration explicitly proved, no currentMac acceptance. Native author+oldfailedreview+fixedreview+Rootlogs allportable. Full130/gates/main/inbox unchanged. Next finalstatic/composition review then one branchpush/all7exactCI/defaultreleaseaudit and dualrealinstallers; no formalApprove/merge before gates.

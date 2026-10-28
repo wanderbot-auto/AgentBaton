@@ -1,0 +1,58 @@
+{
+  "archive": "NATIVE_PAGES_AUTHOR_EVIDENCE.tar.gz",
+  "bytes": 13055,
+  "sha256": "19f335cf9c294005dbecb613d2ca0acb6ae02e08e81de0dacd2b358a7219f0a4",
+  "regular_members": 11,
+  "all_member_path_hash_size_roundtrip_verified": true,
+  "files": {
+    "MANIFEST.json": {
+      "bytes": 3971,
+      "sha256": "41894d15b50e793d2059b1291cf0c993dedc5b5d94b758faa086c04627a177c4"
+    },
+    "SOURCE_MAP.json": {
+      "bytes": 11178,
+      "sha256": "5141ac5f3c9daef7446a4b95d48fd7f82e535ddd940bebe16aaadb65d9fb422a"
+    },
+    "python-bidi12-final.log": {
+      "bytes": 1152,
+      "sha256": "72d21014913955ba3ff02bec42c22b99d7c4da4c50d6288413a86974487be59a"
+    },
+    "BIDI12_SOURCE_MAP.json": {
+      "bytes": 11178,
+      "sha256": "b36922d98be94aa5df25b067aeae9c8f72ce01012180d266699835039960e4dc"
+    },
+    "actual-e3cc-reversible-pages.json": {
+      "bytes": 8035,
+      "sha256": "68b57c4e9e1f145fd2509e45094a5708074e76669a2aad25a757b4a46a20cb43"
+    },
+    "python-first.log": {
+      "bytes": 3047,
+      "sha256": "88bd4ebdfddccde5f0594ed2f93787b9c804452c113d768794dc88aa7963db1d"
+    },
+    "actual-e3cc-utf8-reversible-pages.json": {
+      "bytes": 7445,
+      "sha256": "3ec96467bf3374b1a2b813da71a286d233831c542f6d93023bcc23ec18eba7fa"
+    },
+    "python-bidi12-final2.log": {
+      "bytes": 119,
+      "sha256": "8573a7fef5e87e369391c95f64759f5d2359ac5c782e6b2579246e61e92e8afe"
+    },
+    "python-utf8-final.log": {
+      "bytes": 118,
+      "sha256": "5db0b75fc731c8451b7141033681bbee1f841f40d0b611c5aecc44ed7ce74aaf"
+    },
+    "python-final.log": {
+      "bytes": 118,
+      "sha256": "dcadd10785c143de7543fe943bae36812ab813ca260208dff293be0a2ab4b44c"
+    },
+    "BIDI12_MANIFEST.json": {
+      "bytes": 2589,
+      "sha256": "698b08a023d654f83c0052fbd72388fd741363b361f29464df662b48d12e5867"
+    }
+  },
+  "original87_manifest_sha256": "41894d15b50e793d2059b1291cf0c993dedc5b5d94b758faa086c04627a177c4",
+  "final407_manifest_sha256": "698b08a023d654f83c0052fbd72388fd741363b361f29464df662b48d12e5867",
+  "both_104_Rust_Cargo_source_maps_verified_against_fixed_Git": true,
+  "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
+  "scope": "authorPython20 actual40322 bootstrap, oldinitialfailures preserved; initialRustnotrun statements are stagehistorical"
+}

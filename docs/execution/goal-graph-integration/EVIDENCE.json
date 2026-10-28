@@ -327,6 +327,63 @@
         }
       },
       "superseded_for_current_progress": true
+    },
+    {
+      "stage": "e3cc_diagnostic_candidate_before_complete_Native_presentation_repair",
+      "current_at_that_stage": {
+        "source_composition_commit": "c730dd833d3aa916feaab093fdc6d9c5cde6e60f",
+        "source_composition": "NATIVE_TEXT_SOURCE_COMPOSITION.json",
+        "source": "7a13cddef4316d520361071ff5e2a263ea058580",
+        "author_docs": "6be599b9112ae81c77bf027d4e8b1bdd46fd41d1",
+        "imports": [
+          "NATIVE_TEXT_AUTHOR_SOURCE_IMPORT.json",
+          "NATIVE_TEXT_REVIEW_IMPORT.json"
+        ],
+        "root_test": "NATIVE_TEXT_ROOT_RESULT.json",
+        "root_tests_passed": 6,
+        "AppKit_compile_and_Mac_GUI": "not_run",
+        "goal": "obtain bounded actualMac failure observations, no acceptance downgrade or claimed rootcause fix",
+        "new_exact_CI": "not_started",
+        "formal_approve": "not_submitted",
+        "Root_static_validation": {
+          "commands": [
+            "python3 scripts/verify_bootstrap_manifest.py",
+            "python3 scripts/validate_design.py",
+            "python3 scripts/validate_infrastructure.py",
+            "git diff --check"
+          ],
+          "exit_codes": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "registered_files": 93,
+          "only_changed_registered_hash": "STATUS ff1cd019→4ac42f0f",
+          "full_STATUS_SHA256": "4ac42f0fce63ed9f8b797893665bdb7a2f2144ee8777a9d68434cd672ed6fb32",
+          "scope": "records/staticintegrity not newProduct/GUI proof"
+        },
+        "Root_final_record_failure_and_correction": {
+          "initial_staged_diffcheck_exit_code": 2,
+          "cause": "new verbatim controller log trailing blank atEOF",
+          "batch_error": "commit followed newline after nonzero check beforeRootobserved output; preserved15e4 history",
+          "correction": "losslessgzip rawbyte/sha roundtrip, original archived/localraw retained; checker unchanged",
+          "final_check": {
+            "command": "git diff --check 0aa20c968d493cad895e4a3853bdf106d6b54acf 232b53a832b247964510b8660a7231d167fa9c90",
+            "exit_code": 0,
+            "evidence": "FINAL_232_INTEGRATION_REVIEW_EVIDENCE.tar.gz/validation-checks.json",
+            "initial_failed_check_and_15e4_history_preserved": true
+          }
+        },
+        "final_independent_integration_review": {
+          "subject": "232b53a832b247964510b8660a7231d167fa9c90",
+          "report": "FINAL_232_INTEGRATION_REVIEW.md",
+          "report_sha256": "13b8149ea57dacdd11b43fde554d208c418bc26fce18b6eefb2e977100000046",
+          "manifest_sha256": "fa5be5174abe807f0e46267cdf55b6c95397b42a8bda32144c7c7df7feb71883",
+          "import": "FINAL_232_INTEGRATION_REVIEW_IMPORT.json",
+          "scope": "static composition/records only; no source blocker; no new product/Mac success or formal Approve"
+        }
+      }
     }
   ],
   "pull_request": {
@@ -429,61 +486,52 @@
       "sha256": "c7af999705bafbba84da37b42b1826a2b40971486f7e544885e2559270577dd7",
       "scope": "original343 FR01–04+ownedcapture staticclosed; author6IPC+queueunit1 source/log verified, not independently rerun",
       "Data_witness_mixedaccounting_largecapture_cancel_fullregression": "not_verified"
+    },
+    "new_isolated_integration": {
+      "branch": "codex/factory-runtime-integration",
+      "checkpoint": "c581e0f",
+      "source": "Core0ef +UI40b +Native13c8 +harness84ec, separate fromPR16",
+      "verified": "Coreauthor25different cases withfixed0ef staticreview; Native106 earlierCore053 andNode643/41/type/build separate",
+      "actual_browser": "firstnormalfailed2checks2PNG childneverstarted original5s preflight deadline, unknownretained; privatefixturecompactCLI/failurecapture修复中; no cancel/unknown success",
+      "source_tool_provenance": "45sourcehashes/raw081a89eb verified; lateroldfc5/906053label rejected afterTauri sidecarcopy incident; alloriginalfailure/hash/restore evidence kept",
+      "fullFactory": "notaccepted; Ownerheavyhashoffload/mixedledger/fullfaultmatrix inprogress"
     }
   },
   "current_candidate": {
-    "source_composition_commit": "c730dd833d3aa916feaab093fdc6d9c5cde6e60f",
-    "source_composition": "NATIVE_TEXT_SOURCE_COMPOSITION.json",
-    "source": "7a13cddef4316d520361071ff5e2a263ea058580",
-    "author_docs": "6be599b9112ae81c77bf027d4e8b1bdd46fd41d1",
-    "imports": [
-      "NATIVE_TEXT_AUTHOR_SOURCE_IMPORT.json",
-      "NATIVE_TEXT_REVIEW_IMPORT.json"
+    "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
+    "author_docs": "1864e8af46a1fa26bc09f0b7c80d74c5affcd778",
+    "source_composition_commit": "607d2c7f407bc7d7db8c3523e2ed4e23e9a12b1a",
+    "source_map": "NATIVE_PAGES_SOURCE_COMPOSITION.json",
+    "author_import": "NATIVE_PAGES_AUTHOR_IMPORT.json",
+    "independent_reviews": [
+      "NATIVE_PAGES_87_REVIEW_IMPORT.json",
+      "NATIVE_PAGES_407_REVIEW_IMPORT.json"
     ],
-    "root_test": "NATIVE_TEXT_ROOT_RESULT.json",
-    "root_tests_passed": 6,
-    "AppKit_compile_and_Mac_GUI": "not_run",
-    "goal": "obtain bounded actualMac failure observations, no acceptance downgrade or claimed rootcause fix",
-    "new_exact_CI": "not_started",
-    "formal_approve": "not_submitted",
-    "Root_static_validation": {
-      "commands": [
-        "python3 scripts/verify_bootstrap_manifest.py",
-        "python3 scripts/validate_design.py",
-        "python3 scripts/validate_infrastructure.py",
-        "git diff --check"
-      ],
-      "exit_codes": [
-        0,
-        0,
-        0,
-        0
-      ],
-      "registered_files": 93,
-      "only_changed_registered_hash": "STATUS ff1cd019→4ac42f0f",
-      "full_STATUS_SHA256": "4ac42f0fce63ed9f8b797893665bdb7a2f2144ee8777a9d68434cd672ed6fb32",
-      "scope": "records/staticintegrity not newProduct/GUI proof"
+    "old87_P2": "NP87-01 missing061C source/Pythonclosed at407; oldfailedcounterexample retained",
+    "Root_test_import": "NATIVE_PAGES_ROOT_IMPORT.json",
+    "Root_actual": {
+      "source": "407ab9e",
+      "library": 62,
+      "Ownercontroller": 8,
+      "total": 70,
+      "format_exit": 0,
+      "Clippy_alltargets_Dwarnings_exit": 0,
+      "all_tracked_before_after_equal": true,
+      "temporarylinks_removed": true,
+      "tool_hash_inode_preserved": true,
+      "dimension": "Linux compiled Native contracts only; current407 AppKit/newMacGUI NOT_RUN"
     },
-    "Root_final_record_failure_and_correction": {
-      "initial_staged_diffcheck_exit_code": 2,
-      "cause": "new verbatim controller log trailing blank atEOF",
-      "batch_error": "commit followed newline after nonzero check beforeRootobserved output; preserved15e4 history",
-      "correction": "losslessgzip rawbyte/sha roundtrip, original archived/localraw retained; checker unchanged",
-      "final_check": {
-        "command": "git diff --check 0aa20c968d493cad895e4a3853bdf106d6b54acf 232b53a832b247964510b8660a7231d167fa9c90",
-        "exit_code": 0,
-        "evidence": "FINAL_232_INTEGRATION_REVIEW_EVIDENCE.tar.gz/validation-checks.json",
-        "initial_failed_check_and_15e4_history_preserved": true
-      }
+    "authorPython": {
+      "passed": 20,
+      "scope": "same20 inspected by reviewer, not doubled; includes3 realCore40322bootstrap/read-onlySQL; not OSnative"
     },
-    "final_independent_integration_review": {
-      "subject": "232b53a832b247964510b8660a7231d167fa9c90",
-      "report": "FINAL_232_INTEGRATION_REVIEW.md",
-      "report_sha256": "13b8149ea57dacdd11b43fde554d208c418bc26fce18b6eefb2e977100000046",
-      "manifest_sha256": "fa5be5174abe807f0e46267cdf55b6c95397b42a8bda32144c7c7df7feb71883",
-      "import": "FINAL_232_INTEGRATION_REVIEW_IMPORT.json",
-      "scope": "static composition/records only; no source blocker; no new product/Mac success or formal Approve"
-    }
+    "presentation": "central genuinecaller shortlossless UTF8JSONstringrows+orderedpages+separateFinal; completeoriginalbytesreconstruct; allpagesstillfulltext/cell/parent/onscreen/stable500ms/ownedcapture+DBpermit beforeclick; cancel latepage neverfinalizes",
+    "unchanged": "approval formatter, serverresolved snapshot limits16KiB/1MiB, privateframe/revision/key, production permissions, lifecycles, Core/schema12, Cargo/locks, workflows,75/85/4s limits",
+    "next_exact_CI": "not_started",
+    "source_fix_actualMac_success": "not_claimed",
+    "formal_Approve": "not_submitted",
+    "protected_merge": "not_performed",
+    "final_integration_record_review": "pending"
   },
   "ci_641": {
     "head": "641be86e8b055920787cfebdd48270716d509309",
@@ -560,5 +608,70 @@
     "defaultrelease_audit_installers": "skipped",
     "final_raw_API_manifest": "ci-0aa/MANIFEST.json",
     "initial_candidate_proof": "CI_0AA_INITIAL_IMPORT.json"
+  },
+  "ci_e3cc": {
+    "feature": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+    "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+    "tree": "144ab4e890c06b537c018b609016268513051a56",
+    "product_run": 40771243767,
+    "environment_run": 40771243761,
+    "final": "5success2MacOwnerfail",
+    "jobs": {
+      "EnvironmentLinux": 123108703097,
+      "EnvironmentARM": 123108704372,
+      "EnvironmentIntel": 123108702561,
+      "Rust": 123108703316,
+      "UI": 123108702939,
+      "MacARM": 123108703256,
+      "MacIntel": 123108703489
+    },
+    "initial_independent": "CI_E3CC_INITIAL_IMPORT.json",
+    "Linux_Root_selfaudit": "CI_E3CC_LINUX_IMPORT.json",
+    "Mac_independent": "CI_E3CC_MAC_IMPORT.json",
+    "Linux": {
+      "Rust_uniqueouter": 593,
+      "compilefaildocs": 7,
+      "nested2_notadded": true,
+      "Node": 564,
+      "Nodefiles": 37,
+      "Python": {
+        "runner": 29,
+        "Owner": 15
+      },
+      "browser_flows": 12,
+      "checks": 114,
+      "PNGs": 70,
+      "Root_images_viewed": 2,
+      "otherPNGs": "hash/CRC only atRoot",
+      "not_liveProvider": true
+    },
+    "bothMac": {
+      "compiled_and_executed_e3cc_AppKit_diagnostics": true,
+      "library": 57,
+      "readonlyRust": 26,
+      "OwnercontrollerRust": 6,
+      "actualreadonlyWebCrypto4": "passed",
+      "actualOwner": "failed beforefirstCancelclick/permit/afterDB",
+      "title_matches": 1,
+      "message_matches": 0,
+      "ARM_actual_expected_utf8": [
+        2880,
+        3132
+      ],
+      "Intel_actual_expected_utf8": [
+        2884,
+        3136
+      ],
+      "independent_actual_text_difference": "each252 leading whitespace bytes across64lines; not normalized for acceptance; layer causing difference not established",
+      "sheet_size": [
+        520,
+        1329
+      ],
+      "on_screen": false,
+      "not_equivalent": "fullwindowPNG does not prove screenvisibility",
+      "before": "schema12/seq8/grants0/original19counters0",
+      "after": "absent; no afterzero assertion"
+    },
+    "release_audit_packages": "skipped both, no currentinstallers"
   }
 }

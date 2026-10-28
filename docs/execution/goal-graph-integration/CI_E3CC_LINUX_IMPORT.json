@@ -1,0 +1,11 @@
+{
+  "archive": "CI_E3CC_LINUX_EVIDENCE.tar.gz",
+  "bytes": 18245863,
+  "sha256": "bc4f9eaff9411ea658a19bf7059ec9876a239e1810064636c9a64b8408d1092c",
+  "members": 108,
+  "all_regular_member_path_hash_size_roundtrip_verified": true,
+  "original_manifest_sha256": "8d089bb04236fb52c21a50a28397760a2674216956b5545abfa34f8c1c548153",
+  "scope": "Root retained successful Rust/UI/EnvIntel self-audit; not independentproduct rerun;593outer+7docs/Node564/37/12browser114checks70PNGs; Root2PNGsviewed",
+  "exactcheckout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+  "tree": "144ab4e890c06b537c018b609016268513051a56"
+}
