@@ -1,0 +1,68 @@
+{
+  "approval": "AB-START-001",
+  "baseline": "ee374d1e67fd4b8671bba5f4d25b2659be846480",
+  "branch": "codex/goal-runtime-real-ipc",
+  "worktree": "/workspace/.worktrees/goal-runtime-real-ipc",
+  "requirements": {
+    "AB-TSK-001": "partial, complete typed TaskRequest; no generated NLP planner claim",
+    "AB-TSK-003": "fixed capability boundary, no authority from HTTP/plan text",
+    "AB-TSK-004": "exact-key advance/cancel receipt recovery",
+    "AB-TSK-007": "request acknowledgement versus actual owned reap",
+    "AB-TSK-008": "timeout unknown effects remain unknown after stop/cancel",
+    "AB-TSK-010": "observed selected output/runtime versus reservations and unknown token/cost",
+    "AB-TSK-011": "same-scope stored plan revision/explicit adoption/history",
+    "AB-TSK-012": "same root/project cumulative attempts/output not reset",
+    "AB-SEC-002": "finite HTTP allowlist, no generic execution/native approval",
+    "AB-SEC-004": "generated local data only, no network/model",
+    "AB-REL-001": "separate syntax/browser/generated protocol/native/Provider dimensions"
+  },
+  "mapping_note": "No AB-ORC IDs exist in the immutable requirements baseline; actual AB-TSK/WP08 identifiers are used without editing specs.",
+  "script_sha256": "3dfeed46a5bb68092f8c05ef3ed06119babd76606a821aa81267613183771ef4",
+  "status": "prepared_not_executed",
+  "actual_checks": [
+    "Python ast.parse",
+    "compile extracted generated ACP body without executing it",
+    "py_compile harness to /tmp",
+    "git diff --check"
+  ],
+  "syntax_report": "/workspace/.onboarding/goal-execution-real-ipc/preparation/syntax.json",
+  "syntax_report_sha256": "1c282bf86f5a0378e70085bad6e0902bd0d760fbeda82aaecdf198b4f140d0ed",
+  "runtime_not_run": [
+    "No schema11 final coherent daemon supplied",
+    "No composed actual Goal Execution frontend supplied",
+    "No browser/Unix Goal execution/Owner fixture/ACP process/timeout/cancel run",
+    "No new native/macOS/CI/real Provider/account/model or Task acceptance"
+  ],
+  "authority": [
+    "Private host calls actual proposal/finalize outside HTTP, whole compact16KiB review bound retained",
+    "HTTP fixed metadata/plan-store/readonly-run/cancel/advance only; no approve/propose/finalize/generic/session dispatch",
+    "SQLite readonly/query_only observation; no SQL-forged Goal/state/budget/approval/Ready rows",
+    "Generated process private group stop proof distinct from protocol response and partial output",
+    "No Cargo/target/native/Node/lock/CI/STATUS/spec changes or new credentials/accounts/fees"
+  ],
+  "next": "Review static allowlist/cleanup/races; await Core author immutable schema11 binary+manifest and Root composed frontend, then run exclusive outputs and record real failures/results/source/asset hashes. Independent review required before acceptance.",
+  "static_followup": {
+    "dimension": "syntax/static contract preparation only, no runtime",
+    "script_sha256": "180f4deb748d3d23ce04c3c7233c45a26944ac5d4358d4bd055749ac51443bba",
+    "actual_syntax": "AST/py_compile and extracted generated ACP compile passed",
+    "static_followups": [
+      "Root-task and project budgets both consumed1→2 active0; root-grant/project Goal ledger attempts1→2 output12→27 runtime increases limits unchanged tokens/costnull",
+      "Per owned terminal: actual PID gone, sessionstopped, readonly reserved→attemptstopped→supervisorstopped→Goalsettled SQLPK order and exact correlated actual meter payloads",
+      "Any fallback cleanup of still-live private generated group prevents a pass; cleanup identity failure preserves failed report"
+    ],
+    "runtime": "not_run; explicit schema11 candidate+composed UI pending"
+  },
+  "static_followup_report_sha256": "01447aa5b32f1339e03f1a50945ef35207544f3d3dc8de7a7d654c3c3a1d899c",
+  "latest_static_followup": {
+    "status": "passed",
+    "dimension": "syntax/static preparation only; no Core/ACP/browser execution",
+    "script_sha256": "3dfeed46a5bb68092f8c05ef3ed06119babd76606a821aa81267613183771ef4",
+    "followups": [
+      "Correct exact-key result equality compares immutable result; fresh transport request_id/current envelope journal revision are not idempotent receipt fields",
+      "Planned actual stale-run and stale-ledger CAS negatives each require Core STALE_REVISION and no DB mutation before fresh successful UI adoption",
+      "Private Goal execution host review matches entire saved plan/scope/current grant/connection summary and explicit no-new-workspace/enforcement fields",
+      "Private Data copy fixture reviews actual source/managed dev-inode and fixed UUID-derived destination before finalize"
+    ]
+  },
+  "latest_static_followup_report_sha256": "477f5cac76d6662eb125038bf7b0a403300a6233305364c63184ba33911b990e"
+}
