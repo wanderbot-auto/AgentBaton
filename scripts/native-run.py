@@ -62,7 +62,7 @@ def native_report_error(report):
     if (not isinstance(start, dict) or set(start) != execution_fields
             or not isinstance(finish, dict) or set(finish) != execution_fields
             or any(type(value) is not int or value < 0 for value in [*start.values(), *finish.values()])
-            or start['schema_version'] != 11 or finish['schema_version'] != 11
+            or start['schema_version'] != 12 or finish['schema_version'] != 12
             or any(start[field] != 0 or finish[field] != 0 for field in ['run_count', 'node_count', 'reservation_count'])
             or start != finish):
         return 'native report Goal execution schema/counts/sequence changed or are incomplete'
@@ -76,6 +76,31 @@ def native_report_error(report):
     if (not isinstance(missing, dict) or set(missing) != {'run_id', 'code', 'side_effect_state'}
             or missing != {'run_id': 'native-readonly-missing-goal-run', 'code': 'NOT_FOUND', 'side_effect_state': 'not_started'}):
         return 'native report lacks the exact missing Goal run Core denial'
+    graph = report.get('goal_graph_readonly_database')
+    if any(flags.get(field) is not True for field in ['goalGraphLists', 'goalGraphMissingRunDenied', 'readonlyGoalGraphNoMutation']):
+        return 'native report lacks strict readonly Goal graph invoke evidence'
+    if not isinstance(graph, dict) or graph.get('read_only') is not True or graph.get('unchanged') is not True:
+        return 'native report lacks independent Goal graph database evidence'
+    graph_before, graph_after = graph.get('before'), graph.get('after')
+    graph_counts = {'capability_count', 'job_count', 'candidate_count', 'validation_count', 'owner_decision_count', 'acceptance_count'}
+    graph_fields = graph_counts | {'schema_version', 'sequence'}
+    if (not isinstance(graph_before, dict) or set(graph_before) != graph_fields
+            or not isinstance(graph_after, dict) or set(graph_after) != graph_fields
+            or any(type(value) is not int or value < 0 for value in [*graph_before.values(), *graph_after.values()])
+            or graph_before['schema_version'] != 12 or graph_after['schema_version'] != 12
+            or any(graph_before[field] != 0 or graph_after[field] != 0 for field in graph_counts)
+            or graph_before != graph_after):
+        return 'native report Goal graph schema/counts/sequence changed or are incomplete'
+    graph_sequence = flags.get('goalGraphReadonlySequence')
+    if (not isinstance(graph_sequence, dict) or set(graph_sequence) != {'before', 'after'}
+            or any(type(value) is not int for value in graph_sequence.values())
+            or graph_sequence['before'] != graph_before['sequence'] or graph_sequence['after'] != graph_after['sequence']
+            or graph_sequence != sequence or graph_sequence != execution_sequence):
+        return 'native report does not bind Goal graph and original Goal/execution intervals'
+    graph_missing = flags.get('goalGraphMissingRun')
+    if (not isinstance(graph_missing, dict) or set(graph_missing) != {'run_id', 'code', 'side_effect_state'}
+            or graph_missing != {'run_id': 'native-readonly-missing-goal-graph-run', 'code': 'NOT_FOUND', 'side_effect_state': 'not_started'}):
+        return 'native report lacks the exact missing Goal graph Core denial'
     for field in ['window_close_daemon_survived', 'second_writer_rejected', 'owned_daemon_restarted', 'owned_daemon_cleanup']:
         if report.get(field) is not True:
             return 'native report lacks required daemon lifecycle evidence'
