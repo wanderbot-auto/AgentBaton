@@ -1,3 +1,17 @@
+# 最新检查点
+
+## Data PR14：双 Mac 失败与预览观察窄修
+
+当前 main 为 18f4261da9285bec5446101d47786839b1020d9c；本边界实际 fetch 并重读 OWNER-001/002，ACK，无新序号。PR14 已 ready/base main。旧 head de150679f7af9915f00cae58e0686a3954041dee、实际 checkout 458bbc2d4a1b9cc125e19ccf21057491c2f8fd1c：Environment 40664620013 三项、Product 40664619985 Rust/UI 成功，双 Mac 均在 Data 测试 20/21 时失败。32 MiB 预览在旧 5 秒观察限仍 checking/rev1；尚未到 Owner、copy、cancel/join，根因保持未知。没有新 Native/默认 release 审计/双包，不可合入。CI_DE150_FAILURE.json、NATIVE_DE150_REVIEW.md、89 项原始证据清单保留。
+
+仅测试修复上游 0db994786b3e70e21b7c0c57a15cf210fd9e9fdf（本分支 2edd8e4）：大预览准备改为从 start 前起算的绝对 35 秒观察窗口，匹配既有产品 I/O 30 秒并留 5 秒观察余量；新增 start、并行 snapshot/get、每次 poll 小于 3 秒断言。普通观察及取消/join 仍 5 秒，32 MiB、所有原 verified/真实 joined/Ready 竞态/replay/源文件断言、生产预算/代码/工作流/锁文件不变。作者与独立 reviewer 各实跑 21 Data + 3 migration、Clippy/fmt PASS；嵌套 child 不重复计数。旧 Linux 用例也通过，不能据此声称重现 Mac 历史失败原因。独审报告 data-preview-observation/INDEPENDENT_REVIEW.md。Root 重哈希全部 89 项失败记录与 6 项独审记录。
+
+准备正常 push 新精确 head，需重新读取全部七项、双 Mac 此用例/Native22+12、Goal3+独立 DB、Command3/Data3、新侧栏实际截图、默认 release 审计及双真实 DMG。PR13 的双包仍可按 goal-integration/DEVELOPMENT_DELIVERY_E384.md 追溯，但不能替代本 Data 候选验证。
+
+Goal 实际运行 Core11 继续独立开发：schema11、原子 reservation/实际生成协议/同 scope 修订/共享预算/取消与未知恢复已有真实局部测试，最新全 workspace 暴露 Data Goal advance/recovery 失败，正在修复；4eb4458 只是候选而非最终 freeze。UI 3daa 已独审 445/type/build，Native28+12 是原叶子字节证据；新真实 IPC harness03943e0仅语法通过，等待最终 Core11 与组合 dist，尚未运行。完整130需求与WP01–14继续，不计完整 Goal 或全产品完成。真实 Provider/私人身份、费用、远程资源、生产、正式签名和最终许可证权限均未扩大。
+
+以下保留此前检查点。
+
 # Checkpoint
 
 Resume branch codex/data-runtime-integration. Main remains bcf10bb; Goal dependency PR13 head a2c5bcf Product40646347414/Env40646347269 is5success, twoMac running, not merged. Data code frozen by integration commits recorded by git, not yet final accepted. Root exclusive main Cargo target for combined tests/lints/build; Native target released.

@@ -1,0 +1,283 @@
+{
+  "subject_head": "de150679f7af9915f00cae58e0686a3954041dee",
+  "actual_checkout": "458bbc2d4a1b9cc125e19ccf21057491c2f8fd1c",
+  "parents": [
+    "18f4261da9285bec5446101d47786839b1020d9c",
+    "de150679f7af9915f00cae58e0686a3954041dee"
+  ],
+  "equal_tree": "c16c7a2930e138645412cacf6327375b1395c5f1",
+  "product_run": 40664619985,
+  "environment_run": 40664620013,
+  "verdict": "NOT_ACCEPTED:5success/2Mac same32MiBpreview fixture5s waitfailure",
+  "required_results": [
+    {
+      "name": "Product / macos-15-intel",
+      "id": 122735886318,
+      "conclusion": "failure"
+    },
+    {
+      "name": "Product / UI",
+      "id": 122735886157,
+      "conclusion": "success"
+    },
+    {
+      "name": "Product / macos-15",
+      "id": 122735886054,
+      "conclusion": "failure"
+    },
+    {
+      "name": "Product / Rust",
+      "id": 122735885688,
+      "conclusion": "success"
+    },
+    {
+      "name": "Environment / ubuntu-24.04",
+      "id": 122735885660,
+      "conclusion": "success"
+    },
+    {
+      "name": "Environment / macos-15-intel",
+      "id": 122735885629,
+      "conclusion": "success"
+    },
+    {
+      "name": "Environment / macos-15",
+      "id": 122735885189,
+      "conclusion": "success"
+    }
+  ],
+  "native_pair_accepted": false,
+  "package_pair_accepted": false,
+  "actual_failure": {
+    "subject_head": "de150679f7af9915f00cae58e0686a3954041dee",
+    "actual_checkout": "458bbc2d4a1b9cc125e19ccf21057491c2f8fd1c",
+    "product_run": 40664619985,
+    "environment_run": 40664620013,
+    "final_result": "5success/2macOSfailure; Productfailure; noNative orpackagepair",
+    "same_failed_test": "actual_copy_cancellation_only_claims_cancelled_after_join_and_preserves_ready_race",
+    "suite": "Coredata_workspaces20passed1failed inbothMac",
+    "failure_line": 89,
+    "actual_state": "data_workspace_previews.get stayedchecking/rev1/snapshotnull/errornull on32MiB copy.bin before5s observationlimit",
+    "not_reached_in_test": [
+      "propose",
+      "nativefixtureapproval",
+      "copycancel request",
+      "workerjoined/cancelled/Ready-race assertions"
+    ],
+    "source_limits": {
+      "Fixture_wait_total_observation_seconds": 5,
+      "IO_worker_declared_budget_seconds": 30,
+      "RPC_status_wait_is_not_same_as_worker_completion": "bothgetcallsreturnedchecking; no actualterminalworkererror logged"
+    },
+    "actual_processing_cause": "unknown; no load/crypto/kernel cause inferred",
+    "ARM": {
+      "job": 122735886054,
+      "raw_sha256": "3ab69d42611f550cb14fb2a5a4b7c3a1634771b694852385c0b3f285d594df72"
+    },
+    "Intel": {
+      "job": 122735886318,
+      "raw_sha256": "241e4310801d99ab7d878282494bd31560ee8e15bcc3b49c44d03785466c62c0"
+    },
+    "not_reached_in_jobs": [
+      "Native22lib+12featureharness",
+      "actualWebViews/newsidebarNativePNG",
+      "defaultreleaseapplicationaudit",
+      "newmacOSDMGpackages"
+    ],
+    "completed_positive_scope": {
+      "artifact": 12806041117,
+      "zip_sha256": "57afb90bd2793ad17015ef27ffe70ecc5f2c3359c8473038e70181e45dbecca4",
+      "report_sha256": "a8ada29cf6f1da4daf6ec48d927e814dc8a05b875399edaf50b1aec0490b152c",
+      "actual_checkout": "458bbc2d4a1b9cc125e19ccf21057491c2f8fd1c",
+      "scope": "actual built React / Chromium / fixed test-only HTTP / real Unix schema10 daemon / actual generated files",
+      "frontend_tests": 367,
+      "actual_checks": 8,
+      "reported_unrun_array": [],
+      "normal_ready": {
+        "state": "ready",
+        "io_completion": "worker_joined",
+        "files": 2,
+        "bytes": 39,
+        "owner_prepared_finished_sequences": [
+          8,
+          9,
+          10
+        ]
+      },
+      "actual_cancelled": {
+        "state": "cancelled",
+        "io_completion": "worker_joined",
+        "owned_join_proven": true,
+        "finished_sequence": 20,
+        "stage": "before_destination_reservation",
+        "destination_exists": false,
+        "general_filesystem_quiescence_claimed": false
+      },
+      "limits": [
+        "Actual UI before-destination owned worker stop only; partial selected output not observed/partial stop not established despite unrunarray0",
+        "No browser realOSOwnerDialog; outsideHTTP trustedfixture approval only",
+        "No newactualMac native/visual/defaultreleaseaudit/packages yet; noGoaloldartifact substitution"
+      ],
+      "final_database": {
+        "data_workspace_previews": 5,
+        "data_workspace_creations": 3,
+        "managed_workspaces": 3,
+        "approval_proposals": 3,
+        "attempts": 0,
+        "sessions": 0,
+        "dispatch_intents": 0,
+        "sequence": 29
+      },
+      "browser_page_errors": [],
+      "observed_utc": "2026-10-28T09:45:15.193920+00:00"
+    },
+    "observed_utc": "2026-10-28T09:51:05.128844+00:00"
+  },
+  "Linux_Data_UI": {
+    "artifact": 12806041117,
+    "zip_sha256": "57afb90bd2793ad17015ef27ffe70ecc5f2c3359c8473038e70181e45dbecca4",
+    "report_sha256": "a8ada29cf6f1da4daf6ec48d927e814dc8a05b875399edaf50b1aec0490b152c",
+    "actual_checkout": "458bbc2d4a1b9cc125e19ccf21057491c2f8fd1c",
+    "scope": "actual built React / Chromium / fixed test-only HTTP / real Unix schema10 daemon / actual generated files",
+    "frontend_tests": 367,
+    "actual_checks": 8,
+    "reported_unrun_array": [],
+    "normal_ready": {
+      "state": "ready",
+      "io_completion": "worker_joined",
+      "files": 2,
+      "bytes": 39,
+      "owner_prepared_finished_sequences": [
+        8,
+        9,
+        10
+      ]
+    },
+    "actual_cancelled": {
+      "state": "cancelled",
+      "io_completion": "worker_joined",
+      "owned_join_proven": true,
+      "finished_sequence": 20,
+      "stage": "before_destination_reservation",
+      "destination_exists": false,
+      "general_filesystem_quiescence_claimed": false
+    },
+    "limits": [
+      "Actual UI before-destination owned worker stop only; partial selected output not observed/partial stop not established despite unrunarray0",
+      "No browser realOSOwnerDialog; outsideHTTP trustedfixture approval only",
+      "No newactualMac native/visual/defaultreleaseaudit/packages yet; noGoaloldartifact substitution"
+    ],
+    "final_database": {
+      "data_workspace_previews": 5,
+      "data_workspace_creations": 3,
+      "managed_workspaces": 3,
+      "approval_proposals": 3,
+      "attempts": 0,
+      "sessions": 0,
+      "dispatch_intents": 0,
+      "sequence": 29
+    },
+    "browser_page_errors": [],
+    "observed_utc": "2026-10-28T09:45:15.193920+00:00"
+  },
+  "reviewer": "/root/data_native_integration_review readonlyCI/evidence; nopush/retry/cancel/Cargo/source/index/account/modelactions",
+  "limits": [
+    "LinuxUI8 doesnotproveactualOSOwnerDialog/nativeMacflow",
+    "before-destinationcancelledworkerjoin true; partialselectedoutput/partialstop notestablished despite reportunrunarray0",
+    "NoNative22/12 ornewnativeSideBarvisual/defaultreleaseaudit/DMG validation inthisfailedsubject",
+    "Full64NativeValue displayclosureisnotactualOSdialog/Core64copy",
+    "OldGoalnativeimages/packages/checks neverborrowed",
+    "Fullproduct130 acceptance notestablished"
+  ],
+  "files": {
+    "CHECKPOINT.json": "08c865b480cce7bb82ab13628a6cc1205b88ad69281e72164ea116301d0f4564",
+    "CI_DE150_FAILURE.json": "c17309a085451ce12acb8b2921eb216cb740bc43c6d54d5167188c00c65299c5",
+    "LINUX_DATA_UI_VERIFICATION.json": "5429aca79dea80ccd6edaab01e9603a0cf83ad082bfb79e557a720f35ed10398",
+    "arm-check-annotations.json": "bebda42c52dc94bcbcf380124f3bba9b4a7d4a0c4ed8c4797acc97e6f7f4dd50",
+    "arm-job-122735886054.json": "615344034332c9fe1e238fa9fa53986e97207a2781dd1ca732f93246fd0a5d1e",
+    "arm-job-122735886054.log": "3ab69d42611f550cb14fb2a5a4b7c3a1634771b694852385c0b3f285d594df72",
+    "artifacts-after-arm-failure.json": "66ab4324dea133aa4e4c218c3522183f572fae2d6aaed89698a7185b09f2652d",
+    "artifacts-final.json": "66ab4324dea133aa4e4c218c3522183f572fae2d6aaed89698a7185b09f2652d",
+    "artifacts-initial.json": "66ab4324dea133aa4e4c218c3522183f572fae2d6aaed89698a7185b09f2652d",
+    "checkout-commit.json": "ee68b7d90dc5b95a537a19a41939b6f7fd9e54d9fd89564a20f79dc277158c4d",
+    "environment-job-122735885189.log": "1060f0680a63e748c8d5898ee407f245c8ac4b98e7970dbcc65d9f63e1b61794",
+    "environment-job-122735885629.log": "1d26f0185097f500e7efd2df71a41d4355b08c39d2a3d39595bf5d504d3feb88",
+    "environment-job-122735885660.log": "f3842abcc92c8a6711635e70722f8d311c3dfba364815e4f0d0cd8b0c1377490",
+    "environment-jobs-initial.json": "73537097532beb5f507e50fd057cd039ce7cf36370f384fbc5e95fa6f16cc67d",
+    "environment-run-initial.json": "5ce7e841502688d4a2ed18e31e36e8d4a302521292c61aeeedb4180afeac84ba",
+    "frontend-12806041117.zip": "57afb90bd2793ad17015ef27ffe70ecc5f2c3359c8473038e70181e45dbecca4",
+    "frontend-verified/approved-commands/actual-command-cancelled.png": "507ea2c4ab9095ee77dd9d8e4bf9ead167634461da5e239c7bd19de6ae355c30",
+    "frontend-verified/approved-commands/actual-command-passed.png": "2231d0c2ae6401cab051c8f20663b0acadeef6a9bc48de94778ca5844a8861d4",
+    "frontend-verified/approved-commands/daemon.log": "d4dfe2e5f28b9ecd3f860f65b3e1e7cb624a7da0d422d8b69b166b4f21c92735",
+    "frontend-verified/approved-commands/evidence.json": "6a6bb8c37a22c746ba033085ec3ad60d9ba9ca266ee16f506ff5eb6170b24b63",
+    "frontend-verified/artifacts-1024x768.png": "203472b2b6f03ac525a6d76a0085eb56761f66017050b32aa1bef39d07686447",
+    "frontend-verified/artifacts-1440x900.png": "ae79836174cea90fc78688c952471d109e8ef087b87aa0cd5cefe3aa6a63fedf",
+    "frontend-verified/artifacts-1488x981.png": "13c0278ea1946e6004a13ee1ae2d9963de3c8dc0302a45bc56d083c9b0e985d1",
+    "frontend-verified/artifacts-390x844.png": "2f0d01b809aac0e276c9e378f8c86d4efd67ea00d8bf5ff06ba75622860efc28",
+    "frontend-verified/command-contract-1024x768.png": "e853755532b00dfcbdf13f54da81d9a450e0f2a2e352c1815e91e8140a580ee3",
+    "frontend-verified/command-contract-1440x900.png": "4bc87a3d675440af126ba37cb83daa3a69fe5216a36a89046b0cea834d818572",
+    "frontend-verified/command-contract-1488x981.png": "7f4f3385bc4fc64825788e374380a6439e158fd37789d1eb706b3841359d99f2",
+    "frontend-verified/command-contract-390x844.png": "91e2c1bdf6309fa1024d24f22a98a532ad40066d8412cbd046929ea1cadf965e",
+    "frontend-verified/daemon.log": "f646b1c6059d05ca8326e02a64592bdbf4152b81a68c55bacf5644cdffd53b78",
+    "frontend-verified/data-contract-1024x768.png": "ba7f120369776e66fa40837a1e1cd38543d3e52b374b15acea343dc10e56d2f9",
+    "frontend-verified/data-contract-1440x900.png": "118738a8c020c19fd684773b5723ee146f46f582f9511ea9cc69c80ef20ec72a",
+    "frontend-verified/data-contract-1488x981.png": "63db7d340158ee35103ac11ce8d1a04d9d04e78709a02930fae53f8af9120815",
+    "frontend-verified/data-contract-390x844.png": "cfaf270a9cff9388973035c965a45b5bfd15a1ca5066d514b407eeb3b92df145",
+    "frontend-verified/data-workspaces/01-real-selected-file-preview.png": "4aa37311d933bbcca864592a3d2132c2ea5fc5f4d3cb624b96fb1fa26a655977",
+    "frontend-verified/data-workspaces/02-real-ready-data-copy.png": "e96e43765ea8c00accc8bcdbb1937601bdc02f8c3fc1bb1f8b09d7e27bb99f17",
+    "frontend-verified/data-workspaces/03-real-ready-mobile.png": "7eaebe26b88699d676cf6c9b7c506ad45040ec5fbda1a406b0c6a1dd2bb97c89",
+    "frontend-verified/data-workspaces/04-real-cancel-response-lost.png": "6c17628662167648f980e5b04a3d373425d727cb2bb2cbc478f037f679347138",
+    "frontend-verified/data-workspaces/05-real-copy-terminal-observation.png": "7620542aa36daf7c78f82b135579c9af2f548959ce1a2c4bacb486b808c0c7bc",
+    "frontend-verified/data-workspaces/06-real-historical-failure-and-drift.png": "b6022ed0abf05badd34ee22488879ff25c0785a00c0e8fef98e77f74b7e73b39",
+    "frontend-verified/data-workspaces/daemon.log": "86f639e4be0b29e8fde780c0249e725ccb09ec277be7944adc45a4731f6a8782",
+    "frontend-verified/data-workspaces/report.json": "a8ada29cf6f1da4daf6ec48d927e814dc8a05b875399edaf50b1aec0490b152c",
+    "frontend-verified/evidence.json": "b36632b83dbf39c04c5b1b613d553da900478e9bcce85e69acf0fe5d376e7bd6",
+    "frontend-verified/goal-plan-editor/01-fresh-goal-expanded.png": "c0f90f45f0467443e2f64220c1dbb2a17c8eb93667b4fe2e7778112098bd68ad",
+    "frontend-verified/goal-plan-editor/02-read-only-preview-desktop.png": "c76ae25ad6854b4e12bbe80f7f5462818775a16bd8d129e678ccccbf5eba6f70",
+    "frontend-verified/goal-plan-editor/03-read-only-preview-mobile.png": "c79ecf93ad14628ceab3798e1054e16107218185722e343e6e17f7e045ad7d04",
+    "frontend-verified/goal-plan-editor/04-versioned-plan-history.png": "35829c55f2b8951b990a6b71ad73e0b7fbd7d9e4fd5a0d85434f36ba893baeac",
+    "frontend-verified/goal-plan-editor/05-input-drift-read-refused.png": "bdcd02a24dcfca620e0ea1e4287f944e1999296fbe86f361534b59274a4c7651",
+    "frontend-verified/goal-plan-editor/06-revoked-historical-scope.png": "0d4d4895d45dfe7b19df7412d903e0a0c8ac0bb6254abe063ce559ebdbcdf144",
+    "frontend-verified/goal-plan-editor/daemon.log": "5aca0bb9e40b278120a3109520145bc7ffca0880cf1a7846fe8d44269d3965ae",
+    "frontend-verified/goal-plan-editor/editor-01-local-steps-no-write.png": "248fc11afeb4c20214d73411554ba7dcde47169554fadd27c42a56be75de1003",
+    "frontend-verified/goal-plan-editor/editor-02-applied-local-draft.png": "1a35470177ec77db2c5f44f0528517ea9986606bdd35ce94647a87180527aec0",
+    "frontend-verified/goal-plan-editor/editor-03-mobile-dependency-graph.png": "e5e80cb7b55901fea173d7d1f66e63b0ea942593f61528521f70081b718febe9",
+    "frontend-verified/goal-plan-editor/report.json": "b0937388dc196b38d896ace8f7afc669c61bab9152eb9ba3b38b42319fecc87a",
+    "frontend-verified/goal-planning/01-fresh-goal-expanded.png": "966fbefffee6fbb0cddc4b38a092b77f6238771eb7af2dba0e5d90d40ce0d422",
+    "frontend-verified/goal-planning/02-read-only-preview-desktop.png": "b29adb32fdf5cb24087647a7d23c069652a8754df79921f2b1787e65a98c5e87",
+    "frontend-verified/goal-planning/03-read-only-preview-mobile.png": "b2554e42adfe2bb7e9a227edf2f05397d8faace0336f16c9093c809f8695adee",
+    "frontend-verified/goal-planning/04-versioned-plan-history.png": "d78677eee67c89245971ab05b266ba0372132949553dc5658a24321f743e3484",
+    "frontend-verified/goal-planning/05-input-drift-read-refused.png": "deff5c08267cf7e8555f9eb7626a96cea4ada07efc912cbcdb3fd7352c6b904d",
+    "frontend-verified/goal-planning/06-revoked-historical-scope.png": "a9b67b78bf28bd83b6e2ba2b314f195850fd497a89b8b984b2a339b7fff72520",
+    "frontend-verified/goal-planning/daemon.log": "db4f38454092d541dc86fc2b48b199d88426821410e8d413769983a77610c992",
+    "frontend-verified/goal-planning/report.json": "375c69ed135b2361a00fd26aba0d2f0e40a2e9f5d979d45a74bbc57ca65bebfa",
+    "frontend-verified/goal-readonly-1024x768.png": "61bd4c029f4f5a464019cc1c3caa9361ea72f0974c82e91e743a7330b41ee880",
+    "frontend-verified/goal-readonly-1440x900.png": "0b466ad7505583895a1113e244211e87fd15ee89559b87078c08d4efe9af6ec0",
+    "frontend-verified/goal-readonly-1488x981.png": "e6f234849c7939ca495013070a4c7c3e00c306a26182e9c1aaa77117faa321d1",
+    "frontend-verified/goal-readonly-390x844.png": "d497534427b951be5be193ab242eafbd620462e679ef001233408f734d390037",
+    "frontend-verified/home-1024x768.png": "3097a9ac65b87e8e05cb39c7b2239aa290f8b00a9e84355b3827a7297b2aa910",
+    "frontend-verified/home-1440x900.png": "4e771bc5bd167c3955a92e7c94d6bfd79d4f35f481d48781cda64861ce492001",
+    "frontend-verified/home-1488x981.png": "5663ab3f8eda04807dd6f09c4ec835bb54d3edbaeae356afec08ceb427fcce7d",
+    "frontend-verified/home-390x844.png": "acb90e19f32801643428adca2194b78114e54238d4a7c63f32a32c14e64bb513",
+    "frontend-verified/task-1024x768.png": "cccddc21f2426e1edfe6339ac8434c4c6e1cd7ca7363635906cb548d5bc36558",
+    "frontend-verified/task-1440x900.png": "d2c4098a5c7520aba8414fb6fd903c2c7993008d6bccfb3ef3a8ecf565aff0cf",
+    "frontend-verified/task-1488x981.png": "f4f6e418140f32ad41d153d899fac6aa631c0a51afacf375d5295fc2e9349da1",
+    "frontend-verified/task-390x844.png": "bdf63dbcf23724d0fcc47a51a5aa6b665a7e33da6b0e575e78371d3994291f8a",
+    "head-check-runs-final.json": "d29fdb7702068c4fbdbf91d6365982a7766cbc46ba966da4b789b712f9444d24",
+    "head-commit.json": "077e1818bf69035e60b0e720915dd88f94efc09764fea9f60c1e631e794a7c3f",
+    "intel-job-122735886318.json": "7be1c8f5b3a481192b0cea7b32d9270de2259fb90b63d1573b0bb475b5e16401",
+    "intel-job-122735886318.log": "241e4310801d99ab7d878282494bd31560ee8e15bcc3b49c44d03785466c62c0",
+    "original-data-workspaces-tests.rs": "0b2a7693807028873e0e06caaf0ac1495c003d69384fd203ad849838e15bfc49",
+    "pr-initial.json": "0c29ff27783fdfeb4a03f7fedded75fcb3c3f00ec6cb991110f326fa1de0a20c",
+    "product-jobs-final.json": "68e0a3b565f048e7ee758a2881f4bf76c0e1ee4b7fdcf8ab4f57236c9a41f3d4",
+    "product-jobs-initial.json": "61ae2d179d172b81e251fd3efb075df276b970071cb7bb54129b9e4523867578",
+    "product-run-final.json": "b6d2d8d8d2f906690e3d5a6c848002dc4060189ac1a33a34b5700cfdf7b07ff1",
+    "product-run-initial.json": "3000fcd7a8d8854f5f4aa99f26de3d3f9550ef29cadb501327445645f151209a",
+    "root-arm-failure.log": "3ab69d42611f550cb14fb2a5a4b7c3a1634771b694852385c0b3f285d594df72",
+    "rust-job-122735885688.log": "d0e55ffadd59064470b58f0f82386a01f80c064a30d95b41e48ff2eace96187b",
+    "source-and-checkout-verification.json": "a3d18658985c6adbbcd1936968b906d89c37227ca87aedbe132ec0b26a6b37db",
+    "ui-job-122735886157.log": "789dc44e6c03e8691f7ec8d0df96b77d14ece6f17f75b92426ebdb1a8a55ad57",
+    "watch-jobs-001.json": "68e0a3b565f048e7ee758a2881f4bf76c0e1ee4b7fdcf8ab4f57236c9a41f3d4",
+    "watcher-start-run.json": "b6d2d8d8d2f906690e3d5a6c848002dc4060189ac1a33a34b5700cfdf7b07ff1"
+  }
+}

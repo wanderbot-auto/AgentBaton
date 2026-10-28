@@ -1,5 +1,5 @@
 {
-  "status": "local_composition_passed; PR/CI/platform gates pending",
+  "status": "PR14 exact de150 rejected: 5success/2Macfailure; reviewed narrow fixture correction integrated; next exact CI pending",
   "baseline": "a2c5bcf47fd60d66207e2cc93c94db4f7f648057",
   "core_source": "c82bcff50353d10c2e136125b82428b1c0c2effb",
   "ui_source": "52a06c9c44814217d0734f21be319af43765ccb5",
@@ -124,7 +124,7 @@
   },
   "data_browser_scope": "real8323/current367UI; both new8/6, cancel before-destination worker_joined; no partial-write browser, nojoin-unknown or Ready-race proof",
   "full130": "incomplete; continue approved work",
-  "platform": "macOS/fullnewCI/packages not yet run",
+  "platform": "de150 both Mac failed Core preparation fixture; Native and packages not reached; fresh candidate pending",
   "frozen_combined_binaries": {
     "manifest": "/workspace/.onboarding/data-runtime-integration-binaries/manifest.json",
     "manifest_sha256": "45a0f2220346076734dea26023a2b6e343ce4c05b3bab800c0315aa998c01b46",
@@ -400,5 +400,28 @@
     ],
     "data_ci": "not yet triggered; PR14 becoming ready/main then final normalpush",
     "scope": "DataCore10/c82; currentGoalCore11/UI445 are separate followups"
+  },
+  "latest_ci": {
+    "failure": "CI_DE150_FAILURE.json",
+    "review": "NATIVE_DE150_REVIEW.md",
+    "verification": "CI_DE150_VERIFICATION.json",
+    "linux_data_ui": "LINUX_DATA_UI_DE150.json",
+    "observer_source": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
+    "observer_sha256": "17178a8c943fa0c5225bb4fd543a8ef50281808458da031b59fe5ea5c54043dd",
+    "observer_independent": "../data-preview-observation/INDEPENDENT_VERIFICATION.json",
+    "root_rehash": [
+      {
+        "directory": "/workspace/.onboarding/data-native-de150",
+        "files": 89,
+        "manifest_sha256": "d8a6065dedd0131ab4d001c142909b6c2b51e778fbade2d0a22de5d3764e6770"
+      },
+      {
+        "directory": "/workspace/.onboarding/data-preview-observation-review",
+        "files": 6,
+        "manifest_sha256": "3197e4f06d5ea400c0208a95700d9932962ee9d416211b30047c6e7a655eeb66"
+      }
+    ],
+    "new_exact_checks": "not yet triggered; normal push after records and integrity checks",
+    "fresh_mac_native_and_packages": "not run for corrected candidate"
   }
 }

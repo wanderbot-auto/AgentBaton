@@ -1,0 +1,150 @@
+{
+  "reviewer": "/root/data_native_integration_review independentofauthor",
+  "base": "de150679f7af9915f00cae58e0686a3954041dee",
+  "source_commit": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
+  "docs_head": "d1c29611b63588ebb9f967222b5e9baf2b779125",
+  "source_sha256": "17178a8c943fa0c5225bb4fd543a8ef50281808458da031b59fe5ea5c54043dd",
+  "verdict": "PASS for testonly boundedlargepreviewobservation and strongerRPCresponsiveness assertions; freshactualMacCI required",
+  "actual_local": {
+    "data_unique": 21,
+    "migration_unique": 3,
+    "nested_process_exit_child_observation": 1,
+    "nested_is_not_extra_unique_test": true,
+    "failed": 0,
+    "ignored": 0,
+    "clippy_all_targets": "PASS",
+    "fmt": "PASS",
+    "diff": "PASS",
+    "commands": [
+      {
+        "name": "data-and-migration",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "data_workspaces",
+          "--test",
+          "data_workspace_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "seconds": 19.2,
+        "log": "/workspace/.onboarding/data-preview-observation-review/data-and-migration.log",
+        "sha256": "e129ac9f1f23d44ee60093302461870113f908471f794d9aba1ca0c85efb8544"
+      },
+      {
+        "name": "clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--offline",
+          "-p",
+          "agentbaton-core",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "seconds": 5.95,
+        "log": "/workspace/.onboarding/data-preview-observation-review/clippy.log",
+        "sha256": "9bda7e5311efb18adbe62d5108cc51a9965391b23e275041d07b5399bb902801"
+      },
+      {
+        "name": "fmt",
+        "command": [
+          "cargo",
+          "fmt",
+          "--package",
+          "agentbaton-core",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 0.33,
+        "log": "/workspace/.onboarding/data-preview-observation-review/fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "diff",
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "de150679f7af9915f00cae58e0686a3954041dee..0db994786b3e70e21b7c0c57a15cf210fd9e9fdf"
+        ],
+        "exit_code": 0,
+        "seconds": 0.0,
+        "log": "/workspace/.onboarding/data-preview-observation-review/diff.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "observations": {
+      "preview_start_ms": 13,
+      "parallel_snapshot_ms": 4,
+      "parallel_preview_get_ms": 5,
+      "large_preparation_ms": 2244,
+      "copy_phase_ms": 1060,
+      "actual_cancelled_join": true
+    }
+  },
+  "clock_and_source_proof": {
+    "base": "de150679f7af9915f00cae58e0686a3954041dee",
+    "source": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
+    "docs_head": "d1c29611b63588ebb9f967222b5e9baf2b779125",
+    "source_sha256": "17178a8c943fa0c5225bb4fd543a8ef50281808458da031b59fe5ea5c54043dd",
+    "entire_file_inverse_proof": "Replace only targetfunctionbody with exactoldbody => completeoldfile byteidentical",
+    "all21_testnames_retained": true,
+    "other20testfunctions_byteidentical": true,
+    "all_original_verified_owner_copy_cancel_ready_join_replay_32MiB_tail": "byteidentical afterremoving only addedcopytimer/typeddiagnostic",
+    "clock_order": "preparing beforestart; absolute35s deadline frompreparing; postresponse overallclockassert beforeterminalbreak; no lateverified acceptance",
+    "new_rpc_observers": "start<3s,parallel snapshot<3s+previewGet<3s,eachsubsequentpoll<3s",
+    "unchanged_limits": "ordinaryFixture.wait5/copyjoinwait5/productIO30/serverRPC3/clientordinary5/32MiB volume",
+    "production_locks_manifests_workflows_other_tests": "unchanged viaentirecommitdiff",
+    "only_source_file_changed": [
+      "crates/core/tests/data_workspaces.rs"
+    ],
+    "mtime_only_unchanged_entry_hashes": {
+      "crates/core/src/lib.rs": "e4be654487d102fe7b74a38f4eb9fba7c79aae718eebdf2e89c905e809cd4d5d",
+      "crates/workspaces/src/lib.rs": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26"
+    }
+  },
+  "author_artifacts": {
+    "manifest_sha256": "e7fa39c1465ab632a4fad2fdd8aedf2d4e50f0087473415dfc4040961e6a414c",
+    "12artifacts_all_hashverified": true,
+    "original_unmodified_Linuxcase": "authorsavedPASS; not historicalMacfailure reproduction",
+    "bothhistoricalMacrawshashes": "unchanged"
+  },
+  "target": {
+    "only_used": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+    "ownership": "formallyRELEASED; nofurtherCargo writer",
+    "main_or_private_targets_accessed": false,
+    "incremental": 0,
+    "jobs": 2,
+    "testthreads": 1,
+    "umask": "022"
+  },
+  "limits": [
+    "PositiveLinux measured2244ms completion is not cause/reproductionofhistoricalMac5schecking",
+    "Clockexpiry-beforeterminalbreak is explicitsource reviewed; noforced35secondlate-success runtimecontrol executed",
+    "No productionIO/RPC/cancel/join/volume/defaulttimeout modification",
+    "No Source/index/remote/CItrigger/retry/cancel/merge/model/account action",
+    "FreshdualMac Native22/12/visual/audit/DMG/corecase stillunrun here; oldGoalartifacts cannotfill them",
+    "Fullproduct130 acceptance remainsseparate"
+  ],
+  "files": {
+    "clippy.log": "9bda7e5311efb18adbe62d5108cc51a9965391b23e275041d07b5399bb902801",
+    "commands.json": "cd9a2968f202814a1cd59d7f53a9cb6b808e720f79a2511cc49c6b1fb775b38f",
+    "data-and-migration.log": "e129ac9f1f23d44ee60093302461870113f908471f794d9aba1ca0c85efb8544",
+    "diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "static-proof.json": "bda8ac1ee0a20e9878344c846505ab457c7f3c78ed75eaf8b6b654beb18a488e"
+  }
+}

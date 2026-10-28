@@ -1,5 +1,5 @@
 {
-  "status": "author_local_checks_passed; independent review and exact fresh macOS CI pending",
+  "status": "author and independent local checks passed; fresh exact macOS CI pending",
   "baseline": "de150679f7af9915f00cae58e0686a3954041dee",
   "source_commit": "0db994786b3e70e21b7c0c57a15cf210fd9e9fdf",
   "branch": "codex/data-preview-observation",
@@ -144,5 +144,16 @@
     "The 30s production worker budget remains unchanged; verified is still mandatory. A terminal failure at 30s is not accepted.",
     "No production files, CI, lock, other tests, global STATUS or immutable specs changed.",
     "No Provider credential, model, production, signing, purchase or remote action used."
-  ]
+  ],
+  "independent_review": {
+    "report": "INDEPENDENT_REVIEW.md",
+    "verification": "INDEPENDENT_VERIFICATION.json",
+    "data": 21,
+    "migration": 3,
+    "failed": 0,
+    "ignored": 0,
+    "clippy": "pass",
+    "fmt": "pass",
+    "fresh_mac": "not run"
+  }
 }
