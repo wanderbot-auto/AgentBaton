@@ -463,6 +463,13 @@
       "only_changed_registered_hash": "STATUS ff1cd019→4ac42f0f",
       "full_STATUS_SHA256": "4ac42f0fce63ed9f8b797893665bdb7a2f2144ee8777a9d68434cd672ed6fb32",
       "scope": "records/staticintegrity not newProduct/GUI proof"
+    },
+    "Root_final_record_failure_and_correction": {
+      "initial_staged_diffcheck_exit_code": 2,
+      "cause": "new verbatim controller log trailing blank atEOF",
+      "batch_error": "commit followed newline after nonzero check beforeRootobserved output; preserved15e4 history",
+      "correction": "losslessgzip rawbyte/sha roundtrip, original archived/localraw retained; checker unchanged",
+      "final_check": "pending below actual command; not silently count initial failure passed"
     }
   },
   "ci_641": {
