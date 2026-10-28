@@ -1,5 +1,11 @@
 # AgentBaton 执行状态
 
+## Goal15 首次远程门禁失败：证据链接可移植性已修
+
+准确1c9e9d58 / checkoutb0b3d969 的Environment40683715237三项失败：EVIDENCE.md把本地/workspace/.onboarding文件当Markdown链接，Cloud本地真实存在遮蔽了干净CI缺失。Root承担此可移植性漏检；原日志及三个SHA在goal-runtime-integration/CI_1C9_FAILURE.json，未放宽检查器或删证据。43c676a把原a1caf机器manifest逐字保存进仓库并改相对链接，独立干净worktree实跑设计130/27/38links、静态infra、Bootstrap93全通过，另全部tracked38链接为相对且存在。
+
+旧Product40683715213实际UI445/80checks已成功，Rust/Mac仍运行；旧subject整体因Env失败不可合入。下一正常push仅文档/证据更新，生产/测试/工作流源码全同，既有concurrency可自然取代旧Product，不手动重跑/取消、不借旧绿；新准确七项/新双Native和包仍需读取。PR15ready/main，maina014283和OWNER001/002未变。
+
 ## Goal PR15 最终本地组合已通过
 
 Core04ba180、Native776e02e、harnessd118a3c均独审通过；旧9f初签撤回及全部失败保留。Root最终组合完整554 Rust+7compilefail docs、workspaceClippy/fmt/build、Native28lib+17harness/Python21/lints PASS。新冻结Linuxdaemon d1099e7e/CLIaffa199a、manifest4b86b40a；94Rust源与作者04ba唯一差异是已保护Data FD测试，生产源一致。

@@ -39,3 +39,9 @@ Root用新二进制fresh实际quiet38/24PNG、commands5/2、Goal9/6、editor10/9
 PR15准备ready并转main后normalpush最终head一次，需全新七项、双Native新只读flags+schema11/三表零计数/序列、默认releaseaudit与新双包；当前尚无Goal15远程结果，不借Data14绿。保护main为a014283，OWNER001/002 ACK；Data14双包和210证据已交付，见data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md。
 
 下一阶段Goal验证/依赖/Owner接纳Core/schema12与UI/Native已在隔离分支实现，复用同GoalPlan/Scope和累计预算，独立新Native能力、完整候选SHA/FD/版本；不在PR15，不升级旧cap。Factory/NL/能力管理/完整会话历史/远程等全130继续；真实Provider/新费用/账号/远程资源/生产/正式签名/许可证门禁不变。尚非完整Goal或产品完工。
+
+## Goal15 首次远程门禁失败：证据链接可移植性已修
+
+准确1c9e9d58 / checkoutb0b3d969 的Environment40683715237三项失败：EVIDENCE.md把本地/workspace/.onboarding文件当Markdown链接，Cloud本地真实存在遮蔽了干净CI缺失。Root承担此可移植性漏检；原日志及三个SHA在goal-runtime-integration/CI_1C9_FAILURE.json，未放宽检查器或删证据。43c676a把原a1caf机器manifest逐字保存进仓库并改相对链接，独立干净worktree实跑设计130/27/38links、静态infra、Bootstrap93全通过，另全部tracked38链接为相对且存在。
+
+旧Product40683715213实际UI445/80checks已成功，Rust/Mac仍运行；旧subject整体因Env失败不可合入。下一正常push仅文档/证据更新，生产/测试/工作流源码全同，既有concurrency可自然取代旧Product，不手动重跑/取消、不借旧绿；新准确七项/新双Native和包仍需读取。PR15ready/main，maina014283和OWNER001/002未变。

@@ -1,5 +1,5 @@
 {
-  "status": "local final composition PASS; exact new PR15 CI/macOS/packages pending",
+  "status": "local final checks pass; first remoteEnv3failure from absolute link; docsfix clean-checkout validated; newexactCI pending",
   "source_head": "c9617a66493ec691d976f5ef18a2bcfaf9d64792",
   "baseline": "37bd032f0e1b2dfa75fc9ff768e85801f1693a99",
   "ui_source": "3daaec10dc422fe63d5f391efe51294bf8bd4ada",
@@ -548,5 +548,32 @@
   },
   "native_new_readonly": "../goal-execution-native-readonly/INDEPENDENT_VERIFICATION.json",
   "next_work": "isolated Graph/schema12 validation/receipts/Owner acceptance+sameGoalUI; not inPR15",
-  "recording_note": "Metadata assembler first referenced wrong09filename; original80checks/56PNG unchanged; corrected exact filename before final records"
+  "recording_note": "Metadata assembler first referenced wrong09filename; original80checks/56PNG unchanged; corrected exact filename before final records",
+  "first_goal15_remote_failure": {
+    "head": "1c9e9d58cce8f09e81e25133487251d5d30f3b9e",
+    "checkout": "b0b3d969ccad21c3984822d0468b9d0c895ea8d9",
+    "tree": "26dfbc21ec4f861720cb51491f7402e5ffacd35a",
+    "environment_run": 40683715237,
+    "environment_final": "3failure",
+    "product_run": 40683715213,
+    "product_at_observation": "UI success80actualchecks/445unit; Rust/Mac stillrunning, future supersession notclaimed complete",
+    "failure": "validate_design Broken link docs/execution/goal-runtime-ui/EVIDENCE.md -> /workspace/.onboarding/goal-runtime-ui/verification.json",
+    "root_cause": "Absolute author workspace Markdown link existed in Cloud but unavailable on clean CI runner; local validator was masked by existing file",
+    "fix_source": "43c676a",
+    "fix": "Copy byte-identical a1caf manifest to tracked AUTHOR_VERIFICATION_861.json and use relative Markdown link; checker/standards unchanged",
+    "clean_checkout": {
+      "commit": "43c676a",
+      "directory": "/workspace/.worktrees/goal15-document-check",
+      "design": "PASS130/27/38links",
+      "bootstrap": "PASS93",
+      "static_infrastructure": "PASS",
+      "all_tracked_relative_local_links": "38, no absolute local links"
+    },
+    "raw": {
+      "ubuntu": "579d82dec4fb6a413eab499c9f0ee1ddbac23f922a69295a2a98e5f72cbbbec1",
+      "arm": "afc14361b83a581d99a8c634558320f35edf8262e6ec574255e14524c8ae9f15",
+      "intel": "8d4fe105d1864318eb41a16fd564777bb8fe3a9360e95d844bbff1c0fcd05d2e"
+    },
+    "new_exact_ci": "pending normalpush; no rerun/cancel or borrowed green"
+  }
 }
