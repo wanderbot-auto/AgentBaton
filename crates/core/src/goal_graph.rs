@@ -773,7 +773,7 @@ impl Store {
             session_id: s.id,
             workspace_id: s.workspace_id,
             root: record.refs.workspace.identity.clone().ok_or_else(changed)?,
-            writer_epoch: u64::try_from(s.fencing_token).map_err(|_| changed())?,
+            writer_epoch: s.fencing_token,
             stop_receipt_sequence: u64::try_from(stop).map_err(|_| changed())?,
             capability_digest: sha(&p.snapshot)?,
             elapsed_at_stop_ms,
@@ -848,7 +848,7 @@ impl Store {
             || trusted_session_stop(&self.conn, &r.id, &s)?
                 != sql_num(origin.stop_receipt_sequence)?
             || !lease.holder.is_empty()
-            || u64::try_from(lease.fencing_token).ok() != Some(origin.writer_epoch)
+            || lease.fencing_token != origin.writer_epoch
             || record.refs.workspace.identity.as_ref() != Some(&origin.root)
             || !current_output_root(&self.conn, &record.refs.workspace)
         {
@@ -1017,7 +1017,7 @@ impl Store {
             "failed"
         };
         if success {
-            let c = result.map_err(|e| e)?;
+            let c = result?;
             if c.root != origin.root || c.outputs.len() != n.node.outputs.len() {
                 return Err(changed());
             }

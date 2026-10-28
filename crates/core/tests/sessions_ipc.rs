@@ -2999,15 +2999,13 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
             .unwrap(),
         12
     );
-    assert_eq!(
-        db.query_row(
+    assert!(db
+        .query_row(
             "SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",
             [proposal["id"].as_str().unwrap()],
             |r| r.get::<_, bool>(0)
         )
-        .unwrap(),
-        true
-    );
+        .unwrap());
 }
 
 #[test]
@@ -3766,15 +3764,13 @@ fn actual_last_owner_rechecks_all_original_products_and_never_accepts_changed_ca
             "{mode}: exact unconsumed proposal history cannot mint fresh authority"
         );
         let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
-        assert_eq!(
-            db.query_row(
+        assert!(db
+            .query_row(
                 "SELECT result IS NULL FROM approval_proposals WHERE id=?1",
                 [proposal["id"].as_str().unwrap()],
                 |r| r.get::<_, bool>(0)
             )
-            .unwrap(),
-            true
-        );
+            .unwrap());
         assert_eq!(
             db.query_row("SELECT count(*) FROM goal_graph_acceptances", [], |r| r
                 .get::<_, u32>(0))
