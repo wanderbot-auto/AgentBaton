@@ -759,7 +759,12 @@ def owner_only_driver(args, output: Path) -> int:
                     for proposal in owner_only_plans(scope):
                         panel.get_by_role('textbox', name='Plan proposal JSON', exact=True).fill('\n ' + json.dumps(proposal, indent=2) + '\n')
                         panel.get_by_role('button', name='Store initial plan proposal' if proposal['revision'] == 1 else 'Store revised plan proposal', exact=True).click()
-                        stored = wait(lambda: result('goal_plans.get', {'scope_id': scope['id']}), lambda row: row['proposal']['revision'] == proposal['revision'])
+                        # The browser mutation is asynchronous. list is a true
+                        # readonly empty-until-created projection; get correctly
+                        # returns NOT_FOUND before the first store commits.
+                        plans = wait(lambda: result('goal_plans.list', {'scope_id': scope['id']}),
+                            lambda rows: any(row['proposal']['revision'] == proposal['revision'] for row in rows))
+                        stored = next(row for row in plans if row['proposal']['revision'] == proposal['revision'])
                         assert stored['proposal'] == proposal and stored['state'] == 'validated_proposal' and stored['dispatched'] is False
                     outer = panel.get_by_test_id('goal-execution').first; expand(outer.locator(':scope > details'))
                     graph = panel.get_by_test_id('goal-graph-panel')
