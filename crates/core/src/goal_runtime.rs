@@ -13,7 +13,7 @@ pub use graph::{
     GraphDefinitionReusePermission, GraphExecutionSnapshot, GraphInputBinding,
     GraphNodeAcceptanceSnapshot, GraphNodeApprovalSelection, GraphNodeView, GraphOwnerDecision,
     GraphOwnerDecisionResult, GraphRunBinding, GraphRunDetails, GraphRunSelection, GraphRunSummary,
-    GraphTaskAcceptance, GraphValidationReceipt,
+    GraphTaskAcceptance, GraphValidationReceipt, GraphValidationView,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1361,7 +1361,12 @@ impl Store {
         let row:Option<Option<String>>=self.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM approval_proposals WHERE id=?1 AND result IS NULL",[id],|r|r.get(0)).optional().map_err(db_error)?;
         let Some(raw) = row else { return Ok(false) };
         let proposal: ApprovalProposal = decode(&raw.ok_or_else(limited)?)?;
-        Ok(proposal.id == id && proposal.kind == "goal_execution" && !proposal.consumed)
+        Ok(proposal.id == id
+            && matches!(
+                proposal.kind.as_str(),
+                "goal_execution" | "goal_graph_execution"
+            )
+            && !proposal.consumed)
     }
     pub(crate) fn active_goal_runs(&self) -> Result<Vec<GoalRun>> {
         raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE (state IN('queued','running','cancel_requested') OR (state='blocked' AND EXISTS(SELECT 1 FROM goal_run_nodes n WHERE n.run_id=goal_runs.id AND n.state IN('reserved','running','stopping'))))",[],256,MAX_STORED_BYTES)?;
