@@ -9,3 +9,9 @@ Real two-file Ready/registry/content/source mtime; exact-key replay/no readonly 
 Only the new script/four docs differ from base. UI/native/Core/locks/old tests/harnesses/CI byte-identical. No dependency link/Cargo/target/frontend build/push/merge. Reviewer files untouched/unstaged.
 
 Next: independent harness review and primary integration. New optional `io_completion`/`cancelled` contract requires a new frozen Core10/UI artifact and affected regressions; never retrofit old receipts as joined. Actual chunk/partial-copy cancellation needs separate Core controls. Native OwnerDialog/WebView/macOS/final CI remain unrun here. Full approved product goal continues.
+
+## Resume checkpoint — 2026-10-28
+
+Current narrow adaptation SHA-256 `62fcc24db50cad5d4cde663a2d4110c151cb7d0db941d94ef6e4dc17f5bcded4` supports the new wire; syntax/diff and18 labelled synthetic helper controls pass. Real new-Core/new-UI execution PENDING. Core author /root/data_core_resume is running final workspace/lints/build before frozen binary delivery; primary /root will provide composed DataUI dist. No Cargo/native/Node writer, no new credentials/network/CI/push/merge. Original ca35/636e run5 and independent candidate review remain historical unchanged. Reviewer-owned untracked REVIEW.md preserved and unstaged.
+
+Next: obtain exact new binary/manifest and UI dist; preserve an old-script/new-artifact regression failure if reproducible; run adapted script into a fresh exclusive output directory; inspect actual cancellation joint receipt/event and UI, selected-byte observations, all original negatives and screenshots. Save failures, attribution and unexercised Ready/no-join/partial paths; commit only script+these four docs. Independent new-delta review remains required.

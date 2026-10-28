@@ -18,6 +18,7 @@ from pathlib import Path
 import re
 import socket
 import sqlite3
+import stat
 import subprocess
 import tempfile
 import threading
@@ -57,6 +58,27 @@ def unique_object(pairs):
 
 def integer(value, minimum=0, maximum=9_007_199_254_740_991):
     return type(value) is int and minimum <= value <= maximum
+
+
+def copy_completion(record):
+    """Observe a real terminal receipt; missing legacy metadata never implies join."""
+    completion = record.get('io_completion')
+    assert completion in {None, 'worker_joined', 'not_scheduled', 'interrupted_no_join_receipt'}, record
+    assert record['state'] in {'ready', 'failed', 'cancelled', 'outcome_unknown'}, record
+    joined = completion == 'worker_joined'
+    if record['state'] == 'cancelled':
+        error, observed = record.get('error') or {}, record.get('observation')
+        assert joined and record['cancel_requested'] is True and record.get('contract') is None, record
+        assert error.get('code') == 'CANCEL_REQUESTED' and error.get('side_effect_state') == 'confirmed', record
+        assert observed is None or (observed['state'] == 'failed' and observed['error'] == 'cancel_requested'), record
+    if completion == 'not_scheduled':
+        assert record['state'] == 'failed' and record.get('contract') is None and record.get('observation') is None, record
+    if completion == 'interrupted_no_join_receipt':
+        assert record['state'] == 'outcome_unknown' and record.get('contract') is None, record
+    return {'io_completion': completion, 'owned_copy_worker_join_observed': joined,
+            'cancelled_owned_worker_join_observed': record['state'] == 'cancelled' and joined,
+            'completion_unrecorded': completion is None,
+            'general_filesystem_quiescence_claimed': False}
 
 
 def main():
@@ -220,8 +242,30 @@ def main():
                 assert prepared['revision'] == 1 and prepared['source'] == 'data_workspace_core'
                 assert prepared['payload'] == {'workspace_id': creation['workspace_id'], 'dataset_revision': creation['dataset_revision'], 'copy_started': False, 'approval_id': creation['approval_id'], 'preview_id': creation['preview_id'], 'scope': creation['scope'], 'snapshot_digest': compact_digest(stored_creation['snapshot'])}
                 assert finished['revision'] == creation['revision'] and finished['source'] == 'data_workspace_core'
-                assert finished['payload'] == {'state': 'ready', 'workspace_id': creation['workspace_id'], 'cancel_requested': creation['cancel_requested'], 'automatic_retry': False, 'source_write': False, 'approval_id': creation['approval_id'], 'dataset_revision': creation['dataset_revision'], 'contract_digest': creation['contract']['contract_digest']}
+                assert finished['payload'] == {'state': 'ready', 'workspace_id': creation['workspace_id'], 'cancel_requested': creation['cancel_requested'], 'automatic_retry': False, 'source_write': False, 'approval_id': creation['approval_id'], 'dataset_revision': creation['dataset_revision'], 'contract_digest': creation['contract']['contract_digest'], 'io_completion': creation['io_completion']}
                 report['observations']['normal_journal_commitments'] = {'sequences': list(receipt), 'events': events, 'stored_snapshot_digest': compact_digest(stored_creation['snapshot']), 'owner_snapshot_digest': compact_digest(stored_proposal['snapshot']), 'contract_digest': creation['contract']['contract_digest']}
+
+            def completion_receipt(creation):
+                # Read the actual persisted terminal record and its correlated
+                # event. This observes Core's join claim, never manufactures it.
+                completion = copy_completion(creation)
+                with sqlite3.connect(f'file:{runtime / "baton.sqlite3"}?mode=ro', uri=True) as store:
+                    store.execute('PRAGMA query_only=ON'); store.execute('BEGIN')
+                    stored = json.loads(store.execute('SELECT document FROM data_workspace_creations WHERE id=?', [creation['id']]).fetchone()[0])
+                    assert stored == creation
+                    sequence = store.execute('SELECT finished_sequence FROM data_workspace_receipts WHERE creation_id=?', [creation['id']]).fetchone()[0]
+                    if sequence is None:
+                        assert creation['state'] == 'outcome_unknown' and completion['io_completion'] in {None, 'interrupted_no_join_receipt'}, creation
+                        return {**completion, 'finished_sequence': None, 'finished_event': None}
+                    assert integer(sequence, 1)
+                    event = json.loads(store.execute('SELECT document FROM events WHERE sequence=?', [sequence]).fetchone()[0])
+                assert event['aggregate_id'] == creation['id'] and event['revision'] == creation['revision']
+                assert event['kind'] == 'data_workspace.copy_finished' and event['source'] == 'data_workspace_core'
+                expected = {'state': creation['state'], 'workspace_id': creation['workspace_id'], 'cancel_requested': creation['cancel_requested'], 'automatic_retry': False, 'source_write': False, 'approval_id': creation['approval_id'], 'dataset_revision': creation['dataset_revision'], 'contract_digest': (creation.get('contract') or {}).get('contract_digest')}
+                if 'io_completion' in creation:
+                    expected['io_completion'] = creation['io_completion']
+                assert event['payload'] == expected
+                return {**completion, 'finished_sequence': sequence, 'finished_event': event}
 
             def remember(method, response):
                 value = response.get('result')
@@ -460,6 +504,7 @@ def main():
                     creation_id = initial['result']['id']
                     ready = wait(lambda: creation_record(creation_id), lambda value: value['state'] not in {'creating', 'cancel_requested'})
                     assert ready['state'] == 'ready' and ready['contract'] is not None and ready['observation']['state'] == 'ready', ready
+                    assert copy_completion(ready)['owned_copy_worker_join_observed'], ready
                     assert ready['observation']['copied_files'] == len(original['normal']) and ready['observation']['error'] is None
                     destination = Path(ready['destination'])
                     for path, original_file in original['normal'].items():
@@ -480,6 +525,7 @@ def main():
                     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
                     page.set_viewport_size({'width': 1488, 'height': 981})
                     report['observations']['normal_ready'] = ready
+                    report['observations']['normal_completion_receipt'] = completion_receipt(ready)
                     passed('outside-HTTP owner fixture produces actual ready copy, exact inputs bytes/registry identity and unchanged source mtime')
 
                     before = database()
@@ -531,13 +577,21 @@ def main():
                     if requested:
                         button.click()
                     terminal = wait(lambda: creation_record(copy_id), lambda value: value['state'] not in {'creating', 'cancel_requested'})
-                    assert terminal['state'] in {'ready', 'failed', 'outcome_unknown'}, terminal
+                    completion = completion_receipt(terminal)
                     retained_destination = Path(terminal['destination']).exists()
                     refresh(panel); current = detail(panel, copy_id)
                     assert len(creation_records(projects['copy-cancel'])) == 1
                     if terminal['state'] == 'ready':
                         assert terminal['observation']['state'] == 'ready'
                         assert file_sha(Path(terminal['destination']) / 'inputs/large.bin') == original['copy-cancel']['large.bin']['sha256']
+                        assert completion['owned_copy_worker_join_observed']
+                        if terminal['cancel_requested']:
+                            expect(current.get_by_text('Copy completed before cancellation took effect. The ready copy is retained; this is not cancellation success.', exact=True)).to_be_visible()
+                    elif terminal['state'] == 'cancelled':
+                        expect(current.get_by_text('The owned copy worker joined after cancellation. Files may have been written and partial output is retained; stopping does not mean deletion, a ready workspace or accepted artifacts.', exact=True)).to_be_visible()
+                        expect(current.get_by_text('Owned copy worker joined; other filesystem state is not implied', exact=True)).to_be_visible()
+                        expect(panel.get_by_role('button', name='Preview selected files', exact=True)).to_be_enabled()
+                        expect(current.get_by_role('button', name='Request copy cancellation', exact=True)).to_have_count(0)
                     else:
                         expect(current.get_by_text('Partial or unknown output is retained. No automatic retry, new copy or deletion.', exact=True)).to_be_visible()
                         expect(panel.get_by_role('button', name='Preview selected files', exact=True)).to_be_disabled()
@@ -550,18 +604,40 @@ def main():
                     cancelled = requested and terminal['state'] != 'ready' and ((terminal.get('error') or {}).get('code') == 'CANCEL_REQUESTED' or (terminal.get('observation') or {}).get('error') == 'cancel_requested')
                     io_observation = terminal.get('observation')
                     in_copy_observation = cancelled and io_observation is not None and io_observation.get('error') == 'cancel_requested'
-                    before_reservation = cancelled and io_observation is None and not retained_destination and (terminal.get('error') or {}).get('side_effect_state') == 'not_started'
+                    before_reservation = cancelled and io_observation is None and not retained_destination
+                    retained_selected_files = []
+                    for path, source in original['copy-cancel'].items():
+                        target = Path(terminal['destination']) / 'inputs' / path
+                        try:
+                            current_stat = target.stat(follow_symlinks=False)
+                        except FileNotFoundError:
+                            continue
+                        assert stat.S_ISREG(current_stat.st_mode) and current_stat.st_nlink == 1
+                        retained_selected_files.append({'relative_path': 'inputs/' + path, 'bytes': current_stat.st_size, 'source_bytes': source['bytes']})
+                    selected_progress = any(value['bytes'] > 0 for value in retained_selected_files)
+                    partial_selected = any(0 < value['bytes'] < value['source_bytes'] for value in retained_selected_files)
+                    writes_before = len([row for row in report['requests'] if row['method'] in {'data_workspace_previews.start', 'data_workspace_previews.cancel', 'data_workspaces.cancel'}])
+                    before_read = database(); refresh(panel); assert database() == before_read
+                    assert len([row for row in report['requests'] if row['method'] in {'data_workspace_previews.start', 'data_workspace_previews.cancel', 'data_workspaces.cancel'}]) == writes_before
+                    cancel_requests = [row for row in report['requests'] if row['method'] == 'data_workspaces.cancel' and row['args'].get('creationId') == copy_id]
+                    assert len(cancel_requests) == int(requested)
                     report['observations']['copy_cancel'] = {'requested_through_ui': requested, 'terminal': terminal, 'retained_destination_exists': retained_destination,
+                        'completion_receipt': completion,
                         'cancellation_specific_receipt_observed': cancelled,
                         'cancellation_stage': 'before_destination_reservation' if before_reservation else 'copy_observation' if in_copy_observation else 'not_established',
                         'in_copy_cancellation_observation': in_copy_observation,
-                        'partial_copy_stop_not_established': not in_copy_observation,
+                        'retained_selected_files': retained_selected_files,
+                        'selected_output_progress_observed': selected_progress,
+                        'partial_selected_output_observed': partial_selected,
+                        'partial_copy_stop_not_established': not (completion['cancelled_owned_worker_join_observed'] and partial_selected),
+                        'no_join_unknown_case_exercised': terminal['state'] == 'outcome_unknown' and terminal.get('io_completion') == 'interrupted_no_join_receipt',
+                        'ready_race_exercised': requested and terminal['state'] == 'ready',
                         'not_a_stop_claim': terminal['state'] == 'ready'}
                     if not requested:
                         report['unrun'].append('Copy completed before UI cancellation control was available; no successful cancellation is claimed')
-                    elif not cancelled:
-                        report['unrun'].append('Copy request was exercised but no cancellation-specific terminal receipt was observed; the actual outcome is preserved')
-                    passed('actual copy cancellation request or completed-race fact is retained without replay/deletion or false cancelled state', requested_through_ui=requested, terminal=terminal['state'])
+                    elif not completion['cancelled_owned_worker_join_observed']:
+                        report['unrun'].append('Copy request was exercised but no cancelled/worker_joined terminal receipt was observed; actual Ready/failed/unknown is preserved without promoting it to confirmed cancellation')
+                    passed('actual copy request and persisted completion are reconciled without replay/deletion or inferred legacy join', requested_through_ui=requested, terminal=terminal['state'], owned_copy_worker_join_observed=completion['owned_copy_worker_join_observed'])
 
                     panel = open_project('drift')
                     failed, _ = start_preview(panel, 'drift', wrong_hash=True)
