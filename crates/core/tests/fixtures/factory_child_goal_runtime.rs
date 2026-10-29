@@ -417,7 +417,7 @@ fn actual_generated_child_goal(root_self: bool, deadline_probe: bool) {
     assert_eq!(
         db.pragma_query_value::<u32, _>(None, "user_version", |row| row.get(0))
             .unwrap(),
-        15
+        16
     );
     for (sql,expected) in [("SELECT count(*) FROM factory_child_goal_runs",1),("SELECT count(*) FROM factory_attempts",if root_self {1}else{2}),("SELECT count(*) FROM goal_run_reservations",1),("SELECT count(*) FROM goal_graph_capabilities",0),("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",0),("SELECT count(*) FROM workspace_leases WHERE holder!=''",0),("SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'",1),("SELECT count(*) FROM attempts WHERE root_task_id!=(SELECT root_task_id FROM factory_scopes LIMIT 1)",0)]{assert_eq!(db.query_row(sql,[],|row|row.get::<_,i64>(0)).unwrap(),expected,"{sql}");}
     if root_self {

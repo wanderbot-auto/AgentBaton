@@ -1,4 +1,4 @@
-//! Controlled generated SQLite12->13 increment followed by current15.
+//! Controlled generated SQLite12->13 increment followed by current16.
 #[path = "fixtures/pre_factory_schema.rs"]
 mod pre_factory_schema;
 use agentbaton_core::storage::Store;
@@ -65,7 +65,7 @@ fn schema12_upgrade_preserves_exact_task_bytes_and_private_readable_backup_witho
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        15
+        16
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -146,10 +146,10 @@ fn factory_migration_collision_rolls_back_all_new_tables_and_preserves_unknown_o
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema16_is_refused_without_mutation_or_factory_backup() {
+fn future_schema17_is_refused_without_mutation_or_factory_backup() {
     let (d, p, _) = prior();
     let c = Connection::open(&p).unwrap();
-    c.execute_batch("PRAGMA user_version=16;").unwrap();
+    c.execute_batch("PRAGMA user_version=17;").unwrap();
     drop(c);
     let before = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");

@@ -52,7 +52,7 @@ fn actual_schema9_upgrade_has_private_exact_old_bytes_backup_and_does_not_seed_m
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        15
+        16
     );
     assert_eq!(
         db.query_row("SELECT raw FROM original_blob", [], |r| r
@@ -130,10 +130,10 @@ fn schema10_migration_collision_rolls_back_every_new_table_and_preserves_unknown
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema16_is_refused_without_touching_bytes_or_creating_migration_backup() {
+fn future_schema17_is_refused_without_touching_bytes_or_creating_migration_backup() {
     let (d, path, _) = version9();
     let db = Connection::open(&path).unwrap();
-    db.execute_batch("PRAGMA user_version=16;").unwrap();
+    db.execute_batch("PRAGMA user_version=17;").unwrap();
     drop(db);
     let before = fs::read(&path).unwrap();
     assert_eq!(

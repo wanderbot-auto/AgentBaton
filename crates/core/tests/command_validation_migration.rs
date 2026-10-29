@@ -66,7 +66,7 @@ fn real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_a
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        15
+        16
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -144,10 +144,10 @@ fn command_migration_failure_rolls_back_tables_and_version_retains_unknown_data(
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema16_refused_without_touching_bytes() {
+fn future_schema17_refused_without_touching_bytes() {
     let (_d, p) = fixture();
     let c = Connection::open(&p).unwrap();
-    c.execute_batch("PRAGMA user_version=16;").unwrap();
+    c.execute_batch("PRAGMA user_version=17;").unwrap();
     drop(c);
     let raw = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");
@@ -159,7 +159,7 @@ fn fresh_factory_fixture() -> (tempfile::TempDir, PathBuf, Connection) {
         .permissions(fs::Permissions::from_mode(0o700))
         .tempdir()
         .unwrap();
-    let database = directory.path().join("fresh-schema15.sqlite3");
+    let database = directory.path().join("fresh-schema16.sqlite3");
     drop(
         fs::OpenOptions::new()
             .create_new(true)
@@ -168,7 +168,11 @@ fn fresh_factory_fixture() -> (tempfile::TempDir, PathBuf, Connection) {
             .open(&database)
             .unwrap(),
     );
-    drop(Store::open(&database).unwrap());
+    let mut store = Store::open(&database).unwrap();
+    store
+        .create("local", "Representable old Task semantics", "fixture-task")
+        .unwrap();
+    drop(store);
     let connection = Connection::open(&database).unwrap();
     (directory, database, connection)
 }
@@ -243,7 +247,22 @@ fn fixture_logical_snapshot(connection: &Connection) -> FixtureLogicalSnapshot {
 #[test]
 fn fixture_inverse_restores_native_identity_fks_and_preserves_other_schema_and_bytes() {
     let (_directory, _database, connection) = fresh_factory_fixture();
-    connection.execute_batch("CREATE TABLE fixture_unknown(raw BLOB);INSERT INTO fixture_unknown VALUES(x'00ffdeadbeef');PRAGMA foreign_keys=ON;").unwrap();
+    connection.execute_batch("CREATE TABLE fixture_unknown(raw BLOB,txt TEXT,whole INTEGER,real_value REAL,nothing_value TEXT);INSERT INTO fixture_unknown VALUES(x'00ffdeadbeef','untouched',37,1.25,NULL);PRAGMA foreign_keys=ON;").unwrap();
+    let task: String = connection
+        .query_row("SELECT document FROM tasks", [], |row| row.get(0))
+        .unwrap();
+    let pretty =
+        serde_json::to_string_pretty(&serde_json::from_str::<serde_json::Value>(&task).unwrap())
+            .unwrap()
+            + "\n";
+    connection
+        .execute("UPDATE tasks SET document=?1", [&pretty])
+        .unwrap();
+    let remaining_rows: Vec<_> = fixture_logical_snapshot(&connection)
+        .rows
+        .into_iter()
+        .filter(|(table, _)| !pre_factory_schema::FACTORY_TABLES.contains(&table.as_str()))
+        .collect();
     type SchemaObject = (String, String, String, Option<String>);
     type Column = (i64, String, String, i64, Option<String>, i64);
     type ForeignKey = (String, String, Option<String>, String, String, String);
@@ -303,6 +322,19 @@ fn fixture_inverse_restores_native_identity_fks_and_preserves_other_schema_and_b
         })
         .collect();
     pre_factory_schema::remove_empty_factory_increment(&connection).unwrap();
+    assert!(
+        fixture_logical_snapshot(&connection).rows == remaining_rows,
+        "all remaining typed rows, rowids and sequence must survive the semantic inverse"
+    );
+    assert!(
+        connection
+            .query_row("SELECT document FROM tasks", [], |row| row
+                .get::<_, String>(0))
+            .unwrap()
+            .as_bytes()
+            == pretty.as_bytes(),
+        "old raw JSON must not be rewritten or gain a binding field"
+    );
     assert_eq!(
         connection
             .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
@@ -356,8 +388,26 @@ fn fixture_inverse_refuses_nonempty_missing_or_wrong_version_without_deleting_an
         "missing_child_goal_table",
         "wrong_version",
         "old_current14",
+        "old_current15",
+        "future17",
         "factory_extra_column",
         "factory_extra_index",
+        "factory_missing_index",
+        "missing_task_table",
+        "task_extra_column",
+        "task_extra_index",
+        "task_binding_null",
+        "task_binding_object",
+        "task_binding_typed_pending",
+        "task_binding_false",
+        "task_invalid_json",
+        "task_duplicate_id",
+        "task_nonobject_json",
+        "task_foreign_id",
+        "task_zero_revision",
+        "task_zero_spec_revision",
+        "task_unknown_field",
+        "task_oversize",
         "native_scope_extra_column",
         "native_run_extra_index",
         "late_rebuild_collision",
@@ -376,14 +426,59 @@ fn fixture_inverse_refuses_nonempty_missing_or_wrong_version_without_deleting_an
             "missing_child_goal_table" => connection.execute_batch("DROP TABLE factory_child_goal_runs;").unwrap(),
             "wrong_version" => connection.execute_batch("PRAGMA user_version=12;").unwrap(),
             "old_current14" => connection.execute_batch("PRAGMA user_version=14;").unwrap(),
+            "old_current15" => connection.execute_batch("PRAGMA user_version=15;").unwrap(),
+            "future17" => connection.execute_batch("PRAGMA user_version=17;").unwrap(),
             "factory_extra_column" => connection.execute_batch("ALTER TABLE factory_budget_reservations ADD COLUMN unknown_fixture_field TEXT;").unwrap(),
             "factory_extra_index" => connection.execute_batch("CREATE INDEX unknown_factory_index ON factory_runs(state);").unwrap(),
+            "factory_missing_index" => connection.execute_batch("DROP INDEX factory_child_goal_tasks;").unwrap(),
+            "missing_task_table" => connection.execute_batch("DROP TABLE tasks;").unwrap(),
+            "task_extra_column" => connection.execute_batch("ALTER TABLE tasks ADD COLUMN unknown_fixture_field TEXT;").unwrap(),
+            "task_extra_index" => connection.execute_batch("CREATE INDEX unknown_task_index ON tasks(id);").unwrap(),
+            "task_binding_null" => connection.execute_batch("UPDATE tasks SET document=json_set(document,'$.code_workspace_binding',json('null'));").unwrap(),
+            "task_binding_object" => connection.execute_batch("UPDATE tasks SET document=json_set(document,'$.code_workspace_binding',json('{}'));").unwrap(),
+            "task_binding_typed_pending" => {
+                let raw: String = connection.query_row("SELECT document FROM tasks", [], |row| row.get(0)).unwrap();
+                let mut value: serde_json::Value = serde_json::from_str(&raw).unwrap();
+                let task_id = value["id"].clone();
+                // Well-typed current semantic data, deliberately NOT a verified
+                // workspace receipt or operational authority. It still cannot
+                // be erased or relabelled as an old Task by this inverse.
+                value["code_workspace_binding"] = serde_json::json!({
+                    "receipt":{"version":1,"binding_id":"generated-binding","workspace_id":"generated-workspace","task_id":task_id,"project_id":"local","host_id":"local","original_task_revision":1,"reserved_task_revision":2,"spec_revision":1,"project_revision":1,"source_pin":{"canonical_root":"/inert-fixture-source","device":"1","inode":"2","common_dir":"/inert-fixture-source/.git","head":"0".repeat(40)},"managed_root":"/inert-fixture-managed","preparation_key":format!("code-prep:{}","0".repeat(64)),"request_key":"generated-request","request_digest":"0".repeat(64),"created_at":"2020-01-01T00:00:00Z"},
+                    "state":"pending","revision":1,"managed_pin":null
+                });
+                let raw = serde_json::to_string(&value).unwrap();
+                assert!(serde_json::from_str::<agentbaton_core::storage::Task>(&raw).unwrap().code_workspace_binding.is_some());
+                connection.execute("UPDATE tasks SET document=?1", [raw]).unwrap();
+            },
+            "task_binding_false" => connection.execute_batch("UPDATE tasks SET document=json_set(document,'$.code_workspace_binding',json('false'));").unwrap(),
+            "task_invalid_json" => { connection.execute("UPDATE tasks SET document=?1", ["{"]).unwrap(); },
+            "task_duplicate_id" => {
+                let raw: String = connection.query_row("SELECT document FROM tasks", [], |row| row.get(0)).unwrap();
+                let duplicate = format!("{{\"id\":\"duplicate-generated-task\",{}", raw.strip_prefix('{').unwrap());
+                connection.execute("UPDATE tasks SET document=?1", [duplicate]).unwrap();
+            },
+            "task_nonobject_json" => { connection.execute("UPDATE tasks SET document=?1", ["[]"]).unwrap(); },
+            "task_foreign_id" => connection.execute_batch("UPDATE tasks SET document=json_set(document,'$.id','foreign-generated-task');").unwrap(),
+            "task_zero_revision" => connection.execute_batch("UPDATE tasks SET document=json_set(document,'$.revision',0);").unwrap(),
+            "task_zero_spec_revision" => connection.execute_batch("UPDATE tasks SET document=json_set(document,'$.spec_revision',0);").unwrap(),
+            "task_unknown_field" => connection.execute_batch("UPDATE tasks SET document=json_set(document,'$.unknown_fixture_field','preserve raw unknown JSON');").unwrap(),
+            "task_oversize" => { connection.execute("UPDATE tasks SET document=?1", [" ".repeat(262145)]).unwrap(); },
             "native_scope_extra_column" => connection.execute_batch("ALTER TABLE goal_scopes ADD COLUMN unknown_fixture_field TEXT;").unwrap(),
             "native_run_extra_index" => connection.execute_batch("CREATE INDEX unknown_fixture_index ON goal_runs(task_id);").unwrap(),
             // Inert raw schema corruption, NOT a Native approval or a usable
             // Store fixture. All existing15 FKs hold; restoring the native
             // proposal FK must fail late and roll back the whole inverse.
-            "missing_native_proposal_fk" => connection.execute_batch("INSERT INTO tasks VALUES('inert-task','{}');INSERT INTO projects VALUES('inert-project','{}','fixture-dev','fixture-ino','/inert-private-fixture');INSERT INTO execution_grants VALUES('inert-grant','inert-project',NULL,'{}');INSERT INTO goal_scopes VALUES('missing-proposal','inert-task','inert-grant',1,0,'{}');").unwrap(),
+            "missing_native_proposal_fk" => {
+                // A valid, old-representable Task must pass the new semantic
+                // gate, so this still exercises the later restored Native FK.
+                // The raw incomplete scope/Grant are deliberate inert corruption,
+                // never a successful Native approval or usable Store authority.
+                let raw = serde_json::to_string(&serde_json::json!({"id":"inert-task","project_id":"inert-project","goal":"Only the missing Native proposal FK negative","spec_revision":1,"state":"draft","revision":1,"created_at":"2020-01-01T00:00:00Z","updated_at":"2020-01-01T00:00:00Z"})).unwrap();
+                assert!(serde_json::from_str::<agentbaton_core::storage::Task>(&raw).is_ok());
+                connection.execute("INSERT INTO tasks VALUES('inert-task',?1)", [raw]).unwrap();
+                connection.execute_batch("INSERT INTO projects VALUES('inert-project','{}','fixture-dev','fixture-ino','/inert-private-fixture');INSERT INTO execution_grants VALUES('inert-grant','inert-project',NULL,'{}');INSERT INTO goal_scopes VALUES('missing-proposal','inert-task','inert-grant',1,0,'{}');").unwrap();
+            },
             "late_rebuild_collision" => connection.execute_batch("CREATE TABLE goal_runs_pre_factory(sentinel BLOB);").unwrap(),
             _ => unreachable!(),
         }
@@ -503,4 +598,28 @@ fn fixture_inverse_caller_failure_rolls_back_complete_wal_database_and_pragmas()
         .unwrap()
         .exists([])
         .unwrap());
+}
+
+#[test]
+fn fixture_inverse_requires_an_active_caller_transaction_and_refuses_nested_outer_use() {
+    let (_directory, _database, connection) = fresh_factory_fixture();
+    connection
+        .pragma_update(None, "foreign_keys", false)
+        .unwrap();
+    let transaction = connection.unchecked_transaction().unwrap();
+    let nested_before = fixture_logical_snapshot(&transaction);
+    assert!(pre_factory_schema::remove_empty_factory_increment(&transaction).is_err());
+    assert!(fixture_logical_snapshot(&transaction) == nested_before);
+    // A Transaction Rust value cannot stand in for an active SQL transaction.
+    // The helper must reject after this deliberate caller-side COMMIT instead
+    // of executing a non-atomic inverse which could not roll back later DDL.
+    transaction.execute_batch("COMMIT").unwrap();
+    let committed_before = fixture_logical_snapshot(&transaction);
+    assert!(pre_factory_schema::remove_empty_child_goal_increment(&transaction).is_err());
+    assert!(fixture_logical_snapshot(&transaction) == committed_before);
+    drop(transaction);
+    connection
+        .pragma_update(None, "foreign_keys", true)
+        .unwrap();
+    assert!(connection.is_autocommit());
 }
