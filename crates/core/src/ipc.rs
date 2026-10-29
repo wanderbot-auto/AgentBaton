@@ -19,6 +19,9 @@ use std::{
     time::{Duration, Instant},
 };
 use uuid::Uuid;
+#[cfg(debug_assertions)]
+#[path = "goal_runtime_diagnostics.rs"]
+pub(crate) mod goal_diagnostics;
 
 pub const API_VERSION: u32 = 1;
 const MAX_FRAME: u64 = 1_048_576;
@@ -404,6 +407,8 @@ impl Daemon {
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
+        #[cfg(debug_assertions)]
+        let _diagnostic_flush = goal_diagnostics::FlushOnDrop;
         let (requests, ready) = mpsc::sync_channel::<ReadyRequest>(16);
         let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {
@@ -415,8 +420,20 @@ impl Daemon {
             if let Some(error) = self.factory_fatal_error.take() {
                 return Err(error);
             }
+            #[cfg(debug_assertions)]
+            let factory_clock = Instant::now();
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage("factory_tick_begin", None, 0, None);
             self.tick_factory()?;
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage("factory_tick_end", Some(factory_clock.elapsed()), 0, None);
+            #[cfg(debug_assertions)]
+            let goal_clock = Instant::now();
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage("goal_tick_begin", None, 0, None);
             self.tick_goals()?;
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage("goal_tick_end", Some(goal_clock.elapsed()), 0, None);
             for _ in 0..16 {
                 let Ok(job) = ready.try_recv() else {
                     break;
@@ -457,6 +474,8 @@ impl Daemon {
         Ok(())
     }
     fn handle(&mut self, raw: &str) -> Value {
+        #[cfg(debug_assertions)]
+        let diagnostic_clock = Instant::now();
         let request = serde_json::from_str::<Request>(raw);
         let id = request.as_ref().ok().map(|r| r.request_id.clone());
         let authenticated = request.as_ref().is_ok_and(|r| r.token == self.token);
@@ -468,10 +487,18 @@ impl Daemon {
         } else {
             0
         };
-        match result {
+        let response = match result {
             Ok(value) => json!({"request_id":id,"result":value,"revision":revision,"warnings":[]}),
             Err(error) => json!({"request_id":id,"error":error,"revision":revision,"warnings":[]}),
-        }
+        };
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage(
+            "request_handled",
+            Some(diagnostic_clock.elapsed()),
+            goal_diagnostics::method_tag(raw),
+            response["error"]["code"].as_str(),
+        );
+        response
     }
     fn dispatch(&mut self, r: Request) -> Result<Value> {
         if r.token != self.token {
@@ -1780,6 +1807,13 @@ impl Daemon {
         )
     }
     fn ready_error(&self, raw: &str, error: CoreError) -> Value {
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage(
+            "ready_error",
+            None,
+            goal_diagnostics::method_tag(raw),
+            Some(&error.code),
+        );
         let request_id = serde_json::from_str::<Value>(raw)
             .ok()
             .and_then(|v| v["request_id"].as_str().map(str::to_owned));
@@ -1911,21 +1945,63 @@ impl Daemon {
             return;
         }
 
+        #[cfg(debug_assertions)]
+        let factory_clock = Instant::now();
         let factory = match self.factory_context_for_request(&job.raw) {
             Ok(plan) => plan,
             Err(error) => {
+                #[cfg(debug_assertions)]
+                self.trace_goal_stage(
+                    "factory_preflight",
+                    Some(factory_clock.elapsed()),
+                    goal_diagnostics::method_tag(&job.raw),
+                    Some(&error.code),
+                );
                 let _ = job.reply.try_send(self.ready_error(&job.raw, error));
                 return;
             }
         };
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage(
+            "factory_preflight",
+            Some(factory_clock.elapsed()),
+            goal_diagnostics::method_tag(&job.raw),
+            None,
+        );
+        #[cfg(debug_assertions)]
+        let graph_clock = Instant::now();
         let graph = match self.graph_context_for_request(&job.raw) {
             Ok(g) => g,
             Err(error) => {
+                #[cfg(debug_assertions)]
+                self.trace_goal_stage(
+                    "graph_preflight",
+                    Some(graph_clock.elapsed()),
+                    goal_diagnostics::method_tag(&job.raw),
+                    Some(&error.code),
+                );
                 let _ = job.reply.try_send(self.ready_error(&job.raw, error));
                 return;
             }
         };
-        match self.data_contexts_for_request(&job.raw) {
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage(
+            "graph_preflight",
+            Some(graph_clock.elapsed()),
+            goal_diagnostics::method_tag(&job.raw),
+            None,
+        );
+        #[cfg(debug_assertions)]
+        let data_clock = Instant::now();
+        let contexts = self.data_contexts_for_request(&job.raw);
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage(
+            "data_context",
+            Some(data_clock.elapsed()),
+            goal_diagnostics::method_tag(&job.raw),
+            contexts.as_ref().err().map(|e| e.code.as_str()),
+        );
+        match contexts {
             Err(error) => {
                 let _ = job.reply.try_send(self.ready_error(&job.raw, error));
             }
@@ -1946,6 +2022,15 @@ impl Daemon {
         let Some(completed) = self.data_workers.take_admission() else {
             return;
         };
+        #[cfg(debug_assertions)]
+        if let CompletedDataRequest::Input(job, result) = &completed {
+            self.trace_goal_stage(
+                "input_read_done",
+                None,
+                goal_diagnostics::method_tag(&job.raw),
+                result.as_ref().as_ref().err().map(|e| e.code.as_str()),
+            );
+        }
         match completed {
             CompletedDataRequest::Input(job, result) => match *result {
                 Err(error) => {
@@ -2121,13 +2206,46 @@ struct GoalRunId {
     run_id: String,
 }
 impl Daemon {
+    #[cfg(debug_assertions)]
+    fn trace_goal_stage(
+        &self,
+        stage: &'static str,
+        elapsed: Option<Duration>,
+        count: usize,
+        code: Option<&str>,
+    ) {
+        let (worker, retained) = self.data_workers.diagnostic_worker_state();
+        goal_diagnostics::emit(
+            stage,
+            elapsed,
+            [
+                worker,
+                retained,
+                self.graph_workers.has_workers(),
+                self.goal_pending.is_some(),
+                self.factory_pending.is_some(),
+                self.supervisor.has_workers(),
+            ],
+            count,
+            code,
+        );
+    }
     fn tick_goals(&mut self) -> Result<()> {
         for id in self.store.goal_stop_requests()? {
             self.supervisor.cancel(&id);
         }
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage("goal_after_stops", None, 0, None);
         if let Some((id, receiver)) = self.goal_pending.take() {
             match receiver.try_recv() {
                 Ok(response) => {
+                    #[cfg(debug_assertions)]
+                    self.trace_goal_stage(
+                        "goal_pending_reply",
+                        None,
+                        0,
+                        response["error"]["code"].as_str(),
+                    );
                     if let Some(code) = response["error"]["code"].as_str() {
                         if !matches!(code, "STALE_REVISION" | "WORKSPACE_BUSY") {
                             self.store.block_goal_run(&id, code)?;
@@ -2136,25 +2254,48 @@ impl Daemon {
                 }
                 Err(std::sync::mpsc::TryRecvError::Empty) => {
                     self.goal_pending = Some((id, receiver));
+                    #[cfg(debug_assertions)]
+                    self.trace_goal_stage("goal_pending_empty", None, 0, None);
                     return Ok(());
                 }
                 Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                    #[cfg(debug_assertions)]
+                    self.trace_goal_stage(
+                        "goal_pending_disconnect",
+                        None,
+                        0,
+                        Some("INTERNAL_ADVANCE_INTERRUPTED"),
+                    );
                     self.store
                         .block_goal_run(&id, "INTERNAL_ADVANCE_INTERRUPTED")?;
                 }
             }
         }
         if self.data_workers.has_workers() || self.graph_workers.has_workers() {
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage("goal_lane_busy", None, 0, None);
             return Ok(());
         }
         let mut next = None;
         for r in self.store.active_goal_runs()? {
-            if self.store.goal_run_needs_advance(&r.id)? {
+            #[cfg(debug_assertions)]
+            let ready_clock = Instant::now();
+            let needs = self.store.goal_run_needs_advance(&r.id);
+            #[cfg(debug_assertions)]
+            self.trace_goal_stage(
+                "goal_needs_advance",
+                Some(ready_clock.elapsed()),
+                usize::from(needs.as_ref().is_ok_and(|b| *b)),
+                needs.as_ref().err().map(|e| e.code.as_str()),
+            );
+            if needs? {
                 next = Some(r);
                 break;
             }
         }
         let Some(run) = next else { return Ok(()) };
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage("goal_selected", None, 1, None);
         let ledger = self.store.sequence()?;
         let method = if self.store.is_goal_graph_run(&run.id)? {
             "goal_graph_runs.dispatch"

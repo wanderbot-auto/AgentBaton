@@ -138,6 +138,10 @@ impl DataWorkspaceWorkers {
     pub(crate) fn has_workers(&self) -> bool {
         self.worker.is_some() || self.retained.is_some()
     }
+    #[cfg(debug_assertions)]
+    pub(crate) fn diagnostic_worker_state(&self) -> (bool, bool) {
+        (self.worker.is_some(), self.retained.is_some())
+    }
     pub(crate) fn cancel(&self, id: &str) {
         if let Some(w) = self.worker.as_ref().filter(|w| w.id == id) {
             w.cancel.store(true, Ordering::Relaxed)
@@ -446,9 +450,19 @@ impl DataWorkspaceWorkers {
             error.side_effect_state = "not_started".into();
             return Err(Box::new((error, job)));
         }
+        #[cfg(debug_assertions)]
+        let diagnostic_tag = crate::ipc::goal_diagnostics::method_tag(&job.raw);
         let worker = self.worker.as_mut().unwrap();
         worker.pending = Some(job);
         worker.factory_owner_watch = factory_watch;
+        #[cfg(debug_assertions)]
+        crate::ipc::goal_diagnostics::emit(
+            "input_read_issued",
+            None,
+            [true, false, false, false, false, false],
+            diagnostic_tag,
+            None,
+        );
         Ok(())
     }
     pub(crate) fn validate_data(

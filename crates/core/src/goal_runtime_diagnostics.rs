@@ -1,0 +1,284 @@
+//! Explicit debug-only scalar observations. This module is not compiled into
+//! release builds and never produces an authority value or changes scheduling.
+use std::{
+    collections::{BTreeMap, VecDeque},
+    io::Write,
+    sync::{Mutex, OnceLock},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+};
+const MAX_LINES: usize = 512;
+const MAX_BYTES: usize = 131072;
+const MAX_LINE: usize = 256;
+const PER_STAGE: usize = 8;
+#[derive(Clone, PartialEq, Eq)]
+struct Signature {
+    flags: [bool; 6],
+    count: usize,
+    code: &'static str,
+}
+struct Stage {
+    signature: Signature,
+    last: Instant,
+    immediate: usize,
+    tail: VecDeque<(u64, String)>,
+}
+struct Trace {
+    start: Instant,
+    wall_ms: u64,
+    lines: usize,
+    bytes: usize,
+    last_read: Option<Instant>,
+    stages: BTreeMap<&'static str, Stage>,
+}
+fn millis(d: Duration) -> u64 {
+    u64::try_from(d.as_millis()).unwrap_or(u64::MAX)
+}
+impl Trace {
+    fn new(now: Instant) -> Self {
+        Self {
+            start: now,
+            wall_ms: millis(
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap_or_default(),
+            ),
+            lines: 0,
+            bytes: 0,
+            last_read: None,
+            stages: BTreeMap::new(),
+        }
+    }
+    fn reserve(&mut self, line: &str) -> bool {
+        if line.len() > MAX_LINE
+            || self.lines >= MAX_LINES
+            || self.bytes.saturating_add(line.len()) > MAX_BYTES
+        {
+            return false;
+        }
+        self.lines += 1;
+        self.bytes += line.len();
+        true
+    }
+    fn record(
+        &mut self,
+        stage: &'static str,
+        now: Instant,
+        mut elapsed: Option<Duration>,
+        flags: [bool; 6],
+        count: usize,
+        code: &'static str,
+    ) -> Option<String> {
+        if !allowed_stage(stage) {
+            return None;
+        }
+        if stage == "input_read_issued" {
+            self.last_read = Some(now);
+        }
+        if stage == "input_read_done" {
+            elapsed = self
+                .last_read
+                .take()
+                .map(|start| now.saturating_duration_since(start));
+        }
+        let signature = Signature { flags, count, code };
+        if self.stages.get(stage).is_some_and(|old| {
+            old.signature == signature
+                && (elapsed.is_none_or(|d| d < Duration::from_millis(100))
+                    || now.saturating_duration_since(old.last) < Duration::from_secs(1))
+        }) {
+            return None;
+        }
+        let at = millis(now.saturating_duration_since(self.start));
+        let line=format!("AB_GOAL_DIAG stage={stage} wall_ms={} at_ms={at} elapsed_ms={} flags={}{}{}{}{}{} count={count} code={code}\n",self.wall_ms,elapsed.map(millis).unwrap_or(0),u8::from(flags[0]),u8::from(flags[1]),u8::from(flags[2]),u8::from(flags[3]),u8::from(flags[4]),u8::from(flags[5]));
+        if line.len() > MAX_LINE {
+            return None;
+        }
+        let bucket = self.stages.entry(stage).or_insert_with(|| Stage {
+            signature: signature.clone(),
+            last: now,
+            immediate: 0,
+            tail: VecDeque::new(),
+        });
+        bucket.signature = signature;
+        bucket.last = now;
+        if bucket.immediate < PER_STAGE {
+            bucket.immediate += 1;
+            return self.reserve(&line).then_some(line);
+        }
+        if bucket.tail.len() == PER_STAGE {
+            bucket.tail.pop_front();
+        }
+        bucket.tail.push_back((at, line));
+        None
+    }
+    fn drain(&mut self) -> Vec<String> {
+        let mut rows = self
+            .stages
+            .values_mut()
+            .flat_map(|s| s.tail.drain(..))
+            .collect::<Vec<_>>();
+        rows.sort_by_key(|(at, _)| *at);
+        rows.into_iter()
+            .filter_map(|(_, line)| self.reserve(&line).then_some(line))
+            .collect()
+    }
+}
+fn allowed_stage(stage: &str) -> bool {
+    matches!(
+        stage,
+        "factory_tick_begin"
+            | "factory_tick_end"
+            | "goal_tick_begin"
+            | "goal_tick_end"
+            | "goal_after_stops"
+            | "goal_pending_empty"
+            | "goal_pending_reply"
+            | "goal_pending_disconnect"
+            | "goal_lane_busy"
+            | "goal_needs_advance"
+            | "goal_selected"
+            | "factory_preflight"
+            | "graph_preflight"
+            | "data_context"
+            | "ready_error"
+            | "input_read_issued"
+            | "input_read_done"
+            | "request_handled"
+    )
+}
+fn error_code(code: Option<&str>) -> &'static str {
+    match code {
+        None => "none",
+        Some("WORKSPACE_BUSY") => "WORKSPACE_BUSY",
+        Some("STALE_REVISION") => "STALE_REVISION",
+        Some("INPUT_CHANGED") => "INPUT_CHANGED",
+        Some("AUTH_REQUIRED") => "AUTH_REQUIRED",
+        Some("RESOURCE_LIMIT") => "RESOURCE_LIMIT",
+        Some("DEADLINE_EXCEEDED") => "DEADLINE_EXCEEDED",
+        Some("OUTCOME_UNKNOWN") => "OUTCOME_UNKNOWN",
+        Some("BUDGET_UNKNOWN") => "BUDGET_UNKNOWN",
+        Some("INTERNAL_ERROR") => "INTERNAL_ERROR",
+        Some("PERMISSION_DENIED") => "PERMISSION_DENIED",
+        Some("CAPABILITY_UNSUPPORTED") => "CAPABILITY_UNSUPPORTED",
+        Some("CONFIG_CONFLICT") => "CONFIG_CONFLICT",
+        Some("INTERNAL_ADVANCE_INTERRUPTED") => "INTERNAL_ADVANCE_INTERRUPTED",
+        Some(_) => "other_code",
+    }
+}
+pub(crate) fn enabled() -> bool {
+    static ENABLED: OnceLock<bool> = OnceLock::new();
+    *ENABLED
+        .get_or_init(|| std::env::var("AGENTBATON_GOAL_DIAGNOSTICS").ok().as_deref() == Some("1"))
+}
+fn state() -> &'static Mutex<Trace> {
+    static STATE: OnceLock<Mutex<Trace>> = OnceLock::new();
+    STATE.get_or_init(|| Mutex::new(Trace::new(Instant::now())))
+}
+pub(crate) fn emit(
+    stage: &'static str,
+    elapsed: Option<Duration>,
+    flags: [bool; 6],
+    count: usize,
+    code: Option<&str>,
+) {
+    if !enabled() {
+        return;
+    }
+    let line = state().lock().ok().and_then(|mut trace| {
+        trace.record(
+            stage,
+            Instant::now(),
+            elapsed,
+            flags,
+            count,
+            error_code(code),
+        )
+    });
+    if let Some(line) = line {
+        let _ = std::io::stderr().lock().write_all(line.as_bytes());
+    }
+}
+// Fixed enum-like tags only; never output raw method or request text.
+pub(crate) fn method_tag(raw: &str) -> usize {
+    if !enabled() {
+        return 0;
+    }
+    let Ok(value) = serde_json::from_str::<serde_json::Value>(raw) else {
+        return 0;
+    };
+    match value["method"].as_str() {
+        Some("goal_graph_runs.dispatch") => 1,
+        Some("goal_runs.dispatch") => 2,
+        Some("factory_runs.get") => 3,
+        Some("factory_child_goals.list") => 4,
+        Some("factory_child_goals.get") => 5,
+        Some("goal_node_approvals.propose") => 6,
+        Some("approvals.finalize") => 7,
+        Some("approvals.decline") => 8,
+        _ => 0,
+    }
+}
+pub(crate) struct FlushOnDrop;
+impl Drop for FlushOnDrop {
+    fn drop(&mut self) {
+        if !enabled() {
+            return;
+        }
+        let rows = state()
+            .lock()
+            .ok()
+            .map(|mut trace| trace.drain())
+            .unwrap_or_default();
+        for line in rows {
+            let _ = std::io::stderr().lock().write_all(line.as_bytes());
+        }
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn repeated_ticks_keep_bounded_late_stage_tail_instead_of_spending_global_budget() {
+        let start = Instant::now();
+        let mut trace = Trace::new(start);
+        let mut emitted = vec![];
+        for i in 0..10000 {
+            if let Some(line) = trace.record(
+                "goal_needs_advance",
+                start + Duration::from_millis(i),
+                None,
+                [i % 2 == 0, false, false, false, false, false],
+                0,
+                "none",
+            ) {
+                emitted.push(line);
+            }
+        }
+        assert_eq!(emitted.len(), 8);
+        let tail = trace.drain();
+        assert_eq!(tail.len(), 8);
+        assert!(tail.last().unwrap().contains("at_ms=9999"));
+        assert!(trace.lines <= MAX_LINES && trace.bytes <= MAX_BYTES);
+    }
+    #[test]
+    fn fixed_stage_and_code_allowlists_never_print_request_or_error_payloads() {
+        let now = Instant::now();
+        let mut trace = Trace::new(now);
+        assert!(trace
+            .record("not-a-fixed-stage", now, None, [false; 6], 0, "none")
+            .is_none());
+        let line = trace
+            .record(
+                "ready_error",
+                now,
+                None,
+                [false; 6],
+                0,
+                error_code(Some("private-token-shaped-user-error")),
+            )
+            .unwrap();
+        assert!(!line.contains("private-token"));
+        assert!(line.contains("other_code"));
+        assert!(line.len() <= MAX_LINE);
+    }
+}
