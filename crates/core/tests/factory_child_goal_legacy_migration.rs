@@ -55,10 +55,37 @@ fn verify_tool_provenance(source: &Path, manifest: &Value) {
     assert_eq!(m["contract"], "agentbaton.schema14-source-build.v1");
     assert_eq!(m["status"], "passed");
     assert_eq!(m["schema"], 14);
+    let host = if cfg!(target_os = "macos") {
+        "darwin"
+    } else {
+        "linux"
+    };
+    assert_eq!(m["platform"], host);
     assert_eq!(
-        m["platform"], "linux",
-        "Mac reproduction is a separate unverified dimension"
+        manifest
+            .get("platform")
+            .and_then(Value::as_str)
+            .unwrap_or("linux"),
+        host
     );
+    if host == "darwin" {
+        let architecture = if cfg!(target_arch = "aarch64") {
+            "arm64"
+        } else {
+            "x86_64"
+        };
+        assert_eq!(m["architecture"], architecture);
+        assert_eq!(manifest["architecture"], architecture);
+        assert!(digest(&m["native_helper_sha256"]));
+        assert!(
+            m["native_helper_sha256"]
+                == agentbaton_workspaces::validation::sha256(include_bytes!(
+                    "../../../scripts/native-run.py"
+                )),
+            "Native lifecycle helper source is not the reviewed checkout"
+        );
+        assert!(!m["os_release"].as_str().unwrap().is_empty());
+    }
     assert_eq!(
         m["source"]["commit"],
         "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701"
@@ -73,11 +100,18 @@ fn verify_tool_provenance(source: &Path, manifest: &Value) {
     );
     assert_eq!(m["source"]["compiled_source_clean"], true);
     assert!(digest(&m["source"]["archive_sha256"]));
-    assert_eq!(
-        m["builder_sha256"],
-        agentbaton_workspaces::validation::sha256(include_bytes!(
-            "../../../scripts/prepare-legacy-migration-fixture.py"
-        ))
+    let current_builder = agentbaton_workspaces::validation::sha256(include_bytes!(
+        "../../../scripts/prepare-legacy-migration-fixture.py"
+    ));
+    let historical_linux = host == "linux"
+        && m.get("architecture").is_none()
+        && m.get("os_release").is_none()
+        && m["probe"].get("identity_method").is_none()
+        && m["builder_sha256"]
+            == "b3ce52eb0c32791db9532e9cdd1a4e194d700cebd82c3120b76dfa3e20b81e5b";
+    assert!(
+        m["builder_sha256"] == current_builder || historical_linux,
+        "Unreviewed builder source or relabelled historical Linux proof"
     );
     for name in [
         "Cargo.toml",
@@ -151,12 +185,22 @@ fn verify_tool_provenance(source: &Path, manifest: &Value) {
     assert_eq!(p["sigterm_sent"], true);
     assert_eq!(p["forced_kill"], false);
     assert_eq!(p["identity_gone_after_join"], true);
+    if host == "darwin" {
+        assert_eq!(p["identity_method"], "darwin_owned_unreaped_group");
+        assert_eq!(p["leader_unreaped_until_signalling"], true);
+        assert_eq!(p["group_quiescent_before_reaping"], true);
+        assert_eq!(p["cleanup_errors"], json!([]));
+    }
     for name in ["batond", "baton"] {
         let binary = &m["binaries"][name];
         assert!(digest(&binary["sha256"]));
         assert_eq!(binary["sha256"], manifest["binaries"][name]);
         assert_eq!(binary["mode"], "0o500");
         assert_eq!(binary["nlink"], 1);
+        if host == "darwin" {
+            assert_eq!(binary["format"], "mach-o-64");
+            assert_eq!(binary["architecture"], m["architecture"]);
+        }
         assert!(binary["bytes"]
             .as_u64()
             .is_some_and(|n| n > 0 && n <= 134_217_728));
@@ -234,6 +278,31 @@ fn fixture() -> (FixtureDir, PathBuf, Value) {
     assert_eq!(manifest["actual_initial_probe"]["query_only"], true);
     let owned = manifest["owned_processes"].as_array().unwrap();
     assert!(owned.len() >= 2 && owned.iter().all(|p| p["gone_after_join"] == true));
+    if cfg!(target_os = "macos") {
+        assert_eq!(manifest["platform"], "darwin");
+        assert_eq!(
+            manifest["daemon_identity_method"],
+            "darwin_owned_unreaped_group"
+        );
+        for key in [
+            "daemon_sigterm_sent",
+            "daemon_group_quiescent_before_reaping",
+            "daemon_leader_unreaped_until_signalling",
+        ] {
+            assert_eq!(manifest[key], true);
+        }
+        assert_eq!(manifest["daemon_cleanup_errors"], json!([]));
+        assert_eq!(
+            manifest["provider_stop_proof"]["method"],
+            "core_stop_confirmed_plus_pid_absence"
+        );
+        assert_eq!(manifest["provider_stop_proof"]["observed"], owned.len());
+        assert_eq!(manifest["provider_stop_proof"]["core_join_confirmed"], true);
+        assert_eq!(
+            manifest["provider_stop_proof"]["pid_absence_confirmed"],
+            true
+        );
+    }
     assert_eq!(
         manifest["source_commit"],
         "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701"
@@ -265,6 +334,45 @@ fn fixture() -> (FixtureDir, PathBuf, Value) {
     let db = Connection::open(&path).unwrap();
     assert_eq!(version(&db), 14);
     assert!(fk_errors(&db).is_empty());
+    if cfg!(target_os = "macos") {
+        for process in owned {
+            assert!(process["pid"].as_u64().is_some_and(|n| n > 1));
+            assert!(
+                process["pgid"].as_u64() == process["pid"].as_u64(),
+                "Private provider group tuple differs"
+            );
+            assert_eq!(
+                process["identity_method"],
+                "darwin_pid_absence_after_core_join"
+            );
+            assert_eq!(process["pid_query_exit"], 1);
+            assert_eq!(process["pid_query_stdout_empty"], true);
+            assert_eq!(process["pid_query_stderr_empty"], true);
+            let join = &process["core_join"];
+            assert!(
+                join["stop_confirmed"] == true,
+                "Private Core stop receipt is unconfirmed"
+            );
+            assert!(
+                join["session_state"] == "stopped",
+                "Private Core session is not stopped"
+            );
+            let session = join["session_id"].as_str().unwrap();
+            let attempt = join["attempt_id"].as_str().unwrap();
+            let count: i64 = db.query_row("SELECT count(*) FROM sessions WHERE id=?1 AND json_extract(document,'$.attempt_id')=?2 AND json_extract(document,'$.state')='stopped'",[session,attempt],|r|r.get(0)).unwrap();
+            assert_eq!(count, 1);
+            let count: i64 = match join["source"].as_str().unwrap() {
+                "native_goal_node" => db.query_row("SELECT count(*) FROM goal_run_nodes WHERE json_extract(document,'$.session_id')=?1 AND json_extract(document,'$.attempt_id')=?2 AND json_extract(document,'$.stop_confirmed')=1",[session,attempt],|r|r.get(0)).unwrap(),
+                "factory_binding_attempt" => {
+                    let count: i64 = db.query_row("SELECT count(*) FROM factory_task_bindings WHERE json_extract(document,'$.session_id')=?1 AND json_extract(document,'$.handle.attempt_id')=?2 AND json_extract(document,'$.handle.confirmed_stop')=1",[session,attempt],|r|r.get(0)).unwrap();
+                    assert_eq!(count,1);
+                    db.query_row("SELECT count(*) FROM factory_attempts WHERE session_id=?1 AND attempt_id=?2 AND json_extract(document,'$.stop_confirmed')=1",[session,attempt],|r|r.get(0)).unwrap()
+                },
+                _ => panic!("Unsupported private Core stop receipt source"),
+            };
+            assert_eq!(count, 1);
+        }
+    }
     for table in [
         "goal_scopes",
         "goal_runs",

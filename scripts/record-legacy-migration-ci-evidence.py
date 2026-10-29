@@ -28,6 +28,21 @@ def known_status(record):
     return status
 
 
+def public_host(record, historical_fixture=False):
+    platform = record.get('platform', 'linux' if historical_fixture else None)
+    require(type(platform) is str and platform in ('linux','darwin'))
+    result = {} if historical_fixture and 'platform' not in record else {'platform':platform}
+    if 'architecture' in record or platform == 'darwin':
+        architecture = record.get('architecture')
+        require(type(architecture) is str and architecture in (('arm64','x86_64') if platform=='darwin' else ('x86_64','aarch64','arm64')))
+        result['architecture'] = architecture
+    if platform == 'darwin':
+        release = record.get('os_release')
+        require(type(release) is str and re.fullmatch(r'[0-9]+(?:\.[0-9]+){1,3}',release) is not None and len(release)<=32)
+        result['os_release'] = release
+    return result
+
+
 def public_build(record):
     status = known_status(record)
     # Partial failure records can hold arbitrary diagnostics. Do not publish
@@ -36,7 +51,7 @@ def public_build(record):
         return {'status': status}
     require(record.get('contract') == 'agentbaton.schema14-source-build.v1')
     require(type(record.get('schema')) is int and record['schema'] == 14)
-    require(record.get('platform') == 'linux')
+    host = public_host(record)
     source = record.get('source')
     require(type(source) is dict and source.get('commit') == SOURCE and source.get('tree') == TREE)
     require(source.get('compiled_source_clean') is True)
@@ -51,6 +66,9 @@ def public_build(record):
         require(binary.get('mode') == '0o500' and type(binary.get('nlink')) is int and binary['nlink'] == 1)
         safe_binaries[name] = {'sha256': digest(binary.get('sha256')), 'bytes': size,
                                'mode': '0o500', 'nlink': 1}
+        if host['platform'] == 'darwin':
+            require(binary.get('format')=='mach-o-64' and binary.get('architecture')==host['architecture'])
+            safe_binaries[name].update(format='mach-o-64',architecture=host['architecture'])
     toolchain = record.get('toolchain')
     require(type(toolchain) is dict)
     safe_toolchain = {}
@@ -61,12 +79,24 @@ def public_build(record):
         safe_toolchain[name] = value
     build = record.get('build')
     require(type(build) is dict and type(build.get('exit_code')) is int and build['exit_code'] == 0)
-    return {'contract': 'agentbaton.schema14-source-build.v1', 'status': status,
-            'schema': 14, 'platform': 'linux', 'builder_sha256': digest(record.get('builder_sha256')),
+    result = {'contract': 'agentbaton.schema14-source-build.v1', 'status': status,
+            'schema': 14, **host, 'builder_sha256': digest(record.get('builder_sha256')),
             'source': {'commit': SOURCE, 'tree': TREE,
                        'archive_sha256': digest(source.get('archive_sha256')),
                        'compiled_source_clean': True},
             'binaries': safe_binaries, 'toolchain': safe_toolchain, 'build_exit': 0}
+    if host['platform']=='darwin':
+        result['native_helper_sha256']=digest(record.get('native_helper_sha256'))
+        proof=record.get('probe')
+        require(type(proof) is dict and proof.get('identity_method')=='darwin_owned_unreaped_group'
+                and proof.get('leader_unreaped_until_signalling') is True
+                and proof.get('group_quiescent_before_reaping') is True
+                and proof.get('sigterm_sent') is True and proof.get('forced_kill') is False
+                and type(proof.get('daemon_wait_exit')) is int and proof['daemon_wait_exit']==0
+                and proof.get('identity_gone_after_join') is True and proof.get('cleanup_errors')==[])
+        result['process_proof']={'method':'darwin_owned_unreaped_group','sigterm_sent':True,
+            'group_quiescent_before_reaping':True,'wait_exit':0,'forced_kill':False}
+    return result
 
 
 def public_fixture(record):
@@ -83,12 +113,26 @@ def public_fixture(record):
     counts = record.get('counts')
     require(type(counts) is dict and set(counts) == set(TABLES))
     require(all(type(value) is int and 0 < value <= 100000 for value in counts.values()))
-    return {'status': status, 'schema': 14, 'origin': 'actual_frozen_schema14_core_rpc',
+    host=public_host(record,historical_fixture=True)
+    result = {'status': status, 'schema': 14, **host, 'origin': 'actual_frozen_schema14_core_rpc',
             'source_commit': SOURCE, 'provenance_kind': 'reviewed_source_build',
             'daemon_exit': 0, 'forced_kill': False,
             'runtime_cleanup': 'removed_after_successful_owned_join_and_backup',
             'database_sha256': digest(record.get('database_sha256')),
             'counts': {name: counts[name] for name in TABLES}}
+    if host.get('platform')=='darwin':
+        require(record.get('daemon_identity_method')=='darwin_owned_unreaped_group'
+                and record.get('daemon_sigterm_sent') is True
+                and record.get('daemon_group_quiescent_before_reaping') is True
+                and record.get('daemon_leader_unreaped_until_signalling') is True
+                and record.get('daemon_cleanup_errors')==[])
+        proof=record.get('provider_stop_proof')
+        require(type(proof) is dict and proof.get('method')=='core_stop_confirmed_plus_pid_absence'
+                and type(proof.get('observed')) is int and 2<=proof['observed']<=256
+                and proof.get('core_join_confirmed') is True and proof.get('pid_absence_confirmed') is True)
+        result['provider_stop_proof']={'method':'core_stop_confirmed_plus_pid_absence',
+            'observed':proof['observed'],'core_join_confirmed':True,'pid_absence_confirmed':True}
+    return result
 
 
 def load(path):
@@ -103,7 +147,7 @@ def main():
     parser.add_argument('--temporary', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
-    summary = {'dimension': 'Linux genuine14 source/history and explicit15 migration; Mac legacy migration NOT_RUN',
+    summary = {'dimension': 'Native genuine14 source/history and explicit15 migration; platform-specific supplied evidence only',
                'private_history_uploaded': False}
     invalid = False
     for label, path, project in [

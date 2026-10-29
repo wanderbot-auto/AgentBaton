@@ -1,0 +1,9 @@
+# Progress
+
+- New isolated tree `/workspace/.worktrees/legacy-migration-macos-portability` at approved6ee52a1. Prior Linux successful integrated run and original4/2 failures are preserved; none were repeated or re-attributed.
+- Builder accepts Linux/Darwin v1. Darwin records architecture/release and native lifecycle helper SHA, validates actual thin Mach-O architecture, retains0500/nlink1 freeze and fixed f032/tree. Owned lifecycle reuses native-run helpers with no pre-signal Popen poll, strict group quiescence and original wait0.
+- Generator has a Darwin ACP marker branch without procfs. Actual Core same-session/attempt stopped/confirmed records are independent primary evidence; strict ps PID absence is secondary and rejects reuse/presence/query failure. It never calls waitid on Core-owned providers. Raw proofs remain private.
+- Rust consumer independently checks Darwin host/architecture, producer/native helper source, original daemon group proof and private Core join rows before migration; product Core/DDL unchanged.
+- Known old Linux builder SHA `b3ce52eb0c32791db9532e9cdd1a4e194d700cebd82c3120b76dfa3e20b81e5b` is accepted only for original strict Linux shape lacking new platform-proof fields. Arbitrary historical hashes or Darwin relabelling are rejected; actual current builder SHA remains required for new shapes.
+- Public projection emits only bounded typed platform/architecture/release/digest/process-summary fields. Unknown nested private metadata is dropped or rejected, not forwarded. Existing Linux output shape remains compatible.
+- Actual pure results: new portability/lifecycle/privacy11PASS; existing original producer guards11PASS; existing finite evidence8PASS. Python AST and standalone rustfmt/diff checks PASS. No real Core, builder, storage migration, Mac host, Provider or extra resource was executed.

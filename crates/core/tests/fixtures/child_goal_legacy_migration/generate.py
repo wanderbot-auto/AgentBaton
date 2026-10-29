@@ -12,6 +12,7 @@ from contextlib import contextmanager
 import hashlib
 import json
 import os
+import platform
 from pathlib import Path
 import signal
 import shutil
@@ -42,8 +43,14 @@ for line in sys.stdin:
  elif m=='session/prompt':
   pending=i;v=json.loads(r['params']['prompt'][0]['text'])
   Path('reports').mkdir(exist_ok=True)
-  ticks=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]
-  Path('reports/migration-owned-'+str(os.getpid())+'.json').write_text(json.dumps({'pid':os.getpid(),'pgid':os.getpgrp(),'start_ticks':ticks}))
+  owned={'pid':os.getpid(),'pgid':os.getpgrp()}
+  if sys.platform=='linux':owned['start_ticks']=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]
+  elif sys.platform=='darwin':
+   owned['identity_method']='darwin_pid_absence_after_core_join'
+   owned['attempt_id']=v['lineage']['attempt_id']if v['kind']=='agentbaton_goal_task_request'else None
+   owned['task_id']=v['task_id']if v['kind']=='agentbaton_factory_task_request'else None
+  else:raise AssertionError('Unsupported generated-provider host')
+  Path('reports/migration-owned-'+str(os.getpid())+'.json').write_text(json.dumps(owned))
   if v['kind']=='agentbaton_goal_task_request':
    assert v['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
    Path('reports').mkdir(exist_ok=True);Path('reports/report.txt').write_bytes(b'fixed legacy Graph candidate\n')
@@ -120,6 +127,34 @@ def finish_report(report, frozen, hashes, output, completed, source_build):
         os.replace(candidate,path)
 
 
+def darwin_core_join(db, owned, factory_scope_id):
+    """Primary actual Core receipts, separate from conservative ps absence."""
+    if owned.get('attempt_id') is not None:
+        attempt = owned['attempt_id']
+        nodes = db.execute("SELECT document FROM goal_run_nodes WHERE json_extract(document,'$.attempt_id')=?", [attempt]).fetchall()
+        assert len(nodes) == 1
+        node = json.loads(nodes[0][0]); assert node['stop_confirmed'] is True
+        session_id = node['session_id']
+        source = 'native_goal_node'
+    else:
+        task = owned['task_id']
+        bindings = db.execute('SELECT document FROM factory_task_bindings WHERE scope_id=? AND task_id=?',[factory_scope_id,task]).fetchall()
+        assert len(bindings) == 1
+        binding = json.loads(bindings[0][0]); attempt = binding['handle']['attempt_id']
+        session_id = binding['session_id']
+        assert binding['handle']['confirmed_stop'] is True
+        records = db.execute('SELECT document FROM factory_attempts WHERE scope_id=? AND task_id=? AND attempt_id=?',[factory_scope_id,task,attempt]).fetchall()
+        assert len(records) == 1
+        record = json.loads(records[0][0])
+        assert record['stop_confirmed'] == 1 and record['session_id'] == session_id and record['attempt_id'] == attempt
+        source = 'factory_binding_attempt'
+    sessions = db.execute("SELECT document FROM sessions WHERE json_extract(document,'$.attempt_id')=?", [attempt]).fetchall()
+    assert len(sessions) == 1
+    session = json.loads(sessions[0][0]); assert session['state'] == 'stopped' and session['id'] == session_id and session['attempt_id'] == attempt
+    return {'source':source,'session_id':session['id'],'attempt_id':attempt,
+            'session_state':'stopped','stop_confirmed':True}
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--frozen', type=Path, required=True)
@@ -141,8 +176,11 @@ def main():
         exec(compile(bounded(builder_source),str(builder_source),'exec'),builder.__dict__)
         manifest = json.loads(original_manifest)
         hashes = builder.validate_build_manifest(manifest)
-        assert manifest['builder_sha256'] == sha(bounded(builder_source))
+        builder.verify_reviewed_builder(manifest,sha(bounded(builder_source)))
+        assert manifest['platform'] == sys.platform
+        if sys.platform == 'darwin': assert manifest['architecture'] == platform.machine()
     else:
+        assert sys.platform == 'linux', 'Original fixed pair is Linux-only; native macOS requires reviewed source build'
         original_manifest = bounded(frozen / 'manifest.json')
         manifest = json.loads(original_manifest)
         assert manifest['git_head'] == SOURCE and manifest['schema'] == 14
@@ -165,13 +203,14 @@ def main():
     child_source = repo / 'crates/core/tests/fixtures/factory_child_planning_acp.py'
     source_hashes[str(child_source.relative_to(repo))] = source_function(child_source, 'child_plan', ns)
     report = {'status': 'failed_or_interrupted', 'schema': 14,
+              'platform':sys.platform,'architecture':platform.machine(),'os_release':platform.release(),
               'origin': 'actual_frozen_schema14_core_rpc', 'source_commit': SOURCE,
               'frozen_manifest_sha256': sha(original_manifest), 'binaries': hashes,
               'generator_sha256': sha(Path(__file__).read_bytes()), 'plan_constructor_sources': source_hashes,
               'native_owner': 'trusted_private_host_fixture_not_os_dialog',
               'provider': 'generated_local_acp_no_model_or_credentials',
               'forced_kill': False, 'requests': [], 'private_reviews': [],
-              'not_claimed': ['macOS', 'native dialog', 'real Provider', 'TaskAccepted', 'product completion', 'active worker recovery']}
+              'not_claimed': ['native dialog', 'real Provider', 'TaskAccepted', 'product completion', 'active worker recovery', 'all provider descendants', 'provider kernel birth identity']}
     if args.build_manifest is not None:
         report['provenance_kind'] = 'reviewed_source_build'
         report['source_build_manifest_sha256'] = sha(original_manifest)
@@ -192,9 +231,15 @@ def main():
             clean_env = {k: v for k, v in os.environ.items() if k in ('PATH','LANG','LC_ALL','TMPDIR','HOME')}
             clean_env['BATON_RUNTIME_DIR'] = str(runtime)
             with (output / 'daemon.log').open('wb') as log:
+                native_helpers = builder.load_native_helpers()[0] if sys.platform == 'darwin' else None
+                daemon_record = {'forced_kill':False,'sigterm_sent':False}
                 daemon = subprocess.Popen([str(frozen / 'batond')], env=clean_env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
                 try:
-                    wait(lambda: ((runtime / 'session.token').is_file(), (runtime / 'batond.sock').exists(), daemon.poll()), lambda r: r[0] and r[1] and r[2] is None)
+                    if sys.platform == 'darwin':
+                        daemon_record['owned_identity'] = builder.darwin_owned_identity(daemon)
+                        wait(lambda: ((runtime/'session.token').is_file(),(runtime/'batond.sock').exists(),native_helpers.owned_child_exited(daemon.pid)),lambda r:r[0] and r[1] and r[2] is False)
+                    else:
+                        wait(lambda: ((runtime / 'session.token').is_file(), (runtime / 'batond.sock').exists(), daemon.poll()), lambda r: r[0] and r[1] and r[2] is None)
                     assert stat.S_IMODE((runtime / 'session.token').stat().st_mode) == 0o600
                     with sqlite3.connect((runtime/'baton.sqlite3').as_uri()+'?mode=ro',uri=True) as probe:
                         probe.execute('PRAGMA query_only=ON')
@@ -283,21 +328,41 @@ def main():
                     wait(lambda: call('factory_runs.get', {'scope_id':factory_scope['id']}), lambda r: r['run']['state'] == 'cancelled')
                     report.update(native_goal_scope_id=scope['id'],native_graph_run_id=graph_result['run']['id'],native_graph_approval_id=graph_proposal['id'],factory_scope_id=factory_scope['id'],native_goal_grant_id=grant['id'],factory_grant_id=factory_grant['id'],native_goal_workspace_id=workspace['id'],factory_workspace_id=factory_workspace['id'])
                 finally:
-                    if daemon.poll() is None: daemon.send_signal(signal.SIGTERM)
-                    try: report['daemon_exit'] = daemon.wait(timeout=15)
-                    except subprocess.TimeoutExpired:
-                        report['forced_kill'] = True
-                        daemon.kill(); report['daemon_exit'] = daemon.wait(timeout=5)
+                    if sys.platform == 'darwin':
+                        builder.stop_darwin_owned(daemon,native_helpers,daemon_record)
+                        report.update(daemon_exit=daemon_record.get('daemon_wait_exit'),forced_kill=daemon_record['forced_kill'],
+                            daemon_sigterm_sent=daemon_record['sigterm_sent'],daemon_identity_method='darwin_owned_unreaped_group',
+                            daemon_group_quiescent_before_reaping=daemon_record['group_quiescent_before_reaping'],
+                            daemon_leader_unreaped_until_signalling=daemon_record['leader_unreaped_until_signalling'],
+                            daemon_cleanup_errors=daemon_record['cleanup_errors'])
+                    else:
+                        if daemon.poll() is None: daemon.send_signal(signal.SIGTERM)
+                        try: report['daemon_exit'] = daemon.wait(timeout=15)
+                        except subprocess.TimeoutExpired:
+                            report['forced_kill'] = True
+                            daemon.kill(); report['daemon_exit'] = daemon.wait(timeout=5)
                 assert report['daemon_exit'] == 0 and not report['forced_kill']
+                if sys.platform == 'darwin': assert daemon_record['identity_gone_after_join'] is True
                 report['owned_processes'] = []
+                database = runtime / 'baton.sqlite3'
                 for marker in sorted(runtime.glob('workspaces/**/reports/migration-owned-*.json')):
                     owned = json.loads(bounded(marker,1024))
-                    process = Path('/proc') / str(owned['pid']) / 'stat'
-                    try: current = process.read_text().rsplit(')',1)[1].split()[19]
-                    except FileNotFoundError: current = None
-                    owned['gone_after_join'] = current != owned['start_ticks']
+                    if sys.platform == 'darwin':
+                        assert owned['identity_method']=='darwin_pid_absence_after_core_join' and type(owned['pgid']) is int and owned['pgid']==owned['pid']
+                        with sqlite3.connect(database.as_uri()+'?mode=ro',uri=True) as db:
+                            db.execute('PRAGMA query_only=ON')
+                            owned['core_join']=darwin_core_join(db,owned,report['factory_scope_id'])
+                        owned.update(builder.darwin_pid_absence(owned['pid']))
+                    else:
+                        process = Path('/proc') / str(owned['pid']) / 'stat'
+                        try: current = process.read_text().rsplit(')',1)[1].split()[19]
+                        except FileNotFoundError: current = None
+                        owned['gone_after_join'] = current != owned['start_ticks']
                     report['owned_processes'].append(owned)
                 assert len(report['owned_processes']) >= 2 and all(p['gone_after_join'] for p in report['owned_processes'])
+                if sys.platform == 'darwin':
+                    report['provider_stop_proof']={'method':'core_stop_confirmed_plus_pid_absence',
+                        'observed':len(report['owned_processes']),'core_join_confirmed':True,'pid_absence_confirmed':True}
                 database = runtime / 'baton.sqlite3'
                 with sqlite3.connect(database.as_uri()+'?mode=ro',uri=True) as db:
                     assert db.execute('PRAGMA user_version').fetchone()[0] == 14
