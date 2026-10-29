@@ -1024,5 +1024,29 @@
       "failure root-cause/performance fix"
     ],
     "root_cause": "not established for either Rust blocked14 or ARM failed16"
+  },
+  "validation_observation_915b570": {
+    "source_commit": "915b5704163a97b98cd705b72ab23857e3eb346e",
+    "source_parent": "f28f3e0f435465782d7bbc7f2130c508c1c9dbfd",
+    "source_manifest": "/workspace/.onboarding/factory-rework-validation-observation-evidence/SOURCE_MANIFEST.json",
+    "source_manifest_sha256": "96cde557604fb7fb50f90d5dacacd34d77e16d1af5a2e0fa309c5ed476fa2dda",
+    "diagnosis_path": "/workspace/.onboarding/factory-rework-validation-observation-evidence/DIAGNOSIS.json",
+    "diagnosis_sha256": "a1784aeb8e2c4b1f76120514a41a5dbd139bd76e48ffaaf6ad86be4b57cdd5d8",
+    "actual_final_pure_result": {
+      "distinct_tests": 60,
+      "seconds": 0.307,
+      "exit": 0,
+      "old40_methods_byte_equal": true,
+      "stage_results_not_added": true
+    },
+    "production_and_fixture_7ac_files_byte_equal": 14,
+    "root_meter_20k_inference_withdrawn": true,
+    "actual_root_selection": "execution.policy.root_budget=30000; host policy target20000 is separate",
+    "collector_schema_exact": 15,
+    "product_fix": false,
+    "actual_retained_db_cli": "NOT_RUN",
+    "rust_actor_browser_mac_ci": "NOT_RUN",
+    "independent_review": "PENDING",
+    "bounded_receipt_and_budget_projection_only": true
   }
 }
