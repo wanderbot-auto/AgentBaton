@@ -11,3 +11,7 @@ The actually compiled Core63638a2b4852ee1a5bebe0cfee8e8d93b2ffc1a6 finish_factor
 Source25new unit cases written, NOT_RUN:20guard controls (scope/capability/result/expiry/revoke and malformed lineage/unknown/unjoined negatives),5FactoryRuntime component controls for retained child history slots/closed mutations and malformed evidence. The2prod call-site changes only pass the existing Scope into readonlyshape; mutation/live/intent/send/cancel/CAS/key paths are byte-identical to20c. Python fixed-Git/finite review and diffcheck exit0. Typecheck/Node/build/browser/Cargo all NOT_RUN here.
 
 616original files retain hash/size/mode; all328raw original wire hashes match,0capturefailure/0capacityrejection. Failure PNG was actually viewed; no private DB/RPC/Grant copied. Next: Config independent source review then Root actual execution in new output directories.
+
+## Independent source review
+
+2026-10-29T16:31:42.357086+00:00. Config closeded20558 SOURCE_READY_FOR_ROOT_TESTS, no must-fix,53 static/inverse/formula checks exit0 and diffcheck0. Review SHA `9bb8a564cbe642fd18d52370f045f0e968eb1791bd202ba2eb72df9c0552e42c`, manifest `1c499b43af7f4c26a12b066d155128d70b1e48bea4971d2a14ed9e3e1a3317a9`. It independently corroborates the real Core acceptedStop producer, exact guard inverse/readonly-only fourth arguments, strict legacy contract and unchanged mutation/lineage/join predicates. It ran no types/Node/Core/browser; all25new tests and actual execution remain NOT_RUN until Root's window.
