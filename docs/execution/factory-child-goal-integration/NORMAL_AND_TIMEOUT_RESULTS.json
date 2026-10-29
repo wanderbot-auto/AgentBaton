@@ -1,0 +1,98 @@
+{
+  "recorded_at": "2026-10-29T13:04:21.684375+00:00",
+  "normal": {
+    "source": "84023b13b554f921d574e620a4192c5bd8de6a7e",
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "factory_runtime_ipc",
+      "-vv",
+      "child_goal_runtime::actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume",
+      "--",
+      "--exact",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "exit": 0,
+    "seconds": 9.028409450984327,
+    "minimum_free_bytes": 1506271232,
+    "interruption": null,
+    "log_sha256": "34f7a6f7d60fc689d6ae7ff97165b81719d395441233a7359205f9689d5129b4",
+    "summaries": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 7.53s"
+    ]
+  },
+  "normal_tool_source_head": "8fd9ca2182a2981ef50aa48654f9287c023bf35f",
+  "normal_tool_reuse": "Entire diff exhaustively only test fixture and execution docs; production source unchanged. No new binary compile claimed.",
+  "normal_dimension": "actual Linux Actor/authenticated IPC/generated local account-free ACP+MCP7/private Owner fixture. Child TaskAccepted; parent Factory completed. Parent generic Task is not TaskAccepted.",
+  "normal_independent_review": {
+    "report_sha256": "c385433434631d2fc97ecdb1675408aaf817161a775e8bb411d5dcf9dc81fabe",
+    "manifest_sha256": "c36c5de90ccc6cfdb69e8c7c23dc96d6a7f43a451aa40d42240e2b4b81d2ebba",
+    "scope": "author-run evidence independently verified, not independent product rerun"
+  },
+  "normal_observed": {
+    "events": 82,
+    "real_sessions": 3,
+    "goal_candidates": 1,
+    "private_owner_decisions": 1,
+    "task_acceptances": 1,
+    "factory_attempts": 2,
+    "active_intents_and_leases": 0,
+    "shared_ledger_observed_attempts": 3,
+    "runtime_ms": 2380,
+    "selected_output_bytes": 57,
+    "tokens": null,
+    "cost_microunits": null,
+    "original_factory_bound_grant": "entire object identical; raw object private"
+  },
+  "original_one_second_negative": {
+    "source": "e392c9ed4fcde2b02abfcedf880edc014b7fc5b8",
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "factory_runtime_ipc",
+      "-vv",
+      "child_goal_runtime::actual_factory_child_goal_one_second_deadline_retains_unknown_without_replay_or_refund",
+      "--",
+      "--exact",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "exit": 0,
+    "seconds": 6.617802339984337,
+    "minimum_free_bytes": 1292738560,
+    "interruption": null,
+    "log_sha256": "97a01694d6b3f6e5b3adacd57065d73752a967234dae466c2e68cfe8a6240052",
+    "summaries": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 5.04s"
+    ]
+  },
+  "negative_tool_source_head": "ebfcbcfbf520f0f0425e18da41f4ba7c428f0037",
+  "negative_trace": {
+    "typed_failure_kind": "Timeout",
+    "original_remaining_deadline_expired": true,
+    "pending": true,
+    "worker_elapsed_excluding_prelaunch_ms": 887
+  },
+  "negative_scope": "original1000ms reservation, actual owned process reaped, output remains unknown; no acceptance, automatic replay or refunded attempt consumption; exact unique stop required",
+  "negative_independent_evidence_review": "pending",
+  "still_open": {
+    "root_self": "actual original reject fixed tag confirms OutcomeUnknown Task revision5 at strict mark_dispatch_started gate; private projection candidate8a BLOCKED until explicit normalFactoryhandoff proof04 reviewed",
+    "owner_first_counter": "actual291c0b0 test0/1 INPUT_CHANGED before Supervisor; legal absent original counter initialization under separate source fix",
+    "browser3": "reviewed source dd117 integrated, actualnot_run",
+    "native15_profile_regression": "not_run",
+    "mac15_ci_packages": "not_run",
+    "full_product": "incomplete"
+  },
+  "older_failures": "all retained with their exact original source, failed ELF/log/DB where captured; not retroactively passed"
+}

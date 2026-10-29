@@ -1204,7 +1204,8 @@
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
@@ -1217,7 +1218,8 @@
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1468,7 +1470,8 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -1480,7 +1483,8 @@
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1736,7 +1740,8 @@
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
@@ -1746,7 +1751,8 @@
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -2373,7 +2379,8 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/goal-integration/EVIDENCE.json",
@@ -2383,7 +2390,8 @@
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -3793,7 +3801,8 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/session-supervision/EVIDENCE.json",
@@ -3803,7 +3812,8 @@
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -3998,13 +4008,15 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [],
       "verified_slices": [
@@ -4181,7 +4193,8 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -4190,7 +4203,8 @@
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -4979,13 +4993,15 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
@@ -5202,14 +5218,16 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -5814,7 +5832,8 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/goal-integration/EVIDENCE.json",
@@ -5826,7 +5845,8 @@
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -6041,7 +6061,8 @@
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -6055,7 +6076,8 @@
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -6690,7 +6712,8 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance"
+        "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
       },
       "evidence": [
         "docs/execution/data-runtime-integration/EVIDENCE.json",
@@ -6699,7 +6722,8 @@
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
-        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json"
+        "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {

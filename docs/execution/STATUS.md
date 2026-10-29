@@ -1,3 +1,11 @@
+## 当前完整子 Goal 正常链与超时负例通过 — 2026-10-29T13:04:21.684375+00:00
+
+准确84023b1的原完整childGoal case实际1通过/0失败/0跳过（7.53s，含编译总9.028s）。冻结工具8fd与测试源的生产内容逐字相同，仅fixture/docs变化已穷尽核对，不声称新二进制构建。真实82事件连通计划→Worker回收→候选→私有Owner验收→child TaskAccepted→父新attempt恢复→Factorycompleted，3会话全部停、零active intent/lease；原Factory绑定Grant完整不变。独立审查只读核原运行证据，并非独立重跑。父generic Task不是TaskAccepted，不把Factory完成冒整Goal/产品验收。
+
+准确e392c9e的原1000ms负例实际1通过/0失败/0跳过（5.04s，总6.6178s）：typed Timeout、剩余原预算到期、pending，真实回收/未知输出/不自动重试和累计预算不退款；唯一stop断言已恢复，独立运行证据审查进行中。原泛reason断言失败未抹。当前Rootself真实派发门拒OutcomeUnknown/rev5已由固定tag确认；候选8a因缺停止语义证明独审拒，补04待核。合法Owner-first首次预算counter旧控准确291c0b0实际INPUT_CHANGED0/1，生产窄修另进行。
+
+新15真实浏览器三case仍未运行；Native新profile全回归、Mac/完整CI/15开发包未运行，既有14双包不冒新15。完整130/WP01–14继续，权限不变；main653679d、OWNER001002已ACK无003。见 [准确正常与负例证据](factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json)。以下保留历史。
+
 ## 当前真实执行链边界 — 2026-10-29T12:44:15.237500+00:00
 
 当前 Root已整合receipt参数编码修复、同审批预算内的正常Work初始4秒（Owner仍1秒）以及完整Graph全停证明向Factory confirmed_stop投影。准确6d2：正常case已到真实Worker停止1287ms/28B、候选、Owner和TaskAccepted，但原缺stop投影使父等待；准确8fd窄修后父已真实恢复，随后测试生成器误执行原legacy委派体、造成额外子任务，整体仍FAIL。该测试控制流修正进行中，不能把阶段推进当整链通过。
