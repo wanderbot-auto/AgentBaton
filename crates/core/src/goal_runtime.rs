@@ -990,14 +990,14 @@ fn reserve_meter(
             key_id.starts_with("project:"),
             before_count > m.observed_attempts,
         ];
-        crate::goal_diagnostics::emit(
+        crate::ipc::goal_diagnostics::emit(
             "goal_meter_before",
             None,
             flags,
             before_count as usize,
             None,
         );
-        crate::goal_diagnostics::emit(
+        crate::ipc::goal_diagnostics::emit(
             "goal_meter_observed",
             None,
             flags,
