@@ -18,12 +18,12 @@ class RuntimePolicyTests(unittest.TestCase):
         workflow = yaml.load((ROOT / '.github/workflows/product.yml').read_text(), Loader=yaml.BaseLoader)
         self.desktop = workflow['jobs']['desktop']
 
-    def test_actual_same_architecture_build_has_a_finite_45_minute_budget(self):
-        self.assertEqual(self.desktop['timeout-minutes'], '45')
+    def test_actual_same_architecture_build_has_a_finite_60_minute_budget(self):
+        self.assertEqual(self.desktop['timeout-minutes'], '60')
         validate_job_timeout('product.yml', 'desktop', self.desktop)
 
     def test_larger_zero_and_negative_budgets_are_refused(self):
-        for value in ('46', '120', '0', '-1'):
+        for value in ('61', '120', '0', '-1'):
             with self.subTest(value=value), self.assertRaises(AssertionError):
                 validate_job_timeout('product.yml', 'desktop', {**self.desktop, 'timeout-minutes': value})
 
