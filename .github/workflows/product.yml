@@ -181,18 +181,43 @@ jobs:
               '--manifest', str(planning_manifest), '--chromium', chromium,
               '--output', 'artifacts/ui-browser/factory-child-planning',
           ], check=True)
+          import os
+          child_goal_private = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True) / 'agentbaton-child-goal-ci'
+          child_goal_private.mkdir(mode=0o700, exist_ok=False)
           child_goal_failures = []
           for case in ['normal', 'lost-start', 'cancel']:
+              result = {'case': case, 'driver_exit_code': None, 'projection_exit_code': None}
               try:
-                  subprocess.run([
-                      sys.executable, 'apps/desktop/tests/factory-child-goal-real-ipc.py',
-                      '--run', '--case', case,
-                      '--tools', 'target/debug', '--frontend', str(frontend),
-                      '--manifest', str(planning_manifest), '--chromium', chromium,
-                      '--output', 'artifacts/ui-browser/factory-child-goal-' + case,
-                  ], check=True)
-              except subprocess.CalledProcessError as failure:
-                  child_goal_failures.append({'case': case, 'exit_code': failure.returncode})
+                  with os.fdopen(os.open(child_goal_private / (case + '.driver.log'), os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      try:
+                          subprocess.run([
+                              sys.executable, 'apps/desktop/tests/factory-child-goal-real-ipc.py',
+                              '--run', '--case', case,
+                              '--tools', 'target/debug', '--frontend', str(frontend),
+                              '--manifest', str(planning_manifest), '--chromium', chromium,
+                              '--output', str(child_goal_private / case),
+                          ], check=True, stdout=log, stderr=subprocess.STDOUT)
+                          result['driver_exit_code'] = 0
+                      except subprocess.CalledProcessError as failure:
+                          result['driver_exit_code'] = failure.returncode
+              except (OSError, subprocess.SubprocessError):
+                  result['driver_failure_kind'] = 'launch_or_log_failed'
+              try:
+                  with os.fdopen(os.open(child_goal_private / (case + '.projection.log'), os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600), 'wb') as log:
+                      try:
+                          subprocess.run([
+                              sys.executable, 'scripts/record-child-goal-ci-evidence.py',
+                              '--private-dir', str(child_goal_private / case), '--case', case,
+                              '--manifest', str(planning_manifest), '--exit-code', 'unobserved' if result['driver_exit_code'] is None else str(result['driver_exit_code']),
+                              '--output', 'artifacts/ui-browser/factory-child-goal-' + case,
+                          ], check=True, stdout=log, stderr=subprocess.STDOUT)
+                          result['projection_exit_code'] = 0
+                      except subprocess.CalledProcessError as failure:
+                          result['projection_exit_code'] = failure.returncode
+              except (OSError, subprocess.SubprocessError):
+                  result['projection_failure_kind'] = 'launch_or_log_failed'
+              if result['driver_exit_code'] != 0 or result['projection_exit_code'] != 0:
+                  child_goal_failures.append(result)
           if child_goal_failures:
               raise SystemExit('Factory child Goal runtime checks failed: ' + json.dumps(child_goal_failures))
           PY

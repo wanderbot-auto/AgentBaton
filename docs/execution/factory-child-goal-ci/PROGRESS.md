@@ -1,6 +1,11 @@
 # Progress
 
-- Added three explicit real-run child Goal cases after the unchanged existing child-planning call. Each receives the same planning manifest, built frontend, schema15 tools and Chromium; each writes its own factory-child-goal case directory.
+- 9285260 was independently BLOCKED for raw artifact exposure and was not imported. Its original validation covered orchestration only, not privacy; do not treat those checks as artifact approval.
+- CGCI-01 repair moves driver outputs and both driver/projector logs to RUNNER_TEMP0700 staging. A new finite projector publishes summary.json only; no images, HTML, raw database, report, RPC/Owner/Grant/token or private exception text leaves staging. Existing original acceptance and20-minute budget stay unchanged.
+- Projector verifies exact schema15 public candidate/tool/source/asset/harness hashes, case-specific complete known check sets, real command exit and late cleanup/error state before passed. Invalid/missing input yields a fixed failed enum and nonzero exit; publication preparation uses private pending file before atomic final name.
+- Nine pure privacy/orchestration controls pass, including nested secret sentinels, malformed/symlink/nonprivate inputs, complete-case/late-failure refusal, unchanged private raw bytes and failed publication. Pure inline controls prove all three driver/projector pairs still execute when driver or projector fails, fixed aggregate messages contain no private sentinel and public trees contain summaries only. No actual driver/browser/Core/Cargo executed.
+
+- Added three explicit real-run child Goal cases after the unchanged existing child-planning call. Each receives the same planning manifest, built frontend, schema15 tools and Chromium; each writes its own PRIVATE case directory. Public matching case directories hold only projected summaries.
 - Scoped nonzero collection attempts all three child Goal paths and raises all failed case/exit pairs. Original Factory failure collection/raise and original check=True child-planning call remain intact before this block; they are not caught or hidden by the new handler.
 - YAML, inline Python AST and Bash syntax PASS. Every old acceptance AST node remains an exact prefix; all other jobs/existing step metadata and20-minute budget are unchanged.
 - Pure CI orchestration controls PASS for all-success and all-three-fail scenarios, with mocked subprocess calls only. Actual browser, Cargo, harness success and CI timing are NOT_RUN. This does not add product verification evidence.
