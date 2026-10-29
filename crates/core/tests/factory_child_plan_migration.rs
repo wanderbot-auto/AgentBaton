@@ -42,6 +42,19 @@ fn old() -> (tempfile::TempDir, PathBuf, String) {
         "fixtures/factory_actual_legacy_ledger_rows.json"
     ))
     .unwrap();
+    for p in prior["tables"]["projects"].as_array().unwrap() {
+        db.execute(
+            "INSERT INTO projects(id,document,device,inode,root) VALUES(?1,?2,?3,?4,?5)",
+            rusqlite::params![
+                p["id"].as_str(),
+                p["document"].as_str(),
+                p["device"].as_str(),
+                p["inode"].as_str(),
+                p["root"].as_str()
+            ],
+        )
+        .unwrap();
+    }
     for g in prior["tables"]["execution_grants"].as_array().unwrap() {
         let _: agentbaton_core::policy::ExecutionGrant =
             serde_json::from_str(g["document"].as_str().unwrap()).unwrap();
@@ -71,6 +84,7 @@ fn old() -> (tempfile::TempDir, PathBuf, String) {
 }
 fn original_metadata(db: &Connection) -> Vec<String> {
     [
+        "SELECT json_group_array(json_array(id,document,device,inode,root)) FROM (SELECT * FROM projects ORDER BY id)",
         "SELECT json_group_array(json_array(id,project_id,parent_id,document)) FROM (SELECT * FROM execution_grants ORDER BY id)",
         "SELECT json_group_array(json_array(scope,total_limit,parallel_limit,consumed,active)) FROM (SELECT * FROM budgets ORDER BY scope)",
         "SELECT json_group_array(json_array(scope,document)) FROM (SELECT * FROM goal_ledgers ORDER BY scope)",
