@@ -1,0 +1,107 @@
+{
+  "unit": "task-workspace-actual15-migration",
+  "requirements": [
+    "AB-SEC-007",
+    "AB-PRJ-003",
+    "AB-PRJ-005"
+  ],
+  "authorization": "AB-START-001",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "baseline": "0d6a034785ffd3d47ca781b2ec41a5036567bb40",
+  "source_commit": "207b0a4d9fc3dbf8c456dacb90767a4720dce954",
+  "branch": "codex/task-workspace-actual15-migration",
+  "tree": "/workspace/.worktrees/task-workspace-actual15-migration",
+  "old_source": {
+    "commit": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+    "tree": "fabfe01e74189f4986ea8c133f32a5f1ed52006b",
+    "fixed_manifest_sha256": "51949baa8e19abcd3832d8c2c2e63739055d04df2a0405ac09b0b0e05a1125ca",
+    "original_build_report_sha256": "2dc019b3e49d111088f0d75cf431bec9142f030c76fa0641d03bb760b8a04f99",
+    "current_binary_sha_recheck": "NOT_RUN",
+    "historical_toolchain_version": "not recorded; not fabricated"
+  },
+  "source_sha256": {
+    "scripts/prepare-schema15-migration-fixture.py": "67c2d59e2f8801de56842f6cf8ea58989925d2947d222bbbb93cae8e66ec17e7",
+    "crates/core/tests/task_workspace_actual15_migration.rs": "57492715b209d625e648710197a608cb042b8ae31c205f9395f937a3a0357995",
+    "crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py": "c4bb3de3e1c1c1080f510ab258b66e999834151f17c2b6835cef64666f426e62",
+    "crates/core/tests/fixtures/task_workspace_actual15_migration/test_source_controls.py": "a3fb6c1406fd4cf31f4b4712e658d0acc2b04c1da22dd8d364c90e1028216c9c"
+  },
+  "checks": [
+    {
+      "command": "python3 -B -m unittest discover -s crates/core/tests/fixtures/task_workspace_actual15_migration -p test_source_controls.py -v",
+      "result": "PASS",
+      "exit": 0,
+      "tests": 11,
+      "seconds": 0.072,
+      "log": "/workspace/.onboarding/task-workspace-actual15-migration/PURE_TESTS_FREEZE.log",
+      "log_sha256": "87a860152814905005620cb35369cd21fd3fd8648ca3ce276438ad2578ac714b"
+    },
+    {
+      "command": "standalone rustfmt --edition 2021 (apply/check) on new Rust test only",
+      "result": "PASS",
+      "exit": 0
+    },
+    {
+      "command": "Python ast.parse of new helper/generator/controls",
+      "result": "PASS",
+      "exit": 0
+    },
+    {
+      "command": "git diff --cached --check; exactly four new allowed source paths",
+      "result": "PASS",
+      "exit": 0
+    }
+  ],
+  "host": {
+    "system": "Linux",
+    "architecture": "x86_64",
+    "python": "3.12.14"
+  },
+  "rust_target_contract": {
+    "target": "task_workspace_actual15_migration",
+    "feature": "actual-schema15-migration-tests",
+    "required_features": [
+      "actual-schema15-migration-tests"
+    ],
+    "fixture_env": "AGENTBATON_ACTUAL_SCHEMA15_FIXTURE",
+    "Root_Cargo_CI_registration": "PENDING",
+    "test_functions": 5,
+    "expanded_cases": 10,
+    "ordinary_suite": "NOT_RUN; register required-features first",
+    "actual_compile_execute": "NOT_RUN"
+  },
+  "sqlite_backup_cookie_control": {
+    "dimension": "pure owned in-memory SQLite only",
+    "source_schema_version": 2,
+    "destination_schema_version": 1,
+    "raw_rows_rowids_ddl_user_version": "equal",
+    "effect": "backup comparison accounts for API-internal schema cookie; actual migrated/rejected file comparisons retain full cookie checks"
+  },
+  "not_run": [
+    "actual old15 build",
+    "current old ELF bytes hashing/execution",
+    "actual fixture generation",
+    "Rust compilation",
+    "Store15-to16 execution",
+    "actual last-row order",
+    "write-after-migration failure",
+    "nonempty Goal/Factory compatibility",
+    "old15 application reopening new16",
+    "Mac",
+    "CI",
+    "binding creation",
+    "Provider/GUI"
+  ],
+  "privacy": "generated runtime, raw database/WAL, transcript, raw manifest, builder outputs and logs are private; artifact publication requires a finite Root-owned whitelist",
+  "no_edits": [
+    "Core/schema",
+    "Cargo/locks",
+    "existing genuine14 files",
+    "workflow",
+    "Root STATUS",
+    "credentials/accounts/permissions"
+  ],
+  "next": "independent review; Root Cargo registration; controlled old15 generation; exact integrated16 mandatory target and native CI"
+}
