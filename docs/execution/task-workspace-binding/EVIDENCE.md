@@ -64,3 +64,9 @@ Python sqlite3仅 `:memory:` 原语控制：自建最小tasks/child表、FK开�
 Clippy唯一两处在模块202/384行原Option<(Option<String>...)>与Option<(String...Option<String>)>。源 `4d4631842ac8aa298f7717a89669160f97d9a690` 定义同型ProjectPinRow/ManagedBindingRow、两处引用alias；无allow、无SQL/参数/错误码/语义/13+1断言变更。展开两alias+去定义后整个文件逐字恢复0d6；选择性rustfmt --check、git diffcheck与测试byte-preservation实际0。首次checker只处理单行声明而rustfmt折行，assert失败后仅修改checker边界重放0，未改生产求绿。当前moduleSHA `5aa76ce8e535f2bf6fc5d26aeaa520136d417149df6d087c7f18b2796817b7ba`，其它7源码沿前表不变；新alias lint/编译未运行。
 
 2f定向独审SOURCE_READY_FOR_ROOT_CONTROLLED_RETEST在`.onboarding/task-workspace-binding-independent-review/revision-2f0b9b3` REVIEWa0315c1acc32baeb233ab1f0a7cf0a827787d2828c061607fc474eb04e828059 / MANIFESTb483e45b8cd6591f0065960448287e2209eff5b7fe6397cfa4c9d414dba2fca3，11静态控，与Root后续实际结果分维度。新4d alias已交同reviewer，不预写其结论。
+
+## 2026-10-29T19:55:06.250426+00:00 — Root actual backend evidence
+
+At0d6a034 actual13 binding units passed (9.33s tests/26.774s wrapper) and separate public backend restart/source-dirty preservation contract1 passed (.82s tests/16.540s wrapper). At95c693d fullworkspace alltargets strictClippy passed (12.553s). Actual old46112/1 failure,0d two-type-complexity lint failure, and older branch-base constantassert lint failure remain; reviewed bound-kind fix2f/rowalias4d and two trivial Root test adapters are separately attributed. See [exact commands/heads/log hashes](LOCAL_RUST_RESULTS.json).
+
+This is not a schema16 full runtime pass. Genuine15 fixture migration, all version consumers, fixed IPC/Native/UI and bothMac remain pending. No missingGrant/Unknown or default Directory behavior was relaxed. No real Provider/identity/spend/production/sign/license/formalApprove authority added.

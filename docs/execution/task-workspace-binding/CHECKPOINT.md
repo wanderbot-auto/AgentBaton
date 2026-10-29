@@ -1,3 +1,9 @@
+## 2026-10-29T19:55:06.250426+00:00 — Root actual backend evidence
+
+At0d6a034 actual13 binding units passed (9.33s tests/26.774s wrapper) and separate public backend restart/source-dirty preservation contract1 passed (.82s tests/16.540s wrapper). At95c693d fullworkspace alltargets strictClippy passed (12.553s). Actual old46112/1 failure,0d two-type-complexity lint failure, and older branch-base constantassert lint failure remain; reviewed bound-kind fix2f/rowalias4d and two trivial Root test adapters are separately attributed. See [exact commands/heads/log hashes](LOCAL_RUST_RESULTS.json).
+
+This is not a schema16 full runtime pass. Genuine15 fixture migration, all version consumers, fixed IPC/Native/UI and bothMac remain pending. No missingGrant/Unknown or default Directory behavior was relaxed. No real Provider/identity/spend/production/sign/license/formalApprove authority added.
+
 # 检查点
 
 - 独立tree task-workspace-binding；base aa489595；branch codex/task-workspace-binding。

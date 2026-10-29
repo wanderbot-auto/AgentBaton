@@ -29,3 +29,9 @@
 精确0d6a034：13unit全部通过/0ignored/test9.33s/wrapper26.774188971s；公开Rust integration1通过/0ignored/test0.82s/wrapper16.540144127s。failed函数三个循环variant此次已完整返回成功，原first-run12/1与ELF保留；仍不能将controlled-v15-shape当genuine旧15生产者。
 
 同源strictClippy实际101/wrapper8.621165110s，唯一两处type_complexity在旧模块202与384行的Option tuple。作者source4d46318仅两命名alias+两局部类型替换，原SQL/params/所有guard/error与13+1测试不动，禁止allow或降lint。类型展开全文件逆改等0d6/格式检查0，作者未Cargo。最初inverse脚本按未格式化单行alias移除而失败，修checker的多行block边界后0；不是产品失败或放宽验收。当前独审/新lint待执行，其它重型验证不冒通过。
+
+## 2026-10-29T19:55:06.250426+00:00 — Root actual backend evidence
+
+At0d6a034 actual13 binding units passed (9.33s tests/26.774s wrapper) and separate public backend restart/source-dirty preservation contract1 passed (.82s tests/16.540s wrapper). At95c693d fullworkspace alltargets strictClippy passed (12.553s). Actual old46112/1 failure,0d two-type-complexity lint failure, and older branch-base constantassert lint failure remain; reviewed bound-kind fix2f/rowalias4d and two trivial Root test adapters are separately attributed. See [exact commands/heads/log hashes](LOCAL_RUST_RESULTS.json).
+
+This is not a schema16 full runtime pass. Genuine15 fixture migration, all version consumers, fixed IPC/Native/UI and bothMac remain pending. No missingGrant/Unknown or default Directory behavior was relaxed. No real Provider/identity/spend/production/sign/license/formalApprove authority added.
