@@ -560,6 +560,7 @@ pub(crate) struct FactoryReadWatch {
     grant_id: String,
     grant_revision: u64,
     approval: Option<(String, u64, bool)>,
+    child_planning: bool,
 }
 impl FactoryReadWatch {
     pub(crate) fn current(&self, store: &Store) -> bool {
@@ -568,7 +569,14 @@ impl FactoryReadWatch {
             let project = store.get_project(&self.project_id)?;
             let grant = crate::policy::checked_lineage(&store.conn, &self.grant_id)?;
             if task.revision != self.task_revision
-                || task.state != crate::storage::TaskState::Draft
+                || (!self.child_planning && task.state != crate::storage::TaskState::Draft)
+                || (self.child_planning
+                    && matches!(
+                        task.state,
+                        crate::storage::TaskState::Accepted
+                            | crate::storage::TaskState::CancelRequested
+                            | crate::storage::TaskState::Cancelled
+                    ))
                 || project.revision != self.project_revision
                 || project.archived
                 || grant.revision != self.grant_revision
@@ -580,7 +588,9 @@ impl FactoryReadWatch {
                     let scope = scope(&store.conn, id)?;
                     return Ok(!scope.revoked
                         && scope.revision == *revision
-                        && scope.expires_at_ms > ms()?);
+                        && scope.expires_at_ms > ms()?
+                        && (!self.child_planning
+                            || store.check_factory_child_plan_scope(&scope).is_ok()));
                 }
                 let raw:Option<(Option<String>,bool)>=store.conn.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END,result IS NOT NULL FROM approval_proposals WHERE id=?1",[id],|r|Ok((r.get(0)?,r.get(1)?))).optional().map_err(db_error)?;
                 let Some((Some(raw), false)) = raw else {
@@ -605,6 +615,7 @@ impl FactoryReadWatch {
 }
 pub(crate) struct FactoryReadPlan {
     watch: FactoryReadWatch,
+    child_planning: Option<super::FactoryScope>,
     selection: FactoryScopeSelection,
     companion: PathBuf,
     database: DatabasePin,
@@ -612,6 +623,7 @@ pub(crate) struct FactoryReadPlan {
     request_hash: String,
 }
 pub(crate) struct FactoryReadWitness {
+    child_planning: bool,
     selection: FactoryScopeSelection,
     companion: PathBuf,
     database: DatabasePin,
@@ -707,6 +719,32 @@ fn projection(
     add("SELECT json_array(d.id,d.state,d.document,a.binding) AS value FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE a.task_id=?1 ORDER BY d.id",vec![task.id])?;
     add("SELECT document AS value FROM factory_budget_reservations WHERE project_id=?1 OR json_extract(document,'$.root_grant_id')=?2 ORDER BY attempt_id",vec![task.project_id.clone(),grant.root_grant_id.clone()])?;
     add("SELECT x.document AS value FROM goal_run_reservations x JOIN goal_runs r ON r.id=x.run_id WHERE r.project_id=?1 OR json_extract(r.document,'$.root_grant_id')=?2 ORDER BY x.attempt_id",vec![task.project_id,grant.root_grant_id])?;
+    if let Some(policy) = &selection.child_planning_policy {
+        for output in &policy.outputs {
+            for reference in &output.validators {
+                let (sql,approval,receipt) = match reference.kind {
+                    crate::goal_store::GoalValidatorKind::Integrity => (
+                        "SELECT document AS value FROM validation_policies WHERE id=?1",
+                        "SELECT json_array(document,COALESCE(result,'null')) AS value FROM approval_proposals WHERE id=(SELECT json_extract(document,'$.approval_id') FROM validation_policies WHERE id=?1)",
+                        "SELECT json_array(sequence,document) AS value FROM events WHERE json_extract(document,'$.aggregate_id')=(SELECT json_extract(document,'$.approval_id') FROM validation_policies WHERE id=?1) ORDER BY sequence"),
+                    crate::goal_store::GoalValidatorKind::Data => (
+                        "SELECT document AS value FROM data_validation_policies WHERE id=?1",
+                        "SELECT json_array(document,COALESCE(result,'null')) AS value FROM approval_proposals WHERE id=(SELECT json_extract(document,'$.approval_id') FROM data_validation_policies WHERE id=?1)",
+                        "SELECT json_array(sequence,document) AS value FROM events WHERE json_extract(document,'$.aggregate_id')=(SELECT json_extract(document,'$.approval_id') FROM data_validation_policies WHERE id=?1) ORDER BY sequence"),
+                    crate::goal_store::GoalValidatorKind::Command => (
+                        "SELECT document AS value FROM command_validation_policies WHERE id=?1",
+                        "SELECT json_array(document,COALESCE(result,'null')) AS value FROM approval_proposals WHERE id=(SELECT json_extract(document,'$.approval_id') FROM command_validation_policies WHERE id=?1)",
+                        "SELECT json_array(sequence,document) AS value FROM events WHERE json_extract(document,'$.aggregate_id')=(SELECT json_extract(document,'$.approval_id') FROM command_validation_policies WHERE id=?1) ORDER BY sequence"),
+                };
+                for query in [sql, approval, receipt] {
+                    add(query, vec![reference.policy_id.clone()])?;
+                }
+                if reference.kind == crate::goal_store::GoalValidatorKind::Command {
+                    add("SELECT json_array(id,state,document) AS value FROM command_validation_runs WHERE policy_id=?1 ORDER BY id",vec![reference.policy_id.clone()])?;
+                }
+            }
+        }
+    }
     Ok(proofs)
 }
 impl Store {
@@ -738,6 +776,48 @@ impl Store {
         raw: &str,
         companion: Option<PathBuf>,
     ) -> Result<Option<FactoryReadPlan>> {
+        if matches!(
+            method,
+            "factory_child_plans.context" | "factory_child_plans.submit"
+        ) {
+            let id = params
+                .get("scope_id")
+                .and_then(|v| v.as_str())
+                .ok_or_else(invalid)?;
+            let target = params
+                .get("task_id")
+                .and_then(|v| v.as_str())
+                .ok_or_else(invalid)?;
+            let scope = scope(&self.conn, id)?;
+            if method == "factory_child_plans.submit" {
+                let update: super::FactoryChildPlanUpdate =
+                    serde_json::from_value(params.clone()).map_err(|_| invalid())?;
+                if self.factory_child_plan_owner_replay(
+                    &update,
+                    revision.ok_or_else(invalid)?,
+                    key_id.ok_or_else(invalid)?,
+                )? {
+                    return Ok(None);
+                }
+            }
+            let run = self.get_factory_run(id)?;
+            if !run.tasks.iter().any(|t| t.task_id == target) {
+                return Err(denied());
+            }
+            // Historical contexts project only stored metadata. They grant no
+            // new write and never revalidate an expired scoped credential.
+            if method == "factory_child_plans.context"
+                && (scope.revoked
+                    || scope.expires_at_ms <= ms()?
+                    || matches!(
+                        run.run.state.as_str(),
+                        "cancelled" | "blocked" | "outcome_unknown" | "completed"
+                    ))
+            {
+                return Ok(None);
+            }
+            return self.prepare_factory_child_plan_read(&scope, raw).map(Some);
+        }
         let mut pinned_companion = None;
         let (selection, approval) = match method {
             "factory_scopes.propose" => {
@@ -832,11 +912,13 @@ impl Store {
             project_revision: project.revision,
             grant_id: selection.grant_id.clone(),
             grant_revision: selection.expected_grant_revision,
+            child_planning: false,
             approval: approval
                 .map(|id| (id, revision.unwrap_or(0), method == "factory_runs.start")),
         };
         Ok(Some(FactoryReadPlan {
             watch,
+            child_planning: None,
             selection,
             companion,
             database,
@@ -845,7 +927,70 @@ impl Store {
         }))
     }
 }
+impl Store {
+    pub(crate) fn prepare_factory_child_plan_read(
+        &self,
+        scope: &super::FactoryScope,
+        raw: &str,
+    ) -> Result<FactoryReadPlan> {
+        self.check_factory_child_plan_scope(scope)?;
+        let selection = scope.selection.clone();
+        let task = self.get(&scope.root_task_id)?;
+        let project = self.get_project(&task.project_id)?;
+        Ok(FactoryReadPlan {
+            watch: FactoryReadWatch {
+                task_id: task.id,
+                task_revision: task.revision,
+                project_id: project.id,
+                project_revision: project.revision,
+                grant_id: scope.root_grant_id.clone(),
+                grant_revision: scope.root_grant_revision,
+                approval: Some((scope.id.clone(), scope.revision, true)),
+                child_planning: true,
+            },
+            child_planning: Some(scope.clone()),
+            selection: selection.clone(),
+            companion: scope.bindings.companion.executable.clone(),
+            database: DatabasePin::capture(&self.conn)?,
+            proofs: projection(&self.conn, &selection, Some(&scope.id))?,
+            request_hash: agentbaton_workspaces::validation::sha256(raw.as_bytes()),
+        })
+    }
+    fn observe_factory_child_plan_inputs(
+        &self,
+        scope: &super::FactoryScope,
+    ) -> Result<FactoryScopeBindings> {
+        self.check_factory_child_plan_scope(scope)?;
+        let control = self.factory_read_control.as_ref().ok_or_else(denied)?;
+        for input in &scope.bindings.inputs {
+            control.check()?;
+            let bytes = agentbaton_workspaces::read_artifact(
+                &scope.bindings.workspaces[0].root,
+                &input.contract.requirement.relative_path,
+                input.contract.requirement.max_bytes,
+            )
+            .map_err(|_| changed())?;
+            if bytes.len() as u64 != input.bytes
+                || agentbaton_workspaces::validation::sha256(&bytes) != input.sha256
+            {
+                return Err(changed());
+            }
+        }
+        if companion_controlled(&scope.bindings.companion.executable, Some(control))?
+            != scope.bindings.companion
+        {
+            return Err(changed());
+        }
+        self.check_factory_child_plan_bindings(&scope.selection, &scope.bindings)?;
+        control.check()?;
+        Ok(scope.bindings.clone())
+    }
+}
+
 impl FactoryReadPlan {
+    pub(crate) fn is_child_planning(&self) -> bool {
+        self.child_planning.is_some()
+    }
     pub(crate) fn watch(&self) -> FactoryReadWatch {
         self.watch.clone()
     }
@@ -862,7 +1007,7 @@ impl FactoryReadPlan {
         let version: u32 = connection
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version != 13 {
+        if version != 14 {
             return Err(changed());
         }
         // Match the live Actor's exact approved business rows BEFORE filesystem
@@ -886,7 +1031,11 @@ impl FactoryReadPlan {
             &self.selection,
             reader.factory_read_control.as_ref().unwrap(),
         )?;
-        let bindings = reader.resolve_factory_bindings(&self.selection, &self.companion)?;
+        let bindings = if let Some(scope) = &self.child_planning {
+            reader.observe_factory_child_plan_inputs(scope)?
+        } else {
+            reader.resolve_factory_bindings(&self.selection, &self.companion)?
+        };
         for pin in &pins {
             pin.verify(false)?;
         }
@@ -904,6 +1053,7 @@ impl FactoryReadPlan {
         reader.conn.execute_batch("ROLLBACK;").map_err(db_error)?;
         let mut witness = reader.data_input.take().ok_or_else(changed)?;
         witness.factory = Some(Box::new(FactoryReadWitness {
+            child_planning: self.child_planning.is_some(),
             selection: self.selection,
             companion: self.companion,
             database: self.database,
@@ -919,6 +1069,9 @@ impl FactoryReadPlan {
     }
 }
 impl FactoryReadWitness {
+    pub(crate) fn is_child_planning(&self) -> bool {
+        self.child_planning
+    }
     pub(super) fn recheck(
         &self,
         store: &Store,
@@ -948,7 +1101,11 @@ impl FactoryReadWitness {
         for refs in &self.git_refs {
             refs.recheck()?;
         }
-        check_admission_db(&store.conn, &self.bindings)?;
+        if self.child_planning {
+            store.check_factory_child_plan_bindings(selection, &self.bindings)?;
+        } else {
+            check_admission_db(&store.conn, &self.bindings)?;
+        }
         crate::policy::observe_grant_bindings(&store.conn, &self.bindings.approved_grant)?;
         for id in &self.bindings.approved_grant.scope.workspace_ids {
             let w = read_workspace(&store.conn, id)?;
@@ -1221,6 +1378,7 @@ mod tests {
                 cost_microunits: None,
             };
             let selection = FactoryScopeSelection {
+                child_planning_policy: None,
                 root_task_id: task.id,
                 expected_task_revision: task.revision,
                 grant_id: grant.id,
@@ -1699,5 +1857,8 @@ mod tests {
                 .code,
             "INPUT_CHANGED"
         );
+    }
+    mod child_planning_tests {
+        include!("factory_child_plan_tests.rs");
     }
 }

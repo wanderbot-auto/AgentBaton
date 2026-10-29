@@ -43,7 +43,7 @@ fn schema10_upgrade_preserves_original_rows_in_private_logical_backup_without_se
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        13
+        14
     );
     assert_eq!(
         db.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -137,11 +137,11 @@ fn schema11_collision_rolls_back_all_runtime_tables_without_deleting_unknown_row
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema14_is_refused_without_modification_or_migration_backup() {
+fn future_schema15_is_refused_without_modification_or_migration_backup() {
     let (d, path, _) = schema10();
     Connection::open(&path)
         .unwrap()
-        .execute_batch("PRAGMA user_version=14")
+        .execute_batch("PRAGMA user_version=15")
         .unwrap();
     let before = fs::read(&path).unwrap();
     assert_eq!(

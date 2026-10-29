@@ -1,8 +1,10 @@
-//! Test-fixture-only inverse of the empty schema13 Factory increment.
+//! Test-fixture-only inverse of the empty schema14 Factory increments.
 //! Never use this on a live runtime or a database with consumed reservations.
 use rusqlite::Connection;
 
-pub const FACTORY_TABLES: [&str; 9] = [
+pub const FACTORY_TABLES: [&str; 11] = [
+    "factory_child_plan_heads",
+    "factory_child_plan_revisions",
     "factory_scoped_handles",
     "factory_handoffs",
     "factory_attempts",
@@ -17,7 +19,7 @@ pub const FACTORY_TABLES: [&str; 9] = [
 pub fn remove_empty_factory_increment(connection: &Connection) -> rusqlite::Result<()> {
     let transaction = connection.unchecked_transaction()?;
     let version: u32 = transaction.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version != 13 {
+    if version != 14 {
         return Err(rusqlite::Error::InvalidQuery);
     }
     // Check EVERY named table before any destructive statement. A missing table
@@ -33,7 +35,9 @@ pub fn remove_empty_factory_increment(connection: &Connection) -> rusqlite::Resu
     }
     // Child-before-parent order also works with foreign_keys=ON.
     transaction.execute_batch(
-        "DROP TABLE factory_scoped_handles;
+        "DROP TABLE factory_child_plan_heads;
+         DROP TABLE factory_child_plan_revisions;
+         DROP TABLE factory_scoped_handles;
          DROP TABLE factory_handoffs;
          DROP TABLE factory_attempts;
          DROP TABLE factory_budget_reservations;

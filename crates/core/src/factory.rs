@@ -37,6 +37,123 @@ pub struct FactoryScopeSelection {
     pub project_budget: BudgetLimits,
     pub ttl_ms: u64,
     pub capabilities: FactoryCapabilities,
+    /// Only a new complete Native Factory approval may grant plan-only policy.
+    /// Missing in schema13/old receipts; omission keeps their exact bytes stable.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub child_planning_policy: Option<FactoryChildPlanningPolicy>,
+}
+/// Narrow selection within existing Factory artifacts/connections/workspaces.
+/// This uses Goal's exact output/validator references, never a second plan DSL.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildPlanningPolicy {
+    pub max_nodes: u32,
+    pub max_revisions: u32,
+    pub max_plan_bytes: u32,
+    pub outputs: Vec<crate::goal_store::GoalOutputSelection>,
+    pub writable_prefixes: Vec<String>,
+    pub owner_acceptance_criteria: String,
+}
+/// Complete server-resolved definitions are reviewed in the Native snapshot.
+/// They permit references in stored plans, not validator/Goal execution.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildPlanningBinding {
+    pub schema_version: u32,
+    pub authority_kind: String,
+    pub policy: FactoryChildPlanningPolicy,
+    pub owner_rule_id: String,
+    pub input_rule_id: String,
+    pub validator_definitions: std::collections::BTreeMap<String, serde_json::Value>,
+    pub definition_digest: String,
+    pub goal_execution_authorized: bool,
+    pub new_workspace_authorized: bool,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildPlanSubmission {
+    pub task_id: String,
+    /// Full original GoalPlanProposal UTF-8 text, not a parsed/normalized copy.
+    pub plan_json: String,
+    pub expected_plan_revision: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildPlanUpdate {
+    pub scope_id: String,
+    pub task_id: String,
+    pub plan_json: String,
+    pub expected_plan_revision: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildPlanQuery {
+    pub scope_id: String,
+    pub task_id: String,
+    /// None selects the current head; list returns all bounded revision refs.
+    #[serde(default)]
+    pub plan_revision: Option<u64>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildPlanRef {
+    pub id: String,
+    pub scope_id: String,
+    pub run_id: String,
+    pub task_id: String,
+    pub revision: u64,
+    pub plan_digest: String,
+    pub raw_sha256: String,
+    pub receipt_sequence: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildPlanView {
+    pub reference: FactoryChildPlanRef,
+    pub proposal: crate::goal_plan::GoalPlanProposal,
+    pub plan_json: String,
+    pub authority_kind: String,
+    pub scope_digest: String,
+    pub planning_policy_digest: String,
+    pub root_task_id: String,
+    pub root_grant_id: String,
+    pub root_grant_revision: u64,
+    pub caller_task_id: String,
+    pub caller_session_id: Option<String>,
+    pub caller_attempt_id: Option<String>,
+    pub caller_fencing_token: Option<u64>,
+    pub target_spec_revision: u64,
+    pub input_revision: String,
+    pub created_at: String,
+    pub planning_only: bool,
+    pub dispatched: bool,
+    pub task_accepted: bool,
+}
+/// Read-only server-derived editor context; not an ApprovedGoalScope or run token.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildPlanningContext {
+    pub scope_id: String,
+    pub run_id: String,
+    pub scope_revision: u64,
+    pub scope_digest: String,
+    pub planning_policy_digest: String,
+    pub goal: crate::goal_plan::GoalBinding,
+    pub policy: FactoryChildPlanningPolicy,
+    pub execution_bindings: Vec<crate::execution::ExecutionBinding>,
+    pub edit_context: crate::goal_store::GoalPlanEditingContext,
+    pub program_sha256: std::collections::BTreeMap<String, String>,
+    pub inputs: std::collections::BTreeMap<String, crate::goal_store::GoalInputView>,
+    pub outputs: std::collections::BTreeMap<String, String>,
+    pub contracts: std::collections::BTreeMap<String, Vec<String>>,
+    pub rules: std::collections::BTreeMap<String, String>,
+    pub required_acceptance_rules: Vec<String>,
+    pub budget: BudgetLimits,
+    pub project_budget: BudgetLimits,
+    pub current_plan_revision: u64,
+    pub planning_only: bool,
+    pub goal_execution_authorized: bool,
+    pub new_workspace_authorized: bool,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -116,6 +233,8 @@ pub struct FactoryTaskResult {
     pub acceptance_state: String,
     pub context_continuation: String,
     pub handoff_digest: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub child_plan: Option<FactoryChildPlanRef>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -147,6 +266,8 @@ pub struct FactoryGuarantees {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FactoryScopeBindings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub child_planning: Option<FactoryChildPlanningBinding>,
     pub project: crate::registry::Project,
     pub root_task: Task,
     pub approved_grant: ExecutionGrant,
@@ -234,6 +355,8 @@ pub(crate) fn companion_path() -> crate::Result<std::path::PathBuf> {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub struct FactoryRecordCounts {
+    pub child_plan_heads: u64,
+    pub child_plan_revisions: u64,
     pub scopes: u64,
     pub runs: u64,
     pub task_lineage: u64,

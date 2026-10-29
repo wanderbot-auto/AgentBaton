@@ -97,11 +97,29 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 13 {
+        if version > 14 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
             ));
+        }
+        if version > 0 && version < 14 {
+            let backup = path.with_extension(format!("pre-v14-{}.sqlite3", Uuid::new_v4()));
+            drop(
+                OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .mode(0o600)
+                    .open(&backup)
+                    .map_err(|_| {
+                        CoreError::new(
+                            "INTERNAL_ERROR",
+                            "Cannot create Factory child-plan migration backup",
+                        )
+                    })?,
+            );
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
         }
         if version > 0 && version < 13 {
             let backup = path.with_extension(format!("pre-v13-{}.sqlite3", Uuid::new_v4()));

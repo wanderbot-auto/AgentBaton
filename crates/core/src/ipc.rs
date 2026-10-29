@@ -583,6 +583,10 @@ impl Daemon {
                 Ok(json!(record))
             }
             "factory_scopes.propose"=>{let p:crate::factory::FactoryScopeSelection=params(r.params)?;let path=crate::factory::companion_path()?;Ok(json!(self.store.propose_factory_scope(&p,&r.idempotency_key.ok_or_else(invalid)?,&path)?))}
+            "factory_child_plans.context"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildPlanQuery=params(r.params)?;Ok(json!(self.store.factory_child_planning_context(&p)?))}
+            "factory_child_plans.get"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildPlanQuery=params(r.params)?;Ok(json!(self.store.get_factory_child_plan(&p)?))}
+            "factory_child_plans.list"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildPlanQuery=params(r.params)?;Ok(json!(self.store.list_factory_child_plans(&p)?))}
+            "factory_child_plans.submit"=>{let p:crate::factory::FactoryChildPlanUpdate=params(r.params)?;Ok(json!(self.store.submit_factory_child_plan(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
             "factory_scopes.get"=>{let p:FactoryScopeId=params(r.params)?;Ok(json!(self.store.get_factory_scope(&p.scope_id)?))}
             "factory_scopes.list"=>{let p:FactoryRootTaskId=params(r.params)?;Ok(json!(self.store.list_factory_scopes(&p.root_task_id)?))}
             "factory_scopes.revoke"=>{let p:FactoryScopeId=params(r.params)?;let record=self.store.revoke_factory_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;self.data_workers.cancel_factory(&p.scope_id);Ok(json!(record))}
@@ -1279,6 +1283,30 @@ impl Daemon {
         }
         let mut ids = Vec::new();
         match request.method.as_str() {
+            "factory_child_plans.context" | "factory_child_plans.submit" => {
+                let scope_id = request
+                    .params
+                    .get("scope_id")
+                    .and_then(|v| v.as_str())
+                    .ok_or_else(invalid)?;
+                let scope = self.store.get_factory_scope(scope_id)?;
+                if request.method == "factory_child_plans.submit" {
+                    let p: crate::factory::FactoryChildPlanUpdate = params(request.params.clone())?;
+                    if self.store.factory_child_plan_owner_replay(
+                        &p,
+                        request.expected_revision.ok_or_else(invalid)?,
+                        request.idempotency_key.as_deref().ok_or_else(invalid)?,
+                    )? {
+                        return Ok(vec![]);
+                    }
+                }
+                if !scope.revoked
+                    && i128::from(scope.expires_at_ms)
+                        > time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000
+                {
+                    ids.extend(scope.selection.workspace_ids);
+                }
+            }
             "factory_scopes.propose" => {
                 let p: crate::factory::FactoryScopeSelection = params(request.params)?;
                 if self.store.factory_proposal_replay(
@@ -1631,7 +1659,11 @@ impl Daemon {
             || request.api_version != API_VERSION
             || !matches!(
                 request.method.as_str(),
-                "factory_scopes.propose" | "factory_runs.start" | "approvals.finalize"
+                "factory_scopes.propose"
+                    | "factory_runs.start"
+                    | "approvals.finalize"
+                    | "factory_child_plans.context"
+                    | "factory_child_plans.submit"
             )
         {
             return Ok(None);
@@ -1645,9 +1677,10 @@ impl Daemon {
             None,
         )?;
         if plan.is_some() {
-            if self.supervisor.has_workers()
-                || self.command_workers.has_workers()
-                || self.graph_workers.has_workers()
+            if (!plan.as_ref().is_some_and(|p| p.is_child_planning())
+                && (self.supervisor.has_workers()
+                    || self.command_workers.has_workers()
+                    || self.graph_workers.has_workers()))
                 || self.data_workers.has_workers()
             {
                 return Err(CoreError::new("WORKSPACE_BUSY","Stop active workers before a new Factory owner read; historical exact-key replies remain available"));
@@ -1730,24 +1763,41 @@ impl Daemon {
                     || request.request_id.len() > 128
                     || !matches!(
                         request.method.as_str(),
-                        "delegate_task" | "get_task_status" | "get_task_result" | "cancel_task"
+                        "delegate_task"
+                            | "get_task_status"
+                            | "get_task_result"
+                            | "cancel_task"
+                            | "submit_child_plan"
                     )
                 {
                     return Err(CoreError::new(
                         "AUTH_REQUIRED",
-                        "Only the fixed four scoped methods can request a data observation",
+                        "Only the fixed scoped Factory methods can request a data observation",
                     ));
                 }
-                self.store
-                    .factory_scoped_data_contexts(&request.handle_id, &request.scoped_token)
+                let prepared = self
+                    .store
+                    .factory_scoped_data_contexts(&request.handle_id, &request.scoped_token)?;
+                let plan = if request.method == "submit_child_plan" {
+                    let p: crate::factory::FactoryChildPlanSubmission = params(request.params)?;
+                    Some(self.store.prepare_factory_scoped_child_plan_read(
+                        &request.handle_id,
+                        &request.scoped_token,
+                        &p,
+                        &job.raw,
+                    )?)
+                } else {
+                    None
+                };
+                Ok((prepared, plan))
             })();
             match contexts {
                 Err(_) => {
                     let response = self.handle_factory_scoped(&job.raw);
                     let _ = job.reply.try_send(response);
                 }
-                Ok(prepared) if !prepared.inputs.is_empty() => {
-                    if let Err(failure) = self.data_workers.defer(prepared.inputs, None, None, job)
+                Ok((prepared, plan)) if !prepared.inputs.is_empty() || plan.is_some() => {
+                    if let Err(failure) = self.data_workers.defer(prepared.inputs, None, plan, job)
                     {
                         let (error, job) = *failure;
                         let _ = job
@@ -2068,7 +2118,11 @@ impl Daemon {
             || id.len() > 128
             || !matches!(
                 request.method.as_str(),
-                "delegate_task" | "get_task_status" | "get_task_result" | "cancel_task"
+                "delegate_task"
+                    | "get_task_status"
+                    | "get_task_result"
+                    | "cancel_task"
+                    | "submit_child_plan"
             )
         {
             return json!({"request_id":id,"error":CoreError::new("AUTH_REQUIRED","Scoped Factory callers cannot access owner approval, configuration or arbitrary IPC"),"revision":0,"warnings":[]});
@@ -2107,6 +2161,17 @@ impl Daemon {
                 }
                 let p: crate::factory::FactoryTaskRequest = params(request.params)?;
                 self.store.factory_result(&caller, &p.task_id)
+            }
+            "submit_child_plan" => {
+                if request.expected_revision.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::factory::FactoryChildPlanSubmission = params(request.params)?;
+                self.store.factory_submit_child_plan(
+                    caller,
+                    &p,
+                    &request.idempotency_key.ok_or_else(invalid)?,
+                )
             }
             "cancel_task" => {
                 let p: crate::factory::FactoryTaskRequest = params(request.params)?;

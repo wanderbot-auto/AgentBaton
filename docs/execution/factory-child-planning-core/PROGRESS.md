@@ -1,0 +1,11 @@
+# Progress
+
+Implemented WIP: Native-explicit planning policy/binding, shared pure GoalPlan validation, schema14 two-table immutable raw history/CAS/idempotence, bounded references list and complete View wire bounds, four fixed Owner endpoints, capability-specific fifth scoped MCP method, real child-plan handoff references and 11 real Factory readonly counts. Old false scopes omit new optional fields and retain four descriptors. Original Grant children0 and execution/workspace flags remain unchanged.
+
+Actual initial checks and five direct-worker-body Core/SQLite units plus two pure MCP contract units passed at recorded earlier sources. Compiler/diagnostic/admission and new negative-fixture failures are retained rather than counted as successful runs.
+
+Real generated ACP -> matching private CLI14 MCP -> UnixIPC/Daemon Actor/DataWorkers -> SQLite planning case passed at runtime3 and runtime6 (one unique case, not two unique tests). Parent saves versions1/2, plans a descendant version1, real child new attempt saves version2, resumed parent receives that exact reference. Seven MCP negative calls reject key conflict, stale CAS, coherent foreign input/spec/missing inputs, excess attempts and dropped acceptance. Three existing Factory attempts remain charged; plan storage creates no Goal run, validator job, new Grant, workspace or Task acceptance.
+
+The first real run exposed a diagnostic-directory assumption; the next exposed an actual planning-watch error: generic task Unknown after a confirmed normal parent handoff must be distinguished from unknown Factory execution. The fix requires matching persisted attempt/session/root/run plus ordered normal-stop preparation, supervisor real reap, and Factory normal stop. It does not rewrite generic Unknown or refund budget. Snapshot fixture records this exact real case.
+
+Current source has a further defensive active-run check and recorded-row source/order/unknown/join negative tests, not yet compiled. Next run refreshed private units, migration and original Factory regressions under a new exclusive target window. Latest CLI/source/test hashes and limits are in EVIDENCE/CHECKPOINT. No remote CI, actual Provider call or native/macOS result is claimed.

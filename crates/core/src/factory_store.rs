@@ -118,7 +118,7 @@ CREATE TABLE factory_budget_reservations(attempt_id TEXT PRIMARY KEY REFERENCES 
 PRAGMA user_version=13;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
-    Ok(())
+    super::runtime::migrate_child_planning(db, version)
 }
 
 pub(super) fn ms() -> Result<i64> {
@@ -152,11 +152,17 @@ pub(super) fn limits(selection: &FactoryScopeSelection, grant: &ExecutionGrant) 
     {
         return Err(invalid());
     }
-    if selection.capabilities.child_planning
-        || selection.capabilities.child_goal_execution
-        || selection.capabilities.create_workspace
-    {
+    if selection.capabilities.child_goal_execution || selection.capabilities.create_workspace {
         return Err(CoreError::new("CAPABILITY_UNSUPPORTED","This Factory contract only dispatches fixed handoffs in existing approved workspaces; child Goal/planning and new-workspace authority are not implemented"));
+    }
+    if selection.capabilities.child_planning && selection.child_planning_policy.is_none() {
+        return Err(CoreError::new("CAPABILITY_UNSUPPORTED","Old Factory snapshots grant no child planning policy; review a new complete Native Factory scope"));
+    }
+    if !selection.capabilities.child_planning && selection.child_planning_policy.is_some() {
+        return Err(invalid());
+    }
+    if let Some(policy) = &selection.child_planning_policy {
+        super::runtime::child_planning_limits(selection, policy)?;
     }
     if !selection.root_budget.narrower(&selection.project_budget)
         || selection.root_budget.attempts > grant.scope.max_attempts
@@ -477,7 +483,10 @@ impl Store {
             );
         }
         let root_request = json!({"schema_version":1,"kind":"agentbaton_factory_task_request","goal":task.goal,"root_task_id":task.id,"inputs":inputs,"outputs":outputs,"root_budget":selection.root_budget,"capabilities":selection.capabilities});
+        let child_planning =
+            super::runtime::resolve_child_planning_binding(&self.conn, selection, &workspaces[0])?;
         Ok(FactoryScopeBindings {
+            child_planning,
             project,
             root_task: task,
             approved_grant: grant,
@@ -898,7 +907,11 @@ impl Store {
                 |r| r.get::<_, i64>(0),
             )
             .map_err(db_error)? as u64;
+        let child_plan_heads=self.conn.query_row("SELECT count(*) FROM factory_child_plan_heads p JOIN factory_scopes s ON s.id=p.scope_id WHERE s.root_task_id=?1",[root_task_id],|r|r.get::<_,i64>(0)).map_err(db_error)? as u64;
+        let child_plan_revisions=self.conn.query_row("SELECT count(*) FROM factory_child_plan_revisions p JOIN factory_scopes s ON s.id=p.scope_id WHERE s.root_task_id=?1",[root_task_id],|r|r.get::<_,i64>(0)).map_err(db_error)? as u64;
         Ok(FactoryRecordCounts {
+            child_plan_heads,
+            child_plan_revisions,
             scopes,
             runs,
             task_lineage,

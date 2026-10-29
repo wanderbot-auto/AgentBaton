@@ -1,0 +1,17 @@
+# Checkpoint
+
+Branch `codex/factory-child-planning-core`; baseline `eb77cfe2ae03bc4d27f2015a8786c7b41fa69761`. Uncommitted implementation and failed evidence retained. Root granted exclusive same-cache short Cargo window; no remote actions, Provider/model calls, credentials, fees or permission changes.
+
+Schema14 two child-plan tables, fixed Owner endpoints and fifth opt-in scoped MCP method are implemented WIP. Plan DTO contract remains frozen; counts now include real `child_plan_heads`/`child_plan_revisions` (11 total Factory counts). Existing false scopes omit new optional fields and retain four tools. Both execution/workspace capabilities remain false.
+
+Actual checks: `check-1` failed (5 compiler errors retained), `check-2`/`check-3` passed after fixes. Earlier 5 Core/SQLite units and 2 pure companion contract tests passed at their recorded source maps; the five execute the Factory observation worker body directly on the test thread, not through Daemon/DataWorkers. Later source additions require fresh verification.
+
+`build-cli14-1`: actual normal CLI built with Cargo test profile/debug0, exit0 in12.51s; source before/after identical. Private stripped CLI SHA-256 `0cc3195c80ee6a74d4498845081329fb444e9349b47472ace2742540836b5568`. Old shared baton and its deps hardlink restored to original inode1052436/nlink2/bytes/SHA57798c44…; batond188f1df3… unchanged. Protection manifests saved outside Git.
+
+`runtime-planning-1`: actual newly compiled test target launched generated ACP/privateCLI14 and joined its Daemon thread, but failed at existing diagnostic write because this sparse tree had no `artifacts/factory-runtime-core` directory. No planning-path PASS claim. Source map/log/result preserved. Test Fixture now creates its diagnostic directory explicitly; product source/privateCLI unchanged. Await/reuse Root-authorized exact single-target rerun window before additional Cargo. Next inspect actual terminal/journal/rows and preserve any failure, then release exclusive target lease.
+
+Evidence root `/workspace/.onboarding/factory-child-planning-core`. Real migration tests, refreshed units/export, complete adversarial authorization and independent review remain pending. Native/UI currently have mock contract evidence; no actual Core JSON fixture has yet been delivered.
+
+Runtime3 PASS1/1 (4.88s), runtime6 PASS1/1 (4.57s), same unique planning case. Runtime4/5 are preserved new-fixture failures, not product success. Runtime6 actual JSON SHA33b71b6422f88b9036797b1055cd5be72978cdc2a64ba926c81076288061358b; real in-flight parent-yield SQLite snapshot SHAbc2fc57db71061e714ed2914866d73eaa71adf521ac5af7c8b8a70db726d1a6f. Frozen test ELF SHA990841665740ce5b43bb116718857b58e999714fbd29b46990a471d2aba107ec. Private CLI r2 SHA8ec9f31dc08f21c46e831d8cebe0d70289502275e108c8335dba5292dcdebe00.
+
+Exclusive Native target formally released after all commands waited; no active Cargo/rustc/test/generated ACP process. Free disk239MiB; do not start another target without Root lease/guard. Source AFTER runtime6 adds active-run defense and recorded-chain private negative controls; currently not compiled/tested. Existing runtime6 claims remain tied to their exact source map. Next lease: same Core lib ELF filter child_planning_tests (6 total including new recorded-chain test) plus2 companion units; then migration3 and affected historical migration fixtures. Static source/format checks only until lease.

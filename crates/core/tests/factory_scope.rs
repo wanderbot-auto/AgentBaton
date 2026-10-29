@@ -121,6 +121,7 @@ impl Fixture {
             cost_microunits: None,
         };
         let selection = FactoryScopeSelection {
+            child_planning_policy: None,
             root_task_id: task.id,
             expected_task_revision: task.revision,
             grant_id: grant.id,

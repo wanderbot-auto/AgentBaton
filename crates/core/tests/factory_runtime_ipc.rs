@@ -45,6 +45,10 @@ fn git(root: &Path, args: &[&str]) -> String {
 }
 impl Fixture {
     fn new() -> Self {
+        fs::create_dir_all(
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../artifacts/factory-runtime-core"),
+        )
+        .unwrap();
         let temp = tempfile::Builder::new()
             .permissions(fs::Permissions::from_mode(0o700))
             .tempdir()
@@ -124,6 +128,7 @@ impl Fixture {
             cost_microunits: None,
         };
         let selection = FactoryScopeSelection {
+            child_planning_policy: None,
             root_task_id: task.id,
             expected_task_revision: task.revision,
             grant_id: grant.id,
@@ -331,6 +336,11 @@ fn mixed_narrow_factory_root_uses_original_ledger_without_refunding_prior_work()
 fn actual_scoped_mcp_depth_fanout_and_forged_parent_are_bounded_without_grant_derivation() {
     run_mode("scope_bounds");
 }
+#[test]
+fn actual_child_planning_scoped_mcp_revisions_parent_descendant_and_handoff_are_metadata_only() {
+    run_mode("planning");
+}
+
 fn run_mode(mode: &str) {
     use agentbaton_core::ipc::{call, Daemon};
     use std::sync::{
@@ -343,7 +353,15 @@ fn run_mode(mode: &str) {
         .map(PathBuf::from)
         .unwrap();
     fs::remove_file(&f.companion).unwrap();
-    fs::copy(target.join("debug/baton"), &f.companion).unwrap();
+    let companion_source =
+        if mode == "planning" {
+            PathBuf::from(std::env::var_os("AGENTBATON_CHILD_PLAN_COMPANION").expect(
+                "Use the explicitly frozen matching schema14 CLI; never borrow old shared13",
+            ))
+        } else {
+            target.join("debug/baton")
+        };
+    fs::copy(&companion_source, &f.companion).unwrap();
     fs::set_permissions(&f.companion, fs::Permissions::from_mode(0o700)).unwrap();
     // Remove debug sections from this private test-installed copy only. The
     // actual fixed program stays executable and its resulting bytes are approved.
@@ -359,7 +377,7 @@ fn run_mode(mode: &str) {
         .canonicalize()
         .unwrap()
         .join("generated-factory-acp");
-    let script = ACP_FACTORY.replace(
+    let mut script = ACP_FACTORY.replace(
         "mcp=None;mid=0",
         &format!(
             "status_connection={}\nstatus_workspace={}\nfixture_mode={}\nmcp=None;mid=0",
@@ -368,6 +386,46 @@ fn run_mode(mode: &str) {
             serde_json::to_string(mode).unwrap()
         ),
     );
+    if mode == "planning" {
+        script=script.replace("names==['delegate_task','get_task_status','get_task_result','cancel_task']","names==['delegate_task','get_task_status','get_task_result','cancel_task','submit_child_plan']");
+        script = script.replace(
+            "mcp=None;mid=0",
+            &format!(
+                "{}\nmcp=None;mid=0",
+                include_str!("fixtures/factory_child_planning_acp.py")
+            ),
+        );
+        let before = r#"  if stage=='parent-initial':
+   assert c['child_planning_context']['goal']==status['child_planning_context']['goal']
+   ctx=c['child_planning_context'];one,args1=submit_plan(ctx,1,'actual-root-plan-one');two,args2=submit_plan(ctx,2,'actual-root-plan-two')
+   import copy
+   bad=copy.deepcopy(args2);bad['plan_json']+=' ';denied_tool('submit_child_plan',bad,'CONFIG_CONFLICT')
+   bad=copy.deepcopy(args2);bad['idempotency_key']='stale-plan-key';denied_tool('submit_child_plan',bad,'STALE_REVISION')
+   for label,mutate in [('input',lambda p:(p['goal'].__setitem__('input_revision','coherent-foreign'),p['nodes'][0]['executor']['binding'].__setitem__('input_revision','coherent-foreign'))),('spec',lambda p:p['goal'].__setitem__('spec_revision',p['goal']['spec_revision']+1)),('inputs',lambda p:p['nodes'][0].__setitem__('required_inputs',[]))]:
+    p=child_plan(ctx,3);mutate(p);denied_tool('submit_child_plan',{'task_id':c['task_id'],'plan_json':json.dumps(p),'expected_plan_revision':2,'idempotency_key':'coherent-'+label},'INPUT_CHANGED')
+   p=child_plan(ctx,3);p['nodes'][0]['budget']['attempts']+=1;denied_tool('submit_child_plan',{'task_id':c['task_id'],'plan_json':json.dumps(p),'expected_plan_revision':2,'idempotency_key':'larger-budget'},'AUTH_REQUIRED')
+   p=child_plan(ctx,3);p['acceptance_rules']=[];denied_tool('submit_child_plan',{'task_id':c['task_id'],'plan_json':json.dumps(p),'expected_plan_revision':2,'idempotency_key':'drop-acceptance'},'AUTH_REQUIRED')
+   open('reports/actual-root-plans.json','w').write(json.dumps({'initial':one,'revised':two,'context':ctx},indent=2))
+  if stage=='child':
+   ctx=c['child_planning_context'];assert ctx['current_plan_revision']==1
+   import time
+   open('reports/planning-child-paused','w').write('actual live child before its plan revision')
+   until=time.monotonic()+2
+   while not os.path.exists('reports/planning-child-continue'):
+    assert time.monotonic()<until,'test coordinator did not finish exact-history negative controls'
+    time.sleep(.005)
+   revised,_=submit_plan(ctx,2,'actual-child-self-revision-two')
+   open('reports/actual-child-plan.json','w').write(json.dumps({'view':revised,'context':ctx},indent=2))
+  if stage=='parent-resumed':
+   assert c['handoff_result']['child_plan']['revision']==2
+  if stage=='parent-initial':"#;
+        script = script.replace("  if stage=='parent-initial':", before);
+        let after = r#"   assert child['state']=='blocked_on_live_parent'
+   childctx=tool('get_task_status',{'task_id':child['task_id']})['child_planning_context']
+   initial,_=submit_plan(childctx,1,'actual-parent-plans-child-one')
+   assert initial['caller_task_id']==c['task_id'] and initial['reference']['task_id']==child['task_id']"#;
+        script = script.replace("   assert child['state']=='blocked_on_live_parent'", after);
+    }
     fs::write(&provider, script).unwrap();
     fs::set_permissions(&provider, fs::Permissions::from_mode(0o700)).unwrap();
     let db = Connection::open(&f.path).unwrap();
@@ -465,6 +523,29 @@ fn run_mode(mode: &str) {
                 expected_sha256: None,
             },
         ];
+    }
+    if mode == "planning" {
+        f.selection.capabilities.child_planning = true;
+        f.selection.child_planning_policy = Some(FactoryChildPlanningPolicy {
+            max_nodes: 8,
+            max_revisions: 16,
+            max_plan_bytes: 262144,
+            outputs: f
+                .selection
+                .outputs
+                .iter()
+                .cloned()
+                .map(
+                    |artifact| agentbaton_core::goal_store::GoalOutputSelection {
+                        artifact,
+                        validators: vec![],
+                    },
+                )
+                .collect(),
+            writable_prefixes: vec!["reports/report.txt".into()],
+            owner_acceptance_criteria:
+                "Review the entire exact approved report; storing a plan is not acceptance".into(),
+        });
     }
     f.selection.root_budget.output_bytes = 12288;
     f.selection.project_budget.output_bytes = 12288;
@@ -586,7 +667,29 @@ fn run_mode(mode: &str) {
         return;
     }
     let until = Instant::now() + Duration::from_secs(12);
+    let mut planning_history_checked = false;
     let final_run = loop {
+        if mode == "planning"
+            && !planning_history_checked
+            && workspace.join("reports/planning-child-paused").exists()
+        {
+            let checked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                save_actual_planning_handoff_snapshot(&f.path, &scope)
+            }));
+            fs::write(
+                workspace.join("reports/planning-child-continue"),
+                b"checked",
+            )
+            .unwrap();
+            planning_history_checked = true;
+            if let Err(panic) = checked {
+                stop.store(true, Ordering::Relaxed);
+                let done = daemon_thread.join().unwrap();
+                save_runtime_diagnostics(&f.path, &workspace);
+                assert!(done.is_ok(), "snapshot-failure cleanup: {done:?}");
+                std::panic::resume_unwind(panic);
+            }
+        }
         let current = call(
             &runtime,
             json!({"method":"factory_runs.get","params":{"scope_id":scope.id}}),
@@ -629,7 +732,7 @@ fn run_mode(mode: &str) {
     .unwrap();
     assert_eq!(
         final_run["result"]["run"]["state"],
-        if mode == "normal"
+        if (mode == "normal" || mode == "planning")
             || mode == "two_children"
             || mode == "scope_bounds"
             || mode.starts_with("mixed_")
@@ -644,7 +747,7 @@ fn run_mode(mode: &str) {
         },
         "{final_run}"
     );
-    if !(mode == "normal"
+    if !((mode == "normal" || mode == "planning")
         || mode == "two_children"
         || mode == "scope_bounds"
         || mode.starts_with("mixed_"))
@@ -812,6 +915,61 @@ fn run_mode(mode: &str) {
             2
         );
         assert_eq!(db.query_row("SELECT count(*) FROM idempotency WHERE key IN ('forged-parent-cycle','denied-fanout','denied-depth')",[],|r|r.get::<_,i64>(0)).unwrap(),0);
+    }
+    if mode == "planning" {
+        assert!(planning_history_checked);
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM factory_child_plan_heads", [], |r| r
+                .get::<_, i64>(
+                0
+            ))
+            .unwrap(),
+            2
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM factory_child_plan_revisions",
+                [],
+                |r| r.get::<_, i64>(0)
+            )
+            .unwrap(),
+            4
+        );
+        for table in ["goal_runs", "goal_graph_jobs", "goal_graph_acceptances"] {
+            assert_eq!(
+                db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
+                    .get::<_, i64>(0))
+                    .unwrap(),
+                0
+            );
+        }
+        let grant: serde_json::Value = serde_json::from_str(
+            &db.query_row(
+                "SELECT document FROM execution_grants WHERE id=?1",
+                [&scope.root_grant_id],
+                |r| r.get::<_, String>(0),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(grant["scope"]["max_children"], 0);
+        let mut q = db
+            .prepare("SELECT document FROM factory_child_plan_revisions ORDER BY receipt_sequence")
+            .unwrap();
+        let rows = q
+            .query_map([], |r| r.get::<_, String>(0))
+            .unwrap()
+            .map(|r| serde_json::from_str::<serde_json::Value>(&r.unwrap()).unwrap())
+            .collect::<Vec<_>>();
+        assert!(rows.iter().all(|v| v["caller_session_id"].is_string()
+            && v["caller_attempt_id"].is_string()
+            && v["planning_only"] == true
+            && v["dispatched"] == false
+            && v["task_accepted"] == false));
+        if let Some(output) = std::env::var_os("AGENTBATON_CHILD_PLAN_IPC_OUT") {
+            let data = json!({"dimension":"actual local generated ACP->real Baton companion->scoped UnixIPC->schema14 SQLite; no real Provider/native dialog","source_hashes":{"factory_runtime_ipc.rs":sha256(include_bytes!("factory_runtime_ipc.rs")),"factory_child_planning_acp.py":sha256(include_bytes!("fixtures/factory_child_planning_acp.py"))},"scope":scope,"final_run":final_run,"grant":grant,"rows":rows,"root_provider_observation":serde_json::from_str::<serde_json::Value>(&fs::read_to_string(workspace.join("reports/actual-root-plans.json")).unwrap()).unwrap(),"child_provider_observation":serde_json::from_str::<serde_json::Value>(&fs::read_to_string(workspace.join("reports/actual-child-plan.json")).unwrap()).unwrap(),"journal":db_events(&f.path)});
+            fs::write(output, serde_json::to_vec_pretty(&data).unwrap()).unwrap();
+        }
     }
     if mode.starts_with("mixed_") {
         assert_mixed_cumulative_receipts(&db, &scope);
@@ -1461,6 +1619,50 @@ fn scope_liveness_tools_and_owner_stop(
     );
     // process_reaped refers to the original owned leader only. These checks do
     // not prove that an escaped descendant tree is gone or that effects are known.
+}
+
+// Exact read-only snapshot of a real in-flight joined parent/active child.
+// Opening it with Store::open correctly performs crash recovery; separate
+// private tests must not confuse that recovery with an unchanged live run.
+fn save_actual_planning_handoff_snapshot(path: &Path, scope: &FactoryScope) {
+    let db = Connection::open(path).unwrap();
+    let root: serde_json::Value = serde_json::from_str(
+        &db.query_row(
+            "SELECT document FROM tasks WHERE id=?1",
+            [&scope.root_task_id],
+            |r| r.get::<_, String>(0),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(root["state"], "outcome_unknown");
+    let r: serde_json::Value = serde_json::from_str(
+        &db.query_row(
+            "SELECT document FROM factory_runs WHERE scope_id=?1",
+            [&scope.id],
+            |r| r.get::<_, String>(0),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(r["state"], "running");
+    let b: serde_json::Value = serde_json::from_str(
+        &db.query_row(
+            "SELECT document FROM factory_task_bindings WHERE task_id=?1",
+            [&scope.root_task_id],
+            |r| r.get::<_, String>(0),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(b["handle"]["state"], "waiting_child");
+    assert_eq!(b["handle"]["confirmed_stop"], true);
+    if let Ok(output) = std::env::var("AGENTBATON_CHILD_PLAN_HANDOFF_DB") {
+        assert!(!Path::new(&output).exists());
+        db.execute("VACUUM INTO ?1", [&output]).unwrap();
+        fs::set_permissions(&output, fs::Permissions::from_mode(0o600)).unwrap();
+        eprintln!("ACTUAL_PLANNING_HANDOFF_SNAPSHOT path={output} root_generic_unknown=true factory_running=true parent_joined=true");
+    }
 }
 
 fn db_events(path: &Path) -> serde_json::Value {
