@@ -798,7 +798,7 @@ def proc_parent_pid(pid):
     return int(tail[1])
 
 
-def owned_command_child(daemon_pid: int, diagnostics=None) -> dict | None:
+def owned_command_child(daemon_pid: int, diagnostics=None, *, observation_deadline=None) -> dict | None:
     # Prefer private per-thread children. Some managed Linux proc mounts omit
     # that feature entirely. Fallback reads bounded PID/stat PPID metadata ONLY;
     # argv/PGID are read only AFTER the exact private parent identity matches.
@@ -861,6 +861,13 @@ def owned_command_child(daemon_pid: int, diagnostics=None) -> dict | None:
                 current_observation.update(after_read=dict(after), stage='post_read_identity_checked')
                 if after['state'] in ('Z', 'X') or any(before[k] != after[k] for k in ('pid', 'parent_pid', 'start_ticks')):
                     continue
+                if raw == b'':
+                    # A live child may be between executable images. This is
+                    # unclassified evidence, never an approved command receipt.
+                    # Keep the caller's existing bounded polling deadline.
+                    assert proc_identity(daemon_pid)['start_ticks'] == parent['start_ticks'], 'Private parent identity changed'
+                    current_observation.update(classification='pending_empty_argv', accepted=False)
+                    continue
                 assert len(raw) <= 1024 and raw.endswith(b'\0'), 'Complete bounded private argv required'
                 argv = raw[:-1].split(b'\0'); pgid = os.getpgid(pid)
                 current = proc_identity(pid)
@@ -874,6 +881,8 @@ def owned_command_child(daemon_pid: int, diagnostics=None) -> dict | None:
                 if argv != [b'/usr/bin/sleep', b'3']:
                     continue
                 assert pgid == pid, 'Actual approved command must own its private process group'
+                if observation_deadline is not None:
+                    assert time.monotonic() < observation_deadline, 'Actual command observation exceeded its original deadline'
                 return {**before, 'pgid': pgid, 'argv': ['/usr/bin/sleep', '3']}
             except (FileNotFoundError, ProcessLookupError):
                 continue
@@ -1530,7 +1539,10 @@ def owner_only_driver(args, output: Path) -> int:
                             observer_samples = []
                             report['observations']['command_child_observer'] = observer_samples
                             try:
-                                command_identity = wait(lambda: owned_command_child(daemon.pid, observer_samples), lambda p: p is not None, seconds=5)
+                                command_observation_deadline = time.monotonic() + 5
+                                command_identity = wait(lambda: owned_command_child(daemon.pid, observer_samples,
+                                    observation_deadline=command_observation_deadline), lambda p: p is not None,
+                                    seconds=max(0, command_observation_deadline - time.monotonic()))
                             except BaseException:
                                 try:
                                     report['observations']['command_child_observer_failure_graph_response'] = host.call(FixedCall('goal_graph_runs.get', {'run_id': run_id}))
