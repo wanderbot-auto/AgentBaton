@@ -1,0 +1,121 @@
+[
+  {
+    "name": "delegate_task",
+    "description": "Request a bounded child under this exact session's independent Factory approval. Returns a handle immediately; it does not wait for or accept a result.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "goal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "connection_id": {
+          "type": "string"
+        },
+        "workspace_id": {
+          "type": "string"
+        },
+        "input_artifact_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 16
+        },
+        "output_artifact_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 16
+        },
+        "budget": {
+          "type": "object"
+        },
+        "wait_for_child": {
+          "type": "boolean"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "goal",
+        "connection_id",
+        "workspace_id",
+        "input_artifact_ids",
+        "output_artifact_ids",
+        "budget",
+        "wait_for_child",
+        "idempotency_key"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "get_task_status",
+    "description": "Read this caller's own task or a same-Factory descendant; never expands caller scope.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "get_task_result",
+    "description": "Read bounded actual artifact and validation references. Candidate results are not Task acceptance.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "cancel_task",
+    "description": "Request cancellation of this caller's own task or descendant. A request does not prove process stop.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "idempotency_key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "task_id",
+        "expected_revision",
+        "idempotency_key"
+      ],
+      "additionalProperties": false
+    }
+  }
+]

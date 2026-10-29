@@ -88,7 +88,7 @@ fn real_v6_upgrade_keeps_raw_documents_and_blobs_in_private_reopenable_backup() 
         connection
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        13
+        14
     );
     assert_eq!(
         connection
@@ -194,7 +194,7 @@ fn failed_data_migration_rolls_back_new_table_and_version_without_deleting_unkno
 fn future_v14_database_is_refused_without_changing_its_raw_bytes() {
     let (_directory, database) = private_database();
     let connection = Connection::open(&database).unwrap();
-    connection.execute_batch("CREATE TABLE sentinel(raw BLOB);INSERT INTO sentinel VALUES(x'00ff');PRAGMA user_version=14;").unwrap();
+    connection.execute_batch("CREATE TABLE sentinel(raw BLOB);INSERT INTO sentinel VALUES(x'00ff');PRAGMA user_version=15;").unwrap();
     drop(connection);
     let before = fs::read(&database).unwrap();
     assert_eq!(

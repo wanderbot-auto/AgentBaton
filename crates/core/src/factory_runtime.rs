@@ -14,6 +14,8 @@ use uuid::Uuid;
 #[serde(deny_unknown_fields)]
 struct TaskBinding {
     handle: FactoryTaskHandle,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    planning_spec_revision: Option<u64>,
     scope_id: String,
     run_id: String,
     grant_id: String,
@@ -339,6 +341,11 @@ impl Store {
             depth: 0,
         };
         let b = TaskBinding {
+            planning_spec_revision: s
+                .selection
+                .capabilities
+                .child_planning
+                .then_some(task.spec_revision),
             handle: FactoryTaskHandle {
                 task_id: task.id.clone(),
                 parent_task_id: None,
@@ -781,6 +788,12 @@ impl Store {
             result_available: false,
         };
         let child = TaskBinding {
+            planning_spec_revision: caller
+                .scope
+                .selection
+                .capabilities
+                .child_planning
+                .then_some(task.spec_revision),
             handle: h.clone(),
             scope_id: caller.scope.id.clone(),
             run_id: r.id.clone(),
@@ -847,8 +860,16 @@ impl Store {
         id: &str,
     ) -> Result<FactoryToolOutcome> {
         let b = authorized_target(&self.conn, caller, id)?;
+        let mut result = json!(b.handle);
+        if caller.scope.selection.capabilities.child_planning {
+            result["child_planning_context"] =
+                json!(child_plan::recorded_context(&self.conn, &caller.scope, &b)?);
+        }
+        check_wire(
+            &json!({"request_id":"\0".repeat(128),"result":result,"revision":u64::MAX,"warnings":[]}),
+        )?;
         Ok(FactoryToolOutcome {
-            result: json!(b.handle),
+            result,
             stops: vec![],
         })
     }
@@ -859,6 +880,7 @@ impl Store {
     ) -> Result<FactoryToolOutcome> {
         let b = authorized_target(&self.conn, caller, id)?;
         let mut result = b.result.clone().unwrap_or_else(|| FactoryTaskResult {
+            child_plan: None,
             task: b.handle.clone(),
             artifacts: vec![],
             validation_refs: vec![],
@@ -1264,7 +1286,7 @@ impl Store {
                     return Ok(Some(FactoryAction::Stop(session_id)));
                 }
                 if session.state == "ready" && !b.turn_sent {
-                    let text = task_prompt(&s, &b)?;
+                    let text = task_prompt(&self.conn, &s, &b)?;
                     let tx = self.conn.transaction().map_err(db_error)?;
                     b.turn_sent = true;
                     b.handle.state = "running".into();
@@ -1435,6 +1457,7 @@ impl Store {
             .into();
             b.handle.result_available = !can_wait;
             let result = FactoryTaskResult {
+                child_plan: child_plan::latest_reference(&tx, &r.scope_id, &b.handle.task_id)?,
                 task: b.handle.clone(),
                 artifacts,
                 validation_refs: vec![],
@@ -1557,9 +1580,11 @@ impl Store {
         };
         let token = format!("{}{}", Uuid::new_v4().simple(), Uuid::new_v4().simple());
         let file = dir.join(format!("{}.json", record.id));
-        let bytes = encode(
-            &json!({"schema_version":1,"handle_id":record.id,"socket_path":runtime.join("batond.sock"),"scoped_token":token}),
-        )?;
+        let mut credential = json!({"schema_version":1,"handle_id":record.id,"socket_path":runtime.join("batond.sock"),"scoped_token":token});
+        if s.selection.capabilities.child_planning && s.bindings.child_planning.is_some() {
+            credential["child_planning"] = json!(true);
+        }
+        let bytes = encode(&credential)?;
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -1815,7 +1840,7 @@ impl Store {
         )
     }
 }
-fn task_prompt(s: &FactoryScope, b: &TaskBinding) -> Result<String> {
+fn task_prompt(db: &Connection, s: &FactoryScope, b: &TaskBinding) -> Result<String> {
     let singleton = if b.handoff_results.len() == 1 {
         let mut child = b.handoff_results[0].clone();
         child.handoff_digest = b.handoff_digest.clone();
@@ -1823,9 +1848,11 @@ fn task_prompt(s: &FactoryScope, b: &TaskBinding) -> Result<String> {
     } else {
         None
     };
-    let text = encode(
-        &json!({"schema_version":1,"kind":"agentbaton_factory_task_request","task_id":b.handle.task_id,"root_task_id":s.root_task_id,"parent_task_id":b.handle.parent_task_id,"goal":b.request.goal,"input_artifacts":s.bindings.inputs.iter().filter(|a|b.request.input_artifact_ids.contains(&a.contract.requirement.artifact_id)).collect::<Vec<_>>(),"output_artifacts":s.bindings.outputs.iter().filter(|a|b.request.output_artifact_ids.contains(&a.requirement.artifact_id)).collect::<Vec<_>>(),"handoff_result":singleton,"handoff_results":b.handoff_results,"handoff_digest":b.handoff_digest,"context_continuation":"new_attempt_explicit_handoff_only","acceptance_state":"not_established"}),
-    )?;
+    let mut value = json!({"schema_version":1,"kind":"agentbaton_factory_task_request","task_id":b.handle.task_id,"root_task_id":s.root_task_id,"parent_task_id":b.handle.parent_task_id,"goal":b.request.goal,"input_artifacts":s.bindings.inputs.iter().filter(|a|b.request.input_artifact_ids.contains(&a.contract.requirement.artifact_id)).collect::<Vec<_>>(),"output_artifacts":s.bindings.outputs.iter().filter(|a|b.request.output_artifact_ids.contains(&a.requirement.artifact_id)).collect::<Vec<_>>(),"handoff_result":singleton,"handoff_results":b.handoff_results,"handoff_digest":b.handoff_digest,"context_continuation":"new_attempt_explicit_handoff_only","acceptance_state":"not_established"});
+    if s.selection.capabilities.child_planning {
+        value["child_planning_context"] = json!(child_plan::recorded_context(db, s, b)?);
+    }
+    let text = encode(&value)?;
     // Preserve the existing Provider text bound; additionally check the complete
     // worst-escaped Provider wire. A large result set blocks; it is not truncated.
     if text.len() > agentbaton_providers::MAX_FRAME_BYTES / 8 {
@@ -1903,7 +1930,7 @@ fn join_parent(db: &Connection, r: &mut FactoryRun, parent_id: &str) -> Result<(
     parent.handoff_results = results;
     parent.handoff_digest = Some(digest.clone());
     let s = scope(db, &r.scope_id)?;
-    if let Err(mut error) = task_prompt(&s, &parent) {
+    if let Err(mut error) = task_prompt(db, &s, &parent) {
         error.side_effect_state = "confirmed".into();
         parent.handle.state = "blocked".into();
         save_binding(db, &mut parent)?;
@@ -2129,4 +2156,17 @@ impl Store {
         tx.commit().map_err(db_error)?;
         Ok(())
     }
+}
+
+#[path = "factory_child_plan.rs"]
+mod child_plan;
+pub(super) use child_plan::{
+    migrate as migrate_child_planning, resolve_binding as resolve_child_planning_binding,
+};
+
+pub(super) fn child_planning_limits(
+    s: &FactoryScopeSelection,
+    p: &FactoryChildPlanningPolicy,
+) -> Result<()> {
+    child_plan::policy_limits(s, p)
 }

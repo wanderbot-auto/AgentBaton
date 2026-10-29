@@ -1,0 +1,13 @@
+# Factory child planning Core
+
+Baseline eb77cfe2ae03bc4d27f2015a8786c7b41fa69761, codex/factory-child-planning-core, sparse isolated3.7MiB worktree. Authorized AB-START-001; OWNER001/002 read/ACK as existing full scope, no new permissions. Requirement IDs: AB-TSK-009/011/003/004/005/012, AB-SEC-002/003/005/010, AB-COR-002/007.
+
+Implement explicit Native-approved optional child_planning_policy; service-resolved validator definitions; same GoalPlan semantic validator in a plan-only context, never forged ApprovedGoalScope/Grant changes. Store schema14 heads+immutable revisions with raw text/CAS/action-specific receipts and bounded reads. Connect fixed scoped submit_child_plan plus fixed owner get/list/context/submit. Add actual migration, parser/auth/replay/atomic-failure and real generated ACP/companion tests; wait for exclusive Cargo lease. Root owns integration/STATUS, Native/UI authored elsewhere after DTO freeze. child_goal_execution/create_workspace stayfalse; real Provider/fees/private keys remainclosed.
+
+## Local ADR: reuse plan semantics, keep authority distinct
+
+Extract the existing semantic validator into a private shared function while retaining the original ApprovedGoalScope constructor/Grant rules. The Factory context returns only semantic digest/order, never an execution token. Store raw UTF-8 unchanged in schema14 revisions and expose metadata-only history references to stay within the existing1MiB IPC cap. Full View and nested MCP encoding are checked before the atomic event/head/revision/key commit. Scope-wide history is bounded before materialization.
+
+Optional policy/binding fields omit None so legacy false scope serialization and four original tool descriptors remain identical. Definitions are resolved server-side through the existing typed Native policy resolver; whole-scope unique definitions cap254 leaves room for Owner/input builtin rules. Complete bounded target inputs/outputs, criteria, selected validator refs, connection/workspace/input revision, target spec, write set and budget all derive from the original Factory binding.
+
+Reuse the single existing DataWorkers observation lane and request-specific private witness instead of synchronous Actor file hashing. Planning reads admit an already running Factory while original proposal/start admission rules remain unchanged. Generic task Unknown after a normal owned parent handoff is accepted only with the exact Factory normal-stop ordered join chain and active Factory run; genuine unknown/cancel/revoke/expiry/fencing remain blockers. This does not grant Task acceptance or automatically replay unknown execution.

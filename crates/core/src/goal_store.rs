@@ -642,6 +642,21 @@ fn resolve_validator(
         source_run_states,
     })
 }
+/// Factory planning may reference this exact native-approved definition. This
+/// wrapper does not create Goal scope/approval, mutate Grant or authorize a run.
+pub(crate) fn resolve_factory_child_validator(
+    db: &Connection,
+    reference: &GoalValidatorRef,
+    project: &str,
+    workspace: &ManagedWorkspace,
+    artifact: &ArtifactRequirement,
+) -> Result<Value> {
+    serde_json::to_value(resolve_validator(
+        db, reference, project, workspace, artifact,
+    )?)
+    .map_err(|_| changed())
+}
+
 fn resolve_selection(
     db: &Connection,
     s: &GoalScopeSelection,

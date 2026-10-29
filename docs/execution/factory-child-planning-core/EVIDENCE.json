@@ -1,0 +1,421 @@
+{
+  "baseline": "eb77cfe2ae03bc4d27f2015a8786c7b41fa69761",
+  "phase": "implementation_in_progress",
+  "real_provider_calls": "not_run_unauthorized",
+  "permissions": "unchanged",
+  "requirements": [
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-005",
+    "AB-TSK-012",
+    "AB-SEC-002",
+    "AB-SEC-003",
+    "AB-SEC-005",
+    "AB-SEC-010",
+    "AB-COR-002",
+    "AB-COR-007"
+  ],
+  "checks": {
+    "check-1": "FAIL101 retained; five type/name errors",
+    "check-2": "PASS0; one warning then removed",
+    "check-3": "PASS0 warning-free",
+    "earlier_child_units": {
+      "passed": 5,
+      "dimension": "Core/SQLite + observation worker body directly on test thread; no Daemon/DataWorkers join",
+      "source_scope": "lib-child-1 maps; later changes not covered"
+    },
+    "earlier_companion_units": {
+      "passed": 2,
+      "dimension": "pure descriptor/private credential tests",
+      "source_scope": "lib-contract-1 maps"
+    },
+    "build_cli14_1": {
+      "exit": 0,
+      "seconds": 12.51,
+      "profile": "test, DEBUG0; DEV_DEBUG unset",
+      "source_before_after_same": true,
+      "private_sha256": "0cc3195c80ee6a74d4498845081329fb444e9349b47472ace2742540836b5568",
+      "old_shared_aliases_exactly_restored": true,
+      "shared_daemon_unchanged": true
+    },
+    "runtime_planning_1": {
+      "exit": 101,
+      "seconds": 5.511,
+      "test_failed": 1,
+      "reason": "missing test diagnostic directory at existing fs::write; terminal assertions not reached",
+      "source_before_after_same": true,
+      "evidence_preserved": true
+    },
+    "build_cli14_2": {
+      "command": [
+        "cargo",
+        "build",
+        "--profile",
+        "test",
+        "--offline",
+        "--locked",
+        "--bin",
+        "baton"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.53,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "private_sha256": "8ec9f31dc08f21c46e831d8cebe0d70289502275e108c8335dba5292dcdebe00",
+      "old_shared_exact_restoration": "cli-protection-r2-after.json"
+    },
+    "runtime_planning_2": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_child_planning_scoped_mcp_revisions_parent_descendant_and_handoff_are_metadata_only",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 5.508,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "test_count": 1,
+      "not_additive_unique_cases": true,
+      "failure": "Parent plans1/2 and descendant1 persisted; new planning watch incorrectly denied controlled normal parent yield when generic task was OutcomeUnknown; fixed only exact normal ordered actual-join chain."
+    },
+    "runtime_planning_3": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_child_planning_scoped_mcp_revisions_parent_descendant_and_handoff_are_metadata_only",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.51,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "test_count": 1,
+      "not_additive_unique_cases": true
+    },
+    "runtime_planning_4": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_child_planning_scoped_mcp_revisions_parent_descendant_and_handoff_are_metadata_only",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 5.512,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "test_count": 1,
+      "not_additive_unique_cases": true,
+      "failure": "Negative fixture called Store::open on live snapshot, correctly triggering recovery; normal-copy expected WORKSPACE_BUSY but got AUTH_REQUIRED. Original failure retained; no production recovery relaxation."
+    },
+    "runtime_planning_5": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_child_planning_scoped_mcp_revisions_parent_descendant_and_handoff_are_metadata_only",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 5.008,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "test_count": 1,
+      "not_additive_unique_cases": true,
+      "failure": "New test pause lacked Python import time, produced actual unknown rather than expected running snapshot. Fixed import and panic stop/join diagnostics; no deadline change."
+    },
+    "runtime_planning_6": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_child_planning_scoped_mcp_revisions_parent_descendant_and_handoff_are_metadata_only",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.008,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "test_count": 1,
+      "not_additive_unique_cases": true
+    },
+    "lib-child-2": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "child_planning_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.515,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "unique_tests": 6,
+      "dimension": "five Core/SQLite/direct worker-body tests and one recorded-real-runtime-row proof/tamper control; no new Daemon join"
+    },
+    "lib-contract-2": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "child_planning_contract_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.505,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "unique_tests": 2,
+      "dimension": "pure private credential/default/four-descriptor byte-shape compatibility and fifth opt-in descriptor"
+    },
+    "migration-child-1": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_child_plan_migration",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.51,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "dimension": "Actual Store13->14 upgrade/private backup/rollback/future15 refusal. Initial seeded task/raw/sentinel; richer nonempty Grant/budget/ledger fixture added after this run and not yet run."
+    },
+    "output-alias-old-control-1": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "child_plan_bad_raw_permission_references_cycles_cas_and_unsafe_numbers_leave_no_partial_rows_or_events",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 15.013,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "dimension": "actual Core/SQLite admission old save-path accepted unapproved-extra output alias",
+      "source_attribution": "8d84 HEAD plus head/history/Data-test working variant, not full830b",
+      "old_save_function_byte_identical_to_830b": true,
+      "old_save_function_sha256": "88aec55b5a7395eeb3c6e58b3ebaff22d08e0b8e04702d7ba1d4f25bc6204136",
+      "retained_source_and_ELF": true
+    },
+    "lib-child-3": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "child_planning_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 16.511,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "unique_tests": 6,
+      "dimension": "five direct-Core/SQLite/worker-body tests plus one recorded-real-row proof/corruption test; no new process join",
+      "source_attribution": "source map contains06f9 production guards and alias/head controls; integration and migration source files were not compiled by this lib command",
+      "not_full_source_signoff": true
+    }
+  },
+  "not_run": [
+    "recorded session mismatch old Rust control and eventual fix",
+    "richer nonempty original Grant/budget/ledger migration fixture",
+    "matching current CLI14/daemon14 and latest scoped runtime7",
+    "actual Directory planning/postcompletion history test and old Factory regressions with strict current14 tools",
+    "broad Core/Goal/migration regression, independent final acceptance",
+    "Native/UI real composed browser/IPC and macOS validation"
+  ],
+  "external_evidence_root": "/workspace/.onboarding/factory-child-planning-core",
+  "current_source_limit": "06f9 production/direct6 checks are recorded separately from earlier8306+2. New cfg(test)-only session identity mismatch controls now dirty and expected to fail; waiting for Root exclusive lease. Rich migration/source-derived Data integration and matching14 tools/runtime7 remain unrun.",
+  "actual_fixture": {
+    "path": "/workspace/.onboarding/factory-child-planning-core/actual-scoped-planning-r6.json",
+    "sha256": "33b71b6422f88b9036797b1055cd5be72978cdc2a64ba926c81076288061358b",
+    "dimension": "generated local ACP -> private normal CLI14 MCP -> scoped UnixIPC -> real Daemon Actor/DataWorkers -> SQLite; synthetic ready connection/trusted host finalizer; no Provider/native dialog",
+    "heads": 2,
+    "revisions": 4,
+    "existing_factory_attempts": 3,
+    "extra_goal_executions": 0,
+    "original_grant_max_children": 0,
+    "private_cli_sha256": "8ec9f31dc08f21c46e831d8cebe0d70289502275e108c8335dba5292dcdebe00"
+  },
+  "verified_source_commit": "830b51f7c048ae4c63086ac607086ff6c0b0337e (earlier full6+2 only; not a signature for later source)",
+  "requirement_evidence": [
+    {
+      "ids": [
+        "AB-TSK-009",
+        "AB-TSK-011",
+        "AB-TSK-003",
+        "AB-TSK-004",
+        "AB-TSK-005",
+        "AB-TSK-012"
+      ],
+      "implementation": "same GoalPlan raw immutable versions/CAS/ref metadata; self/descendant scoped submit; real handoff references",
+      "actual_tests": [
+        "child_plan_original_raw_revisions_cas_exact_replay_and_refs_never_mint_execution_or_expand_zero_child_grant",
+        "actual_child_planning_scoped_mcp_revisions_parent_descendant_and_handoff_are_metadata_only"
+      ],
+      "limit": "runtime exact-source earlier maps; no child Goal execution/Factory completion claim"
+    },
+    {
+      "ids": [
+        "AB-SEC-002",
+        "AB-SEC-003",
+        "AB-SEC-005",
+        "AB-SEC-010"
+      ],
+      "implementation": "explicit policy/typed old-false compatibility; source/root/input/spec/complete-output/budget/write-file authority; private observation witness and fixed methods",
+      "actual_tests": [
+        "child_plan_bad_raw_permission_references_cycles_cas_and_unsafe_numbers_leave_no_partial_rows_or_events",
+        "child_plan_observation_must_be_request_owned_and_detects_post_worker_input_or_policy_drift",
+        "child_plan_history_remains_readonly_after_revoke_exact_key_does_not_upgrade_authority",
+        "old_disabled_tools_are_identical_and_new_policy_adds_only_fifth_tool",
+        "original_private_credential_defaults_no_child_planning_and_never_accepts_renderer_capability_fields"
+      ],
+      "limit": "full scoped expired/cancelled/foreignfamily/latest-source regression and independent review pending"
+    },
+    {
+      "ids": [
+        "AB-COR-002",
+        "AB-COR-007"
+      ],
+      "implementation": "atomic revision/head/event/key commit, original raw equality, scope caps, normal-stop ordered real-join distinction and no unknown replay/refund",
+      "actual_tests": [
+        "child_plan_journal_insert_fault_rolls_back_head_revision_and_idempotency",
+        "actual_recorded_parent_yield_requires_normal_ordered_joined_same_attempt_not_unknown_run"
+      ],
+      "limit": "schema14 migration source/tests written not run; no Mac proof"
+    }
+  ],
+  "current_source_commit": "06f9eb0b2485a020f289b5051b5ff9e618c79fbb",
+  "independent_findings": [
+    {
+      "id": "CP-OUTPUT-ALIAS",
+      "status": "real_Core_FAIL retained then fixed admission/direct_Core6PASS; scoped latest runtime pending",
+      "fix_commit": "1ba00b4",
+      "detail": "Factory-only output ID union must exactly match target and each ID must map to its approved contract. Old shared Goal semantics unchanged."
+    },
+    {
+      "id": "CP-HEAD-RAW",
+      "status": "new SQL128B head strings bound + directCore oversized privateDB control passed in lib-child3",
+      "fix_commit": "06f9eb0"
+    },
+    {
+      "id": "CP-DATA-HISTORY",
+      "status": "source fixed; actual Directory test added NOT_RUN",
+      "fix_commit": "06f9eb0",
+      "detail": "Historical terminal context does not schedule a fresh Data input observation; new submit still needs all fresh gates."
+    },
+    {
+      "id": "CP-NORMAL-SESSION-BINDING",
+      "status": "reviewer original literal SQL accepts session task/project mismatch; six recorded-row Rust negatives written but not executed; production SQL not yet fixed",
+      "detail": "Private-record corruption binding issue; no assertion that Agent can legitimately modify SQLite or bypass live scoped caller."
+    }
+  ],
+  "source_attribution_audit": "SOURCE_ATTRIBUTION_CORRECTION.json",
+  "failure_elf_storage": "OLD_FAILURE_ELF_PACKING.json: initial two failed ELFs losslessly compressed with full decompression SHA/size equality; original logs/manifests retained; other failure ELF unchanged"
+}

@@ -10,6 +10,7 @@ use std::{
     time::Duration,
 };
 const MAX_REQUEST: usize = 65536;
+const MAX_CHILD_PLAN_REQUEST: usize = 1024 * 1024;
 const MAX_RESPONSE: u64 = 1024 * 1024;
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -18,6 +19,9 @@ struct ScopedCredential {
     handle_id: String,
     socket_path: std::path::PathBuf,
     scoped_token: String,
+    /// Server-written private handle metadata, not a tools/call parameter.
+    #[serde(default)]
+    child_planning: bool,
 }
 fn denied() -> CoreError {
     CoreError::new(
@@ -125,13 +129,23 @@ fn call(
 ) -> Result<Value> {
     if !matches!(
         name,
-        "delegate_task" | "get_task_status" | "get_task_result" | "cancel_task"
+        "delegate_task"
+            | "get_task_status"
+            | "get_task_result"
+            | "cancel_task"
+            | "submit_child_plan"
     ) {
         return Err(denied());
     }
     let request = json!({"api_version":1,"request_id":uuid::Uuid::new_v4().to_string(),"handle_id":credential.handle_id,"scoped_token":credential.scoped_token,"method":name,"params":args,"idempotency_key":key,"expected_revision":revision});
     let bytes = serde_json::to_vec(&request).map_err(|_| denied())?;
-    if bytes.len() > MAX_REQUEST {
+    if bytes.len()
+        > if name == "submit_child_plan" {
+            MAX_CHILD_PLAN_REQUEST
+        } else {
+            MAX_REQUEST
+        }
+    {
         return Err(CoreError::new(
             "RESOURCE_LIMIT",
             "Factory tool request exceeds its complete frame bound",
@@ -162,14 +176,18 @@ fn call(
     }
     serde_json::from_slice(&response).map_err(|_| CoreError::transport())
 }
-fn tools() -> Value {
+fn tools(child_planning: bool) -> Value {
     let target = json!({"type":"object","properties":{"task_id":{"type":"string","minLength":1,"maxLength":128}},"required":["task_id"],"additionalProperties":false});
-    json!([
+    let mut tools = json!([
     {"name":"delegate_task","description":"Request a bounded child under this exact session's independent Factory approval. Returns a handle immediately; it does not wait for or accept a result.","inputSchema":{"type":"object","properties":{"goal":{"type":"string","minLength":1,"maxLength":4096},"connection_id":{"type":"string"},"workspace_id":{"type":"string"},"input_artifact_ids":{"type":"array","items":{"type":"string"},"maxItems":16},"output_artifact_ids":{"type":"array","items":{"type":"string"},"maxItems":16},"budget":{"type":"object"},"wait_for_child":{"type":"boolean"},"idempotency_key":{"type":"string","minLength":1,"maxLength":128}},"required":["goal","connection_id","workspace_id","input_artifact_ids","output_artifact_ids","budget","wait_for_child","idempotency_key"],"additionalProperties":false}},
     {"name":"get_task_status","description":"Read this caller's own task or a same-Factory descendant; never expands caller scope.","inputSchema":target},
     {"name":"get_task_result","description":"Read bounded actual artifact and validation references. Candidate results are not Task acceptance.","inputSchema":target},
     {"name":"cancel_task","description":"Request cancellation of this caller's own task or descendant. A request does not prove process stop.","inputSchema":{"type":"object","properties":{"task_id":{"type":"string"},"expected_revision":{"type":"integer","minimum":1},"idempotency_key":{"type":"string","minLength":1,"maxLength":128}},"required":["task_id","expected_revision","idempotency_key"],"additionalProperties":false}}
-    ])
+     ]);
+    if child_planning {
+        tools.as_array_mut().expect("fixed tools array").push(json!({"name":"submit_child_plan","description":"Store a complete bounded versioned GoalPlan for this caller or its same-Factory descendant under an explicitly approved child planning policy. Returns immutable plan metadata, never execution or acceptance.","inputSchema":{"type":"object","properties":{"task_id":{"type":"string","minLength":1,"maxLength":128},"plan_json":{"type":"string","minLength":1,"maxLength":262144},"expected_plan_revision":{"type":"integer","minimum":0,"maximum":255},"idempotency_key":{"type":"string","minLength":1,"maxLength":128}},"required":["task_id","plan_json","expected_plan_revision","idempotency_key"],"additionalProperties":false}}));
+    }
+    tools
 }
 /// The trusted host passes only a server-created0600 handle file. No owner IPC
 /// command, generic shell, arbitrary MCP server or global credential is exposed.
@@ -184,13 +202,13 @@ pub fn run(path: &Path) -> Result<()> {
         let mut line = Vec::new();
         let n = reader
             .by_ref()
-            .take((MAX_REQUEST + 1) as u64)
+            .take((MAX_CHILD_PLAN_REQUEST + 1) as u64)
             .read_until(b'\n', &mut line)
             .map_err(|_| CoreError::transport())?;
         if n == 0 {
             return Ok(());
         }
-        if line.len() > MAX_REQUEST || line.last() != Some(&b'\n') {
+        if line.len() > MAX_CHILD_PLAN_REQUEST || line.last() != Some(&b'\n') {
             return Err(CoreError::new(
                 "RESOURCE_LIMIT",
                 "MCP request exceeds its bounded frame",
@@ -198,6 +216,14 @@ pub fn run(path: &Path) -> Result<()> {
         }
         let request: Value = serde_json::from_slice(&line)
             .map_err(|_| CoreError::new("INVALID_REQUEST", "Invalid bounded MCP envelope"))?;
+        let child_plan_call =
+            request["method"] == "tools/call" && request["params"]["name"] == "submit_child_plan";
+        if line.len() > MAX_REQUEST && !child_plan_call {
+            return Err(CoreError::new(
+                "RESOURCE_LIMIT",
+                "Original Factory MCP methods keep their65536-byte frame bound",
+            ));
+        }
         let id = request.get("id").cloned();
         let method = request["method"].as_str().unwrap_or("");
         if id.is_none() {
@@ -205,6 +231,17 @@ pub fn run(path: &Path) -> Result<()> {
                 continue;
             }
             continue;
+        }
+        if child_plan_call
+            && !id.as_ref().is_some_and(|v| {
+                v.as_str().is_some_and(|s| s.len() <= 128)
+                    || v.as_u64().is_some_and(|n| n <= 9_007_199_254_740_991)
+            })
+        {
+            return Err(CoreError::new(
+                "INVALID_REQUEST",
+                "Child-plan MCP id must be a bounded string or safe unsigned integer",
+            ));
         }
         let id = id.unwrap();
         let result = if request["jsonrpc"] != "2.0" {
@@ -221,7 +258,9 @@ pub fn run(path: &Path) -> Result<()> {
                     )
                 }
                 "ping" if initialized => Ok(json!({})),
-                "tools/list" if initialized => Ok(json!({"tools":tools()})),
+                "tools/list" if initialized => {
+                    Ok(json!({"tools":tools(credential.child_planning)}))
+                }
                 "tools/call" if initialized => {
                     let params = &request["params"];
                     let name = params["name"].as_str().unwrap_or("");
@@ -238,7 +277,7 @@ pub fn run(path: &Path) -> Result<()> {
                 }
                 _ => Err(CoreError::new(
                     "CAPABILITY_UNSUPPORTED",
-                    "Only the four fixed initialized Factory MCP tools are available",
+                    "Only the fixed initialized Factory MCP tools are available",
                 )),
             }
         };
@@ -260,5 +299,58 @@ pub fn run(path: &Path) -> Result<()> {
             .and_then(|()| writer.write_all(b"\n"))
             .and_then(|()| writer.flush())
             .map_err(|_| CoreError::transport())?;
+    }
+}
+
+#[cfg(test)]
+mod child_planning_contract_tests {
+    use super::*;
+    #[test]
+    fn old_disabled_tools_are_identical_and_new_policy_adds_only_fifth_tool() {
+        let old = tools(false);
+        let new = tools(true);
+        let old = old.as_array().unwrap();
+        let new = new.as_array().unwrap();
+        let historical: Value = serde_json::from_str(include_str!(
+            "../tests/fixtures/factory_original_four_tools.json"
+        ))
+        .unwrap();
+        assert_eq!(
+            old,
+            historical.as_array().unwrap(),
+            "Preserve the exact original four schema bodies, not only their names"
+        );
+        assert_eq!(old.len(), 4);
+        assert_eq!(&new[..4], old);
+        assert_eq!(new.len(), 5);
+        assert_eq!(new[4]["name"], "submit_child_plan");
+        assert_eq!(
+            old.iter()
+                .map(|v| v["name"].as_str().unwrap())
+                .collect::<Vec<_>>(),
+            [
+                "delegate_task",
+                "get_task_status",
+                "get_task_result",
+                "cancel_task"
+            ]
+        );
+    }
+    #[test]
+    fn original_private_credential_defaults_no_child_planning_and_never_accepts_renderer_capability_fields(
+    ) {
+        let raw = json!({"schema_version":1,"handle_id":"fixed","socket_path":"/tmp/owned/batond.sock","scoped_token":"a".repeat(64)});
+        let old: ScopedCredential = serde_json::from_value(raw.clone()).unwrap();
+        assert!(!old.child_planning);
+        let mut new = raw.clone();
+        new["child_planning"] = json!(true);
+        assert!(
+            serde_json::from_value::<ScopedCredential>(new)
+                .unwrap()
+                .child_planning
+        );
+        let mut bad = raw;
+        bad["global_owner_token"] = json!("unavailable");
+        assert!(serde_json::from_value::<ScopedCredential>(bad).is_err());
     }
 }

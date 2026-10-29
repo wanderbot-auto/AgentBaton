@@ -704,6 +704,68 @@ fn validate(
                 && old.proposal.revision.checked_add(1) == Some(p.revision) => {}
         _ => return Err(PlanError::StaleRevision),
     }
+    let (plan_digest, order) = validate_semantics(
+        &PlanSemanticContext {
+            goal: &scope.goal,
+            grant: &scope.grant,
+            policy: &scope.policy,
+            digest: &scope.digest,
+        },
+        &p,
+    )?;
+    Ok(ValidatedPlan {
+        proposal: p,
+        scope: scope.clone(),
+        digest: plan_digest,
+        order,
+    })
+}
+/// Only semantic policy references are shared. Factory plan-only admission never
+/// constructs an ApprovedGoalScope or a ValidatedPlan usable by Goal scheduling.
+struct PlanSemanticContext<'a> {
+    goal: &'a GoalBinding,
+    grant: &'a ExecutionGrant,
+    policy: &'a HostGoalPolicy,
+    digest: &'a str,
+}
+pub(crate) fn validate_factory_child_plan(
+    goal: &GoalBinding,
+    scope_revision: u64,
+    grant: &ExecutionGrant,
+    policy: &HostGoalPolicy,
+    authority_digest: &str,
+    p: &GoalPlanProposal,
+    previous: Option<&GoalPlanProposal>,
+) -> PlanResult<(String, Vec<String>)> {
+    if p.schema_version != 1
+        || !id(&p.plan_id)
+        || &p.goal != goal
+        || p.scope_revision != scope_revision
+    {
+        return Err(PlanError::InputChanged);
+    }
+    match previous {
+        None if p.revision == 1 && p.expected_revision == 0 => {}
+        Some(old)
+            if p.plan_id == old.plan_id
+                && p.expected_revision == old.revision
+                && old.revision.checked_add(1) == Some(p.revision) => {}
+        _ => return Err(PlanError::StaleRevision),
+    }
+    validate_semantics(
+        &PlanSemanticContext {
+            goal,
+            grant,
+            policy,
+            digest: authority_digest,
+        },
+        p,
+    )
+}
+fn validate_semantics(
+    scope: &PlanSemanticContext<'_>,
+    p: &GoalPlanProposal,
+) -> PlanResult<(String, Vec<String>)> {
     if p.nodes.is_empty()
         || p.nodes.len() > scope.policy.max_nodes as usize
         || !ids(&p.acceptance_rules)
@@ -783,7 +845,8 @@ fn validate(
                 let c = &permit.binding;
                 if binding.workspace_id != n.workspace_id
                     || binding.input_revision != scope.goal.input_revision
-                    || binding.policy_revision != format!("{}:{}", scope.grant.id, scope.revision)
+                    || binding.policy_revision
+                        != format!("{}:{}", scope.grant.id, scope.grant.revision)
                     || binding.environment_id != c.environment_id
                     || binding.identity_ref != c.identity_ref
                     || binding.host_id != c.host_id
@@ -1013,13 +1076,7 @@ fn validate(
     if order.len() != nodes.len() {
         return Err(PlanError::Cycle);
     }
-    let plan_digest = digest(&(scope.digest.as_str(), &p))?;
-    Ok(ValidatedPlan {
-        proposal: p,
-        scope: scope.clone(),
-        digest: plan_digest,
-        order,
-    })
+    Ok((digest(&(scope.digest, p))?, order))
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
