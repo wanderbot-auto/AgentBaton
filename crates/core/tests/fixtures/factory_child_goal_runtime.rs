@@ -466,6 +466,9 @@ fn child_goal_provider(
    assert c['handoff_result']['acceptance_state']=='task_accepted'
    assert c['handoff_result']['task']['confirmed_stop']is True
    assert any(x.startswith('goal-task-acceptance:')for x in c['handoff_result']['validation_refs'])
+   output=c['output_artifacts'][0]['requirement']['relative_path']
+   with open(output,'w')as f:f.write(stage+' '+c['output_artifacts'][0]['requirement']['artifact_id']+' report\n')
+   response(r,{'stopReason':'end_turn'});continue
 "#);
     if root_self {
         let marker = "   child=tool('delegate_task',{'goal':'Produce and accept only the actual fixed child report'";
