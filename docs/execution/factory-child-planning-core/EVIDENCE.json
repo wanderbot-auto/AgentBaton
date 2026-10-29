@@ -244,18 +244,94 @@
       "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
       "unique_tests": 2,
       "dimension": "pure private credential/default/four-descriptor byte-shape compatibility and fifth opt-in descriptor"
+    },
+    "migration-child-1": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_child_plan_migration",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.51,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "dimension": "Actual Store13->14 upgrade/private backup/rollback/future15 refusal. Initial seeded task/raw/sentinel; richer nonempty Grant/budget/ledger fixture added after this run and not yet run."
+    },
+    "output-alias-old-control-1": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "child_plan_bad_raw_permission_references_cycles_cas_and_unsafe_numbers_leave_no_partial_rows_or_events",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 15.013,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "dimension": "actual Core/SQLite admission old save-path accepted unapproved-extra output alias",
+      "source_attribution": "8d84 HEAD plus head/history/Data-test working variant, not full830b",
+      "old_save_function_byte_identical_to_830b": true,
+      "old_save_function_sha256": "88aec55b5a7395eeb3c6e58b3ebaff22d08e0b8e04702d7ba1d4f25bc6204136",
+      "retained_source_and_ELF": true
+    },
+    "lib-child-3": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "child_planning_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 16.511,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "unique_tests": 6,
+      "dimension": "five direct-Core/SQLite/worker-body tests plus one recorded-real-row proof/corruption test; no new process join",
+      "source_attribution": "source map contains06f9 production guards and alias/head controls; integration and migration source files were not compiled by this lib command",
+      "not_full_source_signoff": true
     }
   },
   "not_run": [
-    "current830b51f matching CLI14 and complete scoped runtime7",
-    "schema14 migration suite and affected prior migration fixtures",
-    "full original Factory/Goal/workspace regression",
-    "Native/UI actual browser/Core fixture validation",
-    "independent final security review",
-    "macOS validation"
+    "recorded session mismatch old Rust control and eventual fix",
+    "richer nonempty original Grant/budget/ledger migration fixture",
+    "matching current CLI14/daemon14 and latest scoped runtime7",
+    "actual Directory planning/postcompletion history test and old Factory regressions with strict current14 tools",
+    "broad Core/Goal/migration regression, independent final acceptance",
+    "Native/UI real composed browser/IPC and macOS validation"
   ],
   "external_evidence_root": "/workspace/.onboarding/factory-child-planning-core",
-  "current_source_limit": "Current830b51f passed6+2; runtime6 passed earlier exact map before active-run defensive recheck and exact output-file write restriction. Fresh matching CLI14/runtime7, migrations and broad/independent regressions remain pending.",
+  "current_source_limit": "06f9 production/direct6 checks are recorded separately from earlier8306+2. New cfg(test)-only session identity mismatch controls now dirty and expected to fail; waiting for Root exclusive lease. Rich migration/source-derived Data integration and matching14 tools/runtime7 remain unrun.",
   "actual_fixture": {
     "path": "/workspace/.onboarding/factory-child-planning-core/actual-scoped-planning-r6.json",
     "sha256": "33b71b6422f88b9036797b1055cd5be72978cdc2a64ba926c81076288061358b",
@@ -267,7 +343,7 @@
     "original_grant_max_children": 0,
     "private_cli_sha256": "8ec9f31dc08f21c46e831d8cebe0d70289502275e108c8335dba5292dcdebe00"
   },
-  "verified_source_commit": "830b51f7c048ae4c63086ac607086ff6c0b0337e",
+  "verified_source_commit": "830b51f7c048ae4c63086ac607086ff6c0b0337e (earlier full6+2 only; not a signature for later source)",
   "requirement_evidence": [
     {
       "ids": [
@@ -314,5 +390,32 @@
       ],
       "limit": "schema14 migration source/tests written not run; no Mac proof"
     }
-  ]
+  ],
+  "current_source_commit": "06f9eb0b2485a020f289b5051b5ff9e618c79fbb",
+  "independent_findings": [
+    {
+      "id": "CP-OUTPUT-ALIAS",
+      "status": "real_Core_FAIL retained then fixed admission/direct_Core6PASS; scoped latest runtime pending",
+      "fix_commit": "1ba00b4",
+      "detail": "Factory-only output ID union must exactly match target and each ID must map to its approved contract. Old shared Goal semantics unchanged."
+    },
+    {
+      "id": "CP-HEAD-RAW",
+      "status": "new SQL128B head strings bound + directCore oversized privateDB control passed in lib-child3",
+      "fix_commit": "06f9eb0"
+    },
+    {
+      "id": "CP-DATA-HISTORY",
+      "status": "source fixed; actual Directory test added NOT_RUN",
+      "fix_commit": "06f9eb0",
+      "detail": "Historical terminal context does not schedule a fresh Data input observation; new submit still needs all fresh gates."
+    },
+    {
+      "id": "CP-NORMAL-SESSION-BINDING",
+      "status": "reviewer original literal SQL accepts session task/project mismatch; six recorded-row Rust negatives written but not executed; production SQL not yet fixed",
+      "detail": "Private-record corruption binding issue; no assertion that Agent can legitimately modify SQLite or bypass live scoped caller."
+    }
+  ],
+  "source_attribution_audit": "SOURCE_ATTRIBUTION_CORRECTION.json",
+  "failure_elf_storage": "OLD_FAILURE_ELF_PACKING.json: initial two failed ELFs losslessly compressed with full decompression SHA/size equality; original logs/manifests retained; other failure ELF unchanged"
 }
