@@ -24,6 +24,8 @@ fn fixture() -> (tempfile::TempDir, PathBuf, Value) {
     assert_eq!(manifest["provider"], "generated_local_acp_no_model_or_credentials");
     assert_eq!(manifest["daemon_exit"], 0);
     assert_eq!(manifest["forced_kill"], false);
+    let owned = manifest["owned_processes"].as_array().unwrap();
+    assert!(owned.len() >= 2 && owned.iter().all(|p| p["gone_after_join"] == true));
     assert_eq!(manifest["source_commit"], "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701");
     let bytes = fs::read(source.join("actual-schema14.sqlite3")).unwrap();
     assert_eq!(agentbaton_workspaces::validation::sha256(&bytes), manifest["database_sha256"]);

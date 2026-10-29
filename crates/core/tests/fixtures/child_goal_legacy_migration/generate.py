@@ -8,11 +8,13 @@ The committed database is a SQLite backup of the joined real daemon's database.
 import argparse
 import ast
 import copy
+from contextlib import contextmanager
 import hashlib
 import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import socket
 import sqlite3
 import stat
@@ -25,7 +27,7 @@ import uuid
 SOURCE = 'f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701'
 HASHES = {'batond': '1c835dcd2b925baeb2f0131b225c1047bdc89c4452417a302fae34a133c4cf73',
           'baton': 'd90cf23761b83dc7eeeb92291b411a573e9cfb6ecde3750bc3bb376d2fe66797'}
-ACP = r'''import json,sys
+ACP = r'''import json,os,sys
 from pathlib import Path
 if sys.argv[1:]==['--version']:
  print('Generated legacy migration ACP 1');sys.exit(0)
@@ -38,6 +40,9 @@ for line in sys.stdin:
  elif m=='session/new':reply(i,{'sessionId':'generated-legacy-history'})
  elif m=='session/prompt':
   pending=i;v=json.loads(r['params']['prompt'][0]['text'])
+  Path('reports').mkdir(exist_ok=True)
+  ticks=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()[19]
+  Path('reports/migration-owned-'+str(os.getpid())+'.json').write_text(json.dumps({'pid':os.getpid(),'pgid':os.getpgrp(),'start_ticks':ticks}))
   if v['kind']=='agentbaton_goal_task_request':
    assert v['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
    Path('reports').mkdir(exist_ok=True);Path('reports/report.txt').write_bytes(b'fixed legacy Graph candidate\n')
@@ -66,6 +71,19 @@ def wait(read, predicate, seconds=20):
             return value
         assert time.monotonic() < deadline, 'Bounded observation did not reach its required state'
         time.sleep(.02)
+
+
+@contextmanager
+def retained_private_runtime(report):
+    root = Path(tempfile.mkdtemp(prefix='ab14-', dir='/tmp')).resolve()
+    root.chmod(0o700)
+    report['private_runtime'] = str(root)
+    report['runtime_cleanup'] = 'retained_on_failure'
+    # In particular, assertion/exception paths cannot erase the original DB,
+    # WAL, joined-process evidence or private failure diagnostics.
+    yield root
+    shutil.rmtree(root)
+    report['runtime_cleanup'] = 'removed_after_successful_owned_join_and_backup'
 
 
 def source_function(path, name, namespace):
@@ -115,8 +133,7 @@ def main():
               'not_claimed': ['macOS', 'native dialog', 'real Provider', 'TaskAccepted', 'product completion', 'active worker recovery']}
     daemon = None
     try:
-        with tempfile.TemporaryDirectory(prefix='ab14-', dir='/tmp') as tmp:
-            root = Path(tmp).resolve(); root.chmod(0o700)
+        with retained_private_runtime(report) as root:
             runtime = root / 'r'; runtime.mkdir(mode=0o700)
             assert len(str(runtime / 'batond.sock').encode()) <= 100
             provider = root / 'generated-acp'
@@ -190,6 +207,7 @@ def main():
                         'child_planning_policy':{'max_nodes':8,'max_revisions':16,'max_plan_bytes':262144,'outputs':[{'artifact':artifact,'validators':[]}],'writable_prefixes':['reports'],'owner_acceptance_criteria':'Store historical plan only; separate Owner acceptance is required'}}
                     _, factory_scope = approve('factory_scopes.propose', factory_selection, 'legacy:factory-scope', 'factory')
                     call('factory_runs.start', {'scope_id':factory_scope['id']}, 'legacy:factory-start', factory_scope['revision'])
+                    wait(lambda: list(runtime.glob('workspaces/**/reports/migration-owned-*.json')), lambda markers: len(markers) >= 2)
                     def context_read():
                         return call('factory_child_plans.context', {'scope_id':factory_scope['id'],'task_id':factory_task['id']}, allow_error=True)
                     context_reply = wait(context_read, lambda r: not r.get('error'))
@@ -208,6 +226,15 @@ def main():
                         report['forced_kill'] = True
                         daemon.kill(); report['daemon_exit'] = daemon.wait(timeout=5)
                 assert report['daemon_exit'] == 0 and not report['forced_kill']
+                report['owned_processes'] = []
+                for marker in sorted(runtime.glob('workspaces/**/reports/migration-owned-*.json')):
+                    owned = json.loads(bounded(marker,1024))
+                    process = Path('/proc') / str(owned['pid']) / 'stat'
+                    try: current = process.read_text().rsplit(')',1)[1].split()[19]
+                    except FileNotFoundError: current = None
+                    owned['gone_after_join'] = current != owned['start_ticks']
+                    report['owned_processes'].append(owned)
+                assert len(report['owned_processes']) >= 2 and all(p['gone_after_join'] for p in report['owned_processes'])
                 database = runtime / 'baton.sqlite3'
                 with sqlite3.connect(database.as_uri()+'?mode=ro',uri=True) as db:
                     assert db.execute('PRAGMA user_version').fetchone()[0] == 14
@@ -216,6 +243,8 @@ def main():
                     report['counts'] = {n: db.execute('SELECT count(*) FROM '+n).fetchone()[0] for n in names}
                     assert all(report['counts'].values())
                     assert db.execute("SELECT count(*) FROM goal_runs WHERE state IN ('queued','running','cancel_requested','outcome_unknown')").fetchone()[0] == 0
+                    assert db.execute("SELECT count(*) FROM goal_graph_jobs WHERE state IN ('prepared','running','cancel_requested')").fetchone()[0] == 0
+                    assert db.execute("SELECT count(*) FROM factory_runs WHERE state IN ('queued','starting','running','waiting_child','resuming','cancel_requested','outcome_unknown')").fetchone()[0] == 0
                     destination = output / 'actual-schema14.sqlite3'
                     destination.touch(mode=0o600,exist_ok=False)
                     with sqlite3.connect(destination) as backup: db.backup(backup)
