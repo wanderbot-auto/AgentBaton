@@ -555,3 +555,55 @@ fn shared_reservation_projection_still_rejects_missing_foreign_changed_or_double
         g.goal.run.task_id
     );
 }
+
+#[test]
+fn budget_history_reuse_preserves_values_and_rechecks_each_new_invocation() {
+    // Real approvals and Core-written reservation, not a fabricated successful
+    // process/stop. The faults below deliberately corrupt otherwise private
+    // history; they do not represent a supported write or create authority.
+    let (f, s, _) = reserved();
+    let project = || crate::factory::budget_records(&f.store.conn, &s.root_grant_id, &s.project_id);
+    assert!(f.store.conn.is_autocommit());
+    let original = serde_json::to_value(project().unwrap()).unwrap();
+    assert_eq!(original.as_array().unwrap().len(), 1);
+    let before = unchanged_execution(&f);
+    let sequence = f.store.sequence().unwrap();
+    f.store
+        .conn
+        .execute_batch("SAVEPOINT history_projection")
+        .unwrap();
+    assert!(!f.store.conn.is_autocommit());
+    assert_eq!(serde_json::to_value(project().unwrap()).unwrap(), original);
+
+    for (label, sql, code) in [
+        ("origin_changed_after_prior_read", "UPDATE factory_child_goal_runs SET record_digest='foreign-history-digest'", "INPUT_CHANGED"),
+        ("usage_changed_after_prior_read", "UPDATE goal_run_reservations SET document=json_set(document,'$.actual_runtime_ms',1)", "BUDGET_UNKNOWN"),
+        ("node_state_changed_after_prior_read", "UPDATE goal_run_nodes SET state='foreign-state',document=json_set(document,'$.state','foreign-state') WHERE attempt_id IS NOT NULL", "INPUT_CHANGED"),
+        ("session_binding_changed_after_prior_read", "UPDATE sessions SET document=json_set(document,'$.task_id','foreign-history-task')", "INPUT_CHANGED"),
+        ("receipt_source_changed_after_prior_read", "UPDATE events SET document=json_set(document,'$.source','foreign-history-source') WHERE json_extract(document,'$.kind')='goal.node_reserved'", "PERMISSION_DENIED"),
+        // A second, same-run reservation cannot borrow the first one's Node or
+        // event/attempt binding merely because its run history was checked.
+        ("second_row_foreign_node", "INSERT INTO attempts(id,task_id,root_task_id,binding,idempotency_key) SELECT 'foreign-history-attempt',task_id,root_task_id,binding,'foreign-history-key' FROM attempts LIMIT 1; INSERT INTO goal_run_reservations(attempt_id,run_id,node_id,parent_node_id,document) SELECT 'foreign-history-attempt',run_id,'foreign-budget-node',parent_node_id,json_set(document,'$.node_id','foreign-budget-node') FROM goal_run_reservations LIMIT 1", "INPUT_CHANGED"),
+    ] {
+        f.store.conn.execute_batch("SAVEPOINT history_fault").unwrap();
+        // Each variant follows a successful projection in this SAME outer
+        // transaction. A function-local read result must not hide later writes.
+        assert_eq!(serde_json::to_value(project().unwrap()).unwrap(), original);
+        f.store.conn.execute_batch(sql).unwrap();
+        assert!(!f.store.conn.prepare("PRAGMA foreign_key_check").unwrap().exists([]).unwrap(), "{label}");
+        let error = project().unwrap_err();
+        assert_eq!(error.code, code, "{label}: {error}");
+        assert_eq!(f.store.sequence().unwrap(), sequence, "{label}");
+        f.store.conn.execute_batch("ROLLBACK TO history_fault;RELEASE history_fault").unwrap();
+        assert_eq!(serde_json::to_value(project().unwrap()).unwrap(), original, "{label}");
+        assert_eq!(unchanged_execution(&f), before, "{label}");
+    }
+    f.store
+        .conn
+        .execute_batch("RELEASE history_projection")
+        .unwrap();
+    assert!(f.store.conn.is_autocommit());
+    assert_eq!(serde_json::to_value(project().unwrap()).unwrap(), original);
+    assert_eq!(unchanged_execution(&f), before);
+    assert_eq!(f.store.sequence().unwrap(), sequence);
+}

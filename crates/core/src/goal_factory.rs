@@ -807,23 +807,55 @@ pub(crate) fn budget_records(
         })
         .map_err(db_error)?;
     let mut result = Vec::new();
+    // This function performs only reads. An existing SQLite transaction gives
+    // all of them the same database snapshot; outside a transaction keep the
+    // original per-row validation. Retain at most one run and one revision,
+    // never a cross-call or live-admission authority cache. In particular the
+    // caller's later own-write accounting phase starts a fresh invocation.
+    // checked_record/checked_scope and run's accepted/adopted-plan checks here
+    // verify persisted history, not current TTL or live input observations.
+    // Their callers still perform live admission and current-meter checks at
+    // the original phases; none of those results are retained in these slots.
+    let stable_history = !db.is_autocommit();
+    let mut origin: Option<(String, DerivedRecord, crate::factory::FactoryScope)> = None;
+    let mut history: Option<(GoalRun, Vec<GoalPlanView>)> = None;
+    let mut revision_nodes: Option<(u64, Vec<RuntimeNode>)> = None;
     for row in rows {
         let (attempt, run_id, node, doc) = row.map_err(db_error)?;
         let r: ReservationRecord = decode(&doc)?;
-        let authority = checked_record(db, &run_id)?;
-        let original =
-            crate::factory::checked_child_goal_scope(db, &authority.origin.factory_scope_id)?;
+        if !stable_history || origin.as_ref().is_none_or(|(id, _, _)| id != &run_id) {
+            let authority = checked_record(db, &run_id)?;
+            let original =
+                crate::factory::checked_child_goal_scope(db, &authority.origin.factory_scope_id)?;
+            origin = Some((run_id.clone(), authority, original));
+            history = None;
+            revision_nodes = None;
+        }
+        let (_, authority, original) = origin.as_ref().ok_or_else(changed)?;
         if r.run_id != run_id || r.node_id != node || r.shared_root_grant_id.is_some() {
             return Err(changed());
         }
         let reserved:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.payload.attempt_id')=?2 AND json_extract(document,'$.payload.node_id')=?3 AND json_extract(document,'$.payload.plan_revision')=?4 AND json_extract(document,'$.payload.reservation')=json(?5)) AND NOT EXISTS(SELECT 1 FROM factory_budget_reservations WHERE attempt_id=?2)",params![run_id,attempt,node,sql_num(r.plan_revision)?,encode(&json!(r.reservation))?],|r|r.get(0)).map_err(db_error)?;
-        let current = run(db, &run_id)?;
-        let history = bounded_plan_history(db, &current.scope_id)?;
-        let plan = history
+        if history.is_none() {
+            let current = run(db, &run_id)?;
+            let plans = bounded_plan_history(db, &current.scope_id)?;
+            history = Some((current, plans));
+        }
+        let (current, plans) = history.as_ref().ok_or_else(changed)?;
+        let plan = plans
             .iter()
             .find(|p| p.proposal.revision == r.plan_revision)
             .ok_or_else(changed)?;
-        let nodes = node_records_at(db, &current, r.plan_revision, &plan.digest, plan)?;
+        if revision_nodes
+            .as_ref()
+            .is_none_or(|(revision, _)| *revision != r.plan_revision)
+        {
+            revision_nodes = Some((
+                r.plan_revision,
+                node_records_at(db, current, r.plan_revision, &plan.digest, plan)?,
+            ));
+        }
+        let (_, nodes) = revision_nodes.as_ref().ok_or_else(changed)?;
         let actual = nodes
             .iter()
             .find(|n| n.node.id == node && n.attempt_id.as_deref() == Some(attempt.as_str()))
@@ -849,15 +881,15 @@ pub(crate) fn budget_records(
         }
         result.push(crate::factory::FactoryReservation {
             authority_kind: "factory_child_goal".into(),
-            scope_id: Some(original.id),
-            run_id: Some(authority.origin.factory_run_id),
-            root_task_id: original.root_task_id,
-            root_grant_id: original.root_grant_id,
-            project_id: original.project_id,
-            task_id: authority.initial_run.task_id,
+            scope_id: Some(original.id.clone()),
+            run_id: Some(authority.origin.factory_run_id.clone()),
+            root_task_id: original.root_task_id.clone(),
+            root_grant_id: original.root_grant_id.clone(),
+            project_id: original.project_id.clone(),
+            task_id: authority.initial_run.task_id.clone(),
             session_id: session.flatten().unwrap_or_default(),
             attempt_id: attempt,
-            ancestors: authority.origin.ancestors,
+            ancestors: authority.origin.ancestors.clone(),
             queued_ms: 0,
             reservation: r.reservation,
             settled: r.settled,
