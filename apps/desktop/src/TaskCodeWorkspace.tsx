@@ -59,7 +59,9 @@ function WorkspacePanel(props: Props & { open: boolean }) {
       const binding = task.code_workspace_binding;
       if (binding && (binding.revision < saved.bindingFloor || saved.receiptFloor && !equal(binding.receipt, saved.receiptFloor)) || !binding && saved.bindingFloor > 0) throw new Error(t.invalid);
       let preparation: CodeWorkspacePreparation | null = null;
-      if (!binding) {
+      // Archived projects still expose Task/receipt history. Their resolver
+      // correctly refuses new code preparation, so do not invoke it for history.
+      if (!binding && !project?.archived) {
         const selection = { task_id: task.id, expected_task_revision: task.revision, expected_project_revision: project?.revision ?? 0, host_id: 'local' as const };
         preparation = parseCodeWorkspacePreparation(await api.workspacesResolve(selection), selection);
         if (preparation.project_id !== task.project_id || preparation.spec_revision !== task.spec_revision) throw new Error(t.invalid);

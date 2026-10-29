@@ -110,7 +110,13 @@ describe('Task code workspace component / mocked fixed daemon transport only', (
   });
   it('keeps archived and non-draft records readable with new preparation disabled', async () => {
     const user = userEvent.setup(), f = fixture(); f.task = { ...f.task, state: 'cancelled' }; f.project.archived = true; setup(f); vi.mocked(api.workspacesResolve).mockResolvedValue({ ...f.preparation, state: 'blocked', reason: 'task_not_draft', preparation_key: null });
-    render(<TaskCodeWorkspace task={f.task} language="en" connected />); await expand(user); expect(prepare()).toBeDisabled(); expect(screen.getByText(/project is archived/)).toBeVisible(); expect(api.workspacesPrepareTaskGit).not.toHaveBeenCalled();
+    render(<TaskCodeWorkspace task={f.task} language="en" connected />); await expand(user); expect(prepare()).toBeDisabled(); expect(screen.getByText(/project is archived/)).toBeVisible(); expect(api.workspacesResolve).not.toHaveBeenCalled(); expect(api.workspacesPrepareTaskGit).not.toHaveBeenCalled();
+  });
+  it('shows the actual blocked resolver result for an active project with an unknown task, without a prepare action', async () => {
+    const user = userEvent.setup(), f = fixture(); f.task = { ...f.task, state: 'outcome_unknown' }; setup(f);
+    vi.mocked(api.workspacesResolve).mockResolvedValue({ ...f.preparation, state: 'blocked', reason: 'task_not_draft', preparation_key: null });
+    render(<TaskCodeWorkspace task={f.task} language="en" connected />); await expand(user);
+    expect(screen.getByText(/Only an unbound draft task/)).toBeVisible(); expect(prepare()).toBeDisabled(); expect(api.workspacesPrepareTaskGit).not.toHaveBeenCalled();
   });
   it('refuses disconnected actions and ignores a slow read after task identity changes', async () => {
     const user = userEvent.setup(), f = fixture(), next = fixture(); setup(f); const gate = deferred<Task>(); vi.mocked(api.taskGet).mockReturnValueOnce(gate.promise);
