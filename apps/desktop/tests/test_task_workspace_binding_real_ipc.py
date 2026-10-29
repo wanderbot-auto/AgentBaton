@@ -1,5 +1,7 @@
 """Pure boundary/fail-closed tests; no Node, Playwright, subprocess or Core runtime."""
 import copy
+import ctypes
+from unittest.mock import patch
 import importlib.util
 import json
 from pathlib import Path
@@ -231,6 +233,151 @@ class PreflightTests(unittest.TestCase):
         (self.front / 'external').symlink_to(self.manifest)
         with self.assertRaises(ValueError):
             h.preflight(self.args)
+
+
+class ManagedFixturePathTests(unittest.TestCase):
+    """Actual self-owned temp FS guards; not actual worktrees/Core receipts."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name).resolve()
+        self.runtime = self.root / 'runtime'
+        self.runtime.mkdir(mode=0o700)
+        self.managed = self.runtime / 'workspaces'
+        self.managed.mkdir(mode=0o700)
+        self.work = self.managed / 'workspace-one'
+        self.work.mkdir(mode=0o700)
+        (self.work / 'input.txt').write_bytes(b'committed source\n')
+        (self.work / '.git').write_bytes(b'gitfile metadata only; no Git execution')
+        self.external = self.root / 'surrogate-external'
+        self.external.mkdir(mode=0o700)
+        (self.external / 'preserve').write_bytes(b'outside surrogate must not change')
+        self.pin = {'canonical_root': str(self.root / 'source'), 'device': '1', 'inode': '2',
+                    'common_dir': str(self.root / 'source/.git'), 'head': 'a'*40}
+        info = self.work.stat()
+        self.binding = {'state': 'ready', 'receipt': {'task_id': 'task-one', 'project_id': 'project-one',
+                         'host_id': 'local', 'source_pin': self.pin, 'workspace_id': self.work.name,
+                         'managed_root': str(self.managed)},
+                        'managed_pin': {'canonical_root': str(self.work), 'device': str(info.st_dev),
+                                        'inode': str(info.st_ino), 'common_dir': self.pin['common_dir'], 'head': 'a'*40}}
+        self.guard = h.ManagedFixturePaths(self.runtime, 'project-one', self.pin)
+
+    def unchanged(self):
+        self.assertEqual((self.external / 'preserve').read_bytes(), b'outside surrogate must not change')
+        self.assertFalse((self.external / 'own-output.txt').exists())
+        self.assertFalse(self.external.with_name(self.external.name + '-retained-fixture').exists())
+        self.assertEqual((self.work / 'input.txt').read_bytes(), b'committed source\n')
+
+    def reject_binding(self, bad):
+        for action in (self.guard.workspace, self.guard.committed_input,
+                       self.guard.write_output, self.guard.replace_for_drift):
+            with self.assertRaises((ValueError, FileNotFoundError, NotADirectoryError)):
+                action(bad, 'task-one')
+            self.unchanged()
+
+    def test_same_core_shaped_external_path_cannot_authorize_any_read_write_or_rename(self):
+        bad = copy.deepcopy(self.binding)
+        info = self.external.stat()
+        bad['managed_pin'].update(canonical_root=str(self.external), device=str(info.st_dev), inode=str(info.st_ino))
+        self.reject_binding(bad)
+        bad['receipt']['managed_root'] = str(self.external.parent)
+        bad['receipt']['workspace_id'] = self.external.name
+        self.reject_binding(bad)
+
+    def test_wrong_task_project_source_host_or_workspace_component_refuses(self):
+        for field, value in [('task_id', 'foreign'), ('project_id', 'foreign'), ('host_id', 'remote'),
+                             ('workspace_id', '../surrogate-external'), ('workspace_id', '.'),
+                             ('managed_root', str(self.external))]:
+            bad = copy.deepcopy(self.binding)
+            bad['receipt'][field] = value
+            self.reject_binding(bad)
+        bad = copy.deepcopy(self.binding)
+        bad['receipt']['source_pin']['head'] = 'b'*40
+        self.reject_binding(bad)
+
+    def test_pin_requires_exact_canonical_string_identity(self):
+        for field, value in [('device', self.work.stat().st_dev), ('inode', self.work.stat().st_ino),
+                             ('inode', '0'+str(self.work.stat().st_ino)), ('inode', '1'),
+                             ('common_dir', '/foreign/.git')]:
+            bad = copy.deepcopy(self.binding)
+            bad['managed_pin'][field] = value
+            self.reject_binding(bad)
+
+    def test_symlink_workspace_root_never_follows_external_target(self):
+        retained = self.work.with_name('original-private')
+        self.work.rename(retained)
+        self.work.symlink_to(self.external, target_is_directory=True)
+        for action in (self.guard.workspace, self.guard.committed_input, self.guard.write_output, self.guard.replace_for_drift):
+            with self.assertRaises(ValueError):
+                action(self.binding, 'task-one')
+        self.assertEqual((self.external / 'preserve').read_bytes(), b'outside surrogate must not change')
+        self.assertFalse((self.external / 'own-output.txt').exists())
+        self.assertEqual((retained / 'input.txt').read_bytes(), b'committed source\n')
+
+    def test_symlink_or_replaced_managed_parent_is_rejected_before_leaf_access(self):
+        self.managed.rename(self.runtime / 'original-managed')
+        self.managed.symlink_to(self.external, target_is_directory=True)
+        with self.assertRaises(ValueError):
+            self.guard.workspace(self.binding, 'task-one')
+        self.assertFalse((self.external / 'own-output.txt').exists())
+        self.assertEqual((self.external / 'preserve').read_bytes(), b'outside surrogate must not change')
+
+    def test_exclusive_output_and_actual_atomic_private_drift_positive(self):
+        self.guard.committed_input(self.binding, 'task-one')
+        self.assertTrue(self.guard.output_absent(self.binding, 'task-one'))
+        self.guard.write_output(self.binding, 'task-one')
+        self.assertFalse(self.guard.output_absent(self.binding, 'task-one'))
+        with self.assertRaises(FileExistsError):
+            self.guard.write_output(self.binding, 'task-one')
+        self.assertEqual((self.work / 'own-output.txt').read_bytes(), b'only Task one')
+        retained = self.guard.replace_for_drift(self.binding, 'task-one')
+        self.assertEqual(retained.parent, self.managed)
+        self.assertEqual((retained / 'input.txt').read_bytes(), b'committed source\n')
+        self.assertEqual(list(self.work.iterdir()), [])
+        with self.assertRaises(ValueError):
+            self.guard.workspace(self.binding, 'task-one')
+        self.assertEqual((self.external / 'preserve').read_bytes(), b'outside surrogate must not change')
+
+    def test_existing_retained_directory_and_symlink_refused_without_overwrite(self):
+        retained = self.work.with_name(self.work.name + '-retained-fixture')
+        retained.mkdir()
+        (retained / 'preserve').write_bytes(b'existing retained')
+        with self.assertRaises(ValueError):
+            self.guard.replace_for_drift(self.binding, 'task-one')
+        self.assertEqual((retained / 'preserve').read_bytes(), b'existing retained')
+        self.unchanged()
+        (retained / 'preserve').unlink()
+        retained.rmdir()
+        retained.symlink_to(self.external, target_is_directory=True)
+        with self.assertRaises(ValueError):
+            self.guard.replace_for_drift(self.binding, 'task-one')
+        self.unchanged()
+
+    def test_retained_created_after_precheck_is_still_atomically_not_overwritten(self):
+        retained = self.work.with_name(self.work.name + '-retained-fixture')
+        real = ctypes.CDLL(None, use_errno=True).renameat2
+        real.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+        real.restype = ctypes.c_int
+        class InjectConcurrentDestination:
+            def __call__(_, *args):
+                retained.mkdir()
+                (retained / 'preserve').write_bytes(b'late retained')
+                return real(*args)
+        with patch.object(h.ctypes, 'CDLL', return_value=SimpleNamespace(renameat2=InjectConcurrentDestination())):
+            with self.assertRaises(OSError):
+                self.guard.replace_for_drift(self.binding, 'task-one')
+        self.assertEqual((retained / 'preserve').read_bytes(), b'late retained')
+        self.unchanged()
+
+    def test_managed_input_symlink_and_preexisting_output_symlink_are_refused(self):
+        (self.work / 'input.txt').unlink()
+        (self.work / 'input.txt').symlink_to(self.external / 'preserve')
+        with self.assertRaises(OSError):
+            self.guard.committed_input(self.binding, 'task-one')
+        (self.work / 'own-output.txt').symlink_to(self.external / 'preserve')
+        with self.assertRaises(FileExistsError):
+            self.guard.write_output(self.binding, 'task-one')
+        self.assertEqual((self.external / 'preserve').read_bytes(), b'outside surrogate must not change')
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@ All output is private generated-fixture evidence, never an upload allowlist.
 """
 from __future__ import annotations
 import argparse
+import ctypes
 import hashlib
 import http.server
 import json
@@ -178,6 +179,146 @@ class Boundary:
             require(result['identity_revalidated'] is True and result['execution_authorized'] is False)
             require(result['binding']['state'] == 'ready')
             require(result['original_receipt']['task_id'] == params['task_id'])
+
+
+
+class ManagedFixturePaths:
+    """Constrain test FS effects independently of any daemon-returned pathname.
+
+    This is a generated Linux fixture namespace, not a product authority/sandbox.
+    Parent directory descriptors/identity and atomic NOREPLACE protect writes;
+    returned strings alone never grant access to another directory.
+    """
+    def __init__(self, runtime, project_id, source_pin):
+        self.runtime = runtime
+        self.managed = runtime / 'workspaces'
+        self.project_id = project_id
+        self.source_pin = source_pin
+        self.parents = {}
+        for path in (runtime.parent, runtime, self.managed):
+            info = path.lstat()
+            require(stat.S_ISDIR(info.st_mode) and not path.is_symlink()
+                    and path.resolve(strict=True) == path
+                    and stat.S_IMODE(info.st_mode) == 0o700)
+            self.parents[path] = (info.st_dev, info.st_ino)
+
+    def check_parents(self):
+        for path, pin in self.parents.items():
+            info = path.lstat()
+            require(stat.S_ISDIR(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o700
+                    and (info.st_dev, info.st_ino) == pin and path.resolve(strict=True) == path)
+
+    def workspace(self, binding, task_id):
+        self.check_parents()
+        require(type(binding) is dict and binding.get('state') == 'ready')
+        receipt, pin = binding['receipt'], binding['managed_pin']
+        require(receipt['task_id'] == task_id and receipt['project_id'] == self.project_id
+                and receipt['host_id'] == 'local' and exact(receipt['source_pin'], self.source_pin)
+                and receipt['managed_root'] == str(self.managed))
+        workspace_id = receipt['workspace_id']
+        require(type(workspace_id) is str and bool(re.fullmatch(r'[A-Za-z0-9_-]{1,128}', workspace_id)))
+        expected = self.managed / workspace_id
+        require(type(pin) is dict and pin['canonical_root'] == str(expected)
+                and pin['common_dir'] == self.source_pin['common_dir'])
+        info = expected.lstat()
+        require(stat.S_ISDIR(info.st_mode) and not expected.is_symlink()
+                and expected.resolve(strict=True) == expected)
+        # Original opaque canonical strings, never JSON numeric/coercion equality.
+        require(type(pin['device']) is str and type(pin['inode']) is str
+                and pin['device'] == str(info.st_dev) and pin['inode'] == str(info.st_ino))
+        return expected
+
+    def directory_fd(self, path, expected_pin):
+        fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            info = os.fstat(fd)
+            require(stat.S_ISDIR(info.st_mode) and (info.st_dev, info.st_ino) == expected_pin)
+            return fd
+        except BaseException:
+            os.close(fd)
+            raise
+
+    def workspace_fd(self, binding, task_id):
+        path = self.workspace(binding, task_id)
+        pin = binding['managed_pin']
+        return self.directory_fd(path, (int(pin['device']), int(pin['inode'])))
+
+    def committed_input(self, binding, task_id):
+        fd = self.workspace_fd(binding, task_id)
+        try:
+            git_info = os.stat('.git', dir_fd=fd, follow_symlinks=False)
+            require(stat.S_ISREG(git_info.st_mode), 'Generated worktree must have a regular gitfile')
+            input_fd = os.open('input.txt', os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
+            with os.fdopen(input_fd, 'rb') as stream:
+                info = os.fstat(stream.fileno())
+                require(stat.S_ISREG(info.st_mode) and info.st_size <= 1024)
+                require(stream.read(1025) == b'committed source\n')
+            try:
+                os.stat('untracked.txt', dir_fd=fd, follow_symlinks=False)
+            except FileNotFoundError:
+                pass
+            else:
+                raise ValueError('Source untracked file was copied to managed worktree')
+        finally:
+            os.close(fd)
+
+    def write_output(self, binding, task_id):
+        fd = self.workspace_fd(binding, task_id)
+        try:
+            out = os.open('own-output.txt', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                          0o600, dir_fd=fd)
+            with os.fdopen(out, 'wb') as stream:
+                stream.write(b'only Task one')
+                stream.flush()
+                os.fsync(stream.fileno())
+        finally:
+            os.close(fd)
+
+    def output_absent(self, binding, task_id):
+        fd = self.workspace_fd(binding, task_id)
+        try:
+            try:
+                os.stat('own-output.txt', dir_fd=fd, follow_symlinks=False)
+            except FileNotFoundError:
+                return True
+            return False
+        finally:
+            os.close(fd)
+
+    def replace_for_drift(self, binding, task_id):
+        original = self.workspace(binding, task_id)
+        retained = original.with_name(original.name + '-retained-fixture')
+        require(retained.parent == self.managed and retained != original)
+        parent_fd = self.directory_fd(self.managed, self.parents[self.managed])
+        original_fd = None
+        try:
+            original_fd = self.workspace_fd(binding, task_id)
+            try:
+                os.stat(retained.name, dir_fd=parent_fd, follow_symlinks=False)
+            except FileNotFoundError:
+                pass
+            else:
+                raise ValueError('Retained fixture destination already exists')
+            # No overwrite window: Linux renameat2 RENAME_NOREPLACE, never fallback
+            # to ordinary replace/rename on unsupported systems.
+            libc = ctypes.CDLL(None, use_errno=True)
+            rename = libc.renameat2
+            rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+            rename.restype = ctypes.c_int
+            if rename(parent_fd, os.fsencode(original.name), parent_fd, os.fsencode(retained.name), 1) != 0:
+                error = ctypes.get_errno()
+                raise OSError(error, 'Atomic private fixture rename refused')
+            # The inode actually moved must be the one verified/opened above.
+            moved = os.stat(retained.name, dir_fd=parent_fd, follow_symlinks=False)
+            pinned = os.fstat(original_fd)
+            require((moved.st_dev, moved.st_ino) == (pinned.st_dev, pinned.st_ino))
+            os.mkdir(original.name, 0o700, dir_fd=parent_fd)
+            self.check_parents()
+            return retained
+        finally:
+            if original_fd is not None:
+                os.close(original_fd)
+            os.close(parent_fd)
 
 
 def parse_http(raw, headers, origin):
@@ -374,6 +515,7 @@ def run(args, binary, frontend, attribution, output):
         s = p['source']
         pin = {k: s[k] for k in ('canonical_root', 'device', 'inode')}
         pin.update(common_dir=s['kind']['common_dir'], head=s['kind']['head'])
+        fixture_paths = ManagedFixturePaths(runtime, project['id'], pin)
         boundary = Boundary(project, tasks, pin)
         boundary.observe('workspaces.resolve', {'task_id': tasks[0]['id']}, {'result': p})
         require(pin['canonical_root'] == str(source)
@@ -508,8 +650,8 @@ def run(args, binary, frontend, attribution, output):
         b1 = t1['code_workspace_binding']
         require(b1['state'] == 'ready' and t1['state'] == 'draft'
                 and not t1.get('acceptance_ref') and not t1.get('acceptance_sequence'))
-        w1 = Path(b1['managed_pin']['canonical_root'])
-        require((w1 / 'input.txt').read_bytes() == b'committed source\n')
+        w1 = fixture_paths.workspace(b1, tasks[0]['id'])
+        fixture_paths.committed_input(b1, tasks[0]['id'])
         require(source_image(source, git) == baseline_source)
         shot('01-first-task-ready-desktop', panel)
         passed('WSI-B01', 'normal real UI binds first Task without source dirty/index/content changes', task_id=tasks[0]['id'])
@@ -532,14 +674,14 @@ def run(args, binary, frontend, attribution, output):
         require(db_image(runtime) == before_replay, 'Exact replay created rows/events or changed existing receipt')
         t2_after = result('tasks.get', {'task_id': tasks[1]['id']})
         require(exact(t2, t2_after))
-        w2 = Path(b2['managed_pin']['canonical_root'])
-        require(w1 != w2 and w1.is_dir() and w2.is_dir())
-        require(all((w / '.git').is_file() and (w / 'input.txt').read_bytes() == b'committed source\n'
-                    and not (w / 'untracked.txt').exists() for w in (w1, w2)))
+        w2 = fixture_paths.workspace(b2, tasks[1]['id'])
+        require(w1 != w2)
+        fixture_paths.committed_input(b1, tasks[0]['id'])
+        fixture_paths.committed_input(b2, tasks[1]['id'])
         counts = db_image(runtime)
         require(len(counts['tasks']) == 2 and len(counts['managed_workspaces']) == 2)
-        (w1 / 'own-output.txt').write_bytes(b'only Task one')
-        require(not (w2 / 'own-output.txt').exists() and not (source / 'own-output.txt').exists())
+        fixture_paths.write_output(b1, tasks[0]['id'])
+        require(fixture_paths.output_absent(b2, tasks[1]['id']) and not (source / 'own-output.txt').exists())
         require(source_image(source, git) == baseline_source)
         writes = [e for e in report['http'] if e['method'] == 'workspaces.prepare_task_git']
         require(writes[1]['request_sha256'] == writes[2]['request_sha256']
@@ -555,9 +697,7 @@ def run(args, binary, frontend, attribution, output):
         # Cached prior proof may remain on remount; explicit fresh action verifies before fault injection.
         click(panel, 'Revalidate the original binding')
         expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_be_visible()
-        retained = w1.with_name(w1.name + '-retained-fixture')
-        w1.rename(retained)
-        w1.mkdir(mode=0o700)  # actual replacement, not a SQL identity/candidate forgery
+        retained = fixture_paths.replace_for_drift(b1, tasks[0]['id'])  # actual own FS, no SQL identity forgery
         drift_image = db_image(runtime)
         click(panel, 'Revalidate the original binding')
         expect(panel.get_by_role('alert')).to_contain_text('Workspace preparation failed.')
