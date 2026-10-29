@@ -276,7 +276,17 @@ fn live_scope_phase(
     } else {
         read.recheck_child_goal(db, witness, &factory_scope)?;
     }
-
+    live_scope_state(db, r, data, require_head)
+}
+// Shared by strict/pending admission and the same-transaction committed launch
+// proof. The business snapshot alone does not replace any existing live Task,
+// derived-scope, Grant or current-plan authority condition.
+fn live_scope_state(
+    db: &Connection,
+    r: &GoalRun,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+    require_head: bool,
+) -> Result<(ScopeRecord, ApprovedGoalScope)> {
     let scope: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
     let task: Task = raw(db, "tasks", &r.task_id)?;
     if scope.revoked
@@ -1577,7 +1587,7 @@ fn committed_read(
     capability(db, r)?;
     crate::factory::live_child_goal_scope(db, &issuer.origin.factory_scope_id, &r.task_id, data)?;
     let scope = crate::factory::checked_child_goal_scope(db, &issuer.origin.factory_scope_id)?;
-    let record: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
+    let (record, _) = live_scope_state(db, r, data, true)?;
     let current = node_records(db, &r.id)?
         .into_iter()
         .find(|x| x.node.id == n.node.id)
