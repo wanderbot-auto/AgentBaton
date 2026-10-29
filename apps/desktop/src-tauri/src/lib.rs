@@ -756,6 +756,101 @@ async fn factory_runs_cancel(
     .await
 }
 
+// Fixed Owner-side plan storage/read routes. No general Goal or Agent-method
+// selector is exposed, and no per-plan Native approval/finalize is invented.
+fn factory_child_plan_query_frame(
+    method: &str,
+    scope_id: &str,
+    task_id: &str,
+    plan_revision: Option<u64>,
+) -> Value {
+    let mut frame = json!({"method":method,"params":{"scope_id":scope_id,"task_id":task_id}});
+    if let Some(revision) = plan_revision {
+        frame["params"]["plan_revision"] = json!(revision);
+    }
+    frame
+}
+fn factory_child_plan_submit_frame(
+    scope_id: &str,
+    task_id: &str,
+    plan_json: &str,
+    expected_plan_revision: u64,
+    expected_revision: u64,
+    idempotency_key: &str,
+) -> Value {
+    json!({"method":"factory_child_plans.submit","params":{"scope_id":scope_id,"task_id":task_id,"plan_json":plan_json,"expected_plan_revision":expected_plan_revision},"expected_revision":expected_revision,"idempotency_key":idempotency_key})
+}
+#[tauri::command]
+async fn factory_child_plans_context(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    task_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_child_plan_query_frame("factory_child_plans.context", &scope_id, &task_id, None),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_child_plans_get(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    task_id: String,
+    plan_revision: Option<u64>,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_child_plan_query_frame(
+            "factory_child_plans.get",
+            &scope_id,
+            &task_id,
+            plan_revision,
+        ),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_child_plans_list(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    task_id: String,
+) -> Result<Value, String> {
+    // Core returns bounded ascending references, not every raw plan revision.
+    call(
+        &runtime,
+        factory_child_plan_query_frame("factory_child_plans.list", &scope_id, &task_id, None),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_child_plans_submit(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    task_id: String,
+    plan_json: String,
+    expected_plan_revision: u64,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_child_plan_submit_frame(
+            &scope_id,
+            &task_id,
+            &plan_json,
+            expected_plan_revision,
+            expected_revision,
+            &idempotency_key,
+        ),
+        false,
+    )
+    .await
+}
+
 #[tauri::command]
 async fn goal_graph_run_approve(
     runtime: tauri::State<'_, Runtime>,
@@ -1279,6 +1374,10 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         factory_runs_start,
         factory_runs_get,
         factory_runs_cancel,
+        factory_child_plans_context,
+        factory_child_plans_get,
+        factory_child_plans_list,
+        factory_child_plans_submit,
         goal_graph_run_approve,
         goal_graph_runs_list,
         goal_graph_runs_get,
@@ -1505,6 +1604,36 @@ mod factory_bridge_tests {
             factory_scope_frame("factory_runs.get", "scope", None, None),
             json!({"method":"factory_runs.get","params":{"scope_id":"scope"}})
         );
+    }
+    #[test]
+    fn factory_child_plan_read_frames_are_fixed_narrow_queries() {
+        for method in [
+            "factory_child_plans.context",
+            "factory_child_plans.get",
+            "factory_child_plans.list",
+        ] {
+            assert_eq!(
+                factory_child_plan_query_frame(method, "scope", "child", None),
+                json!({"method":method,"params":{"scope_id":"scope","task_id":"child"}})
+            );
+        }
+        assert_eq!(
+            factory_child_plan_query_frame("factory_child_plans.get", "scope", "child", Some(4)),
+            json!({"method":"factory_child_plans.get","params":{"scope_id":"scope","task_id":"child","plan_revision":4}})
+        );
+    }
+    #[test]
+    fn factory_child_plan_submit_keeps_raw_text_both_cas_and_exact_key() {
+        let raw = " {\n\"goal\":\"中文🧭\",\"nodes\": [] }\n";
+        let frame = factory_child_plan_submit_frame("scope", "child", raw, 0, 7, "same-key");
+        assert_eq!(
+            frame,
+            json!({"method":"factory_child_plans.submit","params":{"scope_id":"scope","task_id":"child","plan_json":raw,"expected_plan_revision":0},"expected_revision":7,"idempotency_key":"same-key"})
+        );
+        assert!(frame.get("approved").is_none());
+        assert!(frame.get("caller").is_none());
+        assert!(frame.get("token").is_none());
+        assert_eq!(frame["params"].as_object().unwrap().len(), 4);
     }
     #[test]
     fn factory_selection_never_adds_agent_tool_token_or_owner_approval_flags() {
