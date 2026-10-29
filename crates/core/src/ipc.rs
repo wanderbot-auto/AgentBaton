@@ -23,6 +23,9 @@ use uuid::Uuid;
 #[path = "goal_runtime_diagnostics.rs"]
 pub(crate) mod goal_diagnostics;
 
+#[path = "task_workspace_binding_ipc.rs"]
+mod task_binding_wire;
+
 pub const API_VERSION: u32 = 1;
 const MAX_FRAME: u64 = 1_048_576;
 #[derive(Deserialize)]
@@ -557,6 +560,7 @@ impl Daemon {
                 "projects.import"
                     | "projects.reassociate"
                     | "workspaces.create"
+                    | "workspaces.prepare_task_git"
                     | "connections.propose"
                     | "grants.propose"
                     | "goal_scopes.propose"
@@ -1015,6 +1019,17 @@ impl Daemon {
                     &p.expected_head,
                     &self.managed_root,
                     &key
+                )?))
+            }
+            "workspaces.prepare_task_git" => {
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.as_deref().ok_or_else(invalid)?;
+                if revision == 0 || key.is_empty() || key.len() > 256 { return Err(invalid()); }
+                let p: task_binding_wire::PrepareTaskGit = params(r.params)?;
+                // No outer current-Task CAS: the Store recognizes the immutable
+                // same-key receipt first, then freshly validates the binding.
+                Ok(json!(self.store.prepare_task_git_workspace(
+                    &p.with_task_revision(revision), &self.managed_root, key,
                 )?))
             }
             "workspaces.resolve" => {
@@ -2914,3 +2929,7 @@ impl Daemon {
             .try_send(self.factory_ready_error(&job.raw, error));
     }
 }
+
+#[cfg(test)]
+#[path = "task_workspace_binding_ipc_tests.rs"]
+mod task_binding_bridge_tests;
