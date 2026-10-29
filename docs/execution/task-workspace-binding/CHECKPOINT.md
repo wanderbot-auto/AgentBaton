@@ -12,3 +12,10 @@
 - 13unit+1integration全部未编译/运行；schema16 genuine15夹具、旧consumer/CI、实际新Session/rework/Native/Mac仍后续。当前unit中的admission-guard通过只证明绑定约束代码，既有Grant/实际Actor链未移签。
 - 恢复前核当前head/dirty与OWNER；只按Root资源窗口运行新模块lib与专属integration，保失败。非允许旧integration ctor goal_plan.rs:40留Root补None；不要擅改其旧迁移helper/版本标签。
 - 源已交Root准备独审；原WSI2a aa489595冻结不动。无Cargo/Node/真实Git/共享target/产品运行；没有旧用户项目操作。
+
+## 最新修复检查点
+
+- 当前source `2f0b9b3ff50cf8414526989b867e120d7d9fc831`，parent461e250；module SHA `266a7359c4248d124f929db7117b8f64af788a2c0d971eabd01a644b2023e254`。仅4个已有binding GitKind重验错误映射，所有13unit+1integration源码原字节不变。四docs另提交。
+- Root首测原件 `.onboarding/task-workspace-binding-core-units1/{RESULT.json,command.log,FAILED_ELF.json,failing-test.elf}`：source461e250，12PASS1FAIL/test8.17s/wrapper32.405701685s/101。首replaced variant实际CAPABILITY_UNSUPPORTED≠INPUT_CHANGED；不是编译失败、不是允许目录替换通过，不放宽原断言。
+- 旧2b独审source-ready不是全验收；新2f定向独审已交原reviewer，Root之后重跑。新source仍未编译/运行；公开integration/genuine15/Clippy/Actor/Native/Mac未验。
+- IPC合同文档新树task-workspace-binding-ipc-contract已从旧461建立，重读origin/main653与OWNER001002，无003；尚无修改/接口实现，当前因实际失败优先暂停，不改原已审公共接口。

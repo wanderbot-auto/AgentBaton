@@ -39,3 +39,9 @@ Task当前revision只需不倒退到reserved之前，不能永久等于历史res
 涵盖None字节/decimal大数、双Task独立目录/同key重启与冲突、拒绝零写、pending重启未知和真实目录碰撞、最终event1811回滚、cancel/spec/source漂移不ready、输出commit与Task revision推进不永久锁绑定、原Grant仍必需、过期非空lease、根替换/清空binding拒新key、受控v15形状备份/17拒/隐藏新字段拒、reservation迟故障回滚、错Task主键复制doc恢复拒绝、reservation后FS前source漂移拒绝，以及独立公开Rust合同。没有fake Worker join/TaskAccepted/Provider。
 
 其中v15形状测试明确由本源16初始化后受控降pragma，仅为格式/迁移primitive control，不充当genuine旧15应用证据。Root后续必须实际旧15生产者夹具及旧consumer/CI适配。现已知非本路径Task ctor `crates/core/tests/goal_plan.rs:40`需集成补None，作者未越权修改；旧schema15版本断言亦不批量替换。
+
+## 首次Root实际13unit与上下文错误码修复
+
+Root在461e250909fec726d421a9367fd70f639a627dfb实际编译并运行13 unit：12PASS/1FAIL/0ignored/test8.17s，exit101。失败是已绑定Git工作区被真实rename保留、原路径变普通Directory后的错误码：应INPUT_CHANGED却返回首次Directory准备才适用的CAPABILITY_UNSUPPORTED；拒绝本身未绕过，但错误分类有误。原测试未改允许码/断言，后两个循环variant不能据此次中断声称已运行。
+
+修复源 `2f0b9b3ff50cf8414526989b867e120d7d9fc831` 仅在已有binding的source_from/fresh_view四个GitKind转换将类型漂移映射INPUT_CHANGED；首次Directory准备仍CAPABILITY_UNSUPPORTED。lease/source/物理pin/unknown/FS规则与全部13+1测试源不变。新源等待独审及Root重验，不将旧12PASS直接移签。

@@ -38,3 +38,13 @@ Python sqlite3仅 `:memory:` 原语控制：自建最小tasks/child表、FK开�
 公开integration1通过导出DTO/Store API准备、持久Task binding、重启同key、FS整数文本和无Grant拒绝；未调用Unix IPC/Native/UI。两个schema控制故意用新16初始化库设置pragma15，清楚标为controlled shape，不移签真实旧应用fixture；未来17拒与隐藏新语义字段在旧版本拒绝也仍为未运行源码。
 
 原954源码恢复键一致性缺口仅自审推理，未实际跑旧source或形成旧RustFAIL；最终2b定向修复+新raw-row负控等待独审。所有新增Rust/类型/Clippy、genuine15→16/全旧版本consumer/CI、真实Actor/新Session/rework、Native/Mac均NOT_RUN，真实Provider/spend/sign/license权限未改变。
+
+## Root首实际13unit：精确461e250，12PASS1FAIL
+
+原件目录 `/workspace/.onboarding/task-workspace-binding-core-units1`，原件与失败ELF均未删改/重复制。RESULT.json记录source461e250909fec726d421a9367fd70f639a627dfb，命令cargo test --offline --locked -p agentbaton-core --lib task_workspace_binding -- --nocapture --test-threads=1，exit101/wrapper32.40570168499835s/minimum_free_bytes299859968/interruption=null，source_head_and_tracked_unchanged=true/frozen_tools_unchanged=true（Root记录）。原Rust log实际13选定，12passed/1failed/0ignored/139filtered/test8.17s。log SHA `44adcdc01a7fbe0d6d85ff3b5bd59226b0264f2f211cf7aed6be9d8319a3dec9` 作者Python实核匹配RESULT，未执行Rust/ELF。
+
+失败ELF由Root留39,492,144B，FAILED_ELF.json SHA `005cb8fb8c1c7b5bd0467ca292f5bc5d12fe2cda47291f568a0685d1d9036e74`；作者只读该metadata，不重新hash/复制/运行大ELF。失败函数replaced_workspace_and_cleared_binding_history_cannot_reassign_or_repeat_creation在helper182断言actual CAPABILITY_UNSUPPORTED、expected INPUT_CHANGED；源码循环首replaced变体先把真实已bound worktree rename再原路径create Directory，因此当前inspect确为Directory，旧GitWorkspacePin::observed用unsupported分类。此为拒绝错误分类，非test fixture误用、非被替换根被接受；后续source_head/cleared_binding变体本次未到达，不推测结果。
+
+新源 `2f0b9b3ff50cf8414526989b867e120d7d9fc831`（parent461）仅source_from和fresh_view中4个已有binding GitKind转换追加map_err changed，拒绝成INPUT_CHANGED。初次prepare Directory路径仍unsupported；None、receipt、SQL、CAS、lease、唯一FS分支、所有13+1测试/允许码全部原样。新module SHA `266a7359c4248d124f929db7117b8f64af788a2c0d971eabd01a644b2023e254`，其余7源码保持前表SHA。作者实际Python四表达式逆改整个module逐字等461、两个测试文件原字节等461、单文件修改范围核验与选择性rustfmt --check/git diffcheck exit0；新源未编译/运行，等待原reviewer与Root重验。
+
+原2b源独审REVIEW SHA `ba77b1c5736a9a6a3b879d02c2edc19bb969749cb967060f2f218be45ecc529c`、MANIFEST `1c3a30fd48b807a67567f29b0579763b44dddd7e9e3bb1649f7d717dd01a2c89`，目录`.onboarding/task-workspace-binding-independent-review/revision-2b9080a`，24静态/7SQLite selector原语控是有限源码结论，不能覆盖其后真实12/1失败或直接签新源。

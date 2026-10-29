@@ -15,3 +15,11 @@
 自审在首954源后发现recovery若只信doc.id、而不重读实际SQL主键，可在故意错键复制文档时写错Task或留下反复pending；最终2b将恢复输入改为有界SQL id→task_from校验，并加raw-row故障测试源码。首954从未运行，不称旧Rust FAIL或使用虚构复现。另补两commit前联读与FS前fresh gate、Box内部两种reservation结果（不改变公共语义）；此后功能冻结。
 
 实际选择性rustfmt applied/check、diffcheck与静态检查exit0，SQLite :memory: BEGIN/pragma/FK/rollback/行保留原语控制exit0。这不是Rust Store迁移/真实15旧应用/类型/lint证据。所有新增Rust、Actor、真实Git、Native/Mac仍NOT_COMPILED/NOT_RUN。无真实Provider/新账户/新费用/后台executor。
+
+## 实际首轮：12PASS/1FAIL，修复待重验
+
+执行者Root，精确source461e250：cargo test --offline --locked -p agentbaton-core --lib task_workspace_binding -- --nocapture --test-threads=1，实际12PASS1FAIL/0ignored/139filtered/test8.17s/wrapper32.405701685s/exit101。不再把此原源称未编译，源码时间点NOT_RUN保留历史。尚未运行公开integration、genuine15、严格Clippy、Actor/Native/Mac。
+
+唯一失败在replaced_workspace_and_cleared_binding_history_cannot_reassign_or_repeat_creation首replaced变体；fresh_view把当前普通Directory转Git pin时用了首次capability错误。源2f0b9b3只修已有绑定重验四个类型漂移错误分类为INPUT_CHANGED；初次Directory拒绝路径未改，所有测试/原期待码保持。作者只实核原log SHA、四表达式逆改和格式，不重复Cargo/运行失败ELF。
+
+原13unit中的12个通过是实际Store/Git/SQLite测试，包括受控v15形状；它仍不是genuine旧15应用迁移证明。未通过的函数不能算完成其后两个variant。新源复审与Root重验待完成，原12/1失败和失败ELF保留。
