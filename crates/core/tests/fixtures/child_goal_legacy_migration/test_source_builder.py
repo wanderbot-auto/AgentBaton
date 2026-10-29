@@ -7,6 +7,7 @@ import tempfile
 import tarfile
 import types
 import unittest
+import re
 from unittest import mock
 
 ROOT=Path(__file__).resolve().parents[5]
@@ -34,6 +35,16 @@ def synthetic_metadata():
 
 
 class PureSourceBuildContract(unittest.TestCase):
+    def test_raw_row_comparisons_use_the_shared_private_assertion(self):
+        source=(ROOT/'crates/core/tests/factory_child_goal_legacy_migration.rs').read_text()
+        for body in re.findall(r'assert_eq!\((.*?)\);',source,re.S):
+            self.assertFalse(re.search(r'\brows\s*\(|\bnew_rows\b',body),'Raw Rows must never be Debug-formatted by assert_eq')
+        self.assertEqual(source.count('assert_private_equal('),4)
+        helper=Path(__file__).with_name('private_assert.rs').read_text()
+        self.assertIn('T: PartialEq',helper)
+        self.assertNotIn('T: PartialEq +',helper)
+        self.assertNotIn('assert_eq!',helper)
+        self.assertNotIn('{:?}',helper)
     def test_complete_metadata_validates_without_spawning_any_tool(self):
         with (mock.patch.object(builder.subprocess,'run',side_effect=AssertionError('No subprocess allowed')),
               mock.patch.object(builder.subprocess,'check_output',side_effect=AssertionError('No subprocess allowed'))):

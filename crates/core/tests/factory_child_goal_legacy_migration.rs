@@ -15,6 +15,9 @@ use std::{
 };
 
 type Rows = BTreeMap<String, Vec<Vec<Value>>>;
+#[path = "fixtures/child_goal_legacy_migration/private_assert.rs"]
+mod private_assert;
+use private_assert::assert_private_equal;
 
 fn digest(value: &Value) -> bool {
     value.as_str().is_some_and(|v| {
@@ -395,7 +398,12 @@ fn reject_unchanged(path: &Path) {
         ddl,
         "Failed migration must roll back schema"
     );
-    assert!(rows(&after) == data, "Failed migration changed rejected proof; inspect retained private database without publishing its rows");
+    assert_private_equal(
+        &rows(&after),
+        &data,
+        path,
+        "Failed migration changed rejected proof",
+    );
 }
 
 #[test]
@@ -434,7 +442,12 @@ fn actual_nonempty_native_and_factory14_history_survives_store15_and_private_bac
         new_rows.remove("factory_child_goal_runs") == Some(vec![]),
         "Historical Factory cannot gain execution authority; inspect retained private evidence"
     );
-    assert!(new_rows == original,"Terminal/joined original raw rows must survive; inspect retained private database without publishing its rows");
+    assert_private_equal(
+        &new_rows,
+        &original,
+        &path,
+        "Terminal/joined original raw rows must survive",
+    );
     let new_cap_fk: Vec<(String, String)> = {
         let mut s=after.prepare("SELECT \"table\",\"from\" FROM pragma_foreign_key_list('goal_graph_capabilities') ORDER BY id").unwrap();
         let values = s
@@ -461,7 +474,12 @@ fn actual_nonempty_native_and_factory14_history_survives_store15_and_private_bac
     );
     let backup = Connection::open(&saved[0]).unwrap();
     assert_eq!(version(&backup), 14);
-    assert!(rows(&backup) == original, "Pre-v15 backup must retain original14 rows; inspect retained private database without publishing its rows");
+    assert_private_equal(
+        &rows(&backup),
+        &original,
+        &path,
+        "Pre-v15 backup must retain original14 rows",
+    );
     assert!(fk_errors(&backup).is_empty());
     drop(after);
     drop(Store::open(&path).unwrap());
@@ -629,9 +647,6 @@ fn actual14_fixture_relabeled_future16_is_refused_before_backup_or_recovery() {
     assert_eq!(error.code, "VERSION_UNSUPPORTED");
     let db = Connection::open(&path).unwrap();
     assert_eq!(version(&db), 16);
-    assert!(
-        rows(&db) == before,
-        "Future database changed; inspect retained private database without publishing its rows"
-    );
+    assert_private_equal(&rows(&db), &before, &path, "Future database changed");
     assert!(backups(dir.path()).is_empty());
 }
