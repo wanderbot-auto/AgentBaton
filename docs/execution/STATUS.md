@@ -1,3 +1,9 @@
+# PR18 新有界诊断完成本地回归，待准确CI — 2026-10-29T22:42:51.936548+00:00
+
+准确3faa单返工1PASS34.39s、完整Factory26PASS91.45s，target严格Clippy通过；collector51723独审闭合两P2，Root22pure与真实保留输入postjoin有限投影通过。fmt/infra106通过。原55/60/30/5/60和完整验收断言保持；不声称根因已修复或性能改善。CI引号SyntaxError被前置独审截住、c4两行修正及12mock边界通过，保留原证据。见[精确结果](factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json)。
+
+远程PR18仍727/draft，Env3/Rust/UI通过但双Mac返工失败，后续Native/构建/包skipped，无新15安装包；下一准确七CI待推。隔离PR19草稿依赖18，真实5场景/6PNG7.020026s已过，含[2,1,2,1]四步选择与6TaskGet、零Grant/session/数据库源不变；995前端/40target/type/build和同源e313工具分开记录。新发现Task CI私有日志整树上传P2，正改finite projection，尚未CI16。完整130/WP01-14/Native双Mac16/新包未完成。main653679d/OWNER001/002 ACK，无003；所有费用、身份、Provider、生产、签名、许可证、formalApprove边界保持。以下保留历史。
+
 # PR18 准确727：Rust/UI和Environment通过，双Mac返工失败 — 2026-10-29T22:21:34.361300+00:00
 
 head72735c2／实际checkoutb17a004／main653679d：Environment40961152800三项、Product40961152550的Rust/UI通过；ARM与Intel均在原55s返工观察门槛失败(21/1，182.13s/201.06s)。late list分别210ms/361ms，授权仍余955ms/960ms，零fullget；现有投影缺数组进度，尚不能确定节点状态或共同根因。保留原期限和断言，补有界进度与安全post-join投影；不上传原始DB。后续Native/构建/包跳过，无15安装包。详见HEAD727_CI_RESULTS.json；旧be12/3b失败不覆盖。
