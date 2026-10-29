@@ -1867,6 +1867,8 @@ impl Daemon {
             return;
         }
         if let Some(ticket) = job.factory_dispatch.as_ref() {
+            #[cfg(debug_assertions)]
+            let phase_clock = Instant::now();
             let watch = (ticket.scope_id().to_owned(), ticket.scope_revision());
             let contexts = {
                 if !ticket.for_request(&job.raw) {
@@ -1878,15 +1880,33 @@ impl Daemon {
                     self.store.factory_ticket_data_contexts(ticket)
                 }
             };
+            #[cfg(debug_assertions)]
+            goal_diagnostics::emit(
+                "factory_admission_phase",
+                Some(phase_clock.elapsed()),
+                [false; 6],
+                1,
+                contexts.as_ref().err().map(|error| error.code.as_str()),
+            );
             match contexts {
                 Err(error) => self.finish_factory_ticket_error(job, error),
                 Ok(contexts) if !contexts.is_empty() => {
+                    #[cfg(debug_assertions)]
+                    let phase_clock = Instant::now();
                     if let Err(failure) = self.data_workers.defer(contexts, None, None, job) {
                         let (error, job) = *failure;
                         self.finish_factory_ticket_error(job, error);
                     } else {
                         self.data_workers.watch_factory(&watch.0, watch.1);
                     }
+                    #[cfg(debug_assertions)]
+                    goal_diagnostics::emit(
+                        "factory_admission_phase",
+                        Some(phase_clock.elapsed()),
+                        [false; 6],
+                        2,
+                        None,
+                    );
                 }
                 Ok(_) => self.execute_factory_ticket(job),
             }
@@ -2803,6 +2823,8 @@ impl Daemon {
                 return Ok(json!({"session_id":id,"turn_queued":queued,"task_accepted":false}));
             }
             let context = ticket.into_context();
+            #[cfg(debug_assertions)]
+            let phase_clock = Instant::now();
             let (task, workspace, connection, grant) = context.request();
             let args = (
                 task.to_owned(),
@@ -2822,11 +2844,29 @@ impl Daemon {
                 ),
                 context,
             )?;
+            #[cfg(debug_assertions)]
+            goal_diagnostics::emit(
+                "factory_admission_phase",
+                Some(phase_clock.elapsed()),
+                [false; 6],
+                3,
+                None,
+            );
+            #[cfg(debug_assertions)]
+            let phase_clock = Instant::now();
             if let Err(error) = self.supervisor.launch(&mut self.store, &s.id) {
                 self.store.factory_launch_error(&s.id, error)?;
                 self.supervisor
                     .record_local_launch_failure(&mut self.store, &s.id)?;
             }
+            #[cfg(debug_assertions)]
+            goal_diagnostics::emit(
+                "factory_admission_phase",
+                Some(phase_clock.elapsed()),
+                [false; 6],
+                4,
+                None,
+            );
             Ok(json!({"session_id":s.id,"attempt_id":s.attempt_id,"task_accepted":false}))
         })();
         let response = match result {

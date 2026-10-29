@@ -106,6 +106,7 @@ impl Trace {
             | "factory_query_check"
             | "factory_git_snapshot"
             | "factory_phase"
+            | "factory_admission_phase"
             | "goal_budget_denied" => 0,
             _ => 63,
         };
@@ -161,6 +162,7 @@ fn allowed_stage(stage: &str) -> bool {
             | "factory_tick_begin"
             | "factory_tick_end"
             | "factory_phase"
+            | "factory_admission_phase"
             | "goal_tick_begin"
             | "goal_tick_end"
             | "goal_after_stops"
@@ -432,6 +434,22 @@ mod tests {
             assert!(line.contains(&format!("count={phase} code=none")));
             assert!(line.len() <= MAX_LINE);
         }
-        assert!(31 * PER_STAGE * 2 <= MAX_LINES);
+        for phase in 1..=4 {
+            let line = trace
+                .record(
+                    "factory_admission_phase",
+                    now,
+                    Some(Duration::from_millis(4969)),
+                    [false; 6],
+                    phase,
+                    "none",
+                )
+                .unwrap();
+            assert!(line.contains("stage=factory_admission_phase"));
+            assert!(line.contains("elapsed_ms=4969 flags=000000 valid=0"));
+            assert!(line.contains(&format!("count={phase} code=none")));
+            assert!(line.len() <= MAX_LINE);
+        }
+        assert!(32 * PER_STAGE * 2 <= MAX_LINES);
     }
 }
