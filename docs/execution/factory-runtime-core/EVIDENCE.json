@@ -5618,6 +5618,26 @@
       "remaining54 sessions cases at new test revision",
       "new macOS execution",
       "Native/UI/provider-account/paid-model tests"
-    ]
+    ],
+    "lint_attribution_clarification": {
+      "no_rerun": true,
+      "source_changed": false,
+      "recorded_order_utc": {
+        "source_file_mtime": "2026-10-29T02:47:45.613778235Z",
+        "final_tests_start": "2026-10-29T02:47:45.676730Z",
+        "final_tests_result": "2026-10-29T02:47:51.678781Z",
+        "clippy_start": "2026-10-29T02:48:12.942649Z",
+        "fmt_start": "2026-10-29T02:48:14.944161Z",
+        "source_capture": "2026-10-29T02:49:00.351165Z",
+        "source_commit": "2026-10-29T02:49:06Z"
+      },
+      "actual_command_start_records": {
+        "fixed-targeted-tests-start.json": "b747de4b4b931c509c54bdca5998beb4369d861ee17caa8593e16526bbd01331",
+        "targeted-clippy-start.json": "72589bea4f92fb4babc47666c583861eb84a60e8b29b6276012732e4f3a58dcc",
+        "fmt-start.json": "2aa3f2f9f6e99d9cdb8c4a3c55ef37809d39a5c1479540631a50b7642cfcc9ab"
+      },
+      "limitation": "No command-start record embeds an immediate test-source digest. BEFORE is earlier WIP; do not use it as final lint-source attestation. Treat existing checks as historical WIP successes; Root next exact full supplies final-source Clippy/fmt.",
+      "chronology_note": "Saved timestamps place Clippy/fmt after final3 test compilation; they do not support a claim these checks occurred before the Grant1 source change."
+    }
   }
 }
