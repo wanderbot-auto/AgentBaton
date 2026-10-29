@@ -10,6 +10,8 @@ use std::{
     thread::JoinHandle,
     time::{Duration, Instant},
 };
+#[path = "factory_child_goal_rework.rs"]
+mod rework;
 struct RunningDaemon {
     stop: Arc<AtomicBool>,
     thread: Option<JoinHandle<agentbaton_core::Result<()>>>,
