@@ -573,7 +573,7 @@
   "not_run": [
     "full20Factory runtime regression and affected historical migrations",
     "broad Core/Goal/workspace regression and latest Clippy/fmt gates",
-    "independent current Core review and product PR/CI",
+    "product PR/CI and full composed acceptance",
     "composed Native/UI actual browser/IPC validation",
     "macOS dual-architecture desktop validation and development installation packages for this source",
     "real Provider/model calls (not authorized)"
@@ -643,25 +643,29 @@
   "independent_findings": [
     {
       "id": "CP-OUTPUT-ALIAS",
-      "status": "actual old admission FAIL retained; Factory-only fix, current6directCore tests and fresh runtime7/Data case PASS; independent newrev review pending",
+      "status": "actual old admission FAIL retained; Factory-only fix, current6directCore tests and fresh runtime7/Data case PASS; independent926 source/evidence review closed",
       "fix_commit": "1ba00b4",
-      "detail": "Factory-only output ID union must exactly match target and each ID must map to its approved contract. Old shared Goal semantics unchanged."
+      "detail": "Factory-only output ID union must exactly match target and each ID must map to its approved contract. Old shared Goal semantics unchanged.",
+      "independent_review": "closed in immutable926 source/evidence review; integration and broader platform checks remain separate"
     },
     {
       "id": "CP-HEAD-RAW",
       "status": "new SQL128B head strings bound + directCore oversized privateDB control passed in lib-child3",
-      "fix_commit": "06f9eb0"
+      "fix_commit": "06f9eb0",
+      "independent_review": "closed in immutable926 source/evidence review; integration and broader platform checks remain separate"
     },
     {
       "id": "CP-DATA-HISTORY",
-      "status": "source fixed; actual current14 Directory history/input-drift case PASS, independent newrev review pending",
+      "status": "source fixed; actual current14 Directory history/input-drift case PASS, independent926 source/evidence review closed",
       "fix_commit": "06f9eb0",
-      "detail": "Historical terminal context does not schedule a fresh Data input observation; new submit still needs all fresh gates."
+      "detail": "Historical terminal context does not schedule a fresh Data input observation; new submit still needs all fresh gates.",
+      "independent_review": "closed in immutable926 source/evidence review; integration and broader platform checks remain separate"
     },
     {
       "id": "CP-NORMAL-SESSION-BINDING",
-      "status": "actual recorded-row old Rust FAIL retained; exact6session fields fix0ef4758; current6unit+fresh runtime7+Data case PASS; independent newrev review pending",
-      "detail": "Session id/task/project/workspace/connection/grant are matched to server-owned binding and scope in addition to attempt and ordered true-join proof. Private DB corruption controls do not claim Agent DB write authority."
+      "status": "actual recorded-row old Rust FAIL retained; exact6session fields fix0ef4758; current6unit+fresh runtime7+Data case PASS; independent926 source/evidence review closed",
+      "detail": "Session id/task/project/workspace/connection/grant are matched to server-owned binding and scope in addition to attempt and ordered true-join proof. Private DB corruption controls do not claim Agent DB write authority.",
+      "independent_review": "closed in immutable926 source/evidence review; integration and broader platform checks remain separate"
     }
   ],
   "source_attribution_audit": "SOURCE_ATTRIBUTION_CORRECTION.json",
@@ -713,5 +717,17 @@
     "path": "/workspace/.onboarding/factory-child-planning-core/actual-scoped-planning-r7.json",
     "sha256": "c572871caa9ecfe7868f137058a556cba1eaa7964efc01314b081724612ba411"
   },
-  "coverage_count_policy": "Latest6+2+3+2 are13 distinct tests across their listed suites. Repeated earlier runs,18 cases inside one recorded-row test, metadata probes and nested process invocations are not additive tests."
+  "coverage_count_policy": "Latest6+2+3+2 are13 distinct tests across their listed suites. Repeated earlier runs,18 cases inside one recorded-row test, metadata probes and nested process invocations are not additive tests.",
+  "independent_current_review": {
+    "source": "92658e4cecd74517371aaf47c5ce0f7de38e0eb0",
+    "reviewer": "separate native/data integration agent",
+    "dimension": "independent immutable-source and actual evidence review; no reviewer Cargo execution",
+    "report": "/workspace/.onboarding/factory-child-planning-core-review/revision-92658e4/REVIEW.md",
+    "report_sha256": "595282a609c7460a564a25958de7d662b7c547b2c53f21b09e0f466b4f1f4cd4",
+    "manifest_sha256": "3a8d8296d1f55d3bc2d3217371801d4b5e71be5da59cacac3424de4946155602",
+    "payload_files": 39,
+    "four_prior_p2_findings": "closed at this source and stated selected evidence",
+    "new_must_fix": "none",
+    "limit": "full20/runtime and broad integration checks pending Root; no CI/macOS acceptance"
+  }
 }
