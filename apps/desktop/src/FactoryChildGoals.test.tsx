@@ -9,6 +9,8 @@ import { factoryApi,factoryChildGoalApi,factoryChildPlanApi } from './factory-ap
 import { goalGraphApi } from './goal-graph-api';
 import { childGoalMessages } from './factory-child-goal-i18n';
 import { childGoalFixture } from './factory-child-goal-test-fixtures';
+import { factoryScopeShape,factoryDetailsShape } from './factory-guards';
+import { childContextShape,childViewShape } from './factory-child-plan';
 import type { FactoryChildGoalView,FactoryChildPlanView } from './factory-types';
 vi.mock('./api',async()=>{const actual=await vi.importActual<typeof import('./api')>('./api');return {...actual,api:{...actual.api,snapshot:vi.fn()}};});
 vi.mock('./session-api',()=>({sessionApi:{grantsList:vi.fn()}}));
@@ -155,12 +157,20 @@ it.each(['draft','outcome_unknown'])('keeps the exact Factory child path with a 
  // generic Root projection with the Task selected for child execution. These
  // are mocked renderer records, not proof of the server's private stop chain.
  const root={...structuredClone(f.task),id:'separate-root-'+f.task.id,state:'outcome_unknown',revision:4};
- f.scope.root_task_id=f.selection.root_task_id=root.id;f.scope.bindings.root_task=structuredClone(root);
- f.detail.run.root_task_id=root.id;f.context.goal.root_task_id=root.id;f.plan.root_task_id=root.id;
+ f.scope.root_task_id=f.selection.root_task_id=root.id;
+ // Keep the approved revision1 snapshot separate from current Root revision4.
+ f.scope.bindings.root_task={...structuredClone(f.scope.bindings.root_task),id:root.id};
+ f.detail.run.root_task_id=root.id;f.context.goal.root_task_id=root.id;f.proposal.goal.root_task_id=root.id;
+ // Rebuild this synthetic saved plan from its corrected proposal before any
+ // read, including the original UTF8/raw SHA. Do not patch immutable raw text.
+ const corrected=await f.view();corrected.root_task_id=root.id;f.plan=corrected;f.plans.set(1,corrected);
  f.target.parent_task_id=root.id;f.target.root_task_id=root.id;f.target.delegation_id='exact-child-delegation';f.target.state='queued';
  const rootHandle={...structuredClone(f.target),task_id:root.id,parent_task_id:null,delegation_id:'',state:'waiting_child',revision:6,attempt_id:'normal-root-attempt',confirmed_stop:true};
  f.detail.tasks=[rootHandle,f.target];f.detail.run.active_task_id=null;f.detail.run.active_session_id=null;f.detail.run.state='waiting_child';
  f.detail.waiting_relations=[{parent_task_id:root.id,child_task_id:f.task.id,parent_session_id:'normal-root-session',parent_stop_confirmed:true,handoff_digest:null}];
+ expect(f.scope.bindings.root_task.revision).toBe(f.selection.expected_task_revision);expect(root.revision).toBe(4);
+ expect(factoryScopeShape(f.scope,root)).toBe(true);expect(factoryDetailsShape(f.detail,root,f.scope.id)).toBe(true);
+ expect(childContextShape(f.context,f.scope,f.target)).toBe(true);expect(childViewShape(f.plan,f.context,f.scope)).toBe(true);
  const state=records(f);state.task.state=childState;
  vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(root),structuredClone(state.task)],sequence:1000,api_version:1}));
  // The real daemon remains authoritative for private normal-handoff proof;
