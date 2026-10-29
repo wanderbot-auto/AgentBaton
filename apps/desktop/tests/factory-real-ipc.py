@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Built Factory UI -> fixed test HTTP -> actual authenticated Core15 Unix IPC.
+"""Built Factory UI -> fixed test HTTP -> actual authenticated Core16 Unix IPC.
 
 Owner review/finalization and resource creation exist only in the private host
 fixture. Generated ACP/MCP is an account-free test program, never a real model.
@@ -46,7 +46,7 @@ MUTATIONS = frozenset({'factory_runs.start', 'factory_runs.cancel'})
 READS = frozenset({'system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
     'workspaces.list', 'grants.list', 'events.subscribe', 'goal_scopes.list',
     'factory_scopes.get', 'factory_scopes.list', 'factory_runs.get'})
-PENDING = ('Root immutable matching schema15 batond and sibling baton with manifest hashes',
+PENDING = ('Root immutable matching schema16 batond and sibling baton with manifest hashes',
     'Root actual composed built Factory frontend and asset hashes',
     'Core-author confirmation of actual Factory runtime/ledger and private MCP contract')
 
@@ -819,7 +819,7 @@ def preflight(args):
     binary = args.batond.resolve(strict=True)
     raw = args.candidate_manifest.resolve(strict=True).read_bytes()
     manifest = json.loads(raw, object_pairs_hook=unique_object)
-    assert type(manifest.get('schema')) is int and manifest['schema'] == 15, 'Only integer schema15 candidate is Factory runtime evidence'
+    assert type(manifest.get('schema')) is int and manifest['schema'] == 16, 'Only integer schema16 candidate is Factory runtime evidence'
     companion = binary.with_name('baton').resolve(strict=True)
     for name, path in [('batond', binary), ('baton', companion)]:
         assert manifest['binaries'][name] == sha(path.read_bytes()), (name, 'frozen binary SHA mismatch')
@@ -1268,7 +1268,7 @@ def runtime_driver(args, output, attribution, prepared):
                     with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
                         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
                         report['observations']['actual_sqlite_schema'] = db.execute('PRAGMA user_version').fetchone()[0]
-                        assert report['observations']['actual_sqlite_schema'] == 15
+                        assert report['observations']['actual_sqlite_schema'] == 16
                         counts = support.current_factory_counts(db)
                         report['observations']['factory_record_counts'] = counts
                         assert counts['child_goal_runs'] == counts['child_plan_heads'] == counts['child_plan_revisions'] == 0
@@ -1722,7 +1722,7 @@ def main():
     args = parser.parse_args()
     assert sum([args.self_check, args.fixture_self_check, args.cleanup_self_check, args.diagnostic_self_check, bool(args.case)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
-    attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 15}
+    attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 16}
     if args.self_check:
         report = {**attribution, **boundary_self_check()}
         (output / 'boundary-checks.json').write_text(json.dumps(report, indent=2) + '\n')
