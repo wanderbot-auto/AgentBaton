@@ -21,6 +21,11 @@ use std::{
     time::{Duration, Instant},
 };
 const IO_BUDGET: Duration = Duration::from_secs(30);
+#[cfg(all(feature = "preview-evidence", not(debug_assertions)))]
+compile_error!("preview-evidence is debug-only and must never enter release applications");
+#[cfg(feature = "preview-evidence")]
+#[path = "preview_evidence_gate.rs"]
+mod preview_evidence_gate;
 type ReadResult<T> = Box<Result<T>>;
 type DataChecked = (
     crate::data_validation::CheckedDataValidation,
@@ -79,6 +84,8 @@ pub(crate) struct DataWorkspaceWorkers {
     runtime_directory: std::fs::File,
     worker: Option<Worker>,
     retained: Option<(String, Output, bool, Option<crate::ipc::ReadyRequest>)>,
+    #[cfg(feature = "preview-evidence")]
+    preview_evidence: Option<Arc<preview_evidence_gate::PreviewEvidenceGate>>,
 }
 fn cancelled() -> CoreError {
     CoreError::new(
@@ -101,11 +108,16 @@ impl DataWorkspaceWorkers {
             .map_err(|_| {
                 CoreError::new("PERMISSION_DENIED", "Cannot pin private runtime directory")
             })?;
+        #[cfg(feature = "preview-evidence")]
+        let preview_evidence =
+            preview_evidence_gate::PreviewEvidenceGate::load(runtime, &runtime_directory)?;
         let workers = Self {
             runtime_root: runtime.into(),
             runtime_directory,
             worker: None,
             retained: None,
+            #[cfg(feature = "preview-evidence")]
+            preview_evidence,
         };
         workers.runtime_privacy_pin()?;
         Ok(workers)
@@ -207,6 +219,10 @@ impl DataWorkspaceWorkers {
         let project_reference = (project.id.clone(), project.revision);
         let chosen = record.selection.clone();
         let approval = record.id.clone();
+        #[cfg(feature = "preview-evidence")]
+        let preview_evidence = self.preview_evidence.clone();
+        #[cfg(feature = "preview-evidence")]
+        let evidence_project = record.project_id.clone();
         let scheduled = self.spawn(&record.id, true, move |cancel, deadline| {
             Output::preview((|| {
                 if cancel.load(Ordering::Relaxed) {
@@ -230,6 +246,18 @@ impl DataWorkspaceWorkers {
                 }
                 let control = CopyControl::new(cancel, deadline)
                     .exclude_directory(excluded_runtime.0, excluded_runtime.1);
+                #[cfg(feature = "preview-evidence")]
+                if let Some(gate) = preview_evidence {
+                    // A delay only, after host/source verification and before scanning.
+                    // This is the real worker's original cancel/deadline, never Actor wait.
+                    gate.wait(
+                        &contract.approval_reference,
+                        &evidence_project,
+                        &contract,
+                        cancel,
+                        deadline,
+                    )?;
+                }
                 let snapshot =
                     verify_dataset_controlled(&approved, &control).map_err(data_error)?;
                 Ok(snapshot.view())

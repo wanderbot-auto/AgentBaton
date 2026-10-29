@@ -23,6 +23,8 @@ libc = "0.2"
 
 [features]
 actual-legacy-migration-tests = []
+# Non-default, debug-only deterministic evidence seam. Never product authority.
+preview-evidence = []
 
 [[test]]
 name = "factory_child_goal_legacy_migration"
