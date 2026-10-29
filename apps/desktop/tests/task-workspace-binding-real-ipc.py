@@ -384,13 +384,20 @@ def seal_status(report):
 
 def preflight(args):
     require(args.batond and args.candidate_manifest and args.frontend and args.frontend_build_record)
+    expected = getattr(args, 'expected_source_head', BASE)
+    require(type(expected) is str and bool(re.fullmatch(r'[0-9a-f]{40}', expected)),
+            'Expected source must be an exact lowercase40 commit')
     binary = args.batond.resolve(strict=True)
     companion = binary.with_name('baton')
     manifest_path = args.candidate_manifest.resolve(strict=True)
     require(manifest_path.stat().st_size <= 2_097_152)
     manifest = decode(manifest_path.read_bytes())
     require(type(manifest.get('schema')) is int and manifest['schema'] == 16)
-    require(manifest.get('source_head', manifest.get('git_head')) == BASE, 'Frozen Core must match declared840 baseline')
+    heads = [manifest[k] for k in ('source_head', 'git_head', 'compiled_core_source_head') if k in manifest]
+    require(bool(heads) and all(head == expected for head in heads), 'Missing or conflicting source aliases refused')
+    compiled_head = heads[0]
+    require(manifest.get('dirty', False) is False and manifest.get('tracked_clean', True) is True,
+            'Dirty or untyped source declaration refused')
     tools = {name: file_digest(path) for name, path in [('batond', binary), ('baton', companion)]}
     require(all(os.access(path, os.X_OK) for path in (binary, companion)))
     for name in tools:
@@ -399,11 +406,13 @@ def preflight(args):
     build_raw = args.frontend_build_record.resolve(strict=True).read_bytes()
     require(len(build_raw) <= 1_048_576)
     build = decode(build_raw)
-    require(build.get('source') == BASE and type(build.get('exit')) is int and build['exit'] == 0
+    require(build.get('source') == expected and type(build.get('exit')) is int and build['exit'] == 0
             and build.get('source_head_and_tracked_unchanged') is True
             and build.get('command') == ['npm', '--prefix', 'apps/desktop', 'run', 'build'])
-    return binary, frontend, {'manifest_sha256': sha(manifest_path.read_bytes()), 'tools': tools,
-                              'frontend_assets': assets(frontend), 'compiled_core_source_head': manifest.get('source_head', manifest.get('git_head')),
+    require(build.get('dirty', False) is False and build.get('tracked_clean', True) is True,
+            'Dirty or untyped frontend declaration refused')
+    return binary, frontend, {'expected_source_head': expected, 'manifest_sha256': sha(manifest_path.read_bytes()), 'tools': tools,
+                              'frontend_assets': assets(frontend), 'compiled_core_source_head': compiled_head,
                               'frontend_build_head': build['source'], 'frontend_build_record_sha256': sha(build_raw)}
 
 
@@ -792,6 +801,7 @@ def main():
     p.add_argument('--candidate-manifest', type=Path)
     p.add_argument('--frontend', type=Path)
     p.add_argument('--frontend-build-record', type=Path)
+    p.add_argument('--expected-source-head', default=BASE, help='Exact40 lowercase source shared by compiled Core and frontend record; default840 historical baseline')
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--chromium', default='/usr/bin/chromium')
     p.add_argument('--run', action='store_true')

@@ -380,5 +380,126 @@ class ManagedFixturePathTests(unittest.TestCase):
         self.assertEqual((self.external / 'preserve').read_bytes(), b'outside surrogate must not change')
 
 
+class ExpectedSourceHeadTests(unittest.TestCase):
+    # Reuse only the inert filesystem fixture setup, not duplicate its test cases.
+    def setUp(self):
+        PreflightTests.setUp(self)
+
+    save = PreflightTests.save
+
+    def test_default_absent_attribute_preserves_original840_selection(self):
+        self.assertFalse(hasattr(self.args, 'expected_source_head'))
+        result = h.preflight(self.args)[2]
+        self.assertEqual(result['expected_source_head'], h.BASE)
+        self.assertEqual(result['compiled_core_source_head'], h.BASE)
+        self.assertEqual(result['frontend_build_head'], h.BASE)
+
+    def test_explicit_same_source_and_equal_aliases_accepted(self):
+        self.args.expected_source_head = h.BASE
+        self.data.update(source_head=h.BASE, compiled_core_source_head=h.BASE, tracked_clean=True, dirty=False)
+        self.build_data.update(tracked_clean=True, dirty=False)
+        self.save()
+        self.assertEqual(h.preflight(self.args)[2]['expected_source_head'], h.BASE)
+
+    def test_explicit_new_source_requires_both_actual_records_and_is_recorded(self):
+        expected = '0123456789abcdef0123456789abcdef01234567'
+        self.args.expected_source_head = expected
+        self.data['git_head'] = expected
+        self.build_data['source'] = expected
+        self.save()
+        result = h.preflight(self.args)[2]
+        self.assertEqual(result['expected_source_head'], expected)
+        self.assertEqual(result['compiled_core_source_head'], expected)
+        self.assertEqual(result['frontend_build_head'], expected)
+        self.assertEqual(h.BASE, '840334e2507c7b2b39e89917b491e75c1ca3de18')
+
+    def test_expected_head_requires_exact_lowercase40_not_prefix_or_typed_coercion(self):
+        for expected in (None, True, 1, 1.0, '', 'a'*39, 'a'*41, 'A'*40,
+                         'a'*40+'\n', 'a'*40+'\r', 'a'*40+'\u2028', 'a'*40+'\u2029'):
+            self.args.expected_source_head = expected
+            with self.subTest(expected=repr(expected)):
+                with self.assertRaises(ValueError):
+                    h.preflight(self.args)
+
+    def test_default_or_explicit_cannot_mix_core_and_frontend_heads(self):
+        for core, frontend, expected in ((h.BASE, 'b'*40, h.BASE), ('b'*40, h.BASE, h.BASE),
+                                         (h.BASE, h.BASE, 'b'*40), ('b'*40, h.BASE, 'b'*40)):
+            self.data['git_head'] = core
+            self.build_data['source'] = frontend
+            self.args.expected_source_head = expected
+            self.save()
+            with self.assertRaises(ValueError):
+                h.preflight(self.args)
+
+    def test_missing_source_conflicting_or_invalid_alias_is_refused(self):
+        self.args.expected_source_head = h.BASE
+        for alias in ('b'*40, None, True, h.BASE+'\n'):
+            self.data['source_head'] = alias
+            self.save()
+            with self.assertRaises(ValueError):
+                h.preflight(self.args)
+        self.data.pop('source_head')
+        self.data.pop('git_head')
+        self.save()
+        with self.assertRaises(ValueError):
+            h.preflight(self.args)
+        self.data['compiled_core_source_head'] = h.BASE
+        self.save()
+        self.assertEqual(h.preflight(self.args)[2]['compiled_core_source_head'], h.BASE)
+        self.data['git_head'] = h.BASE
+        self.data['compiled_core_source_head'] = 'b'*40
+        self.save()
+        with self.assertRaises(ValueError):
+            h.preflight(self.args)
+
+    def test_dirty_and_untyped_cleanliness_claims_are_not_accepted(self):
+        self.args.expected_source_head = h.BASE
+        for target in (self.data, self.build_data):
+            for field, value in (('dirty', True), ('dirty', 0), ('dirty', None),
+                                  ('tracked_clean', False), ('tracked_clean', 1), ('tracked_clean', None)):
+                target[field] = value
+                self.save()
+                with self.subTest(field=field, value=value):
+                    with self.assertRaises(ValueError):
+                        h.preflight(self.args)
+                target.pop(field)
+
+    def test_frontend_must_keep_actual_success_unchanged_and_exact_command_record(self):
+        self.args.expected_source_head = h.BASE
+        for field, value in (('source', None), ('exit', False), ('exit', 0.0), ('exit', 1),
+                              ('source_head_and_tracked_unchanged', False),
+                              ('source_head_and_tracked_unchanged', 1), ('command', [])):
+            old = self.build_data[field]
+            self.build_data[field] = value
+            self.save()
+            with self.assertRaises(ValueError):
+                h.preflight(self.args)
+            self.build_data[field] = old
+        self.build.unlink()
+        with self.assertRaises(FileNotFoundError):
+            h.preflight(self.args)
+
+
+    def test_real_cli_parser_default_and_explicit_preflight_never_launch_runtime(self):
+        for i, head in enumerate((h.BASE, 'd'*40)):
+            self.data['git_head'] = head
+            self.build_data['source'] = head
+            self.save()
+            output = self.binary.parent / f'preflight-only-{i}'
+            argv = ['harness', '--batond', str(self.binary), '--candidate-manifest', str(self.manifest),
+                    '--frontend', str(self.front), '--frontend-build-record', str(self.build),
+                    '--output', str(output)]
+            if i:
+                argv += ['--expected-source-head', head]
+            with patch('sys.argv', argv), patch.object(h, 'run', side_effect=AssertionError('Runtime forbidden in this pure control')) as runtime:
+                self.assertEqual(h.main(), 2)
+                runtime.assert_not_called()
+            record = json.loads((output / 'preflight.json').read_text())
+            self.assertEqual(record['status'], 'NOT_RUN')
+            self.assertEqual(record['inputs']['expected_source_head'], head)
+            self.assertEqual(record['inputs']['compiled_core_source_head'], head)
+            self.assertEqual(record['inputs']['frontend_build_head'], head)
+
+
 if __name__ == '__main__':
     unittest.main()
