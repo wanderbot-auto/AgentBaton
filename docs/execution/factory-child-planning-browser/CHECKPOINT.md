@@ -18,3 +18,11 @@ Expected tooling supplied by Core author: batond `64d0a247a2eb15d4fe194cc6d5e34b
 Next: independent fixed-source review, Root fresh built assets and exclusive actual browser window, then one actual run retaining all failures. Failures must be fixed by diagnosis, not product timeout/cap increases or relaxed stop checks. Root full Rust work currently owns the shared target; this unit has never acquired or used it. No local daemon/browser/helper remains from this static phase.
 
 Not established: browser end-to-end, actual Native Owner GUI, macOS either architecture, real model/provider, optional external-validator policy UI path, child Goal execution, new workspace authority, TaskAccepted, full failure matrix or complete product acceptance.
+
+## Current checkpoint after R1/R2
+
+The static checkpoint above describes preserved source49bc. Current source is `0e1a4145e33f9cadf9f4da9095690b2fe293e578`, script SHA `20bcfb1a4dfc77b15ad70ab1586ce38f94b38ae857e1b66f25c4df21e28da0e5`. New source changes only this harness, with 171 insertions/12 deletions relative to the preceding checkpoint. Existing imported scripts remain exactly unchanged.
+
+`/workspace/.onboarding/factory-child-planning-browser/review-fix/old-control` preserves the original source and independent probes. On that original source both counterexamples were confirmed; this is a finite AST demonstration, not an actual Core/browser failure. The original 57-green snapshot is immutable at the path above.
+
+`review-fix/final-static/commands.json` binds final syntax, boundary46, recorded DTO11, review37 and diff checks, all exit0. Current total94 is not 57+94. No Cargo/Node/browser/actual IPC was run; no lease or runtime process is held. The new `--review-self-check <actual-r7.json>` mode starts nothing and labels its synthetic receipt controls explicitly. Root and the original reviewer received this fixed source for independent semantic replay. Actual runtime remains unrun; do not accept the full flow from these pure passes.

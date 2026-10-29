@@ -7,3 +7,15 @@
 - Final source `49bcf16b15968fe5b81961852df1fa12dd406ffc`, script SHA `6100ba1d3aecab214fe31c9537a2b8adcb9f90be51640e7364773e48049273df`: Python syntax, 46 fixed-boundary/type/HTTP controls, 11 pure recorded-DTO/corruption checks and diff check all exit0. These are 57 pure checks, not runtime/UI checks; preceding 40/44 iterations are preserved and not added to the final count.
 - Actual recorded DTO input: Core author's `actual-scoped-planning-r7.json`, 149485B, SHA `c572871caa9ecfe7868f137058a556cba1eaa7964efc01314b081724612ba411`. Four original recorded views plus seven synthetic corruption controls pass. Reading that artifact is not re-executing its MCP/IPC path or this new UI.
 - Final actual command chain and immediate source hashes are saved in `/workspace/.onboarding/factory-child-planning-browser/final-static/commands.json`. No failed command in this unit so far. Actual UI/IPC execution is **NOT_RUN**, not assumed from Python syntax or the other unit's prior evidence.
+
+## Independent review correction
+
+The original 49bc 57 pure passes did not cover two defects. The reviewer produced exact-source finite AST counterexamples; the author copied/preserved them and independently replayed them on the saved original source (`CONFIRMED 2`, exit0 means both counterexamples were confirmed, not that the original harness was correct). No original browser run occurred. Independent original blocked-review directory: `/workspace/.onboarding/factory-child-planning-browser-independent-review`.
+
+Fixed source `0e1a4145e33f9cadf9f4da9095690b2fe293e578`, SHA `20bcfb1a4dfc77b15ad70ab1586ce38f94b38ae857e1b66f25c4df21e28da0e5` adds:
+
+- A full typed immutable-result/exact-request recovery checker, allowing fresh transport UUIDs while checking envelope keys, empty warnings and monotone non-bool journal cursors covering the actual receipt sequence. Business fields are not dropped from comparison.
+- One final post-handler-join/post-cleanup seal and a defensive exit gate. Unexpected late mutation/exception errors stay in the report and cause failed status, false cleanup_complete and exit1. Read-only body aborts are recorded separately; a read-only Core socket failure is an error.
+- 37 new pure controls: two valid complete-receipt recovery cases, 29 request/business/type/envelope corruptions and six cleanup/error-classification cases. Modified Owner-shaped objects are explicitly synthetic derivatives of the recorded Core model, not newly stored Core rows.
+
+Final same-source actual checks: original 46 boundary + 11 recorded-DTO controls + 37 new controls = 94 distinct pure checks; syntax/diff also0. No browser, IPC request, daemon, listener, thread, Provider or cc process was started by the harness modes. Prior iterations are preserved and not added to 94. Fixed source/support hashes were captured immediately before each command and afterward; runtime CP01–CP09 remain NOT_RUN pending independent review and Root's actual window.

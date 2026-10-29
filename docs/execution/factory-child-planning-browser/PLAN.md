@@ -11,3 +11,11 @@ A generated account-free ACP uses the real private Baton MCP five-tool protocol.
 Keep the original 30s Grant/Scope/root/project runtime, child5s and 15s observation window; never increase product caps/timeouts for this harness. The handshake is generated test code, not a product RPC/environment flag. On failure retain the first error, screenshots, raw Core replies/hashes, bounded read-only diagnostics and actual cleanup observations. A controller `waitpid` of a fixed adopted MCP is labelled test-controller reaping, not Core descendant containment.
 
 Before runtime, independently review the frozen script and pure controls. Root supplies exact schema14 tool/source and freshly composed built-asset manifests and an exclusive browser window after its full Rust run. No browser, Node heavy task, Cargo, cc, model, account or remote action is authorized in the current static phase.
+
+## Review correction R1/R2
+
+The first static checkpoint is historical, not runtime-ready: independent exact-source probes identified CP08's comparison of whole transport envelopes (fresh `request_id` makes legitimate recovery fail) and a missing final late-handler-error gate (could falsely pass cleanup). Preserve that source, its 57 pure passes and both counterexamples. Fix only the new harness and these records; no product, UI, Native, budget or existing helper change.
+
+Recovery must compare the entire original typed result, exact method/key/params/CAS/raw/ref/receipt/digest. UUIDs belong to individual transports. Validate both success envelopes exactly; empty warnings and a non-bool integer journal cursor covering the receipt are mandatory, and the recovery cursor cannot regress. The plan receipt and current journal cursor are distinct.
+
+Finalize the report only after all handlers and temporary cleanup have completed, failing closed on any unexpected HTTP error. Return-code logic independently refuses stale good flags carrying late errors. Only a defined read-only response-body BrokenPipe/Reset and the explicit CP08 post-commit drop have narrow separate classifications; Core socket failures and mutation aborts remain failures.
