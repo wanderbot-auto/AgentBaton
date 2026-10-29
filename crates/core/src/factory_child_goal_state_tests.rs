@@ -338,3 +338,121 @@ fn queued_exact_issuer_still_refuses_dangling_target_work_and_foreign_writer() {
     check().unwrap();
     assert_eq!(unchanged_execution(&f), before);
 }
+
+#[test]
+fn same_tick_unknown_blocks_a_queued_sibling_but_keeps_revocation_cleanup() {
+    // Real approved Factory/derived records; an additional queued sibling and
+    // an unknown run are deliberate SQLite fault fixtures for selector logic.
+    // This does not claim a Provider became unknown or joined in a real run.
+    for revoke in [false, true] {
+        let (mut f, s, g) = queued();
+        let child = f
+            .store
+            .create_registered(
+                &s.project_id,
+                "Queued sibling must not launch after unknown",
+                "selector-sibling",
+            )
+            .unwrap();
+        let raw: String = f
+            .store
+            .conn
+            .query_row(
+                "SELECT document FROM factory_task_bindings WHERE run_id=?1 AND task_id=?2",
+                rusqlite::params![g.factory_run_id, s.root_task_id],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let mut b: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        b["handle"]["task_id"] = json!(child.id);
+        b["handle"]["parent_task_id"] = json!(s.root_task_id);
+        b["handle"]["delegation_id"] = json!("selector-sibling");
+        b["handle"]["state"] = json!("queued");
+        b["child_goal_run_id"] = json!(null);
+        b["request"]["goal"] = json!(child.goal);
+        f.store
+            .conn
+            .execute(
+                "INSERT INTO factory_task_bindings VALUES(?1,?2,?3,?4,'queued',?5)",
+                rusqlite::params![
+                    child.id,
+                    s.id,
+                    g.factory_run_id,
+                    s.root_grant_id,
+                    b.to_string()
+                ],
+            )
+            .unwrap();
+        let line = FactoryTaskLineage {
+            task_id: child.id.clone(),
+            root_task_id: s.root_task_id.clone(),
+            parent_task_id: Some(s.root_task_id.clone()),
+            factory_scope_id: s.id.clone(),
+            delegation_id: Some("selector-sibling".into()),
+            depth: 1,
+        };
+        f.store
+            .conn
+            .execute(
+                "INSERT INTO factory_task_lineage VALUES(?1,?2,?3,?4,?5,1,?6)",
+                rusqlite::params![
+                    child.id,
+                    s.root_task_id,
+                    s.root_task_id,
+                    s.id,
+                    "selector-sibling",
+                    serde_json::to_string(&line).unwrap()
+                ],
+            )
+            .unwrap();
+        f.store.conn.execute("UPDATE goal_runs SET state='outcome_unknown',document=json_set(document,'$.state','outcome_unknown') WHERE id=?1",[&g.goal.run.id]).unwrap();
+        assert!(!f
+            .store
+            .conn
+            .prepare("PRAGMA foreign_key_check")
+            .unwrap()
+            .exists([])
+            .unwrap());
+        let before = unchanged_execution(&f);
+        if revoke {
+            f.store
+                .revoke_factory_scope(&s.id, s.revision, "selector-revoke")
+                .unwrap();
+        }
+        let selected = f.store.next_factory_action().unwrap();
+        assert!(
+            selected.is_none(),
+            "unknown/revoked run must not select a queued sibling"
+        );
+        let run = f.store.get_factory_run(&s.id).unwrap();
+        if revoke {
+            assert!(run.run.cancel_requested);
+            let requested:i64=f.store.conn.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='factory.run_stop_requested' AND json_extract(document,'$.aggregate_id')=?1",[&g.factory_run_id],|r|r.get(0)).unwrap();
+            assert_eq!(
+                requested, 1,
+                "revocation still reaches the existing cleanup path"
+            );
+        } else {
+            assert_eq!(run.run.state, "outcome_unknown");
+            assert!(!run.run.cancel_requested);
+            assert_eq!(
+                run.tasks
+                    .iter()
+                    .find(|t| t.task_id == child.id)
+                    .unwrap()
+                    .state,
+                "queued"
+            );
+        }
+        let after = unchanged_execution(&f);
+        for key in [
+            "attempts",
+            "sessions",
+            "dispatch_intents",
+            "goal_graph_jobs",
+            "budgets",
+        ] {
+            assert_eq!(after[key], before[key], "{key}");
+        }
+    }
+}
