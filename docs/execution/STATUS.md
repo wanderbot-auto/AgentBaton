@@ -2,7 +2,7 @@
 
 准确09d106f：Core128项全通过、无跳过；工作区all-targets严格Clippy通过。旧90秒中断、124通过1失败及修复前各失败仍分别保留。
 
-准确63638a2的新真实返工完成首轮Commandexit1→同Graph r2→第二轮Commandexit0，均已启动并回收；Owner准备141后实际AUTH_REQUIRED/not_started，整体仍失败，未验收/未父完成。正在核原墙钟窗口到期边界，不能把初始预算输入选择或失败阶段推进当产品验收。浏览器精确child等待已打通，随后点击因父UI轮询暂态stale而无实际start请求，正做因果与负控修复。
+准确63638a2的新真实返工完成首轮Commandexit1→同Graph r2→第二轮Commandexit0，均已启动并回收；Owner准备141后实际AUTH_REQUIRED/not_started，整体仍失败，未验收/未父完成。正在核原墙钟窗口到期边界，不能把初始预算输入选择或失败阶段推进当产品验收。浏览器精确child等待已打通，随后点击出现stale且无实际start请求；父UI轮询暂态仍是待验证疑点，正做因果与负控定位。
 
 完整130/WP01–14未完成；Mac15、全新UI三路径、Native全回归、新15开发包及新候选CI仍待实际执行。源928公开上传私有产物的问题继续阻止整合，改用私有原件及有限公开摘要。main653679d/OWNER001002不变，权限不扩大。见 [精确结果](factory-child-goal-integration/CORE_REGRESSION_AND_OWNER_RESULTS.json)。以下保留历史。
 
