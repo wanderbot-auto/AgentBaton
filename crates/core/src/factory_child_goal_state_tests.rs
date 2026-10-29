@@ -482,3 +482,7 @@ mod reservation_tests {
 mod authority_tests {
     include!("factory_child_goal_authority_tests.rs");
 }
+
+mod failure_tests {
+    include!("factory_child_goal_failure_tests.rs");
+}
