@@ -4,6 +4,7 @@
 
 - Git-local worktree baseline: `5491c94cffbe40292ff977e0d9cfedcb55026c9e`.
 - `python3` AST parse of `crates/core/tests/fixtures/child_goal_legacy_migration/generate.py`: PASS; no module execution/Core process.
+- Standalone source formatting: `RUSTUP_HOME=/workspace/.toolchains/rustup /workspace/.toolchains/cargo/bin/rustfmt --edition 2021 crates/core/tests/factory_child_goal_legacy_migration.rs` PASS. This did not run Cargo, compile Core, use a shared target or exercise migration.
 - Frozen manifest read-only inspection: real f032 schema14 tools and prior zero-table probe recorded by their original producer. This task has not re-executed that probe and does not treat it as nonempty migration evidence.
 
 ## Required executions (NOT_RUN)
