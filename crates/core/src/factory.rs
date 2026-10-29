@@ -95,6 +95,22 @@ pub struct FactoryChildGoalQuery {
     #[serde(default)]
     pub goal_run_id: Option<String>,
 }
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalCancel {
+    pub scope_id: String,
+    pub task_id: String,
+    pub goal_run_id: String,
+    pub expected_goal_run_revision: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalAdvance {
+    pub scope_id: String,
+    pub goal_run_id: String,
+    pub request: FactoryChildGoalSubmission,
+    pub expected_goal_run_revision: u64,
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FactoryChildGoalView {

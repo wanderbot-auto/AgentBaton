@@ -118,7 +118,8 @@ CREATE TABLE factory_budget_reservations(attempt_id TEXT PRIMARY KEY REFERENCES 
 PRAGMA user_version=13;").map_err(db_error)?;
         tx.commit().map_err(db_error)?;
     }
-    super::runtime::migrate_child_planning(db, version)
+    super::runtime::migrate_child_planning(db, version)?;
+    super::runtime::migrate_child_goals(db, version)
 }
 
 pub(super) fn ms() -> Result<i64> {
