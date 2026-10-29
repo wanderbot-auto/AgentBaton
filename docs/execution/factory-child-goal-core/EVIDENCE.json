@@ -21,7 +21,7 @@
     "AB-COR-002",
     "AB-COR-007"
   ],
-  "runtime": "actual_normal_chain1_failed_before_graph_dispatch_new_post_commit_snapshot_not_compiled",
+  "runtime": "selected normal/rootself/strict1s/historicalmigration and newreworkrun7 actualPASS separately; runtime7 readonlyget5158ms timeout reconciled after strictOwnerreply; productresponsiveness OPEN; fulllifecycleNOT_COMPLETE",
   "native": "not_run",
   "macos": "not_run",
   "provider_calls": "not_authorized_not_run",
@@ -65,13 +65,10 @@
     "scope": "Core SQLite/Native finalizer plus direct bounded worker body; no daemon/Provider/MCP/child Graph runtime"
   },
   "pending": [
-    "actual generated ACP/MCP/Graph/Owner/parent-resume normal chain",
-    "bounded failure/planner recovery/same-run adoption real controls",
-    "cancel/revoke/expiry/unknown/restart/ancestor budget real controls",
-    "nonempty actual Native Goal+Factory14 migration raw-before-recovery/FK/rollback/future16 controls (independent test leaf)",
-    "Native15 compile/real IPC and UI15 actual runtime fixtures",
-    "independent review/full integration/CI/macOS",
-    "all source after357 actual boundary needs new typecheck/control run and matching tools before runtime rerun"
+    "new4b927e2 fixed Command-failure/joined planner recovery/same Graph r2/Owner/parent runtime and source review",
+    "cfgtest-only3d+514 private Unknown-projection negative actual tests (Root result not yet imported)",
+    "remaining cancel/revoke/expiry/unknown/active restart/common ancestor budget controls",
+    "full current-source regression and Native/UI15 actual integrated runtime/CI/macOS acceptance"
   ],
   "latest_public_wire_contract": "2a3d6ae",
   "factory_record_counts": 12,
@@ -407,7 +404,7 @@
   },
   "native_cap_column_fix": {
     "source": "160761fc8b3534fc15bba17b282ad48a33886117",
-    "status": "typecompiled_at_ec4669c_no_actual_migration_retest",
+    "status": "passed_true_nonempty14_historical_native_and_factory_migration_at_Root01a",
     "original_true_legacy_run": "4PASS_2FAIL_preserved",
     "failure_types": [
       "real_relational_document_approval_mismatch_accepted",
@@ -418,13 +415,13 @@
     "root_self_projection": {
       "source": "20097e6 plus d9f50bf",
       "actual_runtime_test_written": "actual_factory_root_goal_owned_stop_owner_acceptance_completes_without_cancel_or_resume",
-      "status": "not_run"
+      "status": "typechecked_and_4_metadata_controls_passed_at_Root01a_true_runtime_not_run"
     },
     "queued_adoption": {
       "source": "2bd93aa plus339cdde plus10763aa",
-      "actual_core_sqlite_tests_written": 3,
+      "actual_core_sqlite_tests_written": 4,
       "filter": "child_goal_state_tests",
-      "status": "not_compiled_not_run",
+      "status": "4_current_controls_passed_at_Root01a_2_later_authority_controls_not_run",
       "no_daemon_or_process_claim": true
     }
   },
@@ -442,5 +439,1477 @@
     "dimension": "real SQLite query projection/snapshot only; not complete authority or process lifecycle",
     "evidence": "/workspace/.onboarding/factory-child-goal-core/lib-phase-2",
     "lease": "released"
-  }
+  },
+  "integration_selected_units": {
+    "source": "01a193eb7114548df62100ba897e404b03cc4a1f",
+    "result": "passed",
+    "count": 16,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 91,
+    "test_seconds": 9.55,
+    "compile_seconds": 15.85,
+    "runner_seconds": 25.526426435011672,
+    "groups": {
+      "policy": 6,
+      "fixed_mcp_schema": 1,
+      "query_projection_snapshot": 5,
+      "queued_provenance_selector": 4
+    },
+    "old_overlapping_results_not_added": true,
+    "raw_result": "/workspace/.onboarding/factory-child-goal-integrated-core-unit-retry1/RESULT.json",
+    "raw_log_sha256": "2e603bd07bd883e443c0ce1eec450f9cfb9b6c403b92746625aa37b032b7493b",
+    "source_boundaries": "Root production from33b1728; extra legacy test feature/fixture composition is Root-only; own latest author HEAD differs"
+  },
+  "actual_nonempty_native_factory14_migration": {
+    "source": "01a193eb7114548df62100ba897e404b03cc4a1f",
+    "result": "passed",
+    "test_functions": 6,
+    "logical_controls": 10,
+    "failed": 0,
+    "test_seconds": 1.86,
+    "compile_seconds": 17.64,
+    "runner_seconds": 19.82552051098901,
+    "raw_result": "/workspace/.onboarding/factory-child-goal-integrated-migration-run2/RESULT.json",
+    "raw_log_sha256": "9e1bb3066d2125fe866ff0d31ebf4809c9a64361fe53a4d28da5952bdbfb70c6",
+    "unchanged_input_hashes": {
+      "actual-schema14.sqlite3": "30c329f5c8f3baf3aa4a57948def0c961b297174c3b72778338f54247195d444",
+      "manifest.json": "f36d592596dac1904a24f835254e9de26064bb0e5f2ddc5f2064495b6cbdc8d5",
+      "source-build-manifest.json": "3eb3747deab64c3e5644fe76d05929da3c01d738f26e6b0746f13de398739960"
+    },
+    "dimension": "Actual Linux15 Store migration of real nonempty14 with historical Native/Factory proof; not active recovery/Mac/live Provider",
+    "active_derived_recovery": false
+  },
+  "next_authority_controls": {
+    "source": "ad8beb5f578613efa9a2d52ad9c052db5884f2e3",
+    "written": 2,
+    "status": "passed_at_Root_ad8_corrected2_authority_tests_and1_native_legacy_list_positive",
+    "intentional_negative_candidate": "missing derived relation row may be returned by legacy list; readonly classification only, no public mutation bypass claim",
+    "production_change": false,
+    "corrected_test_source": "944474f",
+    "list_fix": "e44ede4_not_run",
+    "scope": "no public execution bypass claim; independent from runtime2 stall",
+    "authority_passed": 2,
+    "authority_test_seconds": 2.57,
+    "native_legacy_positive_passed": 1,
+    "native_legacy_positive_test_seconds": 0.88,
+    "prior_run1": "fixture_refusal_code_error_preserved",
+    "prior_run2": "true_readonly_list_classification_failure_preserved",
+    "raw_evidence": "/workspace/.onboarding/factory-child-goal-diagnostic-candidate-preflight1"
+  },
+  "root_runtime2": {
+    "source": "01a193eb7114548df62100ba897e404b03cc4a1f",
+    "result": "failed",
+    "passed": 0,
+    "failed": 1,
+    "filtered": 21,
+    "test_seconds": 27.04,
+    "total_seconds": 43.87,
+    "exit": 101,
+    "last_event": 40,
+    "goal_advance_recorded": false,
+    "graph_attempts_started": 0,
+    "root_self_case": "not_run",
+    "owned_actor_cleanup": "joined_ok",
+    "cause": "unknown_pending_bounded_trace",
+    "log": "/workspace/.onboarding/factory-child-goal-integrated-runtime-run2/case-0.log",
+    "readonly_diagnosis": "/workspace/.onboarding/factory-child-goal-core/runtime-2-readonly-diagnosis.json"
+  },
+  "debug_trace": {
+    "source": "570050022425eb1cbc80af7dd34fc4b48dbe5819",
+    "status": "old570_typecheck_and2_pure_units_passed_at_Rootad8_current_fed_hash_substages_unverified",
+    "debug_cfg_only": true,
+    "explicit_env_value": "1",
+    "line_limit": 512,
+    "byte_limit": 131072,
+    "per_stage_immediate": 8,
+    "per_stage_tail": 8,
+    "fixed_stages": 18,
+    "release_proof": "/workspace/.onboarding/factory-child-goal-core/diagnostic-source-stage/RELEASE_EQUIVALENCE.json",
+    "new_pure_rust_tests_written": 2,
+    "correct_filter": "goal_diagnostics",
+    "zero_selected_previous_filter": "goal_runtime_diagnostics_preserved_NOT_RUN",
+    "current_source": "fed7cb66b4b657c3999df0b65b39776a741d3043",
+    "current_fixed_stages": 25,
+    "current_max_per_flush": 400,
+    "current_scope": "same algorithm/deadlines/checks; scalar hash timing only"
+  },
+  "root_runtime3": {
+    "source": "ad8beb5f578613efa9a2d52ad9c052db5884f2e3",
+    "result": "failed",
+    "passed": 0,
+    "failed": 1,
+    "filtered": 21,
+    "test_seconds": 29.47,
+    "runner_seconds": 48.562,
+    "raw_result": "/workspace/.onboarding/factory-child-goal-integrated-runtime-diag3/RESULT.json",
+    "scalar_lines": 135,
+    "factory_start_response_relative_ms": 3322,
+    "observer_deadline_relative_ms": 18322,
+    "goal_selected_ms": 17432,
+    "goal_read_issued_ms": 17547,
+    "last_trace_ms": 18365,
+    "goal_read_available_observation_ms": 818,
+    "prior_joined_reads_ms": [
+      3301,
+      3217,
+      3247
+    ],
+    "read_stalled_12s_claim": false,
+    "cli_bytes": 86280832,
+    "old2a_cli_bytes": 2804296,
+    "cli_sha256": "8d805ab5e13401f021af6356c04852ce0840e1368e841c3210cad5787b5e700c",
+    "cause": "selection_succeeded_little_observer_budget_remained; crypto_substage_attribution_pending",
+    "authorization_or_scope_limits_relaxed": false
+  },
+  "root_hashdiag4": {
+    "source": "844d6a4ca2901e58c8b8e0aae471b7c316b35ca1",
+    "status": "FAILED",
+    "outer_passed": 0,
+    "outer_failed": 1,
+    "test_seconds": 28.85,
+    "runner_seconds": 49.160901742987335,
+    "evidence": "/workspace/.onboarding/factory-child-goal-integrated-runtime-hashdiag4",
+    "result_sha256": "0469c3ac88a8da46aeb9924ddccbc51786ed16755aaf70902aeb7f244678fb51",
+    "trace_sha256": "6424668de7ca08d203fcc72b87026fdf5c2be44ffeee14d1e8042282d70e0e08",
+    "log_sha256": "a03d2dc1859bb219dca96af5690748c8433c6adfbf1b560560277ee3becb3998",
+    "trace_lines": 148,
+    "actual_companion_bytes": 86288696,
+    "hash_update_finalize_wall_ms": [
+      3078,
+      3102,
+      3093,
+      3077
+    ],
+    "read_hash_metadata_wall_ms": [
+      3113,
+      3136,
+      3125,
+      3109
+    ],
+    "external_recheck_wall_ms": 3136,
+    "provider_verify_wall_ms": 3024,
+    "query_wall_ms": 1,
+    "git_wall_ms": 0,
+    "limitations": [
+      "One selected failed child normal chain; root-self not run",
+      "Outer verification span byte count is metadata length; companion read reports observed bytes",
+      "No changed algorithm, profile, file size, timeout, budget or authority in this diagnostic source",
+      "Does not prove all lifecycle failure/rework/restart paths"
+    ]
+  },
+  "failure_controls_next": {
+    "status": "NOT_COMPILED_NOT_RUN",
+    "test_source": "crates/core/src/factory_child_goal_failure_tests.rs",
+    "source_sha256": "4f9c6e632a497e510e1b7c09624eb8535816585e54987cbf8a3dbbb683dfb063",
+    "test_functions": [
+      "failed_blocked_unknown_or_cancel_labels_cannot_mint_failure_or_rework_permission",
+      "fabricated_failed_node_stop_and_measurements_cannot_replace_owned_stop_evidence"
+    ],
+    "cases": [
+      5,
+      2
+    ],
+    "scope": "Actual approved Core/SQLite provenance and deliberately mutated raw rows; no failed Provider, daemon, owned join or real rework success claim",
+    "cargo_lease": "none_root_only"
+  },
+  "root_opt3_runtime1": {
+    "source": "046986368c80e3e86b78a736775dc61d317339c9",
+    "status": "FAILED",
+    "outer_passed": 0,
+    "outer_failed": 1,
+    "filtered": 21,
+    "test_seconds": 16.77,
+    "runner_seconds": 38.74292208699626,
+    "evidence": "/workspace/.onboarding/factory-child-goal-sha2-opt3-runtime1",
+    "result_sha256": "9f1423e154b678e95002ce1a1093c76a475201cc45fde2ffe89035f3b83300c8",
+    "trace_sha256": "2db91ee5d1f7007562aa27241257bbf5a54d8d1f2de8718d979a3d96bbd3bc8d",
+    "log_sha256": "0f296885904a3143ca2ff78d50080554d98e86b21908d7b8fd2acdfd339542f1",
+    "actual_cli_bytes": 86731728,
+    "sha2_opt_level": 3,
+    "test_debug_assertions_on": true,
+    "full_sha_wall_ms": 51,
+    "read_hash_wall_ms": 72,
+    "provider_verify_wall_ms": 70,
+    "goal_selected_ms": 1489,
+    "goal_read_done_ms": 1669,
+    "goal_pending_budget_unknown_ms": 2451,
+    "original_limits_preserved": true,
+    "rolled_back_transaction_branch": "UNKNOWN_until_fixed_layer_diagnostic",
+    "capture_complete_false": "Expected measurement-scope metadata, not established refusal cause; budget_records rejects true for this record. Must not flip to true or unknown-to-zero."
+  },
+  "budget_layer_diagnostic": {
+    "source": "937f1ee4c264f7ba2965316984b56f1c4a5b62c9",
+    "status": "NOT_COMPILED_NOT_RUN",
+    "release_inverse_proof": "/workspace/.onboarding/factory-child-goal-core/budget-diagnostic-source-stage/revision-937/RELEASE_EQUIVALENCE.json",
+    "release_inverse_sha256": "efc9d1d0853f7e0d5db5ef4ee5da4abd882089a08b86dd1b1fab65b7778d41f8",
+    "changed_files": [
+      "crates/core/src/goal_runtime.rs",
+      "crates/core/src/ipc.rs",
+      "crates/core/src/goal_runtime_diagnostics.rs"
+    ],
+    "reason_tag_limit": 12,
+    "unknown_message_tag": 0,
+    "prints_raw_message": false,
+    "stage_count": 28,
+    "max_one_flush_records": 448,
+    "global_max_lines": 512,
+    "global_max_bytes": 131072,
+    "meter_flags": [
+      "runtime_known",
+      "output_known",
+      "tokens_known",
+      "cost_known",
+      "project_meter",
+      "before_count_greater_than_observed"
+    ],
+    "meter_counts": [
+      "before_count",
+      "observed_attempts"
+    ],
+    "new_rust_test": "budget_reason_tags_accept_only_fixed_static_messages",
+    "cargo_lease": "none",
+    "does_not_change": [
+      "authority",
+      "budget decisions",
+      "counts",
+      "capture completeness",
+      "timeouts",
+      "TTL",
+      "profiles",
+      "Cargo",
+      "locks"
+    ],
+    "prior_source_debug_error": "737 used wrong crate root module path in2calls, caught by independent source review before Cargo. Old source retained; release inverse did not prove debug compilation."
+  },
+  "root_budget_diag": {
+    "source": "646bf7d37a5bc88a7c5581919372de046c93248e",
+    "evidence": "/workspace/.onboarding/factory-child-goal-budget-diag-runtime1",
+    "result_sha256": "6d11fef595a08f49bc93f2596d5af07001e5486746fb5c6fcb1d82659e17a922",
+    "log_sha256": "700ba5ca4d6eeb7c8a807c896a18ac38e82ef2dab3ddea21d72326336f4740b3",
+    "exit": 101,
+    "runner_seconds": 32.807631927978946,
+    "actual_cargo_summaries": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 21 filtered out; finished in 16.83s"
+    ],
+    "actual_fixed_reason_tag": 8
+  },
+  "root_receipt_fix_runtime": {
+    "source": "3385ed0ac01da2c24c942d31d95b9241ef8786a1",
+    "evidence": "/workspace/.onboarding/factory-child-goal-receipt-fix-runtime1",
+    "result_sha256": "c2d9ef6254971c7c4779510e40e5ce14ee6faf3ba5f9e00452ed99129595c6ee",
+    "log_sha256": "35b4f382a4f4a9a3d9e9669a80658a6aaf37579b1d33a6148aab07a1f49980ea",
+    "exit": 101,
+    "runner_seconds": 35.398552832979476,
+    "actual_cargo_summaries": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 21 filtered out; finished in 16.50s"
+    ],
+    "limits": "Original1000ms node reservation preserved; timeout UNKNOWN, not accepted"
+  },
+  "root_receipt_units": {
+    "source": "52cb4218127ffd2a3aad5e00312f1371e9a93604",
+    "evidence": "/workspace/.onboarding/factory-child-goal-receipt-units-fixed-fixture1",
+    "result_sha256": "655855304ca2d950a3b4e1b30c64daefc5e92cea6fc76c309d0a505cc6b27b5d",
+    "log_sha256": "7fb1df927b8d20fd892f5ea699dc267862da66e73dada5efde2ddc234ed27b27",
+    "exit": 0,
+    "runner_seconds": 21.859309605992166,
+    "actual_cargo_summaries": [
+      "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 115 filtered out; finished in 3.29s"
+    ]
+  },
+  "root_failure_units": {
+    "source": "52cb4218127ffd2a3aad5e00312f1371e9a93604",
+    "evidence": "/workspace/.onboarding/factory-child-goal-failure-labels-unit1",
+    "result_sha256": "cad6b60cba9fc3b48e6863a683eb6612ec93f873f441c6026f68edd6a2764c12",
+    "log_sha256": "3281debae6d48a1b3a044baac1861eb85749fc5f8acf518d79cf06b0ef55205e",
+    "exit": 0,
+    "runner_seconds": 8.12879582401365,
+    "actual_cargo_summaries": [
+      "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 115 filtered out; finished in 7.96s"
+    ]
+  },
+  "receipt_source_fix": {
+    "source": "161f7795f29174082cf180ac43e0792d8bf64687",
+    "change": "encode(&json!(r.reservation)) uses same Value ordering as actual event writer; all original SQL text predicates and transaction order unchanged",
+    "original_compare_control": "same object different ordering compares false in SQLite json() text equality; source/synthetic SQL proof only before actual runtime",
+    "actual_scope": "Root actual normal proceeds past tag8 to real session then times out under original1s; does not prove normal success"
+  },
+  "receipt_test_stages": {
+    "old_8173": "Root actual0/2 FAIL INPUT_CHANGED before receipt comparison, not a proven tag8 regression",
+    "d5": "Real Native root GoalScope approval then real revoke establishes counters before separate Factory derived scope; no fabricated counter/Grant/join",
+    "current_status": "Root52cb receipt2PASS and corrected failure2PASS; 4distinct direct Core/SQLite controls, not Provider lifecycle",
+    "owner_first_empty_counter": "Known separate supported product boundary remains OPEN; original empty proof vs first INSERT+increment requires narrow own-phase fix and actual controls"
+  },
+  "upfront_reservation_tests": {
+    "source": "bd362e00b7435c97ebe96ca75efe97141b170646",
+    "file_sha256": "5a8e9fc45ca7b5e9ae4dec18ba4ef9b229b8498a67f6cb5b4b8aae9f15ab6cb2",
+    "status": "NOT_COMPILED_NOT_RUN",
+    "normal_work_ms": 4000,
+    "owner_ms": 1000,
+    "node_budget_ms": 5000,
+    "original_scope_grant_ms": 30000,
+    "outer_observer_seconds": 15,
+    "negative_initial_ms": 1000,
+    "negative_function": "actual_factory_child_goal_one_second_deadline_retains_unknown_without_replay_or_refund",
+    "stage_marker": "records actually reached Provider prompt or deadline before marker; never claim held prompt unconditionally",
+    "pure_generated_python_parse_variants": 4,
+    "pure_source_evidence": "/workspace/.onboarding/factory-child-goal-core/upfront-reservation-runtime-source/SOURCE_ONLY.json",
+    "product_limits_renewed_or_widened": false
+  },
+  "root_first_complete_child_chain": {
+    "source": "84023b13b554f921d574e620a4192c5bd8de6a7e",
+    "evidence": "/workspace/.onboarding/factory-child-goal-parent-fixture-fixed-normal-runtime1",
+    "result_sha256": "1f22257dc0c3a064f046ccc10a1142da70b7222bbc2136ea1823bc5ae3b02666",
+    "log_sha256": "34f7a6f7d60fc689d6ae7ff97165b81719d395441233a7359205f9689d5129b4",
+    "exit": 0,
+    "runner_seconds": 9.028409450984327,
+    "actual_cargo_summaries": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 7.53s"
+    ],
+    "dimension": "actual generated local ACP + private fixed MCP7 + UnixIPC Actor + owned stop/capture + Owner confirmation/TaskAccepted + parent new attempt; not real paid Provider/model or OS Native GUI",
+    "limits": "Work reservation4000 approved upfront inside original5000 node/child budget; Owner1000/originalGrant30s/15sobserver retained",
+    "semantic_limits": [
+      "Child Task genuinely Accepted, parent Factory run completed; parent generic Task stays OutcomeUnknown per old Factory handoff semantics, not claimed TaskAccepted",
+      "One selected chain only; no all-validators/rework/restart/real-Provider/Mac acceptance",
+      "Root840 production equals frozen8fd; only generated test fixture changes, no assertion of rebuilt identical head"
+    ]
+  },
+  "root_self_initial_failure": {
+    "source": "6d2be3bfb72f90d073e4f9792b1a6abc8823df20",
+    "evidence": "/workspace/.onboarding/factory-child-goal-upfront-root-self-runtime1",
+    "result_sha256": "72c6a3e16b550987c16aa7ca035352ab53b02625198c63e77497b11a1480c4c0",
+    "log_sha256": "b3ff171a131cd441a0a5680d498221ed1143d15f6d3998b2ac9e4e5befc4bf22",
+    "exit": 101,
+    "runner_seconds": 16.762086930015357,
+    "actual_cargo_summaries": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 22 filtered out; finished in 16.65s"
+    ],
+    "actual_stage": "Node/session reserved and runtime bound; no dispatch_started, local_launch_failed_before_worker_start/no_process_started=true; mark Task state gate is strong source/event candidate, pending fixed debug tag"
+  },
+  "root_original_one_second_failure": {
+    "source": "6d2be3bfb72f90d073e4f9792b1a6abc8823df20",
+    "evidence": "/workspace/.onboarding/factory-child-goal-original-one-second-runtime1",
+    "result_sha256": "dbeacee4bc24892fb89f408aa3a4f4ee28690acd0a49b8bff3a771894eee9359",
+    "log_sha256": "e6a3bacd4c0708bce2a3841c28001f1bae80f05ef1886af7e6b377293144bfe6",
+    "exit": 101,
+    "runner_seconds": 6.017712283995934,
+    "actual_cargo_summaries": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 22 filtered out; finished in 5.85s"
+    ],
+    "actual_stage": "true owned process reaped/runtime1002/outputnull/unknown, but test expected only duration_limit while actual generic provider_protocol_or_timeout_failure. Actual marker not preserved by old failed fixture; do not invent held stage."
+  },
+  "root_parent_fixture_old_failure": {
+    "source": "8fd9ca2182a2981ef50aa48654f9287c023bf35f",
+    "evidence": "/workspace/.onboarding/factory-child-goal-stop-projection-normal-runtime1",
+    "result_sha256": "7d66f5ed59f84a2710811f289d633104b884b971550e236719539a597769fb85",
+    "log_sha256": "f8602aafc31048fa74c27629778a1eed156b36606ba75bfe1d26ff4753b87797",
+    "exit": 101,
+    "runner_seconds": 31.879382577026263,
+    "actual_cargo_summaries": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 22 filtered out; finished in 16.35s"
+    ]
+  },
+  "parent_stop_projection": {
+    "source": "c25205c39ddd2216e9539ee03be490f6c87867e5",
+    "actual_status": "Root actual first resumed parent then exposed generated fixture fallthrough; Root840 with663 fixture passes original counts",
+    "authority": "same transaction complete TaskAccepted/typed derived issuer/whole historical Graph stopped proof plus original planner stop, then confirmed_stop flag projected before result.task clone; no invented Factory attempt or stop receipt"
+  },
+  "parent_fixture_control_flow": {
+    "source": "66394abb33bf8475296cdb982b4e07e2812743b2",
+    "change": "Three new lines write original root report and end_turn/continue after exact acceptance/handoff assertions, preventing original generic delegate block fallthrough",
+    "actual_status": "Root840 selected real normal chain PASS, original number/tasks/attempts/Grant/acceptance checks retained"
+  },
+  "typed_failure_diagnostic": {
+    "source": "599fb17ac3492a5c70829a3c4ec1928ef05bf62c",
+    "status": "Root exact controlled run pending",
+    "stages": 30,
+    "max_one_flush_records": 480,
+    "max_one_flush_bytes": 122880,
+    "global_lines": 512,
+    "global_bytes": 131072,
+    "provider_failure_flags": [
+      "kind_is_timeout",
+      "worker_remaining_lifetime_expired",
+      "pending_prompt"
+    ],
+    "provider_failure_tags": {
+      "0": "other",
+      "1": "Timeout",
+      "2": "Protocol",
+      "3": "Closed",
+      "4": "Io"
+    },
+    "dispatch_reject_flags": [
+      "TaskOutcomeUnknown",
+      "Running",
+      "Draft",
+      "Accepted",
+      "Cancelled",
+      "CancelRequested"
+    ],
+    "dispatch_count": "actual Task revision",
+    "release_unused_variable": "let _ = error retained outside cfg; no allow or reason/state change",
+    "no_raw_message_or_payload": true
+  },
+  "precise_one_second_fixture": {
+    "source": "71d6989856c947e2f97290087096ae23840fa9f2",
+    "status": "NOT_COMPILED_NOT_RUN",
+    "required": "RAII retains marker, preassert deadline-stage record; genuine owned process, elapsed>=original1000,noendturn,noaccepted,noauto,consumption/unknown output retained",
+    "conditional_reason": "duration_limit always denotes original worker loop; generic provider_protocol_or_timeout_failure only for observed marker under fixed valid held-script/no response. Diagnostic run independently proves typed Timeout/deadline; no unconditional protocol-error allowance."
+  },
+  "root_self_projection_candidate": {
+    "source": "8a25fdbffe24c1c9b41a85ab4b2aeb5518d5f3b4",
+    "status": "NOT_COMPILED_NOT_RUN_pending_independent_source_review_and_old_gate_actual_tag",
+    "scope": "Same IMMEDIATE reservation transaction only after exact derived Goal/context/session/lease/receipt/normal original Factory handoff verification; TaskRunning before final Task/event/post-query seal. Global Unknown sent gate unchanged; ordinary/native do not acquire path.",
+    "superseded_by": "04a explicit sameFactory normal owned handoff proof; actual1e rootself PASS; original8a source remained BLOCKED"
+  },
+  "owner_first_counter_control": {
+    "source": "cbd644664d2e3e4afbe5535ed87c5b588656e933",
+    "status": "old_control_Root291_actual_FAIL_then_fixed_Root8b_reservation5_actual_PASS",
+    "function": "owner_first_goal_reservation_initializes_only_its_original_root_counter_atomically",
+    "real_fixture": "Original Native separate-task approval, Factory approval and Owner queued Graph; own root generic counter absent, zero prior attempts, no fake counter insert",
+    "production_fix": "69d9258 after7d originalGrant/history guards, narrowly checked count conversion",
+    "historical_status": "NOT_COMPILED_NOT_RUN_expected_current_old_FAIL"
+  },
+  "prior_pending_at_earlier_source": [
+    "actual generated ACP/MCP/Graph/Owner/parent-resume normal chain",
+    "bounded failure/planner recovery/same-run adoption real controls",
+    "cancel/revoke/expiry/unknown/restart/ancestor budget real controls",
+    "nonempty actual Native Goal+Factory14 migration raw-before-recovery/FK/rollback/future16 controls (independent test leaf)",
+    "Native15 compile/real IPC and UI15 actual runtime fixtures",
+    "independent review/full integration/CI/macOS",
+    "all source after357 actual boundary needs new typecheck/control run and matching tools before runtime rerun"
+  ],
+  "current_selected_actual_stages": {
+    "root_self": {
+      "source": "1e0150dafd0d745d7d2a70eccd158d9a13116269",
+      "evidence": "/workspace/.onboarding/factory-root-self-known-handoff-runtime1",
+      "passed": 1,
+      "test_seconds": 7.07,
+      "runner_seconds": 23.768,
+      "dimension": "real local generated ACP/owned workers/private Owner/RootTaskAccepted/Factorycompleted; not models or OS dialog"
+    },
+    "same_head_child": {
+      "source": "1e0150dafd0d745d7d2a70eccd158d9a13116269",
+      "passed": 1,
+      "test_seconds": 8.23,
+      "provenance": "Root reported; no new locally imported log digest in this author entry"
+    },
+    "strict_one_second": {
+      "source": "e392",
+      "independent_audit": "/workspace/.onboarding/factory-child-goal-one-second-e392-independent-audit",
+      "passed": 1,
+      "limits": "original1000ms, unknown/null output/ownedreap/unique stop/no refund; separate actualtypedTimeout"
+    },
+    "owner_first": {
+      "source": "8b7bf8bda22446b66b2358ef9e280e6521737acd",
+      "evidence": "/workspace/.onboarding/factory-owner-first-history-fixed-reservation-units2",
+      "passed": 5,
+      "test_seconds": 17.72,
+      "runner_seconds": 39.108,
+      "dimension": "actual Core SQLite approvals/reservation/rollback;8history variants are cases within one fn, not8 extra tests",
+      "compile_failure_preserved": "eddc33a E0277/0tests, six u64 FromSql corrected69d"
+    }
+  },
+  "bounded_rework_new_case": {
+    "source": "4b927e27a146b5f54220125a67f07f0d52a297b3",
+    "status": "fresh6s source reviewed; new exact runtime NOT_RUN",
+    "function": "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+    "rust_fixture_sha256": "143536444531c455167c554445dc35a4606ac0395da1d9730e0d832ba392d2ba",
+    "provider_helper_sha256": "4fe767cf9e56ad3a5a2a41dbb4bce537ac0cae38c89d5db3b2a93dbba9721544",
+    "upfront": {
+      "shared_attempts": 8,
+      "reworks": 1,
+      "max_plan_revisions": 2,
+      "Grant_ms": 30000,
+      "new_case_observer_seconds": 25,
+      "work_ms": 4000,
+      "validator_ms": 6000,
+      "owner_ms": 1000,
+      "max_total_factory_nodes": 7
+    },
+    "pure_controls": "/workspace/.onboarding/factory-child-goal-core/bounded-rework-source/SOURCE_CHECKS.json",
+    "control_dimension": "generated Python parse/public plan builder/preservation and standalone fixed grep exit[1,0]; not Core runtime or Rust test",
+    "unchanged": "Only2 module registration lines touch existing normal/1s helper; all original functions/limits byte-preserved",
+    "initial_source_status": "4b original NOT_RUN; self-review found upfront max_total_nodes4 incompatible with declaredchildren6",
+    "current_test_source": "eb86d4d61c3f43d9cf57086a980c654481034c02+d15d50667235eccc1db9eeb33bdacab726224a4b",
+    "current_rust_fixture_sha256": "21d2974cb87c43fe2bdf61c4952ab061d1f72ff441c3c3b64a17e438b3cf5d8e",
+    "current_source_manifest": "/workspace/.onboarding/factory-child-goal-core/bounded-rework-source/revision-b58a4d1e/MANIFEST.json",
+    "current_source_manifest_sha256": "7b57e0e39d1cc601caffc8774358386bd2cf4b5dbb9e9acd352f112260877c15",
+    "prior_test_source": "b58a4d1e7b6fffb0156e9934f870e717ed0030b8",
+    "owner_snapshot_guard": "exactly one current-r2 candidate and full receipt-vector equality; old .all empty loophole only test-assertion strengthened",
+    "join_limit": "planned real Actor/owned Provider stop/Graph capture+validator join/Command ownedleader+EOF; no independently sampled MCP descendant identities or all-OS-descendant containment claim",
+    "upfront_change_reason": "actualrun4 second Validator settled3134 in4s with preflightDEADLINE/no Command; no exact guard or isolated-history timing sampled. Newfresh6s declared before each admission within original20s/30s caps; oldrun4 unchanged",
+    "current_source_manifest_status": "new932snapshot pending seal; prior b58 manifest remains immutable historical",
+    "current_provider_helper_sha256": "d946ac8a0badb34315e5e334cda6604c86587b3ec5998d0037fa97276dae9fef",
+    "fresh6s_pure_controls": "/workspace/.onboarding/factory-child-goal-core/rework-validator-6s/RESULT.json"
+  },
+  "private_unknown_projection_controls": {
+    "actual_old_root_source": "8b7bf8bda22446b66b2358ef9e280e6521737acd",
+    "actual_old_result": {
+      "passed": 2,
+      "failed": 1,
+      "test_seconds": 10.39,
+      "runner_seconds": 10.524,
+      "evidence": "/workspace/.onboarding/factory-known-handoff-private-refusal-units1"
+    },
+    "old_failure": "fake_confirmed_stop had physical state waiting_goal/doc state waiting_child; original typedbinding rejected INPUT_CHANGED before explicit normal-handoff policy. Missing-planner actual AUTH passed within failing fn; foreign case not reached.",
+    "fix": "d4132c8129231548dd3fff1953b5c3dd8608391e tests-only coherent physical/document state plus assert; all strict AUTH_REQUIRED/rollback assertions unchanged",
+    "fixed_rust_status": "NOT_RUN_pending_source_review",
+    "no_production_change": true
+  },
+  "rework_runtime_attempts": {
+    "run1": {
+      "source": "7755fb669e41afe6c1df56565a3d9855ffdafcf5",
+      "evidence": "/workspace/.onboarding/factory-child-goal-command-rework-runtime1",
+      "passed": 0,
+      "failed": 1,
+      "test_seconds": 1.59,
+      "runner_seconds": 19.95,
+      "boundary": "in-process companion_path uses normal Cargo baton nlink2; strict executable nlink guard correctly refused, no product authority weakness",
+      "retry_isolation": "Root explicitly guarded same-head private single-link substitute at fixed path; original inode/aliases/mode/hash restored, no production override"
+    },
+    "run2": {
+      "source": "7755fb669e41afe6c1df56565a3d9855ffdafcf5",
+      "evidence": "/workspace/.onboarding/factory-child-goal-command-rework-runtime2",
+      "passed": 0,
+      "failed": 1,
+      "test_seconds": 13.92,
+      "runner_seconds": 14.039296389993979,
+      "log_sha256": "07822fc28a096e12e27d88779a304707d2c4773ecd43215a408f721c14735d17",
+      "last_actual_events": [
+        90,
+        91,
+        92,
+        93,
+        94,
+        98,
+        99,
+        102,
+        103,
+        104
+      ],
+      "validation_dimension": "failed/joined preflight DEADLINE_EXCEEDED, not actual grep exit1/processstart; initial2000 remaining budget could not fit unchanged1000+500 command/cleanup after1423elapsed",
+      "fatal": "historical proof typed struct SHA vs sorted JSONValue SHA differ for exact real event91; source/query/order proof predicates retained",
+      "task_accepted": false,
+      "parent_resumed": false
+    },
+    "run3": {
+      "source": "360fc191",
+      "evidence": "/workspace/.onboarding/factory-child-goal-command-rework-runtime3",
+      "passed": 0,
+      "failed": 1,
+      "test_seconds": 28.3,
+      "runner_seconds": 46.617,
+      "command90": {
+        "process_started": true,
+        "exit_code": 1,
+        "actual_runtime_ms": 1405,
+        "goal_io": "observed",
+        "leader_reaped": true,
+        "pipe_eof": true
+      },
+      "r2_work": {
+        "state": "candidate",
+        "actual_runtime_ms": 3031,
+        "actual_output_bytes": 20
+      },
+      "r2_validator": "not_started",
+      "budget": {
+        "original_child_ms": 20000,
+        "used_ms": 18372,
+        "next_original_reservation_ms": 4000,
+        "sum_ms": 22372,
+        "shared_ms": 20021,
+        "root_project_ceiling_ms": 30000
+      },
+      "recovery": {
+        "queued_ms": 6979,
+        "settled_ms": 12325,
+        "nonqueued_ms": 5346,
+        "reserved_to_owned_stop_wall_ms": 5806.356
+      },
+      "diagnosis": "old task-key delegation epoch incorrectly reused by the first actual Factory recovery attempt, spanning separately billed Graph interval",
+      "task_accepted": false,
+      "parent_resumed": false,
+      "limits_changed": false
+    },
+    "run4": {
+      "source": "80f733eff599a71a33fda6cbe438301c7c0c05e1",
+      "evidence": "/workspace/.onboarding/factory-child-goal-command-rework-runtime4",
+      "passed": 0,
+      "failed": 1,
+      "test_seconds": 29.3,
+      "runner_seconds": 48.22557810298167,
+      "log_sha256": "eb322941e4e3a9215c0820dd1bb186a58198c3e602bc89ef4eca563942bef829",
+      "r1_command": {
+        "exit_code": 1,
+        "process_started": true,
+        "actual_runtime_ms": 1462
+      },
+      "r2_validator": {
+        "reservation_ms": 4000,
+        "actual_settled_runtime_ms": 3134,
+        "observation": "preflight DEADLINE_EXCEEDED without Command process evidence",
+        "exact_guard_remaining_sampled": false,
+        "isolated_history_duration_sampled": false
+      },
+      "recovery": {
+        "queued_ms": 283,
+        "actual_runtime_ms": 6109
+      },
+      "r2_work": {
+        "state": "candidate",
+        "actual_runtime_ms": 2702
+      },
+      "shared_companion_guard_used": false,
+      "task_accepted": false,
+      "parent_resumed": false
+    },
+    "run5": {
+      "source": "63638a2b4852ee1a5bebe0cfee8e8d93b2ffc1a6",
+      "evidence": "/workspace/.onboarding/factory-child-goal-command-rework-runtime5",
+      "passed": 0,
+      "failed": 1,
+      "test_seconds": 31.77,
+      "runner_seconds": 48.525,
+      "log_sha256": "987e78af6cc436669f20955ff3ef0d7ddf9d9bf52a2d85e72275523061969166",
+      "achieved": "real firstCommandexit1/secondCommandpassedtrue/Ownerready140/proposal141; no TaskAccepted or parentresume",
+      "scope_and_actual_Grant_expiry_ms": 1793288628175,
+      "Owner_proposal_own_expiry_ms": 1793288927508,
+      "finalize": {
+        "method_tag": 7,
+        "input_issued_ms": 1793288628030,
+        "input_finished_ms": 1793288628353,
+        "handled_ms": 1793288628409,
+        "reply_code": "AUTH_REQUIRED",
+        "side_effect_state": "not_started",
+        "revision": 141
+      },
+      "boundary": "original Factory base_live Scope expiry fails after successful joined read; no interveningCAS event, proposal unconsumed/resultnull; only latercancel/stop142/143/144",
+      "whole_case_stays_FAILED": true,
+      "readonly_negative_audit": "/workspace/.onboarding/factory-child-goal-core/rework-owner-window-60s/ORIGINAL_EXPIRY_AUDIT.json"
+    },
+    "run6": {
+      "source": "b4793c72acd3dca78984f5a0fe44fcc6ec967222",
+      "evidence": "/workspace/.onboarding/factory-child-goal-command-rework-runtime6",
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0,
+      "test_seconds": 41.87,
+      "runner_seconds": 43.608580111991614,
+      "log_sha256": "e98ed5ee80b690f096842511c21ef95454ce24a45d3886a27f230964c9cdd32c",
+      "actual_history": "Owner142/TaskAccepted143/OwnerSettled144/childGoalAccepted145/handoff146/newParentattempt147; Goalaccepted/rev17",
+      "client_error": "PROVIDER_DISCONNECTED at old mixed_call unwrap; exactmethod and receivedOwnerreply not dynamically recorded",
+      "parent_stop": "154 factory_preflight_cancelled_or_deadline, neverstarted;12277msreservation/180msactual; cancellationflag not sampled, no budget-deadline claim",
+      "cleanup": "Actorjoinedok after testpanic; postcleanup is not preFailure snapshot",
+      "observed_tick_ms": 7406,
+      "performance_cause": "not yet measured by subphase; no proven large Actor filehash claim"
+    },
+    "run7": {
+      "source": "a9cf250292bed5bd85b34d5b9ac916c3738f04ce",
+      "evidence": "/workspace/.onboarding/factory-child-goal-command-rework-runtime7",
+      "log_sha256": "837499d7e0e8a502878d5e514f33e990ab72e4b973d78b349cdb95aaac753e2f",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "test_seconds": 40.05,
+      "runner_seconds": 40.19316754900501,
+      "Owner_reply": {
+        "method": "approvals.finalize",
+        "owner_reply_received": true,
+        "reply_sha256": "c09415da0cdf579d328afec92822dfe600b88058c2e3a85e09918f7d390579ee",
+        "task_accepted": true,
+        "write_attempts": 1,
+        "write_retried": false
+      },
+      "readonly_transport_errors": [
+        {
+          "actual_side_effect_state": "unknown",
+          "actual_transport_error_code": "PROVIDER_DISCONNECTED",
+          "elapsed_ms": 5158,
+          "method": "factory_runs.get",
+          "request_was_readonly": true,
+          "write_retried": false
+        }
+      ],
+      "performance": "phase6 synchronousaggregate4969ms; oneget5158mstimeout; response latencyOPEN, readretry notperformancePASS",
+      "audit_scope": "authorboundedscalar/checkpoint audit only; Native separatelyreviews chain; noDB/RPC/Grant copy"
+    },
+    "run8": {
+      "source": "8c178088d7213f625695a9d31a5b6d31cc342a42",
+      "evidence": "/workspace/.onboarding/factory-child-goal-command-rework-runtime8",
+      "log_sha256": "680480af6f3b378921f2395f486281a526375b0ec04c0b9a85b38ccb0dcc0fec",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "test_seconds": 38.39,
+      "runner_seconds": 54.23995025700424,
+      "compiled_source_boundary": "Root states compiled0284747 with559Python-only head delta; relevant3source bytes verified equal authorpre238; not an independent fulltoolmanifest audit",
+      "measured_boundary": "lateparent createSession4469ms/Supervisorlaunch26ms; initialcreate8ms/recovery648ms",
+      "not_proven": "specific CPU/hash/I/O cause or individual sessionguardcost; productresponse targetstillOPEN"
+    },
+    "run9": {
+      "source": "50f41e1752e84772fd137a03e6424e210abcfa29",
+      "evidence": "/workspace/.onboarding/factory-child-goal-command-rework-runtime9",
+      "log_sha256": "ddef3a89693a25cb21045664c2d13cda71290c6964694079f589ecb03c42c67a",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "test_seconds": 38.12,
+      "runner_seconds": 54.139597031025914,
+      "measured_boundary": "lateparentreserve4455ms; Grant/exec0/generic0/commit0; create4457/Supervisor21",
+      "does_not_prove": "CPU/hash/SQLisolatedcause or newb24speedup"
+    },
+    "run10": {
+      "source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+      "evidence": "/workspace/.onboarding/factory-child-goal-command-rework-runtime10",
+      "log_sha256": "28451ed4f777587d7da21f62483261fe287bc0f6eecf5819e992c405775c64a1",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "test_seconds": 34.97,
+      "runner_seconds": 52.64614057299332,
+      "new_positive": "4legalderivedrows/tworevisions/exactNodefees+stop/eightattemptcommontwoledgers executedPASS",
+      "performance": "reserve1281/create1283/Supervisor21/tick3549ms; specificonesample, noSLA/CPU/generalbenchmark"
+    }
+  },
+  "historical_rework_digest_fix": {
+    "source": "4b3c348ca9e46f452d46d437e140f9fb9d4c829a",
+    "status": "NOT_COMPILED_NOT_RUN_pending_independent_review",
+    "writer_unchanged": true,
+    "production_change": "historical readonly8field digest projection returns String only, no StoppedGraphFailure deserialization or permission object; one old Value-rehash expression replaced",
+    "recorded_fixture_sha256": "f38ee8ec0dc52c96fb826f2d5d989112c8f41ef6264b7afa101dbcff8c3420f4",
+    "recorded_fixture_bytes": 4870,
+    "fixture_dimension": "explicit whitelist actual event91proof fields/event92 finite refs required for original EventSHA/104previousRef+4context fields/publicGoalRun only; no DB/RPC/Grant/cap/authentication copied",
+    "pure_evidence": "/workspace/.onboarding/factory-child-goal-core/rework-historical-digest/RESULT.json",
+    "written_tests": [
+      "recorded_actual_rework_events_keep_original_writer_digest_domain",
+      "recorded_actual_rework_digest_reader_refuses_corrupt_source_plan_or_proof"
+    ],
+    "negative_cases": 14,
+    "negative_cases_are_not_extra_tests": true
+  },
+  "recovery_queue_epoch_fix": {
+    "initial_source": "04273d2b7fdb60a1d96fea910dedf80ef42a59dd",
+    "corrected_source": "9ae9f3ceeccb1298690bc07e27776202551799a4",
+    "status": "NOT_COMPILED_NOT_RUN_pending_independent_review",
+    "producer": "private recovery method captures ENTRY Instant before BEGIN/all guards, publishes task+newround only after successful commit; pending bound1000",
+    "consumer": "existing Actor queue map accepts only higher trusted round before Launch ticket; repeats/older and ordinary replays preserve clocks",
+    "does_not_change": [
+      "stored old accounting",
+      "20s child cap",
+      "30s originalGrant",
+      "cumulative shared ledgers",
+      "expiry/revoke/unknown and original stop guards",
+      "public wire/schema/permissions"
+    ],
+    "test_functions": [
+      "a_new_recovery_attempt_counts_its_queue_not_the_old_graph_interval",
+      "same_or_older_recovery_round_cannot_renew_real_wait_or_deadline",
+      "recovery_epoch_changes_only_its_task_and_initial_queue_replays_keep_it"
+    ],
+    "test_dimension": "3 deterministic Instant library tests, no sleeps; NOT_RUN",
+    "source_correction": "042 captured time after some guards;9ae moves capture to entry and tests400ms preparation+600ms wait=1000ms rather than600ms",
+    "restart": "original recovery marks interrupted Factory runs outcome_unknown and revokes handles; no monotonic elapsed reconstructed",
+    "first_cfgtest_compile": {
+      "result": "FAIL_E0063_0tests",
+      "cause": "temporary readonly Store literal factory_reads.rs lacked new transient Vec; author missed this during static review",
+      "fix": "Root exact e9cf4aa one production readonly-worker initializer line, author does not duplicate",
+      "new_unit_result": "pending/not claimed",
+      "fix_inherited_by_author": "e2f53c55b9c5ba6bc77f759e8d710324759f7e21 exact Roote9cf one-line cherry-pick"
+    },
+    "selected_root_units": {
+      "passed": 4,
+      "new_tests": 3,
+      "existing_queue_guard": 1,
+      "dimension": "actual library selected clock/expired-queue tests verified by independent reviewer; not full-library result"
+    },
+    "full_library": "Root earlier125 collector externalSIGTERM90s; later128collection pending/not inferred"
+  },
+  "private_companion_scope_fixture": {
+    "source": "5b4119444b2d2f97027c1e7e15a8705423f3e1c8",
+    "status": "NOT_COMPILED_NOT_RUN",
+    "changed_file": "crates/core/tests/fixtures/factory_child_goal_rework.rs",
+    "route": "original retained Store::propose_factory_scope(selection,private0500_nlink1_fullSHA_companion)+finalize_proposal after real bootstrap cancelled+idle; NOT Scope-propose IPC/OSdialog",
+    "connections": "original fixture Store and observer retained without an additional late fixture Store::open/recovery; normal unchanged Daemon::bind opens its own Store as before; retained connections close before Factory.start and shutdown evidence capture",
+    "production_override": false,
+    "new_environment_override": false,
+    "normal_one_second_bodies_changed": false,
+    "root_runtime_dimension": "actualrun4 passed this approval/preparation path without shared Cargo executable staging; complete rework chain still FAILED later"
+  },
+  "current_source_phase": "b24production frozen; correctedunit4d actualRootce49 6PASS and ccb realpositive actualRootbaa1PASS; one-sample reserve1281vs4455; nofullsuite/generalSLA claim",
+  "fresh_Owner_window": {
+    "source": "d03a0e3e8aa7deaedb7974fdf6a20de0a5485ba3",
+    "status": "actualRootrun7 selectedwholecasePASS; original30srun5 and fresh60srun6FAIL preserved; productresponsiveness remainsOPEN",
+    "changed_file": "crates/core/tests/fixtures/factory_child_goal_rework.rs",
+    "initial_Native_Grant_ms": 60000,
+    "initial_Scope_ttl_ms": 60000,
+    "observer_seconds": 55,
+    "API_coupling_disclosed": "Grant.max_duration_ms sets expiry and raw upper execution ceiling; actualscope30s/child20s/Nodes4-6-1s remain narrower",
+    "effective_runtime_ms": {
+      "root": 30000,
+      "project": 30000,
+      "child": 20000,
+      "work": 4000,
+      "validator": 6000,
+      "owner": 1000,
+      "Command_wall": 1000,
+      "Command_cleanup": 500
+    },
+    "unchanged": "8attempt/1rework/2revisions, allinput/criteria/validatorrefs, strict actualexit1&0, no production timer/expiry/normal1s changes",
+    "unused_original_children0_Grant": "Fixture.new original30s object untouched; add maxchildren0 and rawdocumentbeforeafter byteequality assertions",
+    "new_unit_not_added": "use actual originalrun5 expirynegative+source preservation and actualeffectivebudget assertions, not a constant-mirror test",
+    "source_checks": "/workspace/.onboarding/factory-child-goal-core/rework-owner-window-60s/SOURCE_CHECKS.json",
+    "status_at_d03_freeze": "NOT_COMPILED_NOT_RUN_pending_independent_source_review"
+  },
+  "readonly_reconciliation_source": {
+    "source": "254d68a32995c1b2328f9867dfeb78faf8038464",
+    "scope": "newrework test only",
+    "status": "actualRootrun7 selectedcasePASS afteronelegitreadonlytransporterror; purewhitelistRusttest separate notexecutedhere",
+    "read_routes": [
+      "factory_runs.get",
+      "factory_child_goals.list",
+      "factory_child_goals.get"
+    ],
+    "bindings": "exact original pinnedscope/task/goal; extra keys/foreign bindings rejected",
+    "retry": "only PROVIDER_DISCONNECTED;2 total retries within same55s; each error recorded; never retries write",
+    "Owner": "one original strictfinalize; receivedreply/digest checkpoint; writeunknown stillFAIL",
+    "pure_test": "readonly_reconciliation_whitelist_rejects_writes_and_other_bindings NOTRUN",
+    "does_not_prove": "product responsiveness, Ownerreply receipt on oldrun6, completedrework or newruntimePASS"
+  },
+  "factory_phase_diagnostic": {
+    "source": "93416d47c89b3d8a6df46be859422fb773ab4a1d",
+    "status": "actualRootrun7 finitephase samples4=14ms,1=2325ms,5=0ms,6=4969ms; phase2/3notretained notzero; doesnotprove CPU/I/Ocause",
+    "gating": "cfg(debug_assertions) and existing explicit AGENTBATON_GOAL_DIAGNOSTICS=1",
+    "stage": "factory_phase",
+    "tags": {
+      "1": "whole nextAction",
+      "2": "accepted fullview",
+      "3": "transaction open and complete original guards",
+      "4": "result save and join beforecommit",
+      "5": "ticket",
+      "6": "schedule synchronoushandleReady"
+    },
+    "flags_valid_mask": 0,
+    "stage_count": 31,
+    "max_first8_tail8_records": 496,
+    "caps_unchanged": "512lines/131072bytes/256Bline",
+    "source_checks": "/workspace/.onboarding/factory-child-goal-core/rework-readonly-254-phase934/SOURCE_CHECKS.json",
+    "proof": "both applicationfiles nondebugtokenidentical; moduleinverse onlynewallowlist+test; finite worstline214B",
+    "timing_limit": "overlappingwall spans/successonly; not isolatedCPU/I/O and not a performancefix"
+  },
+  "admission_subphase_source": {
+    "source": "4ffff0ff5f6d53c8cea1872151910a294acf6e2b",
+    "status": "actuallyRootruntime8 measuredcontexts4ms/createSessionlate4469ms/launch26ms; new nestedphase source238 remainsNOTRUN",
+    "files": [
+      "crates/core/src/ipc.rs",
+      "crates/core/src/goal_runtime_diagnostics.rs"
+    ],
+    "gating": "cfgdebug and existingexplicit diagnosticenv",
+    "stage": "factory_admission_phase",
+    "tags": {
+      "1": "ticketwatch/exactrequest/baseLive/contexts; both success/error code",
+      "2": "nonemptyData defer+watch or existingerrorhandling only",
+      "3": "newlaunch request/args/getrevision/createSession; successonly",
+      "4": "Supervisorlaunch and existinglocalfailurehandling; completesuccessonly"
+    },
+    "bounds": "32*16=512; unchanged512line/131072B/256Bline limits; finite214Bmaxline",
+    "guard_changes": "none; noqueries/pathprinting/timeout changes",
+    "sourcechecks": "/workspace/.onboarding/factory-child-goal-core/rework-admission-4ffff0/SOURCE_CHECKS.json",
+    "actual_audit": "/workspace/.onboarding/factory-child-goal-core/rework-admission-4ffff0/RUNTIME7_LIMITED_AUDIT.json",
+    "product_responsiveness": "OPEN pendingactualsubphases and safeoptimization"
+  },
+  "session_subphase_source": {
+    "source": "238dc21b75ebd231b51707459de9c8e1469f20bf",
+    "status": "actualRootruntime9 lateparent phase7reserve4455ms; others5/6/8zero sampled; productperfOPEN",
+    "files": [
+      "crates/core/src/sessions.rs",
+      "crates/core/src/goal_runtime_diagnostics.rs"
+    ],
+    "gating": "existingexplicitdebugenv; only privateFactorySome createsclock",
+    "stage": "factory_admission_phase",
+    "tags": {
+      "5": "entry/BEGIN/request/Task/Grant/verifyExecutable",
+      "6": "genericlimit/counter/intent/lease/session writes",
+      "7": "existingFactoryreserve call",
+      "8": "Task/event/commit"
+    },
+    "bounds": "no newstage;32*16=512/131072B/256Bline unchanged,214Bmodelmax",
+    "release_inverse": "applicationcfgstrip equalparent; moduleonlyexistingtestrange4->8",
+    "actual_Source_equivalence": "Root8c sessions/module/factoryruntime == authorparent bytes",
+    "sourcechecks": "/workspace/.onboarding/factory-child-goal-core/session-admission-238dc21/SOURCE_CHECKS.json",
+    "actual_scalar_audit": "/workspace/.onboarding/factory-child-goal-core/session-admission-238dc21/RUNTIME8_LIMITED_AUDIT.json",
+    "optimization": "none; source stablehistory repetition onlycandidate, all liveguards/currentcounts/afterowninsert validation must remain"
+  },
+  "budget_history_reuse": {
+    "source": "b24f9aa1aa4307380c5e76918060eacd29f4927a",
+    "status": "selectedactualRoot6units+completepositive1PASS sourceequivalent; improvementobservedonesample, nofullsuite",
+    "files": [
+      "crates/core/src/goal_factory.rs",
+      "crates/core/src/factory_child_goal_reservation_tests.rs"
+    ],
+    "public_contract_change": false,
+    "eligibility": "singlebudget_records whollyreadonly invocation and !SQLiteis_autocommit",
+    "retention": "onecheckedrunorigin/Scope/currentRun/boundedhistory and onerevisionNodevector; invalidaterun/revision; returndrops; autocommitperroworiginal",
+    "perrow_unchanged": "rawbounds/events/source/run/attempt/plan/reservation/Node/session/actualruntime/output/token/cost/stop/duplicate guards",
+    "time_sensitive_authority": "nevercached; all live/TTL/revoke/input/counter/meter callerfiles unchanged; afterownFactoryinsert newinvocation starts empty",
+    "callee_history": "checkedRecord/checkedScope/savedPlan/lineage/acceptedRun/capability/adoptedPlan/Nodeproof use persistenthistory with no liveclock/inputfresh call",
+    "new_test": "budget_history_reuse_preserves_values_and_rechecks_each_new_invocation NOTRUN",
+    "new_controls": "auto/tx fullvalues equal; afterpriorread six privatecorruptions incl second sameRunforeignrow refuse exactcodes and rollback/seq/counters unchanged",
+    "positive_reuse_limit": "unitbaselineoneactualreservation; source-matchedrealrework multiplehistoricalrows stillneedsactualrun",
+    "old_tests_preserved": 5,
+    "source_checks": "/workspace/.onboarding/factory-child-goal-core/budget-history-b24f9aa/SOURCE_CHECKS.json",
+    "checker_failures": "two Pythonchecker specification failures retained as INITIAL_CONTROL_FAILURE/SECOND_CONTROL_FAILURE, not Rust/productfailures",
+    "Root_source_equivalence": "actual50f budgetfunction exactlyauthorparent; outsidefunction two prior RootNative Clippy needlessborrows differ untouched",
+    "actual_speedup": "NOT_MEASURED; no fixedperformancegoalclaim",
+    "first_actual": {
+      "source": "Root72bf7d1",
+      "evidence": "/workspace/.onboarding/factory-budget-history-transaction-units1",
+      "passed": 5,
+      "failed": 1,
+      "failure_layer": "newunit SQLsetup CHECK(length(record_digest)=64), before intended applicationrefusal; failedELF retained",
+      "product_cache_failure_proven": false
+    }
+  },
+  "budget_history_test_shape_fix": {
+    "source": "4d9d6452c5f3e2da51ff8a28418fafcfc8807b26",
+    "status": "Rootce49 actual6PASS includingcorrectedunit+6rawfaults; oldphysicalCHECK failure retained",
+    "change": "oneSQLline flipfirsthex,retain63; valid64hexwrongvalue, exactoldapplicationcodes/FK/rollback/seq retained",
+    "production_changed": false,
+    "Native_source_review": "/workspace/.onboarding/factory-child-goal-budget-history-b24-independent-review/revision-4d9d645"
+  },
+  "budget_history_real_positive": {
+    "source": "ccb78f71839cf6472c3a0b2fa46267de01e8f47a",
+    "status": "Rootbaa actualwholecase1PASS includingallnew4row/perrevision/exactsharedfeeassertions; crossrunnotclaimed",
+    "file": "crates/core/tests/fixtures/factory_child_goal_rework.rs",
+    "same_run_rows": 4,
+    "per_revision": {
+      "1": 2,
+      "2": 2
+    },
+    "projection_oracle": "authenticatedpublic beforeOwner Nodehistory vs exactdurableattempt/node/reservation/runtime/output/token/cost/stop",
+    "common_fee_oracle": "8actualsettled Goal+Factoryrows sumruntime/output equals both project/rootGrant ledgers exactly",
+    "authority_setup_changes": false,
+    "new_wire_or_Store_open": false,
+    "cross_run_claim": false,
+    "existing_endtoend_assertions": "wholebodyinverse apart fromnewreadonlytailblock+artifactproperty; productionb24 exactsame",
+    "source_checks": "/workspace/.onboarding/factory-child-goal-core/budget-history-positive-ccb78f7/SOURCE_CHECKS.json"
+  },
+  "budget_history_selected_actual": {
+    "unit6": {
+      "source": "ce49dc8892fcb8c14d4c69aecd422989a5d43576",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "reservation_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 35.79705385197303,
+      "minimum_free_bytes": 286875648,
+      "interruption": null,
+      "log_sha256": "a73c2e3b8062f000e5709e80fcc7a5243a4ccea889fcd023a0de8692e9f2931d",
+      "summaries": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 123 filtered out; finished in 18.58s"
+      ]
+    },
+    "rework1": {
+      "source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 52.64614057299332,
+      "minimum_free_bytes": 388288512,
+      "interruption": null,
+      "log_sha256": "28451ed4f777587d7da21f62483261fe287bc0f6eecf5819e992c405775c64a1",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 34.97s"
+      ]
+    },
+    "source_equivalence": {
+      "unit_file": "Rootce49==author4d exactbytes",
+      "rework_fixture": "Rootbaa==authorccb exactbytes",
+      "production_budget_function": "bothRoot sources==authorb24 exactbytes; unrelatedRootNativeClippy differences preserved"
+    },
+    "samples_ms": {
+      "before_Root_runtime9_reserve": 4455,
+      "after_Root_runtime10_reserve": 1281,
+      "before_create": 4457,
+      "after_create": 1283,
+      "after_supervisor": 21,
+      "after_whole_factory_tick": 3549
+    },
+    "scope_limit": "onebefore/after sample each, not generalized benchmark/CPUhash attribution/SLA/crossrun/fullsuite/Mac/model claim",
+    "proof": "/workspace/.onboarding/factory-child-goal-core/budget-history-positive-ccb78f7/ACTUAL_ROOT_RESULTS.json",
+    "author_execution": "none; boundedreadonlyoriginalresults/loghash/Git/scalar audit only; Nativechain audit separate"
+  },
+  "previous_root_integrated_evidence_before_9f96386": {
+    "schema_version": 1,
+    "status": "NOT_COMPLETE_source_WIP",
+    "baseline": "1097980c",
+    "protected_main": "a1be94d",
+    "owner_inbox_ack": [
+      "OWNER-001",
+      "OWNER-002"
+    ],
+    "requirements": [
+      "AB-TSK-003",
+      "AB-TSK-004",
+      "AB-TSK-005",
+      "AB-TSK-009",
+      "AB-TSK-011",
+      "AB-TSK-012",
+      "AB-SEC-002",
+      "AB-SEC-003",
+      "AB-SEC-005",
+      "AB-SEC-010",
+      "AB-COR-002",
+      "AB-COR-007"
+    ],
+    "runtime": "actual_normal_chain1_failed_before_graph_dispatch_new_post_commit_snapshot_not_compiled",
+    "native": "not_run",
+    "macos": "not_run",
+    "provider_calls": "not_authorized_not_run",
+    "draft_contract": "9900fbc plus current source checkpoint",
+    "sqlite_ddl_controls": {
+      "result": "passed",
+      "count": 6,
+      "evidence": "/workspace/.onboarding/factory-child-goal-core/migration-ddl-controls.json",
+      "input_native_goal_scopes": 0,
+      "input_native_goal_runs": 0,
+      "does_not_prove": "Rust Store migration, native Goal provenance, derived Graph runtime"
+    },
+    "rust_policy_tests": {
+      "written": 5,
+      "status": "passed",
+      "source": "4ffb21000030a3f82580f5a9c14ed40056bb13a0",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "child_goal_policy_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 91,
+      "test_seconds": 2.19,
+      "compile_seconds": 18.53,
+      "runner_seconds": 20.9,
+      "warnings": 2,
+      "source_and_tools_unchanged": true,
+      "evidence": "/workspace/.onboarding/factory-child-goal-core/lib-policy-1",
+      "lease": "released",
+      "scope": "Core SQLite/Native finalizer plus direct bounded worker body; no daemon/Provider/MCP/child Graph runtime"
+    },
+    "pending": [
+      "actual generated ACP/MCP/Graph/Owner/parent-resume normal chain",
+      "bounded failure/planner recovery/same-run adoption real controls",
+      "cancel/revoke/expiry/unknown/restart/ancestor budget real controls",
+      "nonempty actual Native Goal+Factory14 migration raw-before-recovery/FK/rollback/future16 controls (independent test leaf)",
+      "Native15 compile/real IPC and UI15 actual runtime fixtures",
+      "independent review/full integration/CI/macOS",
+      "all source after357 actual boundary needs new typecheck/control run and matching tools before runtime rerun"
+    ],
+    "latest_public_wire_contract": "2a3d6ae",
+    "factory_record_counts": 12,
+    "new_counter": "child_goal_runs",
+    "cargo_failures": {
+      "source": "e363569d0d397ed07de5e7403f978fc496741e18",
+      "result": "failed",
+      "exit_code": 101,
+      "wall_seconds": 8.085,
+      "errors": 21,
+      "evidence": "/workspace/.onboarding/factory-child-goal-core/check-3",
+      "setup_failures": [
+        "check-1",
+        "check-2"
+      ],
+      "source_and_old_tool_metadata_unchanged": true,
+      "lease": "released",
+      "source_fixes": "typecheck passed at0a79421; cfgtest compiled with5 selected tests at4ffb210; historical failures retained"
+    },
+    "cargo": {
+      "source": "0a79421fd7c427acf225b82d8f8f949418239e0f",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib"
+      ],
+      "result": "passed",
+      "exit_code": 0,
+      "wall_seconds": 7.581,
+      "warnings": 7,
+      "evidence": "/workspace/.onboarding/factory-child-goal-core/check-4",
+      "source_and_shared_tools_unchanged": true,
+      "frozen_private14_tools_match_original_manifest": "/workspace/.onboarding/factory-child-goal-core/FROZEN14_TOOLS_AFTER-check-4.json",
+      "lease": "released",
+      "scope": "typecheck_only_no_tests_no_new_binaries"
+    },
+    "source_lifecycle_stage": {
+      "after_source": "4ffb21000030a3f82580f5a9c14ed40056bb13a0",
+      "status": "check_and7_selected_lib_tests_passed_at2a1689c_normal_runtime_test_not_run",
+      "new_files": [
+        "goal_graph_stop.rs",
+        "goal_factory_adoption.rs",
+        "factory_child_goal_lifecycle.rs",
+        "tests/fixtures/factory_child_goal_runtime.rs"
+      ],
+      "new_test_entries": {
+        "child_goal_policy_tests": {
+          "written": 6,
+          "current_source_run": false,
+          "earlier4ff_selected5": "retained_only_at_4ff"
+        },
+        "child_goal_contract_tests": {
+          "written": 1,
+          "run": false
+        },
+        "child_goal_runtime::actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume": {
+          "written": 1,
+          "run": false,
+          "required_env": "AGENTBATON_CHILD_GOAL_COMPANION=exact_frozen_schema15_baton"
+        }
+      }
+    },
+    "cargo_current": {
+      "start": "2026-10-29T08:39:31.799858+00:00",
+      "head": "5491c94cffbe40292ff977e0d9cfedcb55026c9e",
+      "cwd": "/workspace/.worktrees/factory-child-goal-core",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib"
+      ],
+      "source_clean_before": true,
+      "flags": {
+        "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "CARGO_PROFILE_DEV_DEBUG": null,
+        "RUST_TEST_THREADS": "1"
+      },
+      "free_before": 639164416,
+      "guard_bytes": 209715200,
+      "check_only_no_bin": true,
+      "pid": 1381900,
+      "end": "2026-10-29T08:39:40.137073+00:00",
+      "wall_seconds": 8.116,
+      "exit_code": 0,
+      "disk_guard_triggered": false,
+      "minimum_free_bytes": 639160320,
+      "source_before_equals_after": true,
+      "tools_before_equals_after": true,
+      "source_clean_after": true,
+      "warnings": 1,
+      "evidence": "/workspace/.onboarding/factory-child-goal-core/check-5",
+      "source_visibility": "/workspace/.onboarding/factory-child-goal-core/SOURCE_VISIBILITY-check-5.json",
+      "lease": "released",
+      "scope": "library typecheck only; no tests or product bins"
+    },
+    "selected_current_lib": {
+      "start": "2026-10-29T08:43:49.936791+00:00",
+      "head": "2a1689c17d9b3b8c6b4d70081d39c51183e1f8b2",
+      "cwd": "/workspace/.worktrees/factory-child-goal-core",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "child_goal_",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "source_clean_before": true,
+      "flags": {
+        "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "CARGO_PROFILE_DEV_DEBUG": null,
+        "RUST_TEST_THREADS": "1"
+      },
+      "free_before": 609312768,
+      "guard_bytes": 209715200,
+      "check_only_no_bin": false,
+      "lib_filter_only_no_product_bin_build": true,
+      "expected_selected_tests": 7,
+      "pid": 1382569,
+      "end": "2026-10-29T08:44:09.696438+00:00",
+      "wall_seconds": 19.626,
+      "exit_code": 0,
+      "disk_guard_triggered": false,
+      "minimum_free_bytes": 556662784,
+      "source_before_equals_after": true,
+      "tools_before_equals_after": true,
+      "source_clean_after": true,
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 91,
+      "policy_tests": 6,
+      "fixed_tool_schema_tests": 1,
+      "warnings": 1,
+      "evidence": "/workspace/.onboarding/factory-child-goal-core/lib-policy-2",
+      "dimension": "Core SQLite/Native finalizer plus direct worker-body policy and fixed tools; no model/runtime graph"
+    },
+    "normal_bins15_build": {
+      "start": "2026-10-29T08:45:23.283699+00:00",
+      "head": "2a1689c17d9b3b8c6b4d70081d39c51183e1f8b2",
+      "cwd": "/workspace/.worktrees/factory-child-goal-core",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "build",
+        "--profile",
+        "test",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--bins"
+      ],
+      "flags": {
+        "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "CARGO_PROFILE_DEV_DEBUG": null,
+        "RUST_TEST_THREADS": "1"
+      },
+      "free_before": 536920064,
+      "guard_bytes": 209715200,
+      "intentional_shared_normal_tool_cache_transition": true,
+      "independent_old_normal_backup_manifest": "/workspace/.onboarding/factory-child-goal-core/shared-normal14-before15/MANIFEST.json",
+      "no_immutable14_mutation": true,
+      "pid": 1383508,
+      "end": "2026-10-29T08:45:37.669690+00:00",
+      "wall_seconds": 14.386,
+      "exit_code": 0,
+      "disk_guard_triggered": false,
+      "minimum_free_bytes": 528834560,
+      "source_before_equals_after": true,
+      "immutable_frozen14_before_equals_after": true,
+      "shared_normal_tools_before_equals_after": false,
+      "source_clean_after": true
+    },
+    "normal_bins15_probe": {
+      "start": "2026-10-29T08:47:07.223142+00:00",
+      "source_head": "2a1689c17d9b3b8c6b4d70081d39c51183e1f8b2",
+      "private_manifest": "/workspace/.onboarding/factory-child-goal-core/private-tools15-2a1689c17d9b/manifest.json",
+      "private_manifest_sha256": "1ec7c13c2f45e831e777df1292d723609637e2147c0bf2fc5d8b63c53a1be59e",
+      "runtime": "/tmp/ab15-kgvil3rr",
+      "dimension": "real Linux CLI and owned normal daemon snapshot; zero Grant/Provider/Goal execution",
+      "force_kill_used": false,
+      "pid": 1383714,
+      "snapshot_exit_code": 0,
+      "actual_schema": 15,
+      "factory_table_counts": {
+        "factory_scopes": 0,
+        "factory_runs": 0,
+        "factory_task_lineage": 0,
+        "factory_task_bindings": 0,
+        "factory_delegations": 0,
+        "factory_attempts": 0,
+        "factory_scoped_handles": 0,
+        "factory_handoffs": 0,
+        "factory_budget_reservations": 0,
+        "factory_child_plan_heads": 0,
+        "factory_child_plan_revisions": 0,
+        "factory_child_goal_runs": 0
+      },
+      "factory_zero_tables": 12,
+      "actual_sequence": 0,
+      "fk_check": [],
+      "shutdown_signal": "SIGTERM",
+      "daemon_exit_code": 0,
+      "owned_pid_gone_after_wait": true,
+      "fresh_db_sha256": "028999c947fb13199791a82d79a18d2f2dade9f67bf5de97ed47462b266117a4",
+      "passed": true,
+      "end": "2026-10-29T08:47:07.260286+00:00",
+      "source_before_equals_after": true,
+      "shared_and_frozen14_before_equals_after": true,
+      "private_binaries_unchanged": true,
+      "free_after": 491114496,
+      "owned_runtime_removed_after_wait": true
+    },
+    "normal_bins15_final_manifest": {
+      "path": "/workspace/.onboarding/factory-child-goal-core/private-tools15-2a1689c17d9b/FINAL_MANIFEST.json",
+      "sha256": "05704697d4b2713da3e9d8c801a12b835973be815823efaa2111f4d46e2d61d7"
+    },
+    "actual_generated_runtime1": {
+      "start": "2026-10-29T08:53:16.311450+00:00",
+      "head": "1cc98f0942fbb35de6c80acf1d5f957194eaeaf2",
+      "cwd": "/workspace/.worktrees/factory-child-goal-core",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "child_goal_runtime::actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "source_clean_before": true,
+      "flags": {
+        "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "CARGO_PROFILE_DEV_DEBUG": null,
+        "RUST_TEST_THREADS": "1"
+      },
+      "free_before": 437854208,
+      "guard_bytes": 209715200,
+      "check_only_no_bin": false,
+      "only_selected_runtime_case": true,
+      "expected_selected_tests": 1,
+      "production_and_companion_build_source": "2a1689c17d9b3b8c6b4d70081d39c51183e1f8b2",
+      "test_head": "1cc98f0942fbb35de6c80acf1d5f957194eaeaf2",
+      "pid": 1384426,
+      "end": "2026-10-29T08:53:34.915334+00:00",
+      "wall_seconds": 18.425,
+      "exit_code": 101,
+      "disk_guard_triggered": false,
+      "whole_cargo_compile_and_runtime_deadline_seconds": 90,
+      "overall_timeout_triggered": false,
+      "minimum_free_bytes": 400777216,
+      "source_before_equals_after": true,
+      "tools_before_equals_after": true,
+      "source_clean_after": true,
+      "test_passed": 0,
+      "test_failed": 1,
+      "test_filtered": 20,
+      "test_seconds": 16.48,
+      "compile_seconds": 1.65,
+      "source_parent_mcp_execute_and_owned_stop_proven": true,
+      "graph_worker_started": false,
+      "task_accepted": false,
+      "failure_code": "INPUT_CHANGED",
+      "lease": "released",
+      "private_postcleanup_evidence": "artifacts/factory-child-goal-core/runtime-15b435a6-24da-4f40-a1c8-f5867a13e20d",
+      "no_preFailure_snapshot_claim": true,
+      "diagnosis_sql_clone": "/workspace/.onboarding/factory-child-goal-core/runtime-normal-1/diagnosis-shared-counter-readset.json"
+    },
+    "pending_reservation_fix": {
+      "status": "passed_selected3_sql_projection_tests_only",
+      "new_phase_projection_unit_tests": 3,
+      "new_wire_fields": false,
+      "original_auth_TTL_budget_relaxation": false,
+      "private_phase_token": "GoalReservationRead non-Deserialize constructor only atomic reserve path",
+      "full_pre_mutation_readset": true,
+      "post_mutation_exact_own_delta_plus_all_other_strict_rechecks": true,
+      "source": "6ffaa242de40f64d036cb1ed69d8d8ccbb4609ad",
+      "evidence": "/workspace/.onboarding/factory-child-goal-core/lib-phase-1",
+      "actual_tests": 3,
+      "full_runtime": false
+    },
+    "latest_actual_check": {
+      "source": "ec4669cb1f80cf4bf65c91e128ae6df2b03102b5",
+      "production_source": "357ee2c",
+      "result": "passed",
+      "warnings": 0,
+      "cargo_seconds": 7.34,
+      "runner_seconds": 7.895,
+      "evidence": "/workspace/.onboarding/factory-child-goal-core/check-7"
+    },
+    "committed_launch_snapshot": {
+      "source": "357ee2c",
+      "status": "passed5_query_units_at357_later_gate_and_sentinel_changes_unverified",
+      "full_original_sql_args_covered": true,
+      "new_sql_snapshot_unit_tests_written": 2,
+      "total_admission_filter_written": 5,
+      "original_input_FD_Grant_TTL_guards_retained": true,
+      "new_wire_authority": false,
+      "latest_source": "d9f50bf",
+      "original_scope_grant_task_plan_checks_restored_at": "884c448",
+      "incorrect_event_sequence_check": "8034fae_static_error_not_runtime_tested",
+      "canonical_event_sequence_fix": "10763aa_not_run"
+    },
+    "native_cap_column_fix": {
+      "source": "160761fc8b3534fc15bba17b282ad48a33886117",
+      "status": "typecompiled_at_ec4669c_no_actual_migration_retest",
+      "original_true_legacy_run": "4PASS_2FAIL_preserved",
+      "failure_types": [
+        "real_relational_document_approval_mismatch_accepted",
+        "test_backup_enumerator_counted_wal_shm"
+      ]
+    },
+    "new_static_pending": {
+      "root_self_projection": {
+        "source": "20097e6 plus d9f50bf",
+        "actual_runtime_test_written": "actual_factory_root_goal_owned_stop_owner_acceptance_completes_without_cancel_or_resume",
+        "status": "not_run"
+      },
+      "queued_adoption": {
+        "source": "2bd93aa plus339cdde plus10763aa",
+        "actual_core_sqlite_tests_written": 3,
+        "filter": "child_goal_state_tests",
+        "status": "not_compiled_not_run",
+        "no_daemon_or_process_claim": true
+      }
+    },
+    "latest_known_protected_main_boundary": "653679db60d5c68f7e3c5b5e146ef58aed10de23 (reported by Root; own isolated baseline unchanged)",
+    "latest_actual_admission_units": {
+      "source": "ec4669cb1f80cf4bf65c91e128ae6df2b03102b5",
+      "production_source": "357ee2c",
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 98,
+      "test_seconds": 0.01,
+      "compile_seconds": 15.12,
+      "runner_seconds": 15.665,
+      "dimension": "real SQLite query projection/snapshot only; not complete authority or process lifecycle",
+      "evidence": "/workspace/.onboarding/factory-child-goal-core/lib-phase-2",
+      "lease": "released"
+    }
+  },
+  "integration_note_9f96386": "Latest author checkpoint merged with prior Root evidence retained verbatim as historical nested evidence; Root factory-child-goal-integration checkpoint governs newer whole-suite/browser outcomes."
 }
