@@ -63,3 +63,20 @@
 计划由Root在取得共享target窗口后真实运行（本作者**未运行**）：`cargo test --offline --locked -p agentbaton-core --lib workspace_resolution::tests -- --nocapture --test-threads=1`；再按实际集成范围执行strict Clippy/format及必要回归。不得记录0selected为9PASS，也不得将此模块的纯/Store结果冒充真实Provider、默认Task UI或Mac链路。
 
 测试源码覆盖持久所有table值及sqlite_sequence、源/managed文件与空目录不变；候选foreign关联/root/identity/oversize拒绝，lease过UTC仍busy，stable key跟task/project/HEAD而不混dirty字节；personal project marker不映射host/path；cancelled Task只返回blocked。上述都是待执行断言，不是假造成功receipt。Factory new_workspace=false、原Grant/budget/DDL和现创建/复制原语全未修改。
+
+## F1历史阻塞与新关系pin源修复
+
+旧dedee源独审目录 `.onboarding/workspace-isolation-wsi1-independent-review/revision-dedee373`：REVIEW SHA `3b10f8fe6cd663bee9a13c191abbe4ad80c9f77bf53264ec35abeeb222cdc1a1`，MANIFEST SHA `a92ff9c92fe011b407112a6dac14037bd8539e5e2736b117220bdd7337fcd0e3`。F1是源码确认的准备引用一致性缺口，不是已经执行的旧Rust FAIL：相同Project ID/revision的document替换为另一个真实目录时，旧resolver未核关系root/device/inode。旧BLOCKED结论及所有原件保留。
+
+修复源commit `7a04d67a8a12bb3cc74088470560679346230ddc`只改以下两文件：
+
+| 路径 | 当前SHA-256 |
+| --- | --- |
+| `crates/core/src/workspace_resolution.rs` | `939330a14d5feb482eb6d311e149b98315ad61dc3fefdc8813d2ddada9c2b722` |
+| `crates/core/src/workspace_resolution_tests.rs` | `9ef80a87597f4e0e09c1f25ccd2c631c40aa851d8126e53fa8e9eb4ffcd9cd74` |
+
+lib SHA仍为上文84d11315，无模块/wire变更。关系pin使用CASE有界读取root<=262144B/device+inode各<=20B并以原u64十进制字符串精确比较；不采用浮点或默认零，不一致在inspect之前INPUT_CHANGED/not_started/code-workspace-project-pin。新增真实Store test源码 `project_document_and_relational_source_pins_must_agree_before_inspection` 包含document_only/root_column/device_column/inode_column四个fresh夹具case；所有row/sequence、source/managed与foreign目录不变断言保留。总10fn未编译/未执行。
+
+实际作者命令：选择性rustfmt两文件applied、同参数--check exit0；git diff --cached --check exit0；Python静态逆改将新import与pin块去除后整个resolver与parent逐字相等，tests旧9fn整文件为新文件前缀，exit0。这些只是有限源检查。未运行Cargo、用户项目Git、Node、Actor、Provider、Native或新工具链安装。
+
+新独审目录 `.onboarding/workspace-isolation-wsi1-independent-review/revision-7a04d67a`：REVIEW SHA `3606846a596cc831c55fe7825b604e8e120caa52a098c21563612af0def7c73d`，MANIFEST SHA `d352bafe651642bdb2d2f7736b3f8328994f9eb3658590f0d1883f2fe03bef46`。独审16个standalone SQLite内存精确SQL/比较有限控exit0，原resolver inverse/旧9test保持均通过，限定SOURCE_READY_FOR_ROOT_CONTROLLED_TESTS。它没有执行真实Store/Rust，不能将16加到10测试或移签产品。后续Root真实targeted结果必须另记录准确源码/命令/计数；当前完整默认Task隔离/WSI-2/3/UI/真实IPC/Mac仍未验。

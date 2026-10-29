@@ -69,3 +69,11 @@ Factory/childGoal是后续独立权限合同：当前 `selection.workspace_ids.l
 ## 可逆ADR建议（草案，嵌本记录而非另添文件）
 
 采用“复用现有隔离原语，准备先于执行批准，Task级默认分配，现有权限不自动继承”。先冻结readonly resolver及任务版本绑定，再接既有方法；无证明不宣称OS沙箱、全部后代隔离或原生账户隔离。host目前显式local，远程项目/移动跨host另按D05合同接入，不创建主机。保持FS u64在JS为opaque、Native/Core做精确比较。与存储owner评估旧document兼容后才决定是否需要新字段/迁移；不预定schema版本。无需负责人重答27题，局部可逆选择由Root/ADR记录，权限扩展仍走真实产品批准边界。
+
+## WSI-1 F1定向修复：关系身份必须先一致
+
+源修复 `7a04d67a8a12bb3cc74088470560679346230ddc`（parent e87fa8c）取代dedee作为当前待测源。原调查草案/初版源冻结描述保留为历史，最终内部合同仍以上文四字段、无Ready、全部授权/创建false为准。
+
+独审F1发现同ID/revision的Project.document可单独被替换为另一个真实Directory身份，而projects.root/device/inode仍是旧pin；只检查document与FS会返回错误准备引用。这是只读准备引用一致性缺口，不是已证明的执行授权绕过。修复在同一Deferred snapshot、inspect之前精确交叉检查关系root与document canonical_root、关系device/inode与原u64十进制TEXT。root读取上限262144字节，device/inode各20字节，超限或不一致返回INPUT_CHANGED/not_started及固定code-workspace-project-pin，不修复数据库。
+
+新增1个真实Store测试函数源含4case：document-only转向另一个实际Directory、root列、device列、inode列漂移；各断言该固定guardref、所有表/源/managed内容与foreign目录不变。原9函数字节保留，合计10函数仍NOT_COMPILED/NOT_RUN。无DDL、IPC、Native、Factory权限或默认任务入口改变。独审仅source-ready后由Root受控运行临时Git/SQLite夹具，不需要bins、Native、Provider或真实用户项目。

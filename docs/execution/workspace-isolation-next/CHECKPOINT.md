@@ -10,3 +10,11 @@
 - 下次恢复：核Root基线/OWNER_INBOX及unknown副作用；先读源dedee373的独审finding，不抢Cargo；Root执行`workspace_resolution::tests`及适当Clippy后据真实结果修复。再分配WSI-2/UI路径与完整默认流程，不将内部resolver完成当需求完成。旧记录与失败不删，公开产物只有限摘要/已审材料。
 
 本单元没有后台执行器、未安排定时续跑；完成调查不代表PRJ需求或完整产品完成。
+
+## 恢复后最新检查点：F1已修，Rust待运行
+
+- 当前源leaf：`7a04d67a8a12bb3cc74088470560679346230ddc`；parent `e87fa8cd57a3d42f8a1918d394f1e2578c8b5c13`。原dedee/e87与独审BLOCKED保留。当前四docs另commit，准确docs head由交付回复给出。
+- 仅resolver/tests两源文件修改：同Deferred snapshot inspect前核关系root/device/inode，拒绝同ID/revision document-only重定向和三pin漂移；无DB修复/FS写/授权改变。新test1fn/4case，旧9fn保持，总10fn。
+- 独审新revision source-ready：`.onboarding/workspace-isolation-wsi1-independent-review/revision-7a04d67a`；REVIEW `3606846a596cc831c55fe7825b604e8e120caa52a098c21563612af0def7c73d`；MANIFEST `d352bafe651642bdb2d2f7736b3f8328994f9eb3658590f0d1883f2fe03bef46`。仅源审与16有限SQLite控，不是Rust测试。
+- NOT_COMPILED/NOT_RUN：10个Rust函数、Clippy、真实IPC/UI/Mac。Root可受控运行workspace_resolution::tests；只用测试TempDir Git/SQLite，无bins/Native/真实用户Git操作，作者不占Cargo/共享target。若Root得到真实结果，另记准确集成SHA/命令，不能回写旧dedee为通过。
+- 恢复实际git status确认clean且已有7a04，不重复实现/重建工作树；本轮仅补四记录。下一依赖仍WSI-2/3默认隔离接线，完整130项范围/27决定与权限限制不变。
