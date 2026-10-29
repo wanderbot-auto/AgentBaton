@@ -81,12 +81,115 @@ def copy_completion(record):
             'general_filesystem_quiescence_claimed': False}
 
 
+PREVIEW_EVIDENCE_CONFIG = '.agentbaton-preview-evidence-v1.json'
+PREVIEW_EVIDENCE_READY = '.agentbaton-preview-evidence-ready-v1.json'
+PREVIEW_EVIDENCE_CAP = 8192
+
+
+def private_runtime_fd(runtime, expected=None):
+    fd = os.open(runtime, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        pin = os.fstat(fd)
+        assert stat.S_ISDIR(pin.st_mode) and pin.st_uid == os.getuid() and stat.S_IMODE(pin.st_mode) == 0o700, 'Unsafe evidence runtime'
+        assert expected is None or (pin.st_dev, pin.st_ino) == expected, 'Evidence runtime identity changed'
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def private_evidence_file(fd):
+    pin = os.fstat(fd)
+    assert stat.S_ISREG(pin.st_mode) and pin.st_uid == os.getuid() and pin.st_nlink == 1 and stat.S_IMODE(pin.st_mode) == 0o600, 'Unsafe evidence file'
+    assert pin.st_size <= PREVIEW_EVIDENCE_CAP, 'Oversized evidence file'
+    return pin
+
+
+def prepare_preview_evidence(runtime, source, original):
+    """Host-only test setup, before daemon start; never Renderer input."""
+    assert source == source.resolve(strict=True), 'Evidence source must be the owned canonical fixture'
+    pin = source.stat(follow_symlinks=False)
+    assert stat.S_ISDIR(pin.st_mode) and pin.st_uid == os.getuid() and stat.S_IMODE(pin.st_mode) == 0o700, 'Unsafe evidence source'
+    assert set(original) == {'large.bin'}, 'Only the exact generated preview fixture is gated'
+    chosen = original['large.bin']
+    file_pin = (source / 'large.bin').stat(follow_symlinks=False)
+    assert stat.S_ISREG(file_pin.st_mode) and file_pin.st_uid == os.getuid() and file_pin.st_nlink == 1, 'Unsafe generated evidence input'
+    assert file_pin.st_size == chosen['bytes'] == 32 * 1024 * 1024 and file_pin.st_mtime_ns == chosen['mtime_ns'], 'Generated evidence input changed'
+    assert isinstance(chosen['sha256'], str) and re.fullmatch('[a-f0-9]{64}', chosen['sha256']), 'Invalid generated input digest'
+    descriptor = {'schema_version': 1, 'nonce': uuid.uuid4().hex,
+                  'source': {'canonical_root': str(source), 'device': str(pin.st_dev), 'inode': str(pin.st_ino)},
+                  'files': [{'artifact_id': 'file-1', 'relative_path': 'large.bin', 'max_bytes': 67_108_864, 'expected_sha256': chosen['sha256']}],
+                  'limits': {'max_file_bytes': 67_108_864, 'max_total_bytes': 67_108_864, 'max_files': 4}}
+    raw = json.dumps(descriptor, separators=(',', ':'), ensure_ascii=False).encode('utf-8')
+    assert len(raw) <= PREVIEW_EVIDENCE_CAP, 'Oversized evidence descriptor'
+    directory = private_runtime_fd(runtime)
+    try:
+        runtime_pin = os.fstat(directory)
+        fd = os.open(PREVIEW_EVIDENCE_CONFIG, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=directory)
+        try:
+            private_evidence_file(fd)
+            remaining = memoryview(raw)
+            while remaining:
+                written = os.write(fd, remaining)
+                assert written > 0, 'Evidence descriptor write did not progress'
+                remaining = remaining[written:]
+            os.fsync(fd)
+            assert private_evidence_file(fd).st_size == len(raw), 'Incomplete evidence descriptor'
+        finally:
+            os.close(fd)
+    finally:
+        os.close(directory)
+    return {'nonce': descriptor['nonce'], 'descriptor_sha256': sha(raw), 'runtime_identity': (runtime_pin.st_dev, runtime_pin.st_ino),
+            'files': descriptor['files'], 'limits': descriptor['limits']}
+
+
+def preview_evidence_ready(runtime, gate, preview_id, project_id):
+    """Read a private before-scan marker. Missing/partial is not success."""
+    directory = private_runtime_fd(runtime, gate['runtime_identity'])
+    try:
+        try:
+            fd = os.open(PREVIEW_EVIDENCE_READY, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC, dir_fd=directory)
+        except FileNotFoundError:
+            return None
+        try:
+            before = private_evidence_file(fd)
+            raw = bytearray()
+            while len(raw) <= PREVIEW_EVIDENCE_CAP:
+                chunk = os.read(fd, PREVIEW_EVIDENCE_CAP + 1 - len(raw))
+                if not chunk:
+                    break
+                raw.extend(chunk)
+            after = private_evidence_file(fd)
+            assert len(raw) <= PREVIEW_EVIDENCE_CAP, 'Oversized evidence marker'
+            # CREATE_NEW precedes write_all: never call an incomplete file proof.
+            if before.st_size != after.st_size or len(raw) != after.st_size:
+                return None
+        finally:
+            os.close(fd)
+    finally:
+        os.close(directory)
+    try:
+        value = json.loads(bytes(raw).decode('utf-8'), object_pairs_hook=unique_object)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        if not bytes(raw).rstrip().endswith(b'}'):
+            return None
+        raise AssertionError('Malformed complete evidence marker') from None
+    assert isinstance(value, dict) and set(value) == {'schema_version', 'gate', 'stage', 'nonce', 'descriptor_sha256', 'preview_id', 'project_id'}, 'Foreign evidence marker shape'
+    assert type(value['schema_version']) is int and value['schema_version'] == 1, 'Unsupported evidence marker version'
+    assert value['gate'] == 'agentbaton_preview_evidence_gate_v1' and value['stage'] == 'before_scan', 'Wrong evidence stage'
+    assert value['nonce'] == gate['nonce'] and value['descriptor_sha256'] == gate['descriptor_sha256'], 'Evidence descriptor mismatch'
+    assert value['preview_id'] == preview_id and value['project_id'] == project_id, 'Evidence preview/project mismatch'
+    return {'stage': 'before_scan', 'marker_sha256': sha(bytes(raw)), 'descriptor_sha256': gate['descriptor_sha256'],
+            'nonce_preview_project_matched': True, 'observed_monotonic_ns': time.monotonic_ns()}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--batond', type=Path, required=True)
     parser.add_argument('--frontend', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
+    parser.add_argument('--preview-evidence', action='store_true', help='Explicit private before-scan cancellation evidence; requires the nondefault evidence daemon')
     parser.add_argument('--candidate-manifest', type=Path, help='Optional immutable candidate attribution; no build or authority is inferred')
     args = parser.parse_args()
     binary, frontend, output = args.batond.resolve(strict=True), args.frontend.resolve(strict=True), args.output.resolve()
@@ -114,6 +217,8 @@ def main():
                                'git_head': manifest['git_head'], 'dirty': manifest['dirty'],
                                'source_tree_sha256': manifest['source_tree_sha256'],
                                'not_final_review_or_ci_acceptance': True}
+    report['preview_evidence'] = {'enabled': args.preview_evidence, 'mode': 'gated_before_scan' if args.preview_evidence else 'natural_race',
+                                  'mid_read_cancellation_claimed': False, 'private_files_uploaded': False}
     pump = lambda: None
     token = ''
 
@@ -156,6 +261,9 @@ def main():
                 (folder / 'nested/note.txt').write_bytes(b'generated local fixture only\n')
             folders[name] = folder
             original[name] = {str(p.relative_to(folder)): observation(p) for p in folder.rglob('*') if p.is_file()}
+        evidence_gate = None
+        if args.preview_evidence:
+            evidence_gate = prepare_preview_evidence(runtime, folders['preview-cancel'], original['preview-cancel'])
         daemon_log = (output / 'daemon.log').open('wb')
         daemon = subprocess.Popen([str(binary)], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)}, stdout=daemon_log, stderr=subprocess.STDOUT)
         server = thread = None
@@ -210,6 +318,22 @@ def main():
 
             def preview_record(preview_id):
                 return result('data_workspace_previews.get', {'preview_id': preview_id})
+
+            def preview_cancel_commitment(terminal):
+                # The pinned Core producer persists preview_finished only after
+                # its owned worker thread.join. This is not a new DTO receipt.
+                assert terminal['state'] == 'cancelled' and terminal['snapshot'] is None and (terminal.get('error') or {}).get('code') == 'CANCEL_REQUESTED', 'Missing real preview cancellation'
+                with sqlite3.connect(f'file:{runtime / "baton.sqlite3"}?mode=ro', uri=True) as store:
+                    store.execute('PRAGMA query_only=ON'); store.execute('BEGIN')
+                    events = store.execute("SELECT sequence,revision,kind,payload FROM events WHERE aggregate_id=? AND kind IN ('data_workspace.preview_cancel_requested','data_workspace.preview_finished') ORDER BY sequence LIMIT 3", [terminal['id']]).fetchall()
+                assert len(events) == 2, 'Missing or repeated preview cancellation commitments'
+                requested, finished = events
+                assert requested[2] == 'data_workspace.preview_cancel_requested' and json.loads(requested[3]) == {'confirmed_stop': False}, 'Wrong preview cancel commitment'
+                assert finished[2] == 'data_workspace.preview_finished' and json.loads(finished[3]) == {'state': 'cancelled', 'copy_authorized': False}, 'Wrong preview terminal commitment'
+                assert requested[0] < finished[0] and requested[1] < finished[1] == terminal['revision'], 'Unordered preview cancellation commitments'
+                return {'cancel_requested_sequence': requested[0], 'finished_sequence': finished[0], 'terminal_revision': finished[1],
+                        'worker_join_evidence': 'preview_finished after thread.join in the pinned Core producer',
+                        'stage': 'gated_before_scan', 'mid_read_cancellation_claimed': False, 'OS_process_reap_claimed': False}
 
             def creation_record(creation_id):
                 return result('data_workspaces.get', {'creation_id': creation_id})
@@ -565,6 +689,10 @@ def main():
                     # Actual worker cancellation, not a promised scheduling win.
                     panel = open_project('preview-cancel')
                     started, _ = start_preview(panel, 'preview-cancel')
+                    if evidence_gate is not None:
+                        assert started['selection']['files'] == evidence_gate['files'] and started['selection']['limits'] == evidence_gate['limits'], 'UI selection differs from evidence descriptor'
+                        ready = wait(lambda: preview_evidence_ready(runtime, evidence_gate, started['id'], projects['preview-cancel']['id']), lambda value: value is not None, seconds=15)
+                        report['observations']['preview_evidence_ready'] = ready
                     # The start acknowledgement already refreshes the real UI.
                     # Go directly to this exact record; no second list roundtrip.
                     current = detail(panel, started['id'])
@@ -587,6 +715,8 @@ def main():
                         refresh(panel)
                     terminal = wait(lambda: preview_record(started['id']), lambda value: value['state'] not in {'checking', 'cancel_requested'})
                     assert terminal['state'] in {'cancelled', 'verified'}, terminal
+                    if evidence_gate is not None:
+                        report['observations']['preview_evidence_cancel_commitment'] = preview_cancel_commitment(terminal)
                     assert creation_records(projects['preview-cancel']) == []
                     requests = [row for row in report['requests'] if row['method'] == 'data_workspace_previews.cancel' and row['args'].get('previewId') == started['id']]
                     assert len(requests) == int(requested)
