@@ -3211,13 +3211,168 @@ fn graph_owner_proposal(f: &Scenario, run_id: &Value, node: &str, key: &str) -> 
     );
     result(f.server.request(json!({"method":"goal_node_approvals.propose","params":{"run_id":run_id,"node_id":node,"expected_plan_revision":d["run"]["plan_revision"],"expected_ledger_revision":d["ledger_revision"]},"expected_revision":d["run"]["revision"],"idempotency_key":key})))
 }
+// Dedicated diagnostic for the two-Owner fixture. Reads only the real runtime
+// database; never Store::open/recover or a fake clock/Grant mutation.
+struct GraphOwnerGrantClock {
+    start: Instant,
+    utc_start_ms: i64,
+}
+fn graph_owner_utc_ms() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis()
+        .try_into()
+        .unwrap()
+}
+impl GraphOwnerGrantClock {
+    fn new() -> Self {
+        Self {
+            start: Instant::now(),
+            utc_start_ms: graph_owner_utc_ms(),
+        }
+    }
+    fn trace(
+        &self,
+        f: &Scenario,
+        scope: Option<&Value>,
+        phase: &str,
+        response: Option<&Value>,
+    ) -> Value {
+        let db = rusqlite::Connection::open_with_flags(
+            f.server.runtime.join("baton.sqlite3"),
+            rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+        )
+        .unwrap();
+        let version: i64 = db
+            .query_row("PRAGMA user_version", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(
+            version, 12,
+            "This PR16 fixture must link actual schema12, not a shared-target Factory cache"
+        );
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM execution_grants WHERE id=?1",
+                [f.grant["id"].as_str().unwrap()],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let g: Value = serde_json::from_str(&raw).unwrap();
+        let utc_ms = graph_owner_utc_ms();
+        let sample = json!({"phase":phase,"utc_ms":utc_ms,"utc_since_start_ms":utc_ms-self.utc_start_ms,"monotonic_ms":self.start.elapsed().as_millis(),"schema_version":version,"grant":{"id":g["id"],"root_grant_id":g["root_grant_id"],"parent_id":g["parent_id"],"revision":g["revision"],"revoked":g["revoked"],"approved_at":g["approved_at"],"expires_at_ms":g["expires_at_ms"],"remaining_ms":g["expires_at_ms"].as_i64().unwrap()-utc_ms,"scope":g["scope"]},"goal_scope":scope.map(|s|json!({"id":s["id"],"revision":s["revision"],"expires_at_ms":s["expires_at_ms"],"root_budget":s["root_budget"],"project_budget":s["project_budget"]})),"response":response});
+        eprintln!("GRAPH_OWNER_GRANT_PHASE {sample}");
+        let bytes = serde_json::to_vec_pretty(&sample).unwrap();
+        let hash = agentbaton_workspaces::validation::sha256(&bytes);
+        std::fs::write(
+            graph_artifact_path(format!("owner-grant-{phase}-{hash}.json")),
+            bytes,
+        )
+        .unwrap();
+        sample
+    }
+    fn approve(&self, f: &Scenario, scope: &Value, proposal: Value, phase: &str) -> Value {
+        self.trace(f, Some(scope), &format!("{phase}-before-finalize"), None);
+        let response=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":format!("proposal:{}",proposal["id"])}));
+        self.trace(
+            f,
+            Some(scope),
+            &format!("{phase}-after-finalize"),
+            Some(&response),
+        );
+        result(response)
+    }
+}
+#[test]
+fn actual_graph_owner_fixture_original_grant_expiry_still_refuses_new_dispatch() {
+    let clock = GraphOwnerGrantClock::new();
+    let f = Scenario::new(10_000);
+    let before = clock.trace(&f, None, "original10s-expiry-start", None);
+    assert_eq!(before["grant"]["revoked"], false);
+    assert!(before["grant"]["parent_id"].is_null());
+    assert_eq!(before["grant"]["scope"]["max_duration_ms"], 10000);
+    let expiry = before["grant"]["expires_at_ms"].as_i64().unwrap();
+    let start = Instant::now();
+    loop {
+        let now = graph_owner_utc_ms();
+        if now >= expiry {
+            break;
+        }
+        assert!(
+            start.elapsed() < Duration::from_secs(10),
+            "Original10s Grant clock did not reach its fixed expiry"
+        );
+        std::thread::sleep(Duration::from_millis(
+            u64::try_from(expiry - now).unwrap().min(10),
+        ));
+    }
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let tables = [
+        "attempts",
+        "sessions",
+        "dispatch_intents",
+        "workspace_leases",
+        "goal_run_reservations",
+        "idempotency",
+        "events",
+    ];
+    let counts = || {
+        tables
+            .iter()
+            .map(|table| {
+                db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| {
+                    r.get::<_, i64>(0)
+                })
+                .unwrap()
+            })
+            .collect::<Vec<_>>()
+    };
+    let original_counts = counts();
+    let denied=f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":f.task["revision"],"idempotency_key":"expired-original-owner-grant-never-dispatches"}));
+    let after = clock.trace(&f, None, "original10s-expiry-refused", Some(&denied));
+    assert_eq!(denied["error"]["code"], "PERMISSION_DENIED");
+    assert_eq!(
+        denied["error"]["message"],
+        "Execution grant or an ancestor is revoked or expired"
+    );
+    assert_eq!(denied["error"]["side_effect_state"], "not_started");
+    assert_eq!(after["grant"]["revoked"], false);
+    assert!(after["grant"]["remaining_ms"].as_i64().unwrap() <= 0);
+    assert_eq!(
+        after["grant"]["expires_at_ms"],
+        before["grant"]["expires_at_ms"]
+    );
+    assert_eq!(counts(), original_counts);
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(db.query_row("SELECT count(*) FROM idempotency WHERE key='expired-original-owner-grant-never-dispatches'",[],|r|r.get::<_,i64>(0)).unwrap(),0);
+}
 #[test]
 fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input() {
+    let clock = GraphOwnerGrantClock::new();
     let build_source_hashes = graph_build_source_hashes();
     eprintln!("GRAPH_BUILD_SOURCES {}", build_source_hashes);
-    let f = Scenario::new(10_000);
+    // This independently approved fixture window includes both Owner reviews.
+    // Graph/shared runtime and every node reservation stay unchanged below.
+    let f = Scenario::new(30_000);
+    clock.trace(&f, None, "after-enclosing-grant-approval", None);
     let scope = graph_owner_summary_plan(&f);
+    assert_eq!(scope["root_budget"]["runtime_ms"], 10000);
+    assert_eq!(scope["project_budget"]["runtime_ms"], 10000);
+    let plan = result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    );
+    for node in plan["proposal"]["nodes"].as_array().unwrap() {
+        assert_eq!(node["budget"]["runtime_ms"], 5000);
+        assert_eq!(node["reservation"]["runtime_ms"], 4000);
+    }
+    clock.trace(&f, Some(&scope), "plan-ready", Some(&plan));
     let approved = approve_graph_at(&f, &scope, 2);
+    clock.trace(&f, Some(&scope), "graph-approved", Some(&approved));
     let run_id = &approved["run"]["id"];
     let initial = wait(
         &f.server,
@@ -3233,6 +3388,7 @@ fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_in
     assert_eq!(initial["candidates"].as_array().unwrap().len(), 1);
     assert_eq!(initial["task_accepted"], false);
     eprintln!("GRAPH_PIPELINE first owned capture and owner-ready observed");
+    clock.trace(&f, Some(&scope), "first-owner-ready", None);
     let p = graph_owner_proposal(&f, run_id, "owner-report", "accept-exact-report");
     assert_eq!(p["kind"], "goal_node_acceptance");
     assert_eq!(p["snapshot"]["candidate_receipts"], initial["candidates"]);
@@ -3243,7 +3399,7 @@ fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_in
     let path = graph_artifact_path("actual-node-proposal.json");
     std::fs::write(path, serde_json::to_vec_pretty(&p).unwrap()).unwrap();
     eprintln!("GRAPH_PIPELINE exact Owner proposal persisted");
-    let decision = approve(&f.server, p.clone());
+    let decision = clock.approve(&f, &scope, p.clone(), "first-owner");
     assert_eq!(decision["decision"], "accepted");
     assert_eq!(decision["approval_id"], p["id"]);
     eprintln!("GRAPH_PIPELINE private Owner decision committed");
@@ -3290,7 +3446,7 @@ fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_in
     );
     assert_eq!(ready["task_accepted"], false);
     let final_proposal = graph_owner_proposal(&f, run_id, "owner-summary", "accept-exact-summary");
-    let final_decision = approve(&f.server, final_proposal.clone());
+    let final_decision = clock.approve(&f, &scope, final_proposal.clone(), "second-owner");
     assert_eq!(final_decision["task_accepted"], true);
     let accepted = result(
         f.server
