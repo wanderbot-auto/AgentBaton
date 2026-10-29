@@ -196,10 +196,58 @@
       "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
       "test_count": 1,
       "not_additive_unique_cases": true
+    },
+    "lib-child-2": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "child_planning_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.515,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "unique_tests": 6,
+      "dimension": "five Core/SQLite/direct worker-body tests and one recorded-real-runtime-row proof/tamper control; no new Daemon join"
+    },
+    "lib-contract-2": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "child_planning_contract_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.505,
+      "disk_guard_triggered": false,
+      "dev_debug": "unset",
+      "test_debug": "0",
+      "source_before_after_same": true,
+      "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "unique_tests": 2,
+      "dimension": "pure private credential/default/four-descriptor byte-shape compatibility and fifth opt-in descriptor"
     }
   },
   "not_run": [
-    "latest-source refreshed five Core units/two companion units plus recorded-chain controls",
+    "current830b51f matching CLI14 and complete scoped runtime7",
     "schema14 migration suite and affected prior migration fixtures",
     "full original Factory/Goal/workspace regression",
     "Native/UI actual browser/Core fixture validation",
@@ -207,7 +255,7 @@
     "macOS validation"
   ],
   "external_evidence_root": "/workspace/.onboarding/factory-child-planning-core",
-  "current_source_limit": "After runtime6, added defensive active-run check to private normal-yield verifier plus recorded-real-chain controls; not compiled or executed yet. Runtime3 and6 prove their exact maps only.",
+  "current_source_limit": "Current830b51f passed6+2; runtime6 passed earlier exact map before active-run defensive recheck and exact output-file write restriction. Fresh matching CLI14/runtime7, migrations and broad/independent regressions remain pending.",
   "actual_fixture": {
     "path": "/workspace/.onboarding/factory-child-planning-core/actual-scoped-planning-r6.json",
     "sha256": "33b71b6422f88b9036797b1055cd5be72978cdc2a64ba926c81076288061358b",
@@ -218,5 +266,53 @@
     "extra_goal_executions": 0,
     "original_grant_max_children": 0,
     "private_cli_sha256": "8ec9f31dc08f21c46e831d8cebe0d70289502275e108c8335dba5292dcdebe00"
-  }
+  },
+  "verified_source_commit": "830b51f7c048ae4c63086ac607086ff6c0b0337e",
+  "requirement_evidence": [
+    {
+      "ids": [
+        "AB-TSK-009",
+        "AB-TSK-011",
+        "AB-TSK-003",
+        "AB-TSK-004",
+        "AB-TSK-005",
+        "AB-TSK-012"
+      ],
+      "implementation": "same GoalPlan raw immutable versions/CAS/ref metadata; self/descendant scoped submit; real handoff references",
+      "actual_tests": [
+        "child_plan_original_raw_revisions_cas_exact_replay_and_refs_never_mint_execution_or_expand_zero_child_grant",
+        "actual_child_planning_scoped_mcp_revisions_parent_descendant_and_handoff_are_metadata_only"
+      ],
+      "limit": "runtime exact-source earlier maps; no child Goal execution/Factory completion claim"
+    },
+    {
+      "ids": [
+        "AB-SEC-002",
+        "AB-SEC-003",
+        "AB-SEC-005",
+        "AB-SEC-010"
+      ],
+      "implementation": "explicit policy/typed old-false compatibility; source/root/input/spec/complete-output/budget/write-file authority; private observation witness and fixed methods",
+      "actual_tests": [
+        "child_plan_bad_raw_permission_references_cycles_cas_and_unsafe_numbers_leave_no_partial_rows_or_events",
+        "child_plan_observation_must_be_request_owned_and_detects_post_worker_input_or_policy_drift",
+        "child_plan_history_remains_readonly_after_revoke_exact_key_does_not_upgrade_authority",
+        "old_disabled_tools_are_identical_and_new_policy_adds_only_fifth_tool",
+        "original_private_credential_defaults_no_child_planning_and_never_accepts_renderer_capability_fields"
+      ],
+      "limit": "full scoped expired/cancelled/foreignfamily/latest-source regression and independent review pending"
+    },
+    {
+      "ids": [
+        "AB-COR-002",
+        "AB-COR-007"
+      ],
+      "implementation": "atomic revision/head/event/key commit, original raw equality, scope caps, normal-stop ordered real-join distinction and no unknown replay/refund",
+      "actual_tests": [
+        "child_plan_journal_insert_fault_rolls_back_head_revision_and_idempotency",
+        "actual_recorded_parent_yield_requires_normal_ordered_joined_same_attempt_not_unknown_run"
+      ],
+      "limit": "schema14 migration source/tests written not run; no Mac proof"
+    }
+  ]
 }
