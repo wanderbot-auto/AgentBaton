@@ -101,6 +101,7 @@ jobs:
           python3 apps/desktop/tests/test_data_preview_evidence.py
           python3 apps/desktop/tests/test_data_preview_evidence_deadline.py
           python3 apps/desktop/tests/test_data_preview_commitments.py
+          python3 apps/desktop/tests/test_data_copy_evidence.py
       - name: Real daemon and browser test dependencies
         run: |
           set -euo pipefail
