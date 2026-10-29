@@ -32,3 +32,8 @@ Exercise independent Ownercancel, Ownerrevoke without later Ownercancel, and act
 ## Admission current-schema fixture correction
 
 Following the actual full workspace failure, update only admission_performance's exact current Store schema expectation12→13. Keep every admission/Git dirty/path/performance guard, input, budget and timeout unchanged. Classify all other12 matches before editing: original pre-v13 fixtures/backups/rollback/intermediate migration steps retain12; genuine current-version expectations elsewhere require separately scoped integration updates. Do not rerun a known stale suite or modify Root's source tree in this limited task.
+
+
+## Complete schema13 test expectation alignment
+
+The integration owner expanded the narrow followup to13 explicit test files: admission_performance, command_validation, data_workspaces, sessions_ipc, migration_v5/v6/v7, command_validation_migration, data_workspace_migration, goal_store_migration, goal_runtime_migration, goal_graph_migration and storage tests. Change only12 completed/fresh current Store expectations12→strict13; change7 future-refusal SQL inputs13→14 and their6 versioned test names plus1 same-site diagnostic. Preserve original old-schema migration inputs, intermediate migration PRAGMA12, pre-v13 backups/rollback12, unknown99, raw-byte and every other assertion. Freeze exact source/normalization for independent review before another full suite. No Cargo lease is held by this author.

@@ -2235,5 +2235,334 @@
       },
       "scope": "admission fixture only; broader paths not authorized in this narrow followup; parent notified"
     }
+  },
+  "schema13_fixture_alignment_checkpoint": {
+    "source_head": "116506ace23a073f1f60b1968110258aa4a8a0df",
+    "snapshot_path": "artifacts/factory-runtime-core/schema13-fixture-source-snapshot.json",
+    "snapshot_sha256": "c6dab030c94865afe87423ef0360a1cdd0e73c207336e861108b312689ceb9ab",
+    "snapshot": {
+      "base_commit": "dac6d80ebebcc9285c1a3eadafc81668c5b9567c",
+      "source_commits": [
+        "ff2872e6b6134791fa51e1e95314adbaf6d74e67",
+        "7805973e8b9dab881d6035c98b441a78b0c813b7",
+        "116506ace23a073f1f60b1968110258aa4a8a0df"
+      ],
+      "source_head": "116506ace23a073f1f60b1968110258aa4a8a0df",
+      "test_files": {
+        "crates/core/tests/admission_performance.rs": {
+          "before_sha256": "5b7f7a2475ae47727160736660c0435a944949728be40599e788b607da833459",
+          "after_sha256": "d24ded513e3e3d8d3e361c1178d9b4d3d4d8cff7a427e85743c2b8029eb96bce",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "5b7f7a2475ae47727160736660c0435a944949728be40599e788b607da833459",
+          "normalized_after_sha256": "5b7f7a2475ae47727160736660c0435a944949728be40599e788b607da833459",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/command_validation.rs": {
+          "before_sha256": "252afb6800be9a26f43393bea2832964a0eda31ffd56d8206a4ee463eed74f8a",
+          "after_sha256": "9a5db91d791d60e89b1aa2c24e038fd7ece3aabf89ffb249e64b656025b74326",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            },
+            {
+              "kind": "same assertion diagnostic text",
+              "old": "schema12",
+              "new": "schema13",
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "252afb6800be9a26f43393bea2832964a0eda31ffd56d8206a4ee463eed74f8a",
+          "normalized_after_sha256": "252afb6800be9a26f43393bea2832964a0eda31ffd56d8206a4ee463eed74f8a",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/command_validation_migration.rs": {
+          "before_sha256": "dd3e41571c1a16bbd168f81dbb4226457ab7227cbc31478a57b7c057a23a8ece",
+          "after_sha256": "79ae4b663335235314aa913ca6dd257b4af7117326a51ab17bce2591a2ebd14f",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            },
+            {
+              "kind": "strict future fixture input",
+              "old": "PRAGMA user_version=13",
+              "new": "PRAGMA user_version=14",
+              "count": 1
+            },
+            {
+              "kind": "matching test name",
+              "old": "future_schema13_refused_without_touching_bytes",
+              "new": "future_schema14_refused_without_touching_bytes",
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "dd3e41571c1a16bbd168f81dbb4226457ab7227cbc31478a57b7c057a23a8ece",
+          "normalized_after_sha256": "dd3e41571c1a16bbd168f81dbb4226457ab7227cbc31478a57b7c057a23a8ece",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/data_workspace_migration.rs": {
+          "before_sha256": "dda0928fa139dbb9a4fac1a868669c71254790d8b909205be2eeefa109d03935",
+          "after_sha256": "9e5f4c7fcde0057988de00a579f9f676a2a73bd944eeaf5d749c7701c04f5b8c",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            },
+            {
+              "kind": "strict future fixture input",
+              "old": "PRAGMA user_version=13",
+              "new": "PRAGMA user_version=14",
+              "count": 1
+            },
+            {
+              "kind": "matching test name",
+              "old": "future_schema13_is_refused_without_touching_bytes_or_creating_migration_backup",
+              "new": "future_schema14_is_refused_without_touching_bytes_or_creating_migration_backup",
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "dda0928fa139dbb9a4fac1a868669c71254790d8b909205be2eeefa109d03935",
+          "normalized_after_sha256": "dda0928fa139dbb9a4fac1a868669c71254790d8b909205be2eeefa109d03935",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/data_workspaces.rs": {
+          "before_sha256": "b6d6cd13bc5efa80f40d6c19ac7b1c981fcfbc01177bda0a5dc1916d2aed764b",
+          "after_sha256": "b31430f97f811fe44ed6e76be8d757a09b09d974f2de87c778965a9813507d5d",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "b6d6cd13bc5efa80f40d6c19ac7b1c981fcfbc01177bda0a5dc1916d2aed764b",
+          "normalized_after_sha256": "b6d6cd13bc5efa80f40d6c19ac7b1c981fcfbc01177bda0a5dc1916d2aed764b",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/goal_graph_migration.rs": {
+          "before_sha256": "ffcbe3fca9f104c67a03fea456635bf13ca2a97f2de5d398b02ee172ab82c7d5",
+          "after_sha256": "71a97dca393f745fa3ae49e9a9e8cf087158ff4f82b9d574552513e7192787ef",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            },
+            {
+              "kind": "strict future fixture input",
+              "old": "PRAGMA user_version=13",
+              "new": "PRAGMA user_version=14",
+              "count": 1
+            },
+            {
+              "kind": "matching test name",
+              "old": "schema13_is_refused_without_modifying_any_bytes_or_creating_backup",
+              "new": "schema14_is_refused_without_modifying_any_bytes_or_creating_backup",
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "ffcbe3fca9f104c67a03fea456635bf13ca2a97f2de5d398b02ee172ab82c7d5",
+          "normalized_after_sha256": "ffcbe3fca9f104c67a03fea456635bf13ca2a97f2de5d398b02ee172ab82c7d5",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/goal_runtime_migration.rs": {
+          "before_sha256": "b0790fecdf12b31d12c82a107b1b4d8b873611097450e0cd63f6eb37f53cf2d2",
+          "after_sha256": "6117948ac3d32d5f42d0f6322fed502837546974ac45ea712c3335cb8c9c6c99",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            },
+            {
+              "kind": "strict future fixture input",
+              "old": "PRAGMA user_version=13",
+              "new": "PRAGMA user_version=14",
+              "count": 1
+            },
+            {
+              "kind": "matching test name",
+              "old": "future_schema13_is_refused_without_modification_or_migration_backup",
+              "new": "future_schema14_is_refused_without_modification_or_migration_backup",
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "b0790fecdf12b31d12c82a107b1b4d8b873611097450e0cd63f6eb37f53cf2d2",
+          "normalized_after_sha256": "b0790fecdf12b31d12c82a107b1b4d8b873611097450e0cd63f6eb37f53cf2d2",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/goal_store_migration.rs": {
+          "before_sha256": "0ee059f1089c8a63d868cd5e4f4dd38827ecb2548e988a49a539721e73409410",
+          "after_sha256": "e6a3e53688b6c81d40c3703df08e9de4f1909dccbfa90fa9ff27a0b7eee963c2",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            },
+            {
+              "kind": "strict future fixture input",
+              "old": "PRAGMA user_version=13",
+              "new": "PRAGMA user_version=14",
+              "count": 1
+            },
+            {
+              "kind": "matching test name",
+              "old": "actual_future_schema13_is_rejected_without_modifying_bytes",
+              "new": "actual_future_schema14_is_rejected_without_modifying_bytes",
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "0ee059f1089c8a63d868cd5e4f4dd38827ecb2548e988a49a539721e73409410",
+          "normalized_after_sha256": "0ee059f1089c8a63d868cd5e4f4dd38827ecb2548e988a49a539721e73409410",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/migration_v5.rs": {
+          "before_sha256": "fb0ded6690fc0046b9321a2f2d3ad3c4ef2d96735c8c9a775aed00b523eb6fc2",
+          "after_sha256": "f9f5380ec62e4033ea327aac8c636e07071fc1fb975d9e13b7fa87f7f338740d",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "fb0ded6690fc0046b9321a2f2d3ad3c4ef2d96735c8c9a775aed00b523eb6fc2",
+          "normalized_after_sha256": "fb0ded6690fc0046b9321a2f2d3ad3c4ef2d96735c8c9a775aed00b523eb6fc2",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/migration_v6.rs": {
+          "before_sha256": "7b04b3bf019e41ded14848057f9983d4f3f4109411e82940bc4352ef6a24c1d7",
+          "after_sha256": "64257fed090b85bf223f1781639e9a31eafb725654fc51c37f40e6981987b837",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "7b04b3bf019e41ded14848057f9983d4f3f4109411e82940bc4352ef6a24c1d7",
+          "normalized_after_sha256": "7b04b3bf019e41ded14848057f9983d4f3f4109411e82940bc4352ef6a24c1d7",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/migration_v7.rs": {
+          "before_sha256": "07817e204b0c71f9c8c773c6b73050990a8fdbe2825b2f4c5d7f62aceed25bda",
+          "after_sha256": "a6dfe287af360cbc58c024631e04f7d4c18073bf3d2f2270f1e0f14504d81e61",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            },
+            {
+              "kind": "strict future fixture input",
+              "old": "PRAGMA user_version=13",
+              "new": "PRAGMA user_version=14",
+              "count": 1
+            },
+            {
+              "kind": "matching test name",
+              "old": "future_v13_database_is_refused_without_changing_its_raw_bytes",
+              "new": "future_v14_database_is_refused_without_changing_its_raw_bytes",
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "07817e204b0c71f9c8c773c6b73050990a8fdbe2825b2f4c5d7f62aceed25bda",
+          "normalized_after_sha256": "07817e204b0c71f9c8c773c6b73050990a8fdbe2825b2f4c5d7f62aceed25bda",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/sessions_ipc.rs": {
+          "before_sha256": "f884a060b61b689bffd7487798b7b0a77b5ffc2e3910085490ce44d55d435440",
+          "after_sha256": "c3eaf79e4928171bbd47698bd495a4e799d353eb8bf04c755022ea9d98f50bf6",
+          "approved_changes": [
+            {
+              "kind": "completed/fresh current Store expectation",
+              "old": 12,
+              "new": 13,
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "f884a060b61b689bffd7487798b7b0a77b5ffc2e3910085490ce44d55d435440",
+          "normalized_after_sha256": "f884a060b61b689bffd7487798b7b0a77b5ffc2e3910085490ce44d55d435440",
+          "all_other_bytes_identical": true
+        },
+        "crates/core/tests/storage.rs": {
+          "before_sha256": "b9a547a15657d8bff7ae05f90fde23718c168215cced81efbd0b5d20e569d8c6",
+          "after_sha256": "be95431b9829b934eb6bf707fcb1a5fb3e2b0d087a8ed256d52f28789693067a",
+          "approved_changes": [
+            {
+              "kind": "strict future fixture input",
+              "old": "PRAGMA user_version=13",
+              "new": "PRAGMA user_version=14",
+              "count": 1
+            }
+          ],
+          "normalized_before_sha256": "b9a547a15657d8bff7ae05f90fde23718c168215cced81efbd0b5d20e569d8c6",
+          "normalized_after_sha256": "b9a547a15657d8bff7ae05f90fde23718c168215cced81efbd0b5d20e569d8c6",
+          "all_other_bytes_identical": true
+        }
+      },
+      "normalization": "exact byte comparison after reversing only declared version/test-name/diagnostic locations; no Rust parser execution claimed",
+      "production_sources_equal_to_CAS": 46,
+      "current_target_assertions": 12,
+      "future_inputs": 7,
+      "future_test_name_updates": 6,
+      "diagnostic_message_updates": 1,
+      "historical12_and_unknown99_preserved": true,
+      "original_full_failure": {
+        "root_commit": "8532b2adee5e2de872621674ebbe606822e25f3a",
+        "exit_code": 101,
+        "unique_outer_passed": 150,
+        "unique_outer_failed": 1,
+        "nested_passed_separately": 1,
+        "doctests": "not_reached",
+        "Clippy": "not_run",
+        "references": {
+          "/workspace/.onboarding/factory-root-rust-regression/BEFORE.json": "984be1da8a3f3ccea1aa8554e3e7895638828012a94aa093d34f879999fde446",
+          "/workspace/.onboarding/factory-root-rust-regression/AFTER.json": "8aa14e3067c7d049bb717ca3217bf4b5080baea92797e312c45585556ea50f68",
+          "/workspace/.onboarding/factory-root-rust-regression/RESULT.json": "471e857e35576d475d46b9c7098e912e2250b163838f99ed7cb4f7b117cd55e2",
+          "/workspace/.onboarding/factory-root-rust-regression/MANIFEST.json": "127c7ae1e0c2e37fa5a4fd603369ea78d6e5748c0541b239a15406a7817c30c5",
+          "/workspace/.onboarding/factory-root-rust-regression/workspace-tests.log": "64fa36a759d499e2be2186c12d04b1e49a2f56e24e47a7cdbca3eea68d12fca9",
+          "/workspace/.onboarding/factory-root-rust-regression/workspace-tests-result.json": "c779055e770c85d41759b7d5f11f782d357911a7313a63f6e747dfc9b9ea9c55"
+        }
+      },
+      "new_source_cargo_or_tests": "NOT_RUN; parent holds lease and independent source review precedes exact fresh full suite",
+      "not_changed": [
+        "production source/schema",
+        "locks",
+        "gates",
+        "Root8532 source tree",
+        "old migration input versions",
+        "historical backup or rollback version12",
+        "intermediate PRAGMA12",
+        "raw bytes preservation assertions",
+        "all table/column/event/actor/CAS/permission/time/budget assertions"
+      ]
+    },
+    "tests_at_corrected_source": "NOT_RUN",
+    "review": "pending independent source review",
+    "lease": "parent only",
+    "scope": "13 explicit test files plus own records; no production or Root-tree change"
   }
 }
