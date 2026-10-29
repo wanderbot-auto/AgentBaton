@@ -107,8 +107,32 @@ jobs:
           python-version: '3.12'
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: apps/desktop
-      - run: npm run typecheck && npm test && npm run build
-        working-directory: apps/desktop
+      - name: Frontend validation and measured build provenance
+        run: |
+          set -euo pipefail
+          npm --prefix apps/desktop run typecheck
+          npm --prefix apps/desktop test
+          python3 - <<'PYBUILD'
+          import json, pathlib, subprocess, time
+          root = pathlib.Path.cwd()
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+          source = git('rev-parse', 'HEAD')
+          if git('status', '--porcelain', '--untracked-files=no'):
+              raise SystemExit('Frontend build requires a clean tracked checkout')
+          command = ['npm', '--prefix', 'apps/desktop', 'run', 'build']
+          started = time.monotonic()
+          result = subprocess.run(command)
+          unchanged = source == git('rev-parse', 'HEAD') and not git('status', '--porcelain', '--untracked-files=no')
+          record = {'source': source, 'command': command, 'exit': result.returncode,
+                    'seconds': time.monotonic() - started, 'source_head_and_tracked_unchanged': unchanged}
+          output = root / 'artifacts/ui-browser/frontend-build-record.json'
+          output.parent.mkdir(parents=True, exist_ok=True)
+          with output.open('x') as stream:
+              json.dump(record, stream, indent=2)
+              stream.write('\n')
+          raise SystemExit(result.returncode if result.returncode else (0 if unchanged else 1))
+          PYBUILD
       - name: Preview transport timing and failure contracts
         run: |
           python3 apps/desktop/tests/test_data_preview_browser_timing.py
@@ -118,6 +142,7 @@ jobs:
           python3 apps/desktop/tests/test_data_copy_evidence.py
           python3 apps/desktop/tests/test_data_copy_evidence_boundaries.py
           python3 apps/desktop/tests/test_factory_shared_goal_meters.py
+          python3 apps/desktop/tests/test_task_workspace_binding_real_ipc.py
       - name: Real daemon and browser test dependencies
         run: |
           set -euo pipefail
@@ -162,6 +187,15 @@ jobs:
               '--frontend', 'apps/desktop/dist',
               '--output', 'artifacts/ui-browser/goal-execution',
               '--chromium', chromium,
+          ], check=True)
+          subprocess.run([
+              sys.executable, 'apps/desktop/tests/task-workspace-binding-real-ipc.py', '--run',
+              '--batond', 'target/debug/batond',
+              '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
+              '--frontend', 'apps/desktop/dist',
+              '--frontend-build-record', 'artifacts/ui-browser/frontend-build-record.json',
+              '--expected-source-head', candidate['git_head'],
+              '--output', 'artifacts/ui-browser/task-workspace-binding', '--chromium', chromium,
           ], check=True)
           graph_base = [
               sys.executable, 'apps/desktop/tests/goal-graph-real-ipc.py',
