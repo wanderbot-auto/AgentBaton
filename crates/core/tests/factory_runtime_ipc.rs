@@ -129,6 +129,7 @@ impl Fixture {
         };
         let selection = FactoryScopeSelection {
             child_planning_policy: None,
+            child_goal_execution_policy: None,
             root_task_id: task.id,
             expected_task_revision: task.revision,
             grant_id: grant.id,
@@ -2426,3 +2427,6 @@ fn run_data_mode(mode: &str) {
         );
     }
 }
+
+#[path = "fixtures/factory_child_goal_runtime.rs"]
+mod child_goal_runtime;

@@ -640,6 +640,35 @@ impl ApprovedGoalScope {
         self.approval_id = approval.into();
         Ok(self)
     }
+    /// Private Factory issuer: the Store has verified its real Native Factory
+    /// approval, original Grant, saved raw plan and exact parent lineage. This
+    /// keeps the plan identity digest, while execution permission has a separate
+    /// durable capability digest. No Grant or Native Goal receipt is fabricated.
+    pub(crate) fn from_verified_factory(
+        task: &Task,
+        grant: &ExecutionGrant,
+        policy: HostGoalPolicy,
+        approval: &str,
+        approval_revision: u64,
+        planning_digest: &str,
+        expires_at_ms: i64,
+        now_ms: i64,
+    ) -> PlanResult<Self> {
+        if !id(approval)
+            || approval_revision != 1
+            || !hash(planning_digest)
+            || expires_at_ms > grant.expires_at_ms
+            || expires_at_ms <= now_ms
+        {
+            return Err(PlanError::AuthorityExpansion);
+        }
+        let mut scope = Self::from_verified_host(task, grant, policy, now_ms)?;
+        scope.approval_id = approval.into();
+        scope.revision = approval_revision;
+        scope.expires_at_ms = expires_at_ms;
+        scope.digest = planning_digest.into();
+        Ok(scope)
+    }
     pub fn approval_id(&self) -> &str {
         &self.approval_id
     }
@@ -653,6 +682,38 @@ pub struct ValidatedPlan {
     order: Vec<String>,
 }
 impl ValidatedPlan {
+    /// Store-only import of an immutable Factory-saved revision. The complete
+    /// original Factory history is authenticated separately; execution semantics
+    /// are checked against the stricter explicit derived execution scope now.
+    pub(crate) fn from_verified_factory_saved(
+        scope: &ApprovedGoalScope,
+        p: GoalPlanProposal,
+    ) -> PlanResult<Self> {
+        if p.schema_version != 1
+            || p.goal != scope.goal
+            || p.scope_revision != scope.revision
+            || p.revision == 0
+            || p.expected_revision.checked_add(1) != Some(p.revision)
+            || !id(&p.plan_id)
+        {
+            return Err(PlanError::InputChanged);
+        }
+        let (digest, order) = validate_semantics(
+            &PlanSemanticContext {
+                goal: &scope.goal,
+                grant: &scope.grant,
+                policy: &scope.policy,
+                digest: &scope.digest,
+            },
+            &p,
+        )?;
+        Ok(Self {
+            proposal: p,
+            scope: scope.clone(),
+            digest,
+            order,
+        })
+    }
     pub fn initial(scope: &ApprovedGoalScope, proposal: GoalPlanProposal) -> PlanResult<Self> {
         validate(scope, proposal, None)
     }

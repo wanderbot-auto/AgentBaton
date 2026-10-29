@@ -473,3 +473,7 @@ fn child_plan_history_remains_readonly_after_revoke_exact_key_does_not_upgrade_a
         .is_err());
     assert_eq!(f.store.sequence().unwrap(), seq);
 }
+
+mod child_goal_policy_tests {
+    include!("factory_child_goal_policy_tests.rs");
+}

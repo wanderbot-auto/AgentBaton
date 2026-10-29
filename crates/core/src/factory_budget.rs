@@ -105,6 +105,9 @@ pub(crate) fn budget_records(
         }
         out.push(r);
     }
+    out.extend(crate::goal_store::factory_goal_budget_records(
+        db, root, project,
+    )?);
     Ok(out)
 }
 impl Store {

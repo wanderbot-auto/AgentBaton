@@ -58,7 +58,7 @@ fn live_definition(
     db: &Connection,
     record: &ScopeRecord,
     rule: &str,
-    p: &ApprovalProposal,
+    p: &GraphAuthority,
 ) -> Result<ResolvedValidator> {
     let def = record
         .refs
@@ -105,7 +105,7 @@ fn normalized_io(
     producer: &GraphCandidateReceipt,
     refs: &[GraphArtifactReference],
     def: &ResolvedValidator,
-    p: &ApprovalProposal,
+    p: &GraphAuthority,
     reservation: &AttemptReservation,
 ) -> Result<PreparedGoalValidator> {
     if refs.is_empty()
@@ -246,7 +246,7 @@ fn normalized_io(
         }
     };
     Ok(PreparedGoalValidator {
-        approval_id: p.id.clone(),
+        approval_id: p.approval_id().into(),
         definition_revision: def.digest.clone(),
         subject,
         workspace: record.refs.workspace.identity.clone().ok_or_else(changed)?,
@@ -313,7 +313,7 @@ impl Store {
                 consumed.push(item);
             }
         }
-        let binding = scope_view(&record, &scope)?.binding;
+        let binding = scope_view(&self.conn, &record, &scope)?.binding;
         let task = self.get(&r.task_id)?;
         let lease = self
             .workspace_lease(&record.refs.workspace.id)?
@@ -328,7 +328,7 @@ impl Store {
             id: Uuid::new_v4().to_string(),
             attempt_id: Uuid::new_v4().to_string(),
             task_id: r.task_id.clone(),
-            root_task_id: r.task_id.clone(),
+            root_task_id: root_task(&record).into(),
             state: crate::execution::IntentState::Prepared,
             executor_instance: None,
             binding: binding.clone(),
@@ -362,9 +362,10 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
+        preflight_factory_goal_reservation(&tx, &context, self.data_input.as_ref())?;
         for key in [
             format!("project:{}", r.project_id),
-            format!("root:{}", r.task_id),
+            format!("root:{}", root_task(&record)),
         ] {
             if tx.execute("UPDATE budgets SET consumed=consumed+1,active=active+1 WHERE scope=?1 AND consumed<total_limit AND active<parallel_limit",[key]).map_err(db_error)?!=1{return Err(err("RESOURCE_LIMIT","Shared project/root attempt budget is exhausted"));}
         }
@@ -373,7 +374,7 @@ impl Store {
             params![
                 intent.attempt_id,
                 r.task_id,
-                r.task_id,
+                root_task(&record),
                 encode(&binding)?,
                 format!(
                     "goal-validator:{}:{}:{}",
@@ -392,6 +393,7 @@ impl Store {
             &context,
             GoalAttemptTarget {
                 attempt_id: &intent.attempt_id,
+                intent_id: &intent.id,
                 task_id: &r.task_id,
                 grant_id: &r.root_grant_id,
                 session: None,
