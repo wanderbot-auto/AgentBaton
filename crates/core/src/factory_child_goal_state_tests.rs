@@ -265,7 +265,6 @@ fn queued_exact_issuer_still_refuses_dangling_target_work_and_foreign_writer() {
     let before = unchanged_execution(&f);
     for (sql, args) in [
         ("INSERT INTO attempts VALUES('orphan-target-attempt',?1,?1,'{}','orphan-negative')", vec![s.root_task_id.clone()]),
-        ("INSERT INTO sessions VALUES('orphan-target-session',?1)", vec![json!({"task_id":s.root_task_id}).to_string()]),
         ("INSERT INTO workspace_leases(resource,holder,fencing_token,expires_at) VALUES(?1,'foreign-writer',1,0) ON CONFLICT(resource) DO UPDATE SET holder='foreign-writer'",vec![s.selection.workspace_ids[0].clone()]),
     ] {
         f.store.conn.execute_batch("SAVEPOINT corrupt").unwrap();
@@ -273,9 +272,6 @@ fn queued_exact_issuer_still_refuses_dangling_target_work_and_foreign_writer() {
         assert!(check().is_err(),"{sql}");
         f.store.conn.execute_batch("ROLLBACK TO corrupt;RELEASE corrupt").unwrap();
     }
-    // The dispatch row is independently checked by its document task even if
-    // its real FK attempt belongs to a different existing task.
-    f.store.conn.execute_batch("SAVEPOINT corrupt").unwrap();
     let other = f
         .store
         .conn
@@ -285,6 +281,47 @@ fn queued_exact_issuer_still_refuses_dangling_target_work_and_foreign_writer() {
             |r| r.get::<_, String>(0),
         )
         .unwrap();
+    for (column_task, document_task) in [(&s.root_task_id, &other), (&other, &s.root_task_id)] {
+        f.store.conn.execute_batch("SAVEPOINT corrupt").unwrap();
+        let session = crate::sessions::ManagedSession {
+            id: "orphan-target-session".into(),
+            task_id: document_task.clone(),
+            project_id: s.project_id.clone(),
+            workspace_id: s.selection.workspace_ids[0].clone(),
+            connection_id: s.selection.connection_ids[0].clone(),
+            grant_id: s.root_grant_id.clone(),
+            state: "starting".into(),
+            revision: 1,
+            native_session_id: None,
+            created_at: "2026-10-29T00:00:00Z".into(),
+            updated_at: "2026-10-29T00:00:00Z".into(),
+            last_error: None,
+            turn_state: None,
+            attempt_id: "orphan-attempt-in-document".into(),
+            intent_id: "orphan-intent-in-document".into(),
+            fencing_token: 1,
+            runtime_snapshot: None,
+        };
+        f.store.conn.execute("INSERT INTO sessions(id,task_id,project_id,workspace_id,connection_id,grant_id,root_grant_id,state,document,idempotency_key,payload) VALUES(?1,?2,?3,?4,?5,?6,?6,'starting',?7,'orphan-negative','{}')",rusqlite::params![session.id,column_task,s.project_id,session.workspace_id,session.connection_id,s.root_grant_id,serde_json::to_string(&session).unwrap()]).unwrap();
+        assert!(!f
+            .store
+            .conn
+            .prepare("PRAGMA foreign_key_check")
+            .unwrap()
+            .exists([])
+            .unwrap());
+        assert!(
+            check().is_err(),
+            "column={column_task},document={document_task}"
+        );
+        f.store
+            .conn
+            .execute_batch("ROLLBACK TO corrupt;RELEASE corrupt")
+            .unwrap();
+    }
+    // The dispatch row is independently checked by its document task even if
+    // its real FK attempt belongs to a different existing task.
+    f.store.conn.execute_batch("SAVEPOINT corrupt").unwrap();
     f.store
         .conn
         .execute(

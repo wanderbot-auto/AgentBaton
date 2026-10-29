@@ -1662,7 +1662,9 @@ fn committed_read(
     let (reserved_sequence,event_raw):(i64,String)=db.query_row("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.payload.attempt_id')=?2",params![r.id,attempt],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
     let e: Event = decode(&event_raw)?;
     if reserved_sequence <= 0
-        || e.sequence != u64::try_from(reserved_sequence).map_err(|_| changed())?
+        // Stored journal documents use sequence=0; only the physical SQLite
+        // row carries authority. Public event projection fills that value in.
+        || e.sequence != 0
         || e.source != "goal_core"
         || e.aggregate_id != r.id
         || e.kind != "goal.node_reserved"
@@ -1766,7 +1768,7 @@ pub(crate) fn require_queued_unstarted_target(
     // A dangling/foreign pending attempt or writer is not a never-started
     // proof merely because no current Goal Node points at it. Retain all
     // existing cumulative shared budget rows; planning does not reset them.
-    let other_work:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM attempts WHERE task_id=?1) OR EXISTS(SELECT 1 FROM sessions WHERE json_extract(document,'$.task_id')=?1) OR EXISTS(SELECT 1 FROM dispatch_intents d LEFT JOIN attempts a ON a.id=d.attempt_id WHERE a.task_id=?1 OR json_extract(d.document,'$.task_id')=?1) OR EXISTS(SELECT 1 FROM workspace_leases WHERE resource=?2 AND holder!='')",params![task_id,source.target_request.workspace_id],|row|row.get(0)).map_err(db_error)?;
+    let other_work:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM attempts WHERE task_id=?1) OR EXISTS(SELECT 1 FROM sessions WHERE task_id=?1 OR json_extract(document,'$.task_id')=?1) OR EXISTS(SELECT 1 FROM dispatch_intents d LEFT JOIN attempts a ON a.id=d.attempt_id WHERE a.task_id=?1 OR json_extract(d.document,'$.task_id')=?1) OR EXISTS(SELECT 1 FROM workspace_leases WHERE resource=?2 AND holder!='')",params![task_id,source.target_request.workspace_id],|row|row.get(0)).map_err(db_error)?;
     if other_work {
         return Err(denied());
     }
