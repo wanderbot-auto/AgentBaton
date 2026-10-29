@@ -373,8 +373,55 @@ def self_check():
         else:raise AssertionError(name)
         checks.append('pure-upfront-source-refuses:'+name)
 
+    source=Path(__file__).read_text()
+    checks.extend(exact_child_wait_self_check(source))
+    wait_line='expect(task_item).to_have_count(1,timeout=15000)'
+    assert source.count(wait_line)==3  # Runtime, control anchor and strict AST expectation.
+    runtime_wait='        '+wait_line+'\n'
+    mutations={
+        'old-immediate-count':source.replace(runtime_wait,"        require(task_item.count()==1,'Exact child task container required')\n"),
+        'zero-count':source.replace(runtime_wait,'        expect(task_item).to_have_count(0,timeout=15000)\n'),
+        'duplicate-count':source.replace(runtime_wait,'        expect(task_item).to_have_count(2,timeout=15000)\n'),
+        'longer-deadline':source.replace(runtime_wait,'        expect(task_item).to_have_count(1,timeout=16000)\n'),
+        'implicit-deadline':source.replace(runtime_wait,'        expect(task_item).to_have_count(1)\n'),
+        'first-hides-duplicates':source.replace(runtime_wait,'        expect(task_item.first).to_have_count(1,timeout=15000)\n'),
+        'missing-task-filter':source.replace(".filter(has_text=child['task_id'])",''),
+        'nested-row-selector':source.replace(".locator(':scope > ul > li')",".locator('li')"),
+    }
+    for name,mutated in mutations.items():
+        assert mutated!=source
+        try:exact_child_wait_self_check(mutated)
+        except AssertionError:pass
+        else:raise AssertionError(name)
+        checks.append('pure-exact-child-wait-refuses:'+name)
+
     return {'status':'passed','count':len(checks),'checks':checks,
         'dimension':'pure Python fixed-boundary and fake-query-return controls; NO Core/SQLite migration/browser/OS approval/process execution'}
+
+
+def exact_child_wait_self_check(source):
+    """Strict AST controls of the real runtime statements, not a browser run.
+
+    Preserve the exact task-ID/direct-child locator, require eventual exactly one
+    row, and retain the existing15s stage limit. Playwright's actual wait and UI
+    refresh must still be exercised by a separately leased browser run.
+    """
+    import ast
+    tree=ast.parse(source)
+    runtime=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    assignments=[n for n in ast.walk(runtime)if isinstance(n,ast.Assign)and
+        any(isinstance(t,ast.Name)and t.id=='task_item'for t in n.targets)]
+    assert len(assignments)==1
+    assignment=assignments[0]
+    bodies=[n.body for n in ast.walk(runtime)if isinstance(getattr(n,'body',None),list)and assignment in n.body]
+    assert len(bodies)==1
+    body=bodies[0];index=body.index(assignment)
+    expected=ast.parse("task_item=panel.get_by_role('region',name='Factory run',exact=True).locator(':scope > ul > li').filter(has_text=child['task_id'])\n"
+        'expect(task_item).to_have_count(1,timeout=15000)\n').body
+    assert [ast.dump(n,include_attributes=False)for n in body[index:index+2]]==[ast.dump(n,include_attributes=False)for n in expected]
+    assert not any(isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='count'and
+        isinstance(n.func.value,ast.Name)and n.func.value.id=='task_item'for n in ast.walk(runtime))
+    return ['pure-runtime-exact-child-locator-eventual-one-original15s']
 
 
 # Kept separate from all old4/5-tool generated programs. Every replacement is
@@ -1172,7 +1219,7 @@ def runtime_driver(args, output):
         panel.get_by_role('button',name='Refresh Factory records',exact=True).click()
         # Use actual task container; never choose a same-caption root panel by first().
         task_item=panel.get_by_role('region',name='Factory run',exact=True).locator(':scope > ul > li').filter(has_text=child['task_id'])
-        require(task_item.count()==1,'Exact child task container required')
+        expect(task_item).to_have_count(1,timeout=15000)
         plan_details=task_item.locator(':scope > details');expand(plan_details)
         plans=task_item.get_by_role('region',name='Child task plans',exact=True)
         plans.get_by_role('button',name='Refresh child-plan history',exact=True).click()
