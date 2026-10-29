@@ -45,7 +45,7 @@ fn bootstrap_scope(f: &mut Fixture) -> GoalScopeView {
             &f.selection.connection_ids[0],
             8,
             1,
-            30000,
+            60000,
             "rework-initial-native-grant",
         )
         .unwrap();
@@ -210,6 +210,18 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     f.selection.root_budget.reworks = 1;
     f.selection.project_budget.reworks = 1;
     let original_base_grant = f.store.get_grant(&f.selection.grant_id).unwrap();
+    assert_eq!(original_base_grant.scope.max_children, 0);
+    let unused_grant_raw: String = db
+        .query_row(
+            "SELECT document FROM execution_grants WHERE id=?1",
+            [&original_base_grant.id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    // This NEW positive scenario reviews a60s Owner wall-clock window. The
+    // existing Grant API couples expiry to max_duration_ms; all effective
+    // cumulative and Node execution caps stay narrower, as asserted below.
+    f.selection.ttl_ms = 60000;
     let source = bootstrap_scope(&mut f);
     assert_eq!(
         json!(f.store.get_grant(&original_base_grant.id).unwrap()),
@@ -218,6 +230,9 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     let grant = f.store.get_grant(&f.selection.grant_id).unwrap();
     assert_eq!(grant.scope.max_attempts, 8);
     assert_eq!(grant.scope.max_children, 6);
+    assert_eq!(grant.scope.max_duration_ms, 60000);
+    assert_eq!(f.selection.root_budget.runtime_ms, 30000);
+    assert_eq!(f.selection.project_budget.runtime_ms, 30000);
     let grant_raw: String = db
         .query_row(
             "SELECT document FROM execution_grants WHERE id=?1",
@@ -345,6 +360,15 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     drop(f.store);
     assert_eq!(scope["root_grant_id"], grant.id);
     assert_eq!(scope["selection"]["root_budget"]["reworks"], 1);
+    assert_eq!(scope["selection"]["ttl_ms"], 60000);
+    for budget in ["root_budget", "project_budget"] {
+        assert_eq!(scope["selection"][budget]["runtime_ms"], 30000);
+        assert_eq!(
+            scope["selection"]["child_goal_execution_policy"][budget]["runtime_ms"],
+            30000
+        );
+    }
+    assert_eq!(scope["expires_at_ms"], grant.expires_at_ms);
     assert_eq!(
         scope["selection"]["child_planning_policy"]["max_revisions"],
         2
@@ -353,9 +377,10 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         &runtime,
         json!({"method":"factory_runs.start","params":{"scope_id":scope["id"]},"expected_revision":scope["revision"],"idempotency_key":"rework-start-once"}),
     );
-    // Independent new case's declared observer, within the original 30s scope;
-    // existing normal/1s tests retain their original15s observer unchanged.
-    let until = Instant::now() + Duration::from_secs(25);
+    // Independent positive case's initially reviewed60s wall-clock window is
+    // distinct from its unchanged30s cumulative execution budget. Existing
+    // normal/1s observers and the original30s expiry failure stay unchanged.
+    let until = Instant::now() + Duration::from_secs(55);
     let before = loop {
         let factory = mixed_call(
             &runtime,
@@ -497,6 +522,31 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         )
         .unwrap();
     assert_eq!(grant_after, grant_raw);
+    assert_eq!(
+        db.query_row(
+            "SELECT document FROM execution_grants WHERE id=?1",
+            [&original_base_grant.id],
+            |row| row.get::<_, String>(0)
+        )
+        .unwrap(),
+        unused_grant_raw,
+        "the original unused children0 Grant is not enlarged or renewed"
+    );
+    let mut reservations = db
+        .prepare("SELECT document FROM factory_budget_reservations")
+        .unwrap();
+    for raw in reservations
+        .query_map([], |row| row.get::<_, String>(0))
+        .unwrap()
+    {
+        let actual: Value = serde_json::from_str(&raw.unwrap()).unwrap();
+        let cap = if actual["task_id"] == scope["root_task_id"] {
+            30000
+        } else {
+            20000
+        };
+        assert!(actual["reservation"]["runtime_ms"].as_u64().unwrap()<=cap,"the larger reviewed wall-clock window must not enlarge effective execution reservations");
+    }
     for (key, consumed) in [
         (
             format!("root:{}", scope["root_task_id"].as_str().unwrap()),
@@ -524,6 +574,10 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     .unwrap();
     assert_eq!(recovery["context"]["all_graph_attempts_stopped"], true);
     assert_eq!(recovery["context"]["unknown_effects"], false);
+    assert_eq!(
+        recovery["saved"]["proposal"]["nodes"][0]["budget"]["runtime_ms"],
+        20000
+    );
     assert_eq!(recovery["before"]["details"]["run"]["id"], goal_id);
     assert_eq!(recovery["adopted"]["goal"]["run"]["id"], goal_id);
     assert_eq!(recovery["before"]["origin"], before["origin"]);
