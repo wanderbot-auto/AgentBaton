@@ -1722,3 +1722,46 @@ pub(super) fn consume_committed_read(
         .ok_or_else(denied)?
         .consume_child_goal_commit(db, witness, &scope, &proof)
 }
+
+/// A never-started target may keep editing/adopting its saved planning head.
+/// This proves the real derived issuer and every prior node/reservation, rather
+/// than treating a handle state string as a completed/unknown stop proof.
+pub(crate) fn require_queued_unstarted_target(
+    db: &Connection,
+    goal_id: &str,
+    factory_scope_id: &str,
+    factory_run_id: &str,
+    task_id: &str,
+) -> Result<()> {
+    let source = checked_record(db, goal_id)?;
+    let r = run(db, goal_id)?;
+    capability(db, &r)?;
+    if source.origin.factory_scope_id != factory_scope_id
+        || source.origin.factory_run_id != factory_run_id
+        || source.initial_run.task_id != task_id
+        || r.task_id != task_id
+        || r.state != "queued"
+        || r.cancel_requested
+        || r.task_accepted
+    {
+        return Err(denied());
+    }
+    let nodes = node_records(db, goal_id)?;
+    if nodes.is_empty()
+        || nodes.iter().any(|n| {
+            n.state != "not_started"
+                || n.attempt_id.is_some()
+                || n.session_id.is_some()
+                || n.stop_confirmed
+                || n.actual_runtime_ms.is_some()
+                || n.actual_output_bytes.is_some()
+        })
+    {
+        return Err(denied());
+    }
+    let started:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_nodes WHERE run_id=?1 AND (state!='not_started' OR session_id IS NOT NULL OR attempt_id IS NOT NULL OR json_extract(document,'$.state') IS NOT 'not_started' OR json_extract(document,'$.attempt_id') IS NOT NULL OR json_extract(document,'$.session_id') IS NOT NULL)) OR EXISTS(SELECT 1 FROM goal_run_reservations WHERE run_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_jobs WHERE run_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_candidates WHERE run_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_validations WHERE run_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_owner_decisions WHERE run_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_acceptances WHERE run_id=?1)",[goal_id],|row|row.get(0)).map_err(db_error)?;
+    if started {
+        return Err(denied());
+    }
+    Ok(())
+}

@@ -494,6 +494,7 @@ pub(super) fn mutable_target(db: &Connection, s: &FactoryScope, b: &TaskBinding)
                 | "starting"
                 | "running"
                 | "waiting_child"
+                | "waiting_goal"
                 | "resuming"
         )
         || matches!(
@@ -505,6 +506,26 @@ pub(super) fn mutable_target(db: &Connection, s: &FactoryScope, b: &TaskBinding)
         || task.goal != b.request.goal
     {
         return Err(denied());
+    }
+    if b.handle.state == "waiting_goal" {
+        if task.state != TaskState::Draft
+            || b.session_id.is_some()
+            || b.handle.attempt_id.is_some()
+            || b.handle.confirmed_stop
+            || b.handle.result_available
+            || b.turn_sent
+            || b.stop_reason.is_some()
+            || b.child_goal_recovery.is_some()
+        {
+            return Err(denied());
+        }
+        crate::goal_store::require_factory_queued_unstarted_goal(
+            db,
+            b.child_goal_run_id.as_deref().ok_or_else(denied)?,
+            &s.id,
+            &b.run_id,
+            &task.id,
+        )?;
     }
     require_planning_task_state(db, s, b, &task)?;
     Ok(())
