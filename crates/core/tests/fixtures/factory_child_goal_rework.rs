@@ -84,6 +84,11 @@ impl ReworkReadReconciliation {
         )
         .unwrap();
         let result = reply.and_then(|v| v.get("result"));
+        // Milestones may omit the already-received reply object. An absent
+        // run state is unobserved, not evidence that a run is incomplete/known.
+        let run_state = result
+            .and_then(|v| v.pointer("/run/state"))
+            .and_then(Value::as_str);
         json!({"phase":self.phase,"method":method,"stage":stage,"call_number":self.calls,
             "wall_ms":wall_ms,"scenario_elapsed_ms":self.origin.elapsed().as_millis(),
             "call_elapsed_ms":started.elapsed().as_millis(),
@@ -91,11 +96,11 @@ impl ReworkReadReconciliation {
             "observation_overdue_ms":now.saturating_duration_since(self.deadline).as_millis(),
             "approved_scope_remaining_ms":self.scope_expires_at_ms.saturating_sub(wall_ms),
             "configured_client_read_timeout_ms":5000,"configured_actor_request_budget_ms":60000,
-            "reply_received":reply.is_some(),"reply_is_error":reply.is_some_and(|v|v.get("error").is_some()),
+            "reply_object_supplied":reply.is_some(),"reply_is_error":reply.is_some_and(|v|v.get("error").is_some()),
             "reply_revision":reply.and_then(|v|v.get("revision")).and_then(Value::as_u64),
             "run_revision":result.and_then(|v|v.pointer("/run/revision")).and_then(Value::as_u64),
-            "run_completed":result.is_some_and(|v|v.pointer("/run/state")==Some(&json!("completed"))),
-            "run_outcome_unknown":result.is_some_and(|v|v.pointer("/run/state")==Some(&json!("outcome_unknown"))),
+            "run_completed":run_state.map(|state|state=="completed"),
+            "run_outcome_unknown":run_state.map(|state|state=="outcome_unknown"),
             "plan_revision":result.and_then(|v|v.pointer("/summary/plan/revision")).and_then(Value::as_u64),
             "node_count":result.and_then(|v|v.pointer("/details/nodes")).and_then(Value::as_array).map(Vec::len)})
     }
