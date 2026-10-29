@@ -1,0 +1,171 @@
+{
+  "schema": 1,
+  "base": "981a7514ec4ee5776854f09b0aeaa0c22664503a",
+  "branch": "codex/factory-child-goal-ui",
+  "authority_main": "3fd60f354236ddc5ab0ea2f7665428a8496f4a64",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "approval": "AB-START-001",
+  "wire_source": "4ffb21000030a3f82580f5a9c14ed40056bb13a0",
+  "requirements": {
+    "AB-TSK-003": {
+      "implemented": [
+        "factory-form.ts",
+        "factory-guards.ts"
+      ],
+      "tests": [
+        "factory-child-goal.test.ts originalGrant/u32/false/independent binding controls"
+      ],
+      "dimension": "UI preflight/mock_verified; actual Core authority enforcement not established here"
+    },
+    "AB-TSK-004": {
+      "implemented": [
+        "FactoryChildGoals.tsx exact intent/key/CAS hold and explicit recovery across remount"
+      ],
+      "tests": [
+        "FactoryChildGoals.test.tsx lost reply/remount/historical receipt without rollback"
+      ],
+      "dimension": "mock_verified; whole WebView process restart intent persistence not claimed"
+    },
+    "AB-TSK-005": {
+      "implemented": [
+        "factory-child-goal.ts typed complete ancestry",
+        "factory-guards.ts bounded nodes/runs/budgets"
+      ],
+      "tests": [
+        "factory-child-goal.test.ts ancestry cycles/foreign refs/second run/bounds"
+      ],
+      "dimension": "UI consistency/mock_verified; Core fanout accounting remains separate"
+    },
+    "AB-TSK-009": {
+      "implemented": [
+        "FactoryChildGoals.tsx actual five fixed bridges/Graph/Owner/plan adoption"
+      ],
+      "tests": [
+        "FactoryChildGoals.test.tsx start/adopt/cancel/denial/Owner/acceptance projection"
+      ],
+      "dimension": "implementation+mock_verified; automatic failed-Graph recovery remains Core WIP and UI gate closed"
+    },
+    "AB-TSK-011": {
+      "implemented": [
+        "FactoryChildPlans.tsx existing editor integration",
+        "FactoryChildGoals.tsx initial/adopted refs and complete original raw plan"
+      ],
+      "tests": [
+        "factory-child-goal.test.ts exact current nodes/raw refs",
+        "FactoryChildGoals.test.tsx newer saved adoption retains history"
+      ],
+      "dimension": "mock_verified; raw hash checked via WebCrypto, no plan normalization sent as authority"
+    },
+    "AB-TSK-012": {
+      "implemented": [
+        "FactoryChildGoalPolicyForm.tsx",
+        "factory-form.ts",
+        "factory-guards.ts conditional matching shared reworks"
+      ],
+      "tests": [
+        "factory-child-goal.test.ts old hard0/new explicit bounded matching/no second run"
+      ],
+      "dimension": "UI preflight/mock_verified; actual common ledger/ancestor counters are Core-owned not measured here"
+    },
+    "AB-SEC-002": {
+      "implemented": [
+        "factory-api.ts five exact Owner commands and existing fixed goal_node approve/reject"
+      ],
+      "tests": [
+        "factory-child-goal-api.test.ts exact args/no generic route"
+      ],
+      "dimension": "mock_transport_verified; Native/Core enforcement remains separate"
+    },
+    "AB-SEC-003": {
+      "implemented": [
+        "FactoryChildGoals.tsx expiry/revoke freshness and authenticated history; no scoped credential handling in renderer"
+      ],
+      "tests": [
+        "FactoryChildGoals.test.tsx revoke/read/cancel guards"
+      ],
+      "dimension": "partial_UI_only; actual expired/cross-session MCP credential denial is not verified"
+    },
+    "AB-SEC-005": {
+      "implemented": [
+        "FactoryChildGoals.tsx React escaped pre/text rendering"
+      ],
+      "tests": [
+        "FactoryChildGoals.test.tsx untrusted HTML stays text"
+      ],
+      "dimension": "mock_component_verified; no browser or Native security acceptance claimed"
+    },
+    "AB-SEC-010": {
+      "implemented": [
+        "factory-child-goal.ts mandatory server origin and complete stored refs",
+        "FactoryChildGoals.tsx no caller-authority/origin submission"
+      ],
+      "tests": [
+        "factory-child-goal.test.ts typed origin/missing/foreign binding",
+        "factory-child-goal-api.test.ts reference-only args"
+      ],
+      "dimension": "UI consistency/mock_verified; actual recipient/input/identity authority checked by Core not self-attested frontend"
+    }
+  },
+  "validation": {
+    "typecheck": "5414490 PASS",
+    "existing_733_UI_tests": "all retained, byte-identical original44 files, PASS within802",
+    "new_mock_controls": "69 PASS at5414490",
+    "build": "5414490 PASS, advisory636.54kB warning retained",
+    "real_Core15_IPC": "not_run_Core_WIP",
+    "browser": "not_run_Root_owns_CPU",
+    "native_and_Mac": "not_run",
+    "real_Provider": "not_authorized_not_run",
+    "stages": [
+      {
+        "source_commit": "43723e1cdb988551ceb2d834fdeecd9959f71fb2",
+        "typecheck": "FAIL TS2540 in new readonly test; log retained"
+      },
+      {
+        "source_commit": "76d2d229bb7edd43eef0d6486da1f8a9b060c5e9",
+        "typecheck": "PASS",
+        "focused": 51,
+        "full": 784,
+        "build": "PASS"
+      },
+      {
+        "source_commit": "e3d8d638d16abb932823a3640a4dd35e558d28c9",
+        "typecheck": "PASS",
+        "focused": 56,
+        "full": 789,
+        "build": "PASS",
+        "max_workers": 2
+      },
+      {
+        "source_commit": "54144907902288aaa50bb633c4374b7c8f9e8ddf",
+        "typecheck": "PASS",
+        "focused": 69,
+        "full": 802,
+        "old_cases": 733,
+        "new_cases": 69,
+        "old_test_files_byte_equal": 44,
+        "build": "PASS",
+        "max_workers": 2
+      }
+    ],
+    "evidence_dir": "/workspace/.onboarding/factory-child-goal-ui-validation"
+  },
+  "formal_approval": false,
+  "complete_design_acceptance": false,
+  "source_validation": {
+    "at": "2026-10-29T07:14:25.621412+00:00",
+    "command": "git diff --check",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "scope": "whitespace only; not TS syntax or product tests"
+  },
+  "node_cpu_window": "returned; no pending Node command",
+  "known_limits": [
+    "failed Graph adoption remains closed until authoritative failed-source/stop/join eligibility chain freezes",
+    "Core15 lifecycle/MCP registration still WIP; Node/mock success is not end-to-end proof"
+  ],
+  "recorded_at": "2026-10-29T08:04:57.742556+00:00"
+}

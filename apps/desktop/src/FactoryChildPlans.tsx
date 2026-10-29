@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { DaemonError } from './api';
 import type { Language } from './i18n';
 import { FactoryChildPlanEditor } from './FactoryChildPlanEditor';
+import { FactoryChildGoals } from './FactoryChildGoals';
 import { factoryChildPlanApi } from './factory-api';
 import { factorySame, factorySafeFingerprint, factoryRunSupported } from './factory-guards';
 import { childContextShape, childEditorScope, childEditorLatest, childHistoryShape, childViewShape, parseFactoryChildPlan, verifyChildRaw } from './factory-child-plan';
@@ -70,5 +71,6 @@ function ChildPlanPanel({scope,target,run,language,connected,parentReady,open}:P
  <label>{t.raw}<textarea rows={12} value={raw} maxLength={context.policy.max_plan_bytes} disabled={disabled} onChange={e=>{setRaw(e.target.value);if(base===null)setBase(context.current_plan_revision);}}/></label><p>{t.local}</p>{changed&&<p role="alert">{t.staleDraft}</p>}<button disabled={disabled||!raw.trim()||context.current_plan_revision>=context.policy.max_revisions} onClick={()=>void submit({raw,key:crypto.randomUUID(),scopeRevision:scope.revision,planRevision:context.current_plan_revision,unknown:false})}>{t.store}</button><button disabled={busy||!!pending} onClick={()=>{setRaw('');setBase(null);}}>{t.clear}</button>
  <details><summary>{t.history}</summary>{history.length?<ol>{history.map(ref=><li key={ref.id}><button disabled={busy||loading} onClick={()=>void select(ref)}>r{ref.revision} · {ref.plan_digest}</button><p>{ref.id} · seq {ref.receipt_sequence} · {ref.raw_sha256}</p></li>)}</ol>:<p>{t.none}</p>}</details>
  {selected&&<details><summary>{t.selected}: r{selected.reference.revision}</summary><p>{selected.created_at} · {selected.authority_kind}</p><details><summary>{t.receipt}</summary><pre>{JSON.stringify({reference:selected.reference,scope_digest:selected.scope_digest,planning_policy_digest:selected.planning_policy_digest,root_task_id:selected.root_task_id,root_grant_id:selected.root_grant_id,caller_task_id:selected.caller_task_id,caller_session_id:selected.caller_session_id,caller_attempt_id:selected.caller_attempt_id,caller_fencing_token:selected.caller_fencing_token},null,2)}</pre></details><pre aria-label={t.rawHistory}>{selected.plan_json}</pre></details>}</>}
+ {scope.selection.capabilities.child_goal_execution&&<FactoryChildGoals scope={scope} target={target} run={run} selected={selected} language={language} connected={connected} parentReady={parentReady&&fresh&&!busy&&!pending&&!loading}/>}
  <p>{t.boundary}</p></section>;
 }
