@@ -256,5 +256,56 @@
     "diagnosis_manifest_sha256": "660c268f86bcdab5430a30de3390e187763e31f3f9e3a7f21f3d76cecf7e4348"
   },
   "ci": "new source NOT_RUN; no nextPR yet; original main14 seven checks not transferred",
-  "remaining": "Complete real lifecycle, cancellation/rework/recovery and negative matrices, true browser flows, full regression, exact CI and dualMac15; full130 goal incomplete"
+  "remaining": "Complete real lifecycle, cancellation/rework/recovery and negative matrices, true browser flows, full regression, exact CI and dualMac15; full130 goal incomplete",
+  "latest_sha2_runtime": {
+    "recorded_at": "2026-10-29T12:06:44.197047+00:00",
+    "source_head": "046986368c80e3e86b78a736775dc61d317339c9",
+    "branch": "codex/factory-child-goal-integration",
+    "profile_change": "dev/test sha2 package opt-level=3 only; actual verbose rustc flags verified with debug assertions on; release untouched",
+    "build": {
+      "status": "passed",
+      "seconds": 26.427,
+      "evidence": "factory-child-goal-sha2-opt3-build1"
+    },
+    "prepare": {
+      "initial": "disk guard SIGTERM -15 before probe; retained",
+      "recovery": "passed 1.207s with unchanged helper after lossless packing of previously passing cache; own staging exact-hash dedup recorded; all old evidence retained"
+    },
+    "cli": {
+      "bytes": 86731728,
+      "sha256": "fb3571c8ff5640d0ed01cbe8def19ec1999bf6e20a49d7a4c46eb2868044273a"
+    },
+    "daemon": {
+      "bytes": 120754984,
+      "sha256": "cf85fa421feb089c714fc3e3f237572853db932372cf1c99c89c85f7afb03085"
+    },
+    "actual_runtime": {
+      "status": "failed",
+      "exit_code": 101,
+      "tests_passed": 0,
+      "tests_failed": 1,
+      "seconds_test": 16.77,
+      "seconds_total": 38.7429,
+      "sha_update_finalize_ms": 51,
+      "full_read_hash_ms": 72,
+      "goal_selected_ms": 1489,
+      "goal_read_done_ms": 1669,
+      "reply_ms": 2451,
+      "error": "BUDGET_UNKNOWN",
+      "last_events": [
+        "41 goal.advance_intent_recorded",
+        "42 goal.run_blocked"
+      ],
+      "reservation_rolled_back": true,
+      "actor_drop_join": "ok",
+      "root_self_case": "not_run",
+      "original_90s_and_200MiB_guards": "not_hit",
+      "evidence": "factory-child-goal-sha2-opt3-runtime1"
+    },
+    "diagnosis": "Exact transaction return layer pending. capture_complete=false is required for this selected-artifact measurement scope, not proven cause; do not mark complete or relax unknown budgets. Rollback DB cannot reveal transaction-local count phase.",
+    "new_ci": "not_run",
+    "native_profile_regression": "not_run",
+    "browser15": "not_run",
+    "full_product": "incomplete"
+  }
 }

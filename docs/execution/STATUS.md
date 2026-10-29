@@ -1,3 +1,11 @@
+## Actual optimized SHA-256 and budget boundary — 2026-10-29T12:06:44.197047+00:00
+
+Root exact0469863 built with actual sha2 opt-level3/debug assertions on. Full CLI remains86,731,728 bytes; complete verification measured51ms SHA update/finalize and72ms read/hash. No integrity check, permission, budget or timeout changed. Initial prepare stopped at the disk guard before probe; retained failure and exact-hash owned-staging recovery followed by unchanged-helper probe PASS are recorded separately.
+
+Actual child process test still FAILED (exit101,0PASS/1FAIL,test16.77s,total38.7429s): now BUDGET_UNKNOWN after event41advance/42blocked. Reservation rolled back; Actor joined, failure DB/stderr/ELF preserved; root-self case NOT_RUN. This is not the earlier hash delay and not lifecycle success. Independent diagnosis excludes blindly marking message capture complete; exact transaction refusal layer remains to be identified without relaxing budget/unknown semantics.
+
+Reviewed legacy authority fault tests now PASS2 and Native legacy-list positive PASS1 at ad8beb5; original failures preserved. New normal browser driver source0fb50feb independently ready for three planned cases only; actual browser NOT_RUN. Genuine migration6PASS remains bound to01a193e, Native147 to a07a7f9, not this new profile. New exact CI/Mac/profile-wide regression NOT_RUN. main653679d unchanged; OWNER001/002 ACK, no003. Full130/WP01–14 continues. See [actual scalar evidence](factory-child-goal-integration/SHA2_RUNTIME_RESULT.json) for bounded scalar evidence.
+
 ## 当前真实迁移通过与执行链失败 — 2026-10-29T10:39:43.400867+00:00
 
 main653679d/PR17 是已保护集成的准确 schema14，原七项成功不移给新15。当前 feature codex/factory-child-goal-integration 已整合审过的 private post-read phase、来源一致性及排队/终态状态门。准确817类型通过；include注释编译失败原件保留，comment-only01修后16项定向通过。新真实固定14源码重建及非空旧库生成已成功并独立核验；准确01新来源14→15迁移6函数/10案例全通过、零跳过，原4/2失败不抹。
