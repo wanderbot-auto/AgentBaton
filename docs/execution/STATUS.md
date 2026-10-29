@@ -1,3 +1,9 @@
+## 当前真实执行链边界 — 2026-10-29T12:44:15.237500+00:00
+
+当前 Root已整合receipt参数编码修复、同审批预算内的正常Work初始4秒（Owner仍1秒）以及完整Graph全停证明向Factory confirmed_stop投影。准确6d2：正常case已到真实Worker停止1287ms/28B、候选、Owner和TaskAccepted，但原缺stop投影使父等待；准确8fd窄修后父已真实恢复，随后测试生成器误执行原legacy委派体、造成额外子任务，整体仍FAIL。该测试控制流修正进行中，不能把阶段推进当整链通过。
+
+准确52cb的receipt2与失败状态负控2项真实Store/SQLite通过，原失败与source-blocked夹具问题分别保留。准确6d根任务自身Goal真实PERMISSION_DENIED于发送前，尚未闭合；1秒负控实际回收真实进程/1002ms/null输出/unknown，但固定reason断言漏pending-poll timeout分支而失败，精确类型和早期证据需补，不泛认协议错误为超时。Owner-first空counter合法路径亦保待修。新浏览器/Mac/全量回归/CI未运行；现有双Mac14开发包不冒15。完整130需求继续，权限不变；main653679d/OWNER001002ACK无003。详见 [分阶段原始结果摘要](factory-child-goal-integration/LIFECYCLE_BOUNDARIES.json)。
+
 ## Actual optimized SHA-256 and budget boundary — 2026-10-29T12:06:44.197047+00:00
 
 Root exact0469863 built with actual sha2 opt-level3/debug assertions on. Full CLI remains86,731,728 bytes; complete verification measured51ms SHA update/finalize and72ms read/hash. No integrity check, permission, budget or timeout changed. Initial prepare stopped at the disk guard before probe; retained failure and exact-hash owned-staging recovery followed by unchanged-helper probe PASS are recorded separately.

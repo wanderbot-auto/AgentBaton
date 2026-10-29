@@ -9,3 +9,5 @@ Continue AB-START-001 / Design v0.2 / WP01–WP14 without reducing the 130 requi
 5. Independently review exact source and evidence; integrate only after all checks pass; continue workspace creation and remaining requirements.
 
 Only one heavy local test/build window at a time; no paid Provider API, private account/credentials, production release, signing or license expansion.
+
+Next dependency-ready acceptance unit after normal authority/lifecycle boundaries: actual approved deterministic Validator failure → all siblings/jobs joined → original planner new bounded attempt → same Graph append-only plan adoption → fresh Validator/Owner receipts → TaskAccepted/parent resume. Source audit factory-next-gap-audit-646bf7d maps TSK009/011 and VAL003/007. Existing browser three cases do not claim this. New workspace and Git integration remain separate approved requirement gaps, not a new management platform.

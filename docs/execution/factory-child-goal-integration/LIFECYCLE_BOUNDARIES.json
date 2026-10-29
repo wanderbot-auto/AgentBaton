@@ -1,0 +1,129 @@
+{
+  "recorded_at": "2026-10-29T12:44:15.237500+00:00",
+  "actual_cases": {
+    "normal4s": {
+      "source": "6d2be3bfb72f90d073e4f9792b1a6abc8823df20",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 18.062427780998405,
+      "minimum_free_bytes": 1720999936,
+      "interruption": null,
+      "log_sha256": "9df32f10a2829ca473968ac28e7a3f117ffdf93070851483a7116bb04b3d00db",
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 22 filtered out; finished in 16.42s"
+      ]
+    },
+    "root_self": {
+      "source": "6d2be3bfb72f90d073e4f9792b1a6abc8823df20",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::actual_factory_root_goal_owned_stop_owner_acceptance_completes_without_cancel_or_resume",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 16.762086930015357,
+      "minimum_free_bytes": 1725067264,
+      "interruption": null,
+      "log_sha256": "b3ff171a131cd441a0a5680d498221ed1143d15f6d3998b2ac9e4e5befc4bf22",
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 22 filtered out; finished in 16.65s"
+      ]
+    },
+    "one_second_negative": {
+      "source": "6d2be3bfb72f90d073e4f9792b1a6abc8823df20",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::actual_factory_child_goal_one_second_deadline_retains_unknown_without_replay_or_refund",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 6.017712283995934,
+      "minimum_free_bytes": 1724108800,
+      "interruption": null,
+      "log_sha256": "e6a3bacd4c0708bce2a3841c28001f1bae80f05ef1886af7e6b377293144bfe6",
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 22 filtered out; finished in 5.85s"
+      ]
+    },
+    "stop_projection_normal": {
+      "source": "8fd9ca2182a2981ef50aa48654f9287c023bf35f",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 31.879382577026263,
+      "minimum_free_bytes": 1509064704,
+      "interruption": null,
+      "log_sha256": "f8602aafc31048fa74c27629778a1eed156b36606ba75bfe1d26ff4753b87797",
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 22 filtered out; finished in 16.35s"
+      ]
+    }
+  },
+  "scope": "Linux actual Actor/generated account-free ACP/MCP/private Owner receipt; not real Provider account or OS dialog",
+  "normal4s_progress": "Real worker/capture/Owner/TaskAccepted reached; before projection fix, false Factory confirmed_stop prevented parent join. OverallFAIL.",
+  "stop_projection_normal_progress": "Real child all-stop/TaskAccepted projected, parent truly resumed. Test-generated Python then ran unintended legacy delegate body; extra child caused next resumed assertion failure. OverallFAIL; production handoff advancement does not sign testPASS.",
+  "root_self": "Permission denied before Provider start, after node/session/runtime binding persisted; typed normal-handoff continuation permission under diagnosis, no blanket Unknown allowance.",
+  "one_second_negative": "Actual owned process reaped, runtime1002/outputnull/unknown; old test demanded duration_limit but pending-poll deadline yields provider_protocol_or_timeout_failure. Held marker was not retained before failing assertion, so actual held stage remains unknown. Precise failure-kind scalar and early evidence persistence required; no blanket protocol-error-as-timeout.",
+  "remaining": [
+    "normal fixture control-flow repair/retest",
+    "strict1s negative classification/evidence repair/retest",
+    "Rootself private same-authority launch proof",
+    "Owner-first empty generic counter initialization boundary",
+    "real browser normal/lost-start/cancel",
+    "true validator-failure bounded rework and adoption",
+    "full regression/CI/exact Mac dual architecture development delivery",
+    "remaining full130 design scope"
+  ],
+  "whole_product": "incomplete"
+}
