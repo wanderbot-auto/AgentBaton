@@ -633,7 +633,7 @@ class EventProjection(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertLessEqual(len(stdout.getvalue().encode()), P.MAX_PUBLIC)
         self.assertNotIn(SECRET, stdout.getvalue())
-        self.assertEqual(P.SCHEMA, 15)
+        self.assertEqual(P.SCHEMA, 16)
 
 
 if __name__ == '__main__':
