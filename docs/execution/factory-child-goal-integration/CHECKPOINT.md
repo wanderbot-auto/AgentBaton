@@ -105,3 +105,8 @@ Core129, corrected reservation6, UI872/51/type/build, strict Clippy and real rew
 ## 2026-10-29T18:18:35.262134+00:00 — cancelled history accepted locally; exact CI next
 
 At2d12: actual UI901/52/type/build passed; browser cancel20.525s/CG01,02,04,06/threePNG/cleanuptrue. New history guard and supported-context regression reviewed. Earlier failures remain. New PR/all seven checks/both real Mac Native15/build/package and traceable installers still NOT_RUN at record time. WSI1/WSI2a stay separate and full130 goal remains incomplete. See [CANCELLED_HISTORY_ACCEPTANCE.json](CANCELLED_HISTORY_ACCEPTANCE.json).
+
+
+## Bounded observation and strict shared-meter repair 2026-10-29T20:59:42.058612+00:00
+
+See OBSERVATION_SHARED_METER_RESULTS.json: local Factory25 and four actual Linux browser cases passed, existing compiled tool/frontend attribution preserved. Remote3b Product4 failures remain; new CI required, no55s renewal/root-cause or Mac/package acceptance inferred. WSI16 continues separately.

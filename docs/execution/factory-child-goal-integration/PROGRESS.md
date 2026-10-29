@@ -107,3 +107,8 @@ Original cd579 source P2 on revisionbounds and existsFalse absence closed by630 
 ## 2026-10-29T20:40:42.716507+00:00 — exact newCI failure
 
 Actual3b/head20d checkout: Envall3PASS; ProductRust24/1 failure in55s readonly observation afterreply, not proven Grant/CPU cause. UI Data8+Graphpass; legacyFactory all3 finalbehavior reached but wrong all-Goal-empty accounting assertion fails. Exact metadata/log/report hashes inPR18_HEAD3B_FAILURES.json. Raw original retained, Maclastread pending, no currentpackages/wholePASS. Diagnostic+strictsharedmeter assertion source underway; budgets/authority not widened. WSI16 integrationactualbridge2+Unix4 separatePASS e203; oldfilter0test notPASS.
+
+
+## Bounded observation and strict shared-meter repair 2026-10-29T20:59:42.058612+00:00
+
+See OBSERVATION_SHARED_METER_RESULTS.json: local Factory25 and four actual Linux browser cases passed, existing compiled tool/frontend attribution preserved. Remote3b Product4 failures remain; new CI required, no55s renewal/root-cause or Mac/package acceptance inferred. WSI16 continues separately.
