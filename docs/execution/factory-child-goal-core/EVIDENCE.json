@@ -21,7 +21,7 @@
     "AB-COR-002",
     "AB-COR-007"
   ],
-  "runtime": "actual_normal_chain1_failed_before_graph_dispatch_source_fix_not_reverified",
+  "runtime": "actual_normal_chain1_failed_before_graph_dispatch_new_post_commit_snapshot_not_compiled",
   "native": "not_run",
   "macos": "not_run",
   "provider_calls": "not_authorized_not_run",
@@ -370,12 +370,47 @@
     "diagnosis_sql_clone": "/workspace/.onboarding/factory-child-goal-core/runtime-normal-1/diagnosis-shared-counter-readset.json"
   },
   "pending_reservation_fix": {
-    "status": "source_only_not_compiled_or_run",
+    "status": "passed_selected3_sql_projection_tests_only",
     "new_phase_projection_unit_tests": 3,
     "new_wire_fields": false,
     "original_auth_TTL_budget_relaxation": false,
     "private_phase_token": "GoalReservationRead non-Deserialize constructor only atomic reserve path",
     "full_pre_mutation_readset": true,
-    "post_mutation_exact_own_delta_plus_all_other_strict_rechecks": true
-  }
+    "post_mutation_exact_own_delta_plus_all_other_strict_rechecks": true,
+    "source": "6ffaa242de40f64d036cb1ed69d8d8ccbb4609ad",
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/lib-phase-1",
+    "actual_tests": 3,
+    "full_runtime": false
+  },
+  "latest_actual_check": {
+    "source": "6ffaa242de40f64d036cb1ed69d8d8ccbb4609ad",
+    "result": "passed",
+    "warnings": 0,
+    "cargo_seconds": 8.37,
+    "runner_seconds": 8.715,
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/check-6"
+  },
+  "committed_launch_snapshot": {
+    "source": "357ee2c",
+    "status": "source_only_not_compiled_or_run",
+    "full_original_sql_args_covered": true,
+    "new_sql_snapshot_unit_tests_written": 2,
+    "total_admission_filter_written": 5,
+    "original_input_FD_Grant_TTL_guards_retained": true,
+    "new_wire_authority": false
+  },
+  "native_cap_column_fix": {
+    "source": "160761fc8b3534fc15bba17b282ad48a33886117",
+    "status": "source_only_not_compiled_or_migration_retested",
+    "original_true_legacy_run": "4PASS_2FAIL_preserved",
+    "failure_types": [
+      "real_relational_document_approval_mismatch_accepted",
+      "test_backup_enumerator_counted_wal_shm"
+    ]
+  },
+  "new_static_pending": [
+    "queued_never_started_waiting_goal_plan_adoption",
+    "self_root_task_acceptance_historical_projection_before_new_live_authority"
+  ],
+  "latest_known_protected_main_boundary": "653679db60d5c68f7e3c5b5e146ef58aed10de23 (reported by Root; own isolated baseline unchanged)"
 }
