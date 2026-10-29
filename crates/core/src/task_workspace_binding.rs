@@ -17,6 +17,21 @@ use uuid::Uuid;
 const MAX_RECORD: i64 = 262_144;
 const BINDING_VERSION: u32 = 1;
 
+type ProjectPinRow = (
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+);
+type ManagedBindingRow = (
+    String,
+    String,
+    String,
+    String,
+    Option<String>,
+    Option<String>,
+);
+
 /// Persisted and future-renderer identity integers are canonical lossless decimal strings.
 mod decimal_u64 {
     use serde::{de::Error, Deserialize, Deserializer, Serializer};
@@ -199,7 +214,7 @@ fn task_from(db: &Connection, id: &str) -> Result<Task> {
     Ok(task)
 }
 fn project_from(db: &Connection, id: &str) -> Result<Project> {
-    let row:Option<(Option<String>,Option<String>,Option<String>,Option<String>)>=db.query_row("SELECT CASE WHEN length(CAST(document AS BLOB))<=262144 THEN document END,CASE WHEN length(CAST(root AS BLOB))<=262144 THEN root END,CASE WHEN length(CAST(device AS BLOB))<=20 THEN device END,CASE WHEN length(CAST(inode AS BLOB))<=20 THEN inode END FROM projects WHERE id=?1",[id],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?))).optional().map_err(db_error)?;
+    let row:Option<ProjectPinRow>=db.query_row("SELECT CASE WHEN length(CAST(document AS BLOB))<=262144 THEN document END,CASE WHEN length(CAST(root AS BLOB))<=262144 THEN root END,CASE WHEN length(CAST(device AS BLOB))<=20 THEN device END,CASE WHEN length(CAST(inode AS BLOB))<=20 THEN inode END FROM projects WHERE id=?1",[id],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?))).optional().map_err(db_error)?;
     let (raw, root, device, inode) =
         row.ok_or_else(|| CoreError::new("NOT_FOUND", "Project does not exist"))?;
     let p: Project = decode(&bounded(raw)?)?;
@@ -381,7 +396,7 @@ fn original_receipt(
 }
 fn workspace_from(db: &Connection, binding: &TaskWorkspaceBinding) -> Result<ManagedWorkspace> {
     let r = &binding.receipt;
-    let row:Option<(String,String,String,String,Option<String>,Option<String>)>=db.query_row("SELECT id,project_id,state,root,CASE WHEN length(CAST(document AS BLOB))<=262144 THEN document END,CASE WHEN length(CAST(payload AS BLOB))<=262144 THEN payload END FROM managed_workspaces WHERE id=?1 AND idempotency_key=?2",params![r.workspace_id,creation_key(&r.binding_id)],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?,row.get(4)?,row.get(5)?))).optional().map_err(db_error)?;
+    let row:Option<ManagedBindingRow>=db.query_row("SELECT id,project_id,state,root,CASE WHEN length(CAST(document AS BLOB))<=262144 THEN document END,CASE WHEN length(CAST(payload AS BLOB))<=262144 THEN payload END FROM managed_workspaces WHERE id=?1 AND idempotency_key=?2",params![r.workspace_id,creation_key(&r.binding_id)],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?,row.get(4)?,row.get(5)?))).optional().map_err(db_error)?;
     let (id, project, state, root, raw, payload) = row.ok_or_else(unknown)?;
     let workspace: ManagedWorkspace = decode(&bounded(raw)?)?;
     if id != workspace.id
