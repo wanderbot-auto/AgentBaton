@@ -484,6 +484,14 @@ impl Store {
                 "Only a draft task or current privately bound Goal node can start a managed session",
             ));
         }
+        // Old idempotent Session receipts above remain historical reads. Only a
+        // new admission must obey the Task's optional physical workspace binding.
+        crate::task_workspace_binding::require_task_binding_for_session(
+            &tx,
+            &task,
+            task_id,
+            workspace_id,
+        )?;
         let validate = if goal.is_some() || factory.is_some() {
             validate_grant_live_from_with_data
         } else {

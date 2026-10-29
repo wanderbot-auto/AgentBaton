@@ -16,7 +16,12 @@ mod runtime_config;
 pub use runtime_config::RuntimeBinding;
 pub mod sessions;
 pub mod storage;
+mod task_workspace_binding;
 pub mod validation;
+pub use task_workspace_binding::{
+    GitWorkspacePin, TaskGitWorkspacePreparation, TaskWorkspaceBinding, TaskWorkspaceBindingState,
+    TaskWorkspaceBindingView, TaskWorkspaceReservationReceipt,
+};
 mod workspace_resolution;
 pub use workspace_resolution::{
     CodeWorkspaceCandidateInfo, CodeWorkspacePreparation, CodeWorkspacePreparationReason,

@@ -38,6 +38,8 @@ pub struct Task {
     pub acceptance_ref: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub acceptance_sequence: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub code_workspace_binding: Option<crate::TaskWorkspaceBinding>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -100,11 +102,37 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 15 {
+        if version > 16 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
             ));
+        }
+        if version > 0 && version < 16 {
+            let backup = path.with_extension(format!("pre-v16-{}.sqlite3", Uuid::new_v4()));
+            let file = OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .mode(0o600)
+                .open(&backup)
+                .map_err(|_| {
+                    CoreError::new(
+                        "INTERNAL_ERROR",
+                        "Cannot create Task workspace migration backup",
+                    )
+                })?;
+            file.set_permissions(
+                <std::fs::Permissions as std::os::unix::fs::PermissionsExt>::from_mode(0o600),
+            )
+            .map_err(|_| {
+                CoreError::new(
+                    "INTERNAL_ERROR",
+                    "Cannot secure Task workspace migration backup",
+                )
+            })?;
+            drop(file);
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
         }
         if version > 0 && version < 15 {
             let backup = path.with_extension(format!("pre-v15-{}.sqlite3", Uuid::new_v4()));
@@ -280,6 +308,7 @@ impl Store {
         crate::goal_store::migrate_runtime(&mut conn, version)?;
         crate::goal_store::migrate_graph(&mut conn, version)?;
         crate::factory::migrate(&mut conn, version)?;
+        crate::task_workspace_binding::migrate(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -294,6 +323,7 @@ impl Store {
         };
         store.recover_dispatches()?;
         store.recover_workspace_creations()?;
+        store.recover_task_workspace_bindings()?;
         store.recover_sessions()?;
         store.recover_command_validations()?;
         store.recover_data_workspace_operations()?;
@@ -379,6 +409,7 @@ impl Store {
             revision: 1,
             acceptance_ref: None,
             acceptance_sequence: None,
+            code_workspace_binding: None,
             created_at: timestamp.clone(),
             updated_at: timestamp,
         };
