@@ -2434,3 +2434,5 @@ fn blocked_history_preview(
 }
 
 pub(crate) use runtime::factory::verify_native_history_before_migration as verify_native_goal_history_before_factory_migration;
+
+pub(crate) use runtime::factory::budget_records as factory_goal_budget_records;

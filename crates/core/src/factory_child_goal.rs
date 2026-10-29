@@ -459,3 +459,18 @@ pub(crate) fn source_is_current(db: &Connection, source: &FactoryGoalSource) -> 
             .saturating_sub(1) as u32,
     )
 }
+
+pub(crate) fn ancestor_budgets(
+    db: &Connection,
+    scope: &FactoryScope,
+    task_id: &str,
+) -> Result<Vec<(String, crate::goal_plan::BudgetLimits)>> {
+    let r = run(db, &scope.id)?;
+    ancestry(db, task_id)?
+        .into_iter()
+        .map(|id| {
+            let b = binding(db, &r.id, &id)?;
+            Ok((id, b.request.budget))
+        })
+        .collect()
+}

@@ -128,6 +128,7 @@ pub struct FactoryChildGoalSummary {
 #[serde(deny_unknown_fields)]
 pub struct FactoryChildGoalView {
     pub summary: FactoryChildGoalSummary,
+    pub origin: FactoryChildGoalOriginView,
     pub details: crate::goal_store::GraphRunDetails,
 }
 /// Fixed scoped adoption request: caller identity and Factory scope are supplied
@@ -509,3 +510,5 @@ pub(crate) use runtime::{
 };
 
 pub(crate) use runtime::factory_goal_source_is_current;
+
+pub(crate) use runtime::child_goal_ancestor_budgets;

@@ -640,3 +640,173 @@ impl Store {
         Ok(view)
     }
 }
+
+pub(super) fn origin_view(
+    db: &Connection,
+    r: &GoalRun,
+) -> Result<Option<crate::factory::FactoryChildGoalOriginView>> {
+    if !marked_run(db, &r.id)? {
+        return Ok(None);
+    }
+    let record = checked_record(db, &r.id)?;
+    let scope = crate::factory::checked_child_goal_scope(db, &record.origin.factory_scope_id)?;
+    Ok(Some(crate::factory::FactoryChildGoalOriginView {
+        factory_scope_id: scope.id.clone(),
+        factory_scope_digest: scope.contract_digest.clone(),
+        factory_run_id: record.origin.factory_run_id,
+        factory_root_task_id: scope.root_task_id.clone(),
+        parent_task_id: record.origin.parent_task_id,
+        ancestors: record.origin.ancestors,
+        original_native_approval_id: scope.approval_id.clone(),
+        root_grant_id: scope.root_grant_id.clone(),
+        root_grant_revision: scope.root_grant_revision,
+        initial_plan: record.origin.initial_plan,
+        execution_binding: scope
+            .bindings
+            .child_goal_execution
+            .clone()
+            .ok_or_else(denied)?,
+    }))
+}
+
+/// Read-only shared accounting projection of existing Graph reservations. It
+/// neither creates a Provider session nor duplicates a root/project charge.
+pub(crate) fn budget_records(
+    db: &Connection,
+    root: &str,
+    project: &str,
+) -> Result<Vec<crate::factory::FactoryReservation>> {
+    let version: u32 = db
+        .pragma_query_value(None, "user_version", |r| r.get(0))
+        .map_err(db_error)?;
+    if version < 15 {
+        return Ok(vec![]);
+    }
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(x.document)+octet_length(x.attempt_id)+octet_length(x.run_id)+octet_length(x.node_id)),0),COALESCE(max(octet_length(x.document)),0) FROM goal_run_reservations x JOIN factory_child_goal_runs f ON f.goal_run_id=x.run_id JOIN goal_runs r ON r.id=x.run_id WHERE r.project_id=?1 OR json_extract(r.document,'$.root_grant_id')=?2",params![project,root],100000,MAX_GOAL_PLAN_BYTES as i64)?;
+    let mut q=db.prepare("SELECT x.attempt_id,x.run_id,x.node_id,x.document FROM goal_run_reservations x JOIN factory_child_goal_runs f ON f.goal_run_id=x.run_id JOIN goal_runs r ON r.id=x.run_id WHERE r.project_id=?1 OR json_extract(r.document,'$.root_grant_id')=?2").map_err(db_error)?;
+    let rows = q
+        .query_map(params![project, root], |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                r.get::<_, String>(1)?,
+                r.get::<_, String>(2)?,
+                r.get::<_, String>(3)?,
+            ))
+        })
+        .map_err(db_error)?;
+    let mut result = Vec::new();
+    for row in rows {
+        let (attempt, run_id, node, doc) = row.map_err(db_error)?;
+        let r: ReservationRecord = decode(&doc)?;
+        let authority = checked_record(db, &run_id)?;
+        let original =
+            crate::factory::checked_child_goal_scope(db, &authority.origin.factory_scope_id)?;
+        if r.run_id != run_id || r.node_id != node || r.shared_root_grant_id.is_some() {
+            return Err(changed());
+        }
+        let reserved:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.payload.attempt_id')=?2 AND json_extract(document,'$.payload.node_id')=?3 AND json_extract(document,'$.payload.plan_revision')=?4 AND json_extract(document,'$.payload.reservation')=json(?5)) AND NOT EXISTS(SELECT 1 FROM factory_budget_reservations WHERE attempt_id=?2)",params![run_id,attempt,node,sql_num(r.plan_revision)?,encode(&r.reservation)?],|r|r.get(0)).map_err(db_error)?;
+        let current = run(db, &run_id)?;
+        let history = bounded_plan_history(db, &current.scope_id)?;
+        let plan = history
+            .iter()
+            .find(|p| p.proposal.revision == r.plan_revision)
+            .ok_or_else(changed)?;
+        let nodes = node_records_at(db, &current, r.plan_revision, &plan.digest, plan)?;
+        let actual = nodes
+            .iter()
+            .find(|n| n.node.id == node && n.attempt_id.as_deref() == Some(attempt.as_str()))
+            .ok_or_else(changed)?;
+        if actual.node.reservation != r.reservation
+            || actual.stop_confirmed != r.settled
+            || actual.actual_runtime_ms != r.actual_runtime_ms
+            || actual.actual_output_bytes != r.actual_output_bytes
+            || actual.tokens != r.tokens
+            || actual.cost_microunits != r.cost_microunits
+        {
+            return Err(err(
+                "BUDGET_UNKNOWN",
+                "Factory-derived accounting differs from its exact joined/unknown node evidence",
+            ));
+        }
+        let session:Option<Option<String>>=db.query_row("SELECT session_id FROM goal_run_nodes WHERE run_id=?1 AND node_id=?2 AND plan_revision=?3 AND attempt_id=?4",params![run_id,node,sql_num(r.plan_revision)?,attempt],|r|r.get(0)).optional().map_err(db_error)?;
+        if !reserved || session.is_none() {
+            return Err(err(
+                "BUDGET_UNKNOWN",
+                "Factory-derived Goal reservation lacks its exact atomic node/attempt receipt",
+            ));
+        }
+        result.push(crate::factory::FactoryReservation {
+            authority_kind: "factory_child_goal".into(),
+            scope_id: Some(original.id),
+            run_id: Some(authority.origin.factory_run_id),
+            root_task_id: original.root_task_id,
+            root_grant_id: original.root_grant_id,
+            project_id: original.project_id,
+            task_id: authority.initial_run.task_id,
+            session_id: session.flatten().unwrap_or_default(),
+            attempt_id: attempt,
+            ancestors: authority.origin.ancestors,
+            queued_ms: 0,
+            reservation: r.reservation,
+            settled: r.settled,
+            actual_runtime_ms: r.actual_runtime_ms,
+            actual_output_bytes: r.actual_output_bytes,
+            measurement_scope: "graph_selected_artifacts_plus_retained_validator_streams".into(),
+            filesystem_total_bytes: None,
+            captured_provider_message_bytes: None,
+            provider_message_capture_complete: false,
+        });
+    }
+    Ok(result)
+}
+pub(super) fn reserve_ancestors(
+    db: &Connection,
+    r: &GoalRun,
+    reservation: &AttemptReservation,
+) -> Result<()> {
+    if !marked_run(db, &r.id)? {
+        return Ok(());
+    }
+    let authority = checked_record(db, &r.id)?;
+    let scope = crate::factory::checked_child_goal_scope(db, &authority.origin.factory_scope_id)?;
+    let all = crate::factory::budget_records(db, &scope.root_grant_id, &scope.project_id)?;
+    for (ancestor, budget) in crate::factory::child_goal_ancestor_budgets(db, &scope, &r.task_id)? {
+        let relevant = all
+            .iter()
+            .filter(|x| {
+                x.scope_id.as_deref() == Some(scope.id.as_str()) && x.ancestors.contains(&ancestor)
+            })
+            .collect::<Vec<_>>();
+        if relevant.len() >= budget.attempts as usize
+            || relevant.iter().filter(|x| !x.settled).count() >= budget.parallel as usize
+        {
+            return Err(limited());
+        }
+        let mut runtime = reservation.runtime_ms;
+        let mut output = reservation.output_bytes;
+        for previous in relevant {
+            runtime = runtime
+                .checked_add(if previous.settled {
+                    previous.actual_runtime_ms.ok_or_else(|| {
+                        err("BUDGET_UNKNOWN", "Factory ancestor runtime is unknown")
+                    })?
+                } else {
+                    previous.reservation.runtime_ms
+                })
+                .ok_or_else(limited)?;
+            output = output
+                .checked_add(if previous.settled {
+                    previous.actual_output_bytes.ok_or_else(|| {
+                        err("BUDGET_UNKNOWN", "Factory ancestor output is unknown")
+                    })?
+                } else {
+                    previous.reservation.output_bytes
+                })
+                .ok_or_else(limited)?;
+        }
+        if runtime > budget.runtime_ms || output > budget.output_bytes {
+            return Err(limited());
+        }
+    }
+    Ok(())
+}

@@ -117,6 +117,8 @@ pub struct GraphTaskAcceptance {
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct GraphRunBinding {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub factory_origin: Option<crate::factory::FactoryChildGoalOriginView>,
     pub run_id: String,
     pub scope_id: String,
     pub task_id: String,
@@ -1987,6 +1989,7 @@ fn node_acceptance_snapshot(
         graph_contract_version: 1,
         intent: s.clone(),
         run_binding: GraphRunBinding {
+            factory_origin: factory::origin_view(db, r)?,
             run_id: r.id.clone(),
             scope_id: r.scope_id.clone(),
             task_id: r.task_id.clone(),

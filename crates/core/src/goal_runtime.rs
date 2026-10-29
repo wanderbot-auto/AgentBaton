@@ -939,6 +939,11 @@ fn reservations(db: &Connection, root: &str, project: &str) -> Result<Vec<Reserv
         .map(|x| decode(&x.ok_or_else(limited)?))
         .collect::<Result<Vec<ReservationRecord>>>()?;
     for shared in crate::factory::budget_records(db, root, project)? {
+        // These are the very same Goal rows already materialized above. Their
+        // Factory ancestry projection must never charge the common ledger twice.
+        if shared.authority_kind == "factory_child_goal" {
+            continue;
+        }
         records.push(ReservationRecord {
             shared_root_grant_id: Some(shared.root_grant_id.clone()),
             run_id: format!("shared-session:{}", shared.attempt_id),
@@ -1249,6 +1254,7 @@ fn reserve_attempt(
             ));
         }
     }
+    factory::reserve_ancestors(db, &r, &n.node.reservation)?;
     let receipt = ReservationRecord {
         shared_root_grant_id: None,
         run_id: r.id.clone(),

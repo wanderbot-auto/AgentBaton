@@ -2190,3 +2190,5 @@ pub(crate) use child_goal::{
 };
 
 pub(crate) use child_goal::source_is_current as factory_goal_source_is_current;
+
+pub(crate) use child_goal::ancestor_budgets as child_goal_ancestor_budgets;
