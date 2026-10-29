@@ -450,6 +450,6 @@ mod tests {
             assert!(line.contains(&format!("count={phase} code=none")));
             assert!(line.len() <= MAX_LINE);
         }
-        assert!(32 * PER_STAGE * 2 <= MAX_LINES);
+        const { assert!(32 * PER_STAGE * 2 <= MAX_LINES) };
     }
 }
