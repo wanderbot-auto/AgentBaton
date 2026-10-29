@@ -816,7 +816,7 @@ pub(crate) fn budget_records(
         if r.run_id != run_id || r.node_id != node || r.shared_root_grant_id.is_some() {
             return Err(changed());
         }
-        let reserved:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.payload.attempt_id')=?2 AND json_extract(document,'$.payload.node_id')=?3 AND json_extract(document,'$.payload.plan_revision')=?4 AND json_extract(document,'$.payload.reservation')=json(?5)) AND NOT EXISTS(SELECT 1 FROM factory_budget_reservations WHERE attempt_id=?2)",params![run_id,attempt,node,sql_num(r.plan_revision)?,encode(&r.reservation)?],|r|r.get(0)).map_err(db_error)?;
+        let reserved:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.payload.attempt_id')=?2 AND json_extract(document,'$.payload.node_id')=?3 AND json_extract(document,'$.payload.plan_revision')=?4 AND json_extract(document,'$.payload.reservation')=json(?5)) AND NOT EXISTS(SELECT 1 FROM factory_budget_reservations WHERE attempt_id=?2)",params![run_id,attempt,node,sql_num(r.plan_revision)?,encode(&json!(r.reservation))?],|r|r.get(0)).map_err(db_error)?;
         let current = run(db, &run_id)?;
         let history = bounded_plan_history(db, &current.scope_id)?;
         let plan = history
