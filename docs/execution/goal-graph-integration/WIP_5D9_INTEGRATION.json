@@ -1,0 +1,24 @@
+{
+  "status": "early_integration_not_final_Graph_acceptance",
+  "root_head_before_alignment": "dd0d9d2ca4abb47513987db9f5f96e1156501012",
+  "protected_main": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "merged_core_wip": "5d9a417e5e5dbd29fe5f5b7ad9ffd8e7e42410cc",
+  "source": "immutable Core capability/mode partition snapshot only; later author runtime source not imported yet",
+  "aligned_source_files": [
+    ".github/workflows/product.yml",
+    "apps/desktop/tests/data-workspace-real-ipc.py",
+    "apps/desktop/tests/goal-execution-real-ipc.py"
+  ],
+  "verification": "pycompile/AST/staticinfra/diff/Bootstrap93 pass; independent exact inverse-byte identity, two genuine old11 negative guards, audit subprocess0 and binarySHA unchanged",
+  "review_sha256": "c4204403971ba5bff3176c1a53128494f91ca7e0d275d09e1d30416869cd4cfd",
+  "positive_schema12_browser": "not_run until final frozen Core12/composedUI",
+  "native_graph_readonly": "85cc8e7 source prepared separately, not integrated/tested in this tree yet",
+  "ui_graph": "442c4a1 remote WIP, later fixes underway, not integrated in this tree",
+  "platform_goal": "not_exposed",
+  "native_cache_lease": "Core author sole writer; Root/UI/newnative/harness noCargo",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "full_design": "incomplete; all130 retained"
+}

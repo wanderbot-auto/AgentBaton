@@ -1,0 +1,11 @@
+{
+  "status": "exact author original Linux Chromium images; notNativeMac",
+  "harness_source": "5b7e401",
+  "report_sha256": "ebd3e2042f441ddd2a5f47f63f1893b83ed680bfccbe33ca505e50055b3bbd39",
+  "files": {
+    "docs/execution/goal-graph-real-ipc/screenshots-owner-only/01-work-candidate-before-owner.png": "efb9d9c341e56fdf4fd7a06355b7f741f3a0b58ead2d9845a5e492ab120caeb0",
+    "docs/execution/goal-graph-real-ipc/screenshots-owner-only/02-summary-candidate-before-final-owner.png": "ba9e2cfea6539a6f58888c2029d6a334a77e932e806e1fe25e72a61ceccefaf8",
+    "docs/execution/goal-graph-real-ipc/screenshots-owner-only/03-task-accepted-four-node-owner-chain.png": "16f4bd3cb9b6c84cda7b2e46caa68edf4834a549a525bfc69f6c56de3f91e280"
+  },
+  "independent_runtime_review": "pending report freeze; do not claim wholeGraph acceptance"
+}

@@ -1,0 +1,63 @@
+{
+  "status": "failed_or_interrupted",
+  "dimension": "actual built React / Linux Chromium / fixed test-only HTTP / authenticated Unix Core / generated owned ACP process",
+  "not_claimed": [
+    "macOS",
+    "native WebView",
+    "real Provider/model",
+    "TaskAccepted",
+    "independent artifact acceptance",
+    "OS sandbox",
+    "whole workspace output quota",
+    "whole product completion"
+  ],
+  "native_owner_dialog": "not_run; fixed private host fixture outside HTTP approves actual Core snapshots",
+  "provider": "generated local ACP, no account/credential/network/model",
+  "harness_sha256": "0ce135bd4ca07f5e4aca117bf1d57c9754da44eca56fd1add158597d0bdafe0f",
+  "daemon_sha256": "fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e",
+  "manifest_sha256": "dd76425e46e99fad9e6fdd58c17f232f992ffecde13b8cdb2bd002f546e4b325",
+  "frontend_assets_sha256": {
+    "assets/index-D88slzvG.js": "647c2f9be33172faec8f6b62f29a069056a1edbe264e3ede1eb18a5da9758c0c",
+    "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+    "index.html": "e381a7486ca4352ccd2453d89320cce534637f344af9f8011d2e1d775a31cec0"
+  },
+  "checks": [
+    {
+      "name": "private host approves generated local inputs and planning scopes; no execution or SQL-forged authority",
+      "status": "passed"
+    },
+    {
+      "name": "actual Goal execution is lazy/read-only with no stored plan and no authority from planning approval",
+      "status": "passed"
+    },
+    {
+      "name": "HTTP denies approval/finalize/generic dispatch or execution and foreign run references without database writes",
+      "status": "passed"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "/workspace/.onboarding/goal-graph-legacy-browser-before-graph-read/failure-current-ui.png",
+      "sha256": "5bbc363d7ae41c85d79d54cb98eddd0138cfe87a69043fc11f1c111f85bd515d",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "actual Linux Chromium, not macOS/native"
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "Locator expected to be enabled\nActual value: disabled \nCall log:\n  - Expect \"to_be_enabled\" with timeout 5000ms\n  - waiting for get_by_test_id(\"goal-planning\").get_by_test_id(\"goal-execution\").get_by_role(\"button\", name=\"Review Goal execution in native dialog\", exact=True)\n    14 × locator resolved to <button disabled type=\"button\" class=\"primary\">Review Goal execution in native dialog</button>\n       - unexpected value \"disabled\"\n\nAria snapshot:\n- button \"Review Goal execution in native dialog\" [disabled]",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-execution-real-ipc.py\", line 504, in main\n    expect(execution.get_by_role('button', name='Review Goal execution in native dialog', exact=True)).to_be_enabled()\n  File \"/workspace/AgentBaton/artifacts/browser-venv/lib/python3.12/site-packages/playwright/sync_api/_generated.py\", line 23209, in to_be_enabled\n    self._sync(\n  File \"/workspace/AgentBaton/artifacts/browser-venv/lib/python3.12/site-packages/playwright/_impl/_sync_base.py\", line 115, in _sync\n    return task.result()\n           ^^^^^^^^^^^^^\n  File \"/workspace/AgentBaton/artifacts/browser-venv/lib/python3.12/site-packages/playwright/_impl/_assertions.py\", line 807, in to_be_enabled\n    await self._expect_impl(\n  File \"/workspace/AgentBaton/artifacts/browser-venv/lib/python3.12/site-packages/playwright/_impl/_assertions.py\", line 128, in _expect_impl\n    _record_soft_or_raise(\n  File \"/workspace/AgentBaton/artifacts/browser-venv/lib/python3.12/site-packages/playwright/_impl/_assertions.py\", line 60, in _record_soft_or_raise\n    raise error\nAssertionError: Locator expected to be enabled\nActual value: disabled \nCall log:\n  - Expect \"to_be_enabled\" with timeout 5000ms\n  - waiting for get_by_test_id(\"goal-planning\").get_by_test_id(\"goal-execution\").get_by_role(\"button\", name=\"Review Goal execution in native dialog\", exact=True)\n    14 × locator resolved to <button disabled type=\"button\" class=\"primary\">Review Goal execution in native dialog</button>\n       - unexpected value \"disabled\"\n\nAria snapshot:\n- button \"Review Goal execution in native dialog\" [disabled]\n"
+  },
+  "scope": "Reviewable summary of the actual run; complete original requests/observations remain byte-for-byte in the adjacent gzip trace.",
+  "complete_original_trace": {
+    "file": "LEGACY_BROWSER_BEFORE_GRAPH_READ.json.gz",
+    "raw_sha256": "563362b631616f8a27cb5ac3f45f60c796e19bcc20d3926f54686744da773b90",
+    "raw_bytes": 663895,
+    "gzip_sha256": "0e1ba15e0b86161608189277bde97c6eaea46807fbe57e72f49498b9e2131e47",
+    "gzip_bytes": 64409,
+    "roundtrip_byte_identity_verified": true
+  }
+}

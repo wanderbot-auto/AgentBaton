@@ -18,6 +18,7 @@ pub enum TaskState {
     CancelRequested,
     Cancelled,
     OutcomeUnknown,
+    Accepted,
 }
 fn initial_spec_revision() -> u64 {
     1
@@ -33,6 +34,10 @@ pub struct Task {
     pub spec_revision: u64,
     pub state: TaskState,
     pub revision: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub acceptance_ref: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub acceptance_sequence: Option<u64>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -80,6 +85,8 @@ pub struct Store {
     pub(crate) conn: Connection,
     // Ephemeral, exact-request authority; set only while dispatching a worker result.
     pub(crate) data_input: Option<crate::data_workspaces::DataInputWitness>,
+    pub(crate) graph_input: Option<crate::goal_store::GraphReadWitness>,
+    pub(crate) graph_capture_clocks: std::collections::HashMap<String, std::time::Instant>,
 }
 impl Store {
     pub fn open(path: &Path) -> Result<Self> {
@@ -89,11 +96,29 @@ impl Store {
         let version: u32 = conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version > 11 {
+        if version > 12 {
             return Err(CoreError::new(
                 "VERSION_UNSUPPORTED",
                 "Database was created by a newer application",
             ));
+        }
+        if version > 0 && version < 12 {
+            let backup = path.with_extension(format!("pre-v12-{}.sqlite3", Uuid::new_v4()));
+            drop(
+                OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .mode(0o600)
+                    .open(&backup)
+                    .map_err(|_| {
+                        CoreError::new(
+                            "INTERNAL_ERROR",
+                            "Cannot create Goal graph migration backup",
+                        )
+                    })?,
+            );
+            conn.backup(rusqlite::MAIN_DB, &backup, None)
+                .map_err(db_error)?;
         }
         if version > 0 && version < 11 {
             let backup = path.with_extension(format!("pre-v11-{}.sqlite3", Uuid::new_v4()));
@@ -198,6 +223,7 @@ impl Store {
         crate::goal_store::migrate(&mut conn, version)?;
         crate::data_workspaces::migrate(&mut conn, version)?;
         crate::goal_store::migrate_runtime(&mut conn, version)?;
+        crate::goal_store::migrate_graph(&mut conn, version)?;
         conn.execute_batch(
             "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;",
         )
@@ -205,12 +231,15 @@ impl Store {
         let mut store = Self {
             conn,
             data_input: None,
+            graph_input: None,
+            graph_capture_clocks: Default::default(),
         };
         store.recover_dispatches()?;
         store.recover_workspace_creations()?;
         store.recover_sessions()?;
         store.recover_command_validations()?;
         store.recover_data_workspace_operations()?;
+        store.recover_graph_jobs()?;
         store.recover_goal_runs()?;
         Ok(store)
     }
@@ -289,6 +318,8 @@ impl Store {
             spec_revision: 1,
             state: TaskState::Draft,
             revision: 1,
+            acceptance_ref: None,
+            acceptance_sequence: None,
             created_at: timestamp.clone(),
             updated_at: timestamp,
         };
@@ -312,7 +343,10 @@ impl Store {
             .query_row("SELECT document FROM tasks WHERE id=?1", [id], |r| r.get(0))
             .optional()
             .map_err(db_error)?;
-        decode(&raw.ok_or_else(|| CoreError::new("NOT_FOUND", "Task does not exist"))?)
+        let task: Task =
+            decode(&raw.ok_or_else(|| CoreError::new("NOT_FOUND", "Task does not exist"))?)?;
+        crate::goal_store::verify_task_acceptance_state(&self.conn, &task)?;
+        Ok(task)
     }
     pub fn list(&self) -> Result<Vec<Task>> {
         let count: i64 = self
@@ -329,7 +363,12 @@ impl Store {
         let rows = stmt
             .query_map([], |r| r.get::<_, String>(0))
             .map_err(db_error)?;
-        rows.map(|r| decode(&r.map_err(db_error)?)).collect()
+        rows.map(|r| {
+            let task: Task = decode(&r.map_err(db_error)?)?;
+            crate::goal_store::verify_task_acceptance_state(&self.conn, &task)?;
+            Ok(task)
+        })
+        .collect()
     }
     pub fn cancel(&mut self, id: &str, expected_revision: u64) -> Result<Task> {
         let mut task = self.get(id)?;
@@ -339,7 +378,10 @@ impl Store {
                 "Task changed; refresh before cancelling",
             ));
         }
-        if task.state == TaskState::Cancelled || task.state == TaskState::CancelRequested {
+        if matches!(
+            task.state,
+            TaskState::Accepted | TaskState::Cancelled | TaskState::CancelRequested
+        ) {
             return Ok(task);
         }
         let active:i64=self.conn.query_row("SELECT count(*) FROM attempts a JOIN dispatch_intents d ON d.attempt_id=a.id WHERE a.task_id=?1 AND d.state!='stopped'",[id],|r|r.get(0)).map_err(db_error)?;

@@ -1,0 +1,9 @@
+{
+  "archive": "COMMAND_LIFECYCLE_AUTHOR_EVIDENCE.tar.gz",
+  "sha256": "362298bb8c9b6bf470f6210f608d3af688fbd883d72fb82c497cf2e6427f926c",
+  "bytes": 46318,
+  "files": 14,
+  "all_roundtrip_sha256_verified": true,
+  "source_commit": "2ee515e7b2d97b376740a7514ffc2a7590bca5ca",
+  "manifest_sha256": "b29b90776c0bcfe6f3ddd2700edaa3998c7ab0f03793005af5613d75bde75999"
+}

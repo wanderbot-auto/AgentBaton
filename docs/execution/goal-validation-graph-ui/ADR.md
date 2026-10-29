@@ -1,0 +1,11 @@
+# Host-owned complete graph review
+
+Reversible engineering decision under AB-START-001, approved direction by Root. Applies only to new `goal_graph_execution` and `goal_node_acceptance`; every legacy kind retains its original16KiB review behavior and authority.
+
+Serialize the complete server snapshot as compact JSON without field selection. The new snapshot review total is at most1MiB; the Core complete serialized proposal/envelope must independently stay within its existing1MiB limit including actual encoding overhead. The original262144B plan limit is retained. Reject oversize without truncation. Wire cap awaits Core synchronized contract and real boundary fixture before freeze.
+
+Split only at UTF-8 character boundaries into payloads at most12288B. Every native dialog includes fixed kind, server proposal ID/revision, page count and exact byte offsets. Entire message remains at most16KiB. Review at most86 payload pages, then one separate final native confirmation. Pages concatenate to the complete serialization and roundtrip to the exact Value; no digest-only summary, hidden allowlist or renderer review receipt. A user may cancel any page or final confirmation; this creates no approval or Owner rejection receipt. Long legal snapshots require many dialogs; that usability limit is recorded honestly rather than weakening complete review.
+
+The fixed Node acceptance action and separately fixed explicit Reject action privately propose the same exact current node references, bind full snapshot, review every page, and only then select private finalize or decline. Renderer supplies reference IDs/CAS/key only; no generic method, decision flag, SQL, destination or scope authority. Ordinary Cancel is never treated as Reject. Post-finalization uncertainty passes through without retry or a false not-started receipt.
+
+Graph and legacy runs retain explicit server mode/version; old approvals do not acquire definition reuse or subject-rebinding permission. UI defaults remain folded and a shared Goal model; record-shape and monotonic/freshness gates are only UI protections, never server authorization. Exact Core12 combination/native compilation and independent review remain required.

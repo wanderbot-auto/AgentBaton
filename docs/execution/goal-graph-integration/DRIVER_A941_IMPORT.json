@@ -1,0 +1,11 @@
+{
+  "archive": "DRIVER_A941_REVIEW_EVIDENCE.tar.gz",
+  "sha256": "a505174d57b42272f2592591e5bb393759546d733e1d7c60d370114889f2ae16",
+  "bytes": 3744480,
+  "evidence_files": 135,
+  "manifest_included": true,
+  "original_manifest_sha256": "8174d8eec77d1d023b2a7965b6e6acdd1c5d764066fa13890f8fae8ab9a223c0",
+  "root": "goal-graph-driver-90d-review/",
+  "all_roundtrip_sha256_verified": true,
+  "original_report_relative_references": "Resolve inside archive; original report/manifest bytes unmodified"
+}

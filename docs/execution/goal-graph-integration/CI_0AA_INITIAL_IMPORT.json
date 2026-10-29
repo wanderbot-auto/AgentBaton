@@ -1,0 +1,8 @@
+{
+  "archive": "CI_0AA_INITIAL_EVIDENCE.tar.gz",
+  "bytes": 39001,
+  "sha256": "9640962fea7c63f926b1937581c08b5de339823ac54e8b30cfec52d3c9b4dafd",
+  "regular_members_including_manifest": 17,
+  "all_declared_files_roundtrip_verified": true,
+  "scope": "earlyactualEnvcheckout5ca+signedcommitreconstruction proof; Productinitialstatus wasinprogress, lateractualProductproof inCI_0AA_LINUX"
+}

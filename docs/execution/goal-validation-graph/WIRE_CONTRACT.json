@@ -1,0 +1,235 @@
+{
+  "contract_version": 1,
+  "status": "wire_contract_core_implementation_in_progress_not_runtime_evidence",
+  "shared_model": "Existing GoalPlanProposal/GoalScopeView; same entry by execution mode, no new DSL",
+  "native_kinds": {
+    "goal_graph_execution": {
+      "snapshot_max_compact_utf8_bytes": 1048576,
+      "legacy_kinds_unchanged": true,
+      "required_snapshot_keys": [
+        "graph_contract_version",
+        "intent",
+        "scope",
+        "root_grant",
+        "existing_connection",
+        "plan",
+        "definition_reuse",
+        "subject_rebinding",
+        "budgets",
+        "enforcement",
+        "new_workspace_authority"
+      ],
+      "new_workspace_authority": false,
+      "full_serialized_proposal_row_max_utf8_bytes": 1048576
+    },
+    "goal_node_acceptance": {
+      "snapshot_max_compact_utf8_bytes": 1048576,
+      "required_snapshot_keys": [
+        "graph_contract_version",
+        "intent",
+        "run_binding",
+        "node",
+        "criterion",
+        "candidate_refs",
+        "validation_refs",
+        "input_bindings",
+        "capability_digest",
+        "expected_run_revision",
+        "expected_ledger_revision"
+      ],
+      "native_cancel": "No mutation/no rejection receipt; explicit Reject is separate fixed native action using private approvals.decline",
+      "full_serialized_proposal_row_max_utf8_bytes": 1048576
+    }
+  },
+  "methods": {
+    "goal_graph_runs.propose": {
+      "params": [
+        "scope_id",
+        "expected_plan_revision",
+        "expected_ledger_revision"
+      ],
+      "envelope": [
+        "idempotency_key"
+      ],
+      "result": "ApprovalProposal kind goal_graph_execution"
+    },
+    "goal_graph_runs.get": {
+      "params": [
+        "run_id"
+      ],
+      "result": "GraphRunDetails"
+    },
+    "goal_graph_runs.list": {
+      "params": [
+        "task_id"
+      ],
+      "result": "GraphRunSummary[]"
+    },
+    "goal_graph_runs.cancel": {
+      "params": [
+        "run_id"
+      ],
+      "envelope": [
+        "expected_revision:runCAS",
+        "idempotency_key"
+      ],
+      "result": "GraphRun cancellation-intent receipt, not stop proof"
+    },
+    "goal_graph_runs.advance_plan": {
+      "params": [
+        "run_id",
+        "expected_plan_revision",
+        "expected_ledger_revision"
+      ],
+      "envelope": [
+        "expected_revision:runCAS",
+        "idempotency_key"
+      ],
+      "result": "GraphRun adopt receipt; same-scope/no new permissions/history retained"
+    },
+    "goal_node_approvals.propose": {
+      "params": [
+        "run_id",
+        "node_id",
+        "expected_plan_revision",
+        "expected_ledger_revision"
+      ],
+      "envelope": [
+        "expected_revision:runCAS",
+        "idempotency_key"
+      ],
+      "result": "ApprovalProposal kind goal_node_acceptance"
+    }
+  },
+  "private_only": {
+    "approvals.finalize": "Only fixed Native kind verified, full exact snapshot/CAS/current references; never generic renderer approve",
+    "approvals.decline": "Only explicit fixed Native Reject; proposal/run/node/current-ref CAS; blocks rejected node, no TaskAccepted"
+  },
+  "graph_details_fields": [
+    "graph_contract_version",
+    "run",
+    "nodes",
+    "candidates",
+    "validations",
+    "owner_decisions",
+    "ledger_revision",
+    "task_accepted",
+    "task_acceptance"
+  ],
+  "node_execution_states": [
+    "not_started",
+    "reserved",
+    "running",
+    "stopping",
+    "capturing",
+    "candidate",
+    "validating",
+    "validated",
+    "awaiting_owner",
+    "accepted",
+    "rejected",
+    "failed",
+    "cancelled",
+    "outcome_unknown"
+  ],
+  "node_acceptance_states": [
+    "not_applicable",
+    "pending",
+    "validated",
+    "accepted",
+    "rejected",
+    "stale",
+    "unknown"
+  ],
+  "run_states": [
+    "queued",
+    "running",
+    "cancel_requested",
+    "cancelled",
+    "awaiting_acceptance",
+    "blocked",
+    "failed",
+    "outcome_unknown",
+    "accepted"
+  ],
+  "bounds": {
+    "response_aggregate_utf8_bytes": 4194304,
+    "historical_node_records": 65536,
+    "plan_versions": 256,
+    "definitions": 64,
+    "artifact_refs_per_node": 64,
+    "per_artifact_declared_max_bytes": 67108864,
+    "capture_validation_total_bytes": 16777216,
+    "snapshot_cap_is_new_kind_only": true
+  },
+  "authority": [
+    "new Native graph kind explicitly grants definition reuse and same-workspace subject rebinding",
+    "old per-attempt policies/receipts and old goal_execution do not grant this",
+    "artifact integrity/data-schema/command-declared results never by themselves GoalAcceptance",
+    "TaskAccepted only all required exact-version criteria/outputs/nodes satisfied",
+    "root-grant/project/global/ancestor history and ordinary-session gate unchanged"
+  ],
+  "rust_dto_files": [
+    "crates/core/src/goal_graph.rs",
+    "crates/core/src/goal_evidence.rs"
+  ],
+  "owner_finalizer_result": {
+    "graph_contract_version": 1,
+    "approval_id": "string",
+    "run_id": "string",
+    "node_id": "string",
+    "plan_revision": "u64",
+    "decision": "accepted|rejected",
+    "owner_decision_id": "string",
+    "run_revision": "u64",
+    "task_accepted": "boolean; only whole graph criteria completion may be true"
+  },
+  "snapshot_limits_note": "Core checks exact full serialized proposal row and event/envelope overhead <=1048576; snapshot must leave overhead, no truncation; old kind16KiB unchanged.",
+  "task_projection": {
+    "new_state": "accepted",
+    "new_optional_task_fields": {
+      "acceptance_ref": "string|null; required nonempty only for accepted",
+      "acceptance_sequence": "u64|null; trusted durable acceptance event"
+    },
+    "graph_details_projection": "GraphTaskAcceptance in goal_graph.rs, not yet runtime tested",
+    "no_reopen": "accepted task terminal; no automatic scheduler/ordinary session/legacy advance restart or budget reset"
+  },
+  "proposal_recovery": {
+    "propose": "exact original intent+runCAS+key history before freshIO/CAS; return current stored proposal consumed state",
+    "finalize_decline": "same action exact proposal/key returns original decision receipt; cross action conflict",
+    "foreign_current_node": "another key accepting same node never resolves original unknown",
+    "unconsumed": "original proposal must still pass all current exact refs/CAS and fresh witness"
+  },
+  "read_only_observation_projection": {
+    "path": "GraphRunDetails.validations[*].observation_json",
+    "type": "string",
+    "encoding": "serde_json compact serialization of the original persisted observation Value; SHA-256 UTF-8 bytes exactly equals result_digest",
+    "authority": "display-only; stored GraphValidationReceipt, native Owner snapshot validation_refs, original Value and authenticated receipt/event digests remain unchanged",
+    "limits": "complete Details including both forms remains <=4194304 serialized bytes; all existing predecode raw aggregate limits remain",
+    "numeric_metadata": "Raw display preserves full Rust u64/f64 JSON without relying on JavaScript number roundtrip. Identity/CAS/pin authorization guards remain unchanged."
+  },
+  "task_request_fields": {
+    "legacy": [
+      "schema_version",
+      "kind",
+      "goal",
+      "node",
+      "run_id",
+      "plan_revision",
+      "plan_digest",
+      "workspace",
+      "inputs",
+      "outputs",
+      "policy",
+      "lineage",
+      "budget",
+      "idempotency_key",
+      "return_location"
+    ],
+    "graph_additions": [
+      "task_binding",
+      "validation_contracts"
+    ],
+    "authority": "only trusted stored graph capability permits graph additions; legacy exact field set is unchanged"
+  }
+}

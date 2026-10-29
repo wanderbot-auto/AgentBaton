@@ -1,0 +1,83 @@
+{
+  "status": "passed",
+  "mode": "owner_only_four_nodes",
+  "dimension": "actual built React/Linux Chromium/finite test HTTP/authenticated Unix Core/generated owned ACP",
+  "not_claimed": [
+    "deterministic Validate five-node flow",
+    "Graph failure matrix",
+    "native OS Owner dialog",
+    "macOS",
+    "real Provider/model",
+    "OS sandbox",
+    "whole product completion"
+  ],
+  "harness_sha256": "fcca93a28914503a531ace98bf777eb2920b5eae4e344f48af47a98e87890a4f",
+  "daemon_sha256": "fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e",
+  "manifest_sha256": "dd76425e46e99fad9e6fdd58c17f232f992ffecde13b8cdb2bd002f546e4b325",
+  "frontend_assets_sha256": {
+    "assets/index-D88slzvG.js": "647c2f9be33172faec8f6b62f29a069056a1edbe264e3ede1eb18a5da9758c0c",
+    "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+    "index.html": "e381a7486ca4352ccd2453d89320cce534637f344af9f8011d2e1d775a31cec0"
+  },
+  "checks": [
+    {
+      "name": "actual private resource approvals and scope prepared; HTTP has no authority path",
+      "status": "passed"
+    },
+    {
+      "name": "built UI stores exact plan revisions; Graph Owner/finalize/generic HTTP403; no process launched by planning",
+      "status": "passed"
+    },
+    {
+      "name": "real private Owner decisions gate dependent Summary and all-required TaskAccepted with canonical fresh acceptance projection",
+      "status": "passed"
+    },
+    {
+      "name": "fresh SHA/FD candidates, owned-reaped TaskRequests, durable TaskAccepted event/digest and cumulative two-attempt budgets; terminal task cannot reopen",
+      "status": "passed"
+    },
+    {
+      "name": "actual built UI shows authoritative TaskAccepted four-node history; no browser errors or asset/source drift",
+      "status": "passed"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "/workspace/.onboarding/goal-graph-owner-browser-first/01-work-candidate-before-owner.png",
+      "sha256": "b5f342ace8d8b03c36bf6d55fe413c93204d61fffe7d57e23070abd66901815a",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Linux Chromium; not native/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-owner-browser-first/02-summary-candidate-before-final-owner.png",
+      "sha256": "e2743f647bd41423c2d5505adf4bce28b68dc8e40ee455c3ac1b29cf5f950b38",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Linux Chromium; not native/macOS"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-owner-browser-first/03-task-accepted-four-node-owner-chain.png",
+      "sha256": "7e193f28449dad0420b10e8a6f56b2dc49648ebe599ae50a1272eeeddb752505",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "Linux Chromium; not native/macOS"
+    }
+  ],
+  "cleanup": [],
+  "scope": "Reviewable summary of the actual run; complete original requests/observations remain byte-for-byte in the adjacent gzip trace.",
+  "complete_original_trace": {
+    "file": "OWNER_BROWSER_FIRST.json.gz",
+    "raw_sha256": "f131fe0e78aae324c463b5156723d65e66f20f44d951acb2d98742ab342f86df",
+    "raw_bytes": 784803,
+    "gzip_sha256": "874b90ff0d32385b4c78fd627307d8acea8177b0b281ca8838634f1da16b79fe",
+    "gzip_bytes": 78900,
+    "roundtrip_byte_identity_verified": true
+  }
+}

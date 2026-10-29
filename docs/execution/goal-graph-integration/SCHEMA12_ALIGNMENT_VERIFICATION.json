@@ -1,0 +1,123 @@
+{
+  "reviewer": "/root/data_core_review_resume",
+  "utc": "2026-10-28T13:12:37.969291+00:00",
+  "head": "dd0d9d2ca4abb47513987db9f5f96e1156501012",
+  "scope": "Exactly3 schema12-only source changes; no full Graph review",
+  "changed_files": [
+    ".github/workflows/product.yml",
+    "apps/desktop/tests/data-workspace-real-ipc.py",
+    "apps/desktop/tests/goal-execution-real-ipc.py"
+  ],
+  "sources": {
+    ".github/workflows/product.yml": {
+      "before_sha256": "9189ad4eea3d7d0b4f36ab6735aae2b2db06cacf8ec053f9e3cd069942deedfd",
+      "after_sha256": "ef238f4a2e78ead6c20414b348825e129083903d2b4bec012524ba0cb1580363",
+      "expected_replacements_only": true,
+      "inverse_byte_identity": true
+    },
+    "apps/desktop/tests/data-workspace-real-ipc.py": {
+      "before_sha256": "7e1bc37ac2837a2121ddc01480232ab2a6dbba2522806fa940b86dae529ff26b",
+      "after_sha256": "75108a947b237db13e47495d0ae2e0b176217361e7d4b37b9ceedafbed83e493",
+      "expected_replacements_only": true,
+      "inverse_byte_identity": true
+    },
+    "apps/desktop/tests/goal-execution-real-ipc.py": {
+      "before_sha256": "e5db2bed25b98a5d7b03fa72adf8e332a91d98e1d2ac43a089d697ea93bade5e",
+      "after_sha256": "0ce135bd4ca07f5e4aca117bf1d57c9754da44eca56fd1add158597d0bdafe0f",
+      "expected_replacements_only": true,
+      "inverse_byte_identity": true
+    }
+  },
+  "unchanged_controls": {
+    ".github/workflows/environment-preflight.yml": {
+      "sha256": "3bcfd3051e2995de0e49bff88861fd9972a3f805a7cdc9f9bd13c43d4d0e668c",
+      "byte_identical_to_head": true
+    },
+    "infra/execution-gate.json": {
+      "sha256": "313c96753ddd8f89d8a69e58428f834596f3059b0d0a41996dc1059ea8170e7e",
+      "byte_identical_to_head": true
+    }
+  },
+  "syntax_py_compile_ast": "PASS both scripts; pyc only in reviewer directory",
+  "strict_old_schema_negative": {
+    "manifest_path": "/workspace/.onboarding/goal-runtime-pr15-composed-3b99f2/manifest.json",
+    "manifest_sha256": "4b86b40aed5d8f65bead50bb5eec8222a64882d75c7f7d9027b76c68dcac2a86",
+    "schema": 11,
+    "binary_path": "/workspace/.onboarding/goal-runtime-pr15-composed-3b99f2/batond",
+    "binary_sha256_before_after": "d1099e7ee128d4cb5ea16668b7f5fbde83d482c4c6b11616fecf8775ea7e5f48",
+    "frontend_for_preflight_only": "/workspace/.worktrees/goal-runtime-integration/apps/desktop/dist",
+    "frontend_index_sha256": "53cc0107621bae682121ea3d0c3d1ccdc7f8d7cb747ddda697664a7d27f0f941",
+    "audit_process_events": [],
+    "results": [
+      {
+        "script": "apps/desktop/tests/goal-execution-real-ipc.py",
+        "argv": [
+          "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-execution-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/goal-runtime-pr15-composed-3b99f2/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/goal-runtime-pr15-composed-3b99f2/manifest.json",
+          "--frontend",
+          "/workspace/.worktrees/goal-runtime-integration/apps/desktop/dist",
+          "--output",
+          "/workspace/.onboarding/goal-graph-schema12-harness-review/goal-execution-real-ipc-negative"
+        ],
+        "result": "expected strict schema11 preflight AssertionError",
+        "trace_sha256": "d5900f6f247d9e161261cb596f11ab6af3451e9d3c46211b64d860ea62b01a5e",
+        "script_sha256": "0ce135bd4ca07f5e4aca117bf1d57c9754da44eca56fd1add158597d0bdafe0f",
+        "process_launches": 0,
+        "runtime_or_browser_pass": false
+      },
+      {
+        "script": "apps/desktop/tests/data-workspace-real-ipc.py",
+        "argv": [
+          "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/data-workspace-real-ipc.py",
+          "--batond",
+          "/workspace/.onboarding/goal-runtime-pr15-composed-3b99f2/batond",
+          "--candidate-manifest",
+          "/workspace/.onboarding/goal-runtime-pr15-composed-3b99f2/manifest.json",
+          "--frontend",
+          "/workspace/.worktrees/goal-runtime-integration/apps/desktop/dist",
+          "--output",
+          "/workspace/.onboarding/goal-graph-schema12-harness-review/data-workspace-real-ipc-negative"
+        ],
+        "result": "expected strict schema11 preflight AssertionError",
+        "trace_sha256": "2647e134ad2181a7ba2c25f0961305c9816f37657f68ffe4e9c840a9e6de6c6e",
+        "script_sha256": "75108a947b237db13e47495d0ae2e0b176217361e7d4b37b9ceedafbed83e493",
+        "process_launches": 0,
+        "runtime_or_browser_pass": false
+      }
+    ]
+  },
+  "not_claimed": [
+    "schema12 browser runtime",
+    "Graph implementation acceptance",
+    "macOS or native Owner dialog",
+    "real Provider",
+    "CI success or merge approval"
+  ],
+  "verdict": "No blocking finding for these3 strict schema12 adaptations only",
+  "root_existing_evidence_inspected": {
+    "json_sha256": "bead0ddc061ec237813af436932b83c10d53531cd73007aa744de92f2627cc45",
+    "logs": {
+      "/workspace/.onboarding/goal-graph-schema12-harness/goal-execution-real-ipc.py.rejection.log": {
+        "sha256": "e003bf48b767e637ede03bfcb5b824a626cf7653e1a7ee7ccb55920dd88e9010",
+        "trace_at_strict_schema_preflight": true
+      },
+      "/workspace/.onboarding/goal-graph-schema12-harness/data-workspace-real-ipc.py.rejection.log": {
+        "sha256": "e1ca50b28f5bf413e3a15995dad3d585c009c23d02761ca700dd0d3b25f95345",
+        "trace_at_strict_schema_preflight": true
+      }
+    },
+    "note": "Existing Root claims inspected and hashes matched; independent negative run separately executed as recorded above."
+  },
+  "independent_diff_check": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0
+  },
+  "three_source_hashes_unchanged_after_review": true
+}

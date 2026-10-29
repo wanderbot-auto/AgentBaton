@@ -1,0 +1,11 @@
+{
+  "archive": "CI_PORTABILITY_REVIEW_EVIDENCE.tar.gz",
+  "sha256": "7b6d784ccfb075f935382b76a6bf8d16e2add9d2b629dfd1289e832d4defe914",
+  "bytes": 205815,
+  "source_manifest_sha256": "926f423ebd2f0c25174248a091bbbb77a76264f855242601cfb5f60f2756b079",
+  "files": 49,
+  "manifest_included": true,
+  "all_roundtrip_sha256_verified": true,
+  "root": "a2-final/",
+  "status_subject_sha256": "d0fc2a1ba4c9991dc60bd3a63d6487182aca8bb2e1a3f4ebd253c0cc05998844"
+}

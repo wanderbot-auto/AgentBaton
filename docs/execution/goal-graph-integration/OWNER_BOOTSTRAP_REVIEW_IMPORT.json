@@ -1,0 +1,11 @@
+{
+  "archive": "OWNER_BOOTSTRAP_REVIEW_EVIDENCE.tar.gz",
+  "bytes": 68888,
+  "sha256": "2ab4161e1fe86e5584606632605d652312b0a139e4ce4a972bb49a1b2cff01b6",
+  "declared_files": 50,
+  "archive_members_including_manifest": 51,
+  "manifest_sha256": "d831ba24877229b9dd34a9b945684631dfa9151e087afbf1aea9e9c5611e7a23",
+  "all_roundtrip_sha256_verified": true,
+  "source": "a43cbb181a52b9ebcc0c72a838f68497101759b8",
+  "scope": "independent actual Linux Python15 and six retained overlapping bootstrap controls; MacOwner/newCI unrun; historical cause UNKNOWN"
+}

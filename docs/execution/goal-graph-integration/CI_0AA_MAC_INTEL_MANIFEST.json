@@ -1,0 +1,187 @@
+{
+  "schema": 1,
+  "sealed_at_utc": "2026-10-28T20:54:31.416586+00:00",
+  "review": "INTEL_REVIEW.md",
+  "run_id": 40761824261,
+  "attempt": 1,
+  "intel_job_id": 123075460377,
+  "feature_sha": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+  "actual_checkout_sha": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+  "tree_sha": "1943596e0bd12177d852117dab86c81ca30e6858",
+  "downloads_after_completion_notification": {
+    "intel_joblog": 1,
+    "refreshed_artifact_list": 1,
+    "intel_native_zip": 1,
+    "new_actual_checkout_commit_api": 0,
+    "other_artifacts": 0,
+    "intel_status_poll": 0
+  },
+  "archive_crc_and_safe_extract": "passed",
+  "source_mutations": false,
+  "cargo_or_daemon_or_model_calls": false,
+  "remote_mutations": false,
+  "intel_result_dimensions": {
+    "core_native_host": "success",
+    "actual_schema12_readonly_webview_and_lifecycle": "success",
+    "actual_webview_webcrypto_four_checkpoints": "success",
+    "owner_bin_pure_tests": "4 passed",
+    "actual_owner_cancel_then_ok": "failed at exact native title/message uniqueness before first click",
+    "owner_postclick_database_acceptance": "not_reached",
+    "default_release_build": "skipped",
+    "default_release_binary_audit": "skipped",
+    "development_package": "skipped",
+    "real_provider_model_calls": "not_run"
+  },
+  "causal_confidence": {
+    "observed_failure": "exact title/message NSTextField uniqueness guard in cancel phase",
+    "bootstrap_failure": "not_supported_by_current_evidence",
+    "specific_AppKit_or_production_cause": "unresolved (raw text/count/view/failure screenshot absent)",
+    "same_root_cause_as_ARM": "not_established"
+  },
+  "arm_sealed_files_unchanged": {
+    "ARM_REVIEW.md": "260d30090ef640cdc29190f4aee7163c642fd9eaf71e23aece770958714b104c",
+    "ARM_MANIFEST.json": "c1aff8970cd6c6aa72319e89ab91a04e9b183537c44796daf72ae37ba07332c3"
+  },
+  "files": [
+    {
+      "path": "INTEL_REVIEW.md",
+      "bytes": 7958,
+      "sha256": "583e134c0801a71f449bfa52abd1a844a3aec6f45598780d1310196321f68aea"
+    },
+    {
+      "path": "actual-checkout-commit-api.json",
+      "bytes": 2660,
+      "sha256": "28f42456817d28746d4f936a9a4e71fdc30127b9b76957884b16994ea105a2be"
+    },
+    {
+      "path": "intel-artifact-inventory.json",
+      "bytes": 4661,
+      "sha256": "38b0733acce90957f462719ebc8bc432ffc17dc3fdf53b5b5d8a3a30d87a5e0d"
+    },
+    {
+      "path": "intel-artifacts-api.json",
+      "bytes": 3093,
+      "sha256": "e91beb7420b25677bf8558bc93f02b982554bb6deca1dbe6cd8b44e59097d769"
+    },
+    {
+      "path": "intel-download-initial.json",
+      "bytes": 630,
+      "sha256": "20ea61bd573483361f5ae78e6e6a93219017acfd16831366d82c376aca57c093"
+    },
+    {
+      "path": "intel-job.log",
+      "bytes": 403866,
+      "sha256": "7b9106d126cc7c9433aee76dfe266d12b1928a8d93c27133b8f980a5d4480888"
+    },
+    {
+      "path": "intel-native-artifact/lane.log",
+      "bytes": 3788,
+      "sha256": "f577d9578a4bec795ffe1d43dc8361041ffae72b4b1932ee968f53208c236fbe"
+    },
+    {
+      "path": "intel-native-artifact/native-run.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "intel-native-artifact/native-runner.json",
+      "bytes": 359,
+      "sha256": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+    },
+    {
+      "path": "intel-native-artifact/native-screen.png",
+      "bytes": 231844,
+      "sha256": "294d4dc48443b730d256bd072a40671f442fd5ec860ebc2a9b2b8b9549fb0ada"
+    },
+    {
+      "path": "intel-native-artifact/native-smoke.json",
+      "bytes": 5934,
+      "sha256": "8cb5d4226e243cedbe246200ce4768364e0a880cb5fc61dc6fddeee1b5761347"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/app-cleanup.json",
+      "bytes": 278,
+      "sha256": "78f814adf9558e2e48373a06488d9863c5816242317fee3a7fbb32b3a92e6405"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/before.json",
+      "bytes": 11233,
+      "sha256": "6236e0288aeeb7bd7b151fa6734e3838c52bbfb928f4d43c902504cad0d43022"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/bootstrap-paths.json",
+      "bytes": 963,
+      "sha256": "ce4586b51927b5e52c7b418a4b727a55ba7c8e5ee05cc4d3d9098ca40535d169"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/bootstrap-state.json",
+      "bytes": 2667,
+      "sha256": "15d4fa470591c56104ef868a0a3faea1d73b9fae81dc71e75f5f9820feb3e22c"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/core-bootstrap-transcript.json",
+      "bytes": 12099,
+      "sha256": "b6c924ba2e473cd812aabf907617c5ab519d4582b2ef1d2f0c8eb908c861dee6"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/daemon-cleanup.json",
+      "bytes": 350,
+      "sha256": "60015dd73bc84082619bd845f95d49928f96b2af872119c6eccf198d7753be0a"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/daemon-stderr.log",
+      "bytes": 104,
+      "sha256": "40a56070c65658d25ff195efe1077b9c0ffa6e9561e6744830af9399a495816f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/daemon-stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/fixture.json",
+      "bytes": 6667,
+      "sha256": "33a5bcf2edc0a3ded8c03e0fed17122ec50829fc44ac6944d64ee0f393fa57e6"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/owner-dialog.json",
+      "bytes": 176,
+      "sha256": "6d381daaebc2c82261c3119fa9ced73d900fb0317754bf785af7a4d88e2b6ab2"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/runner-failure.json",
+      "bytes": 122,
+      "sha256": "d64e173745bea39534060b08175c72e9f688e80fc4a842783bfcab7c20e6a068"
+    },
+    {
+      "path": "intel-native-artifact.zip",
+      "bytes": 227398,
+      "sha256": "1e821b06164644439813d8755e561f55e4364aa49ac5911116bc590383944aa8"
+    },
+    {
+      "path": "intel-offline-evidence-checks.json",
+      "bytes": 2156,
+      "sha256": "231d05610713e95900f605ca9e45f56405337d8eb64694458574d8d60be3d6ba"
+    },
+    {
+      "path": "intel-root-product-jobs-snapshot.json",
+      "bytes": 15327,
+      "sha256": "47ff06861943d0b665143495cf3ab7f5d1802170fa98ba1f14791dccba60015b"
+    },
+    {
+      "path": "intel-source-preservation.json",
+      "bytes": 321,
+      "sha256": "97d4f124d74d4eb11d983aa433b624b7e92b6bf4b3ec8e3003d429edecb66ed9"
+    },
+    {
+      "path": "intel-status-initial.json",
+      "bytes": 3377,
+      "sha256": "10f732b90b66c74d90dd3c258c379e3c11fb1293b680bba5e69f0fda7ff0a1e7"
+    },
+    {
+      "path": "source-map.json",
+      "bytes": 2940,
+      "sha256": "9666f947dfad4fded27b32f19973e7e5280e0f0d1f34c4158c0d69c4d83af771"
+    }
+  ]
+}

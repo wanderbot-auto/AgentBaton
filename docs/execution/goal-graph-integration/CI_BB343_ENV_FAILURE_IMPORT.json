@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "file": "ENVIRONMENT_EVIDENCE.tar.gz",
+  "bytes": 67190,
+  "sha256": "35650054090644d8369ecb49ad4e860d314fa5c8a05e7823e94879c5f0d4eb8d",
+  "regular_members": 43,
+  "payload_bytes_modes_sizes_roundtrip_verified": true,
+  "feature": "bb343be5bb0403e995a97441ce16670c03bd0f33",
+  "actual_merge": "1a7682e60354d4a80200ea487725edfc99068a4c",
+  "run": 40799957732,
+  "status": "all3Environmentfailed, evidence preserved; not approved"
+}

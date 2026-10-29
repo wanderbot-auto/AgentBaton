@@ -1,0 +1,13 @@
+{
+  "archive": "FINAL_903_INTEGRATION_REVIEW_EVIDENCE.tar.gz",
+  "bytes": 79148,
+  "sha256": "b4974da612d59e02fc53fb3eb5707dc8767f00c4c6d20058291df4b300af2c71",
+  "regular_members": 22,
+  "all_member_roundtrip_hash_size_verified": true,
+  "reviewed_commit": "903b9791c80aa6c363053c284650747fa7ad50e3",
+  "source_snapshot_files": 1211,
+  "source_snapshot_manifest_sha256": "c8c2f4276c6a7f0ac7cf0969ebc4222d8aa811c46ca41117a4d9abfec484d47a",
+  "Root_all_fixed_Git_archive_source_bytes_verified": true,
+  "source_snapshot_resolution": "recreate snapshot/ using existing reviewed Git commit and snapshot-manifest.json; seven existing evidence archives already in that commit, not duplicated",
+  "review_manifest_sha256": "4f405622c20f79f91713a918f40ca5be35d6340744163542e713d585211e48be"
+}

@@ -1,0 +1,130 @@
+{
+  "archive": "COMMAND_UI_AUTHOR_EVIDENCE.tar.gz",
+  "bytes": 68107,
+  "sha256": "17e558d07a12079b95e688be3921550f30f2108922c2f39f78678382a9c78f82",
+  "files": 24,
+  "all_roundtrip_sha256_verified": true,
+  "source": "bdb2a8860c38abe4e42c67b173a3452c06a760b1",
+  "path_mapping": {
+    "/workspace/.onboarding/command-ui-ci-stability/assertion-audit-failed.cjs": {
+      "archive_path": "command-ui-author/assertion-audit-failed.cjs",
+      "sha256": "7706f0411a88acadc3f133d9ba2c026d9c24f3c222092327e1d0986f4380467d",
+      "bytes": 1966
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/assertion-audit.mjs": {
+      "archive_path": "command-ui-author/assertion-audit.mjs",
+      "sha256": "59b48d2706d06179b0c7f8550f186b887cf86d27b296a45605634ec0d541a3bc",
+      "bytes": 2082
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/baseline/full.log": {
+      "archive_path": "command-ui-author/baseline/full.log",
+      "sha256": "0b721e244059656db31da9a2f28ba854b120aa1e5dcefa94268f6dd224ee5e29",
+      "bytes": 796
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/baseline/results.json": {
+      "archive_path": "command-ui-author/baseline/results.json",
+      "sha256": "1d5057c5b413fe853a1432611bbc57eede05cabd8c43bd4d687cbaad673b8860",
+      "bytes": 494
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/baseline/selected.log": {
+      "archive_path": "command-ui-author/baseline/selected.log",
+      "sha256": "083a24dc7caf5d19b009b36ae7168aefaa08ee8f1b008b7bcf95616b19684846",
+      "bytes": 522
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/baseline-source.tsx": {
+      "archive_path": "command-ui-author/baseline-source.tsx",
+      "sha256": "c70dbf95f41470f09a060968ca8d6db3a4fd6a3f75ea13c125e5114eea0939f9",
+      "bytes": 27038
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/final/assertion-audit.json": {
+      "archive_path": "command-ui-author/final/assertion-audit.json",
+      "sha256": "9f048cbce28dc1ff9f037eeaa5f14a8e3050388701eff0c708a798dbf31f71fd",
+      "bytes": 588
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/final/build.log": {
+      "archive_path": "command-ui-author/final/build.log",
+      "sha256": "0ab0f2f0f598067042f6c4f49264fea015feb59926ff770261af0e385ae69f38",
+      "bytes": 984
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/final/full.log": {
+      "archive_path": "command-ui-author/final/full.log",
+      "sha256": "1633ec94f0768432fa045e82c75c5b5756bd82869398668b658e637358dccead",
+      "bytes": 796
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/final/results.json": {
+      "archive_path": "command-ui-author/final/results.json",
+      "sha256": "05559a82a9768556047e10bc169d5081c30dace36175719612ae02b12a1503c9",
+      "bytes": 1351
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/final/selected.log": {
+      "archive_path": "command-ui-author/final/selected.log",
+      "sha256": "da9bef07c0bdf6d7a5f33eda30d03d5f7349b31a7e93546ce7a52dfe4ff7f036",
+      "bytes": 6160
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/final/source.tsx": {
+      "archive_path": "command-ui-author/final/source.tsx",
+      "sha256": "56fd14320f4d53d9e88d6bfcb12c57534cf082296d644506e3fd108ab4e41bd8",
+      "bytes": 27760
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/final/typecheck.log": {
+      "archive_path": "command-ui-author/final/typecheck.log",
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+      "bytes": 263
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/observed-tooling-failures.json": {
+      "archive_path": "command-ui-author/observed-tooling-failures.json",
+      "sha256": "cc96dfc54891d3ab9cb8cdac8a3267336a34532c1a1b59a30bb5ba96e1ef7974",
+      "bytes": 667
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/phase-after/full.log": {
+      "archive_path": "command-ui-author/phase-after/full.log",
+      "sha256": "bef762fbeef53297f5cb7371e66d02110a6730c4a13b6e60aebb646ba854ccf4",
+      "bytes": 100323
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/phase-after/instrumented-source.tsx": {
+      "archive_path": "command-ui-author/phase-after/instrumented-source.tsx",
+      "sha256": "d337e65ab3fff26e511472382511d0c5320a96f576942dd7f3c122a9c21a4e93",
+      "bytes": 28097
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/phase-after/results.json": {
+      "archive_path": "command-ui-author/phase-after/results.json",
+      "sha256": "384a5da0b8c1b5f3b66bfe1e1426d061a319a84bc3122d7238422235a5671c19",
+      "bytes": 562
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/phase-after/selected.log": {
+      "archive_path": "command-ui-author/phase-after/selected.log",
+      "sha256": "a7a04bf8e74098cbffbb3bb0c138ee24556a4ba6cccfd42a295eeee05a3d9c14",
+      "bytes": 8842
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/phase-before/full.log": {
+      "archive_path": "command-ui-author/phase-before/full.log",
+      "sha256": "1a0eee1f0a21ba2466b24dd6872c2253a3333970df05458d78c08b1f62069262",
+      "bytes": 101063
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/phase-before/instrumented-source.tsx": {
+      "archive_path": "command-ui-author/phase-before/instrumented-source.tsx",
+      "sha256": "67f58491969b4d1e40963173a93f33e2c2ee6491661b1d2534475278e8164a54",
+      "bytes": 27844
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/phase-before/results.json": {
+      "archive_path": "command-ui-author/phase-before/results.json",
+      "sha256": "f8cf960e745061475970ec89a9f5779251fa2214f95fe3234fb4b174ca00064a",
+      "bytes": 561
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/phase-before/selected.log": {
+      "archive_path": "command-ui-author/phase-before/selected.log",
+      "sha256": "fb8c15011062344cb71aa9940cfcdd55f2073572834d028c03ef54a7ade610ca",
+      "bytes": 9586
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/phase-comparison.json": {
+      "archive_path": "command-ui-author/phase-comparison.json",
+      "sha256": "68cf7f2655aff3df779c7cf34f0fa6f3297b8ef1bf5bb4796ca5383c86aabc31",
+      "bytes": 9780
+    },
+    "/workspace/.onboarding/command-ui-ci-stability/proposed-source.tsx": {
+      "archive_path": "command-ui-author/proposed-source.tsx",
+      "sha256": "db97ef2a47d575926eab7010e852f0cb116fcc463d90e048a0280c1bd2b2c77e",
+      "bytes": 27295
+    }
+  }
+}

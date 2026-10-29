@@ -1,0 +1,9 @@
+{
+  "review_sha256": "d788f544a7822fe91df6fd983063688e022ef0b1f47dd3335636fa95434b06d2",
+  "manifest_sha256": "7e43eb09a013eeea5f88a5744b379fec077789d50a55cc5f172b8efb0d3281fd",
+  "root_rehashed_files": 49,
+  "source": "5b7e401780ab393a13fccd1c54b64362cdbef452",
+  "source_sha256": "84e90a6bf6250441c39da2f4ebf09ca59dc75401b10d870859452f81d5315129",
+  "actual": "independent6checks3freshPNG;2realTaskRequests;26B/2attempts/TaskAcceptedseq66;read-onlySQL;positivecleanup",
+  "scope": "4nodeOwneronly/0Validators; notfullGraph/realresponse-loss/OSdialog/Mac/newCI/packages"
+}

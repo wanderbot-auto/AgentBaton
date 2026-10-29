@@ -335,6 +335,7 @@ pub struct Daemon {
     command_workers: crate::command_workers::CommandWorkers,
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
     goal_pending: Option<(String, Receiver<Value>)>,
+    graph_workers: crate::goal_store::GraphWorkers,
 }
 impl Daemon {
     pub fn bind(runtime_dir: &Path) -> Result<Self> {
@@ -391,6 +392,7 @@ impl Daemon {
             command_workers: Default::default(),
             data_workers,
             goal_pending: None,
+            graph_workers: Default::default(),
         })
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
@@ -398,6 +400,7 @@ impl Daemon {
         let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {
             self.supervisor.tick(&mut self.store)?;
+            self.graph_workers.tick(&mut self.store)?;
             self.command_workers.tick(&mut self.store)?;
             self.data_workers.tick(&mut self.store)?;
             self.finish_data_admission();
@@ -435,6 +438,7 @@ impl Daemon {
         self.data_workers.shutdown(&mut self.store)?;
         self.command_workers.shutdown(&mut self.store)?;
         self.supervisor.shutdown(&mut self.store)?;
+        self.graph_workers.shutdown(&mut self.store)?;
         for reader in readers {
             let _ = reader.join();
         }
@@ -475,7 +479,8 @@ impl Daemon {
         }
         if (self.supervisor.has_workers()
             || self.command_workers.has_workers()
-            || self.data_workers.has_workers())
+            || self.data_workers.has_workers()
+            || self.graph_workers.has_workers())
             && matches!(
                 r.method.as_str(),
                 "projects.import"
@@ -515,17 +520,25 @@ impl Daemon {
             "data_workspaces.list" => {let p:ProjectId=params(r.params)?;Ok(json!(self.store.list_data_workspace_creations(&p.project_id)?))}
             "data_workspaces.cancel" => {let p:DataCreationId=params(r.params)?;let record=self.store.cancel_data_workspace_creation(&p.creation_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;self.data_workers.cancel(&p.creation_id);Ok(json!(record))}
             "data_workspaces.create" | "data_workspaces.approve" => Err(CoreError::new("AUTH_REQUIRED","A server-fixed preview and native data_workspace owner confirmation are required before copying")),
+            "goal_node_approvals.propose"=>{let p:crate::goal_store::GraphNodeApprovalSelection=params(r.params)?;Ok(json!(self.store.propose_goal_node_acceptance(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "approvals.decline"=>{let p:ProposalId=params(r.params)?;self.store.decide_goal_node(&p.proposal_id,r.expected_revision.ok_or_else(invalid)?,false)}
+            "goal_graph_runs.cancel"=>{let p:GoalRunId=params(r.params)?;let (receipt,stops)=self.store.cancel_goal_graph_with_stops(&p.run_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;for id in stops{self.supervisor.cancel(&id);}Ok(json!(receipt))}
+            "goal_graph_runs.advance_plan"=>{let p:crate::goal_store::GoalPlanAdvance=params(r.params)?;Ok(json!(self.store.advance_goal_graph_plan(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "goal_graph_runs.propose"=>{let p:crate::goal_store::GraphRunSelection=params(r.params)?;Ok(json!(self.store.propose_goal_graph_run(&p,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "goal_graph_runs.get"=>{let p:GoalRunId=params(r.params)?;Ok(json!(self.store.goal_graph_details(&p.run_id)?))}
+            "goal_graph_runs.list"=>{let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_graph_runs(&p.task_id)?))}
             "goal_runs.propose"=>{let p:crate::goal_store::GoalRunSelection=params(r.params)?;Ok(json!(self.store.propose_goal_run(&p,&r.idempotency_key.ok_or_else(invalid)?)?))}
             "goal_runs.get"=>{let p:GoalRunId=params(r.params)?;self.store.goal_run_details(&p.run_id)}
             "goal_runs.list"=>{let p:TaskId=params(r.params)?;Ok(json!(self.store.list_goal_runs(&p.task_id)?))}
             "goal_runs.cancel"=>{let p:GoalRunId=params(r.params)?;let (run,stops)=self.store.cancel_goal_with_stops(&p.run_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;for id in stops {self.supervisor.cancel(&id);}Ok(json!(run))}
             "goal_runs.advance_plan"=>{let p:crate::goal_store::GoalPlanAdvance=params(r.params)?;Ok(json!(self.store.advance_goal_plan(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
-            "goal_runs.dispatch"=>{
+            "goal_runs.dispatch" | "goal_graph_runs.dispatch"=>{
                 let mut p:crate::goal_store::GoalRunDispatch=params(r.params)?;let revision=r.expected_revision.ok_or_else(invalid)?;let key=r.idempotency_key.ok_or_else(invalid)?;
-                let (receipt,new)=self.store.admit_goal_advance(&p,revision,&key)?;if !new{return Ok(receipt);}
+                let (receipt,new)=if r.method=="goal_graph_runs.dispatch"{self.store.admit_goal_graph_advance(&p,revision,&key)?}else{self.store.admit_goal_advance(&p,revision,&key)?};if !new{return Ok(receipt);}
                 p.expected_ledger_revision=self.store.sequence()?;
                 let started=Instant::now();
                 let action=(||->Result<()> {
+                    if r.method=="goal_graph_runs.dispatch" {if let Some(prepared)=self.store.prepare_graph_validation(&p,revision)? {self.graph_workers.start_validation(&mut self.store,prepared)?;return Ok(());}}
                     if let Some(session)=self.store.goal_dispatch_session(&p,revision)? {
                         if let Err(error)=self.supervisor.launch(&mut self.store,&session.id){self.supervisor.record_local_launch_failure(&mut self.store,&session.id)?;self.store.settle_goal_worker(&session.id,u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),true,true)?;return Err(error);}
                         return Ok(());
@@ -947,6 +960,7 @@ impl Drop for Daemon {
     fn drop(&mut self) {
         // Error/unwind paths also retain authority until every owned worker is
         // cancelled and joined. Unpersisted outcomes are reconciled on restart.
+        self.graph_workers.reap_owned_workers();
         self.data_workers.reap_owned_workers();
         self.command_workers.reap_owned_workers();
         self.supervisor.reap_owned_workers();
@@ -1087,6 +1101,40 @@ mod frame_tests {
         drop(old_duplicate);
         assert_eq!(Daemon::bind(&runtime).err().unwrap().code, "WORKSPACE_BUSY");
         drop(replacement);
+    }
+
+    #[test]
+    fn fatal_actor_error_cancels_and_joins_owned_graph_reader_before_writer_lock_handoff() {
+        let directory = tempfile::Builder::new()
+            .permissions(fs::Permissions::from_mode(0o700))
+            .tempdir()
+            .unwrap();
+        let runtime = directory.path().canonicalize().unwrap().join("runtime");
+        let mut daemon = Daemon::bind(&runtime).unwrap();
+        let old_duplicate = daemon._lock.try_clone().unwrap();
+        let checked = Arc::new(AtomicBool::new(false));
+        let observed = checked.clone();
+        let worker_runtime = runtime.clone();
+        daemon
+            .graph_workers
+            .install_drop_fixture(runtime.clone(), move || {
+                assert_eq!(
+                    Daemon::bind(&worker_runtime).err().unwrap().code,
+                    "WORKSPACE_BUSY"
+                );
+                assert!(worker_runtime.join("batond.sock").exists());
+                observed.store(true, Ordering::SeqCst);
+            });
+        // The synthetic reader has no authorized run: tick returns a real actor
+        // error before run's normal shutdown branch. Drop must still reap it.
+        let error = daemon.run(Arc::new(AtomicBool::new(false))).unwrap_err();
+        assert_eq!(error.code, "NOT_FOUND");
+        assert!(checked.load(Ordering::SeqCst));
+        assert!(!runtime.join("batond.sock").exists());
+        let successor = Daemon::bind(&runtime).unwrap();
+        drop(old_duplicate);
+        assert_eq!(Daemon::bind(&runtime).err().unwrap().code, "WORKSPACE_BUSY");
+        drop(successor);
     }
 
     #[test]
@@ -1249,6 +1297,36 @@ impl Daemon {
                 }
                 ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
             }
+            "goal_node_approvals.propose" => {
+                let p: crate::goal_store::GraphNodeApprovalSelection = params(request.params)?;
+                if let (Some(revision), Some(key)) = (
+                    request.expected_revision,
+                    request.idempotency_key.as_deref(),
+                ) {
+                    if self
+                        .store
+                        .node_proposal_replay(&p, revision, key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                let run = self.store.goal_graph_summary(&p.run_id)?.run;
+                ids.push(self.store.get_goal_scope(&run.scope_id)?.workspace_id);
+            }
+            "goal_graph_runs.propose" => {
+                let p: crate::goal_store::GraphRunSelection = params(request.params)?;
+                if let Some(key) = request.idempotency_key.as_deref() {
+                    if self
+                        .store
+                        .graph_execution_proposal_replay(&p, key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
+            }
             "goal_runs.propose" => {
                 let p: crate::goal_store::GoalRunSelection = params(request.params)?;
                 if let Some(key) = request.idempotency_key.as_deref() {
@@ -1261,6 +1339,23 @@ impl Daemon {
                     }
                 }
                 ids.push(self.store.get_goal_scope(&p.scope_id)?.workspace_id);
+            }
+            "goal_graph_runs.advance_plan" => {
+                let p: crate::goal_store::GoalPlanAdvance = params(request.params)?;
+                if let (Some(key), Some(rev)) = (
+                    request.idempotency_key.as_deref(),
+                    request.expected_revision,
+                ) {
+                    if self
+                        .store
+                        .graph_plan_advance_replay(&p, rev, key)?
+                        .is_some()
+                    {
+                        return Ok(vec![]);
+                    }
+                }
+                let r = self.store.goal_graph_summary(&p.run_id)?.run;
+                ids.push(self.store.get_goal_scope(&r.scope_id)?.workspace_id);
             }
             "goal_runs.advance_plan" => {
                 let p: crate::goal_store::GoalPlanAdvance = params(request.params)?;
@@ -1279,17 +1374,22 @@ impl Daemon {
                 let run = self.store.get_goal_run(&p.run_id)?;
                 ids.push(self.store.get_goal_scope(&run.scope_id)?.workspace_id);
             }
-            "goal_runs.dispatch" => {
+            "goal_runs.dispatch" | "goal_graph_runs.dispatch" => {
+                let graph = request.method == "goal_graph_runs.dispatch";
                 let p: crate::goal_store::GoalRunDispatch = params(request.params)?;
                 if let (Some(key), Some(revision)) = (
                     request.idempotency_key.as_deref(),
                     request.expected_revision,
                 ) {
-                    if self.store.goal_advance_replay(&p, revision, key)?.is_some() {
+                    if !graph && self.store.goal_advance_replay(&p, revision, key)?.is_some() {
                         return Ok(vec![]);
                     }
                 }
-                let run = self.store.get_goal_run(&p.run_id)?;
+                let run = if graph {
+                    self.store.goal_graph_summary(&p.run_id)?.run
+                } else {
+                    self.store.get_goal_run(&p.run_id)?
+                };
                 ids.push(self.store.get_goal_scope(&run.scope_id)?.workspace_id);
             }
             "goal_plans.ready_preview" => {
@@ -1386,7 +1486,7 @@ impl Daemon {
                 };
                 ids.push(workspace);
             }
-            "approvals.finalize" => {
+            "approvals.finalize" | "approvals.decline" => {
                 let p: ProposalId = params(request.params)?;
                 let raw: Option<String> = {
                     use rusqlite::OptionalExtension;
@@ -1395,9 +1495,16 @@ impl Daemon {
                 if let Some(raw) = raw {
                     let proposal: crate::sessions::ApprovalProposal = crate::storage::decode(&raw)?;
                     match proposal.kind.as_str() {
-                        "goal_execution" => {
+                        "goal_execution" | "goal_graph_execution" => {
                             if let Some(id) = proposal.snapshot["intent"]["scope_id"].as_str() {
                                 ids.push(self.store.get_goal_scope(id)?.workspace_id);
+                            }
+                        }
+                        "goal_node_acceptance" => {
+                            if let Some(id) =
+                                proposal.snapshot["run_binding"]["workspace_id"].as_str()
+                            {
+                                ids.push(id.to_owned());
                             }
                         }
                         "goal" => {
@@ -1427,6 +1534,21 @@ impl Daemon {
         ids.dedup();
         self.store.prepare_data_input_contexts(&ids)
     }
+    fn graph_context_for_request(
+        &self,
+        raw: &str,
+    ) -> Result<Option<crate::goal_store::GraphReadContext>> {
+        let request: Request = serde_json::from_str(raw).map_err(|_| invalid())?;
+        if request.token != self.token || request.api_version != API_VERSION {
+            return Ok(None);
+        }
+        self.store.graph_request_read_context(
+            &request.method,
+            &request.params,
+            request.expected_revision,
+            request.idempotency_key.as_deref(),
+        )
+    }
     fn ready_error(&self, raw: &str, error: CoreError) -> Value {
         let request_id = serde_json::from_str::<Value>(raw)
             .ok()
@@ -1441,12 +1563,19 @@ impl Daemon {
             ));
             return;
         }
+        let graph = match self.graph_context_for_request(&job.raw) {
+            Ok(g) => g,
+            Err(error) => {
+                let _ = job.reply.try_send(self.ready_error(&job.raw, error));
+                return;
+            }
+        };
         match self.data_contexts_for_request(&job.raw) {
             Err(error) => {
                 let _ = job.reply.try_send(self.ready_error(&job.raw, error));
             }
-            Ok(contexts) if !contexts.is_empty() => {
-                if let Err(failure) = self.data_workers.defer(contexts, job) {
+            Ok(contexts) if !contexts.is_empty() || graph.is_some() => {
+                if let Err(failure) = self.data_workers.defer(contexts, graph, job) {
                     let (error, job) = *failure;
                     let _ = job.reply.try_send(self.ready_error(&job.raw, error));
                 }
@@ -1467,7 +1596,7 @@ impl Daemon {
                 Err(error) => {
                     let _ = job.reply.try_send(self.ready_error(&job.raw, error));
                 }
-                Ok(witness) => {
+                Ok(mut witness) => {
                     if Instant::now() > job.deadline || !witness.for_request(&job.raw) {
                         let _ = job.reply.try_send(self.ready_error(
                             &job.raw,
@@ -1479,6 +1608,7 @@ impl Daemon {
                         return;
                     }
                     debug_assert!(self.store.data_input.is_none());
+                    self.store.graph_input = witness.graph.take();
                     self.store.data_input = Some(witness);
                     let request = serde_json::from_str::<Request>(&job.raw)
                         .expect("authenticated deferred request");
@@ -1541,6 +1671,7 @@ impl Daemon {
                     } else {
                         let response = self.handle(&job.raw);
                         self.store.data_input = None;
+                        self.store.graph_input = None;
                         let _ = job.reply.try_send(response);
                     }
                 }
@@ -1632,7 +1763,7 @@ impl Daemon {
                 }
             }
         }
-        if self.data_workers.has_workers() {
+        if self.data_workers.has_workers() || self.graph_workers.has_workers() {
             return Ok(());
         }
         let mut next = None;
@@ -1644,7 +1775,12 @@ impl Daemon {
         }
         let Some(run) = next else { return Ok(()) };
         let ledger = self.store.sequence()?;
-        let raw=serde_json::to_string(&json!({"api_version":API_VERSION,"request_id":Uuid::new_v4().to_string(),"token":self.token,"method":"goal_runs.dispatch","params":{"run_id":run.id,"expected_ledger_revision":ledger},"expected_revision":run.revision,"idempotency_key":format!("goal-advance:{}:{}:{}",run.id,run.revision,ledger)})).map_err(|_|CoreError::new("INTERNAL_ERROR","Cannot construct private Goal advancement"))?;
+        let method = if self.store.is_goal_graph_run(&run.id)? {
+            "goal_graph_runs.dispatch"
+        } else {
+            "goal_runs.dispatch"
+        };
+        let raw=serde_json::to_string(&json!({"api_version":API_VERSION,"request_id":Uuid::new_v4().to_string(),"token":self.token,"method":method,"params":{"run_id":run.id,"expected_ledger_revision":ledger},"expected_revision":run.revision,"idempotency_key":format!("goal-advance:{}:{}:{}",run.id,run.revision,ledger)})).map_err(|_|CoreError::new("INTERNAL_ERROR","Cannot construct private Goal advancement"))?;
         let (reply, receive) = mpsc::sync_channel(1);
         self.goal_pending = Some((run.id, receive));
         self.handle_ready_request(ReadyRequest {

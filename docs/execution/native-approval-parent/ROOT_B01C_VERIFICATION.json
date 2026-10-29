@@ -1,0 +1,24 @@
+{
+  "recorded_at": "2026-10-28T15:47:05.836205+00:00",
+  "source": "b01c3e683936ffec85882858c77620133b7e0c6c",
+  "core_compiled": "5541c37",
+  "readonly_source": "85cc8e7",
+  "tests": "53lib+22harness actuallyPASS",
+  "clippy": "PASS -Dwarnings",
+  "fmt": "PASS",
+  "result_json_sha256": "168caaf635e5213226a75e48b48d1b9a268ef2ae5e703c3f19bc3f486e6b350b",
+  "first_e942_failure": {
+    "exit_code": 101,
+    "reason": "tauri::wry reexport gated android, notdesktop",
+    "raw_sha256": "86cab016e88f05214ba243677a0eb25fa497922cac3430d2875d532452522192"
+  },
+  "repair": "same locked raw-window-handle0.6.2 directrootedge only, no packages changed",
+  "later_message_source": "17f343c onlymessage/importedafterPASS notrerunCargo",
+  "not_verified": [
+    "macOS realNSAlert",
+    "actualclose/retain GUI",
+    "newOSdialogtestbin",
+    "CoreValidator newer source"
+  ],
+  "lease": "Root released after noCargo writer; Coreauthor solewriter"
+}

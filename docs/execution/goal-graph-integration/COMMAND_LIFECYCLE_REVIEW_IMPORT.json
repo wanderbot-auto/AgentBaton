@@ -1,0 +1,8 @@
+{
+  "archive": "COMMAND_LIFECYCLE_REVIEW_EVIDENCE.tar.gz",
+  "bytes": 55629,
+  "sha256": "feb0e79c749fe2e74a37959068ae3d890ffa1134904fcd2d603b026d7e767763",
+  "source_manifest_sha256": "57950f55012ae5e8d815fc02884d679a5e820c29519ce44b0721c79d240201c0",
+  "files": 18,
+  "all_roundtrip_sha256_verified": true
+}

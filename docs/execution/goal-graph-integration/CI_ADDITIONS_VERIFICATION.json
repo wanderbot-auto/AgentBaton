@@ -1,0 +1,51 @@
+{
+  "source_head": "2a7bd35eff2773621e0b267176a22a7e0009a542",
+  "reviewed_uncommitted_workflow_sha256": "87903a50f4d9957e56d18a11baa0961330c2eb2c8dca6f9857a2500a20b73162",
+  "verdict": "PASS static wiring only; new CI/OS/product results pending",
+  "files": {
+    "REVIEW.md": {
+      "sha256": "2d5e3707d56d3710aaca7648a5feac5dca9b9ca6add19269b44f386fd59996b1",
+      "bytes": 6890
+    },
+    "audit.json": {
+      "sha256": "2a3a928fdb4da8c5323d7d118ee8278dc8c90576ed88b830fc35f5d8290c226e",
+      "bytes": 8576
+    },
+    "audit.log": {
+      "sha256": "fc99b73f7c66bc91bfcb1f18b5fb4c9ba6d6255013c2b325f0a4a492fe0e6969",
+      "bytes": 402
+    },
+    "audit.py": {
+      "sha256": "4740980cb5edfa59c70d4cec4a5c59e1292e488e2de506b33a36f78d1d3784a7",
+      "bytes": 9304
+    },
+    "commands.json": {
+      "sha256": "c7811954968f1d5dbfec06150b217ce4af8cc97f867f572eb3068d3106b4a7bc",
+      "bytes": 686
+    },
+    "diff-check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "frontend-heredoc.py": {
+      "sha256": "fb065c0d1aa6e00021b895cf2b59b9a438bddf457a7dd1ac1d8b5a44657bb73d",
+      "bytes": 1828
+    },
+    "infrastructure.log": {
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "bytes": 231
+    },
+    "product.baseline.yml": {
+      "sha256": "ef238f4a2e78ead6c20414b348825e129083903d2b4bec012524ba0cb1580363",
+      "bytes": 9169
+    },
+    "product.patch": {
+      "sha256": "fc9e4b22b25ae04d5360c26b62a41e929412ee6a7d2ab2f19beb969c750a0585",
+      "bytes": 2213
+    },
+    "product.reviewed.yml": {
+      "sha256": "87903a50f4d9957e56d18a11baa0961330c2eb2c8dca6f9857a2500a20b73162",
+      "bytes": 10583
+    }
+  }
+}

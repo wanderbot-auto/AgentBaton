@@ -1,0 +1,47 @@
+{
+  "head": "641be86e8b055920787cfebdd48270716d509309",
+  "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+  "tree": "67038b21828745f79905a169abb6e57e98bca5a0",
+  "product_run": 40749637133,
+  "environment_run": 40749637046,
+  "outcome": "5success2Macfail",
+  "intel": "early Node563pass1timeout5000; Core/native/packages not_reached",
+  "arm": "Core/native tests and actualWebView succeeded; Ownerfixture daemon exited1/readinessfail; stderr/path not recorded; desktoprelease audit/package skipped",
+  "files": {
+    "product-intel.log": {
+      "stored": "product-intel.log.gz",
+      "sha256": "d581f61c41feac265ef6afb945c4190777d659555f59b91cf897125eda689cef",
+      "bytes": 54747
+    },
+    "product-arm-observed.log": {
+      "stored": "product-arm-observed.log.gz",
+      "sha256": "c911efcd186718b1390a7b22158198f1037ae7e8c095de03b64e95f411bc8e1c",
+      "bytes": 387747
+    },
+    "environment-intel.log": {
+      "stored": "environment-intel.log.gz",
+      "sha256": "a0a902345fd6d80c2900781238632e33a1342694d4f8adadca2b0eee7afed52a",
+      "bytes": 44145
+    },
+    "product-jobs-final.json": {
+      "sha256": "8870324d719a2a8d263795ee08eb2055f9c33ab2d5c1e9e1bf755942c8516409",
+      "bytes": 15327
+    },
+    "environment-jobs-final.json": {
+      "sha256": "9e3d380a3f4b723d7eada9283d707dd258f2d91024e2ec73d70cfa1f982e612c",
+      "bytes": 11410
+    },
+    "arm-job-final.json": {
+      "sha256": "d585a04401f1783aec9dbb3a767009a353bc263e27562d4f10c2d449f8f1f8d3",
+      "bytes": 3948
+    },
+    "branch-rules-read.json": {
+      "sha256": "29e90fe1be55f971c82d39423860d32098ddd7951b43a1174fcd97aa5ef2d0b5",
+      "bytes": 1153
+    },
+    "merge-candidate.json": {
+      "sha256": "6709c7687252368f7c13c4772baab37fbe5bbaa2f664609e64e6de90b264dd9b",
+      "bytes": 2660
+    }
+  }
+}

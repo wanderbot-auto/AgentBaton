@@ -1,0 +1,18 @@
+{
+  "archive": "FINAL_232_INTEGRATION_REVIEW_EVIDENCE.tar.gz",
+  "bytes": 77043,
+  "sha256": "3f13cd3eaca0568a68b6b431877c03fde1c9e74c0016e07116a287666e6c5950",
+  "declared_review_files": 8,
+  "archive_regular_members": 9,
+  "all_roundtrip_sha256_verified": true,
+  "reviewed_commit": "232b53a832b247964510b8660a7231d167fa9c90",
+  "review_manifest_sha256": "fa5be5174abe807f0e46267cdf55b6c95397b42a8bda32144c7c7df7feb71883",
+  "reviewed_source_manifest_files": 1175,
+  "reviewed_source_manifest_sha256": "ac901666263c7082221138bed490eb0bc1e0a6361923d93a140f93a597fe0c73",
+  "source_snapshot_resolution": {
+    "git_commit": "232b53a832b247964510b8660a7231d167fa9c90",
+    "paths": "manifest.json files[].path; recreate source/ from this existing Git commit",
+    "all_Git_archive_bytes_independently_verified_by_Root": true
+  },
+  "previous_imports": "five archives already tracked at reviewed fixed commit, not duplicated here"
+}

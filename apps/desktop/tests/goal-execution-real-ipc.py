@@ -125,7 +125,7 @@ def main():
     manifest = json.loads(manifest_bytes)
     binary_entry = manifest['binaries']['batond']
     expected_binary = binary_entry['sha256'] if isinstance(binary_entry, dict) else binary_entry
-    assert manifest['schema'] == 11 and sha(binary.read_bytes()) == expected_binary, 'Explicit coherent schema11 candidate is required'
+    assert manifest['schema'] == 12 and sha(binary.read_bytes()) == expected_binary, 'Explicit coherent schema12 candidate is required'
     report = {'status': 'failed_or_interrupted',
               'dimension': 'actual built React / Linux Chromium / fixed test-only HTTP / authenticated Unix Core / generated owned ACP process',
               'native_owner_dialog': 'not_run; fixed private host fixture outside HTTP approves actual Core snapshots',
@@ -203,7 +203,7 @@ def main():
             def database():
                 with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
                     db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-                    assert db.execute('PRAGMA user_version').fetchone()[0] == 11
+                    assert db.execute('PRAGMA user_version').fetchone()[0] == 12
                     tables = ['attempts', 'sessions', 'dispatch_intents', 'goal_runs', 'goal_run_nodes', 'goal_run_reservations', 'goal_plan_revisions', 'goal_node_evidence']
                     value = {name: db.execute('SELECT count(*) FROM ' + name).fetchone()[0] for name in tables}
                     value['sequence'] = db.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]
@@ -343,11 +343,17 @@ def main():
             allowed_task_ids = {s['task']['id'] for s in scenarios.values()}
             allowed_project_ids = {s['project']['id'] for s in scenarios.values()}
             allowed_scope_ids = {s['scope']['id'] for s in scenarios.values()}
+            allowed_scopes_by_task = {}
+            for scenario in scenarios.values():
+                allowed_scopes_by_task.setdefault(scenario['task']['id'], set()).add(scenario['scope']['id'])
             known_runs = {}
             fault = {'method': None, 'run_id': None}
             fault_lock = threading.Lock()
             fixed_read = {'system_snapshot': 'system.snapshot', 'projects_list': 'projects.list', 'connections_list': 'connections.list', 'sessions_list': 'sessions.list'}
             scoped_read = {'workspaces_list': ('workspaces.list', 'projectId', 'project_id', allowed_project_ids), 'grants_list': ('grants.list', 'projectId', 'project_id', allowed_project_ids), 'goal_scopes_list': ('goal_scopes.list', 'taskId', 'task_id', allowed_task_ids), 'goal_scopes_get': ('goal_scopes.get', 'scopeId', 'scope_id', allowed_scope_ids), 'goal_plans_get': ('goal_plans.get', 'scopeId', 'scope_id', allowed_scope_ids), 'goal_plans_list': ('goal_plans.list', 'scopeId', 'scope_id', allowed_scope_ids), 'goal_runs_list': ('goal_runs.list', 'taskId', 'task_id', allowed_task_ids)}
+            # The production legacy-mode interlock also reads the distinct
+            # Graph namespace. This grants only a fixture-task-bound list.
+            scoped_read['goal_graph_runs_list'] = ('goal_graph_runs.list', 'taskId', 'task_id', allowed_task_ids)
 
             class Handler(http.server.SimpleHTTPRequestHandler):
                 def log_message(self, *_):
@@ -411,6 +417,10 @@ def main():
                             for row in response['result']:
                                 assert row['task_id'] == params['task_id'] and row['scope_id'] in allowed_scope_ids
                                 known_runs[row['id']] = row['task_id']
+                        if method == 'goal_graph_runs.list' and isinstance(response.get('result'), list):
+                            for row in response['result']:
+                                assert type(row['graph_contract_version']) is int and row['graph_contract_version'] == 1
+                                assert row['run']['task_id'] == params['task_id'] and row['run']['scope_id'] in allowed_scopes_by_task[params['task_id']]
                         entry = {'method': method, 'params': params, 'key': key, 'revision': revision, 'response': response}
                         report['requests'].append(entry)
                         with fault_lock:
@@ -494,6 +504,7 @@ def main():
                     denied = ['goal_run_approve', 'goal_runs_propose', 'goal_runs_dispatch', 'approvals_finalize', 'generic_ipc', 'sessions_create', 'sessions_send', 'connections_propose', 'projects_import']
                     assert all(browser_request(command, {})['status'] == 403 for command in denied)
                     assert browser_request('goal_runs_get', {'runId': 'foreign-run'})['status'] == 400
+                    assert browser_request('goal_graph_runs_list', {'taskId': 'foreign-task'})['status'] == 400
                     assert browser_request('goal_run_advance_plan', {'runId': 'foreign-run', 'expectedPlanRevision': 2, 'expectedLedgerRevision': 1, 'expectedRevision': 1, 'idempotencyKey': 'foreign'})['status'] == 400
                     assert database() == before
                     passed('HTTP denies approval/finalize/generic dispatch or execution and foreign run references without database writes')

@@ -1,0 +1,23 @@
+{
+  "feature": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+  "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+  "tree": "1943596e0bd12177d852117dab86c81ca30e6858",
+  "product": 40761824261,
+  "environment": 40761824141,
+  "conclusion": "5success2MacOwnerfail",
+  "raw_job_logs_and_ZIPs": "complete underCI_0AA_LINUX_EVIDENCE.tar.gz andCI_0AA_MAC_EVIDENCE.tar.gz; no duplicate download",
+  "files": {
+    "product-jobs-final.json": {
+      "bytes": 15327,
+      "sha256": "47ff06861943d0b665143495cf3ab7f5d1802170fa98ba1f14791dccba60015b"
+    },
+    "environment-jobs-final.json": {
+      "bytes": 11410,
+      "sha256": "9ef4c814ae669dc8462e0f02ce3794abb692ae4283fddd73eeab419ba5606043"
+    },
+    "ROOT_FAILURE_CHECKPOINT.json": {
+      "bytes": 6954,
+      "sha256": "932ba8cc76ded4e3d12da12d9baaca9123c319929f415d1961238b4247fc5172"
+    }
+  }
+}

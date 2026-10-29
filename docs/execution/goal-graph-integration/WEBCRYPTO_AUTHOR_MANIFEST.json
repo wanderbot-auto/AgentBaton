@@ -1,0 +1,22 @@
+{
+  "baseline": "652c5f0",
+  "source_sha256": {
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "93777843bb2d5caf7eac5e42a569a859d5f04153896d0e53c1baee771d370d82",
+    "scripts/native-run.py": "8fa23e107fe92542b95fc5d398aa38a20236d29b2e3fbbe7eb87b92efb0197c1",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "50433be6bd43681342d5e247bc0386561ce5f4c070684824c1ca92dffb217b2e"
+  },
+  "evidence_sha256": {
+    "preservation-first-attempt.log": "c13dc4684a5175b63dad00e05c091e35fa1b78ca94fc2507abf29c4a0a74c9f1",
+    "preservation.json": "9f07b997b4d1d9c17d04dbb7d214d2a2b27044a3fbe5cfdf817d52d4c3f1d136",
+    "python-tests.log": "6799c8167b6d800fe8909445350eb5a2a6e69b6c9131f0b50c1f403b2460f03d",
+    "node-vector.log": "731d1d194e4f218d22709f9abe62d2bcfc570fd87c9240ec372429fb81a725f3"
+  },
+  "python": {
+    "passed": 29,
+    "failed": 0
+  },
+  "rust_new_tests": "4 source-only; no Cargo",
+  "native_webview": "not_run",
+  "macos": "not_run",
+  "targets_written": false
+}

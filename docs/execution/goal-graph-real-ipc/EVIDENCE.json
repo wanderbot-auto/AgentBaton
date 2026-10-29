@@ -1,0 +1,1656 @@
+{
+  "approval": "AB-START-001",
+  "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "branch": "codex/goal-graph-real-ipc",
+  "allowed_paths": [
+    "apps/desktop/tests/goal-graph-real-ipc.py",
+    "docs/execution/goal-graph-real-ipc/PLAN.md",
+    "docs/execution/goal-graph-real-ipc/PROGRESS.md",
+    "docs/execution/goal-graph-real-ipc/CHECKPOINT.md",
+    "docs/execution/goal-graph-real-ipc/EVIDENCE.json"
+  ],
+  "requirements": [
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-007",
+    "AB-TSK-008",
+    "AB-TSK-009",
+    "AB-TSK-010",
+    "AB-TSK-011",
+    "AB-TSK-012",
+    "AB-SEC-002",
+    "AB-SEC-004",
+    "AB-REL-001"
+  ],
+  "status": "observer_independently_reviewed_Root_exact_source_timeout_pass_remaining_integration_pending",
+  "source_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+  "wire_at_preparation": {
+    "path": "/workspace/.worktrees/goal-validation-graph/docs/execution/goal-validation-graph/WIRE_CONTRACT.json",
+    "sha256": "034c2103b294502ee57ae5706530327a48e951395a4b329877c6b006e5e2931a",
+    "status": "Core WIP c4b8b70 and live followups; not a freeze/accepted runtime",
+    "native_kinds": [
+      "goal_graph_execution",
+      "goal_node_acceptance"
+    ],
+    "contract_version": 1,
+    "schema_required": 12,
+    "graph_new_kind_row_and_snapshot_cap": 1048576,
+    "legacy_owner_cap_unchanged": 16384,
+    "aggregate_response_cap": 4194304
+  },
+  "ui_at_preparation": {
+    "types_sha256": "be79671f3d79f21feb13269f00225dc9f033191b6835c967b0f282d0ea4ca3cc",
+    "api_sha256": "54f6b43d0fdb51c608d518dbbc1e2d717d32d52c429fef9bd38d61a011d279e6",
+    "runtime_status": "UI MOCK/callback fixtures and WIP native tests are separate, no Graph execution closure established",
+    "stable_markers_reported_by_author": [
+      "goal-execution[data-execution-mode=legacy|graph]",
+      "goal-execution-options",
+      "goal-execution-switch[data-mode-target=graph|legacy]",
+      "goal-graph-panel[data-task-id][data-scope-id]",
+      "goal-graph-refresh",
+      "goal-graph-inspect/cancel[data-run-id]",
+      "goal-graph-advance/recover/approve",
+      "goal-graph-run/history[data-run-id]",
+      "goal-graph-node[data-node-id][data-plan-revision]",
+      "goal-graph-owner-approve/reject[data-node-id] (HTTP denied)"
+    ]
+  },
+  "actual_commands": [
+    {
+      "command": "python3 -c py_compile.compile(new harness,cfile=/tmp/goal-graph-real-ipc.pyc,doraise=True)",
+      "result": "PASS syntax only"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --self-check --output /workspace/.onboarding/goal-graph-real-ipc/preparation-boundary-2",
+      "exit_code": 0,
+      "dimension": "pure outgoing HTTP boundary checks with synthetic arguments; no Core/browser/model/candidate/TaskAccepted execution",
+      "count": 58,
+      "report_sha256": "58cfc818f7175067d3d5f22ef62ca167d08391e6a85a0a61553231da8b275f89"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --output /workspace/.onboarding/goal-graph-real-ipc/preparation-pending-runtime-1",
+      "exit_code": 2,
+      "result": "explicit pending_dependencies; actual_runtime not_run; no listener/process/daemon/provider started",
+      "report_sha256": "3c98b167288fecc812d39c7debf507afd7154b6d51b1a631d7da64e092e944be"
+    },
+    {
+      "command": "same self-check reused output preparation-boundary-2 (expected negative)",
+      "exit_code": 1,
+      "result": "FileExistsError before checks; original report SHA unchanged",
+      "log_sha256": "922c247276ce858056f3e9353118862ada3cd9e01f339bcb9dd11b1910b6cf1c"
+    },
+    {
+      "command": "pending CLI with previous schema11 manifest only, no binary invocation",
+      "exit_code": 2,
+      "result": "explicit older-schema refusal, pending no runtime",
+      "report_sha256": "39316cd03164545f3b58a0d43b338cc31f293e10a964c3fd73c6b0ac4269fbed",
+      "log_sha256": "27d718b372d197819da935c19e2492b82a5c3789350a6fa32ccbf033e7280115"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -c py_compile.compile(new harness,cfile=/tmp/goal-graph-real-ipc-owner.pyc,doraise=True)",
+      "result": "PASS syntax only; no subprocess/daemon/browser"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --driver-self-check --output /workspace/.onboarding/goal-graph-real-ipc/preparation-owner-driver-final",
+      "exit_code": 0,
+      "count": 15,
+      "dimension": "static constructor/generated Python syntax/manifest negatives and isolated readonly FD positive, foreign pin, traversal, symlink and hardlink refusal controls; no Core/browser/receipts",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/preparation-owner-driver-final/driver-static-checks.json",
+        "sha256": "5bece4b5b3107731b3c8295d4ab01f80ec56756d7ed77e56a1a5c22b06747244",
+        "bytes": 1743
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --self-check --output /workspace/.onboarding/goal-graph-real-ipc/preparation-owner-boundary-3",
+      "exit_code": 0,
+      "count": 58,
+      "dimension": "outgoing argument controls only; during driver development, before final preflight wrapper/FD additions; decoder unchanged",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/preparation-owner-boundary-3/boundary-checks.json",
+        "sha256": "06a76ae2c58dd2198f2a2cb83c6262b75f08e51580d147a37c20478150cd5715",
+        "bytes": 6251
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --owner-only --batond /workspace/.onboarding/goal-ready-frontier-schema11-04ba180/batond --candidate-manifest /workspace/.onboarding/goal-ready-frontier-schema11-04ba180/manifest.json --frontend /workspace/.worktrees/goal-runtime-integration/apps/desktop/dist --output /workspace/.onboarding/goal-graph-real-ipc/preparation-owner-schema11-refusal-1",
+      "exit_code": 2,
+      "result": "preflight_refused, actual_runtime not_run; older schema refused before binary hash read/invocation, Playwright import, auth-file read or listener",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/preparation-owner-schema11-refusal-1/preflight-refusal.json",
+        "sha256": "8bf86008d4ed7bbb0889ff71ab4ba90b0e6597ea79e8b2d1364b261d5f024a6d",
+        "bytes": 350
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --self-check --output /workspace/.onboarding/goal-graph-real-ipc/transport-quality-boundary-1",
+      "exit_code": 0,
+      "count": 58,
+      "harness_sha256_at_check": "f612a20cb6f803c37fa67fe8493532eac8eb3cfedffde04ed7a46a68045b501c",
+      "source_at_check": "f0deb2790eb39c9b8d2cb3fadfa5ab797089fa94; later 5b7e401 changes only async plan-observer list, classifier/boundary/constructor unchanged",
+      "dimension": "pure outgoing HTTP boundary checks with synthetic arguments; no Core/browser/model/candidate/TaskAccepted execution",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/transport-quality-boundary-1/boundary-checks.json",
+        "sha256": "efe47120639a0e3f42e67c6f29a9ddbe5fd171a1c91ad20e51030f92b5afc01b",
+        "bytes": 6251
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --driver-self-check --output /workspace/.onboarding/goal-graph-real-ipc/transport-quality-driver-1",
+      "exit_code": 0,
+      "count": 15,
+      "harness_sha256_at_check": "f612a20cb6f803c37fa67fe8493532eac8eb3cfedffde04ed7a46a68045b501c",
+      "source_at_check": "f0deb2790eb39c9b8d2cb3fadfa5ab797089fa94; later 5b7e401 changes only async plan-observer list, classifier/boundary/constructor unchanged",
+      "dimension": "static plan constructor/generated Python syntax/manifest negatives and isolated readonly FD controls; no Core/browser execution or minted receipts",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/transport-quality-driver-1/driver-static-checks.json",
+        "sha256": "c99eff3526d7b9e019fc4d380b35afd5797ff477c461115c141966b88706c7f1",
+        "bytes": 1743
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --transport-self-check --output /workspace/.onboarding/goal-graph-real-ipc/transport-quality-classification-1",
+      "exit_code": 0,
+      "count": 9,
+      "harness_sha256_at_check": "f612a20cb6f803c37fa67fe8493532eac8eb3cfedffde04ed7a46a68045b501c",
+      "source_at_check": "f0deb2790eb39c9b8d2cb3fadfa5ab797089fa94; later 5b7e401 changes only async plan-observer list, classifier/boundary/constructor unchanged",
+      "dimension": "static disconnect classification controls, no HTTP/Core/browser execution",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/transport-quality-classification-1/transport-static-checks.json",
+        "sha256": "f7235fc8c231e101f5072589876455244cb0ee30fc922625716fee27e5988d6b",
+        "bytes": 1896
+      }
+    },
+    {
+      "command": "python3 -c py_compile.compile(new harness,cfile=/tmp/goal-graph-real-ipc-transport.pyc,doraise=True)",
+      "result": "PASS final5b7e401 syntax"
+    },
+    {
+      "command": "/workspace/AgentBaton/artifacts/browser-venv/bin/python apps/desktop/tests/goal-graph-real-ipc.py --owner-only --batond /workspace/.onboarding/goal-graph-owner5541-native94157/batond --candidate-manifest /workspace/.onboarding/goal-graph-owner5541-native94157/manifest.json --frontend /workspace/.worktrees/goal-graph-integration/apps/desktop/dist --output /workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-primary",
+      "exit_code": 1,
+      "result": "f0deb preserved async-observer failure 1check/1failurePNG, no unexpected handler error, no provider attempt yet, cleanup thread joined/daemon wait0"
+    },
+    {
+      "command": "/workspace/AgentBaton/artifacts/browser-venv/bin/python apps/desktop/tests/goal-graph-real-ipc.py --owner-only --batond /workspace/.onboarding/goal-graph-owner5541-native94157/batond --candidate-manifest /workspace/.onboarding/goal-graph-owner5541-native94157/manifest.json --frontend /workspace/.worktrees/goal-graph-integration/apps/desktop/dist --output /workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait",
+      "exit_code": 0,
+      "checks": 6,
+      "screenshots": 3,
+      "result": "5b7e401 actual Owner-only PASS; not deterministic Validate/full Graph acceptance",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait/report.json",
+        "sha256": "ebd3e2042f441ddd2a5f47f63f1893b83ed680bfccbe33ca505e50055b3bbd39",
+        "bytes": 788516
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --self-check --output /workspace/.onboarding/goal-graph-real-ipc/validation-final-boundary",
+      "exit_code": 0,
+      "count": 58,
+      "dimension": "pure outgoing HTTP boundary checks with synthetic arguments; no Core/browser/model/candidate/TaskAccepted execution",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-boundary/boundary-checks.json",
+        "sha256": "435dc8ae7942351d0745abc8abbaee3b550578163e5ef5cf87cc5b3047f5c8f9",
+        "bytes": 6251
+      },
+      "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --driver-self-check --output /workspace/.onboarding/goal-graph-real-ipc/validation-final-driver",
+      "exit_code": 0,
+      "count": 15,
+      "dimension": "static plan constructor/generated Python syntax/manifest negatives and isolated readonly FD controls; no Core/browser execution or minted receipts",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-driver/driver-static-checks.json",
+        "sha256": "109aa43a0404b8d71180f99af890fe7e84f4466b83591d20074d1b9c2a047bb1",
+        "bytes": 1743
+      },
+      "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --transport-self-check --output /workspace/.onboarding/goal-graph-real-ipc/validation-final-transport",
+      "exit_code": 0,
+      "count": 9,
+      "dimension": "static disconnect classification controls, no HTTP/Core/browser execution",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-transport/transport-static-checks.json",
+        "sha256": "d3fc336bc434c2a369dfbc839806cf24d84c4b19c8f7fe8c07782cbc6cd59b6e",
+        "bytes": 1896
+      },
+      "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --validation-self-check --output /workspace/.onboarding/goal-graph-real-ipc/validation-final-plans",
+      "exit_code": 0,
+      "count": 35,
+      "dimension": "static five-node plans/legacy/Graph exact named-key contracts/generated Python/explicit bounded policy controls; no daemon/browser/validator run",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-plans/validation-static-checks.json",
+        "sha256": "f6e6489290317fc924d23d915cba80363b97f64c8290ce85ba0f824ed6994776",
+        "bytes": 3931
+      },
+      "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --provider-self-check --output /workspace/.onboarding/goal-graph-real-ipc/validation-final-provider",
+      "exit_code": 0,
+      "count": 5,
+      "dimension": "generated account-free ACP stdio program unit tests only with synthetic external-input requests; no Core/DB/candidate/validator/browser/TaskAccepted",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-provider/provider-fixture-unit-checks.json",
+        "sha256": "acd1a8467cea8817b12fe165303b6596db283b1a5fd8060778c81bee659d8379",
+        "bytes": 3440
+      },
+      "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f"
+    },
+    {
+      "command": "py_compile harness to /tmp/goal-graph-validation.pyc and compile embedded generated program",
+      "result": "PASS final source syntax only"
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --self-check --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-boundary-1",
+      "exit_code": 0,
+      "count": 58,
+      "dimension": "pure outgoing HTTP boundary checks with synthetic arguments; no Core/browser/model/candidate/TaskAccepted execution",
+      "source_sha256_at_check": "135ee0f3341b891581d582cd7e47cb0435966f0ddf2670bdb0a00c35c55dbd25",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-boundary-1/boundary-checks.json",
+        "sha256": "d212afba98674c9b10ce4d223cc2314dd5240db13856a6fdbc2c344e5d35a60b",
+        "bytes": 6251
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --driver-self-check --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-driver-1",
+      "exit_code": 0,
+      "count": 15,
+      "dimension": "static plan constructor/generated Python syntax/manifest negatives and isolated readonly FD controls; no Core/browser execution or minted receipts",
+      "source_sha256_at_check": "135ee0f3341b891581d582cd7e47cb0435966f0ddf2670bdb0a00c35c55dbd25",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-driver-1/driver-static-checks.json",
+        "sha256": "87bcf659fe4bd022e36b3dd7ed7b91ea9d20519c4d8bbbfe2966629a11083c66",
+        "bytes": 1743
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --transport-self-check --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-transport-1",
+      "exit_code": 0,
+      "count": 9,
+      "dimension": "static disconnect classification controls, no HTTP/Core/browser execution",
+      "source_sha256_at_check": "135ee0f3341b891581d582cd7e47cb0435966f0ddf2670bdb0a00c35c55dbd25",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-transport-1/transport-static-checks.json",
+        "sha256": "b6b61f6f367f4c1e323d1d8bd9615616f6512a21b4abc49678edf0be5fd7959a",
+        "bytes": 1896
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --validation-self-check --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-plans-1",
+      "exit_code": 0,
+      "count": 35,
+      "dimension": "static five-node plans/legacy/Graph exact named-key contracts/generated Python/explicit bounded policy controls; no daemon/browser/validator run",
+      "source_sha256_at_check": "135ee0f3341b891581d582cd7e47cb0435966f0ddf2670bdb0a00c35c55dbd25",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-plans-1/validation-static-checks.json",
+        "sha256": "a9c0e6b76c129552a75b4cf27926e5c7d22cdd45d88f04664ada5bff8c105b96",
+        "bytes": 3931
+      }
+    },
+    {
+      "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --provider-self-check --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-provider-2",
+      "exit_code": 0,
+      "count": 5,
+      "dimension": "generated account-free ACP stdio program unit tests only with synthetic external-input requests; no Core/DB/candidate/validator/browser/TaskAccepted",
+      "source_sha256_at_check": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-provider-2/provider-fixture-unit-checks.json",
+        "sha256": "dd2d41074425fda8d061b4901c96a986deae57d74a4a0f464778861516a9465d",
+        "bytes": 3623
+      }
+    },
+    {
+      "command": "python3 new harness --packet-self-check --packet <actual-data-graph-97c079...json> --packet <actual-command-graph-526a42...json> --output /workspace/.onboarding/goal-graph-real-ipc/review-fix-actual-packets-2",
+      "exit_code": 0,
+      "count": 37,
+      "dimension": "pure Python actual saved packet checks, no Core/browser/SQL/process",
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-actual-packets-2/actual-packet-checks.json",
+        "sha256": "9d710c224ff62e850fe88b786884afd81bc3320fee74adc100ecc04de03dc6a8",
+        "bytes": 9792
+      }
+    },
+    {
+      "command": "py_compile to /tmp/goal-graph-review-fix.pyc; AST owner_only_driver output parameter Store sites; exact one/two-line diff review",
+      "result": "PASS c3e/fd syntax; zero output Store; reviewer confirmed all unrelated budgets/controls byte-unchanged"
+    }
+  ],
+  "boundary_guarantees": [
+    "Finite fixed metadata/scoped read/plan-store/Graph cancel+advance only; all graph/node approval/proposal/finalize/decline/reject/generic/session dispatch HTTP403",
+    "Four mutation methods require exact legal nonempty keys and safe numeric CAS; readonly remains keyless",
+    "Foreign task/scope/run, extra permission/token/method fields, malformed types/UTF8/duplicate envelope JSON, bad Origin/Host/content-type refused",
+    "Inner plan JSON text sent byte-exact/opaque for actual Core schema/CAS checks; no duplicate-key repair",
+    "Exact new Graph proposal row/snapshot review bound, no hash-only/truncated snapshot, no widening legacy kinds",
+    "Host Owner actions have no HTTP route; explicit Reject separate from native dialog cancel"
+  ],
+  "old_harness_bytes_unchanged": {
+    "apps/desktop/tests/quiet-canvas-real-ipc.py": "d6a3f683e7ffcd354fb21c200488c25e228ebbf5a7ef290bef56c952e7598ebd",
+    "apps/desktop/tests/command-validation-real-ipc.py": "05b37fbb969ca750b93887ad1125a5c5e7ebb459ff7151edc5d055315673a41d",
+    "apps/desktop/tests/goal-planning-real-ipc.py": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018",
+    "apps/desktop/tests/data-workspace-real-ipc.py": "7e1bc37ac2837a2121ddc01480232ab2a6dbba2522806fa940b86dae529ff26b",
+    "apps/desktop/tests/goal-execution-real-ipc.py": "e5db2bed25b98a5d7b03fa72adf8e332a91d98e1d2ac43a089d697ea93bade5e"
+  },
+  "old80checks56captures": "Existing baseline independent evidence preserved; NOT rerun or replaced by these58static boundary controls. No old schema11 daemon/model invoked.",
+  "pending_exact_dependencies": [
+    "Root final exact-source Owner-only actual result and final integration/CI",
+    "Remaining Graph fault matrix: drift, unknown, cancellation, CAS/ledger conflicts, actual explicit Reject, true dropped-response recovery; same-key replay alone is not response loss",
+    "Native OS owner dialog/macOS/live Provider/fullDesign delivery remain Root-managed and distinct"
+  ],
+  "limits": [
+    "Latest code160e0a0/source9b1b includes only diagnosed fixture corrections; Root final five-mode replay in progress. Author controls are not Core/browser/TaskAccepted runs.",
+    "Root current Owner actual6/3 passed for c432/3be. Root initial Integrity had report-writing shadow bug with original first exception unknown; second Integrity report correctly refused expired10s private Grant and is FAILED, despite earlier stages having genuine evidence. Preserve both.",
+    "Integrity fixture lifetime increase10\u219230s was explicit Root-directed test-fixture correction; no product/Goal runtime/Node/command/observer/cleanup threshold was relaxed.",
+    "37 actual packet controls plus generated program5 and static58/15/9/35 are separately attributed. The provider unit failure is preserved as a labelled observed summary, not fabricated original log.",
+    "Raw original observation string is authoritative; only known display observation_json is stripped. Full original Values, SQL raw digests, complete Owner snapshots, FD pins and cumulative budgets retained; no universal reencoding or field stripping.",
+    "No product/Core/UI/Native/old5/lock/CI/STATUS/Cargo/target changes or private model credentials/accounts/fees/remote actions; no author Chromium/daemon run in this review repair. All failed and historical output directories remain.",
+    "Later failed Integrity reports reached actual TaskAccepted but failed the old root3 budget expectation. Diagnostic proved inherited-bootstrap root4. Root authorized exact normal4 and negative3; old reports remain FAILED and are not rewritten green."
+  ],
+  "remote_backup": {
+    "branch": "codex/goal-graph-real-ipc",
+    "sha": "e1cc2629a706b4c9aa259b0310bcef431d7e9e65",
+    "pushes": 1,
+    "force": false,
+    "actual_ls_remote_verified": true,
+    "PR_created": false,
+    "manual_CI_action": false,
+    "existing_workflow_trigger_review": "Product PR/dispatch only; Environment push main + infra/ci-request only, no feature push trigger"
+  },
+  "schema_plan_candidate": {
+    "status": "sent_to_Core_for_confirmation_not_executed",
+    "nodes": [
+      "Work external input\u2192report",
+      "Validate report candidate with exact approved deterministic rule",
+      "Owner1 report current candidate/validation",
+      "Summary consumes accepted report\u2192distinct summary",
+      "Owner2 summary current candidate"
+    ],
+    "reason_for_Owner2": "Connection requires output and each host_policy output requires goal-owner-review; cannot weaken Summary acceptance or call deterministic validation GoalAcceptance",
+    "budget": "bounded parallel1/root-project cumulative, real bootstrap usage retained; charging awaits actual Core fixture",
+    "runtime": "not_run"
+  },
+  "source_commit": "a94140ebebf22624899b8b815d868f2971bb51f4",
+  "owner_only_driver": {
+    "mode": "--owner-only",
+    "contract_source": "50a53bf sessions_ipc::graph_owner_summary_plan / actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input, plus mandatory OO-WIRE4 canonical/fresh projection fix",
+    "historical_Core_portable": {
+      "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/actual-task-accepted-da00c1ca8bfbe1efc0230a02b8865e4a7ffff96096c5b055ccd7eace6e1c3317.json",
+      "bytes": 38134,
+      "sha256": "da00c1ca8bfbe1efc0230a02b8865e4a7ffff96096c5b055ccd7eace6e1c3317",
+      "attribution": "Core author actual fixture only; NOT this harness/browser/independent execution; agent/pending projection defect preserved"
+    },
+    "nodes": [
+      "produce-report/work",
+      "owner-report/owner_approval",
+      "independent-2/summary",
+      "owner-summary/owner_approval"
+    ],
+    "actual_runtime": "Historical5b/Core5541 pass remains. Root also actually passed current Graph17 Owner6/3 on c432 and3be with70a, saved exact report hashes below. fd165 final six-mode run still pending Root evidence.",
+    "preflight": "Explicit schema12 + exact daemon SHA + source binding + built index; older schema refuses before auth-file read/process/listener/Playwright import",
+    "connected_assertions": [
+      "Built UI stores exact initial plan1/revised plan2 through finite HTTP; planning launches no sessions",
+      "HTTP owner/propose/finalize/decline/generic commands forbidden; explicit private resource/Graph/Owner fixture authority outside HTTP",
+      "Generated account-free ACP consumes full real 15-field TaskRequest (the original exact key set; earlier oral 16 count was wrong), external baseline then actual accepted upstream candidate physical SHA, full two-output scope",
+      "Owner1 gates Summary; Owner2 required for Summary output; candidate/owned stop/validation are not TaskAccepted",
+      "Readonly O_NOFOLLOW component walk verifies root/FilePin/regular single-link bytes/SHA; no minted private witness or SQL write",
+      "Private same-key Owner prepare/finalize replay compares durable result, cross-action rejection must CONFIG_CONFLICT",
+      "TaskAccepted requires exact projection/Task refs, durable event SQL sequence+stored raw document digest, two concrete accepted decisions and two outputs",
+      "OO-WIRE4 execution_kind connection|owner and acceptance_state accepted required; Owner stop false/no session, execution candidate remains distinct",
+      "Owned worker PID identity gone, stopped session, reserve/attempt-stop/supervisor/capture sequence chain and true reaped/joined receipts",
+      "Cumulative project/root two attempts, zero active, Goal output26 bytes, no terminal reopen or repeated-get ledger growth",
+      "UI global refresh reloads authoritative Task acceptance refs before Graph TaskAccepted history capture; source/assets/hash unchanged",
+      "On failure keep report/PNG/log; cleanup only daemon and exact generated PID/startticks/own group+program, fallback cleanup invalidates pass"
+    ],
+    "unimplemented_scenarios": [
+      "five-node deterministic Validate/bootstrap/subject rebinding",
+      "explicit fresh Owner rejection scenario",
+      "post-proposal artifact drift",
+      "cancel intent versus owned stop versus unknown",
+      "ledger/CAS negative matrix",
+      "actual lost-response recovery (same-key private replay coded, transport-drop scenario pending)"
+    ],
+    "runtime_command_pending": "Root owns current final six-mode replay; author did no new Core/Chromium/Cargo run in review repair."
+  },
+  "environment_resume_observation": {
+    "tool": "cloud_environment.environment_status",
+    "observations_current": true,
+    "connectivity": "connected",
+    "phase": "running",
+    "network_policy": "unrestricted/enforced",
+    "secrets": 0,
+    "runtime_variables": 0,
+    "outbound_identities": 0,
+    "extra_configuration_or_credentials_added": false
+  },
+  "owner_only_actual": {
+    "source_commit": "5b7e401780ab393a13fccd1c54b64362cdbef452",
+    "source_sha256": "84e90a6bf6250441c39da2f4ebf09ca59dc75401b10d870859452f81d5315129",
+    "report": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait/report.json",
+      "sha256": "ebd3e2042f441ddd2a5f47f63f1893b83ed680bfccbe33ca505e50055b3bbd39",
+      "bytes": 788516
+    },
+    "log": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait.log",
+      "sha256": "7819def87a0032ac94ec7739684386dd06974fbd049f554548eb4531b81abace",
+      "bytes": 186
+    },
+    "run_manifest": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/owner-transport-run-manifest.json",
+      "sha256": "80decddfe05f397b873e16e6edf3ca94fd06df6fe5337de2809a8938e2b1e1a9",
+      "bytes": 4341
+    },
+    "exit_code": 0,
+    "checks": 6,
+    "screenshots": [
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait/01-work-candidate-before-owner.png",
+        "sha256": "efb9d9c341e56fdf4fd7a06355b7f741f3a0b58ead2d9845a5e492ab120caeb0",
+        "viewport": {
+          "width": 1488,
+          "height": 1200
+        },
+        "owner_controls": [
+          {
+            "testid": "goal-graph-owner-approve",
+            "node": "owner-report",
+            "rect": {
+              "x": 553.59375,
+              "y": 830.890625,
+              "width": 239.453125,
+              "height": 31
+            },
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            },
+            "unobscured": true
+          },
+          {
+            "testid": "goal-graph-owner-reject",
+            "node": "owner-report",
+            "rect": {
+              "x": 801.046875,
+              "y": 830.890625,
+              "width": 233.0625,
+              "height": 31
+            },
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            },
+            "unobscured": true
+          }
+        ],
+        "dimension": "Linux Chromium; not native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait/02-summary-candidate-before-final-owner.png",
+        "sha256": "ba9e2cfea6539a6f58888c2029d6a334a77e932e806e1fe25e72a61ceccefaf8",
+        "viewport": {
+          "width": 1488,
+          "height": 1200
+        },
+        "owner_controls": [
+          {
+            "testid": "goal-graph-owner-approve",
+            "node": "owner-summary",
+            "rect": {
+              "x": 596.4375,
+              "y": 830.890625,
+              "width": 239.453125,
+              "height": 31
+            },
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            },
+            "unobscured": true
+          },
+          {
+            "testid": "goal-graph-owner-reject",
+            "node": "owner-summary",
+            "rect": {
+              "x": 843.890625,
+              "y": 830.890625,
+              "width": 233.0625,
+              "height": 31
+            },
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            },
+            "unobscured": true
+          }
+        ],
+        "dimension": "Linux Chromium; not native/macOS"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-plan-wait/03-task-accepted-four-node-owner-chain.png",
+        "sha256": "16f4bd3cb9b6c84cda7b2e46caa68edf4834a549a525bfc69f6c56de3f91e280",
+        "viewport": {
+          "width": 1488,
+          "height": 1200
+        },
+        "owner_controls": [],
+        "dimension": "Linux Chromium; not native/macOS"
+      }
+    ],
+    "dimension": "actual built React/Linux Chromium/finite test HTTP/authenticated Unix Core/generated owned ACP",
+    "not_claimed": [
+      "deterministic Validate five-node flow",
+      "Graph failure matrix",
+      "native OS Owner dialog",
+      "macOS",
+      "real Provider/model",
+      "OS sandbox",
+      "whole product completion"
+    ],
+    "frozen_manifest": {
+      "path": "/workspace/.onboarding/goal-graph-owner5541-native94157/manifest.json",
+      "sha256": "dd76425e46e99fad9e6fdd58c17f232f992ffecde13b8cdb2bd002f546e4b325",
+      "bytes": 12721
+    },
+    "daemon_sha256": "fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e",
+    "candidate_source_head": "94157aed2cb69c6b503c5b6b12af5aff554476af",
+    "Core_checkpoint": "5541c373 canonical Owner-only, composed source94157aed2cb69c6b503c5b6b12af5aff554476af; not latest full Graph/Validator WIP evidence",
+    "frontend": "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist",
+    "frontend_source": "Root supplied corrected UI4eadffe73368c61bc26e9aaf112a572f8b4b675f; exact three asset hashes match old corrected run before/after, no rebuild/edit",
+    "frontend_assets_sha256": {
+      "assets/index-Cxl2UxNp.js": "4472889886faf0fc9f9d1f39faa0e0053ca47a22be7d7e21c191e67a08fa0bd8",
+      "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+      "index.html": "3d83ddee4f79c6d56431ffb6c32f2de936f03cb40a73226360485731d30fac99"
+    },
+    "http_requests": 47,
+    "http_readonly_reply_aborts": [],
+    "http_unexpected_errors": [],
+    "abort_limit": "No actual readonly abort occurred in this new positive run. Nine classifier controls are static; do not call them live disconnect/recovery validation.",
+    "cleanup_raw": [
+      {
+        "action": "HTTP serve thread joined",
+        "thread_alive": false
+      },
+      {
+        "action": "HTTP server closed and request handlers joined",
+        "active_handlers": []
+      },
+      {
+        "action": "owned daemon wait completed",
+        "pid": 593872,
+        "termination_requested": true,
+        "wait_exitcode": 0,
+        "forced_sigkill": false,
+        "process_not_alive": true
+      },
+      {
+        "action": "generated process original identity not alive",
+        "marker": "fixture-owned-a23dcc7d-cb18-47d6-95c9-c2bfc6189fce.json",
+        "marker_sha256": "3cadceb1343dc7496a13bdcc4b1cb5ff0948ad76ee0288054c4ffd18e6f91929",
+        "expected_identity": {
+          "pid": 594355,
+          "pgid": 594355,
+          "start_ticks": "6881829"
+        },
+        "observed_start_ticks": null,
+        "original_process_not_alive": true,
+        "pid_exists": false,
+        "matched_real_task_request": true,
+        "signal_sent": false
+      },
+      {
+        "action": "generated process original identity not alive",
+        "marker": "fixture-owned-58fc64aa-0ef2-43b7-a272-9683765042e0.json",
+        "marker_sha256": "43b5bfc7c1060bc2e3db9306ceee321297ad1475ad6d370fd535c6f8d802e58f",
+        "expected_identity": {
+          "pid": 594326,
+          "pgid": 594326,
+          "start_ticks": "6881628"
+        },
+        "observed_start_ticks": null,
+        "original_process_not_alive": true,
+        "pid_exists": false,
+        "matched_real_task_request": true,
+        "signal_sent": false
+      }
+    ],
+    "cleanup_check": {
+      "name": "HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and both exact generated worker identities gone",
+      "status": "passed"
+    },
+    "task_requests": [
+      {
+        "bytes": 3702,
+        "sha256": "ff167ea1f054a532ddeff7db75cf7abf0375db4244f30e5b0b311c00d8818d03",
+        "node": "produce-report"
+      },
+      {
+        "bytes": 4486,
+        "sha256": "2b5f9c40bd16af91e02fa3c4cc6b0c5630305f8e01be0e20f06549dd7dcd9905",
+        "node": "independent-2"
+      }
+    ],
+    "owner_reviews": [
+      {
+        "kind": "connection",
+        "proposal_id": "27816020-ef9e-4627-b4cb-dc3274462fca",
+        "snapshot_utf8_bytes": 614,
+        "snapshot_sha256": "9a66a7a4d991ea590462f16ad509e4d1a53e0df7419b488f56ed7c2e87d369df",
+        "authority": "explicit private generated resource fixture; not OS dialog"
+      },
+      {
+        "kind": "grant",
+        "proposal_id": "fb12030b-536d-49cb-8729-14d1d832f384",
+        "snapshot_utf8_bytes": 1822,
+        "snapshot_sha256": "5684847ed069b0b2c4328fcd4be4ee90996baaf1880d82d6c3c97aa2797bddb7",
+        "authority": "explicit private generated resource fixture; not OS dialog"
+      },
+      {
+        "kind": "goal",
+        "proposal_id": "345e445f-a7c9-44ed-a62c-6d45ce3b3a7f",
+        "snapshot_utf8_bytes": 7430,
+        "snapshot_sha256": "74b2e370eef872e48eadaed5125b2b16749a97c20c090f27a5cf642ae843b4f0",
+        "authority": "explicit private generated resource fixture; not OS dialog"
+      },
+      {
+        "kind": "goal_graph_execution",
+        "proposal_utf8_bytes": 13089,
+        "snapshot_utf8_bytes": 12896,
+        "proposal_sha256": "d94c662a59fb794d1bdf7fd466bc3dbf3cbf86108352ce7cccb2a1176994e4e5",
+        "snapshot_sha256": "bc29fbab4dbd9362eb10675c957f08031cb2b7f3eea9f2f73d11cabb90c4786d",
+        "os_owner_dialog": "not_run; private host fixture outside HTTP"
+      },
+      {
+        "kind": "goal_node_acceptance",
+        "proposal_utf8_bytes": 6359,
+        "snapshot_utf8_bytes": 6166,
+        "proposal_sha256": "83382df7de332fa646335b9a1bad7802015b0504f75878040c19fe37f550f2c9",
+        "snapshot_sha256": "22241224c9fe6f5de116cfdaf26c68b6619993dbcb3ceaba065e87ba7003bac3",
+        "os_owner_dialog": "not_run; private host fixture outside HTTP"
+      },
+      {
+        "kind": "goal_node_acceptance",
+        "proposal_utf8_bytes": 7166,
+        "snapshot_utf8_bytes": 6973,
+        "proposal_sha256": "d8f77a0ce90e5bee45fc272b8c97b895be69380fc94f0a82c104b95f37e6898a",
+        "snapshot_sha256": "5431e51cb2233adee80cd6559d7775f43bb632def6ff5250f8ed8b2dc45b59a2",
+        "os_owner_dialog": "not_run; private host fixture outside HTTP"
+      }
+    ],
+    "node_projection": [
+      {
+        "node_id": "produce-report",
+        "state": "candidate",
+        "execution_kind": "connection",
+        "acceptance_state": "accepted",
+        "stop_confirmed": true
+      },
+      {
+        "node_id": "owner-report",
+        "state": "accepted",
+        "execution_kind": "owner",
+        "acceptance_state": "accepted",
+        "stop_confirmed": false
+      },
+      {
+        "node_id": "independent-2",
+        "state": "candidate",
+        "execution_kind": "connection",
+        "acceptance_state": "accepted",
+        "stop_confirmed": true
+      },
+      {
+        "node_id": "owner-summary",
+        "state": "accepted",
+        "execution_kind": "owner",
+        "acceptance_state": "accepted",
+        "stop_confirmed": false
+      }
+    ],
+    "visual_review": "Author viewed ALL three ORIGINAL PNGs via view_image+image. 01/02 show pending acceptance, four node states and complete unobscured approve/reject buttons above fixed composer; 03 TaskAccepted, two accepted Owner nodes, two candidate outputs, zero deterministic result checks. No image edits.",
+    "independent_review": "pending Root assignment; author actual run is not independent review"
+  },
+  "transport_quality_change": {
+    "source_commits": [
+      "f0deb2790eb39c9b8d2cb3fadfa5ab797089fa94",
+      "5b7e401780ab393a13fccd1c54b64362cdbef452"
+    ],
+    "classification": "Only BrokenPipeError/ConnectionResetError while writing an already-observed explicit readonly Core response is expected aborted-read. Store/cancel/advance reply loss and all unknown handler/Core exceptions are recorded unexpected and fail final report.",
+    "server": "Non-daemon request threads, block_on_close join, custom handle_error records unexpected exceptions; check error lists only after all handlers joined. Existing fixed permissions/HTTP Owner403 unchanged.",
+    "cleanup": "Raw action HTTP serve thread joined has thread_alive=false; request close has active_handlers=[]; owned daemon wait_exitcode=0, forced_sigkill=false, process_not_alive=true; both exact generated PID+PGID/startticks matched real TaskRequests and observed_start_ticks=null, pid_exists=false, signal_sent=false.",
+    "capture": "1488x1200 viewport; 01/02 scroll actual Owner row into center; four corners + center elementFromPoint must lie in actual button; retain PNG raw original.",
+    "first_failure": {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-primary/report.json",
+        "sha256": "2110f6c8161ff627581df69540c89a1cd434cbe2fc3f989164f7844913c17902",
+        "bytes": 82968
+      },
+      "log": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-primary.log",
+        "sha256": "1db1e2166c4076fee7cd2005ea49131ad2dd80adc7cc159850a0a135fb8e0fc9",
+        "bytes": 199
+      },
+      "exit_code": 1,
+      "checks": 1,
+      "failure_png": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/actual-owner-transport-primary/failure-current-ui.png",
+        "sha256": "db6ffed2c6f81e0641d206597de8568aaa26fc639c6fcd8f8db46045242d578f",
+        "bytes": 131329
+      },
+      "cause": "old immediate get raced browser first plan store and Core correctly returned NOT_FOUND; real goal_plans.propose succeeded afterward",
+      "fix": "readonly goal_plans.list waits empty\u2192matching revision within original15s, then same exact whole proposal/state/dispatched assertions; no timeout/acceptance reduction"
+    },
+    "Root_prior_runs_preserved": [
+      {
+        "path": "/workspace/.onboarding/goal-graph-owner-browser-first",
+        "report_sha256": "f131fe0e78aae324c463b5156723d65e66f20f44d951acb2d98742ab342f86df"
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-owner-browser-corrected-ui",
+        "report_sha256": "325e95343c426880e86b56a52d933c9ced235de0a63dd7a5f25484da99496f70"
+      }
+    ]
+  },
+  "protocol_count_correction": {
+    "actual_legacy_keys": [
+      "schema_version",
+      "kind",
+      "goal",
+      "node",
+      "run_id",
+      "plan_revision",
+      "plan_digest",
+      "workspace",
+      "inputs",
+      "outputs",
+      "policy",
+      "lineage",
+      "budget",
+      "idempotency_key",
+      "return_location"
+    ],
+    "Graph_only_additions": [
+      "task_binding",
+      "validation_contracts"
+    ],
+    "actual_counts": {
+      "legacy": 15,
+      "Graph": 17
+    },
+    "history": "Earlier Root/author wording16/18 was an informal miscount; exact original sets and old actual6/3 raw requests were correct. No wire field added/deleted for the numeric correction. Core f8346e6/364fc confirmed Graph-only additions; checks now compare named sets, not independent numeric assertions.",
+    "preserved_static_failure": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-preparation-1/observed-static-failure.json",
+      "sha256": "74d8bef4b29aa146b28186ce40fd54363984f899a797f028ca718ad1c6db2e00",
+      "bytes": 530
+    }
+  },
+  "validation_preparation": {
+    "source_commits": [
+      "6d7b44238a0b88934948f34ae36d7a933bf33b8b",
+      "d340a506117455c34ccb4cb3e8f17382ce9ebbad",
+      "90d12ff1d60534f53ff45733a3ccf44322f5cc83"
+    ],
+    "actual_new_Core_browser_Validator_runs": 0,
+    "new_runtime_PNG": 0,
+    "status": "prepared_not_runtime_verified",
+    "modes": [
+      "--owner-only (current Graph named17, empty validation_contracts with task_binding)",
+      "--validation-case integrity",
+      "--validation-case data",
+      "--validation-case command",
+      "--validation-case data-range",
+      "--validation-case command-timeout"
+    ],
+    "historical_owner_run": "owner_only_actual retains exact5b7e401/Core5541/UI4ead6checks3PNG. It is NOT evidence for new source90d12ff/current Graph17 or any validator mode.",
+    "Core_contract_sources": "actual_{integrity,data,command}_definition_graph_fixture and matching normal/range/timeout sessions_ipc tests from author755129/787fd; f834/364fc exact base/Graph field separation. Core full regressions/negative work continues; no new final binary supplied to harness author.",
+    "mechanical_plan_comparison": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-author-bundle-comparison.json",
+      "sha256": "11889eba4364ff103919ec3e96d125cd9c1a084848535b752609d3d173f9b28f",
+      "bytes": 1540
+    },
+    "bootstrap": "Real generated account-free legacy Goal on actually copied Data Workspace; stopped source process; approve additional Native integrity/data/command definition but never execute its old per-attempt policy; cancel old candidate; create NEW Task/Scope in SAME project/root grant/workspace; keep project attempts/ledger. No candidate backfill or DB writes.",
+    "positive_scope": "W\u2192V\u2192Owner1\u2192dependent Summary\u2192Owner2; Data producer owns report/table+script+environment three outputs with all required rules, Summary owns fourth output. Private Graphcap explicitly lists exact approved definition digest and subject-rebinding restrictions.",
+    "planned_accounting_assertions": {
+      "all_positive_cases": {
+        "total_attempts": 4,
+        "Provider_sessions": 3,
+        "new_Graph_attempts": 3,
+        "validator_Provider_session": false,
+        "ordinary_new_root_and_project_consumed_including_bootstrap": 4,
+        "negative_new_root_and_project_consumed_including_bootstrap": 3
+      },
+      "Integrity": {
+        "project_output_bytes": 38,
+        "new_Graph_output_bytes": 26,
+        "checked_candidate_bytes": "observed separately, no recount"
+      },
+      "Command": {
+        "project_output_bytes": 60,
+        "new_Graph_output_bytes": 48,
+        "retained_stdout_bytes": 22,
+        "checked_producer_bytes": 12
+      },
+      "Data": "derive bootstrap and new producer/report bytes from actual files and receipts; do not hardcode author bundle byte totals; validation checkedBytes does not repeat output charge"
+    },
+    "planned_negative_assertions": {
+      "data-range": "x20 outside approved integer0..10; failed Data receipt with joined worker; Owner and Summary never started, no decision/TaskAccepted, attempts3/sessions2 and no project refund/reset",
+      "command-timeout": "exact sleep3, approved wall1500ms+cleanup500ms+stdout/stderr512 each, node reservation4000ms; reason deadline_exceeded; actual private-daemon child PID/PGID/startticks observed before timeout and gone afterward, owned job/attempt/intent worker_joined, no Owner/Summary/acceptance"
+    },
+    "strict_public_context": "All Graph requests exact BASE+two named fields. Task binding/current_subject exact; entire validation_contracts list equals approved definition_reuse public projection (file contract/Data schema ranges metadata/command script identity only). Command argv/environment never inserted into Provider context. Legacy source request exact BASE. One generated ACP program; no old Graph15 fallback or alternate old-mode manager.",
+    "review_and_limits": "Complete actual private resource Nativekind proposal/snapshot must fit unchanged old16KiB cap; Graph new-kind full review1MiB only. HTTP fixed read/plan/cancel/adopt only; all Owner/propose/finalize/decline/generic denied. Any cap refusal/actual product bug is preserved, not widened/truncated.",
+    "final_checks": [
+      {
+        "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --self-check --output /workspace/.onboarding/goal-graph-real-ipc/validation-final-boundary",
+        "exit_code": 0,
+        "count": 58,
+        "dimension": "pure outgoing HTTP boundary checks with synthetic arguments; no Core/browser/model/candidate/TaskAccepted execution",
+        "report": {
+          "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-boundary/boundary-checks.json",
+          "sha256": "435dc8ae7942351d0745abc8abbaee3b550578163e5ef5cf87cc5b3047f5c8f9",
+          "bytes": 6251
+        },
+        "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f"
+      },
+      {
+        "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --driver-self-check --output /workspace/.onboarding/goal-graph-real-ipc/validation-final-driver",
+        "exit_code": 0,
+        "count": 15,
+        "dimension": "static plan constructor/generated Python syntax/manifest negatives and isolated readonly FD controls; no Core/browser execution or minted receipts",
+        "report": {
+          "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-driver/driver-static-checks.json",
+          "sha256": "109aa43a0404b8d71180f99af890fe7e84f4466b83591d20074d1b9c2a047bb1",
+          "bytes": 1743
+        },
+        "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f"
+      },
+      {
+        "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --transport-self-check --output /workspace/.onboarding/goal-graph-real-ipc/validation-final-transport",
+        "exit_code": 0,
+        "count": 9,
+        "dimension": "static disconnect classification controls, no HTTP/Core/browser execution",
+        "report": {
+          "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-transport/transport-static-checks.json",
+          "sha256": "d3fc336bc434c2a369dfbc839806cf24d84c4b19c8f7fe8c07782cbc6cd59b6e",
+          "bytes": 1896
+        },
+        "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f"
+      },
+      {
+        "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --validation-self-check --output /workspace/.onboarding/goal-graph-real-ipc/validation-final-plans",
+        "exit_code": 0,
+        "count": 35,
+        "dimension": "static five-node plans/legacy/Graph exact named-key contracts/generated Python/explicit bounded policy controls; no daemon/browser/validator run",
+        "report": {
+          "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-plans/validation-static-checks.json",
+          "sha256": "f6e6489290317fc924d23d915cba80363b97f64c8290ce85ba0f824ed6994776",
+          "bytes": 3931
+        },
+        "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f"
+      },
+      {
+        "command": "python3 apps/desktop/tests/goal-graph-real-ipc.py --provider-self-check --output /workspace/.onboarding/goal-graph-real-ipc/validation-final-provider",
+        "exit_code": 0,
+        "count": 5,
+        "dimension": "generated account-free ACP stdio program unit tests only with synthetic external-input requests; no Core/DB/candidate/validator/browser/TaskAccepted",
+        "report": {
+          "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-final-provider/provider-fixture-unit-checks.json",
+          "sha256": "acd1a8467cea8817b12fe165303b6596db283b1a5fd8060778c81bee659d8379",
+          "bytes": 3440
+        },
+        "source_sha256": "5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f"
+      }
+    ],
+    "embedded_program_compile_failure_preserved": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/validation-generated-syntax-failure.json",
+      "sha256": "0141b55b19289eb9924bb3126b0558c3b237047b1db3f1da7144bec91088f2e7",
+      "bytes": 522
+    },
+    "provider_unit_limit": "Five direct Python stdio fixture tests use only synthetic external baseline requests and generated temporary outputs. They do NOT create a Core DB/candidate/Graph/validator/TaskAccepted and do not count as Core runtime. Each child process is subprocess.run awaited/reaped; no model/account/network call.",
+    "historical_as_of_source90d12ff": true
+  },
+  "independent_review_fix": {
+    "blocked_original_source": "90d12ff1d60534f53ff45733a3ccf44322f5cc83 /5e326cb17af7a3502262202703d3005312db66c7fd3f89661f1589ba0c16ce2f",
+    "original_blocked_review": {
+      "path": "/workspace/.onboarding/goal-graph-driver-90d-review/REVIEW_90D_BLOCKED.md",
+      "sha256": "df9f5b3a071b9d1eff98ffeeb50ec53e48e29b649140b7dba142ebef5bf47852",
+      "bytes": 4237
+    },
+    "original_manifest": {
+      "path": "/workspace/.onboarding/goal-graph-driver-90d-review/90D_MANIFEST.json",
+      "sha256": "053f3727aa1d543373932a0bfb548bba3a5f448594bb718a86d8cbad196b31f9",
+      "bytes": 2718
+    },
+    "original_counterexamples": {
+      "path": "/workspace/.onboarding/goal-graph-driver-90d-review/actual-packet-counterexamples.json",
+      "sha256": "ac4b3393d9338112de34d507497348912a640dee1d7504311bb3116195da0d44",
+      "bytes": 2452
+    },
+    "fix_commits": [
+      "90b340f6feab6e356f6c6893e1c0a01ab75268e9",
+      "7d80c2cc258669dd82bf235ad8753c5373705e70",
+      "c3e7e192bfa475c9a6771227550d09667640b3cd",
+      "fd1654a9224bbcb3c7296381b73c9ad6479fb52e",
+      "6a8cf49136545ac800042870426ad61001d5b8a3",
+      "4ff41be430c6e128d34bd22846776e4e6e4dfc84",
+      "160e0a07d0bebb19e7ff1881e1cd25cf4ac3875a"
+    ],
+    "receipt_view_fix": "Exact fixed GraphValidationReceipt fields plus ONE known observation_json display field. Hash original string UTF8 directly against result_digest; parse without duplicate keys/NaN and compare full display Value with exact JSON kinds/u64/f64. Only then strip that field for full original stored receipt and Owner snapshot comparison. Never JSON-reencode parsed observation as original text.",
+    "SQL_digest_limits_unchanged": "Still compare whole original stored receipt and its original SQL document UTF8 SHA to event receipt_digest; event/intent/job/WorkerJoin linkage retained; no DB writes, no generic unknown-field normalization.",
+    "Owner_snapshot_fix": "Resolve exact current approved Owner required_inputs to real candidate producers; Data Summary uses independent-4. Full candidate_refs/candidate_receipts unchanged and original validation_refs explicitly bind report check/empty Summary check. No display-derived view is inserted into private review.",
+    "input_path_fix": "Pure Owner Graph remains approved file input; validation and legacy-bootstrap retain inputs/file. Generated program derives these exact fixture cases from graph+approved output-validator context; does not rewrite input path or accept an arbitrary path union. Standalone Owner unit now actually supplies file; validator units supply real-shaped nonempty refs.",
+    "meter_fix": "Actual node output equals sum of ALL declared artifacts, not first. Data packet633+58+43=734; all per-artifact FD/pin/SHA observations and cumulative ledgers remain.",
+    "python_controls": {
+      "actual_saved_packet_positives_and_negatives": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-actual-packets-2/actual-packet-checks.json",
+        "sha256": "9d710c224ff62e850fe88b786884afd81bc3320fee74adc100ecc04de03dc6a8",
+        "bytes": 9792
+      },
+      "count": 37,
+      "source": "7d80c2c/c432; later c3e/fd private variable/grant changes do not touch these helpers",
+      "dimension": "Pure Python immutable Core Data97/Command526 bundles; no Core/browser/SQL/process execution"
+    },
+    "generated_program_units": {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-provider-2/provider-fixture-unit-checks.json",
+        "sha256": "dd2d41074425fda8d061b4901c96a986deae57d74a4a0f464778861516a9465d",
+        "bytes": 3623
+      },
+      "count": 5,
+      "dimension": "Generated ACP stdio program units only; no Core/Graph/validator/candidate/TaskAccepted"
+    },
+    "provider_unit_failure_preserved": {
+      "path": "/workspace/.onboarding/goal-graph-real-ipc/review-fix-provider-1/observed-unit-failure.json",
+      "sha256": "a496ba924e451de8a30026d3065db0ac7f8c58eb44e5f97184addfed33122c36",
+      "bytes": 749
+    },
+    "provider_failure_log_limit": "The original failed provider-self-check command was not shell-redirected; original stderr exists in tool transcript, the file is an explicitly labelled observation summary, not a claimed original raw log. Source90b is preserved for exact reproduction.",
+    "independent_static_source_ready": "data_native_integration_review confirmed7d80 exact37+5 PASS, c3e exact two identifier replacements/zero output AST stores/compile PASS, fd exact one conditional expression replacement/compile PASS and no remaining blocking finding. Final independent artifact sealing is owned by reviewer; no fictitious report hash.",
+    "output_path_fix": "owner_only_driver output:Path was shadowed by for-loop output dict. Rename only loop binding to scoped_output; AST confirms zero output Store sites. Preserve original failed directory; original first exception was obscured and remains unknown.",
+    "fixture_grant_fix": "Root explicitly directed Integrity private initial Grant10s\u219230s to match existing Data/Command lifetime after actual expiry rejection. GoalScope/runtime10000ms, node budget5000/reservation4000ms, command1500/500/512x2, observation/cleanup limits unchanged; pure Owner600000ms unchanged.",
+    "new_actual_runs_by_author": 0,
+    "Root_runs": "Read actual reports below; six-mode final rerun remains Root-owned. These controls are not runtime acceptance.",
+    "shared_budget_correction": {
+      "preserved_failure": {
+        "path": "/workspace/.onboarding/goal-graph-final-browser-grantfix/integrity/report.json",
+        "sha256": "26209ab767a1e75231470e8adad7df96c2af901e2732b8ae4908a72a3f1eabab",
+        "bytes": 1166546
+      },
+      "diagnostic_actual_report": {
+        "path": "/workspace/.onboarding/goal-graph-budget-diagnostic/report.json",
+        "sha256": "a2b908069c750b76a4d1301dedce5b2b876e66c3cdabe76c5e26db2892fb0209",
+        "bytes": 1395076
+      },
+      "facts": "Root diagnostic observed new root consumed4/active0, project consumed4/active0 and old bootstrap root1/active0. Core author confirmed goal_store::counts shared same-rootGrant history seeding; earlier normal root3 expectation omitted bootstrap, not a product failure.",
+      "normal_expected": "root/project each EXACT4 active0 = inherited bootstrap1+Work1+Validate1+Summary1; pure Owner eachEXACT2 unchanged",
+      "negative_expected": "root/project each EXACT3 active0 = inherited bootstrap1+Work1+Validate1; Summary not run. Root explicitly directed correction on same proven seeding path; no2|3 union.",
+      "controls_unchanged": "attempts/sessions4/3 normal,3/2 negative; zero acceptance/Owner/Summary for negative; ownedstop, Source Native caps, Goal/Node budgets/command/observer/cleanup thresholds unchanged; preserve observed_budgets and assertion actual/expected/key diagnostics."
+    },
+    "source_ready_budget_diagnostic_review": "Reviewer confirmed6a8 removed observation assignment/assertmsg restores entire module AST tofd165; original equality/expected unchanged then. Final4ff/160 exact corrected shared-history expectations await reviewer/Root final observed cases."
+  },
+  "Root_actual_review_fix_runs": [
+    {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-final-browser-new/owner-only/report.json",
+        "sha256": "8e817ba7e2c390b92bb2aac654bbed994ab128f4cc9c2b8ed03a3a7dd23b02cd",
+        "bytes": 834569
+      },
+      "status": "passed",
+      "mode": "owner_only_four_nodes",
+      "checks": 6,
+      "screenshots": 3,
+      "harness_sha256": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
+      "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+      "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+      "failure": null,
+      "attribution": "Root actual run, inspected saved report; not author or independent rerun"
+    },
+    {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-final-browser-pathfix/owner-only/report.json",
+        "sha256": "b9bf16a20a69cfd9c97e0aa44e473098776b1f75aa79289ec2d1bd3ec00952dd",
+        "bytes": 798388
+      },
+      "status": "passed",
+      "mode": "owner_only_four_nodes",
+      "checks": 6,
+      "screenshots": 3,
+      "harness_sha256": "3be92d90f6da058eb8b7c54fb2d1a93979a68418885f83647a537e09c30814c0",
+      "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+      "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+      "failure": null,
+      "attribution": "Root actual run, inspected saved report; not author or independent rerun"
+    },
+    {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-final-browser-pathfix/integrity/report.json",
+        "sha256": "0be910263244b294ac59c71502411ebfbcdc219ae37fd6641df0b8ad226e7bc9",
+        "bytes": 1311862
+      },
+      "status": "failed_or_interrupted",
+      "mode": "validation_integrity",
+      "checks": 2,
+      "screenshots": 3,
+      "harness_sha256": "3be92d90f6da058eb8b7c54fb2d1a93979a68418885f83647a537e09c30814c0",
+      "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+      "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+      "failure": {
+        "type": "AssertionError",
+        "message": "{'error': {'code': 'PERMISSION_DENIED', 'details_ref': None, 'message': 'Execution grant or an ancestor is revoked or expired', 'retryable': False, 'side_effect_state': 'not_started'}, 'request_id': 'e1866e7a-0121-4d64-a751-f5f69c6085b5', 'revision': 108, 'warnings': []}",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1520, in owner_only_driver\n    final_decision = owner_decision(after, 'owner-summary', 'graph:owner-summary')\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1413, in owner_decision\n    assert not response.get('error'), response\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'error': {'code': 'PERMISSION_DENIED', 'details_ref': None, 'message': 'Execution grant or an ancestor is revoked or expired', 'retryable': False, 'side_effect_state': 'not_started'}, 'request_id': 'e1866e7a-0121-4d64-a751-f5f69c6085b5', 'revision': 108, 'warnings': []}\n"
+      },
+      "attribution": "Root actual run, inspected saved report; not author or independent rerun"
+    },
+    {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-final-browser-grantfix/integrity/report.json",
+        "sha256": "26209ab767a1e75231470e8adad7df96c2af901e2732b8ae4908a72a3f1eabab",
+        "bytes": 1166546
+      },
+      "status": "failed_or_interrupted",
+      "mode": "validation_integrity",
+      "checks": 3,
+      "screenshots": 3,
+      "harness_sha256": "60ea1c9ff8dc13bc688d32dd259f12808000f8cf4ebf32a1d5809af989f3b59d",
+      "failure": {
+        "type": "AssertionError",
+        "message": "",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1597, in owner_only_driver\n    assert budgets[key] == {'consumed': (4 if key.startswith('project:') else 3) if case else 2, 'active': 0}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+      },
+      "observed_budgets": null,
+      "attribution": "Root actual run; failed old fixture expectation, preserved unchanged; actual finalTaskAccepted alone is not whole test success"
+    },
+    {
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-budget-diagnostic/report.json",
+        "sha256": "a2b908069c750b76a4d1301dedce5b2b876e66c3cdabe76c5e26db2892fb0209",
+        "bytes": 1395076
+      },
+      "status": "failed_or_interrupted",
+      "mode": "validation_integrity",
+      "checks": 3,
+      "screenshots": 3,
+      "harness_sha256": "e172a5f9797ea487cde514ee2f063e17b9e0407f59e0f6758c73642cbff3cecc",
+      "failure": {
+        "type": "AssertionError",
+        "message": "{'key': 'root:b0313277-b16d-4a00-9afc-ef0066c54c8a', 'actual': {'consumed': 4, 'active': 0}, 'expected': {'consumed': 3, 'active': 0}}",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1598, in owner_only_driver\n    assert budgets[key] == {'consumed': (4 if key.startswith('project:') else 3) if case else 2, 'active': 0}, {'key': key, 'actual': budgets[key], 'expected': {'consumed': (4 if key.startswith('project:') else 3) if case else 2, 'active': 0}}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'key': 'root:b0313277-b16d-4a00-9afc-ef0066c54c8a', 'actual': {'consumed': 4, 'active': 0}, 'expected': {'consumed': 3, 'active': 0}}\n"
+      },
+      "observed_budgets": {
+        "project:bb18273b-0914-4c4b-8970-454a3703b75b": {
+          "consumed": 4,
+          "active": 0
+        },
+        "root:dc47e7c9-c0f6-4b4f-b561-2897887d715c": {
+          "consumed": 1,
+          "active": 0
+        },
+        "root:b0313277-b16d-4a00-9afc-ef0066c54c8a": {
+          "consumed": 4,
+          "active": 0
+        }
+      },
+      "attribution": "Root actual run; failed old fixture expectation, preserved unchanged; actual finalTaskAccepted alone is not whole test success"
+    }
+  ],
+  "Root_shadowed_failure": {
+    "directory": "/workspace/.onboarding/goal-graph-final-browser-new/integrity",
+    "report_absent": true,
+    "log": {
+      "path": "/workspace/.onboarding/goal-graph-final-browser-new/integrity.log",
+      "sha256": "b887fe1eafd46c3994420b56a835d1003f46ea6fdb2ba3cb902eb8c2ddb65a4d",
+      "bytes": 680
+    },
+    "fact": "Root reported output Path shadowed by dict; both failure screenshot and finally report writing TypeError, so original first exception cannot be determined. No guessed original cause or success claimed. Root preserved files/process scan."
+  },
+  "Root_shared_history_actual_runs": [
+    {
+      "case": "integrity",
+      "path": "/workspace/.onboarding/goal-graph-final-browser-shared-history/integrity/report.json",
+      "sha256": "bc7c7d44edec22127589a5330e3dd893fbe8ee29d0c01b2030ff3ea9d30fb603",
+      "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+      "status": "passed",
+      "checks": 6,
+      "screenshots": 3,
+      "failure": null,
+      "attribution": "Root actual Core70a/UI4fab; exact source160e, not a941 source runtime proof"
+    },
+    {
+      "case": "data",
+      "path": "/workspace/.onboarding/goal-graph-final-browser-shared-history/data/report.json",
+      "sha256": "d6a7b5a8bc03c031d63f4fcc79bebbd64babf809e146ec4aab45a0d078ff5bab",
+      "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+      "status": "passed",
+      "checks": 6,
+      "screenshots": 3,
+      "failure": null,
+      "attribution": "Root actual Core70a/UI4fab; exact source160e, not a941 source runtime proof"
+    },
+    {
+      "case": "command",
+      "path": "/workspace/.onboarding/goal-graph-final-browser-shared-history/command/report.json",
+      "sha256": "78973b577e017c540efd0f205c001d4b12fce18553b31ffef85930301a8ac5cb",
+      "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+      "status": "passed",
+      "checks": 6,
+      "screenshots": 3,
+      "failure": null,
+      "attribution": "Root actual Core70a/UI4fab; exact source160e, not a941 source runtime proof"
+    },
+    {
+      "case": "data-range",
+      "path": "/workspace/.onboarding/goal-graph-final-browser-shared-history/data-range/report.json",
+      "sha256": "eba3c72c48666d5e8e1fe0c140dd5b1167d9b9d0ed5b250fc28c0fc7b8fcd4d8",
+      "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+      "status": "passed",
+      "checks": 5,
+      "screenshots": 1,
+      "failure": null,
+      "attribution": "Root actual Core70a/UI4fab; exact source160e, not a941 source runtime proof"
+    },
+    {
+      "case": "command-timeout",
+      "path": "/workspace/.onboarding/goal-graph-final-browser-shared-history/command-timeout/report.json",
+      "sha256": "2d9f6ca805bb8aa9d67bcd6d52737cc997b6f588f172a5df93d913268f1dbac3",
+      "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+      "status": "failed_or_interrupted",
+      "checks": 2,
+      "screenshots": 1,
+      "failure": {
+        "type": "AssertionError",
+        "message": "('Observation timed out', None)",
+        "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1430, in owner_only_driver\n    command_identity = wait(lambda: owned_command_child(daemon.pid), lambda p: p is not None, seconds=5)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1126, in wait\n    assert time.monotonic() < deadline, clean(('Observation timed out', value))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ('Observation timed out', None)\n"
+      },
+      "attribution": "Root actual Core70a/UI4fab; exact source160e, not a941 source runtime proof"
+    }
+  ],
+  "private_command_observer_repair": {
+    "source_commit": "a94140ebebf22624899b8b815d868f2971bb51f4",
+    "source_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+    "status": "author7 and independent13 observer controls pass; Root actual timeout5/1 pass",
+    "cause": "Managed private task directories exist but children files are absent; actual owned sleep3 observer old helper None reproduced twice independently. Not a claim about kernel build flags.",
+    "limits": {
+      "max_pid_stat_entries": 8192,
+      "max_stat_bytes": 4096,
+      "max_private_children_file_bytes": 65536,
+      "max_private_argv_bytes": 1024,
+      "max_retained_samples": 64,
+      "max_private_candidates_per_sample": 16,
+      "observer_seconds_unchanged": 5,
+      "command_wall_ms_unchanged": 1500,
+      "command_cleanup_ms_unchanged": 500
+    },
+    "discovery_boundary": "Prefer exact private task children; only if absent, read bounded PID/stat PPID metadata; full identity/argv/PGID only after private PPID match. ENOENT/ESRCH races only; permission/unexpected failures propagate. No unrelated argv/global signal.",
+    "failure_evidence": "Record timeout discovery and actual Graph response; cleanup observer exception marks failure but daemonwait continues.",
+    "actual_author_controls": {
+      "checks": 7,
+      "status": "passed",
+      "dimension": "Actual self-owned local Popen observer only; no Core/browser/validator/model",
+      "positive_seconds": 0.06521738099399954,
+      "pid_stat_entries": 3876,
+      "children": [
+        {
+          "pid": 814210,
+          "wait_exitcode": -15,
+          "process_not_alive": true
+        },
+        {
+          "pid": 814211,
+          "wait_exitcode": -15,
+          "process_not_alive": true
+        }
+      ]
+    },
+    "commands_executed": [
+      "python3 stdin: runpy exact source; actual self-owned Popen sleep3 and sleep2 with positive/wrong-parent/wrong-argv/identity/bounds/terminate-wait-gone controls; report persisted in exclusive directory",
+      "python3 stdin: py_compile to /tmp/goal-graph-observer.pyc and AST comparisons against160e",
+      "git diff --check"
+    ],
+    "artifacts": [
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/command-child-self-control-1/report.json",
+        "sha256": "76d1640ab2d8a1c2b644f5932f54d6a8a798149cb1d53d2257835799e20e7121",
+        "bytes": 6246
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/command-child-self-control-1/proc-feature.json",
+        "sha256": "cb82de0977f0dfc2f318ca86cdf70b3697e35b0edddcfaf9379deacaa2281957",
+        "bytes": 863
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/command-child-fallback-controls-1/report.json",
+        "sha256": "54b8e9fd9766e92ff73e2225203627d2387436deec74ce11d2d4f71295d2794b",
+        "bytes": 3299
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-real-ipc/command-child-fallback-controls-1/ast-scope.json",
+        "sha256": "5a720107e0ee4cf5778b26322711129c84d16aac76737fc57ea47e2577682b6c",
+        "bytes": 352
+      }
+    ],
+    "independent_review": {
+      "path": "/workspace/.onboarding/goal-graph-driver-90d-review/observer-a941/controls.json",
+      "sha256": "fb26af45b224f271f8c084fc950c5f22dcaad165d7508159cea690d083c8e179",
+      "checks": 13,
+      "status": "passed",
+      "dimension": "Independent own subprocess + explicit lightweight fault controls; no Core/Chromium/Cargo",
+      "reviewer": "data_native_integration_review"
+    },
+    "Root_actual_timeout_replay": {
+      "executor": "Root",
+      "path": "/workspace/.onboarding/goal-graph-command-timeout-proc-fallback/report.json",
+      "sha256": "e13e38633ba0d145133c6a362fdf957a3cabc4ddfb27fdecf42ca0438599ed9f",
+      "status": "passed",
+      "harness_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+      "daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+      "frontend_assets_sha256": {
+        "assets/index-CbM2OhF1.js": "ca70891148fb3da167ee7219e2b0b4dcf867390cc9b3b81241b15256f6db4626",
+        "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+        "index.html": "a91ec9ba22205a07e7c0e285ffe77ed67e5d731c7e6fb7edf04b50d658d29450"
+      },
+      "checks": 5,
+      "screenshots": [
+        {
+          "path": "/workspace/.onboarding/goal-graph-command-timeout-proc-fallback/01-five-node-command-timeout-blocked-before-owner.png",
+          "sha256": "bf4e039e2e1c2984f00a776f80c4f96f0a049515aebd61f1bc6586751c3ff2f8",
+          "viewport": {
+            "width": 1488,
+            "height": 1400
+          },
+          "owner_controls": [],
+          "dimension": "Linux Chromium; not native/macOS"
+        }
+      ],
+      "cleanup": [
+        {
+          "action": "HTTP serve thread joined",
+          "thread_alive": false
+        },
+        {
+          "action": "HTTP server closed and request handlers joined",
+          "active_handlers": []
+        },
+        {
+          "action": "owned daemon wait completed",
+          "pid": 814349,
+          "termination_requested": true,
+          "wait_exitcode": 0,
+          "forced_sigkill": false,
+          "process_not_alive": true
+        },
+        {
+          "action": "actual owned Command original identity not alive",
+          "expected_identity": {
+            "pid": 814635,
+            "parent_pid": 814349,
+            "start_ticks": "7698052",
+            "state": "S",
+            "pgid": 814635,
+            "argv": [
+              "/usr/bin/sleep",
+              "3"
+            ]
+          },
+          "observed_start_ticks": null,
+          "pid_exists": false,
+          "original_process_not_alive": true,
+          "signal_sent": false
+        },
+        {
+          "action": "generated process original identity not alive",
+          "marker": "fixture-owned-f125de1e-ae41-49f3-89b7-0a12368c4fc1.json",
+          "marker_sha256": "8a5c2ebd58fb7a0f64925e9364bab13f7edb86290c3f35cf9317795a13a142cf",
+          "expected_identity": {
+            "pid": 814619,
+            "pgid": 814619,
+            "start_ticks": "7697933"
+          },
+          "observed_start_ticks": null,
+          "original_process_not_alive": true,
+          "pid_exists": false,
+          "matched_real_task_request": true,
+          "signal_sent": false
+        },
+        {
+          "action": "generated process original identity not alive",
+          "marker": "fixture-owned-49de0ad4-495d-45c5-84e7-e27204001c51.json",
+          "marker_sha256": "59cbad10abf5fbc1dd00a513cf0152f42a49a5ffd7c848d9f6932c0ee120d23d",
+          "expected_identity": {
+            "pid": 814395,
+            "pgid": 814395,
+            "start_ticks": "7697557"
+          },
+          "observed_start_ticks": null,
+          "original_process_not_alive": true,
+          "pid_exists": false,
+          "matched_real_task_request": true,
+          "signal_sent": false
+        }
+      ],
+      "owned_command_child": {
+        "pid": 814635,
+        "parent_pid": 814349,
+        "start_ticks": "7698052",
+        "state": "S",
+        "pgid": 814635,
+        "argv": [
+          "/usr/bin/sleep",
+          "3"
+        ]
+      },
+      "observed_budgets": {
+        "project:3d6397c6-01d8-442a-99db-d5d99750c777": {
+          "consumed": 3,
+          "active": 0
+        },
+        "root:54b67d7c-0fae-40b5-bf59-3cc3956287ae": {
+          "consumed": 1,
+          "active": 0
+        },
+        "root:c70b9978-3197-4482-af0c-8485ab5a9040": {
+          "consumed": 3,
+          "active": 0
+        }
+      },
+      "limits_changed": false,
+      "author_visual_inspection": "Viewed original PNG: Blocked/task acceptance pending; Validate Failed, both Owners and Summary Not started; candidate1/check1/Ownerdecisions0. Linux Chromium only."
+    }
+  },
+  "private_argv_diagnostics_a220": {
+    "entered_tree_head": "bd64120a81a8bbd933847e8a36cbc965f08c9e57",
+    "baseline_source_commit": "a94140ebebf22624899b8b815d868f2971bb51f4",
+    "baseline_source_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+    "current_source_commit": "a2a401e3f2b7de95e9bddcd688bcc4ef1578f9d1",
+    "current_source_sha256": "a054989b5a20972f332312c3bb7ddf9e87e0ca17181448c4a405459451105ed1",
+    "status": "diagnostic_only_frozen_independent_review_pending_originalCIcause_unproven",
+    "originalCI": {
+      "head": "a2201fe2729eddb0d76bf3995667d3692126ee0f",
+      "checkout": "7f359dc8807e4d11f8e2dedbf4b0a5cc83c81f16",
+      "run": 40806944290,
+      "job": 123228044786,
+      "status": "failed_or_interrupted",
+      "checks": 2,
+      "PNG": 1,
+      "failure": {
+        "type": "AssertionError",
+        "message": "Complete bounded private argv required",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/runner/work/AgentBaton/AgentBaton/apps/desktop/tests/goal-graph-real-ipc.py\", line 1512, in owner_only_driver\n    command_identity = wait(lambda: owned_command_child(daemon.pid, observer_samples), lambda p: p is not None, seconds=5)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/AgentBaton/AgentBaton/apps/desktop/tests/goal-graph-real-ipc.py\", line 1202, in wait\n    value = read()\n            ^^^^^^\n  File \"/home/runner/work/AgentBaton/AgentBaton/apps/desktop/tests/goal-graph-real-ipc.py\", line 1512, in <lambda>\n    command_identity = wait(lambda: owned_command_child(daemon.pid, observer_samples), lambda p: p is not None, seconds=5)\n                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/AgentBaton/AgentBaton/apps/desktop/tests/goal-graph-real-ipc.py\", line 854, in owned_command_child\n    assert len(raw) <= 1024 and raw.endswith(b'\\0'), 'Complete bounded private argv required'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Complete bounded private argv required\n"
+      },
+      "report": {
+        "path": "/workspace/.onboarding/pr16-a2201-linux-review/ui-artifact/goal-graph-command-timeout/report.json",
+        "sha256": "5afc26189bbf8f10cc3567272927d2ae1be29a2646fa9869e2953bf2766faf39",
+        "bytes": 527711
+      },
+      "review": {
+        "path": "/workspace/.onboarding/pr16-a2201-linux-review/REVIEW.md",
+        "sha256": "ad41f21b1535d941dddae5a2b162f1c7818dde1cf9707d3fc7dfb8db4b89a2b1",
+        "bytes": 8419
+      },
+      "cause": "unproven: no failingPID/rawlength/NUL in oldreport; latercleanupPID not backdated"
+    },
+    "changes": "boundedprivatePPIDidentitymetadata/rawlen/trailingNUL/SHA+separatelytimedaftererror only, no acceptancechange",
+    "strict_preserved": "1024/NUL/8192metadata/4096stat/5sobserver/1500mscommand/500mscleanup/foreignargvdeny/identityPGID/exceptionfail",
+    "real_singlecase": {
+      "attribution": "author actualrun specificallyallowed Root70a diagnostics, not exacta220CI",
+      "result": {
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "/workspace/.worktrees/goal-graph-real-ipc/apps/desktop/tests/goal-graph-real-ipc.py",
+          "--validation-case",
+          "command-timeout",
+          "--batond",
+          "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+          "--candidate-manifest",
+          "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/manifest.json",
+          "--frontend",
+          "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist",
+          "--output",
+          "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/evidence"
+        ],
+        "cwd": "/workspace/.worktrees/goal-graph-real-ipc",
+        "source_commit": "a2a401e3f2b7de95e9bddcd688bcc4ef1578f9d1",
+        "started_utc": "2026-10-29T02:54:34.043659+00:00",
+        "inputs": {
+          "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+          "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/manifest.json": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+          "/workspace/.worktrees/goal-graph-real-ipc/apps/desktop/tests/goal-graph-real-ipc.py": "a054989b5a20972f332312c3bb7ddf9e87e0ca17181448c4a405459451105ed1",
+          "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist/index.html": "a91ec9ba22205a07e7c0e285ffe77ed67e5d731c7e6fb7edf04b50d658d29450",
+          "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist/assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+          "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist/assets/index-CbM2OhF1.js": "ca70891148fb3da167ee7219e2b0b4dcf867390cc9b3b81241b15256f6db4626"
+        },
+        "limits": "original5000msobserver/1500mscommand/500mscleanup,1024Bargv+NUL",
+        "scope": "single real Linux UI/UnixIPC generatedfixture observerdiagnosis; Core70a differs from a220 only goal_validator_io.rs among51production inputs; NOT exacta220 regression",
+        "runner_pid": 1157433,
+        "exitcode": 0,
+        "ended_utc": "2026-10-29T02:54:41.488621+00:00",
+        "inputs_unchanged": true,
+        "runner_log_sha256": "47feb1e5317a50d0634f83d248177e153fd824329989f891b79b1f15d44b980f"
+      },
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/evidence/report.json",
+        "sha256": "72ff78e0a746c34132e72244692bd4b471308d29258ce46e3df6bae3654f00cf",
+        "bytes": 871852
+      },
+      "checks": 5,
+      "PNG": 1,
+      "failure_reproduced": false,
+      "browser_window_ended": "2026-10-29T02:54:41.488621+00:00",
+      "cleanup": "daemon0/gone HTTPthreadfalse handlers[] command+2generatedgone noSignals",
+      "Core_compare": "51Core/CLI/daemon productioninput paths, onehashdiff goal_validator_io.rs undercfgtest; still70a notexacta220candidate",
+      "same_non_test_prefix": true,
+      "screenshot_actually_viewed": true
+    },
+    "author_controls": {
+      "Popen_identity_replay": 13,
+      "synthetic_backend_boundary": 4,
+      "realfork_short": 6,
+      "realfork_padded": 7,
+      "source_results": [
+        {
+          "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/controls.json",
+          "sha256": "bcb2a8b60e43e99d359555cadf7b120574b75793ca05422779ee502dd318dc13",
+          "bytes": 15077
+        },
+        {
+          "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/guard-controls.json",
+          "sha256": "b553cea01d7e25c5c773f9c2ecb6a0a8e2165ad68289629278dc56fdd0dfacbf",
+          "bytes": 3508
+        },
+        {
+          "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/short.json",
+          "sha256": "c5da016254cdfd0a640c110a650589fef16e5e4159912c0551a73a8d3c87e1d4",
+          "bytes": 8961
+        },
+        {
+          "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/padded.json",
+          "sha256": "1b5bd7f2ce09b1391fc111cd34ce90c66f1bdc68e2b8e67c5ce67d33b91663cb",
+          "bytes": 9614
+        }
+      ],
+      "explicit_qualifiers": [
+        "allthisroundauthorreplay, inheritedJSON reviewer label not independentexecution",
+        "paddedpreexec failure realownprocess; emptyreadnegative explicitlymocked, neither proves CIcause",
+        "wrapperoldhistoricalsnapshotpathfailure recorded, allownchildrenfinallyreaped",
+        "realpreexecCLOEXEC handshake thenexeccorrectsleep, allonlyownPIDcleanup"
+      ]
+    },
+    "artifacts": [
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/before.json",
+        "sha256": "2a504d72aa891bbb7f249cfa8b706764e42533e85972d115db7dfe599937449f",
+        "bytes": 2149
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/evidence/01-five-node-command-timeout-blocked-before-owner.png",
+        "sha256": "ade751e1b9df5e1c892afc58a36f9c09a2cab8f53de4e1e8332ff886eb3b330e",
+        "bytes": 119882
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/evidence/daemon.log",
+        "sha256": "4feaffdd785146a954804cf461be66eb3d3c85a0afb70459a2bb7bf5878a8158",
+        "bytes": 57
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/evidence/report.json",
+        "sha256": "72ff78e0a746c34132e72244692bd4b471308d29258ce46e3df6bae3654f00cf",
+        "bytes": 871852
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/result.json",
+        "sha256": "feee0f3c44148c3a5be6c9045924bd6fd7b009dfacc6b636c889fa3588377fce",
+        "bytes": 2361
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/runner.log",
+        "sha256": "47feb1e5317a50d0634f83d248177e153fd824329989f891b79b1f15d44b980f",
+        "bytes": 199
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/running.json",
+        "sha256": "52f13819f728286c47d1b7771478ddd8d3915892560554ad6666ea38352f4478",
+        "bytes": 74
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/controls.py",
+        "sha256": "ab3f0b4dd361c63689324dd86c769cfd01c4073ec66b70a89729d657acc3eba5",
+        "bytes": 4043
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/padded.json",
+        "sha256": "1b5bd7f2ce09b1391fc111cd34ce90c66f1bdc68e2b8e67c5ce67d33b91663cb",
+        "bytes": 9614
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/padded.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/padded.stdout",
+        "sha256": "c492d0a31ef3d7cbbeaf52e8d9e792a380f3d3794bc3a1f237083c2f7b813c8f",
+        "bytes": 37
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/short.json",
+        "sha256": "c5da016254cdfd0a640c110a650589fef16e5e4159912c0551a73a8d3c87e1d4",
+        "bytes": 8961
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls/controls.py",
+        "sha256": "59f6b76adb1001853842337b4ed9b15d1070836830fac7fb1c2c3eaedfdb6a49",
+        "bytes": 3735
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls/guard-controls.json",
+        "sha256": "c7653d9004f15c541c766aa1c8bb36c3e4e30f187e4f779b1b4f318ab6cd2530",
+        "bytes": 3508
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls/guard_controls.py",
+        "sha256": "d2643baeafdf3855ca237d6e356b686862f01965ea92cf7cbef2a1b5bfe05e66",
+        "bytes": 2696
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls/source.py",
+        "sha256": "faf698d9f960b09f1702d34850d17ed7de92e019362ed023d1ae2ce6354243aa",
+        "bytes": 6910
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls/wrapper-failure.json",
+        "sha256": "f6b23f83ac0e1351278b455039e6f69563f776540717ff87e8d7adcde3d9c871",
+        "bytes": 355
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/__pycache__/source.cpython-312.pyc",
+        "sha256": "6547cb058c2b9c578bfcce1bb2dc4cf74683fc00f4caf6cbadd982d8768d5684",
+        "bytes": 204872
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/controls.json",
+        "sha256": "bcb2a8b60e43e99d359555cadf7b120574b75793ca05422779ee502dd318dc13",
+        "bytes": 15077
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/controls.py",
+        "sha256": "472406cc8e79988f2e266e952a2eff67ef242fbcbfb335462e9f502be8dc9773",
+        "bytes": 3869
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/guard-controls.json",
+        "sha256": "b553cea01d7e25c5c773f9c2ecb6a0a8e2165ad68289629278dc56fdd0dfacbf",
+        "bytes": 3508
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/guard_controls.py",
+        "sha256": "213c89653e2f9aefb6c3ee310118b6a136421d8a35beea3e909c2eb0d3fb23b0",
+        "bytes": 2714
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/source.py",
+        "sha256": "a054989b5a20972f332312c3bb7ddf9e87e0ca17181448c4a405459451105ed1",
+        "bytes": 156324
+      }
+    ],
+    "independent": "Root assigned data_native_integration_review and sourceACK pending, no inferredsignoff",
+    "remaining": "originalCI blocker requiresnewexactCI; noextraChrome/Cargo or product/Mac/model/packageclaim"
+  },
+  "pending_empty_argv_7f83": {
+    "base": "7f83c66652a40a9d01e995b45ce270abd44fbdde",
+    "source_commit": "79bbf4e8ab69d0e24800f1c49c356673c2a8e4bc",
+    "source_sha256": "2066f54bc6f0a0d3cf6add7885caa53fb322c28478c714846ebf5f9c04a76955",
+    "tree": "/workspace/.worktrees/goal-graph-empty-argv",
+    "actual_CI_sealed_directory": "/workspace/.onboarding/pr16-7f83-linux-review",
+    "CI_status": "UI_FAILED_Rust_SUCCESS",
+    "CI_failure_identity": {
+      "pid": 10200,
+      "ppid": 9949,
+      "start_ticks": "20524",
+      "states": [
+        "R",
+        "R",
+        "R"
+      ],
+      "raw_len": 0,
+      "NUL": false,
+      "separate_later_sleep_pid": 10207
+    },
+    "specific_kernel_mechanism": "unproven",
+    "ADR": "PLAN.md pending-empty section",
+    "controls": {
+      "new_ownfork_injectedempty_realexec_and_negatives": {
+        "command": "python3 /workspace/.onboarding/goal-graph-empty-argv/controls.py",
+        "exit": 0,
+        "count": 17,
+        "result": "/workspace/.onboarding/goal-graph-empty-argv/controls.json"
+      },
+      "author_replay_Popen": {
+        "exit": 0,
+        "count": 13,
+        "result": "/workspace/.onboarding/goal-graph-empty-argv/compatibility/controls.json"
+      },
+      "capacity_backend": {
+        "exit": 0,
+        "count": 4,
+        "result": "/workspace/.onboarding/goal-graph-empty-argv/compatibility/guard-controls.json"
+      },
+      "mechanical": "/workspace/.onboarding/goal-graph-empty-argv/mechanical-preservation.json"
+    },
+    "not_run": [
+      "newsource browser/Core",
+      "newCI",
+      "Mac",
+      "Cargo"
+    ],
+    "review": "pending independent result; followup tool agent thread limit failure recorded",
+    "thresholds": "5s phase original absolute now enforced before exact accept; Core1500ms/cleanup500ms unchanged",
+    "evidence_directory": "/workspace/.onboarding/goal-graph-empty-argv"
+  }
+}

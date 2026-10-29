@@ -1,0 +1,252 @@
+{
+  "status": "author_Linux55_Clippy_fmt_passed_lease_released_independent_review_and_Mac_pending",
+  "baseline": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+  "source_commit": "c05f8cee4966b8c76b6e8de7181d5b9a21572dfe",
+  "source_file": "crates/core/tests/sessions_ipc.rs",
+  "source_sha256": "227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b",
+  "role": "Root explicitly reassigned prior independent investigator as test-only author; separate reviewer required",
+  "old_failure": {
+    "product": 40740806703,
+    "ARM_job": 123001572522,
+    "actual_checkout": "1e04de31b8c44b37a48c6ac2cfe3282001326fd1",
+    "raw_log_sha256": "52bc6265318399699c99c47258a1db79de7e340c1d81ab2803ddba3df7eb666b",
+    "integrity_request_stage": "unknown in original raw; uniform result helper only",
+    "socket_errno_and_actual_case_path": "not recorded in original raw; 109-byte length from another same-log root is modeled, not captured failure"
+  },
+  "actual_checks": [
+    {
+      "command": [
+        "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/core/tests/sessions_ipc.rs"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/.onboarding/graph-mac-fixture-stability/scope_proof.py"
+      ],
+      "exit_code": 0,
+      "log_sha256": "9e052216f75aaf3503db341659ef8144fbd70975bf94c909e8b31b49f4710923",
+      "proof": "whole file inverse exact;55 original names; other bytes unchanged"
+    }
+  ],
+  "not_run": [
+    "independent reviewer actual checks not claimed by author",
+    "new macOS validation and actual Darwin probe errno",
+    "new exact full CI7/native/Owner/packages"
+  ],
+  "first_checker_failure": {
+    "scope-proof-initial.log": "dc4e001ba9e9954988293f06f0f2e782c145b001e6edbe834b188d19745680d5",
+    "cause": "inverse verifier replace-all also changed existing Command identical30000 line; only verifier corrected to first occurrence"
+  },
+  "first_bare_rustfmt_failure": "command not found observed in tool stdout, no separate original raw log; used existing absolute rustfmt, no dependency install",
+  "runtime_commands": [
+    {
+      "mode": "tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 218.638,
+      "log_sha256": "f3404bd5fe6e9578e175caefafa2dd5083ead6fbb240b1b21f0e680719fde43e",
+      "environment": {
+        "CARGO_HOME": "/workspace/.toolchains/cargo",
+        "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+        "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_BUILD_JOBS": "2",
+        "RUST_TEST_THREADS": "1"
+      },
+      "source_commit": "c05f8cee4966b8c76b6e8de7181d5b9a21572dfe",
+      "source_sha256": "227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b"
+    },
+    {
+      "mode": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.996,
+      "log_sha256": "323b3d87fe743accb2b668e387804dc1f5c1896e46cc793eece1b96b51c5af9a",
+      "environment": {
+        "CARGO_HOME": "/workspace/.toolchains/cargo",
+        "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+        "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_BUILD_JOBS": "2",
+        "RUST_TEST_THREADS": "1"
+      },
+      "source_commit": "c05f8cee4966b8c76b6e8de7181d5b9a21572dfe",
+      "source_sha256": "227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b"
+    },
+    {
+      "mode": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.847,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "environment": {
+        "CARGO_HOME": "/workspace/.toolchains/cargo",
+        "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+        "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_BUILD_JOBS": "2",
+        "RUST_TEST_THREADS": "1"
+      },
+      "source_commit": "c05f8cee4966b8c76b6e8de7181d5b9a21572dfe",
+      "source_sha256": "227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b"
+    }
+  ],
+  "runtime_sources": {
+    "count": 101,
+    "before_sha256": "0877a7bf62dadf8577781e782f2315744cd3c00d33ba078e1b5a98638318e3ff",
+    "after_sha256": "0877a7bf62dadf8577781e782f2315744cd3c00d33ba078e1b5a98638318e3ff",
+    "all_hashes_equal": true,
+    "entrypoint_mtime_touch_only_bytes_unchanged": true
+  },
+  "diagnostic_observations": {
+    "status": "passed",
+    "platform": "Linux x86_64; not Darwin",
+    "main_integrity_grant_phase_records": [
+      {
+        "approved_at": "2026-10-28T18:40:13.016373595Z",
+        "expires_at_ms": 1793212843016,
+        "grant_id": "31468ed5-aa5a-4548-8b39-dc72382589f2",
+        "now_epoch_ms": 1793212813018,
+        "phase": "enclosing_grant_approved_before_bootstrap"
+      },
+      {
+        "approved_at": "2026-10-28T18:40:13.016373595Z",
+        "expires_at_ms": 1793212843016,
+        "grant_id": "31468ed5-aa5a-4548-8b39-dc72382589f2",
+        "now_epoch_ms": 1793212813481,
+        "phase": "bootstrap_candidate_before_definition"
+      },
+      {
+        "approved_at": "2026-10-28T18:40:13.016373595Z",
+        "expires_at_ms": 1793212843016,
+        "grant_id": "31468ed5-aa5a-4548-8b39-dc72382589f2",
+        "now_epoch_ms": 1793212813547,
+        "phase": "bootstrap_cancelled_before_new_task"
+      },
+      {
+        "approved_at": "2026-10-28T18:40:13.016373595Z",
+        "expires_at_ms": 1793212843016,
+        "grant_id": "31468ed5-aa5a-4548-8b39-dc72382589f2",
+        "now_epoch_ms": 1793212813718,
+        "phase": "five_node_plan_prepared"
+      },
+      {
+        "approved_at": "2026-10-28T18:40:13.016373595Z",
+        "expires_at_ms": 1793212843016,
+        "grant_id": "31468ed5-aa5a-4548-8b39-dc72382589f2",
+        "now_epoch_ms": 1793212813718,
+        "phase": "before_graph_approval"
+      },
+      {
+        "approved_at": "2026-10-28T18:40:13.016373595Z",
+        "expires_at_ms": 1793212843016,
+        "grant_id": "31468ed5-aa5a-4548-8b39-dc72382589f2",
+        "now_epoch_ms": 1793212815657,
+        "phase": "before_first_owner_proposal"
+      },
+      {
+        "approved_at": "2026-10-28T18:40:13.016373595Z",
+        "expires_at_ms": 1793212843016,
+        "grant_id": "31468ed5-aa5a-4548-8b39-dc72382589f2",
+        "now_epoch_ms": 1793212816590,
+        "phase": "before_first_owner_finalize"
+      },
+      {
+        "approved_at": "2026-10-28T18:40:13.016373595Z",
+        "expires_at_ms": 1793212843016,
+        "grant_id": "31468ed5-aa5a-4548-8b39-dc72382589f2",
+        "now_epoch_ms": 1793212820255,
+        "phase": "before_final_owner_proposal"
+      },
+      {
+        "approved_at": "2026-10-28T18:40:13.016373595Z",
+        "expires_at_ms": 1793212843016,
+        "grant_id": "31468ed5-aa5a-4548-8b39-dc72382589f2",
+        "now_epoch_ms": 1793212821382,
+        "phase": "before_final_owner_finalize"
+      }
+    ],
+    "Grant_lifetime_ms": 30000,
+    "before_final_owner_finalize_elapsed_from_Grant_approval_ms": 8366,
+    "original_652_ARM_failed_RPC_stage": "still unknown; current success does not reconstruct historical request",
+    "actual_private_probe": {
+      "original_socket": "/tmp/.tmpOfRGMg/validator-interrupted-runtime/batond.sock",
+      "original_socket_bytes": 57,
+      "outcome": {
+        "error_kind": null,
+        "raw_os_error": null,
+        "result": "bound_and_closed"
+      },
+      "probe_socket": "/tmp/.tmpOfRGMg/047967873d884fad83a1755c366d3/batond.sock",
+      "probe_socket_bytes": 57,
+      "scope": "test-only newly created private path; not a historical errno reconstruction"
+    },
+    "short_recovery_socket_from_same_actual_root": "/tmp/.tmpOfRGMg/restore/batond.sock",
+    "short_recovery_socket_bytes": 35,
+    "actual_recovered_daemon_and_unknown_no_replay_assertions": "passed in55 test suite",
+    "actual_integrity_graph": {
+      "sha256": "b0b01ab5173c2179c02f56abfa71618af69857d1797bfad6c904019c10cf4ffd",
+      "bytes": 77031
+    },
+    "no_Darwin_errno_claim": true
+  },
+  "lease_release": {
+    "state": "RELEASED",
+    "released_at_utc": "2026-10-28T18:43:06.276448+00:00",
+    "target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+    "author": "data_native_integration_review now test-only fix author",
+    "source": "c05f8cee4966b8c76b6e8de7181d5b9a21572dfe",
+    "all_source_hashes_before_after_equal": true,
+    "source_entries": 101,
+    "all_owned_Cargo_commands_finished": true,
+    "further_Cargo_requires_new_Root_lease": true
+  },
+  "historical_source_stage_not_run": [
+    "At source commit time Rust typecheck and runtime were pending; actual runtime section now records later granted-lease execution."
+  ]
+}

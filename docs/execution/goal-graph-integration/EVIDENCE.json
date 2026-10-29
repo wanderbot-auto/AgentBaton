@@ -1,0 +1,936 @@
+{
+  "status": "fb7exactCI5success2MacGrantassociationFAIL retained; test-only655c29Python+RootRust10 andCIlookup65f7 independentlyreviewed; newexactCIpending",
+  "baseline": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "pr15_merge_record": "../goal-runtime-integration/MERGE_9200.json",
+  "postmerge_doc_commands": [
+    {
+      "command": "python3 scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "files": 93
+    },
+    {
+      "command": "python3 scripts/validate_design.py",
+      "exit_code": 1,
+      "failure": "initial CHECKPOINT/PROGRESS appended delivery link resolved in wrong parent; corrected to same-directory relative link; no validator changed"
+    },
+    {
+      "command": "python3 scripts/validate_design.py",
+      "exit_code": 0,
+      "requirements": 130,
+      "answered_questions": 27,
+      "local_links_checked": 41
+    },
+    {
+      "command": "python3 scripts/check_infrastructure.py",
+      "exit_code": 2,
+      "failure": "incorrect file name; no such file; not a validation pass"
+    },
+    {
+      "command": "python3 scripts/validate_infrastructure.py",
+      "exit_code": 0,
+      "scope": "static_only_not_remoteCI"
+    },
+    {
+      "command": "python3 scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "files": 93
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 2,
+      "failure": "independent reviewer found new blank line at EOF in CHECKPOINT/PROGRESS; Root removed trailing blank lines, retaining document text"
+    }
+  ],
+  "graph_runtime": "actual local Work/Integrity/Data/fixed Command/private Owner/Summary/TaskAccepted + Data range and real command timeout failures verified",
+  "native_goal_dialog": "not_verified",
+  "full_design": "incomplete",
+  "historical_stages": [
+    {
+      "stage": "early_proposal_only_before_Graph_runtime",
+      "current_at_that_stage": {
+        "current_core_wip": "c4b8b70",
+        "task_accepted": "not_implemented_no_claim",
+        "core_actual_directed_tests": 8,
+        "ui_mock_node_tests": 513,
+        "native_compile": {
+          "tests": "41lib+17harness",
+          "clippy": "PASS -Dwarnings after retained101 nestedformat warning",
+          "fmt": "PASS",
+          "runtime_dimension": "ownCore04/schema11 compile + actualCore12 proposal6074 callbacks; notCore12 runtime/OSDialog/Mac",
+          "lease": "UI released12:58 no writers; Root explicitly returned sole Native writer toCore"
+        }
+      },
+      "superseded_for_current_progress": true,
+      "note": "Retained original values; not current-source assertions"
+    },
+    {
+      "stage": "pre_CI_and_first_6912_CI_snapshot",
+      "current_at_that_stage": {
+        "current_candidate": {
+          "core": "70a48d41663108337529915358109026e98ddf98",
+          "manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+          "root_composition": "CORE_70A_COMPOSITION.json",
+          "full_workspace_independent": {
+            "status": "PASS",
+            "outer_unique": 593,
+            "compilefail_docs": 7,
+            "failed": 0,
+            "ignored": 0,
+            "report": "CORE_70A_REVIEW.md",
+            "manifest": "CORE_70A_REVIEW_MANIFEST.json",
+            "source_100_before_after_equal": true
+          },
+          "native_composition": {
+            "status": "PASS_linux_only",
+            "evidence": "ROOT_NATIVE_FINAL.json",
+            "source_map": "ROOT_NATIVE_SOURCES.json"
+          },
+          "browser_new_modes": {
+            "current_corrected_runtime": {
+              "status": "all6_local_scenarios_passed34checks14PNG",
+              "evidence": "ROOT_GRAPH_BROWSER_FINAL.json",
+              "sources": "160e four modes, a941 final timeout/Owner; no claim all six ran on a941 yet"
+            },
+            "prior_current_harness_runtime": {
+              "source": "7d80c2cc258669dd82bf235ad8753c5373705e70",
+              "sha256": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
+              "owner_only": "PASS 6checks3PNG",
+              "integrity": "FAIL TypeError output directory parameter shadowed; final report not written, first exception masked",
+              "other_modes": "not_run after stop-on-failure",
+              "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-new",
+              "cleanup_limit": "Exact frozen daemon process scan empty after failure; not proof of all descendants"
+            },
+            "prior_static_actual_packet_counterexamples": "four blocking fixture adaptation failures reproduced and retained, no daemon/browser involved",
+            "counterexamples_local": "/workspace/.onboarding/goal-graph-driver-90d-review/actual-packet-counterexamples.json",
+            "old_owner_only_runtime": "5b7e401/oldCore5541 actual6checks/3PNG, preserved separately and not borrowed as newGraph pass",
+            "prior_static_review": "BROWSER_90D_BLOCKED_REVIEW.md",
+            "prior_static_counterexamples": "BROWSER_90D_STATIC_FAILURES.json",
+            "runtime_attempts": [
+              {
+                "source": "7d80c2cc258669dd82bf235ad8753c5373705e70",
+                "sha256": "c43214cb7ff8d49514d6e6f3d39d4ec2e8f311e91e225265f3ef9a363b7e65be",
+                "owner_only": "PASS 6checks3PNG",
+                "integrity": "FAIL TypeError output directory parameter shadowed; final report not written, first exception masked",
+                "other_modes": "not_run after stop-on-failure",
+                "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-new",
+                "cleanup_limit": "Exact frozen daemon process scan empty after failure; not proof of all descendants"
+              },
+              {
+                "source": "c3e7e192bfa475c9a6771227550d09667640b3cd",
+                "harness_sha256": "3be92d90f6da058eb8b7c54fb2d1a93979a68418885f83647a537e09c30814c0",
+                "owner_only": "PASS6/3",
+                "integrity": "FAIL final Owner correctly refused expired10s private Grant;2checks3PNG, daemon exited0/no forced kill/owned identities gone",
+                "other_modes": "not_run after stop-on-failure",
+                "evidence": "final-linux/browser-expired-grant/FAILURE.json"
+              },
+              {
+                "source": "fd1654a9224bbcb3c7296381b73c9ad6479fb52e",
+                "integrity": "FAIL post-TaskAccepted strict ordinary root budget expectation3; no actual SQL diagnostic yet",
+                "evidence_local": "/workspace/.onboarding/goal-graph-final-browser-grantfix/integrity/report.json"
+              },
+              {
+                "source": "6a8cf49136545ac800042870426ad61001d5b8a3",
+                "integrity": "FAIL original strict expectation3; actual new root4/project4/oldroot1, active0; same root-grant history inherited correctly",
+                "evidence": "final-linux/browser-budget-diagnostic/DIAGNOSTIC.json"
+              },
+              {
+                "source": "160e0a07d0bebb19e7ff1881e1cd25cf4ac3875a",
+                "harness_sha256": "9b1bc1c5127b795c9a86fce85998b30f9a4cd36562c43439d9f7dca323ebc452",
+                "actual_results": {
+                  "integrity": "PASS6/3",
+                  "data": "PASS6/3",
+                  "command": "PASS6/3",
+                  "data-range": "PASS5/1",
+                  "command-timeout": "FAIL private /proc children observer returnedNone; actual journal validator failed with owned-stop/join, cannot infer absent command",
+                  "owner-only": "not_run after stop-on-failure"
+                },
+                "archive": "final-linux/browser-shared-history-first/results.json"
+              }
+            ],
+            "final_independent_review": {
+              "source": "a94140ebebf22624899b8b815d868f2971bb51f4",
+              "verdict": "PASS scoped source/evidence, not macOS/CI/fullproduct",
+              "report": "DRIVER_A941_REVIEW.md",
+              "manifest": "DRIVER_A941_MANIFEST.json",
+              "portable_import": "DRIVER_A941_IMPORT.json",
+              "files": 135,
+              "raw_checks": 34,
+              "screenshots_actually_viewed": 14
+            }
+          },
+          "new_ci": "not_run",
+          "new_macos": "not_run",
+          "lossless_ui_independent": {
+            "source": "4fab558fe126543c23b1410949e6fcd922b770d6",
+            "node": 564,
+            "files": 37,
+            "additional_controls": 18,
+            "evidence_files": 59,
+            "report": "LOSSLESS_4FAB_REVIEW.md",
+            "manifest": "LOSSLESS_4FAB_MANIFEST.json"
+          },
+          "legacy_browser": {
+            "status": "PASS",
+            "checks": 80,
+            "screenshots": 56,
+            "evidence": "ROOT_LEGACY_BROWSER_FINAL.json",
+            "personally_viewed": [
+              "quiet/home-1488x981.png",
+              "execution/09-same-plan-work-and-summary-frontier.png"
+            ],
+            "source": "70a frozen daemon40322b +4fab frontendca708911"
+          }
+        },
+        "current_core_source": "70a48d41663108337529915358109026e98ddf98",
+        "native_compile_current": {
+          "library": 57,
+          "controller": 4,
+          "readonly_harness": 22,
+          "clippy": "PASS -Dwarnings",
+          "fmt": "PASS",
+          "evidence": "ROOT_NATIVE_FINAL.json",
+          "dimension": "Linux composed current sources; macOS code and NSAlert not_run"
+        },
+        "task_accepted": "actual durable TaskAccepted verified in independent70a Core and fresh composed React/Unix Graph flows; private generated Owner fixture, not OS/human",
+        "ui_node_tests": {
+          "tests": 564,
+          "files": 37,
+          "dimension": "actual Node component/mock tests, not Core/browser/Mac"
+        },
+        "pull_request": {
+          "number": 16,
+          "url": "https://github.com/wanderbot-auto/AgentBaton/pull/16",
+          "state": "draft",
+          "first_head": "3af6b5c391dbce8c7eb4df15844acd255029b919",
+          "first_product_run": 40732467344,
+          "first_environment_run": 40732467579,
+          "current_ci": {
+            "product": 40733070149,
+            "environment": 40733070186,
+            "attempt": 1,
+            "ui": "PASS114checks70PNG exactcandidate",
+            "environment3": "FAIL STATUS manifest mismatch",
+            "rust": "FAIL sessions48pass7fail",
+            "intel": "FAIL IOlibunit",
+            "arm": "FAIL same IOunit;Corelib68pass1fail",
+            "evidence": "ci-6912/MANIFEST.json",
+            "product_conclusion": "failure",
+            "native_macos_and_packages": "not_reached"
+          },
+          "formal_approve": "not_submitted",
+          "current_head": "6912fa9b72bc3ab9fbc1ddba18cd76e7c052677c",
+          "actual_checkout": "a11045e6a8f72bb5264c1f4cdbf792f51370bdfa"
+        }
+      },
+      "superseded_for_current_progress": true,
+      "note": "Original values moved without change. 70a full test source and57+4+22 Native compilation are historical; no new fixed composition or Mac acceptance inferred."
+    },
+    {
+      "stage": "pre_641_composition_pending_CI",
+      "current_at_that_stage": {
+        "current_candidate": {
+          "fixed_source_composition": "FIXED_SOURCE_COMPOSITION.json",
+          "composition_parent_commit": "908bb6cf79631cbefc3635781bb6a4cfebc8b4e7",
+          "production_core_baseline": "70a48d41663108337529915358109026e98ddf98",
+          "production_core_baseline_is_not_current_test_snapshot": true,
+          "source_units": {
+            "command": "2ee515e7b2d97b376740a7514ffc2a7590bca5ca",
+            "sessions": "c05f8cee4966b8c76b6e8de7181d5b9a21572dfe",
+            "native_webcrypto": "579f4ca9ab07d1fd3039ab71ad506af47ca237aa"
+          },
+          "local_current_source_evidence": {
+            "command_author_and_independent": "14+same14 overlap",
+            "sessions_author_and_independent": "55+subset3 overlap",
+            "native_harness_independent": 26,
+            "native_python_independent": 29,
+            "node_webcrypto": "4actualcontexts+4unavailablecontrols",
+            "clippy_and_fmt": "passed selected scopes; no allworkspace currentroot claim"
+          },
+          "exact_new_CI": "not_started",
+          "actualNativeGUI_and_macOS": "not_run",
+          "installers": "none_for_this_candidate",
+          "formal_approve": "not_submitted"
+        },
+        "pull_request_current_ci": {
+          "product": 40740806703,
+          "environment": 40740806162,
+          "attempt": 1,
+          "feature_head": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+          "actual_checkout": "1e04de31b8c44b37a48c6ac2cfe3282001326fd1",
+          "conclusion": "failure",
+          "environment3": "success",
+          "rust": "success",
+          "ui": "success114checks70PNG",
+          "intel": "failure command13pass1fail",
+          "arm": "failure sessions53pass2fail",
+          "evidence": "ci-652/MANIFEST.json",
+          "native_macos_and_packages": "not_reached"
+        }
+      },
+      "superseded_for_current_progress": true
+    },
+    {
+      "stage": "0aa_reviewed_fixture_composition_before_fourth_exact_CI",
+      "current_at_that_stage": {
+        "remote_tested_head": "641be86e8b055920787cfebdd48270716d509309",
+        "unpublished_change": "three test/runner files only from641: Node maintenance + Owner private canonical short paths and failure capture",
+        "owner_bootstrap": {
+          "source": "a43cbb181a52b9ebcc0c72a838f68497101759b8",
+          "author_docs": "f8aca83e82dc3614ddc56aad0e3199ee342ccb97",
+          "author_and_independent_tests": "same15 group, not30unique; original11 include1actualCore; new4 mixed controls",
+          "independent_extra_controls": "six retained overlap, not additional unit total; shortalias nofallback/CJK173\u219240 fallback/realrawalias exit1/earlyexit0+23 rejected",
+          "independent_review": "OWNER_BOOTSTRAP_REVIEW.md",
+          "independent_manifest_sha256": "d831ba24877229b9dd34a9b945684631dfa9151e087afbf1aea9e9c5611e7a23",
+          "Mac_OS_Owner": "not_run",
+          "historical_ARM_exit1_cause": "UNKNOWN",
+          "author_manifest_sha256": "1f767deae5f08053263c774c7f876afc11996fe13dc937a439da5d0a693d3321"
+        },
+        "exact_new_CI": "not_started",
+        "installers": "none for PR16",
+        "formal_approve": "not_submitted",
+        "evidence_imports": [
+          "CI_641_LINUX_IMPORT.json",
+          "CI_641_ARM_IMPORT.json",
+          "COMMAND_UI_AUTHOR_IMPORT.json",
+          "COMMAND_UI_REVIEW_IMPORT.json",
+          "OWNER_BOOTSTRAP_REVIEW_IMPORT.json",
+          "OWNER_BOOTSTRAP_AUTHOR_IMPORT.json"
+        ],
+        "local_source_composition_commit": "cf073d963e25f631502e333647171d19e6b40348",
+        "local_source_composition": "SOURCE_COMPOSITION_641_FAILURE_FIXES.json",
+        "local_head_at_source_composition": "cf073d963e25f631502e333647171d19e6b40348",
+        "integration_validation": {
+          "commands": [
+            "python3 scripts/verify_bootstrap_manifest.py",
+            "python3 scripts/validate_design.py",
+            "python3 scripts/validate_infrastructure.py",
+            "git diff --check"
+          ],
+          "exit_codes": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "scope": "Root static records/integrity only; runtime leaf tests independently attributed; new CI pending",
+          "registered_bootstrap_files": 93,
+          "only_registered_hash_changed": "docs/execution/STATUS.md",
+          "status_sha256": "ff1cd0199804c7aa0a580053e50b5f05dae340a6039610cc8323efdf8f7fcb8d"
+        },
+        "final_independent_integration_review": {
+          "reviewed_commit": "9448918d17ba3a1159edf7051e140ea04e04e6df",
+          "report": "FINAL_944_INTEGRATION_REVIEW.md",
+          "manifest_sha256": "16ce92c1759ce8400f24a0398bc03920b68b7648ffa3438cef9f6fb9b44fa0b4",
+          "scope": "source/records/93-file integrity only; no new product execution or Mac/installer acceptance",
+          "verdict": "no_blocking_finding",
+          "source_and_STATUS_frozen_for_next_documentation_head": true
+        }
+      },
+      "superseded_for_current_progress": true
+    },
+    {
+      "stage": "e3cc_diagnostic_candidate_before_complete_Native_presentation_repair",
+      "current_at_that_stage": {
+        "source_composition_commit": "c730dd833d3aa916feaab093fdc6d9c5cde6e60f",
+        "source_composition": "NATIVE_TEXT_SOURCE_COMPOSITION.json",
+        "source": "7a13cddef4316d520361071ff5e2a263ea058580",
+        "author_docs": "6be599b9112ae81c77bf027d4e8b1bdd46fd41d1",
+        "imports": [
+          "NATIVE_TEXT_AUTHOR_SOURCE_IMPORT.json",
+          "NATIVE_TEXT_REVIEW_IMPORT.json"
+        ],
+        "root_test": "NATIVE_TEXT_ROOT_RESULT.json",
+        "root_tests_passed": 6,
+        "AppKit_compile_and_Mac_GUI": "not_run",
+        "goal": "obtain bounded actualMac failure observations, no acceptance downgrade or claimed rootcause fix",
+        "new_exact_CI": "not_started",
+        "formal_approve": "not_submitted",
+        "Root_static_validation": {
+          "commands": [
+            "python3 scripts/verify_bootstrap_manifest.py",
+            "python3 scripts/validate_design.py",
+            "python3 scripts/validate_infrastructure.py",
+            "git diff --check"
+          ],
+          "exit_codes": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "registered_files": 93,
+          "only_changed_registered_hash": "STATUS ff1cd019\u21924ac42f0f",
+          "full_STATUS_SHA256": "4ac42f0fce63ed9f8b797893665bdb7a2f2144ee8777a9d68434cd672ed6fb32",
+          "scope": "records/staticintegrity not newProduct/GUI proof"
+        },
+        "Root_final_record_failure_and_correction": {
+          "initial_staged_diffcheck_exit_code": 2,
+          "cause": "new verbatim controller log trailing blank atEOF",
+          "batch_error": "commit followed newline after nonzero check beforeRootobserved output; preserved15e4 history",
+          "correction": "losslessgzip rawbyte/sha roundtrip, original archived/localraw retained; checker unchanged",
+          "final_check": {
+            "command": "git diff --check 0aa20c968d493cad895e4a3853bdf106d6b54acf 232b53a832b247964510b8660a7231d167fa9c90",
+            "exit_code": 0,
+            "evidence": "FINAL_232_INTEGRATION_REVIEW_EVIDENCE.tar.gz/validation-checks.json",
+            "initial_failed_check_and_15e4_history_preserved": true
+          }
+        },
+        "final_independent_integration_review": {
+          "subject": "232b53a832b247964510b8660a7231d167fa9c90",
+          "report": "FINAL_232_INTEGRATION_REVIEW.md",
+          "report_sha256": "13b8149ea57dacdd11b43fde554d208c418bc26fce18b6eefb2e977100000046",
+          "manifest_sha256": "fa5be5174abe807f0e46267cdf55b6c95397b42a8bda32144c7c7df7feb71883",
+          "import": "FINAL_232_INTEGRATION_REVIEW_IMPORT.json",
+          "scope": "static composition/records only; no source blocker; no new product/Mac success or formal Approve"
+        }
+      }
+    }
+  ],
+  "pull_request": {
+    "number": 16,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/pull/16",
+    "state": "draft",
+    "first_head": "3af6b5c391dbce8c7eb4df15844acd255029b919",
+    "first_product_run": 40732467344,
+    "first_environment_run": 40732467579,
+    "current_ci": {
+      "feature": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+      "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+      "tree": "1943596e0bd12177d852117dab86c81ca30e6858",
+      "product": 40761824261,
+      "environment": 40761824141,
+      "conclusion": "5success2MacOwnerfail",
+      "Linux_evidence": "CI_0AA_LINUX_IMPORT.json",
+      "Mac_evidence": "CI_0AA_MAC_IMPORT.json",
+      "Owner_failure": "firstcancel unique exactNSTextFieldtitle/message guard beforeclick; actualtexts notsaved causeunknown",
+      "bodybytes_by_arch": {
+        "ARM": 3132,
+        "Intel": 3136
+      },
+      "formatter_equal_offline": true,
+      "before_DB": "schema12/seq8/grants0/19zero; noafter",
+      "both_actual_readonly_WebCrypto_lifecycle": "passed",
+      "defaultrelease_audit_installers": "skipped"
+    },
+    "formal_approve": "not_submitted",
+    "actual_checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+    "remote_head_at_checkpoint": "0aa20c968d493cad895e4a3853bdf106d6b54acf"
+  },
+  "ci_portability_fix": {
+    "source": "a2c48b7e399ab298047e838f2d6c4475de6f8a4f",
+    "author_full124_source": "d4ecdf5",
+    "final_delta": "one canonical recovery fixture path; recovery1 repeated on final",
+    "independent_final_subset": 18,
+    "subset_not_additive_to124": true,
+    "source_map_entries": 104,
+    "only_two_test_files_changed": true,
+    "production_prefix_and_other_sources_locks_unchanged": true,
+    "macos_and_new_ci": "pending",
+    "source_manifest": "CI_PORTABILITY_AUTHOR_SOURCE.json",
+    "root_composition": "CI_PORTABILITY_ROOT_COMPOSITION.json",
+    "independent_review": "CI_PORTABILITY_REVIEW.md",
+    "independent_manifest": "CI_PORTABILITY_REVIEW_MANIFEST.json",
+    "portable_import": "CI_PORTABILITY_REVIEW_IMPORT.json"
+  },
+  "ci_652": {
+    "feature_head": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+    "actual_checkout": "1e04de31b8c44b37a48c6ac2cfe3282001326fd1",
+    "product_run": 40740806703,
+    "environment_run": 40740806162,
+    "success": [
+      "Environment ubuntu",
+      "Environment macos-15",
+      "Environment macos-15-intel",
+      "Product Rust",
+      "Product UI"
+    ],
+    "failure": [
+      "Product macos-15",
+      "Product macos-15-intel"
+    ],
+    "linux_review": "CI_652_LINUX_REVIEW.md",
+    "portable_import": "CI_652_LINUX_IMPORT.json",
+    "mac_logs": "ci-652/MANIFEST.json",
+    "native_and_packages": "not_reached",
+    "next": "diagnose;review test changes;exact candidate seven CI"
+  },
+  "fixed_source_composition": "FIXED_SOURCE_COMPOSITION.json",
+  "factory_followup": {
+    "core_branch": "codex/factory-runtime-core",
+    "ui_branch": "codex/factory-runtime-ui",
+    "status": "isolated_WIP_not_in_PR16",
+    "product_tests": "10 persistence tests only at prior11-file snapshot; not full checkpoint; full MCP/runtime unrun",
+    "core_checkpoint": "0c82518a818202be550e1518bfc4e4f075442787",
+    "tested_snapshot_sha256": "55ee71c6b1fc1deb8abec50d0b00cfdc53a2fad447d5a073dfc18fd9c68f29b8",
+    "native_readonly": "c8bafaec docs /12b100cb source: independent43 pure Python pass; actual13daemon+30Rust unrun",
+    "ui_frozen_candidate": {
+      "commit": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+      "author_and_independent_Node": "same643/41 not1286unique",
+      "type_build": "passed",
+      "Native_Rust13": "sourceOnly_not_run",
+      "independent_review_sha256": "d504f595999f95650767bdeb48f96621522d1c201a5d864d095a5fb000137396",
+      "actualCore13_IPC_Mac": "not_verified"
+    },
+    "core_fixed_admission_checkpoint": "53e07a08a5ea8bf8878fd226be18e0bccd1f3ced",
+    "core_fixed_admission_review": {
+      "path": "/workspace/AgentBaton/.onboarding/factory-authority-53e-review/REVIEW.md",
+      "sha256": "8ba72a78487581e13541fecfe62e507f66e082fbfd291ce5d032f98b3d446f83",
+      "scope": "static closure original3P1 at scope/finalize/first start only",
+      "actual_test_evidence": "author11scope+3migration=14 verified logs/source; not independently rerun",
+      "old_failures": "pre-admission-fix source, not byte-identical0c8, FAIL101 numeric author report",
+      "runtime_mixed_accounting_MCP": "incomplete"
+    },
+    "core_current_checkpoint": "137e24698090c73349c9560868c2a38ad97c627b",
+    "core_runtime_review": {
+      "review": "/workspace/AgentBaton/.onboarding/factory-runtime-137-review/REVIEW.md",
+      "sha256": "c7af999705bafbba84da37b42b1826a2b40971486f7e544885e2559270577dd7",
+      "scope": "original343 FR01\u201304+ownedcapture staticclosed; author6IPC+queueunit1 source/log verified, not independently rerun",
+      "Data_witness_mixedaccounting_largecapture_cancel_fullregression": "not_verified"
+    },
+    "new_isolated_integration": {
+      "branch": "codex/factory-runtime-integration",
+      "checkpoint": "c581e0f",
+      "source": "Core0ef +UI40b +Native13c8 +harness84ec, separate fromPR16",
+      "verified": "Coreauthor25different cases withfixed0ef staticreview; Native106 earlierCore053 andNode643/41/type/build separate",
+      "actual_browser": "firstnormalfailed2checks2PNG childneverstarted original5s preflight deadline, unknownretained; privatefixturecompactCLI/failurecapture\u4fee\u590d\u4e2d; no cancel/unknown success",
+      "source_tool_provenance": "45sourcehashes/raw081a89eb verified; lateroldfc5/906053label rejected afterTauri sidecarcopy incident; alloriginalfailure/hash/restore evidence kept",
+      "fullFactory": "notaccepted; Ownerheavyhashoffload/mixedledger/fullfaultmatrix inprogress"
+    }
+  },
+  "current_candidate": {
+    "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
+    "author_docs": "1864e8af46a1fa26bc09f0b7c80d74c5affcd778",
+    "source_composition_commit": "607d2c7f407bc7d7db8c3523e2ed4e23e9a12b1a",
+    "source_map": "NATIVE_PAGES_SOURCE_COMPOSITION.json",
+    "author_import": "NATIVE_PAGES_AUTHOR_IMPORT.json",
+    "independent_reviews": [
+      "NATIVE_PAGES_87_REVIEW_IMPORT.json",
+      "NATIVE_PAGES_407_REVIEW_IMPORT.json"
+    ],
+    "old87_P2": "NP87-01 missing061C source/Pythonclosed at407; oldfailedcounterexample retained",
+    "Root_test_import": "NATIVE_PAGES_ROOT_IMPORT.json",
+    "Root_actual": {
+      "source": "407ab9e",
+      "library": 62,
+      "Ownercontroller": 8,
+      "total": 70,
+      "format_exit": 0,
+      "Clippy_alltargets_Dwarnings_exit": 0,
+      "all_tracked_before_after_equal": true,
+      "temporarylinks_removed": true,
+      "tool_hash_inode_preserved": true,
+      "dimension": "Linux compiled Native contracts only; current407 AppKit/newMacGUI NOT_RUN"
+    },
+    "authorPython": {
+      "passed": 20,
+      "scope": "same20 inspected by reviewer, not doubled; includes3 realCore40322bootstrap/read-onlySQL; not OSnative"
+    },
+    "presentation": "central genuinecaller shortlossless UTF8JSONstringrows+orderedpages+separateFinal; completeoriginalbytesreconstruct; allpagesstillfulltext/cell/parent/onscreen/stable500ms/ownedcapture+DBpermit beforeclick; cancel latepage neverfinalizes",
+    "unchanged": "approval formatter, serverresolved snapshot limits16KiB/1MiB, privateframe/revision/key, production permissions, lifecycles, Core/schema12, Cargo/locks, workflows,75/85/4s limits",
+    "next_exact_CI": "not_started",
+    "source_fix_actualMac_success": "not_claimed",
+    "formal_Approve": "not_submitted",
+    "protected_merge": "not_performed",
+    "final_integration_record_review": {
+      "subject": "903b9791c80aa6c363053c284650747fa7ad50e3",
+      "report": "FINAL_903_INTEGRATION_REVIEW.md",
+      "report_sha256": "e93f6406eb2fa2fda76816d6a487965556ccd8391f35e8db9d63bc7e85eba363",
+      "review_manifest_sha256": "4f405622c20f79f91713a918f40ca5be35d6340744163542e713d585211e48be",
+      "import": "FINAL_903_INTEGRATION_REVIEW_IMPORT.json",
+      "result": "no mustfix within final composition/static records; no product rerun/newMac acceptance or formalApprove",
+      "source_and_STATUS_unchanged_after_review": true
+    }
+  },
+  "ci_641": {
+    "head": "641be86e8b055920787cfebdd48270716d509309",
+    "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+    "tree": "67038b21828745f79905a169abb6e57e98bca5a0",
+    "product_run": 40749637133,
+    "environment_run": 40749637046,
+    "outcome": "5success2Macfail",
+    "intel": "early Node563pass1timeout5000; Core/native/packages not_reached",
+    "arm": "Core/native tests and actualWebView succeeded; Ownerfixture daemon exited1/readinessfail; stderr/path not recorded; desktoprelease audit/package skipped",
+    "files": {
+      "product-intel.log": {
+        "stored": "product-intel.log.gz",
+        "sha256": "d581f61c41feac265ef6afb945c4190777d659555f59b91cf897125eda689cef",
+        "bytes": 54747
+      },
+      "product-arm-observed.log": {
+        "stored": "product-arm-observed.log.gz",
+        "sha256": "c911efcd186718b1390a7b22158198f1037ae7e8c095de03b64e95f411bc8e1c",
+        "bytes": 387747
+      },
+      "environment-intel.log": {
+        "stored": "environment-intel.log.gz",
+        "sha256": "a0a902345fd6d80c2900781238632e33a1342694d4f8adadca2b0eee7afed52a",
+        "bytes": 44145
+      },
+      "product-jobs-final.json": {
+        "sha256": "8870324d719a2a8d263795ee08eb2055f9c33ab2d5c1e9e1bf755942c8516409",
+        "bytes": 15327
+      },
+      "environment-jobs-final.json": {
+        "sha256": "9e3d380a3f4b723d7eada9283d707dd258f2d91024e2ec73d70cfa1f982e612c",
+        "bytes": 11410
+      },
+      "arm-job-final.json": {
+        "sha256": "d585a04401f1783aec9dbb3a767009a353bc263e27562d4f10c2d449f8f1f8d3",
+        "bytes": 3948
+      },
+      "branch-rules-read.json": {
+        "sha256": "29e90fe1be55f971c82d39423860d32098ddd7951b43a1174fcd97aa5ef2d0b5",
+        "bytes": 1153
+      },
+      "merge-candidate.json": {
+        "sha256": "6709c7687252368f7c13c4772baab37fbe5bbaa2f664609e64e6de90b264dd9b",
+        "bytes": 2660
+      }
+    }
+  },
+  "compile_asset_label_correction": {
+    "old_label": "70a sidecars",
+    "actual_stage": "5541 compile-only assets",
+    "batond_sha256": "fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e",
+    "baton_sha256": "9065fa79d6381b51364d9304eb98aea16cf355d0cb81024134a07fb6ddef7c73",
+    "not_executed": true,
+    "correct_frozen70a_daemon_sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd"
+  },
+  "ci_0aa": {
+    "feature": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+    "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+    "tree": "1943596e0bd12177d852117dab86c81ca30e6858",
+    "product": 40761824261,
+    "environment": 40761824141,
+    "conclusion": "5success2MacOwnerfail",
+    "Linux_evidence": "CI_0AA_LINUX_IMPORT.json",
+    "Mac_evidence": "CI_0AA_MAC_IMPORT.json",
+    "Owner_failure": "firstcancel unique exactNSTextFieldtitle/message guard beforeclick; actualtexts notsaved causeunknown",
+    "bodybytes_by_arch": {
+      "ARM": 3132,
+      "Intel": 3136
+    },
+    "formatter_equal_offline": true,
+    "before_DB": "schema12/seq8/grants0/19zero; noafter",
+    "both_actual_readonly_WebCrypto_lifecycle": "passed",
+    "defaultrelease_audit_installers": "skipped",
+    "final_raw_API_manifest": "ci-0aa/MANIFEST.json",
+    "initial_candidate_proof": "CI_0AA_INITIAL_IMPORT.json"
+  },
+  "ci_e3cc": {
+    "feature": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+    "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+    "tree": "144ab4e890c06b537c018b609016268513051a56",
+    "product_run": 40771243767,
+    "environment_run": 40771243761,
+    "final": "5success2MacOwnerfail",
+    "jobs": {
+      "EnvironmentLinux": 123108703097,
+      "EnvironmentARM": 123108704372,
+      "EnvironmentIntel": 123108702561,
+      "Rust": 123108703316,
+      "UI": 123108702939,
+      "MacARM": 123108703256,
+      "MacIntel": 123108703489
+    },
+    "initial_independent": "CI_E3CC_INITIAL_IMPORT.json",
+    "Linux_Root_selfaudit": "CI_E3CC_LINUX_IMPORT.json",
+    "Mac_independent": "CI_E3CC_MAC_IMPORT.json",
+    "Linux": {
+      "Rust_uniqueouter": 593,
+      "compilefaildocs": 7,
+      "nested2_notadded": true,
+      "Node": 564,
+      "Nodefiles": 37,
+      "Python": {
+        "runner": 29,
+        "Owner": 15
+      },
+      "browser_flows": 12,
+      "checks": 114,
+      "PNGs": 70,
+      "Root_images_viewed": 2,
+      "otherPNGs": "hash/CRC only atRoot",
+      "not_liveProvider": true
+    },
+    "bothMac": {
+      "compiled_and_executed_e3cc_AppKit_diagnostics": true,
+      "library": 57,
+      "readonlyRust": 26,
+      "OwnercontrollerRust": 6,
+      "actualreadonlyWebCrypto4": "passed",
+      "actualOwner": "failed beforefirstCancelclick/permit/afterDB",
+      "title_matches": 1,
+      "message_matches": 0,
+      "ARM_actual_expected_utf8": [
+        2880,
+        3132
+      ],
+      "Intel_actual_expected_utf8": [
+        2884,
+        3136
+      ],
+      "independent_actual_text_difference": "each252 leading whitespace bytes across64lines; not normalized for acceptance; layer causing difference not established",
+      "sheet_size": [
+        520,
+        1329
+      ],
+      "on_screen": false,
+      "not_equivalent": "fullwindowPNG does not prove screenvisibility",
+      "before": "schema12/seq8/grants0/original19counters0",
+      "after": "absent; no afterzero assertion"
+    },
+    "release_audit_packages": "skipped both, no currentinstallers"
+  },
+  "historical_status_before_fb7_update": "0aa_CI_final5success2MacOwner_uniqueText_fail_testonly_diagnostics_reviewed_composed_newCI_pending",
+  "fb7_exact_ci": {
+    "feature": "fb7ff7d861872eec18e010f7b64a0ead63740faa",
+    "actual_checkout": "613166104190bedb3730a7510743137422ab05fa",
+    "tree": "bcfd8e5aaa3f06b63b88608e6b7ba05e9d5ca262",
+    "Product": 40779542803,
+    "Environment": 40779542808,
+    "results": "Environment3/Rust/UI SUCCESS; bothMac FAILURE at Grant association result guard; release/audit/packages skipped",
+    "Mac": {
+      "library": 62,
+      "readonly": 26,
+      "OwnerController": 8,
+      "architecture_each_real_pages": 24,
+      "total_images_actually_viewed": 50,
+      "cancel_and_approve_each": "11 content+Final; every original UTF8 byte reconstructs; lateCancel19zero/pending, FinalOK oneGrant/seq+2 and19zero",
+      "reason": "test incorrectly assumed independently generated Grant.approval_id equals proposal.id; actual policy.rs814 independentUUID, persistedGrant=response=proposalResult and exactpairedEvents present",
+      "original_failures_retained": true
+    },
+    "Linux": "independent actual593outer+7docs/Node564in37/Python29+20/12flows114checks70PNG; Graph34checks14PNG; existingPlaywrightteardownwarning retained",
+    "portable_import": "FB7_AND_GRANT_REVIEW_IMPORT.json",
+    "new_installers": null
+  },
+  "grant_contract_fbfd": {
+    "source": "fbfd66e0bac5f167592adf9bc75a5e6c70a0655a",
+    "author_docs": "f6a73e6968bd3383c4efd177c949e20a1b9f2dd8",
+    "files": "4test-only; productionParent/Core/permissions/locks/thresholds unchanged",
+    "author_actualPython": 24,
+    "independent_actualPython": 24,
+    "Root_actualRustOwner": 10,
+    "Root_fmt_exit": 0,
+    "Root_clippy_alltargets_Dwarnings_exit": 0,
+    "Root_source_before_after_equal": true,
+    "sidecars": "old5541 fc5/906 physicalmacroresources only; actual sharednew1ee/fec7 sameinode/nlink restored; not executed as currentCore",
+    "review": "P2NG-FBFD-01 OPEN: Python bool/int equality across separate JSON records; independent4subcase counterexamples actualFAIL; author newtyped-jsonrevision pending fulltests/review",
+    "scope": "no newMac/CI claim"
+  },
+  "grant_contract_current": {
+    "source": "655c6d2985dd8d2d0dcfa16864d12edf2dfca374",
+    "author_docs": "0fa8a879f7e30bb6cb69a86c076eb6e02928b3b7",
+    "current_composition": "GRANT_655C_COMPOSITION.json",
+    "history_evidence": "GRANT_TYPED_HISTORY_IMPORT.json",
+    "author_actualPython": 29,
+    "independent_actualPython": 29,
+    "same_unique_cases_not58": true,
+    "Root_owner_Rust": 10,
+    "Root_Rust_unchanged_from_fbfd": true,
+    "Root_fmt_and_alltargets_clippy_exit": 0,
+    "P2": "NG-FBFD-01 closed by independent655c source/static/originalrepro+actual29; originalfbfd/1839failurecontrols preserved",
+    "NativeParent_Core_approval_permissions_locks": "unchanged fromfb7",
+    "current_Mac_CI_release_audit_installers": "not_run; originalfb7bothFAIL retained"
+  },
+  "playwright_lookup_current": {
+    "source": "65f7fd26bec8a88307178a69381389de6188efaa",
+    "independent_report_sha256": "9bdeb63d4411a8ca931250337741d0769b9179fe545f670ce1db6b8dfff0504b",
+    "scope": "metadata-only parentPython asyncPlaywright publiccontext; alloldchildcalls/checknames/runners/limits/pins/permissions preserved",
+    "actual_driver_controls": "authorold2warning/new2clean; independentold1warning/new1clean, noBrowser/Core/model; notinflatedproductflows",
+    "newCI": "pending"
+  },
+  "final_921_integration_review": {
+    "subject": "92120ed4f613522422c7cf0da3de55cf2c3afb56",
+    "review_sha256": "32afa04a34e84d07e93b456341b77c070da35513d9bad45472105da01f3592ed",
+    "manifest_sha256": "0e0eda5e2856cee1785806511f5666b634c17913d0a3b2cbf093279ec750a6bf",
+    "git_snapshot_sha256": "5025cab8a7b0a8023acf03a10536ee44fc28208eab714f1de15717a0d7f1f1de",
+    "Root_independent_rehashed_git_archive_files": 1239,
+    "archive": "FINAL_921_INTEGRATION_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "fa210c81648c8ec8cce1194cc84f5211e5fff03f202e3d319425c9713e235240",
+    "regular_members_roundtrip": 28,
+    "source_STATUS_unchanged_by_review_import": true,
+    "scope": "source-ready fornewexactCI only; notformalApprove/mergeclearance/Mac/package/fullDesignacceptance",
+    "reviewer_import_note": "reported IMPORT.json filename was shorthand; actual REVIEW_EVIDENCE_IMPORT.json discovered via rg; no evidence modified"
+  },
+  "latest_default_bundle_checkpoint": {
+    "recorded_at": "2026-10-29T01:07:21.056276+00:00",
+    "source": "2ea01821655cf496354f4daedc4fa33d45ce2222",
+    "helper_move": "9c3850d40d78d2317142f604043fd0aaaceb2aa7",
+    "job_budget": "3a0caa9366640aab8a40911fe814fd77d417c60e",
+    "validator": "53785196ec166637ca89fd732639888a1048360c",
+    "evidence_import": "C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
+    "current_exact_CI": "c6f6:5success/ARMbundleFAIL/Intelofficial45mCANCELLED, bothrealNativeOwnerPASS; no packages",
+    "new_CI": "not_run",
+    "full_product": "incomplete; no requirement accepted by this metadata update",
+    "Root_static_checks": {
+      "results": [
+        {
+          "command": [
+            "python",
+            "scripts/verify_bootstrap_manifest.py"
+          ],
+          "exit": 0,
+          "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+        },
+        {
+          "command": [
+            "python",
+            "scripts/validate_design.py"
+          ],
+          "exit": 0,
+          "log_sha256": "dbc31b19511a5b347146551baeb5eb141645cb0760af7c420e7630d1aa9797d6"
+        },
+        {
+          "command": [
+            "python",
+            "scripts/validate_infrastructure.py"
+          ],
+          "exit": 0,
+          "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+        },
+        {
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "exit": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "directory": "ROOT_BUNDLE_STATIC_CHECKS",
+      "scope": "Bootstrap93/design/infrastructure+diff; no new product/runtime execution"
+    }
+  },
+  "final_d0_integration_review": {
+    "subject": "d0c01baa5729fa90bcc0354791f297646019da9a",
+    "tree": "6ed6c7b5738f4f3ba90f41d8f02d00721de29871",
+    "report_sha256": "51c246ab59b46d2aa750dca71216f2f05b310562f026141e1a31438fb39f037d",
+    "manifest_sha256": "01556a1c9a575f4efa9f892a49938d49b6ec5c8bb2d6150d942c54c04be17004",
+    "archive": "FINAL_D0_INTEGRATION_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "e5353c50581edde59e5a7856afedb8c0a65c272cf833c407e9631fd04e3a894f",
+    "members": 39,
+    "all_members_Root_revalidated": true,
+    "verdict": "source-ready limited source/records/static, no mustfix; not formalApprove/newCI/Macbuild/defaultaudit/installers/fullDesign",
+    "source_STATUS_unchanged_after_review": true
+  },
+  "latest_required_environment_fix": {
+    "at": "2026-10-29T02:17:57.285615+00:00",
+    "source": "9d11a6d0723144a245994a5e7531c282cc60702e",
+    "author_records": "89d88fc1838d6f7dd5460ed67576a6aab7946873",
+    "fullchain_import": "ENV60_FULL_CHAIN_IMPORT.json",
+    "actualbb": "CI_BB343_PRODUCT_IMPORT.json",
+    "development_delivery": "DEVELOPMENT_DELIVERY_BB343.md",
+    "newremoteCI": "not_run",
+    "fullDesign": "incomplete",
+    "Root_fresh_nonRust_chain": {
+      "directory": "ENV60_ROOT_NONRUST_CHECKS",
+      "results": [
+        {
+          "command": [
+            "python",
+            "scripts/check_gate.py",
+            "--scope",
+            "preparation"
+          ],
+          "started_at": "2026-10-29T02:18:28.456365+00:00",
+          "ended_at": "2026-10-29T02:18:28.521973+00:00",
+          "exit": 0,
+          "log_sha256": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146"
+        },
+        {
+          "command": [
+            "python",
+            "scripts/doctor.py",
+            "--strict"
+          ],
+          "started_at": "2026-10-29T02:18:28.522155+00:00",
+          "ended_at": "2026-10-29T02:18:28.855689+00:00",
+          "exit": 0,
+          "log_sha256": "80999c96a77ef719e19f2b386a41da9d88a9a303d18279fa42c49031e6a85daf"
+        },
+        {
+          "command": [
+            "python",
+            "scripts/verify_bootstrap_manifest.py"
+          ],
+          "started_at": "2026-10-29T02:18:28.855809+00:00",
+          "ended_at": "2026-10-29T02:18:28.904791+00:00",
+          "exit": 0,
+          "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+        },
+        {
+          "command": [
+            "python",
+            "scripts/validate_design.py"
+          ],
+          "started_at": "2026-10-29T02:18:28.904923+00:00",
+          "ended_at": "2026-10-29T02:18:29.179354+00:00",
+          "exit": 0,
+          "log_sha256": "0b953990831314e5e6398427465b64191099306a18b68f4914fd7dfde17a061e"
+        },
+        {
+          "command": [
+            "python",
+            "scripts/validate_infrastructure.py"
+          ],
+          "started_at": "2026-10-29T02:18:29.179499+00:00",
+          "ended_at": "2026-10-29T02:18:29.258033+00:00",
+          "exit": 0,
+          "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+        },
+        {
+          "command": [
+            "python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests/infrastructure",
+            "-p",
+            "test_*.py",
+            "-v"
+          ],
+          "started_at": "2026-10-29T02:18:29.258329+00:00",
+          "ended_at": "2026-10-29T02:18:30.119466+00:00",
+          "exit": 0,
+          "log_sha256": "43da8f14b173c58c049eb9b6e5f5a70c82ae822ca39704482685c5b01fb7078e"
+        },
+        {
+          "command": [
+            "npm",
+            "test"
+          ],
+          "started_at": "2026-10-29T02:18:30.119647+00:00",
+          "ended_at": "2026-10-29T02:18:30.642832+00:00",
+          "exit": 0,
+          "log_sha256": "257b41edc271cbd1b60a241ba6042cfa2f8a4bcfbd87152e010ce02d241b94dc"
+        },
+        {
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "started_at": "2026-10-29T02:18:30.642993+00:00",
+          "ended_at": "2026-10-29T02:18:30.657843+00:00",
+          "exit": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "note": "Gate/doctor/bootstrap/design/infra/complete34/rootNode4/diff after integration and currentSTATUS; Root exactRust2/Clippy previouslyat3a91, sameRustsource/lock"
+    }
+  },
+  "final_a945_environment_integration_review": {
+    "subject": "a94517ce373e279a29176ab8ab4f210897ea1a9b",
+    "report_sha256": "2789a6ec1385bf1106e86a09b752d6b7b4c2baa9145e1f2a5ef4cb1e4a795ca2",
+    "manifest_sha256": "71a475845c383dd05697b7d40816d606e1e4186c396766f9f75d9996e405267f",
+    "archive": "FINAL_A945_ENV_INTEGRATION_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "79c94b209a8a3d96270353fc5bfb00a7e8d65386805cbf5cabee2041ab565a22",
+    "members": 51,
+    "Root_all_members_verified": true,
+    "verdict": "source/records-ready only; exactnew7CIrequired, noformalApprove/fullProductacceptance",
+    "source_STATUS_unchanged_after_review": true
+  }
+}

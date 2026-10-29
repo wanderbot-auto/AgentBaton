@@ -1,0 +1,33 @@
+{
+  "baseline": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+  "composition_parent_commit": "908bb6cf79631cbefc3635781bb6a4cfebc8b4e7",
+  "changed_code_files": {
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs": "93777843bb2d5caf7eac5e42a569a859d5f04153896d0e53c1baee771d370d82",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "50433be6bd43681342d5e247bc0386561ce5f4c070684824c1ca92dffb217b2e",
+    "crates/core/tests/command_validation.rs": "252afb6800be9a26f43393bea2832964a0eda31ffd56d8206a4ee463eed74f8a",
+    "crates/core/tests/sessions_ipc.rs": "227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b",
+    "scripts/native-run.py": "8fa23e107fe92542b95fc5d398aa38a20236d29b2e3fbbe7eb87b92efb0197c1"
+  },
+  "exact_expected_test_and_runner_changes_only": true,
+  "production_core_and_ordinary_native_code_and_locks_and_workflows_unchanged_from_652": true,
+  "authority": "unchanged_AB_START_001_no_Approve",
+  "unit_sources": {
+    "command": "2ee515e7b2d97b376740a7514ffc2a7590bca5ca",
+    "webcrypto": "579f4ca9ab07d1fd3039ab71ad506af47ca237aa",
+    "mac_fixture": "c05f8cee4966b8c76b6e8de7181d5b9a21572dfe"
+  },
+  "local_verification": {
+    "command_author": 14,
+    "command_independent": 14,
+    "command_counts_overlap": true,
+    "sessions_author": 55,
+    "sessions_independent_subset": 3,
+    "sessions_counts_overlap": true,
+    "native_harness_independent": 26,
+    "python_independent": 29,
+    "node_webcrypto_actual_contexts": 4,
+    "node_unavailable_negative_controls": 4,
+    "actual_native_gui_or_macos": "not_run"
+  },
+  "next": "one normal push, read all7 exact new candidate checks and actual Mac/native/packages; do not reuse652 greens"
+}

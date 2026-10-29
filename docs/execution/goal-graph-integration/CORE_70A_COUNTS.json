@@ -1,0 +1,962 @@
+{
+  "method": "Last summary per Cargo Running/Doc-tests section is outer suite; earlier nested subprocess summaries excluded from unique count",
+  "outer_tests": {
+    "passed": 593,
+    "failed": 0,
+    "ignored": 0
+  },
+  "doctests": {
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0
+  },
+  "nested_subprocess_summaries": 5,
+  "sections": [
+    {
+      "header": "Running unittests src/lib.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_config-85613e606be022a2)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/capabilities.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/capabilities-07aa545ddccf22c0)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 12,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/native_sources.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/native_sources-46a15834adc6669f)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 19,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 19,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/runtime.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/runtime-317ee37d1081a358)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 22,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 22,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/transactions.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/transactions-099366c5718eaaf2)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 13,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running unittests src/lib.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_core-6e59569c2275c972)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "status": "ok",
+          "passed": 69,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 69,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": [
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "header": "Running tests/admission_performance.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/admission_performance-9e5ba8b2f3f6a38b)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/approval_outcomes.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/approval_outcomes-4c48cf9af8f1aae1)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/command_validation.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/command_validation-cf34b2e1125ae04a)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 14,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 14,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/command_validation_migration.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/command_validation_migration-2f5493bc8e03ee91)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/data_workspace_migration.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/data_workspace_migration-03a9e956f8a2b93e)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/data_workspaces.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/data_workspaces-54ea90188c19d953)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 21,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 21,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/execution.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/execution-60351f56b427f47e)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/goal_graph_migration.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/goal_graph_migration-76cf2c45a965aee7)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/goal_plan.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/goal_plan-79955be88d5b83d3)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 48,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 48,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/goal_runtime_migration.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/goal_runtime_migration-60b0e0e7fea8c038)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/goal_store.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/goal_store-9f6f8b45439a2ba3)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 34,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 34,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/goal_store_migration.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/goal_store_migration-01a283bdd43350b9)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/ipc.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/ipc-8b007f1b6c95328d)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/migration_v3.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/migration_v3-0754d619b13edb9e)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/migration_v5.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/migration_v5-02ec4882acde5327)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/migration_v6.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/migration_v6-fe108da13d9cf7e7)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/migration_v7.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/migration_v7-8a8d1033531a2399)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/policy.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/policy-40a42c794c089a80)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 13,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/project_ipc.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/project_ipc-94ef37f60e391310)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/registry.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/registry-4da4ea2ef58d65e9)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 10,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/sessions_ipc.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/sessions_ipc-8c6cffdcbd333a82)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 55,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 55,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/storage.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/storage-268d9120075d21b9)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running unittests src/lib.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_providers-d9360e46ff37ea28)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/connections.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/connections-88d465444913bd38)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/contracts.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/contracts-cefc83d2d05a5170)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 20,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 20,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/installation.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/installation-7832c56a36389358)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 10,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/native_codex.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/native_codex-47f9aedb40ac1fa3)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 20,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 20,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/routes.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/routes-7a4d78ff06b305be)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/stdio.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/stdio-e3373bdc5d5e7831)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 20,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 20,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running unittests src/lib.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/agentbaton_workspaces-a2c8f9e2e47977cf)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/command_validation.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/command_validation-0799bdb0c2d61d9d)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "status": "ok",
+          "passed": 28,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 28,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": [
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "header": "Running tests/data_workspace.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/data_workspace-d481658d0823a4fe)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "status": "ok",
+          "passed": 24,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 24,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": [
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "header": "Running tests/deterministic.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/deterministic-e41221abe8f1f803)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 21,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 21,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/lazy_fetch.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/lazy_fetch-809d8086569bc4e6)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/safety.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/safety-04c7892f61b436be)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 23,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 23,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/validation_adoption.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/validation_adoption-32b5ec0837084d84)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 17,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 17,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running unittests src/main.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/baton-e2473382efd25958)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running unittests src/main.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/batond-a1054707f80b1156)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Running tests/signals.rs (/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/deps/signals-8531c1c63f3ac2b9)",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Doc-tests agentbaton_config",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Doc-tests agentbaton_core",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Doc-tests agentbaton_providers",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    },
+    {
+      "header": "Doc-tests agentbaton_workspaces",
+      "summaries": [
+        {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "outer_summary": {
+        "status": "ok",
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0
+      },
+      "nested_summaries": []
+    }
+  ],
+  "workspace_log_sha256": "ab01604f0d33b9b76d7fc27b61e2bbaaf1ac377822a94d1a354da73144be0366"
+}

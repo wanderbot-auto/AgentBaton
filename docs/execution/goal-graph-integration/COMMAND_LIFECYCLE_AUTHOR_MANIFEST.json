@@ -1,0 +1,93 @@
+{
+  "source_commit": "2ee515e7b2d97b376740a7514ffc2a7590bca5ca",
+  "baseline_commit": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+  "branch": "codex/command-lifecycle-ci-stability",
+  "worktree": "/workspace/.worktrees/command-lifecycle-ci-stability",
+  "source_count": 104,
+  "source_tree_sha256": "247e039bb2df9e24dcf18852fc1386ca5c16123b775455353e66078756d8540f",
+  "source_map": "/workspace/.onboarding/command-lifecycle-ci-stability/FINAL_SOURCE_MAP.json",
+  "source_map_sha256": "5c209c84a453aaf72b988401b5e48072c415e0f448bdede79c5b2f9aba3fa1be",
+  "changed_test_sha256": "252afb6800be9a26f43393bea2832964a0eda31ffd56d8206a4ee463eed74f8a",
+  "original_ci_log": "/workspace/.onboarding/pr16-652-ci/product-intel.log",
+  "original_ci_log_sha256": "6ab36867306b2182bfa472ee0c10dea55cc0d317ab1ea22a66472dabb677a67d",
+  "mechanical_diff": {
+    "baseline": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+    "only_target_function_changed": true,
+    "other13_test_names_and_function_bytes_unchanged": true,
+    "expired_control_bytes_identical": true,
+    "negative_sha256": "b68e996c6b546f8744bd5219d2e7b86739e4bb900fef25d86876a598d21e2105",
+    "original_file_sha256": "3c2b282a1149b8f8c5110748e9f74295cb1d0afd5b38fced9b11eecb2d22a6f0",
+    "new_file_sha256": "252afb6800be9a26f43393bea2832964a0eda31ffd56d8206a4ee463eed74f8a"
+  },
+  "commands": [
+    {
+      "command": "cargo test -p agentbaton-core --test command_validation actual_reaped_failed_acp_lifecycle_can_approve_independent_command_while_task_result_stays_unknown -- --exact --nocapture",
+      "source": "original-ttl-diagnostics.rs",
+      "log": "original-ttl-diagnostics.log",
+      "result": "1 passed;0failed;13filtered;3.81s"
+    },
+    {
+      "command": "same exact test",
+      "source": "original-ttl-controlled-delay.rs",
+      "log": "original-ttl-controlled-delay.log",
+      "result": "1failed;0passed;13filtered;4.34s;expected oldTTL negative demonstration"
+    },
+    {
+      "command": "same exact test",
+      "log": "separate-lifetimes-first.log",
+      "result": "1passed;0failed;13filtered;5.03s;preceded final addedbudget assertions"
+    },
+    {
+      "command": "cargo test -p agentbaton-core --test command_validation -- --nocapture",
+      "log": "final-command14.log",
+      "result": "14passed;0failed;0ignored;18.53s;exact final source"
+    },
+    {
+      "command": "cargo clippy -p agentbaton-core --all-targets -- -D warnings",
+      "log": "final-clippy.log",
+      "result": "PASS9.44s;exact final source"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "log": "final-fmt.log",
+      "result": "PASS"
+    },
+    {
+      "command": "git diff --check",
+      "log": "final-diff-check.log",
+      "result": "PASS"
+    }
+  ],
+  "evidence_files_sha256": {
+    "FINAL_SOURCE_MAP.json": "5c209c84a453aaf72b988401b5e48072c415e0f448bdede79c5b2f9aba3fa1be",
+    "MECHANICAL_DIFF.json": "4a0bdd420fc34598380ceab6cfa0adaa5bc9d85d66d35e60e44852ef22a4a97b",
+    "final-clippy.log": "373e905a62ca77e9996dda19bcd936a2eda4e2611e27b9f6846787f0d2f87804",
+    "final-command14.log": "ca435e6aac71edd59fa4ad2f7ee99e570b9a066477813302a7913504b8bf1fcc",
+    "final-diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final-positive-evidence.json": "8587ec76694ae97523a3893cc8a7823f09543368de48f4339ce62e0d28f62852",
+    "original-ttl-controlled-delay.json": "3355bd9fb61160f7ae03ea5b53810fc75419d0e9814ef0930de6358c4104ad89",
+    "original-ttl-controlled-delay.log": "e8f685ddfba76d26a40cf47efa2a2c43e06452045c68907214dd8911c83153ad",
+    "original-ttl-controlled-delay.rs": "ef5045e3ea1b20e4ef6e659bccb92c8cd939092338796e4778d98498cf7597ee",
+    "original-ttl-diagnostics.json": "b429a3764d9cc3ebe902f8e38d684bc9a5fb2b371efa0a5e116b179e3c259057",
+    "original-ttl-diagnostics.log": "b90d54ab10c86ab8385a3992843b421790eabaa034cffa954c923ae8b17c83ec",
+    "original-ttl-diagnostics.rs": "21197847985f0bff947cc06cbae40e221716539288a830ea112dea73943fada1",
+    "separate-lifetimes-first.log": "4a63353184ceb4eded6a4866d0dfdc70de34263c602a3f455a55d550a58df31e"
+  },
+  "native_target": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+  "native_target_lease": "RELEASED to Root;no cargo/rustc/testwriter after naturalexit",
+  "environment": {
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_BUILD_JOBS": "2",
+    "RUST_TEST_THREADS": "1"
+  },
+  "limitations": [
+    "Linux fixture verification only;new dualMacCI required",
+    "No production change;no universal unknown-to-cancel race exclusion claimed",
+    "Old controlled delay confirms policy-stop before failure, not an already unknown Task becoming cancelled",
+    "No new daemon/CLI/package needed for a test-only change;no signing/provider/model/OSOwner evidence"
+  ],
+  "independent_review": "pending"
+}

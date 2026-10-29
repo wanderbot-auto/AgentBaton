@@ -8,8 +8,8 @@ use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
-use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 mod approval;
+mod native_parent;
 
 struct Runtime {
     directory: PathBuf,
@@ -33,22 +33,22 @@ async fn call(runtime: &Runtime, command: Value, connect: bool) -> Result<Value,
 
 async fn confirm_proposed(
     runtime: &Runtime,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     kind: approval::ApprovalKind,
     params: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let proposal = ipc::call(&directory, json!({"method":kind.proposal_method(),"params":params,"idempotency_key":idempotency_key})).map_err(|error| error.to_string())?;
-        approval::confirm_and_finalize(proposal, kind, |message| {
-            // This is a Rust-native dialog. No dialog plugin permission, receipt
-            // or approvals.finalize command is granted to the web renderer.
-            app.dialog().message(message).title("AgentBaton — Native owner approval")
-                .kind(MessageDialogKind::Warning)
-                .buttons(MessageDialogButtons::OkCancel)
-                .blocking_show()
-        }, |command| ipc::call(&directory, command).map_err(|error| error.to_string()))
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(&directory, json!({"method":kind.proposal_method(),"params":params,"idempotency_key":idempotency_key})).map_err(|error| error.to_string())?;
+            approval::confirm_and_finalize(
+                proposal,
+                kind,
+                |message| parent.confirm("AgentBaton — Native owner approval", message),
+                |command| parent.finalize(|| ipc::call(&directory, command).map_err(|error| error.to_string())),
+            )
+        })
     }).await.map_err(|error| error.to_string())?
 }
 
@@ -199,32 +199,31 @@ fn data_workspace_proposal_frame(
 #[tauri::command]
 async fn data_workspace_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     preview_id: String,
     expected_revision: u64,
     idempotency_key: String,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let proposal = ipc::call(
-            &directory,
-            data_workspace_proposal_frame(&preview_id, expected_revision, &idempotency_key),
-        )
-        .map_err(|error| error.to_string())?;
-        approval::confirm_data_workspace_and_finalize(
-            proposal,
-            &preview_id,
-            expected_revision,
-            |message| {
-                app.dialog()
-                    .message(message)
-                    .title("AgentBaton — Native data copy approval")
-                    .kind(MessageDialogKind::Warning)
-                    .buttons(MessageDialogButtons::OkCancel)
-                    .blocking_show()
-            },
-            |command| ipc::call(&directory, command).map_err(|error| error.to_string()),
-        )
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                data_workspace_proposal_frame(&preview_id, expected_revision, &idempotency_key),
+            )
+            .map_err(|error| error.to_string())?;
+            approval::confirm_data_workspace_and_finalize(
+                proposal,
+                &preview_id,
+                expected_revision,
+                |message| parent.confirm("AgentBaton — Native data copy approval", message),
+                |command| {
+                    parent.finalize(|| {
+                        ipc::call(&directory, command).map_err(|error| error.to_string())
+                    })
+                },
+            )
+        })
     })
     .await
     .map_err(|error| error.to_string())?
@@ -276,7 +275,7 @@ async fn connections_list(runtime: tauri::State<'_, Runtime>) -> Result<Value, S
 #[tauri::command]
 async fn connections_register(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     name: String,
     executable: String,
     arguments: Vec<String>,
@@ -285,7 +284,7 @@ async fn connections_register(
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
-        app,
+        window,
         approval::ApprovalKind::Connection,
         json!({"name":name,"executable":executable,"arguments":arguments,"provider":provider}),
         idempotency_key,
@@ -311,7 +310,7 @@ async fn grants_list(
 #[allow(clippy::too_many_arguments)]
 async fn grants_create(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     project_id: String,
     workspace_id: String,
     connection_id: String,
@@ -320,7 +319,7 @@ async fn grants_create(
     max_duration_ms: u64,
     idempotency_key: String,
 ) -> Result<Value, String> {
-    confirm_proposed(&runtime, app, approval::ApprovalKind::Grant, json!({"project_id":project_id,"workspace_id":workspace_id,"connection_id":connection_id,"max_attempts":max_attempts,"max_concurrency":max_concurrency,"max_duration_ms":max_duration_ms}), idempotency_key).await
+    confirm_proposed(&runtime, window, approval::ApprovalKind::Grant, json!({"project_id":project_id,"workspace_id":workspace_id,"connection_id":connection_id,"max_attempts":max_attempts,"max_concurrency":max_concurrency,"max_duration_ms":max_duration_ms}), idempotency_key).await
 }
 
 #[tauri::command]
@@ -415,13 +414,13 @@ async fn validation_policies_list(
 #[tauri::command]
 async fn validation_policy_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
-        app,
+        window,
         approval::ApprovalKind::Validation,
         selection,
         idempotency_key,
@@ -473,13 +472,13 @@ async fn data_validation_policies_list(
 #[tauri::command]
 async fn data_validation_policy_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
-        app,
+        window,
         approval::ApprovalKind::DataValidation,
         selection,
         idempotency_key,
@@ -531,13 +530,13 @@ async fn command_validation_policies_list(
 #[tauri::command]
 async fn command_validation_policy_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
-        app,
+        window,
         approval::ApprovalKind::CommandValidation,
         selection,
         idempotency_key,
@@ -596,6 +595,183 @@ async fn command_validations_cancel(
     call(&runtime,json!({"method":"command_validations.cancel","params":{"run_id":run_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key}),false).await
 }
 
+fn goal_graph_proposal_frame(selection: &Value, idempotency_key: &str) -> Value {
+    json!({"method":"goal_graph_runs.propose","params":selection,"idempotency_key":idempotency_key})
+}
+fn goal_node_proposal_frame(
+    selection: &Value,
+    expected_revision: u64,
+    idempotency_key: &str,
+) -> Value {
+    json!({"method":"goal_node_approvals.propose","params":selection,"expected_revision":expected_revision,"idempotency_key":idempotency_key})
+}
+fn goal_graph_cancel_frame(run_id: &str, expected_revision: u64, idempotency_key: &str) -> Value {
+    json!({"method":"goal_graph_runs.cancel","params":{"run_id":run_id},"expected_revision":expected_revision,"idempotency_key":idempotency_key})
+}
+fn goal_graph_advance_frame(
+    run_id: &str,
+    expected_plan_revision: u64,
+    expected_ledger_revision: u64,
+    expected_revision: u64,
+    idempotency_key: &str,
+) -> Value {
+    json!({"method":"goal_graph_runs.advance_plan","params":{"run_id":run_id,"expected_plan_revision":expected_plan_revision,"expected_ledger_revision":expected_ledger_revision},"expected_revision":expected_revision,"idempotency_key":idempotency_key})
+}
+#[tauri::command]
+async fn goal_graph_run_approve(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    selection: Value,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                goal_graph_proposal_frame(&selection, &idempotency_key),
+            )
+            .map_err(|error| error.to_string())?;
+            approval::confirm_goal_graph_and_finalize(
+                proposal,
+                &selection,
+                |message| parent.confirm("AgentBaton — Review Goal graph execution", message),
+                |command| {
+                    parent.finalize(|| {
+                        ipc::call(&directory, command).map_err(|error| error.to_string())
+                    })
+                },
+            )
+        })
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
+#[tauri::command]
+async fn goal_node_approve(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    selection: Value,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                goal_node_proposal_frame(&selection, expected_revision, &idempotency_key),
+            )
+            .map_err(|error| error.to_string())?;
+            approval::confirm_goal_node_and_finalize(
+                proposal,
+                &selection,
+                expected_revision,
+                |message| parent.confirm("AgentBaton — Review exact Goal node result", message),
+                |command| {
+                    parent.finalize(|| {
+                        ipc::call(&directory, command).map_err(|error| error.to_string())
+                    })
+                },
+            )
+        })
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
+#[tauri::command]
+async fn goal_node_reject(
+    runtime: tauri::State<'_, Runtime>,
+    window: tauri::WebviewWindow,
+    selection: Value,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    let directory = runtime.directory.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                goal_node_proposal_frame(&selection, expected_revision, &idempotency_key),
+            )
+            .map_err(|error| error.to_string())?;
+            approval::confirm_goal_node_rejection_and_decline(
+                proposal,
+                &selection,
+                expected_revision,
+                |message| parent.confirm("AgentBaton — Reject exact Goal node result", message),
+                |command| {
+                    parent.finalize(|| {
+                        ipc::call(&directory, command).map_err(|error| error.to_string())
+                    })
+                },
+            )
+        })
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
+#[tauri::command]
+async fn goal_graph_runs_list(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_graph_runs.list","params":{"task_id":task_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn goal_graph_runs_get(
+    runtime: tauri::State<'_, Runtime>,
+    run_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}}),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn goal_graph_runs_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    run_id: String,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        goal_graph_cancel_frame(&run_id, expected_revision, &idempotency_key),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn goal_graph_run_advance_plan(
+    runtime: tauri::State<'_, Runtime>,
+    run_id: String,
+    expected_plan_revision: u64,
+    expected_ledger_revision: u64,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        goal_graph_advance_frame(
+            &run_id,
+            expected_plan_revision,
+            expected_ledger_revision,
+            expected_revision,
+            &idempotency_key,
+        ),
+        false,
+    )
+    .await
+}
+
 fn goal_run_proposal_frame(selection: &Value, idempotency_key: &str) -> Value {
     json!({"method":"goal_runs.propose","params":selection,"idempotency_key":idempotency_key})
 }
@@ -636,30 +812,29 @@ async fn goal_run_advance_plan(
 #[tauri::command]
 async fn goal_run_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     let directory = runtime.directory.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let proposal = ipc::call(
-            &directory,
-            goal_run_proposal_frame(&selection, &idempotency_key),
-        )
-        .map_err(|error| error.to_string())?;
-        approval::confirm_goal_execution_and_finalize(
-            proposal,
-            &selection,
-            |message| {
-                app.dialog()
-                    .message(message)
-                    .title("AgentBaton — Native Goal execution approval")
-                    .kind(MessageDialogKind::Warning)
-                    .buttons(MessageDialogButtons::OkCancel)
-                    .blocking_show()
-            },
-            |command| ipc::call(&directory, command).map_err(|error| error.to_string()),
-        )
+        native_parent::with_caller(window, |parent| {
+            let proposal = ipc::call(
+                &directory,
+                goal_run_proposal_frame(&selection, &idempotency_key),
+            )
+            .map_err(|error| error.to_string())?;
+            approval::confirm_goal_execution_and_finalize(
+                proposal,
+                &selection,
+                |message| parent.confirm("AgentBaton — Native Goal execution approval", message),
+                |command| {
+                    parent.finalize(|| {
+                        ipc::call(&directory, command).map_err(|error| error.to_string())
+                    })
+                },
+            )
+        })
     })
     .await
     .map_err(|error| error.to_string())?
@@ -706,13 +881,13 @@ async fn goal_runs_cancel(
 #[tauri::command]
 async fn goal_scope_approve(
     runtime: tauri::State<'_, Runtime>,
-    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
     selection: Value,
     idempotency_key: String,
 ) -> Result<Value, String> {
     confirm_proposed(
         &runtime,
-        app,
+        window,
         approval::ApprovalKind::Goal,
         selection,
         idempotency_key,
@@ -958,6 +1133,13 @@ fn ensure_daemon(runtime: &Path) -> Result<Value, String> {
 
 pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
     let handler: fn(tauri::ipc::Invoke<tauri::Wry>) -> bool = tauri::generate_handler![
+        goal_graph_run_approve,
+        goal_graph_runs_list,
+        goal_graph_runs_get,
+        goal_graph_runs_cancel,
+        goal_graph_run_advance_plan,
+        goal_node_approve,
+        goal_node_reject,
         goal_run_approve,
         goal_run_advance_plan,
         goal_runs_list,
@@ -1026,6 +1208,7 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
 pub fn desktop_builder(directory: PathBuf) -> tauri::Builder<tauri::Wry> {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .on_window_event(native_parent::on_window_event)
         .manage(Runtime { directory })
         .invoke_handler(dispatch_production)
 }
@@ -1123,5 +1306,36 @@ mod tests {
         let production = source.split("#[cfg(test)]").next().unwrap();
         assert!(!production.contains("async fn approvals_finalize"));
         assert!(!production.contains("async fn goal_runs_dispatch"));
+    }
+}
+
+#[cfg(test)]
+mod graph_bridge_tests {
+    use super::*;
+    #[test]
+    fn graph_and_owner_frames_keep_fixed_kinds_separate_and_preserve_exact_cas() {
+        let graph =
+            json!({"scope_id":"scope","expected_plan_revision":4,"expected_ledger_revision":91});
+        assert_eq!(
+            goal_graph_proposal_frame(&graph, "graph-key"),
+            json!({"method":"goal_graph_runs.propose","params":graph,"idempotency_key":"graph-key"})
+        );
+        let node = json!({"run_id":"run","node_id":"owner","expected_plan_revision":4,"expected_ledger_revision":91});
+        assert_eq!(
+            goal_node_proposal_frame(&node, 8, "owner-key"),
+            json!({"method":"goal_node_approvals.propose","params":node,"expected_revision":8,"idempotency_key":"owner-key"})
+        );
+        assert_eq!(
+            goal_graph_cancel_frame("run", 8, "cancel-key"),
+            json!({"method":"goal_graph_runs.cancel","params":{"run_id":"run"},"expected_revision":8,"idempotency_key":"cancel-key"})
+        );
+        assert_eq!(
+            goal_graph_advance_frame("run", 4, 91, 8, "advance-key"),
+            json!({"method":"goal_graph_runs.advance_plan","params":{"run_id":"run","expected_plan_revision":4,"expected_ledger_revision":91},"expected_revision":8,"idempotency_key":"advance-key"})
+        );
+        assert_ne!(
+            goal_graph_proposal_frame(&graph, "key")["method"],
+            goal_run_proposal_frame(&graph, "key")["method"]
+        );
     }
 }

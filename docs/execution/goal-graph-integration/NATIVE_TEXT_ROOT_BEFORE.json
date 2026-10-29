@@ -1,0 +1,33 @@
+{
+  "at": "2026-10-28T20:58:31.486091+00:00",
+  "source": "7a13cddef4316d520361071ff5e2a263ea058580",
+  "source_sha256": {
+    "apps/desktop/src-tauri/Cargo.lock": "4fd256434d2bb3c0903919bc6474f8a3712be2a27eab1651d42e63f7b876a93c",
+    "apps/desktop/src-tauri/Cargo.toml": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49",
+    "apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs": "4deff52ca01c91f10958ee0ef833f1aab09d0ccaf52c349e03e67fd2a87d2c5e",
+    "apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs": "bb78a3201ed730a6eb87983fc0a91ae1e93081ad4de103949a1b0faa41018f39"
+  },
+  "borrowed_compile_only_assets": [
+    {
+      "path": "/workspace/.worktrees/owner-native-text-diagnostics/apps/desktop/dist",
+      "target": "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist",
+      "kind": "previous Root dist; macro compilation only, not executed"
+    },
+    {
+      "path": "/workspace/.worktrees/owner-native-text-diagnostics/apps/desktop/src-tauri/binaries/baton-x86_64-unknown-linux-gnu",
+      "target": "/workspace/.worktrees/goal-graph-integration/apps/desktop/src-tauri/binaries/baton-x86_64-unknown-linux-gnu",
+      "sha256": "9065fa79d6381b51364d9304eb98aea16cf355d0cb81024134a07fb6ddef7c73",
+      "bytes": 74531552,
+      "kind": "old5541 compile resource only; not70a/runtime proof"
+    },
+    {
+      "path": "/workspace/.worktrees/owner-native-text-diagnostics/apps/desktop/src-tauri/binaries/batond-x86_64-unknown-linux-gnu",
+      "target": "/workspace/.worktrees/goal-graph-integration/apps/desktop/src-tauri/binaries/batond-x86_64-unknown-linux-gnu",
+      "sha256": "fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e",
+      "bytes": 101750640,
+      "kind": "old5541 compile resource only; not70a/runtime proof"
+    }
+  ],
+  "lease": "Root fromCore explicit, singlewriter",
+  "test_dimension": "Linux pureController only; AppKit cfg/macOS notcompiled, no sidecar executed"
+}

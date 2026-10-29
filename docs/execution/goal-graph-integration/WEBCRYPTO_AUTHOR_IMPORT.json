@@ -1,0 +1,9 @@
+{
+  "archive": "WEBCRYPTO_AUTHOR_EVIDENCE.tar.gz",
+  "sha256": "3ad2c5de69ec21e9522e64ea37a7724b949e0f36b8444a80fa72b84d44766263",
+  "bytes": 2507,
+  "files": 4,
+  "all_roundtrip_sha256_verified": true,
+  "source_manifest_sha256": "280c175320cbb502021d192f3fb308a9dc9ff0e17a3d205e8d8938af0b0e3bea",
+  "scope": "Linux unit/Node/Python only, not actualNativeMac/package"
+}

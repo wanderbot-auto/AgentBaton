@@ -1,0 +1,33 @@
+{
+  "status": "failed_existing_assertion_preserved",
+  "source": "6a8cf49136545ac800042870426ad61001d5b8a3",
+  "harness_sha256": "e172a5f9797ea487cde514ee2f063e17b9e0407f59e0f6758c73642cbff3cecc",
+  "report_raw_sha256": "a2b908069c750b76a4d1301dedce5b2b876e66c3cdabe76c5e26db2892fb0209",
+  "report_gzip_sha256": "cfa2fc9fcc32c10193f4bd6532abc7176cdcc358c804c67d501dacb5daadf76c",
+  "observed_budgets": {
+    "project:bb18273b-0914-4c4b-8970-454a3703b75b": {
+      "consumed": 4,
+      "active": 0
+    },
+    "root:dc47e7c9-c0f6-4b4f-b561-2897887d715c": {
+      "consumed": 1,
+      "active": 0
+    },
+    "root:b0313277-b16d-4a00-9afc-ef0066c54c8a": {
+      "consumed": 4,
+      "active": 0
+    }
+  },
+  "failure": {
+    "type": "AssertionError",
+    "message": "{'key': 'root:b0313277-b16d-4a00-9afc-ef0066c54c8a', 'actual': {'consumed': 4, 'active': 0}, 'expected': {'consumed': 3, 'active': 0}}",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py\", line 1598, in owner_only_driver\n    assert budgets[key] == {'consumed': (4 if key.startswith('project:') else 3) if case else 2, 'active': 0}, {'key': key, 'actual': budgets[key], 'expected': {'consumed': (4 if key.startswith('project:') else 3) if case else 2, 'active': 0}}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'key': 'root:b0313277-b16d-4a00-9afc-ef0066c54c8a', 'actual': {'consumed': 4, 'active': 0}, 'expected': {'consumed': 3, 'active': 0}}\n"
+  },
+  "cause": "New task root admission inherits same root-grant bootstrap consumption1. Work+sessionlessValidator+Summary add3. Strict correct expectation is4; ordinary project4 and active0. No product code or limit changed.",
+  "source_refs": [
+    "crates/core/src/goal_store.rs:466",
+    "crates/core/src/goal_store.rs:1488",
+    "same_root_grant_consumption_in_another_task_is_not_reset_without_session_mapping"
+  ],
+  "note": "Core315 prior tests verified project4/attempt4/session3; fresh browser assertion extends exact final new-task root row coverage."
+}

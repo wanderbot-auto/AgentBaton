@@ -20,12 +20,21 @@ use uuid::Uuid;
 
 #[path = "goal_runtime.rs"]
 mod runtime;
+pub(crate) use runtime::migrate_graph;
 use runtime::runtime_scope_for_revision;
 pub(crate) use runtime::{
     migrate as migrate_runtime, ordinary_session_budget_gate, owns_session,
-    permits_continuing_task, reserve_session, GoalDispatchContext,
+    permits_continuing_task, reserve_session, verify_task_acceptance_state, GoalDispatchContext,
+    GraphReadContext, GraphReadWitness, GraphWorkers,
 };
-pub use runtime::{GoalPlanAdvance, GoalRun, GoalRunDispatch, GoalRunSelection};
+pub use runtime::{
+    GoalPlanAdvance, GoalRun, GoalRunDispatch, GoalRunSelection, GraphArtifactReference,
+    GraphCandidateReceipt, GraphCriterionBinding, GraphDefinitionReusePermission,
+    GraphExecutionSnapshot, GraphInputBinding, GraphNodeAcceptanceSnapshot,
+    GraphNodeApprovalSelection, GraphNodeView, GraphOwnerDecision, GraphOwnerDecisionResult,
+    GraphRunBinding, GraphRunDetails, GraphRunSelection, GraphRunSummary, GraphTaskAcceptance,
+    GraphValidationReceipt, GraphValidationView,
+};
 
 pub const MAX_GOAL_PLAN_BYTES: usize = 262_144;
 const MAX_STORED_BYTES: i64 = 1_048_576;
@@ -89,6 +98,7 @@ fn ms() -> Result<i64> {
 fn raw<T: for<'a> Deserialize<'a>>(db: &Connection, table: &str, id: &str) -> Result<T> {
     let sql=match table {
         "tasks"=>"SELECT document FROM tasks WHERE id=?1 AND octet_length(document)<=?2",
+        "sessions"=>"SELECT document FROM sessions WHERE id=?1 AND octet_length(document)<=?2",
         "projects"=>"SELECT document FROM projects WHERE id=?1 AND octet_length(document)<=?2",
         "managed_workspaces"=>"SELECT document FROM managed_workspaces WHERE id=?1 AND octet_length(document)<=?2",
         "execution_grants"=>"SELECT document FROM execution_grants WHERE id=?1 AND octet_length(document)<=?2",
@@ -468,7 +478,8 @@ fn counts(db: &Connection, task: &Task, grant: &ExecutionGrant) -> Result<(u32, 
 fn no_writers(db: &Connection, task: &Task, grant: &ExecutionGrant) -> Result<()> {
     let active:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE d.state!='stopped' AND (a.root_task_id=?1 OR json_extract(a.binding,'$.workspace_id') IN (SELECT value FROM json_each(?2)) OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?3)))",params![task.id,encode(&grant.scope.workspace_ids)?,grant.root_grant_id],|r|r.get(0)).map_err(db_error)?;
     let command:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id IN (SELECT value FROM json_each(?1)))",[encode(&grant.scope.workspace_ids)?],|r|r.get(0)).map_err(db_error)?;
-    if active || command {
+    let graph:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM goal_graph_jobs WHERE workspace_id IN (SELECT value FROM json_each(?1)) AND state IN('prepared','running','cancel_requested','outcome_unknown'))",[encode(&grant.scope.workspace_ids)?],|r|r.get(0)).map_err(db_error)?;
+    if active || command || graph {
         return Err(err("WORKSPACE_BUSY","Stop and reconcile all root/workspace intents and command read fences before reviewing Goal authority"));
     }
     Ok(())
@@ -653,7 +664,10 @@ fn resolve_selection(
     }
     if matches!(
         task.state,
-        TaskState::Cancelled | TaskState::CancelRequested | TaskState::OutcomeUnknown
+        TaskState::Accepted
+            | TaskState::Cancelled
+            | TaskState::CancelRequested
+            | TaskState::OutcomeUnknown
     ) {
         return Err(denied());
     }
@@ -1180,7 +1194,10 @@ fn read_scope(
     if r.revoked
         || matches!(
             task.state,
-            TaskState::Cancelled | TaskState::CancelRequested | TaskState::OutcomeUnknown
+            TaskState::Accepted
+                | TaskState::Cancelled
+                | TaskState::CancelRequested
+                | TaskState::OutcomeUnknown
         )
     {
         return Err(denied());
@@ -2252,7 +2269,10 @@ fn blocked_history_preview(
         || grant.expires_at_ms <= ms()?
         || matches!(
             task.state,
-            TaskState::Cancelled | TaskState::CancelRequested | TaskState::OutcomeUnknown
+            TaskState::Accepted
+                | TaskState::Cancelled
+                | TaskState::CancelRequested
+                | TaskState::OutcomeUnknown
         )
     {
         return Err(denied());

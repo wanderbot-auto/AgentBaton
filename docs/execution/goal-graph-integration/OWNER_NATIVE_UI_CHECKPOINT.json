@@ -1,0 +1,22 @@
+{
+  "recorded_at": "2026-10-28T14:53:23.890903+00:00",
+  "core_source": "5541c37",
+  "frozen_binary_build_head": "94157aed2cb69c6b503c5b6b12af5aff554476af",
+  "daemon_sha256": "fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e",
+  "binary_manifest_sha256": "dd76425e46e99fad9e6fdd58c17f232f992ffecde13b8cdb2bd002f546e4b325",
+  "native_actual": "43lib+22harness/Clippy/fmt PASS; ownCore12 actualreadonly and callbacks; notOSdialog/Mac",
+  "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+  "ui_actual": "author537/32+type/build; independent537/32+3own regression controls/type/build PASS",
+  "ui_review_sha256": "525e5fb6d0f8136c837e9c19253cfb38a8d0c4d54eed42f2d5826e9d2dd015dd",
+  "ui_review_manifest_sha256": "2a314920a65d79e13cf9aab8854e3e108df193b156c6f3765cbae4093b6ff343",
+  "root_rehashed_ui_artifacts": 52,
+  "root_rehashed_ui_external_references": 5,
+  "legacy_adapter_actual": "before3/1FAIL\u2192samef819ui after10/9PASS; final11line map patch+new4eadassets10/9PASS",
+  "legacy_adapter_review_artifacts_rehashed": 28,
+  "root_actual_owner_browser": "d291 driver/Core5541/builtUI4ead5checks3PNG PASS; privateHost Owner approvals outsideHTTP; 4nodes/0validators/2attempts26B/TaskAccepted",
+  "new_driver_transport": "f0deb async observer initialFAIL retained, new5b7e401 author actual6/3PASS+cleanup; independent actual review pending",
+  "core_remaining": "Validator5node Integrity/Data/command, cancel/adopt/timeout/restart/budget matrix, final full workspace/migrations/lints and independent executed Core review",
+  "native_parent": "separate WIP production caller-window ownership/checked-parent; no Cargo/Mac evidence yet",
+  "ci_and_delivery": "no Graph PR/CI/dualMac/DMGs yet; PR15 9200 remains latest verified development package pair",
+  "authorization": "AB-START-001 unchanged; OWNER001/002 ACK at latest maina1be94; no formalGitHubApprove; no liveProvider/privatecredentials/newfees/newhost/signing/production/license"
+}

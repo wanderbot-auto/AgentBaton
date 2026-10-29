@@ -1,0 +1,33 @@
+{
+  "source": "bdb2a8860c38abe4e42c67b173a3452c06a760b1",
+  "verdict": "PASS_NARROW_TRANSPORT_TEST_MAINTENANCE_NOT_PROVEN_INTEL_REMEDIATION",
+  "independent_node_tests": 26,
+  "failed": 0,
+  "original89_assertions_plus8_guards": true,
+  "outside_first_case_byte_equal": true,
+  "original_Intel_root_cause": "unproven_not_reproduced",
+  "overall_suite_speedup": "not_established",
+  "temporary_exact_link_removed": true,
+  "cargo_chrome_remote_actions": false,
+  "files": {
+    "REVIEW.md": "27fa1bb1c8fa190951fb8ce9c52cf26074be46eadffcc5cd080312c4cc81fc6a",
+    "ast-proof.json": "db5099b2431b9cee3947e9bca33b8a94aa88d45ccf21b0bd4af7f0d8c2f9fe50",
+    "ast-proof.mjs": "c3a46cc3532f38aa7af1944edeb53437019cb32feba42ec86f087af13a7b2e55",
+    "author-evidence/final/assertion-audit.json": "9f048cbce28dc1ff9f037eeaa5f14a8e3050388701eff0c708a798dbf31f71fd",
+    "author-evidence/final/build.log": "0ab0f2f0f598067042f6c4f49264fea015feb59926ff770261af0e385ae69f38",
+    "author-evidence/final/full.log": "1633ec94f0768432fa045e82c75c5b5756bd82869398668b658e637358dccead",
+    "author-evidence/final/results.json": "05559a82a9768556047e10bc169d5081c30dace36175719612ae02b12a1503c9",
+    "author-evidence/final/selected.log": "da9bef07c0bdf6d7a5f33eda30d03d5f7349b31a7e93546ce7a52dfe4ff7f036",
+    "author-evidence/final/typecheck.log": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+    "author-evidence/phase-comparison.json": "68cf7f2655aff3df779c7cf34f0fa6f3297b8ef1bf5bb4796ca5383c86aabc31",
+    "baseline-source.tsx": "c70dbf95f41470f09a060968ca8d6db3a4fd6a3f75ea13c125e5114eea0939f9",
+    "disabled-event-control.cjs": "2f8c4d6284cda0f419cd9e7b1566a3f3251d20aa2ba539803c3b99292283f35f",
+    "disabled-event-control.log": "fc012d73266fc8e99c0fad5cca3a77597a20015b6d7e94ba6d6982295491b079",
+    "final-source.tsx": "56fd14320f4d53d9e88d6bfcb12c57534cf082296d644506e3fd108ab4e41bd8",
+    "node26-result.json": "3dd67436a87b492b302bb8e867e62a9254d05165091134c587138fd9733ad262",
+    "node26.log": "8ea021877497164f5c94350bcaab03c7e4458e1a720555dbde6ba5fef74e61a4",
+    "run-after.json": "caaf2c42550bab14e16f8125da434dcf3556052b89f5ab73a65c0648d0ce3b0b",
+    "run-before.json": "ba192c28ee3084888cea18b928dcc640970fad030027e9d57732f60e8550e278",
+    "scope.json": "c7037bae58d3731a5fd1ae462f1783bb906f2577504be34ee1446ea201359ce4"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "archive": "COMMAND_UI_REVIEW_EVIDENCE.tar.gz",
+  "bytes": 20666,
+  "sha256": "6aad3190a79a94a9e5098ccc1e877427fd0b8f067c95c22c1694aef65bc23806",
+  "files": 19,
+  "all_roundtrip_sha256_verified": true,
+  "manifest_sha256": "1a7f35867214f890e529f0e191ecfe7bad22ae2ff30767be58bb27ee06fabe1d"
+}

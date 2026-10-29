@@ -1,0 +1,14 @@
+{
+  "archive": "NATIVE_TEXT_REVIEW_EVIDENCE.tar.gz",
+  "bytes": 89526,
+  "sha256": "5708e1abe36c21bf9632a13f0c3c634438252c7f96c5942a87524175b9d85c90",
+  "regular_archive_members": 18,
+  "original_manifests": {
+    "MANIFEST.json": {
+      "bytes": 4174,
+      "sha256": "9d9bc3ed93169c27144397b36efc7b4fbbc042e55e3ea03a593f8b5760a88472"
+    }
+  },
+  "all_declared_inputs_outputs_and_manifests_roundtrip_verified": true,
+  "original_relative_paths_preserved_under": "owner-native-text-independent-review/"
+}

@@ -924,6 +924,7 @@ pub(crate) struct DataInputContext {
     record_hash: String,
 }
 pub(crate) struct DataInputWitness {
+    pub(crate) graph: Option<crate::goal_store::GraphReadWitness>,
     request_hash: String,
     deadline: std::time::Instant,
     inputs: Vec<VerifiedDataInput>,
@@ -1102,6 +1103,7 @@ impl DataInputWitness {
             inputs.push(VerifiedDataInput { context, verified });
         }
         Ok(Self {
+            graph: None,
             request_hash,
             deadline,
             inputs,

@@ -1,0 +1,12 @@
+{
+  "archive": "OWNER_BOOTSTRAP_AUTHOR_EVIDENCE.tar.gz",
+  "bytes": 45623,
+  "sha256": "83cd60c9d4efd15ccd452562e3fef8f511b7407d9d9bc469bf2be3033ff57bf4",
+  "declared_files": 58,
+  "archive_members_including_manifest": 59,
+  "manifest_sha256": "1f767deae5f08053263c774c7f876afc11996fe13dc937a439da5d0a693d3321",
+  "all_roundtrip_sha256_verified": true,
+  "source": "a43cbb181a52b9ebcc0c72a838f68497101759b8",
+  "docs": "f8aca83e82dc3614ddc56aad0e3199ee342ccb97",
+  "scope": "author Python15+six retained overlapping actualLinux controls; private alias input metadata only, no symlink archive members; MacOwner unrun"
+}

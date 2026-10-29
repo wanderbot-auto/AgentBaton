@@ -1235,6 +1235,89 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node; legacy actual browser80/56; new Graph six scenarios34/14 at explicitly attributed160e/a941 sources, not all-final-a941 local replay",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ],
+          "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -1339,6 +1422,100 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node; legacy actual browser80/56; new Graph six scenarios34/14 at explicitly attributed160e/a941 sources, not all-final-a941 local replay",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ],
+          "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
+        },
+        {
+          "slice": "Exact c6f6 actual dual Mac native Owner Grant review, cancellation and confirmed final record",
+          "feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+          "actual_checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+          "Product": 40790894775,
+          "Environment": 40790894815,
+          "dimension": "Both real Macs readonly/WebCrypto/24Ownerpages each/fullGrant-result-CAS-event guards/app-daemonexit0; 50PNG independently viewed",
+          "evidence": "docs/execution/goal-graph-integration/C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
+          "status": "partial exact historical native slice, whole requirement not accepted",
+          "limitations": "ARMdefaultbundleFAIL/Intelofficial45mCANCELLED; audits/packagesSKIPPED. New byte-preserving modulemove/CI60 bounded guard reviewed+LinuxRustcheck only, newactualMac pending. NotFactory13/liveProvider/fullscope."
         }
       ]
     },
@@ -1549,6 +1726,89 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node; legacy actual browser80/56; new Graph six scenarios34/14 at explicitly attributed160e/a941 sources, not all-final-a941 local replay",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ],
+          "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -1662,6 +1922,89 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node; legacy actual browser80/56; new Graph six scenarios34/14 at explicitly attributed160e/a941 sources, not all-final-a941 local replay",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ],
+          "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -1751,6 +2094,89 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node; legacy actual browser80/56; new Graph six scenarios34/14 at explicitly attributed160e/a941 sources, not all-final-a941 local replay",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ],
+          "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -1857,6 +2283,89 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node; legacy actual browser80/56; new Graph six scenarios34/14 at explicitly attributed160e/a941 sources, not all-final-a941 local replay",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ],
+          "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -2974,6 +3483,89 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node; legacy actual browser80/56; new Graph six scenarios34/14 at explicitly attributed160e/a941 sources, not all-final-a941 local replay",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ],
+          "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -2990,7 +3582,17 @@
         "native_x86_64": "not_run"
       },
       "evidence": [],
-      "limitations": []
+      "limitations": [],
+      "verified_slices": [
+        {
+          "slice": "shipping lossless bounded Native display pages and cancellation/final confirmation guards",
+          "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
+          "evidence": "docs/execution/goal-graph-integration/NATIVE_PAGES_ROOT_IMPORT.json",
+          "dimension": "Linux62lib+8controller/fmt/clippy; Python20 andindependentcontrols; currentMacGUI not_run",
+          "status": "partial",
+          "coverage_limit": "Supporting Native presentation only; this slice does NOT verify scopedMCP credential expiry/cross-session rejection. Those belong to separateFactoryschema13 tests and are not accepted inPR16."
+        }
+      ]
     },
     {
       "id": "AB-SEC-004",
@@ -3056,6 +3658,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -3329,6 +3944,19 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
       ]
     },
@@ -4655,6 +5283,89 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node; legacy actual browser80/56; new Graph six scenarios34/14 at explicitly attributed160e/a941 sources, not all-final-a941 local replay",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ],
+          "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -4761,6 +5472,89 @@
           "actual_ui": "author+independent each10checks9PNG; Root newbinary also10/9 plus original70/47",
           "evidence": "docs/execution/goal-runtime-integration/EVIDENCE.json",
           "limits": "independentWork/Summary existingworkspace only; graph/owneracceptance/factory/NL/realProvider/GoalMac/newpackages notaccepted"
+        },
+        {
+          "slice": "protected_goal_execution_pr15_dual_native_and_development_delivery",
+          "source": "9200965aae3fc3277b6ec88949dfe103e8c939a8",
+          "actual_ci_checkout": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+          "merge": "a1be94d26d10bb245bb35eb50226b82012c967da",
+          "evidence": "docs/execution/goal-runtime-integration/MERGE_9200.json",
+          "delivery": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+          "checks": "exact7success; Product40684484532/Environment40684484589",
+          "native": "both actual Mac Native28+17; readonly execution3/schema11/three-table0/seq3; default-release audits",
+          "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
+          "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
+          "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "exact_owner_accepted_dependent_work_summary_local_core12_graph",
+          "core_source": "5541c37",
+          "ui_source": "4eadffe73368c61bc26e9aaf112a572f8b4b675f",
+          "evidence": "docs/execution/goal-graph-integration/OWNER_NATIVE_UI_CHECKPOINT.json",
+          "normal": "Root actual builtUI/realUnixCore/generatedownedACP/privateHostOwner4node5checks3PNG; realTaskAccepted refs/sequence/eventdigest,2attempts26B; notfakeDBwrites",
+          "ui": "independent537/32+3 ownregressions/type/build; R1fullorigin/R2foreignreceipt fixed",
+          "native": "exacted15/f4c actualRoot43lib+22harness/Clippy/fmt/Core12readonly pass",
+          "failure_boundaries": "oldf819 failure controls/da00 mismatch/legacyHTTPreadonlygateFAIL retained; finaladapter11additions26unitcontrols+actualoldGoal10/9 pass",
+          "limitations": "no5nodeValidate/factory/NL/fullbudget-recovery matrix/full130/MacOSOwner/liveProvider/newCI/packages; stillpartial"
+        },
+        {
+          "slice": "schema12_owner_and_three_actual_validator_executors_independent_core_regression",
+          "source": "70a48d41663108337529915358109026e98ddf98",
+          "core_tests_in_workspace": 315,
+          "workspace_outer_unique": 593,
+          "compilefail_docs": 7,
+          "independent_review": "docs/execution/goal-graph-integration/CORE_70A_REVIEW.md",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json",
+          "bounded_verification": "actual generated ACP / Unix IPC / FD-pinned candidates; sessionless real Integrity, Data, fixed Command; cancel/timeout/revoke/recovery/budget/G20 and private Owner/TaskAccepted",
+          "composed_ui": "564/37 Node; legacy actual browser80/56; new Graph six scenarios34/14 at explicitly attributed160e/a941 sources, not all-final-a941 local replay",
+          "native": "Linux composed57 library +4 controller +22 readonly harness; macOS actual Owner dialog not_run",
+          "limitations": [
+            "No live Provider/model/private identity/remote host tested",
+            "Recovery test uses consistent in-flight database snapshot with real worker join; not daemon SIGKILL",
+            "Output observations measure selected artifacts and command streams, not all filesystem writes or enforced quota",
+            "Full Design, factory/parent-child/NL, new CI/macOS/packages/manual acceptance remain incomplete"
+          ],
+          "browser_evidence": "docs/execution/goal-graph-integration/ROOT_GRAPH_BROWSER_FINAL.json"
+        },
+        {
+          "slice": "PR16_641_exact_CI_partial_dimensions_not_accepted",
+          "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+          "checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+          "product_run": 40749637133,
+          "environment_run": 40749637046,
+          "linux": "593 outer+7docs; Node564/37; real IPC/browser114checks70PNG /Graph34checks14PNG",
+          "arm64": "Core/native tests and actual readonly WebView/WebCrypto passed; Owner bootstrap failed before dialog; release audit/package not_run",
+          "x86_64": "Node563pass1timeout; Core/native/packages not_reached",
+          "evidence": "docs/execution/goal-graph-integration/ci-641/MANIFEST.json",
+          "independent_reviews": [
+            "docs/execution/goal-graph-integration/CI_641_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_641_ARM_REVIEW.md"
+          ],
+          "limits": "No new install packages, actual Owner approval, live Provider, Factory or full Design acceptance; failures retained"
+        },
+        {
+          "slice": "PR16_0aa_exactCI_partial_Linux_and_bothMac_readonly_notOwnerAccepted",
+          "feature_head": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+          "checkout": "5caecb5f9945b5fdb548f0e071a78e2d97537403",
+          "product_run": 40761824261,
+          "environment_run": 40761824141,
+          "Linux": "593outer+7docs,Node564/37,Python29+15,114checks70PNG/Graph34+14",
+          "bothMac": "Core/native+actualreadonly4WebCrypto/lifecycle passed; exactOwner title/message uniqueguard failed beforeclick",
+          "Owner_actual_texts_and_afterDB": "not_retained; causeunknown, noafter0claim",
+          "defaultrelease_audit_packages": "skipped",
+          "evidence": [
+            "docs/execution/goal-graph-integration/CI_0AA_LINUX_REVIEW.md",
+            "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
+          ],
+          "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -5213,6 +6007,33 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "shipping lossless bounded Native display pages and cancellation/final confirmation guards",
+          "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
+          "evidence": "docs/execution/goal-graph-integration/NATIVE_PAGES_ROOT_IMPORT.json",
+          "dimension": "Linux62lib+8controller/fmt/clippy; Python20 andindependentcontrols; currentMacGUI not_run",
+          "status": "partial"
+        },
+        {
+          "slice": "actualNative lossless boundedGrant presentation/lateCancel/privateFinalOK evidence",
+          "source": "fb7ff7d861872eec18e010f7b64a0ead63740faa",
+          "actual_checkout": "613166104190bedb3730a7510743137422ab05fa",
+          "evidence": "docs/execution/goal-graph-integration/FB7_AND_GRANT_REVIEW_IMPORT.json",
+          "dimension": "bothmacOSarchitectures24pages each, all50imagesindependentlyviewed; originalscope/refs/19zero/lateCancel+oneGranttransaction observed",
+          "status": "partial",
+          "limits": "OriginalCI failedoldassociationpredicate. Test-only655c independently29PASS andlimitedtypedP2closed; newexactMac/CI/packages notrun. Not fullProjectPolicy/remote/nativeProviderapproval or fullrequirement acceptance."
+        },
+        {
+          "slice": "Exact c6f6 actual dual Mac native Owner Grant review, cancellation and confirmed final record",
+          "feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+          "actual_checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+          "Product": 40790894775,
+          "Environment": 40790894815,
+          "dimension": "Both real Macs readonly/WebCrypto/24Ownerpages each/fullGrant-result-CAS-event guards/app-daemonexit0; 50PNG independently viewed",
+          "evidence": "docs/execution/goal-graph-integration/C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
+          "status": "partial exact historical native slice, whole requirement not accepted",
+          "limitations": "ARMdefaultbundleFAIL/Intelofficial45mCANCELLED; audits/packagesSKIPPED. New byte-preserving modulemove/CI60 bounded guard reviewed+LinuxRustcheck only, newactualMac pending. NotFactory13/liveProvider/fullscope."
         }
       ]
     },

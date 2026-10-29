@@ -19,6 +19,65 @@ use std::{
 };
 use tauri::{Manager, RunEvent, WebviewUrl, WebviewWindowBuilder, WindowEvent};
 
+// Fixed original UTF-8 bytes, deliberately never parsed/stringified through a
+// JS Number. A runtime WebView must supply its real WebCrypto digest evidence.
+const WEBCRYPTO_INPUT: &str = "{\"text\":\"原文证据🔒\",\"inode\":1152921504606846979,\"u64\":9223372036854775809,\"max\":18446744073709551615}\n";
+const WEBCRYPTO_UTF8_BYTES: u64 = 109;
+const WEBCRYPTO_SHA256: &str = "d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892";
+fn webcrypto_expected(checkpoint: &str) -> Value {
+    json!({"version":1,"checkpoint":checkpoint,"available":true,"source":"window.crypto.subtle.digest","algorithm":"SHA-256","encoding":"UTF-8","input":WEBCRYPTO_INPUT,"input_bytes":WEBCRYPTO_UTF8_BYTES,"sha256":WEBCRYPTO_SHA256})
+}
+fn validate_webcrypto(proof: &Value, checkpoint: &str) -> Result<(), String> {
+    if proof != &webcrypto_expected(checkpoint) {
+        return Err("Missing or inconsistent real WebView WebCrypto UTF-8 SHA-256 evidence".into());
+    }
+    Ok(())
+}
+fn record_webcrypto_checkpoint(
+    report: &mut Value,
+    checkpoint: &str,
+    proof: &Value,
+) -> Result<(), String> {
+    validate_webcrypto(proof, checkpoint)?;
+    match checkpoint {
+        "before" if report.get("webcrypto_checkpoints").is_none() => {
+            report["webcrypto_checkpoints"] = json!({"before":proof});
+        }
+        "after"
+            if report["webcrypto_checkpoints"]
+                .as_object()
+                .is_some_and(|v| v.len() == 1) =>
+        {
+            validate_webcrypto(&report["webcrypto_checkpoints"]["before"], "before")?;
+            report["webcrypto_checkpoints"]["after"] = proof.clone();
+        }
+        _ => return Err("Mixed, repeated or out-of-order WebCrypto checkpoint".into()),
+    }
+    Ok(())
+}
+fn validate_webcrypto_evidence(
+    result: &Value,
+    report: &Value,
+    reopened: bool,
+) -> Result<(), String> {
+    if !report["webcrypto_checkpoints"]
+        .as_object()
+        .is_some_and(|v| v.len() == 2)
+    {
+        return Err("Incomplete first-WebView WebCrypto checkpoints".into());
+    }
+    validate_webcrypto(&report["webcrypto_checkpoints"]["before"], "before")?;
+    validate_webcrypto(&report["webcrypto_checkpoints"]["after"], "after")?;
+    validate_webcrypto(
+        &result["webCrypto"],
+        if reopened { "reopened" } else { "first" },
+    )?;
+    if reopened {
+        validate_webcrypto(&report["first_webview"]["webCrypto"], "first")?;
+    }
+    Ok(())
+}
+
 const GOAL_READONLY_SQL: &str = r#"
 import json,sqlite3,sys
 from pathlib import Path
@@ -53,7 +112,7 @@ fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
         serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal execution counts")?;
     if !valid_goal_execution_counts(&snapshot) {
         return Err(
-            "Goal execution fixture must have schema11 and no run/node/reservation authority"
+            "Goal execution fixture must have schema12 and no run/node/reservation authority"
                 .into(),
         );
     }
@@ -61,7 +120,7 @@ fn goal_execution_database_snapshot(runtime: &Path) -> Result<Value, String> {
 }
 fn valid_goal_execution_counts(value: &Value) -> bool {
     value.as_object().is_some_and(|record| record.len() == 5)
-        && value["schema_version"].as_u64() == Some(11)
+        && value["schema_version"].as_u64() == Some(12)
         && ["run_count", "node_count", "reservation_count"]
             .iter()
             .all(|key| value[*key].as_u64() == Some(0))
@@ -137,6 +196,132 @@ fn validate_goal_execution_evidence(result: &Value, report: &Value) -> Result<()
         || missing["side_effect_state"] != "not_started"
     {
         return Err("missing, fabricated or changed readonly Goal execution evidence".into());
+    }
+    Ok(())
+}
+
+const MISSING_GOAL_GRAPH_RUN_ID: &str = "native-readonly-missing-goal-graph-run";
+const GOAL_GRAPH_COUNT_FIELDS: [&str; 6] = [
+    "capability_count",
+    "job_count",
+    "candidate_count",
+    "validation_count",
+    "owner_decision_count",
+    "acceptance_count",
+];
+const GOAL_GRAPH_READONLY_SQL: &str = r#"
+import json,sqlite3,sys
+from pathlib import Path
+db=sqlite3.connect(Path(sys.argv[1]).resolve().as_uri()+'?mode=ro',uri=True,timeout=1,isolation_level=None)
+db.execute('PRAGMA query_only=ON')
+db.execute('BEGIN')
+schema=db.execute('PRAGMA user_version').fetchone()[0]
+row=db.execute('SELECT (SELECT count(*) FROM goal_graph_capabilities),(SELECT count(*) FROM goal_graph_jobs),(SELECT count(*) FROM goal_graph_candidates),(SELECT count(*) FROM goal_graph_validations),(SELECT count(*) FROM goal_graph_owner_decisions),(SELECT count(*) FROM goal_graph_acceptances),(SELECT COALESCE(max(sequence),0) FROM events)').fetchone()
+print(json.dumps(dict(schema_version=schema,**dict(zip(('capability_count','job_count','candidate_count','validation_count','owner_decision_count','acceptance_count','sequence'),row)))))
+db.close()
+"#;
+
+fn valid_goal_graph_counts(value: &Value) -> bool {
+    value.as_object().is_some_and(|record| record.len() == 8)
+        && value["schema_version"].as_u64() == Some(12)
+        && GOAL_GRAPH_COUNT_FIELDS
+            .iter()
+            .all(|key| value[*key].as_u64() == Some(0))
+        && value["sequence"].as_u64().is_some()
+}
+fn goal_graph_database_snapshot(runtime: &Path) -> Result<Value, String> {
+    let mut command = Command::new("python3");
+    command
+        .args(["-I", "-S", "-c", GOAL_GRAPH_READONLY_SQL])
+        .arg(runtime.join("baton.sqlite3"));
+    let bytes = bounded_goal_query(command)?;
+    let snapshot: Value =
+        serde_json::from_slice(&bytes).map_err(|_| "invalid readonly Goal graph counts")?;
+    if !valid_goal_graph_counts(&snapshot) {
+        return Err("Goal graph fixture must have schema12 and six empty graph tables".into());
+    }
+    Ok(snapshot)
+}
+fn record_goal_graph_checkpoint(
+    phase: u8,
+    label: &str,
+    report: &mut Value,
+    checkpoint: &str,
+    snapshot: Value,
+) -> Result<(), String> {
+    if phase != 0
+        || label != "main"
+        || report.get("error").is_some()
+        || report["status"] == "failed"
+        || !valid_goal_graph_counts(&snapshot)
+        || !valid_goal_counts(&report["goal_readonly_database"][checkpoint])
+        || !valid_goal_execution_counts(&report["goal_execution_readonly_database"][checkpoint])
+        || snapshot["sequence"] != report["goal_readonly_database"][checkpoint]["sequence"]
+        || snapshot["sequence"]
+            != report["goal_execution_readonly_database"][checkpoint]["sequence"]
+    {
+        return Err(
+            "readonly Goal graph checkpoint is outside the phase, schema or original intervals"
+                .into(),
+        );
+    }
+    match checkpoint {
+        "before" if report.get("goal_graph_readonly_database").is_none() => {
+            report["goal_graph_readonly_database"] = json!({"read_only":true,"before":snapshot});
+        }
+        "after"
+            if report["goal_graph_readonly_database"]["before"] == snapshot
+                && report["goal_graph_readonly_database"]
+                    .get("after")
+                    .is_none() =>
+        {
+            report["goal_graph_readonly_database"]["after"] = snapshot;
+            report["goal_graph_readonly_database"]["unchanged"] = json!(true);
+        }
+        _ => {
+            return Err("readonly Goal graph counts/sequence changed or checkpoint replayed".into())
+        }
+    }
+    Ok(())
+}
+fn validate_goal_graph_evidence(result: &Value, report: &Value) -> Result<(), String> {
+    // Graph evidence adds to the original independently observed execution
+    // evidence; a later/fabricated graph interval cannot replace it.
+    validate_goal_execution_evidence(result, report)?;
+    let database = &report["goal_graph_readonly_database"];
+    let sequence = &result["goalGraphReadonlySequence"];
+    let missing = &result["goalGraphMissingRun"];
+    if [
+        "goalGraphLists",
+        "goalGraphMissingRunDenied",
+        "readonlyGoalGraphNoMutation",
+    ]
+    .iter()
+    .any(|key| result[*key] != true)
+        || database["read_only"] != true
+        || database["unchanged"] != true
+        || !valid_goal_graph_counts(&database["before"])
+        || !valid_goal_graph_counts(&database["after"])
+        || database["before"] != database["after"]
+        || !sequence.as_object().is_some_and(|values| {
+            values.len() == 2 && values.contains_key("before") && values.contains_key("after")
+        })
+        || ["before", "after"].iter().any(|phase| {
+            !valid_goal_counts(&report["goal_readonly_database"][*phase])
+                || sequence[*phase].as_u64().is_none()
+                || sequence[*phase] != database[*phase]["sequence"]
+                || sequence[*phase] != report["goal_readonly_database"][*phase]["sequence"]
+                || sequence[*phase]
+                    != report["goal_execution_readonly_database"][*phase]["sequence"]
+                || sequence[*phase] != result["goalReadonlySequence"][*phase]
+                || sequence[*phase] != result["goalExecutionReadonlySequence"][*phase]
+        })
+        || !missing.as_object().is_some_and(|values| values.len() == 3)
+        || missing["run_id"] != MISSING_GOAL_GRAPH_RUN_ID
+        || missing["code"] != "NOT_FOUND"
+        || missing["side_effect_state"] != "not_started"
+    {
+        return Err("missing, fabricated or changed readonly Goal graph evidence".into());
     }
     Ok(())
 }
@@ -616,14 +801,16 @@ fn native_smoke_report(
             if state.phase.load(Ordering::SeqCst) != 0 || window.label() != "main" {
                 return Err("readonly Goal checkpoint outside first window".into());
             }
-            let (snapshot, execution_snapshot) = {
+            let (snapshot, execution_snapshot, graph_snapshot) = {
                 let daemon = state.daemon.lock().unwrap();
                 (
                     goal_database_snapshot(&daemon.runtime)?,
                     goal_execution_database_snapshot(&daemon.runtime)?,
+                    goal_graph_database_snapshot(&daemon.runtime)?,
                 )
             };
             let mut report = state.report.lock().unwrap();
+            record_webcrypto_checkpoint(&mut report, checkpoint, &result["webCrypto"])?;
             record_goal_checkpoint(
                 state.phase.load(Ordering::SeqCst),
                 window.label(),
@@ -637,6 +824,13 @@ fn native_smoke_report(
                 &mut report,
                 checkpoint,
                 execution_snapshot,
+            )?;
+            record_goal_graph_checkpoint(
+                state.phase.load(Ordering::SeqCst),
+                window.label(),
+                &mut report,
+                checkpoint,
+                graph_snapshot,
             )?;
             fs::write(
                 state.output.join("native-smoke.json"),
@@ -667,6 +861,8 @@ fn native_smoke_report(
                     return Err("missing or inconsistent readonly Goal database evidence".into());
                 }
                 validate_goal_execution_evidence(&result, &report)?;
+                validate_goal_graph_evidence(&result, &report)?;
+                validate_webcrypto_evidence(&result, &report, false)?;
                 commit_native_report(&state.phase, &mut report, 0, result)?;
                 report["screenshot"] = json!(screenshot);
                 Ok::<(), String>(())
@@ -681,6 +877,7 @@ fn native_smoke_report(
             state.stage("reopened_report_received")?;
             let committed = (|| {
                 let mut report = state.report.lock().unwrap();
+                validate_webcrypto_evidence(&result, &report, true)?;
                 commit_native_report(&state.phase, &mut report, 2, result)?;
                 fs::write(
                     state.output.join("native-smoke.json"),
@@ -706,6 +903,14 @@ const FIRST: &str = r#"
  const invoke = window.__TAURI_INTERNALS__.invoke;
  const require = (value, message) => { if (!value) throw Error(message); };
  const result = value => { require(!value.error, JSON.stringify(value.error)); return value.result; };
+ const webCryptoProof = async checkpoint => {
+  require(typeof window.TextEncoder==='function' && typeof window.crypto?.subtle?.digest==='function','real WebView WebCrypto/TextEncoder unavailable');
+  const input="{\"text\":\"原文证据🔒\",\"inode\":1152921504606846979,\"u64\":9223372036854775809,\"max\":18446744073709551615}\n";
+  const bytes=new window.TextEncoder().encode(input);
+  const hashed=await window.crypto.subtle.digest('SHA-256',bytes);
+  const sha256=Array.from(new Uint8Array(hashed),byte=>byte.toString(16).padStart(2,'0')).join('');
+  return {version:1,checkpoint,available:true,source:'window.crypto.subtle.digest',algorithm:'SHA-256',encoding:'UTF-8',input,input_bytes:bytes.byteLength,sha256};
+ };
  try {
   const deadline = Date.now() + 10000;
   while (!document.querySelector('#root')?.children.length) {
@@ -780,7 +985,7 @@ const FIRST: &str = r#"
   require(result(await invoke('system_snapshot')).sequence===beforeCommand,'read-only command controls unexpectedly mutated history');
   const beforeGoal=result(await invoke('system_snapshot')).sequence;
   require(typeof task.project_id==='string'&&task.project_id.length>0,'real fixture task lacks its Goal project reference');
-  await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'before'}});
+  await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'before',webCrypto:await webCryptoProof('before')}});
   const goalGrants=result(await invoke('grants_list',{projectId:task.project_id}));
   const goalScopes=result(await invoke('goal_scopes_list',{taskId:task.id}));
   require(Array.isArray(goalGrants)&&goalGrants.length===0&&Array.isArray(goalScopes)&&goalScopes.length===0,'fresh task must have no fabricated root grant or Goal scope');
@@ -807,12 +1012,21 @@ const FIRST: &str = r#"
   require(missingExecutionRun?.error?.code==='NOT_FOUND'&&missingExecutionRun.error.side_effect_state==='not_started'&&!Object.prototype.hasOwnProperty.call(missingExecutionRun,'result'),'a fixed missing run must return the actual Core denial without a fabricated result');
   const afterGoalExecution=result(await invoke('system_snapshot')).sequence;
   require(afterGoalExecution===beforeGoalExecution,'readonly execution list/get unexpectedly mutated history');
+  const beforeGoalGraph=result(await invoke('system_snapshot')).sequence;
+  require(beforeGoalGraph===beforeGoal&&beforeGoalGraph===beforeGoalExecution,'Graph reads must share the original Goal/execution readonly interval');
+  const graphRuns=result(await invoke('goal_graph_runs_list',{taskId:task.id}));
+  require(Array.isArray(graphRuns)&&graphRuns.length===0,'fresh task must have no Goal graph runs');
+  const absentGraphRunId='native-readonly-missing-goal-graph-run';
+  const missingGraphRun=await invoke('goal_graph_runs_get',{runId:absentGraphRunId});
+  require(missingGraphRun?.error?.code==='NOT_FOUND'&&missingGraphRun.error.side_effect_state==='not_started'&&!Object.prototype.hasOwnProperty.call(missingGraphRun,'result'),'fixed missing Graph run must return the actual Core denial without a result');
+  const afterGoalGraph=result(await invoke('system_snapshot')).sequence;
+  require(afterGoalGraph===beforeGoalGraph,'readonly Graph list/get unexpectedly mutated history');
   const afterGoal=result(await invoke('system_snapshot')).sequence;
   require(afterGoal===beforeGoal,'read-only Goal controls unexpectedly mutated history');
-  await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'after'}});
+  await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'after',webCrypto:await webCryptoProof('after')}});
   document.querySelector('#tab-conversation').click();
   while(document.querySelector('#tab-conversation')?.getAttribute('aria-selected')!=='true'){require(Date.now()<deadline,'return to conversation did not settle');await new Promise(r=>setTimeout(r,25));}
-  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal},goalExecutionLists:true,goalExecutionMissingRunDenied:true,readonlyGoalExecutionNoMutation:true,goalExecutionReadonlySequence:{before:beforeGoalExecution,after:afterGoalExecution},goalExecutionMissingRun:{run_id:absentRunId,code:missingExecutionRun.error.code,side_effect_state:missingExecutionRun.error.side_effect_state}}});
+  await invoke('native_smoke_report',{result:{ok:true,webCrypto:await webCryptoProof('first'),domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal},goalExecutionLists:true,goalExecutionMissingRunDenied:true,readonlyGoalExecutionNoMutation:true,goalExecutionReadonlySequence:{before:beforeGoalExecution,after:afterGoalExecution},goalExecutionMissingRun:{run_id:absentRunId,code:missingExecutionRun.error.code,side_effect_state:missingExecutionRun.error.side_effect_state},goalGraphLists:true,goalGraphMissingRunDenied:true,readonlyGoalGraphNoMutation:true,goalGraphReadonlySequence:{before:beforeGoalGraph,after:afterGoalGraph},goalGraphMissingRun:{run_id:absentGraphRunId,code:missingGraphRun.error.code,side_effect_state:missingGraphRun.error.side_effect_state}}});
  } catch (error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;
@@ -821,6 +1035,14 @@ const SECOND: &str = r#"
  const invoke = window.__TAURI_INTERNALS__.invoke;
  const require = (value,message) => { if(!value) throw Error(message); };
  const result = value => { require(!value.error, JSON.stringify(value.error)); return value.result; };
+ const webCryptoProof = async checkpoint => {
+  require(typeof window.TextEncoder==='function' && typeof window.crypto?.subtle?.digest==='function','real WebView WebCrypto/TextEncoder unavailable');
+  const input="{\"text\":\"原文证据🔒\",\"inode\":1152921504606846979,\"u64\":9223372036854775809,\"max\":18446744073709551615}\n";
+  const bytes=new window.TextEncoder().encode(input);
+  const hashed=await window.crypto.subtle.digest('SHA-256',bytes);
+  const sha256=Array.from(new Uint8Array(hashed),byte=>byte.toString(16).padStart(2,'0')).join('');
+  return {version:1,checkpoint,available:true,source:'window.crypto.subtle.digest',algorithm:'SHA-256',encoding:'UTF-8',input,input_bytes:bytes.byteLength,sha256};
+ };
  try {
   const deadline=Date.now()+10000;
   while (!document.querySelector('#root')?.children.length) { require(Date.now()<deadline,'reopened frontend did not mount'); await new Promise(r=>setTimeout(r,25)); }
@@ -831,7 +1053,7 @@ const SECOND: &str = r#"
   require(cancelled.state==='cancelled','draft cancellation failed');
   const events=result(await invoke('events_subscribe',{cursor:0,limit:100}));
   require(events.events.at(-1)?.payload.stop_evidence==='no_attempt_dispatched','stop evidence absent');
-  await invoke('native_smoke_report',{result:{ok:true,domMounted:true,taskId:task.id,projectId:task.project_id,restartPersisted:true,draftCancelled:true,stopEvidence:true}});
+  await invoke('native_smoke_report',{result:{ok:true,webCrypto:await webCryptoProof('reopened'),domMounted:true,taskId:task.id,projectId:task.project_id,restartPersisted:true,draftCancelled:true,stopEvidence:true}});
  } catch(error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;
@@ -1518,7 +1740,7 @@ mod fixture_tests {
         json!({"status":"running","goal_readonly_database":{"read_only":true,"unchanged":true,"before":goal,"after":goal}})
     }
     fn execution_counts_fixture(sequence: u64) -> Value {
-        json!({"schema_version":11,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
+        json!({"schema_version":12,"run_count":0,"node_count":0,"reservation_count":0,"sequence":sequence})
     }
     fn execution_result_fixture(sequence: u64) -> Value {
         json!({"goalExecutionLists":true,"goalExecutionMissingRunDenied":true,"readonlyGoalExecutionNoMutation":true,"goalReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionReadonlySequence":{"before":sequence,"after":sequence},"goalExecutionMissingRun":{"run_id":MISSING_GOAL_RUN_ID,"code":"NOT_FOUND","side_effect_state":"not_started"}})
@@ -1565,7 +1787,8 @@ mod fixture_tests {
     fn execution_readonly_schema_and_each_actual_table_drift_fail_closed() {
         let controls=[
             ("schema_version","PRAGMA user_version=10",10),
-            ("schema_version","PRAGMA user_version=12",12),
+            ("schema_version","PRAGMA user_version=11",11),
+            ("schema_version","PRAGMA user_version=13",13),
             ("run_count","INSERT INTO goal_runs VALUES('count-probe','scope','project','task',1,'queued','{}')",1),
             ("node_count","INSERT INTO goal_run_nodes VALUES('count-probe',1,'node',0,'not_started',NULL,NULL,'{}')",1),
             ("reservation_count","INSERT INTO goal_run_reservations VALUES('attempt','count-probe','node',NULL,'{}')",1),
@@ -1756,5 +1979,391 @@ mod fixture_tests {
         assert!(missing.get("result").is_none());
         assert_eq!(goal_execution_database_snapshot(&runtime).unwrap(), before);
         assert_eq!(goal_database_snapshot(&runtime).unwrap(), old_before);
+    }
+
+    fn graph_counts_fixture(sequence: u64) -> Value {
+        json!({"schema_version":12,"capability_count":0,"job_count":0,"candidate_count":0,"validation_count":0,"owner_decision_count":0,"acceptance_count":0,"sequence":sequence})
+    }
+    fn graph_report_fixture(sequence: u64) -> Value {
+        let mut report = readonly_report_fixture(sequence);
+        let counts = execution_counts_fixture(sequence);
+        report["goal_execution_readonly_database"] =
+            json!({"read_only":true,"unchanged":true,"before":counts,"after":counts});
+        report
+    }
+    fn graph_result_fixture(sequence: u64) -> Value {
+        let mut result = execution_result_fixture(sequence);
+        for key in [
+            "goalGraphLists",
+            "goalGraphMissingRunDenied",
+            "readonlyGoalGraphNoMutation",
+        ] {
+            result[key] = json!(true);
+        }
+        result["goalGraphReadonlySequence"] = json!({"before":sequence,"after":sequence});
+        result["goalGraphMissingRun"] = json!({"run_id":MISSING_GOAL_GRAPH_RUN_ID,"code":"NOT_FOUND","side_effect_state":"not_started"});
+        result
+    }
+    #[test]
+    fn graph_readonly_actual_schema_six_counts_and_journal_never_write() {
+        let (_directory, runtime, mut store) = fresh_execution_fixture();
+        let before = goal_graph_database_snapshot(&runtime).unwrap();
+        assert_eq!(before, graph_counts_fixture(0));
+        assert_eq!(goal_database_snapshot(&runtime).unwrap()["sequence"], 0);
+        assert_eq!(
+            goal_execution_database_snapshot(&runtime).unwrap()["schema_version"],
+            12
+        );
+        let mut report = graph_report_fixture(0);
+        record_goal_graph_checkpoint(0, "main", &mut report, "before", before.clone()).unwrap();
+        record_goal_graph_checkpoint(
+            0,
+            "main",
+            &mut report,
+            "after",
+            goal_graph_database_snapshot(&runtime).unwrap(),
+        )
+        .unwrap();
+        validate_goal_graph_evidence(&graph_result_fixture(0), &report).unwrap();
+        assert_eq!(store.sequence().unwrap(), 0);
+        store
+            .create(
+                "local",
+                "Generated sequence drift, no Graph authority",
+                "graph-sequence",
+            )
+            .unwrap();
+        let changed = goal_graph_database_snapshot(&runtime).unwrap();
+        assert_eq!(changed["sequence"], store.sequence().unwrap());
+        assert_ne!(changed, before);
+        for field in GOAL_GRAPH_COUNT_FIELDS {
+            assert_eq!(changed[field], 0);
+        }
+        assert!(record_goal_graph_checkpoint(
+            0,
+            "main",
+            &mut graph_report_fixture(0),
+            "before",
+            changed
+        )
+        .is_err());
+    }
+    #[test]
+    fn graph_readonly_wrong_schema_and_each_real_table_drift_fail_closed() {
+        let controls = [
+            ("schema_version", "PRAGMA user_version=10", 10),
+            ("schema_version", "PRAGMA user_version=11", 11),
+            ("schema_version", "PRAGMA user_version=13", 13),
+            ("capability_count", "INSERT INTO goal_graph_capabilities(run_id,approval_id,version,document) VALUES('probe','approval',1,'{}')", 1),
+            ("job_count", "INSERT INTO goal_graph_jobs(id,run_id,node_id,plan_revision,state,attempt_id,workspace_id,document) VALUES('probe','run','node',1,'queued',NULL,'workspace','{}')", 1),
+            ("candidate_count", "INSERT INTO goal_graph_candidates(id,run_id,node_id,plan_revision,attempt_id,document) VALUES('probe','run','node',1,'attempt','{}')", 1),
+            ("validation_count", "INSERT INTO goal_graph_validations(id,run_id,node_id,plan_revision,attempt_id,document) VALUES('probe','run','node',1,'attempt','{}')", 1),
+            ("owner_decision_count", "INSERT INTO goal_graph_owner_decisions(id,approval_id,run_id,node_id,plan_revision,document) VALUES('probe','approval','run','node',1,'{}')", 1),
+            ("acceptance_count", "INSERT INTO goal_graph_acceptances(id,task_id,task_revision,run_id,plan_revision,document) VALUES('probe','task',1,'run',1,'{}')", 1),
+        ];
+        for (field, sql, expected) in controls {
+            let (_directory, runtime, store) = fresh_execution_fixture();
+            assert!(goal_graph_database_snapshot(&runtime).is_ok());
+            // Deliberately malformed generated SQL metadata is a rejection
+            // control, never a Core-approved capability, job or acceptance.
+            let status = Command::new("python3").args(["-I","-S","-c","import sqlite3,sys;db=sqlite3.connect(sys.argv[1]);db.execute(sys.argv[2]);db.commit();db.close()"]).arg(runtime.join("baton.sqlite3")).arg(sql).status().unwrap();
+            assert!(status.success());
+            assert!(goal_graph_database_snapshot(&runtime).is_err());
+            let mut command = Command::new("python3");
+            command
+                .args(["-I", "-S", "-c", GOAL_GRAPH_READONLY_SQL])
+                .arg(runtime.join("baton.sqlite3"));
+            let actual: Value =
+                serde_json::from_slice(&bounded_goal_query(command).unwrap()).unwrap();
+            assert_eq!(actual[field], expected);
+            assert_eq!(actual["sequence"], 0);
+            drop(store);
+        }
+    }
+    #[test]
+    fn graph_checkpoints_reject_phase_replay_type_and_cross_interval_substitution() {
+        let counts = graph_counts_fixture(2);
+        for (phase, label) in [(1, "main"), (2, "native-reopened"), (0, "other")] {
+            let mut report = graph_report_fixture(2);
+            let original = report.clone();
+            assert!(record_goal_graph_checkpoint(
+                phase,
+                label,
+                &mut report,
+                "before",
+                counts.clone()
+            )
+            .is_err());
+            assert_eq!(report, original);
+        }
+        for field in [
+            "schema_version",
+            "capability_count",
+            "job_count",
+            "candidate_count",
+            "validation_count",
+            "owner_decision_count",
+            "acceptance_count",
+            "sequence",
+        ] {
+            let mut missing = counts.clone();
+            missing.as_object_mut().unwrap().remove(field);
+            assert!(record_goal_graph_checkpoint(
+                0,
+                "main",
+                &mut graph_report_fixture(2),
+                "before",
+                missing
+            )
+            .is_err());
+            for fake in [json!(true), json!("0"), json!(0.0), json!(-1)] {
+                let mut invalid = counts.clone();
+                invalid[field] = fake;
+                assert!(record_goal_graph_checkpoint(
+                    0,
+                    "main",
+                    &mut graph_report_fixture(2),
+                    "before",
+                    invalid
+                )
+                .is_err());
+            }
+        }
+        for group in ["goal_readonly_database", "goal_execution_readonly_database"] {
+            let mut report = graph_report_fixture(2);
+            report.as_object_mut().unwrap().remove(group);
+            assert!(
+                record_goal_graph_checkpoint(0, "main", &mut report, "before", counts.clone())
+                    .is_err()
+            );
+        }
+        let mut report = graph_report_fixture(2);
+        assert!(
+            record_goal_graph_checkpoint(0, "main", &mut report, "after", counts.clone()).is_err()
+        );
+        record_goal_graph_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
+        let original = report.clone();
+        assert!(
+            record_goal_graph_checkpoint(0, "main", &mut report, "before", counts.clone()).is_err()
+        );
+        assert!(record_goal_graph_checkpoint(
+            0,
+            "main",
+            &mut report,
+            "after",
+            graph_counts_fixture(3)
+        )
+        .is_err());
+        assert_eq!(report, original);
+        record_goal_graph_checkpoint(0, "main", &mut report, "after", counts.clone()).unwrap();
+        let finished = report.clone();
+        assert!(record_goal_graph_checkpoint(0, "main", &mut report, "after", counts).is_err());
+        assert_eq!(report, finished);
+        let mut failed = graph_report_fixture(2);
+        failed["error"] = json!("original failure");
+        assert!(record_goal_graph_checkpoint(
+            0,
+            "main",
+            &mut failed,
+            "before",
+            graph_counts_fixture(2)
+        )
+        .is_err());
+    }
+    #[test]
+    fn graph_final_evidence_requires_independent_schema12_and_exact_core_denial() {
+        let mut report = graph_report_fixture(2);
+        let counts = graph_counts_fixture(2);
+        record_goal_graph_checkpoint(0, "main", &mut report, "before", counts.clone()).unwrap();
+        record_goal_graph_checkpoint(0, "main", &mut report, "after", counts).unwrap();
+        let result = graph_result_fixture(2);
+        validate_goal_graph_evidence(&result, &report).unwrap();
+        for field in [
+            "goalGraphLists",
+            "goalGraphMissingRunDenied",
+            "readonlyGoalGraphNoMutation",
+        ] {
+            for fake in [json!(false), json!("true"), json!(1), json!(null)] {
+                let mut changed = result.clone();
+                changed[field] = fake;
+                assert!(validate_goal_graph_evidence(&changed, &report).is_err());
+            }
+            let mut missing = result.clone();
+            missing.as_object_mut().unwrap().remove(field);
+            assert!(validate_goal_graph_evidence(&missing, &report).is_err());
+        }
+        for field in ["run_id", "code", "side_effect_state"] {
+            let mut missing = result.clone();
+            missing["goalGraphMissingRun"]
+                .as_object_mut()
+                .unwrap()
+                .remove(field);
+            assert!(validate_goal_graph_evidence(&missing, &report).is_err());
+        }
+        for (field, value) in [
+            ("run_id", json!("foreign")),
+            ("code", json!("PERMISSION_DENIED")),
+            ("side_effect_state", json!("unknown")),
+            ("result", json!({})),
+        ] {
+            let mut changed = result.clone();
+            changed["goalGraphMissingRun"][field] = value;
+            assert!(validate_goal_graph_evidence(&changed, &report).is_err());
+        }
+        let mut changed = report.clone();
+        changed["goal_graph_readonly_database"]["after"]["acceptance_count"] = json!(1);
+        assert!(validate_goal_graph_evidence(&result, &changed).is_err());
+        let mut changed = report.clone();
+        changed["goal_execution_readonly_database"]["before"]["schema_version"] = json!(11);
+        assert!(validate_goal_graph_evidence(&result, &changed).is_err());
+        let mut changed = report.clone();
+        changed["goal_readonly_database"]["before"]["scope_count"] = json!(1);
+        assert!(validate_goal_graph_evidence(&result, &changed).is_err());
+        let mut changed_report = report.clone();
+        let mut changed_result = result.clone();
+        for phase in ["before", "after"] {
+            changed_report["goal_graph_readonly_database"][phase]["sequence"] = json!(3);
+            changed_result["goalGraphReadonlySequence"][phase] = json!(3);
+        }
+        assert!(validate_goal_graph_evidence(&changed_result, &changed_report).is_err());
+    }
+    #[test]
+    fn graph_actual_private_daemon_empty_list_and_fixed_missing_get_are_readonly() {
+        let directory = private_fixture_runtime().unwrap();
+        let runtime = directory.path().canonicalize().unwrap();
+        let project = prepare_readonly_goal_project(&runtime).unwrap();
+        let daemon = ipc::Daemon::bind(&runtime).unwrap();
+        struct OwnedGraphDaemon {
+            stop: Arc<std::sync::atomic::AtomicBool>,
+            worker: Option<std::thread::JoinHandle<agentbaton_core::Result<()>>>,
+        }
+        impl Drop for OwnedGraphDaemon {
+            fn drop(&mut self) {
+                self.stop.store(true, Ordering::SeqCst);
+                if let Some(worker) = self.worker.take() {
+                    let _ = worker.join();
+                }
+            }
+        }
+        let stop = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let flag = stop.clone();
+        let _owned = OwnedGraphDaemon {
+            stop,
+            worker: Some(std::thread::spawn(move || daemon.run(flag))),
+        };
+        // Setup is outside the readonly interval; no Graph proposal/Owner/run.
+        let task = ipc::call(&runtime,json!({"method":"tasks.create","params":{"project_id":project,"goal":"Fresh readonly Graph fixture"},"idempotency_key":"readonly-graph-task"})).unwrap();
+        assert!(task.get("error").is_none(), "{task}");
+        let task_id = task["result"]["id"].as_str().unwrap();
+        let before = goal_graph_database_snapshot(&runtime).unwrap();
+        let old_before = goal_database_snapshot(&runtime).unwrap();
+        let execution_before = goal_execution_database_snapshot(&runtime).unwrap();
+        assert_eq!(before["schema_version"], 12);
+        let listed = ipc::call(
+            &runtime,
+            json!({"method":"goal_graph_runs.list","params":{"task_id":task_id}}),
+        )
+        .unwrap();
+        assert!(listed.get("error").is_none(), "{listed}");
+        assert_eq!(listed["result"], json!([]));
+        let missing = ipc::call(
+            &runtime,
+            json!({"method":"goal_graph_runs.get","params":{"run_id":MISSING_GOAL_GRAPH_RUN_ID}}),
+        )
+        .unwrap();
+        assert_eq!(missing["error"]["code"], "NOT_FOUND");
+        assert_eq!(missing["error"]["side_effect_state"], "not_started");
+        assert!(missing.get("result").is_none());
+        assert_eq!(goal_graph_database_snapshot(&runtime).unwrap(), before);
+        assert_eq!(goal_database_snapshot(&runtime).unwrap(), old_before);
+        assert_eq!(
+            goal_execution_database_snapshot(&runtime).unwrap(),
+            execution_before
+        );
+    }
+    #[test]
+    fn webcrypto_raw_vector_retains_utf8_and_unsafe_integer_literals() {
+        assert_eq!(WEBCRYPTO_INPUT.len() as u64, WEBCRYPTO_UTF8_BYTES);
+        assert!(WEBCRYPTO_INPUT.contains("1152921504606846979"));
+        assert!(WEBCRYPTO_INPUT.contains("18446744073709551615"));
+        assert_eq!(
+            WEBCRYPTO_SHA256,
+            "d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892"
+        );
+    }
+    #[test]
+    fn webcrypto_digest_algorithm_bytes_availability_and_types_fail_closed() {
+        let proof = webcrypto_expected("before");
+        validate_webcrypto(&proof, "before").unwrap();
+        for (field, value) in [
+            ("available", json!(false)),
+            ("available", json!(1)),
+            ("algorithm", json!("SHA-1")),
+            ("input_bytes", json!(108)),
+            ("input_bytes", json!("109")),
+            ("sha256", json!("0".repeat(64))),
+            ("input", json!("rounded JSON")),
+            ("version", json!(true)),
+            ("checkpoint", json!("after")),
+        ] {
+            let mut changed = proof.clone();
+            changed[field] = value;
+            assert!(validate_webcrypto(&changed, "before").is_err(), "{field}");
+        }
+        assert!(validate_webcrypto(&Value::Null, "before").is_err());
+        let mut extra = proof.clone();
+        extra["mocked"] = json!(true);
+        assert!(validate_webcrypto(&extra, "before").is_err());
+        for key in proof.as_object().unwrap().keys() {
+            let mut missing = proof.clone();
+            missing.as_object_mut().unwrap().remove(key);
+            assert!(validate_webcrypto(&missing, "before").is_err(), "{key}");
+        }
+    }
+    #[test]
+    fn webcrypto_checkpoint_order_and_context_cannot_be_mixed_or_replayed() {
+        let mut report = json!({});
+        assert!(
+            record_webcrypto_checkpoint(&mut report, "after", &webcrypto_expected("after"))
+                .is_err()
+        );
+        record_webcrypto_checkpoint(&mut report, "before", &webcrypto_expected("before")).unwrap();
+        assert!(
+            record_webcrypto_checkpoint(&mut report, "before", &webcrypto_expected("before"))
+                .is_err()
+        );
+        assert!(
+            record_webcrypto_checkpoint(&mut report, "after", &webcrypto_expected("before"))
+                .is_err()
+        );
+        record_webcrypto_checkpoint(&mut report, "after", &webcrypto_expected("after")).unwrap();
+        assert!(
+            record_webcrypto_checkpoint(&mut report, "after", &webcrypto_expected("after"))
+                .is_err()
+        );
+        validate_webcrypto_evidence(
+            &json!({"webCrypto":webcrypto_expected("first")}),
+            &report,
+            false,
+        )
+        .unwrap();
+        assert!(validate_webcrypto_evidence(
+            &json!({"webCrypto":webcrypto_expected("before")}),
+            &report,
+            false
+        )
+        .is_err());
+    }
+    #[test]
+    fn webcrypto_reopened_report_requires_its_own_tag_and_first_window_evidence() {
+        let mut report = json!({});
+        record_webcrypto_checkpoint(&mut report, "before", &webcrypto_expected("before")).unwrap();
+        record_webcrypto_checkpoint(&mut report, "after", &webcrypto_expected("after")).unwrap();
+        let second = json!({"webCrypto":webcrypto_expected("reopened")});
+        assert!(validate_webcrypto_evidence(&second, &report, true).is_err());
+        report["first_webview"] = json!({"webCrypto":webcrypto_expected("first")});
+        validate_webcrypto_evidence(&second, &report, true).unwrap();
+        report["webcrypto_checkpoints"]["before"] = webcrypto_expected("after");
+        assert!(validate_webcrypto_evidence(&second, &report, true).is_err());
     }
 }

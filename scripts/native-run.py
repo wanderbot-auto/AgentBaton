@@ -17,6 +17,40 @@ import sys
 import time
 
 
+WEBCRYPTO_INPUT = '{"text":"原文证据🔒","inode":1152921504606846979,"u64":9223372036854775809,"max":18446744073709551615}\n'
+WEBCRYPTO_UTF8_BYTES = 109
+WEBCRYPTO_SHA256 = "d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892"
+
+
+def webcrypto_expected(checkpoint):
+    return {'version': 1, 'checkpoint': checkpoint, 'available': True,
+            'source': 'window.crypto.subtle.digest', 'algorithm': 'SHA-256',
+            'encoding': 'UTF-8', 'input': WEBCRYPTO_INPUT,
+            'input_bytes': WEBCRYPTO_UTF8_BYTES, 'sha256': WEBCRYPTO_SHA256}
+
+
+def webcrypto_error(proof, checkpoint):
+    if (not isinstance(proof, dict) or proof.get('available') is not True
+            or type(proof.get('version')) is not int or type(proof.get('input_bytes')) is not int
+            or proof != webcrypto_expected(checkpoint)):
+        return 'native report lacks exact real WebView UTF-8 WebCrypto SHA-256 evidence'
+    return None
+
+
+def webcrypto_report_error(report):
+    checkpoints = report.get('webcrypto_checkpoints')
+    if not isinstance(checkpoints, dict) or set(checkpoints) != {'before', 'after'}:
+        return 'native report lacks complete ordered WebCrypto checkpoints'
+    proofs = [(checkpoints.get('before'), 'before'), (checkpoints.get('after'), 'after'),
+              (report['first_webview'].get('webCrypto'), 'first'),
+              (report['reopened_webview'].get('webCrypto'), 'reopened')]
+    for proof, checkpoint in proofs:
+        error = webcrypto_error(proof, checkpoint)
+        if error:
+            return error
+    return None
+
+
 def native_report_error(report):
     if report.get('status') != 'passed':
         return 'native report did not confirm success'
@@ -27,6 +61,9 @@ def native_report_error(report):
         values = report.get(section)
         if not isinstance(values, dict) or not all(values.get(field) is True for field in fields):
             return 'native report lacks required WebView/invoke evidence'
+    crypto_error = webcrypto_report_error(report)
+    if crypto_error:
+        return crypto_error
     task = report['first_webview'].get('taskId')
     if not isinstance(task, str) or not task or report['reopened_webview'].get('taskId') != task:
         return 'native report does not bind the same persisted task'
@@ -62,7 +99,7 @@ def native_report_error(report):
     if (not isinstance(start, dict) or set(start) != execution_fields
             or not isinstance(finish, dict) or set(finish) != execution_fields
             or any(type(value) is not int or value < 0 for value in [*start.values(), *finish.values()])
-            or start['schema_version'] != 11 or finish['schema_version'] != 11
+            or start['schema_version'] != 12 or finish['schema_version'] != 12
             or any(start[field] != 0 or finish[field] != 0 for field in ['run_count', 'node_count', 'reservation_count'])
             or start != finish):
         return 'native report Goal execution schema/counts/sequence changed or are incomplete'
@@ -76,6 +113,31 @@ def native_report_error(report):
     if (not isinstance(missing, dict) or set(missing) != {'run_id', 'code', 'side_effect_state'}
             or missing != {'run_id': 'native-readonly-missing-goal-run', 'code': 'NOT_FOUND', 'side_effect_state': 'not_started'}):
         return 'native report lacks the exact missing Goal run Core denial'
+    graph = report.get('goal_graph_readonly_database')
+    if any(flags.get(field) is not True for field in ['goalGraphLists', 'goalGraphMissingRunDenied', 'readonlyGoalGraphNoMutation']):
+        return 'native report lacks strict readonly Goal graph invoke evidence'
+    if not isinstance(graph, dict) or graph.get('read_only') is not True or graph.get('unchanged') is not True:
+        return 'native report lacks independent Goal graph database evidence'
+    graph_before, graph_after = graph.get('before'), graph.get('after')
+    graph_counts = {'capability_count', 'job_count', 'candidate_count', 'validation_count', 'owner_decision_count', 'acceptance_count'}
+    graph_fields = graph_counts | {'schema_version', 'sequence'}
+    if (not isinstance(graph_before, dict) or set(graph_before) != graph_fields
+            or not isinstance(graph_after, dict) or set(graph_after) != graph_fields
+            or any(type(value) is not int or value < 0 for value in [*graph_before.values(), *graph_after.values()])
+            or graph_before['schema_version'] != 12 or graph_after['schema_version'] != 12
+            or any(graph_before[field] != 0 or graph_after[field] != 0 for field in graph_counts)
+            or graph_before != graph_after):
+        return 'native report Goal graph schema/counts/sequence changed or are incomplete'
+    graph_sequence = flags.get('goalGraphReadonlySequence')
+    if (not isinstance(graph_sequence, dict) or set(graph_sequence) != {'before', 'after'}
+            or any(type(value) is not int for value in graph_sequence.values())
+            or graph_sequence['before'] != graph_before['sequence'] or graph_sequence['after'] != graph_after['sequence']
+            or graph_sequence != sequence or graph_sequence != execution_sequence):
+        return 'native report does not bind Goal graph and original Goal/execution intervals'
+    graph_missing = flags.get('goalGraphMissingRun')
+    if (not isinstance(graph_missing, dict) or set(graph_missing) != {'run_id', 'code', 'side_effect_state'}
+            or graph_missing != {'run_id': 'native-readonly-missing-goal-graph-run', 'code': 'NOT_FOUND', 'side_effect_state': 'not_started'}):
+        return 'native report lacks the exact missing Goal graph Core denial'
     for field in ['window_close_daemon_survived', 'second_writer_rejected', 'owned_daemon_restarted', 'owned_daemon_cleanup']:
         if report.get(field) is not True:
             return 'native report lacks required daemon lifecycle evidence'

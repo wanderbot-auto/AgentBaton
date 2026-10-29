@@ -1,0 +1,24 @@
+{
+  "actual_frozen_schema": 11,
+  "daemon_sha256": "d1099e7ee128d4cb5ea16668b7f5fbde83d482c4c6b11616fecf8775ea7e5f48",
+  "all_subprocess_audit_events": [],
+  "results": [
+    {
+      "script": "apps/desktop/tests/goal-execution-real-ipc.py",
+      "result": "expected schema11 preflight refusal",
+      "process_start_count": 0,
+      "runtime_evidence": false,
+      "script_sha256": "0ce135bd4ca07f5e4aca117bf1d57c9754da44eca56fd1add158597d0bdafe0f",
+      "trace_sha256": "e003bf48b767e637ede03bfcb5b824a626cf7653e1a7ee7ccb55920dd88e9010"
+    },
+    {
+      "script": "apps/desktop/tests/data-workspace-real-ipc.py",
+      "result": "expected schema11 preflight refusal",
+      "process_start_count": 0,
+      "runtime_evidence": false,
+      "script_sha256": "75108a947b237db13e47495d0ae2e0b176217361e7d4b37b9ceedafbed83e493",
+      "trace_sha256": "e1ca50b28f5bf413e3a15995dad3d585c009c23d02761ca700dd0d3b25f95345"
+    }
+  ],
+  "scope": "strict preflight negative only; no schema12 runtime/macOS/Graph acceptance"
+}

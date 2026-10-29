@@ -1,0 +1,16 @@
+{
+  "archive": "CORE_70A_REVIEW_EVIDENCE.tar.gz",
+  "sha256": "52e43d7e41199bc2a1aede6d2c7dc718dfc3074517705880bf25cc18db24d9f0",
+  "bytes": 89693,
+  "root": "final-independent/",
+  "original_manifest_sha256": "7564108900b142dbd73753637c750c99754261b1be1cf39715966472eb123a00",
+  "original_evidence_files": 24,
+  "manifest_included": true,
+  "all_evidence_roundtrip_sha256_verified": true,
+  "standalone_imports": {
+    "REVIEW.md": "CORE_70A_REVIEW.md",
+    "manifest.json": "CORE_70A_REVIEW_MANIFEST.json",
+    "test-counts.json": "CORE_70A_COUNTS.json"
+  },
+  "note": "Original report bytes retained. Its relative source/count/embedded/runtime references resolve inside this archive, not beside the standalone copied report."
+}

@@ -1,0 +1,1951 @@
+{
+  "schema": 1,
+  "sealed_at_utc": "2026-10-29T00:50:02.699720+00:00",
+  "feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+  "checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+  "tree": "32b2747d4541b7f09d05cf21332f6232b081d8a5",
+  "product_run": 40790894775,
+  "environment_run": 40790894815,
+  "jobs": {
+    "Environment": "3success",
+    "ProductLinux": "2success",
+    "ARM": "failure,bundling missing native_owner_dialog",
+    "Intel": "cancelled,official45minlimit"
+  },
+  "actual_native_and_Owner_both_arches": "passed dimensions, not overall CI acceptance",
+  "strict_schema": 12,
+  "original_zero_tables": 19,
+  "visual_review": {
+    "Owner_PNGs": 48,
+    "readonly_PNGs": 2,
+    "all_individually_viewed": true
+  },
+  "official_download_count": {
+    "arch_logs": 2,
+    "native_ZIPs": 2,
+    "development_ZIPs": 0,
+    "each_once": true
+  },
+  "archive_API_digest_CRC_safety_member_hashes_modes": "passed",
+  "source_snapshot_files": 23,
+  "old_failures_immutable": true,
+  "current_default_release_audit_development_installers_signature_install_acceptance": "skipped/no artifacts/not_run",
+  "monitor_exited": true,
+  "no_local_Cargo_target_source_STATUS_browser_daemon_Provider_credentials_remote_workflow_authority_mutations": true,
+  "formal_approval": false,
+  "reports": [
+    "ARM_REVIEW.md",
+    "INTEL_REVIEW.md",
+    "SUMMARY.md"
+  ],
+  "files": [
+    {
+      "path": "ARM_MANIFEST.json",
+      "bytes": 35824,
+      "mode": "0o600",
+      "sha256": "3f4d93f158168748b616fcc833eb5d37d96d735b24c74284bd3241b2c55b3923"
+    },
+    {
+      "path": "ARM_REVIEW.md",
+      "bytes": 7222,
+      "mode": "0o600",
+      "sha256": "150e8384554017d466ff9b4d9420a2d72b141cf933d40cc39a2e872954208cbf"
+    },
+    {
+      "path": "CHECKPOINT.json",
+      "bytes": 1635,
+      "mode": "0o600",
+      "sha256": "9d6f18081f25141371c7eda9224120f37e56c2306aae932ffd81971b62267576"
+    },
+    {
+      "path": "INTEL_MANIFEST.json",
+      "bytes": 36958,
+      "mode": "0o600",
+      "sha256": "a2319986506e23b7f069a008b314bd98b34122b97e874b174b5534280f49ec14"
+    },
+    {
+      "path": "INTEL_REVIEW.md",
+      "bytes": 7477,
+      "mode": "0o600",
+      "sha256": "74b69ceef9e9221d985e2d0ad75f302fad489e5a8b8c3310f783e4f1aee0f3fd"
+    },
+    {
+      "path": "SUMMARY.md",
+      "bytes": 5660,
+      "mode": "0o600",
+      "sha256": "eae25fe3707f8a128235a7c34196784e3bc06f8d47126cef6faf29caf252b4c5"
+    },
+    {
+      "path": "arm-artifacts-terminal.json",
+      "bytes": 2321,
+      "mode": "0o600",
+      "sha256": "a13ff94699da8b479bca28bfe3de23c9abed50b6c36d36207f98ad53d64cfa65"
+    },
+    {
+      "path": "arm-job-terminal.json",
+      "bytes": 4981,
+      "mode": "0o600",
+      "sha256": "b3433b340ac43499d36bd11fe8c2c0d7caefa0eb6b58334d707e1d387608e4fd"
+    },
+    {
+      "path": "arm-job.log",
+      "bytes": 405615,
+      "mode": "0o600",
+      "sha256": "182f1f85455cc97071181c3d5ec2ef8edd28e46b062fd97c10603d5105b5844d"
+    },
+    {
+      "path": "arm-native-artifact/lane.log",
+      "bytes": 3788,
+      "mode": "0o600",
+      "sha256": "c629956722dc6b0ddde7e76d0827f96c8b6a91137460e61da5df6c0e6e212664"
+    },
+    {
+      "path": "arm-native-artifact/native-run.log",
+      "bytes": 0,
+      "mode": "0o600",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "arm-native-artifact/native-runner.json",
+      "bytes": 359,
+      "mode": "0o600",
+      "sha256": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+    },
+    {
+      "path": "arm-native-artifact/native-screen.png",
+      "bytes": 173684,
+      "mode": "0o600",
+      "sha256": "3ddb092dd07c5d0d5d367954248479a266800e8430eafa51912e667a23282d9b"
+    },
+    {
+      "path": "arm-native-artifact/native-smoke.json",
+      "bytes": 5935,
+      "mode": "0o600",
+      "sha256": "f11fea13137a537277b7407c7da56acf3125976bb108ccbdf879845d69f1f3ab"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/after.json",
+      "bytes": 17426,
+      "mode": "0o600",
+      "sha256": "a70f01e7bec81bbee1d30456192defaa9413bf161779c45ec2e66515a1a7b4df"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/app-cleanup.json",
+      "bytes": 277,
+      "mode": "0o600",
+      "sha256": "314531cfd906c30a8b5067abccc262476bffc3a57f3530aab4587a6a7644c6ad"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0001-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0001-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "194e0765e3b2b4f68bdea702840ed84d9f37f347f59d50ebdc421467f50b7ed6"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0001-sheet-ready.json",
+      "bytes": 1288,
+      "mode": "0o600",
+      "sha256": "2730767b74c509b0aef6f110a3b8823a6d7599668209f1d47710900d24a14a69"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0001-sheet.png",
+      "bytes": 240501,
+      "mode": "0o600",
+      "sha256": "503d6b4253f06b1257101b7357dcc97e71787beead64734ba896b9dba6b3e57a"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0002-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0002-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "04da132e5f2f36608108f1c00d3c7529438399687cff30a4b9edbd7fca5214d0"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0002-sheet-ready.json",
+      "bytes": 1284,
+      "mode": "0o600",
+      "sha256": "f19af4cb09716d1c37a6f26ca18bee58f517baa2a53d07ad2dcaaf654b079ef6"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0002-sheet.png",
+      "bytes": 244133,
+      "mode": "0o600",
+      "sha256": "7ff8d4c19fd9e1271a76821f5e19d594d58aa924df93ae6df1b87971759c8ff2"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0003-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0003-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "cc4fccb57ce9e9db6937b918b4d59dddd06f3e5437868924aebd1f7cdf7b5dd9"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0003-sheet-ready.json",
+      "bytes": 1320,
+      "mode": "0o600",
+      "sha256": "033d7d60e33ba7d3bb4411206e3c7b96f56041db6cea50129f457d577806aa16"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0003-sheet.png",
+      "bytes": 241566,
+      "mode": "0o600",
+      "sha256": "3ce53bc99613eaaaa07a1e302b55567a0b8655136d7bac37d8eedfbb8e7450d8"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0004-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0004-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "f0795afed9b74f1c141046d315e3de5695f4b3d2d5541d993a83717c4de5c8e9"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0004-sheet-ready.json",
+      "bytes": 1337,
+      "mode": "0o600",
+      "sha256": "b02680f7c27844dff7a819b17037c58203c2d327d9f05d1fe2564c57d0365fa8"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0004-sheet.png",
+      "bytes": 241935,
+      "mode": "0o600",
+      "sha256": "63ce5ae1e59a3ab55e7e3055664e1d012d4f4cc4f76c30570abf138e42b84444"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0005-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0005-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "214f5a9dcfee0df563419829368f937a065d7bd66bdf08c2232ee0de38c57fa0"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0005-sheet-ready.json",
+      "bytes": 1324,
+      "mode": "0o600",
+      "sha256": "1f1287f831134607759d9290fd07c0abb13f563efaedd1dc9cdc8e96cd7665eb"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0005-sheet.png",
+      "bytes": 244889,
+      "mode": "0o600",
+      "sha256": "e506ca46bf4a74c9350fd2c5f095d6cea6dfca681fabd7a4b242d71c9b5bfe8f"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0006-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0006-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "daedd52dcbc9a4acf61c550a4bbdfb30faf1ff0851af5de6a022ac412195dbc9"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0006-sheet-ready.json",
+      "bytes": 1338,
+      "mode": "0o600",
+      "sha256": "4bf37a7356f39aadc4d8bf5e0595012f6d8988e71b340b9895a83098ba8f4ff7"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0006-sheet.png",
+      "bytes": 239729,
+      "mode": "0o600",
+      "sha256": "c3e3c6ae15c7320fa5a1843451665f6ec9fe38bfc01c65abb47a645d10693224"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0007-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0007-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "bbf4d3643a3e75b75b21a2ec125d50201fcf31a8b4353b0e4ca169a780d501e6"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0007-sheet-ready.json",
+      "bytes": 1323,
+      "mode": "0o600",
+      "sha256": "e01348b037e81d2004037a9f7d05879b5bb90fe2bc3142546f3ccb879caf0744"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0007-sheet.png",
+      "bytes": 243507,
+      "mode": "0o600",
+      "sha256": "818045e33dedf55b6ebb6e3f7fcd4d8d568a20e02595976913050e236500d3c6"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0008-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0008-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "436346371fd6f43748114263a35fb136431b5a6ff4606a24685f5f92e2263acf"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0008-sheet-ready.json",
+      "bytes": 1334,
+      "mode": "0o600",
+      "sha256": "6883ef7b6937515ebb67d75537bd2410d24304883a7af356759efefd7cd5ccb2"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0008-sheet.png",
+      "bytes": 241177,
+      "mode": "0o600",
+      "sha256": "ac365c96926d91e662c0e4256fb6aff58a902769643fbbace6049586af9e10cc"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0009-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0009-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "8524cde0e48783d977818424ee7046a1d9e5c1b4792a5f3adff6e210501a27c7"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0009-sheet-ready.json",
+      "bytes": 1328,
+      "mode": "0o600",
+      "sha256": "45d87574642d964f8ef112e2798f76794439a967d5a1fe880b2aee35f0bbb601"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0009-sheet.png",
+      "bytes": 242460,
+      "mode": "0o600",
+      "sha256": "a85cdd321f85163c758910b07358901c36d08fd8a6b56ad3462eb69912702c39"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0010-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0010-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "210520378d761d1e2b2bd0c81183fad053212b29707cb63516e71bc1491e46bc"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0010-sheet-ready.json",
+      "bytes": 1322,
+      "mode": "0o600",
+      "sha256": "0210e070f3f9f1164061e66fc554f7e487a4c50a55a5d2dd2e601a7e7d1d74bc"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0010-sheet.png",
+      "bytes": 240170,
+      "mode": "0o600",
+      "sha256": "0ac557187c25e08aafa3d320479178eefc35e81e0f1b7bc05757f506a4964afb"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0011-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0011-database-permit.json",
+      "bytes": 194,
+      "mode": "0o600",
+      "sha256": "7c38043b9552041fc969da6726118a448b9bc1946cc6b633d7a7173ef282549f"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0011-sheet-ready.json",
+      "bytes": 1070,
+      "mode": "0o600",
+      "sha256": "51430d995b96389ed59c584b05769f1103e626a8609f6673a15aae2e7a1c0429"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0011-sheet.png",
+      "bytes": 241038,
+      "mode": "0o600",
+      "sha256": "189c7763ab64c0b544ecc1124e8cddd8e28bcd71b3c2fec2e91c8afd7b1c2606"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0012-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0012-database-permit.json",
+      "bytes": 194,
+      "mode": "0o600",
+      "sha256": "5f02250d20400c0c68907d187172b8de55ede021ad5ecc479a402fdea93182cb"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0012-sheet-ready.json",
+      "bytes": 912,
+      "mode": "0o600",
+      "sha256": "c9906f8c53afd38fc000c71a2b595fe21002d895a3cde4d8a9177e21a490f4ab"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0012-sheet.png",
+      "bytes": 222098,
+      "mode": "0o600",
+      "sha256": "7441b4c7bd830f08976b49452c94f92bdb10815ee18383624dbdfbfdfe78c632"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-reply.json",
+      "bytes": 2275,
+      "mode": "0o600",
+      "sha256": "955281e3ee6159488e1852cc5a4017c29266ac8f67d89287e369e2d47b3b9a34"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/before.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/bootstrap-paths.json",
+      "bytes": 963,
+      "mode": "0o600",
+      "sha256": "d3921893b3efa271989f340b650cedfa56b3bdcb5f3a1d7b5baafdd161d904cd"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/bootstrap-state.json",
+      "bytes": 2570,
+      "mode": "0o600",
+      "sha256": "43040cf8ece6c0db59c4c8845dbe2ba6a3b511993c003699ed3a7839adb7d684"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0001-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0001-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "1cb7cc200de6e0330b6d58bcc2120288fac4ca355a778f6bd713f7f6f6cae1a7"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0001-sheet-ready.json",
+      "bytes": 1287,
+      "mode": "0o600",
+      "sha256": "dc863e29d0cca8e2c7ec9a2f982b887969f4e175fd009c819b3ae28d4e17d56b"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0001-sheet.png",
+      "bytes": 240862,
+      "mode": "0o600",
+      "sha256": "0e617cb649d6a2e326b7bdfd88698680c05d55fac1195a41b084dc495f72c2aa"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0002-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0002-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "47b38c245c569d385a1078d8e6e169669a0778eec2558df75e75d4d2f2c29db0"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0002-sheet-ready.json",
+      "bytes": 1283,
+      "mode": "0o600",
+      "sha256": "a9f82cabcbe7f99013ad8cb5c6755c5689e8340b87484664d52ba7a7d8433a43"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0002-sheet.png",
+      "bytes": 243314,
+      "mode": "0o600",
+      "sha256": "a95ea3f2f654948a09561ae377362559ae2ec906debcea45329cdde35aff9757"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0003-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0003-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "5cd3b59d6e4284334697cab9bade9b9ffeea12a6a6209ffdb1d153d322c5ebe1"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0003-sheet-ready.json",
+      "bytes": 1319,
+      "mode": "0o600",
+      "sha256": "2065f226f443568c1db1e4495e296d846ac342a51b6412793efd3067b51e820c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0003-sheet.png",
+      "bytes": 242043,
+      "mode": "0o600",
+      "sha256": "9a953d72d878ebe01643ea4d237f0c63da5deaa7c9a540009228cf075a250e81"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0004-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0004-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "ddc2365a68affb80e272efafcb237b2d3c615336b7172d6757368e40caed755d"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0004-sheet-ready.json",
+      "bytes": 1336,
+      "mode": "0o600",
+      "sha256": "5af4625e2754c4243c6e68a132d91d8db868920a8b8808b5e435914ad7877024"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0004-sheet.png",
+      "bytes": 241634,
+      "mode": "0o600",
+      "sha256": "da5587eff81064d98dc33c427216f7ffc93959c132201cf12f86593944091be3"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0005-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0005-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "200c9f3f9d17c9ac49e4e0cb5c63dae2894656975432a2607c32682332fe5374"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0005-sheet-ready.json",
+      "bytes": 1323,
+      "mode": "0o600",
+      "sha256": "5d2a367fe1e773943c1794f1a7b212cc6bf770bb4a8d13dc492b3a2769c118ef"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0005-sheet.png",
+      "bytes": 244554,
+      "mode": "0o600",
+      "sha256": "39ae944b6f53fefec0e2a7c7ead8064150c163d7962dc19e850a94c4262f982e"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0006-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0006-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "04e19be59ee05dec304d153f8d7ed60140cd6a8d3e5c81a29292053d1cf2b124"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0006-sheet-ready.json",
+      "bytes": 1337,
+      "mode": "0o600",
+      "sha256": "da5cf57ba651b917e93774f738810a5ad655c7e7437821cbc630a95e0770bc58"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0006-sheet.png",
+      "bytes": 240428,
+      "mode": "0o600",
+      "sha256": "b040a47dcf020c92565475f69516921b34ef10179a041cebba6b0a368c68f636"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0007-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0007-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "1f00456ceafe0dc822e95e95ab19208ac068253591b9633d422525c55de9dcaf"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0007-sheet-ready.json",
+      "bytes": 1322,
+      "mode": "0o600",
+      "sha256": "8219267272a9657e6086bcd41c6b583a4d399d352176f6b252a4a5357026196c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0007-sheet.png",
+      "bytes": 243842,
+      "mode": "0o600",
+      "sha256": "2f3ed4ab76aaeabd3ff58aeb6e41dc12819f181eb7625cd844c4541a4ed03aac"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0008-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0008-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "5ff9d4309dfe4fc85d390f7aafc5f96062cecd1eed5c54941df2cd7d1d716b55"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0008-sheet-ready.json",
+      "bytes": 1333,
+      "mode": "0o600",
+      "sha256": "fedb3c54139d7e5b337f4a28c5e232c6ea3c8a7fa85aa61840cad561ba4a11a1"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0008-sheet.png",
+      "bytes": 241391,
+      "mode": "0o600",
+      "sha256": "691f6152cfe255b9647dd0b935c366d6ab44a95b8daa160072bff7f106756b97"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0009-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0009-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "0132c83c7912a73c5704fe748655c3cb3b44240faeae52d419509a8a9313dbc8"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0009-sheet-ready.json",
+      "bytes": 1327,
+      "mode": "0o600",
+      "sha256": "fe2a95fcde264e87103701e99656a0ee6cbf082f3107080814b4311ebe16a032"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0009-sheet.png",
+      "bytes": 241971,
+      "mode": "0o600",
+      "sha256": "67cddddcdb8de3dbf4dd658fe2921a1e67aa8d615b87121c518263c9fab7e34f"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0010-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0010-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "2f3918a2c8be65478f266b20781e8029617b65216c5862279226de3fa8c136d0"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0010-sheet-ready.json",
+      "bytes": 1321,
+      "mode": "0o600",
+      "sha256": "c971af7604534dc99c9535073f6e7698740d2aedfc295cb56fc63e57dc18f28d"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0010-sheet.png",
+      "bytes": 240183,
+      "mode": "0o600",
+      "sha256": "0ae98b73054ee644f09288e97af762134ab74cf55ac534c1a26688774d76c28e"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0011-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0011-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "ce7f6f3fd735d7d9bc87a582463abffbbe9583e876f323132663209ac466d8c5"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0011-sheet-ready.json",
+      "bytes": 1069,
+      "mode": "0o600",
+      "sha256": "06e9a513130b2c994ab28f0b3c00c45c8f0270546fb3aee0a4f583a4e50b3079"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0011-sheet.png",
+      "bytes": 241960,
+      "mode": "0o600",
+      "sha256": "4565276f44de6cec7dce12164bf2440e0ad547d60197921f9e4b6c92a5e58378"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0012-before-click-database.json",
+      "bytes": 11223,
+      "mode": "0o600",
+      "sha256": "0b281744ca0c37cf860ee58612d304cc55cc01e81356bcd9dfb71b2f3a1f1b0c"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0012-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "31a2a40ff0d60c7fb299940efe4ef52dcac8a32f4af3064890b46380490c4a7e"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0012-sheet-ready.json",
+      "bytes": 911,
+      "mode": "0o600",
+      "sha256": "a0e0a303770b2539e91fc9d1402c4dc29f334cbc269b07bda8fabf669c80f193"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0012-sheet.png",
+      "bytes": 222807,
+      "mode": "0o600",
+      "sha256": "758f469dde98a612517c850d65721ab805caa9d3a8bb86d63418ff7a7c50900b"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-reply.json",
+      "bytes": 279,
+      "mode": "0o600",
+      "sha256": "edcd6c307a67294db25b3ae13727cf489b866a8d3731dd2702830576715cc3d7"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/core-bootstrap-transcript.json",
+      "bytes": 13931,
+      "mode": "0o600",
+      "sha256": "fc3a8c91b19c4470b6d82578c984d20926733f59e2dd381c6e0f6e7db3a144d5"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/daemon-cleanup.json",
+      "bytes": 350,
+      "mode": "0o600",
+      "sha256": "2f9ae61df2a8b7373243d7d5401538e820d28fd0714285a87cd4e7e8394ea49e"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/daemon-stderr.log",
+      "bytes": 104,
+      "mode": "0o600",
+      "sha256": "e2090cbac1ae66be5b6262cf63c434700dee45ba7761718610514aff4f864a61"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/daemon-stdout.log",
+      "bytes": 0,
+      "mode": "0o600",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/fixture.json",
+      "bytes": 13689,
+      "mode": "0o600",
+      "sha256": "1172679ca934b2e2868dd6be443388915f9740eca3b494d7c96e790918c5a91d"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/owner-dialog.json",
+      "bytes": 195,
+      "mode": "0o600",
+      "sha256": "96761112e3fc5297e3e96935a9b8c50da12c6fb6dde3f1dfb2a372f7b39e629b"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/result.json",
+      "bytes": 7145,
+      "mode": "0o600",
+      "sha256": "fcfd99a8f0ee02e8544d0fc6f1f09a1d942114bf49ab15a07e2d2f6877e33ad8"
+    },
+    {
+      "path": "arm-native-artifact-inventory.json",
+      "bytes": 29419,
+      "mode": "0o600",
+      "sha256": "c5245046a968858fbf3f92ce7b141721ba27e451802219cc93a10d01900a9347"
+    },
+    {
+      "path": "arm-native-artifact.zip",
+      "bytes": 5812472,
+      "mode": "0o600",
+      "sha256": "c92f2bb3869475ff90487d4d525ce427f7b9b507e1445c1fe64395606c844122"
+    },
+    {
+      "path": "arm-offline-audit.stderr",
+      "bytes": 0,
+      "mode": "0o600",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "arm-offline-audit.stdout",
+      "bytes": 331,
+      "mode": "0o600",
+      "sha256": "b9dbef4c1252bf1fae7fc815e3f6fea50a5b70ced0c8e6b982ce85c65aa67b0b"
+    },
+    {
+      "path": "arm-offline-native-audit.json",
+      "bytes": 1397,
+      "mode": "0o600",
+      "sha256": "faa580ec95932bfacde60c68c33fbabf41f2ef3c140697d59c3824ff819b4b5d"
+    },
+    {
+      "path": "arm-offline-native.stderr",
+      "bytes": 0,
+      "mode": "0o600",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "arm-offline-native.stdout",
+      "bytes": 1397,
+      "mode": "0o600",
+      "sha256": "faa580ec95932bfacde60c68c33fbabf41f2ef3c140697d59c3824ff819b4b5d"
+    },
+    {
+      "path": "arm-offline-page-audit.json",
+      "bytes": 33311,
+      "mode": "0o600",
+      "sha256": "e37de684fb14259530c6a30493a04e014eaefbe3d173a4a9a8b2371e78abebfc"
+    },
+    {
+      "path": "arm-visual-review.json",
+      "bytes": 7208,
+      "mode": "0o600",
+      "sha256": "6fe25bd2b4ec7d8dbaf44e03ef8a0d6d097183ec293dc2be73d71c4a027e7114"
+    },
+    {
+      "path": "audit_native.py",
+      "bytes": 2392,
+      "mode": "0o600",
+      "sha256": "c892d9d73cc68dfa9d8e6a24b3f3dc6088142eb8ad4feb57047da3a4e39bd276"
+    },
+    {
+      "path": "audit_package.py",
+      "bytes": 2600,
+      "mode": "0o600",
+      "sha256": "efd1f243fb2d13acf6a7208e95897f0ac00c222d20d9bb98a55754bdc9830d8f"
+    },
+    {
+      "path": "audit_saved.py",
+      "bytes": 9522,
+      "mode": "0o600",
+      "sha256": "2e6109c4af49a8e369893645c9472ac85d0975ab0b8dcb639bd6a582bb540988"
+    },
+    {
+      "path": "binding-api-reads.json",
+      "bytes": 525,
+      "mode": "0o600",
+      "sha256": "0cbc48617efd6881c5b482c769c87d6015f760f0dc8b9e992d85da7576b4f8cc"
+    },
+    {
+      "path": "checkout-candidate-api.json",
+      "bytes": 2660,
+      "mode": "0o600",
+      "sha256": "fa7a53b2ef0780f97a2f28f1b5f72104e865cd84af819a684618757b2ac6dbc2"
+    },
+    {
+      "path": "environment-jobs-initial.json",
+      "bytes": 11410,
+      "mode": "0o600",
+      "sha256": "8005d9a46e1f37d13f38c686e416f05f6e8658eac44c85818ced8de6f07d0aa7"
+    },
+    {
+      "path": "environment-run-initial.json",
+      "bytes": 13387,
+      "mode": "0o600",
+      "sha256": "3af3e85fa400e15417ee2cc3b72d7c64d9388e6009cc44bb528860fd32c6d4bd"
+    },
+    {
+      "path": "final-api-reads.json",
+      "bytes": 532,
+      "mode": "0o600",
+      "sha256": "69491d362452916d114eb35d359fd81bafe846561198f4a34aca0a9cc83532d5"
+    },
+    {
+      "path": "final-integrity-checks.json",
+      "bytes": 502,
+      "mode": "0o600",
+      "sha256": "c3d5eebcd4b7de43869f34b4b68a4c4ec40d1904c453e11043ae851483871ad5"
+    },
+    {
+      "path": "initial-api-reads.json",
+      "bytes": 1055,
+      "mode": "0o600",
+      "sha256": "31a6514c8aa5ad51cdcafb4bb7deba147ad6c05c7b8c005962b6aefdbaf43ba2"
+    },
+    {
+      "path": "intel-artifacts-terminal.json",
+      "bytes": 3095,
+      "mode": "0o600",
+      "sha256": "cbd2c403a74929bf932c3f11cad733199e5f8a4d4d1b35ef2ecf3ea1021918e6"
+    },
+    {
+      "path": "intel-audit_native-command.json",
+      "bytes": 292,
+      "mode": "0o600",
+      "sha256": "d3a53d6518f2a8b3443d1f0d2f28bb0a52d3cfc18c3bfbfc7ff4335dde8ae186"
+    },
+    {
+      "path": "intel-audit_native-command.stderr",
+      "bytes": 0,
+      "mode": "0o600",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "intel-audit_native-command.stdout",
+      "bytes": 1398,
+      "mode": "0o600",
+      "sha256": "61bd04d383eb33a5701233b7b1ae6c7f7b14723173c0a33a2122754cdc6c1b50"
+    },
+    {
+      "path": "intel-audit_saved-command.json",
+      "bytes": 291,
+      "mode": "0o600",
+      "sha256": "e347c99a82c5fe7127e1de33594b906b24ee358cc968300a17d03ffe841dee7e"
+    },
+    {
+      "path": "intel-audit_saved-command.stderr",
+      "bytes": 0,
+      "mode": "0o600",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "intel-audit_saved-command.stdout",
+      "bytes": 332,
+      "mode": "0o600",
+      "sha256": "47b17ec12808767a07a17aaba7bb79d60dccabd1b763c10df02055d07ea7db25"
+    },
+    {
+      "path": "intel-check-annotations.json",
+      "bytes": 1303,
+      "mode": "0o600",
+      "sha256": "f16a1032e28b53f8953d953cc5f5e4d03207cb52d16554f0aab8cd473f929166"
+    },
+    {
+      "path": "intel-job-terminal.json",
+      "bytes": 4997,
+      "mode": "0o600",
+      "sha256": "a6965f3f6a667004a9b3b3b62992ce62e3b64506836965781e2373f9f8b85c42"
+    },
+    {
+      "path": "intel-job.log",
+      "bytes": 419608,
+      "mode": "0o600",
+      "sha256": "06e29a7488dfa5afb7c34cb987b535511d47d2a310e587e2c532dbf37be731a3"
+    },
+    {
+      "path": "intel-native-artifact/lane.log",
+      "bytes": 3788,
+      "mode": "0o600",
+      "sha256": "213fc6f31320817d715b55b568068118997a94311a336d44745f883567d729a3"
+    },
+    {
+      "path": "intel-native-artifact/native-run.log",
+      "bytes": 0,
+      "mode": "0o600",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "intel-native-artifact/native-runner.json",
+      "bytes": 359,
+      "mode": "0o600",
+      "sha256": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0"
+    },
+    {
+      "path": "intel-native-artifact/native-screen.png",
+      "bytes": 231872,
+      "mode": "0o600",
+      "sha256": "ee3a6bdc08842144f54e9894178305acf1e1b0e526eb26ccc0ffe1a7fbec3480"
+    },
+    {
+      "path": "intel-native-artifact/native-smoke.json",
+      "bytes": 5934,
+      "mode": "0o600",
+      "sha256": "028bed5ca89d618046f3cce3ac0bdd1cdcdca81ab74e131aa923cf5e2cf7c762"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/after.json",
+      "bytes": 17445,
+      "mode": "0o600",
+      "sha256": "6976e651ac946550691dc778fc363baaf0fa93f89ab66e7051d10b6ea5d9df24"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/app-cleanup.json",
+      "bytes": 277,
+      "mode": "0o600",
+      "sha256": "4d67457d2386792b74deffa0a1b22bae96e66869ef33e0a9ce8b4ba91292890a"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0001-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0001-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "f3695f259cfa6e4ab30265a0e99c3d98010280e7e0e76d65691ac8802817d543"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0001-sheet-ready.json",
+      "bytes": 1288,
+      "mode": "0o600",
+      "sha256": "a4635fadbc148cd5f4b3252f5bf9e380716c66d91e1ea31902310a044f80496a"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0001-sheet.png",
+      "bytes": 277045,
+      "mode": "0o600",
+      "sha256": "6209024838aebbc9258334c43da117b0285a055c9b4177fb88da5cc08e9ea6b7"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0002-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0002-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "dd9afc3a66d50d1d4da7327dfa0ac84f1f338205faeede5de14e19d1fd4a08ea"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0002-sheet-ready.json",
+      "bytes": 1284,
+      "mode": "0o600",
+      "sha256": "44ac686365099e5e444ec537edb355f431811ac3aabfe4bd9c4052c1f9f23eba"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0002-sheet.png",
+      "bytes": 280405,
+      "mode": "0o600",
+      "sha256": "2bbd01802c5656396b828fae6da7073dccb013b71fbbafdf81abf980372a76ae"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0003-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0003-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "41a10d611ab49b508ff71f8cffce2e7f639123e5bdef605684cf9ae0bed38b2d"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0003-sheet-ready.json",
+      "bytes": 1320,
+      "mode": "0o600",
+      "sha256": "09c155362c393a2e3755e3c093da3c1249b5e0f1e83a4f734e3ef3d42a972559"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0003-sheet.png",
+      "bytes": 278887,
+      "mode": "0o600",
+      "sha256": "2b2ff1a037cd338e5a5246e09c4e9a06563ee15509db123315f110ac788d0897"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0004-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0004-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "5ea3f494b82a48692097ebc8afd83e2e7af32717711e2d2077c2f0d63a82be03"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0004-sheet-ready.json",
+      "bytes": 1337,
+      "mode": "0o600",
+      "sha256": "ea31387c7e4d7ddd47e34b8009bc99ff0c445677f7c7b51bad55bf5cda0601d7"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0004-sheet.png",
+      "bytes": 279941,
+      "mode": "0o600",
+      "sha256": "e5e41440ac21c26184fcd9010afd55a9009f152640c16c2c213cfcf600a901da"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0005-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0005-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "8c17b5e9dd3400cc50c828550273c5bd810daf384065e9f267c3631598ca8722"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0005-sheet-ready.json",
+      "bytes": 1324,
+      "mode": "0o600",
+      "sha256": "a5a2d6ba6dd39e0a79ad346976f5ef4773ba52fa023ba59a7d23ac119c23e261"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0005-sheet.png",
+      "bytes": 281183,
+      "mode": "0o600",
+      "sha256": "72f7fa09e33324a2cb691d4b696e17f7523ae9860c5a4d492a2616d3b9e276c1"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0006-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0006-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "5bb006f7678458a12c1031f2a1c4d0b37ae8274fa57efac14d19e80bf9ab06e2"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0006-sheet-ready.json",
+      "bytes": 1338,
+      "mode": "0o600",
+      "sha256": "d09345dc2488f2e0779463678bb91585d361423a0fd935cf63a360ec2fc2085f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0006-sheet.png",
+      "bytes": 277466,
+      "mode": "0o600",
+      "sha256": "39f791bfecad137855625a1d683c09ae2535b5dcae3de0647451010da126e19b"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0007-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0007-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "cb8ea2a79bcbf716e4dca60bb3516cfafeed49afe52493a0768390d97e22bf32"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0007-sheet-ready.json",
+      "bytes": 1323,
+      "mode": "0o600",
+      "sha256": "ee8d45ce22ebe3e7949b2f5d056825110728f24f85b0e0e63958866c079556b6"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0007-sheet.png",
+      "bytes": 281177,
+      "mode": "0o600",
+      "sha256": "1441fa41de2e77e5cb1072108050ef6d05f2bbadeb89a2ce95b35fd802d1d6b8"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0008-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0008-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "da6fd92f4ee0f7c93b0eb4085cabce1a18ec16df497554bcd518b43201168978"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0008-sheet-ready.json",
+      "bytes": 1334,
+      "mode": "0o600",
+      "sha256": "1ddb893e6fbb6d0393a4c0247b0345bab0b5034d480f7f503f589cdc06cce24a"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0008-sheet.png",
+      "bytes": 278401,
+      "mode": "0o600",
+      "sha256": "1324fac3f1aacfc7951ed548de43f95c435375fd7e6c9d9d450fdd024f996553"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0009-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0009-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "974cc654c151c967b3c4de9a025d31a60b4a260413d08cd644f5631599b7bc08"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0009-sheet-ready.json",
+      "bytes": 1325,
+      "mode": "0o600",
+      "sha256": "cf660a7e04457f2bd7965d97cffb7cbfbaa578692734ad6abaa69f3734a2de60"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0009-sheet.png",
+      "bytes": 279372,
+      "mode": "0o600",
+      "sha256": "d6d0b8777f2aa61338fbb0caeae55c390a4651dac0e16e2a8b350498e17e5392"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0010-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0010-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "fc4b01ab053b2c51fb514e46b6edc306597a9ef3641c1a002dd467fea60c6653"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0010-sheet-ready.json",
+      "bytes": 1324,
+      "mode": "0o600",
+      "sha256": "89f8582ec6313644d4b733051e9d653105ae7b696391fb78ca52bc47b2b892c0"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0010-sheet.png",
+      "bytes": 277343,
+      "mode": "0o600",
+      "sha256": "4c22f26009bae838a50e68ddf9b6323e3c48562cee61810923668ead005768b2"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0011-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0011-database-permit.json",
+      "bytes": 194,
+      "mode": "0o600",
+      "sha256": "d14ea832756c83b39bf534c278e8bdfc5c8364d238ce67efafbb55095840c93b"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0011-sheet-ready.json",
+      "bytes": 1075,
+      "mode": "0o600",
+      "sha256": "a78382e08334367681ecdb48db5ad0e98f6d4247f0676054f63159d0f2a422e0"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0011-sheet.png",
+      "bytes": 284260,
+      "mode": "0o600",
+      "sha256": "407cbd1c3153363ff1fdb24b43ed41015f2c3a6adda19acf1c094830c965651b"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0012-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0012-database-permit.json",
+      "bytes": 194,
+      "mode": "0o600",
+      "sha256": "016378e64850ec7557da46876563358db11de7e926565c6451b801877b946e34"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0012-sheet-ready.json",
+      "bytes": 912,
+      "mode": "0o600",
+      "sha256": "13b69a6f1223f9bd94b503eb0b0462d7b719b958929d7d2b3584639f8da9c822"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-page-0012-sheet.png",
+      "bytes": 259354,
+      "mode": "0o600",
+      "sha256": "6b1a69710f725a81f5c8d98994a4d1de3c10044cc78489aa2968cdf29dc9ce28"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/approve-reply.json",
+      "bytes": 2280,
+      "mode": "0o600",
+      "sha256": "29c6252cd65babc52354150b58c68a303de125b133e707e18d0031d073309646"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/before.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/bootstrap-paths.json",
+      "bytes": 963,
+      "mode": "0o600",
+      "sha256": "3e50b6aded9b7f5d0326de800da334055fb8b62590d820171f2422a2c37a9a26"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/bootstrap-state.json",
+      "bytes": 2570,
+      "mode": "0o600",
+      "sha256": "405cd26c6313335afb3ab82436d722443d49f4f14b1788fc46500cfde1f7c86e"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0001-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0001-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "4f0d6e80211a8f3bf273f41b8c0738018d6ec745314ff2eda0fcb19176018ff3"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0001-sheet-ready.json",
+      "bytes": 1287,
+      "mode": "0o600",
+      "sha256": "97205e5a74629ce99480a17224d8fe057235c775e3dccb580adaa2607f4d0ee2"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0001-sheet.png",
+      "bytes": 278144,
+      "mode": "0o600",
+      "sha256": "056e9f24bf27ac8513e0fa95f95212394c9a6bea7483fb9e159c8b33cb9d47a1"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0002-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0002-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "b5ca6b4595e9138a502d97c8ea75b6a522203492a69686009c8d4e38673abd83"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0002-sheet-ready.json",
+      "bytes": 1283,
+      "mode": "0o600",
+      "sha256": "c733eb89b1374bf2fe805d5ca84454ce473f97c3ca8b5256bfd8c3d7d0079b67"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0002-sheet.png",
+      "bytes": 280532,
+      "mode": "0o600",
+      "sha256": "627d23f77bedd785dc8f5369c7921961d1f2991699080f2d5d368159ab499e92"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0003-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0003-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "b4f3b85d117b28a642f46e051cb0b8cf3e145858290b99b2741abdfaf0a3bf81"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0003-sheet-ready.json",
+      "bytes": 1319,
+      "mode": "0o600",
+      "sha256": "c547b872cc3fed881713dc0667b3cbb80c12c78cf297d99aba06f37465c5dfdc"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0003-sheet.png",
+      "bytes": 278979,
+      "mode": "0o600",
+      "sha256": "c1a16d5f065a38d39c5d896fedd0302745a595e62afb5a972bf29cf60d257262"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0004-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0004-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "8f892e74e10acac03166de82c1f94d6df3dbd4405ae464bc61b7c4dcb0687978"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0004-sheet-ready.json",
+      "bytes": 1336,
+      "mode": "0o600",
+      "sha256": "cef83c9865684e297b91ca8a6f1aa55ade434ddfc038581c97ae738bc3ac2842"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0004-sheet.png",
+      "bytes": 279689,
+      "mode": "0o600",
+      "sha256": "83e7a162880f2a5451c716763ca2c0a6b580f82045f251d20ad89345333836fa"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0005-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0005-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "005dad521c7c19aeb5c5086e5581f3faac7efa19a92392e6064dbaad3c3cb44a"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0005-sheet-ready.json",
+      "bytes": 1323,
+      "mode": "0o600",
+      "sha256": "b7ce53db351b8915ad56fb26cbbd62fb98142f352c244b1db0c4dbe270e5dbbf"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0005-sheet.png",
+      "bytes": 281311,
+      "mode": "0o600",
+      "sha256": "e2bac91595d2f1be8f52748c739e34afe3ef8d63dcfe8b098c51ea8fd1ab9ea1"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0006-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0006-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "dce59f4ee4ddfbd55f1a00c089801fd488b69ccf2cfc4fd5e991720874134907"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0006-sheet-ready.json",
+      "bytes": 1337,
+      "mode": "0o600",
+      "sha256": "869f6e9d96c59f45125869505e6580eab62ad385c2e704013794b71811dc5d61"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0006-sheet.png",
+      "bytes": 277548,
+      "mode": "0o600",
+      "sha256": "db06ed2f0e6bac0238746f3b4085e063bae1eb6adb7b7cc0435ca26c425247f9"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0007-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0007-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "8c49fe4992f7550bc52c6850b4b60a5f3a00d76af31b083a421de712b324a396"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0007-sheet-ready.json",
+      "bytes": 1322,
+      "mode": "0o600",
+      "sha256": "d66070d12aa925cdc8287b76e7f887d8402f1ee513558ed425fdcddecc677566"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0007-sheet.png",
+      "bytes": 280444,
+      "mode": "0o600",
+      "sha256": "4c0431d68f61c903e9566968b8584774fa79ddb51156029524c10eb2d9ae368f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0008-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0008-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "ca242cf17467ce0153390585ada5c6eeae34b34e83aef4c5f1be59f559b4caed"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0008-sheet-ready.json",
+      "bytes": 1333,
+      "mode": "0o600",
+      "sha256": "73105859025d1e367087a1a1260d1912f1a7a011389cd3f76a65a61259988b75"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0008-sheet.png",
+      "bytes": 278446,
+      "mode": "0o600",
+      "sha256": "3e5b35c1b5868c191dc922dea66700ec3f26c435bac8e51a7bb15553d37c6add"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0009-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0009-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "59a59f0ed2643fb7cfa9d055fef9c412a6fd45d4663734f245e4c40678075dcd"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0009-sheet-ready.json",
+      "bytes": 1324,
+      "mode": "0o600",
+      "sha256": "eae008b952cc8533649a5c28d8a9524ff57d83916ed84034818288ffb5527ce9"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0009-sheet.png",
+      "bytes": 278927,
+      "mode": "0o600",
+      "sha256": "50ba8af3532e4f8e02375f47ffe61ce368ed69adee0dec4850c518432573905f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0010-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0010-database-permit.json",
+      "bytes": 192,
+      "mode": "0o600",
+      "sha256": "8aec90f9f701bede499f3234bef0311d4783c5b7fa094911f40c2c6dcf837cd9"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0010-sheet-ready.json",
+      "bytes": 1323,
+      "mode": "0o600",
+      "sha256": "91381f1ea81b6ea7ac5ca9631cc97c1eb23e74eb311ef2dec9242a8d8365ebbb"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0010-sheet.png",
+      "bytes": 277298,
+      "mode": "0o600",
+      "sha256": "82daeb30cc2a3785fb64640f98acc22e266551d089c0be23592e663d8f0bc03f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0011-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0011-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "4bbd864b1f7b865b2b761e9715d75b3ceddbfe95cc28bfda15025c15dead6dba"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0011-sheet-ready.json",
+      "bytes": 1074,
+      "mode": "0o600",
+      "sha256": "6b8de3be91bfe66e5ce8877d4f937a5191c020c41f64daa3d1671b357c19ed75"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0011-sheet.png",
+      "bytes": 284081,
+      "mode": "0o600",
+      "sha256": "fef1ad0157da5f88e7786a4162505e524aa11c65bc67c32cca07cde82f3a902b"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0012-before-click-database.json",
+      "bytes": 11232,
+      "mode": "0o600",
+      "sha256": "372d52b44f189925f80af60f96c0eef372bf7692a83f21a4d0a9abd7682b806f"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0012-database-permit.json",
+      "bytes": 193,
+      "mode": "0o600",
+      "sha256": "d45def3aa68f49edec5a5b1f32cb405a8ca8d7b449504054b6ae51af9e7f5098"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0012-sheet-ready.json",
+      "bytes": 911,
+      "mode": "0o600",
+      "sha256": "8540cca21d358c40c54939b191adb2801c700463afa00630a20cc52d810696a5"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-page-0012-sheet.png",
+      "bytes": 259945,
+      "mode": "0o600",
+      "sha256": "a8f4e741c2906c2dc82d93eda5dae9512784e3a6611b6494c6810a5314e56977"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/cancel-reply.json",
+      "bytes": 279,
+      "mode": "0o600",
+      "sha256": "edcd6c307a67294db25b3ae13727cf489b866a8d3731dd2702830576715cc3d7"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/core-bootstrap-transcript.json",
+      "bytes": 12099,
+      "mode": "0o600",
+      "sha256": "90fc64e64c2400e67c8eb6daaaaa27c32960e02449bd57925896e04fb7bae238"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/daemon-cleanup.json",
+      "bytes": 350,
+      "mode": "0o600",
+      "sha256": "cd2db066395692265332d6e28716706e595f261d6e03bda54f2a1f42221216fd"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/daemon-stderr.log",
+      "bytes": 104,
+      "mode": "0o600",
+      "sha256": "34d273f9a9ab406d3453ae6f36997907d607054d8e42777bc4ecfd8efe7e66a2"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/daemon-stdout.log",
+      "bytes": 0,
+      "mode": "0o600",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/fixture.json",
+      "bytes": 13701,
+      "mode": "0o600",
+      "sha256": "f710e556a058d97a16e37332b37691192dcfc4d196c9a4f1f6254bc8741cb04c"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/owner-dialog.json",
+      "bytes": 195,
+      "mode": "0o600",
+      "sha256": "96761112e3fc5297e3e96935a9b8c50da12c6fb6dde3f1dfb2a372f7b39e629b"
+    },
+    {
+      "path": "intel-native-artifact/owner-dialog/result.json",
+      "bytes": 7146,
+      "mode": "0o600",
+      "sha256": "d2b764f549f95c6b26cb656da998401c213a0ea8b87c1b7eaf9b4f605bf44a1e"
+    },
+    {
+      "path": "intel-native-artifact-inventory.json",
+      "bytes": 29425,
+      "mode": "0o600",
+      "sha256": "56aceade48ecc73863f08ffa71ba44f9f6a849a46039d62ed0ea7c0709c89682"
+    },
+    {
+      "path": "intel-native-artifact.zip",
+      "bytes": 6678867,
+      "mode": "0o600",
+      "sha256": "96606ed6b588225f6bdac3245e3ada8c4f0fbb30eda3d1d5557afbeb2de6df41"
+    },
+    {
+      "path": "intel-offline-native-audit.json",
+      "bytes": 1398,
+      "mode": "0o600",
+      "sha256": "61bd04d383eb33a5701233b7b1ae6c7f7b14723173c0a33a2122754cdc6c1b50"
+    },
+    {
+      "path": "intel-offline-page-audit.json",
+      "bytes": 33318,
+      "mode": "0o600",
+      "sha256": "9c64acb11b5ad0ef2b9414d840b6aaba29503c86de3cdd4c1ae52e2223eca894"
+    },
+    {
+      "path": "intel-visual-review.json",
+      "bytes": 7264,
+      "mode": "0o600",
+      "sha256": "42d30a40131cfea7fda8217147f5deff637fbb55d4971f5c2c6d032a4f49079c"
+    },
+    {
+      "path": "monitor-api-attempts.json",
+      "bytes": 6059,
+      "mode": "0o600",
+      "sha256": "b95c5c74cee2f9a70ff7731d09ffc767110ebaf43980754963a08c9fc9e1ea67"
+    },
+    {
+      "path": "monitor-complete.json",
+      "bytes": 130,
+      "mode": "0o600",
+      "sha256": "f34c643c40a9bd590617940d0f02ecb433f06850e73f3326e7df20a322615886"
+    },
+    {
+      "path": "monitor-started.json",
+      "bytes": 220,
+      "mode": "0o600",
+      "sha256": "be6613adbb0b41c89fe915c507434425533ff1590b1a7b70626451472eefd08a"
+    },
+    {
+      "path": "monitor-state.json",
+      "bytes": 125,
+      "mode": "0o600",
+      "sha256": "4c3336a393e100329430c7974b3a7f2cc50f396996a0e60c8f52d9735e757212"
+    },
+    {
+      "path": "monitor.log",
+      "bytes": 5450,
+      "mode": "0o600",
+      "sha256": "1a47a3b2740eaa46d35b0269ec412af7ee6990f49c3ee7a33647e5a789de52ef"
+    },
+    {
+      "path": "monitor.py",
+      "bytes": 6618,
+      "mode": "0o600",
+      "sha256": "1cbcdc433b89f358a2b47c65e5c43da73637dbf50d833850cab425267c4c3772"
+    },
+    {
+      "path": "pr-binding.json",
+      "bytes": 19214,
+      "mode": "0o600",
+      "sha256": "f85d1a9def458b6239d5605427f846e657c04c5d668e87f4ca8665ff902976dc"
+    },
+    {
+      "path": "product-jobs-initial.json",
+      "bytes": 13253,
+      "mode": "0o600",
+      "sha256": "a6b16aab49702abee782b19e4852323c9743f28c8a6b925dc883fa3a4e756bad"
+    },
+    {
+      "path": "product-jobs-stage-01.json",
+      "bytes": 13836,
+      "mode": "0o600",
+      "sha256": "d16f350a50ee542acbed8dcd76120d4f8b185eb782dc15b81f4f9c0a1657bde9"
+    },
+    {
+      "path": "product-jobs-stage-02.json",
+      "bytes": 14161,
+      "mode": "0o600",
+      "sha256": "5f63b8a2212fedf58aa6e6a86f526a8be9a57e2e268f4046343c1b2f543057f2"
+    },
+    {
+      "path": "product-jobs-stage-03.json",
+      "bytes": 14161,
+      "mode": "0o600",
+      "sha256": "5f63b8a2212fedf58aa6e6a86f526a8be9a57e2e268f4046343c1b2f543057f2"
+    },
+    {
+      "path": "product-jobs-stage-04.json",
+      "bytes": 14161,
+      "mode": "0o600",
+      "sha256": "5f63b8a2212fedf58aa6e6a86f526a8be9a57e2e268f4046343c1b2f543057f2"
+    },
+    {
+      "path": "product-jobs-stage-05.json",
+      "bytes": 14333,
+      "mode": "0o600",
+      "sha256": "a1890b2bf595f829560f0ed66cb63105927ffcf427c0d992409e85d51be301dd"
+    },
+    {
+      "path": "product-jobs-stage-06.json",
+      "bytes": 14744,
+      "mode": "0o600",
+      "sha256": "794478e63382335d01de829fb426a4d5baee9c1ecd2d59fdfa26a8780d545805"
+    },
+    {
+      "path": "product-jobs-stage-07.json",
+      "bytes": 14916,
+      "mode": "0o600",
+      "sha256": "df747529dfed2810b1c8922a56786b1a544acf5a368a0dbf6dde3bd5b4a92d16"
+    },
+    {
+      "path": "product-jobs-stage-08.json",
+      "bytes": 14916,
+      "mode": "0o600",
+      "sha256": "df747529dfed2810b1c8922a56786b1a544acf5a368a0dbf6dde3bd5b4a92d16"
+    },
+    {
+      "path": "product-jobs-stage-09.json",
+      "bytes": 15331,
+      "mode": "0o600",
+      "sha256": "1715dd81a4c9bfdf4e321045339107ad3fda82cf25e3fca53e25dbabdf2e1d43"
+    },
+    {
+      "path": "product-run-final.json",
+      "bytes": 13350,
+      "mode": "0o600",
+      "sha256": "28ff9f8decf24932b3f81fd99f6220aad27d5124e556e82d8072326dec1d4390"
+    },
+    {
+      "path": "product-run-initial.json",
+      "bytes": 13347,
+      "mode": "0o600",
+      "sha256": "7ef890415284740e35b597aaf2d9006d5faace22fd4338e42a68b07398117f76"
+    },
+    {
+      "path": "seal.py",
+      "bytes": 11587,
+      "mode": "0o600",
+      "sha256": "7ce352c42814444167a18f933ae45182edb90e17274f3666326a3b598f86775c"
+    },
+    {
+      "path": "source-capture-note.json",
+      "bytes": 966,
+      "mode": "0o600",
+      "sha256": "bca2d23ba26cf9e22f91d187408adf82ac09e953c48c85b615e228c563b7365e"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 4238,
+      "mode": "0o600",
+      "sha256": "032e0bcd9f39dbc13fdf8c4d3bb0d61aa5da3e9d67775a382244673bd508d3fb"
+    },
+    {
+      "path": "source-snapshot/.github/workflows/product.yml",
+      "bytes": 10965,
+      "mode": "0o600",
+      "sha256": "55bd07391841f62a3530d25fb6e436d42957a56c4870baa0caaafb9be29a5d60"
+    },
+    {
+      "path": "source-snapshot/AGENTS.md",
+      "bytes": 6137,
+      "mode": "0o600",
+      "sha256": "623b044437d8e0caa4174e7dd7ac3fef6597c34a67e49bc0a22b9f58ad2c05ab"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/Cargo.lock",
+      "bytes": 112700,
+      "mode": "0o600",
+      "sha256": "4fd256434d2bb3c0903919bc6474f8a3712be2a27eab1651d42e63f7b876a93c"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/Cargo.toml",
+      "bytes": 1674,
+      "mode": "0o600",
+      "sha256": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/approval.rs",
+      "bytes": 133900,
+      "mode": "0o600",
+      "sha256": "9e5e68431d43a3435f539bac465af998fe300457984ea953a2d402c982399983"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs",
+      "bytes": 13526,
+      "mode": "0o600",
+      "sha256": "0fc0d4477e7a9b1eb17611d6729b1bee21893b1391198ce151289ef4d2ebdb04"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs",
+      "bytes": 29153,
+      "mode": "0o600",
+      "sha256": "613fb2c8993a3640bec486b88a3534e3efddcd171e99d366d5a96ee364528361"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs",
+      "bytes": 760,
+      "mode": "0o600",
+      "sha256": "553b4bd415dd6a794256bf02d4f460ec0f276660ee25eb87472e33c30ab87d19"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "bytes": 108637,
+      "mode": "0o600",
+      "sha256": "93777843bb2d5caf7eac5e42a569a859d5f04153896d0e53c1baee771d370d82"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/lib.rs",
+      "bytes": 44420,
+      "mode": "0o600",
+      "sha256": "b1889f27230fa1612fd4fac3fa5210d15dbc54ac3506dab7b8b8637dc6c28c0d"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/src/native_parent.rs",
+      "bytes": 25419,
+      "mode": "0o600",
+      "sha256": "6808c8202fd7ef1593f2e449124119289fcab60fb8317624a4a08597958758ae"
+    },
+    {
+      "path": "source-snapshot/apps/desktop/src-tauri/tauri.conf.json",
+      "bytes": 1218,
+      "mode": "0o600",
+      "sha256": "ef186a4ea2196f98306259c85577fae86dea20044cb448c16a2eabf336c42ed9"
+    },
+    {
+      "path": "source-snapshot/codex/GOAL.md",
+      "bytes": 1723,
+      "mode": "0o600",
+      "sha256": "cbb97a4c11f83cd26ca4f0c2f38c0d9c03d8a11b4cfb8eaadda49f132e27405e"
+    },
+    {
+      "path": "source-snapshot/crates/core/src/policy.rs",
+      "bytes": 46540,
+      "mode": "0o600",
+      "sha256": "f281c45c5f5057b5f6c83b35eda5129444ebdde625e42962f4a8183f7d3b7ae9"
+    },
+    {
+      "path": "source-snapshot/crates/core/src/sessions.rs",
+      "bytes": 78021,
+      "mode": "0o600",
+      "sha256": "0e5ebc08c7894ab9ffb667b9106a3dadce1fe05837c753d1de73662711d52fc2"
+    },
+    {
+      "path": "source-snapshot/docs/execution/DEVELOPMENT_ACCEPTANCE.md",
+      "bytes": 1972,
+      "mode": "0o600",
+      "sha256": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d"
+    },
+    {
+      "path": "source-snapshot/docs/execution/OWNER_INBOX.md",
+      "bytes": 2985,
+      "mode": "0o600",
+      "sha256": "094a77884272d0919bece0654237419f2d226a9245e7d826e0891a8f661f811f"
+    },
+    {
+      "path": "source-snapshot/docs/execution/launch/APPROVAL.md",
+      "bytes": 3389,
+      "mode": "0o600",
+      "sha256": "51aee038d99545f3c6899ee0424c7717124464c80e254cb35487569972dedbc8"
+    },
+    {
+      "path": "source-snapshot/infra/execution-gate.json",
+      "bytes": 1786,
+      "mode": "0o600",
+      "sha256": "313c96753ddd8f89d8a69e58428f834596f3059b0d0a41996dc1059ea8170e7e"
+    },
+    {
+      "path": "source-snapshot/scripts/native-audit-release.sh",
+      "bytes": 859,
+      "mode": "0o600",
+      "sha256": "dd60a45803ebc66c8dc5a19bba24da35b6e20716589b332314c7d1ecc4fa52d0"
+    },
+    {
+      "path": "source-snapshot/scripts/native-owner-dialog-smoke.py",
+      "bytes": 35654,
+      "mode": "0o600",
+      "sha256": "84856cca91aaaa00e5a7f6c3ac5d5dabca63b8d470328c7959730e9510966877"
+    },
+    {
+      "path": "source-snapshot/scripts/native-run.py",
+      "bytes": 17595,
+      "mode": "0o600",
+      "sha256": "8fa23e107fe92542b95fc5d398aa38a20236d29b2e3fbbe7eb87b92efb0197c1"
+    },
+    {
+      "path": "source-snapshot/scripts/package-development-macos.sh",
+      "bytes": 1097,
+      "mode": "0o600",
+      "sha256": "5f2234ec7e50d5a6d7dd71d22d4115b85d2a74c6f653b32877fd715a029e33d6"
+    }
+  ]
+}

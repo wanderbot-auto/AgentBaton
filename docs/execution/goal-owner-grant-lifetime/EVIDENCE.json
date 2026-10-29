@@ -1,0 +1,656 @@
+{
+  "schema_version": 1,
+  "unit": "goal-owner-grant-lifetime",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "state": "test_fixture_lifecycle_fix_local_targeted_pass_not_Mac_verified",
+  "snapshot_path": "/workspace/.onboarding/goal-owner-grant-lifetime/SOURCE_SNAPSHOT.json",
+  "snapshot_sha256": "e6d7776bc84963465d12e978bcf0f86ef0b0ee81289c552832bff7cf5acb86ea",
+  "source_commit": "5dc9b195e0d4fc21e06cd66ea7db27e32e545131",
+  "base": "2ceaa608d87b20e20e72068e4a143ab8e4126e48",
+  "source_sha256": "432b0f8dda5b997e694b842ee07ed13c4395c5a28686d04db97df1492c953b1e",
+  "normalization": {
+    "base": "2ceaa608d87b20e20e72068e4a143ab8e4126e48",
+    "original_source_sha256": "227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b",
+    "current_source_sha256": "432b0f8dda5b997e694b842ee07ed13c4395c5a28686d04db97df1492c953b1e",
+    "inverse_normalized_sha256": "227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b",
+    "byte_equal": true,
+    "all_original54_other_test_bodies_and_all_shared_helpers_default_thresholds_unchanged": true,
+    "target_original_assertions_body_restored_byte_equal": true,
+    "inverse_actions": [
+      "remove dedicated readonly trace helper and new original10 expiry control",
+      "remove target trace-only calls, read-only plan retrieval and added fixed budget assertions",
+      "restore target30_000 encloser to10_000; unwrap exact same approvals.finalize through original approve helper"
+    ],
+    "production_change": false
+  },
+  "tracked_materialized_files_before_after": 179,
+  "only_changed_materialized_file": [
+    "crates/core/tests/sessions_ipc.rs"
+  ],
+  "no_production_lock_schema_CI_Native_other_tree_changes": true,
+  "diagnosis": {
+    "actual_Intel_case": "exact approvals.finalize after first Owner committed; PERMISSION_DENIED/revoked-or-expired/not_started; absolute expiry/revoked/clock not in original target log",
+    "duration_from_adjacent_test_markers_seconds": 13.527924,
+    "native_historical_root_cause": "not proven. Local data proves lifetime starts at Grant approval, Scope/Owner never refresh it, and actual original expiry denies. It does not reproduce Intel or establish historical wall-clock behavior.",
+    "fixture_difference": "only target initial Native encloser10000\u219230000; Graph root/project10000 and all4 node budget5000/reservation4000 asserted; default other54 scenarios unchanged"
+  },
+  "ci_originals": {
+    "/workspace/.onboarding/pr16-2ceaa-review/intel-job.log": {
+      "sha256": "1be4907c5cef11be606e6354ae950610091a391eda77b5785b45bef9e81c5c72",
+      "bytes": 275616
+    },
+    "/workspace/.onboarding/pr16-2ceaa-review/INTEL_FAILURE.json": {
+      "sha256": "34365912606a8507c0bf7ef3c14fcf73963684a8ab878d64265dd8dcdf23fb5d",
+      "bytes": 11895
+    },
+    "/workspace/.onboarding/pr16-2ceaa-review/INTEL_REVIEW.md": {
+      "sha256": "83aee943df5047d42d8fe657c9ad72111890ac5456aa452ac7d3c2ed45bbd87e",
+      "bytes": 3019
+    }
+  },
+  "commands": {
+    "original10-normal-manifests-result.json": {
+      "name": "original10-normal-manifests",
+      "exit_code": 0,
+      "elapsed_seconds": 20.01,
+      "interruption": null,
+      "disk_samples": [
+        {
+          "elapsed": 0.0,
+          "free_bytes": 313573376
+        },
+        {
+          "elapsed": 0.5,
+          "free_bytes": 328302592
+        },
+        {
+          "elapsed": 1.0,
+          "free_bytes": 327491584
+        },
+        {
+          "elapsed": 1.5,
+          "free_bytes": 330866688
+        },
+        {
+          "elapsed": 2.0,
+          "free_bytes": 331354112
+        },
+        {
+          "elapsed": 2.5,
+          "free_bytes": 326127616
+        },
+        {
+          "elapsed": 3.0,
+          "free_bytes": 378400768
+        },
+        {
+          "elapsed": 3.5,
+          "free_bytes": 373268480
+        },
+        {
+          "elapsed": 4.0,
+          "free_bytes": 373268480
+        },
+        {
+          "elapsed": 4.5,
+          "free_bytes": 373268480
+        },
+        {
+          "elapsed": 5.0,
+          "free_bytes": 373268480
+        },
+        {
+          "elapsed": 5.5,
+          "free_bytes": 373268480
+        },
+        {
+          "elapsed": 6.0,
+          "free_bytes": 373268480
+        },
+        {
+          "elapsed": 6.5,
+          "free_bytes": 373268480
+        },
+        {
+          "elapsed": 7.0,
+          "free_bytes": 373268480
+        },
+        {
+          "elapsed": 7.5,
+          "free_bytes": 373268480
+        },
+        {
+          "elapsed": 8.0,
+          "free_bytes": 367300608
+        },
+        {
+          "elapsed": 8.5,
+          "free_bytes": 367300608
+        },
+        {
+          "elapsed": 9.0,
+          "free_bytes": 375500800
+        },
+        {
+          "elapsed": 9.51,
+          "free_bytes": 368099328
+        },
+        {
+          "elapsed": 10.01,
+          "free_bytes": 363339776
+        },
+        {
+          "elapsed": 10.51,
+          "free_bytes": 355270656
+        },
+        {
+          "elapsed": 11.01,
+          "free_bytes": 347222016
+        },
+        {
+          "elapsed": 11.51,
+          "free_bytes": 327536640
+        },
+        {
+          "elapsed": 12.01,
+          "free_bytes": 327536640
+        },
+        {
+          "elapsed": 12.51,
+          "free_bytes": 327536640
+        },
+        {
+          "elapsed": 13.01,
+          "free_bytes": 325214208
+        },
+        {
+          "elapsed": 13.51,
+          "free_bytes": 330870784
+        },
+        {
+          "elapsed": 14.01,
+          "free_bytes": 330870784
+        },
+        {
+          "elapsed": 14.51,
+          "free_bytes": 330838016
+        },
+        {
+          "elapsed": 15.01,
+          "free_bytes": 330833920
+        },
+        {
+          "elapsed": 15.51,
+          "free_bytes": 330825728
+        },
+        {
+          "elapsed": 16.01,
+          "free_bytes": 330809344
+        },
+        {
+          "elapsed": 16.51,
+          "free_bytes": 330805248
+        },
+        {
+          "elapsed": 17.01,
+          "free_bytes": 330805248
+        },
+        {
+          "elapsed": 17.51,
+          "free_bytes": 330805248
+        },
+        {
+          "elapsed": 18.01,
+          "free_bytes": 330801152
+        },
+        {
+          "elapsed": 18.51,
+          "free_bytes": 330752000
+        },
+        {
+          "elapsed": 19.01,
+          "free_bytes": 330747904
+        },
+        {
+          "elapsed": 19.51,
+          "free_bytes": 330747904
+        }
+      ],
+      "log_sha256": "864cc9c5151fffee831cdca54a5831c388049499cc57ff4b774ec8dfa98a116a"
+    },
+    "original10-normal-result.json": {
+      "name": "original10-normal",
+      "exit_code": 101,
+      "elapsed_seconds": 0.5,
+      "interruption": null,
+      "disk_samples": [
+        {
+          "elapsed": 0.0,
+          "free_bytes": 313647104
+        }
+      ],
+      "log_sha256": "cfee9da0e74a9ce737b13958ed60d02617cff70464b2892366d6c27a91d8ff68"
+    },
+    "new30-normal-result.json": {
+      "name": "new30-normal",
+      "exit_code": 0,
+      "elapsed_seconds": 8.5,
+      "interruption": null,
+      "disk_samples": [
+        {
+          "elapsed": 0.0,
+          "free_bytes": 415690752
+        },
+        {
+          "elapsed": 0.5,
+          "free_bytes": 415690752
+        },
+        {
+          "elapsed": 1.0,
+          "free_bytes": 415690752
+        },
+        {
+          "elapsed": 1.5,
+          "free_bytes": 413913088
+        },
+        {
+          "elapsed": 2.0,
+          "free_bytes": 425607168
+        },
+        {
+          "elapsed": 2.5,
+          "free_bytes": 415690752
+        },
+        {
+          "elapsed": 3.0,
+          "free_bytes": 415686656
+        },
+        {
+          "elapsed": 3.5,
+          "free_bytes": 415662080
+        },
+        {
+          "elapsed": 4.0,
+          "free_bytes": 415657984
+        },
+        {
+          "elapsed": 4.5,
+          "free_bytes": 415645696
+        },
+        {
+          "elapsed": 5.0,
+          "free_bytes": 415645696
+        },
+        {
+          "elapsed": 5.5,
+          "free_bytes": 415645696
+        },
+        {
+          "elapsed": 6.0,
+          "free_bytes": 415645696
+        },
+        {
+          "elapsed": 6.5,
+          "free_bytes": 415641600
+        },
+        {
+          "elapsed": 7.0,
+          "free_bytes": 415592448
+        },
+        {
+          "elapsed": 7.5,
+          "free_bytes": 415592448
+        },
+        {
+          "elapsed": 8.0,
+          "free_bytes": 415588352
+        }
+      ],
+      "log_sha256": "00d847f6c9124accd2d3246d41a0f537f201c9a1ad8a20c7a9fda7ed6f78834e"
+    },
+    "original10-expired-manifests-result.json": {
+      "name": "original10-expired-manifests",
+      "exit_code": 0,
+      "elapsed_seconds": 11.01,
+      "interruption": null,
+      "disk_samples": [
+        {
+          "elapsed": 0.0,
+          "free_bytes": 330739712
+        },
+        {
+          "elapsed": 0.5,
+          "free_bytes": 330735616
+        },
+        {
+          "elapsed": 1.0,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 1.5,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 2.0,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 2.5,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 3.0,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 3.5,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 4.0,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 4.5,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 5.0,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 5.5,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 6.0,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 6.5,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 7.0,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 7.5,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 8.0,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 8.5,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 9.0,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 9.51,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 10.01,
+          "free_bytes": 330731520
+        },
+        {
+          "elapsed": 10.51,
+          "free_bytes": 330731520
+        }
+      ],
+      "log_sha256": "8e78039592dd76fb0b1e77906b3f769f290b8bd496dfd7068f276ebb5c1c82ab"
+    }
+  },
+  "local_unique_cases": 2,
+  "runs_not_additive": "original10 normal1PASS + new30 same normal1PASS count once; original10 expiry1PASS is new distinct negative",
+  "local_observations": {
+    "old10_normal": {
+      "harness_seconds": 6.34,
+      "first_Owner_remaining_before_after_ms": [
+        8353,
+        8127
+      ],
+      "second_Owner_remaining_before_after_ms": [
+        6251,
+        5953
+      ],
+      "revoked": false,
+      "parent_id": null,
+      "expiry_unchanged": true,
+      "UTC_monotonic_delta_ms": "0..1"
+    },
+    "old10_expired": {
+      "harness_seconds": 10.63,
+      "remaining_ms": -8,
+      "revoked": false,
+      "parent_id": null,
+      "exact_error": "PERMISSION_DENIED",
+      "side_effect_state": "not_started",
+      "new_attempt_session_intent_lease_reservation_key_event": false
+    },
+    "new30_normal": {
+      "harness_seconds": 6.28,
+      "first_Owner_remaining_before_after_ms": [
+        28416,
+        28198
+      ],
+      "second_Owner_remaining_before_after_ms": [
+        26314,
+        25999
+      ],
+      "revoked": false,
+      "parent_id": null,
+      "expiry_unchanged": true,
+      "UTC_monotonic_delta_ms": "1"
+    }
+  },
+  "limits_unchanged": [
+    "Graph root/project10000ms",
+    "node5000ms",
+    "reservation4000ms",
+    "all original1500ms commands/5s observers",
+    "all original safety/Owner/acceptance/candidate/consumption assertions"
+  ],
+  "environment": {
+    "CARGO_HOME": "/workspace/.toolchains/cargo",
+    "RUSTUP_HOME": "/workspace/.toolchains/rustup",
+    "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_BUILD_JOBS": "2",
+    "RUST_TEST_THREADS": "1",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "schema_sanity": 12,
+  "no_new_app_binary_build_or_Native_stage": "commands target core sessions_ipc only; original13.45s build compiled config/providers/workspaces/core, not daemon/CLI",
+  "preserved_nonruntime_failure": "first sparse run failed workspace manifest load before compilation/tests; original daemon/CLI files checked out unchanged to satisfy workspace parsing",
+  "not_run": [
+    "new exact macOS Intel/ARM candidate",
+    "whole56 sessions suite/workspace at finalsource",
+    "final-source Clippy/cargo fmt",
+    "real Provider/accounts/model/paid resources/NativeGUI"
+  ],
+  "artifacts": {
+    "/workspace/.onboarding/goal-owner-grant-lifetime/original10-normal-manifests-start.json": {
+      "sha256": "9269f858bb15849c82b79c545cdf9decbb0b7150a6e7d951737a9bd7ac754d73",
+      "bytes": 831
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/original10-normal-manifests-result.json": {
+      "sha256": "17e1f7f196a0ab577a56af3685acef84a90a209712c61e52ce7c7d9620268e5b",
+      "bytes": 2863
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/original10-normal-result.json": {
+      "sha256": "f84f10e9708eaf8a8d5b3abadcf5efe351dd2bc8d55adb1589fedcbbcba2c6ad",
+      "bytes": 277
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/original10-expired-manifests-start.json": {
+      "sha256": "f7c5329d8a61ef0a1c9a97811b0b49ae6c2035cd87b7799cd3ffe26c5297e6a6",
+      "bytes": 826
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/new30-normal.log": {
+      "sha256": "00d847f6c9124accd2d3246d41a0f537f201c9a1ad8a20c7a9fda7ed6f78834e",
+      "bytes": 22031
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/run.py": {
+      "sha256": "be1240b7bc366de772265960d28c39165a21cef8bbee15ca189ff68dded81f56",
+      "bytes": 2536
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/old10-instrumented-sessions_ipc.rs": {
+      "sha256": "b6584689b5cbbb38bbc3e0a518bb42dde1a695768f556b789ee6cb783b7b448d",
+      "bytes": 244239
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/original10-normal-manifests.log": {
+      "sha256": "864cc9c5151fffee831cdca54a5831c388049499cc57ff4b774ec8dfa98a116a",
+      "bytes": 22344
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/NORMALIZATION.json": {
+      "sha256": "1a67a7c8b3fd31f78135f0f45455fa133492bb38b64c1f0c77acac70f1d326fb",
+      "bytes": 879
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/new30-normal-result.json": {
+      "sha256": "59321212c8e96d4b57aab9d95f14f7410c665224bd793456c9f2f5a4f19ec4ee",
+      "bytes": 1310
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/original10-expired-manifests.log": {
+      "sha256": "8e78039592dd76fb0b1e77906b3f769f290b8bd496dfd7068f276ebb5c1c82ab",
+      "bytes": 2484
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/original10-normal-start.json": {
+      "sha256": "1aad65e9d631f4d47d5405e454c91e4b19a66b69a83255218ce606c832a58fc5",
+      "bytes": 831
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/NEW30_PHASES.json": {
+      "sha256": "34605c173149037dbfafa9b956bef5324ea8d62ec66ebf682c05fdf155c3d91c",
+      "bytes": 24097
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/original10-normal.log": {
+      "sha256": "cfee9da0e74a9ce737b13958ed60d02617cff70464b2892366d6c27a91d8ff68",
+      "bytes": 357
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/new30-normal-start.json": {
+      "sha256": "6821501268e861dcd6a231651a4713da5e00303f5895fbeb480357733fbc3bda",
+      "bytes": 831
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/final-sessions_ipc.rs": {
+      "sha256": "432b0f8dda5b997e694b842ee07ed13c4395c5a28686d04db97df1492c953b1e",
+      "bytes": 244396
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/OLD10_PHASES.json": {
+      "sha256": "ec8e00ff2c19be1a6edfef3c816ad9c47c20d940fbe6ce6f93cf948a0a724b20",
+      "bytes": 26918
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/run-manifests.py": {
+      "sha256": "34f4499a6becc9ac4a76b03dda52ff137f452f27fdf35283cd800aa0274aa3da",
+      "bytes": 2556
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/original10-expired-manifests-result.json": {
+      "sha256": "f088dd382a5eb530c087d70056896491d797b0be1c497374d9a38f6c4873db0c",
+      "bytes": 1658
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/source.patch": {
+      "sha256": "c04dfc7b49a174cb2f34a482340bb121267f0faf4de758750abeb937fcb73b52",
+      "bytes": 9634
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/BEFORE.json": {
+      "sha256": "4f9986fed90401b295aa28b2b981f9307f5bc54c4bd7c8a9eefc3a04b135beea",
+      "bytes": 19100
+    },
+    "/workspace/.onboarding/goal-owner-grant-lifetime/run-new30.py": {
+      "sha256": "15dee765554d24a79a5f406533c21889f86ea6bd3cc2f33e72749a65c15f5488",
+      "bytes": 2430
+    },
+    "/workspace/.worktrees/goal-owner-grant-lifetime/artifacts/goal-validation-graph/actual-task-accepted-624261b0db2286ec11624f1126809b2bd1a4c1e0159de28b386a544c363d0f8f.json": {
+      "sha256": "624261b0db2286ec11624f1126809b2bd1a4c1e0159de28b386a544c363d0f8f",
+      "bytes": 39594
+    },
+    "/workspace/.worktrees/goal-owner-grant-lifetime/artifacts/goal-validation-graph/actual-task-accepted-929f20e122e86f48539d44469001ea5223c3f53b3680b0c78147bb001bbdd262.json": {
+      "sha256": "929f20e122e86f48539d44469001ea5223c3f53b3680b0c78147bb001bbdd262",
+      "bytes": 39597
+    },
+    "artifacts/goal-validation-graph/owner-grant-original10s-expiry-start-2764804628ba8c13acaac7097891a6c5330fca282482d54e22caa19f183e8da3.json": {
+      "sha256": "2764804628ba8c13acaac7097891a6c5330fca282482d54e22caa19f183e8da3",
+      "bytes": 929
+    },
+    "artifacts/goal-validation-graph/owner-grant-original10s-expiry-refused-56a56100e5763bcbb2f0aedd230726bb277088f3360279ff4e52c8845b732ce7.json": {
+      "sha256": "56a56100e5763bcbb2f0aedd230726bb277088f3360279ff4e52c8845b732ce7",
+      "bytes": 1255
+    },
+    "artifacts/goal-validation-graph/owner-grant-first-owner-ready-a0dbbfdb941b5c2611739d85c71f72ab17aebf5ae11837af156596c0565d9984.json": {
+      "sha256": "a0dbbfdb941b5c2611739d85c71f72ab17aebf5ae11837af156596c0565d9984",
+      "bytes": 1468
+    },
+    "artifacts/goal-validation-graph/owner-grant-graph-approved-2b1adcf7cc7d51ea16e2c94832b357567c1d8908bc6c997dbca3f19bec3d9c7e.json": {
+      "sha256": "2b1adcf7cc7d51ea16e2c94832b357567c1d8908bc6c997dbca3f19bec3d9c7e",
+      "bytes": 2194
+    },
+    "artifacts/goal-validation-graph/owner-grant-second-owner-after-finalize-37c298442ec761d898cad93f97ca1fce119661888e69d107d8444ab915b893f7.json": {
+      "sha256": "37c298442ec761d898cad93f97ca1fce119661888e69d107d8444ab915b893f7",
+      "bytes": 1962
+    },
+    "artifacts/goal-validation-graph/owner-grant-plan-ready-a2dff234425a1cbbb75dfeaadcb3195230ab339f24c8a0b3b5adb5463a7d8221.json": {
+      "sha256": "a2dff234425a1cbbb75dfeaadcb3195230ab339f24c8a0b3b5adb5463a7d8221",
+      "bytes": 10961
+    },
+    "artifacts/goal-validation-graph/owner-grant-first-owner-before-finalize-6e25e9960fa4b3b8e3d206162053c9ede883b132a2bde17eec0164b355c56770.json": {
+      "sha256": "6e25e9960fa4b3b8e3d206162053c9ede883b132a2bde17eec0164b355c56770",
+      "bytes": 1478
+    },
+    "artifacts/goal-validation-graph/owner-grant-after-enclosing-grant-approval-5021c6578eba4fa7fe2d0c9b70f048e59fe07f1523576b0253da90f685e82b43.json": {
+      "sha256": "5021c6578eba4fa7fe2d0c9b70f048e59fe07f1523576b0253da90f685e82b43",
+      "bytes": 936
+    },
+    "artifacts/goal-validation-graph/owner-grant-first-owner-after-finalize-e55ef0791d7802ca70949aa97b8a7be69469c41c8b054f522d3efbbcbd2b626c.json": {
+      "sha256": "e55ef0791d7802ca70949aa97b8a7be69469c41c8b054f522d3efbbcbd2b626c",
+      "bytes": 1961
+    },
+    "artifacts/goal-validation-graph/owner-grant-graph-approved-283eb80fff30d9c78a9bc209fe008877e5db13abe2d7723935afd738a3fde029.json": {
+      "sha256": "283eb80fff30d9c78a9bc209fe008877e5db13abe2d7723935afd738a3fde029",
+      "bytes": 2195
+    },
+    "artifacts/goal-validation-graph/owner-grant-after-original-grant-approval-d1c06849318a6a8a72b5385890f457dd8d4962ea7a18ce9c8610b2444bdc25e3.json": {
+      "sha256": "d1c06849318a6a8a72b5385890f457dd8d4962ea7a18ce9c8610b2444bdc25e3",
+      "bytes": 934
+    },
+    "artifacts/goal-validation-graph/owner-grant-second-owner-before-finalize-f79895ec2692de7de218d58e22a7675ac460764aaaeb08173ec7384013d163e7.json": {
+      "sha256": "f79895ec2692de7de218d58e22a7675ac460764aaaeb08173ec7384013d163e7",
+      "bytes": 1480
+    },
+    "artifacts/goal-validation-graph/owner-grant-plan-ready-f6a26f44bd43f3848531e20f410f9c78f0bf0105a96faa41dcd477eb640e6cc2.json": {
+      "sha256": "f6a26f44bd43f3848531e20f410f9c78f0bf0105a96faa41dcd477eb640e6cc2",
+      "bytes": 10962
+    },
+    "artifacts/goal-validation-graph/owner-grant-second-owner-after-finalize-1a9101c0ee40933035559f4d3919fa0e2a18bf82cd98f497d36a0c31076e2b42.json": {
+      "sha256": "1a9101c0ee40933035559f4d3919fa0e2a18bf82cd98f497d36a0c31076e2b42",
+      "bytes": 1963
+    },
+    "artifacts/goal-validation-graph/owner-grant-second-owner-before-finalize-be3b752b6ce55919939447a46146f7fb293658ce4c7df0243389c1ddef13ba85.json": {
+      "sha256": "be3b752b6ce55919939447a46146f7fb293658ce4c7df0243389c1ddef13ba85",
+      "bytes": 1479
+    },
+    "artifacts/goal-validation-graph/owner-grant-first-owner-ready-85f40a43e63d7b90a65562809328b4f706b156f649f1abf506ef585afdbcc2d7.json": {
+      "sha256": "85f40a43e63d7b90a65562809328b4f706b156f649f1abf506ef585afdbcc2d7",
+      "bytes": 1469
+    },
+    "artifacts/goal-validation-graph/owner-grant-first-owner-after-finalize-9d0c98b86e6b8bffe269dcc639c60891e233e460576541e68a7c46247f666a68.json": {
+      "sha256": "9d0c98b86e6b8bffe269dcc639c60891e233e460576541e68a7c46247f666a68",
+      "bytes": 1960
+    },
+    "artifacts/goal-validation-graph/owner-grant-first-owner-before-finalize-a6a8ad641eaa71c06d81d2ea9de51c031bc241b455519d2c66930dfde78c61e2.json": {
+      "sha256": "a6a8ad641eaa71c06d81d2ea9de51c031bc241b455519d2c66930dfde78c61e2",
+      "bytes": 1479
+    }
+  },
+  "duration_erratum": {
+    "previous_snapshot": "/workspace/.onboarding/goal-owner-grant-lifetime/SOURCE_SNAPSHOT-initial-duration-erratum.json",
+    "previous_sha256": "e91aa0b2850d575636464d3841708200ff80e5b543d7f0350a7eaaa133b309be",
+    "correction": "Expiry harness is10.63s per original raw test result, not author message10.64. Cargo wrapper11.01s remains unchanged. No rerun."
+  }
+}

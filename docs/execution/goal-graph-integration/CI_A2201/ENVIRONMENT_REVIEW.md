@@ -1,0 +1,19 @@
+# a2201 actual Environment full-chain independent review
+
+Feature a2201fe2729eddb0d76bf3995667d3692126ee0f, actualmerge7f359dc8807e4d11f8e2dedbf4b0a5cc83c81f16/tree520d7aab6abdd4d659d0a9d301d9e28bdfffafd2. Original3checkoutlogs, originalartifactnames and signed Git commit API bind exactmerge/parents a1be94d26d10bb245bb35eb50226b82012c967da+a2201. Environment40806943416 attempt1 concluded **success**,all3required jobs. This is actual new hostedCI, not reviewer rerun or an attribution of oldbbsuccess.
+
+Each architecture actually executed bootstrap93/design130/infrastructure2workflows15pins, then Python34tests/0failures, Node4tests/0failures/0skips, environmentRust2tests/0failures/0ignored and final environmentClippy0. All8original artifactfiles exist perarchitecture, including node-tests.log and rust-smoke.log that were absent in the prior failedrun. Rawjoblogs show Checking agentbaton-environment-smoke and Finished dev profile after the2Rusttests; the combined set-e/pipefail validationstep itself is success, proving the full command chain completed. Sourceworkflow and test/hash snapshots remain fixed. No complete-chain success is inferred merely from printed shellcommands or the earlier static checks.
+
+The updated actual policy test name/positive literal60 and negative61 case all pass. Its SHA0474127b8fbf0432692b2460978d5a07e276583f2c7621a057719b7be3c097de matches registeredBootstrap value. Generic30/selector/runner/matrix/concurrency/failfast and malformed budget negativecases remain present and tested; no product deadline, runner authority, skip or assertion was loosened by thisreviewer. This closes the earlier45/46 stale testcontract in this exact newEnvironment dimension; originalbbfailure evidence remains untouched and is not relabeled.
+
+| Architecture | Job | Actual full chain | Artifact | ZIP SHA256 |
+| --- | --- | --- | --- | --- |
+| arm | 123228043015 | Python34 / Node4 / Rust2 / Clippy PASS | 12868935715 | 5710fb4ea4127eb82655563dab5fb462378d5f441d3982982af1fb97267b964a |
+| intel | 123228042727 | Python34 / Node4 / Rust2 / Clippy PASS | 12869125097 | a7683786b8154a7153ef15481151f6fe4738b89dc044e2d9c89e0e7f83af8463 |
+| linux | 123228043002 | Python34 / Node4 / Rust2 / Clippy PASS | 12868497756 | 86d1bf346a9bb9c0198914096cb45295b5d034f4a6b1e5c03403373634ccaf5b |
+
+All3officialZIPs were downloadedonce after terminal, API digest verified, CRC passed, allnormalizedpaths unique/safe, no symlink/specialmode, all8payloads have SHA/size/mode inventory. All3originaljoblogs downloadedonce; exactmarkers/line numbers and perloghashes are in ENVIRONMENT_AUDIT.json. Toolversions/doctorreports retained verbatim; codesign executablepresence is not signingverification, nativeprerequisites are not anappbuild, and Environment is not productfunctionality/Provider/installer acceptance. Linux's macOS-only prerequisite step is correctly skipped for OSapplicability, not a skippedrequiredtest.
+
+**Product/UI123228044786 is failure in the samehead's savedstage01.** Root/Linux reviewer owns its rawlog/artifact collection; this reviewer didnotdownloadthose ProductLinuxfiles. NewEnvironment3success doesnotmake all7checks green or permit PRacceptance. ProductRust/doubleMac/newnative/defaultreleaseaudit/developmentinstallers remain separate monitored dimensions until their exactterminal evidence. Nothing frombbpackages/50oldimages is reused as newevidence. No formalGitHubApprove/merge/signing/production or wholeDesignacceptance is supplied.
+
+Reviewer actions: readonly existingtwo-run APIs and originalartifact/hash/text examination only; no Cargo/GUI/browser/productdaemon/Provider/source/STATUS/timeout/permission/remote/workflowmutation/retry/cancel/push/Approve/subagent. Allwrites are only this independentreviewdirectory. The currently running boundedProductmonitor is separate; this Environmentseal is immutable and contains actualcomplete results, not an executorcontinuation promise.

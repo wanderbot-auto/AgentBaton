@@ -2,7 +2,7 @@
 use agentbaton_core::ipc::{call, Daemon};
 use serde_json::{json, Value};
 use std::{
-    os::unix::fs::PermissionsExt,
+    os::unix::fs::{DirBuilderExt, PermissionsExt},
     path::{Path, PathBuf},
     process::Command,
     sync::{
@@ -30,7 +30,24 @@ impl Server {
         }
     }
     fn request(&self, v: Value) -> Value {
-        call(&self.runtime, v).unwrap()
+        let method = v["method"].clone();
+        let key = v["idempotency_key"].clone();
+        let started = Instant::now();
+        let response = call(&self.runtime, v);
+        if let Err(error) = &response {
+            eprintln!(
+                "FIXTURE_RPC_TRANSPORT_FAILURE method={method} idempotency_key={key} elapsed_ms={} error={error:?}",
+                started.elapsed().as_millis()
+            );
+        }
+        let response = response.unwrap();
+        if response.get("error").is_some() {
+            eprintln!(
+                "FIXTURE_RPC_FAILURE method={method} idempotency_key={key} elapsed_ms={} response={response}",
+                started.elapsed().as_millis()
+            );
+        }
+        response
     }
     fn shutdown(&mut self) {
         self.stop.store(true, Ordering::Relaxed);
@@ -123,11 +140,33 @@ for line in sys.stdin:
   if text.startswith('{'):
    contract=json.loads(text)
    assert contract['kind']=='agentbaton_goal_task_request' and contract['schema_version']==1
+   assert set(contract)==({'schema_version','kind','goal','node','run_id','plan_revision','plan_digest','workspace','inputs','outputs','policy','lineage','budget','idempotency_key','return_location'}|({'task_binding','validation_contracts'} if 'task_binding' in contract else set()))
+   assert ('validation_contracts' in contract)==('task_binding' in contract)
    assert contract['workspace']['canonical_root']==os.getcwd()
    assert contract['lineage']['attempt_id'] and contract['plan_digest'] and contract['return_location']['node_id']==contract['node']['id']
-   assert contract['inputs'][0]['artifact']['relative_path'] in ('file','inputs/file') and contract['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
+   if contract['inputs'][0].get('candidate'):
+    import hashlib
+    candidate=contract['inputs'][0]['candidate']
+    assert contract['inputs'][0]['artifact']['relative_path']==candidate['relative_path']
+    assert contract['inputs'][0]['sha256']==candidate['sha256'] and candidate['producer_attempt_id']
+    assert hashlib.sha256(open(candidate['relative_path'],'rb').read()).hexdigest()==candidate['sha256']
+   else:assert contract['inputs'][0]['artifact']['relative_path'] in ('file','inputs/file')
+   assert contract['outputs'][0]['artifact']['relative_path']=='reports/report.txt'
    assert contract['policy']['enforced']=={'filesystem_sandbox':False,'network_sandbox':False,'output_quota':False}
    text=contract['goal']
+   if text in ('goal-data-report','goal-data-report-bad'):
+    import hashlib
+    root=contract['workspace']['input_revision']
+    outputs={o['artifact']['artifact_id']:o['artifact']['relative_path'] for o in contract['outputs']}
+    assert {o['artifact_id'] for o in contract['node']['outputs']}=={'report','report-2','report-3'}
+    os.makedirs('reports',exist_ok=True)
+    script=b'# locally generated reproducibility fixture, not executed\n'
+    environment=b'{"fixture":"local generated ACP","seed":7}\n'
+    open(outputs['report-2'],'wb').write(script);open(outputs['report-3'],'wb').write(environment)
+    fixed=next(i for i in contract['inputs'] if i['artifact']['artifact_id']=='fixed-input')
+    value=len(open(fixed['artifact']['relative_path'],'rb').read())
+    metadata={'input_revision':root,'dataset_revision':root,'input_digests':{'fixed-input':fixed['sha256']},'table_artifact_id':'report','row_count':1,'dataset_rows':1,'units':{'x':'bytes'},'timezone':'UTC','seed':7,'scope':{'kind':'full'},'script_sha256':hashlib.sha256(script).hexdigest(),'environment_sha256':hashlib.sha256(environment).hexdigest()}
+    open(outputs['report'],'w').write(json.dumps({'metadata':metadata,'rows':[{'x':20 if text.endswith('-bad') else value}]}))
    if text in ('goal-report','goal-report-v2','goal-report-drift','goal-report-hold'):
     if text=='goal-report-hold':
      open('fixture-goal-held','w').write(str(os.getpid()))
@@ -180,15 +219,24 @@ fn approve(server: &Server, proposal: Value) -> Value {
     result(server.request(json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":format!("proposal:{}",proposal["id"])})))
 }
 struct Scenario {
+    // Fields drop in declaration order: shutdown and join the daemon before
+    // deleting the workspace it still authenticates during worker cleanup.
+    server: Server,
     _dir: tempfile::TempDir,
     root: PathBuf,
-    server: Server,
     project: Value,
     workspace: Value,
     connection: Value,
     grant: Value,
     task: Value,
 }
+fn graph_artifact_path(name: impl AsRef<Path>) -> PathBuf {
+    let directory =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../artifacts/goal-validation-graph");
+    std::fs::create_dir_all(&directory).unwrap();
+    directory.join(name)
+}
+
 impl Scenario {
     fn new(duration: u64) -> Self {
         Self::with_provider(duration, "custom_acp")
@@ -991,13 +1039,37 @@ fn goal_scope_and_plan_with_independent_nodes(
     reworks: u32,
     count: u32,
 ) -> Value {
+    goal_scope_and_plan_with_capacity(f, goal, reworks, count, count.max(2))
+}
+fn goal_scope_and_plan_with_capacity(
+    f: &Scenario,
+    goal: &str,
+    reworks: u32,
+    count: u32,
+    max_nodes: u32,
+) -> Value {
+    goal_scope_and_plan_with_options(f, goal, reworks, count, max_nodes, 2, vec![])
+}
+fn goal_scope_and_plan_with_options(
+    f: &Scenario,
+    goal: &str,
+    reworks: u32,
+    count: u32,
+    max_nodes: u32,
+    attempts: u32,
+    validators: Vec<agentbaton_core::goal_store::GoalValidatorRef>,
+) -> Value {
     use agentbaton_core::{goal_plan::*, goal_store::*};
     let limits = BudgetLimits {
-        attempts: 2,
+        attempts,
         parallel: 1,
         runtime_ms: 10_000,
         output_bytes: 8192,
-        children: count.max(2) - 1,
+        children: if goal.starts_with("goal-data-report") {
+            3
+        } else {
+            count.max(2) - 1
+        },
         reworks,
         tokens: None,
         cost_microunits: None,
@@ -1007,8 +1079,8 @@ fn goal_scope_and_plan_with_independent_nodes(
         expected_task_revision: f.task["revision"].as_u64().unwrap(),
         grant_id: f.grant["id"].as_str().unwrap().into(),
         expected_grant_revision: f.grant["revision"].as_u64().unwrap(),
-        max_nodes: count.max(2),
-        new_max_children: count.max(2) - 1,
+        max_nodes,
+        new_max_children: max_nodes - 1,
         new_max_depth: 1,
         root_budget: limits.clone(),
         project_budget: limits,
@@ -1029,7 +1101,7 @@ fn goal_scope_and_plan_with_independent_nodes(
                 max_bytes: 1024,
                 expected_sha256: None,
             },
-            validators: vec![],
+            validators,
         }],
         writable_prefixes: vec!["reports".into()],
         owner_acceptance_criteria: "Owner reviews the exact report separately from process success"
@@ -1043,7 +1115,16 @@ fn goal_scope_and_plan_with_independent_nodes(
                 max_bytes: 1024,
                 expected_sha256: None,
             },
-            validators: vec![],
+            validators: if index <= 3
+                && selection.outputs[0]
+                    .validators
+                    .iter()
+                    .any(|v| v.kind == GoalValidatorKind::Data)
+            {
+                selection.outputs[0].validators.clone()
+            } else {
+                vec![]
+            },
         });
     }
     let proposal = result(f.server.request(
@@ -2855,4 +2936,2699 @@ fn actual_goal_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_autho
     );
     assert_eq!(first["nodes"][0]["stop_confirmed"], true);
     assert_eq!(first["task_accepted"], false);
+}
+
+#[test]
+fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_executor_is_connected(
+) {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let ledger = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let request = json!({"request_id":"\0".repeat(128),"method":"goal_graph_runs.propose","params":{"scope_id":scope["id"],"expected_plan_revision":1,"expected_ledger_revision":ledger},"idempotency_key":"graph-proposal-real-first"});
+    let proposal = result(f.server.request(request.clone()));
+    assert_eq!(proposal["kind"], "goal_graph_execution");
+    assert_eq!(proposal["snapshot"]["graph_contract_version"], 1);
+    assert_eq!(proposal["snapshot"]["new_workspace_authority"], false);
+    assert_eq!(
+        proposal["snapshot"]["execution"],
+        "goal_graph_v1_existing_workspace"
+    );
+    assert_eq!(
+        proposal["snapshot"]["subject_rebinding"]["allows_old_policy_execution_reuse"],
+        false
+    );
+    assert_eq!(result(f.server.request(request)), proposal);
+    let raw = serde_json::to_vec_pretty(&proposal).unwrap();
+    let digest = agentbaton_workspaces::validation::sha256(&raw);
+    let dir = graph_artifact_path("");
+    let path = dir.join(format!("actual-graph-proposal-{digest}.json"));
+    use std::io::Write;
+    let mut file = std::fs::OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .open(&path)
+        .unwrap();
+    file.write_all(&raw).unwrap();
+    eprintln!(
+        "ACTUAL_GRAPH_PROPOSAL sha256={digest} compact={} pretty={} path={}",
+        serde_json::to_vec(&proposal).unwrap().len(),
+        raw.len(),
+        path.display()
+    );
+    let list = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.list","params":{"task_id":f.task["id"]}})),
+    );
+    assert_eq!(list, json!([]));
+    {
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        for table in ["goal_run_reservations", "goal_graph_jobs", "attempts"] {
+            assert_eq!(
+                db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
+                    .get::<_, u32>(0))
+                    .unwrap(),
+                0
+            );
+        }
+    }
+    let finalize = json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"native-graph-finalize"});
+    let authorized = result(f.server.request(finalize.clone()));
+    assert_eq!(authorized["run"]["id"], proposal["id"]);
+    assert_eq!(authorized["graph_contract_version"], 1);
+    assert_eq!(result(f.server.request(finalize)), authorized);
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"goal_runs.list","params":{"task_id":f.task["id"]}}))
+        ),
+        json!([])
+    );
+    let legacy = f
+        .server
+        .request(json!({"method":"goal_runs.get","params":{"run_id":proposal["id"]}}));
+    assert_eq!(legacy["error"]["code"], "CAPABILITY_UNSUPPORTED");
+    let details = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.get","params":{"run_id":proposal["id"]}})),
+    );
+    assert_eq!(details["run"]["id"], proposal["id"]);
+    assert_eq!(details["task_accepted"], false);
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+            .unwrap(),
+        12
+    );
+    assert!(db
+        .query_row(
+            "SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",
+            [proposal["id"].as_str().unwrap()],
+            |r| r.get::<_, bool>(0)
+        )
+        .unwrap());
+}
+
+#[test]
+fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_hashes_or_authority()
+{
+    let mut f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let run = approve_goal_execution(&f, &scope);
+    let stopped = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":run["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    assert_eq!(stopped["nodes"][0]["actual_output_bytes"], 12);
+    f.server.shutdown();
+    let path = f.server.runtime.join("baton.sqlite3");
+    let db = rusqlite::Connection::open(&path).unwrap();
+    let raw_run: String = db
+        .query_row("SELECT document FROM goal_runs", [], |r| r.get(0))
+        .unwrap();
+    let raw_node: String = db
+        .query_row("SELECT document FROM goal_run_nodes", [], |r| r.get(0))
+        .unwrap();
+    db.execute_batch("DROP TRIGGER graph_fence_lease_insert; DROP TRIGGER graph_fence_lease_update; DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;PRAGMA user_version=11;").unwrap();
+    drop(db);
+    let store = agentbaton_core::storage::Store::open(&path).unwrap();
+    let current = store.goal_run_details(run["id"].as_str().unwrap()).unwrap();
+    assert_eq!(current["nodes"], stopped["nodes"]);
+    assert_eq!(current["task_accepted"], false);
+    assert_eq!(
+        store
+            .list_goal_graph_runs(f.task["id"].as_str().unwrap())
+            .unwrap()
+            .len(),
+        0
+    );
+    let db = rusqlite::Connection::open(&path).unwrap();
+    assert_eq!(
+        db.query_row("SELECT document FROM goal_runs", [], |r| r
+            .get::<_, String>(0))
+            .unwrap(),
+        raw_run
+    );
+    assert_eq!(
+        db.query_row("SELECT document FROM goal_run_nodes", [], |r| r
+            .get::<_, String>(0))
+            .unwrap(),
+        raw_node
+    );
+    for table in [
+        "goal_graph_capabilities",
+        "goal_graph_candidates",
+        "goal_graph_acceptances",
+    ] {
+        assert_eq!(
+            db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            0
+        );
+    }
+}
+
+#[test]
+fn actual_graph_work_captures_owned_versioned_sha_without_task_acceptance() {
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let ledger = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let proposal=result(f.server.request(json!({"method":"goal_graph_runs.propose","params":{"scope_id":scope["id"],"expected_plan_revision":1,"expected_ledger_revision":ledger},"idempotency_key":"graph-captured-work"})));
+    let approved = approve(&f.server, proposal);
+    let details = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":approved["run"]["id"]}),
+        |v| v["candidates"].as_array().is_some_and(|c| c.len() == 1),
+    );
+    let c = &details["candidates"][0];
+    assert_eq!(details["task_accepted"], false);
+    assert_eq!(c["source"], "baton_goal_evidence");
+    assert_eq!(c["integrity"], "verified");
+    assert_eq!(c["task_acceptance"], "not_established");
+    assert!(
+        c["capture_receipt_sequence"].as_u64().unwrap()
+            > c["stop_receipt_sequence"].as_u64().unwrap()
+    );
+    assert_eq!(
+        c["artifacts"][0]["sha256"],
+        agentbaton_workspaces::validation::sha256(b"fixed report")
+    );
+    assert_eq!(c["artifacts"][0]["bytes"], 12);
+    assert_eq!(details["nodes"][0]["candidate_ids"][0], c["id"]);
+    assert_eq!(details["nodes"][0]["stop_confirmed"], true);
+    assert_eq!(
+        c["consumed_inputs"][0]["sha256"],
+        agentbaton_workspaces::validation::sha256(b"baseline")
+    );
+}
+
+fn graph_owner_summary_plan(f: &Scenario) -> Value {
+    use agentbaton_core::{goal_plan::*, goal_store::*};
+    let scope = goal_scope_and_plan_with_capacity(f, "goal-report", 0, 2, 4);
+    let view: GoalScopeView = serde_json::from_value(scope.clone()).unwrap();
+    let current: GoalPlanView = serde_json::from_value(result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":view.id}})),
+    ))
+    .unwrap();
+    let mut plan = current.proposal;
+    let producer = plan.nodes[0].clone();
+    let mut summary = plan.nodes[1].clone();
+    let input = RequiredInput {
+        goal_task_id: view.task_id.clone(),
+        artifact_id: "report".into(),
+        contract_id: "output:report".into(),
+        source: InputSource::Node {
+            node_id: producer.id.clone(),
+            candidate_for_validation: true,
+        },
+    };
+    let mut owner = producer.clone();
+    owner.id = "owner-report".into();
+    owner.kind = NodeKind::OwnerApproval;
+    owner.executor = Executor::Owner {
+        rule_id: "goal-owner-review".into(),
+    };
+    owner.goal = "Review exact original report".into();
+    owner.dependencies = vec![producer.id.clone()];
+    owner.required_inputs = vec![input.clone()];
+    owner.outputs = vec![];
+    owner.required_validators = vec!["goal-owner-review".into()];
+    owner.side_effect = SideEffect::AdvisoryReadOnly;
+    owner.write_set = vec![];
+    owner.idempotency_key = "owner-report-once".into();
+    summary.dependencies = vec![owner.id.clone()];
+    let mut accepted_input = input;
+    accepted_input.source = InputSource::Node {
+        node_id: producer.id.clone(),
+        candidate_for_validation: false,
+    };
+    summary.required_inputs = vec![accepted_input];
+    let mut final_owner = owner.clone();
+    final_owner.id = "owner-summary".into();
+    final_owner.goal = "Review exact dependent summary".into();
+    final_owner.dependencies = vec![summary.id.clone()];
+    final_owner.required_inputs = vec![RequiredInput {
+        goal_task_id: view.task_id.clone(),
+        artifact_id: "report-2".into(),
+        contract_id: "output:report-2".into(),
+        source: InputSource::Node {
+            node_id: summary.id.clone(),
+            candidate_for_validation: true,
+        },
+    }];
+    final_owner.idempotency_key = "owner-summary-once".into();
+    plan.nodes = vec![producer, owner, summary, final_owner];
+    plan.revision = 2;
+    plan.expected_revision = 1;
+    result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":view.id,"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"graph-summary-plan-v2"})));
+    scope
+}
+fn approve_graph_at(f: &Scenario, scope: &Value, plan: u64) -> Value {
+    let ledger = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let p=result(f.server.request(json!({"method":"goal_graph_runs.propose","params":{"scope_id":scope["id"],"expected_plan_revision":plan,"expected_ledger_revision":ledger},"idempotency_key":format!("actual-graph-plan:{}",scope["id"].as_str().unwrap())})));
+    approve(&f.server, p)
+}
+fn graph_owner_proposal(f: &Scenario, run_id: &Value, node: &str, key: &str) -> Value {
+    let d = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})),
+    );
+    result(f.server.request(json!({"method":"goal_node_approvals.propose","params":{"run_id":run_id,"node_id":node,"expected_plan_revision":d["run"]["plan_revision"],"expected_ledger_revision":d["ledger_revision"]},"expected_revision":d["run"]["revision"],"idempotency_key":key})))
+}
+// Dedicated diagnostic for the two-Owner fixture. Reads only the real runtime
+// database; never Store::open/recover or a fake clock/Grant mutation.
+struct GraphOwnerGrantClock {
+    start: Instant,
+    utc_start_ms: i64,
+}
+fn graph_owner_utc_ms() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis()
+        .try_into()
+        .unwrap()
+}
+impl GraphOwnerGrantClock {
+    fn new() -> Self {
+        Self {
+            start: Instant::now(),
+            utc_start_ms: graph_owner_utc_ms(),
+        }
+    }
+    fn trace(
+        &self,
+        f: &Scenario,
+        scope: Option<&Value>,
+        phase: &str,
+        response: Option<&Value>,
+    ) -> Value {
+        let db = rusqlite::Connection::open_with_flags(
+            f.server.runtime.join("baton.sqlite3"),
+            rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+        )
+        .unwrap();
+        let version: i64 = db
+            .query_row("PRAGMA user_version", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(
+            version, 12,
+            "This PR16 fixture must link actual schema12, not a shared-target Factory cache"
+        );
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM execution_grants WHERE id=?1",
+                [f.grant["id"].as_str().unwrap()],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let g: Value = serde_json::from_str(&raw).unwrap();
+        let utc_ms = graph_owner_utc_ms();
+        let sample = json!({"phase":phase,"utc_ms":utc_ms,"utc_since_start_ms":utc_ms-self.utc_start_ms,"monotonic_ms":self.start.elapsed().as_millis(),"schema_version":version,"grant":{"id":g["id"],"root_grant_id":g["root_grant_id"],"parent_id":g["parent_id"],"revision":g["revision"],"revoked":g["revoked"],"approved_at":g["approved_at"],"expires_at_ms":g["expires_at_ms"],"remaining_ms":g["expires_at_ms"].as_i64().unwrap()-utc_ms,"scope":g["scope"]},"goal_scope":scope.map(|s|json!({"id":s["id"],"revision":s["revision"],"expires_at_ms":s["expires_at_ms"],"root_budget":s["root_budget"],"project_budget":s["project_budget"]})),"response":response});
+        eprintln!("GRAPH_OWNER_GRANT_PHASE {sample}");
+        let bytes = serde_json::to_vec_pretty(&sample).unwrap();
+        let hash = agentbaton_workspaces::validation::sha256(&bytes);
+        std::fs::write(
+            graph_artifact_path(format!("owner-grant-{phase}-{hash}.json")),
+            bytes,
+        )
+        .unwrap();
+        sample
+    }
+    fn approve(&self, f: &Scenario, scope: &Value, proposal: Value, phase: &str) -> Value {
+        self.trace(f, Some(scope), &format!("{phase}-before-finalize"), None);
+        let response=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":format!("proposal:{}",proposal["id"])}));
+        self.trace(
+            f,
+            Some(scope),
+            &format!("{phase}-after-finalize"),
+            Some(&response),
+        );
+        result(response)
+    }
+}
+#[test]
+fn actual_graph_owner_fixture_original_grant_expiry_still_refuses_new_dispatch() {
+    let clock = GraphOwnerGrantClock::new();
+    let f = Scenario::new(10_000);
+    let before = clock.trace(&f, None, "original10s-expiry-start", None);
+    assert_eq!(before["grant"]["revoked"], false);
+    assert!(before["grant"]["parent_id"].is_null());
+    assert_eq!(before["grant"]["scope"]["max_duration_ms"], 10000);
+    let expiry = before["grant"]["expires_at_ms"].as_i64().unwrap();
+    let start = Instant::now();
+    loop {
+        let now = graph_owner_utc_ms();
+        if now >= expiry {
+            break;
+        }
+        assert!(
+            start.elapsed() < Duration::from_secs(10),
+            "Original10s Grant clock did not reach its fixed expiry"
+        );
+        std::thread::sleep(Duration::from_millis(
+            u64::try_from(expiry - now).unwrap().min(10),
+        ));
+    }
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let tables = [
+        "attempts",
+        "sessions",
+        "dispatch_intents",
+        "workspace_leases",
+        "goal_run_reservations",
+        "idempotency",
+        "events",
+    ];
+    let counts = || {
+        tables
+            .iter()
+            .map(|table| {
+                db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| {
+                    r.get::<_, i64>(0)
+                })
+                .unwrap()
+            })
+            .collect::<Vec<_>>()
+    };
+    let original_counts = counts();
+    let denied=f.server.request(json!({"method":"sessions.create","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":f.task["revision"],"idempotency_key":"expired-original-owner-grant-never-dispatches"}));
+    let after = clock.trace(&f, None, "original10s-expiry-refused", Some(&denied));
+    assert_eq!(denied["error"]["code"], "PERMISSION_DENIED");
+    assert_eq!(
+        denied["error"]["message"],
+        "Execution grant or an ancestor is revoked or expired"
+    );
+    assert_eq!(denied["error"]["side_effect_state"], "not_started");
+    assert_eq!(after["grant"]["revoked"], false);
+    assert!(after["grant"]["remaining_ms"].as_i64().unwrap() <= 0);
+    assert_eq!(
+        after["grant"]["expires_at_ms"],
+        before["grant"]["expires_at_ms"]
+    );
+    assert_eq!(counts(), original_counts);
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(db.query_row("SELECT count(*) FROM idempotency WHERE key='expired-original-owner-grant-never-dispatches'",[],|r|r.get::<_,i64>(0)).unwrap(),0);
+}
+#[test]
+fn actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input() {
+    let clock = GraphOwnerGrantClock::new();
+    let build_source_hashes = graph_build_source_hashes();
+    eprintln!("GRAPH_BUILD_SOURCES {}", build_source_hashes);
+    // This independently approved fixture window includes both Owner reviews.
+    // Graph/shared runtime and every node reservation stay unchanged below.
+    let f = Scenario::new(30_000);
+    clock.trace(&f, None, "after-enclosing-grant-approval", None);
+    let scope = graph_owner_summary_plan(&f);
+    assert_eq!(scope["root_budget"]["runtime_ms"], 10000);
+    assert_eq!(scope["project_budget"]["runtime_ms"], 10000);
+    let plan = result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    );
+    for node in plan["proposal"]["nodes"].as_array().unwrap() {
+        assert_eq!(node["budget"]["runtime_ms"], 5000);
+        assert_eq!(node["reservation"]["runtime_ms"], 4000);
+    }
+    clock.trace(&f, Some(&scope), "plan-ready", Some(&plan));
+    let approved = approve_graph_at(&f, &scope, 2);
+    clock.trace(&f, Some(&scope), "graph-approved", Some(&approved));
+    let run_id = &approved["run"]["id"];
+    let initial = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-report" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    assert_eq!(initial["candidates"].as_array().unwrap().len(), 1);
+    assert_eq!(initial["task_accepted"], false);
+    eprintln!("GRAPH_PIPELINE first owned capture and owner-ready observed");
+    clock.trace(&f, Some(&scope), "first-owner-ready", None);
+    let p = graph_owner_proposal(&f, run_id, "owner-report", "accept-exact-report");
+    assert_eq!(p["kind"], "goal_node_acceptance");
+    assert_eq!(p["snapshot"]["candidate_receipts"], initial["candidates"]);
+    assert_eq!(
+        p["snapshot"]["candidate_refs"][0]["sha256"],
+        agentbaton_workspaces::validation::sha256(b"fixed report")
+    );
+    let path = graph_artifact_path("actual-node-proposal.json");
+    std::fs::write(path, serde_json::to_vec_pretty(&p).unwrap()).unwrap();
+    eprintln!("GRAPH_PIPELINE exact Owner proposal persisted");
+    let decision = clock.approve(&f, &scope, p.clone(), "first-owner");
+    assert_eq!(decision["decision"], "accepted");
+    assert_eq!(decision["approval_id"], p["id"]);
+    eprintln!("GRAPH_PIPELINE private Owner decision committed");
+    let after = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| d["candidates"].as_array().is_some_and(|c| c.len() == 2),
+    );
+    let summary = after["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["node_id"] == "independent-2")
+        .unwrap();
+    assert_eq!(
+        summary["consumed_inputs"][0]["candidate"],
+        initial["candidates"][0]["artifacts"][0]
+    );
+    assert_eq!(
+        summary["artifacts"][0]["sha256"],
+        agentbaton_workspaces::validation::sha256(b"extra report 2")
+    );
+    assert_eq!(
+        after["owner_decisions"][0]["source"],
+        "local_owner_confirmation"
+    );
+    assert_eq!(after["task_accepted"], false);
+    let sessions = result(
+        f.server
+            .request(json!({"method":"sessions.list","params":{}})),
+    );
+    assert_eq!(sessions.as_array().unwrap().len(), 2);
+    let ready = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-summary" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    assert_eq!(ready["task_accepted"], false);
+    let final_proposal = graph_owner_proposal(&f, run_id, "owner-summary", "accept-exact-summary");
+    let final_decision = clock.approve(&f, &scope, final_proposal.clone(), "second-owner");
+    assert_eq!(final_decision["task_accepted"], true);
+    let accepted = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})),
+    );
+    assert_eq!(accepted["task_accepted"], true);
+    assert_eq!(accepted["run"]["state"], "accepted");
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    assert_eq!(task["state"], "accepted");
+    assert_eq!(task["acceptance_ref"], accepted["task_acceptance"]["id"]);
+    assert_eq!(
+        task["acceptance_sequence"],
+        accepted["task_acceptance"]["sequence"]
+    );
+    assert_eq!(
+        task["revision"],
+        accepted["task_acceptance"]["task_revision"]
+    );
+    assert_eq!(
+        accepted["task_acceptance"]["source"],
+        "baton_goal_acceptance"
+    );
+    assert_eq!(
+        accepted["task_acceptance"]["artifact_refs"]
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    use std::io::Write;
+    let evidence = json!({"build_source_hashes":build_source_hashes,"graph_details":accepted,"task":task,"final_owner_proposal":final_proposal,"final_owner_decision":final_decision});
+    let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
+    let hash = agentbaton_workspaces::validation::sha256(&bytes);
+    let path = graph_artifact_path(format!("actual-task-accepted-{hash}.json"));
+    std::fs::OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .write_all(&bytes)
+        .unwrap();
+    eprintln!(
+        "ACTUAL_TASK_ACCEPTED_JSON sha256={hash} bytes={} path={}",
+        bytes.len(),
+        path.display()
+    );
+    let cancelled=result(f.server.request(json!({"method":"tasks.cancel","params":{"task_id":task["id"]},"expected_revision":task["revision"],"idempotency_key":"accepted-task-cancel-no-reopen"})));
+    assert_eq!(cancelled, task);
+    let ordinary=f.server.request(json!({"method":"sessions.create","params":{"task_id":task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":task["revision"],"idempotency_key":"accepted-task-cannot-reopen"}));
+    assert!(ordinary.get("error").is_some());
+    let before = accepted["ledger_revision"].clone();
+    for (method, params, revision) in [
+        (
+            "goal_runs.dispatch",
+            json!({"run_id":run_id,"expected_ledger_revision":before}),
+            accepted["run"]["revision"].clone(),
+        ),
+        (
+            "goal_runs.advance_plan",
+            json!({"run_id":run_id,"expected_plan_revision":3,"expected_ledger_revision":before}),
+            accepted["run"]["revision"].clone(),
+        ),
+        (
+            "goal_graph_runs.advance_plan",
+            json!({"run_id":run_id,"expected_plan_revision":3,"expected_ledger_revision":before}),
+            accepted["run"]["revision"].clone(),
+        ),
+        (
+            "goal_graph_runs.cancel",
+            json!({"run_id":run_id}),
+            accepted["run"]["revision"].clone(),
+        ),
+        (
+            "goal_runs.propose",
+            json!({"scope_id":scope["id"],"expected_plan_revision":2,"expected_ledger_revision":before}),
+            Value::Null,
+        ),
+        (
+            "goal_graph_runs.propose",
+            json!({"scope_id":scope["id"],"expected_plan_revision":2,"expected_ledger_revision":before}),
+            Value::Null,
+        ),
+        (
+            "tasks.create",
+            json!({"project_id":task["project_id"],"goal":"Agent text cannot accept a task","state":"accepted","acceptance_ref":task["acceptance_ref"]}),
+            Value::Null,
+        ),
+    ] {
+        let response=f.server.request(json!({"method":method,"params":params,"expected_revision":revision,"idempotency_key":format!("accepted-terminal-{method}")}));
+        assert!(
+            response.get("error").is_some(),
+            "terminal bypass {method}: {response}"
+        );
+        assert_eq!(
+            response["error"]["side_effect_state"], "not_started",
+            "{method}"
+        );
+    }
+    let original_plan = result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    );
+    let mut new_plan = original_plan["proposal"].clone();
+    new_plan["revision"] = json!(3);
+    new_plan["expected_revision"] = json!(2);
+    let plan_refused=f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&new_plan).unwrap()},"expected_revision":2,"idempotency_key":"accepted-task-no-new-plan"}));
+    assert!(plan_refused.get("error").is_some());
+    let raw_db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let original_scope: String = raw_db
+        .query_row(
+            "SELECT document FROM approval_proposals WHERE id=?1",
+            [scope["id"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let mut scope_intent =
+        serde_json::from_str::<Value>(&original_scope).unwrap()["snapshot"]["intent"].clone();
+    scope_intent["expected_task_revision"] = task["revision"].clone();
+    scope_intent["expected_grant_revision"] = scope["root_grant_revision"].clone();
+    drop(raw_db);
+    let scope_refused=f.server.request(json!({"method":"goal_scopes.propose","params":scope_intent,"idempotency_key":"accepted-task-no-new-scope"}));
+    assert!(scope_refused.get("error").is_some());
+    for _ in 0..3 {
+        let stable = result(
+            f.server
+                .request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})),
+        );
+        assert_eq!(stable["run"], accepted["run"]);
+        assert_eq!(stable["ledger_revision"], before);
+    }
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"sessions.list","params":{}}))
+        )
+        .as_array()
+        .unwrap()
+        .len(),
+        2
+    );
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    for key in [
+        format!("project:{}", f.project["id"].as_str().unwrap()),
+        format!("root:{}", f.task["id"].as_str().unwrap()),
+    ] {
+        let count: u32 = db
+            .query_row(
+                "SELECT consumed FROM budgets WHERE scope=?1",
+                [key],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 2);
+    }
+    // Acceptance is a historical versioned fact. A later file edit does not
+    // create new authority and cannot erase the completed receipt.
+    std::fs::write(
+        PathBuf::from(f.workspace["root"].as_str().unwrap()).join("reports/report.txt"),
+        b"later user edit",
+    )
+    .unwrap();
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"tasks.get","params":{"task_id":task["id"]}}))
+        ),
+        task
+    );
+    assert_eq!(approve(&f.server, final_proposal), final_decision);
+}
+
+fn graph_build_source_hashes() -> Value {
+    let sources: [(&str, &[u8]); 15] = [
+        ("goal_graph.rs", include_bytes!("../src/goal_graph.rs")),
+        (
+            "goal_graph_validators.rs",
+            include_bytes!("../src/goal_graph_validators.rs"),
+        ),
+        (
+            "goal_validator_io.rs",
+            include_bytes!("../src/goal_validator_io.rs"),
+        ),
+        (
+            "core_command_validation.rs",
+            include_bytes!("../src/command_validation.rs"),
+        ),
+        (
+            "workspaces_command_validation.rs",
+            include_bytes!("../../workspaces/src/command_validation.rs"),
+        ),
+        (
+            "goal_evidence.rs",
+            include_bytes!("../src/goal_evidence.rs"),
+        ),
+        ("goal_runtime.rs", include_bytes!("../src/goal_runtime.rs")),
+        ("goal_store.rs", include_bytes!("../src/goal_store.rs")),
+        ("storage.rs", include_bytes!("../src/storage.rs")),
+        ("sessions.rs", include_bytes!("../src/sessions.rs")),
+        ("ipc.rs", include_bytes!("../src/ipc.rs")),
+        ("execution.rs", include_bytes!("../src/execution.rs")),
+        (
+            "data_workspace_workers.rs",
+            include_bytes!("../src/data_workspace_workers.rs"),
+        ),
+        (
+            "data_workspaces.rs",
+            include_bytes!("../src/data_workspaces.rs"),
+        ),
+        ("tests/sessions_ipc.rs", include_bytes!("sessions_ipc.rs")),
+    ];
+    json!(sources
+        .into_iter()
+        .map(|(name, bytes)| (name, agentbaton_workspaces::validation::sha256(bytes)))
+        .collect::<std::collections::BTreeMap<_, _>>())
+}
+
+fn accepted_owner_graph_fixture() -> (Scenario, Value, Value, Value, Value) {
+    let f = Scenario::new(10_000);
+    let scope = graph_owner_summary_plan(&f);
+    let summary = approve_graph_at(&f, &scope, 2);
+    let run_id = summary["run"]["id"].clone();
+    wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-report" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    approve(
+        &f.server,
+        graph_owner_proposal(&f, &run_id, "owner-report", "fixture-owner-first"),
+    );
+    wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-summary" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    let proposal = graph_owner_proposal(&f, &run_id, "owner-summary", "fixture-owner-last");
+    let decision = approve(&f.server, proposal.clone());
+    assert_eq!(decision["task_accepted"], true);
+    let accepted = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})),
+    );
+    (f, scope, proposal, decision, accepted)
+}
+#[test]
+fn actual_accepted_history_and_owner_replay_reject_durable_receipt_tampering_without_file_reads() {
+    let (mut f, _scope, proposal, decision, accepted) = accepted_owner_graph_fixture();
+    let run_id = accepted["run"]["id"].as_str().unwrap();
+    let task_id = f.task["id"].as_str().unwrap();
+    std::fs::write(
+        PathBuf::from(f.workspace["root"].as_str().unwrap()).join("reports/report.txt"),
+        b"legitimate later edit",
+    )
+    .unwrap();
+    let replay_request = json!({"method":"goal_node_approvals.propose","params":proposal["snapshot"]["intent"],"expected_revision":proposal["snapshot"]["expected_run_revision"],"idempotency_key":"fixture-owner-last"});
+    let recovered = result(f.server.request(replay_request));
+    assert_eq!(recovered["id"], proposal["id"]);
+    assert_eq!(recovered["snapshot"], proposal["snapshot"]);
+    assert_eq!(recovered["consumed"], true);
+    assert_eq!(approve(&f.server, recovered), decision);
+    let cross=f.server.request(json!({"method":"approvals.decline","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"fixed-opposite-action"}));
+    assert_eq!(cross["error"]["code"], "CONFIG_CONFLICT");
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"tasks.get","params":{"task_id":task_id}}))
+        )["state"],
+        "accepted"
+    );
+    let foreign_path = f.root.join("foreign-project-source");
+    std::fs::create_dir(&foreign_path).unwrap();
+    git(&foreign_path, &["init", "-q"]);
+    std::fs::write(foreign_path.join("file"), b"another project").unwrap();
+    git(&foreign_path, &["add", "file"]);
+    git(&foreign_path, &["commit", "-qm", "foreign fixture"]);
+    let foreign_project=result(f.server.request(json!({"method":"projects.import","params":{"path":foreign_path,"name":"Separate registered fixture"},"idempotency_key":"foreign-project-evidence-control"})));
+    f.server.shutdown();
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let frozen = f.root.join("accepted-original.sqlite3");
+    let mut snapshot = rusqlite::Connection::open(&frozen).unwrap();
+    rusqlite::backup::Backup::new(&db, &mut snapshot)
+        .unwrap()
+        .run_to_completion(128, Duration::from_millis(1), None)
+        .unwrap();
+    drop(snapshot);
+    drop(db);
+    {
+        let control = agentbaton_core::storage::Store::open(&frozen).unwrap();
+        assert_eq!(
+            control.get(task_id).unwrap().state,
+            agentbaton_core::storage::TaskState::Accepted
+        );
+        assert!(control.goal_graph_details(run_id).unwrap().task_accepted);
+    }
+    let cases=[
+        ("owner-deleted","DELETE FROM goal_graph_owner_decisions WHERE rowid=(SELECT min(rowid) FROM goal_graph_owner_decisions)"),
+        ("owner-source","UPDATE events SET document=json_set(document,'$.source','agent_output') WHERE sequence=(SELECT min(sequence) FROM events WHERE json_extract(document,'$.kind')='goal.owner_decided')"),
+        ("owner-reordered","UPDATE events SET sequence=(SELECT max(sequence)+100 FROM events) WHERE sequence=(SELECT min(sequence) FROM events WHERE json_extract(document,'$.kind')='goal.owner_decided')"),
+        ("capture-prepared-deleted","DELETE FROM events WHERE sequence=(SELECT min(sequence) FROM events WHERE json_extract(document,'$.kind')='goal.capture_prepared')"),
+        ("capture-prepared-source","UPDATE events SET document=json_set(document,'$.source','agent_output') WHERE sequence=(SELECT min(sequence) FROM events WHERE json_extract(document,'$.kind')='goal.capture_prepared')"),
+        ("capture-reordered","UPDATE events SET sequence=(SELECT max(sequence)+100 FROM events) WHERE sequence=(SELECT min(sequence) FROM events WHERE json_extract(document,'$.kind')='goal.capture_prepared')"),
+        ("candidate-sha","UPDATE goal_graph_candidates SET document=json_set(document,'$.artifacts[0].sha256',printf('%064d',0)) WHERE rowid=(SELECT min(rowid) FROM goal_graph_candidates)"),
+        ("task-project","UPDATE tasks SET document=json_set(document,'$.project_id','foreign-registered-project')"),
+        ("task-goal","UPDATE tasks SET document=json_set(document,'$.goal','different acceptance subject')"),
+        ("task-id","UPDATE tasks SET document=json_set(document,'$.id','foreign-task')"),
+        ("result-run","UPDATE approval_proposals SET result=json_set(result,'$.run_id','foreign-run') WHERE id=?1"),
+        ("result-node","UPDATE approval_proposals SET result=json_set(result,'$.node_id','foreign-node') WHERE id=?1"),
+        ("result-plan","UPDATE approval_proposals SET result=json_set(result,'$.plan_revision',999) WHERE id=?1"),
+        ("result-owner","UPDATE approval_proposals SET result=json_set(result,'$.owner_decision_id','foreign-decision') WHERE id=?1"),
+        ("result-revision","UPDATE approval_proposals SET result=json_set(result,'$.run_revision',999) WHERE id=?1"),
+        ("result-taskaccept","UPDATE approval_proposals SET result=json_set(result,'$.task_accepted',json('false')) WHERE id=?1"),
+        ("result-approval","UPDATE approval_proposals SET result=json_set(result,'$.approval_id','foreign-proposal') WHERE id=?1"),
+    ];
+    for (name, sql) in cases {
+        let path = f.root.join(format!("tampered-{name}.sqlite3"));
+        std::fs::copy(&frozen, &path).unwrap();
+        let db = rusqlite::Connection::open(&path).unwrap();
+        if name == "task-project" {
+            db.execute(
+                "UPDATE tasks SET document=json_set(document,'$.project_id',?1)",
+                [foreign_project["id"].as_str().unwrap()],
+            )
+            .unwrap();
+        } else if name.starts_with("result-") {
+            db.execute(sql, [proposal["id"].as_str().unwrap()]).unwrap();
+        } else {
+            db.execute_batch(sql).unwrap();
+        }
+        let seq: u64 = db
+            .query_row("SELECT max(sequence) FROM events", [], |r| {
+                r.get::<_, i64>(0)
+            })
+            .unwrap()
+            .try_into()
+            .unwrap();
+        drop(db);
+        let mut store = agentbaton_core::storage::Store::open(&path).unwrap();
+        assert!(
+            store.get(task_id).is_err(),
+            "{name}: generic accepted read borrowed damaged evidence"
+        );
+        assert!(
+            store.list().is_err(),
+            "{name}: list borrowed damaged accepted evidence"
+        );
+        assert!(
+            store.goal_graph_details(run_id).is_err(),
+            "{name}: Graph accepted read borrowed damaged evidence"
+        );
+        assert!(
+            store
+                .finalize_proposal(
+                    proposal["id"].as_str().unwrap(),
+                    proposal["revision"].as_u64().unwrap()
+                )
+                .is_err(),
+            "{name}: historical finalize borrowed damaged result/evidence"
+        );
+        assert_eq!(
+            store.sequence().unwrap(),
+            seq,
+            "{name}: rejection created events"
+        );
+        eprintln!("ACCEPTED_HISTORY_CONTROL {name} refused without mutation");
+    }
+}
+
+#[test]
+fn actual_last_owner_rechecks_all_original_products_and_never_accepts_changed_cancelled_or_revoked_graph(
+) {
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    for mode in [
+        "changed-report",
+        "same-bytes-replacement",
+        "revoked",
+        "cancelled",
+    ] {
+        let f = Scenario::new(10_000);
+        let scope = graph_owner_summary_plan(&f);
+        let approved = approve_graph_at(&f, &scope, 2);
+        let run_id = &approved["run"]["id"];
+        wait(
+            &f.server,
+            "goal_graph_runs.get",
+            json!({"run_id":run_id}),
+            |d| {
+                d["nodes"].as_array().is_some_and(|ns| {
+                    ns.iter().any(|n| {
+                        n["node"]["id"] == "owner-report" && n["state"] == "awaiting_owner"
+                    })
+                })
+            },
+        );
+        let first = approve(
+            &f.server,
+            graph_owner_proposal(&f, run_id, "owner-report", "fresh-all-first-owner"),
+        );
+        let before = wait(
+            &f.server,
+            "goal_graph_runs.get",
+            json!({"run_id":run_id}),
+            |d| {
+                d["nodes"].as_array().is_some_and(|ns| {
+                    ns.iter().any(|n| {
+                        n["node"]["id"] == "owner-summary" && n["state"] == "awaiting_owner"
+                    })
+                })
+            },
+        );
+        let proposal = graph_owner_proposal(&f, run_id, "owner-summary", "fresh-all-last-owner");
+        let report =
+            PathBuf::from(f.workspace["root"].as_str().unwrap()).join("reports/report.txt");
+        let original = std::fs::read(&report).unwrap();
+        match mode {
+            "changed-report" => {
+                std::fs::write(&report, b"report changed after first Owner accepted").unwrap()
+            }
+            "same-bytes-replacement" => {
+                let replacement = report.with_file_name("replacement.txt");
+                std::fs::write(&replacement, &original).unwrap();
+                std::fs::set_permissions(
+                    &replacement,
+                    std::fs::metadata(&report).unwrap().permissions(),
+                )
+                .unwrap();
+                std::fs::rename(replacement, &report).unwrap();
+            }
+            "revoked" => {
+                result(f.server.request(json!({"method":"goal_scopes.revoke","params":{"scope_id":scope["id"]},"expected_revision":scope["revision"],"idempotency_key":"revoke-before-final-owner"})));
+            }
+            "cancelled" => {
+                let request = json!({"method":"goal_graph_runs.cancel","params":{"run_id":run_id},"expected_revision":before["run"]["revision"],"idempotency_key":"cancel-before-final-owner"});
+                let receipt = result(f.server.request(request.clone()));
+                assert_eq!(receipt["run"]["cancel_requested"], true);
+                assert_eq!(result(f.server.request(request)), receipt);
+            }
+            _ => unreachable!(),
+        }
+        let ledger_before = result(
+            f.server
+                .request(json!({"method":"system.snapshot","params":{}})),
+        )["sequence"]
+            .clone();
+        let refused=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"must-not-accept-stale-whole-task"}));
+        assert!(refused.get("error").is_some(), "{mode}: {refused}");
+        assert_eq!(
+            refused["error"]["side_effect_state"], "not_started",
+            "{mode}"
+        );
+        let after = result(
+            f.server
+                .request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})),
+        );
+        assert_eq!(after["task_accepted"], false, "{mode}");
+        assert_eq!(
+            after["owner_decisions"].as_array().unwrap().len(),
+            1,
+            "{mode}"
+        );
+        assert_eq!(
+            after["owner_decisions"][0]["id"],
+            first["owner_decision_id"]
+        );
+        assert_eq!(
+            after["candidates"], before["candidates"],
+            "{mode}: old history was erased"
+        );
+        let task = result(
+            f.server
+                .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+        );
+        assert_ne!(task["state"], "accepted");
+        assert!(task.get("acceptance_ref").is_none());
+        let recovered=result(f.server.request(json!({"method":"goal_node_approvals.propose","params":proposal["snapshot"]["intent"],"expected_revision":proposal["snapshot"]["expected_run_revision"],"idempotency_key":"fresh-all-last-owner"})));
+        assert_eq!(
+            recovered, proposal,
+            "{mode}: exact unconsumed proposal history cannot mint fresh authority"
+        );
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert!(db
+            .query_row(
+                "SELECT result IS NULL FROM approval_proposals WHERE id=?1",
+                [proposal["id"].as_str().unwrap()],
+                |r| r.get::<_, bool>(0)
+            )
+            .unwrap());
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM goal_graph_acceptances", [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            0
+        );
+        for key in [
+            format!("project:{}", f.project["id"].as_str().unwrap()),
+            format!("root:{}", f.task["id"].as_str().unwrap()),
+        ] {
+            assert_eq!(
+                db.query_row("SELECT consumed FROM budgets WHERE scope=?1", [key], |r| {
+                    r.get::<_, u32>(0)
+                })
+                .unwrap(),
+                2,
+                "{mode}: no budget refund"
+            );
+        }
+        if mode != "cancelled" {
+            assert_eq!(
+                after["ledger_revision"], ledger_before,
+                "{mode}: denied finalize wrote events"
+            );
+        }
+        assert!(report.exists());
+        eprintln!("FINAL_OWNER_FRESH_CONTROL {mode} refused, original Owner/version and charged attempts retained");
+    }
+}
+
+static CAPTURE_DELAY_CALLS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static CAPTURE_DELAY_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+unsafe extern "C" fn capture_delay_sql(
+    context: *mut rusqlite::ffi::sqlite3_context,
+    _argc: std::ffi::c_int,
+    _values: *mut *mut rusqlite::ffi::sqlite3_value,
+) {
+    let began = Instant::now();
+    std::thread::sleep(Duration::from_millis(1500));
+    CAPTURE_DELAY_MS.store(
+        began.elapsed().as_millis().try_into().unwrap_or(u64::MAX),
+        Ordering::SeqCst,
+    );
+    CAPTURE_DELAY_CALLS.fetch_add(1, Ordering::SeqCst);
+    unsafe {
+        rusqlite::ffi::sqlite3_result_int(context, 1);
+    }
+}
+unsafe extern "C" fn capture_delay_extension(
+    db: *mut rusqlite::ffi::sqlite3,
+    _error: *mut *mut std::ffi::c_char,
+    _api: *const rusqlite::ffi::sqlite3_api_routines,
+) -> std::ffi::c_int {
+    unsafe {
+        rusqlite::ffi::sqlite3_create_function_v2(
+            db,
+            c"goal_fixture_capture_delay".as_ptr(),
+            0,
+            rusqlite::ffi::SQLITE_UTF8 | rusqlite::ffi::SQLITE_INNOCUOUS,
+            std::ptr::null_mut(),
+            Some(capture_delay_sql),
+            None,
+            None,
+            None,
+        )
+    }
+}
+struct CaptureDelayRegistration;
+impl CaptureDelayRegistration {
+    fn new() -> Self {
+        CAPTURE_DELAY_CALLS.store(0, Ordering::SeqCst);
+        CAPTURE_DELAY_MS.store(0, Ordering::SeqCst);
+        assert_eq!(
+            unsafe { rusqlite::ffi::sqlite3_auto_extension(Some(capture_delay_extension)) },
+            rusqlite::ffi::SQLITE_OK
+        );
+        Self
+    }
+}
+impl Drop for CaptureDelayRegistration {
+    fn drop(&mut self) {
+        unsafe {
+            rusqlite::ffi::sqlite3_cancel_auto_extension(Some(capture_delay_extension));
+        }
+    }
+}
+
+#[test]
+fn actual_capture_prestart_queue_exhaustion_never_spawns_or_claims_an_io_join() {
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let _registration = CaptureDelayRegistration::new();
+    let f = Scenario::new(10_000);
+    let scope = goal_scope_and_plan(&f, "goal-report");
+    let current = result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    );
+    let mut plan = current["proposal"].clone();
+    plan["revision"] = json!(2);
+    plan["expected_revision"] = json!(1);
+    plan["nodes"][0]["reservation"]["runtime_ms"] = json!(1200);
+    result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"queue-delay-approved-1200ms"})));
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    // Hold the actual daemon transaction after its capture queue clock starts.
+    // This real monotonic delay is independent of host CPU speed and remains
+    // inside the unchanged 5s RPC bound. No capture worker or fake stop exists.
+    db.execute_batch("CREATE TRIGGER controlled_capture_prepare_delay AFTER INSERT ON goal_graph_jobs BEGIN SELECT goal_fixture_capture_delay(); END;").unwrap();
+    drop(db);
+    let approved = approve_graph_at(&f, &scope, 2);
+    let run_id = &approved["run"]["id"];
+    let blocked = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| d["run"]["state"] == "blocked",
+    );
+    assert_eq!(CAPTURE_DELAY_CALLS.load(Ordering::SeqCst), 1);
+    let actual_delay = CAPTURE_DELAY_MS.load(Ordering::SeqCst);
+    assert!(actual_delay >= 1500);
+    eprintln!(
+        "CONTROLLED_CAPTURE_DELAY elapsed_ms={actual_delay} calls=1 approved_runtime_ms=1200"
+    );
+    assert_eq!(blocked["task_accepted"], false);
+    assert!(blocked["candidates"].as_array().unwrap().is_empty());
+    assert_eq!(blocked["nodes"][0]["stop_confirmed"], true);
+    assert!(blocked["nodes"][0]["actual_runtime_ms"].as_u64().unwrap() >= 1200);
+    assert!(blocked["nodes"][0]["actual_output_bytes"].is_null());
+    let sessions = result(
+        f.server
+            .request(json!({"method":"sessions.list","params":{}})),
+    );
+    assert_eq!(sessions.as_array().unwrap().len(), 1);
+    assert_eq!(sessions[0]["state"], "stopped");
+    assert_eq!(sessions[0]["turn_state"], "completed");
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='goal.capture_worker_started'",[],|r|r.get::<_,u32>(0)).unwrap(),0);
+    let raw:String=db.query_row("SELECT document FROM events WHERE json_extract(document,'$.kind')='goal.capture_settled'",[],|r|r.get(0)).unwrap();
+    let receipt: Value = serde_json::from_str(&raw).unwrap();
+    assert_eq!(receipt["payload"]["io_completion"], "not_started");
+    assert_eq!(receipt["payload"]["capture_worker_joined"], false);
+    assert_eq!(receipt["payload"]["producer_stop_confirmed"], true);
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM goal_graph_candidates", [], |r| r
+            .get::<_, u32>(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        1
+    );
+    eprintln!("CAPTURE_PRESTART actual queued delay exhausted 1200ms reservation, no thread started/no join/candidate/refund; actual_runtime_ms={}",receipt["payload"]["actual_runtime_ms"]);
+}
+
+fn actual_integrity_definition_graph_fixture() -> (Scenario, Value, Value) {
+    actual_integrity_definition_graph_fixture_with_budget(8)
+}
+fn trace_integrity_grant(f: &Scenario, phase: &str) {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
+    eprintln!(
+        "INTEGRITY_GRANT_PHASE {}",
+        json!({"phase":phase,"now_epoch_ms":now,"grant_id":f.grant["id"],
+            "approved_at":f.grant["approved_at"],"expires_at_ms":f.grant["expires_at_ms"]})
+    );
+}
+fn actual_integrity_definition_graph_fixture_with_budget(
+    attempts: u32,
+) -> (Scenario, Value, Value) {
+    use agentbaton_core::{goal_plan::*, goal_store::*};
+    let mut f = Scenario::new(10_000);
+    use_actual_dataset_workspace(&mut f);
+    // Enclosing fixture lifetime includes bootstrap and two Owner reviews.
+    // Match Data/Command's 30s Grant; Graph runtime/node/negative limits stay fixed.
+    let grant_proposal=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":8,"max_concurrency":1,"max_duration_ms":30000},"idempotency_key":"initial-eight-shared-attempt-policy"})));
+    f.grant = approve(&f.server, grant_proposal);
+    trace_integrity_grant(&f, "enclosing_grant_approved_before_bootstrap");
+    let bootstrap = goal_scope_and_plan_with_options(&f, "goal-report", 0, 1, 2, 8, vec![]);
+    let source = approve_goal_execution(&f, &bootstrap);
+    let source_done = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":source["id"]}),
+        |d| d["run"]["state"] == "awaiting_acceptance",
+    );
+    let session = &source_done["nodes"][0]["session_id"];
+    trace_integrity_grant(&f, "bootstrap_candidate_before_definition");
+    let policy_proposal=result(f.server.request(json!({"method":"validation_policies.propose","params":{"session_id":session,"inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":agentbaton_workspaces::validation::sha256(b"baseline")}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],"analysis":null},"idempotency_key":"source-additional-integrity-definition"})));
+    let definition = approve(&f.server, policy_proposal);
+    result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":source["id"]},"expected_revision":source_done["run"]["revision"],"idempotency_key":"cancel-source-candidate-before-new-graph"})));
+    wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":source["id"]}),
+        |d| d["run"]["state"] == "cancelled",
+    );
+    trace_integrity_grant(&f, "bootstrap_cancelled_before_new_task");
+    let grants = result(
+        f.server
+            .request(json!({"method":"grants.list","params":{"project_id":f.project["id"]}})),
+    );
+    f.grant = grants
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|g| g["id"] == f.grant["id"])
+        .unwrap()
+        .clone();
+    f.task=result(f.server.request(json!({"method":"tasks.create","params":{"project_id":f.project["id"],"goal":"Use approved same-workspace graph definition with a new owned producer subject"},"idempotency_key":"new-graph-task-keeps-project-history"})));
+    let validator = GoalValidatorRef {
+        kind: GoalValidatorKind::Integrity,
+        policy_id: definition["id"].as_str().unwrap().into(),
+        revision: definition["revision"].as_u64().unwrap(),
+    };
+    let scope =
+        goal_scope_and_plan_with_options(&f, "goal-report", 0, 2, 5, attempts, vec![validator]);
+    let view: GoalScopeView = serde_json::from_value(scope.clone()).unwrap();
+    let current: GoalPlanView = serde_json::from_value(result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    ))
+    .unwrap();
+    let mut plan = current.proposal;
+    let producer = plan.nodes[0].clone();
+    let mut summary = plan.nodes[1].clone();
+    let rule_id = view.contracts["output:report"]
+        .iter()
+        .find(|id| id.starts_with("integrity:"))
+        .unwrap()
+        .clone();
+    let candidate = RequiredInput {
+        goal_task_id: view.task_id.clone(),
+        artifact_id: "report".into(),
+        contract_id: "output:report".into(),
+        source: InputSource::Node {
+            node_id: producer.id.clone(),
+            candidate_for_validation: true,
+        },
+    };
+    let mut validate = producer.clone();
+    validate.id = "validate-report".into();
+    validate.kind = NodeKind::Validate;
+    validate.executor = Executor::Validator {
+        rule_id: rule_id.clone(),
+    };
+    validate.goal = "Apply exact approved integrity definition to the new captured producer".into();
+    validate.dependencies = vec![producer.id.clone()];
+    validate.required_inputs = vec![candidate.clone()];
+    validate.outputs.clear();
+    validate.required_validators = vec![rule_id.clone()];
+    validate.side_effect = SideEffect::AdvisoryReadOnly;
+    validate.write_set.clear();
+    validate.idempotency_key = "validate-owned-report-once".into();
+    let mut owner = validate.clone();
+    owner.id = "owner-report".into();
+    owner.kind = NodeKind::OwnerApproval;
+    owner.executor = Executor::Owner {
+        rule_id: "goal-owner-review".into(),
+    };
+    owner.goal = "Owner reviews exact report after deterministic integrity only".into();
+    owner.dependencies = vec![producer.id.clone(), validate.id.clone()];
+    owner.required_validators = vec!["goal-owner-review".into()];
+    owner.idempotency_key = "owner-report-once".into();
+    summary.dependencies = vec![validate.id.clone(), owner.id.clone()];
+    let mut accepted = candidate;
+    accepted.source = InputSource::Node {
+        node_id: producer.id.clone(),
+        candidate_for_validation: false,
+    };
+    summary.required_inputs = vec![accepted];
+    let mut final_owner = owner.clone();
+    final_owner.id = "owner-summary".into();
+    final_owner.dependencies = vec![summary.id.clone()];
+    final_owner.required_inputs = vec![RequiredInput {
+        goal_task_id: view.task_id.clone(),
+        artifact_id: "report-2".into(),
+        contract_id: "output:report-2".into(),
+        source: InputSource::Node {
+            node_id: summary.id.clone(),
+            candidate_for_validation: true,
+        },
+    }];
+    final_owner.idempotency_key = "owner-summary-once".into();
+    plan.nodes = vec![producer, validate, owner, summary, final_owner];
+    plan.revision = 2;
+    plan.expected_revision = 1;
+    result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"actual-integrity-five-node-plan"})));
+    trace_integrity_grant(&f, "five_node_plan_prepared");
+    (f, scope, definition)
+}
+#[test]
+fn actual_graph_integrity_validator_is_a_charged_owned_attempt_before_owner_and_summary() {
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let (f, scope, definition) = actual_integrity_definition_graph_fixture();
+    trace_integrity_grant(&f, "before_graph_approval");
+    let approved = approve_graph_at(&f, &scope, 2);
+    let run_id = &approved["run"]["id"];
+    let checked = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-report" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    assert_eq!(checked["validations"].as_array().unwrap().len(), 1);
+    let receipt = &checked["validations"][0];
+    authentic_validation_from_projection(receipt);
+    assert_eq!(receipt["passed"], true);
+    assert_eq!(receipt["scope"], "artifact_integrity_only");
+    assert_eq!(receipt["correctness"], "not_established");
+    assert_eq!(receipt["task_acceptance"], "not_established");
+    assert_eq!(receipt["source"], "baton_goal_validator");
+    assert_eq!(receipt["io_completion"], "worker_joined");
+    assert_eq!(receipt["stop_confirmed"], true);
+    assert_eq!(checked["task_accepted"], false);
+    let validator = checked["nodes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|n| n["node"]["id"] == "validate-report")
+        .unwrap();
+    assert!(validator["session_id"].is_null());
+    assert!(validator["job_id"].is_string());
+    assert!(validator["attempt_id"].is_string());
+    assert_eq!(validator["execution_kind"], "validator");
+    assert_eq!(validator["state"], "validated");
+    trace_integrity_grant(&f, "before_first_owner_proposal");
+    let owner_proposal = graph_owner_proposal(&f, run_id, "owner-report", "integrity-owner-report");
+    assert_eq!(
+        owner_proposal["snapshot"]["validation_refs"][0],
+        authentic_validation_from_projection(receipt)
+    );
+    trace_integrity_grant(&f, "before_first_owner_finalize");
+    let first_decision = approve(&f.server, owner_proposal.clone());
+    wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":run_id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-summary" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    trace_integrity_grant(&f, "before_final_owner_proposal");
+    let final_proposal =
+        graph_owner_proposal(&f, run_id, "owner-summary", "integrity-owner-summary");
+    trace_integrity_grant(&f, "before_final_owner_finalize");
+    let decision = approve(&f.server, final_proposal.clone());
+    assert_eq!(decision["task_accepted"], true);
+    let accepted = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.get","params":{"run_id":run_id}})),
+    );
+    assert_eq!(accepted["task_accepted"], true);
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        4
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM sessions", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        3
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        4
+    );
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    for key in [
+        format!("project:{}", f.project["id"].as_str().unwrap()),
+        format!("root-grant:{}", f.grant["id"].as_str().unwrap()),
+    ] {
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM goal_ledgers WHERE scope=?1",
+                [key],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let ledger: Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(ledger["output_bytes"], 38);
+    }
+    let output:u64=db.query_row("SELECT sum(json_extract(document,'$.actual_output_bytes')) FROM goal_run_reservations WHERE run_id=?1",[run_id.as_str().unwrap()],|r|r.get::<_,i64>(0)).unwrap().try_into().unwrap();
+    assert_eq!(output, 26);
+    let evidence = json!({"build_source_hashes":graph_build_source_hashes(),"task":task,"scope":scope,"definition":definition,"graph_details":accepted,"owner_proposal":owner_proposal,"first_decision":first_decision,"final_owner_proposal":final_proposal,"final_decision":decision});
+    let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
+    let sha = agentbaton_workspaces::validation::sha256(&bytes);
+    let path = graph_artifact_path(format!("actual-integrity-graph-{sha}.json"));
+    use std::io::Write;
+    std::fs::OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .write_all(&bytes)
+        .unwrap();
+    eprintln!(
+        "ACTUAL_INTEGRITY_GRAPH sha256={sha} bytes={} path={}",
+        bytes.len(),
+        path.display()
+    );
+}
+
+fn actual_data_definition_graph_fixture(bad: bool) -> (Scenario, Value, Value) {
+    use agentbaton_core::{goal_plan::*, goal_store::*};
+    let mut f = Scenario::new(10_000);
+    use_actual_dataset_workspace(&mut f);
+    let p=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":8,"max_concurrency":1,"max_duration_ms":30000},"idempotency_key":"data-eight-shared-attempt-policy"})));
+    f.grant = approve(&f.server, p);
+    let bootstrap = goal_scope_and_plan_with_options(&f, "goal-data-report", 0, 3, 5, 8, vec![]);
+    let current: GoalPlanView = serde_json::from_value(result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":bootstrap["id"]}})),
+    ))
+    .unwrap();
+    let mut plan = current.proposal;
+    let mut producer = plan.nodes[0].clone();
+    producer.outputs = plan.nodes.iter().flat_map(|n| n.outputs.clone()).collect();
+    producer.write_set = plan
+        .nodes
+        .iter()
+        .flat_map(|n| n.write_set.clone())
+        .collect();
+    producer.required_validators = plan
+        .nodes
+        .iter()
+        .flat_map(|n| n.required_validators.clone())
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    plan.nodes = vec![producer];
+    plan.revision = 2;
+    plan.expected_revision = 1;
+    result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":bootstrap["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"data-source-three-artifacts-plan"})));
+    let source = approve(&f.server, prepare_goal_execution_at(&f, &bootstrap, 2));
+    let done = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":source["id"]}),
+        |d| d["run"]["state"] == "awaiting_acceptance",
+    );
+    let artifacts=(1..=3).map(|i|json!({"artifact_id":if i==1 {"report".into()}else{format!("report-{i}")},"relative_path":if i==1 {"reports/report.txt".into()}else{format!("reports/report-{i}.txt")},"max_bytes":1024,"expected_sha256":null})).collect::<Vec<_>>();
+    let table = json!({"table_artifact_id":"report","dataset_rows":1,"columns":[{"name":"x","required":true,"nullable":false,"scalar":{"type":"integer","min":0,"max":10}}],"analysis":{"script_artifact_id":"report-2","environment_artifact_id":"report-3","units":{"x":"bytes"},"timezone":"UTC","seed":7,"scope":{"kind":"full"}},"limits":agentbaton_workspaces::deterministic::JsonLimits::default()});
+    let p=result(f.server.request(json!({"method":"data_validation_policies.propose","params":{"session_id":done["nodes"][0]["session_id"],"inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":agentbaton_workspaces::validation::sha256(b"baseline")}],"outputs":artifacts,"table":table},"idempotency_key":"source-additional-json-definition"})));
+    let definition = approve(&f.server, p);
+    result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":source["id"]},"expected_revision":done["run"]["revision"],"idempotency_key":"cancel-data-source-candidate"})));
+    wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":source["id"]}),
+        |d| d["run"]["state"] == "cancelled",
+    );
+    let grants = result(
+        f.server
+            .request(json!({"method":"grants.list","params":{"project_id":f.project["id"]}})),
+    );
+    f.grant = grants
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|g| g["id"] == f.grant["id"])
+        .unwrap()
+        .clone();
+    f.task=result(f.server.request(json!({"method":"tasks.create","params":{"project_id":f.project["id"],"goal":"Validate generated JSON with the explicitly approved rebinding capability"},"idempotency_key":"new-data-graph-task-keeps-history"})));
+    let validator = GoalValidatorRef {
+        kind: GoalValidatorKind::Data,
+        policy_id: definition["id"].as_str().unwrap().into(),
+        revision: definition["revision"].as_u64().unwrap(),
+    };
+    let scope = goal_scope_and_plan_with_options(
+        &f,
+        if bad {
+            "goal-data-report-bad"
+        } else {
+            "goal-data-report"
+        },
+        0,
+        4,
+        5,
+        8,
+        vec![validator],
+    );
+    let view: GoalScopeView = serde_json::from_value(scope.clone()).unwrap();
+    let current: GoalPlanView = serde_json::from_value(result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    ))
+    .unwrap();
+    let mut plan = current.proposal;
+    let mut producer = plan.nodes[0].clone();
+    producer.outputs = plan.nodes[..3]
+        .iter()
+        .flat_map(|n| n.outputs.clone())
+        .collect();
+    producer.write_set = plan.nodes[..3]
+        .iter()
+        .flat_map(|n| n.write_set.clone())
+        .collect();
+    producer.required_validators = plan.nodes[..3]
+        .iter()
+        .flat_map(|n| n.required_validators.clone())
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    let candidate_inputs = producer
+        .outputs
+        .iter()
+        .map(|o| RequiredInput {
+            goal_task_id: view.task_id.clone(),
+            artifact_id: o.artifact_id.clone(),
+            contract_id: o.contract_id.clone(),
+            source: InputSource::Node {
+                node_id: producer.id.clone(),
+                candidate_for_validation: true,
+            },
+        })
+        .collect::<Vec<_>>();
+    let rule = view.contracts["output:report"]
+        .iter()
+        .find(|id| id.starts_with("data:"))
+        .unwrap()
+        .clone();
+    let mut validate = producer.clone();
+    validate.id = "validate-report".into();
+    validate.kind = NodeKind::Validate;
+    validate.executor = Executor::Validator {
+        rule_id: rule.clone(),
+    };
+    validate.goal =
+        "Validate exact new JSON schema/ranges/metadata without scientific acceptance".into();
+    validate.dependencies = vec![producer.id.clone()];
+    validate.required_inputs = candidate_inputs.clone();
+    validate.outputs.clear();
+    validate.write_set.clear();
+    validate.side_effect = SideEffect::AdvisoryReadOnly;
+    validate.required_validators = vec![rule];
+    validate.idempotency_key = "data-validate-once".into();
+    let mut owner = validate.clone();
+    owner.id = "owner-report".into();
+    owner.kind = NodeKind::OwnerApproval;
+    owner.executor = Executor::Owner {
+        rule_id: "goal-owner-review".into(),
+    };
+    owner.required_validators = vec!["goal-owner-review".into()];
+    owner.dependencies.push(validate.id.clone());
+    owner.idempotency_key = "data-owner-report-once".into();
+    let mut summary = plan.nodes[3].clone();
+    summary.dependencies = vec![owner.id.clone(), validate.id.clone()];
+    let mut accepted = candidate_inputs[0].clone();
+    accepted.source = InputSource::Node {
+        node_id: producer.id.clone(),
+        candidate_for_validation: false,
+    };
+    summary.required_inputs = vec![accepted];
+    let mut last = owner.clone();
+    last.id = "owner-summary".into();
+    last.dependencies = vec![summary.id.clone()];
+    last.required_inputs = vec![RequiredInput {
+        goal_task_id: view.task_id.clone(),
+        artifact_id: "report-4".into(),
+        contract_id: "output:report-4".into(),
+        source: InputSource::Node {
+            node_id: summary.id.clone(),
+            candidate_for_validation: true,
+        },
+    }];
+    last.idempotency_key = "data-owner-summary-once".into();
+    plan.nodes = vec![producer, validate, owner, summary, last];
+    plan.revision = 2;
+    plan.expected_revision = 1;
+    result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"actual-json-five-node-plan"})));
+    (f, scope, definition)
+}
+#[test]
+fn actual_graph_data_contract_passes_before_owner_and_summary_but_is_not_scientific_acceptance() {
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let (f, scope, definition) = actual_data_definition_graph_fixture(false);
+    let approved = approve_graph_at(&f, &scope, 2);
+    let id = &approved["run"]["id"];
+    let checked = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-report" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    let v = &checked["validations"][0];
+    authentic_validation_from_projection(v);
+    assert_eq!(v["passed"], true);
+    assert_eq!(v["scope"], "data_contract_only");
+    assert_eq!(v["correctness"], "approved_schema_ranges_metadata_only");
+    assert_eq!(v["task_acceptance"], "not_established");
+    assert_eq!(v["io_completion"], "worker_joined");
+    assert_eq!(checked["task_accepted"], false);
+    let owner_proposal = graph_owner_proposal(&f, id, "owner-report", "json-owner-first");
+    let first_decision = approve(&f.server, owner_proposal.clone());
+    wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-summary" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    let final_owner_proposal = graph_owner_proposal(&f, id, "owner-summary", "json-owner-final");
+    let final_decision = approve(&f.server, final_owner_proposal.clone());
+    assert_eq!(final_decision["task_accepted"], true);
+    let graph_details = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})),
+    );
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    assert_eq!(graph_details["task_accepted"], true);
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        4
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM sessions", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        3
+    );
+    let evidence = json!({"build_source_hashes":graph_build_source_hashes(),"task":task,"scope":scope,"definition":definition,"graph_details":graph_details,"owner_proposal":owner_proposal,"first_decision":first_decision,"final_owner_proposal":final_owner_proposal,"final_decision":final_decision});
+    export_graph_fixture("data", &evidence);
+}
+#[test]
+fn actual_graph_data_range_failure_never_unlocks_owner_or_dependent_summary() {
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let (f, scope, _) = actual_data_definition_graph_fixture(true);
+    let approved = approve_graph_at(&f, &scope, 2);
+    let id = &approved["run"]["id"];
+    let failed = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":id}),
+        |d| d["validations"].as_array().is_some_and(|v| !v.is_empty()),
+    );
+    assert_eq!(failed["validations"][0]["passed"], false);
+    assert_eq!(failed["task_accepted"], false);
+    assert!(failed["owner_decisions"].as_array().unwrap().is_empty());
+    assert!(failed["nodes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|n| n["node"]["id"] == "owner-report" || n["node"]["id"] == "independent-4")
+        .all(|n| n["state"] == "not_started"));
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        3
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM sessions", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        2
+    );
+}
+fn export_graph_fixture(kind: &str, evidence: &Value) {
+    use std::io::Write;
+    let bytes = serde_json::to_vec_pretty(evidence).unwrap();
+    let sha = agentbaton_workspaces::validation::sha256(&bytes);
+    let path = graph_artifact_path(format!("actual-{kind}-graph-{sha}.json"));
+    std::fs::OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .write_all(&bytes)
+        .unwrap();
+    eprintln!(
+        "ACTUAL_GRAPH kind={kind} sha256={sha} bytes={} path={}",
+        bytes.len(),
+        path.display()
+    );
+}
+
+fn actual_command_definition_graph_fixture(command_case: &str) -> (Scenario, Value, Value) {
+    use agentbaton_core::{goal_plan::*, goal_store::*};
+    let mut f = Scenario::new(10_000);
+    use_actual_dataset_workspace(&mut f);
+    let grant_proposal=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":8,"max_concurrency":1,"max_duration_ms":30000},"idempotency_key":"initial-eight-shared-attempt-policy"})));
+    f.grant = approve(&f.server, grant_proposal);
+    let bootstrap = goal_scope_and_plan_with_options(&f, "goal-report", 0, 1, 2, 8, vec![]);
+    let source = approve_goal_execution(&f, &bootstrap);
+    let source_done = wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":source["id"]}),
+        |d| d["run"]["state"] == "awaiting_acceptance",
+    );
+    let session = &source_done["nodes"][0]["session_id"];
+    let executable = if command_case == "normal" {
+        "/usr/bin/printf"
+    } else {
+        if Path::new("/usr/bin/sleep").exists() {
+            "/usr/bin/sleep"
+        } else {
+            "/bin/sleep"
+        }
+    };
+    let arguments = if command_case == "normal" {
+        vec!["fixed command observed"]
+    } else {
+        vec!["3"]
+    };
+    let program = std::fs::canonicalize(executable).unwrap();
+    let policy_proposal=result(f.server.request(json!({"method":"command_validation_policies.propose","params":{"session_id":session,"executable":program,"mode":"native_executable","script":null,"inputs":[{"artifact_id":"fixed-input","relative_path":"inputs/file","max_bytes":1024,"expected_sha256":agentbaton_workspaces::validation::sha256(b"baseline")}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":1024,"expected_sha256":null}],"arguments":arguments,"environment":{},"expected_exit_codes":[0],"wall_time_ms":if command_case=="normal" {500}else{1500},"cleanup_time_ms":500,"stdout_limit":512,"stderr_limit":512,"require":agentbaton_core::command_validation::CommandEnforcement::default()},"idempotency_key":"source-additional-command-definition"})));
+    let definition = approve(&f.server, policy_proposal);
+    result(f.server.request(json!({"method":"goal_runs.cancel","params":{"run_id":source["id"]},"expected_revision":source_done["run"]["revision"],"idempotency_key":"cancel-source-candidate-before-new-graph"})));
+    wait(
+        &f.server,
+        "goal_runs.get",
+        json!({"run_id":source["id"]}),
+        |d| d["run"]["state"] == "cancelled",
+    );
+    let grants = result(
+        f.server
+            .request(json!({"method":"grants.list","params":{"project_id":f.project["id"]}})),
+    );
+    f.grant = grants
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|g| g["id"] == f.grant["id"])
+        .unwrap()
+        .clone();
+    f.task=result(f.server.request(json!({"method":"tasks.create","params":{"project_id":f.project["id"],"goal":"Use approved same-workspace graph definition with a new owned producer subject"},"idempotency_key":"new-graph-task-keeps-project-history"})));
+    let validator = GoalValidatorRef {
+        kind: GoalValidatorKind::Command,
+        policy_id: definition["id"].as_str().unwrap().into(),
+        revision: definition["revision"].as_u64().unwrap(),
+    };
+    let scope = goal_scope_and_plan_with_options(&f, "goal-report", 0, 2, 5, 8, vec![validator]);
+    let view: GoalScopeView = serde_json::from_value(scope.clone()).unwrap();
+    let current: GoalPlanView = serde_json::from_value(result(
+        f.server
+            .request(json!({"method":"goal_plans.get","params":{"scope_id":scope["id"]}})),
+    ))
+    .unwrap();
+    let mut plan = current.proposal;
+    let producer = plan.nodes[0].clone();
+    let mut summary = plan.nodes[1].clone();
+    let rule_id = view.contracts["output:report"]
+        .iter()
+        .find(|id| id.starts_with("command:"))
+        .unwrap()
+        .clone();
+    let candidate = RequiredInput {
+        goal_task_id: view.task_id.clone(),
+        artifact_id: "report".into(),
+        contract_id: "output:report".into(),
+        source: InputSource::Node {
+            node_id: producer.id.clone(),
+            candidate_for_validation: true,
+        },
+    };
+    let mut validate = producer.clone();
+    validate.id = "validate-report".into();
+    validate.kind = NodeKind::Validate;
+    validate.executor = Executor::Validator {
+        rule_id: rule_id.clone(),
+    };
+    validate.goal = "Apply exact approved command definition to the new captured producer".into();
+    validate.dependencies = vec![producer.id.clone()];
+    validate.required_inputs = vec![candidate.clone()];
+    validate.outputs.clear();
+    validate.required_validators = vec![rule_id.clone()];
+    validate.side_effect = SideEffect::AdvisoryReadOnly;
+    validate.write_set.clear();
+    validate.idempotency_key = "validate-owned-report-once".into();
+    let mut owner = validate.clone();
+    owner.id = "owner-report".into();
+    owner.kind = NodeKind::OwnerApproval;
+    owner.executor = Executor::Owner {
+        rule_id: "goal-owner-review".into(),
+    };
+    owner.goal = "Owner reviews exact report after deterministic command only".into();
+    owner.dependencies = vec![producer.id.clone(), validate.id.clone()];
+    owner.required_validators = vec!["goal-owner-review".into()];
+    owner.idempotency_key = "owner-report-once".into();
+    summary.dependencies = vec![validate.id.clone(), owner.id.clone()];
+    let mut accepted = candidate;
+    accepted.source = InputSource::Node {
+        node_id: producer.id.clone(),
+        candidate_for_validation: false,
+    };
+    summary.required_inputs = vec![accepted];
+    let mut final_owner = owner.clone();
+    final_owner.id = "owner-summary".into();
+    final_owner.dependencies = vec![summary.id.clone()];
+    final_owner.required_inputs = vec![RequiredInput {
+        goal_task_id: view.task_id.clone(),
+        artifact_id: "report-2".into(),
+        contract_id: "output:report-2".into(),
+        source: InputSource::Node {
+            node_id: summary.id.clone(),
+            candidate_for_validation: true,
+        },
+    }];
+    final_owner.idempotency_key = "owner-summary-once".into();
+    plan.nodes = vec![producer, validate, owner, summary, final_owner];
+    plan.revision = 2;
+    plan.expected_revision = 1;
+    result(f.server.request(json!({"method":"goal_plans.propose","params":{"scope_id":scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"actual-command-five-node-plan"})));
+    (f, scope, definition)
+}
+
+#[test]
+fn actual_graph_fixed_command_observation_is_charged_without_recounting_checked_producer_bytes() {
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let (f, scope, definition) = actual_command_definition_graph_fixture("normal");
+    let approved = approve_graph_at(&f, &scope, 2);
+    let id = &approved["run"]["id"];
+    let checked = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-report" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    let receipt = &checked["validations"][0];
+    authentic_validation_from_projection(receipt);
+    assert_eq!(receipt["passed"], true);
+    assert_eq!(receipt["scope"], "approved_deterministic_command_only");
+    assert_eq!(
+        receipt["correctness"],
+        "approved_fixed_command_observations_only"
+    );
+    assert_eq!(receipt["task_acceptance"], "not_established");
+    assert_eq!(receipt["io_completion"], "worker_joined");
+    assert_eq!(checked["task_accepted"], false);
+    let owner_proposal = graph_owner_proposal(&f, id, "owner-report", "command-owner-first");
+    let first_decision = approve(&f.server, owner_proposal.clone());
+    wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-summary" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    let final_owner_proposal = graph_owner_proposal(&f, id, "owner-summary", "command-owner-final");
+    let final_decision = approve(&f.server, final_owner_proposal.clone());
+    assert_eq!(final_decision["task_accepted"], true);
+    let graph_details = result(
+        f.server
+            .request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})),
+    );
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        4
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM sessions", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        3
+    );
+    for key in [
+        format!("project:{}", f.project["id"].as_str().unwrap()),
+        format!("root-grant:{}", f.grant["id"].as_str().unwrap()),
+    ] {
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM goal_ledgers WHERE scope=?1",
+                [&key],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let meter: Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(meter["output_bytes"], 60, "{meter}");
+    }
+    let evidence = json!({"build_source_hashes":graph_build_source_hashes(),"task":task,"scope":scope,"definition":definition,"graph_details":graph_details,"owner_proposal":owner_proposal,"first_decision":first_decision,"final_owner_proposal":final_owner_proposal,"final_decision":final_decision});
+    export_graph_fixture("command", &evidence);
+}
+
+fn command_pid_exists(pid: u32) -> bool {
+    Command::new("ps")
+        .args(["-p", &pid.to_string(), "-o", "pid="])
+        .output()
+        .unwrap()
+        .stdout
+        .iter()
+        .any(u8::is_ascii_digit)
+}
+fn wait_actual_graph_command_child(_f: &Scenario) -> u32 {
+    let started = Instant::now();
+    loop {
+        let output = Command::new("ps")
+            .args(["-axo", "pid=,ppid=,args="])
+            .output()
+            .unwrap();
+        assert!(output.status.success());
+        for line in String::from_utf8_lossy(&output.stdout).lines() {
+            let mut fields = line.split_whitespace();
+            let Some(pid) = fields.next().and_then(|s| s.parse::<u32>().ok()) else {
+                continue;
+            };
+            let Some(parent) = fields.next().and_then(|s| s.parse::<u32>().ok()) else {
+                continue;
+            };
+            let Some(command) = fields.next() else {
+                continue;
+            };
+            if parent == std::process::id()
+                && Path::new(command).file_name().is_some_and(|n| n == "sleep")
+            {
+                return pid;
+            }
+        }
+        assert!(
+            started.elapsed() < Duration::from_secs(5),
+            "actual approved command did not spawn"
+        );
+        std::thread::sleep(Duration::from_millis(5));
+    }
+}
+#[test]
+fn actual_graph_command_cancel_and_definition_revocation_join_the_owned_child_and_block_downstream()
+{
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    for action in ["cancel", "revoke"] {
+        let (f, scope, definition) = actual_command_definition_graph_fixture("hold");
+        let approved = approve_graph_at(&f, &scope, 2);
+        let id = &approved["run"]["id"];
+        let pid = wait_actual_graph_command_child(&f);
+        let current = result(
+            f.server
+                .request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})),
+        );
+        if action == "cancel" {
+            let receipt=result(f.server.request(json!({"method":"goal_graph_runs.cancel","params":{"run_id":id},"expected_revision":current["run"]["revision"],"idempotency_key":"cancel-real-validator-child"})));
+            assert_eq!(receipt["run"]["cancel_requested"], true);
+        } else {
+            result(f.server.request(json!({"method":"command_validation_policies.revoke","params":{"policy_id":definition["id"]},"expected_revision":definition["revision"],"idempotency_key":"revoke-live-graph-definition"})));
+        }
+        let stopped = wait(
+            &f.server,
+            "goal_graph_runs.get",
+            json!({"run_id":id}),
+            |d| d["validations"].as_array().is_some_and(|vs| !vs.is_empty()),
+        );
+        let v = &stopped["validations"][0];
+        assert_eq!(v["passed"], false);
+        assert_eq!(v["stop_confirmed"], true);
+        assert_eq!(v["io_completion"], "worker_joined");
+        assert_eq!(stopped["task_accepted"], false);
+        assert!(stopped["owner_decisions"].as_array().unwrap().is_empty());
+        assert!(stopped["nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|n| n["execution_kind"] == "owner" || n["node"]["kind"] == "summary")
+            .all(|n| n["state"] == "not_started"));
+        assert!(
+            !command_pid_exists(pid),
+            "owned command leader must actually be reaped"
+        );
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            3
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT consumed FROM budgets WHERE scope=?1",
+                [format!("project:{}", f.project["id"].as_str().unwrap())],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            3
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT active FROM budgets WHERE scope=?1",
+                [format!("project:{}", f.project["id"].as_str().unwrap())],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            0
+        );
+        eprintln!("ACTUAL_COMMAND_STOP action={action} pid={pid} joined=true attempts=3 no downstream/acceptance/refund");
+    }
+}
+#[test]
+fn actual_graph_command_wall_timeout_reaps_without_owner_or_acceptance() {
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let (f, scope, _) = actual_command_definition_graph_fixture("timeout");
+    let approved = approve_graph_at(&f, &scope, 2);
+    let id = &approved["run"]["id"];
+    let pid = wait_actual_graph_command_child(&f);
+    let failed = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":id}),
+        |d| d["validations"].as_array().is_some_and(|v| !v.is_empty()),
+    );
+    let v = &failed["validations"][0];
+    assert_eq!(v["passed"], false);
+    assert_eq!(v["stop_confirmed"], true);
+    assert_eq!(v["io_completion"], "worker_joined");
+    assert_eq!(v["observation"]["reason"], "deadline_exceeded");
+    assert_eq!(failed["task_accepted"], false);
+    assert!(!command_pid_exists(pid));
+    assert!(failed["owner_decisions"].as_array().unwrap().is_empty());
+    eprintln!(
+        "ACTUAL_COMMAND_TIMEOUT pid={pid} observed={}ms",
+        v["actual_runtime_ms"]
+    );
+}
+#[test]
+fn actual_graph_interrupted_validator_snapshot_is_unknown_fenced_and_never_automatically_replayed()
+{
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let (mut f, scope, _) = actual_command_definition_graph_fixture("recovery");
+    let approved = approve_graph_at(&f, &scope, 2);
+    let id = &approved["run"]["id"];
+    let _pid = wait_actual_graph_command_child(&f);
+    let recovery = f.root.join("restore");
+    std::fs::DirBuilder::new()
+        .mode(0o700)
+        .create(&recovery)
+        .unwrap();
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    db.execute(
+        "VACUUM INTO ?1",
+        [recovery.join("baton.sqlite3").to_str().unwrap()],
+    )
+    .unwrap();
+    std::fs::set_permissions(
+        recovery.join("baton.sqlite3"),
+        std::fs::Permissions::from_mode(0o600),
+    )
+    .unwrap();
+    drop(db);
+    // Consistent in-flight durable crash image; original owned process is actually
+    // stopped/joined before a second daemon is allowed to read its snapshot.
+    f.server.shutdown();
+    // Probe the original socket-length shape only in an exclusively created
+    // private sibling. Never remove or bind an existing/unknown path.
+    use std::os::unix::{fs::FileTypeExt, net::UnixListener};
+    let old_name = "validator-interrupted-runtime";
+    let old_socket = f.root.join(old_name).join("batond.sock");
+    let nonce = uuid::Uuid::new_v4().simple().to_string();
+    let probe = f.root.join(&nonce[..old_name.len()]);
+    std::fs::DirBuilder::new()
+        .mode(0o700)
+        .create(&probe)
+        .unwrap();
+    let probe_socket = probe.join("batond.sock");
+    assert_eq!(probe_socket.as_os_str().len(), old_socket.as_os_str().len());
+    let outcome = match UnixListener::bind(&probe_socket) {
+        Ok(listener) => {
+            std::fs::set_permissions(&probe_socket, std::fs::Permissions::from_mode(0o600))
+                .unwrap();
+            drop(listener);
+            assert!(std::fs::symlink_metadata(&probe_socket)
+                .unwrap()
+                .file_type()
+                .is_socket());
+            std::fs::remove_file(&probe_socket).unwrap();
+            json!({"result":"bound_and_closed","error_kind":null,"raw_os_error":null})
+        }
+        Err(error) => json!({"result":"bind_failed","error_kind":format!("{:?}",error.kind()),
+            "raw_os_error":error.raw_os_error(),"message":error.to_string()}),
+    };
+    eprintln!(
+        "RECOVERY_SOCKET_PROBE {}",
+        json!({"original_socket":old_socket,
+        "original_socket_bytes":old_socket.as_os_str().len(),"probe_socket":probe_socket,
+        "probe_socket_bytes":probe_socket.as_os_str().len(),"outcome":outcome,
+        "scope":"test-only newly created private path; not a historical errno reconstruction"})
+    );
+    std::fs::remove_dir(&probe).unwrap();
+    let recovered = Server::start(&recovery);
+    let state =
+        result(recovered.request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})));
+    assert_eq!(state["run"]["state"], "outcome_unknown");
+    assert_eq!(state["task_accepted"], false);
+    let db = rusqlite::Connection::open(recovery.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        3
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM goal_graph_jobs WHERE state='outcome_unknown'",
+            [],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        1
+    );
+    let request = json!({"method":"goal_graph_runs.cancel","params":{"run_id":id},"expected_revision":state["run"]["revision"],"idempotency_key":"cancel-interrupted-unknown-validator"});
+    result(recovered.request(request));
+    let current =
+        result(recovered.request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})));
+    assert_ne!(current["run"]["state"], "cancelled");
+    assert_eq!(current["task_accepted"], false);
+    let sequence = result(recovered.request(json!({"method":"system.snapshot","params":{}})))
+        ["sequence"]
+        .clone();
+    for _ in 0..5 {
+        result(recovered.request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})));
+    }
+    assert_eq!(
+        result(recovered.request(json!({"method":"system.snapshot","params":{}})))["sequence"],
+        sequence
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        3
+    );
+    for key in [
+        format!("project:{}", f.project["id"].as_str().unwrap()),
+        format!("root-grant:{}", f.grant["id"].as_str().unwrap()),
+    ] {
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM goal_ledgers WHERE scope=?1",
+                [key],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let ledger: Value = serde_json::from_str(&raw).unwrap();
+        assert!(ledger["runtime_ms"].is_null());
+        assert!(ledger["output_bytes"].is_null());
+    }
+    eprintln!("ACTUAL_RECOVERY consistent in-flight validator snapshot: no replay/refund/falsecancelled, unknown meters/fence preserved");
+}
+
+fn authentic_validation_from_projection(view: &Value) -> Value {
+    let raw = view["observation_json"]
+        .as_str()
+        .expect("lossless observation string");
+    assert_eq!(
+        agentbaton_workspaces::validation::sha256(raw.as_bytes()),
+        view["result_digest"]
+    );
+    let restored: Value = serde_json::from_str(raw).unwrap();
+    assert_eq!(restored, view["observation"]);
+    let mut original = view.clone();
+    original.as_object_mut().unwrap().remove("observation_json");
+    original
+}
+
+#[test]
+fn actual_graph_temporary_global_slot_and_pending_head_require_explicit_adoption_without_replay() {
+    for pending_version in [false, true] {
+        let mut f = Scenario::new(10_000);
+        let first_scope = goal_scope_and_plan(&f, "goal-report-hold");
+        let first_root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+        another_goal_root(&mut f, 42);
+        let second_scope = goal_scope_and_plan(&f, "goal-report");
+        let first = approve_graph_at(&f, &first_scope, 1)["run"].clone();
+        wait(
+            &f.server,
+            "goal_graph_runs.get",
+            json!({"run_id":first["id"]}),
+            |r| {
+                r["nodes"][0]["state"] == "running" && first_root.join("fixture-goal-held").exists()
+            },
+        );
+        let second = approve_graph_at(&f, &second_scope, 1)["run"].clone();
+        let second_root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+        assert_ne!(first_root, second_root);
+        let mut advance_request = None;
+        if pending_version {
+            use agentbaton_core::goal_plan::GoalPlanProposal;
+            let current = result(f.server.request(
+                json!({"method":"goal_plans.get","params":{"scope_id":second_scope["id"]}}),
+            ));
+            let mut plan: GoalPlanProposal =
+                serde_json::from_value(current["proposal"].clone()).unwrap();
+            plan.revision = 2;
+            plan.expected_revision = 1;
+            plan.nodes[0].goal = "goal-report-v2".into();
+            result(f.server.request(json!({"method":"goal_plans.revise","params":{"scope_id":second_scope["id"],"plan_json":serde_json::to_string(&plan).unwrap()},"expected_revision":1,"idempotency_key":"queued-save-version2-only"})));
+            let paused = wait(
+                &f.server,
+                "goal_graph_runs.get",
+                json!({"run_id":second["id"]}),
+                |r| r["run"]["state"] == "awaiting_acceptance",
+            );
+            assert_eq!(paused["run"]["plan_revision"], 1);
+            assert_eq!(paused["nodes"][0]["state"], "not_started");
+        }
+        let quiet = result(
+            f.server
+                .request(json!({"method":"system.snapshot","params":{}})),
+        )["sequence"]
+            .clone();
+        let until = Instant::now() + Duration::from_millis(200);
+        while Instant::now() < until {
+            let queued =
+                result(f.server.request(
+                    json!({"method":"goal_graph_runs.get","params":{"run_id":second["id"]}}),
+                ));
+            let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+            let total = db
+                .query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap();
+            if queued["run"]["state"]
+                != if pending_version {
+                    "awaiting_acceptance"
+                } else {
+                    "queued"
+                }
+            {
+                let reason:String=db.query_row("SELECT json_extract(document,'$.payload.reason_code') FROM events WHERE json_extract(document,'$.kind')='goal.run_blocked' AND json_extract(document,'$.aggregate_id')=?1",[second["id"].as_str().unwrap()],|r|r.get(0)).unwrap();
+                eprintln!(
+                "TEMPORARY_GOAL_SLOT second_state={} total_attempts={total} second_node={} reason_code={reason}",
+                queued["run"]["state"], queued["nodes"][0]["state"]
+            );
+            }
+            assert_eq!(
+                queued["run"]["state"],
+                if pending_version {
+                    "awaiting_acceptance"
+                } else {
+                    "queued"
+                },
+                "{queued}"
+            );
+            assert_eq!(queued["nodes"][0]["state"], "not_started");
+            assert!(queued["nodes"][0]["session_id"].is_null());
+            assert!(queued["nodes"][0]["attempt_id"].is_null());
+            assert_eq!(total, 1);
+            assert_eq!(
+                result(
+                    f.server
+                        .request(json!({"method":"system.snapshot","params":{}}))
+                )["sequence"],
+                quiet
+            );
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        std::fs::write(
+            first_root.join("fixture-goal-release"),
+            b"release generated fixture",
+        )
+        .unwrap();
+        let first_done = wait(
+            &f.server,
+            "goal_graph_runs.get",
+            json!({"run_id":first["id"]}),
+            |r| r["run"]["state"] == "awaiting_acceptance",
+        );
+        if pending_version {
+            let paused =
+                result(f.server.request(
+                    json!({"method":"goal_graph_runs.get","params":{"run_id":second["id"]}}),
+                ));
+            assert_eq!(paused["run"]["state"], "awaiting_acceptance");
+            assert_eq!(paused["run"]["plan_revision"], 1);
+            let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+            assert_eq!(
+                db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                    .unwrap(),
+                1
+            );
+            assert_eq!(db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='goal.run_plan_pending' AND json_extract(document,'$.aggregate_id')=?1",[second["id"].as_str().unwrap()],|r|r.get::<_,u32>(0)).unwrap(),1);
+            let sequence = result(
+                f.server
+                    .request(json!({"method":"system.snapshot","params":{}})),
+            )["sequence"]
+                .clone();
+            for _ in 0..5 {
+                let _ = result(f.server.request(
+                    json!({"method":"goal_graph_runs.get","params":{"run_id":second["id"]}}),
+                ));
+            }
+            assert_eq!(
+                result(
+                    f.server
+                        .request(json!({"method":"system.snapshot","params":{}}))
+                )["sequence"],
+                sequence
+            );
+            let request = json!({"method":"goal_graph_runs.advance_plan","params":{"run_id":second["id"],"expected_plan_revision":2,"expected_ledger_revision":sequence},"expected_revision":paused["run"]["revision"],"idempotency_key":"explicit-adopt-queued-version2"});
+            let receipt = result(f.server.request(request.clone()));
+            advance_request = Some((request, receipt));
+        }
+        let second_done = wait(
+            &f.server,
+            "goal_graph_runs.get",
+            json!({"run_id":second["id"]}),
+            |r| r["run"]["state"] == "awaiting_acceptance",
+        );
+        for (index, done) in [&first_done, &second_done].iter().enumerate() {
+            let node = done["nodes"].as_array().unwrap().last().unwrap();
+            assert_eq!(node["state"], "candidate");
+            assert_eq!(node["stop_confirmed"], true);
+            assert_eq!(
+                node["actual_output_bytes"],
+                if pending_version && index == 1 {
+                    15
+                } else {
+                    12
+                }
+            );
+            assert_eq!(done["task_accepted"], false);
+        }
+        if let Some((request, receipt)) = advance_request {
+            let sequence = result(
+                f.server
+                    .request(json!({"method":"system.snapshot","params":{}})),
+            )["sequence"]
+                .clone();
+            assert_eq!(result(f.server.request(request)), receipt);
+            assert_eq!(
+                result(
+                    f.server
+                        .request(json!({"method":"system.snapshot","params":{}}))
+                )["sequence"],
+                sequence
+            );
+            assert_eq!(second_done["run"]["plan_revision"], 2);
+            assert_eq!(second_done["nodes"].as_array().unwrap().len(), 2);
+            assert_eq!(second_done["nodes"][0]["state"], "not_started");
+            assert!(second_done["nodes"][0]["attempt_id"].is_null());
+        }
+        assert_ne!(
+            first_done["nodes"][0]["attempt_id"],
+            second_done["nodes"].as_array().unwrap().last().unwrap()["attempt_id"]
+        );
+        assert_eq!(
+            std::fs::read(first_root.join("reports/report.txt")).unwrap(),
+            b"fixed report"
+        );
+        assert_eq!(
+            std::fs::read(second_root.join("reports/report.txt")).unwrap(),
+            if pending_version {
+                b"fixed report v2".as_slice()
+            } else {
+                b"fixed report".as_slice()
+            }
+        );
+        let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            2
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT consumed FROM budgets WHERE scope=?1",
+                [format!("project:{}", f.project["id"].as_str().unwrap())],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            2
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT json_extract(document,'$.output_bytes') FROM goal_ledgers WHERE scope=?1",
+                [format!("project:{}", f.project["id"].as_str().unwrap())],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            if pending_version { 27 } else { 24 }
+        );
+        assert_eq!(db.query_row("SELECT count(*) FROM approval_proposals WHERE json_extract(document,'$.kind')='goal_graph_execution'",[],|r|r.get::<_,u32>(0)).unwrap(),2);
+    }
+}
+
+#[test]
+fn actual_graph_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_authority_refused() {
+    let mut f = Scenario::new(10_000);
+    let first_scope = goal_scope_and_plan(&f, "goal-report-hold");
+    let first_root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+    another_goal_root(&mut f, 73);
+    let second_scope = goal_scope_and_plan(&f, "goal-report");
+    let legacy=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":2,"max_concurrency":1,"max_duration_ms":10000},"idempotency_key":"legacy-kind-before-worker"})));
+    let first = approve_graph_at(&f, &first_scope, 1)["run"].clone();
+    wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":first["id"]}),
+        |r| r["nodes"][0]["state"] == "running" && first_root.join("fixture-goal-held").exists(),
+    );
+    let old=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":legacy["id"]},"expected_revision":legacy["revision"],"idempotency_key":"legacy-not-idle"}));
+    assert_eq!(old["error"]["code"], "WORKSPACE_BUSY");
+    let setup=f.server.request(json!({"method":"workspaces.create","params":{"project_id":f.project["id"],"expected_head":"untrusted-not-used"},"expected_revision":f.project["revision"],"idempotency_key":"setup-must-remain-idle"}));
+    assert_eq!(setup["error"]["code"], "WORKSPACE_BUSY");
+    let seq = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let same=f.server.request(json!({"method":"goal_graph_runs.propose","params":{"scope_id":first_scope["id"],"expected_plan_revision":1,"expected_ledger_revision":seq},"idempotency_key":"same-workspace-new-authority-refused"}));
+    assert_eq!(same["error"]["code"], "WORKSPACE_BUSY");
+    let sequence = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let proposal=result(f.server.request(json!({"method":"goal_graph_runs.propose","params":{"scope_id":second_scope["id"],"expected_plan_revision":1,"expected_ledger_revision":sequence},"idempotency_key":"queued-graph-fixed-proposal"})));
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let id = proposal["id"].as_str().unwrap();
+    let original: String = db
+        .query_row(
+            "SELECT document FROM approval_proposals WHERE id=?1",
+            [id],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let legacy_id = legacy["id"].as_str().unwrap();
+    let legacy_original: String = db
+        .query_row(
+            "SELECT document FROM approval_proposals WHERE id=?1",
+            [legacy_id],
+            |r| r.get(0),
+        )
+        .unwrap();
+    for mode in [
+        "unknown_id",
+        "renderer_kind",
+        "oversize",
+        "wrong_doc_id",
+        "wrong_stored_kind",
+        "tampered_snapshot",
+        "forged_legacy_kind",
+    ] {
+        db.execute(
+            "UPDATE approval_proposals SET document=?1 WHERE id=?2",
+            rusqlite::params![original, id],
+        )
+        .unwrap();
+        db.execute(
+            "UPDATE approval_proposals SET document=?1 WHERE id=?2",
+            rusqlite::params![legacy_original, legacy_id],
+        )
+        .unwrap();
+        let mut request_id = id;
+        match mode {
+            "unknown_id" | "renderer_kind" => request_id = "unknown-owner-proposal",
+            "oversize" => {
+                db.execute(
+                    "UPDATE approval_proposals SET document=?1 WHERE id=?2",
+                    rusqlite::params![original.clone() + &" ".repeat(1048576), id],
+                )
+                .unwrap();
+            }
+            "wrong_doc_id" => {
+                db.execute("UPDATE approval_proposals SET document=json_set(document,'$.id','foreign-stored-proposal') WHERE id=?1",[id]).unwrap();
+            }
+            "wrong_stored_kind" => {
+                db.execute("UPDATE approval_proposals SET document=json_set(document,'$.kind','goal_graph_execution_other') WHERE id=?1",[id]).unwrap();
+            }
+            "tampered_snapshot" => {
+                db.execute("UPDATE approval_proposals SET document=json_set(document,'$.snapshot.new_workspace_authority',json('true')) WHERE id=?1",[id]).unwrap();
+            }
+            _ => {
+                db.execute("UPDATE approval_proposals SET document=json_set(document,'$.kind','goal_graph_execution') WHERE id=?1",[legacy_id]).unwrap();
+                request_id = legacy_id;
+            }
+        }
+        let mut params = json!({"proposal_id":request_id});
+        if mode == "renderer_kind" {
+            params["kind"] = json!("goal_graph_execution");
+        }
+        let response=f.server.request(json!({"method":"approvals.finalize","params":params,"expected_revision":1,"idempotency_key":format!("no-false-goal-authority-{mode}")}));
+        let code = response["error"]["code"]
+            .as_str()
+            .expect("all corrupt/foreign authority must be refused");
+        assert!(
+            matches!(
+                code,
+                "WORKSPACE_BUSY"
+                    | "RESOURCE_LIMIT"
+                    | "INPUT_CHANGED"
+                    | "PERMISSION_DENIED"
+                    | "INVALID_REQUEST"
+            ),
+            "{mode}: {response}"
+        );
+        if mode == "renderer_kind" {
+            assert_eq!(code, "INVALID_REQUEST");
+        }
+        if mode == "oversize" {
+            assert_eq!(code, "RESOURCE_LIMIT");
+        }
+        if matches!(mode, "unknown_id" | "wrong_doc_id" | "wrong_stored_kind") {
+            assert_eq!(code, "WORKSPACE_BUSY");
+        }
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM goal_runs", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            1,
+            "{mode}"
+        );
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+                .unwrap(),
+            1,
+            "{mode}"
+        );
+        assert!(db
+            .query_row(
+                "SELECT result IS NULL FROM approval_proposals WHERE id=?1",
+                [id],
+                |r| r.get::<_, bool>(0)
+            )
+            .unwrap());
+        assert_eq!(
+            db.query_row("SELECT count(*) FROM managed_workspaces", [], |r| r
+                .get::<_, u32>(0))
+                .unwrap(),
+            2
+        );
+        eprintln!(
+            "FIXED_GOAL_REVIEW_REFUSED mode={mode} code={code} goal_runs=1 attempts=1 workspaces=2"
+        );
+    }
+    db.execute(
+        "UPDATE approval_proposals SET document=?1 WHERE id=?2",
+        rusqlite::params![original, id],
+    )
+    .unwrap();
+    db.execute(
+        "UPDATE approval_proposals SET document=?1 WHERE id=?2",
+        rusqlite::params![legacy_original, legacy_id],
+    )
+    .unwrap();
+    std::fs::write(
+        first_root.join("fixture-goal-release"),
+        b"release only the real first process",
+    )
+    .unwrap();
+    let first = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":first["id"]}),
+        |r| r["run"]["state"] == "awaiting_acceptance",
+    );
+    assert_eq!(first["nodes"][0]["stop_confirmed"], true);
+    assert_eq!(first["task_accepted"], false);
+    let sequence = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    let idle=f.server.request(json!({"method":"approvals.finalize","params":{"proposal_id":"unknown-owner-proposal"},"expected_revision":1,"idempotency_key":"idle-unknown-never-authorizes"}));
+    assert_eq!(idle["error"]["code"], "NOT_FOUND");
+    assert_eq!(idle["error"]["side_effect_state"], "not_started");
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"system.snapshot","params":{}}))
+        )["sequence"],
+        sequence
+    );
+}
+
+#[test]
+fn actual_graph_hard_shared_attempt_limit_keeps_bootstrap_usage_and_blocks_summary_after_owner() {
+    eprintln!("GRAPH_BUILD_SOURCES {}", graph_build_source_hashes());
+    let (f, scope, _) = actual_integrity_definition_graph_fixture_with_budget(3);
+    let approved = approve_graph_at(&f, &scope, 2);
+    let id = &approved["run"]["id"];
+    wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":id}),
+        |d| {
+            d["nodes"].as_array().is_some_and(|ns| {
+                ns.iter()
+                    .any(|n| n["node"]["id"] == "owner-report" && n["state"] == "awaiting_owner")
+            })
+        },
+    );
+    let proposal = graph_owner_proposal(&f, id, "owner-report", "budget-accept-report-only");
+    let decision = approve(&f.server, proposal);
+    assert_eq!(decision["task_accepted"], false);
+    let blocked = wait(
+        &f.server,
+        "goal_graph_runs.get",
+        json!({"run_id":id}),
+        |d| d["run"]["state"] == "blocked",
+    );
+    assert_eq!(blocked["task_accepted"], false);
+    let summary = blocked["nodes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|n| n["node"]["kind"] == "summary")
+        .unwrap();
+    assert_eq!(summary["state"], "not_started");
+    assert!(summary["attempt_id"].is_null());
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        3
+    );
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM sessions", [], |r| r.get::<_, u32>(0))
+            .unwrap(),
+        2
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |r| r.get::<_, u32>(0)
+        )
+        .unwrap(),
+        3
+    );
+    assert!(!PathBuf::from(f.workspace["root"].as_str().unwrap())
+        .join("reports/report-2.txt")
+        .exists());
+    let sequence = result(
+        f.server
+            .request(json!({"method":"system.snapshot","params":{}})),
+    )["sequence"]
+        .clone();
+    for _ in 0..5 {
+        result(
+            f.server
+                .request(json!({"method":"goal_graph_runs.get","params":{"run_id":id}})),
+        );
+    }
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"system.snapshot","params":{}}))
+        )["sequence"],
+        sequence
+    );
+    eprintln!("ACTUAL_GRAPH_BUDGET bootstrap1+Work1+Validator1 reaches approved3; Owner decision neither refunds nor mints Summary capacity");
 }

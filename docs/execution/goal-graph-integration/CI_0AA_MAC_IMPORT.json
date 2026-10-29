@@ -1,0 +1,22 @@
+{
+  "archive": "CI_0AA_MAC_EVIDENCE.tar.gz",
+  "bytes": 1050137,
+  "sha256": "42c4ed7366d43358ed3ca664dce4b28c9ad9ae5781315c7c9f71ab6d3089bd33",
+  "regular_archive_members": 74,
+  "original_manifests": {
+    "ARM_MANIFEST.json": {
+      "bytes": 9462,
+      "sha256": "c1aff8970cd6c6aa72319e89ab91a04e9b183537c44796daf72ae37ba07332c3"
+    },
+    "INTEL_MANIFEST.json": {
+      "bytes": 6727,
+      "sha256": "c5d0df92d35eacc602015c4554010340cbd4bddd4765b0db589fcf8a84242a27"
+    },
+    "SUMMARY_MANIFEST.json": {
+      "bytes": 1814,
+      "sha256": "7ff9fed2e803a4f3dc45e29810843ebf3412211b2212b0d900f38ed9d2e9215b"
+    }
+  },
+  "all_declared_inputs_outputs_and_manifests_roundtrip_verified": true,
+  "original_relative_paths_preserved_under": "pr16-0aa-mac-review/"
+}

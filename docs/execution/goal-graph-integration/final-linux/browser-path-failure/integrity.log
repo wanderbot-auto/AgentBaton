@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py", line 1814, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py", line 1796, in main
+    return owner_only_driver(args, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.worktrees/goal-graph-integration/apps/desktop/tests/goal-graph-real-ipc.py", line 1737, in owner_only_driver
+    log_path = output / 'daemon.log'
+               ~~~~~~~^~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'dict' and 'str'

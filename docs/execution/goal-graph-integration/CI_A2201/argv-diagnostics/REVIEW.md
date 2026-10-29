@@ -1,0 +1,38 @@
+# Independent review — bounded private argv diagnostics
+
+Verdict: **PASS / diagnostic-only source-ready**, no must-fix finding. This change does not repair or close the a220 CI failure. The next exact CI run must still succeed; the historical failure's cause remains unproven.
+
+Fixed source `a2a401e3f2b7de95e9bddcd688bcc4ef1578f9d1`, tree `/workspace/.worktrees/goal-graph-real-ipc`, script `apps/desktop/tests/goal-graph-real-ipc.py`, SHA **a054989b5a20972f332312c3bb7ddf9e87e0ca17181448c4a405459451105ed1**. `a054…` is a SHA-256, not a Git commit. Source comprises 5b71bc2 plus a2a401e, compared with original a94140ebebf22624899b8b815d868f2971bb51f4 / SHA4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5. Author docs are separate commit **818415492c408b23f02eff0f12f7d23bf4ec7b1a**, four allowed docs only; its script SHA is identical.
+
+## Scope and safety findings
+
+Git-fixed inverse comparison proves the entire file outside `owned_command_child` is byte-identical. Every original assertion in that helper is AST-identical. Runtime, HTTP/Owner authority, request decoding, 5-second observer, 1500 ms command, cleanup and product behavior outside the helper are unchanged. The helper still reads at most 1025 bytes, requires <=1024 and trailing NUL, then exact `/usr/bin/sleep 3` and a private PGID, with all original parent/PID/start/liveness fences.
+
+New diagnostics start only after actual private PPID match and non-Z/X liveness check. They record PID, bounded stat identity, read length, NUL boolean, SHA of the bytes actually read and separate post-read/post-PGID metadata. They do not store new raw argv, environment or credential bytes. Existing valid private argv logging remains the same old code. The new observation list is capped at 16 per sample, with bounded last/failing metadata; the existing 64-sample retention and 8192 PID metadata capacity stay intact. SHA input is the bounded actual read, so a 1025-byte truncation is reported as such, not accepted as a complete argv or represented as a hash of the full original argv.
+
+Failure diagnostics perform a separately labeled `after_failure` metadata read. PID reuse/exit at that later time cannot rewrite the original before/after-read observation. Missing PID and optional diagnostic exceptions are captured as absent/type-only metadata; the original exception is re-raised. The new secondary `except Exception` prevents diagnostic PermissionError/parse failure from replacing the original assertion. Original metadata permission failures and malformed argv remain failures, never empty/no-process success. No new retry, skip, time extension, weaker contains/partial match or acceptance of zombies is introduced.
+
+## Independent actual verification
+
+All source exports and controls live in this review directory. No author source, Root source/STATUS, Cargo target, lock, CI, account or remote state was modified. No Core/daemon/browser/Cargo product run was repeated by the reviewer.
+
+- `PYTHONDONTWRITEBYTECODE=1 python3 prepare.py`: exit 0; fixed Git source SHA, syntax compile, diff-check, exact function-only scope/assert preservation, and all **120** frozen a220 Linux evidence files rehashed unchanged.
+- `python3 run-controls.py`: exit 0. Independently executed the retained finite author control programs against the fixed exported source: **13** own-Popen/procfs/identity controls, **4** capacity/stat/discovery controls, **6** real own fork/preexec/exec controls with short inherited argv and **7** with padded inherited argv. The only lifecycle source adaptation is its subject file path. Each outer subprocess has a 10-second bound. These start only fresh reviewer-owned sleep/fork processes; every created child is genuinely waited and gone. They are not Core or browser execution, and no historical orphan PID is touched.
+- Short preexec argv is not mistaken for approved sleep; oversized real inherited preexec argv fails the unchanged guard, saving bounded diagnostic facts; after the explicit CLOEXEC handshake the same real child matches only after exec of exact sleep3. Synthetic empty cmdline remains an explicitly injected negative, not a claimed observation of the historical CI race.
+- `python3 first-cause-controls.py`: exit 0, **6** additional independent synthetic controls. Empty/oversized/missing-NUL retain the original hard assertion and bounded length/hash without secret raw text; optional after-failure PermissionError does not replace that first cause or reveal exception text; foreign PPID never opens argv; changed identity is never accepted. These proc identities/read streams are mocks, not actual Core/stop proof.
+
+The first extra-control stub incorrectly raised on the task directory, rather than emulating empty task enumeration; the second expected hash used the whole 1026-byte test stream rather than actual1025-byte read. Both original scripts/logs remain here; only the reviewer doubles/expectations were corrected, with source/guard unchanged. A separate interactive lookup of a nonexistent stop_confirmed field also failed; notes.json records that honestly and identifies the actual nested fields checked next, without inventing a raw log.
+
+## Author single actual run, independently audited
+
+The copied original author `70a-single-run` BEFORE/RESULT/wrapper log/report shows one existing authorized Linux command-timeout case, source a2a401e/a054, started **02:54:34.043659**, ended **02:54:41.488621 UTC**, exit0, unchanged input hashes, **5 checks /1 PNG**. No second actual case was run by this reviewer.
+
+The daemon is frozen **70a48d41663108337529915358109026e98ddf98**, SHA **40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd**, distinct from a220 CI daemon a07b00de…. Source, original daemon/manifest and all three actual built assets were independently rehashed against the BEFORE pins. `audit-70a.py` exited0 and confirms report/source/candidate bindings, log SHA, one PNG hash, HTTP thread/handlers joined, daemon waited0 without forced kill and each recorded original owned identity gone without reviewer signals. Screenshot was hashed, not visually inspected in this review.
+
+This actual run observes exact owned sleep PID1157743/start11255931, and reaches the intended negative receipt: failed/passed=false, reason deadline_exceeded, worker_joined, runtime1792 ms; the graph is blocked. Its cleanup observation records owned leader reaped and capture EOF. It **does not reproduce the original argv failure** and is not a substitute for exact a220 CI. The reported source-only cfg(test) comparison of goal_validator_io.rs does not make these different binaries/frontends/hosts identical, and this review does not independently certify a complete all-source equivalence/reproducible build.
+
+## Historical failure remains
+
+The untouched a220 run40806944290 / UIjob123228044786 failed in the old helper at Complete bounded private argv required, before the negative validator receipt assertions. It did not retain that read's PID/raw length/NUL/states. Its failure-time ledger82 still had validator running and no validation receipt; cleanup's later sleep identity is a separate observation. The new local PASS, padded fork unit and injected empty read do not establish a unique old cause. The exact failed raw logs/ZIPs/reports and old independent verdict stay frozen; no later green is borrowed or old failure relabeled.
+
+Next authorized step is Root's single new diagnostic-source CI candidate. A pass or new bounded failure evidence must be read from that new exact run. No new Mac/Native/live Provider/model/signature/package/full-product completion conclusion is granted here.

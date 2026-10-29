@@ -1,0 +1,50 @@
+{
+  "scope": "Lossless storage-only transformation of Root copied browser reports; all original .onboarding evidence untouched; no test result or assertion changed",
+  "files": [
+    {
+      "summary": "LEGACY_BROWSER_AFTER_GRAPH_READ.json",
+      "file": "LEGACY_BROWSER_AFTER_GRAPH_READ.json.gz",
+      "raw_sha256": "120c6204e58bbc427c453984b17ed80ee62898ee2ef84a0df3869846263b4b10",
+      "raw_bytes": 1225997,
+      "gzip_sha256": "0c95ad6ba0c5e42f787679776e09b1f720b232076d0d46c232299fe544a4bd20",
+      "gzip_bytes": 120823,
+      "roundtrip_byte_identity_verified": true
+    },
+    {
+      "summary": "LEGACY_BROWSER_BEFORE_GRAPH_READ.json",
+      "file": "LEGACY_BROWSER_BEFORE_GRAPH_READ.json.gz",
+      "raw_sha256": "563362b631616f8a27cb5ac3f45f60c796e19bcc20d3926f54686744da773b90",
+      "raw_bytes": 663895,
+      "gzip_sha256": "0e1ba15e0b86161608189277bde97c6eaea46807fbe57e72f49498b9e2131e47",
+      "gzip_bytes": 64409,
+      "roundtrip_byte_identity_verified": true
+    },
+    {
+      "summary": "LEGACY_BROWSER_CORRECTED_UI.json",
+      "file": "LEGACY_BROWSER_CORRECTED_UI.json.gz",
+      "raw_sha256": "452f8c587b7cc826346792b4e8b28c29f4224b8cbf9648da2ebf4b20a3bd7bd1",
+      "raw_bytes": 1225951,
+      "gzip_sha256": "e4917f1a2de0eb7791203cc0b2fb594dcd790fd52fbcae96e2e1632a8c4ec36f",
+      "gzip_bytes": 120576,
+      "roundtrip_byte_identity_verified": true
+    },
+    {
+      "summary": "OWNER_BROWSER_CORRECTED_UI.json",
+      "file": "OWNER_BROWSER_CORRECTED_UI.json.gz",
+      "raw_sha256": "325e95343c426880e86b56a52d933c9ced235de0a63dd7a5f25484da99496f70",
+      "raw_bytes": 822480,
+      "gzip_sha256": "c676b8a5d5ed3422abc3782e18c9d2bae91b4321e834dd963df15dbf3c6063c6",
+      "gzip_bytes": 84351,
+      "roundtrip_byte_identity_verified": true
+    },
+    {
+      "summary": "OWNER_BROWSER_FIRST.json",
+      "file": "OWNER_BROWSER_FIRST.json.gz",
+      "raw_sha256": "f131fe0e78aae324c463b5156723d65e66f20f44d951acb2d98742ab342f86df",
+      "raw_bytes": 784803,
+      "gzip_sha256": "874b90ff0d32385b4c78fd627307d8acea8177b0b281ca8838634f1da16b79fe",
+      "gzip_bytes": 78900,
+      "roundtrip_byte_identity_verified": true
+    }
+  ]
+}

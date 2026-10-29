@@ -1,0 +1,107 @@
+{
+  "artifact_id": 12836776815,
+  "feature_head": "6912fa9b72bc3ab9fbc1ddba18cd76e7c052677c",
+  "actual_candidate": "a11045e6a8f72bb5264c1f4cdbf792f51370bdfa",
+  "product_run": 40733070149,
+  "rows": [
+    {
+      "path": "approved-commands/evidence.json",
+      "checks": 5,
+      "screenshots": 2,
+      "sha256": "63fdb9d69a819ebb434e9fd9ef48970579bbe821495c5b433c14c22e325d66a3",
+      "harness_sha256": null,
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "data-workspaces/report.json",
+      "checks": 8,
+      "screenshots": 6,
+      "sha256": "9605242bcc22abbb58c6bd403793fcff58e011718688691f2af6887c1784e299",
+      "harness_sha256": "75108a947b237db13e47495d0ae2e0b176217361e7d4b37b9ceedafbed83e493",
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "evidence.json",
+      "checks": 38,
+      "screenshots": 24,
+      "sha256": "9122e51a38a357f42444b8c8cbb87bbc97a62b6f62f97362f9b9ec00ade9bf59",
+      "harness_sha256": null,
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "goal-execution/report.json",
+      "checks": 10,
+      "screenshots": 9,
+      "sha256": "61c369e830e13e63264139dd5e4876230bb96346e5de841cc65d693ad9621bf4",
+      "harness_sha256": "c403bb51ee61901a47ce638278682c88291f67625c0e2d90c9cf1b8ef7232ef5",
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "goal-graph-command/report.json",
+      "checks": 6,
+      "screenshots": 3,
+      "sha256": "b075e569a9132c447c3ceee3db8a0909f3a22030e3b1484da2ad0019169c6d79",
+      "harness_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "goal-graph-command-timeout/report.json",
+      "checks": 5,
+      "screenshots": 1,
+      "sha256": "bce298190f3b6af90761bc15a81bd9a07393addb90fb9eb14069962c5f6ee39d",
+      "harness_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "goal-graph-data/report.json",
+      "checks": 6,
+      "screenshots": 3,
+      "sha256": "2b5492236444ea9ae54afc24f25dac8d251ba683bc36e30d96a74d7148c9222f",
+      "harness_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "goal-graph-data-range/report.json",
+      "checks": 5,
+      "screenshots": 1,
+      "sha256": "d29ed0b66c21937ae2896a72b2bbc29edc1994840b9bcd40ee7026e79cf9ce3e",
+      "harness_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "goal-graph-integrity/report.json",
+      "checks": 6,
+      "screenshots": 3,
+      "sha256": "071329f1bbf7f4ac3bb44d28a75fa9bb5a836d7aa98ef297e4d3852f479e36ca",
+      "harness_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "goal-graph-owner/report.json",
+      "checks": 6,
+      "screenshots": 3,
+      "sha256": "23410d708138ae338d41a64680c0ae3cd788431d2ca1e9f1f790d55abc3d5647",
+      "harness_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "goal-plan-editor/report.json",
+      "checks": 10,
+      "screenshots": 9,
+      "sha256": "5dd919ae2df737e0ce25285d17a8761a291302f71d64cc6d12e990f17ccd6400",
+      "harness_sha256": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018",
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    },
+    {
+      "path": "goal-planning/report.json",
+      "checks": 9,
+      "screenshots": 6,
+      "sha256": "74884e0312f677147ae8b5fc77c0107cd65a7cb2bad88174d507dee55c503b06",
+      "harness_sha256": "b2bc091e28e88669ef6c85a2e1954bd1c6d25389d73aae53306c2af47ba99018",
+      "daemon_sha256": "a07b00de7eb58128f2dde32397e9c49b3918ff0413195c574f9eb8feae4208c3"
+    }
+  ],
+  "checks": 114,
+  "screenshots": 70,
+  "other_lanes_not_green": true
+}

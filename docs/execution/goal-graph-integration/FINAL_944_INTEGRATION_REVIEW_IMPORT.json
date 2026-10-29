@@ -1,0 +1,25 @@
+{
+  "archive": "FINAL_944_INTEGRATION_REVIEW_EVIDENCE.tar.gz",
+  "bytes": 77737,
+  "sha256": "6926470b6b346604673e90a9321510561ae0041b5c61a0a6c8ef7e3755e51aca",
+  "declared_review_files": 7,
+  "archive_members_including_review_manifest_and_extra_rawinput": 9,
+  "manifest_sha256": "16ce92c1759ce8400f24a0398bc03920b68b7648ffa3438cef9f6fb9b44fa0b4",
+  "all_roundtrip_sha256_verified": true,
+  "reviewed_commit": "9448918d17ba3a1159edf7051e140ea04e04e6df",
+  "reviewed_source_manifest_files": 1134,
+  "reviewed_source_manifest_sha256": "3d9541219e9b9579820a6e3fbd2921ea2642cc798ef220dfb47c905dcf537e3f",
+  "source_snapshot_resolution": {
+    "git_commit": "9448918d17ba3a1159edf7051e140ea04e04e6df",
+    "paths": "manifest.json files[].path; recreate from this existing Git commit; source/ prefix of local export is not duplicated in archive",
+    "all_local_export_bytes_independently_verified_again_by_Root": true
+  },
+  "extra_rawinput": {
+    "baseline-command.tsx": {
+      "bytes": 27038,
+      "sha256": "c70dbf95f41470f09a060968ca8d6db3a4fd6a3f75ea13c125e5114eea0939f9"
+    },
+    "source_git": "641be86e8b055920787cfebdd48270716d509309:apps/desktop/src/CommandValidation.test.tsx"
+  },
+  "existing_import_payloads": "six original author/leaf/CI archives already in reviewed commit; not duplicated here"
+}

@@ -1,0 +1,28 @@
+{
+  "source_composition_commit": "c730dd833d3aa916feaab093fdc6d9c5cde6e60f",
+  "last_tested_feature": "0aa20c968d493cad895e4a3853bdf106d6b54acf",
+  "diagnostic_source": "7a13cddef4316d520361071ff5e2a263ea058580",
+  "author_source_stage_docs": "6be599b9112ae81c77bf027d4e8b1bdd46fd41d1",
+  "files": {
+    "apps/desktop/src-tauri/Cargo.lock": {
+      "bytes": 112700,
+      "sha256": "4fd256434d2bb3c0903919bc6474f8a3712be2a27eab1651d42e63f7b876a93c"
+    },
+    "apps/desktop/src-tauri/Cargo.toml": {
+      "bytes": 1674,
+      "sha256": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49"
+    },
+    "apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs": {
+      "bytes": 6203,
+      "sha256": "4deff52ca01c91f10958ee0ef833f1aab09d0ccaf52c349e03e67fd2a87d2c5e"
+    },
+    "apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs": {
+      "bytes": 27763,
+      "sha256": "bb78a3201ed730a6eb87983fc0a91ae1e93081ad4de103949a1b0faa41018f39"
+    }
+  },
+  "scope": "test-only Owner driver observation/failure-capture; optional native-smoke sha2 existinglocked package; default production source/feature/permissions and execution limits unchanged",
+  "proof": "NATIVE_TEXT_REVIEW.md; Root6pureControllerPASS, actualAppKitnotcompiled",
+  "purpose": "diagnose unknown Mac real-sheet unique title/message failure without lowering acceptance",
+  "new_exact_CI": "not_started"
+}

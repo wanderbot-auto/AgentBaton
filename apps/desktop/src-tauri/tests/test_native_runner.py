@@ -26,7 +26,17 @@ GOOD = {
 
 # New evidence is additive; the original GOOD fields and all old test bodies stay intact.
 GOOD['first_webview'].update(goalExecutionLists=True, goalExecutionMissingRunDenied=True, readonlyGoalExecutionNoMutation=True, goalExecutionReadonlySequence=dict(before=2, after=2), goalExecutionMissingRun=dict(run_id='native-readonly-missing-goal-run', code='NOT_FOUND', side_effect_state='not_started'))
-GOOD['goal_execution_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=11,run_count=0,node_count=0,reservation_count=0,sequence=2), after=dict(schema_version=11,run_count=0,node_count=0,reservation_count=0,sequence=2))
+GOOD['goal_execution_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=12,run_count=0,node_count=0,reservation_count=0,sequence=2), after=dict(schema_version=12,run_count=0,node_count=0,reservation_count=0,sequence=2))
+
+
+GOOD['first_webview'].update(goalGraphLists=True, goalGraphMissingRunDenied=True, readonlyGoalGraphNoMutation=True, goalGraphReadonlySequence=dict(before=2, after=2), goalGraphMissingRun=dict(run_id='native-readonly-missing-goal-graph-run', code='NOT_FOUND', side_effect_state='not_started'))
+GOOD['goal_graph_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=12,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2), after=dict(schema_version=12,capability_count=0,job_count=0,candidate_count=0,validation_count=0,owner_decision_count=0,acceptance_count=0,sequence=2))
+
+
+# Runtime crypto evidence is additive to the unchanged readonly/lifecycle fixture.
+GOOD['webcrypto_checkpoints'] = {phase: native_run.webcrypto_expected(phase) for phase in ['before', 'after']}
+GOOD['first_webview']['webCrypto'] = native_run.webcrypto_expected('first')
+GOOD['reopened_webview']['webCrypto'] = native_run.webcrypto_expected('reopened')
 
 
 class NativeRunnerTests(unittest.TestCase):
@@ -233,6 +243,73 @@ class GoalExecutionReadonlyEvidenceTests(unittest.TestCase):
         self.assertIsNotNone(native_run.native_report_error(fabricated))
 
 
+
+class GoalGraphReadonlyEvidenceTests(unittest.TestCase):
+    def test_graph_flags_require_actual_booleans_and_all_fields(self):
+        self.assertIsNone(native_run.native_report_error(copy.deepcopy(GOOD)))
+        for field in ['goalGraphLists','goalGraphMissingRunDenied','readonlyGoalGraphNoMutation']:
+            missing=copy.deepcopy(GOOD);del missing['first_webview'][field]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+            for value in [False,None,'true','false',1,0,[],{}]:
+                changed=copy.deepcopy(GOOD);changed['first_webview'][field]=value
+                self.assertIsNotNone(native_run.native_report_error(changed))
+
+    def test_graph_database_requires_schema12_and_all_six_independent_zero_counts(self):
+        fields=['schema_version','capability_count','job_count','candidate_count','validation_count','owner_decision_count','acceptance_count','sequence']
+        for location in ['goal_graph_readonly_database','before','after']:
+            missing=copy.deepcopy(GOOD)
+            if location=='goal_graph_readonly_database':del missing[location]
+            else:del missing['goal_graph_readonly_database'][location]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+        for phase in ['before','after']:
+            for field in fields:
+                missing=copy.deepcopy(GOOD);del missing['goal_graph_readonly_database'][phase][field]
+                self.assertIsNotNone(native_run.native_report_error(missing))
+                for value in [True,False,'0',None,-1,0.0]:
+                    changed=copy.deepcopy(GOOD);changed['goal_graph_readonly_database'][phase][field]=value
+                    self.assertIsNotNone(native_run.native_report_error(changed))
+        for field in fields[1:-1]:
+            changed=copy.deepcopy(GOOD)
+            for phase in ['before','after']:changed['goal_graph_readonly_database'][phase][field]=1
+            self.assertIsNotNone(native_run.native_report_error(changed))
+        for schema in [10,11,13]:
+            for group in ['goal_graph_readonly_database','goal_execution_readonly_database']:
+                changed=copy.deepcopy(GOOD)
+                for phase in ['before','after']:changed[group][phase]['schema_version']=schema
+                self.assertIsNotNone(native_run.native_report_error(changed))
+        extra=copy.deepcopy(GOOD);extra['goal_graph_readonly_database']['before']['claimed_by_js']=True
+        self.assertIsNotNone(native_run.native_report_error(extra))
+
+    def test_graph_interval_cannot_replace_goal_or_execution_database_evidence(self):
+        for value in [False,'true',1,None]:
+            for field in ['read_only','unchanged']:
+                changed=copy.deepcopy(GOOD);changed['goal_graph_readonly_database'][field]=value
+                self.assertIsNotNone(native_run.native_report_error(changed))
+        for value in [True,2.0,'2',None,-1,3]:
+            changed=copy.deepcopy(GOOD);changed['first_webview']['goalGraphReadonlySequence']['after']=value
+            self.assertIsNotNone(native_run.native_report_error(changed))
+        replayed=copy.deepcopy(GOOD)
+        for phase in ['before','after']:
+            replayed['goal_graph_readonly_database'][phase]['sequence']=3
+            replayed['first_webview']['goalGraphReadonlySequence'][phase]=3
+        self.assertIsNotNone(native_run.native_report_error(replayed))
+        for group in ['goal_readonly_database','goal_execution_readonly_database']:
+            missing=copy.deepcopy(GOOD);del missing[group]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+        missing=copy.deepcopy(GOOD);del missing['first_webview']['goalGraphReadonlySequence']
+        self.assertIsNotNone(native_run.native_report_error(missing))
+
+    def test_graph_missing_requires_fixed_not_started_core_denial_without_result(self):
+        for field,value in [('run_id','foreign'),('code','PERMISSION_DENIED'),('code',True),('side_effect_state','unknown')]:
+            changed=copy.deepcopy(GOOD);changed['first_webview']['goalGraphMissingRun'][field]=value
+            self.assertIsNotNone(native_run.native_report_error(changed))
+        for field in ['run_id','code','side_effect_state']:
+            missing=copy.deepcopy(GOOD);del missing['first_webview']['goalGraphMissingRun'][field]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+        fabricated=copy.deepcopy(GOOD);fabricated['first_webview']['goalGraphMissingRun']['result']={}
+        self.assertIsNotNone(native_run.native_report_error(fabricated))
+
+
 class NativeArtifactAuditTests(unittest.TestCase):
     def inspect(self, content, failed_tool=False):
         with tempfile.TemporaryDirectory(prefix='native-audit-test-') as temporary:
@@ -263,6 +340,60 @@ class NativeArtifactAuditTests(unittest.TestCase):
         result = self.inspect('controlled fixture without test markers')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('PASS', result.stdout)
+
+
+class WebCryptoEvidenceTests(unittest.TestCase):
+    def test_known_original_utf8_vector_retains_big_integer_literal_bytes(self):
+        import hashlib
+        self.assertEqual(len(native_run.WEBCRYPTO_INPUT.encode('utf-8')), 109)
+        self.assertEqual(hashlib.sha256(native_run.WEBCRYPTO_INPUT.encode('utf-8')).hexdigest(), native_run.WEBCRYPTO_SHA256)
+        self.assertIn('18446744073709551615', native_run.WEBCRYPTO_INPUT)
+        self.assertIn('原文证据🔒', native_run.WEBCRYPTO_INPUT)
+        self.assertIsNone(native_run.native_report_error(copy.deepcopy(GOOD)))
+
+    def test_absent_crypto_bad_digest_algorithm_bytes_and_type_forgery_fail(self):
+        for section in ['first_webview', 'reopened_webview']:
+            missing = copy.deepcopy(GOOD)
+            del missing[section]['webCrypto']
+            self.assertIsNotNone(native_run.native_report_error(missing))
+            for field, wrong in [('available',False),('available',1),('available','true'),('version',True),('algorithm','SHA-1'),('sha256','0'*64),('input_bytes','109'),('input_bytes',109.0),('input','rounded or reserialized JSON'),('encoding','UTF-16'),('source','node.crypto')]:
+                changed = copy.deepcopy(GOOD)
+                changed[section]['webCrypto'][field] = wrong
+                self.assertIsNotNone(native_run.native_report_error(changed), (section,field,wrong))
+            for key in GOOD[section]['webCrypto']:
+                missing = copy.deepcopy(GOOD)
+                del missing[section]['webCrypto'][key]
+                self.assertIsNotNone(native_run.native_report_error(missing), key)
+            changed = copy.deepcopy(GOOD)
+            changed[section]['webCrypto']['mocked'] = True
+            self.assertIsNotNone(native_run.native_report_error(changed))
+
+    def test_checkpoint_missing_mixed_replayed_and_reopened_witness_are_rejected(self):
+        missing = copy.deepcopy(GOOD)
+        del missing['webcrypto_checkpoints']
+        self.assertIsNotNone(native_run.native_report_error(missing))
+        for checkpoint in ['before', 'after']:
+            missing = copy.deepcopy(GOOD)
+            del missing['webcrypto_checkpoints'][checkpoint]
+            self.assertIsNotNone(native_run.native_report_error(missing))
+            changed = copy.deepcopy(GOOD)
+            changed['webcrypto_checkpoints'][checkpoint] = native_run.webcrypto_expected('first')
+            self.assertIsNotNone(native_run.native_report_error(changed))
+        changed = copy.deepcopy(GOOD)
+        changed['webcrypto_checkpoints']['before'], changed['webcrypto_checkpoints']['after'] = changed['webcrypto_checkpoints']['after'], changed['webcrypto_checkpoints']['before']
+        self.assertIsNotNone(native_run.native_report_error(changed))
+        changed = copy.deepcopy(GOOD)
+        changed['reopened_webview']['webCrypto'] = changed['first_webview']['webCrypto']
+        self.assertIsNotNone(native_run.native_report_error(changed))
+
+    def test_known_digest_cannot_substitute_original_database_or_sequence_evidence(self):
+        for field in ['goal_readonly_database', 'goal_execution_readonly_database', 'goal_graph_readonly_database']:
+            changed = copy.deepcopy(GOOD)
+            changed[field]['after']['sequence'] += 1
+            self.assertIsNotNone(native_run.native_report_error(changed))
+        changed = copy.deepcopy(GOOD)
+        changed['goal_graph_readonly_database']['after']['candidate_count'] = 1
+        self.assertIsNotNone(native_run.native_report_error(changed))
 
 
 if __name__ == '__main__':

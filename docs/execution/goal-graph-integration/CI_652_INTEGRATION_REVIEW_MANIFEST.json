@@ -1,0 +1,34 @@
+{
+  "verdict": "PASS_CONTENT_CONSISTENCY_ONLY_FIVE_GREEN_TWO_MAC_FAILED",
+  "inputs": {
+    "root_head": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+    "source_sha256": {
+      "docs/execution/STATUS.md": "d98aa6c94132c82c1ed52dab7cb06defc6373d0cd012080042b2de7968631086",
+      "docs/execution/goal-graph-integration/PROGRESS.md": "032307f0df53d50776e65526f2310d924172e33ebd3f06b1aad823df50b53036",
+      "docs/execution/goal-graph-integration/CHECKPOINT.md": "2d91b6399a8974c4d46a1d5f9b6022ac2f458081dd55993ed1bfaad8474fd681",
+      "docs/execution/goal-graph-integration/EVIDENCE.json": "8e962a52ce539ff5dae3fd4381034e83d8139c6d2e8905710399dbdd2ee89ad0",
+      "docs/execution/goal-graph-integration/CI_652_LINUX_IMPORT.json": "7887ac4ee80ac227c6bf2eea5dcae8324b67feccc5a7495b3eb1d774ba6db083",
+      "docs/execution/goal-graph-integration/CI_652_LINUX_MANIFEST.json": "02f4bc21cec158f9a26920035c590b8b2814e7b11dae18a64813e941c2f02ff7",
+      "docs/execution/goal-graph-integration/CI_652_LINUX_REVIEW.md": "2c68386d28cb60210656d38a929e45f9263bc695eb85345af91eebef2ac632ec",
+      "docs/execution/goal-graph-integration/ci-652/MANIFEST.json": "cf59304f84e1a6ade4bd8d12b4761fd8e6b2686a1fb8ddac93dc90694930fba7"
+    },
+    "proposed_status_hash": "d98aa6c94132c82c1ed52dab7cb06defc6373d0cd012080042b2de7968631086",
+    "other92_all_match": true,
+    "original93_manifest_algorithm_note_checker_workflows_unchanged": true
+  },
+  "archive_integrity": {
+    "archive_sha256": "29b53c73d5332a06bfb2782867f273b709c26919d463e587d0bc8770f0fadfa2",
+    "source_manifest_sha256": "02f4bc21cec158f9a26920035c590b8b2814e7b11dae18a64813e941c2f02ff7",
+    "manifest_files": 126,
+    "archive_regular_files_with_manifest": 127,
+    "all126_roundtrip_match": true,
+    "no_unsafe_paths_links_duplicates": true,
+    "uncompressed_total_bytes": 29811555,
+    "imported_review_byte_equal": true,
+    "Mac_rawlogs_API_match_manifest": true,
+    "no_Cargo_or_Chrome": true
+  },
+  "review_sha256": "ff1529a4207ea376aa1c44d2fabbcb05e95641b0d0ed36236b1486a4939e4376",
+  "cargo_chrome_CI_download_image_actions": false,
+  "checker_note": "Archive included manifest is LINUX_MANIFEST.json; first path lookup corrected in reviewer-only copy, not a product/evidence failure"
+}

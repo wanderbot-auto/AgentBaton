@@ -1,0 +1,9 @@
+{
+  "storage": "NATIVE_TEXT_ROOT_TESTS.log.gz",
+  "gzip_sha256": "9b829a10cdaed5241276315579539a3d326e5fe4ac75f9478ef567c2d619be70",
+  "raw_sha256": "05a3613d05059b8c549c781e19900c067b2620cb562862f9053658d2250d8adf",
+  "raw_bytes": 1525,
+  "roundtrip_bytes_exact": true,
+  "reason": "verbatim Cargo log ended with blank line; initial tracked diffcheck exit2. Preserve raw unchanged via gzip; no check/acceptance rule disabled. Original raw also preserved in independent review archive and local runtime directory.",
+  "first_bad_local_commit": "15e4a7ee5b5f291dceb943588bdc9241ac1f7457"
+}

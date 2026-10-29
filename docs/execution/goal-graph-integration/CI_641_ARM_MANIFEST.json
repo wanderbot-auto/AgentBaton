@@ -1,0 +1,117 @@
+{
+  "scope": "Independent third641 ARM readonly/native artifact audit; Owner bootstrap failed, exact cause unknown; not source approval",
+  "feature_head": "641be86e8b055920787cfebdd48270716d509309",
+  "actual_checkout": "d03313d5b9b1b575e1eb4a4ae35ec29c49ff446d",
+  "job": 123032556134,
+  "verdict": "readonly/WebCrypto/lifecycle PASS; Ownerbootstrap FAIL; fullMac/package not accepted",
+  "files": {
+    "ARM_REVIEW.md": {
+      "sha256": "8a6a1f4e49865f65eee7e41e8531578efc989d48dae3a679efb42ea796f79dff",
+      "bytes": 7600
+    },
+    "arm-job-final.json": {
+      "sha256": "d585a04401f1783aec9dbb3a767009a353bc263e27562d4f10c2d449f8f1f8d3",
+      "bytes": 3948
+    },
+    "artifacts-api.json": {
+      "sha256": "65e56d1f017bc69162cb88efab1940cc6a9a3f11ba6ef87f1e8edd65655ccfb9",
+      "bytes": 2320
+    },
+    "audit_native.py": {
+      "sha256": "c516fa7e8ccd3bf0519d730c6a399e4968b5b671cd11df0b64337cd02e0b616f",
+      "bytes": 8583
+    },
+    "download-verification.json": {
+      "sha256": "c4193b57f4593107d65369c7827036bd97023d80b8902ae0b208fe139bce9af7",
+      "bytes": 534
+    },
+    "exact-source/.github/workflows/product.yml": {
+      "sha256": "d96d88b269005c95fff45ecfac0db1fc9ffa9be7dc8b2c1df792a6ed92a6e67d",
+      "bytes": 10834
+    },
+    "exact-source/apps/daemon/src/main.rs": {
+      "sha256": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+      "bytes": 796
+    },
+    "exact-source/apps/desktop/src-tauri/Cargo.toml": {
+      "sha256": "5f7276d2bdbd99925e1aba38759fccffe8add0e8f62eacc055e2301f0462f723",
+      "bytes": 1617
+    },
+    "exact-source/apps/desktop/src-tauri/src/bin/native_smoke.rs": {
+      "sha256": "93777843bb2d5caf7eac5e42a569a859d5f04153896d0e53c1baee771d370d82",
+      "bytes": 108637
+    },
+    "exact-source/apps/desktop/src-tauri/tests/test_native_owner_dialog.py": {
+      "sha256": "d3cd8d55001b229de5c229f6efa6e3cf2673de82c27cba7afb846dfd948e6403",
+      "bytes": 13910
+    },
+    "exact-source/crates/core/src/ipc.rs": {
+      "sha256": "3fc6fcfe382fde2e2f5c6afb2f5a56e8421d7b47031923ade0cb44a354391654",
+      "bytes": 82497
+    },
+    "exact-source/scripts/native-macos-smoke.sh": {
+      "sha256": "aff60d635cc9a7ef11a7f4004f89ac3cd485b92ecaaa7bb9cf8fae7ca899ec10",
+      "bytes": 4927
+    },
+    "exact-source/scripts/native-owner-dialog-smoke.py": {
+      "sha256": "77d52009365d4576e87838cbdb701980101121337fb8a607ea7faa92db33e6c8",
+      "bytes": 24194
+    },
+    "exact-source/scripts/native-run.py": {
+      "sha256": "8fa23e107fe92542b95fc5d398aa38a20236d29b2e3fbbe7eb87b92efb0197c1",
+      "bytes": 17595
+    },
+    "native-arm.zip": {
+      "sha256": "f5295ed6ba0b7201cbc57726cec5a50ed4888a77fd4fc0ae0c62d685ec597787",
+      "bytes": 164487
+    },
+    "native-artifact/lane.log": {
+      "sha256": "b712282c764d030e39a6be0e8491a95704da8acd48b5a72cfdb6ce5708432377",
+      "bytes": 3788
+    },
+    "native-artifact/native-run.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "native-artifact/native-runner.json": {
+      "sha256": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0",
+      "bytes": 359
+    },
+    "native-artifact/native-screen.png": {
+      "sha256": "4a598d73f886d33783fd5dc917d57893818c0d2b40eb0774e410407456121ba4",
+      "bytes": 173746
+    },
+    "native-artifact/native-smoke.json": {
+      "sha256": "f7db47ab3d009b1c7502001509166e0c640f95748258b05e217e584da1f062e3",
+      "bytes": 5935
+    },
+    "native-artifact/owner-dialog/core-bootstrap-transcript.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    },
+    "native-artifact/owner-dialog/daemon-cleanup.json": {
+      "sha256": "5091faae93a5419b29365d4d20eb7829c337d8f5fd5baecbfcced43fdc694566",
+      "bytes": 281
+    },
+    "native-artifact/owner-dialog/runner-failure.json": {
+      "sha256": "63b241aa1d08b2dd3489e5bbe5e39c792518006dbc61a2a87a935b4f0360f7bd",
+      "bytes": 150
+    },
+    "native-audit.json": {
+      "sha256": "80c0acafef5cb20a116f136bb9c5d6fca5a31cb63801e679163a84bc27beb71d",
+      "bytes": 4704
+    },
+    "native-audit.log": {
+      "sha256": "05df7a8ffc274d7c9761b6bd64fc35cd33e415751afdbd321407ba3214cacece",
+      "bytes": 208
+    },
+    "product-arm-observed.log": {
+      "sha256": "c911efcd186718b1390a7b22158198f1037ae7e8c095de03b64e95f411bc8e1c",
+      "bytes": 387747
+    },
+    "product-arm-plain.log": {
+      "sha256": "303f10f42b235519301d56ad6d829c69f81a630451e03366219f247b3c49b029",
+      "bytes": 384344
+    }
+  }
+}

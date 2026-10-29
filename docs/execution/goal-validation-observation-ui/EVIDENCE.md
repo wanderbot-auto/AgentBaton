@@ -1,0 +1,84 @@
+# Evidence — actual Integrity observation
+
+Tested source: 733fff526f88d3438f7533a0b474ba0474954e4f; baseline 87b4434a032fc2995facdee4761d877fa79b7770; source tree be34148f7c83633d718ea5d480a95905d909f988.
+Evidence directory: /workspace/.onboarding/goal-validation-observation-ui.
+Author worktree: /workspace/.worktrees/goal-validation-observation-ui.
+
+## Provided real Core bundles and verified source bytes
+
+- Original actual bundle: 7cc70a97cac37d97967a292e519e5d6a5eaecf2267eec9a449d8f0a43e39a0f6; 71,707 bytes; original fields unchanged. It has no TaskProjection.
+- Interim real TaskProjection bundle: 74c44f411cd8dc719427d1cd624be5b27c8b50a0ab5401c4acc0fb6f6ca7d88f; 73,333 bytes; preserved in local evidence.
+- Final portable actual bundle: 5821176997487a594416b740e7e40538ae7d1dfa1c9e133a1531a5e4e093a0d2; 73,731 bytes. Includes actual tasks.get projection, complete original observation/goal_io and first Owner decision bound to the nonempty validation_refs proposal. Same exact bytes as the Core author's generated artifact; no fields synthesized or overwritten.
+- Complete observation digests were actually checked for both included Integrity packets using standard WebCrypto. This verifies only these actual Integrity serialized values; it is not a generic parse/stringify equivalence claim for Rust f64 or future Data/Command receipts.
+- Core fixture execution belongs to the Core author. This leaf executes static DTO/DOM tests against those bytes and does not claim another live Core or Provider run.
+
+## Actual tests and commands
+
+Complete Vitest: 547 tests / 34 files passed (the unchanged 537 existing tests plus 10 new tests). Selected new tests: 10 / 2 files passed. Typecheck, Vite build, diff check passed.
+- full-suite: /workspace/AgentBaton/apps/desktop/node_modules/.bin/vitest run --config /workspace/.onboarding/goal-validation-observation-ui/vitest.config.mts --reporter=verbose → exit 0; 35.116 s; log SHA-256 b01bc9bbadcf34cae1b6c2d928222e3541f1911ed6e09730f35388abc164d69a
+- selected: /workspace/AgentBaton/apps/desktop/node_modules/.bin/vitest run src/goal-graph-integrity-observation.test.ts src/GoalGraphExecution.integrity-observation.test.tsx --config /workspace/.onboarding/goal-validation-observation-ui/vitest.config.mts --reporter=verbose → exit 0; 2.494 s; log SHA-256 7ecc1abd9d218c2cb086ef245efa740205613e619a1c824709fd1bbf87a808db
+- typecheck: /workspace/AgentBaton/apps/desktop/node_modules/.bin/tsc --noEmit → exit 0; 1.637 s; log SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- build: /workspace/AgentBaton/apps/desktop/node_modules/.bin/vite build --config /workspace/.onboarding/goal-validation-observation-ui/vitest.config.mts → exit 0; 1.108 s; log SHA-256 e0e46afa3503baf72f1350c1753c0a70e215be552359ca892d4d94a30a893f6c
+- diff-check: git diff --check 87b4434a032fc2995facdee4761d877fa79b7770 733fff526f88d3438f7533a0b474ba0474954e4f → exit 0; 0.007 s; log SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+Standalone Rust parser/format check: /workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt --edition 2021 --check apps/desktop/src-tauri/src/approval.rs → exit 0. This does not compile or run Rust. The three new Native callback tests remain NOT_RUN; Root must assign an explicit Cargo window.
+
+## Preserved failures and source
+
+- Baseline unchanged real positive consistency check: 1 passed.
+- Baseline missing/null/unsafe-integer observation controls: 1 positive passed / 3 controls failed, exit 1. Log baseline-missing-observation-actual.log retained; no original failure is deleted.
+- First wrong-relative-path invocation found no tests; preserved separately as a tool error, not a product failure.
+- First typecheck found absent Node type definitions and a readonly assignment. A direct types reference still failed because those definitions are absent. Both logs remain. Final tests use existing standard WebCrypto and immutable copies; no dependency, tsconfig or lock modification.
+- All original 32 renderer test files, four existing actual/failure JSON fixtures and 36 approval Rust test blocks remain byte-identical.
+- Source inventory, exact log hashes and actual receipt/proposal binding checks are in verification.json. Existing bundle-size warning remains unsuppressed.
+
+## Requirement evidence and limits
+
+AB-TSK-003/004/008/011: old authority, original key/CAS and version/evidence floors retained by unchanged tests; no new IPC.
+AB-TSK-007: passed validator receipts require actual stop/join; new Native review Cancel source tests cover each page and final confirmation with zero private decision writes, pending real Rust execution.
+AB-TSK-010/012: full observation preserves actual goal_io/counters as observations without inventing token, cost, quota or semantic success.
+AB-SEC-002/004: readonly UI and original fixed host-private actions, with no new cloud upload, generic command or credential.
+AB-REL-001: Node/jsdom, supplied actual Core data, callback source, real Core execution, macOS and Provider dimensions remain separate.
+All requirement mappings remain partial at project level.
+
+NOT_RUN / NOT_CLAIMED: Native compilation/execution for this revision, actual macOS WebView or OS dialog, full Data/Command graphs, real Provider, CI, installers/signing and full Design v0.2. Independent review is pending Root's separate reviewer. No production release or new authority.
+
+## Separate pending Data / Command test-only revision
+
+Original Integrity source733 and docs e889 are independently reviewed, with separate review manifest /workspace/.onboarding/goal-validation-observation-ui-review/manifest.json; this section does not replace that result.
+The initial targeted actual Data/Command log at data-command-revision/actual-data-command.log records 3 passed / 1 failed (exit1). Initial source is preserved beside it. Command592's unsafe inode is a real fail-closed boundary, not a reason to loosen acceptance.
+New fixtures retain exact SHA-256 33c63615f18d89b6201e2a603f16066ce72d1e415868a90403ee3f3aaa9867cd /119716B and 592ac8036eb9d1c59ffbdf4119612eb3ffcf6bac960b92e8cf8fc3092be04f89 /94218B.
+No generic JSON.parse/stringify == Rust f64 digest claim is made. The persisted digest remains opaque for these actual Data/Command observations; full parsed field preservation and trusted/untrusted projection are tested separately.
+
+## Lossless projection revision — pre-freeze checks
+
+Exact additional provided packets: Command526a42e1775785b82eaf420af9dd6fd9a3f3c299f885f1535ab23835a812ed19 /102705B; Data97c07926adf05f4bc04bcbeed97adc6d6aea59cbbcaa10d6aaeebad19a456d99 /127780B. Original Owner validation_refs have no new display field; raw exists only on GraphDetails validation views.
+Targeted lossless tests14/2 and typecheck passed; complete frozen-source results follow. Own intermediate async-projection FAIL is preserved at lossless-revision/async-projection-before-fix.log with before-await-fix-guards.ts. Ten other tests listed as skipped in that targeted -t reproduction were filtered only for diagnosis; full suites do not skip them.
+No generic Rust f64 re-encoding digest claim: original raw UTF-8 bytes are hashed directly. Without verified raw text, unsafe numbers remain unsupported; all real candidate/pin/seq/CAS fields keep original safe-integer checks.
+
+## Final lossless source 4fab558fe126543c23b1410949e6fcd922b770d6
+
+Source tree: 334c75650c30f8c2fc9c1a3ce1c8274dd6714128; previous test-only8a remains a separate checkpoint.
+Actual full suite: 564 tests /37 files passed (33.718s). Targeted lossless14/2, typecheck, isolated Vite build and diff check all exit0.
+- full-suite: /workspace/AgentBaton/apps/desktop/node_modules/.bin/vitest run --config /workspace/.onboarding/goal-validation-observation-ui/vitest.config.mts --reporter=verbose → exit0; 33.718s; SHA-256 deb63aeab0b1047e160646c1d8795c3c0f8460b566e95acf76d5bb3f49120918
+- selected: /workspace/AgentBaton/apps/desktop/node_modules/.bin/vitest run src/goal-graph-observation-text.test.ts src/GoalGraphExecution.lossless-observation.test.tsx --config /workspace/.onboarding/goal-validation-observation-ui/vitest.config.mts --reporter=verbose → exit0; 3.137s; SHA-256 bafc50333bf506e8dcbee22abf6ef12b07982fe68f74365c9881d47d6d0c0aca
+- typecheck: /workspace/AgentBaton/apps/desktop/node_modules/.bin/tsc --noEmit → exit0; 1.654s; SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- build: /workspace/AgentBaton/apps/desktop/node_modules/.bin/vite build --config /workspace/.onboarding/goal-validation-observation-ui/lossless-revision/vitest-lossless-build.config.mts → exit0; 0.459s; SHA-256 9a1b128a0e944e3f8936172777c80b0c6a037f17b496a975e4b7e5b339a05a35
+- diff-check: git diff --check 8a0bf0e697947ed08acbdce539a1fbc47dedec62 4fab558fe126543c23b1410949e6fcd922b770d6 → exit0; 0.005s; SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+Frozen provided raw packets are byte-identical to Core artifacts: Data97c07926adf05f4bc04bcbeed97adc6d6aea59cbbcaa10d6aaeebad19a456d99 /127780B and system-Command526a42e1775785b82eaf420af9dd6fd9a3f3c299f885f1535ab23835a812ed19 /102705B. Actual API tests hash the original raw UTF-8 text, then bind the actual Task/graph projection; original592 without raw remains rejected.
+API shape comparison is only agreement of the parsed JavaScript projection. The original Core raw text, including u64/f64 lexical content, is the display source and hash input; no JS re-encoded value is treated as Rust bytes.
+
+Only derived observation_json is ignored by persistent-receipt floor equality. The actual stored receipt fields/result_digest, full candidate origin, FilePin, sequence/CAS and all original byte limits remain enforced.
+All35 preceding renderer test files remain byte-identical. Approval.rs is byte-identical to8a: total four new callback functions relative to87 (three Integrity functions plus one function iterating real Data and Command packets), all still NOT_RUN. Lossless4fab adds no new Native function or Rust execution claim.
+
+Output evidence correction: the first4fab Vite build reused the older private build directory and replaced its index.html. The old index was restored using its already-known content-addressed asset names and validated against its prior SHA; all47 old Integrity artifacts were then rehashed exactly equal. The original new-build command/log and correction record remain. A second build with a separate lossless-revision/build output passed. This record does not claim the old artifact was never touched; no product source/dist was affected.
+
+Independent review of4fab is pending Root's separate reviewer. The previous independent PASS belongs only to733+e889 and is not borrowed. No Cargo/target, macOS, actual OS Owner dialog, live Provider, CI/remote, installer/signing or full product completion is claimed.
+
+## Independent lossless review acknowledged
+
+Separate reviewer data_native_integration_review completed review of source4fab558fe126543c23b1410949e6fcd922b770d6 + docs2f31fcc7f88d9a1d90442ed5b1120903d5850467: PASS within the source/Node scope, no blocking findings.
+Independent execution: full564/37, selected14/2, type/build/diff/rustfmt parse all exit0, plus18 independent clone/async tamper/floor/precision controls passed. Report SHA-256 9991accc1c081c9e52da523bd171ebf0197369688aa01a51ce8fea2723d38f00; review manifest b9670d97291827840e4e122ef2a57b10836cc9e4b245cfc97be5d80f90c10a92 (59 files), at .onboarding/goal-validation-observation-ui-review/lossless-4fab.
+The reviewer independently verified restored old47 and new39 author evidence artifacts, explicitly retaining the old-index touch/restoration history. All four new Native callback functions remain unrun. Root still must validate the exact combined Native/Core/macOS/browser/CI/installer candidate.
+This is independent engineering review, not a formal GitHub Approve action or product completion; a later source revision needs its own evidence.

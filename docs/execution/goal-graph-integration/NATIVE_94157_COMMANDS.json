@@ -1,0 +1,84 @@
+[
+  {
+    "name": "sidecars",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "batond",
+      "-p",
+      "baton"
+    ],
+    "exit_code": 0,
+    "seconds": 21.12,
+    "log": "/workspace/.onboarding/goal-graph-native-composition/sidecars.log",
+    "sha256": "49684549182a3ec1b2aabaab61cf4ee83e8fe9636b369145ee0c49a5477587d1"
+  },
+  {
+    "name": "frontend-build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exit_code": 0,
+    "seconds": 1.32,
+    "log": "/workspace/.onboarding/goal-graph-native-composition/frontend-build.log",
+    "sha256": "173fdeef715f9a5b8e798bda9b34f1a9f86a3d5398d56d17b47b90db1cccea37"
+  },
+  {
+    "name": "native-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--manifest-path",
+      "apps/desktop/src-tauri/Cargo.toml",
+      "--features",
+      "native-smoke,custom-protocol"
+    ],
+    "exit_code": 0,
+    "seconds": 35.57,
+    "log": "/workspace/.onboarding/goal-graph-native-composition/native-tests.log",
+    "sha256": "393a45b8b18ed1eb5ce4e560dbec17e0d6b154c122fbfda881be828b90d5a659"
+  },
+  {
+    "name": "native-clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "--manifest-path",
+      "apps/desktop/src-tauri/Cargo.toml",
+      "--features",
+      "native-smoke,custom-protocol",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "seconds": 10.21,
+    "log": "/workspace/.onboarding/goal-graph-native-composition/native-clippy.log",
+    "sha256": "d785d35742d1567be5929a2aeb3fa205f1dabce05a6ae5014f7dfe6a5cd2f0f9"
+  },
+  {
+    "name": "native-fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--manifest-path",
+      "apps/desktop/src-tauri/Cargo.toml",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.3,
+    "log": "/workspace/.onboarding/goal-graph-native-composition/native-fmt.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

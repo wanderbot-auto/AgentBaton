@@ -1,0 +1,27 @@
+{
+  "feature_head": "652c5f0bc4983f53375ccb10d897c1088cd0e57f",
+  "actual_checkout": "1e04de31b8c44b37a48c6ac2cfe3282001326fd1",
+  "product_run": 40740806703,
+  "environment_run": 40740806162,
+  "files": {
+    "product-arm.log": {
+      "bytes": 209362,
+      "sha256": "52bc6265318399699c99c47258a1db79de7e340c1d81ab2803ddba3df7eb666b",
+      "stored": "product-arm.log.gz"
+    },
+    "product-intel.log": {
+      "bytes": 114178,
+      "sha256": "6ab36867306b2182bfa472ee0c10dea55cc0d317ab1ea22a66472dabb677a67d",
+      "stored": "product-intel.log.gz"
+    },
+    "product-jobs.json": {
+      "bytes": 15327,
+      "sha256": "e7401389153338b605639662f8aead678c6ba53acbcacfd453dcd1a85a02cb21"
+    },
+    "environment-jobs.json": {
+      "bytes": 11410,
+      "sha256": "498fc1b5525d8debea14925ea1b0cf01f5eea6a88530b6e3324bb7f10e3430d5"
+    }
+  },
+  "overall": "failure;5checks success,2Mac failure;no new desktop/package proof"
+}

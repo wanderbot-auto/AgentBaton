@@ -39,6 +39,10 @@ jobs:
       - name: Native evidence runner and artifact audit failure contracts
         run: python3 apps/desktop/src-tauri/tests/test_native_runner.py
       - run: cargo build --locked --bin batond --bin baton && python3 scripts/smoke-local-product.py
+      - name: Native Owner runner contracts against actual Core database
+        env:
+          AGENTBATON_OWNER_FIXTURE_DAEMON: ${{ github.workspace }}/target/debug/batond
+        run: python3 apps/desktop/src-tauri/tests/test_native_owner_dialog.py
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
@@ -82,13 +86,13 @@ jobs:
           artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --structured-editor --output artifacts/ui-browser/goal-plan-editor
           artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --batond target/debug/batond --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
           artifacts/browser-venv/bin/python - <<'PY'
-          import hashlib, json, pathlib, subprocess, sys
-          from playwright.sync_api import sync_playwright
+          import asyncio, hashlib, json, pathlib, subprocess, sys
+          from playwright.async_api import async_playwright
           def git(*args):
               return subprocess.check_output(['git', *args], text=True).strip()
           assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
           candidate = {
-              'schema': 11,
+              'schema': 12,
               'git_head': git('rev-parse', 'HEAD'),
               'git_tree': git('rev-parse', 'HEAD^{tree}'),
               'dirty': False,
@@ -96,8 +100,10 @@ jobs:
               'scope': 'CI-built Linux debug candidate; actual schema checked by read-only SQLite in the harness; acceptance pending',
           }
           pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
-          with sync_playwright() as playwright:
-              chromium = playwright.chromium.executable_path
+          async def chromium_executable_path():
+              async with async_playwright() as playwright:
+                  return playwright.chromium.executable_path
+          chromium = asyncio.run(chromium_executable_path())
           subprocess.run([
               sys.executable, 'apps/desktop/tests/goal-execution-real-ipc.py',
               '--batond', 'target/debug/batond',
@@ -106,6 +112,20 @@ jobs:
               '--output', 'artifacts/ui-browser/goal-execution',
               '--chromium', chromium,
           ], check=True)
+          graph_base = [
+              sys.executable, 'apps/desktop/tests/goal-graph-real-ipc.py',
+              '--batond', 'target/debug/batond',
+              '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
+              '--frontend', 'apps/desktop/dist', '--chromium', chromium,
+          ]
+          subprocess.run(graph_base + [
+              '--owner-only', '--output', 'artifacts/ui-browser/goal-graph-owner',
+          ], check=True)
+          for case in ['integrity', 'data', 'command', 'data-range', 'command-timeout']:
+              subprocess.run(graph_base + [
+                  '--validation-case', case,
+                  '--output', 'artifacts/ui-browser/goal-graph-' + case,
+              ], check=True)
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
@@ -119,7 +139,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     # Native tests, two application profiles, release audit and DMG packaging
     # must finish on the same exact checkout. Per-test/product limits stay fixed.
-    timeout-minutes: 45
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       max-parallel: 2
@@ -160,6 +180,12 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/native-smoke
           bash scripts/native-macos-smoke.sh artifacts/native-smoke 2>&1 | tee artifacts/native-smoke/lane.log
+      - name: Actual native Owner Grant dialog and private database acceptance
+        run: |
+          set -euo pipefail
+          cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke
+          cargo build --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke
+          python3 scripts/native-owner-dialog-smoke.py --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --output artifacts/native-smoke/owner-dialog
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

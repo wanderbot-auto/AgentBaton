@@ -1,0 +1,17 @@
+{
+  "feature": "bb343be5bb0403e995a97441ce16670c03bd0f33",
+  "checkout": "1a7682e60354d4a80200ea487725edfc99068a4c",
+  "tree": "f85f9e19513d1ecfd85a058e5f6fd14ba4ed1123",
+  "Product": 40799957452,
+  "Environment": 40799957732,
+  "Product_result": "all4success including both actualNative/defaultbuild/releaseaudit/developmentpackage",
+  "Environment_result": "all3FAIL:34Python2stale45/46 assertions; subsequentEnvNode/RustNOT_RUN",
+  "archive": "CI_BB343_PRODUCT_NATIVE_AUDIT.tar.gz",
+  "archive_sha256": "244781d5ac97e69636efbd0913058f8c96c84a8b1d7ce26dce40b382b0ba3b16",
+  "included_regular_members": 355,
+  "omitted_officialZIP_DMG_members": 9,
+  "full_original_archive_sha256": "08b76e059993338f484478948384355f8e4dd206645bd2be1680dceae8ed675e",
+  "report_sha256": "b41ffc358be129f79124d84aeee6c1d4daed9d66e60045ff125fc107e0f5588d",
+  "source_manifest_sha256": "5033a236b31037f2d8e4fe8b8bad80f4bb1b134c969d9693a139dd6743c13fcf",
+  "dimension": "Historical exactbb product success is NOT transferred to newEnvfixhead; noApprove/merge/fullDesign or manualDMGacceptance"
+}

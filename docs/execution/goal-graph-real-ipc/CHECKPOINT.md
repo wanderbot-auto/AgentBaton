@@ -1,0 +1,9 @@
+# Pending-empty private argv observer checkpoint
+
+Source `79bbf4e8ab69d0e24800f1c49c356673c2a8e4bc`, SHA256`2066f54bc6f0a0d3cf6add7885caa53fb322c28478c714846ebf5f9c04a76955`, sparse tree `/workspace/.worktrees/goal-graph-empty-argv`, branchcodex/goal-graph-empty-argv, fixed base7f83c66652a40a9d01e995b45ce270abd44fbdde. Only ownscript+four records modified. Original a941/4bc, a2a/a054 diagnostics and all prior Graph/Factory/CI evidence are preserved in prior records and original evidence directories.
+
+Exact7f83 UI remains FAILED: zero-byte argv on live sameidentity10200, not later sleep10207. Sealed raw review `/workspace/.onboarding/pr16-7f83-linux-review/REVIEW.md` SHAc975b8d62d5e26a0a5652efa0c1356c6ee1aa9ff3026ee31a0184cc33410421f, MANIFEST99a842c14e9e470ddc5a05b0cec06398bbeafe605210b4761b610e43f39060e1. Eleven complete reports109/69 plus failed2/1; Rust593+7 success is separate. Specific Linux exec mechanism remains unproven.
+
+Root-approved change: empty-only stable live child becomes unclassified pending, not accepted. Original nonempty1024/NUL/exactsleep/PGID/start/permission guards and Core1500/cleanup500 unchanged. Single case-only absolute5s deadline rejects late exact results; cleanup defaultNone does not prove an on-time observation. Official kernel source and ADR in PLAN explain the bounded rationale and limits.
+
+Author controls17+13+4 actually exit0, syntax/diff/mechanical restoration passed. Ownfork/exec lifecycle real; empty-read injection and fakeclock are explicitly synthetic. All created processes reaped; no browser/Core/Cargo/remote/fees. New-source real Core/browser/CI/Mac NOT_RUN. Independent reviewer notified; followup agent-limit failure preserved and Root asked to trigger existing reviewer. Await narrow independent review then Root owns integration/actual testing. Do not claim originalCI fixed before those results.

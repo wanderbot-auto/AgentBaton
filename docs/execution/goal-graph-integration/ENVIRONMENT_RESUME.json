@@ -1,0 +1,22 @@
+{
+  "status": "resumed_original_workspace_after_starting_notification",
+  "root_head": "7edc0fa3be3cc823db00aa1e8f40614d37ea059b",
+  "protected_main": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "native_source_files_unchanged": 94,
+  "core_candidate_identical": 95,
+  "reviewed_native_differences": [
+    "apps/desktop/src-tauri/Cargo.lock",
+    "apps/desktop/src-tauri/Cargo.toml",
+    "apps/desktop/src-tauri/src/approval.rs",
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+    "apps/desktop/src-tauri/src/lib.rs"
+  ],
+  "author_work_preserved": "goal-graph-real-ipc611dd99 plus existing uncommitted observer changes",
+  "active_native_agents": [
+    "data_real_ipc_resume",
+    "data_native_integration_review"
+  ],
+  "runtime_status": "running/connected observations_current spec3",
+  "inbox": "OWNER001/002 read ACK; no003",
+  "no_added_accounts_credentials_fees": true
+}

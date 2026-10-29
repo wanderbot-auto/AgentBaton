@@ -1,0 +1,158 @@
+{
+  "status": "passed",
+  "dimension": "actual built React / Linux Chromium / fixed test-only HTTP / authenticated Unix Core / generated owned ACP process",
+  "not_claimed": [
+    "macOS",
+    "native WebView",
+    "real Provider/model",
+    "TaskAccepted",
+    "independent artifact acceptance",
+    "OS sandbox",
+    "whole workspace output quota",
+    "whole product completion"
+  ],
+  "native_owner_dialog": "not_run; fixed private host fixture outside HTTP approves actual Core snapshots",
+  "provider": "generated local ACP, no account/credential/network/model",
+  "harness_sha256": "c403bb51ee61901a47ce638278682c88291f67625c0e2d90c9cf1b8ef7232ef5",
+  "daemon_sha256": "fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e",
+  "manifest_sha256": "dd76425e46e99fad9e6fdd58c17f232f992ffecde13b8cdb2bd002f546e4b325",
+  "frontend_assets_sha256": {
+    "assets/index-Cxl2UxNp.js": "4472889886faf0fc9f9d1f39faa0e0053ca47a22be7d7e21c191e67a08fa0bd8",
+    "assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+    "index.html": "3d83ddee4f79c6d56431ffb6c32f2de936f03cb40a73226360485731d30fac99"
+  },
+  "checks": [
+    {
+      "name": "private host approves generated local inputs and planning scopes; no execution or SQL-forged authority",
+      "status": "passed"
+    },
+    {
+      "name": "actual Goal execution is lazy/read-only with no stored plan and no authority from planning approval",
+      "status": "passed"
+    },
+    {
+      "name": "HTTP denies approval/finalize/generic dispatch or execution and foreign run references without database writes",
+      "status": "passed"
+    },
+    {
+      "name": "HTTP-external real Owner fixture starts full TaskRequest, real artifact and owned-reaped candidate without acceptance",
+      "status": "passed"
+    },
+    {
+      "name": "UI stores rev2 then explicitly adopts same-scope plan; dropped real response recovers exact key without new Owner, attempt replay or budget/history reset",
+      "status": "passed"
+    },
+    {
+      "name": "native-confirmed actual selected-file Directory copy supplies real Goal TaskRequest inputs without Git initialization or source writes",
+      "status": "passed"
+    },
+    {
+      "name": "real partial-write Goal cancellation keeps request receipt separate from actual owned stop; dropped response reconciles by current reads without a second mutation",
+      "status": "passed"
+    },
+    {
+      "name": "actual1200ms owned timeout remains unknown after reaping and cancellation; UI blocks new approval/adoption and never fabricates TaskAccepted",
+      "status": "passed"
+    },
+    {
+      "name": "one initial approved plan automatically drains independent Work and Summary nodes with distinct outputs, owned-stop lineage and cumulative two-attempt budgets; UI shows both same-plan candidates",
+      "status": "passed"
+    },
+    {
+      "name": "original generated sources unchanged, real scoped history retained and no browser runtime errors",
+      "status": "passed"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "/workspace/.onboarding/goal-graph-legacy-browser-corrected-ui/01-stored-plan-no-execution.png",
+      "sha256": "389ee564219581eb73ff9ac9f46189d6cee796fa08407fa3889256fbd0d54eb2",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "actual Linux Chromium, not macOS/native"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-legacy-browser-corrected-ui/02-real-generated-candidate.png",
+      "sha256": "b51e9f85595cd3c70fe123772ea2a42dedb815863477803d2b69d78fbee6c596",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "actual Linux Chromium, not macOS/native"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-legacy-browser-corrected-ui/03-real-plan-advance-response-lost.png",
+      "sha256": "26598afcdb8ebfb909f92937b72500db97d1895eaf10a60595e3837b78837eb5",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "actual Linux Chromium, not macOS/native"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-legacy-browser-corrected-ui/04-same-scope-replan-history-kept.png",
+      "sha256": "2652be40b64e820e9ef29801de400a04ff81466d00e351dfe97be4a55bd7fea0",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "actual Linux Chromium, not macOS/native"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-legacy-browser-corrected-ui/05-real-data-workspace-goal-candidate.png",
+      "sha256": "53fdb75ca2ac4a875fa921c026c1ee76e462c6ede233693dd81339ba286c1f9a",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "actual Linux Chromium, not macOS/native"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-legacy-browser-corrected-ui/06-real-owned-cancel-retains-partial-report.png",
+      "sha256": "7dda5dfcc8bcf5e2c18774f16618e0b37de7374e62da61fc04bda038c7e1d342",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "actual Linux Chromium, not macOS/native"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-legacy-browser-corrected-ui/07-timeout-owned-stop-effects-still-unknown.png",
+      "sha256": "d5b29cc5bf1f5cffe1a5d8aa373e0d456e558cf83ec4a31e22d86026c964f497",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "actual Linux Chromium, not macOS/native"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-legacy-browser-corrected-ui/08-timeout-mobile-unknown.png",
+      "sha256": "fcb4ef1a3e01f54f6e1699ce1014d30fd5a5dd428d53c1f472ecb4a9aba056fd",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "dimension": "actual Linux Chromium, not macOS/native"
+    },
+    {
+      "path": "/workspace/.onboarding/goal-graph-legacy-browser-corrected-ui/09-same-plan-work-and-summary-frontier.png",
+      "sha256": "ada0c7bd682d6180d54fa79638aebeb366e4c453acd6faadc38d600d3a08ce25",
+      "viewport": {
+        "width": 1488,
+        "height": 981
+      },
+      "dimension": "actual Linux Chromium, not macOS/native"
+    }
+  ],
+  "scope": "Reviewable summary of the actual run; complete original requests/observations remain byte-for-byte in the adjacent gzip trace.",
+  "complete_original_trace": {
+    "file": "LEGACY_BROWSER_CORRECTED_UI.json.gz",
+    "raw_sha256": "452f8c587b7cc826346792b4e8b28c29f4224b8cbf9648da2ebf4b20a3bd7bd1",
+    "raw_bytes": 1225951,
+    "gzip_sha256": "e4917f1a2de0eb7791203cc0b2fb594dcd790fd52fbcae96e2e1632a8c4ec36f",
+    "gzip_bytes": 120576,
+    "roundtrip_byte_identity_verified": true
+  }
+}

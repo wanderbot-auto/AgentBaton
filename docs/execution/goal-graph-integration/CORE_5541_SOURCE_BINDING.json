@@ -1,0 +1,21 @@
+{
+  "recorded_at": "2026-10-28T13:49:58.070966+00:00",
+  "source_commit": "5541c37",
+  "root_composition": "b9286ad4cb33d775a0a5ab9935a72a6e06704f46",
+  "actual_owner_only_fixture_sha256": "60c205a9ca559150b52b5bdffb2418a706b93cbb3b8aeda9e3c17d670b885754",
+  "compile_time_source_hashes_match": {
+    "crates/core/src/data_workspace_workers.rs": "9865e28dcf01c82d2a95c4b5df6c11f0fe88ac39eade6ff37c593631aec74fa5",
+    "crates/core/src/data_workspaces.rs": "c4c99467228fa231d393a0ce7061cf127f7389284cda455101aa3670b1734429",
+    "crates/core/src/execution.rs": "0f299dc199f3c0a3e0e8d5689298fe08d87f64956baeb82be3a4633550e3078d",
+    "crates/core/src/goal_evidence.rs": "9aca1fb1d923d0e097e8ad74e8ce0f38023ecf3eaf4f0b30565064650e400546",
+    "crates/core/src/goal_graph.rs": "0d02dd9485c555528d74388c375f1cce8a7bacd2732d49bef06bd92f06c0fda2",
+    "crates/core/src/goal_runtime.rs": "f84317f7481f5d0298f5fbcebf1c40a7f3cab8f612ee3d436b1b446b672383ac",
+    "crates/core/src/goal_store.rs": "099379c32ce3864216e7674bc21a882b5bccc256a77b491c921e94b0aad48883",
+    "crates/core/src/ipc.rs": "edaf1f73673aa90e5d04a6d4b4d0fb8c6f2bc01a7fbac3528f596544d2c2e9a7",
+    "crates/core/src/sessions.rs": "0e5ebc08c7894ab9ffb667b9106a3dadce1fe05837c753d1de73662711d52fc2",
+    "crates/core/src/storage.rs": "ef8e84b2c1c5ea9586320a7d492c725ee4e6f78e9fde73ada8c8fe9a1bfa575e",
+    "crates/core/tests/sessions_ipc.rs": "423b2434df5a90086eb09a6693099b6a6d9458ab0b62fd1f539bcdd393e7d375"
+  },
+  "scope": "Owner-only actual source-hash fixture correspondence, not independent runtime or Validator/fullGraph/macOS acceptance",
+  "remaining": "dedicated OO1/2/3/5/6 negatives/Validators/final independent fullCore tests; Node+Native composition pending"
+}

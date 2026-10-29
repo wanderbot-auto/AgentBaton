@@ -7,9 +7,16 @@ export interface Task {
   state: string;
   revision: number;
   readonly spec_revision?: number;
+  readonly acceptance_ref?: string | null;
+  readonly acceptance_sequence?: number | null;
   created_at: string;
   updated_at: string;
 }
+/** Trusted Core Task projection, independent of a graph status boolean. */
+export function taskHasAcceptanceProjection(task:Task):boolean {
+  return task.state==='accepted'&&typeof task.project_id==='string'&&task.project_id.length>0&&typeof task.acceptance_ref==='string'&&/^[A-Za-z0-9._:-]{1,256}$/.test(task.acceptance_ref)&&Number.isSafeInteger(task.acceptance_sequence)&&task.acceptance_sequence!>0&&Number.isSafeInteger(task.spec_revision)&&task.spec_revision!>0&&Number.isSafeInteger(task.revision)&&task.revision>0;
+}
+export const taskAllowsExecution=(task:Task)=>['draft','running'].includes(task.state)&&task.acceptance_ref==null&&task.acceptance_sequence==null;
 export interface WorkspaceIdentity {
   canonical_root: string;
   // Opaque server identity only; never compare or roundtrip these u64 fields.
@@ -67,7 +74,7 @@ export async function request<T>(command: string, args?: Record<string, unknown>
   return envelope.result;
 }
 export const api = {
-  snapshot: () => request<Snapshot>('system_snapshot'),
+  snapshot: async () => {const value=await request<Snapshot>('system_snapshot');if(value.tasks.some(task=>task.state==='accepted'&&(!taskHasAcceptanceProjection(task)||!Number.isSafeInteger(value.sequence)||task.acceptance_sequence!>value.sequence)))throw new Error('Invalid accepted Task projection');return value;},
   create: (goal: string, idempotencyKey: string, projectId?: string) => request<Task>('tasks_create', { goal, idempotencyKey, ...(projectId ? { projectId } : {}) }),
   cancel: (task: Task, idempotencyKey: string) => request<Task>('tasks_cancel', { taskId: task.id, expectedRevision: task.revision, idempotencyKey }),
   events: (cursor: number) => request<EventBatch>('events_subscribe', { cursor, limit: 100 }),

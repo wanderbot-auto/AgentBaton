@@ -16,7 +16,7 @@ def validate_job_timeout(workflow_name, job_name, job):
         check(strategy.get('matrix') == {'os': ['macos-15', 'macos-15-intel']}, 'Unexpected product build matrix')
         check(str(strategy.get('max-parallel')) == '2', 'Unexpected product build concurrency')
         check(str(strategy.get('fail-fast')).lower() == 'false', 'Both product architectures must complete')
-        maximum = 45
+        maximum = 60
     value = job.get('timeout-minutes')
     check(type(value) in (str, int), 'Invalid CI job timeout')
     try:

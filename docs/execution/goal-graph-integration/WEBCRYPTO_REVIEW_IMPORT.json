@@ -1,0 +1,9 @@
+{
+  "archive": "WEBCRYPTO_REVIEW_EVIDENCE.tar.gz",
+  "sha256": "39660acb9988ff6c91754262cdad2a746129144a5f3a246ca3567010793972bd",
+  "bytes": 36767,
+  "files": 42,
+  "all_roundtrip_sha256_verified": true,
+  "source_manifest_sha256": "c2cba731f235f72ca205f37bc355e48a9fedd4202c0ff6358b75298a30bcebf8",
+  "scope": "Linux unit/Node/Python only, not actualNativeMac/package"
+}

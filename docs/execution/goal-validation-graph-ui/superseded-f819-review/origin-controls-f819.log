@@ -1,0 +1,54 @@
+
+ RUN  v5.0.5 /workspace/.onboarding/goal-graph-ui-review
+
+ × origin.review.test.ts > rejects accepted artifact refs whose full identity differs from the captured candidate 9ms
+   → expected true to be false // Object.is equality
+ × origin.review.test.ts > rejects Owner candidate refs with different safe root/file pins rather than rendering trusted acceptance 1ms
+   → expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  origin.review.test.ts > rejects accepted artifact refs whose full identity differs from the captured candidate
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ origin.review.test.ts:10:49
+      8|  view.task_acceptance!.artifact_refs[0].root.device++;
+      9|  view.task_acceptance!.artifact_refs[0].file_pin.inode=999;
+     10|  expect(graphDetailsShape(view,a.task,f.scope)).toBe(false);
+       |                                                 ^
+     11| });
+     12| it('rejects Owner candidate refs with different safe root/file pins ra…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  origin.review.test.ts > rejects Owner candidate refs with different safe root/file pins rather than rendering trusted acceptance
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ origin.review.test.ts:17:49
+     15|  view.owner_decisions[0].candidate_refs[0].root.inode++;
+     16|  view.owner_decisions[0].candidate_refs[0].file_pin.ctime_nsec=1;
+     17|  expect(graphDetailsShape(view,a.task,f.scope)).toBe(false);
+       |                                                 ^
+     18|  expect(graphTaskAcceptanceMatchesTask(view.task_acceptance,a.task,f.s…
+     19| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  13:51:04
+   Duration  838ms (environment 81%, transform 14%, import 3%, tests 2%, worker 1%)
+

@@ -1,0 +1,13 @@
+{
+  "recorded_at": "2026-10-28T20:08:32.715352+00:00",
+  "basis": "reviewed composedNode/Owner fixtures and accurate thirdCI record; final independent integration review pending",
+  "algorithm_unchanged": true,
+  "registered_paths": 93,
+  "only_changed_hash": {
+    "path": "docs/execution/STATUS.md",
+    "previous": "532f2d5edf3f4533e8e02558c626bd7d6cecd1ea123992d920a6444a9d8e0c02",
+    "current": "ff1cd0199804c7aa0a580053e50b5f05dae340a6039610cc8323efdf8f7fcb8d"
+  },
+  "other92_actual_files_and_registered_hashes_match": true,
+  "verifier_and_workflows_unchanged_from641": true
+}

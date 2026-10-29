@@ -1,0 +1,2439 @@
+{
+  "build_source_hashes": {
+    "core_command_validation.rs": "f726430b31b52c19dbb2509fbc02bbbe6509182202071855e65b5117fa3f4b15",
+    "data_workspace_workers.rs": "9865e28dcf01c82d2a95c4b5df6c11f0fe88ac39eade6ff37c593631aec74fa5",
+    "data_workspaces.rs": "c4c99467228fa231d393a0ce7061cf127f7389284cda455101aa3670b1734429",
+    "execution.rs": "0f299dc199f3c0a3e0e8d5689298fe08d87f64956baeb82be3a4633550e3078d",
+    "goal_evidence.rs": "d786d708aef63e82bdf081a2f5fd5314f184f7f1e7b7b81512d114b74ab1f802",
+    "goal_graph.rs": "a70ad72c9b6fec9b83acf21bdd7e27001b5d47a26166346f26f13f2200ae566c",
+    "goal_graph_validators.rs": "f68dc709d39e5ddf5cbfd2a832933c24a22bcee358ef0dad75818d370ca0b5cb",
+    "goal_runtime.rs": "cbe5c38b0a336a2ed7387e23b98303192aef325211d262e9083062d09dce005c",
+    "goal_store.rs": "099379c32ce3864216e7674bc21a882b5bccc256a77b491c921e94b0aad48883",
+    "goal_validator_io.rs": "51270ea967a6ce98143f2d2d9dd0071093547ac8e23caa0a7e9fdff888af5eae",
+    "ipc.rs": "32d623a3858759544f1640227897e6f0122ade249e48ea81080cf3f1cd803b4e",
+    "sessions.rs": "0e5ebc08c7894ab9ffb667b9106a3dadce1fe05837c753d1de73662711d52fc2",
+    "storage.rs": "ef8e84b2c1c5ea9586320a7d492c725ee4e6f78e9fde73ada8c8fe9a1bfa575e",
+    "tests/sessions_ipc.rs": "dbe4ec7886c94b83a4fb40a3633bbc74ae2de20345d2fc2c65dda8d752bc33b6",
+    "workspaces_command_validation.rs": "76a5eeaa2a1822b40d206af63ec32d643da9278e502e72c82da510d62cf8184e"
+  },
+  "definition": {
+    "approval_id": "9a6af6a4-3b96-42f4-ab1a-9e1e7796b35f",
+    "attempt_id": "ba855cb5-b012-4a67-b13b-0a57b02fa75e",
+    "contract": {
+      "arguments": [
+        "fixed command observed"
+      ],
+      "argv0": "/usr/bin/printf",
+      "cleanup_time_ms": 500,
+      "cwd": {
+        "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+        "device": 34,
+        "inode": 316318,
+        "kind": {
+          "kind": "directory"
+        }
+      },
+      "environment_sha256": {},
+      "execution_identity": {
+        "effective_gid": 1000,
+        "effective_uid": 1000,
+        "real_gid": 1000,
+        "real_uid": 1000
+      },
+      "expected_exit_codes": [
+        0
+      ],
+      "file_contract": {
+        "analysis": null,
+        "inputs": [
+          {
+            "canonical_root": "/usr/bin",
+            "requirement": {
+              "artifact_id": "baton-command-program",
+              "expected_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+              "max_bytes": 16777216,
+              "relative_path": "printf"
+            },
+            "root_device": 27,
+            "root_inode": 9223372036855074700
+          },
+          {
+            "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+            "requirement": {
+              "artifact_id": "fixed-input",
+              "expected_sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24",
+              "max_bytes": 1024,
+              "relative_path": "inputs/file"
+            },
+            "root_device": 34,
+            "root_inode": 316318
+          }
+        ],
+        "outputs": [
+          {
+            "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+            "requirement": {
+              "artifact_id": "report",
+              "expected_sha256": null,
+              "max_bytes": 1024,
+              "relative_path": "reports/report.txt"
+            },
+            "root_device": 34,
+            "root_inode": 316318
+          }
+        ],
+        "subject": {
+          "attempt_id": "ba855cb5-b012-4a67-b13b-0a57b02fa75e",
+          "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+          "spec_revision": 1,
+          "task_id": "b3358855-7eca-4ff0-990d-c5214f1ff27f",
+          "version": {
+            "base_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+            "kind": "workspace_artifacts",
+            "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+          }
+        },
+        "validator_id": "builtin.artifact-integrity.v1"
+      },
+      "image_policy": "linux_sealed_elf_snapshot",
+      "mode": "native_executable",
+      "program": {
+        "canonical_root": "/usr/bin",
+        "requirement": {
+          "artifact_id": "baton-command-program",
+          "expected_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+          "max_bytes": 16777216,
+          "relative_path": "printf"
+        },
+        "root_device": 27,
+        "root_inode": 9223372036855074700
+      },
+      "require": {
+        "auxiliary_source_immutability": false,
+        "execution_time_input_immutability": false,
+        "filesystem_isolation": false,
+        "network_isolation": false,
+        "process_tree_containment": false,
+        "sealed_executable_image": false
+      },
+      "scope": "approved_deterministic_command_only",
+      "script": null,
+      "stderr_limit": 512,
+      "stdout_limit": 512,
+      "validator_id": "builtin.fixed-command.v1",
+      "wall_time_ms": 500
+    },
+    "contract_digest": "13c980fa7b87300f7d1005bb6d96fdbec59f5ca26b5ffdfa450cf0cec81f7dd9",
+    "created_at": "2026-10-28T15:30:03.701082124Z",
+    "fencing_token": 1,
+    "id": "9bc31e26-5418-4997-997d-dfae182ba4da",
+    "max_runs": 1,
+    "project_id": "bd4229cb-3ba5-405e-a566-dd60e19af9bb",
+    "refs": {
+      "binding": {
+        "capability_snapshot_id": "client-no-tools:785af51d-3993-4cf3-a95a-c848230d55f8",
+        "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+        "connection_id": "785af51d-3993-4cf3-a95a-c848230d55f8",
+        "environment_id": "5c87e5cd-4c0c-43ed-bcc9-a8f91b0ae53d",
+        "host_id": "local",
+        "identity_ref": "unknown:785af51d-3993-4cf3-a95a-c848230d55f8",
+        "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+        "policy_revision": "82daffc1-5b8f-4390-abbe-07f023fc658e:2",
+        "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+      },
+      "fencing_token": 1,
+      "project_id": "bd4229cb-3ba5-405e-a566-dd60e19af9bb",
+      "project_name": "Generated Goal dataset",
+      "project_revision": 1,
+      "session_revision": 7,
+      "task_goal": "Execute bounded data nodes using actual copied inputs",
+      "task_revision": 4,
+      "task_state": "running",
+      "workspace_revision": 2
+    },
+    "revision": 1,
+    "revoked": false,
+    "scope": "approved_deterministic_command_only",
+    "selection": {
+      "arguments": [
+        "fixed command observed"
+      ],
+      "cleanup_time_ms": 500,
+      "environment": {},
+      "executable": "/usr/bin/printf",
+      "expected_exit_codes": [
+        0
+      ],
+      "inputs": [
+        {
+          "artifact_id": "fixed-input",
+          "expected_sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24",
+          "max_bytes": 1024,
+          "relative_path": "inputs/file"
+        }
+      ],
+      "mode": "native_executable",
+      "outputs": [
+        {
+          "artifact_id": "report",
+          "expected_sha256": null,
+          "max_bytes": 1024,
+          "relative_path": "reports/report.txt"
+        }
+      ],
+      "require": {
+        "auxiliary_source_immutability": false,
+        "execution_time_input_immutability": false,
+        "filesystem_isolation": false,
+        "network_isolation": false,
+        "process_tree_containment": false,
+        "sealed_executable_image": false
+      },
+      "script": null,
+      "session_id": "5cd393b6-94dc-4616-b262-8f904fca4c5f",
+      "stderr_limit": 512,
+      "stdout_limit": 512,
+      "wall_time_ms": 500
+    },
+    "session_id": "5cd393b6-94dc-4616-b262-8f904fca4c5f",
+    "task_id": "b3358855-7eca-4ff0-990d-c5214f1ff27f",
+    "validator_id": "builtin.fixed-command.v1",
+    "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+  },
+  "final_decision": {
+    "approval_id": "fb666991-e0a7-478a-aeeb-019fb2ab4bdd",
+    "decision": "accepted",
+    "graph_contract_version": 1,
+    "node_id": "owner-summary",
+    "owner_decision_id": "2eb14809-bca7-45b9-9fb0-ac945dc6c37e",
+    "plan_revision": 2,
+    "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+    "run_revision": 14,
+    "task_accepted": true
+  },
+  "final_owner_proposal": {
+    "consumed": false,
+    "created_at": "2026-10-28T15:30:11.860717117Z",
+    "expires_at_ms": 1793201711860,
+    "id": "fb666991-e0a7-478a-aeeb-019fb2ab4bdd",
+    "kind": "goal_node_acceptance",
+    "revision": 1,
+    "snapshot": {
+      "candidate_receipts": [
+        {
+          "artifacts": [
+            {
+              "artifact_id": "report-2",
+              "bytes": 14,
+              "candidate_id": "ef15a112-fd88-4ae0-b997-58d038aebc2c",
+              "contract_id": "output:report-2",
+              "file_pin": {
+                "bytes": 14,
+                "ctime": 1793201409,
+                "ctime_nsec": 375303770,
+                "device": 34,
+                "gid": 1000,
+                "inode": 316369,
+                "mode": 33152,
+                "mtime": 1793201409,
+                "mtime_nsec": 375303770,
+                "uid": 1000
+              },
+              "producer_attempt_id": "4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+              "producer_node_id": "independent-2",
+              "relative_path": "reports/report-2.txt",
+              "root": {
+                "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                "device": 34,
+                "inode": 316318,
+                "kind": {
+                  "kind": "directory"
+                }
+              },
+              "sha256": "748015cbbb07287af0a51988f530a34c829cf2976142231588d59f65da7e31c1",
+              "writer_epoch": 3
+            }
+          ],
+          "attempt_id": "4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+          "capability_digest": "a7848269eec1bf5470c375d0a2aa3aea528a8e16488ca7e8f5fd72ef13472bf8",
+          "capture_job_id": "capture:4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+          "capture_receipt_sequence": 119,
+          "consumed_inputs": [
+            {
+              "artifact_id": "report",
+              "candidate": {
+                "artifact_id": "report",
+                "bytes": 12,
+                "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+                "contract_id": "output:report",
+                "file_pin": {
+                  "bytes": 12,
+                  "ctime": 1793201404,
+                  "ctime_nsec": 711925677,
+                  "device": 34,
+                  "gid": 1000,
+                  "inode": 316340,
+                  "mode": 33152,
+                  "mtime": 1793201404,
+                  "mtime_nsec": 711925677,
+                  "uid": 1000
+                },
+                "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+                "producer_node_id": "produce-report",
+                "relative_path": "reports/report.txt",
+                "root": {
+                  "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                  "device": 34,
+                  "inode": 316318,
+                  "kind": {
+                    "kind": "directory"
+                  }
+                },
+                "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+                "writer_epoch": 2
+              },
+              "contract_id": "output:report",
+              "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591"
+            }
+          ],
+          "created_at": "2026-10-28T15:30:10.289613142Z",
+          "graph_contract_version": 1,
+          "id": "ef15a112-fd88-4ae0-b997-58d038aebc2c",
+          "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+          "integrity": "verified",
+          "node_id": "independent-2",
+          "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+          "plan_revision": 2,
+          "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+          "scope_id": "a7d4b77b-d946-425e-93b2-e153f5c09682",
+          "session_id": "8192da22-a7e8-449f-925d-3c59da910616",
+          "source": "baton_goal_evidence",
+          "spec_revision": 1,
+          "stop_receipt_sequence": 115,
+          "task_acceptance": "not_established",
+          "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+          "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+        }
+      ],
+      "candidate_refs": [
+        {
+          "artifact_id": "report-2",
+          "bytes": 14,
+          "candidate_id": "ef15a112-fd88-4ae0-b997-58d038aebc2c",
+          "contract_id": "output:report-2",
+          "file_pin": {
+            "bytes": 14,
+            "ctime": 1793201409,
+            "ctime_nsec": 375303770,
+            "device": 34,
+            "gid": 1000,
+            "inode": 316369,
+            "mode": 33152,
+            "mtime": 1793201409,
+            "mtime_nsec": 375303770,
+            "uid": 1000
+          },
+          "producer_attempt_id": "4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+          "producer_node_id": "independent-2",
+          "relative_path": "reports/report-2.txt",
+          "root": {
+            "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+            "device": 34,
+            "inode": 316318,
+            "kind": {
+              "kind": "directory"
+            }
+          },
+          "sha256": "748015cbbb07287af0a51988f530a34c829cf2976142231588d59f65da7e31c1",
+          "writer_epoch": 3
+        }
+      ],
+      "capability_digest": "a7848269eec1bf5470c375d0a2aa3aea528a8e16488ca7e8f5fd72ef13472bf8",
+      "criterion": {
+        "artifact_ids": [
+          "report-2"
+        ],
+        "criterion_digest": "8d346a2043896c382ee4435ad6c7512e53c659ee95f76d2e9602de4ccfb3584f",
+        "criterion_text": "Owner reviews the exact report separately from process success",
+        "rule_id": "goal-owner-review"
+      },
+      "expected_ledger_revision": 121,
+      "expected_run_revision": 13,
+      "graph_contract_version": 1,
+      "input_bindings": [
+        {
+          "artifact_id": "report-2",
+          "candidate": {
+            "artifact_id": "report-2",
+            "bytes": 14,
+            "candidate_id": "ef15a112-fd88-4ae0-b997-58d038aebc2c",
+            "contract_id": "output:report-2",
+            "file_pin": {
+              "bytes": 14,
+              "ctime": 1793201409,
+              "ctime_nsec": 375303770,
+              "device": 34,
+              "gid": 1000,
+              "inode": 316369,
+              "mode": 33152,
+              "mtime": 1793201409,
+              "mtime_nsec": 375303770,
+              "uid": 1000
+            },
+            "producer_attempt_id": "4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+            "producer_node_id": "independent-2",
+            "relative_path": "reports/report-2.txt",
+            "root": {
+              "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+              "device": 34,
+              "inode": 316318,
+              "kind": {
+                "kind": "directory"
+              }
+            },
+            "sha256": "748015cbbb07287af0a51988f530a34c829cf2976142231588d59f65da7e31c1",
+            "writer_epoch": 3
+          },
+          "contract_id": "output:report-2",
+          "sha256": "748015cbbb07287af0a51988f530a34c829cf2976142231588d59f65da7e31c1"
+        }
+      ],
+      "intent": {
+        "expected_ledger_revision": 121,
+        "expected_plan_revision": 2,
+        "node_id": "owner-summary",
+        "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489"
+      },
+      "node": {
+        "budget": {
+          "attempts": 1,
+          "children": 0,
+          "cost_microunits": null,
+          "output_bytes": 2048,
+          "parallel": 1,
+          "reworks": 0,
+          "runtime_ms": 5000,
+          "tokens": null
+        },
+        "dependencies": [
+          "independent-2"
+        ],
+        "executor": {
+          "kind": "owner",
+          "rule_id": "goal-owner-review"
+        },
+        "external_action_id": null,
+        "goal": "Owner reviews exact report after deterministic command only",
+        "id": "owner-summary",
+        "idempotency_key": "owner-summary-once",
+        "kind": "owner_approval",
+        "outputs": [],
+        "parent_id": null,
+        "recipients": [],
+        "required_inputs": [
+          {
+            "artifact_id": "report-2",
+            "contract_id": "output:report-2",
+            "goal_task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+            "source": {
+              "candidate_for_validation": true,
+              "kind": "node",
+              "node_id": "independent-2"
+            }
+          }
+        ],
+        "required_validators": [
+          "goal-owner-review"
+        ],
+        "reservation": {
+          "cost_microunits": null,
+          "output_bytes": 2048,
+          "runtime_ms": 4000,
+          "tokens": null
+        },
+        "retry": {
+          "max_attempts": 1,
+          "max_reworks": 0,
+          "retry_classes": []
+        },
+        "side_effect": "advisory_read_only",
+        "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5",
+        "write_set": []
+      },
+      "run_binding": {
+        "capability_digest": "a7848269eec1bf5470c375d0a2aa3aea528a8e16488ca7e8f5fd72ef13472bf8",
+        "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+        "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+        "plan_revision": 2,
+        "project_id": "bd4229cb-3ba5-405e-a566-dd60e19af9bb",
+        "root_grant_id": "82daffc1-5b8f-4390-abbe-07f023fc658e",
+        "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+        "scope_digest": "111d0c4ed5f4ddfdcf9737155e91dbf92b63a48ed06d63e94a449327e66ef263",
+        "scope_id": "a7d4b77b-d946-425e-93b2-e153f5c09682",
+        "spec_revision": 1,
+        "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+        "workspace": {
+          "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+          "device": 34,
+          "inode": 316318,
+          "kind": {
+            "kind": "directory"
+          }
+        },
+        "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+      },
+      "validation_refs": []
+    }
+  },
+  "first_decision": {
+    "approval_id": "b2c54223-6b0b-4dc8-87a2-6bd8df98bff7",
+    "decision": "accepted",
+    "graph_contract_version": 1,
+    "node_id": "owner-report",
+    "owner_decision_id": "ff91efcd-a579-4759-8cf7-c22a5ae596bc",
+    "plan_revision": 2,
+    "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+    "run_revision": 9,
+    "task_accepted": false
+  },
+  "graph_details": {
+    "candidates": [
+      {
+        "artifacts": [
+          {
+            "artifact_id": "report",
+            "bytes": 12,
+            "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+            "contract_id": "output:report",
+            "file_pin": {
+              "bytes": 12,
+              "ctime": 1793201404,
+              "ctime_nsec": 711925677,
+              "device": 34,
+              "gid": 1000,
+              "inode": 316340,
+              "mode": 33152,
+              "mtime": 1793201404,
+              "mtime_nsec": 711925677,
+              "uid": 1000
+            },
+            "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+            "producer_node_id": "produce-report",
+            "relative_path": "reports/report.txt",
+            "root": {
+              "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+              "device": 34,
+              "inode": 316318,
+              "kind": {
+                "kind": "directory"
+              }
+            },
+            "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+            "writer_epoch": 2
+          }
+        ],
+        "attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+        "capability_digest": "a7848269eec1bf5470c375d0a2aa3aea528a8e16488ca7e8f5fd72ef13472bf8",
+        "capture_job_id": "capture:62fe4dda-50f5-4963-b837-4ab57c34e63e",
+        "capture_receipt_sequence": 86,
+        "consumed_inputs": [
+          {
+            "artifact_id": "fixed-input",
+            "candidate": null,
+            "contract_id": "input:fixed-input",
+            "sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24"
+          }
+        ],
+        "created_at": "2026-10-28T15:30:05.023349441Z",
+        "graph_contract_version": 1,
+        "id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+        "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+        "integrity": "verified",
+        "node_id": "produce-report",
+        "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+        "plan_revision": 2,
+        "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+        "scope_id": "a7d4b77b-d946-425e-93b2-e153f5c09682",
+        "session_id": "d590e6a4-a5a4-452b-b38d-f77ba1c2b923",
+        "source": "baton_goal_evidence",
+        "spec_revision": 1,
+        "stop_receipt_sequence": 82,
+        "task_acceptance": "not_established",
+        "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+        "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+      },
+      {
+        "artifacts": [
+          {
+            "artifact_id": "report-2",
+            "bytes": 14,
+            "candidate_id": "ef15a112-fd88-4ae0-b997-58d038aebc2c",
+            "contract_id": "output:report-2",
+            "file_pin": {
+              "bytes": 14,
+              "ctime": 1793201409,
+              "ctime_nsec": 375303770,
+              "device": 34,
+              "gid": 1000,
+              "inode": 316369,
+              "mode": 33152,
+              "mtime": 1793201409,
+              "mtime_nsec": 375303770,
+              "uid": 1000
+            },
+            "producer_attempt_id": "4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+            "producer_node_id": "independent-2",
+            "relative_path": "reports/report-2.txt",
+            "root": {
+              "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+              "device": 34,
+              "inode": 316318,
+              "kind": {
+                "kind": "directory"
+              }
+            },
+            "sha256": "748015cbbb07287af0a51988f530a34c829cf2976142231588d59f65da7e31c1",
+            "writer_epoch": 3
+          }
+        ],
+        "attempt_id": "4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+        "capability_digest": "a7848269eec1bf5470c375d0a2aa3aea528a8e16488ca7e8f5fd72ef13472bf8",
+        "capture_job_id": "capture:4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+        "capture_receipt_sequence": 119,
+        "consumed_inputs": [
+          {
+            "artifact_id": "report",
+            "candidate": {
+              "artifact_id": "report",
+              "bytes": 12,
+              "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+              "contract_id": "output:report",
+              "file_pin": {
+                "bytes": 12,
+                "ctime": 1793201404,
+                "ctime_nsec": 711925677,
+                "device": 34,
+                "gid": 1000,
+                "inode": 316340,
+                "mode": 33152,
+                "mtime": 1793201404,
+                "mtime_nsec": 711925677,
+                "uid": 1000
+              },
+              "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+              "producer_node_id": "produce-report",
+              "relative_path": "reports/report.txt",
+              "root": {
+                "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                "device": 34,
+                "inode": 316318,
+                "kind": {
+                  "kind": "directory"
+                }
+              },
+              "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+              "writer_epoch": 2
+            },
+            "contract_id": "output:report",
+            "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591"
+          }
+        ],
+        "created_at": "2026-10-28T15:30:10.289613142Z",
+        "graph_contract_version": 1,
+        "id": "ef15a112-fd88-4ae0-b997-58d038aebc2c",
+        "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+        "integrity": "verified",
+        "node_id": "independent-2",
+        "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+        "plan_revision": 2,
+        "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+        "scope_id": "a7d4b77b-d946-425e-93b2-e153f5c09682",
+        "session_id": "8192da22-a7e8-449f-925d-3c59da910616",
+        "source": "baton_goal_evidence",
+        "spec_revision": 1,
+        "stop_receipt_sequence": 115,
+        "task_acceptance": "not_established",
+        "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+        "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+      }
+    ],
+    "graph_contract_version": 1,
+    "ledger_revision": 125,
+    "nodes": [
+      {
+        "acceptance_state": "accepted",
+        "actual_output_bytes": 12,
+        "actual_runtime_ms": 569,
+        "attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+        "blocked_reason": null,
+        "candidate_ids": [
+          "7536d18b-f3f4-458a-876e-1c3005bb6390"
+        ],
+        "cost_microunits": null,
+        "execution_kind": "connection",
+        "job_id": null,
+        "node": {
+          "budget": {
+            "attempts": 1,
+            "children": 0,
+            "cost_microunits": null,
+            "output_bytes": 2048,
+            "parallel": 1,
+            "reworks": 0,
+            "runtime_ms": 5000,
+            "tokens": null
+          },
+          "dependencies": [],
+          "executor": {
+            "binding": {
+              "capability_snapshot_id": "client-no-tools:785af51d-3993-4cf3-a95a-c848230d55f8",
+              "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+              "connection_id": "785af51d-3993-4cf3-a95a-c848230d55f8",
+              "environment_id": "5c87e5cd-4c0c-43ed-bcc9-a8f91b0ae53d",
+              "host_id": "local",
+              "identity_ref": "unknown:785af51d-3993-4cf3-a95a-c848230d55f8",
+              "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+              "policy_revision": "82daffc1-5b8f-4390-abbe-07f023fc658e:3",
+              "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+            },
+            "kind": "connection",
+            "program_sha256": "d5550eb4eb0b30d953cdd0520f4bff80ffc82042505acb04d405812fbed8c810"
+          },
+          "external_action_id": null,
+          "goal": "goal-report",
+          "id": "produce-report",
+          "idempotency_key": "produce-report-once",
+          "kind": "work",
+          "outputs": [
+            {
+              "artifact_id": "report",
+              "contract_id": "output:report"
+            }
+          ],
+          "parent_id": null,
+          "recipients": [],
+          "required_inputs": [
+            {
+              "artifact_id": "fixed-input",
+              "contract_id": "input:fixed-input",
+              "goal_task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+              "source": {
+                "kind": "approved_external",
+                "sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24"
+              }
+            }
+          ],
+          "required_validators": [
+            "command:9bc31e26-5418-4997-997d-dfae182ba4da",
+            "goal-owner-review"
+          ],
+          "reservation": {
+            "cost_microunits": null,
+            "output_bytes": 2048,
+            "runtime_ms": 4000,
+            "tokens": null
+          },
+          "retry": {
+            "max_attempts": 1,
+            "max_reworks": 0,
+            "retry_classes": []
+          },
+          "side_effect": "workspace_write",
+          "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5",
+          "write_set": [
+            {
+              "kind": "workspace",
+              "path": "reports/report.txt"
+            }
+          ]
+        },
+        "owner_decision_ids": [],
+        "plan_revision": 2,
+        "session_id": "d590e6a4-a5a4-452b-b38d-f77ba1c2b923",
+        "state": "candidate",
+        "stop_confirmed": true,
+        "tokens": null,
+        "validation_ids": []
+      },
+      {
+        "acceptance_state": "validated",
+        "actual_output_bytes": 22,
+        "actual_runtime_ms": 389,
+        "attempt_id": "090d4961-f02e-4249-809a-baf9db75b17f",
+        "blocked_reason": null,
+        "candidate_ids": [],
+        "cost_microunits": null,
+        "execution_kind": "validator",
+        "job_id": "9238120b-12ee-46e6-9b88-a3fdbe51d008",
+        "node": {
+          "budget": {
+            "attempts": 1,
+            "children": 0,
+            "cost_microunits": null,
+            "output_bytes": 2048,
+            "parallel": 1,
+            "reworks": 0,
+            "runtime_ms": 5000,
+            "tokens": null
+          },
+          "dependencies": [
+            "produce-report"
+          ],
+          "executor": {
+            "kind": "validator",
+            "rule_id": "command:9bc31e26-5418-4997-997d-dfae182ba4da"
+          },
+          "external_action_id": null,
+          "goal": "Apply exact approved command definition to the new captured producer",
+          "id": "validate-report",
+          "idempotency_key": "validate-owned-report-once",
+          "kind": "validate",
+          "outputs": [],
+          "parent_id": null,
+          "recipients": [],
+          "required_inputs": [
+            {
+              "artifact_id": "report",
+              "contract_id": "output:report",
+              "goal_task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+              "source": {
+                "candidate_for_validation": true,
+                "kind": "node",
+                "node_id": "produce-report"
+              }
+            }
+          ],
+          "required_validators": [
+            "command:9bc31e26-5418-4997-997d-dfae182ba4da"
+          ],
+          "reservation": {
+            "cost_microunits": null,
+            "output_bytes": 2048,
+            "runtime_ms": 4000,
+            "tokens": null
+          },
+          "retry": {
+            "max_attempts": 1,
+            "max_reworks": 0,
+            "retry_classes": []
+          },
+          "side_effect": "advisory_read_only",
+          "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5",
+          "write_set": []
+        },
+        "owner_decision_ids": [],
+        "plan_revision": 2,
+        "session_id": null,
+        "state": "validated",
+        "stop_confirmed": true,
+        "tokens": null,
+        "validation_ids": [
+          "130fcd51-6ef3-4d4c-823e-dad94fd9b4d3"
+        ]
+      },
+      {
+        "acceptance_state": "accepted",
+        "actual_output_bytes": null,
+        "actual_runtime_ms": null,
+        "attempt_id": null,
+        "blocked_reason": null,
+        "candidate_ids": [],
+        "cost_microunits": null,
+        "execution_kind": "owner",
+        "job_id": null,
+        "node": {
+          "budget": {
+            "attempts": 1,
+            "children": 0,
+            "cost_microunits": null,
+            "output_bytes": 2048,
+            "parallel": 1,
+            "reworks": 0,
+            "runtime_ms": 5000,
+            "tokens": null
+          },
+          "dependencies": [
+            "produce-report",
+            "validate-report"
+          ],
+          "executor": {
+            "kind": "owner",
+            "rule_id": "goal-owner-review"
+          },
+          "external_action_id": null,
+          "goal": "Owner reviews exact report after deterministic command only",
+          "id": "owner-report",
+          "idempotency_key": "owner-report-once",
+          "kind": "owner_approval",
+          "outputs": [],
+          "parent_id": null,
+          "recipients": [],
+          "required_inputs": [
+            {
+              "artifact_id": "report",
+              "contract_id": "output:report",
+              "goal_task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+              "source": {
+                "candidate_for_validation": true,
+                "kind": "node",
+                "node_id": "produce-report"
+              }
+            }
+          ],
+          "required_validators": [
+            "goal-owner-review"
+          ],
+          "reservation": {
+            "cost_microunits": null,
+            "output_bytes": 2048,
+            "runtime_ms": 4000,
+            "tokens": null
+          },
+          "retry": {
+            "max_attempts": 1,
+            "max_reworks": 0,
+            "retry_classes": []
+          },
+          "side_effect": "advisory_read_only",
+          "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5",
+          "write_set": []
+        },
+        "owner_decision_ids": [
+          "ff91efcd-a579-4759-8cf7-c22a5ae596bc"
+        ],
+        "plan_revision": 2,
+        "session_id": null,
+        "state": "accepted",
+        "stop_confirmed": false,
+        "tokens": null,
+        "validation_ids": []
+      },
+      {
+        "acceptance_state": "accepted",
+        "actual_output_bytes": 14,
+        "actual_runtime_ms": 1539,
+        "attempt_id": "4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+        "blocked_reason": null,
+        "candidate_ids": [
+          "ef15a112-fd88-4ae0-b997-58d038aebc2c"
+        ],
+        "cost_microunits": null,
+        "execution_kind": "connection",
+        "job_id": null,
+        "node": {
+          "budget": {
+            "attempts": 1,
+            "children": 0,
+            "cost_microunits": null,
+            "output_bytes": 2048,
+            "parallel": 1,
+            "reworks": 0,
+            "runtime_ms": 5000,
+            "tokens": null
+          },
+          "dependencies": [
+            "validate-report",
+            "owner-report"
+          ],
+          "executor": {
+            "binding": {
+              "capability_snapshot_id": "client-no-tools:785af51d-3993-4cf3-a95a-c848230d55f8",
+              "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+              "connection_id": "785af51d-3993-4cf3-a95a-c848230d55f8",
+              "environment_id": "5c87e5cd-4c0c-43ed-bcc9-a8f91b0ae53d",
+              "host_id": "local",
+              "identity_ref": "unknown:785af51d-3993-4cf3-a95a-c848230d55f8",
+              "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+              "policy_revision": "82daffc1-5b8f-4390-abbe-07f023fc658e:3",
+              "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+            },
+            "kind": "connection",
+            "program_sha256": "d5550eb4eb0b30d953cdd0520f4bff80ffc82042505acb04d405812fbed8c810"
+          },
+          "external_action_id": null,
+          "goal": "goal-report-extra-2",
+          "id": "independent-2",
+          "idempotency_key": "independent-once-2",
+          "kind": "summary",
+          "outputs": [
+            {
+              "artifact_id": "report-2",
+              "contract_id": "output:report-2"
+            }
+          ],
+          "parent_id": null,
+          "recipients": [],
+          "required_inputs": [
+            {
+              "artifact_id": "report",
+              "contract_id": "output:report",
+              "goal_task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+              "source": {
+                "candidate_for_validation": false,
+                "kind": "node",
+                "node_id": "produce-report"
+              }
+            }
+          ],
+          "required_validators": [
+            "goal-owner-review"
+          ],
+          "reservation": {
+            "cost_microunits": null,
+            "output_bytes": 2048,
+            "runtime_ms": 4000,
+            "tokens": null
+          },
+          "retry": {
+            "max_attempts": 1,
+            "max_reworks": 0,
+            "retry_classes": []
+          },
+          "side_effect": "workspace_write",
+          "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5",
+          "write_set": [
+            {
+              "kind": "workspace",
+              "path": "reports/report-2.txt"
+            }
+          ]
+        },
+        "owner_decision_ids": [],
+        "plan_revision": 2,
+        "session_id": "8192da22-a7e8-449f-925d-3c59da910616",
+        "state": "candidate",
+        "stop_confirmed": true,
+        "tokens": null,
+        "validation_ids": []
+      },
+      {
+        "acceptance_state": "accepted",
+        "actual_output_bytes": null,
+        "actual_runtime_ms": null,
+        "attempt_id": null,
+        "blocked_reason": null,
+        "candidate_ids": [],
+        "cost_microunits": null,
+        "execution_kind": "owner",
+        "job_id": null,
+        "node": {
+          "budget": {
+            "attempts": 1,
+            "children": 0,
+            "cost_microunits": null,
+            "output_bytes": 2048,
+            "parallel": 1,
+            "reworks": 0,
+            "runtime_ms": 5000,
+            "tokens": null
+          },
+          "dependencies": [
+            "independent-2"
+          ],
+          "executor": {
+            "kind": "owner",
+            "rule_id": "goal-owner-review"
+          },
+          "external_action_id": null,
+          "goal": "Owner reviews exact report after deterministic command only",
+          "id": "owner-summary",
+          "idempotency_key": "owner-summary-once",
+          "kind": "owner_approval",
+          "outputs": [],
+          "parent_id": null,
+          "recipients": [],
+          "required_inputs": [
+            {
+              "artifact_id": "report-2",
+              "contract_id": "output:report-2",
+              "goal_task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+              "source": {
+                "candidate_for_validation": true,
+                "kind": "node",
+                "node_id": "independent-2"
+              }
+            }
+          ],
+          "required_validators": [
+            "goal-owner-review"
+          ],
+          "reservation": {
+            "cost_microunits": null,
+            "output_bytes": 2048,
+            "runtime_ms": 4000,
+            "tokens": null
+          },
+          "retry": {
+            "max_attempts": 1,
+            "max_reworks": 0,
+            "retry_classes": []
+          },
+          "side_effect": "advisory_read_only",
+          "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5",
+          "write_set": []
+        },
+        "owner_decision_ids": [
+          "2eb14809-bca7-45b9-9fb0-ac945dc6c37e"
+        ],
+        "plan_revision": 2,
+        "session_id": null,
+        "state": "accepted",
+        "stop_confirmed": false,
+        "tokens": null,
+        "validation_ids": []
+      }
+    ],
+    "owner_decisions": [
+      {
+        "approval_id": "b2c54223-6b0b-4dc8-87a2-6bd8df98bff7",
+        "candidate_refs": [
+          {
+            "artifact_id": "report",
+            "bytes": 12,
+            "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+            "contract_id": "output:report",
+            "file_pin": {
+              "bytes": 12,
+              "ctime": 1793201404,
+              "ctime_nsec": 711925677,
+              "device": 34,
+              "gid": 1000,
+              "inode": 316340,
+              "mode": 33152,
+              "mtime": 1793201404,
+              "mtime_nsec": 711925677,
+              "uid": 1000
+            },
+            "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+            "producer_node_id": "produce-report",
+            "relative_path": "reports/report.txt",
+            "root": {
+              "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+              "device": 34,
+              "inode": 316318,
+              "kind": {
+                "kind": "directory"
+              }
+            },
+            "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+            "writer_epoch": 2
+          }
+        ],
+        "created_at": "2026-10-28T15:30:07.597060018Z",
+        "criterion_digest": "8d346a2043896c382ee4435ad6c7512e53c659ee95f76d2e9602de4ccfb3584f",
+        "decision": "accepted",
+        "graph_contract_version": 1,
+        "id": "ff91efcd-a579-4759-8cf7-c22a5ae596bc",
+        "node_id": "owner-report",
+        "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+        "plan_revision": 2,
+        "rule_id": "goal-owner-review",
+        "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+        "source": "local_owner_confirmation",
+        "validation_ids": [
+          "130fcd51-6ef3-4d4c-823e-dad94fd9b4d3"
+        ]
+      },
+      {
+        "approval_id": "fb666991-e0a7-478a-aeeb-019fb2ab4bdd",
+        "candidate_refs": [
+          {
+            "artifact_id": "report-2",
+            "bytes": 14,
+            "candidate_id": "ef15a112-fd88-4ae0-b997-58d038aebc2c",
+            "contract_id": "output:report-2",
+            "file_pin": {
+              "bytes": 14,
+              "ctime": 1793201409,
+              "ctime_nsec": 375303770,
+              "device": 34,
+              "gid": 1000,
+              "inode": 316369,
+              "mode": 33152,
+              "mtime": 1793201409,
+              "mtime_nsec": 375303770,
+              "uid": 1000
+            },
+            "producer_attempt_id": "4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+            "producer_node_id": "independent-2",
+            "relative_path": "reports/report-2.txt",
+            "root": {
+              "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+              "device": 34,
+              "inode": 316318,
+              "kind": {
+                "kind": "directory"
+              }
+            },
+            "sha256": "748015cbbb07287af0a51988f530a34c829cf2976142231588d59f65da7e31c1",
+            "writer_epoch": 3
+          }
+        ],
+        "created_at": "2026-10-28T15:30:12.796267533Z",
+        "criterion_digest": "8d346a2043896c382ee4435ad6c7512e53c659ee95f76d2e9602de4ccfb3584f",
+        "decision": "accepted",
+        "graph_contract_version": 1,
+        "id": "2eb14809-bca7-45b9-9fb0-ac945dc6c37e",
+        "node_id": "owner-summary",
+        "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+        "plan_revision": 2,
+        "rule_id": "goal-owner-review",
+        "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+        "source": "local_owner_confirmation",
+        "validation_ids": []
+      }
+    ],
+    "run": {
+      "cancel_requested": false,
+      "created_at": "2026-10-28T15:30:03.988490282Z",
+      "id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+      "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+      "plan_revision": 2,
+      "project_id": "bd4229cb-3ba5-405e-a566-dd60e19af9bb",
+      "revision": 14,
+      "root_grant_id": "82daffc1-5b8f-4390-abbe-07f023fc658e",
+      "scope_id": "a7d4b77b-d946-425e-93b2-e153f5c09682",
+      "state": "accepted",
+      "task_accepted": true,
+      "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+      "updated_at": "2026-10-28T15:30:12.902474525Z"
+    },
+    "task_acceptance": {
+      "accepted_at": "2026-10-28T15:30:12.885526047Z",
+      "artifact_refs": [
+        {
+          "artifact_id": "report",
+          "bytes": 12,
+          "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+          "contract_id": "output:report",
+          "file_pin": {
+            "bytes": 12,
+            "ctime": 1793201404,
+            "ctime_nsec": 711925677,
+            "device": 34,
+            "gid": 1000,
+            "inode": 316340,
+            "mode": 33152,
+            "mtime": 1793201404,
+            "mtime_nsec": 711925677,
+            "uid": 1000
+          },
+          "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+          "producer_node_id": "produce-report",
+          "relative_path": "reports/report.txt",
+          "root": {
+            "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+            "device": 34,
+            "inode": 316318,
+            "kind": {
+              "kind": "directory"
+            }
+          },
+          "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+          "writer_epoch": 2
+        },
+        {
+          "artifact_id": "report-2",
+          "bytes": 14,
+          "candidate_id": "ef15a112-fd88-4ae0-b997-58d038aebc2c",
+          "contract_id": "output:report-2",
+          "file_pin": {
+            "bytes": 14,
+            "ctime": 1793201409,
+            "ctime_nsec": 375303770,
+            "device": 34,
+            "gid": 1000,
+            "inode": 316369,
+            "mode": 33152,
+            "mtime": 1793201409,
+            "mtime_nsec": 375303770,
+            "uid": 1000
+          },
+          "producer_attempt_id": "4805dda9-52cf-4e71-8bf4-1d932e4b3a13",
+          "producer_node_id": "independent-2",
+          "relative_path": "reports/report-2.txt",
+          "root": {
+            "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+            "device": 34,
+            "inode": 316318,
+            "kind": {
+              "kind": "directory"
+            }
+          },
+          "sha256": "748015cbbb07287af0a51988f530a34c829cf2976142231588d59f65da7e31c1",
+          "writer_epoch": 3
+        }
+      ],
+      "capability_digest": "a7848269eec1bf5470c375d0a2aa3aea528a8e16488ca7e8f5fd72ef13472bf8",
+      "criterion_digest": "8d346a2043896c382ee4435ad6c7512e53c659ee95f76d2e9602de4ccfb3584f",
+      "graph_contract_version": 1,
+      "id": "9b9cfdbf-2e9e-416d-bc96-133bd1cc0296",
+      "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+      "owner_decision_ids": [
+        "ff91efcd-a579-4759-8cf7-c22a5ae596bc",
+        "2eb14809-bca7-45b9-9fb0-ac945dc6c37e"
+      ],
+      "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+      "plan_revision": 2,
+      "project_id": "bd4229cb-3ba5-405e-a566-dd60e19af9bb",
+      "root_grant_id": "82daffc1-5b8f-4390-abbe-07f023fc658e",
+      "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+      "scope_id": "a7d4b77b-d946-425e-93b2-e153f5c09682",
+      "sequence": 124,
+      "source": "baton_goal_acceptance",
+      "spec_revision": 1,
+      "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+      "task_revision": 11,
+      "validation_ids": [
+        "130fcd51-6ef3-4d4c-823e-dad94fd9b4d3"
+      ],
+      "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+    },
+    "task_accepted": true,
+    "validations": [
+      {
+        "actual_runtime_ms": 389,
+        "attempt_id": "090d4961-f02e-4249-809a-baf9db75b17f",
+        "candidate_refs": [
+          {
+            "artifact_id": "report",
+            "bytes": 12,
+            "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+            "contract_id": "output:report",
+            "file_pin": {
+              "bytes": 12,
+              "ctime": 1793201404,
+              "ctime_nsec": 711925677,
+              "device": 34,
+              "gid": 1000,
+              "inode": 316340,
+              "mode": 33152,
+              "mtime": 1793201404,
+              "mtime_nsec": 711925677,
+              "uid": 1000
+            },
+            "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+            "producer_node_id": "produce-report",
+            "relative_path": "reports/report.txt",
+            "root": {
+              "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+              "device": 34,
+              "inode": 316318,
+              "kind": {
+                "kind": "directory"
+              }
+            },
+            "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+            "writer_epoch": 2
+          }
+        ],
+        "correctness": "approved_fixed_command_observations_only",
+        "created_at": "2026-10-28T15:30:05.854730555Z",
+        "definition_digest": "d3c22d95dc3b6d1055762c0f37d836898453f1e11fd964eba40add639fb736d3",
+        "details_ref": "goal-graph-job:9238120b-12ee-46e6-9b88-a3fdbe51d008",
+        "graph_contract_version": 1,
+        "id": "130fcd51-6ef3-4d4c-823e-dad94fd9b4d3",
+        "input_bindings": [
+          {
+            "artifact_id": "report",
+            "candidate": {
+              "artifact_id": "report",
+              "bytes": 12,
+              "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+              "contract_id": "output:report",
+              "file_pin": {
+                "bytes": 12,
+                "ctime": 1793201404,
+                "ctime_nsec": 711925677,
+                "device": 34,
+                "gid": 1000,
+                "inode": 316340,
+                "mode": 33152,
+                "mtime": 1793201404,
+                "mtime_nsec": 711925677,
+                "uid": 1000
+              },
+              "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+              "producer_node_id": "produce-report",
+              "relative_path": "reports/report.txt",
+              "root": {
+                "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                "device": 34,
+                "inode": 316318,
+                "kind": {
+                  "kind": "directory"
+                }
+              },
+              "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+              "writer_epoch": 2
+            },
+            "contract_id": "output:report",
+            "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591"
+          },
+          {
+            "artifact_id": "fixed-input",
+            "candidate": null,
+            "contract_id": "input:fixed-input",
+            "sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24"
+          }
+        ],
+        "io_completion": "worker_joined",
+        "node_id": "validate-report",
+        "observation": {
+          "approval_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+          "auxiliary_validator_source_integrity": "not_established",
+          "cancellation_observed": false,
+          "cleanup": {
+            "all_capture_pipes_observed_eof": true,
+            "descendant_containment": "not_enforced_unknown",
+            "input_immutability": "before_after_observations_only",
+            "owned_group_signal_sent": true,
+            "owned_leader_reaped": true
+          },
+          "cleanup_completed_within_budget": true,
+          "contract": {
+            "arguments": [
+              "fixed command observed"
+            ],
+            "argv0": "/usr/bin/printf",
+            "cleanup_time_ms": 500,
+            "cwd": {
+              "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+              "device": 34,
+              "inode": 316318,
+              "kind": {
+                "kind": "directory"
+              }
+            },
+            "environment_sha256": {},
+            "execution_identity": {
+              "effective_gid": 1000,
+              "effective_uid": 1000,
+              "real_gid": 1000,
+              "real_uid": 1000
+            },
+            "expected_exit_codes": [
+              0
+            ],
+            "file_contract": {
+              "analysis": null,
+              "inputs": [
+                {
+                  "canonical_root": "/usr/bin",
+                  "requirement": {
+                    "artifact_id": "baton-command-program",
+                    "expected_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+                    "max_bytes": 68008,
+                    "relative_path": "printf"
+                  },
+                  "root_device": 27,
+                  "root_inode": 9223372036855074700
+                },
+                {
+                  "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                  "requirement": {
+                    "artifact_id": "fixed-input",
+                    "expected_sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24",
+                    "max_bytes": 8,
+                    "relative_path": "inputs/file"
+                  },
+                  "root_device": 34,
+                  "root_inode": 316318
+                }
+              ],
+              "outputs": [
+                {
+                  "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                  "requirement": {
+                    "artifact_id": "report",
+                    "expected_sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+                    "max_bytes": 12,
+                    "relative_path": "reports/report.txt"
+                  },
+                  "root_device": 34,
+                  "root_inode": 316318
+                }
+              ],
+              "subject": {
+                "attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+                "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                "spec_revision": 1,
+                "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+                "version": {
+                  "base_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                  "kind": "workspace_artifacts",
+                  "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+                }
+              },
+              "validator_id": "builtin.artifact-integrity.v1"
+            },
+            "image_policy": "linux_sealed_elf_snapshot",
+            "mode": "native_executable",
+            "program": {
+              "canonical_root": "/usr/bin",
+              "requirement": {
+                "artifact_id": "baton-command-program",
+                "expected_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+                "max_bytes": 68008,
+                "relative_path": "printf"
+              },
+              "root_device": 27,
+              "root_inode": 9223372036855074700
+            },
+            "require": {
+              "auxiliary_source_immutability": false,
+              "execution_time_input_immutability": false,
+              "filesystem_isolation": false,
+              "network_isolation": false,
+              "process_tree_containment": false,
+              "sealed_executable_image": false
+            },
+            "scope": "approved_deterministic_command_only",
+            "script": null,
+            "stderr_limit": 512,
+            "stdout_limit": 512,
+            "validator_id": "builtin.fixed-command.v1",
+            "wall_time_ms": 500
+          },
+          "contract_digest": "ebf3c860aa2a6b09bb9ab813bb960fbb97aff67585973a1a97f1e56441c082c0",
+          "digest": "02a0f068df431e7f524909d89dbb503ffe2ccbd98a801947e22b6b01c9bd5465",
+          "dynamic_dependency_integrity": "not_established",
+          "exit_code": 0,
+          "exit_observed_within_budget": true,
+          "exit_signal": null,
+          "file_integrity": {
+            "analysis": null,
+            "approval_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+            "digest": "9f549b6f3a37c12fb7f5586a81faf81a2ba9533810d91d4c5215be5b9d9bde8b",
+            "inputs": [
+              {
+                "artifact_id": "baton-command-program",
+                "expected_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+                "observed_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+                "relative_path": "printf",
+                "root_device": 27,
+                "root_inode": 9223372036855074700,
+                "size": 68008,
+                "state": "passed"
+              },
+              {
+                "artifact_id": "fixed-input",
+                "expected_sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24",
+                "observed_sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24",
+                "relative_path": "inputs/file",
+                "root_device": 34,
+                "root_inode": 316318,
+                "size": 8,
+                "state": "passed"
+              }
+            ],
+            "outputs": [
+              {
+                "artifact_id": "report",
+                "expected_sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+                "observed_sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+                "relative_path": "reports/report.txt",
+                "root_device": 34,
+                "root_inode": 316318,
+                "size": 12,
+                "state": "passed"
+              }
+            ],
+            "passed": true,
+            "policy_contract": {
+              "analysis": null,
+              "inputs": [
+                {
+                  "canonical_root": "/usr/bin",
+                  "requirement": {
+                    "artifact_id": "baton-command-program",
+                    "expected_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+                    "max_bytes": 68008,
+                    "relative_path": "printf"
+                  },
+                  "root_device": 27,
+                  "root_inode": 9223372036855074700
+                },
+                {
+                  "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                  "requirement": {
+                    "artifact_id": "fixed-input",
+                    "expected_sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24",
+                    "max_bytes": 8,
+                    "relative_path": "inputs/file"
+                  },
+                  "root_device": 34,
+                  "root_inode": 316318
+                }
+              ],
+              "outputs": [
+                {
+                  "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                  "requirement": {
+                    "artifact_id": "report",
+                    "expected_sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+                    "max_bytes": 12,
+                    "relative_path": "reports/report.txt"
+                  },
+                  "root_device": 34,
+                  "root_inode": 316318
+                }
+              ],
+              "subject": {
+                "attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+                "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                "spec_revision": 1,
+                "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+                "version": {
+                  "base_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                  "kind": "workspace_artifacts",
+                  "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+                }
+              },
+              "validator_id": "builtin.artifact-integrity.v1"
+            },
+            "policy_revision": "d3c22d95dc3b6d1055762c0f37d836898453f1e11fd964eba40add639fb736d3",
+            "schema_version": 1,
+            "subject": {
+              "attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+              "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+              "spec_revision": 1,
+              "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+              "version": {
+                "base_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                "kind": "workspace_artifacts",
+                "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+              }
+            },
+            "validator_id": "builtin.artifact-integrity.v1"
+          },
+          "goal_io": {
+            "artifact_bytes": 68028,
+            "artifact_stability": "before_after_fd_pin_and_sha256",
+            "checked_candidate_bytes": 12,
+            "execution_read_bounds": [
+              {
+                "artifact_id": "fixed-input",
+                "effective_max_bytes": 8,
+                "requested_max_bytes": 1024
+              },
+              {
+                "artifact_id": "report",
+                "effective_max_bytes": 12,
+                "requested_max_bytes": 12
+              },
+              {
+                "artifact_id": "baton-command-program",
+                "effective_max_bytes": 68008,
+                "requested_max_bytes": 16777216
+              }
+            ],
+            "ledger_output_domain": "new_declared_artifacts_plus_retained_stream_bytes",
+            "new_declared_artifact_bytes": 0,
+            "retained_stderr_bytes": 0,
+            "retained_stdout_bytes": 22,
+            "state": "observed",
+            "task_acceptance": "not_established",
+            "total_filesystem_write_bytes": null,
+            "total_filesystem_write_enforcement": "not_enforced"
+          },
+          "integration_authorized": false,
+          "main_image": "linux_sealed_elf_snapshot",
+          "main_image_verified": true,
+          "native_configuration_integrity": "not_established",
+          "passed": true,
+          "policy_revision": "d3c22d95dc3b6d1055762c0f37d836898453f1e11fd964eba40add639fb736d3",
+          "process_and_cleanup_elapsed_ms": 6,
+          "process_started": true,
+          "protected_program": null,
+          "reason": "exited",
+          "scope": "approved_deterministic_command_only",
+          "script_bytes_delivered": 0,
+          "stderr": {
+            "captured_bytes": 0,
+            "eof_observed": true,
+            "observed_bytes_at_least": 0,
+            "sha256_of_captured": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "truncated": false
+          },
+          "stdout": {
+            "captured_bytes": 22,
+            "eof_observed": true,
+            "observed_bytes_at_least": 22,
+            "sha256_of_captured": "63bfe90c4a3ec119762228a10902d62771fb7c5dab976ae2260c79780e1890bc",
+            "truncated": false
+          },
+          "task_acceptance": "not_established",
+          "transitive_execution_integrity": "not_established",
+          "validator_id": "builtin.fixed-command.v1"
+        },
+        "passed": true,
+        "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+        "plan_revision": 2,
+        "result_digest": "095461de3f64e3789f6a745c349d13a930cee527be4a1512867182e725475d4e",
+        "rule_id": "command:9bc31e26-5418-4997-997d-dfae182ba4da",
+        "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+        "scope": "approved_deterministic_command_only",
+        "source": "baton_goal_validator",
+        "state": "passed",
+        "stop_confirmed": true,
+        "task_acceptance": "not_established"
+      }
+    ]
+  },
+  "owner_proposal": {
+    "consumed": false,
+    "created_at": "2026-10-28T15:30:07.046929512Z",
+    "expires_at_ms": 1793201707046,
+    "id": "b2c54223-6b0b-4dc8-87a2-6bd8df98bff7",
+    "kind": "goal_node_acceptance",
+    "revision": 1,
+    "snapshot": {
+      "candidate_receipts": [
+        {
+          "artifacts": [
+            {
+              "artifact_id": "report",
+              "bytes": 12,
+              "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+              "contract_id": "output:report",
+              "file_pin": {
+                "bytes": 12,
+                "ctime": 1793201404,
+                "ctime_nsec": 711925677,
+                "device": 34,
+                "gid": 1000,
+                "inode": 316340,
+                "mode": 33152,
+                "mtime": 1793201404,
+                "mtime_nsec": 711925677,
+                "uid": 1000
+              },
+              "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+              "producer_node_id": "produce-report",
+              "relative_path": "reports/report.txt",
+              "root": {
+                "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                "device": 34,
+                "inode": 316318,
+                "kind": {
+                  "kind": "directory"
+                }
+              },
+              "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+              "writer_epoch": 2
+            }
+          ],
+          "attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+          "capability_digest": "a7848269eec1bf5470c375d0a2aa3aea528a8e16488ca7e8f5fd72ef13472bf8",
+          "capture_job_id": "capture:62fe4dda-50f5-4963-b837-4ab57c34e63e",
+          "capture_receipt_sequence": 86,
+          "consumed_inputs": [
+            {
+              "artifact_id": "fixed-input",
+              "candidate": null,
+              "contract_id": "input:fixed-input",
+              "sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24"
+            }
+          ],
+          "created_at": "2026-10-28T15:30:05.023349441Z",
+          "graph_contract_version": 1,
+          "id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+          "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+          "integrity": "verified",
+          "node_id": "produce-report",
+          "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+          "plan_revision": 2,
+          "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+          "scope_id": "a7d4b77b-d946-425e-93b2-e153f5c09682",
+          "session_id": "d590e6a4-a5a4-452b-b38d-f77ba1c2b923",
+          "source": "baton_goal_evidence",
+          "spec_revision": 1,
+          "stop_receipt_sequence": 82,
+          "task_acceptance": "not_established",
+          "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+          "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+        }
+      ],
+      "candidate_refs": [
+        {
+          "artifact_id": "report",
+          "bytes": 12,
+          "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+          "contract_id": "output:report",
+          "file_pin": {
+            "bytes": 12,
+            "ctime": 1793201404,
+            "ctime_nsec": 711925677,
+            "device": 34,
+            "gid": 1000,
+            "inode": 316340,
+            "mode": 33152,
+            "mtime": 1793201404,
+            "mtime_nsec": 711925677,
+            "uid": 1000
+          },
+          "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+          "producer_node_id": "produce-report",
+          "relative_path": "reports/report.txt",
+          "root": {
+            "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+            "device": 34,
+            "inode": 316318,
+            "kind": {
+              "kind": "directory"
+            }
+          },
+          "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+          "writer_epoch": 2
+        }
+      ],
+      "capability_digest": "a7848269eec1bf5470c375d0a2aa3aea528a8e16488ca7e8f5fd72ef13472bf8",
+      "criterion": {
+        "artifact_ids": [
+          "report"
+        ],
+        "criterion_digest": "8d346a2043896c382ee4435ad6c7512e53c659ee95f76d2e9602de4ccfb3584f",
+        "criterion_text": "Owner reviews the exact report separately from process success",
+        "rule_id": "goal-owner-review"
+      },
+      "expected_ledger_revision": 97,
+      "expected_run_revision": 8,
+      "graph_contract_version": 1,
+      "input_bindings": [
+        {
+          "artifact_id": "report",
+          "candidate": {
+            "artifact_id": "report",
+            "bytes": 12,
+            "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+            "contract_id": "output:report",
+            "file_pin": {
+              "bytes": 12,
+              "ctime": 1793201404,
+              "ctime_nsec": 711925677,
+              "device": 34,
+              "gid": 1000,
+              "inode": 316340,
+              "mode": 33152,
+              "mtime": 1793201404,
+              "mtime_nsec": 711925677,
+              "uid": 1000
+            },
+            "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+            "producer_node_id": "produce-report",
+            "relative_path": "reports/report.txt",
+            "root": {
+              "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+              "device": 34,
+              "inode": 316318,
+              "kind": {
+                "kind": "directory"
+              }
+            },
+            "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+            "writer_epoch": 2
+          },
+          "contract_id": "output:report",
+          "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591"
+        }
+      ],
+      "intent": {
+        "expected_ledger_revision": 97,
+        "expected_plan_revision": 2,
+        "node_id": "owner-report",
+        "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489"
+      },
+      "node": {
+        "budget": {
+          "attempts": 1,
+          "children": 0,
+          "cost_microunits": null,
+          "output_bytes": 2048,
+          "parallel": 1,
+          "reworks": 0,
+          "runtime_ms": 5000,
+          "tokens": null
+        },
+        "dependencies": [
+          "produce-report",
+          "validate-report"
+        ],
+        "executor": {
+          "kind": "owner",
+          "rule_id": "goal-owner-review"
+        },
+        "external_action_id": null,
+        "goal": "Owner reviews exact report after deterministic command only",
+        "id": "owner-report",
+        "idempotency_key": "owner-report-once",
+        "kind": "owner_approval",
+        "outputs": [],
+        "parent_id": null,
+        "recipients": [],
+        "required_inputs": [
+          {
+            "artifact_id": "report",
+            "contract_id": "output:report",
+            "goal_task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+            "source": {
+              "candidate_for_validation": true,
+              "kind": "node",
+              "node_id": "produce-report"
+            }
+          }
+        ],
+        "required_validators": [
+          "goal-owner-review"
+        ],
+        "reservation": {
+          "cost_microunits": null,
+          "output_bytes": 2048,
+          "runtime_ms": 4000,
+          "tokens": null
+        },
+        "retry": {
+          "max_attempts": 1,
+          "max_reworks": 0,
+          "retry_classes": []
+        },
+        "side_effect": "advisory_read_only",
+        "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5",
+        "write_set": []
+      },
+      "run_binding": {
+        "capability_digest": "a7848269eec1bf5470c375d0a2aa3aea528a8e16488ca7e8f5fd72ef13472bf8",
+        "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+        "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+        "plan_revision": 2,
+        "project_id": "bd4229cb-3ba5-405e-a566-dd60e19af9bb",
+        "root_grant_id": "82daffc1-5b8f-4390-abbe-07f023fc658e",
+        "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+        "scope_digest": "111d0c4ed5f4ddfdcf9737155e91dbf92b63a48ed06d63e94a449327e66ef263",
+        "scope_id": "a7d4b77b-d946-425e-93b2-e153f5c09682",
+        "spec_revision": 1,
+        "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+        "workspace": {
+          "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+          "device": 34,
+          "inode": 316318,
+          "kind": {
+            "kind": "directory"
+          }
+        },
+        "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+      },
+      "validation_refs": [
+        {
+          "actual_runtime_ms": 389,
+          "attempt_id": "090d4961-f02e-4249-809a-baf9db75b17f",
+          "candidate_refs": [
+            {
+              "artifact_id": "report",
+              "bytes": 12,
+              "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+              "contract_id": "output:report",
+              "file_pin": {
+                "bytes": 12,
+                "ctime": 1793201404,
+                "ctime_nsec": 711925677,
+                "device": 34,
+                "gid": 1000,
+                "inode": 316340,
+                "mode": 33152,
+                "mtime": 1793201404,
+                "mtime_nsec": 711925677,
+                "uid": 1000
+              },
+              "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+              "producer_node_id": "produce-report",
+              "relative_path": "reports/report.txt",
+              "root": {
+                "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                "device": 34,
+                "inode": 316318,
+                "kind": {
+                  "kind": "directory"
+                }
+              },
+              "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+              "writer_epoch": 2
+            }
+          ],
+          "correctness": "approved_fixed_command_observations_only",
+          "created_at": "2026-10-28T15:30:05.854730555Z",
+          "definition_digest": "d3c22d95dc3b6d1055762c0f37d836898453f1e11fd964eba40add639fb736d3",
+          "details_ref": "goal-graph-job:9238120b-12ee-46e6-9b88-a3fdbe51d008",
+          "graph_contract_version": 1,
+          "id": "130fcd51-6ef3-4d4c-823e-dad94fd9b4d3",
+          "input_bindings": [
+            {
+              "artifact_id": "report",
+              "candidate": {
+                "artifact_id": "report",
+                "bytes": 12,
+                "candidate_id": "7536d18b-f3f4-458a-876e-1c3005bb6390",
+                "contract_id": "output:report",
+                "file_pin": {
+                  "bytes": 12,
+                  "ctime": 1793201404,
+                  "ctime_nsec": 711925677,
+                  "device": 34,
+                  "gid": 1000,
+                  "inode": 316340,
+                  "mode": 33152,
+                  "mtime": 1793201404,
+                  "mtime_nsec": 711925677,
+                  "uid": 1000
+                },
+                "producer_attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+                "producer_node_id": "produce-report",
+                "relative_path": "reports/report.txt",
+                "root": {
+                  "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                  "device": 34,
+                  "inode": 316318,
+                  "kind": {
+                    "kind": "directory"
+                  }
+                },
+                "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+                "writer_epoch": 2
+              },
+              "contract_id": "output:report",
+              "sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591"
+            },
+            {
+              "artifact_id": "fixed-input",
+              "candidate": null,
+              "contract_id": "input:fixed-input",
+              "sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24"
+            }
+          ],
+          "io_completion": "worker_joined",
+          "node_id": "validate-report",
+          "observation": {
+            "approval_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+            "auxiliary_validator_source_integrity": "not_established",
+            "cancellation_observed": false,
+            "cleanup": {
+              "all_capture_pipes_observed_eof": true,
+              "descendant_containment": "not_enforced_unknown",
+              "input_immutability": "before_after_observations_only",
+              "owned_group_signal_sent": true,
+              "owned_leader_reaped": true
+            },
+            "cleanup_completed_within_budget": true,
+            "contract": {
+              "arguments": [
+                "fixed command observed"
+              ],
+              "argv0": "/usr/bin/printf",
+              "cleanup_time_ms": 500,
+              "cwd": {
+                "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                "device": 34,
+                "inode": 316318,
+                "kind": {
+                  "kind": "directory"
+                }
+              },
+              "environment_sha256": {},
+              "execution_identity": {
+                "effective_gid": 1000,
+                "effective_uid": 1000,
+                "real_gid": 1000,
+                "real_uid": 1000
+              },
+              "expected_exit_codes": [
+                0
+              ],
+              "file_contract": {
+                "analysis": null,
+                "inputs": [
+                  {
+                    "canonical_root": "/usr/bin",
+                    "requirement": {
+                      "artifact_id": "baton-command-program",
+                      "expected_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+                      "max_bytes": 68008,
+                      "relative_path": "printf"
+                    },
+                    "root_device": 27,
+                    "root_inode": 9223372036855074700
+                  },
+                  {
+                    "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                    "requirement": {
+                      "artifact_id": "fixed-input",
+                      "expected_sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24",
+                      "max_bytes": 8,
+                      "relative_path": "inputs/file"
+                    },
+                    "root_device": 34,
+                    "root_inode": 316318
+                  }
+                ],
+                "outputs": [
+                  {
+                    "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                    "requirement": {
+                      "artifact_id": "report",
+                      "expected_sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+                      "max_bytes": 12,
+                      "relative_path": "reports/report.txt"
+                    },
+                    "root_device": 34,
+                    "root_inode": 316318
+                  }
+                ],
+                "subject": {
+                  "attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+                  "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                  "spec_revision": 1,
+                  "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+                  "version": {
+                    "base_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                    "kind": "workspace_artifacts",
+                    "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+                  }
+                },
+                "validator_id": "builtin.artifact-integrity.v1"
+              },
+              "image_policy": "linux_sealed_elf_snapshot",
+              "mode": "native_executable",
+              "program": {
+                "canonical_root": "/usr/bin",
+                "requirement": {
+                  "artifact_id": "baton-command-program",
+                  "expected_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+                  "max_bytes": 68008,
+                  "relative_path": "printf"
+                },
+                "root_device": 27,
+                "root_inode": 9223372036855074700
+              },
+              "require": {
+                "auxiliary_source_immutability": false,
+                "execution_time_input_immutability": false,
+                "filesystem_isolation": false,
+                "network_isolation": false,
+                "process_tree_containment": false,
+                "sealed_executable_image": false
+              },
+              "scope": "approved_deterministic_command_only",
+              "script": null,
+              "stderr_limit": 512,
+              "stdout_limit": 512,
+              "validator_id": "builtin.fixed-command.v1",
+              "wall_time_ms": 500
+            },
+            "contract_digest": "ebf3c860aa2a6b09bb9ab813bb960fbb97aff67585973a1a97f1e56441c082c0",
+            "digest": "02a0f068df431e7f524909d89dbb503ffe2ccbd98a801947e22b6b01c9bd5465",
+            "dynamic_dependency_integrity": "not_established",
+            "exit_code": 0,
+            "exit_observed_within_budget": true,
+            "exit_signal": null,
+            "file_integrity": {
+              "analysis": null,
+              "approval_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+              "digest": "9f549b6f3a37c12fb7f5586a81faf81a2ba9533810d91d4c5215be5b9d9bde8b",
+              "inputs": [
+                {
+                  "artifact_id": "baton-command-program",
+                  "expected_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+                  "observed_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+                  "relative_path": "printf",
+                  "root_device": 27,
+                  "root_inode": 9223372036855074700,
+                  "size": 68008,
+                  "state": "passed"
+                },
+                {
+                  "artifact_id": "fixed-input",
+                  "expected_sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24",
+                  "observed_sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24",
+                  "relative_path": "inputs/file",
+                  "root_device": 34,
+                  "root_inode": 316318,
+                  "size": 8,
+                  "state": "passed"
+                }
+              ],
+              "outputs": [
+                {
+                  "artifact_id": "report",
+                  "expected_sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+                  "observed_sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+                  "relative_path": "reports/report.txt",
+                  "root_device": 34,
+                  "root_inode": 316318,
+                  "size": 12,
+                  "state": "passed"
+                }
+              ],
+              "passed": true,
+              "policy_contract": {
+                "analysis": null,
+                "inputs": [
+                  {
+                    "canonical_root": "/usr/bin",
+                    "requirement": {
+                      "artifact_id": "baton-command-program",
+                      "expected_sha256": "e7c954d7c89a494227b35c537a0a42fe315b4ea687b90a90b3eeee06c52927dd",
+                      "max_bytes": 68008,
+                      "relative_path": "printf"
+                    },
+                    "root_device": 27,
+                    "root_inode": 9223372036855074700
+                  },
+                  {
+                    "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                    "requirement": {
+                      "artifact_id": "fixed-input",
+                      "expected_sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24",
+                      "max_bytes": 8,
+                      "relative_path": "inputs/file"
+                    },
+                    "root_device": 34,
+                    "root_inode": 316318
+                  }
+                ],
+                "outputs": [
+                  {
+                    "canonical_root": "/tmp/.tmpF8iWiz/runtime/workspaces/data-9dc5b7da-3ef1-450b-9309-c1f597f15577",
+                    "requirement": {
+                      "artifact_id": "report",
+                      "expected_sha256": "956df2d4bb265cf19ef1d2082ddd629807234be502b6ce56c3b3cc1733307591",
+                      "max_bytes": 12,
+                      "relative_path": "reports/report.txt"
+                    },
+                    "root_device": 34,
+                    "root_inode": 316318
+                  }
+                ],
+                "subject": {
+                  "attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+                  "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                  "spec_revision": 1,
+                  "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+                  "version": {
+                    "base_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                    "kind": "workspace_artifacts",
+                    "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+                  }
+                },
+                "validator_id": "builtin.artifact-integrity.v1"
+              },
+              "policy_revision": "d3c22d95dc3b6d1055762c0f37d836898453f1e11fd964eba40add639fb736d3",
+              "schema_version": 1,
+              "subject": {
+                "attempt_id": "62fe4dda-50f5-4963-b837-4ab57c34e63e",
+                "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                "spec_revision": 1,
+                "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+                "version": {
+                  "base_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+                  "kind": "workspace_artifacts",
+                  "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+                }
+              },
+              "validator_id": "builtin.artifact-integrity.v1"
+            },
+            "goal_io": {
+              "artifact_bytes": 68028,
+              "artifact_stability": "before_after_fd_pin_and_sha256",
+              "checked_candidate_bytes": 12,
+              "execution_read_bounds": [
+                {
+                  "artifact_id": "fixed-input",
+                  "effective_max_bytes": 8,
+                  "requested_max_bytes": 1024
+                },
+                {
+                  "artifact_id": "report",
+                  "effective_max_bytes": 12,
+                  "requested_max_bytes": 12
+                },
+                {
+                  "artifact_id": "baton-command-program",
+                  "effective_max_bytes": 68008,
+                  "requested_max_bytes": 16777216
+                }
+              ],
+              "ledger_output_domain": "new_declared_artifacts_plus_retained_stream_bytes",
+              "new_declared_artifact_bytes": 0,
+              "retained_stderr_bytes": 0,
+              "retained_stdout_bytes": 22,
+              "state": "observed",
+              "task_acceptance": "not_established",
+              "total_filesystem_write_bytes": null,
+              "total_filesystem_write_enforcement": "not_enforced"
+            },
+            "integration_authorized": false,
+            "main_image": "linux_sealed_elf_snapshot",
+            "main_image_verified": true,
+            "native_configuration_integrity": "not_established",
+            "passed": true,
+            "policy_revision": "d3c22d95dc3b6d1055762c0f37d836898453f1e11fd964eba40add639fb736d3",
+            "process_and_cleanup_elapsed_ms": 6,
+            "process_started": true,
+            "protected_program": null,
+            "reason": "exited",
+            "scope": "approved_deterministic_command_only",
+            "script_bytes_delivered": 0,
+            "stderr": {
+              "captured_bytes": 0,
+              "eof_observed": true,
+              "observed_bytes_at_least": 0,
+              "sha256_of_captured": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "truncated": false
+            },
+            "stdout": {
+              "captured_bytes": 22,
+              "eof_observed": true,
+              "observed_bytes_at_least": 22,
+              "sha256_of_captured": "63bfe90c4a3ec119762228a10902d62771fb7c5dab976ae2260c79780e1890bc",
+              "truncated": false
+            },
+            "task_acceptance": "not_established",
+            "transitive_execution_integrity": "not_established",
+            "validator_id": "builtin.fixed-command.v1"
+          },
+          "passed": true,
+          "plan_digest": "fffac523d4f278f576333e1e7ecbf4b80c9d085d5a3df3a708e3f2ee48b537e7",
+          "plan_revision": 2,
+          "result_digest": "095461de3f64e3789f6a745c349d13a930cee527be4a1512867182e725475d4e",
+          "rule_id": "command:9bc31e26-5418-4997-997d-dfae182ba4da",
+          "run_id": "4201ad50-b28a-4adf-b6a4-d7787fd30489",
+          "scope": "approved_deterministic_command_only",
+          "source": "baton_goal_validator",
+          "state": "passed",
+          "stop_confirmed": true,
+          "task_acceptance": "not_established"
+        }
+      ]
+    }
+  },
+  "scope": {
+    "authority_revision": 3,
+    "binding": {
+      "capability_snapshot_id": "client-no-tools:785af51d-3993-4cf3-a95a-c848230d55f8",
+      "config_revision": "4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e",
+      "connection_id": "785af51d-3993-4cf3-a95a-c848230d55f8",
+      "environment_id": "5c87e5cd-4c0c-43ed-bcc9-a8f91b0ae53d",
+      "host_id": "local",
+      "identity_ref": "unknown:785af51d-3993-4cf3-a95a-c848230d55f8",
+      "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+      "policy_revision": "82daffc1-5b8f-4390-abbe-07f023fc658e:3",
+      "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+    },
+    "contracts": {
+      "input:fixed-input": [
+        "goal-input-sha256"
+      ],
+      "output:report": [
+        "command:9bc31e26-5418-4997-997d-dfae182ba4da",
+        "goal-owner-review"
+      ],
+      "output:report-2": [
+        "goal-owner-review"
+      ]
+    },
+    "edit_context": {
+      "max_nodes": 5,
+      "output_artifacts": {
+        "report": {
+          "artifact_id": "report",
+          "expected_sha256": null,
+          "max_bytes": 1024,
+          "relative_path": "reports/report.txt"
+        },
+        "report-2": {
+          "artifact_id": "report-2",
+          "expected_sha256": null,
+          "max_bytes": 1024,
+          "relative_path": "reports/report-2.txt"
+        }
+      },
+      "rule_executors": {
+        "command:9bc31e26-5418-4997-997d-dfae182ba4da": "validator",
+        "goal-input-sha256": "validator",
+        "goal-owner-review": "owner"
+      },
+      "writable_prefixes": [
+        "reports"
+      ]
+    },
+    "expires_at_ms": 1793201433175,
+    "goal": {
+      "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+      "project_id": "bd4229cb-3ba5-405e-a566-dd60e19af9bb",
+      "root_task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+      "spec_revision": 1,
+      "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b"
+    },
+    "id": "a7d4b77b-d946-425e-93b2-e153f5c09682",
+    "input_revision": "b570c06476b8210f6334c5c877e884f055a139623d8b3b34d02f5366f0df1705",
+    "inputs": {
+      "fixed-input": {
+        "contract_id": "input:fixed-input",
+        "sha256": "8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24"
+      }
+    },
+    "outputs": {
+      "report": "output:report",
+      "report-2": "output:report-2"
+    },
+    "planning_only": true,
+    "program_sha256": "d5550eb4eb0b30d953cdd0520f4bff80ffc82042505acb04d405812fbed8c810",
+    "project_budget": {
+      "attempts": 8,
+      "children": 1,
+      "cost_microunits": null,
+      "output_bytes": 8192,
+      "parallel": 1,
+      "reworks": 0,
+      "runtime_ms": 10000,
+      "tokens": null
+    },
+    "project_id": "bd4229cb-3ba5-405e-a566-dd60e19af9bb",
+    "required_acceptance_rules": [
+      "goal-owner-review"
+    ],
+    "revision": 1,
+    "revoked": false,
+    "root_budget": {
+      "attempts": 8,
+      "children": 1,
+      "cost_microunits": null,
+      "output_bytes": 8192,
+      "parallel": 1,
+      "reworks": 0,
+      "runtime_ms": 10000,
+      "tokens": null
+    },
+    "root_grant_id": "82daffc1-5b8f-4390-abbe-07f023fc658e",
+    "root_grant_revision": 3,
+    "rules": {
+      "command:9bc31e26-5418-4997-997d-dfae182ba4da": "d3c22d95dc3b6d1055762c0f37d836898453f1e11fd964eba40add639fb736d3",
+      "goal-input-sha256": "cfc0208c65babf5caf8ff7cccc286e99661ccf5c16d5c6a5ece3d646a8307f8c",
+      "goal-owner-review": "4dc4d5ebd5530552eaf4ffdde7529f9574f66843aba41d4d0a27c300bfdd5025"
+    },
+    "scope_digest": "111d0c4ed5f4ddfdcf9737155e91dbf92b63a48ed06d63e94a449327e66ef263",
+    "task_id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+    "workspace_id": "cc245e45-e804-4a06-8c20-e37f31857de5"
+  },
+  "task": {
+    "acceptance_ref": "9b9cfdbf-2e9e-416d-bc96-133bd1cc0296",
+    "acceptance_sequence": 124,
+    "created_at": "2026-10-28T15:30:03.741303437Z",
+    "goal": "Use approved same-workspace graph definition with a new owned producer subject",
+    "id": "6c6f073a-f468-47ed-b98a-92992acf293b",
+    "project_id": "bd4229cb-3ba5-405e-a566-dd60e19af9bb",
+    "revision": 11,
+    "spec_revision": 1,
+    "state": "accepted",
+    "updated_at": "2026-10-28T15:30:12.885526047Z"
+  }
+}

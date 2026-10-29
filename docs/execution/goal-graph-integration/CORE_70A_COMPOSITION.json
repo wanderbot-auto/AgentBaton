@@ -1,0 +1,102 @@
+{
+  "candidate_manifest_sha256": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+  "count": 100,
+  "matching": 95,
+  "differences": [
+    {
+      "path": "apps/desktop/src-tauri/Cargo.lock",
+      "expected": "1a242354c2716ae834880acd7bcfe50c2b1ad77403d37bda18428794f6aec2ef",
+      "actual": "9a74078ffe6b6ff7e1382ee5db9ddae49395c3660d722d29893b6ed663c8082c"
+    },
+    {
+      "path": "apps/desktop/src-tauri/Cargo.toml",
+      "expected": "d5f7e9e0246f380400b7698f4d87a14e6452856466e5b68e4bd169150f0a7e48",
+      "actual": "5f7276d2bdbd99925e1aba38759fccffe8add0e8f62eacc055e2301f0462f723"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "expected": "4e9b02bdf1eda86e98afa727b15826e0858e509de8bf932bf8b312ec6d136896",
+      "actual": "9e5e68431d43a3435f539bac465af998fe300457984ea953a2d402c982399983"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "expected": "fc12725e5d8ea45b2ebc891cc1d314b5ee709a2778ef555da96e79209bd5182a",
+      "actual": "01519ecf98e71f941007e3fa3b00158f3bc8be0f4820b0bbc1e1ea24e7cb8992"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "expected": "7eb75d1ad51da49f548dd2292bcedff69220c82732df62e81796f25d9919f3d0",
+      "actual": "b1889f27230fa1612fd4fac3fa5210d15dbc54ac3506dab7b8b8637dc6c28c0d"
+    }
+  ],
+  "binaries": {
+    "repository": "wanderbot-auto/AgentBaton",
+    "schema": 12,
+    "git_head": "70a48d41663108337529915358109026e98ddf98",
+    "dirty": false,
+    "source_tree_sha256": "7ef299c501455b4ae9ec5ee8eaa0d19af426a620f856a4b11da866c29ff1dce7",
+    "source_tree_hash_algorithm": "SHA256 of UTF8 compact sorted JSON path-to-SHA256 map",
+    "binaries": {
+      "batond": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+        "sha256": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+        "bytes": 104881288
+      },
+      "baton": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/baton",
+        "sha256": "66ca50a6d4a2e633f799c6275d66b9be3fe3aa35f6346649893ad925de2ee0d0",
+        "bytes": 76685288
+      }
+    },
+    "profile": "Linux x86_64 development/debug",
+    "signing_status": "unsigned Linux test executables; not macOS app installers",
+    "created_utc": "2026-10-28T16:12:12.563501+00:00",
+    "verification": {
+      "independent_full_workspace": "pending",
+      "author_core3": "completed with four failing targets; retained, not green",
+      "author_followup": "32 migration/storage + 2 old/new authority tests passed after targeted fixes",
+      "clippy_workspace_all_targets": "PASS -D warnings",
+      "fmt": "PASS",
+      "diff_check": "PASS",
+      "debug_build": "PASS"
+    },
+    "logs": {
+      "core-regression-1.log": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/core-regression-1.log",
+        "sha256": "6a0bd52e12e6572f6be6bb32dc44a99064bd04e881d61db6af67a76c2c7c332e"
+      },
+      "core-regression-2.log": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/core-regression-2.log",
+        "sha256": "99999c4a503bbfa42c637413d4669f1f5ebc3b634fbe71fcc00e9419816bd1a1"
+      },
+      "core-regression-3.log": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/core-regression-3.log",
+        "sha256": "ecbf4423a00ae99bd7e9119a250471016809a5b1b61a8e60a9259d69840a61dc"
+      },
+      "all-migrations-storage-1.log": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/all-migrations-storage-1.log",
+        "sha256": "d03e760730216206b85fb30e95e66e4b2f7fdf14f8535ec1a75d04ef3fd7bbc2"
+      },
+      "legacy-graph-authority-1.log": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/legacy-graph-authority-1.log",
+        "sha256": "df3f2119a746bf630a923a2739ed1d24b26a01235d47cd3088fe86f5b96426c1"
+      },
+      "clippy-4.log": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/clippy-4.log",
+        "sha256": "1654115e5e9dbd5d8318a5d398fb8c6930961f28e9ce3c0c35d052148d5731ca"
+      },
+      "debug-build-1.log": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/debug-build-1.log",
+        "sha256": "20267da95f6297e5aa81c9dec49d19f023006afc52754b8ab0548706b9ca64a9"
+      },
+      "fmt-final.log": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/fmt-final.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "diff-final.log": {
+        "path": "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/diff-final.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "reviewer": "/root/data_native_integration_review",
+  "baseline_head": "a1be94d26d10bb245bb35eb50226b82012c967da",
+  "source_snapshot_files": 22,
+  "revision": "1258 observedhandoff / latestauthorbytes",
+  "prior_review_manifest_sha256": "6f871fd95828bdbc344addcfc93c2b733667340b1eb86a120106cad9ff2cc561",
+  "verdict": "PASS documentaryscope; originalfailures retained;11partial unchanged;232+34frozenfiles untouched; UI41+17 qualifiedCore04schema11/proposal6074 only; WIPGraphnotaccepted",
+  "files": {
+    "REVIEW.md": {
+      "sha256": "16f870db5f660c1fd920fde2fb10acb080188d487e41e2e2827725f06159fff7",
+      "bytes": 7922
+    },
+    "actual-merge-commit.json": {
+      "sha256": "b77f8f9cd97ba945853ab9b80feefe13fe20415f22bac3274845439812d6f96f",
+      "bytes": 2760
+    },
+    "actual-pr15.json": {
+      "sha256": "bc6a94d1ebbc9ba4d0f56fc39ebd23ab2e5b468c90dccf1fb5e5268ac6544503",
+      "bytes": 22157
+    },
+    "bootstrap.log": {
+      "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "bytes": 71
+    },
+    "commands.json": {
+      "sha256": "5fd7814424aa80ab45f879499c44d6a56f60fe49ebee33aed5ee440906b32e8b",
+      "bytes": 849
+    },
+    "copied-evidence-verification.json": {
+      "sha256": "15c4a16f17f07d4f5d5649ad645d8f4d051ba6c7b9a807166882576f6f396201",
+      "bytes": 2311
+    },
+    "design.log": {
+      "sha256": "3a9b02bb818b268095b58b0c6545b524162af6dcf5bc1e2b05726d33b336110f",
+      "bytes": 725
+    },
+    "diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "docs.diff": {
+      "sha256": "d32e022ad137986374112c97c3989f70a66ed3f7ede19b5f7466b7f71ddac260",
+      "bytes": 29533
+    },
+    "infrastructure.log": {
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "bytes": 231
+    },
+    "requirements-scope-verification.json": {
+      "sha256": "5a632dd378825c913b918c5f356b82b4b1ff513af30684df0ec93d3153f6895b",
+      "bytes": 12704
+    },
+    "source-snapshot.json": {
+      "sha256": "c4763aa4a3415d4445f653e62bd75baefcc29052f12f01e415677651707abc6a",
+      "bytes": 3147
+    },
+    "ui-window/clippy-fixed.log": {
+      "sha256": "f008c4b4060e81a66161256b98c3e8500ce29a11683f06f3585ce7bce9ce9c40",
+      "bytes": 183
+    },
+    "ui-window/clippy.log": {
+      "sha256": "0d7dab926ab6edbbb8a58e4fd6189120731f1884abcea36cd7a5b6e1d454d4ca",
+      "bytes": 2056
+    },
+    "ui-window/final-checks.json": {
+      "sha256": "2fff46ba7e1cbec725dd3788ddce3acd6ca179c7811251e7ceab893a4a1a86c7",
+      "bytes": 945
+    },
+    "ui-window/fixed-checks.json": {
+      "sha256": "538aa3a5ea31dc39a74c0765c8d0e9d53075fc67d18210f140a0a1d0fb43bb63",
+      "bytes": 1318
+    },
+    "ui-window/fmt-check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "ui-window/native-final.log": {
+      "sha256": "ffa251c8cb1bf6ebe2ac1742014e24f014186552de22041ca029d112f9f94364",
+      "bytes": 7037
+    },
+    "ui-window/release.json": {
+      "sha256": "a9de139b7e5c9e9579d54ed1576302b855ed08d78dc85a06aaa83d79eeec5fbf",
+      "bytes": 866
+    }
+  }
+}

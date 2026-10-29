@@ -1,0 +1,9 @@
+{
+  "archive": "CI_652_LINUX_EVIDENCE.tar.gz",
+  "bytes": 18450677,
+  "sha256": "29b53c73d5332a06bfb2782867f273b709c26919d463e587d0bc8770f0fadfa2",
+  "source_manifest_sha256": "02f4bc21cec158f9a26920035c590b8b2814e7b11dae18a64813e941c2f02ff7",
+  "files": 126,
+  "all_roundtrip_sha256_verified": true,
+  "scope": "Linux actual CI1e04 only; Mac failure and packages not accepted"
+}

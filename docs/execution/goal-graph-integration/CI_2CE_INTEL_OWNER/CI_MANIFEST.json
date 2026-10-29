@@ -1,0 +1,1486 @@
+{
+  "schema": 1,
+  "sealed_at": "2026-10-29T04:32:47.144978+00:00",
+  "head": "2ceaa608d87b20e20e72068e4a143ab8e4126e48",
+  "actualcheckout": "a5814094549314187c46ffbe05601fd3945a0c72",
+  "tree": "cf8692c159a635d0d147d170c3c62f3e90f65d21",
+  "Product": 40815168930,
+  "Environment": 40815168923,
+  "checks": {
+    "success": 6,
+    "failure": 1
+  },
+  "formal_approval": false,
+  "files": [
+    {
+      "path": "ARM_MANIFEST.json",
+      "bytes": 34142,
+      "sha256": "41d8123bcd6d1d95980af07ae29bcdf93cf6b7b02dd3e28a79d3cac55acbaf2f",
+      "mode": "0o600"
+    },
+    {
+      "path": "ARM_OFFLINE_COMMANDS.json",
+      "bytes": 978,
+      "sha256": "caf1c78cc59aaba18ccf49fa06b82a2a16d31fbc945c3cb34b1a863412fe2f9d",
+      "mode": "0o600"
+    },
+    {
+      "path": "ARM_RAW_MARKERS.json",
+      "bytes": 10041,
+      "sha256": "a46af764cef19be4777e25cc62c1071f01917b0c582056479c64a8ae9110279e",
+      "mode": "0o600"
+    },
+    {
+      "path": "ARM_REVIEW.md",
+      "bytes": 4268,
+      "sha256": "f5910181934f4dd00b72f2f6496abdf2ea6401b20737657c32323ccf08c5852f",
+      "mode": "0o600"
+    },
+    {
+      "path": "CHECKPOINT.json",
+      "bytes": 1741,
+      "sha256": "3172d0a46b29e5bed089bc17bb6d2c6181a659070047eb2d559a077ef97df6b5",
+      "mode": "0o600"
+    },
+    {
+      "path": "DRAFT_001_ENVIRONMENT_EVIDENCE.tar.gz",
+      "bytes": 85312,
+      "sha256": "aef5a7cd38eff73181318ca56669a261b5219dccf7b2ea46d71a534f6ffeef67",
+      "mode": "0o600"
+    },
+    {
+      "path": "DRAFT_001_ENVIRONMENT_IMPORT.json",
+      "bytes": 389,
+      "sha256": "b4f74fe88c891476f9cd4775dc871bedce28b6f31ef49ac4c900f9891bc9431b",
+      "mode": "0o600"
+    },
+    {
+      "path": "DRAFT_001_ENVIRONMENT_MANIFEST.json",
+      "bytes": 11219,
+      "sha256": "e920542f1d9de1f0c8969f03dec0a65b89967dea69184436138be267dbb63e95",
+      "mode": "0o600"
+    },
+    {
+      "path": "ENVIRONMENT_API_LEDGER.json",
+      "bytes": 3212,
+      "sha256": "af9d7452fe7580cf01386656f1b8ba405c529015810f588c8233835b80e0fb1f",
+      "mode": "0o600"
+    },
+    {
+      "path": "ENVIRONMENT_AUDIT.json",
+      "bytes": 5286,
+      "sha256": "74d68c718ff81052b3bda049d085838e259368cacaba4c4bb0dfe8d5bf40d190",
+      "mode": "0o600"
+    },
+    {
+      "path": "ENVIRONMENT_DRAFT_NOTE.json",
+      "bytes": 305,
+      "sha256": "23c6f3a8545b28c1f7f2d7562a55f2bfae58ff2791eff86b0c01afb5d5010eb8",
+      "mode": "0o600"
+    },
+    {
+      "path": "ENVIRONMENT_EVIDENCE.tar.gz",
+      "bytes": 84965,
+      "sha256": "2f367a55a4292eb548078f38dc050d1409d5d1bcb57ed9cd000f806878d07d6a",
+      "mode": "0o600"
+    },
+    {
+      "path": "ENVIRONMENT_IMPORT.json",
+      "bytes": 389,
+      "sha256": "ec25b2b457b144e809bcadbc2844abe6a3a318814fbe14dfdf44b127a50681ea",
+      "mode": "0o600"
+    },
+    {
+      "path": "ENVIRONMENT_MANIFEST.json",
+      "bytes": 11221,
+      "sha256": "df41e260e4e811ea15cfc6578817353f541c1d1b25410afc2578d43c452c55f5",
+      "mode": "0o600"
+    },
+    {
+      "path": "ENVIRONMENT_REVIEW.md",
+      "bytes": 2165,
+      "sha256": "cd7a8319feab7e4f3f3ab75f76ad072922864562ab0292027581cb6299a215f3",
+      "mode": "0o600"
+    },
+    {
+      "path": "FINAL_INTEGRITY.json",
+      "bytes": 2578,
+      "sha256": "31323bb710cfb6c1d12162a981292993cf9a933a7386780914ebe3d9ae53bf66",
+      "mode": "0o600"
+    },
+    {
+      "path": "INTEL_FAILURE.json",
+      "bytes": 11895,
+      "sha256": "34365912606a8507c0bf7ef3c14fcf73963684a8ab878d64265dd8dcdf23fb5d",
+      "mode": "0o600"
+    },
+    {
+      "path": "INTEL_MANIFEST.json",
+      "bytes": 1958,
+      "sha256": "7027759c200299c8e9bfd47937c791244ec9f0c7ecca9eeac87dc0730a981b26",
+      "mode": "0o600"
+    },
+    {
+      "path": "INTEL_REVIEW.md",
+      "bytes": 3019,
+      "sha256": "83aee943df5047d42d8fe657c9ad72111890ac5456aa452ac7d3c2ed45bbd87e",
+      "mode": "0o600"
+    },
+    {
+      "path": "REVIEW_TOOL_SYNTAX.json",
+      "bytes": 1095,
+      "sha256": "5d19b2ab829d1adf1c041eaf990c6cc5ea0154d8218276f6ac75d0ed045fa496",
+      "mode": "0o600"
+    },
+    {
+      "path": "REVIEW_TOOL_SYNTAX_FINAL.json",
+      "bytes": 1070,
+      "sha256": "c9f9d5022f0a232bde827e638cae3d144e8c8acc25da18073b3e4fddb2326389",
+      "mode": "0o600"
+    },
+    {
+      "path": "SCOPE_AND_CAPACITY.json",
+      "bytes": 1665,
+      "sha256": "bb44eb7a633f6a6d30e8dfd15b62a595d49a1dab864ec190389e6a6dd6c24035",
+      "mode": "0o600"
+    },
+    {
+      "path": "SUMMARY.md",
+      "bytes": 1859,
+      "sha256": "14d428bb45e0087e54cd632586446dddbdc6b2edf066f62cf1f3ffb20f0350cc",
+      "mode": "0o600"
+    },
+    {
+      "path": "VISUAL_OBSERVATIONS.json",
+      "bytes": 1012,
+      "sha256": "3258a70cfdb74d5141be21b958f7980dc05d7e7d39e31aaa9baf59261cbb75c7",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-artifacts-terminal.json",
+      "bytes": 3086,
+      "sha256": "6c15f6f1ab90d1c52d08b0577b2f09f4f7270a1b8514051ab93933974ab7df41",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-development-artifact/DEVELOPMENT_ACCEPTANCE.md",
+      "bytes": 1972,
+      "sha256": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-development-artifact/SHA256SUMS",
+      "bytes": 142,
+      "sha256": "1ac8f4f2818f567a70313ec6ac9c0a7ad28609a46f3f24f42ca50613c14eaefa",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-development-artifact/build-record.txt",
+      "bytes": 1471,
+      "sha256": "c795d7e862ba4c3a433a74ae3df8b023a125474b26455b90796792c2e78b731d",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-development-artifact-inventory.json",
+      "bytes": 2674,
+      "sha256": "7b046683e1b2f66a153de4e78189601c374d784bf23c515336c9c8f8a89bd726",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-development-artifact.zip",
+      "bytes": 8516223,
+      "sha256": "8e48f1774e168f8e4c8b32c18f6228cb841e641244b69c34a414170813359217",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-job-terminal.json",
+      "bytes": 4981,
+      "sha256": "871bc09fae7edb6a71320ea1fcd0aa563351158d35bc7a8ead0e3b9d4c700543",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-job.log",
+      "bytes": 406066,
+      "sha256": "669285cb415b9eff8e5673c3c73e3e198eddccc4d0d4c1da9c0952ebe5a8f67c",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/lane.log",
+      "bytes": 3788,
+      "sha256": "ea68b2f755785281c4e0181277e1ce75d5a73c063b57d9dc1b3e3d401eab78a7",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/native-run.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/native-runner.json",
+      "bytes": 359,
+      "sha256": "420778039d52fa4b7d743caaa832b6d26957a1b5578e61c7c8345fb65130a2b0",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/native-screen.png",
+      "bytes": 174271,
+      "sha256": "b12039223e1d9d7deb116c43abe29d55bfb34169cea7702c1a930237459d330d",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/native-smoke.json",
+      "bytes": 5935,
+      "sha256": "c4dfb36703a058598be4e62c76245a65bd216c73677adf0fb36b1aff6174823c",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/after.json",
+      "bytes": 17430,
+      "sha256": "fa119707a747b63cee0e1c9857de214d24351513ba18610b4defaae5b100c476",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/app-cleanup.json",
+      "bytes": 277,
+      "sha256": "93e8de49d59feda40dc33108320c8ed8af3009a2b3fb1a766bb1842de4821bb8",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0001-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0001-database-permit.json",
+      "bytes": 193,
+      "sha256": "2ae05db9914c6633039e0afc401cb822b970b991da78722c3d7a3a7bfafd2b64",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0001-sheet-ready.json",
+      "bytes": 1288,
+      "sha256": "b3451d172d8e0d4d69afe06a3622cc75328664a3831f036026c6b53bf576c8bd",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0001-sheet.png",
+      "bytes": 240473,
+      "sha256": "59d5746bc0aed55c0be4d00714c52eef075b6201a1b878a290cf5e7de4063b39",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0002-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0002-database-permit.json",
+      "bytes": 193,
+      "sha256": "16d5a8fa5eab25eb2e64588645f785f5f56815724176a5620375d9557e1a2d71",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0002-sheet-ready.json",
+      "bytes": 1284,
+      "sha256": "0e48ac26f822227e250a42b8d88966670c5c3c73ecf49ec4c9e8a25732f73181",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0002-sheet.png",
+      "bytes": 242975,
+      "sha256": "f2805b03b79cd26ee2747e8e78959352ebf2d04d22eaa3db9c1563a46849b9c7",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0003-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0003-database-permit.json",
+      "bytes": 193,
+      "sha256": "a62f0d750daa91592f9a5c9937314ae180bbc8eb38bc907f22e2ed9e24ba19da",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0003-sheet-ready.json",
+      "bytes": 1320,
+      "sha256": "50a1cbf05574732e48e0ea9ecba1cb8adfb317944336b37ca69598eda4b4ce5e",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0003-sheet.png",
+      "bytes": 241187,
+      "sha256": "606f0cd8f8a6fc1e66c5e29d7bd8e900e4aa5ee9e832b489adebfb7ca426a739",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0004-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0004-database-permit.json",
+      "bytes": 193,
+      "sha256": "99f453af68bc860257f5ad4c7923492eac115b52a7098c5ae84c72d02d6ef623",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0004-sheet-ready.json",
+      "bytes": 1337,
+      "sha256": "9ba9b4ea16f8549e13f6ea18d78d40b7d6d2497e7ddd2016d67e8a21e949a65e",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0004-sheet.png",
+      "bytes": 240750,
+      "sha256": "b074afcce888a93e83c99633ed3176ea6e690047426237ba828d0792361c69a4",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0005-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0005-database-permit.json",
+      "bytes": 193,
+      "sha256": "ad1d2e24eb374d6fbcb5acbc480f296c8f22d4c14bd2e712ba28902a2d4907b0",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0005-sheet-ready.json",
+      "bytes": 1324,
+      "sha256": "230bf37e83bd042a054c3167f24485e9b3e977fa5d1e51572ba57aea9adedeb4",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0005-sheet.png",
+      "bytes": 243572,
+      "sha256": "4abfddbad11fc787b61abfedf0666d681fd958cc9f7b4de0bcccdbef1a96daef",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0006-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0006-database-permit.json",
+      "bytes": 193,
+      "sha256": "7054a279cf683b17be52379d91c690f0b449a84b7807dc7d95065806250c6067",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0006-sheet-ready.json",
+      "bytes": 1338,
+      "sha256": "f7c100b5784ec763fb29da5baa46db8d6e150cd11cd3c2c532c3f30f7637be24",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0006-sheet.png",
+      "bytes": 239646,
+      "sha256": "7bf599bfe62cee83e241a60583becb709b419c1eceab4fcc595fd704c72d192e",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0007-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0007-database-permit.json",
+      "bytes": 193,
+      "sha256": "b5ba58662b2cbb5e4c6fc65b5b6e2221801cb90f515cc59f2d74880acf6b266f",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0007-sheet-ready.json",
+      "bytes": 1323,
+      "sha256": "9b8141c18202e3f91527afb25bd5d59fa5e4ecaac8a7ab582ae5d421a19520ad",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0007-sheet.png",
+      "bytes": 243144,
+      "sha256": "00d82463cad612eb26c472c5bcd83713f11cb7cade19aa6f3ac472abc07415df",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0008-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0008-database-permit.json",
+      "bytes": 193,
+      "sha256": "c4f7a214e6fc4b36be23dc4b65e3bef23264bdca87138dbedb104876684d4e69",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0008-sheet-ready.json",
+      "bytes": 1334,
+      "sha256": "da4b913272d2f546b834b2c36a57bef53655966b4539108c3dc7a1b575786e32",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0008-sheet.png",
+      "bytes": 241048,
+      "sha256": "beb9332a739af57a04eec255bab0eb39e74f9e1c0cc118a74888f390f3a33d5d",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0009-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0009-database-permit.json",
+      "bytes": 193,
+      "sha256": "85e60634b2aa0164a33ef0fd750277e1a581223dab2bfc318d34646d54cd5075",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0009-sheet-ready.json",
+      "bytes": 1328,
+      "sha256": "b56620cd9c6412de396bf5e21b2afd9caa87d3db135b6268a4e4b2cfc8501be4",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0009-sheet.png",
+      "bytes": 241233,
+      "sha256": "7a4f9813933ee7c3ebab1c404e678fbbe0b6bbe9accd06f8c53223f4b9652420",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0010-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0010-database-permit.json",
+      "bytes": 193,
+      "sha256": "87e3082221799f7101a9721be44291ce7c13b983603c3bdbd8f827dd03957d95",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0010-sheet-ready.json",
+      "bytes": 1322,
+      "sha256": "871198e8828e3c4f856a867b182a5e239e91cf3b1fb5cf5870e09bc8ac927622",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0010-sheet.png",
+      "bytes": 239813,
+      "sha256": "9e0ef80e9da16ce0cb8780b1cda67783404e20bd281bb256412c672c5d1b4ca9",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0011-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0011-database-permit.json",
+      "bytes": 194,
+      "sha256": "3f8710c003b2ef21086a80c04b950b85cb47681ce26c8d1ba13ea0194787982f",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0011-sheet-ready.json",
+      "bytes": 1070,
+      "sha256": "b9bbba2f98d875088c447c1e7ffa876f5e4da4389a906762499a6fd768de7234",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0011-sheet.png",
+      "bytes": 240787,
+      "sha256": "f7ff3d627696664527cdcb8869acb529c255b5dc55ce95dbcba7703bdf35766b",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0012-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0012-database-permit.json",
+      "bytes": 194,
+      "sha256": "0b3ed9f8a6288aa661c1fb04ad3a376dcdaeea4e77e44c79e78cd117f8fe27be",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0012-sheet-ready.json",
+      "bytes": 912,
+      "sha256": "507084de314329ee54ce9155fb966e7db91ca4554954324517f7fb3063644c1f",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-page-0012-sheet.png",
+      "bytes": 220727,
+      "sha256": "7832420b6c1e1318f95ee96d4f321863e93d55683e8cc3998e3e4cb699897c0e",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/approve-reply.json",
+      "bytes": 2276,
+      "sha256": "8e7a97f08afdb36e36a77a6182255852597bd37295f506a5444d231e66dadf03",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/before.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/bootstrap-paths.json",
+      "bytes": 963,
+      "sha256": "49b9870400bc5cecb23fcffa7ac31540c3f2067a3026ba32a2a6107a33c6771e",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/bootstrap-state.json",
+      "bytes": 2570,
+      "sha256": "e17deaa7925608b6026360a8a3e5640c0a4e5d7ba2e432edf0c02a68a57fe587",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0001-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0001-database-permit.json",
+      "bytes": 192,
+      "sha256": "1343a049bf107ce03c48787e79249d129245e870df7f3a6a58526e880f5a6110",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0001-sheet-ready.json",
+      "bytes": 1287,
+      "sha256": "4773896b48800691e39930accd8235bc6e22a440b0852d22277e95abfcc05e14",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0001-sheet.png",
+      "bytes": 240387,
+      "sha256": "5229d2974410ad33d33dcbcb1ae20f0fb3cb103e9391633004d8dcd925104891",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0002-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0002-database-permit.json",
+      "bytes": 192,
+      "sha256": "7b848a1276cce7dffdaac5251cecbc7b5d7eba4f460c4ae273571663e43b5e6e",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0002-sheet-ready.json",
+      "bytes": 1283,
+      "sha256": "43f9f935fe7c017e64c42c4848c24979d29d0590370d2ae1b8a679e0c413c775",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0002-sheet.png",
+      "bytes": 242775,
+      "sha256": "068ceea58d55658135588c52a19d965cbed30116c1581bcae2fa47a2643c1c08",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0003-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0003-database-permit.json",
+      "bytes": 192,
+      "sha256": "2bfd0c09b58e947c2cebbbe8c266be8ff7640258b700a76fed51441f87bafd82",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0003-sheet-ready.json",
+      "bytes": 1319,
+      "sha256": "01dda89e9575176fa293192f4d29fae5a5daffc935c3f062706ff8f87f8260ae",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0003-sheet.png",
+      "bytes": 241356,
+      "sha256": "d71d9eb7782573cf555ea31838c877c3a7e105b1d522ebdefd05ec463820f756",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0004-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0004-database-permit.json",
+      "bytes": 192,
+      "sha256": "8b4cc54a36948b6a5d672b018b5b0f189c91c790ef2d4369f0e8124043d2e84c",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0004-sheet-ready.json",
+      "bytes": 1336,
+      "sha256": "516e4a85df22ba9838e7d570148fa9ca3b716abbba856cf471999c3b6435723b",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0004-sheet.png",
+      "bytes": 241760,
+      "sha256": "d871d925911eee775b1118e094b5af22aa003e4b88b2b20e13a78cf5f534177b",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0005-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0005-database-permit.json",
+      "bytes": 192,
+      "sha256": "5e6aa8700c594b85b4135148e3866d50b2e2b7733d0f4c7142bb4990bb31b7db",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0005-sheet-ready.json",
+      "bytes": 1323,
+      "sha256": "c79b8e06cd79ae549c25c5923960f47276697f0fc2658cb7d6a806f3593bf8d7",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0005-sheet.png",
+      "bytes": 244096,
+      "sha256": "07e74791b23ed8acfc5a43d807aa94bc6e640474e1cbfb3493ca57f2f5280729",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0006-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0006-database-permit.json",
+      "bytes": 192,
+      "sha256": "4e4d35a712af3d585357ce7161c773180d2207c6c5c8c6cead259564d0c8d328",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0006-sheet-ready.json",
+      "bytes": 1337,
+      "sha256": "5d3ab612583540261fe8010af39a6a2b1db06ef6493d783f2bd404c84e4c7aa7",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0006-sheet.png",
+      "bytes": 239648,
+      "sha256": "1a140ba49e5fa13e41e745102b1edc6c58fb804dcb22c3f0bbb87fe2f8073d8d",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0007-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0007-database-permit.json",
+      "bytes": 192,
+      "sha256": "1a31dc007c3f755c738fed55127e919f5a49918e8dd6faafbea5f965473ec361",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0007-sheet-ready.json",
+      "bytes": 1322,
+      "sha256": "1cc8c088b2716989adf053132d6542c2c1a96971278af0a61db22b5b0f8eba1d",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0007-sheet.png",
+      "bytes": 243855,
+      "sha256": "958da551818191b96a68e30022fe752697c6d1e5dc0fd736d5fdc3531bb15ad9",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0008-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0008-database-permit.json",
+      "bytes": 192,
+      "sha256": "00117db9f1d874ea4e9f01289ed396d118736bac4e3efd2ae3dc1d48a611802a",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0008-sheet-ready.json",
+      "bytes": 1333,
+      "sha256": "1152c20fa5ae73d8dc472c9157c27dc5235202703e8a71b354f651f100a1c08b",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0008-sheet.png",
+      "bytes": 241580,
+      "sha256": "b84953c2404a45469b290e049cd951d603c75e71d322534ee59b0e4ab02bb438",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0009-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0009-database-permit.json",
+      "bytes": 192,
+      "sha256": "54ae8fb83964090cd928e1ec04048018e1cc23c389043e9f4a2bfb197a0632c1",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0009-sheet-ready.json",
+      "bytes": 1327,
+      "sha256": "8acbead8ea0efd339894ec5ce89cee0e1b7532374fbd250d1a874365f0c9a0ad",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0009-sheet.png",
+      "bytes": 241983,
+      "sha256": "53c108a2411c490e81b03de116dfde0a08639b828e4b7a154eed7ada9c6e8d5e",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0010-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0010-database-permit.json",
+      "bytes": 192,
+      "sha256": "c63c1e74f7169654c0a450a8c9c3740a046cfdea5e43e986caf1e04133f5e966",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0010-sheet-ready.json",
+      "bytes": 1321,
+      "sha256": "92643ffe98a75d132b3d558492f5e53325dc9a129c9c863036bfaecbc21a30ed",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0010-sheet.png",
+      "bytes": 239634,
+      "sha256": "862c24a7843586283fb11253ea95eb7624a286594e2d5e9ab117999a9cc99511",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0011-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0011-database-permit.json",
+      "bytes": 193,
+      "sha256": "87d05e49f403c8e901c91efd1c670e28db1e802f93c2e18128ed402d0af34d91",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0011-sheet-ready.json",
+      "bytes": 1069,
+      "sha256": "71c055eb2185488844f3fcb127b75da66c74f4e54e2958210b0b93400f34144a",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0011-sheet.png",
+      "bytes": 240224,
+      "sha256": "0fb2a72f6a9942b93489047c03af2b6145607f2315413f577d4114c05db1c97d",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0012-before-click-database.json",
+      "bytes": 11225,
+      "sha256": "a6c0f675773272f5556387c61fc604e3abe0832eb5549a0b34226e435cc46b37",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0012-database-permit.json",
+      "bytes": 193,
+      "sha256": "4c68c1cc789256092e12107de9bbfb18f91fdc4b68201b202735a2f1c0a46090",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0012-sheet-ready.json",
+      "bytes": 911,
+      "sha256": "698043ee56f4c33c95b61568ee44507f3208dacec405302400747ec6e9314c41",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-page-0012-sheet.png",
+      "bytes": 220953,
+      "sha256": "cd493d6f432c78e9cf13002655c81162f43427c42816ded6b382ca3146b857f2",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/cancel-reply.json",
+      "bytes": 279,
+      "sha256": "edcd6c307a67294db25b3ae13727cf489b866a8d3731dd2702830576715cc3d7",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/core-bootstrap-transcript.json",
+      "bytes": 12086,
+      "sha256": "3701c6bfbdce509cf99cebfc3f3b30c0a56d46c2e1bf89c0f2470fde9f4b704a",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/daemon-cleanup.json",
+      "bytes": 350,
+      "sha256": "7c93346cc0ca0806d2022fde3ce8217ddf8e2bb00643de1c3f442834007d675f",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/daemon-stderr.log",
+      "bytes": 104,
+      "sha256": "808526edc8d35fa4a926f73effb86187b071ea4209f478fd1abdd24881e1cf36",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/daemon-stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/fixture.json",
+      "bytes": 13689,
+      "sha256": "3300fe2a9ceec89f4a56adf61972231c63aa232541139e88fa76340de2b16ded",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/owner-dialog.json",
+      "bytes": 195,
+      "sha256": "96761112e3fc5297e3e96935a9b8c50da12c6fb6dde3f1dfb2a372f7b39e629b",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact/owner-dialog/result.json",
+      "bytes": 7145,
+      "sha256": "11c71a44d5084c5c031aa7642530ccabb28f6d9fbe3c185bd0f1cee407443fac",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact-inventory.json",
+      "bytes": 41688,
+      "sha256": "64cf5ce53a7ed687f1e06de669f2b52ba3475d55c39dfb73d3e46a215ee5aff7",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-native-artifact.zip",
+      "bytes": 5800257,
+      "sha256": "6530e67bc10f30c50b8a2d29c7e0e4850896907264796f3e350fe6593cc73d09",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-offline-native-audit.json",
+      "bytes": 1397,
+      "sha256": "efe1d6f69df6ca8a38defe3b8efd582f6ec6f6c38cc2054849cfe3502660b111",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-offline-package-audit.json",
+      "bytes": 1439,
+      "sha256": "fe7ffd9774785620d74a5f15ec289df9a508a6bee71862020ed88e156f6dd6d2",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-offline-page-audit.json",
+      "bytes": 33312,
+      "sha256": "a9b223b0c0e0b9ce8df33165ae91834e90f2911187015527a98dbbaa546add72",
+      "mode": "0o600"
+    },
+    {
+      "path": "arm-visual-review.json",
+      "bytes": 6958,
+      "sha256": "0445322c82bd8d0a689b57df324603329cab5fd606a45efbfb181640c465fd00",
+      "mode": "0o600"
+    },
+    {
+      "path": "audit_environment.py",
+      "bytes": 3685,
+      "sha256": "32ba911d96fd5e8f7d1ffe30c57f79fd808478fee5b0a1b80ecd366ef37fa430",
+      "mode": "0o600"
+    },
+    {
+      "path": "audit_native-arm.log",
+      "bytes": 1397,
+      "sha256": "efe1d6f69df6ca8a38defe3b8efd582f6ec6f6c38cc2054849cfe3502660b111",
+      "mode": "0o600"
+    },
+    {
+      "path": "audit_native.py",
+      "bytes": 2400,
+      "sha256": "bf5e7a8d61ead9bb5bf8144910bb5ef5ea4a576b82939771a9914c9f646628cf",
+      "mode": "0o600"
+    },
+    {
+      "path": "audit_package-arm.log",
+      "bytes": 1439,
+      "sha256": "fe7ffd9774785620d74a5f15ec289df9a508a6bee71862020ed88e156f6dd6d2",
+      "mode": "0o600"
+    },
+    {
+      "path": "audit_package.py",
+      "bytes": 3128,
+      "sha256": "9a3b87631daa8cbcd30767029c44ebab3ff7031c16b18778cd6d3435e133e0de",
+      "mode": "0o600"
+    },
+    {
+      "path": "audit_saved-arm.log",
+      "bytes": 331,
+      "sha256": "86dd25e1602bedfdb896a574f30f62c7791305ab79c3ce1957864be968e3b2bf",
+      "mode": "0o600"
+    },
+    {
+      "path": "audit_saved.py",
+      "bytes": 9530,
+      "sha256": "f2dcd82e3a8be4278fe18c46c9347bdce2f0e9c15a5656478c17a136f3db89bd",
+      "mode": "0o600"
+    },
+    {
+      "path": "binding-api-reads.json",
+      "bytes": 587,
+      "sha256": "28d5cd5b6c963ed5696cfeaa6d8cc72c500cc803a860352b687848b11dd0e8b6",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/design-validation.log",
+      "bytes": 725,
+      "sha256": "a029ef1ea2d0231a4399dfc644a3c9dd7f13f04d8148b9173ad01524166539e6",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/doctor.json",
+      "bytes": 2081,
+      "sha256": "0f57c4ee82168bf69f5064308d50e6536556c59948788a92f3fd0e3a9fbe4299",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/infrastructure-validation.log",
+      "bytes": 231,
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/integrity-validation.log",
+      "bytes": 71,
+      "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/node-tests.log",
+      "bytes": 511,
+      "sha256": "47c8d10a32284460875080ae7a9769b701deb7c25055a89a8f8f3fd755d05111",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/python-tests.log",
+      "bytes": 4920,
+      "sha256": "7efb5d5892d79019028ab7e92d5e059b1eeb355b7858379131a926e79ff70947",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/rust-smoke.log",
+      "bytes": 514,
+      "sha256": "3a01a369e4f677aa33d9fe68934b8b76d4ed036f748246e96a706562fddc2c3f",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/toolchain-versions.json",
+      "bytes": 2081,
+      "sha256": "0f57c4ee82168bf69f5064308d50e6536556c59948788a92f3fd0e3a9fbe4299",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact-inventory.json",
+      "bytes": 3917,
+      "sha256": "c8906d3869ab403b57aa62adf9b3eba3632e52bab947958d39e3db7335b465c5",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact.zip",
+      "bytes": 4447,
+      "sha256": "d89def3afc490e03ba86ca0fa6b45545e8f96f52044b0e2f5be97a682d244425",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-job.log",
+      "bytes": 44325,
+      "sha256": "ca80b17de523b2a78aaefe0f963fc11a518aef6296054e3e32abec0ab5db7130",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/design-validation.log",
+      "bytes": 725,
+      "sha256": "37c6984b0877347bfca867b2280970df52ccb601a554d3c9591be4d4d16f7e60",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/doctor.json",
+      "bytes": 2075,
+      "sha256": "2f1f0efb8c6230fc4c79716494fee1ef96ba2843eb1d7f46f015a959609097e8",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/infrastructure-validation.log",
+      "bytes": 231,
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/integrity-validation.log",
+      "bytes": 71,
+      "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/node-tests.log",
+      "bytes": 512,
+      "sha256": "87b77aba36bf14c9997c523d97400a36eb20f361cb98249eb60bd9a0cc6d6af1",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/python-tests.log",
+      "bytes": 4920,
+      "sha256": "a80b8a16e21df81f16bb342639ca433e089d2a22ec7fd1ab89062a13f33ed806",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/rust-smoke.log",
+      "bytes": 514,
+      "sha256": "e60f3f7ac9fe43af778eda297f40a6e2e90baeff0bf5f598e5aad5ffdd0c6558",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/toolchain-versions.json",
+      "bytes": 2075,
+      "sha256": "2f1f0efb8c6230fc4c79716494fee1ef96ba2843eb1d7f46f015a959609097e8",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact-inventory.json",
+      "bytes": 3923,
+      "sha256": "72e1bafbfd5746c49281f5c4d369a7f1e0bac3edd99ea10fc9428160a19ec18a",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact.zip",
+      "bytes": 4446,
+      "sha256": "6997f1872d8da87e7ddba8233409f139bb8797b2d295435604b7c6e3209c5736",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-job.log",
+      "bytes": 48207,
+      "sha256": "f1947b63580bae48f718380247d324eec874b171c4a76504d6584ad611eb47fd",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/design-validation.log",
+      "bytes": 725,
+      "sha256": "258e4e605a5a2985baa202c7cd9ccb531558bed163f725e801eb24555e5da679",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/doctor.json",
+      "bytes": 1670,
+      "sha256": "fa18c4f44a9771406ea7823abbafd7d2783aa228e4f336ce0596df380efa92fd",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/infrastructure-validation.log",
+      "bytes": 231,
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/integrity-validation.log",
+      "bytes": 71,
+      "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/node-tests.log",
+      "bytes": 511,
+      "sha256": "f7e80a2e496028d2a760d6c20359dea9e308480208bd56de8bdee96ea0f5b5a4",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/python-tests.log",
+      "bytes": 4920,
+      "sha256": "84dbce2fb1f6586744cf124c08506405966be61b8766638a0a7a630532e9905a",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/rust-smoke.log",
+      "bytes": 514,
+      "sha256": "b574c60c91d4ad40bf3dd3d8da99b64ea7bd0895b1e28aec3e58da3af2032f95",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/toolchain-versions.json",
+      "bytes": 1670,
+      "sha256": "fa18c4f44a9771406ea7823abbafd7d2783aa228e4f336ce0596df380efa92fd",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact-inventory.json",
+      "bytes": 3921,
+      "sha256": "2c995cd5fc764f0e25185ee29605dc10ff4ea29fcdb5e41942c271a07f9ea8ee",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact.zip",
+      "bytes": 4201,
+      "sha256": "06110821ed4d1d192d9c5d340b896b1e5867a70cad22d5bcb1c9756ef2bc92c9",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-job.log",
+      "bytes": 42556,
+      "sha256": "9575ce036f6c8b769b64bb5a4cb7af71720a807648317b1cdef36325eeb8b671",
+      "mode": "0o600"
+    },
+    {
+      "path": "environment-acquisition-complete.json",
+      "bytes": 116,
+      "sha256": "4f6fe31ac296ebd65bbe71040ac101701f0032c180393ba6357cc5c4191753a9",
+      "mode": "0o600"
+    },
+    {
+      "path": "environment-artifacts-terminal.json",
+      "bytes": 2327,
+      "sha256": "39aa4853ef301c44981ba5b7f9b3e4529320ed34ec3a759aa91dd76be0f8c281",
+      "mode": "0o600"
+    },
+    {
+      "path": "environment-jobs-initial.json",
+      "bytes": 11410,
+      "sha256": "708680473420489b21a1e0a78846bf8ad4c5c18898b3911b60b6098d62e62901",
+      "mode": "0o600"
+    },
+    {
+      "path": "environment-jobs-terminal.json",
+      "bytes": 16124,
+      "sha256": "9203af98b491caf17b4b2b3f5b6d1de4045e84dcde3a0625608a4b3edae7bb55",
+      "mode": "0o600"
+    },
+    {
+      "path": "environment-offline-review.log",
+      "bytes": 145,
+      "sha256": "c02302a4c17ddea4f48193f947a55bb226d7be86739f4fa538bb3fd8f0ade166",
+      "mode": "0o600"
+    },
+    {
+      "path": "environment-run-final.json",
+      "bytes": 13396,
+      "sha256": "c617bbf978872441458e499440383fe4e3556e797ecd2947d7f086fdd4cc1b55",
+      "mode": "0o600"
+    },
+    {
+      "path": "environment-run-initial.json",
+      "bytes": 13396,
+      "sha256": "c617bbf978872441458e499440383fe4e3556e797ecd2947d7f086fdd4cc1b55",
+      "mode": "0o600"
+    },
+    {
+      "path": "failure-source-snapshot/crates/core/tests/sessions_ipc.rs",
+      "bytes": 237589,
+      "sha256": "227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b",
+      "mode": "0o600"
+    },
+    {
+      "path": "initial-api-reads.json",
+      "bytes": 1055,
+      "sha256": "4b125ab068814ebb01b897d3f5ddf262e308d687609d28aa82b58d7f0b0a98d8",
+      "mode": "0o600"
+    },
+    {
+      "path": "intel-artifacts-terminal.json",
+      "bytes": 2321,
+      "sha256": "160b9e86c19ca55f8c01156bbd7043c032046983e020a9b45cab6e0e092ab63b",
+      "mode": "0o600"
+    },
+    {
+      "path": "intel-job-terminal.json",
+      "bytes": 4993,
+      "sha256": "3b92e3fd2d8e120a761c77b4edfbd00d118825970062f190ee8673b4cc9e13a6",
+      "mode": "0o600"
+    },
+    {
+      "path": "intel-job.log",
+      "bytes": 275616,
+      "sha256": "1be4907c5cef11be606e6354ae950610091a391eda77b5785b45bef9e81c5c72",
+      "mode": "0o600"
+    },
+    {
+      "path": "merge-commit-binding.json",
+      "bytes": 2660,
+      "sha256": "3eff94e8569a2beaad5bfd491c7c1888960f8d6cd665c0b8a63338f0d938c011",
+      "mode": "0o600"
+    },
+    {
+      "path": "monitor-api-attempts.json",
+      "bytes": 7646,
+      "sha256": "da1fbe3c1236414ff8047ea3342703415c7969605b0a74720aae51e358127531",
+      "mode": "0o600"
+    },
+    {
+      "path": "monitor-complete.json",
+      "bytes": 130,
+      "sha256": "7b0789705af1beda55d8e4518dafe6162428d53305e41be08259e72ec4a8d5e5",
+      "mode": "0o600"
+    },
+    {
+      "path": "monitor-started.json",
+      "bytes": 281,
+      "sha256": "7af9875e6df3391e6024e9773faa1d6988c271c1cf5de5d485a9f419c119ac67",
+      "mode": "0o600"
+    },
+    {
+      "path": "monitor-state.json",
+      "bytes": 132,
+      "sha256": "fc6747f1068f16a69a640a0b989f7c803d543b4eeeaa393dea1e6b15c71cd746",
+      "mode": "0o600"
+    },
+    {
+      "path": "monitor.py",
+      "bytes": 9113,
+      "sha256": "419fd850f1344f6456fc0fa71412cc536963ab55268c34aa0d1cf85e935763bc",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-jobs-initial.json",
+      "bytes": 14161,
+      "sha256": "5bd3dafa02052e2448620dd6aa35fe4f16403b101e323f5f461a5ea75eb91596",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-jobs-stage-01.json",
+      "bytes": 14161,
+      "sha256": "5bd3dafa02052e2448620dd6aa35fe4f16403b101e323f5f461a5ea75eb91596",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-jobs-stage-02.json",
+      "bytes": 14161,
+      "sha256": "5bd3dafa02052e2448620dd6aa35fe4f16403b101e323f5f461a5ea75eb91596",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-jobs-stage-03.json",
+      "bytes": 14916,
+      "sha256": "3253605015d0d6af7b5745e9e717a3361fa8a51d29859609c8b1f10738cab847",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-jobs-stage-04.json",
+      "bytes": 15327,
+      "sha256": "98c23550a900e55c204790ad6c932d2772785842b236444d98304eaac25650ec",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-run-final.json",
+      "bytes": 13359,
+      "sha256": "04a6a0d7e8719a5bfbbf52c3f8252ad8d808df7300af5f76ea7efce4aba63d28",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-run-initial.json",
+      "bytes": 13356,
+      "sha256": "e84edf9e5cb9ca3e3884f037c99c463b485e1974dcd3bc5ef416b272b23930fa",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/apps/desktop/src-tauri/Cargo.toml",
+      "bytes": 1674,
+      "sha256": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/apps/desktop/src-tauri/src/approval.rs",
+      "bytes": 133900,
+      "sha256": "9e5e68431d43a3435f539bac465af998fe300457984ea953a2d402c982399983",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs",
+      "bytes": 776,
+      "sha256": "8c34e18fab13fd8534833591af09853f7def99531b1639e512bc076985b67814",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "bytes": 108637,
+      "sha256": "93777843bb2d5caf7eac5e42a569a859d5f04153896d0e53c1baee771d370d82",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+      "bytes": 13526,
+      "sha256": "0fc0d4477e7a9b1eb17611d6729b1bee21893b1391198ce151289ef4d2ebdb04",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs",
+      "bytes": 29153,
+      "sha256": "613fb2c8993a3640bec486b88a3534e3efddcd171e99d366d5a96ee364528361",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/apps/desktop/src-tauri/src/native_parent.rs",
+      "bytes": 25419,
+      "sha256": "6808c8202fd7ef1593f2e449124119289fcab60fb8317624a4a08597958758ae",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/apps/desktop/src-tauri/tauri.conf.json",
+      "bytes": 1218,
+      "sha256": "ef186a4ea2196f98306259c85577fae86dea20044cb448c16a2eabf336c42ed9",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/apps/desktop/tests/goal-graph-real-ipc.py",
+      "bytes": 157316,
+      "sha256": "2066f54bc6f0a0d3cf6add7885caa53fb322c28478c714846ebf5f9c04a76955",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/docs/execution/DEVELOPMENT_ACCEPTANCE.md",
+      "bytes": 1972,
+      "sha256": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/scripts/native-audit-release.sh",
+      "bytes": 859,
+      "sha256": "dd60a45803ebc66c8dc5a19bba24da35b6e20716589b332314c7d1ecc4fa52d0",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/scripts/native-owner-dialog-smoke.py",
+      "bytes": 35654,
+      "sha256": "84856cca91aaaa00e5a7f6c3ac5d5dabca63b8d470328c7959730e9510966877",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/scripts/native-run.py",
+      "bytes": 17595,
+      "sha256": "8fa23e107fe92542b95fc5d398aa38a20236d29b2e3fbbe7eb87b92efb0197c1",
+      "mode": "0o600"
+    },
+    {
+      "path": "product-source-snapshot/scripts/package-development-macos.sh",
+      "bytes": 1097,
+      "sha256": "5f2234ec7e50d5a6d7dd71d22d4115b85d2a74c6f653b32877fd715a029e33d6",
+      "mode": "0o600"
+    },
+    {
+      "path": "pull-request-binding.json",
+      "bytes": 19394,
+      "sha256": "d2aadf1185cf15181d1c3d4216062913a4d1aaca1beb30569d9bb327771ac0a8",
+      "mode": "0o600"
+    },
+    {
+      "path": "seal_environment.py",
+      "bytes": 4432,
+      "sha256": "d6da743333e0661ccba736609aca9658d134d3a0ef6666b226107e6979529099",
+      "mode": "0o600"
+    },
+    {
+      "path": "seal_final.py",
+      "bytes": 14956,
+      "sha256": "9aafce878080f20f69d7ba9b4879dc1d5a5676b74ea86d023a71fd0de3e9e755",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-bindings.json",
+      "bytes": 6164,
+      "sha256": "10f808513f0971e0842e18ebe2970301486714877cb472aa4a4e322defc8d338",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/.github/workflows/environment-preflight.yml",
+      "bytes": 3705,
+      "sha256": "3bcfd3051e2995de0e49bff88861fd9972a3f805a7cdc9f9bd13c43d4d0e668c",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/.github/workflows/product.yml",
+      "bytes": 10965,
+      "sha256": "baa70c8b721b7f82e1645651d2131008c6601bd67c70e2a39600177e42633658",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/BOOTSTRAP_MANIFEST.json",
+      "bytes": 9852,
+      "sha256": "6561da4dc170c7c574b0401e12162c73143653539c95df500206dd567c8ab657",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/docs/execution/OWNER_INBOX.md",
+      "bytes": 2985,
+      "sha256": "094a77884272d0919bece0654237419f2d226a9245e7d826e0891a8f661f811f",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/infra/execution-gate.json",
+      "bytes": 1786,
+      "sha256": "313c96753ddd8f89d8a69e58428f834596f3059b0d0a41996dc1059ea8170e7e",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/scripts/validate_infrastructure.py",
+      "bytes": 4014,
+      "sha256": "b0482a35fc4febee972fb8fa8b9e1e829924d35f9c52b1493d3b7b3edf30f83e",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/tests/infrastructure/test_runtime_policy.py",
+      "bytes": 3159,
+      "sha256": "0474127b8fbf0432692b2460978d5a07e276583f2c7621a057719b7be3c097de",
+      "mode": "0o600"
+    },
+    {
+      "path": "test-helper-source-diff.patch",
+      "bytes": 3546,
+      "sha256": "4dfa4adfaa560fd724b533aa2785c2e845c6c14f92abcb491c6b716bd198ac2e",
+      "mode": "0o600"
+    }
+  ]
+}

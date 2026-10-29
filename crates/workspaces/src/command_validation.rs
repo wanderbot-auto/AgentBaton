@@ -663,7 +663,37 @@ fn preflight(rule: &ApprovedCommandRule) -> Result<(Vec<u8>, Vec<u8>, File), Com
             return Err(CommandError::InputChanged);
         }
     }
+    #[cfg(test)]
+    preflight_test_control::wait_if_requested();
     Ok((program, script, cwd))
+}
+
+// A thread-local, unit-test-only latency control. No environment variable, IPC,
+// test permission or delay hook exists in the default library artifact.
+#[cfg(test)]
+mod preflight_test_control {
+    use std::{cell::Cell, time::Instant};
+    thread_local! {
+        pub(super) static WAIT_UNTIL: Cell<Option<Instant>> = const { Cell::new(None) };
+        pub(super) static PRESPAWN_WAIT_UNTIL: Cell<Option<Instant>> = const { Cell::new(None) };
+    }
+    pub(super) fn wait_if_requested() {
+        wait_until(WAIT_UNTIL.with(Cell::take));
+    }
+    pub(super) fn before_spawn_if_requested() {
+        wait_until(PRESPAWN_WAIT_UNTIL.with(Cell::take));
+    }
+    fn wait_until(until: Option<Instant>) {
+        if let Some(until) = until {
+            loop {
+                let remaining = until.saturating_duration_since(Instant::now());
+                if remaining.is_zero() {
+                    break;
+                }
+                std::thread::sleep(remaining);
+            }
+        }
+    }
 }
 
 struct OwnedChild {
@@ -986,9 +1016,50 @@ pub fn run_approved_command(
     rule: &ApprovedCommandRule,
     cancel: &AtomicBool,
 ) -> Result<CommandRun, CommandError> {
-    if cancel.load(Ordering::Relaxed) {
-        let mut run = initial(rule, RunReason::CancelledBeforeSpawn);
-        run.refresh_digest();
+    run_approved_command_inner(rule, cancel, None)
+}
+
+/// Execute the same approved command with an additional absolute host runtime
+/// reservation. It only narrows the approved process/cleanup budgets. Expiration
+/// observed before actual spawn produces a not-started run; expiration after
+/// spawn retains any unreaped original child for the host to reconcile.
+///
+/// Checkpoints do not interrupt a stalled kernel syscall or provide an OS quota.
+pub fn run_approved_command_with_deadline(
+    rule: &ApprovedCommandRule,
+    cancel: &AtomicBool,
+    deadline: Instant,
+) -> Result<CommandRun, CommandError> {
+    run_approved_command_inner(rule, cancel, Some(deadline))
+}
+
+fn not_started_if_stopped(
+    rule: &ApprovedCommandRule,
+    cancel: &AtomicBool,
+    absolute_deadline: Option<Instant>,
+) -> Option<CommandRun> {
+    let reason = if cancel.load(Ordering::Relaxed) {
+        RunReason::CancelledBeforeSpawn
+    } else if absolute_deadline.is_some_and(|deadline| Instant::now() >= deadline) {
+        RunReason::DeadlineExceeded
+    } else {
+        return None;
+    };
+    let mut run = initial(rule, reason);
+    run.refresh_digest();
+    Some(run)
+}
+
+fn narrowed_deadline(local: Instant, absolute: Option<Instant>) -> Instant {
+    absolute.map_or(local, |deadline| local.min(deadline))
+}
+
+fn run_approved_command_inner(
+    rule: &ApprovedCommandRule,
+    cancel: &AtomicBool,
+    absolute_deadline: Option<Instant>,
+) -> Result<CommandRun, CommandError> {
+    if let Some(run) = not_started_if_stopped(rule, cancel, absolute_deadline) {
         return Ok(run);
     }
     let (program, script, cwd) = preflight(rule)?;
@@ -997,9 +1068,7 @@ pub fn run_approved_command(
     {
         return Err(CommandError::UnsupportedProgram);
     }
-    if cancel.load(Ordering::Relaxed) {
-        let mut run = initial(rule, RunReason::CancelledBeforeSpawn);
-        run.refresh_digest();
+    if let Some(run) = not_started_if_stopped(rule, cancel, absolute_deadline) {
         return Ok(run);
     }
     #[cfg(target_os = "linux")]
@@ -1049,6 +1118,16 @@ pub fn run_approved_command(
                 }
             });
         }
+        #[cfg(test)]
+        preflight_test_control::before_spawn_if_requested();
+        // Includes the full artifact preflight, executable snapshot/protection
+        // checks and command construction. Never spawn after observing that the
+        // host reservation expired during any of those operations.
+        if absolute_deadline.is_some() {
+            if let Some(run) = not_started_if_stopped(rule, cancel, absolute_deadline) {
+                return Ok(run);
+            }
+        }
         let execution_start = Instant::now();
         let child = command.spawn().map_err(|_| CommandError::SpawnFailed)?;
         let mut owned = OwnedChild {
@@ -1066,7 +1145,10 @@ pub fn run_approved_command(
             stdin.take();
         }
         let mut offset = 0;
-        let deadline = execution_start + Duration::from_millis(rule.settings.wall_time_ms);
+        let deadline = narrowed_deadline(
+            execution_start + Duration::from_millis(rule.settings.wall_time_ms),
+            absolute_deadline,
+        );
         let mut exit_observed_within_budget = false;
         let mut reason = loop {
             if stdout.setup_failed || stderr.setup_failed || stdin_failed {
@@ -1131,7 +1213,10 @@ pub fn run_approved_command(
         }
         // Cleanup's fixed budget includes its ownership observation and signals.
         // It must not restart after a delayed kill_owned()/waitid observation.
-        let cleanup = Instant::now() + Duration::from_millis(rule.settings.cleanup_time_ms);
+        let cleanup = narrowed_deadline(
+            Instant::now() + Duration::from_millis(rule.settings.cleanup_time_ms),
+            absolute_deadline,
+        );
         stdin.take();
         owned.kill_owned();
         let mut status = None;
@@ -1218,6 +1303,11 @@ pub fn run_approved_command(
         if cancellation_observed && reason == RunReason::Exited {
             reason = RunReason::CancelRequested;
         }
+        if absolute_deadline.is_some_and(|deadline| Instant::now() >= deadline)
+            && reason == RunReason::Exited
+        {
+            reason = RunReason::DeadlineExceeded;
+        }
         let mut run = initial(rule, reason);
         run.view.process_started = true;
         run.view.exit_observed_within_budget = exit_observed_within_budget;
@@ -1262,5 +1352,149 @@ pub fn run_approved_command(
         }
         run.refresh_digest();
         Ok(run)
+    }
+}
+
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+mod absolute_deadline_tests {
+    use super::*;
+    use crate::validation::ArtifactRequirement;
+    use std::{fs, os::unix::fs::PermissionsExt, path::Path};
+
+    fn fixture() -> (tempfile::TempDir, ApprovedCommandRule) {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+        fs::write(root.join("input"), b"fixed input").unwrap();
+        fs::write(root.join("out"), b"fixed output").unwrap();
+        let executable = Path::new("/usr/bin/touch")
+            .canonicalize()
+            .or_else(|_| Path::new("/bin/touch").canonicalize())
+            .unwrap();
+        let program = BoundArtifact::from_approved_root(
+            executable.parent().unwrap(),
+            ArtifactRequirement {
+                artifact_id: "program".into(),
+                relative_path: executable.file_name().unwrap().into(),
+                max_bytes: MAX_PROGRAM,
+                expected_sha256: Some(sha256(&fs::read(&executable).unwrap())),
+            },
+        )
+        .unwrap();
+        let artifact = |name: &str| {
+            BoundArtifact::from_approved_root(
+                &root,
+                ArtifactRequirement {
+                    artifact_id: name.into(),
+                    relative_path: name.into(),
+                    max_bytes: 4096,
+                    expected_sha256: Some(sha256(&fs::read(root.join(name)).unwrap())),
+                },
+            )
+            .unwrap()
+        };
+        let rule = ApprovedCommandRule::from_verified_policy(
+            "approval".into(),
+            "revision".into(),
+            ValidationSubject {
+                task_id: "task".into(),
+                attempt_id: "producer".into(),
+                spec_revision: 1,
+                input_revision: "input-v1".into(),
+                version: VersionBinding::Data {
+                    dataset_revision: "dataset-v1".into(),
+                },
+            },
+            program,
+            crate::inspect(&root).unwrap(),
+            vec![artifact("input")],
+            vec![artifact("out")],
+            CommandSettings {
+                mode: CommandMode::NativeExecutable,
+                arguments: vec!["started".into()],
+                environment: BTreeMap::new(),
+                expected_exit_codes: vec![0],
+                wall_time_ms: 100,
+                cleanup_time_ms: 50,
+                stdout_limit: 4096,
+                stderr_limit: 4096,
+                require: RequiredEnforcement::default(),
+            },
+        )
+        .unwrap();
+        (directory, rule)
+    }
+
+    #[test]
+    fn valid_initial_host_budget_expiring_inside_preflight_or_image_preparation_never_spawns() {
+        for stage in ["preflight", "prepared_image"] {
+            let (directory, rule) = fixture();
+            let deadline = Instant::now() + Duration::from_millis(500);
+            assert!(
+                deadline.saturating_duration_since(Instant::now())
+                    > Duration::from_millis(
+                        rule.settings.wall_time_ms + rule.settings.cleanup_time_ms
+                    )
+            );
+            let until = deadline + Duration::from_millis(10);
+            if stage == "preflight" {
+                preflight_test_control::WAIT_UNTIL.with(|slot| slot.set(Some(until)));
+            } else {
+                preflight_test_control::PRESPAWN_WAIT_UNTIL.with(|slot| slot.set(Some(until)));
+            }
+            let run = run_approved_command_with_deadline(&rule, &AtomicBool::new(false), deadline)
+                .unwrap();
+            if stage == "preflight" {
+                assert!(preflight_test_control::WAIT_UNTIL
+                    .with(|slot| slot.get())
+                    .is_none());
+            } else {
+                assert!(
+                    preflight_test_control::PRESPAWN_WAIT_UNTIL
+                        .with(|slot| slot.get())
+                        .is_none(),
+                    "must reach the prepared-image checkpoint"
+                );
+            }
+            assert!(Instant::now() >= deadline);
+            assert_eq!(run.view.reason, RunReason::DeadlineExceeded, "{stage}");
+            assert!(!run.view.process_started, "{stage}");
+            assert_eq!(run.view.main_image, "not_started");
+            assert!(!run.view.passed);
+            assert!(run.pending.is_none());
+            assert!(run.files.is_none());
+            assert!(
+                !directory.path().join("started").exists(),
+                "{stage}: executable must not run"
+            );
+        }
+    }
+
+    #[test]
+    fn expired_or_cancelled_host_entry_is_not_started_and_legacy_entry_has_no_host_deadline() {
+        let (directory, rule) = fixture();
+        let run =
+            run_approved_command_with_deadline(&rule, &AtomicBool::new(false), Instant::now())
+                .unwrap();
+        assert_eq!(run.view.reason, RunReason::DeadlineExceeded);
+        assert!(!run.view.process_started);
+        assert!(!directory.path().join("started").exists());
+        let run = run_approved_command_with_deadline(
+            &rule,
+            &AtomicBool::new(true),
+            Instant::now() + Duration::from_secs(1),
+        )
+        .unwrap();
+        assert_eq!(run.view.reason, RunReason::CancelledBeforeSpawn);
+        assert!(!run.view.process_started);
+        assert!(!directory.path().join("started").exists());
+        preflight_test_control::WAIT_UNTIL
+            .with(|slot| slot.set(Some(Instant::now() + Duration::from_millis(200))));
+        let run = run_approved_command(&rule, &AtomicBool::new(false)).unwrap();
+        assert!(run.view.process_started);
+        assert!(run.view.passed);
+        assert!(directory.path().join("started").exists());
+        assert_eq!(run.view.contract.wall_time_ms, 100);
+        assert_eq!(run.view.contract.cleanup_time_ms, 50);
     }
 }

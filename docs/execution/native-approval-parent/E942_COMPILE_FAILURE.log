@@ -1,0 +1,20 @@
+   Compiling agentbaton-core v0.1.0 (/workspace/.worktrees/goal-graph-integration/crates/core)
+   Compiling agentbaton-desktop v0.1.0 (/workspace/.worktrees/goal-graph-integration/apps/desktop/src-tauri)
+error[E0433]: cannot find `wry` in `tauri`
+   --> src/native_parent.rs:10:12
+    |
+ 10 | use tauri::wry::raw_window_handle::{
+    |            ^^^ could not find `wry` in `tauri`
+    |
+note: found an item that was configured out
+   --> /workspace/.toolchains/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.12.5/src/lib.rs:193:34
+    |
+191 | #[cfg(all(feature = "wry", target_os = "android"))]
+    |                            --------------------- the item is gated behind the `android` feature
+192 | #[doc(hidden)]
+193 | pub use tauri_runtime_wry::{tao, wry};
+    |                                  ^^^
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `agentbaton-desktop` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

@@ -1,0 +1,11 @@
+{
+  "archive": "CI_E3CC_MAC_EVIDENCE.tar.gz",
+  "bytes": 3133022,
+  "sha256": "297a18b85ce389c911bc45aa621c40562435ccfe7bb9c99cbe3cf8c2447941b4",
+  "members": 95,
+  "all_regular_member_path_hash_size_roundtrip_verified": true,
+  "original_manifest_sha256": "3bf875362292cb508706f9ed976847f77726a547ba4dc18fedde369f614f2fb7",
+  "subject": "e3ccf86",
+  "actualcheckout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+  "kind": "independent both-Mac original evidence and first failing ownsheet observations;5success2Ownerfail overall"
+}
