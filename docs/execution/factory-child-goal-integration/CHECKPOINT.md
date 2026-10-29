@@ -1,3 +1,11 @@
+## PR18 head7ac exact terminal CI — 2026-10-29T23:43:30.215969+00:00
+
+Environment40971954724 three platforms and Product40971954667 Rust/UI passed. ARM22PASS/1FAIL143.30s and Intel22PASS/1FAIL180.71s in the original rework case; downstream native/build/package gates skipped. Tested merge checkout57d049d is not an actual main merge. Safe post-owned-shutdown reports were collected successfully on both Macs.
+
+Intel observed plan2/runrevision14 blocked with same-revision goal.run_blocked RESOURCE_LIMIT; second validator not_started, observation/approved Scope window still27565/28924ms. ARM observed plan2/revision16 failed with both receipts failed/stopped/worker_joined and goal.factory_failure_confirmed; observation/approved Scope window still31312/32478ms. worker_joined includes preflight-error placeholders; grep launch/exit and the exact resource subtype remain unknown. Production candidate selection was independently confirmed current-plan/exact full-reference bound. No unsupported common root cause, timeout or fix is claimed. Original budgets and all success/failure assertions stay intact.
+
+See HEAD7AC_TERMINAL_RESULTS.json for exact commits, jobs, artifact IDs and hashes. Continue focused validator admission/preflight/settlement diagnosis and independent review; PR18 remains draft/unmerged. PR19 stays dependent at7d3ac96 with local schema16 validation separately recorded; full130 requirements and current dualMac/installers remain incomplete. OWNER001/002 ACK at unchanged main653679d, no003; all authority boundaries remain.
+
 
 ## 2026-10-29T20:40:42.716507+00:00 — exact newCI failure
 

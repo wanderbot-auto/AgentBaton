@@ -2459,7 +2459,8 @@
         "native_x86_64": "not_run",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
-        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
+        "schema15_exact7ac": "Environment3/Rust/UI passed; ARM22/1 failed revision16; Intel22/1 blocked revision14 RESOURCE_LIMIT before validator2; original deadlines live; no native/build/package acceptance"
       },
       "evidence": [
         "docs/execution/goal-integration/EVIDENCE.json",
@@ -2477,7 +2478,8 @@
         "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json",
         "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/HEAD7AC_TERMINAL_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -3037,7 +3039,8 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
+        "schema15_exact7ac": "Environment3/Rust/UI passed; ARM22/1 failed revision16; Intel22/1 blocked revision14 RESOURCE_LIMIT before validator2; original deadlines live; no native/build/package acceptance"
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -3064,7 +3067,8 @@
         "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json",
         "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/HEAD7AC_TERMINAL_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3552,7 +3556,8 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance"
+        "local_integrity_partial": "279Rust/78mockedUI/26realbrowserIPC/7Linuxhost pass; exactpre-upstream snapshot; notwhole-requirementacceptance",
+        "schema15_exact7ac": "Environment3/Rust/UI passed; ARM22/1 failed revision16; Intel22/1 blocked revision14 RESOURCE_LIMIT before validator2; original deadlines live; no native/build/package acceptance"
       },
       "evidence": [
         "docs/execution/validation-integration/EVIDENCE.json",
@@ -3575,7 +3580,8 @@
         "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json",
         "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/HEAD7AC_TERMINAL_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -6202,7 +6208,8 @@
         "native_x86_64": "not_run",
         "local_goal_planning_slice": "passed current composed f35cdb1: workspace462 unique+4compilefail docs/lints; UI259/type/build; actual fresh Linux builtUI/privateUnixIPC default9 and structured10; planning/read-only preview slice only, full requirement/native/provider acceptance not established",
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
-        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete"
+        "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
+        "schema15_exact7ac": "Environment3/Rust/UI passed; ARM22/1 failed revision16; Intel22/1 blocked revision14 RESOURCE_LIMIT before validator2; original deadlines live; no native/build/package acceptance"
       },
       "evidence": [
         "docs/execution/goal-integration/EVIDENCE.json",
@@ -6222,7 +6229,8 @@
         "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json",
         "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/HEAD7AC_TERMINAL_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."

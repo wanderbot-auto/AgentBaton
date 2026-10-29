@@ -1,3 +1,7 @@
+# PR18 准确7ac CI终态与新诊断证据 — 2026-10-29T23:43:30.215969+00:00
+
+Environment三平台、Rust/UI通过；双Mac返工失败，原55s观察和批准Scope墙钟窗口尚未到期（不等于独立刷新Grant撤销状态）。Intel第二轮验证未启动，same-revision RESOURCE_LIMIT；ARM两轮验证failed/worker_joined，仍不能证明grep已执行。有限post-join证据成功取得，详见 [准确结果](factory-child-goal-integration/HEAD7AC_TERMINAL_RESULTS.json)。PR18 draft/unmerged；PR19 7d3依赖PR18，schema16本地166infra/Factory26与原995UI、5真实浏览器场景分别归属，不冒Mac。继续诊断验证准入/预检/结算，不提高预算或接受失败。完整130/WP01–14未完成，main653679d与OWNER001/002ACK无新指令，权限不变。
+
 # PR18 新候选准备：精确失败已保留、事件诊断独审闭合 — 2026-10-29T23:16:01.259869+00:00
 
 a866/实际9937终态：EnvUbuntu与UI通过，其余5项失败；三个真实返工在原55s内分别r2blocked14/failed16/blocked10，不能同因推断。Mac后续真实迁移/WebView/Owner/构建/审计/包跳过，无15安装包。alwaysrelative输入失配单独修为absolute、Mac正例tempalias夹具规范化；生产NoFollow/权限和原55/60/30/5/60/最终验收不变。
