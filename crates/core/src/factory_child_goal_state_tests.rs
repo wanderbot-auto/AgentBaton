@@ -1,5 +1,5 @@
-//! Actual Core/SQLite Native approvals and derived Graph provenance. Readonly
-//! I/O worker bodies run on this test thread; no process/daemon/MCP claim.
+// Actual Core/SQLite Native approvals and derived Graph provenance. Readonly
+// I/O worker bodies run on this test thread; no process/daemon/MCP claim.
 use super::*;
 use crate::goal_store::{GoalOutputSelection, GoalScopeSelection};
 fn execution_fixture() -> (Fixture, FactoryScope) {
