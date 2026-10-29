@@ -240,9 +240,10 @@ fn source_from(
             "Archived projects cannot prepare or admit Task workspaces",
         ));
     }
-    let registered = GitWorkspacePin::observed(p.identity)?;
+    let registered = GitWorkspacePin::observed(p.identity).map_err(|_| changed())?;
     let observed =
-        GitWorkspacePin::observed(inspect(&registered.canonical_root).map_err(|_| changed())?)?;
+        GitWorkspacePin::observed(inspect(&registered.canonical_root).map_err(|_| changed())?)
+            .map_err(|_| changed())?;
     if !registered.same_physical_repository(&observed) || observed != receipt.source_pin {
         return Err(changed());
     }
@@ -441,8 +442,10 @@ fn fresh_view(
         return Err(unknown());
     }
     let pinned = binding.managed_pin.as_ref().ok_or_else(changed)?;
-    let recorded = GitWorkspacePin::observed(workspace.identity.ok_or_else(unknown)?)?;
-    let current = GitWorkspacePin::observed(inspect(&workspace.root).map_err(|_| changed())?)?;
+    let recorded = GitWorkspacePin::observed(workspace.identity.ok_or_else(unknown)?)
+        .map_err(|_| changed())?;
+    let current = GitWorkspacePin::observed(inspect(&workspace.root).map_err(|_| changed())?)
+        .map_err(|_| changed())?;
     // HEAD and dirty bytes are legitimate writable output. The existing Grant/
     // exact-input admission rules must separately validate the selected attempt.
     if !pinned.same_physical_repository(&recorded)
