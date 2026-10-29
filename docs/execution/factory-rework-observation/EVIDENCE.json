@@ -398,5 +398,307 @@
     ],
     "root_cause": "not established; repeated full reads are source-proven redundant work, not measured total bottleneck",
     "claim": "fixture-only reduction of duplicate readonly observation work, retains complete fresh proof and original deadlines"
+  },
+  "bounded_progress_diagnostics": {
+    "source_commit": "4d00b9cfd4174fcdf8c90ec2a2fee4422ae2361b",
+    "base": "99fb26964cdde177fd5a5566f4531ca0850cea85",
+    "branch": "codex/factory-rework-progress",
+    "source_manifest": {
+      "path": "/workspace/.onboarding/factory-rework-progress-diagnostics/SOURCE_MANIFEST.json",
+      "sha256": "d991ec5da1ee6c7c3d918f50a39f2d4586bc9e9032f7facb473cc62751e5d2b0"
+    },
+    "source_sha256": {
+      "crates/core/tests/fixtures/factory_child_goal_rework.rs": "682620d43c1e4bfe16751832a5d1842ef67b533a2712bbe6ed25488ae71e3763",
+      "scripts/record-factory-rework-ci-evidence.py": "bbb8af9ebeebb5c44770f02322aea69c8b2a7f141a6fa067dfdcd9c882bafa7a",
+      "tests/infrastructure/test_factory_rework_ci_evidence.py": "2b033f465a590c4188850593d0d7ba333e17400cb86bb9e3ae6b7a081af6b2bc"
+    },
+    "static_checks": {
+      "inverse_only_wrapper_array_projection_failguard_and_new_unit_byte_equal": true,
+      "all_final_fullview_validator_owner_parent_budget_suffix_byte_equal": true,
+      "original_poll_loop_byte_equal": true,
+      "all_original_duration_literals_equal": true,
+      "exact_original_explicit_drop_position_suffix_unchanged": true,
+      "deadline_sample_before_metric_io": true,
+      "array_projection_recorded_before_deadline_refusal": true,
+      "terminalguard_after_original_deadline_and_error_guards": true,
+      "original_runningdaemon_unmodified": true,
+      "no_new_store_open_or_sql_in_fixture": true,
+      "one_additional_rust_unit_not_executed": true,
+      "python_ast_parse": true
+    },
+    "retained_727_failures": {
+      "arm": {
+        "path": "/workspace/.onboarding/pr18-head727-failures/arm.log",
+        "sha256": "060840d0edcd42f485fe0076ff22eb953ddecc113e7d95899e964cc367456635",
+        "late": {
+          "approved_scope_remaining_ms": 955,
+          "call_elapsed_ms": 332,
+          "call_number": 111,
+          "configured_actor_request_budget_ms": 60000,
+          "configured_client_read_timeout_ms": 5000,
+          "method": "factory_child_goals.list",
+          "method_calls": {
+            "factory_child_goals.get": 0,
+            "factory_child_goals.list": 107,
+            "factory_runs.get": 4
+          },
+          "method_total_elapsed_ms": {
+            "factory_child_goals.get": 0,
+            "factory_child_goals.list": 50327,
+            "factory_runs.get": 280
+          },
+          "node_count": null,
+          "observation_overdue_ms": 210,
+          "observation_remaining_ms": 0,
+          "phase": "wait_rework_awaiting_owner",
+          "plan_revision": null,
+          "received_before_original_deadline": false,
+          "reply_is_error": false,
+          "reply_object_supplied": true,
+          "reply_revision": 141,
+          "run_completed": null,
+          "run_outcome_unknown": null,
+          "run_revision": null,
+          "scenario_elapsed_ms": 62688,
+          "stage": "response_received",
+          "wall_ms": 1793311409889
+        },
+        "no_state_in_retained_array_diagnostic": true
+      },
+      "intel": {
+        "path": "/workspace/.onboarding/pr18-head727-failures/intel.log",
+        "sha256": "63f6adac2adf006d71e1fe73c90296f0bee6202ce728b7daf6146a86eaada58a",
+        "late": {
+          "approved_scope_remaining_ms": 960,
+          "call_elapsed_ms": 503,
+          "call_number": 78,
+          "configured_actor_request_budget_ms": 60000,
+          "configured_client_read_timeout_ms": 5000,
+          "method": "factory_child_goals.list",
+          "method_calls": {
+            "factory_child_goals.get": 0,
+            "factory_child_goals.list": 71,
+            "factory_runs.get": 7
+          },
+          "method_total_elapsed_ms": {
+            "factory_child_goals.get": 0,
+            "factory_child_goals.list": 52406,
+            "factory_runs.get": 628
+          },
+          "node_count": null,
+          "observation_overdue_ms": 361,
+          "observation_remaining_ms": 0,
+          "phase": "wait_rework_awaiting_owner",
+          "plan_revision": null,
+          "received_before_original_deadline": false,
+          "reply_is_error": false,
+          "reply_object_supplied": true,
+          "reply_revision": 128,
+          "run_completed": null,
+          "run_outcome_unknown": null,
+          "run_revision": null,
+          "scenario_elapsed_ms": 62189,
+          "stage": "response_received",
+          "wall_ms": 1793311692166
+        },
+        "no_state_in_retained_array_diagnostic": true
+      }
+    },
+    "actual_commands": [
+      {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_factory_rework_ci_evidence.py",
+          "-v"
+        ],
+        "exit": 0,
+        "log": "pure-mirrors.log",
+        "unique_python_tests": 20,
+        "seconds": 0.041,
+        "dimension": "generated filesystem/SQLite and finite scalar controls only"
+      },
+      {
+        "argv": [
+          "/workspace/.toolchains/cargo/bin/rustfmt",
+          "--check",
+          "--edition",
+          "2021",
+          "crates/core/tests/fixtures/factory_child_goal_rework.rs"
+        ],
+        "env": {
+          "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+        },
+        "exit": 0,
+        "log": "rustfmt-sealed.log"
+      },
+      {
+        "argv": [
+          "python3",
+          "/workspace/.onboarding/factory-rework-progress-diagnostics/static-checks.py"
+        ],
+        "exit": 0,
+        "log": "static-checks-sealed.log"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "log": "diff-sealed.log"
+      }
+    ],
+    "python_distinct_tests": 20,
+    "new_rust_unit_not_run": 1,
+    "scalar_size_model": {
+      "dimension": "finite Python JSON model only; Rust serializer/typecheck not executed",
+      "bytes": 1476,
+      "cap": 4096
+    },
+    "collector_contract": {
+      "argv": [
+        "python3",
+        "scripts/record-factory-rework-ci-evidence.py",
+        "--evidence-root",
+        "<absolute private artifacts/factory-child-goal-core root>"
+      ],
+      "stdout": "finite JSON only; Root redirects to an existing safe artifact path",
+      "exit_0": "all safe post-owned-shutdown projections collected, NOT product/test pass",
+      "exit_1": "missing/unknown/unsafe/incomplete evidence",
+      "schema": 15,
+      "raw_db_max_bytes": 16777216,
+      "max_root_entries": 64,
+      "max_cases": 16,
+      "max_rows_each_table": 512,
+      "max_document_bytes": 1048576,
+      "max_table_document_bytes": 4194304,
+      "max_public_bytes": 131072,
+      "source_directory_modes": [
+        448,
+        493
+      ],
+      "case_mode": 448,
+      "raw_db_mode": 384,
+      "json_modes": [
+        384,
+        420
+      ],
+      "join_and_copy_prerequisite": "original daemon Drop joined+ok; fixture-specific original main identity, no-sidecars before/after and source/copy bytes/hash observations; not a universal checkpoint/OS process-tree proof",
+      "old_evidence": "missing new receipt remains pending; no re-authentication/backfill",
+      "database_access": "FD-verified private bounded copy, own0700 temp derivative, SQLite ro+immutable+query_only+trusted_schema OFF; no source reopening/recovery/migration/write",
+      "time_scope": "postshutdown state can include cleanup cancellation; not deadline-instant state"
+    },
+    "ownership": {
+      "normal_explicit_drop": "same original location, wrapper takes Option then drops original daemon before postjoin-only IO",
+      "panic": "wrapper owns same RunningDaemon; Drop first performs original stop/join/copy then finite checked IO without assertion/unwrap",
+      "early_failure": "no receipt before wrapper exists; if earlier Stores remain open, sidecars/identity mismatch yield incomplete",
+      "moved_option": "take removes sole RunningDaemon value; empty Option returns without receipt",
+      "not_proved": "no new runtime proof of workers, Mac, cutoff state, root cause or performance"
+    },
+    "historical_author_check_failure": {
+      "log": "static-checks-first.log",
+      "exit": 1,
+      "cause": "substring drop(running) matched newly added 8-space wrapper drop rather than original 4-space explicit scenario drop; corrected newline-anchored extraction, no source changes or runtime failure"
+    },
+    "production_schema_lock_workflow_changes": false,
+    "root_cause": "unknown; next accurate Mac/CI diagnostic evidence required",
+    "claims_excluded": [
+      "CI failure fixed",
+      "Mac runtime pass",
+      "deadline instant inferred from postshutdown DB",
+      "general SQLite snapshot/checkpoint proof",
+      "whole OS descendant stop",
+      "production authority/performance change",
+      "full Factory or130requirements acceptance"
+    ],
+    "author_not_run": [
+      "Cargo/typecheck/Clippy",
+      "new Rust unit",
+      "new daemon/Actor/Provider/MCP",
+      "wrapper normal/panic/early-failure runtime",
+      "actual CI collector or workflow",
+      "new Mac/CI",
+      "root-cause/performance proof"
+    ],
+    "no_new_heavy_processes_by_author": true
+  },
+  "bounded_progress_collector_correction": {
+    "old_source": "4d00b9cfd4174fcdf8c90ec2a2fee4422ae2361b",
+    "source_commit": "51723cdb4b015ac50add469ac9c52c1c2f4b9156",
+    "source_files": {
+      "scripts/record-factory-rework-ci-evidence.py": {
+        "sha256": "c321a66e791388d5b6e722146138b3aa12bacaa3938789a25ba7e4bec8f6042c",
+        "bytes": 19584
+      },
+      "tests/infrastructure/test_factory_rework_ci_evidence.py": {
+        "sha256": "9ee0b006bf628337e052e9847086ee59f12212c8114c6b9b4abbd90f9abe4949",
+        "bytes": 21146
+      }
+    },
+    "rust_fixture_sha256_unchanged": "682620d43c1e4bfe16751832a5d1842ef67b533a2712bbe6ed25488ae71e3763",
+    "previous_4d_source_manifest_sha256": "d991ec5da1ee6c7c3d918f50a39f2d4586bc9e9032f7facb473cc62751e5d2b0",
+    "checks": {
+      "only_collector_and_tests_changed": true,
+      "all_original20_tests_byte_equal_after_removing2_methods": true,
+      "all_rust_and_production_byte_equal": true,
+      "python_ast_parse": true
+    },
+    "actual_pure22": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_factory_rework_ci_evidence.py",
+        "-v"
+      ],
+      "log": "pure-review-fix-first.log",
+      "exit": 0,
+      "unique": 22,
+      "seconds": 0.043
+    },
+    "retained_independent_controls": {
+      "root": "/workspace/.onboarding/factory-rework-ci-collector-independent-review/revision-4d00b9c",
+      "files": [
+        "PUBLIC_BOUND_COUNTEREXAMPLE.json",
+        "BOUNDARY_CONTROLS.json"
+      ]
+    },
+    "retained_author_exact_old_new": {
+      "path": "/workspace/.onboarding/factory-rework-progress-diagnostics/REVIEW_BOUNDARY_CONTROLS.json",
+      "sha256": "969469c2fffdc90fe97b3c73fb99cc6431037428c087e17c2ba70beebe02f2fa"
+    },
+    "author_control_first_failure": {
+      "path": "review-boundary-control-first.log",
+      "exit": 1,
+      "cause": "unknown-arg canary probe omitted required evidence-root so old argparse reported missing required arg, not unknown argument; final argv supplies required root, actual old error echo reproduced"
+    },
+    "parent_reported_after_4d_freeze": {
+      "root_source": "3faa976 (parent-reported integration of4d)",
+      "compile": "passed18.81s, author did not run/independently inspect command log",
+      "test": "in flight at parent report; no result claimed here"
+    },
+    "not_run_by_author": [
+      "Cargo/Rust typecheck or unit",
+      "Actor/daemon/Provider/MCP",
+      "actual collector CI",
+      "new Mac/CI",
+      "production root-cause/performance"
+    ],
+    "manifest": {
+      "path": "/workspace/.onboarding/factory-rework-progress-diagnostics/COLLECTOR_FIX_MANIFEST.json",
+      "sha256": "581290486f269e15ba924159c4cd67f58221246379e28b393a8ffa36a6a3dca3"
+    },
+    "current_claim": "source and pure controls only; pending independent review; neither full runtime nor Mac CI fixed"
   }
 }
