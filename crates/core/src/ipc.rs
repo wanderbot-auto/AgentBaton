@@ -1017,6 +1017,14 @@ impl Daemon {
                     &key
                 )?))
             }
+            "workspaces.resolve" => {
+                if r.expected_revision.is_some() || r.idempotency_key.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::CodeWorkspacePreparationRequest = params(r.params)?;
+                let preparation = self.store.resolve_code_workspace_preparation(&p)?;
+                Ok(json!(crate::workspace_resolution::CodeWorkspacePreparationWire::from(preparation)))
+            }
             "workspaces.list" => {
                 let p: ProjectId = params(r.params)?;
                 Ok(json!(self.store.list_workspaces(&p.project_id)?))
@@ -2429,6 +2437,7 @@ impl Daemon {
         {
             return json!({"request_id":id,"error":CoreError::new("AUTH_REQUIRED","Scoped Factory callers cannot access owner approval, configuration or arbitrary IPC"),"revision":0,"warnings":[]});
         }
+        // workspaces.resolve is an owner IPC read, never a scoped companion tool.
         let caller = match self
             .store
             .authenticate_factory_handle(&request.handle_id, &request.scoped_token)

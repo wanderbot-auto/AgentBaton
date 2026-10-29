@@ -143,6 +143,21 @@ async fn workspaces_create(
     call(&runtime, json!({"method":"workspaces.create","params":{"project_id":project_id,"expected_head":expected_head},"expected_revision":expected_revision,"idempotency_key":idempotency_key}), false).await
 }
 
+fn workspace_resolution_frame(
+    selection: &agentbaton_core::CodeWorkspacePreparationRequest,
+) -> Value {
+    json!({"method":"workspaces.resolve","params":selection})
+}
+
+#[tauri::command]
+async fn workspaces_resolve(
+    runtime: tauri::State<'_, Runtime>,
+    selection: agentbaton_core::CodeWorkspacePreparationRequest,
+) -> Result<Value, String> {
+    // A fixed owner read. Never start a daemon or call an approval/write wrapper.
+    call(&runtime, workspace_resolution_frame(&selection), false).await
+}
+
 #[tauri::command]
 async fn workspaces_list(
     runtime: tauri::State<'_, Runtime>,
@@ -1568,6 +1583,7 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         projects_reassociate,
         workspaces_create,
         workspaces_list,
+        workspaces_resolve,
         data_workspace_previews_start,
         data_workspace_previews_list,
         data_workspace_previews_get,
@@ -1853,5 +1869,46 @@ mod factory_bridge_tests {
                 .is_err()
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod workspace_resolution_bridge_tests {
+    use super::*;
+
+    #[test]
+    fn fixed_workspace_read_preserves_only_four_selection_fields() {
+        let selection = agentbaton_core::CodeWorkspacePreparationRequest {
+            task_id: "task".into(),
+            expected_task_revision: 3,
+            expected_project_revision: 7,
+            host_id: "local".into(),
+        };
+        assert_eq!(
+            workspace_resolution_frame(&selection),
+            json!({
+                "method":"workspaces.resolve", "params":{
+                    "task_id":"task", "expected_task_revision":3,
+                    "expected_project_revision":7, "host_id":"local"
+                }
+            })
+        );
+        let mut extra = serde_json::to_value(&selection).unwrap();
+        extra["destination"] = json!("/unapproved");
+        assert!(
+            serde_json::from_value::<agentbaton_core::CodeWorkspacePreparationRequest>(extra)
+                .is_err()
+        );
+        let production = include_str!("lib.rs").split("#[cfg(test)]").next().unwrap();
+        let wrapper = production
+            .split("async fn workspaces_resolve(")
+            .nth(1)
+            .unwrap()
+            .split("#[tauri::command]")
+            .next()
+            .unwrap();
+        assert!(wrapper.contains("workspace_resolution_frame(&selection), false"));
+        assert!(!wrapper.contains("confirm_proposed"));
+        assert!(!wrapper.contains("ensure_daemon"));
     }
 }

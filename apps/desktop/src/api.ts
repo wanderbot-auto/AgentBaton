@@ -1,3 +1,4 @@
+import { parseCodeWorkspacePreparation, validateCodeWorkspacePreparationRequest, type CodeWorkspacePreparationRequest } from './workspace-preparation-wire';
 import { invoke } from '@tauri-apps/api/core';
 
 export interface Task {
@@ -84,4 +85,8 @@ export const api = {
   projectsReassociate: (project: Project, path: string, idempotencyKey: string) => request<Project>('projects_reassociate', { projectId: project.id, path, expectedRevision: project.revision, idempotencyKey }),
   workspacesCreate: (project: Project, expectedHead: string, idempotencyKey: string) => request<ManagedWorkspace>('workspaces_create', { projectId: project.id, expectedHead, expectedRevision: project.revision, idempotencyKey }),
   workspacesList: (projectId: string) => request<ManagedWorkspace[]>('workspaces_list', { projectId }),
+  workspacesResolve: async (selection: CodeWorkspacePreparationRequest) => {
+    const checked = validateCodeWorkspacePreparationRequest(selection);
+    return parseCodeWorkspacePreparation(await request<unknown>('workspaces_resolve', { selection: checked }), checked);
+  },
 };
