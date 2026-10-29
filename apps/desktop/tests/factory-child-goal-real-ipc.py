@@ -1323,7 +1323,8 @@ def runtime_driver(args, output):
         if args.case=='cancel':
             wait(lambda:host.result('factory_child_goals.get',query),lambda v:any(n['session_id']for n in v['details']['nodes']))
             wait(lambda:(capture(),len(graph_verified))[1],lambda count:count==1)
-            goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
+            # Exercise cancellation from the first checked summary while full
+            # artifact reads may still be loading; do not insert another full read.
             cancel=goal_panel.get_by_role('button',name='Request child Goal cancellation',exact=True);expect(cancel).to_be_enabled();cancel.click()
             wait(lambda:report['faults'],lambda v:len(v)==1)
             assert fault['used']and len([r for r in report['http']if r['method']=='factory_child_goals.cancel'])==1
