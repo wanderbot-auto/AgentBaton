@@ -240,7 +240,7 @@ jobs:
                           projection_exit = subprocess.run([
                               sys.executable, 'scripts/record-task-workspace-ci-evidence.py',
                               '--private', str(private / 'driver'),
-                              '--output', 'artifacts/ui-browser/task-workspace-binding',
+                              '--output', str(pathlib.Path('artifacts/ui-browser/task-workspace-binding').absolute()),
                               '--expected-source-head', candidate['git_head'],
                           ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
                   except (OSError, subprocess.SubprocessError):
