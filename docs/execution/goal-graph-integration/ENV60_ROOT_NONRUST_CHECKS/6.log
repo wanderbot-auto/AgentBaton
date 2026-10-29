@@ -1,0 +1,21 @@
+
+> agentbaton-infrastructure@0.0.0 test
+> node --test tests/infrastructure/node-smoke.test.mjs
+
+✔ Node is new enough for the intended toolchain family (1.22724ms)
+✔ JSON and UTF-8 round-trip through child process pipes (46.077777ms)
+✔ Nonzero child exit is observed rather than treated as success (30.897442ms)
+✔ Temporary UTF-8 workspace IO works without touching a project (15.048984ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 172.971172
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

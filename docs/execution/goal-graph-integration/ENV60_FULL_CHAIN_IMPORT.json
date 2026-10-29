@@ -1,0 +1,40 @@
+{
+  "source": "9d11a6d0723144a245994a5e7531c282cc60702e",
+  "author_records": "89d88fc1838d6f7dd5460ed67576a6aab7946873",
+  "Root_exact_Rust_subject": "3a91bcec76a34f21edf800df16709b5e958b8012",
+  "Root_merged_records_subject": "2fe9f9b12766867fcf1cfc156c65bbc2b2e0f0e5",
+  "reviews": [
+    {
+      "label": "ENV60_NONRUST_REVIEW",
+      "report_sha256": "9bb690256ce8df28585f06ddc8a944a7c301d9af43baf5845743dc809f2f16cd",
+      "manifest_sha256": "380f5fa59e59c660fbae43cca78952ff7121e105a77efeba409566ba9e536fc5",
+      "archive": "ENV60_NONRUST_REVIEW_EVIDENCE.tar.gz",
+      "archive_sha256": "f2de730ae1cd7088d41b42aabdc3bf3a9785d6318e5279a16728366a1a3ca219",
+      "members": 47
+    },
+    {
+      "label": "ENV60_FULL_CHAIN_REVIEW",
+      "report_sha256": "c7b4352905cbd9fb3e63760a00efae79016603f0dc054c8599caa6d91fca43e5",
+      "manifest_sha256": "25509cf92efad610d6faf771a827f99ee6455529469abf9272b4eb5dbc01733d",
+      "archive": "ENV60_FULL_CHAIN_REVIEW_EVIDENCE.tar.gz",
+      "archive_sha256": "42cc2e577effb12a6e03881f461bcae0aca5fd7b8a1ee44cd157621489c479dd",
+      "members": 23
+    }
+  ],
+  "original_Env_failure": {
+    "schema": 1,
+    "file": "ENVIRONMENT_EVIDENCE.tar.gz",
+    "bytes": 67190,
+    "sha256": "35650054090644d8369ecb49ad4e860d314fa5c8a05e7823e94879c5f0d4eb8d",
+    "regular_members": 43,
+    "payload_bytes_modes_sizes_roundtrip_verified": true,
+    "feature": "bb343be5bb0403e995a97441ce16670c03bd0f33",
+    "actual_merge": "1a7682e60354d4a80200ea487725edfc99068a4c",
+    "run": 40799957732,
+    "status": "all3Environmentfailed, evidence preserved; not approved",
+    "repository_archive": "CI_BB343_ENV_FAILURE_EVIDENCE.tar.gz",
+    "review_sha256": "40cfa25d50a7eeee0401e38a3c20074efc7ddcba322cbdabe39efc5a2f7dd4be",
+    "manifest_sha256": "6028a2b861ce05a0fcf388f78627a698af4c0b66378b8083daefaa6481910cb7"
+  },
+  "limits": "Local complete required Environment command chain with exact frozen inputs/source equivalence and Root actualRust; not newremoteCI/Product/macOS/installers or fullproductacceptance."
+}

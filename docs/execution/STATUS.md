@@ -1,3 +1,13 @@
+## 当前 Environment 必需检查修复检查点 — 2026-10-29T02:17:57.285615+00:00
+
+准确bb343be5bb0403e995a97441ce16670c03bd0f33 / checkout1a7682e60354d4a80200ea487725edfc99068a4c / treef85f9e19513d1ecfd85a058e5f6fd14ba4ed1123：Product40799957452四项全部成功，双Mac真实Owner/readonly/defaultbuild/releaseaudit/developmentpackage完成；50新PNG逐张独审，真实双DMG SHA与签名状态见goal-graph-integration/DEVELOPMENT_DELIVERY_BB343.md。ARM ad-hoc/Intel未签名、均未公证；DMG未做人工安装/默认App实机验收，最低OS/真实Provider/远程/完整Factory13未验。
+
+该head的Environment40799957732三项仍失败：原34 Python policytests中2项保持旧45/46，非产品超时失败；前bootstrap93/design130/infra2+15通过，后Node/Rust_env因step-e未运行。本地四static审查漏跑该现有组，原失败与旧审查原样保留，现已完整补齐命令链并独审。新source9d11a6d仅test名/exact60/拒61+test登记hash；普通30与全部原权限/隔离/产品时限/其它assert不变，未删测试求绿。Python34+Node4+所有非Rustcommands通过，Root3a91实际envRust2+Clippy0，21输入对应且1296tracked前后相等。新候选需自己的准确7CI，不能把bb4绿移给新head，尚未新push/合入。
+
+Factory另线实际15Linuxflow126checks76PNG保留；第3fullRust224outerPASS/1FAIL(nested1另计)因额外初始化16MiB读耗尽原4sScope。test-only6130以原Provider已成功真实MCP完整回复作初始证明，严格caller/fence/lease不变，移除重复读取；controlled新请求仍fresh且真实64KiB进入时余478ms，3分支49.21s/Clippy/fmt与独审通过，所有原4s/16MiB/client5/Actor60/IO30不变，生产46无变化。Fourthfull在Factoryeb77cfe进行中，不标全绿。
+
+main最近仍a1be94d2/OWNER001和002ACK无003。完整130需求/原status/WP及27决定不变，Goal/Factory等仍partial；childplanning/childGoal/workspacecreation/fullfaultqueue-recovery/Mac13等继续推进。无formalApprove/merge/生产/私人Provider/新费用资源/签名公证/最终许可证扩权。以下全部历史，不覆盖当前。
+
 ## 当前 PR16 开发交付修复检查点 — 2026-10-29T01:07:21.056276+00:00
 
 远端headc6f6b3c，准确检出e963523c04b27d99d44a7893b161b5180b9818e3/tree32b2747d4541b7f09d05cf21332f6232b081d8a5；Product40790894775/Environment40790894815全部终态：三个Environment、Rust、UI成功；ARM默认bundle失败，Intel被官方45分钟上限取消。双Mac实际62/26/10Native测试、readonly/fourWebCrypto和每架构24Ownerpages/完整Grant-result-CAS-event/19zero/真实app-daemonexit0均通过，50PNG逐张独审。ARM缺native_owner_dialog，Intel在release编译中因45m0s取消，两原因不混同；后续releaseaudit/packaging均skipped，0新开发包。完整319member Mac与139member Linux原件已无损归档，证据与早期失败不覆盖。
