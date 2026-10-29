@@ -1,5 +1,6 @@
 //! Separate debug-only own-process OS dialog test, never shipped or exposed by
-//! the production dispatcher. Actual Grant finalization goes through grants_create.
+//! the production dispatcher. Fixed Grant/Factory fixtures use the real
+//! grants_create/factory_scope_approve bridges; no host Factory finalization.
 #[cfg(not(debug_assertions))]
 compile_error!("native owner dialog smoke must never ship in release");
 #[cfg(any(target_os = "macos", test))]
