@@ -358,7 +358,17 @@ fn row(
     key(scope_id)?;
     key(task_id)?;
     stored_budget(db, scope_id, task_id)?;
-    let stored:Option<(Option<String>,Option<String>,String,String,String,i64,String,String)>=db.query_row(
+    type StoredPlanRow = (
+        Option<String>,
+        Option<String>,
+        String,
+        String,
+        String,
+        i64,
+        String,
+        String,
+    );
+    let stored:Option<StoredPlanRow>=db.query_row(
         "SELECT CASE WHEN octet_length(document)<=1048576 THEN document END,CASE WHEN octet_length(plan_json)<=262144 THEN plan_json END,id,raw_sha256,plan_digest,receipt_sequence,record_digest,run_id FROM factory_child_plan_revisions WHERE scope_id=?1 AND task_id=?2 AND revision=?3",
         params![scope_id,task_id,i64::try_from(revision).map_err(|_| invalid())?],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?,r.get(7)?))).optional().map_err(db_error)?;
     let (document, raw, id, raw_sha, plan_digest, seq, record_digest, run_id) = stored
