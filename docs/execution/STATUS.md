@@ -1,6 +1,6 @@
 # PR18 共享账本修复本地通过，返工 CI 根因仍待诊断 — 2026-10-29T20:59:42.058612+00:00
 
-远程PR18仍3b4c4b9/draft/open/unmerged，Environment3PASS/Product4FAIL证据保留。局部新源诊断e165+a7及meter e8已接入30bb083：真实Factory全组25PASS/93.03s，单返工1PASS/32.71s，均未复现CI三lane的原55s失败，不能声称已解决根因。原55观察/60Grant/30runtime/5RPC/60Actor与retry2、所有终态断言保留；下一准确CI需提供phase/scalar证据。
+远程PR18仍3b4c4b9/draft/open/unmerged，Environment3PASS/Product4FAIL证据保留。局部新源诊断e165+a7及meter e8已接入30bb083：真实Factory全组25PASS/93.03s，单返工1PASS/32.71s，均未复现CI三lane的原55s失败，不能声称已解决根因。原55观察/60Grant/30runtime/5RPC/60Actor与retry2、所有终态断言保留；诊断c207与共享meter8802独审均闭合，fmt通过，下一准确CI需提供phase/scalar证据。
 
 真实Linux构建前端2d/编译Core0c78/driver9d9分别归属：正常/取消/未知Factory各4checks2PNG通过；childplanning9checks4PNG通过。恰2共享RootGrant/Project meter、3/1/1/3累计尝试与真实settled逐项求和、16结构Goal表与Goal grant历史空、active0及cleanup均通过。18pure、全工作区alltargets严格Clippy、infra84通过；详见[实际窄修与边界](factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json)。Browser不是Native/Mac或真实Provider证明，完整130未完成。
 

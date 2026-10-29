@@ -5,7 +5,8 @@
   "source_meter_repair": "e8adb9fe2ea68b0eccfb600d896b57573b62391d; Root ffe362e",
   "review": {
     "diagnostic": "c207c9da0af608ad4909be5d0ce6050e0db63a2261f52a51a526860499cd42ee",
-    "meter": "independent source review accepted; final seal pending"
+    "meter": "8802fc7829b68ff521aeb89cabc0359d3ab16a4773ea6f0fdb6843e29f160955",
+    "meter_manifest": "1b8716e19f95f187305a4b2e3f75f7c55d4973c7e981f7443216b540f7d80e10"
   },
   "rework_tests": [
     {
@@ -318,5 +319,25 @@
       "frozen_tools_unchanged": true,
       "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
     }
-  ]
+  ],
+  "format": {
+    "source": "a319f8f35ef242bb23f3d03aa4ba5d750878e59e",
+    "root": "/workspace/.worktrees/factory-runtime-integration",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 1.20306074002292,
+    "minimum_free_bytes": 288088064,
+    "interruption": null,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  }
 }
