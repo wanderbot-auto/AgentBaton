@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "unit": "factory-child-planning-ui",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "requirements": [
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-005",
+    "AB-TSK-012",
+    "AB-SEC-002",
+    "AB-SEC-003",
+    "AB-SEC-005",
+    "AB-SEC-010",
+    "AB-COR-002",
+    "AB-COR-007"
+  ],
+  "snapshot_path": "/workspace/.onboarding/factory-child-planning-ui/SOURCE_SNAPSHOT.json",
+  "snapshot_sha256": "d32ec18d0947cbb0891dc62d19b33f81e05600e27ba2278e4f1e8142dc1f8e0d",
+  "source_commit": "36e437ada7210a86e9c140f4a58d5aab94ecc8dc",
+  "base": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+  "frontend_files_hashed_before_after": 112,
+  "frontend_before_after_equal": true,
+  "source_files": {
+    "apps/desktop/src/FactoryChildPlanEditor.tsx": "54791e02ad8cf7a24958772d7d14f8f3fe7dac860842e492d11a37b244a00b53",
+    "apps/desktop/src/FactoryChildPlans.test.tsx": "5d6b183857eb0dd14cb59c059a020fd7f887c0fc2309df5e2dcaa2b8bbf63693",
+    "apps/desktop/src/FactoryChildPlans.tsx": "2c35af46e7f7170788b241b51e4e0685d785a1ee348456be170220c2306a3f62",
+    "apps/desktop/src/FactoryRuntime.tsx": "041592308a5b0ceb504057ab1ce72c391c73e119d0d4d956d181d8f6a3085b46",
+    "apps/desktop/src/factory-api.ts": "c716e0540c031bca93e455c5713891827467f87fb7a19d1795097be2612fe723",
+    "apps/desktop/src/factory-child-plan-i18n.ts": "ad882127e23727baa78200214ade7d6361e6d51a300fa68b8104564dfd0bf7e4",
+    "apps/desktop/src/factory-child-plan-test-fixtures.ts": "925e2f0a705a838fa7521862ea5e7dfc1bf22add0093cc4ad9c09a07a7a2af65",
+    "apps/desktop/src/factory-child-plan.test.ts": "cda20f41bc6f12bd00460b877ac89598812a0f8e189fd7c3615db4dd02bc0b5b",
+    "apps/desktop/src/factory-child-plan.ts": "0fb63534cea3aa2d13be0eb8774aefee06fc7d2d584064c03f4248619e55563d",
+    "apps/desktop/src/factory-form.ts": "a82fd6a20a28c8af44178f72fece99f75657b1e0b5e80b06afdb6b08d2d1b4f7",
+    "apps/desktop/src/factory-guards.ts": "8afcbdd7be0a67c999cbd05f9c4034905ee325c373a9c9f1382bcba4c9c5a79d",
+    "apps/desktop/src/factory-i18n.ts": "52274af6bdabb512584fa870814377a65a5baa0c6148333c428acc04a755d368",
+    "apps/desktop/src/factory-types.ts": "45eca7329534bf2054b5e70bc3ead5054509d335f798cbc3c33b0b8bab9b46a3"
+  },
+  "core_contract_sha256": "09a76feff2c915ecc7437f4f8b888e093d08549c20b33d90c6d931b9c7672f84",
+  "original_contract_sha256": "811db32b84fbd6ec5ef86367c587014bac354a041885afa962029e9ba81edd86",
+  "contract_delta": "Core owner confirmed only listRefs comment; fields unchanged",
+  "core_native_locks_packages_oldGoalEditor_and_parser_unchanged": true,
+  "dependencies": {
+    "link": "/workspace/AgentBaton/apps/desktop/node_modules",
+    "symlink_inode": 921606,
+    "symlink_device": 27,
+    "no_install_or_copy": true,
+    "package_version": "5.0.5",
+    "own_link_removed": true
+  },
+  "commands": [
+    {
+      "argv": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "test",
+        "--",
+        "--maxWorkers=1"
+      ],
+      "log": "full-tests-final.log",
+      "exit_code": 0,
+      "test_files": 43,
+      "unique_tests": 703,
+      "baseline_tests": 643,
+      "new_tests": 60,
+      "harness_seconds": 57.89
+    },
+    {
+      "argv": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "typecheck"
+      ],
+      "log": "typecheck-final.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "log": "build-final.log",
+      "exit_code": 0,
+      "warning": "minified JS598.89kB exceeds standard500kB chunk warning; threshold unchanged"
+    }
+  ],
+  "preserved_failures": {
+    "first-components.log": "1FAIL43PASS; exact ResourceLimit code omitted from display, actual code+state now shown",
+    "full-tests-first.log": "685PASS, existing factory-core-wire suite import failed because sparse checkout lacked original Native fixture; exact28KiB fixture dir checked out unchanged, no test skip",
+    "early_typecheck": "Only earlier WIP covered; not final source. A wrong-cwd edit script exited before any write."
+  },
+  "wire": {
+    "selection": "child_planning_policy omitted when false; true requires whole explicit policy",
+    "fixedOwnerMethods": [
+      "factory_child_plans_context",
+      "factory_child_plans_get",
+      "factory_child_plans_list",
+      "factory_child_plans_submit"
+    ],
+    "list": "Vec<FactoryChildPlanRef> metadata only; selected/head get full View",
+    "submit_CAS": "currentScope expectedRevision + raw inner expectedPlanRevision + exactkey; no Agent generic route",
+    "context_scope_revision": "fixed approved1 even after Scope revoked2",
+    "model": "complete existing GoalPlanProposal; new Factory-specific readonly-output/approved-recipient editor specialization only",
+    "execution_and_workspace_authorized": false
+  },
+  "verified_dimensions": [
+    "old false selection byte preservation",
+    "complete explicit policy max16KiB criteria/16 validators/exact output writes",
+    "same GoalPlan step/dependency/raw editing without write until explicit store",
+    "head/ref history with selected revision fetch and raw SHA verification",
+    "revoked/expired/cancel/unknown remains readonly",
+    "foreign/context/raw/proposal/hash drift failclosed",
+    "unknown originalbytes/key/CAS across remount and explicit exact recovery",
+    "historical replay never lowers head/ref floors",
+    "duplicate keys/cycles/paths/rules/input/recipient/budget rejection",
+    "actual Factory panel mounting via mocked transport"
+  ],
+  "not_run": [
+    "Core schema14/Unix IPC/runtime/actual Native approval",
+    "real browser with combined Core+Native",
+    "macOS Apple Silicon/Intel execution",
+    "real Provider/accounts/model calls",
+    "full Factory/Task acceptance"
+  ],
+  "dist": {
+    "apps/desktop/dist/index.html": {
+      "sha256": "e5d6396596c5a72b07c87e29457ae977b1e1f7b8ffdb307c9d9247971369d6f4",
+      "bytes": 441
+    },
+    "apps/desktop/dist/assets/index-faVpxP9y.js": {
+      "sha256": "6703055660a6e2a19531546417b061782bbeb4119d036212776d3c0d58048d9e",
+      "bytes": 598898
+    },
+    "apps/desktop/dist/assets/index-DczAmFjL.css": {
+      "sha256": "bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944",
+      "bytes": 30382
+    }
+  },
+  "logs": {
+    "/workspace/.onboarding/factory-child-planning-ui/typecheck.log": {
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+      "bytes": 263
+    },
+    "/workspace/.onboarding/factory-child-planning-ui/full-tests-first.log": {
+      "sha256": "b243b412eae4f6594b39f4b7f741603a4210219e9afdfc738f399f259c6efd92",
+      "bytes": 1638
+    },
+    "/workspace/.onboarding/factory-child-planning-ui/model-targeted.log": {
+      "sha256": "973cae5786d6413346066e3e419b779ce6aeaa70df01153e15054ce80e38064f",
+      "bytes": 583
+    },
+    "/workspace/.onboarding/factory-child-planning-ui/fixed-targeted.log": {
+      "sha256": "c5e0f2220eeb3a4158b6641152438610185c31cf8a86d03f465e18f98d4fbf53",
+      "bytes": 583
+    },
+    "/workspace/.onboarding/factory-child-planning-ui/build-final.log": {
+      "sha256": "ae6b165503e98b7ae62e008f08094b037fd32d7781f3fc15bdbb431f88db7cfb",
+      "bytes": 984
+    },
+    "/workspace/.onboarding/factory-child-planning-ui/typecheck-policy-alignment.log": {
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+      "bytes": 263
+    },
+    "/workspace/.onboarding/factory-child-planning-ui/first-components.log": {
+      "sha256": "20cca3c323cb11b49e717aa17c244af21701e283cbb8db6e9ff0549645189079",
+      "bytes": 1345
+    },
+    "/workspace/.onboarding/factory-child-planning-ui/first-targeted.log": {
+      "sha256": "4e03e16b9bc4284d09b6ea115698aca0d0770da61ae21258803494b0bd69e435",
+      "bytes": 576
+    },
+    "/workspace/.onboarding/factory-child-planning-ui/full-tests-final.log": {
+      "sha256": "995f70eb047450739ed573ee55899cf43f817ae9f7c46560e79039f66f19bb9d",
+      "bytes": 813
+    },
+    "/workspace/.onboarding/factory-child-planning-ui/typecheck-final.log": {
+      "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+      "bytes": 263
+    }
+  },
+  "current_node": "v24.19.0",
+  "no_active_cargo_or_product_daemon_by_this_leaf": true,
+  "complete_context_p2_correction": {
+    "snapshot_path": "/workspace/.onboarding/factory-child-planning-ui-context-fix/SOURCE_SNAPSHOT.json",
+    "snapshot_sha256": "742c114244e060bc14115a2796c2d900eb911c27c1d99eda1c28abba62de5972",
+    "source_commit": "da38259175afa1cd0b25fd47135a3e0ecf716f01",
+    "previous_source": "36e437ada7210a86e9c140f4a58d5aab94ecc8dc",
+    "parent_docs_commit": "7ff91a546a99fc3e10598ed285e31232568e2729",
+    "scope": "UI context-integrity P2 only; not a Core authorization bypass",
+    "source_files": {
+      "apps/desktop/src/FactoryChildPlanEditor.tsx": "b4296893883f18c44ec0c8b59cc3f80fea675ffbe33aa35ae4a33016bfc86bda",
+      "apps/desktop/src/factory-child-context.test.ts": "33e586ef3d3d37c968c94ed7154a5f6a4d7f60b4c5e1fb55bd64c00a498f1770",
+      "apps/desktop/src/factory-child-plan.ts": "ea206becb96f756e515ead33b1fc4cd293fd47684a15414e932e8ff93580a267"
+    },
+    "frontend_before_after_files": 113,
+    "frontend_before_after_equal": true,
+    "old_Goal_editor_parser_Core_Native_Cargo_packages_unchanged": true,
+    "old_full703_snapshot": {
+      "path": "/workspace/.onboarding/factory-child-planning-ui/SOURCE_SNAPSHOT.json",
+      "sha256": "d32ec18d0947cbb0891dc62d19b33f81e05600e27ba2278e4f1e8142dc1f8e0d"
+    },
+    "old703_dist_preserved": {
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/old36-dist/index.html": {
+        "sha256": "e5d6396596c5a72b07c87e29457ae977b1e1f7b8ffdb307c9d9247971369d6f4",
+        "bytes": 441
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/old36-dist/assets/index-faVpxP9y.js": {
+        "sha256": "6703055660a6e2a19531546417b061782bbeb4119d036212776d3c0d58048d9e",
+        "bytes": 598898
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/old36-dist/assets/index-DczAmFjL.css": {
+        "sha256": "bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944",
+        "bytes": 30382
+      }
+    },
+    "old_controls": {
+      "old-controls.log": {
+        "exit": 1,
+        "pass": 2,
+        "fail": 8,
+        "source": "saved old-factory-child-plan.ts equals36e source"
+      },
+      "pre-rule-controls.log": {
+        "exit": 1,
+        "pass": 11,
+        "fail": 3,
+        "source": "pre-rule-factory-child-plan.ts includes first budget fix; not byte-exact36e"
+      },
+      "fixed-complete-controls.log": {
+        "exit": 1,
+        "pass": 73,
+        "fail": 1,
+        "cause": "reviewer synthetic empty-child positive omitted removal of unused inputcontract. Reviewer/Core explicitly confirmed strict actual maps; fixture precisely corrected, no extra-metadata permission added"
+      },
+      "pre-input-union.log": {
+        "exit": 1,
+        "pass": 0,
+        "fail": 1,
+        "filtered": 14,
+        "source": "after context/rule fix, before Factory editor selected-input-union check; not byte-exact36e"
+      }
+    },
+    "fixes": [
+      "target budget within Native Factory root ceilings; no new token/cost knowledge",
+      "project budget exact, workspace input revision pinned base",
+      "root spec/full input set bound; legitimate narrow child empty-input subset retained",
+      "nonempty target output subset, exact approved artifacts/contracts",
+      "mandatory Owner/input rules and exact selected validator refs/rule IDs/digests/executors match approved definitions",
+      "same checker gates context guard/editor projection/raw parser",
+      "Factory editor requires complete selected external-input union; shared Goal editor/parser unchanged"
+    ],
+    "positive_fixture_erratum": "Reviewer positive cleared child inputs but left input:input contract. Actual Core omits it; corrected positive removes only that unused contract. Original11 negative controls unchanged; original fixture/log preserved.",
+    "commands": [
+      {
+        "argv": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "test",
+          "--",
+          "--maxWorkers=1"
+        ],
+        "log": "full-tests-final.log",
+        "exit_code": 0,
+        "unique_tests": 733,
+        "test_files": 44,
+        "previous_tests": 703,
+        "new_context_cases": 30,
+        "harness_seconds": 63.22
+      },
+      {
+        "argv": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "typecheck"
+        ],
+        "log": "typecheck-final.log",
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "npm",
+          "--prefix",
+          "apps/desktop",
+          "run",
+          "build"
+        ],
+        "log": "build-final.log",
+        "exit_code": 0,
+        "warning": "standard >500kB minified-chunk warning retained; JS601.43kB"
+      }
+    ],
+    "focused": "complete-targeted-final.log90PASS included in733, not added again",
+    "not_run": [
+      "Core/Unix IPC/actual Native/browser",
+      "macOS/real Provider/account/model",
+      "full Factory/Task acceptance"
+    ],
+    "no_cargo_browser_or_other_tree_edits": true,
+    "temporary_dependency_link_removed": {
+      "inode": 917727,
+      "exact_target": "/workspace/AgentBaton/apps/desktop/node_modules",
+      "no_install_or_copy": true
+    },
+    "artifacts": {
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/complete-targeted-final.log": {
+        "sha256": "bf0be03590f551e6f224061aaf70d2a5d59d832c52ae370c81a0caba6ee893e8",
+        "bytes": 589
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/old-controls.log": {
+        "sha256": "7565134e5f1c1fceb3eab8787a04cc9e05fa99898ad501fa090f2a00b192d949",
+        "bytes": 2910
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/fixed-controls-and-existing.log": {
+        "sha256": "a7989e2a17ad4c59cd8b1abec8ac3071606846c5da478c80abc8a7d3e3bd9795",
+        "bytes": 589
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/pre-input-union.exit": {
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "bytes": 2
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/fixed-review-controls.log": {
+        "sha256": "27143f03015176ff21edd9850a92eb695d58e46a3c9a38a81996a5847b1cbf4d",
+        "bytes": 538
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/pre-rule-controls.log": {
+        "sha256": "0008a96b18e5196eb9fd84b4452823a21ba03eb6ea46c0b5c63e2cf91de48b46",
+        "bytes": 2116
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/fixed-complete-controls.log": {
+        "sha256": "f8aaaedaaebebcd93c06b183a72f50b387b2293182ffcc4be01561e38bea4dbe",
+        "bytes": 1260
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/build-final.exit": {
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "bytes": 2
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/build-final.log": {
+        "sha256": "2e6b1438b480dff160bebc55199459a45bf49edb7adb0d284918d9036bedbb33",
+        "bytes": 984
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/old-controls.exit": {
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "bytes": 2
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/original-independent-policy-rule-review.test.ts": {
+        "sha256": "6c49e7bf00d134cf549f0e96147c64321d938ade0f73eb9b842e6169cd992963",
+        "bytes": 2156
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/old-factory-child-plan.ts": {
+        "sha256": "0fb63534cea3aa2d13be0eb8774aefee06fc7d2d584064c03f4248619e55563d",
+        "bytes": 8440
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/FINAL_BEFORE.json": {
+        "sha256": "769290dc00f951ef0782112c5b8a76920d4a5c1aa3b2cf5b082b509a9fef962c",
+        "bytes": 13388
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/pre-rule-factory-child-plan.ts": {
+        "sha256": "d2b9703ff6b50c118af8bcc231d99edd3bddf1a962f564411809c2d4ff9fbdef",
+        "bytes": 9954
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/pre-rule-controls.exit": {
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "bytes": 2
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/pre-input-union.log": {
+        "sha256": "81d1a5c3a7fab9f107e291f20b0e21a11e45e9e5ef8ca5a42141e29f1fd83ff5",
+        "bytes": 1120
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/OLD_DIST_PRESERVED.json": {
+        "sha256": "06f4b352bea0d4b04fc0ec09caa52305e614eb00408a58dc98c01c7ba72d728a",
+        "bytes": 619
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/full-tests-final.log": {
+        "sha256": "e8f0d1cc8c9fb387bd4c833912bfa9f09d552cd04c5292ac53f780d129a60cf4",
+        "bytes": 813
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/typecheck-final.log": {
+        "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+        "bytes": 263
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/typecheck-final.exit": {
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "bytes": 2
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/full-tests-final.exit": {
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "bytes": 2
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/BEFORE.json": {
+        "sha256": "2e37867d72f72646956ac6d2a405d4b1e7732b6cd431dc9cbc9202a9f23caabe",
+        "bytes": 404
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/typecheck-first.log": {
+        "sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+        "bytes": 263
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/finalize.py": {
+        "sha256": "b6c082db54659b67201f9d5c3c30e7b25d7451f7a2216a30640a93827ff7e094",
+        "bytes": 4869
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/old36-dist/index.html": {
+        "sha256": "e5d6396596c5a72b07c87e29457ae977b1e1f7b8ffdb307c9d9247971369d6f4",
+        "bytes": 441
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/old36-dist/assets/index-faVpxP9y.js": {
+        "sha256": "6703055660a6e2a19531546417b061782bbeb4119d036212776d3c0d58048d9e",
+        "bytes": 598898
+      },
+      "/workspace/.onboarding/factory-child-planning-ui-context-fix/old36-dist/assets/index-DczAmFjL.css": {
+        "sha256": "bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944",
+        "bytes": 30382
+      }
+    },
+    "new_dist": {
+      "/workspace/.worktrees/factory-child-planning-ui/apps/desktop/dist/index.html": {
+        "sha256": "c7a9f4f00355cefd7f9381b0fc820cc23395ccc94ed09eb4637c5b6a6d6ecdd9",
+        "bytes": 441
+      },
+      "/workspace/.worktrees/factory-child-planning-ui/apps/desktop/dist/assets/index-BQdp9i5h.js": {
+        "sha256": "aff13b6d95068d1321cb7d555862199823c32815ef667b12f36ca0c2abd8ce66",
+        "bytes": 601439
+      },
+      "/workspace/.worktrees/factory-child-planning-ui/apps/desktop/dist/assets/index-DczAmFjL.css": {
+        "sha256": "bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944",
+        "bytes": 30382
+      }
+    }
+  }
+}
