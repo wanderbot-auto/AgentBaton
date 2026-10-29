@@ -2170,3 +2170,7 @@ pub(super) fn child_planning_limits(
 ) -> Result<()> {
     child_plan::policy_limits(s, p)
 }
+
+#[path = "factory_child_goal.rs"]
+mod child_goal;
+pub(super) use child_goal::{policy_limits as child_goal_limits, resolve_binding as resolve_child_goal_binding};

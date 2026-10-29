@@ -41,6 +41,72 @@ pub struct FactoryScopeSelection {
     /// Missing in schema13/old receipts; omission keeps their exact bytes stable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub child_planning_policy: Option<FactoryChildPlanningPolicy>,
+    /// Separate explicit execution consent. Old planning-only receipts omit it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub child_goal_execution_policy: Option<FactoryChildGoalExecutionPolicy>,
+}
+/// Execution permission remains within the original immutable Grant ceilings.
+/// It does not amend that Grant, create a workspace, or accept any candidate.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalExecutionPolicy {
+    pub max_nodes: u32,
+    pub max_runs_per_task: u32,
+    pub max_total_runs: u32,
+    pub root_budget: BudgetLimits,
+    pub project_budget: BudgetLimits,
+    pub require_owner_acceptance: bool,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalExecutionBinding {
+    pub schema_version: u32,
+    pub authority_kind: String,
+    pub policy: FactoryChildGoalExecutionPolicy,
+    pub planning_policy_digest: String,
+    pub root_grant_id: String,
+    pub root_grant_revision: u64,
+    pub original_max_children: u32,
+    pub original_max_depth: u32,
+    pub graph_contract_version: u32,
+    pub definition_digest: String,
+    pub new_workspace_authorized: bool,
+}
+/// A complete saved reference is compared to its immutable server row; IDs and
+/// plan text from the caller never become execution authority.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalSubmission {
+    pub task_id: String,
+    pub plan: FactoryChildPlanRef,
+    pub expected_factory_run_revision: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalStart {
+    pub scope_id: String,
+    pub request: FactoryChildGoalSubmission,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalQuery {
+    pub scope_id: String,
+    pub task_id: String,
+    #[serde(default)]
+    pub goal_run_id: Option<String>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalView {
+    pub authority_kind: String,
+    pub factory_scope_id: String,
+    pub factory_run_id: String,
+    pub factory_root_task_id: String,
+    pub parent_task_id: Option<String>,
+    pub task_id: String,
+    pub plan: FactoryChildPlanRef,
+    pub execution_policy_digest: String,
+    pub goal: crate::goal_store::GraphRunSummary,
 }
 /// Narrow selection within existing Factory artifacts/connections/workspaces.
 /// This uses Goal's exact output/validator references, never a second plan DSL.
@@ -268,6 +334,8 @@ pub struct FactoryGuarantees {
 pub struct FactoryScopeBindings {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub child_planning: Option<FactoryChildPlanningBinding>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub child_goal_execution: Option<FactoryChildGoalExecutionBinding>,
     pub project: crate::registry::Project,
     pub root_task: Task,
     pub approved_grant: ExecutionGrant,

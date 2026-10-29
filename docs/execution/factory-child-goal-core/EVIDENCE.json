@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "source_implementation_in_progress",
+  "baseline": "1097980c",
+  "protected_main": "a1be94d",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "requirements": [
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-005",
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-TSK-012",
+    "AB-SEC-002",
+    "AB-SEC-003",
+    "AB-SEC-005",
+    "AB-SEC-010",
+    "AB-COR-002",
+    "AB-COR-007"
+  ],
+  "cargo": "not_run_no_lease",
+  "runtime": "not_implemented_yet",
+  "native": "not_run",
+  "macos": "not_run",
+  "provider_calls": "not_authorized_not_run"
+}

@@ -152,8 +152,14 @@ pub(super) fn limits(selection: &FactoryScopeSelection, grant: &ExecutionGrant) 
     {
         return Err(invalid());
     }
-    if selection.capabilities.child_goal_execution || selection.capabilities.create_workspace {
+    if selection.capabilities.create_workspace {
         return Err(CoreError::new("CAPABILITY_UNSUPPORTED","This Factory contract only dispatches fixed handoffs in existing approved workspaces; child Goal/planning and new-workspace authority are not implemented"));
+    }
+    if selection.capabilities.child_goal_execution != selection.child_goal_execution_policy.is_some() {
+        return Err(invalid());
+    }
+    if let Some(policy) = &selection.child_goal_execution_policy {
+        super::runtime::child_goal_limits(selection, policy, grant)?;
     }
     if selection.capabilities.child_planning && selection.child_planning_policy.is_none() {
         return Err(CoreError::new("CAPABILITY_UNSUPPORTED","Old Factory snapshots grant no child planning policy; review a new complete Native Factory scope"));
@@ -485,7 +491,9 @@ impl Store {
         let root_request = json!({"schema_version":1,"kind":"agentbaton_factory_task_request","goal":task.goal,"root_task_id":task.id,"inputs":inputs,"outputs":outputs,"root_budget":selection.root_budget,"capabilities":selection.capabilities});
         let child_planning =
             super::runtime::resolve_child_planning_binding(&self.conn, selection, &workspaces[0])?;
+        let child_goal_execution = super::runtime::resolve_child_goal_binding(selection, &grant, child_planning.as_ref())?;
         Ok(FactoryScopeBindings {
+            child_goal_execution,
             child_planning,
             project,
             root_task: task,

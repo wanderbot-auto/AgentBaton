@@ -89,7 +89,6 @@ pub(crate) fn resolve_binding(
         return Ok(None);
     };
     if !s.capabilities.child_planning
-        || s.capabilities.child_goal_execution
         || s.capabilities.create_workspace
     {
         return Err(denied());
@@ -137,7 +136,6 @@ fn approved_binding(s: &FactoryScope) -> Result<&FactoryChildPlanningBinding> {
         .ok_or_else(denied)?;
     let b = s.bindings.child_planning.as_ref().ok_or_else(denied)?;
     if !s.selection.capabilities.child_planning
-        || s.selection.capabilities.child_goal_execution
         || s.selection.capabilities.create_workspace
         || b.schema_version != 1
         || b.authority_kind != AUTHORITY
