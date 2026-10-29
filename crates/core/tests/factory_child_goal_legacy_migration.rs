@@ -106,7 +106,20 @@ fn verify_tool_provenance(source: &Path, manifest: &Value) {
     let historical_linux = host == "linux"
         && m.get("architecture").is_none()
         && m.get("os_release").is_none()
+        && m.get("native_helper_sha256").is_none()
         && m["probe"].get("identity_method").is_none()
+        && [
+            "owned_identity",
+            "leader_unreaped_until_signalling",
+            "group_quiescent_before_reaping",
+            "cleanup_errors",
+        ]
+        .iter()
+        .all(|&k| m["probe"].get(k).is_none())
+        && ["batond", "baton"].iter().all(|&n| {
+            m["binaries"][n].get("format").is_none()
+                && m["binaries"][n].get("architecture").is_none()
+        })
         && m["builder_sha256"]
             == "b3ce52eb0c32791db9532e9cdd1a4e194d700cebd82c3120b76dfa3e20b81e5b";
     assert!(

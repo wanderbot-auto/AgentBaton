@@ -33,9 +33,14 @@ class NativeMigrationPlatformTests(unittest.TestCase):
         m=PURE.synthetic_metadata();m['builder_sha256']=BUILDER.LEGACY_LINUX_BUILDER_SHA256
         self.assertEqual(BUILDER.validate_build_manifest(m),{'batond':'a'*64,'baton':'a'*64})
         BUILDER.verify_reviewed_builder(m,'b'*64)
-        for key,value in [('platform','darwin'),('architecture','x86_64'),('builder_sha256','c'*64)]:
+        for key,value in [('platform','darwin'),('architecture','x86_64'),('builder_sha256','c'*64),('native_helper_sha256','d'*64)]:
             bad=copy.deepcopy(m);bad[key]=value
             with self.subTest(key=key),self.assertRaises(ValueError):BUILDER.verify_reviewed_builder(bad,'b'*64)
+        for location in ['probe','binary']:
+            bad=copy.deepcopy(m)
+            if location=='probe':bad['probe']['group_quiescent_before_reaping']=True
+            else:bad['binaries']['baton']['format']='mach-o-64'
+            with self.subTest(location=location),self.assertRaises(ValueError):BUILDER.verify_reviewed_builder(bad,'b'*64)
 
     def test_both_macos_architectures_validate_only_complete_owned_join(self):
         for architecture in ['arm64','x86_64']:

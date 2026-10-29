@@ -52,8 +52,11 @@ def digest(value):
 
 
 def verify_reviewed_builder(m, current_sha256):
-    legacy = (m.get('platform') == 'linux' and 'architecture' not in m
-              and 'os_release' not in m and 'identity_method' not in m.get('probe', {}))
+    legacy = (m.get('platform') == 'linux'
+              and all(k not in m for k in ('architecture','os_release','native_helper_sha256'))
+              and all(k not in m.get('probe', {}) for k in ('identity_method','owned_identity',
+                  'leader_unreaped_until_signalling','group_quiescent_before_reaping','cleanup_errors'))
+              and all('format' not in b and 'architecture' not in b for b in m.get('binaries', {}).values()))
     require(m.get('builder_sha256') == current_sha256 or
             (legacy and m.get('builder_sha256') == LEGACY_LINUX_BUILDER_SHA256),
             'Unreviewed builder source, or historical Linux proof relabelled as a new platform')
