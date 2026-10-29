@@ -142,6 +142,27 @@ fn verify_imported_plan(
     }
     Ok(())
 }
+// Digest-only projection of the original StoppedGraphFailure writer's field
+// order. This is not that private all-stop proof and cannot authorize a stop or
+// recovery. A JSON Value sorts object keys; hashing that Value changes the
+// existing writer's digest domain even when every recorded field is identical.
+fn recorded_failure_digest(value: &Value) -> Result<String> {
+    #[derive(Serialize, Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct DigestFields {
+        run_id: String,
+        plan_revision: u64,
+        plan_digest: String,
+        failure_refs: Vec<String>,
+        nodes_digest: String,
+        jobs_digest: String,
+        receipts_digest: String,
+        receipt_cursor: u64,
+    }
+    let fields: DigestFields = serde_json::from_value(value.clone()).map_err(|_| changed())?;
+    sha(&fields)
+}
+
 fn verify_historical_rework(
     db: &Connection,
     r: &GoalRun,
@@ -177,7 +198,7 @@ fn verify_historical_rework(
         || f.payload["plan_revision"] != previous.revision
         || f.payload["plan_digest"] != previous.plan_digest
         || f.payload["proof_digest"] != context["failure_proof_digest"]
-        || f.payload["proof_digest"] != sha(&f.payload["proof"])?
+        || f.payload["proof_digest"] != recorded_failure_digest(&f.payload["proof"])?
     {
         return Err(denied());
     }
@@ -440,5 +461,161 @@ impl Store {
         remember(&tx, &namespace, key_id, &request, &receipt)?;
         tx.commit().map_err(db_error)?;
         Ok(receipt)
+    }
+}
+
+#[cfg(test)]
+mod recorded_rework_digest_tests {
+    use super::*;
+
+    fn recorded() -> (Connection, GoalRun, FactoryChildPlanRef, Value, i64, i64) {
+        // This packet contains only actual public Goal run/event proof fields,
+        // not the raw DB, credentials, Provider prompts or a manufactured join.
+        let packet: Value = serde_json::from_str(include_str!(
+            "../tests/fixtures/factory_child_goal_recorded_rework_proof.json"
+        ))
+        .unwrap();
+        let db = Connection::open_in_memory().unwrap();
+        db.execute_batch(
+            "CREATE TABLE events(sequence INTEGER PRIMARY KEY,document TEXT NOT NULL)",
+        )
+        .unwrap();
+        let events = packet["events"].as_array().unwrap();
+        for row in events {
+            db.execute(
+                "INSERT INTO events VALUES(?1,?2)",
+                params![
+                    row["sequence"].as_i64().unwrap(),
+                    row["document"].to_string()
+                ],
+            )
+            .unwrap();
+        }
+        let previous = serde_json::from_value(packet["previous_plan"].clone()).unwrap();
+        let run: GoalRun = serde_json::from_value(packet["run"].clone()).unwrap();
+        (
+            db,
+            run,
+            previous,
+            packet["rework_context"].clone(),
+            packet["initial_receipt_sequence"].as_i64().unwrap(),
+            packet["adoption_sequence"].as_i64().unwrap(),
+        )
+    }
+
+    #[test]
+    fn recorded_actual_rework_events_keep_original_writer_digest_domain() {
+        let (db, run, previous, context, prior, adopted) = recorded();
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM events WHERE sequence=?1",
+                [context["failure_receipt_sequence"].as_i64().unwrap()],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let failure: Event = decode(&raw).unwrap();
+        assert_eq!(failure.sequence, 0, "original raw writer sentinel");
+        assert_ne!(
+            json!(sha(&failure.payload["proof"]).unwrap()),
+            failure.payload["proof_digest"],
+            "the old Value rehash rejects these actual unchanged writer bytes"
+        );
+        assert_eq!(
+            json!(recorded_failure_digest(&failure.payload["proof"]).unwrap()),
+            failure.payload["proof_digest"]
+        );
+        verify_historical_rework(&db, &run, &previous, &context, prior, adopted).unwrap();
+    }
+
+    #[test]
+    fn recorded_actual_rework_digest_reader_refuses_corrupt_source_plan_or_proof() {
+        for case in [
+            "proof_cursor_digest",
+            "proof_missing_field",
+            "proof_extra_field",
+            "foreign_failure_source",
+            "foreign_failure_run",
+            "foreign_failure_plan",
+            "foreign_rework_source",
+            "foreign_rework_run",
+            "foreign_rework_plan",
+            "changed_context_digest",
+            "missing_failure_receipt",
+            "missing_rework_receipt",
+            "failure_before_source",
+            "rework_after_adoption",
+        ] {
+            let (db, run, previous, mut context, mut prior, mut adopted) = recorded();
+            let failure = context["failure_receipt_sequence"].as_i64().unwrap();
+            let rework = context["rework_receipt_sequence"].as_i64().unwrap();
+            match case {
+                "proof_cursor_digest" => {
+                    db.execute("UPDATE events SET document=json_set(document,'$.payload.proof.receipt_cursor',0) WHERE sequence=?1",[failure]).unwrap();
+                }
+                "proof_missing_field" => {
+                    db.execute("UPDATE events SET document=json_remove(document,'$.payload.proof.nodes_digest') WHERE sequence=?1",[failure]).unwrap();
+                }
+                "proof_extra_field" => {
+                    db.execute("UPDATE events SET document=json_set(document,'$.payload.proof.foreign',1) WHERE sequence=?1",[failure]).unwrap();
+                }
+                "foreign_failure_source" => {
+                    db.execute("UPDATE events SET document=json_set(document,'$.source','foreign') WHERE sequence=?1",[failure]).unwrap();
+                }
+                "foreign_failure_run" => {
+                    db.execute("UPDATE events SET document=json_set(document,'$.aggregate_id','foreign') WHERE sequence=?1",[failure]).unwrap();
+                }
+                "foreign_failure_plan" => {
+                    db.execute("UPDATE events SET document=json_set(document,'$.payload.plan_revision',999) WHERE sequence=?1",[failure]).unwrap();
+                }
+                "foreign_rework_source" => {
+                    db.execute("UPDATE events SET document=json_set(document,'$.source','foreign') WHERE sequence=?1",[rework]).unwrap();
+                }
+                "foreign_rework_run" => {
+                    db.execute("UPDATE events SET document=json_set(document,'$.aggregate_id','foreign') WHERE sequence=?1",[rework]).unwrap();
+                }
+                "foreign_rework_plan" => {
+                    db.execute("UPDATE events SET document=json_set(document,'$.payload.plan_revision',999) WHERE sequence=?1",[rework]).unwrap();
+                }
+                "changed_context_digest" => {
+                    context["failure_proof_digest"] = json!("foreign");
+                }
+                "missing_failure_receipt" => {
+                    db.execute("DELETE FROM events WHERE sequence=?1", [failure])
+                        .unwrap();
+                }
+                "missing_rework_receipt" => {
+                    db.execute("DELETE FROM events WHERE sequence=?1", [rework])
+                        .unwrap();
+                }
+                "failure_before_source" => {
+                    prior = failure;
+                }
+                "rework_after_adoption" => {
+                    adopted = rework;
+                }
+                _ => unreachable!(),
+            }
+            let count: i64 = db
+                .query_row("SELECT count(*) FROM events", [], |row| row.get(0))
+                .unwrap();
+            let error = verify_historical_rework(&db, &run, &previous, &context, prior, adopted)
+                .unwrap_err();
+            assert_eq!(
+                error.code,
+                match case {
+                    "proof_missing_field" | "proof_extra_field" => "INPUT_CHANGED",
+                    "missing_failure_receipt" | "missing_rework_receipt" => "INTERNAL_ERROR",
+                    _ => "PERMISSION_DENIED",
+                },
+                "{case}"
+            );
+            assert_eq!(
+                db.query_row("SELECT count(*) FROM events", [], |row| row
+                    .get::<_, i64>(0))
+                    .unwrap(),
+                count,
+                "readonly historical verification must not emit/repair a receipt: {case}"
+            );
+        }
     }
 }
