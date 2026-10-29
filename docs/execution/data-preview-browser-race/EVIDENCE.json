@@ -62,5 +62,45 @@
   "original_verified_not_promoted": true,
   "cancel_hit_guaranteed": false,
   "production_hook_added": false,
-  "private_raw_files_copied": false
+  "private_raw_files_copied": false,
+  "IPC_abort_phase_follow_up": {
+    "recorded_at_utc": "2026-10-29T18:51:49.737444+00:00",
+    "source": "68449fecfb306b25affa05ff90e29caaa95b229b",
+    "previous_source": "29a7c98b43476cb32deb4379fe0ff22577093f4f",
+    "scope": "test-only adapter diagnostics, not Core production bug",
+    "exact_whole_driver_inverse": true,
+    "all_original_9_test_methods_byte_preserved": true,
+    "test_count": 11,
+    "new_tests": 2,
+    "new_paths_exercised": "both IPC exceptions plus both postIPC HTTP writer exceptions",
+    "pure_tests": "PASS twice; initial0.022s, retained-log timing in file",
+    "compile_files": 2,
+    "compile": "PASS",
+    "diff_check": "PASS",
+    "no_HTTP_reply_change_for_IPC_aborts": true,
+    "no_new_IPC_call_or_retry": true,
+    "old_seal_payload_unchanged": true,
+    "original_reviewer_counterprobe": {
+      "IPC_ABORT_RESULT.json": {
+        "sha256": "5b365016ccd1d5ca47495429e7916483ecb313ca0d5dec7f73d16889cd0b5bc0",
+        "bytes": 885
+      },
+      "ipc-abort-probe.log": {
+        "sha256": "75378bfe21250d606686d1664852dd23dd539b5dfd057e50947c70f2b472b943",
+        "bytes": 165
+      }
+    },
+    "source_map": {
+      "apps/desktop/tests/data-workspace-real-ipc.py": {
+        "sha256": "2aef0272fddb51697d9f3823781805da57d4812690bd37e1b19f45f757a79a16",
+        "git_blob": "10b60710fa7c14142cc5778ead1c2837454054a8"
+      },
+      "apps/desktop/tests/test_data_preview_browser_timing.py": {
+        "sha256": "ba365a91a70f164d6aa11cbc0f7bfe07add73afe8657c64656d3c5e34565761e",
+        "git_blob": "aefa32b0b065be9c0c9edbf09f27c0698faf5fd1"
+      }
+    },
+    "product_Node_Cargo_browser_Actor": "NOT_RUN",
+    "retained_log_sha256": "107c5c58a93f234b4eedbc7bbb493a73524fe2a57bbb091eeefd5b5404a89d38"
+  }
 }
