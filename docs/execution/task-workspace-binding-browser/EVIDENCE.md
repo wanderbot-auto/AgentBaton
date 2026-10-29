@@ -1,6 +1,24 @@
 # Evidence
 
-## Current revision — independent F1 correction
+## Independent delta review update
+
+Fixed45937a source is SOURCE_READY for Root controlled execution, no must-fix. Original reviewer independently ran36pure/0.026s,10 additional alias-subset/conflict controls, verified complete driver inverse to27 and unchanged old test classes. Seal `/workspace/.onboarding/task-workspace-binding-browser-independent-review/revision-45937a0`: REVIEW SHA `5cdfa939f6cef5850deee8196b1a64c52f1fcf363be4971c0dfd0ac0602ec74c`; MANIFEST SHA `1c48508b4fb7640c022a038e5ff26dc6bf22f92736ac800252dc9b663d61dda4` (8files/90111B). Old3a/27 seals rehashed unchanged. Reviewer did not run new runtime/CI; this does not transfer the old27 actual4/4 success to45937a. Source remains frozen; all newer commits are this unit's documentation only.
+
+## Current leaf — explicit exact CI source preflight
+
+Current source `45937a0343f5a7b24e5af1d09828b7fed49d9d30` changes only preflight/CLI metadata binding and adds9 pure tests. All original27 tests remain byte-for-byte identical. `ManagedFixturePaths`, runtime/HTTP/Unix dispatch, cleanup, four scenario assertions and all deadlines remain byte-for-byte identical to27e39d; specified inverse edits restore the entire original driver. No Core/API/schema/CI/locks/permissions/UI change.
+
+New parameter `--expected-source-head <40-lowercase-hex>` defaults to the historical840334e2507c7b2b39e89917b491e75c1ca3de18. The compiled manifest must supply at least one known source alias; every supplied `git_head`, `source_head` and `compiled_core_source_head` must equal this exact selected head. Frontend build-record.source must equal it too, with original strict int exit0, unchanged=true and exact recorded npm command. No dual-version fallback, missing record, malformed head, dirty/contradictory metadata or truthy bool/int coercion is accepted. Optional dirty/tracked_clean fields retain the reviewed old manifest shape: if present they must be strictly false/true; absence does not independently prove a clean compilation. Producer source/build provenance is still required, and metadata commands are never executed. Record inputs now explicitly include expected_source_head, compiled_core_source_head and frontend_build_head. Harness baseline remains the original840 source, not a false assertion that every later CI build used840.
+
+36 lightweight tests actually PASS/0.024s/exit0 (old27 + new9; not63 unique). They cover default and explicit source selection, actual CLI parsing with runtime mocked-forbidden and real preflight exit2/NOT_RUN, new matched head, invalid formats/types, missing/conflicting aliases including compiled_core_source_head, mixed versions, dirty/type-coerced flags, missing/failed/changed frontend records. Only inert metadata and the existing own-tempFS controls run. Two AST syntax checks, complete source inverse equality and unchanged original27 test bytes PASS; diff-check0. New leaf actual Core/Chromium/PNG results are **NOT_RUN**; independent delta review requested. No product process, Node, Cargo, Provider, new approval or remote action was performed.
+
+### Root actual evidence for the previous27e39d source — not transferred to this leaf
+
+Root executed checkout `40d1a6fda582cbf485ad8296409a2fd38310c343` using exact harness SHA `44906e09aa5ff6108fc37c06a6c5684aa0eec5eae905bee92cb20181f960aa3d` (source27e39d), separately bound compiled Core/frontend840. Root reported6.125s; this author independently read only the final report metadata/hash: `passed`, WSI-B01..04 all four, four original PNGs, cleanup.complete=true, zero unexpected HTTP/page errors. Report `/workspace/.onboarding/task-workspace-binding-browser-actual-evidence1/report.json` SHA `f3dbafd2fa7d2796cde0969796afdbbc4a9741e5e57b05c8a1fc7a2b9da055d4`. Root states two PNGs were actually viewed; this author did not perform visual inspection or product execution. This does not prove Native/Mac/Provider/migration/full130 completion and is not a runtime pass for new45937a metadata leaf.
+
+Original F1 new-source independent seal is now closed/source-ready: `/workspace/.onboarding/task-workspace-binding-browser-independent-review/revision-27e39de/REVIEW.md` SHA `29549273ea4ce54f7dfe925befc36ab91545e4fc96833a3cabc92b01e32f5930`, MANIFEST SHA `3a7a12a748e68879fc89cd5635d6002bd6da2ddfbadf52d4574240c8beaa6b10`. The original3a BLOCKED/sealed surrogate counterexample remains unchanged. All earlier NOT_RUN statements below describe their original source-freeze time, not a deletion or contradiction of this later Root result.
+
+## Previous F1 revision — source-freeze record
 
 Current source `27e39defdf49bb8133577a65ed94515065fe4687` (parent3a1d52c). The original3a source is **BLOCKED**, not runtime-ready: an independent exact-AST own-surrogate probe proved that trusting Core-returned canonical_root could write/rename another legitimate directory. The probe used only the reviewer's generated temporary directories; it did not run the product. Original18 pure PASS did not establish FS confinement. Original evidence remains unchanged; the historical sections below retain original source timing and checks.
 
@@ -62,3 +80,16 @@ The source preserves original managed worktree as a retained generated sibling w
 Command: `python3 -B -m unittest discover -s apps/desktop/tests -p test_task_workspace_binding_real_ipc.py -v` =>27PASS/0.018s/exit0. `ast.parse` two source files0. Actual old/new AST checks preserve Boundary, parse_http, db_image, no_execution, seal_status, preflight and main unchanged. No Cargo/Node/Actor/browser/runtime Git or source-schema/API changes. NOREPLACE control calls the real Linux libc syscall in the author's own temporary directory; the injected after-precheck destination is not a natural race observation or Core success.
 
 Original independent BLOCKED seal (not modified): `/workspace/.onboarding/task-workspace-binding-browser-independent-review/REVIEW.md` SHA `13f74bbb8057628333f724c02419a8b929382c88a48f9e7ec01327787a6f360e`; MANIFEST SHA `b2313ae7a413e9ccf7729c0c3dd7d73faaa2b738bd1b544cdf8046f5b63b86ac`. The exact four-AST FS counterexample is preserved as fs_confinement_probe.py/result.json there. New revision27e39d was sent to the same reviewer for explicit closure; no closure or actual runtime is invented here.
+
+## Explicit expected-source leaf evidence
+
+| File | SHA-256 |
+| --- | --- |
+| apps/desktop/tests/task-workspace-binding-real-ipc.py at45937a | fc7cd9353e803fc8d62c21f630e0b4c2a7ece04246a074bd25e3b2f4acf86cc6 |
+| apps/desktop/tests/test_task_workspace_binding_real_ipc.py at45937a | e581a5005ba48384d199efe76e7fa68f088785c9e5312c98ba08682683d02412 |
+| .onboarding/task-workspace-binding-browser-source/expected-source/final-pure-tests.log | f025aff1a05d4febbb909b5e90047329f61d1595acbe4312bd545865b536f22a |
+| .onboarding/task-workspace-binding-browser-source/expected-source/SOURCE_CHECKS.json | 8f0a3f6570ac75019364831d69cbd03b8dce4e6b98d2aed5e7bae73657df0036 |
+
+Actual command: `python3 -B -m unittest discover -s apps/desktop/tests -p test_task_workspace_binding_real_ipc.py -v` →36PASS/0.024s/exit0. AST inverse control compares Git27e39d source; removing only the explicit expected-source/metadata additions restores complete original driver bytes. Removing new ExpectedSourceHeadTests restores complete original test-file bytes. Git reads are provenance checks, not generated Git fixture execution. CLI pure controls use inert test files and omit--run, verify runtime function never called, output statusNOT_RUN/exit2.
+
+Only Root's old27 report was read here, not private DB/RPC or replayed product commands. New45937a runtime remains NOT_RUN. No old PNG or green status is relabeled as new-source acceptance.
