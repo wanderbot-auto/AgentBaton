@@ -84,3 +84,8 @@ Actualrework7/8/9 eachPASS with strict receipts and budgets; read timeout explic
 ## 2026-10-29T18:01:02.797400+00:00 — budget reuse and cancellation history
 
 Core129, corrected reservation6, UI872/51/type/build, strict Clippy and real rework10 passed at their exact recorded heads. Live cancellation/reply loss/recovery reached cancelled, but complete browser run failed at final cancelled-history rendering; fix pending, no whole-run PASS. See [BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json](BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json). New PR/Mac15/Native/installers and full130 remain incomplete.
+
+
+## 2026-10-29T18:18:35.262134+00:00 — cancelled history accepted locally; exact CI next
+
+At2d12: actual UI901/52/type/build passed; browser cancel20.525s/CG01,02,04,06/threePNG/cleanuptrue. New history guard and supported-context regression reviewed. Earlier failures remain. New PR/all seven checks/both real Mac Native15/build/package and traceable installers still NOT_RUN at record time. WSI1/WSI2a stay separate and full130 goal remains incomplete. See [CANCELLED_HISTORY_ACCEPTANCE.json](CANCELLED_HISTORY_ACCEPTANCE.json).

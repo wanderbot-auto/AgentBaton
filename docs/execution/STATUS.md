@@ -1,3 +1,11 @@
+# 当前取消全链路已通过，进入精确 CI — 2026-10-29T18:18:35.262134+00:00
+
+准确2d12dff：UI901项/52文件、类型检查、构建均通过；真实取消20.525s，CG01/02/04/06四项通过、3PNG、cleanuptrue。成功取消后的丢回包以同key/payload/CAS显式恢复，原实际stop与共享两attempt账本闭合；最终只读取消历史保留。Root实际看final04，其余两张只核hash。此前STALE、最终历史卸载、未知续接guard及夹具Clippy失败都保留，不能相互转签。
+
+此前Core baa完整129与真实返工10、严格Clippy961继续只绑定原source；新增取消guard独审6b闭合，旧mutation/Grant/CAS/Unknown不变。当前分支codex/factory-child-goal-integration，将推送本检查点并创建新PR运行原三Environment+四Product检查；新PR/新Mac15/新安装包在本记录时尚未执行。读取保护设置遭当前token403，已停止该读操作，不换账号/不绕过；合入仍须真实全部必需检查与审查满足。
+
+WSI1独立模块已实际10测试通过，borrowed-path lint修复待准确新源复验；后续固定只读IPC接线开始，不混入本Factory候选。Native本地实际回归因容量门槛未运行，MacCI必须实跑。main653679d/OWNER001002ACK无003；完整130/WP01–14继续，生产/真实Provider/私人身份/额外费用/签名/许可证/formalApprove权限不扩。见[准确结果](factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json)。以下为历史。
+
 # 当前预算复用及取消历史检查点 — 2026-10-29T18:01:02.797400+00:00
 
 当前Core baa72ac完整129项通过、无跳过；UI61dd类型/872项51文件/构建通过，961工作区alltargets严格Clippy通过。真实返工10及两版四条预留、八条费用两级账本正控通过；同预留阶段单样本4455→1281ms，仅为一次实测观察。旧新增负控夹具CHECK长度失败与失败ELF保留，合法64hex错值修复后六项通过。

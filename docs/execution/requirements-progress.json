@@ -2394,7 +2394,8 @@
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
         "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
         "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2596,6 +2597,14 @@
           ],
           "coverage": "partial; cross-run positive and performance SLA not claimed; native/macOS/current browser full cancellation not accepted",
           "evidence": "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
+        },
+        {
+          "slice": "actual_factory_child_goal_cancel_lost_reply_recovery_stopped_readonly_history",
+          "source_commit": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+          "UI": "901/52/type/build pass",
+          "actual_generated_Unix_Core15_browser": "CG01/02/04/06 pass; cleanuptrue; actual joined stop; no TaskAccepted",
+          "coverage": "partial; not real Provider/model, Native OS/Mac or full product",
+          "evidence": "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json"
         }
       ]
     },
@@ -2950,7 +2959,8 @@
         "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
         "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
         "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3054,6 +3064,14 @@
           ],
           "coverage": "partial; cross-run positive and performance SLA not claimed; native/macOS/current browser full cancellation not accepted",
           "evidence": "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
+        },
+        {
+          "slice": "actual_factory_child_goal_cancel_lost_reply_recovery_stopped_readonly_history",
+          "source_commit": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+          "UI": "901/52/type/build pass",
+          "actual_generated_Unix_Core15_browser": "CG01/02/04/06 pass; cleanuptrue; actual joined stop; no TaskAccepted",
+          "coverage": "partial; not real Provider/model, Native OS/Mac or full product",
+          "evidence": "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json"
         }
       ]
     },
@@ -3430,7 +3448,8 @@
         "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
         "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
         "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3525,6 +3544,14 @@
           ],
           "coverage": "partial; cross-run positive and performance SLA not claimed; native/macOS/current browser full cancellation not accepted",
           "evidence": "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
+        },
+        {
+          "slice": "actual_factory_child_goal_cancel_lost_reply_recovery_stopped_readonly_history",
+          "source_commit": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+          "UI": "901/52/type/build pass",
+          "actual_generated_Unix_Core15_browser": "CG01/02/04/06 pass; cleanuptrue; actual joined stop; no TaskAccepted",
+          "coverage": "partial; not real Provider/model, Native OS/Mac or full product",
+          "evidence": "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json"
         }
       ]
     },
@@ -5936,7 +5963,8 @@
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
         "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
         "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -6149,6 +6177,14 @@
           ],
           "coverage": "partial; cross-run positive and performance SLA not claimed; native/macOS/current browser full cancellation not accepted",
           "evidence": "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
+        },
+        {
+          "slice": "actual_factory_child_goal_cancel_lost_reply_recovery_stopped_readonly_history",
+          "source_commit": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+          "UI": "901/52/type/build pass",
+          "actual_generated_Unix_Core15_browser": "CG01/02/04/06 pass; cleanuptrue; actual joined stop; no TaskAccepted",
+          "coverage": "partial; not real Provider/model, Native OS/Mac or full product",
+          "evidence": "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json"
         }
       ]
     },
