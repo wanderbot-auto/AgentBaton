@@ -1,0 +1,118 @@
+{
+  "recorded_at_utc": "2026-10-29T18:09:03.880865+00:00",
+  "source_commit": "ac03b997623036a1313dd64f810a03a6e9b8cc0d",
+  "base": "5fd328f5267141a0779ccc3b2773e2c83e5f340d",
+  "source_map": {
+    "apps/desktop/src/FactoryRuntime.cancelled-history.test.tsx": {
+      "sha256": "761a969b4721b7aeda7931e02d7cc15f5411352a643e2ece4b96c86c7d1cb10f",
+      "git_blob": "dd3dbe62800cfea7134f0d2d014e185952fbd452"
+    },
+    "apps/desktop/src/factory-guards.ts": {
+      "sha256": "52136555a08144d21b46ea26bbdf3f7e26e1be843b2e083d30e7d99e48114374",
+      "git_blob": "924739b0325035c589991951e4520932f58147cc"
+    }
+  },
+  "original_case": {
+    "report_sha256": "27cacba15b85d13cf6fbbcec09aeb4c954a976206a783e55d86bdaec78b92c36",
+    "whole_status": "failed_or_interrupted",
+    "checks": [
+      [
+        "CG01",
+        "passed"
+      ],
+      [
+        "CG02",
+        "passed"
+      ],
+      [
+        "CG04",
+        "passed"
+      ]
+    ],
+    "cleanup_complete": false,
+    "CG06": "NOT_RUN",
+    "compiled_core_source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+    "frontend_build_source": "61dd0c9c6193c547ac102dd6da6cc12be7acaceb",
+    "harness_source": "961253c77baefed45780b0f2241c81f2d8d0834a"
+  },
+  "finite_terminal_projection": [
+    {
+      "wire_sequence": 197,
+      "sha256": "031249dae2a5a33593469c839973de33f739641a9a91123968bfc3f656dc574e",
+      "ledger_revision": 61,
+      "run_state": "cancelled",
+      "run_revision": 7,
+      "active_task_and_session_null": true,
+      "all_handles_confirmed_stop": true,
+      "all_waiting_parents_confirmed_stop": true,
+      "child": {
+        "state": "cancelled",
+        "revision": 5,
+        "attempt_id": null,
+        "confirmed_stop": true,
+        "result_available": false,
+        "cancel_requested": true
+      }
+    },
+    {
+      "wire_sequence": 204,
+      "sha256": "9a2fa11237e409d753021437579d5a6a38b1ddfe4877b6b0add8e8d530d74d56",
+      "ledger_revision": 61,
+      "run_state": "cancelled",
+      "run_revision": 7,
+      "active_task_and_session_null": true,
+      "all_handles_confirmed_stop": true,
+      "all_waiting_parents_confirmed_stop": true,
+      "child": {
+        "state": "cancelled",
+        "revision": 5,
+        "attempt_id": null,
+        "confirmed_stop": true,
+        "result_available": false,
+        "cancel_requested": true
+      }
+    },
+    {
+      "wire_sequence": 255,
+      "sha256": "7bf10d0ac5c82424e3c897c40fcfc397cde967d4c07f5a446fc8860dfcd5be52",
+      "ledger_revision": 61,
+      "run_state": "cancelled",
+      "run_revision": 7,
+      "active_task_and_session_null": true,
+      "all_handles_confirmed_stop": true,
+      "all_waiting_parents_confirmed_stop": true,
+      "child": {
+        "state": "cancelled",
+        "revision": 5,
+        "attempt_id": null,
+        "confirmed_stop": true,
+        "result_available": false,
+        "cancel_requested": true
+      }
+    }
+  ],
+  "preservation": {
+    "exact_whole_guard_inverse_to_base": true,
+    "original_artifacts_before_after_equal": true,
+    "original_file_count": 487,
+    "all_other_product_source_same_base": true,
+    "original_guard_tests_unchanged": true,
+    "compiled_core_cancel_producer_byte_matches_base": true,
+    "core_producer_sha256": "9e188e0c84295a162e8aced99c18af18f950f8bd1a7cdc6ee8b0466a3eece48a"
+  },
+  "new_cases_source_only": 28,
+  "checks": {
+    "python_audit": "PASS",
+    "git_diff_check": "PASS",
+    "typecheck": "NOT_RUN",
+    "vitest": "NOT_RUN",
+    "build": "NOT_RUN",
+    "Core_IPC": "NOT_RUN",
+    "browser": "NOT_RUN",
+    "Native_OS": "NOT_RUN"
+  },
+  "evidence_directory": "/workspace/.onboarding/factory-cancelled-history-ui",
+  "raw_DB_RPC_Grant_copied": false,
+  "Native_macOS_real_Provider": "NOT_RUN",
+  "screenshots": "not visually re-reviewed; original hashes retained"
+}

@@ -1,0 +1,9 @@
+# Progress
+
+The actual first-summary-cancel1 case passed CG01/CG02/CG04, including committed cancellation, deliberately lost response, exact-key recovery and final GoalCancelled. The whole case failed later while capturing final parent-cancelled history; cleanup_complete=false and CG06 was not run. Its original report and failures remain unchanged.
+
+Wires197/204/255 show Factory cancelled/r7 with no active task/session, a joined real parent Factory attempt and a derived child cancelled/r5 with null Factory attempt, confirmed_stop=true, result_available=false and cancel_requested=true. Every handle and waiting parent reports confirmed stop. The old accepted-only derived-result guard rejects that child, FactoryRuntime clears detail and unmounts child history. The retained DOM contains the foreign/stale evidence alert and no child Goal Refresh control. This is a product readonly-shape defect, not a cancellation failure or a target-selection error.
+
+Source ac03b997623036a1313dd64f810a03a6e9b8cc0d adds a separate scope-aware terminal cancellation read branch. It requires the complete validated execution Scope, exact cancelled/requested run, null active references, all stopped handles and waiting parents, plus all original complete-root/lineage/duplicate/foreign/terminal checks. Only a non-root cancelled/no-result/requested derived child can use the null-attempt exception. An unconfirmed null-attempt child in a cancelled execution read is rejected. Original three-argument behavior and accepted-result behavior remain intact. No permission to launch or retry is introduced.
+
+Added 28 synthetic guard/component cases, including deferred parent refresh, live/expired/revoked readonly display and contradictory/foreign/unknown/unjoined negative controls. These new tests have not been executed.
