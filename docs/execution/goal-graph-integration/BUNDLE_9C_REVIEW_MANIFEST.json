@@ -1,0 +1,269 @@
+{
+  "subject": "9c3850d40d78d2317142f604043fd0aaaceb2aa7",
+  "base": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+  "review_status": "limited_source_ready_no_blocker",
+  "count_finite_checks": 39,
+  "scope": "fixed source and inert LinuxCLI scanner; not Mac/product acceptance",
+  "files": [
+    {
+      "path": "REVIEW.md",
+      "bytes": 4099,
+      "sha256": "bf4d509145814e6579c749e019acbdfb48a57b1fe534cd393a3783a5d32fdd4c"
+    },
+    {
+      "path": "cli-after.stderr",
+      "bytes": 598,
+      "sha256": "992609fc230aaba0e990173b82c6481bb35cd73b6f969ab109b1365e27019ea4"
+    },
+    {
+      "path": "cli-after.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "cli-before.stderr",
+      "bytes": 1486,
+      "sha256": "ed54c1e66595be33c84988ddb7e11853ad962f9ac038e45c22246760ae7c2cd0"
+    },
+    {
+      "path": "cli-before.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "cli-tag.json",
+      "bytes": 379,
+      "sha256": "4fa458ba29684cf08a415185382df989c8bdd973a90697fa1980a8bd402d8e3f"
+    },
+    {
+      "path": "cli-version.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "cli-version.stdout",
+      "bytes": 17,
+      "sha256": "9b3bfd97bdbbb1caca492a182482702522f4861cac9c38b60655010daaf0a7e3"
+    },
+    {
+      "path": "fixed-source/.github/workflows/product.yml",
+      "bytes": 10965,
+      "sha256": "55bd07391841f62a3530d25fb6e436d42957a56c4870baa0caaafb9be29a5d60"
+    },
+    {
+      "path": "fixed-source/apps/desktop/src-tauri/Cargo.toml",
+      "bytes": 1674,
+      "sha256": "f0ad32ea0b400d4a7e0edb8655c0102c38469d512d7d3cc14e6cc6a74ac1bb49"
+    },
+    {
+      "path": "fixed-source/apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs",
+      "bytes": 776,
+      "sha256": "8c34e18fab13fd8534833591af09853f7def99531b1639e512bc076985b67814"
+    },
+    {
+      "path": "fixed-source/apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+      "bytes": 13526,
+      "sha256": "0fc0d4477e7a9b1eb17611d6729b1bee21893b1391198ce151289ef4d2ebdb04"
+    },
+    {
+      "path": "fixed-source/apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs",
+      "bytes": 29153,
+      "sha256": "613fb2c8993a3640bec486b88a3534e3efddcd171e99d366d5a96ee364528361"
+    },
+    {
+      "path": "fixed-source/scripts/native-audit-release.sh",
+      "bytes": 859,
+      "sha256": "dd60a45803ebc66c8dc5a19bba24da35b6e20716589b332314c7d1ecc4fa52d0"
+    },
+    {
+      "path": "fixture-after/Cargo.toml",
+      "bytes": 402,
+      "sha256": "4f497b105672c08e77da4bd4521d094ec5238ef023d3db8a6c4e14d6deb3c8c6"
+    },
+    {
+      "path": "fixture-after/src/bin/native_owner_dialog_smoke.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4"
+    },
+    {
+      "path": "fixture-after/src/bin/native_smoke.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4"
+    },
+    {
+      "path": "fixture-after/src/main.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4"
+    },
+    {
+      "path": "fixture-after/src/native_owner_dialog_test/controller.rs",
+      "bytes": 16,
+      "sha256": "6a73eef3e79a7631fbebab2de331b47a342b70981c7cf32b520f41f0a1b231fb"
+    },
+    {
+      "path": "fixture-after/target/release/agentbaton-desktop",
+      "bytes": 52,
+      "sha256": "ef29154c9ec1cb24c5833d2567cae070543b5157c1e480d6903b0ddcab094d70"
+    },
+    {
+      "path": "fixture-after/target/release/bundle/deb/Independent Discovery Fixture_0.1.0_amd64/control/control",
+      "bytes": 204,
+      "sha256": "0b950879590c4e99a8a7f5bfb5cbcd083f8fe9b49ec9d281c627ff9a3a277dea"
+    },
+    {
+      "path": "fixture-after/target/release/bundle/deb/Independent Discovery Fixture_0.1.0_amd64/control/md5sums",
+      "bytes": 156,
+      "sha256": "496201d71d803e5b4863637ebebc0efe22f2f997b4b16455e8a68d5a0edd36be"
+    },
+    {
+      "path": "fixture-after/target/release/bundle/deb/Independent Discovery Fixture_0.1.0_amd64/control.tar.gz",
+      "bytes": 366,
+      "sha256": "90ab73b67fd13ff53123f274954a4d2da4d49b4118cefd9b0d0f9bf263854e8f"
+    },
+    {
+      "path": "fixture-after/target/release/bundle/deb/Independent Discovery Fixture_0.1.0_amd64/data/usr/bin/agentbaton-desktop",
+      "bytes": 52,
+      "sha256": "ef29154c9ec1cb24c5833d2567cae070543b5157c1e480d6903b0ddcab094d70"
+    },
+    {
+      "path": "fixture-after/target/release/bundle/deb/Independent Discovery Fixture_0.1.0_amd64/data/usr/share/applications/Independent Discovery Fixture.desktop",
+      "bytes": 177,
+      "sha256": "8d0e11976dbf7f0ab70411c461c48813d2ba985539c276cc4ce965ba2c6f554e"
+    },
+    {
+      "path": "fixture-after/target/release/bundle/deb/Independent Discovery Fixture_0.1.0_amd64/data.tar.gz",
+      "bytes": 364,
+      "sha256": "212ccf066e35d486a6eb7416e967e3b376bc015a89ac48b3d448fb3137f8cb3e"
+    },
+    {
+      "path": "fixture-after/target/release/bundle/deb/Independent Discovery Fixture_0.1.0_amd64/debian-binary",
+      "bytes": 4,
+      "sha256": "d526eb4e878a23ef26ae190031b4efd2d58ed66789ac049ea3dbaf74c9df7402"
+    },
+    {
+      "path": "fixture-after/target/release/bundle/deb/Independent Discovery Fixture_0.1.0_amd64.deb",
+      "bytes": 922,
+      "sha256": "d51127bffa8e11e9e367b51f8941c648dec7114b758ddf3d8f11636911906d1a"
+    },
+    {
+      "path": "fixture-after/tauri.conf.json",
+      "bytes": 224,
+      "sha256": "b478f1987a0df5fc5f0b4423b1ed3322fd20e8fd5f19fda184f07e05ff3272d4"
+    },
+    {
+      "path": "fixture-before/Cargo.toml",
+      "bytes": 402,
+      "sha256": "4f497b105672c08e77da4bd4521d094ec5238ef023d3db8a6c4e14d6deb3c8c6"
+    },
+    {
+      "path": "fixture-before/src/bin/native_owner_dialog/controller.rs",
+      "bytes": 16,
+      "sha256": "6a73eef3e79a7631fbebab2de331b47a342b70981c7cf32b520f41f0a1b231fb"
+    },
+    {
+      "path": "fixture-before/src/bin/native_owner_dialog_smoke.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4"
+    },
+    {
+      "path": "fixture-before/src/bin/native_smoke.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4"
+    },
+    {
+      "path": "fixture-before/src/main.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4"
+    },
+    {
+      "path": "fixture-before/target/release/agentbaton-desktop",
+      "bytes": 52,
+      "sha256": "ef29154c9ec1cb24c5833d2567cae070543b5157c1e480d6903b0ddcab094d70"
+    },
+    {
+      "path": "fixture-before/tauri.conf.json",
+      "bytes": 224,
+      "sha256": "b478f1987a0df5fc5f0b4423b1ed3322fd20e8fd5f19fda184f07e05ff3272d4"
+    },
+    {
+      "path": "fixture-list.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fixture-list.stdout",
+      "bytes": 5120,
+      "sha256": "84db40fdefcfea14af2ee2484365776ba7c81c5ded1a8633944e15f8123abb35"
+    },
+    {
+      "path": "fixture-package.json",
+      "bytes": 407,
+      "sha256": "e2933af4c14f21e5ffad30fb5e093588fb6b6b45387c0ca1345ad13189427697"
+    },
+    {
+      "path": "initial-probe-failure.json",
+      "bytes": 395,
+      "sha256": "3ef6ddfdf7650f05ce5224a284a1a5ec46a1952be1700055088361b4847e0252"
+    },
+    {
+      "path": "initial-review.py",
+      "bytes": 8911,
+      "sha256": "66cb2e6d6261b13a8f22a7c3f275fe600498adfa6d0d402408c2651e58f07d84"
+    },
+    {
+      "path": "metadata-command-not-started.json",
+      "bytes": 316,
+      "sha256": "f318507cd3057739fef1a7b72c4575438f84752da1ed67090d9be774f94a9e33"
+    },
+    {
+      "path": "official-source-fetch.json",
+      "bytes": 816,
+      "sha256": "487334a4dc4782a239ba031ea0af7ac60d7700b1a2b4a75ac4e66ca008c59f42"
+    },
+    {
+      "path": "pinned-manifest.rs",
+      "bytes": 16945,
+      "sha256": "12ecab656f01a83141280c96d6e89d7af74ccbf71ef4a3be767499268ff6f375"
+    },
+    {
+      "path": "pinned-rust.rs",
+      "bytes": 59595,
+      "sha256": "0efada2885cdb6fb1e74832a2704dcbd7e22627709944968740bd8dca8d863ed"
+    },
+    {
+      "path": "project-metadata.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "project-metadata.stdout",
+      "bytes": 5198,
+      "sha256": "7e74c1bc468e6863060f116d0e0e27d23bca99fa4bc2a694d7bc4dfb17533132"
+    },
+    {
+      "path": "protected-hashes.json",
+      "bytes": 2391,
+      "sha256": "553f136fe36037be1d7dafa970de26c1cf969a36f465dff031fe53cff7ff4535"
+    },
+    {
+      "path": "results.json",
+      "bytes": 7520,
+      "sha256": "d81849c65a761233cdf3294323c4801dd35d0a7d9fbd3a91bb64e88f65d83166"
+    },
+    {
+      "path": "review.py",
+      "bytes": 9359,
+      "sha256": "11e0bc7b38c5453eab38107f1fe742a68e444fdbc0ddc138daa0589bd89743af"
+    },
+    {
+      "path": "second-review-no-path.py",
+      "bytes": 9122,
+      "sha256": "42d30b6e9e2e62ea945996382a85e5f5bbe76770c279c1f8ce9efb86b8a7a74c"
+    },
+    {
+      "path": "subject.diff",
+      "bytes": 1426,
+      "sha256": "9b30a655746b5d86b2e5b5ebb53c3516f004d9856804fe2110561ea1acb48a2c"
+    }
+  ]
+}

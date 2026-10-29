@@ -1,3 +1,13 @@
+## 当前 PR16 开发交付修复检查点 — 2026-10-29T01:07:21.056276+00:00
+
+远端headc6f6b3c，准确检出e963523c04b27d99d44a7893b161b5180b9818e3/tree32b2747d4541b7f09d05cf21332f6232b081d8a5；Product40790894775/Environment40790894815全部终态：三个Environment、Rust、UI成功；ARM默认bundle失败，Intel被官方45分钟上限取消。双Mac实际62/26/10Native测试、readonly/fourWebCrypto和每架构24Ownerpages/完整Grant-result-CAS-event/19zero/真实app-daemonexit0均通过，50PNG逐张独审。ARM缺native_owner_dialog，Intel在release编译中因45m0s取消，两原因不混同；后续releaseaudit/packaging均skipped，0新开发包。完整319member Mac与139member Linux原件已无损归档，证据与早期失败不覆盖。
+
+本地source2ea0182组合已独审的9c3850d测试helper移位（两文件原字节不变/仅两path）、3a0caa job总时限60，以及5378519配套validator特例60。原全部产品/per-test时限、permission、steps、双host/并发2、默认releaseaudit保持。最初CI60静态Unbounded失败保留，修后独立38边界控制、实际infra2workflows15pins/bootstrap93通过；generic job仍30。Root在4d2实际Native测试目标Rust类型检查与fmt通过，不假称新运行10tests或Mac。共享debug188f/5779经宏资源暂存后恢复原SHA/inode/nlink。已仅退役Git可精确重建的149922362B导出缓存，原生成校验结果、所有源码工作树/Gitobjects/日志/manifest/归档/工具保留。新候选尚未push/新CI未运行，正做最终集成审查。
+
+本轮Linux准确CI仍593outer+7docs、Node564/37、12实际UI/IPC114checks70PNG；lookup旧关闭warning未出现，其它构建warnings保留。Factory/schema13在单独本地branch推进：真实normal/cancel/unknown合12checks6PNG及原12flow114checks70PNG均已独审通过，3个受控大Data读取cancel/revoke/TTL测试通过，未借为Mac13或全范围。Factory全Rust第二轮170outerPASS/1FAIL+nested1另计，历史fixture残留Factory表问题正在修，旧150+1FAIL也保留；fullregression/childplanning-childGoal-workspacecreation/完整恢复和边界/Mac13仍open。
+
+main最新安全fetch仍a1be94d2，OWNER001/002ACK无003；PR16draft/noformalApprove/nomerge。需求保持130ID/原status/工作包，仅附partial与确切旧Native维度。完整Designv0.2/27决定/WP01–14未完成，继续可执行工作。实际产品Provider/私人身份、额外费用/资源、签名公证、生产发布及最终许可证仍关闭。以下为历史检查点，不能覆盖本段。
+
 ## 当前 PR16：窄测试契约修复已独审，等待新准确 CI — 2026-10-28 23:38 UTC
 
 本地codex/goal-graph-integration基于fb7，当前源码组合4e712823；尚未推送。实际源差异仅5文件：Native测试controller/macos回执、Python runner/测试，以及父CI路径查询。生产Parent/Core/普通approval/权限/锁及前端均与fb7逐字相同。Grant独立approval_id按正式Core契约绑定response、持久记录、proposal_result和完整事件链；跨记录与所有CAS/版本类型也严格一致。原19表零执行、完整Native页文本/可见性/取消/Final守卫及500ms稳定/4s截图/75s watchdog/85s外层原门槛保留。

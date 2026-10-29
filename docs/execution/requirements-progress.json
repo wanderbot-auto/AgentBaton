@@ -1505,6 +1505,17 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "Exact c6f6 actual dual Mac native Owner Grant review, cancellation and confirmed final record",
+          "feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+          "actual_checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+          "Product": 40790894775,
+          "Environment": 40790894815,
+          "dimension": "Both real Macs readonly/WebCrypto/24Ownerpages each/fullGrant-result-CAS-event guards/app-daemonexit0; 50PNG independently viewed",
+          "evidence": "docs/execution/goal-graph-integration/C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
+          "status": "partial exact historical native slice, whole requirement not accepted",
+          "limitations": "ARMdefaultbundleFAIL/Intelofficial45mCANCELLED; audits/packagesSKIPPED. New byte-preserving modulemove/CI60 bounded guard reviewed+LinuxRustcheck only, newactualMac pending. NotFactory13/liveProvider/fullscope."
         }
       ]
     },
@@ -6012,6 +6023,17 @@
           "dimension": "bothmacOSarchitectures24pages each, all50imagesindependentlyviewed; originalscope/refs/19zero/lateCancel+oneGranttransaction observed",
           "status": "partial",
           "limits": "OriginalCI failedoldassociationpredicate. Test-only655c independently29PASS andlimitedtypedP2closed; newexactMac/CI/packages notrun. Not fullProjectPolicy/remote/nativeProviderapproval or fullrequirement acceptance."
+        },
+        {
+          "slice": "Exact c6f6 actual dual Mac native Owner Grant review, cancellation and confirmed final record",
+          "feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+          "actual_checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+          "Product": 40790894775,
+          "Environment": 40790894815,
+          "dimension": "Both real Macs readonly/WebCrypto/24Ownerpages each/fullGrant-result-CAS-event guards/app-daemonexit0; 50PNG independently viewed",
+          "evidence": "docs/execution/goal-graph-integration/C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
+          "status": "partial exact historical native slice, whole requirement not accepted",
+          "limitations": "ARMdefaultbundleFAIL/Intelofficial45mCANCELLED; audits/packagesSKIPPED. New byte-preserving modulemove/CI60 bounded guard reviewed+LinuxRustcheck only, newactualMac pending. NotFactory13/liveProvider/fullscope."
         }
       ]
     },

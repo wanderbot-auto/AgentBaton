@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "sealed_at_utc": "2026-10-29T00:50:02.699720+00:00",
+  "file": "EVIDENCE.tar.gz",
+  "bytes": 25333053,
+  "sha256": "f4422a668f4614b2b399d0f04c7251776fe19849d94992abcbfbc5937e86e264",
+  "regular_members": 319,
+  "payload_roundtrip_bytes_modes_verified": true,
+  "source_feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+  "actual_checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+  "review_scope": "new actual dualMac CI; separate native success/defaultpackage failures; no formal approval"
+}

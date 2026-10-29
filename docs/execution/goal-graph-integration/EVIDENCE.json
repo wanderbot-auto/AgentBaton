@@ -278,7 +278,7 @@
           "source": "a43cbb181a52b9ebcc0c72a838f68497101759b8",
           "author_docs": "f8aca83e82dc3614ddc56aad0e3199ee342ccb97",
           "author_and_independent_tests": "same15 group, not30unique; original11 include1actualCore; new4 mixed controls",
-          "independent_extra_controls": "six retained overlap, not additional unit total; shortalias nofallback/CJK173→40 fallback/realrawalias exit1/earlyexit0+23 rejected",
+          "independent_extra_controls": "six retained overlap, not additional unit total; shortalias nofallback/CJK173\u219240 fallback/realrawalias exit1/earlyexit0+23 rejected",
           "independent_review": "OWNER_BOOTSTRAP_REVIEW.md",
           "independent_manifest_sha256": "d831ba24877229b9dd34a9b945684631dfa9151e087afbf1aea9e9c5611e7a23",
           "Mac_OS_Owner": "not_run",
@@ -359,7 +359,7 @@
             0
           ],
           "registered_files": 93,
-          "only_changed_registered_hash": "STATUS ff1cd019→4ac42f0f",
+          "only_changed_registered_hash": "STATUS ff1cd019\u21924ac42f0f",
           "full_STATUS_SHA256": "4ac42f0fce63ed9f8b797893665bdb7a2f2144ee8777a9d68434cd672ed6fb32",
           "scope": "records/staticintegrity not newProduct/GUI proof"
         },
@@ -484,7 +484,7 @@
     "core_runtime_review": {
       "review": "/workspace/AgentBaton/.onboarding/factory-runtime-137-review/REVIEW.md",
       "sha256": "c7af999705bafbba84da37b42b1826a2b40971486f7e544885e2559270577dd7",
-      "scope": "original343 FR01–04+ownedcapture staticclosed; author6IPC+queueunit1 source/log verified, not independently rerun",
+      "scope": "original343 FR01\u201304+ownedcapture staticclosed; author6IPC+queueunit1 source/log verified, not independently rerun",
       "Data_witness_mixedaccounting_largecapture_cancel_fullregression": "not_verified"
     },
     "new_isolated_integration": {
@@ -492,7 +492,7 @@
       "checkpoint": "c581e0f",
       "source": "Core0ef +UI40b +Native13c8 +harness84ec, separate fromPR16",
       "verified": "Coreauthor25different cases withfixed0ef staticreview; Native106 earlierCore053 andNode643/41/type/build separate",
-      "actual_browser": "firstnormalfailed2checks2PNG childneverstarted original5s preflight deadline, unknownretained; privatefixturecompactCLI/failurecapture修复中; no cancel/unknown success",
+      "actual_browser": "firstnormalfailed2checks2PNG childneverstarted original5s preflight deadline, unknownretained; privatefixturecompactCLI/failurecapture\u4fee\u590d\u4e2d; no cancel/unknown success",
       "source_tool_provenance": "45sourcehashes/raw081a89eb verified; lateroldfc5/906053label rejected afterTauri sidecarcopy incident; alloriginalfailure/hash/restore evidence kept",
       "fullFactory": "notaccepted; Ownerheavyhashoffload/mixedledger/fullfaultmatrix inprogress"
     }
@@ -752,5 +752,55 @@
     "source_STATUS_unchanged_by_review_import": true,
     "scope": "source-ready fornewexactCI only; notformalApprove/mergeclearance/Mac/package/fullDesignacceptance",
     "reviewer_import_note": "reported IMPORT.json filename was shorthand; actual REVIEW_EVIDENCE_IMPORT.json discovered via rg; no evidence modified"
+  },
+  "latest_default_bundle_checkpoint": {
+    "recorded_at": "2026-10-29T01:07:21.056276+00:00",
+    "source": "2ea01821655cf496354f4daedc4fa33d45ce2222",
+    "helper_move": "9c3850d40d78d2317142f604043fd0aaaceb2aa7",
+    "job_budget": "3a0caa9366640aab8a40911fe814fd77d417c60e",
+    "validator": "53785196ec166637ca89fd732639888a1048360c",
+    "evidence_import": "C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
+    "current_exact_CI": "c6f6:5success/ARMbundleFAIL/Intelofficial45mCANCELLED, bothrealNativeOwnerPASS; no packages",
+    "new_CI": "not_run",
+    "full_product": "incomplete; no requirement accepted by this metadata update",
+    "Root_static_checks": {
+      "results": [
+        {
+          "command": [
+            "python",
+            "scripts/verify_bootstrap_manifest.py"
+          ],
+          "exit": 0,
+          "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+        },
+        {
+          "command": [
+            "python",
+            "scripts/validate_design.py"
+          ],
+          "exit": 0,
+          "log_sha256": "dbc31b19511a5b347146551baeb5eb141645cb0760af7c420e7630d1aa9797d6"
+        },
+        {
+          "command": [
+            "python",
+            "scripts/validate_infrastructure.py"
+          ],
+          "exit": 0,
+          "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+        },
+        {
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "exit": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "directory": "ROOT_BUNDLE_STATIC_CHECKS",
+      "scope": "Bootstrap93/design/infrastructure+diff; no new product/runtime execution"
+    }
   }
 }
