@@ -1398,6 +1398,15 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
         }
       ]
     },
@@ -1692,6 +1701,15 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
         }
       ]
     },
@@ -1742,6 +1760,15 @@
           "editor_source": "1751558feeaeb51bf3604be5dd6c2ed7acb21887",
           "evidence": "docs/execution/goal-integration/EVIDENCE.json",
           "verification": "actual full composed workspace462+4/lints, UI259/type/build; new daemon4fa6a499 actual default9/editor10+15PNGs; current native fixture review/macOS not_run; no reservation/dispatch/TaskAccepted"
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
         }
       ]
     },
@@ -1964,6 +1991,15 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
         }
       ]
     },
@@ -2198,6 +2234,15 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
         }
       ]
     },
@@ -3810,6 +3855,15 @@
           "dimension": "Linux62lib+8controller/fmt/clippy; Python20 andindependentcontrols; currentMacGUI not_run",
           "status": "partial",
           "coverage_limit": "Supporting Native presentation only; this slice does NOT verify scopedMCP credential expiry/cross-session rejection. Those belong to separateFactoryschema13 tests and are not accepted inPR16."
+        },
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
         }
       ],
       "coverage": "partial"
@@ -4685,7 +4739,18 @@
         "crates/core/tests/ipc.rs",
         "crates/core/tests/execution.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "Factory foundation13 full local regression, scope/budget/ownedstop/transaction negatives",
+          "source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+          "integration": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1; exactsameCorepayload",
+          "dimension": "actualLinuxTEST_DEBUG0 rootworkspace645unique+7docs/fullClippy/fmt, nested5notadded;57sessions incl3sharedbudget+18Factory",
+          "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
+          "status": "partial dimension only; notwhole requirement acceptance",
+          "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        }
+      ]
     },
     {
       "id": "AB-COR-003",

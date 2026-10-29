@@ -329,5 +329,23 @@
         }
       ]
     }
+  },
+  "foundation13_full_regression_and_integration": {
+    "at": "2026-10-29T03:30:04.364741+00:00",
+    "tested_source": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+    "integrated_source": "44d87fdb54f3f9716aaa0d2e87673362a8be45e1",
+    "core_payload_unchanged": true,
+    "unique_non_doc_tests": 645,
+    "docs": 7,
+    "nested_overlap_not_added": 5,
+    "command_results": "FULL_FIFTH_REVIEW_IMPORTS.json",
+    "all_workspace_commands_exit0": true,
+    "tracked_before_after_equal": 1308,
+    "independent_review": "bf880188/470be657",
+    "exact_scope": "Linux TEST_DEBUG0 rootworkspace only; notNative/Mac/Provider/full130",
+    "old4failures_retained": true,
+    "integration_nonrust": "Python34/Node4/NativeOwnerPython30 incl actualschema13bootstrap; bootstrap93/design130/infra2+15all0",
+    "new_childplanning": "Core/Native/UI coding separate sparsebranches, no acceptedfeature14 yet",
+    "next": "reviewFoundationmerge/draftPR/exactCI; then childplanning14 realIPC +Native8 +UI703 +migration/Provider/security tests"
   }
 }
