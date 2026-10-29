@@ -69,6 +69,10 @@ export function validateChildEditorPlan(proposal: GoalPlanProposal, scope: GoalS
       }
     }
   }
+  // Factory's fixed TaskRequest selects the whole external input set. A
+  // plan may distribute those inputs across nodes, but cannot drop them.
+  const consumed=new Set(value.nodes.flatMap(node=>node.required_inputs.filter(input=>input.source.kind==='approved_external').map(input=>input.artifact_id)));
+  if(consumed.size!==Object.keys(scope.inputs).length||Object.keys(scope.inputs).some(id=>!consumed.has(id)))fail('scope');
   if (Object.entries(scope.outputs).some(([id,contract])=>outputs.get(id)?.contract!==contract)) throw new EditorError('editorMissingOutput');
   const remaining = new Map([...edges].map(([id,deps])=>[id,new Set(deps)]));
   while (remaining.size) {
