@@ -1,0 +1,90 @@
+{
+  "recorded_at": "2026-10-29T23:16:01.259869+00:00",
+  "author_source": "dd8873347a2f5e054993e7c24c7625e6e48c5a50",
+  "Root_source": "250358ea1b02705fdd534b0a51a8014e002af45f",
+  "Rust_whole_fixture_unchanged_from": "4d00b9cfd4174fcdf8c90ec2a2fee4422ae2361b",
+  "scope": "Finite sameGoal/sourcegoal_core/sameobservedrevision six-kind postjoin event projection only; no productionloop/authority/budget changes",
+  "actual_results": [
+    {
+      "record": "pr18-rework-event-pure1",
+      "source": "250358ea1b02705fdd534b0a51a8014e002af45f",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_factory_rework_ci_evidence.py"
+      ],
+      "exit": 0,
+      "seconds": 0.3009862479812,
+      "minimum_free_bytes": 236244992,
+      "interruption": null,
+      "log_sha256": "938bbea1427018735c96f5ca660ce4cf0cb4511d50c93875f5ec0cef16ab0f98",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-event-actual1",
+      "source": "250358ea1b02705fdd534b0a51a8014e002af45f",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "scripts/record-factory-rework-ci-evidence.py",
+        "--evidence-root",
+        "/workspace/.onboarding/pr18-rework-progress-collector-actual-input2"
+      ],
+      "exit": 0,
+      "seconds": 0.1007731769932434,
+      "minimum_free_bytes": 236199936,
+      "interruption": null,
+      "log_sha256": "80267584217826ce657298f6eaed8053185dbd7e555325440e790e5d72477ec7",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-event-full-infrastructure3",
+      "source": "f5d4e362b43a7c8a128d42539f8683492924e647",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 0,
+      "seconds": 1.1026126979850233,
+      "minimum_free_bytes": 235917312,
+      "interruption": null,
+      "log_sha256": "51d023a7522ff99555a1de14c1977aa3d5f9b0286a1dee6a175352bd5813051a",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  ],
+  "independent_review_sha256": "05e515fc0d19c3b3847496791bf8b76515f5c71733fae861169a7048fa206fe1",
+  "independent_manifest_sha256": "ba5138eb815fda322dc0701ce3156ec5e8b8832f5af4a93e87ff094ae5f87761",
+  "independent_controls": "40pure (old23unchanged/new17) +7 independentownedinert; exact event association/order/proof subject/count/canary and old guards preserved; not Actor/Mac replay",
+  "CI_absolute_input_review": "caa55b23707e5013a16947a907e770dd9d10c9138ff7e412897b468dfdb33ac5",
+  "CI_absolute_input_manifest": "ef17a66f3a6450ec570bd9433f2a1d07e08dacd55982c228ffe2aa35fb7757b5",
+  "real_retained_input_event_result": "Collector validpostjoin, but associated_events pending/unknown_not_available because successful oldcase lastobservation is Factory.get. No synthetic child observation inserted, no causal evidence claimed.",
+  "full_Factory_Rust_result": "Actual26PASS91.45s at3faa remains separate originalsource; no Python-only change relabel/redundantRust replay",
+  "unchanged": "55observation/60Grant/30runtime/5client/60Actor/retry2/10ms; strict r2 unexpected-state failure and every final assertion remain",
+  "not_run": "Newexact7CI/actualmatchedfailedRunEvent/Mac/newInstaller/full130 acceptance",
+  "counts_not_additive": {
+    "collector_pure": 40,
+    "full_infrastructure": 124
+  }
+}

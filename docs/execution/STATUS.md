@@ -1,3 +1,11 @@
+# PR18 新候选准备：精确失败已保留、事件诊断独审闭合 — 2026-10-29T23:16:01.259869+00:00
+
+a866/实际9937终态：EnvUbuntu与UI通过，其余5项失败；三个真实返工在原55s内分别r2blocked14/failed16/blocked10，不能同因推断。Mac后续真实迁移/WebView/Owner/构建/审计/包跳过，无15安装包。alwaysrelative输入失配单独修为absolute、Mac正例tempalias夹具规范化；生产NoFollow/权限和原55/60/30/5/60/最终验收不变。
+
+六kind sameGoal/source/revision有限事件字段已独审40pure+7控制，Root40pure/完整infra124/真实保留inputpostjoin投影通过；旧成功input最后是Factory.get，故事件关联unknown，不伪造失败观测。原Rust26仍归3faa。见[准确终态](factory-child-goal-integration/A866_PRODUCT_TERMINAL_RESULTS.json)及[事件投影证据](factory-child-goal-integration/EVENT_DIAGNOSTICS_RESULTS.json)。下一新候选7CI待推。
+
+PR19隔离集成schema16实际Factory26PASS82.97s、完整149infra/全workspace alltargets strictClippy/fmt通过c1；995Node/5真浏览器/6PNG与旧迁移/156Core分别准确归属。Task私有日志/PNG/CI参数P2已独审闭合，尚未schema16 CI/Mac/new包，不转签。完整130仍未完成；最新main653679d/OWNER001/002ACK，无003，所有权限边界保持。以下保留历史。
+
 # PR18 新有界诊断完成本地回归，待准确CI — 2026-10-29T22:42:51.936548+00:00
 
 准确3faa单返工1PASS34.39s、完整Factory26PASS91.45s，target严格Clippy通过；collector51723独审闭合两P2，Root22pure与真实保留输入postjoin有限投影通过。fmt/infra106通过。原55/60/30/5/60和完整验收断言保持；不声称根因已修复或性能改善。CI引号SyntaxError被前置独审截住、c4两行修正及12mock边界通过，保留原证据。见[精确结果](factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json)。
