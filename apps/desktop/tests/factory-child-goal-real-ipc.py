@@ -356,8 +356,9 @@ def self_check():
     assert "'submit_child_plan','execute_child_goal','advance_child_goal'" in program
     assert "time.monotonic()+15" in program and "mcp_servers':[]" in program
     checks.extend(['generated-MCP7-Graph-no-MCP-source-compiled','original-bounded15s-parent-gate-retained'])
-    checks.extend(upfront_work_budget_self_check(program))
-    reservation_line="    work['reservation']['runtime_ms']=4000\n"
+    for mode in ['normal','lost-start','cancel']:
+        checks.extend(upfront_work_budget_self_check(program,mode))
+    reservation_line="    work['reservation']['runtime_ms']=10000 if settings['case']=='cancel' else 4000\n"
     assert program.count(reservation_line)==1
     copied="    owner=copy.deepcopy(work);owner.update("
     mutants={
@@ -372,6 +373,28 @@ def self_check():
         except AssertionError:pass
         else:raise AssertionError(name)
         checks.append('pure-upfront-source-refuses:'+name)
+    for name,mutated in {
+        'cancel-old-Work4000':program.replace(reservation_line,"    work['reservation']['runtime_ms']=4000\n"),
+        'cancel-old-child5000':program.replace("'runtime_ms':12000 if settings['case']=='cancel' else 5000","'runtime_ms':5000"),
+    }.items():
+        assert mutated!=program
+        try:upfront_work_budget_self_check(mutated,'cancel')
+        except AssertionError:pass
+        else:raise AssertionError(name)
+        checks.append('pure-cancel-upfront-source-refuses:'+name)
+    driver_source=Path(__file__).read_text()
+    for name,old,new in [
+        ('old-Grant30',"'max_duration_ms':60000","'max_duration_ms':30000"),
+        ('old-Scope30',"'ttl_ms':60000","'ttl_ms':30000"),
+        ('old-UI-Scope30',"('Approval lifetime (ms)',60000)","('Approval lifetime (ms)',30000)"),
+        ('effective-root60',"budget={'attempts':8,'parallel':1,'runtime_ms':30000","budget={'attempts':8,'parallel':1,'runtime_ms':60000"),
+    ]:
+        mutated=driver_source.replace(old,new)
+        assert mutated!=driver_source
+        try:fixture_window_source_self_check(mutated)
+        except AssertionError:pass
+        else:raise AssertionError(name)
+        checks.append('pure-fresh-window-source-refuses:'+name)
 
     source=Path(__file__).read_text()
     checks.extend(exact_child_wait_self_check(source))
@@ -431,7 +454,7 @@ EXEC_PLAN_HELPER = planning.PLAN_HELPER.replace(
     "'side_effect':'workspace_write','write_set':[{'kind':'workspace','path':p}for p in ctx['edit_context']['writable_prefixes']]")
 
 
-def upfront_work_budget_self_check(program):
+def upfront_work_budget_self_check(program,case='normal'):
     """Pure execution of local plan-construction AST only; no tool/process call.
 
     Inspect the actual generated submit/digest statements without faking their
@@ -448,7 +471,9 @@ def upfront_work_budget_self_check(program):
         return next(i for i,n in enumerate(body)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id==name for t in n.targets))
     first,submit=assignment('p'),assignment('saved')
     block=body[first:submit]
-    child_budget={'attempts':2,'parallel':1,'runtime_ms':5000,'output_bytes':4096,'children':1,'reworks':0,'tokens':None,'cost_microunits':None}
+    assert case in ('normal','lost-start','cancel')
+    child_ms,work_ms=(12000,10000)if case=='cancel'else(5000,4000)
+    child_budget={'attempts':2,'parallel':1,'runtime_ms':child_ms,'output_bytes':4096,'children':1,'reworks':0,'tokens':None,'cost_microunits':None}
     ctx={'execution_bindings':[{'connection_id':'connection','workspace_id':'workspace'}],
         'outputs':{'report-child':'output:report-child'},'contracts':{'output:report-child':['factory-child-owner-review']},
         'inputs':{'input':{'contract_id':'input:input','sha256':'a'*64}},
@@ -456,25 +481,26 @@ def upfront_work_budget_self_check(program):
         'program_sha256':{'connection':'b'*64},'edit_context':{'writable_prefixes':['reports/report-child.txt']},
         'required_acceptance_rules':['factory-child-owner-review'],'budget':child_budget}
     original_ctx=copy.deepcopy(ctx)
-    namespace={'ctx':ctx,'copy':copy,'json':json}
+    namespace={'ctx':ctx,'copy':copy,'json':json,'settings':{'case':case}}
     exec(compile(ast.fix_missing_locations(ast.Module(body=[helper],type_ignores=[])),'<pure-existing-plan-helper>','exec'),namespace)
     exec(compile(ast.fix_missing_locations(ast.Module(body=block,type_ignores=[])),'<pure-generated-plan-construction>','exec'),namespace)
     work,owner=namespace['p']['nodes']
     assert work['id']=='fixed-work'and owner['id']=='owner-report'
-    assert work['reservation']['runtime_ms']==4000 and owner['reservation']['runtime_ms']==1000
-    checks.append('actual-generated-Work4000-Owner1000-before-submit')
+    assert work['reservation']['runtime_ms']==work_ms and owner['reservation']['runtime_ms']==1000
+    checks.append('pure-generated-'+case+'-Work'+str(work_ms)+'-Owner1000-before-submit')
     assert work['reservation']is not owner['reservation']
-    assert work['reservation']['runtime_ms']+owner['reservation']['runtime_ms']==child_budget['runtime_ms']==5000
-    assert work['budget']['runtime_ms']==owner['budget']['runtime_ms']==5000 and ctx==original_ctx
-    checks.append('child5000-envelope-not-raised-or-mutated')
+    assert work['reservation']['runtime_ms']+owner['reservation']['runtime_ms']<=child_budget['runtime_ms']==child_ms
+    if case!='cancel':assert work['reservation']['runtime_ms']+owner['reservation']['runtime_ms']==5000
+    assert work['budget']['runtime_ms']==owner['budget']['runtime_ms']==child_ms and ctx==original_ctx
+    checks.append('pure-'+case+'-child'+str(child_ms)+'-fresh-envelope-not-mutated')
     reserve=next(i for i,n in enumerate(body)if isinstance(n,ast.Assign)and ast.unparse(n.targets[0])=="work['reservation']['runtime_ms']")
     assert assignment('owner')<reserve<assignment('original')<submit
     checks.append('Owner-copied-before-Work-reservation-and-raw-fixed-before-tool')
     delegate=body[assignment('child')].value
     assert isinstance(delegate,ast.Call)and isinstance(delegate.args[0],ast.Constant)and delegate.args[0].value=='delegate_task'
     params=delegate.args[1];declared=next(v for k,v in zip(params.keys,params.values)if isinstance(k,ast.Constant)and k.value=='budget')
-    assert ast.literal_eval(declared)==child_budget
-    checks.append('actual-delegate-child5000-and-other-caps-unchanged')
+    assert eval(compile(ast.Expression(declared),'<pure-fresh-declaration>','eval'),{'settings':{'case':case}})==child_budget
+    checks.append('pure-delegate-'+case+'-child'+str(child_ms)+'-other-caps-unchanged')
     original=namespace['original'];raw=original.encode('utf-8');fixed_digest=base.sha(raw)
     assert json.loads(original)==namespace['p']and original.endswith('\n')and '原文中文 🧪'in original
     assert base.sha(json.dumps(namespace['p'],ensure_ascii=False,indent=2).encode()+b'\n')==fixed_digest
@@ -488,19 +514,29 @@ def upfront_work_budget_self_check(program):
     expected=ast.parse("assert saved['plan_json']==original and saved['reference']['raw_sha256']==hashlib.sha256(original.encode()).hexdigest()").body[0]
     assert ast.dump(digest_guard,include_attributes=False)==ast.dump(expected,include_attributes=False)
     checks.append('real-submission-uses-fixed-raw-and-keeps-backend-digest-guard')
-    driver=next(n for n in ast.parse(Path(__file__).read_text()).body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    checks.extend(fixture_window_source_self_check())
+    return checks
+
+
+def fixture_window_source_self_check(source=None):
+    import ast
+    driver=next(n for n in ast.parse(source if source is not None else Path(__file__).read_text()).body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
     budget=next(n.value for n in ast.walk(driver)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='budget'for t in n.targets))
-    assert ast.literal_eval(budget)['runtime_ms']==30000
+    assert ast.literal_eval(budget)=={'attempts':8,'parallel':1,'runtime_ms':30000,'output_bytes':12288,'children':3,'reworks':0,'tokens':None,'cost_microunits':None}
+    shared=[v for n in ast.walk(driver)if isinstance(n,ast.Dict)for k,v in zip(n.keys,n.values)if isinstance(k,ast.Constant)and k.value in ('root_budget','project_budget')]
+    assert len(shared)==6 and all(ast.unparse(v)=='copy.deepcopy(budget)'for v in shared)
     grants=[n for n in ast.walk(driver)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='approve'and n.args and isinstance(n.args[0],ast.Constant)and n.args[0].value=='grants.propose']
     assert len(grants)==1
     grant_fields=grants[0].args[1];maximum=next(v for k,v in zip(grant_fields.keys,grant_fields.values)if k.value=='max_duration_ms')
-    assert isinstance(maximum,ast.Constant)and type(maximum.value)is int and maximum.value==30000
+    assert isinstance(maximum,ast.Constant)and type(maximum.value)is int and maximum.value==60000
     selections=[n for n in ast.walk(driver)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='selection'for t in n.targets)]
     assert len(selections)==1
     ttl=next(v for k,v in zip(selections[0].value.keys,selections[0].value.values)if k.value=='ttl_ms')
-    assert isinstance(ttl,ast.Constant)and type(ttl.value)is int and ttl.value==30000
-    checks.append('actual-Grant-Scope-root-project30000-envelopes-not-raised')
-    return checks
+    assert isinstance(ttl,ast.Constant)and type(ttl.value)is int and ttl.value==60000
+    lifetime=[n.elts[1]for n in ast.walk(driver)if isinstance(n,ast.Tuple)and len(n.elts)==2 and isinstance(n.elts[0],ast.Constant)and n.elts[0].value=='Approval lifetime (ms)']
+    assert len(lifetime)==1 and isinstance(lifetime[0],ast.Constant)and lifetime[0].value==60000
+    assert not any(isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='approve'and n.args and isinstance(n.args[0],ast.Constant)and n.args[0].value in ('grants.renew','factory_scopes.renew')for n in ast.walk(driver))
+    return ['pure-fresh-Native-Grant-and-Scope-wall60000-effective-root-project30000']
 
 
 def generated_acp():
@@ -542,7 +578,7 @@ def generated_acp():
     child=tool('delegate_task',{'goal':'Produce and accept only the exact generated child report',
      'connection_id':settings['connection_id'],'workspace_id':settings['workspace_id'],
      'input_artifact_ids':['input'],'output_artifact_ids':['report-child'],
-     'budget':{'attempts':2,'parallel':1,'runtime_ms':5000,'output_bytes':4096,'children':1,'reworks':0,'tokens':None,'cost_microunits':None},
+     'budget':{'attempts':2,'parallel':1,'runtime_ms':12000 if settings['case']=='cancel' else 5000,'output_bytes':4096,'children':1,'reworks':0,'tokens':None,'cost_microunits':None},
      'wait_for_child':True,'idempotency_key':'child-goal-delegate-once'})
     assert child['state']=='blocked_on_live_parent' and child['parent_task_id']==c['task_id']
     status=tool('get_task_status',{'task_id':child['task_id']});ctx=status['child_planning_context']
@@ -554,7 +590,7 @@ def generated_acp():
      'required_inputs':[{'goal_task_id':ctx['goal']['task_id'],'artifact_id':'report-child','contract_id':ctx['outputs']['report-child'],
       'source':{'kind':'node','node_id':work['id'],'candidate_for_validation':True}}],
      'required_validators':ctx['required_acceptance_rules'],'side_effect':'advisory_read_only','write_set':[],'idempotency_key':'owner-child-report-once'})
-    work['reservation']['runtime_ms']=4000
+    work['reservation']['runtime_ms']=10000 if settings['case']=='cancel' else 4000
     p['nodes'].append(owner);original=json.dumps(p,ensure_ascii=False,indent=2)+'\n'
     saved=tool('submit_child_plan',{'task_id':child['task_id'],'plan_json':original,'expected_plan_revision':0,'idempotency_key':'child-goal-plan-one'})
     assert saved['plan_json']==original and saved['reference']['raw_sha256']==hashlib.sha256(original.encode()).hexdigest()
@@ -1022,7 +1058,7 @@ def runtime_driver(args, output):
         project=host.result('projects.import',{'path':str(source_root),'name':'Generated child Goal browser'},'cg:project')
         workspace=host.result('workspaces.create',{'project_id':project['id'],'expected_head':source_before['head']},'cg:workspace',project['revision'])
         wroot=Path(workspace['root']);assert wroot.resolve().is_relative_to(runtime/'workspaces')
-        original_grant=approve('grants.propose',{'project_id':project['id'],'workspace_id':workspace['id'],'connection_id':cid,'max_attempts':8,'max_concurrency':1,'max_duration_ms':30000},'grant','cg:grant')
+        original_grant=approve('grants.propose',{'project_id':project['id'],'workspace_id':workspace['id'],'connection_id':cid,'max_attempts':8,'max_concurrency':1,'max_duration_ms':60000},'grant','cg:grant')
         assert original_grant['scope']['max_children']==original_grant['scope']['max_depth']==0
         budget={'attempts':8,'parallel':1,'runtime_ms':30000,'output_bytes':12288,'children':3,'reworks':0,'tokens':None,'cost_microunits':None}
         inputs=[{'artifact_id':'input','relative_path':'input.txt','max_bytes':1024,'expected_sha256':base.sha(b'fixed input\n')}]
@@ -1041,7 +1077,7 @@ def runtime_driver(args, output):
         record_context.update(nonce=settings_value['nonce'],program_sha256=base.sha(provider.read_bytes()),settings_sha256=base.sha(settings.read_bytes()),connection_id=cid,provider=str(provider),settings=str(settings),companion=str(companion),companion_sha256=base.sha(companion.read_bytes()))
         outputs=[{'artifact_id':key,'relative_path':'reports/'+key+'.txt','max_bytes':4096,'expected_sha256':None}for key in ['report-child','report-parent']]
         selection={'root_task_id':task['id'],'expected_task_revision':task['revision'],'grant_id':grant['id'],'expected_grant_revision':grant['revision'],'connection_ids':[cid],'workspace_ids':[workspace['id']],
-            'inputs':inputs,'outputs':outputs,'recipients':[],'max_depth':2,'max_children':3,'max_total_nodes':4,'root_budget':copy.deepcopy(budget),'project_budget':copy.deepcopy(budget),'ttl_ms':30000,
+            'inputs':inputs,'outputs':outputs,'recipients':[],'max_depth':2,'max_children':3,'max_total_nodes':4,'root_budget':copy.deepcopy(budget),'project_budget':copy.deepcopy(budget),'ttl_ms':60000,
             'capabilities':{'delegate_task':True,'resume_parent_as_new_attempt':True,'child_planning':True,'child_goal_execution':True,'create_workspace':False},
             'child_planning_policy':{'max_nodes':4,'max_revisions':8,'max_plan_bytes':planning.PLAN_BYTES,'outputs':[{'artifact':a,'validators':[]}for a in outputs],
                 'writable_prefixes':['reports/report-child.txt'],'owner_acceptance_criteria':'Review the exact generated child report SHA, workspace root, input version and actual owned stop'},
@@ -1172,7 +1208,7 @@ def runtime_driver(args, output):
         expand(form.locator('details').filter(has=page.get_by_text('Selected inputs / Declared outputs',exact=True)))
         form.get_by_label('Selected inputs',exact=True).fill('input | input.txt | 1024 | '+base.sha(b'fixed input\n'))
         form.get_by_label('Declared outputs',exact=True).fill('\n'.join(a['artifact_id']+' | '+a['relative_path']+' | 4096'for a in outputs))
-        for label,value in [('Maximum delegation depth',2),('Maximum child tasks',3),('Maximum total tasks',4),('Approval lifetime (ms)',30000)]:form.get_by_label(label,exact=True).fill(str(value))
+        for label,value in [('Maximum delegation depth',2),('Maximum child tasks',3),('Maximum total tasks',4),('Approval lifetime (ms)',60000)]:form.get_by_label(label,exact=True).fill(str(value))
         def fill_budget(group):
             for label,key in [('Attempts','attempts'),('Parallel attempts','parallel'),('Runtime ms','runtime_ms'),('Declared output bytes','output_bytes'),('Children','children'),('Reworks','reworks')]:group.get_by_label(label,exact=True).fill(str(budget[key]))
         fill_budget(form.get_by_role('group',name='Root shared limits',exact=True));fill_budget(form.get_by_role('group',name='Project shared limits',exact=True))
