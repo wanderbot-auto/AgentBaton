@@ -1,6 +1,6 @@
 # Progress
 
-Current source8d7fd644597bb9f5a61a435df39e61722c4717d9 is frozen, author NO Cargo lease. Source-only maintenance, not a new CI PASS.
+Current correction sourcea3e831ca01c88c05c59b9de090dcf174f355436b is frozen, author NO Cargo lease. IndependentF1 sourceclosure is SourceReady for RootcontrolledRusttests; actualRust/Store/CI remainsNOT_RUN. Earlier8d7 source/model stage below is preserved, but its originalreview is CHANGES_REQUIRED, not accepted rollbackproof.
 
 Actual publicCI PR18head79 failed real_admission_profile_and_post_reservation_input_drift_remain_guarded on allthree providedRust/ARM/Intel logs: freshStore actually15, expected14. Failure occurs in Fixture::new before readonlyvalidation/reservation/drift launch; these logs do not prove a laterdrift/timing defect or successfulpostreservation checks. Original logs are retained at .onboarding/pr18-head79-product-failures with hashes in SOURCE_SCAN.json.
 
@@ -11,3 +11,12 @@ The currentStore-generated predecessor helper now refuses anything but15 and12ex
 The originalwhole sqlite_master comparison remains exact except two explicitNativeidFK restorations; independenttable_info/completeforeign_key_list equality and unchangedindexes/otherobjects/BLOB remain required. Writtennegativevariants include originalnonempty/missing/wrongversion plus newderived/nonempty/missing,14input,Factory/NativeDDL/indexchanges, latecollision and lateNativeproposalFKfailure. No originaldrift/fee/stop assertion is relaxed.
 
 Actualstandalone rustfmt and gitdiffcheck passed.14schema-only syntheticSQLite controls executing exactextractedhelperDDL and modeledguardorder passed, including nonemptyinertNative rowid31/run47/rawUTF8/BLOB/incomingrefs, FKoff/on, rollback andpostNativeFKfailure. These inertreferentialrows are NOT valid Native approvals/Store or Provider evidence. InitialPythonSQLextractor missed rustfmtwhitespace; originalscript/failure retained, correctedwithoutproductsource changes. No Cargo/Rust/Store/Actor/runtime/CIrerun result is claimed; Root must execute the frozen tests.
+
+
+Independentreview F1 correctly found that freshStore keeps journal_mode=WAL: comparing only fsread(mainDB) does not prove unchangedlogical rows/schema/user_version. Its ownedinertcounterexample preservesoldmainhash while changing logicalstate. Original8d7 blockedreview .onboarding/schema15-fixture-maintenance-independent-review/revision-8d7fd644 (REVIEW88df1bd...e582/MANIFEST73598ad...3d5) stays immutable; earlier14author+10reviewer models never proved thisRustnegativepath.
+
+Onlycommand_validation_migration.rs changes in a3e. AprivatePartialEq/noDebug snapshot reads allsqlite_schema objects, alltable rowid+rawValue/BLOB including sqlite_sequence, user/schema/application versions, FK/journal/defer/queryonly/synchronous andautocommit on thesameconnection. Original12variant setup is complete before itsbeforecapture; afterhelperrefusal everylogicalfield must equal, alongside unchangedmainbyte/FK/auto assertions. The mainbyte equality now has finiteassertmessage rather than dumping entireDBbytes. No oldvariant or guard is weakened.
+
+Newcallerlatefailure assertsWAL, successfullyrunsinnerinverse to14, then realcallerDDL dropsplanning/sets13 before fixedexistingtablecollision. The transaction rollsback and FKrestoration executes before anyresultassertion, thenfullsnapshot/mainbytes/FK/auto must matchoriginal. This proves intendedlaterphase ifactualRustpasses, not an earlyrefusal. Helper/production/true14legacy files remain byte-equal8d7/baseline.
+
+Standaloneformat/diff and fulltestfilelexicalinverse passed; twoownedinertfilebackedSQLiteWALmechanism controls passed(main-equal/logical-changed detection andlateDDLrollback). These are NOTRust/Store/helper/nativeapproval results. Independentreviewer additionally ran6finiteWALcontrols and sealednewa3e SourceReady withno mustfix (revision-a3e831ca REVIEW6228955...4380/MANIFESTe13b54c...8163); old8d7BLOCKED remains. Rootcontrolledtests/CI are stillpending; no Cargo/Actor/targetwrite was runbythisauthor.

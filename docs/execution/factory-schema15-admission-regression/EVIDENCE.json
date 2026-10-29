@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "status": "source_frozen_RUST_NOT_RUN",
+  "status": "F1_corrected_SourceReady_for_controlled_Rust_NOT_RUN",
   "base": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
-  "source": "8d7fd644597bb9f5a61a435df39e61722c4717d9",
+  "source": "a3e831ca01c88c05c59b9de090dcf174f355436b",
   "branch": "codex/factory-schema15-admission-regression",
   "tree": "/workspace/.worktrees/factory-schema15-admission-regression",
   "requirements_context": [
@@ -15,7 +15,8 @@
     "bb45b7a2835abe694f2e660c639d6cc306f6609a",
     "6abadd496427ed0b495a537f2bcd04f8cfea08d4",
     "b2b21eace6cc45fabce4ecfe9a1b4b2f66650002",
-    "8d7fd644597bb9f5a61a435df39e61722c4717d9"
+    "8d7fd644597bb9f5a61a435df39e61722c4717d9",
+    "a3e831ca01c88c05c59b9de090dcf174f355436b"
   ],
   "original_actualCI": [
     {
@@ -129,7 +130,7 @@
     "alloldmigration raw/BLOB/backup/refusal assertions; onlyexact2knownNativeFKDDL intentionnormalized infullschemaoracle"
   ],
   "new_inverse": "strict15/exact12emptyFactoryDDL+objects/knownNative2DDL/index; reverseonly2FKs; rowid/rawallcolumns/index/incomingrefs; pre/postFK/atomicrollback/restoreflags; ownsynthetic testDBonly",
-  "written_tests": "modified targets plus1newemptyinversepositive and12inversefailurevariants; RustNOT_RUN",
+  "written_tests": "allmodifiedtargets plus1emptyinversepositive/12inversefailurevariants now fullWALlogical snapshots and1callerlatefailure; actualRustNOT_RUN",
   "actual_static": {
     "rustfmt": "PASS standalonesourceonly",
     "git_diff_check": "PASS",
@@ -213,5 +214,49 @@
   "evidence_paths": [
     "/workspace/.onboarding/factory-schema15-admission-regression/SOURCE_SCAN.json",
     "/workspace/.onboarding/factory-schema15-admission-regression/FIXTURE_SQL_CONTROLS.json"
-  ]
+  ],
+  "prior_8d7_F1": {
+    "source": "8d7fd644597bb9f5a61a435df39e61722c4717d9",
+    "review": "CHANGES_REQUIRED",
+    "issue": "WALmainfile equality alone canfalsegreen for logicalrows/schema/userversion",
+    "immutable_review": "/workspace/.onboarding/schema15-fixture-maintenance-independent-review/revision-8d7fd644",
+    "models_limit": "14author+10reviewer models not actualRustnegativeproof"
+  },
+  "F1_correction": {
+    "source": "a3e831ca01c88c05c59b9de090dcf174f355436b",
+    "changed_file": "crates/core/tests/command_validation_migration.rs",
+    "helper_production_true14_unchanged": true,
+    "snapshot": "sameconn allsqlite_schema/alltablerowidValue inclsqlite_sequence/8pragmas/autocommit; privatePartialEq/noDebug, finitepanic",
+    "old_asserts": "mainbyteequality+FK+auto andall12variants retained",
+    "new_caller_negative": "inner15->14 success thencallerDROPplanning/set13/fixedcollision; RAIIrollback/FKrestored beforeassert; samefullsnapshot/file/flags",
+    "actual_author_WAL_models": {
+      "dimension": "owned inert file-backed SQLite WAL mechanism controls for snapshot/equality; NOT Rust/Store/helper/Nativeapproval runtime",
+      "private_DB_copy": false,
+      "python_sqlite_version": "3.53.1",
+      "cases": [
+        {
+          "case": "WALmainfile_equal_but_fullsnapshot_detects_changes",
+          "main_bytes_equal": true,
+          "schema_rows_sequence_version_changes_detected": true,
+          "main_sha256": "d7d769c58b3d74b30127ad0734ddd6b2114b8aaee66fcf1b95237f34c4f7004a"
+        },
+        {
+          "case": "WALcaller_lateDDLcollision_restores_fullschema_rawrows_sequence_versions_pragmas_and_mainbytes",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "count": 2
+    },
+    "source_checks": "/workspace/.onboarding/factory-schema15-admission-regression/wal-f1-a3e831c/SOURCE_CHECKS.json",
+    "independent_source_review": {
+      "status": "SOURCE_READY_FOR_ROOT_CONTROLLED_RUST_TESTS",
+      "path": "/workspace/.onboarding/schema15-fixture-maintenance-independent-review/revision-a3e831ca",
+      "review_sha256": "6228955c2eec224613aa871fde5f3992b34a815d252f5b786ee8c538c2c54380",
+      "manifest_sha256": "e13b54cd39039f158342eaaad5507a1ab02cabb27f268fe084ffa31cc6ed8163",
+      "independent_models": 6,
+      "not_Rust_runtime": true
+    },
+    "actual_Rust_Store_CI": "NOT_RUN"
+  }
 }
