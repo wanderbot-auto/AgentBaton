@@ -17,3 +17,7 @@ Root explicitly required continuing beyond the boundary decoder. The new file no
 ## Independent review corrections
 
 Audit every old non-schema numeric expression rather than only generated fixtures; restore exact14-byte cancellation meter and retain the failing459 counterexample. Verify explicit Native Grant before0/after3 persisted revisions. Keep current Factory-bound after3 immutable after its separate approval. A failed or unknown-owned-stop runtime must retain its0700 private directory without a Python finalizer. Before explicit UI Factory start, require complete SQL execution-zero domains and validate the unique no-error start receipt. Keep advance_plan and actual Validator execution as separate NOT_RUN dimensions; these three cases do not cover them.
+
+## Narrow normal-case upfront reservation declaration
+
+Root's actual Core trace showed launch→prompt1178ms exceeding the old normal fixture's1000ms upfront Work reservation. Declare4000ms on the new child-Goal Work only, after copying the Owner so Owner retains1000ms. Combined reservations fit the unchanged child5000ms and Grant/scope/root/project30000ms envelopes. Fix the immutable plan before raw serialization/submission; do not adjust production deadlines, old negative cases, cancel hold or actual-stop rules. Pure AST/raw/digest controls precede independent review and any leased actual browser execution.

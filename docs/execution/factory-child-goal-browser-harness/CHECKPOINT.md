@@ -1,3 +1,13 @@
+# Current reservation checkpoint — source dd117b5, actual runtime NOT_RUN
+
+Source `dd117b5c7790b7f27bbc54152daf1cd0cefd93b5`; new driver SHA `ad280ff7ba7c23000bb594cc3b1e48c9b90d9def2bd51fbb289ee207fd17c6b4`. One actual generated-plan change: copy Owner1000 first, then Work upfront4000 before immutable raw serialization/submit. Combined5000 and Grant/scope/root/project30000 caps unchanged. The runtime_driver function, old five harnesses, cancel hold and true-stop rules remain byte-identical to54bc919.
+
+Validation:285 pure controls PASS, including actual local construction AST, copy order, original5k/30k budgets, lossless raw/digest fixed before submit and four mutation refusals. No tool/process/backend call is executed by these controls. Default remains exit2 NOT_RUN. Actual normal/lost-start/cancel/Core15/browser/Native/Provider/Cargo/Node/CI remain NOT_RUN. Core's original1s-negative classification actualFAIL is preserved and remains separately pending.
+
+Next: Root independent narrow-source review; actual Core happyPASS including parent projection; exact frozen tools/assets; Root exclusive browser window. Evidence `/workspace/.onboarding/factory-child-goal-browser-work-reservation`. No Root tree or tools were changed/copied.
+
+## Earlier corrected checkpoint preserved
+
 # Current corrected checkpoint — source0fb50feb, actual runtime NOT_RUN
 
 Source `0fb50feb072c8d3af17d22bb616718a5f0e45394`; current new driver SHA `0de87b48762969676bc37a6ff33de0bdd9f0f8e3920ee8efd9a5a7ef6584c88b`. Independent corrected-source review pending. Original459 mistake/1241 source and both sealed archives remain unchanged.

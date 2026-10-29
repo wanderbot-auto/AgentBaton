@@ -1,200 +1,116 @@
 {
-  "status": "source_corrected_independent_review_pending_runtime_not_run",
-  "recorded_at": "2026-10-29T10:39:27.692982+00:00",
-  "source_commit": "0fb50feb072c8d3af17d22bb616718a5f0e45394",
-  "source_base": "a57d647e49190fa795f655ed102c0ad29275370a",
+  "status": "source_upfront_reservation_corrected_actual_runtime_not_run",
+  "recorded_at": "2026-10-29T12:47:44.190042+00:00",
+  "source_commit": "dd117b5c7790b7f27bbc54152daf1cd0cefd93b5",
   "requirements": [
     "AB-TSK-009",
     "AB-TSK-011",
     "AB-TSK-012"
   ],
-  "authorization": "AB-START-001/OWNER001002; test-only same boundaries, no expansion",
   "schema_required": 15,
-  "corrections": [
-    {
-      "commit": "0241e9763c28b07596a6fe2279884c0c9338d613",
-      "finding": "Bulk ==14->15 replacement accidentally changed cancellation artifact meter assertion, while unchanged producer writes bpartial report of14bytes",
-      "change": "Restore exact actual_output_bytes==14; no fixture modification or relaxed threshold",
-      "old_bad_source": "459f68dcf8d8e1b78212aa69a5fde6a2e1be5d0b retained",
-      "dimension": "independent static source finding; actual cancellation E2E was NOT_RUN; original211 pure did not cover it"
-    },
-    {
-      "commit": "ba5464b09c8a00ded09e1aadd135a7be3bbf38bf",
-      "finding": "Retain/verify both permitted explicit Native Grant revision histories",
-      "change": "Final readonly goal_grant_revisions select requires exact before0 and afterNative3 objects/revisions, old approval null/new actualNativeScopeID; current execution_grants exactly equals Factory-bound after3"
-    },
-    {
-      "commit": "866287a50ed8be43f86b81e68d00c90ce3d0f9fe",
-      "finding": "TemporaryDirectory finalizer/unconditional cleanup could erase runtime/DB while resources unknown",
-      "change": "Explicit0700 mkdtemp, no finalizer. Missing Graph binding remainsNone. Remove private root only if seven explicit stop/coverage/rawDB/business gates are all isTrue; otherwise retain original paths/DB/PID proof and failure",
-      "additional": "Restore old Graph wrong-schema future intent with16 alongside all previous controls"
-    },
-    {
-      "commit": "0fb50feb072c8d3af17d22bb616718a5f0e45394",
-      "finding": "CG02 only tested childGoal0 and did not validate explicit Factory.start reply; accidental auto-start+CONFLICT might pass",
-      "change": "After approval/before start require all28 execution tables0 plus inactive lease/intent; explicitly permit only unused Native/bootstrap metadata. Require sole actual UI Factory.start no-error queuedrev1 and exact scope/project/root via original confirmed_start_response"
-    }
-  ],
-  "Grant_fixture_stage_contract": {
-    "dimension": "Driver source path, not an executed approval or OS Owner dialog",
-    "before": "One real Native-proposal/finalize fixture Grant ID has children0/depth0 at its initial revision",
-    "explicit_Native_Goal_review": "Separate complete Native Goal proposal/private host Owner fixture finalization explicitly changes that SAME Grant ID to a new revision children3/depth1; both persisted exact historical objects are checked",
-    "Factory_original": "At Factory approval the original Grant means the independently Native-confirmed after3 record. Factory/derived Goal/rework must keep this object/revision/ceilings unchanged",
-    "Core_fixture_difference": "Core160 test also keeps an independent baseGrant0 while creating/reviewing another Native Grant. This browser fixture instead explicitly reviews sameGrant0->3. Neither path licenses Factory or Agent silent elevation; adding a redundant independent Grant is unnecessary"
+  "reason": {
+    "source": "Root direct execution handoff; not an independent runtime measurement by this leaf",
+    "observed": "Root actual normal1s saw launch-to-prompt1178ms exceed upfront1000ms and supervisor correctly produced unknown; actual new Core normal4s reached worker stop/candidate/Owner/TaskAccepted but parent confirmed-stop projection remained a separate source fix c252",
+    "interpretation": "Normal generated fixture must declare its required upfront Work reservation within already approved5000ms child and30000ms Grant/scope envelopes. This does not raise production limits or weaken timeout classification."
   },
-  "numeric_source_audit": {
-    "base": "a57d647e49190fa795f655ed102c0ad29275370a",
-    "current_source": "0fb50feb072c8d3af17d22bb616718a5f0e45394",
-    "files": 5,
-    "original_non_schema_numeric_expression_occurrences": 1470,
-    "current_missing": 0,
-    "current_exit": 0,
-    "old459_counterexample_missing": 1,
-    "old459_counterexample_exit": 1,
-    "counterexample": "Exactly the actual_output_bytes==14 expression is absent in old459",
-    "version_negative_vector": "11,12,13,14,16,13.0,14.0,15.0,True,string13/14/15,None. Exact current integer15 remains the only accepted schema",
-    "historical_Core14_SQL_replay": "Source remains byte-exact and genuinely historical; not relabeled15"
+  "actual_program_change": {
+    "only_delta": "work['reservation']['runtime_ms']=4000",
+    "order": "after Owner deepcopy/update, before plan append/original raw JSON/submit",
+    "Work_reservation_ms": 4000,
+    "Owner_reservation_ms": 1000,
+    "child_budget_ms": 5000,
+    "root_project_Grant_Scope_ms": 30000,
+    "cancel_hold": "unchanged",
+    "runtime_stop_and_unknown_rules": "unchanged"
   },
-  "pure_checks": {
-    "source_commit": "0fb50feb072c8d3af17d22bb616718a5f0e45394",
-    "AST_files": 6,
+  "pure_controls": {
+    "recorded_at": "2026-10-29T12:46:10.456666+00:00",
+    "source_commit": "dd117b5c7790b7f27bbc54152daf1cd0cefd93b5",
+    "source_sha256": "ad280ff7ba7c23000bb594cc3b1e48c9b90d9def2bd51fbb289ee207fd17c6b4",
+    "source_bytes": 105594,
+    "previous_source": "0fb50feb072c8d3af17d22bb616718a5f0e45394",
+    "only_generated_program_delta": "work['reservation']['runtime_ms']=4000",
+    "runtime_driver_function_byte_equal_54bc": true,
+    "old_five_byte_equal_54bc": {
+      "apps/desktop/tests/factory-real-ipc.py": "d66be1f50e6871a90f51691ddcd7e78530d6a2989d5bfe29575ef2eba65b8640",
+      "apps/desktop/tests/goal-graph-real-ipc.py": "9a70876b3b30b00b4119a8872d0af8ad911f1ec2ae24886fe4b81fb843ece662",
+      "apps/desktop/tests/data-workspace-real-ipc.py": "38982f23297f58f3eba333c0ae9a676c2daca4a09c8797b17affb72bde294ded",
+      "apps/desktop/tests/goal-execution-real-ipc.py": "fcbe474e1ee4b7f3ce7fbb0ceacc018ed0d174efafa8b9bfda9649e30e475db9",
+      "apps/desktop/tests/factory-child-planning-real-ipc.py": "89002c660335f6cc681b6428d832f977f618d2d9f24b90079aa1c5990073f992"
+    },
+    "Owner_copy_before_Work4000": true,
+    "Work4000_Owner1000_child5000": true,
+    "root_project_Grant_Scope30000_unchanged": true,
+    "fixed_raw_UTF8_and_backend_digest_guard_before_submission": true,
+    "actual_cancel_hold_and_stop_rules_unchanged": true,
+    "pure": {
+      "argv": [
+        "python3",
+        "/workspace/.worktrees/factory-child-goal-browser-harness/apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--self-check",
+        "--output",
+        "/workspace/.onboarding/factory-child-goal-browser-work-reservation/pure-second"
+      ],
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit": 0,
+      "count": 285,
+      "report": "pure-second/self-check.json",
+      "exact_source_hash_verified": true,
+      "dimension": "pure Python fixed-boundary and fake-query-return controls; NO Core/SQLite migration/browser/OS approval/process execution"
+    },
+    "earlier_pure": {
+      "count": 281,
+      "exit": 0,
+      "source_recovered_and_SHA_matches": true,
+      "report": "pure-first/self-check.json"
+    },
+    "default_NOT_RUN": {
+      "argv": [
+        "python3",
+        "/workspace/.worktrees/factory-child-goal-browser-harness/apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--output",
+        "/workspace/.onboarding/factory-child-goal-browser-work-reservation/current-default-NOT_RUN"
+      ],
+      "exit": 2
+    },
     "source_before_after_equal": true,
-    "source_map": {
-      "apps/desktop/tests/factory-real-ipc.py": {
-        "sha256": "d66be1f50e6871a90f51691ddcd7e78530d6a2989d5bfe29575ef2eba65b8640",
-        "bytes": 114070
-      },
-      "apps/desktop/tests/goal-graph-real-ipc.py": {
-        "sha256": "9a70876b3b30b00b4119a8872d0af8ad911f1ec2ae24886fe4b81fb843ece662",
-        "bytes": 159264
-      },
-      "apps/desktop/tests/data-workspace-real-ipc.py": {
-        "sha256": "38982f23297f58f3eba333c0ae9a676c2daca4a09c8797b17affb72bde294ded",
-        "bytes": 55864
-      },
-      "apps/desktop/tests/goal-execution-real-ipc.py": {
-        "sha256": "fcbe474e1ee4b7f3ce7fbb0ceacc018ed0d174efafa8b9bfda9649e30e475db9",
-        "bytes": 65473
-      },
-      "apps/desktop/tests/factory-child-planning-real-ipc.py": {
-        "sha256": "89002c660335f6cc681b6428d832f977f618d2d9f24b90079aa1c5990073f992",
-        "bytes": 100909
-      },
-      "apps/desktop/tests/factory-child-goal-real-ipc.py": {
-        "sha256": "0de87b48762969676bc37a6ff33de0bdd9f0f8e3920ee8efd9a5a7ef6584c88b",
-        "bytes": 98725
-      }
-    },
-    "commands": [
-      {
-        "label": "current0fb-numeric-audit",
-        "argv": [
-          "python3",
-          "/workspace/.onboarding/factory-child-goal-browser-harness-corrections/audit_old_numbers.py",
-          "--current-ref",
-          "0fb50feb072c8d3af17d22bb616718a5f0e45394",
-          "--out",
-          "/workspace/.onboarding/factory-child-goal-browser-harness-corrections/current0fb-numeric-audit"
-        ],
-        "exit": 0,
-        "expected_exit": 0,
-        "count": null,
-        "status": null,
-        "dimension": "pure Python AST/source numeric-context audit; no runtime/daemon/browser",
-        "report": "/workspace/.onboarding/factory-child-goal-browser-harness-corrections/current0fb-numeric-audit/NUMERIC_AUDIT.json",
-        "started_at": "2026-10-29T10:37:23.592711+00:00",
-        "elapsed_seconds": 0.969
-      },
-      {
-        "label": "current0fb-child-goal-pure",
-        "argv": [
-          "python3",
-          "/workspace/.worktrees/factory-child-goal-browser-harness/apps/desktop/tests/factory-child-goal-real-ipc.py",
-          "--self-check",
-          "--output",
-          "/workspace/.onboarding/factory-child-goal-browser-harness-corrections/current0fb-child-goal-pure"
-        ],
-        "exit": 0,
-        "expected_exit": 0,
-        "count": 274,
-        "status": "passed",
-        "dimension": "pure Python fixed-boundary and fake-query-return controls; NO Core/SQLite migration/browser/OS approval/process execution",
-        "report": "/workspace/.onboarding/factory-child-goal-browser-harness-corrections/current0fb-child-goal-pure/self-check.json",
-        "started_at": "2026-10-29T10:37:24.561703+00:00",
-        "elapsed_seconds": 0.265
-      },
-      {
-        "label": "current0fb-graph-driver-pure",
-        "argv": [
-          "python3",
-          "/workspace/.worktrees/factory-child-goal-browser-harness/apps/desktop/tests/goal-graph-real-ipc.py",
-          "--driver-self-check",
-          "--output",
-          "/workspace/.onboarding/factory-child-goal-browser-harness-corrections/current0fb-graph-driver-pure"
-        ],
-        "exit": 0,
-        "expected_exit": 0,
-        "count": 26,
-        "status": "passed",
-        "dimension": "static plan constructor/generated Python syntax/manifest negatives and isolated readonly FD controls; no Core/browser execution or minted receipts",
-        "report": "/workspace/.onboarding/factory-child-goal-browser-harness-corrections/current0fb-graph-driver-pure/driver-static-checks.json",
-        "started_at": "2026-10-29T10:37:24.827120+00:00",
-        "elapsed_seconds": 0.115
-      },
-      {
-        "label": "current0fb-default-NOT_RUN",
-        "argv": [
-          "python3",
-          "/workspace/.worktrees/factory-child-goal-browser-harness/apps/desktop/tests/factory-child-goal-real-ipc.py",
-          "--output",
-          "/workspace/.onboarding/factory-child-goal-browser-harness-corrections/current0fb-default-NOT_RUN"
-        ],
-        "exit": 2,
-        "expected_exit": 2,
-        "count": null,
-        "status": "pending_dependencies",
-        "dimension": null,
-        "report": "/workspace/.onboarding/factory-child-goal-browser-harness-corrections/current0fb-default-NOT_RUN/NOT_RUN.json",
-        "started_at": "2026-10-29T10:37:24.942241+00:00",
-        "elapsed_seconds": 0.165
-      }
-    ],
-    "non_schema_original_numeric_contexts_preserved": 1470,
-    "old459_negative_control_exit": 1,
-    "old459_missing_numeric_contexts": 1,
-    "current_positive_exit": 0,
-    "partial_report_bytes_and_assertion": 14,
-    "no_TemporaryDirectory_finalizer_in_driver": true,
-    "advance_plan_real_case": "not_run; no3case invokes advance_plan",
-    "real_validators": "not_run; validators[]",
-    "actual_Core15_browser_daemon_Native_execution": "not_run; pure checks are not E2E",
-    "independent_review": "pending current corrected-source review"
+    "actual_Core15_IPC_browser_daemon_Native_Provider_Cargo_Node": "not_run",
+    "negative_Core_1s_timeout_classification": "Root reports actualFAIL remains pending in separate Core driver; not modified here",
+    "no_Root_tree_write_or_tools_copy": true
   },
+  "additional_meaningful_controls": [
+    "Execute only the actual generated local plan-construction AST with inert unit context; no tool invocation",
+    "Verify Work4000/Owner1000 independent reservation objects and unchanged child5000 context",
+    "Inspect actual delegate5000 and actual runtime/Grant/scope30000 literals",
+    "Prove Owner copied first and immutable raw fixed before real submit",
+    "Check lossless Chinese/emoji UTF8 raw/SHA and retain exact backend saved raw/digest assertion",
+    "Reject old normal Work1000, Owner copied afterWork4000, submit-time raw mutation and post-raw Work mutation"
+  ],
   "runtime_matrix": {
-    "normal": "source_implemented_not_run: actual Owner-only work+Owner graph/candidate/TaskAccepted/accepted-handoff/parentresume/ownedstop and shared counters",
-    "lost-start": "source_implemented_not_run: real commit reply drop, explicit original key/CAS recovery, payload conflict",
-    "cancel": "source_implemented_not_run: real live worker, committed cancel reply drop, exact recovery, actual stop/noTaskAccepted",
-    "advance_plan": "NOT_RUN; no current3case invokes advance_plan, decoder/mapping only",
-    "real_Validator": "NOT_RUN; current3cases approve validators[] and require no validations. This is no deterministic Validator evidence",
-    "old5_legacy_drivers_schema15": "NOT_RUN; compatibility source only",
-    "extra_matrix": "revoke/expiry/input drift/budget-unknown/failed-adoption/rework still pending",
-    "Core15_IPC_browser_daemon_Native_macOS_Cargo_Node_Provider_CI_packages": "NOT_RUN by this leaf"
+    "normal": "source_updated_not_run",
+    "lost-start": "source_updated_not_run",
+    "cancel": "source_updated_not_run; original hold/actual stop guards unchanged",
+    "advance_plan": "not_run; no3case invokes it",
+    "real_Validator": "not_run; current3cases use validators[]",
+    "Core_1s_negative_timeout_classification": "Root reports actualFAIL pending separate Core driver classification correction; untouched",
+    "Core15_IPC_browser_daemon_Native_macOS_Provider_Cargo_Node_CI_packages": "not_run by this leaf"
   },
   "preservation": {
-    "old_seals": "Initial75-member and1241-runtime44-member archives remain byte-immutable",
-    "previous_records_commit": "fe728ea97e92d4a70299df89211d01f587f335f6",
-    "previous_EVIDENCE_sha256": "94dcb654afa4505c6e6e9f62e891fe5b379e07759cc992e82df93ad2583429fb",
-    "previous_EVIDENCE_copy": "previous-fe728ea-EVIDENCE.json",
-    "original_191_200_202_211_results": "Retained and bound to original source; not reused as current274 result",
-    "five_legacy_source_delta_since459": "Only goal-execution cancellation15->14 restoration and Graph future16 vector addition; all other old source bytes remain459",
-    "production_Core_UI_Native_CI_locks_schema_STATUS_permissions_requirements": "unchanged"
+    "previous_source": "0fb50feb072c8d3af17d22bb616718a5f0e45394",
+    "previous_records": "54bc919dd12deb92b9586232a0a94dc761da43c1",
+    "previous_EVIDENCE_sha256": "212bb36435e280119f5b1a2c3c8a2c77b9c0a56d67739d8e6cdddf8389665980",
+    "five_old_harnesses": "byte-exact to54bc919; no permission to alter old1s/cancel fixtures",
+    "runtime_driver_function": "byte-exact to54bc919",
+    "all_old_archives_and_failures": "unchanged",
+    "Core_UI_Native_CI_schema_permissions_locks_Root_STATUS_130requirements": "unchanged"
   },
   "pending": [
-    "Config independent corrected-source review",
-    "Core happy-path actualPASS and frozen exact tools/frontend manifest",
-    "Root exclusive browser/daemon execution lease",
-    "Execute source-ready3cases and adapted5legacy drivers; preserve failures; no claims until real results"
+    "Root independent review of exact narrow source commit",
+    "Root actual Core happy-path including parent projection and exact fresh tools manifest",
+    "Root exclusive browser execution window for all3 actual cases"
   ],
-  "evidence_directory": "/workspace/.onboarding/factory-child-goal-browser-harness-corrections",
+  "evidence_directory": "/workspace/.onboarding/factory-child-goal-browser-work-reservation",
   "whole_product_completion": false
 }
