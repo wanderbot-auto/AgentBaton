@@ -13,16 +13,54 @@ use std::{
 struct RunningDaemon {
     stop: Arc<AtomicBool>,
     thread: Option<JoinHandle<agentbaton_core::Result<()>>>,
+    db: PathBuf,
+    workspace: PathBuf,
+    evidence: PathBuf,
 }
 impl Drop for RunningDaemon {
     fn drop(&mut self) {
         self.stop.store(true, Ordering::Relaxed);
-        if let Some(h) = self.thread.take() {
-            assert!(
-                h.join().expect("owned daemon thread panic").is_ok(),
-                "owned daemon shutdown failed"
+        let joined = match self.thread.take() {
+            Some(thread) => match thread.join() {
+                Ok(Ok(())) => json!({"joined":true,"daemon_result":"ok"}),
+                Ok(Err(e)) => json!({"joined":true,"daemon_result":"error","error":e.to_string()}),
+                Err(_) => json!({"joined":true,"daemon_result":"panic"}),
+            },
+            None => json!({"joined":false,"daemon_result":"missing_owned_thread"}),
+        };
+        // Do not mask an original assertion panic with a cleanup assertion.
+        // Preserve private raw DB/stderr before Fixture's TempDir is removed.
+        let captured = (|| -> std::io::Result<()> {
+            let copy = self.evidence.join("runtime.raw.sqlite3");
+            fs::copy(&self.db, &copy)?;
+            fs::set_permissions(&copy, fs::Permissions::from_mode(0o600))?;
+            let stderr = self.workspace.join("reports/fixture-stderr.txt");
+            if stderr.exists() {
+                let dst = self.evidence.join("generated-provider.stderr.log");
+                fs::copy(stderr, &dst)?;
+                fs::set_permissions(dst, fs::Permissions::from_mode(0o600))?;
+            }
+            let mut report = joined.clone();
+            report["dimension"]=json!("current Core daemon actor thread; actual owned Provider/MCP process evidence remains in DB");
+            report["raw_db_sha256"] = json!(sha256(&fs::read(&copy)?));
+            report["raw_db_bytes"] = json!(fs::metadata(&copy)?.len());
+            report["test_panicking"] = json!(std::thread::panicking());
+            fs::write(
+                self.evidence.join("owned-cleanup.json"),
+                serde_json::to_vec_pretty(&report)?,
+            )?;
+            Ok(())
+        })();
+        if let Err(error) = captured {
+            eprintln!(
+                "CHILD_GOAL_EVIDENCE_CAPTURE_FAILED path={} error={error}",
+                self.evidence.display()
             );
         }
+        eprintln!(
+            "CHILD_GOAL_OWNED_CLEANUP evidence={} result={joined}",
+            self.evidence.display()
+        );
     }
 }
 #[test]
@@ -116,9 +154,19 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
     let daemon = Daemon::bind(&runtime).unwrap();
     let stop = Arc::new(AtomicBool::new(false));
     let workerstop = stop.clone();
+    let evidence = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
+        "../../artifacts/factory-child-goal-core/runtime-{}",
+        uuid::Uuid::new_v4()
+    ));
+    fs::create_dir_all(&evidence).unwrap();
+    fs::set_permissions(&evidence, fs::Permissions::from_mode(0o700)).unwrap();
+    fs::write(evidence.join("started.json"),serde_json::to_vec_pretty(&json!({"runtime":runtime,"source_fixture_sha256":sha256(include_bytes!("factory_child_goal_runtime.rs")),"companion_sha256":sha256(&fs::read(&companion).unwrap()),"in_process_daemon_actor":true})).unwrap()).unwrap();
     let running = RunningDaemon {
         stop,
         thread: Some(std::thread::spawn(move || daemon.run(workerstop))),
+        db: f.path.clone(),
+        workspace: workspace.clone(),
+        evidence: evidence.clone(),
     };
     let reply=call(&runtime,json!({"method":"factory_runs.start","params":{"scope_id":scope.id},"expected_revision":scope.revision,"idempotency_key":"child-goal-root-start"})).unwrap();
     assert!(reply.get("error").is_none(), "{reply}");
@@ -205,6 +253,11 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
         "parent-initial\nparent-resumed\n"
     );
     drop(running); // Actual daemon shutdown / owned reap before DB assertions.
+    let cleanup: serde_json::Value =
+        serde_json::from_slice(&fs::read(evidence.join("owned-cleanup.json")).unwrap()).unwrap();
+    assert_eq!(cleanup["joined"], true);
+    assert_eq!(cleanup["daemon_result"], "ok");
+    assert_eq!(cleanup["test_panicking"], false);
     let db = Connection::open(&f.path).unwrap();
     assert_eq!(
         db.pragma_query_value::<u32, _>(None, "user_version", |row| row.get(0))
