@@ -273,7 +273,7 @@ it.each(['task-identity','specification'])('rejects changed %s while the exact c
 });
 it.each(['wrong-run-receipt','changed-ref-receipt'])('never yields an unmatched %s to a cancellation',async mode=>{
  const user=userEvent.setup(),f=await childGoalFixture(),state=records(f);
- vi.mocked(factoryChildGoalApi.start).mockImplementationOnce(async()=>{state.view=liveCancelView(f);const receipt=structuredClone(f.makeView().summary);if(mode==='wrong-run-receipt')receipt.goal.run.id='different-run';else receipt.plan.raw_sha256='f'.repeat(64);return receipt;});
+ vi.mocked(factoryChildGoalApi.start).mockImplementationOnce(async()=>{state.view=liveCancelView(f);const receipt=structuredClone(f.makeView().summary);return mode==='wrong-run-receipt'?{...receipt,goal:{...receipt.goal,run:{...receipt.goal.run,id:'different-run'}}}:{...receipt,plan:{...receipt.plan,raw_sha256:'f'.repeat(64)}};});
  render(<FactoryChildGoals {...props(f)}/>);await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.start})).toBeEnabled());await user.click(screen.getByRole('button',{name:t.start}));await screen.findByRole('alert');expect(factoryChildGoalApi.cancel).not.toHaveBeenCalled();expect(factoryChildGoalApi.start).toHaveBeenCalledOnce();
 });
 it.each(['expired','revoked'])('allows only narrowing stop of the exact known run under %s authority',async mode=>{
