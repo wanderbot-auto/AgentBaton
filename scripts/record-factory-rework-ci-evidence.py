@@ -230,14 +230,21 @@ def validation_observations(conn, selected):
     post-join facts are not a new receipt authenticator or deadline observation.
     """
     result = {'1': None, '2': None}
-    for revision, raw in conn.execute(
-            'SELECT plan_revision,document FROM goal_graph_validations '
+    seen = set()
+    for run_id, revision, raw in conn.execute(
+            'SELECT run_id,plan_revision,document FROM goal_graph_validations '
             f'WHERE run_id IN ({selected}) AND plan_revision IN (1,2) ORDER BY plan_revision'):
         key = str(integer(revision, 2))
-        need(key in result and result[key] is None)
+        need(key in result and key not in seen)
+        seen.add(key)
         value = strict_json(raw)
         need(type(value) is dict and type(value.get('plan_revision')) is int
              and value['plan_revision'] == revision)
+        if 'run_id' not in value:
+            # Old incomplete evidence cannot attribute even real scalar values.
+            # It remains an unavailable slot, not a zero/false observation.
+            continue
+        need(type(run_id) is str and type(value['run_id']) is str and value['run_id'] == run_id)
         out = {'actual_runtime_ms': integer(value.get('actual_runtime_ms'), nullable=True),
                'goal_io_state': None, 'error_code': None,
                'process_started': None, 'exit_code': None}
@@ -306,10 +313,11 @@ def budget_usage(conn):
         need(current['id'] == goal and current['task_id'] == child
              and current['root_grant_id'] == root and current['project_id'] == project)
         for name, key in (('root', 'root-grant:' + root), ('project', 'project:' + project)):
-            row = conn.execute('SELECT document FROM goal_ledgers WHERE scope=?', (key,)).fetchone()
-            if row is None:
+            rows = conn.execute('SELECT document FROM goal_ledgers WHERE scope=? LIMIT 2', (key,)).fetchall()
+            if not rows:
                 return out
-            ledger = strict_json(row[0])
+            need(len(rows) == 1)
+            ledger = strict_json(rows[0][0])
             out[name] = {'actual_runtime_ms': integer(ledger['runtime_ms'], nullable=True),
                          'observed_attempts': integer(ledger['observed_attempts'], (1 << 32) - 1)}
             out[name]['runtime_unknown'] = out[name]['actual_runtime_ms'] is None

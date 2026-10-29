@@ -642,7 +642,7 @@ class ValidationObservations(unittest.TestCase):
         self.f = Fixture(Path(self.temp.name))
 
     def write_receipt(self, revision, observation, runtime=1234):
-        value = dict(plan_revision=revision, state='failed', passed=False,
+        value = dict(run_id=SECRET, plan_revision=revision, state='failed', passed=False,
             stop_confirmed=True, io_completion='worker_joined',
             actual_runtime_ms=runtime, observation=observation)
         self.f.sql('UPDATE goal_graph_validations SET document=? WHERE plan_revision=?',
@@ -879,6 +879,76 @@ CREATE TABLE factory_budget_reservations(attempt_id TEXT PRIMARY KEY,scope_id TE
         self.f.sql('DROP TABLE goal_ledgers')
         self.f.sql("CREATE VIEW goal_ledgers AS SELECT 1 scope,'{}' document")
         self.assertEqual(self.collect()['cases'][0]['status'], 'invalid')
+
+
+class ReceiptBindingCorrection(unittest.TestCase):
+    def setUp(self):
+        self.validation = ValidationObservations()
+        self.validation.setUp()
+        self.addCleanup(self.validation.doCleanups)
+        self.budget_fixture = BudgetProjection()
+        self.budget_fixture.setUp()
+        self.addCleanup(self.budget_fixture.doCleanups)
+
+    def test_foreign_selected_document_is_rejected_not_published_as_this_goal(self):
+        fixture = self.validation
+        fixture.write_receipt(2, dict(process_started=True, exit_code=42,
+            goal_io=dict(state='observed')), runtime=777)
+        fixture.f.sql("UPDATE goal_graph_validations SET document=json_set(document,'$.run_id',?) WHERE plan_revision=2",
+            (SECRET + '-foreign-run',))
+        self.assertEqual(fixture.collect()['cases'][0]['status'], 'invalid')
+
+    def test_present_null_or_non_string_run_is_not_missing_history(self):
+        fixture = self.validation
+        fixture.write_receipt(2, dict(process_started=True, exit_code=0))
+        for value in (None, True, 1, [], {}):
+            with self.subTest(value=value):
+                conn = sqlite3.connect(fixture.f.db)
+                raw = json.loads(conn.execute('SELECT document FROM goal_graph_validations WHERE plan_revision=2').fetchone()[0])
+                conn.close()
+                raw['run_id'] = value
+                fixture.f.sql('UPDATE goal_graph_validations SET document=? WHERE plan_revision=2', (json.dumps(raw),))
+                self.assertEqual(fixture.collect()['cases'][0]['status'], 'invalid')
+
+    def test_missing_historical_run_id_is_unavailable_not_fabricated_zero(self):
+        fixture = self.validation
+        fixture.write_receipt(2, dict(process_started=True, exit_code=42), runtime=777)
+        fixture.f.sql("UPDATE goal_graph_validations SET document=json_remove(document,'$.run_id') WHERE plan_revision=2")
+        self.assertIsNone(fixture.observations()['2'])
+
+    def test_duplicate_missing_history_is_still_ambiguous_not_last_row_wins(self):
+        fixture = self.validation
+        fixture.f.sql('INSERT INTO goal_graph_validations SELECT * FROM goal_graph_validations WHERE plan_revision=2')
+        self.assertEqual(fixture.collect()['cases'][0]['status'], 'invalid')
+
+    def test_duplicate_root_or_project_ledger_is_rejected_even_if_values_equal(self):
+        fixture = self.budget_fixture
+        for name, key in (('root', 'root-grant:' + fixture.root), ('project', 'project:' + fixture.project)):
+            for runtime, attempts in ((91111, 99), (15000, 6)):
+                with self.subTest(name=name, runtime=runtime):
+                    conn = sqlite3.connect(fixture.f.db)
+                    # Keep this generated damaged schema separate from the
+                    # valid Fixture; the collector must not assume a SQL PK.
+                    original = conn.execute('SELECT scope,document FROM goal_ledgers').fetchall()
+                    conn.execute('ALTER TABLE goal_ledgers RENAME TO original_ledgers')
+                    conn.execute('CREATE TABLE goal_ledgers(scope TEXT,document TEXT)')
+                    conn.execute('INSERT INTO goal_ledgers VALUES(?,?)',
+                        (key, json.dumps(dict(runtime_ms=runtime, observed_attempts=attempts))))
+                    conn.executemany('INSERT INTO goal_ledgers VALUES(?,?)', original)
+                    conn.commit(); conn.close(); fixture.f.receipt()
+                    self.assertEqual(fixture.collect()['cases'][0]['status'], 'invalid')
+                    conn = sqlite3.connect(fixture.f.db)
+                    conn.execute('DROP TABLE goal_ledgers')
+                    conn.execute('ALTER TABLE original_ledgers RENAME TO goal_ledgers')
+                    conn.commit(); conn.close(); fixture.f.receipt()
+
+    def test_exact_valid_binding_preserves_real_zero_exit_and_unique_ledger(self):
+        fixture = self.validation
+        fixture.write_receipt(2, dict(process_started=True, exit_code=0,
+            goal_io=dict(state='observed')), runtime=777)
+        self.assertEqual(fixture.observations()['2']['exit_code'], 0)
+        self.assertEqual(fixture.observations()['2']['actual_runtime_ms'], 777)
+        self.assertEqual(self.budget_fixture.budget()['root']['actual_runtime_ms'], 15000)
 
 
 if __name__ == '__main__':
