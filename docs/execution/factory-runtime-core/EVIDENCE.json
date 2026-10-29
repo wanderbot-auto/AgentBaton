@@ -5548,5 +5548,96 @@
     "full_at_fixed_source": "NOT_RUN",
     "lease": "returned to parent",
     "scope": "test-only measured setup deduplication, no product authorization change"
+  },
+  "goal_ordinary_budget_checkpoint": {
+    "source_commit": "5c9d49384bad83b20999286efc82829db669ad9a",
+    "source_sha256": "19ceacd2ed56e63c3e39fec8a1a4a123b6cec6bcc54943978da5651fcc18b7b2",
+    "snapshot_path": "/workspace/.onboarding/factory-goal-ordinary-budget-20261029/SOURCE_SNAPSHOT.json",
+    "snapshot_sha256": "646e8dc0a289bdca80ea9f47dbaaa85e8f76ef97916df59f4c48a1c35b071307",
+    "result": "3 targeted PASS, target Clippy-Dwarnings PASS, workspace fmt PASS; full rerun not executed",
+    "unique_new_cases": 2,
+    "renamed_original_case": 1,
+    "prior_full_failure": {
+      "directory": "/workspace/.onboarding/factory-root-rust-regression-setup-fixed",
+      "result_sha256": "0ffac06a181e3ef4be75ce709c8782ab16bd28e5adde8d75e7709976c3863967",
+      "manifest_sha256": "6cd66166c6289bc75f0d29b1bbd1794d84dc161343627e07e2df76c2f55073e8",
+      "unique_outer_pass": 421,
+      "unique_outer_fail": 1,
+      "nested_fifo_pass": 1,
+      "docs_clippy_fmt": "not reached"
+    },
+    "final_observations": {
+      "exhausted_cap1": {
+        "Goal_attempts": 1,
+        "consumed": 1,
+        "active": 0,
+        "root_and_project_runtime_ms": 111,
+        "selected_output_bytes": 12,
+        "ordinary_error": "RESOURCE_LIMIT",
+        "side_effect_state": "not_started",
+        "no_new_attempt_session_intent_lease_reservation_key_event": true,
+        "lowlevel_error": "AUTH_REQUIRED"
+      },
+      "remaining_cap2": {
+        "Goal_runtime_ms": 96,
+        "ordinary_runtime_ms": 45,
+        "root_and_project_total_runtime_ms": 141,
+        "observed_attempts": 2,
+        "consumed": 2,
+        "active": 0,
+        "selected_output_bytes": 12,
+        "ordinary_selected_artifact_bytes": 0,
+        "whole_filesystem_and_full_provider_output": "unknown",
+        "owned_leader_reaped_receipt": true,
+        "original_Grant_unchanged_after_Goal": true
+      }
+    },
+    "initial_failures": {
+      "targeted-tests": "actual2PASS1FAIL; Goal before ordinary blocked with cap1 Goal/project but original Grant2",
+      "exhaustion-diagnostic": "actual0PASS1FAIL; persisted reason_code PERMISSION_DENIED, original Grant2/projectcap1 shown in full approved snapshot; policy::validate_registered rejects Grant max_attempts > current project total_limit",
+      "fixture_correction": "dedicated constructor requests Grant attempts==Goal cap BEFORE first work; defaults remain exactly2; no SQL mutation/production change"
+    },
+    "normalization": {
+      "baseline": "d2e5bbbe7d09005df6d1c33682777a3c3cbab0d1",
+      "test_source_sha256": "19ceacd2ed56e63c3e39fec8a1a4a123b6cec6bcc54943978da5651fcc18b7b2",
+      "original_sha256": "5f277bdd64d98e7cb670cc7f45047591ad1474bc73bb0adb4f381bace94ccb72",
+      "inverse_normalized_sha256": "5f277bdd64d98e7cb670cc7f45047591ad1474bc73bb0adb4f381bace94ccb72",
+      "byte_equal": true,
+      "normalizations": [
+        "restore original constructor header/remove false default wrapper and dedicated parameters",
+        "remove opt-in pre-first-commit exact output+marker ignore block",
+        "restore Grant2 literal for default original body",
+        "remove two new testcases and their new helper",
+        "restore old dirty-case name/AUTH_REQUIRED expectation/remove added not_started assertion"
+      ],
+      "original_55_test_bodies_default_input_and_timings_preserved_except_named_dirty_assertion": true
+    },
+    "lease": "returned; no active owned Cargo/test",
+    "limitations": [
+      "fifth full workspace",
+      "remaining54 sessions cases at new test revision",
+      "new macOS execution",
+      "Native/UI/provider-account/paid-model tests"
+    ],
+    "lint_attribution_clarification": {
+      "no_rerun": true,
+      "source_changed": false,
+      "recorded_order_utc": {
+        "source_file_mtime": "2026-10-29T02:47:45.613778235Z",
+        "final_tests_start": "2026-10-29T02:47:45.676730Z",
+        "final_tests_result": "2026-10-29T02:47:51.678781Z",
+        "clippy_start": "2026-10-29T02:48:12.942649Z",
+        "fmt_start": "2026-10-29T02:48:14.944161Z",
+        "source_capture": "2026-10-29T02:49:00.351165Z",
+        "source_commit": "2026-10-29T02:49:06Z"
+      },
+      "actual_command_start_records": {
+        "fixed-targeted-tests-start.json": "b747de4b4b931c509c54bdca5998beb4369d861ee17caa8593e16526bbd01331",
+        "targeted-clippy-start.json": "72589bea4f92fb4babc47666c583861eb84a60e8b29b6276012732e4f3a58dcc",
+        "fmt-start.json": "2aa3f2f9f6e99d9cdb8c4a3c55ef37809d39a5c1479540631a50b7642cfcc9ab"
+      },
+      "limitation": "No command-start record embeds an immediate test-source digest. BEFORE is earlier WIP; do not use it as final lint-source attestation. Treat existing checks as historical WIP successes; Root next exact full supplies final-source Clippy/fmt.",
+      "chronology_note": "Saved timestamps place Clippy/fmt after final3 test compilation; they do not support a claim these checks occurred before the Grant1 source change."
+    }
   }
 }
