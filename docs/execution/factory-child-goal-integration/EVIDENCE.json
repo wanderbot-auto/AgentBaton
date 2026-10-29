@@ -275,5 +275,6 @@
     "native_profile_regression": "not_run",
     "browser15": "not_run",
     "full_product": "incomplete"
-  }
+  },
+  "latest_local_regression_and_preview_failures": "docs/execution/factory-child-goal-integration/REGRESSION_AND_PREVIEW_FAILURES.json"
 }

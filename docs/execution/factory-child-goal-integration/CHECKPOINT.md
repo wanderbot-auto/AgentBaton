@@ -1,3 +1,9 @@
+## 2026-10-29T19:46:59.802941+00:00 — schema15 regression and precise preview evidence boundary
+
+At0b5: all16 selected Rust targets executed,14 targets PASS; caller migration5/1 and sessions56/2 failures retained. Narrow reviewed fixes subsequently pass actual6 and2 respectively at exact recorded commits (56 filtered in sessions rerun, not full58). Feature392 actual8units/build pass; strictfeaturelibClippy9a passes, and debugassertions-OFF compile is refused by the exact single compile_error (not a real release app). Infrastructure84 passes at0f.
+
+GatedData392 first run FAIL4checks due driver SQL nonexistentcolumns; reviewed d39 reads actual Event document. At7d preview real cancellation/orderedfinish passes, but copy UI really sends1cancel and Ready wins, so whole exit2/incomplete retained. Strict private before-copy evidence gate is being added, default/release exclusions retained; no mid-copy/OS stop claims. WSI3 separate actual12/1 failure is under narrow bound-kind fix review; no schema16 integration. New PR18 remote7checks/dualMac/native/build/installers still pending; full130 incomplete. See [finite exact results](REGRESSION_AND_PREVIEW_FAILURES.json).
+
 ## 当前预算/交接负控通过与真实返工失败 — 2026-10-29T14:50:41.251044+00:00
 
 首次预算初始化的5项真实Store测试＋1项私有query-proof单元通过；8类历史异常、精确关联/日志晚失败回滚和其他counter不变均保留硬断言。另3项交接负控已在d413纠正测试列/doc一致性后通过，仍精确AUTH_REQUIRED与完整rollback，cfg(test)一次性注入不进应用/发布包。原6个E0277是0测试执行的编译失败，不冒5case失败；旧2/1、首次Ownercounter0/1及所有原始日志/失败ELF均保留。

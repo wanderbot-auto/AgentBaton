@@ -2114,6 +2114,12 @@
           "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
           "status": "partial dimension only; notwhole requirement acceptance",
           "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "data_preview_before_scan_actual_cancel_and_copy_ready_race",
+          "source_commit": "7d1566566a4c20c00c76c4d6a98eea35a101af95",
+          "evidence": "docs/execution/factory-child-goal-integration/REGRESSION_AND_PREVIEW_FAILURES.json",
+          "coverage": "partial generated Linux fixture only; preview actual cancelled/orderedfinish, copy actual Ready won despite cancel request; full run incomplete, no Native/Provider/partialcopy/OSstop claim"
         }
       ]
     },

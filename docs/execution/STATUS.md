@@ -1,3 +1,11 @@
+# 本地回归、预览取消通过与复制覆盖缺口 — 2026-10-29T19:46:59.802941+00:00
+
+PR18远程仍head79/draft/open/unmerged；首轮真实CI失败不改写。当前本地42c5fdd：16个选定Rust目标均实际执行，14目标全通过，另两目标旧3失败保留；独审窄修后migration6通过、Goal/Graph两case通过（其余56过滤，非新全58）。完整infra84通过。
+
+显式preview-evidence构建8Rust单元/调试工具及featurelib严格Clippy通过，debugassertions关闭会被精确compile_error拒绝，尚非release应用验证。真实Data首次gated因新增事件SQL错误失败；d39窄修后preview cancelled与12→13事件顺序通过，但UI真实发送1次copy cancel时Ready胜出，整体exit2覆盖不足仍FAIL；新增私有before-copy gate进行中，不冒部分写后取消或OSstop。见[准确命令/提交/日志哈希及边界](factory-child-goal-integration/REGRESSION_AND_PREVIEW_FAILURES.json)。
+
+WSI2a另树实际Core11/Unix4/Node873+type/build/窄Clippy通过；WSI3另树首次12通过1失败，boundkind漂移错误窄修独审中，均未合入本PR。main653679d和OWNER001/002ACK已重核，无003。完整130、当前双Mac/native/CI/新包仍未完成。权限不扩；formalApprove仍须具体PR当次确认。以下保留历史。
+
 # PR18 首轮真实 CI 失败与当前修复 — 2026-10-29T18:39:14.923292+00:00
 
 PR[18](https://github.com/wanderbot-auto/AgentBaton/pull/18) draft/open/unmerged，head79d73e3，CI实际checkout17334580、base/main653679d。Environment40929728562仅Ubuntu通过；双Mac在canonical临时根夹具同断言失败。纯夹具ee58修复已独审并整合，ab0093c实际完整84项基础设施测试通过，生产workflow/隐私守卫未改，新MacCI未跑。

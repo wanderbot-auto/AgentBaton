@@ -1,0 +1,735 @@
+{
+  "recorded_at": "2026-10-29T19:46:59.802941+00:00",
+  "recorded_source": "42c5fdde95f0edb9933a4c4da939451c2b56fe50",
+  "scope": "Local actual generated Rust/SQLite/Linux Chromium/Unix IPC evidence only. Full130 incomplete. First remote candidate79 CI failures remain; no new Mac/schema15 installer acceptance.",
+  "selected_schema15_regression": {
+    "results": [
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "admission_performance",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "admission_performance",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 16.444597839989,
+        "minimum_free_bytes": 487432192,
+        "interruption": null,
+        "log_sha256": "fbac0850132bfd250cf690c0a77441eaab3cd4d2f2c20b516256108ffbf8b342",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.67s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "command_validation_migration",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "command_validation_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 101,
+        "seconds": 1.003022820019396,
+        "minimum_free_bytes": 490954752,
+        "interruption": null,
+        "log_sha256": "90597e6aaf3f3c9c82d955d58882619b5c1915399fc3df7818917d7b014bb67e",
+        "summaries": [
+          "test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "factory_child_plan_migration",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_child_plan_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 0.6019841420056764,
+        "minimum_free_bytes": 461860864,
+        "interruption": null,
+        "log_sha256": "6912a8102a0e09bbb7639e7351c5eec1f97976754265bdaf9ace68a9282107f2",
+        "summaries": [
+          "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "factory_migration",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 0.6023826329910662,
+        "minimum_free_bytes": 458268672,
+        "interruption": null,
+        "log_sha256": "c92fbe3f68ec0556fd22f401e2faea64185e5b52221e8fbdb11c7ce622f973bb",
+        "summaries": [
+          "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "sessions_ipc",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "sessions_ipc",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 101,
+        "seconds": 198.08683708999888,
+        "minimum_free_bytes": 422461440,
+        "interruption": null,
+        "log_sha256": "3aa67f9dbcdf8fbb66dd133bb9b058b348e12463a27ac9bcbb9c8c15c6e1b732",
+        "summaries": [
+          "test result: FAILED. 56 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 195.11s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "storage",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "storage",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 1.5042779009963851,
+        "minimum_free_bytes": 372830208,
+        "interruption": null,
+        "log_sha256": "0fb71afc6ae1bdc77f91ae04a2a371b7db6cf6386ef67045e2570ca2b317371c",
+        "summaries": [
+          "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.99s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "command_validation",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "command_validation",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 18.647280423989287,
+        "minimum_free_bytes": 347598848,
+        "interruption": null,
+        "log_sha256": "32b911c17374f933099f75b50fe4f5446cbd953b45f36bde99f3ace1b1d96122",
+        "summaries": [
+          "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.88s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "data_workspace_migration",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "data_workspace_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 0.5030754510080442,
+        "minimum_free_bytes": 360976384,
+        "interruption": null,
+        "log_sha256": "af9a7643369e64545e3ad104c377558cc35dcba765b7c78ba64065f6da0d36f0",
+        "summaries": [
+          "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "data_workspaces",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "data_workspaces",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 4.010299907997251,
+        "minimum_free_bytes": 335609856,
+        "interruption": null,
+        "log_sha256": "727660c0d0f0adb4bac96c9ee7300c3410537e6f9727c6cfe1d13a397cf71c97",
+        "summaries": [
+          "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.25s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "factory_runtime_ipc",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 96.39764959400054,
+        "minimum_free_bytes": 356806656,
+        "interruption": null,
+        "log_sha256": "d09b2180d86f83ce5775acf565b21ef99850b16247c6013f7e51a59d8c445245",
+        "summaries": [
+          "test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 94.58s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "goal_graph_migration",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "goal_graph_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 0.6017696350172628,
+        "minimum_free_bytes": 372695040,
+        "interruption": null,
+        "log_sha256": "148157f63d44906beaa0e4f090c31cd9f999ee35de82692bc0833027210a6bc9",
+        "summaries": [
+          "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "goal_runtime_migration",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "goal_runtime_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 0.6060042720055208,
+        "minimum_free_bytes": 369057792,
+        "interruption": null,
+        "log_sha256": "e7d636d8f7d8b1ab6f68fea5c1a268a0b73b8e0aee5ae8aba97c5ee6b99b8d94",
+        "summaries": [
+          "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "goal_store_migration",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "goal_store_migration",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 0.6029234679881483,
+        "minimum_free_bytes": 365400064,
+        "interruption": null,
+        "log_sha256": "fb92d9774e2e99e988ecadb824cedadfde03d3044420ed8cee7c6c5172322b62",
+        "summaries": [
+          "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "migration_v5",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "migration_v5",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 0.5026427709963173,
+        "minimum_free_bytes": 361824256,
+        "interruption": null,
+        "log_sha256": "d9e647bca69c0f1770085384ddf987fab90049e8271b5de037145b1a3c49d2d4",
+        "summaries": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "migration_v6",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "migration_v6",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 0.5029414159944281,
+        "minimum_free_bytes": 358174720,
+        "interruption": null,
+        "log_sha256": "35081c6d62a055ac5c8d7e4e2be706e797a9ac0d971f7d9296cdde06ea1724e1",
+        "summaries": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      },
+      {
+        "source": "0b5a88a572d70aa87ef4aab481a62ec2bfeb0af4",
+        "target": "migration_v7",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "migration_v7",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 0.6042130610148888,
+        "minimum_free_bytes": 353857536,
+        "interruption": null,
+        "log_sha256": "51377db0728564acf69594090ad412e39c8bca12e9379b5f18d7c22895668694",
+        "summaries": [
+          "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s"
+        ],
+        "dimensions": "Actual generated Rust/Store/Unix fixture tests only; not Mac/live Provider/native OS"
+      }
+    ],
+    "passing_targets": 14,
+    "failing_targets": 2,
+    "old_failures_and_ELFs_retained": true,
+    "source_and_tools_before_after_equal": true
+  },
+  "narrow_caller_rerun": {
+    "source": "9a76ef4770b960e23f185e63d4924ad241f96a77",
+    "root": "/workspace/.worktrees/factory-runtime-integration",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "command_validation_migration",
+      "--",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "exit": 0,
+    "seconds": 16.666416124004172,
+    "minimum_free_bytes": 433098752,
+    "interruption": null,
+    "log_sha256": "7dd443bf280130b69a35125cb3335a7ee7084cef8cae956f65f48a1e080012a3",
+    "summaries": [
+      "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s"
+    ],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0 debug assertions on; explicit command features only; dimension limited to command"
+  },
+  "narrow_sessions_rerun": {
+    "source": "0f2251e3be9e3e5cb536f7286c3fc54aeb8e73e6",
+    "root": "/workspace/.worktrees/factory-runtime-integration",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "sessions_ipc",
+      "fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_authority_refused",
+      "--",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "exit": 0,
+    "seconds": 8.630298112984747,
+    "minimum_free_bytes": 378912768,
+    "interruption": null,
+    "log_sha256": "bfc5c3a4b734b8b47b75334d2070897002d6b90f66edf3d1e25bea6ad9cce7e4",
+    "summaries": [
+      "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 5.83s"
+    ],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "infrastructure": {
+    "source": "0f2251e3be9e3e5cb536f7286c3fc54aeb8e73e6",
+    "root": "/workspace/.worktrees/factory-runtime-integration",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/infrastructure",
+      "-p",
+      "test_*.py"
+    ],
+    "exit": 0,
+    "seconds": 1.0025810200022534,
+    "minimum_free_bytes": 357490688,
+    "interruption": null,
+    "log_sha256": "3845cab099b44e7b7caf1fc525a83a01a75d41e7faaa0f56f86f2ea10339f0ce",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "preview_feature_build_and_8_units": [
+    {
+      "source": "39245bef56a86f595aabf08d5b0b6c6116a399b5",
+      "name": "feature_units",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "preview-evidence",
+        "--lib",
+        "preview_evidence_gate",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 17.232909040001687,
+      "minimum_free_bytes": 533925888,
+      "interruption": null,
+      "log_sha256": "0256cac4fc492c1511a6e8c70c75b4ddd83945d9a922f851482290e69c6c2293",
+      "summaries": [
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 129 filtered out; finished in 0.07s"
+      ],
+      "profile": "debug assertions on, dev/test debug symbols0; explicit nondefault preview-evidence; no release/native claim"
+    },
+    {
+      "source": "39245bef56a86f595aabf08d5b0b6c6116a399b5",
+      "name": "debug_tools",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton",
+        "--features",
+        "agentbaton-core/preview-evidence"
+      ],
+      "exit": 0,
+      "seconds": 15.42906725598732,
+      "minimum_free_bytes": 473542656,
+      "interruption": null,
+      "log_sha256": "7864b8d8822cd3c7d0c9369d47ec5ebba090fd0019cb9bb383632dafbf2c5149",
+      "summaries": [],
+      "profile": "debug assertions on, dev/test debug symbols0; explicit nondefault preview-evidence; no release/native claim"
+    }
+  ],
+  "feature_clippy": {
+    "source": "9a76ef4770b960e23f185e63d4924ad241f96a77",
+    "root": "/workspace/.worktrees/factory-runtime-integration",
+    "command": [
+      "cargo",
+      "clippy",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--features",
+      "preview-evidence",
+      "--lib",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 18.465511548012728,
+    "minimum_free_bytes": 389050368,
+    "interruption": null,
+    "log_sha256": "77b59ded7f426b422fdd5ae7342dce7af5cf5ac9f9ba8e986bfdccb54d1b8fa5",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0 debug assertions on; explicit command features only; dimension limited to command"
+  },
+  "debug_assertions_off_negative": {
+    "raw": {
+      "source": "9a76ef4770b960e23f185e63d4924ad241f96a77",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "rustc",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--features",
+        "preview-evidence",
+        "--",
+        "-Cdebug-assertions=no"
+      ],
+      "exit": 101,
+      "seconds": 8.723043450998375,
+      "minimum_free_bytes": 389001216,
+      "interruption": null,
+      "log_sha256": "e0b5e85859977e2f84bb8cbda751486055be2025ef82177b922d10724eefe9c2",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0 debug assertions on; explicit command features only; dimension limited to command"
+    },
+    "attribution_correction": {
+      "preserved_original": "RESULT.json untouched",
+      "correction": "Generic wrapper profile label says debug assertions on, but the exact command explicitly overrides with -Cdebug-assertions=no. This negative run is debug assertions OFF and compilation correctly failed at the single preview-evidence compile_error. Not an actual release application build.",
+      "observed_exit": 101,
+      "expected_diagnostic_count": 1,
+      "actual_guard_diagnostic": "preview-evidence is debug-only and must never enter release applications",
+      "source": "9a76ef4770b960e23f185e63d4924ad241f96a77"
+    },
+    "expected_compile_error_observed": true,
+    "actual_release_application_build": false
+  },
+  "browser": {
+    "first_gated_failure": {
+      "source": "39245bef56a86f595aabf08d5b0b6c6116a399b5",
+      "command": [
+        "python3",
+        "apps/desktop/tests/data-workspace-real-ipc.py",
+        "--preview-evidence",
+        "--batond",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+        "--frontend",
+        "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+        "--candidate-manifest",
+        "/workspace/.onboarding/pr18-data-preview-gated-run1/manifest.json",
+        "--output",
+        "/workspace/.onboarding/pr18-data-preview-gated-run1/evidence"
+      ],
+      "exit": 1,
+      "seconds": 4.412999594002031,
+      "minimum_free_bytes": 435458048,
+      "interruption": null,
+      "log_sha256": "3184c2dbb3d8126c9b65842f7066a8c8b40f20ec882f78c44dbf7606675d5ea6",
+      "report_sha256": "7306414b3aab19644743180cbabca18df05221a716fd9da692142611a9744326",
+      "status": "failed_or_interrupted",
+      "checks": 4,
+      "unrun": [],
+      "source_tools_frontend_unchanged": true,
+      "limits": "original32MiB regular input/64MiB4files/30s unchanged; private explicit before-scan wait only; original cancel and join",
+      "dimension": "actual React/Linux Chromium/authenticated Unix schema15; host Owner fixture outsideHTTP not native dialog/Provider/Mac"
+    },
+    "event_read_fix": "d39e78626694abd97a3ad32197f307f6415bffea",
+    "second_gated_incomplete": {
+      "source": "7d1566566a4c20c00c76c4d6a98eea35a101af95",
+      "command": [
+        "python3",
+        "apps/desktop/tests/data-workspace-real-ipc.py",
+        "--preview-evidence",
+        "--batond",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+        "--frontend",
+        "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+        "--candidate-manifest",
+        "/workspace/.onboarding/pr18-data-preview-gated-run2/manifest.json",
+        "--output",
+        "/workspace/.onboarding/pr18-data-preview-gated-run2/evidence"
+      ],
+      "exit": 2,
+      "seconds": 7.330348099989351,
+      "minimum_free_bytes": 442519552,
+      "interruption": null,
+      "log_sha256": "46cae027daa8f1066758e07bc2e11138c49887ed5a24d43ae2a6c50bf8ba6f0e",
+      "report_sha256": "0c297309aa01cc335c6e14cca86bb59c1319857924c8be6890faca3405d65c98",
+      "status": "incomplete_race_coverage",
+      "checks": 8,
+      "unrun": [
+        "Copy request was exercised but no cancelled/worker_joined terminal receipt was observed; actual Ready/failed/unknown is preserved without promoting it to confirmed cancellation"
+      ],
+      "source_tools_frontend_unchanged": true,
+      "limits": "original32MiB regular input/64MiB4files/30s unchanged; private explicit before-scan wait only; original cancel and join",
+      "dimension": "actual React/Linux Chromium/authenticated Unix schema15; host Owner fixture outsideHTTP not native dialog/Provider/Mac"
+    },
+    "second_observed": {
+      "preview": "actual cancelled; physical cancelRequested12 then previewFinished13; terminal revision3; no snapshot; source-proven producer join",
+      "copy": "UI sent exactly1 cancel; Ready/r2/cancel_requestedfalse/worker_joined won; no cancellation-specific join claimed",
+      "whole_run": "exit2 incomplete_race_coverage; no whole PASS; raw reports/screenshots retained; no private runtime/config/DB upload"
+    },
+    "copy_next": "Same nondefault/release-prohibited feature, separate strict private before-copy gate under implementation; original cancel/deadline only. Not partial-write/mid-copy/OS stop."
+  },
+  "independent_source_reviews": {
+    "caller6b": "49b8055157b891d8d8727e03b752c4e86e00279d86982ca9c871dd4599f950d4",
+    "concurrent1109": "8437cadfe86600c0c046585bb412ad3b4b99bb583426dab965b283d72f76eedb",
+    "core_dcf": "742c531057fad0859b2f7cdeed57062acf4eff4919e9dee930258cbe3a2557f5",
+    "deadline11ab": "fb86f7a653bac216ca23ce1e45cd4c81ea457a256ff7681ac04c494d53a128fe",
+    "event_d39": "37d3e311df7ef2491afe80eabb24cc2a0eb6765c24e89ddcaef531bcdd0cb837",
+    "CI392": "cc1088b7496161a4f862f23de77639f1deb247b74700f131254c88e6079c4283"
+  },
+  "WSI_separate_not_integrated": {
+    "WSI2a": "11 selected Core +4 actual Unix +873/51 Node/type/build +Corelib/specific IPC strictClippy PASS at recorded separate heads; Native not compiled",
+    "WSI3_first_run": {
+      "source": "461e250909fec726d421a9367fd70f639a627dfb",
+      "root": "/workspace/.worktrees/task-workspace-binding",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "task_workspace_binding",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 32.40570168499835,
+      "minimum_free_bytes": 299859968,
+      "interruption": null,
+      "log_sha256": "44adcdc01a7fbe0d6d85ff3b5bd59226b0264f2f211cf7aed6be9d8319a3dec9",
+      "summaries": [
+        "test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 139 filtered out; finished in 8.17s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "WSI3_next": "2f0b9b3 bound-kind drift map correction under independent review; new13/publicGit contract/strictClippy/genuine15 migration still pending"
+  },
+  "authority": "AB-START-001 unchanged; no formal GitHub Approve, new credentials/Provider/model calls/spend/production/signing/license. Branch rules read403 stopped; no bypass."
+}

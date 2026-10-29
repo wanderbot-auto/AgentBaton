@@ -91,3 +91,9 @@ Core129, corrected reservation6, UI872/51/type/build, strict Clippy and real rew
 ## 2026-10-29T18:18:35.262134+00:00 — cancelled history accepted locally; exact CI next
 
 At2d12: actual UI901/52/type/build passed; browser cancel20.525s/CG01,02,04,06/threePNG/cleanuptrue. New history guard and supported-context regression reviewed. Earlier failures remain. New PR/all seven checks/both real Mac Native15/build/package and traceable installers still NOT_RUN at record time. WSI1/WSI2a stay separate and full130 goal remains incomplete. See [CANCELLED_HISTORY_ACCEPTANCE.json](CANCELLED_HISTORY_ACCEPTANCE.json).
+
+## 2026-10-29T19:46:59.802941+00:00 — schema15 regression and precise preview evidence boundary
+
+At0b5: all16 selected Rust targets executed,14 targets PASS; caller migration5/1 and sessions56/2 failures retained. Narrow reviewed fixes subsequently pass actual6 and2 respectively at exact recorded commits (56 filtered in sessions rerun, not full58). Feature392 actual8units/build pass; strictfeaturelibClippy9a passes, and debugassertions-OFF compile is refused by the exact single compile_error (not a real release app). Infrastructure84 passes at0f.
+
+GatedData392 first run FAIL4checks due driver SQL nonexistentcolumns; reviewed d39 reads actual Event document. At7d preview real cancellation/orderedfinish passes, but copy UI really sends1cancel and Ready wins, so whole exit2/incomplete retained. Strict private before-copy evidence gate is being added, default/release exclusions retained; no mid-copy/OS stop claims. WSI3 separate actual12/1 failure is under narrow bound-kind fix review; no schema16 integration. New PR18 remote7checks/dualMac/native/build/installers still pending; full130 incomplete. See [finite exact results](REGRESSION_AND_PREVIEW_FAILURES.json).
