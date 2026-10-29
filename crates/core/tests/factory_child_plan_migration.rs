@@ -1,4 +1,6 @@
-//! Real schema13->14 metadata migration, exact backup, rollback and future refusal.
+//! Generated schema13 metadata increment followed by current15, exact backup and rollback.
+#[path = "fixtures/pre_factory_schema.rs"]
+mod pre_factory_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::Connection;
 use std::{
@@ -24,7 +26,19 @@ fn old() -> (tempfile::TempDir, PathBuf, String) {
     let task = s.create("local", "preserve original task", "old").unwrap();
     drop(s);
     let db = Connection::open(&p).unwrap();
-    db.execute_batch("DROP TABLE factory_child_plan_heads;DROP TABLE factory_child_plan_revisions;PRAGMA user_version=13;CREATE TABLE original_bytes(raw BLOB);INSERT INTO original_bytes VALUES(x'00ffdeadbeef');").unwrap();
+    let foreign_keys: bool = db
+        .pragma_query_value(None, "foreign_keys", |row| row.get(0))
+        .unwrap();
+    db.pragma_update(None, "foreign_keys", false).unwrap();
+    let generated = (|| -> rusqlite::Result<()> {
+        let transaction = db.unchecked_transaction()?;
+        pre_factory_schema::remove_empty_child_goal_increment(&transaction)?;
+        transaction.execute_batch("DROP TABLE factory_child_plan_heads;DROP TABLE factory_child_plan_revisions;PRAGMA user_version=13;CREATE TABLE original_bytes(raw BLOB);INSERT INTO original_bytes VALUES(x'00ffdeadbeef');")?;
+        transaction.commit()
+    })();
+    let restored = db.pragma_update(None, "foreign_keys", foreign_keys);
+    generated.unwrap();
+    restored.unwrap();
     let raw: String = db
         .query_row("SELECT document FROM tasks WHERE id=?1", [task.id], |r| {
             r.get(0)
@@ -216,4 +230,41 @@ fn future_schema16_refuses_without_mutation_or_backup() {
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");
     assert_eq!(before, fs::read(&p).unwrap());
     assert!(backups(d.path()).is_empty());
+}
+
+#[test]
+fn generated_fixture_inverse_restores_native_identity_without_factory_authority() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("fresh-current.sqlite3");
+    drop(Store::open(&path).unwrap());
+    let db = Connection::open(&path).unwrap();
+    db.pragma_update(None, "foreign_keys", true).unwrap();
+    pre_factory_schema::remove_empty_factory_increment(&db).unwrap();
+    assert_eq!(
+        db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
+            .unwrap(),
+        12
+    );
+    for table in ["goal_scopes", "goal_runs"] {
+        assert_eq!(db.query_row(&format!(r#"SELECT count(*) FROM pragma_foreign_key_list('{table}') WHERE "from"='id' AND "table"='approval_proposals' AND "to"='id'"#),[],|r|r.get::<_,u32>(0)).unwrap(),1);
+    }
+    assert!(!db
+        .prepare("PRAGMA foreign_key_check")
+        .unwrap()
+        .exists([])
+        .unwrap());
+    assert!(db
+        .pragma_query_value::<bool, _>(None, "foreign_keys", |r| r.get(0))
+        .unwrap());
+    for table in pre_factory_schema::FACTORY_TABLES {
+        assert_eq!(
+            db.query_row(
+                "SELECT count(*) FROM sqlite_master WHERE name=?1",
+                [table],
+                |r| r.get::<_, u32>(0)
+            )
+            .unwrap(),
+            0
+        );
+    }
 }
