@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "source_commit": "e165de14726028927b1ecbd133b28165364d919f",
+  "base": "3b4c4b9dfa15588358716643c81006c4bd1e95a8",
+  "requirements": [
+    "AB-TSK-004",
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-VAL-003",
+    "AB-VAL-007"
+  ],
+  "authority": "AB-START-001; OWNER-001/002 ACK; parent diagnostic-only scope",
+  "changed_source": {
+    "path": "crates/core/tests/fixtures/factory_child_goal_rework.rs",
+    "sha256": "6b31ab834baed2a96fa8c5b77d09ebb260fe59309ad4775154aecdf549360f5e"
+  },
+  "original_ci_failure": {
+    "run": 40947058067,
+    "job": 123705085895,
+    "log": "/workspace/.onboarding/pr18-head3b-product-failures/rust.log",
+    "sha256": "ad922316fb77bf2a8b03aaef49a2da5c97c795338a1a954b44847dab27b67923",
+    "result": "24 passed; 1 failed; 120.79s",
+    "actual_failure": "readonly response arrived after the original observation deadline",
+    "cleanup_reported": {
+      "joined": true,
+      "daemon_result": "ok"
+    },
+    "actual_failing_method_or_phase": "not recorded"
+  },
+  "historical_local_runtime10": {
+    "path": "/workspace/.onboarding/factory-child-goal-command-rework-runtime10/RESULTS.json",
+    "sha256": "89e93493ec78905c3ad15190fcdb392793d84c97f0766fae9043ba9d08667ce2",
+    "test_seconds": 34.97,
+    "not_a_reproduction_of_ci_failure": true
+  },
+  "artifact": {
+    "path": "/workspace/.onboarding/factory-rework-observation/STATIC_CHECKS.json",
+    "sha256": "ebb0cb6895aaf0b7c024a3e42e20da9417d17799e71fdd1feae3ccc09071c97e"
+  },
+  "static_checks": {
+    "one_test_fixture_only": true,
+    "original_duration_literals_equal": true,
+    "test_names_equal": true,
+    "original_readonly_match_call_equal": true,
+    "original_no_write_retry_guards_retained": true,
+    "fixed_scalar_file_4096_bound": true,
+    "no_added_store_open_or_sql": true,
+    "final_invariants_suffix_equal": true
+  },
+  "commands": [
+    {
+      "argv": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "crates/core/tests/fixtures/factory_child_goal_rework.rs"
+      ],
+      "env": {
+        "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+      },
+      "exit": 0,
+      "dimension": "standalone parser/formatter only"
+    },
+    {
+      "argv": [
+        "rustfmt",
+        "--check",
+        "--edition",
+        "2021",
+        "crates/core/tests/fixtures/factory_child_goal_rework.rs"
+      ],
+      "env": {
+        "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+      },
+      "exit": 0
+    },
+    {
+      "command": "inline Python static invariants",
+      "exit": 0,
+      "artifact": "/workspace/.onboarding/factory-rework-observation/STATIC_CHECKS.json"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0
+    }
+  ],
+  "author_tool_errors": [
+    {
+      "command": "rustfmt without explicit RUSTUP_HOME",
+      "exit": 1,
+      "source": "tool transcript only; no standalone stderr artifact",
+      "error": "could not create home directory: '/home/agent/.rustup': Read-only file system",
+      "correction": "RUSTUP_HOME=/workspace/.toolchains/rustup"
+    },
+    {
+      "command": "first inline static check",
+      "error": "AssertionError readonly_rpc_expression_count_equal=False",
+      "cause": "substring call(runtime...) also matched existing mixed_call; both source counts were 2, not expected 1",
+      "correction": "match exact original match call expression; no Rust/source failure"
+    }
+  ],
+  "tests_run": 0,
+  "not_run": [
+    "cargo check/test/clippy",
+    "new daemon/Actor/Provider/MCP",
+    "any diagnostic scenario",
+    "Mac CI"
+  ],
+  "root_cause": "unknown; stage/method not retained by original failure",
+  "hypotheses": [
+    "whole rework/Owner/continuation chain not complete by absolute55s observation",
+    "readonly request near end of window returns after55s even without violating client5s",
+    "one readonly request/Actor servicing is slow; original log has no per-method durations",
+    "approved60s Grant window partly consumed by bootstrap; no original expiry clock evidence"
+  ],
+  "new_evidence_bounds": {
+    "last_record_max_bytes": 4096,
+    "retained_poll_records": 1,
+    "stage_stderr_markers": 5,
+    "no_new_raw_request_result_credential_or_grant": true,
+    "observer_io_may_perturb_timing": true
+  },
+  "product_changes": false,
+  "new_cargo_or_actor_run": false,
+  "claims_excluded": [
+    "fixed CI failure",
+    "known Actor bottleneck",
+    "known Grant expiry",
+    "new Runtime/Mac PASS",
+    "full Factory acceptance"
+  ],
+  "semantic_correction": {
+    "source_commit": "a7b01349628d4f464048085697b53257f5226abe",
+    "fixture_sha256": "bbb6fe20a65add7fc3d298459120d9dfe07e2a8809fe3a9d54c5674fc54df093",
+    "artifact": {
+      "path": "/workspace/.onboarding/factory-rework-observation/SEMANTICS_CORRECTION_CHECKS.json",
+      "sha256": "03f60d4e5d46e9ac20560521f0bf0af79331cfe9062d90af4f4c5eb0d65306ec"
+    },
+    "semantics": {
+      "reply_object_supplied": "whether this diagnostic helper received Some(reply), not whether a transport reply arrived",
+      "run_completed": "Option<bool> from exact string result.run.state; absent/non-string state serializes null",
+      "run_outcome_unknown": "Option<bool> from exact string result.run.state; absent/non-string state serializes null"
+    },
+    "static_checks": {
+      "inverse_only_renamed_reply_field_and_nullable_run_state_byte_equal": true,
+      "duration_literals_unchanged": true,
+      "entire_record_and_call_logic_unchanged": true,
+      "only_fixture_changed": true
+    },
+    "commands": [
+      {
+        "argv": [
+          "rustfmt",
+          "--edition",
+          "2021",
+          "crates/core/tests/fixtures/factory_child_goal_rework.rs"
+        ],
+        "env": {
+          "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+        },
+        "exit": 0
+      },
+      {
+        "argv": [
+          "rustfmt",
+          "--check",
+          "--edition",
+          "2021",
+          "crates/core/tests/fixtures/factory_child_goal_rework.rs"
+        ],
+        "env": {
+          "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+        },
+        "exit": 0
+      },
+      {
+        "command": "inline Python exact inverse/static checks",
+        "exit": 0
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0
+      }
+    ],
+    "tests_run": 0,
+    "not_run": [
+      "Cargo",
+      "Actor/daemon",
+      "actual diagnostic scenario",
+      "CI/Mac reproduction"
+    ],
+    "new_ci_report": "Parent reports Rust/ARM/Intel all at unchanged 55s observation; no new raw logs examined by this correction and no RPC/Grant causal claim",
+    "previous_e165_evidence_not_overwritten": true
+  },
+  "polling_optimization": {
+    "source_commit": "5744fcb7234809f4e32ebe3bd2d77bcc483d01fd",
+    "parent": "5edd48e6d31a7a84585c0e5486fcc0758abc3b37",
+    "fixture_sha256": "38b837a6935b7414bdbebfbab2d375b31caa06e98ed50bb90aeed688fefe1947",
+    "original_fixture_equal_to_actual_be12": true,
+    "artifact": {
+      "path": "/workspace/.onboarding/factory-rework-observation-polling/STATIC_CHECKS.json",
+      "sha256": "af60a0ec7ad7f4d3ec236053cdc4956e1a3141a6a0444e4c42f2552448f17183"
+    },
+    "actual_original_failures": {
+      "arm": {
+        "log": "/workspace/.onboarding/pr18-headbe-failures/arm.log",
+        "sha256": "f9823a2badb081742f0e43b7b4688e71f099e3d221acf8e5ed2af0a6282c599f",
+        "start": {
+          "approved_scope_remaining_ms": 56727,
+          "call_elapsed_ms": 0,
+          "call_number": 0,
+          "configured_actor_request_budget_ms": 60000,
+          "configured_client_read_timeout_ms": 5000,
+          "method": "factory_runs.start",
+          "node_count": null,
+          "observation_overdue_ms": 0,
+          "observation_remaining_ms": 54999,
+          "phase": "wait_rework_awaiting_owner",
+          "plan_revision": null,
+          "reply_is_error": false,
+          "reply_object_supplied": false,
+          "reply_revision": null,
+          "run_completed": null,
+          "run_outcome_unknown": null,
+          "run_revision": null,
+          "scenario_elapsed_ms": 6193,
+          "stage": "owner_write_returned",
+          "wall_ms": 1793308534414
+        },
+        "late": {
+          "approved_scope_remaining_ms": 930,
+          "call_elapsed_ms": 825,
+          "call_number": 68,
+          "configured_actor_request_budget_ms": 60000,
+          "configured_client_read_timeout_ms": 5000,
+          "method": "factory_child_goals.get",
+          "node_count": 6,
+          "observation_overdue_ms": 768,
+          "observation_remaining_ms": 0,
+          "phase": "wait_rework_awaiting_owner",
+          "plan_revision": 2,
+          "received_before_original_deadline": false,
+          "reply_is_error": false,
+          "reply_object_supplied": true,
+          "reply_revision": 133,
+          "run_completed": null,
+          "run_outcome_unknown": null,
+          "run_revision": null,
+          "scenario_elapsed_ms": 61962,
+          "stage": "response_received",
+          "wall_ms": 1793308590211
+        },
+        "observation_span_ms_from_scenario_scalars": 55769,
+        "last_call_start_slack_approx_ms": 57,
+        "approved_scope_not_yet_expired_at_sample": true,
+        "not_proved": [
+          "Actor self-time",
+          "Grant actually expired",
+          "all accumulated read cost",
+          "which node was still pending",
+          "new optimization fixes Mac"
+        ]
+      },
+      "intel": {
+        "log": "/workspace/.onboarding/pr18-headbe-failures/intel.log",
+        "sha256": "bfde4e9dcbfab8c95145a8a92f50d7f741a62effb08dd624e778a9b2806ddf22",
+        "start": {
+          "approved_scope_remaining_ms": 56504,
+          "call_elapsed_ms": 0,
+          "call_number": 0,
+          "configured_actor_request_budget_ms": 60000,
+          "configured_client_read_timeout_ms": 5000,
+          "method": "factory_runs.start",
+          "node_count": null,
+          "observation_overdue_ms": 0,
+          "observation_remaining_ms": 54999,
+          "phase": "wait_rework_awaiting_owner",
+          "plan_revision": null,
+          "reply_is_error": false,
+          "reply_object_supplied": false,
+          "reply_revision": null,
+          "run_completed": null,
+          "run_outcome_unknown": null,
+          "run_revision": null,
+          "scenario_elapsed_ms": 6391,
+          "stage": "owner_write_returned",
+          "wall_ms": 1793308822073
+        },
+        "late": {
+          "approved_scope_remaining_ms": 1376,
+          "call_elapsed_ms": 527,
+          "call_number": 63,
+          "configured_actor_request_budget_ms": 60000,
+          "configured_client_read_timeout_ms": 5000,
+          "method": "factory_runs.get",
+          "node_count": null,
+          "observation_overdue_ms": 127,
+          "observation_remaining_ms": 0,
+          "phase": "wait_rework_awaiting_owner",
+          "plan_revision": null,
+          "received_before_original_deadline": false,
+          "reply_is_error": false,
+          "reply_object_supplied": true,
+          "reply_revision": 129,
+          "run_completed": false,
+          "run_outcome_unknown": false,
+          "run_revision": 8,
+          "scenario_elapsed_ms": 61518,
+          "stage": "response_received",
+          "wall_ms": 1793308877201
+        },
+        "observation_span_ms_from_scenario_scalars": 55127,
+        "last_call_start_slack_approx_ms": 400,
+        "approved_scope_not_yet_expired_at_sample": true,
+        "not_proved": [
+          "Actor self-time",
+          "Grant actually expired",
+          "all accumulated read cost",
+          "which node was still pending",
+          "new optimization fixes Mac"
+        ]
+      }
+    },
+    "static_checks": {
+      "only_fixture_changed": true,
+      "original_setup_before_poll_byte_equal": true,
+      "all_full_view_validator_owner_parent_budget_assertions_byte_equal": true,
+      "whitelist_function_byte_equal": true,
+      "duration_literals_byte_equal": true,
+      "test_names_unchanged": true,
+      "retry_budget2_initializers_unchanged": true,
+      "original_full_owner_node_condition_retained": true,
+      "unknown_rejected_before_summary_gate": true,
+      "all_metrics_fixed_three_names_and_bounded": true,
+      "deadline_sample_before_metric_accounting": true,
+      "original_nullable_field_semantics_retained": true
+    },
+    "scalar_size_model": {
+      "bytes": 1406,
+      "cap": 4096,
+      "dimension": "conservative finite Python pretty-JSON model only; not Rust serialization execution"
+    },
+    "unchanged_Rust_test_count": 2,
+    "tests_executed": 0,
+    "commands": [
+      {
+        "argv": [
+          "rustfmt",
+          "--edition",
+          "2021",
+          "crates/core/tests/fixtures/factory_child_goal_rework.rs"
+        ],
+        "env": {
+          "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+        },
+        "exit": 0
+      },
+      {
+        "argv": [
+          "rustfmt",
+          "--check",
+          "--edition",
+          "2021",
+          "crates/core/tests/fixtures/factory_child_goal_rework.rs"
+        ],
+        "env": {
+          "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+        },
+        "exit": 0
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0
+      },
+      {
+        "command": "inline Python immutable source and retained scalar checks",
+        "exit": 0
+      }
+    ],
+    "production_source_changed": false,
+    "not_run": [
+      "Cargo/Clippy/typecheck",
+      "Actor/Provider/MCP",
+      "new optimized rework test",
+      "new Mac/CI"
+    ],
+    "root_cause": "not established; repeated full reads are source-proven redundant work, not measured total bottleneck",
+    "claim": "fixture-only reduction of duplicate readonly observation work, retains complete fresh proof and original deadlines"
+  }
+}
