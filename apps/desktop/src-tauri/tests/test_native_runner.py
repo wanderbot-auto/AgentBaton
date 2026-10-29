@@ -350,6 +350,19 @@ class NativeArtifactAuditTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('PASS', result.stdout)
 
+    def test_owner_fixture_and_remaining_original_test_markers_are_rejected(self):
+        for marker in ('owner_dialog_report', 'native_factory_planning_os_dialog_fixture',
+                       'native_smoke_report', 'AGENTBATON_SMOKE_COMMIT'):
+            with self.subTest(marker=marker):
+                result = self.inspect('controlled fixture ' + marker)
+                self.assertEqual(result.returncode, 1)
+                self.assertNotIn('PASS', result.stdout)
+
+    def test_normal_owner_and_factory_product_terms_do_not_trigger_test_audit(self):
+        result = self.inspect('Native owner approval factory_scope_approve child_planning_policy')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('PASS', result.stdout)
+
 
 class FactoryReadonlyEvidenceTests(unittest.TestCase):
     def test_exact_schema14_and_all_eleven_independent_typed_zero_counts_are_required(self):
