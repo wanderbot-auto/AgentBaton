@@ -1,10 +1,30 @@
 # Evidence
 
-## Independent delta review update
+## Current five-flow source and Root actual result
+
+This continuation uses isolated branch `codex/task-workspace-binding-browser-session`, tree `/workspace/.worktrees/task-workspace-binding-browser-session`, base `e313b98f886160c680b40a04ff33d3a1d00a9d4e`. The original browser tree was clean and remains frozen. Functional source `ae6ce8778078a96f905671ae5a207ac66662a623` changes only this harness and pure test. No Core, schema, UI/API, Native, permission, CI, lock, old support script or global STATUS changes.
+
+The success seal now requires exactly WSI-B01..05, all passed, with no missing/duplicate/unknown/sixth ID. Old four-only reports are explicitly rejected by current code. The old four-flow840 result remains historical evidence, not acceptance of B05 or this new five-flow source. The new fifth check runs after B02 recovery and before B03 filesystem drift so the new selection scenario observes unmodified ready bindings; original B01..04 assertions and lifecycle remain intact.
+
+Actual entry: the selected task thread's `.thread-back` button **Execution & approval**, then the real App `role=dialog` of that name. Mounted ManagedSessions performs fresh fixed `tasks_get` and existing `connections_list`, `sessions_list`, `workspaces_list`, `grants_list`. HTTP adds only the latter two reads with exact fixture projectId/no extra params or write envelope. No approval/Grant/session/create/generic/Agent endpoint is exposed. Existing setup projects.import/tasks.create remains outside HTTP, with no Provider/connection/Grant fixture.
+
+B05 verifies Task2's default from its actual thread, Task1 and back toTask2 through the real in-dialog Task selector, then Task1 from its own thread/new dialog mount. Each step requires a newly fully delivered authenticated Core TaskGet in that action window, exact current Task Value projection/receipt workspace, actual DOM task/project/workspace values, locked bound-workspace select and stored-only/non-authority copy. NoConnection/Grant select values remain empty; createGrant/createSession buttons disabled. All durable rows/events and source content remain unchanged; only reads occur in the B05 window; zero execution/authority rows still required. The Task Value digest is a Python re-encoded structured Value hash, **not** original Unix response-byte evidence or fresh filesystem authority; a complete HTTP flush alone is also not the UI assertion. Actual DOM checks separately verify the resulting selection.
+
+Author checks:40 lightweight tests PASS/0.029s/exit0 (previous36 plus4 new cases; no combined76 count). One existing positive seal fixture necessarily changes from four to five checks; no prior assertion removed. Four-only/duplicate/missing/wrong/failed cases reject. New inert controls cover finite project read scopes, fresh/read-window/full-reply/Task/body checks, cross-Task mismatch and typed revisions. No author product process, Node/Cargo, real Git fixture, daemon, CLI or Chromium execution. Source guards/preflight and old scenario logic have mechanical preservation checks below.
+
+Independent fixed-ae6 source review: SOURCE_READY/no must-fix,40pure/0.026s plus8 separate inert controls, base inverse AST matches. Seal `/workspace/.onboarding/task-workspace-binding-browser-independent-review/revision-ae6ce87`: REVIEW SHA `09074a847b7784dff5fb22613eca35881247951858935748d1fc3e962ce1f573`; MANIFEST SHA `3c990a4515def5e075f9faefb0a5bc0466fb1409c5629b352d58657f609b8e8b` (8files/112557B). This was source/finite-control review, not reviewer runtime execution. All earlier BLOCKED/PASS seals retained.
+
+Root then actually ran the fixed ae6 harness at integration `6c0908e598381a387a3e5b3207f3a7115905d73c`, source tools and frontend both separately bound to e313b98. **All five checks PASS, six original PNGs, exit0,7.020026099984534s**, cleanup.complete=true, daemon actual SIGTERM/wait_exitcode0/Popen-reaped, HTTP thread_alive_after_join=false, zero unexpected HTTP/page errors and zero Grant/session/attempt/connection/approval rows. B05 records four confirmed selections `[Task2,Task1,Task2,Task1]` and matching distinct workspace order; the complete B05 window contains six completed TaskGet responses (including other read observers), not merely four total requests. Both existing rows and source unchanged. Root actually viewed05desktop and06mobile; author did not view/render/copy screenshots or rerun anything.
+
+Root result `/workspace/.onboarding/task-bound-session-browser-five-actual-run1/RESULT.json` SHA `ce304d7b602fb0c3bdeffe562fa31f5c66001002a28504a9aee4d655046c289b`. Root report `/workspace/.onboarding/task-bound-session-browser-five-actual-evidence1/report.json` SHA `fbd7185216814f0f1c99252cbc1b9270c6c6e08995ce2a44403b51c158b8d287`, exact tested harness SHA `09e391a3e0b8b270df58a0d5db943e322167fb6c556bcea1a6bd78e417033ad6`. This author only read/hash-checked their finite result metadata after completion; Root is the executor. Source/compiled head unchanged and frozen tools unchanged in Root result. Raw runtime/database was cleaned; no raw DB/RPC/token is copied here or claimed replayable.
+
+This proves the local built React/Chromium→fixed test shim→Core16 Unix slice. No Native/WebView/macOS/OS Owner consent, Provider/model, granted execution/admission/rework, Directory/Dataset, genuine migration, new CI or full130 completion is claimed. Stored Task workspace selection is not fresh FS proof, a Grant or TaskAccepted. Existing real-Provider/spending/signing/license/remote limits remain closed. All earlier NOT_RUN statements below retain the status at their original source freeze and are not relabeled new-flow results.
+
+## Historical expected-source delta review update
 
 Fixed45937a source is SOURCE_READY for Root controlled execution, no must-fix. Original reviewer independently ran36pure/0.026s,10 additional alias-subset/conflict controls, verified complete driver inverse to27 and unchanged old test classes. Seal `/workspace/.onboarding/task-workspace-binding-browser-independent-review/revision-45937a0`: REVIEW SHA `5cdfa939f6cef5850deee8196b1a64c52f1fcf363be4971c0dfd0ac0602ec74c`; MANIFEST SHA `1c48508b4fb7640c022a038e5ff26dc6bf22f92736ac800252dc9b663d61dda4` (8files/90111B). Old3a/27 seals rehashed unchanged. Reviewer did not run new runtime/CI; this does not transfer the old27 actual4/4 success to45937a. Source remains frozen; all newer commits are this unit's documentation only.
 
-## Current leaf — explicit exact CI source preflight
+## Historical leaf — explicit exact CI source preflight
 
 Current source `45937a0343f5a7b24e5af1d09828b7fed49d9d30` changes only preflight/CLI metadata binding and adds9 pure tests. All original27 tests remain byte-for-byte identical. `ManagedFixturePaths`, runtime/HTTP/Unix dispatch, cleanup, four scenario assertions and all deadlines remain byte-for-byte identical to27e39d; specified inverse edits restore the entire original driver. No Core/API/schema/CI/locks/permissions/UI change.
 
@@ -93,3 +113,29 @@ Original independent BLOCKED seal (not modified): `/workspace/.onboarding/task-w
 Actual command: `python3 -B -m unittest discover -s apps/desktop/tests -p test_task_workspace_binding_real_ipc.py -v` →36PASS/0.024s/exit0. AST inverse control compares Git27e39d source; removing only the explicit expected-source/metadata additions restores complete original driver bytes. Removing new ExpectedSourceHeadTests restores complete original test-file bytes. Git reads are provenance checks, not generated Git fixture execution. CLI pure controls use inert test files and omit--run, verify runtime function never called, output statusNOT_RUN/exit2.
 
 Only Root's old27 report was read here, not private DB/RPC or replayed product commands. New45937a runtime remains NOT_RUN. No old PNG or green status is relabeled as new-source acceptance.
+
+## Five-flow source, preservation and actual evidence hashes
+
+| File | SHA-256 |
+| --- | --- |
+| apps/desktop/tests/task-workspace-binding-real-ipc.py atae6ce87 | 09e391a3e0b8b270df58a0d5db943e322167fb6c556bcea1a6bd78e417033ad6 |
+| apps/desktop/tests/test_task_workspace_binding_real_ipc.py atae6ce87 | 921f4ce204b4b12a73af6cd769dfe4742f44a93dec2e099c307e2bc4896f3b5d |
+| .onboarding/task-workspace-binding-browser-session-source/final-pure-tests.log | e4c09ab5d591e02f5c830bd2ff1e3a8b0d0b50b66189b224838c4da06800f84a |
+| .onboarding/task-workspace-binding-browser-session-source/SOURCE_CHECKS.json | bdec8d1ee9fc463e7b6b4c51a2b7593258aa558e1b377701d94f832119fdfdfe |
+
+Actual author command `python3 -B -m unittest discover -s apps/desktop/tests -p test_task_workspace_binding_real_ipc.py -v` →40PASS/0.029s/exit0. AST parse/diff0. ManagedFixturePaths/preflight/main/parse_http/db_image/no_execution/source_image source fragments are byte-equal to e313. Remove the B05-only section, scenario label and read-only TaskGet projection capture and the entire original run function is byte-equal. PreflightTests/ManagedFixturePathTests/ExpectedSourceHeadTests classes are byte-equal; existing positive five-check fixture update is explicitly recorded, not falsely described as zero test changes.
+
+New Root raw report records5 checks and six screenshots; do not add old four-run counters to this run. Author read only existing result/report finite metadata and hashes, no new product execution or image rendering. PNG hashes below are those recorded by Root report; this is not an author image-content review. Root states05/06 were actually viewed, the other four are not claimed visually reviewed here.
+
+| Root actual screenshot | SHA-256 | Viewport |
+| --- | --- | --- |
+| 01-first-task-ready-desktop.png | cc39cbb3b1938652edb207f7eab4f2d7dec5db0d6823869b47ae8d92dc79f017 | 1440×1100 |
+| 02-second-task-exact-recovered-desktop.png | 0903bcf26118f50efc5330051da7aac75361dcd7eaa9ec13683a1db7df782326 | 1440×1100 |
+| 05-task2-bound-execution-desktop.png | efefa9c3ef63750c944a43d4c9d0f35d4e79c7a8b54d109c9318865eb3d71550 | 1440×1100 |
+| 06-task1-bound-execution-mobile.png | d2a7db4ff6f28b465afe1816d9204bbfd9374ff3f42ddd451f5c5d20a5d45581 | 390×844 |
+| 03-drift-invalidates-proof-desktop.png | d45ec9b4770f922c1b5dd5c1b24ab7aa5d5277bcbf5d9038fd987d45a3b3d625 | 1440×1100 |
+| 04-drift-history-mobile.png | a060a73cb65777bdcd61eff7144e91c47485ae42ffe771f9aa5d04d0d116300d | 390×844 |
+
+Current e313 actual frontend assets recorded in Root report: JS index-DzXSjyNb.js `d359d2d063d799d212c3de998e98d4111486af8f285b3e46b69fbd91b08b38fa` /670412B; CSS index-Do9en2m0.css `73a730d394d1d11ec8a348aac5b8933208bdd7150bab5f84da524c615a056420` /30687B; index.html `be27e7652b7de4d3f3d982b5f94700761495e97fa63486795fd05e77966e68fb` /441B. Old840 asset hashes below remain historical, not this run's assets.
+
+B05 depends on a new complete TaskGet and DOM confirmation after each real UI action, not a stored candidate or same-project shortcut. Root report contains four confirmed logical selections and six completed TaskGet responses in the complete dialog window. Re-encoded structured Task hashes are not raw Unix packet hashes or proof of Core's original serde receipt digest; immutable receipt/FS authority remains Core's separate validation. No full RPC/Task/Grant/token/rawDB is published by these records.
