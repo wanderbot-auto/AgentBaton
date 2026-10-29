@@ -729,6 +729,73 @@ def alert_self_check(previous_report, output):
         'dimension':'actual prior failure plus finite XML nested/direct-alert model and source AST; NO new browser/Core/IPC execution'}
 
 
+def sql_self_check(previous_report):
+    """Actual retained14 rows on the exact Core events DDL; no daemon rerun."""
+    import ast
+    raw,pin=base.bounded_file(previous_report,4*MAX_WIRE,previous_report.parent)
+    previous=json.loads(raw,object_pairs_hook=unique_object)
+    assert previous['harness_sha256']=='c1fc95300144eda6d227f34925dbfa78d0f0504fc992b4c4be2cbb1ec3cc7157'
+    assert [c['id']for c in previous['checks']]==['CP01','CP02','CP03','CP04','CP05','CP06','CP07','CP08']
+    assert previous['failure']['type']=='OperationalError' and previous['failure']['message']=='no such column: kind'
+    assert previous['cleanup_complete'] is False and len(previous['screenshots'])==5
+    checks=['actual-run4-no-kind-column-failure-preserved']
+    diagnostics=previous['observations']['final_diagnostics'];path=Path(diagnostics['path'])
+    observed,_=base.bounded_file(path,16*MAX_WIRE,path.parent)
+    assert sha(observed)==diagnostics['sha256']
+    data=json.loads(observed,object_pairs_hook=unique_object);assert data['schema']==14 and data['complete'] is True
+    rows=data['tables']['events']['rows'];assert all(set(r)=={'sequence','document'}for r in rows)
+    # Exact production initial storage DDL, unchanged by schema14 migrations.
+    # Provenance/immutable source blob is recorded separately in SQL_DDL_SOURCE.
+    ddl='CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT, document TEXT NOT NULL)'
+    fn=next(n for n in ast.parse(Path(__file__).read_text()).body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    queries=[n.args[0].value for n in ast.walk(fn)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='execute'and n.args and isinstance(n.args[0],ast.Constant)and isinstance(n.args[0].value,str)and "session.stopped" in n.args[0].value]
+    assert queries==["SELECT document FROM events WHERE json_extract(document,'$.kind')='session.stopped'"]
+    query=queries[0]
+    db=sqlite3.connect(':memory:');db.execute(ddl)
+    assert [r[1]for r in db.execute('PRAGMA table_info(events)')]==['sequence','document']
+    for row in rows:db.execute('INSERT INTO events(sequence,document) VALUES(?,?)',(row['sequence'],row['document']))
+    try:db.execute("SELECT document FROM events WHERE kind='session.stopped'").fetchall()
+    except sqlite3.OperationalError as error:assert str(error)=='no such column: kind'
+    else:raise AssertionError('Old no-column query unexpectedly accepted')
+    checks.append('old-query-reproduces-exact-no-column-error-on-real-DDL')
+    def selected():return [json.loads(r[0])for r in db.execute(query)]
+    def real_stops(events):return [e for e in events if e['payload'].get('process_reaped') is True and e['payload'].get('no_process_started') is False]
+    events=selected();assert len(real_stops(events))==3
+    assert {e['aggregate_id']for e in real_stops(events)}=={r['session_id']for r in data['tables']['factory_attempts']['rows']}
+    checks.append('new-query-selects-three-retained-real-owned-stops')
+    def insert(event):
+        cursor=db.execute('INSERT INTO events(document) VALUES(?)',(json.dumps(event),));return cursor.lastrowid
+    decoy={'kind':'unrelated.event','source':'session.stopped','payload':{'kind':'session.stopped','process_reaped':True,'no_process_started':False}}
+    seq=insert(decoy);assert len(selected())==len(events);db.execute('DELETE FROM events WHERE sequence=?',(seq,))
+    checks.append('source-and-payload-kind-cannot-replace-document-kind')
+    seq=insert({'kind':'session.stopped.extra','payload':{'process_reaped':True,'no_process_started':False}})
+    assert len(selected())==len(events);db.execute('DELETE FROM events WHERE sequence=?',(seq,))
+    checks.append('top-level-kind-must-match-exactly')
+    for label,payload in [('unreaped',{'process_reaped':False,'no_process_started':False}),('bool-alias',{'process_reaped':1,'no_process_started':False}),('never-started',{'process_reaped':True,'no_process_started':True})]:
+        seq=insert({'kind':'session.stopped','source':'synthetic','payload':payload})
+        assert len(selected())==len(events)+1 and len(real_stops(selected()))==3
+        db.execute('DELETE FROM events WHERE sequence=?',(seq,));checks.append('does-not-count:'+label)
+    seq=insert({'kind':'session.stopped','source':'foreign','aggregate_id':'foreign','payload':{'process_reaped':True,'no_process_started':False}})
+    try:assert len(real_stops(selected()))==3
+    except AssertionError:pass
+    else:raise AssertionError('Extra foreign qualifying event was silently accepted')
+    db.execute('DELETE FROM events WHERE sequence=?',(seq,));checks.append('extra-foreign-stop-retains-original-exact-count-refusal')
+    seq=insert({'kind':'session.stopped','source':'foreign','payload':[]})
+    try:real_stops(selected())
+    except AttributeError:pass
+    else:raise AssertionError('Malformed stop payload did not fail decoding predicate')
+    db.execute('DELETE FROM events WHERE sequence=?',(seq,));checks.append('malformed-stop-payload-fails-not-success')
+    seq=db.execute('INSERT INTO events(document) VALUES(?)',('{',)).lastrowid
+    try:selected()
+    except sqlite3.OperationalError as error:assert 'malformed JSON' in str(error)
+    else:raise AssertionError('Malformed JSON was silently accepted')
+    db.execute('DELETE FROM events WHERE sequence=?',(seq,));checks.append('malformed-JSON-query-fails-closed')
+    assert len(real_stops(selected()))==3;db.close()
+    return {'status':'passed','count':len(checks),'checks':checks,'previous_actual_report_pin':pin,
+        'retained_diagnostic_sha256':sha(observed),'events_DDL':ddl,'fixed_runtime_query':query,
+        'dimension':'pure SQLite replay of retained real Core14 events on exact source-derived events table DDL; NOT new daemon/browser/complete Store migration'}
+
+
 def runtime_driver(args, output, manifest):
     from playwright.sync_api import expect, sync_playwright
     raw_daemon = args.tools / 'batond'; raw_cli = args.tools / 'baton'
@@ -1128,7 +1195,7 @@ def runtime_driver(args, output, manifest):
             budget_rows = [dict(zip(['scope', 'consumed', 'active'], r)) for r in db.execute('SELECT scope,consumed,active FROM budgets')]
             base.verify_attempt_budgets(budget_rows, task['id'], project['id'], 3)
             report['observations']['actual_budgets'] = budget_rows
-            owned_stops = [json.loads(r[0]) for r in db.execute("SELECT document FROM events WHERE kind='session.stopped'")]
+            owned_stops = [json.loads(r[0]) for r in db.execute("SELECT document FROM events WHERE json_extract(document,'$.kind')='session.stopped'")]
             assert len([e for e in owned_stops if e['payload'].get('process_reaped') is True and e['payload'].get('no_process_started') is False]) == 3
             db.rollback()
         assert git('status', '--porcelain') == '' and source_before == {'head': git('rev-parse', 'HEAD'),
@@ -1213,12 +1280,13 @@ def main():
     parser.add_argument('--locator-self-check', type=Path)
     parser.add_argument('--summary-self-check', type=Path)
     parser.add_argument('--alert-self-check', type=Path)
+    parser.add_argument('--sql-self-check', type=Path)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--tools', type=Path)
     parser.add_argument('--frontend', type=Path)
     parser.add_argument('--manifest', type=Path)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
-    args = parser.parse_args(); assert sum([args.self_check,args.run,bool(args.fixture_self_check),bool(args.review_self_check),bool(args.locator_self_check),bool(args.summary_self_check),bool(args.alert_self_check)]) <= 1
+    args = parser.parse_args(); assert sum([args.self_check,args.run,bool(args.fixture_self_check),bool(args.review_self_check),bool(args.locator_self_check),bool(args.summary_self_check),bool(args.alert_self_check),bool(args.sql_self_check)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False); output.chmod(0o700)
     if args.self_check:
         value = self_check(); value.update(harness_sha256=sha(Path(__file__).read_bytes()), support_sha256=sha(BASE_PATH.read_bytes()))
@@ -1238,6 +1306,9 @@ def main():
     if args.alert_self_check:
         value=alert_self_check(args.alert_self_check.resolve(strict=True),output);value['harness_sha256']=sha(Path(__file__).read_bytes())
         base.write_private_json(output/'alert-check.json',value);print(json.dumps(value));return 0
+    if args.sql_self_check:
+        value=sql_self_check(args.sql_self_check.resolve(strict=True));value['harness_sha256']=sha(Path(__file__).read_bytes())
+        base.write_private_json(output/'sql-check.json',value);print(json.dumps(value));return 0
     if not args.run:
         base.write_private_json(output / 'NOT_RUN.json', {'actual_runtime': 'not_run',
             'pending': ['Root reviewed harness', 'fixed schema14 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
