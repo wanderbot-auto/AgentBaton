@@ -9,3 +9,7 @@ Allowed source: factory-guards.ts and dedicated FactoryRuntime.cancelled-history
 ## Supported continuation follow-up — 2026-10-29T18:12:03.606088+00:00
 
 Independent review requires known continuation semantics for the cancellation read exception, matching the existing accepted-result branch. Keep the fix to one supported-contract predicate and one distinct regression.
+
+## Subsequent actual Root validation — 2026-10-29T18:17:21.626112+00:00
+
+Root has completed the planned focused-unit integration validation and actual cancel browser case for this leaf. Next integration gates belong to Root: PR/required CI and both actual macOS architectures. This success closes this local cancellation-history regression, not all130 requirements.

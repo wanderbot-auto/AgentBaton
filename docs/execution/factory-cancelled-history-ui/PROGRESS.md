@@ -11,3 +11,7 @@ Added 28 synthetic guard/component cases, including deferred parent refresh, liv
 ## Supported continuation follow-up — 2026-10-29T18:12:03.606088+00:00
 
 Review found a P2 in ac03: factoryRunShape accepts a nonempty future context_continuation, while derivedCancelled did not require factoryRunSupported. Fixed by adding that predicate. Added an independent negative whose scalar shape is valid but continuation is unsupported. All original28 tests are byte-preserved; new total29 source cases. No actual Node result is claimed.
+
+## Subsequent actual Root validation — 2026-10-29T18:17:21.626112+00:00
+
+Root source2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3 includes exact reviewed guard/test bytes6b8c. Actual typecheck0, full901tests/52files0 and build0. All29 new cases were part of the real full-suite run. New actual cancelled-history1 case passed in20.525272s with CG01/CG02/CG04/CG06 allPASS,3PNG and cleanup_complete=true. Cancel committed/dropped/same-key recovery and final cancelled history now both passed; final Graph and Factory are cancelled and Task is not accepted. This new result does not replace earlier failed runs.
