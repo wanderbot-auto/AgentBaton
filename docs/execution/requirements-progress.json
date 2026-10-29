@@ -1390,6 +1390,14 @@
           "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
           "status": "partial localLinux/generatedprotocol/privateOwner dimension",
           "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -1606,6 +1614,25 @@
           "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
           "status": "partial localLinux/generatedprotocol/privateOwner dimension",
           "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
+        },
+        {
+          "slice": "Exact c6f6 actual dual Mac native Owner Grant review, cancellation and confirmed final record",
+          "feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+          "actual_checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+          "Product": 40790894775,
+          "Environment": 40790894815,
+          "dimension": "Both real Macs readonly/WebCrypto/24Ownerpages each/fullGrant-result-CAS-event guards/app-daemonexit0; 50PNG independently viewed",
+          "evidence": "docs/execution/goal-graph-integration/C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
+          "status": "partial exact historical native slice, whole requirement not accepted",
+          "limitations": "ARMdefaultbundleFAIL/Intelofficial45mCANCELLED; audits/packagesSKIPPED. New byte-preserving modulemove/CI60 bounded guard reviewed+LinuxRustcheck only, newactualMac pending. NotFactory13/liveProvider/fullscope."
         }
       ]
     },
@@ -1929,6 +1956,14 @@
           "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
           "status": "partial localLinux/generatedprotocol/privateOwner dimension",
           "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -2155,6 +2190,14 @@
           "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
           "status": "partial localLinux/generatedprotocol/privateOwner dimension",
           "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -2319,6 +2362,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -2500,6 +2551,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -3692,6 +3751,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -3735,6 +3802,14 @@
           "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
           "status": "partial localLinux/generatedprotocol/privateOwner dimension",
           "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
+          "slice": "shipping lossless bounded Native display pages and cancellation/final confirmation guards",
+          "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
+          "evidence": "docs/execution/goal-graph-integration/NATIVE_PAGES_ROOT_IMPORT.json",
+          "dimension": "Linux62lib+8controller/fmt/clippy; Python20 andindependentcontrols; currentMacGUI not_run",
+          "status": "partial",
+          "coverage_limit": "Supporting Native presentation only; this slice does NOT verify scopedMCP credential expiry/cross-session rejection. Those belong to separateFactoryschema13 tests and are not accepted inPR16."
         }
       ],
       "coverage": "partial"
@@ -5503,6 +5578,14 @@
             "docs/execution/goal-graph-integration/CI_0AA_MAC_SUMMARY.md"
           ],
           "acceptance": "partial only; actualOwner/newinstallers/Factory/fullDesign notaccepted"
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -5722,6 +5805,14 @@
           "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
           "status": "partial localLinux/generatedprotocol/privateOwner dimension",
           "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
+          "slice": "exacte3cc retainedCI and realMac failingOwner diagnostic; no full requirement acceptance",
+          "source": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+          "checkout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+          "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
+          "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
+          "status": "partial"
         }
       ]
     },
@@ -6211,6 +6302,33 @@
           "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
           "status": "partial localLinux/generatedprotocol/privateOwner dimension",
           "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
+        },
+        {
+          "slice": "shipping lossless bounded Native display pages and cancellation/final confirmation guards",
+          "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
+          "evidence": "docs/execution/goal-graph-integration/NATIVE_PAGES_ROOT_IMPORT.json",
+          "dimension": "Linux62lib+8controller/fmt/clippy; Python20 andindependentcontrols; currentMacGUI not_run",
+          "status": "partial"
+        },
+        {
+          "slice": "actualNative lossless boundedGrant presentation/lateCancel/privateFinalOK evidence",
+          "source": "fb7ff7d861872eec18e010f7b64a0ead63740faa",
+          "actual_checkout": "613166104190bedb3730a7510743137422ab05fa",
+          "evidence": "docs/execution/goal-graph-integration/FB7_AND_GRANT_REVIEW_IMPORT.json",
+          "dimension": "bothmacOSarchitectures24pages each, all50imagesindependentlyviewed; originalscope/refs/19zero/lateCancel+oneGranttransaction observed",
+          "status": "partial",
+          "limits": "OriginalCI failedoldassociationpredicate. Test-only655c independently29PASS andlimitedtypedP2closed; newexactMac/CI/packages notrun. Not fullProjectPolicy/remote/nativeProviderapproval or fullrequirement acceptance."
+        },
+        {
+          "slice": "Exact c6f6 actual dual Mac native Owner Grant review, cancellation and confirmed final record",
+          "feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+          "actual_checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+          "Product": 40790894775,
+          "Environment": 40790894815,
+          "dimension": "Both real Macs readonly/WebCrypto/24Ownerpages each/fullGrant-result-CAS-event guards/app-daemonexit0; 50PNG independently viewed",
+          "evidence": "docs/execution/goal-graph-integration/C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
+          "status": "partial exact historical native slice, whole requirement not accepted",
+          "limitations": "ARMdefaultbundleFAIL/Intelofficial45mCANCELLED; audits/packagesSKIPPED. New byte-preserving modulemove/CI60 bounded guard reviewed+LinuxRustcheck only, newactualMac pending. NotFactory13/liveProvider/fullscope."
         }
       ]
     },

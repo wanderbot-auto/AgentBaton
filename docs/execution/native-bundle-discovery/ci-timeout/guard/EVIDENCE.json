@@ -1,0 +1,125 @@
+{
+  "state": "guard source frozen; finite and actual static validators pass; independent supplemental review pending",
+  "base": "2cbdebba8127ae26749391b113834946ddf8b5b7",
+  "source_commit": "53785196ec166637ca89fd732639888a1048360c",
+  "source_map": {
+    "base": "2cbdebba8127ae26749391b113834946ddf8b5b7",
+    "source_commit": "53785196ec166637ca89fd732639888a1048360c",
+    "files": [
+      {
+        "path": "scripts/validate_infrastructure.py",
+        "bytes": 4014,
+        "sha256": "b0482a35fc4febee972fb8fa8b9e1e829924d35f9c52b1493d3b7b3edf30f83e"
+      },
+      {
+        "path": "BOOTSTRAP_MANIFEST.json",
+        "bytes": 9852,
+        "sha256": "c79ca877a1f8beec1b258f2664640cedd330ae9623b314cbf711b1388c44fba0"
+      }
+    ],
+    "exact_diff": "diff --git a/BOOTSTRAP_MANIFEST.json b/BOOTSTRAP_MANIFEST.json\nindex 74dc189..34d152f 100644\n--- a/BOOTSTRAP_MANIFEST.json\n+++ b/BOOTSTRAP_MANIFEST.json\n@@ -59,7 +59,7 @@\n     \"scripts/doctor.py\": \"b8e0d7e89220f0233557d51be25ff18af64bc4705b10d8e4e22ae5a14210857e\",\n     \"scripts/setup-dev.sh\": \"086a5e80e22f516fb77169817b8ffc868787ed39cc1d0556e4d9c61576ecb346\",\n     \"scripts/validate_design.py\": \"23427936c31e292b46ea6596d0523873e31e26962a71ca27041654ed3965b850\",\n-    \"scripts/validate_infrastructure.py\": \"cd3c3f922c0e173a9242b59255763057c12991a7a9965c58f6fdf6ee6ced704e\",\n+    \"scripts/validate_infrastructure.py\": \"b0482a35fc4febee972fb8fa8b9e1e829924d35f9c52b1493d3b7b3edf30f83e\",\n     \"scripts/verify_bootstrap_manifest.py\": \"993445b8e0927778b5f8eccf0aa9846ed8bf5e75fd60ec244eaabe676d5a3b0f\",\n     \"specs/README.md\": \"263e7df1bed214eeabf81e1bb74ef55e5cd4243ecc24a7cc3f2e5af0c074cfb2\",\n     \"specs/decisions.json\": \"b2877fb2494e992764aa75f7b3303a5ee81d20bdb52953af7d040281541fa11a\",\ndiff --git a/scripts/validate_infrastructure.py b/scripts/validate_infrastructure.py\nindex fb4a1f5..82af05a 100644\n--- a/scripts/validate_infrastructure.py\n+++ b/scripts/validate_infrastructure.py\n@@ -16,7 +16,7 @@ def validate_job_timeout(workflow_name, job_name, job):\n         check(strategy.get('matrix') == {'os': ['macos-15', 'macos-15-intel']}, 'Unexpected product build matrix')\n         check(str(strategy.get('max-parallel')) == '2', 'Unexpected product build concurrency')\n         check(str(strategy.get('fail-fast')).lower() == 'false', 'Both product architectures must complete')\n-        maximum = 45\n+        maximum = 60\n     value = job.get('timeout-minutes')\n     check(type(value) in (str, int), 'Invalid CI job timeout')\n     try:\n",
+    "original_failure_sha256": "d50f25ca7767f85f966a683c70437fb3cccdd8aa38a218c35152d25cfe254946",
+    "manifest_paths": 93,
+    "changed_manifest_entry_only": "scripts/validate_infrastructure.py",
+    "other92_actual_hashes_match": true
+  },
+  "original_failure": {
+    "record": "root-original-RESULT.json",
+    "log": "root-original-first-failure.log",
+    "exit": 1,
+    "sha256": "d50f25ca7767f85f966a683c70437fb3cccdd8aa38a218c35152d25cfe254946",
+    "cause": "CI60 workflow exceeded the validator remaining desktop maximum45"
+  },
+  "actual_commands": [
+    {
+      "tag": "finite",
+      "argv": [
+        "python3",
+        "/workspace/.onboarding/native-ci-timeout60-guard/check_guard.py"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T00:59:54.254662+00:00",
+      "stdout_sha256": "584d7f9f8b9c82ca3c9799b046ec9aed7f07f39cdabad7779f69c44d52f6df4c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "infrastructure",
+      "argv": [
+        "python3",
+        "scripts/validate_infrastructure.py"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T00:59:54.324872+00:00",
+      "stdout_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "bootstrap",
+      "argv": [
+        "python3",
+        "scripts/verify_bootstrap_manifest.py"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T00:59:54.366404+00:00",
+      "stdout_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T00:59:54.372605+00:00",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "finite_controls": {
+    "passed": 37,
+    "results": "finite-results.json",
+    "scope": "generated job dictionaries and actual manifest content only"
+  },
+  "infrastructure_result": {
+    "status": "passed",
+    "scope": "static_infrastructure_only",
+    "workflow_files": 2,
+    "pinned_action_references": 15,
+    "remote_ci_executed": false,
+    "product_development_authorized": true,
+    "product_tests_executed": false
+  },
+  "bootstrap_result": {
+    "status": "passed",
+    "files": 93,
+    "scope": "bootstrap_file_integrity"
+  },
+  "unchanged": [
+    "default maximum30",
+    "exact desktop workflow/job selector",
+    "macos15/macOS15Intel matrix, host selector, concurrency2 and fail-fast false checks",
+    "permissions/secrets/action pins/requiredEnvironment validation",
+    "other92 bootstrap entries and actual registered files",
+    "STATUS and all source outside validator/its manifest hash",
+    "CI60 single-line source and prior modulemove evidence"
+  ],
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "bytes": 10804,
+    "sha256": "75600e39d9e465baa118265ec1b76d1e525ccbb978d40f897aefb2e38c760b1c"
+  },
+  "archive_manifest": "EVIDENCE_ARCHIVE_MANIFEST.json",
+  "not_run": [
+    "CI/Cargo/compilation",
+    "Core/daemon/browser/macOS",
+    "actual job60 completion/package"
+  ],
+  "limits": "This closes static-guard consistency, not runtime/package gates. Original Intel45m cancellation and ARM missinghelper remain distinct historical failures.",
+  "at_utc": "2026-10-29T01:00:52.385961+00:00"
+}

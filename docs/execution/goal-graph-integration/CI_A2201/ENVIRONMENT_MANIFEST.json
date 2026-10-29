@@ -1,0 +1,316 @@
+{
+  "schema": 1,
+  "sealed_at_utc": "2026-10-29T02:44:10.962187+00:00",
+  "feature": "a2201fe2729eddb0d76bf3995667d3692126ee0f",
+  "actualcheckout": "7f359dc8807e4d11f8e2dedbf4b0a5cc83c81f16",
+  "tree": "520d7aab6abdd4d659d0a9d301d9e28bdfffafd2",
+  "run": 40806943416,
+  "conclusion": "all3success",
+  "each_actual_fullchain": {
+    "bootstrap_files": 93,
+    "design_requirements": 130,
+    "workflow_files": 2,
+    "pinnedactions": 15,
+    "Python": 34,
+    "Node": 4,
+    "Rust_env": 2,
+    "Clippy": "passed",
+    "testfailures": 0,
+    "testskips": 0
+  },
+  "fixed_policy_testhash": "0474127b8fbf0432692b2460978d5a07e276583f2c7621a057719b7be3c097de",
+  "officialZIPs": {
+    "count": 3,
+    "eachonce": true,
+    "each8files": true,
+    "APIdigest_CRC_safepaths_modes_sizes_hashes": "verified"
+  },
+  "all3rawlogs_download_once": true,
+  "Product_UI_failure": "separate openPRgate; Root/Linuxreviewerowns rawfiles",
+  "formal_approval": false,
+  "source_Cargo_Product_Provider_remote_authority_mutations": false,
+  "files": [
+    {
+      "path": "ENVIRONMENT_AUDIT.json",
+      "bytes": 5890,
+      "sha256": "bc3cdacaa7d3b642c9d582853b52398d5f990e44e6bb4119869c0706b477ad99",
+      "mode": "0o600"
+    },
+    {
+      "path": "ENVIRONMENT_REVIEW.md",
+      "bytes": 3932,
+      "sha256": "a06001624ee1b0645a36f60cf8dd07f723c1e9be37a93901779b81fc3a7e310c",
+      "mode": "0o600"
+    },
+    {
+      "path": "checkout-candidate-api.json",
+      "bytes": 2660,
+      "sha256": "92e5940af5ef0960090ff25b29c811b803f1d39575d08339cc2d94a00c503796",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/design-validation.log",
+      "bytes": 725,
+      "sha256": "8b573bda108a9c2edd2ad97d672d2393cf3ae8b808845a4b7d310b7afe036eab",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/doctor.json",
+      "bytes": 2081,
+      "sha256": "d87c725cd3a87f7bafd2f7f2e26c8140505eb55dbf2aa00554c21b027e2a6bc9",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/infrastructure-validation.log",
+      "bytes": 231,
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/integrity-validation.log",
+      "bytes": 71,
+      "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/node-tests.log",
+      "bytes": 512,
+      "sha256": "c0a02ac7f9a2800b183f9d79f681ccbf79e0057385a44be2a6f0c7739d1a797b",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/python-tests.log",
+      "bytes": 4920,
+      "sha256": "bd4dd72a9cd4c9949e5fef7f8e6782ec7d78f952ddb075ea0989669590c98b2a",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/rust-smoke.log",
+      "bytes": 514,
+      "sha256": "587c959fd25bb8f024e6efe577ccfd6232d9a2d5e288e180024d42d355501961",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact/toolchain-versions.json",
+      "bytes": 2081,
+      "sha256": "d87c725cd3a87f7bafd2f7f2e26c8140505eb55dbf2aa00554c21b027e2a6bc9",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact-inventory.json",
+      "bytes": 2890,
+      "sha256": "5c18bd24582109e3513913d77f8909ae38806fee9ffaec2990711438f8ec0cde",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-artifact.zip",
+      "bytes": 4453,
+      "sha256": "5710fb4ea4127eb82655563dab5fb462378d5f441d3982982af1fb97267b964a",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-arm-job.log",
+      "bytes": 44326,
+      "sha256": "cdf5d5811245e9b6a9cb7bc904048bbe38769ab09d1a6adf4b3f7bacb90af62e",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/design-validation.log",
+      "bytes": 725,
+      "sha256": "7160d6a889c7c3baf4d9690a9d857e5937227f9d0f34bf482c98523894b9885e",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/doctor.json",
+      "bytes": 2075,
+      "sha256": "d086fac3df806f7a72ef6dde5f135d5d7f1772eb9bf436628d9d954dc0908ef2",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/infrastructure-validation.log",
+      "bytes": 231,
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/integrity-validation.log",
+      "bytes": 71,
+      "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/node-tests.log",
+      "bytes": 510,
+      "sha256": "0729c29faeba47f7564ea7784f4d1670f5112491d98d0b555f38249ab5aa5ef9",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/python-tests.log",
+      "bytes": 4920,
+      "sha256": "101965070ea65af426397549b531d5f250962b403257a4e0161b367946bc3dd5",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/rust-smoke.log",
+      "bytes": 514,
+      "sha256": "06f92a18f8f28438a1117bd79ac9aef196cce5d4d06e2700f8278e5d4f29526c",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact/toolchain-versions.json",
+      "bytes": 2075,
+      "sha256": "d086fac3df806f7a72ef6dde5f135d5d7f1772eb9bf436628d9d954dc0908ef2",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact-inventory.json",
+      "bytes": 2896,
+      "sha256": "4cd50ce7d14418f1aea1275dcab9987378b977dcaafc2e54bd24c56c1a353ce9",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-artifact.zip",
+      "bytes": 4447,
+      "sha256": "a7683786b8154a7153ef15481151f6fe4738b89dc044e2d9c89e0e7f83af8463",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-intel-job.log",
+      "bytes": 47904,
+      "sha256": "863f3c126ee7c6259e3b7bc35e90c7942d8ed2c30d13bca28a4488ded85a3ea8",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/design-validation.log",
+      "bytes": 725,
+      "sha256": "1708c7be42296f4e05e75a0e075f32a80e9b312a491c752d7f163555b3661391",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/doctor.json",
+      "bytes": 1670,
+      "sha256": "b46fd440a808742d2cfc1a5f696608ae0cc6c2c8c1f042ffeff01ba134e4e5c4",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/infrastructure-validation.log",
+      "bytes": 231,
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/integrity-validation.log",
+      "bytes": 71,
+      "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/node-tests.log",
+      "bytes": 512,
+      "sha256": "3af653ecfd84ea240671377d5886d0979c16f21c7f4dff40dbdefae12f6fa019",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/python-tests.log",
+      "bytes": 4920,
+      "sha256": "8c7707a59b98e7bc691f90b0fbf81ba046f8cb4fe55c3f0a473c3f7f72822ea9",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/rust-smoke.log",
+      "bytes": 514,
+      "sha256": "8d74667d7718b05f1fcca5513d394aeb445354c168edcac6a6380fe7627babae",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact/toolchain-versions.json",
+      "bytes": 1670,
+      "sha256": "b46fd440a808742d2cfc1a5f696608ae0cc6c2c8c1f042ffeff01ba134e4e5c4",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact-inventory.json",
+      "bytes": 2894,
+      "sha256": "6d37655d35da90dfa35a3bbb52cc599b391515ddcbb5a0c09d998bdee565d620",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-artifact.zip",
+      "bytes": 4202,
+      "sha256": "86d1bf346a9bb9c0198914096cb45295b5d034f4a6b1e5c03403373634ccaf5b",
+      "mode": "0o600"
+    },
+    {
+      "path": "env-linux-job.log",
+      "bytes": 42564,
+      "sha256": "d09c16efc3103d26a23c62190352444ef6ea821cfdeded2e0157fd3398ab6fce",
+      "mode": "0o600"
+    },
+    {
+      "path": "environment-artifacts-terminal.json",
+      "bytes": 2327,
+      "sha256": "8d110915a373065fdc344b94ac7860c3db5f45ed008bc3e071b72ba23a34855c",
+      "mode": "0o600"
+    },
+    {
+      "path": "environment-jobs-terminal.json",
+      "bytes": 16124,
+      "sha256": "7a656c9e1f2ac19617236d9081f792eec995b7977c6be6378793f90bc8eda24a",
+      "mode": "0o600"
+    },
+    {
+      "path": "environment-run-final.json",
+      "bytes": 13391,
+      "sha256": "e198e8d933c50eacafbd0cded8eb714fd4b3dfea4df2c30b4f2d39cfd8e74b61",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 1249,
+      "sha256": "d6ae033f98d6aa1a9cde74a00f804b48ab7e8bba782c6b1eaf6fc8cbe91f6ffa",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/.github/workflows/environment-preflight.yml",
+      "bytes": 3705,
+      "sha256": "3bcfd3051e2995de0e49bff88861fd9972a3f805a7cdc9f9bd13c43d4d0e668c",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/.github/workflows/product.yml",
+      "bytes": 10965,
+      "sha256": "baa70c8b721b7f82e1645651d2131008c6601bd67c70e2a39600177e42633658",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/BOOTSTRAP_MANIFEST.json",
+      "bytes": 9852,
+      "sha256": "6c7052fb56484b22deaae21d782bc2d17d58c818b33ba96674541b8e685b5827",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/docs/execution/OWNER_INBOX.md",
+      "bytes": 2985,
+      "sha256": "094a77884272d0919bece0654237419f2d226a9245e7d826e0891a8f661f811f",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/infra/execution-gate.json",
+      "bytes": 1786,
+      "sha256": "313c96753ddd8f89d8a69e58428f834596f3059b0d0a41996dc1059ea8170e7e",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/scripts/validate_infrastructure.py",
+      "bytes": 4014,
+      "sha256": "b0482a35fc4febee972fb8fa8b9e1e829924d35f9c52b1493d3b7b3edf30f83e",
+      "mode": "0o600"
+    },
+    {
+      "path": "source-snapshot/tests/infrastructure/test_runtime_policy.py",
+      "bytes": 3159,
+      "sha256": "0474127b8fbf0432692b2460978d5a07e276583f2c7621a057719b7be3c097de",
+      "mode": "0o600"
+    }
+  ]
+}

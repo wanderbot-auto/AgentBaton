@@ -1,0 +1,28 @@
+# PR16 c6f6 actual CI independent Mac review
+
+Sealed 2026-10-29T00:50:02.699720+00:00. Feature `c6f6b3c2be18ecc339f1cba6a9603657739e4cd4`; actual checkout `e963523c04b27d99d44a7893b161b5180b9818e3`, tree `32b2747d4541b7f09d05cf21332f6232b081d8a5`, parents `a1be94d26d10bb245bb35eb50226b82012c967da` +feature. Both Mac original checkout logs and actual native reports confirm this candidate; signed Git commit API is retained. Product40790894775 attempt1 is **failure**. Environment40790894815 attempt1 is **success**. PR16 remains draft; no formal approval or merge is supplied by this review.
+
+| Dimension | ARM job123175557753 | Intel job123175557621 |
+| --- | --- | --- |
+| Host / native smoke / Owner controller tests | 62 / 26 / 10 passed | 62 / 26 / 10 passed |
+| Actual readonly WebView and owned lifecycle | success | success |
+| Four actual WebCrypto original109B proofs | passed | passed |
+| Actual native Owner11 pages+Final, both phases | success | success |
+| Typed schema12/seq8→10, oneGrant/original19zero | passed | passed |
+| Current25 original PNGs individually viewed | yes | yes |
+| Default release executable/build | compiled; application bundling failed | compilation cancelled |
+| Job terminal | failure00:29:51 | cancelled00:43:25 |
+| Default release test-control audit | skipped | skipped |
+| Development package/upload/signature/install acceptance | skipped/no artifact/not_run | skipped/no artifact/not_run |
+
+ARM first failure is original arm-job.log:3708: bundler cannot copy nonexistent `target/release/native_owner_dialog`; :3706 proves default executable compilation completed, not a complete verified app. Intel first actual log error is :3814 `The operation was canceled.`; official annotation independently states `The job has exceeded the maximum execution time of 45m0s`. Intel stopped during release desktop/Core compilation without the ARM missing-binary error. These are separate observed failures; this review does not invent a common cause or repair either. Runner-terminated compiler/node processes at Intel job cancellation are separate from already-successful owned fixture cleanup. Required default build/audit/dual installer gates remain open; no old PR15/package is substituted.
+
+Both actual Owner dimensions now pass the corrected exact contract: all11 pages and a distinct Final were presented twice, with original24 before-click schema12 DB/permit snapshots perarchitecture.84 L rows restore3132 ARM/3136 Intel bytes losslessly to original formatter text, exact refs/parent/fullcell/visibility and realcontrol flags match. Late Final Cancel leaves no Grant/finalization; Final OK creates exactly one persisted Grant and two matching events, consumed proposal revision2,19counters0. The distinct server approvalUUID is bound to the Grant event, not invented equal to proposalID. Savedresponse/proposalresult/persistence and exact typed scope/enforcement/bindings agree. Every current Owner screenshot48 and readonly screenshot2 was individually opened with tools.view_image. Page11/Final wrap within narrower centered sheets; no clipping observed. These are automated fixture decisions, not human owner approvals. The source still enforces500ms/4s/75s/85s gates; no new per-gate telemetry is invented.
+
+Actual readonly WebView evidence remains separate from Owner: schema12/sequence3, zero Goal/execution/all6Graph counts, exact missing-run denials, real productioninvoke/persistence/close-survival/restart/reopen/draftcancel/stop/ownedcleanup. All four actual crypto.subtle.digest/TextEncoder proofs perarchitecture preserve the original109B Chinese/emoji/unsafe-u64 literal bytes and SHA d29817e7338bcd0db0c7f22a98e3faa82802bb73f11d67ad2c65e789d1dd2892. Factoryschema13/28tables, Graph private Owner OS flows, real Provider model calls, trusted signing/notarization/production and human installation are not established by this fixture.
+
+Environment3 and ProductLinux2 jobs are all success in saved API records (five success jobs total). Root owns the independent Linux rawlog/artifact review; this reviewer did not download their logs/ZIPs. Product Mac outcomes are ARMfailure and Intelcancelled, not two success jobs. Exact Product overallstatus remains failure.
+
+Each official Mac rawlog/nativeZIP was downloaded once after that job's terminal state. ARM artifact12862732050/SHA c92f2bb3869475ff90487d4d525ce427f7b9b507e1445c1fe64395606c844122; Intel artifact12862609620/SHA96606ed6b588225f6bdac3245e3ada8c4f0fbb30eda3d1d5557afbeb2de6df41. API digests, CRCs, safe normalized unique paths/permitted ZIPmodes/size bounds and all115 regular payload hashes perZIP were verified. Original capture modes and local extracted modes are both recorded, not conflated. Fixed source23 blobs and original raw files are bound by manifest. Early existing-blob source capture AssertionError is retained in source-capture-note.json; corrected logic verified bytes before reusing them, no source was overwritten. monitor-complete.json's images-not-yet-reviewed flag is its historical acquisition snapshot; subsequent independent visual reports above complete that dimension.
+
+The bounded actual monitor has exited; all future monitoring is stopped. No Cargo/target/source/STATUS/browser/productdaemon/Provider/credential/timeout/workflow/remote mutation, CIretry/cancel/trigger, formalapproval/merge/push or paidresource operation was performed. Evidence writes are confined to this review directory. Earlier fb7/final921/otherMac reports remain unchanged. ARM_REVIEW/ARM_MANIFEST and INTEL_REVIEW/INTEL_MANIFEST retain each architecture's original evidence separately; MANIFEST covers this completed acquisition/review.

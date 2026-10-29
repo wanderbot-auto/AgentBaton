@@ -1,0 +1,22 @@
+{
+  "scope": "design_package_validation_only",
+  "status": "passed",
+  "recorded_at": "2026-10-29T02:18:29.152879+00:00",
+  "requirements": 130,
+  "work_packages": 14,
+  "approved_decisions": 20,
+  "deferred_optional_decisions": 1,
+  "answered_questions": 27,
+  "retired_requirements": 4,
+  "schemas_validated": 7,
+  "positive_examples_validated": 7,
+  "negative_examples_rejected": 10,
+  "local_links_checked": 41,
+  "product_tests_executed": false,
+  "real_agent_tests_executed": false,
+  "macos_app_built": false,
+  "limitations": [
+    "Schema checks do not establish semantic authorization, path safety or runtime enforcement.",
+    "This package contains design documents, not an implemented AgentBaton product."
+  ]
+}

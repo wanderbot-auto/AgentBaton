@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-28T23:13:21.814166+00:00",
+  "archives": [
+    {
+      "archive": "CI_FB7_MAC_EVIDENCE.tar.gz",
+      "bytes": 25247952,
+      "sha256": "141f98afbfac2674b53767a8793ea58ab13d842aeab15a42486a480c58864f2b",
+      "members": 298,
+      "source_manifest_sha256": "3731b02a90fd6decc3ba5eebd9aa4f746404498a0c1321c7168637eafd4297c8",
+      "payloads_rehashed": 297,
+      "roundtrip": true
+    },
+    {
+      "archive": "GRANT_CONTRACT_FBFD_AUTHOR_EVIDENCE.tar.gz",
+      "bytes": 13419,
+      "sha256": "bbfb779c5dca3c8ee2503024016aa1d2fb8f1cc93ba3cb4fbb4220572e1d95f8",
+      "members": 8,
+      "source_manifest_sha256": "496d9f5981224909f0b6e5c3220b7aa01e81abf6e780c35c06d98bba8bfb1732",
+      "payloads_rehashed": 7,
+      "roundtrip": true
+    },
+    {
+      "archive": "PLAYWRIGHT_LOOKUP_REVIEW_EVIDENCE.tar.gz",
+      "bytes": 11860,
+      "sha256": "714da94363c29b56b4694a27bbdbe12e31391eb8c506341907fb094453d8676e",
+      "members": 21,
+      "source_manifest_sha256": "2559d951a4a088906231de950fb2b3f9ed8307090a2e69ddbe28be60bd938ca2",
+      "payloads_rehashed": 20,
+      "roundtrip": true
+    },
+    {
+      "archive": "GRANT_CONTRACT_ROOT_EVIDENCE.tar.gz",
+      "bytes": 63457,
+      "sha256": "59b22704bdc9573376f4a07ed199b9bfe98107ba34d50532665fd7ddda70cacb",
+      "members": 6,
+      "roundtrip": true,
+      "scope": "Root actualOwner10/fmt/clippy; fc5/906 macroonly raw resources; current1ee/fec7 inode/nlink restored"
+    },
+    {
+      "archive": "CI_FB7_LINUX_EVIDENCE.tar.gz",
+      "bytes": 18496309,
+      "sha256": "97bf16b908afa37ad7848a876b51370f07b4ff4a490f2b7b588556fa7d27fa1c",
+      "members": 135,
+      "roundtrip": "previouslyRoot135membersverified",
+      "scope": "Linux5success; originalPlaywrightwarning remains in rawlog"
+    }
+  ],
+  "state": "fb7actual5success2MacGrantassociationfail; fbfdPurecontract24author/24independent10Root before typed-equality P2 fix, P2OPEN no ready/push; no newMac or package claim"
+}

@@ -1,0 +1,14 @@
+{
+  "recorded_at": "2026-10-29T00:15:35.833388+00:00",
+  "feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+  "actual_checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+  "tree": "32b2747d4541b7f09d05cf21332f6232b081d8a5",
+  "review_sha256": "551af2dae5d59e1060b0bbde7ff45bb2870e6ef53127ed5fafa11991368ee2a8",
+  "manifest_sha256": "f042f3dd5f585f9398e294b63c1ed4df19ec2d7c59ca21ab8361333f287b7b3b",
+  "archive": "/workspace/.onboarding/pr16-c6f6-ci/LINUX_EVIDENCE.tar.gz",
+  "archive_sha256": "afaa7f6f6cdd9cb03bf7bc433cd96f44c3021d5d345642b763815f9a2d47da23",
+  "regular_members": 139,
+  "uncompressed_bytes": 29596546,
+  "source_STATUS_unchanged": true,
+  "scope": "Exact Linux Rust/UI + 3Environment terminal success only, no Mac/packages/Factory13/full Design acceptance. Source branch untouched to preserve running exactCI."
+}

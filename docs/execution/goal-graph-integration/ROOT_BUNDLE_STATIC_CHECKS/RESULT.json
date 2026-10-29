@@ -1,0 +1,35 @@
+[
+  {
+    "command": [
+      "python",
+      "scripts/verify_bootstrap_manifest.py"
+    ],
+    "exit": 0,
+    "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/validate_design.py"
+    ],
+    "exit": 0,
+    "log_sha256": "dbc31b19511a5b347146551baeb5eb141645cb0760af7c420e7630d1aa9797d6"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/validate_infrastructure.py"
+    ],
+    "exit": 0,
+    "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

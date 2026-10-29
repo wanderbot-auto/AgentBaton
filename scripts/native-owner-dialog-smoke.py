@@ -10,6 +10,7 @@ import hashlib
 import importlib.util
 import ctypes
 import json
+import math
 import os
 import platform
 from pathlib import Path
@@ -107,10 +108,27 @@ def database(runtime, proposal_id):
             'proposal': proposal, 'proposal_result': result, 'grants': grants, 'events': events, 'counts': counts}
 
 
+def json_exact(left, right):
+    """JSON value equality with distinct bool/int/float types; no coercion."""
+    if type(left) is not type(right):
+        return False
+    if type(left) is dict:
+        return (all(type(key) is str for key in left) and all(type(key) is str for key in right)
+                and left.keys() == right.keys()
+                and all(json_exact(left[key], right[key]) for key in left))
+    if type(left) is list:
+        return len(left) == len(right) and all(json_exact(a, b) for a, b in zip(left, right))
+    if type(left) is float:
+        return math.isfinite(left) and math.isfinite(right) and left == right
+    return type(left) in (str, int, bool, type(None)) and left == right
+
+
 def pending_error(value, proposal, sequence):
-    if (value.get('read_only') is not True or type(value.get('schema_version')) is not int or value.get('schema_version') != 13
-            or type(value.get('sequence')) is not int or value['sequence'] != sequence
-            or value.get('proposal') != proposal or proposal.get('kind') != 'grant'
+    if (type(sequence) is not int or type(proposal.get('revision')) is not int
+            or proposal['revision'] <= 0
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 13)
+            or type(value.get('sequence')) is not int or not json_exact(value['sequence'], sequence)
+            or not json_exact(value.get('proposal'), proposal) or proposal.get('kind') != 'grant'
             or proposal.get('consumed') is not False or value.get('proposal_result') is not None
             or value.get('grants') != [] or not isinstance(value.get('counts'), dict)
             or set(value['counts']) != set(ZERO_TABLES)
@@ -120,39 +138,74 @@ def pending_error(value, proposal, sequence):
     return None
 
 
+def opaque_id(value):
+    if not isinstance(value, str) or not value.strip():
+        return False
+    try:
+        return len(value.encode('utf-8')) <= 512
+    except UnicodeEncodeError:
+        return False
+
+
+def grant_scope(intent):
+    return {'workspace_ids': [intent['workspace_id']], 'connection_ids': [intent['connection_id']],
+            'host_ids': ['local'], 'max_attempts': intent['max_attempts'],
+            'max_concurrency': intent['max_concurrency'], 'max_duration_ms': intent['max_duration_ms'],
+            'recipients': [], 'network': {'mode': 'deny'}, 'max_depth': 0, 'max_children': 0}
+
+
+def grant_enforcement():
+    return {'baton_mediated_scope': True, 'os_filesystem_sandbox': False,
+            'os_network_sandbox': False, 'native_identity_isolation': False}
+
+
 def approved_error(value, proposal, baseline, response):
     grants = value.get('grants')
     current = value.get('proposal', {})
-    if (value.get('read_only') is not True or type(value.get('schema_version')) is not int or value.get('schema_version') != 13
+    if (type(baseline) is not int or type(proposal.get('revision')) is not int
+            or proposal['revision'] <= 0
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 13)
             or not isinstance(grants, list) or len(grants) != 1
-            or current.get('id') != proposal['id'] or current.get('snapshot') != proposal['snapshot']
+            or current.get('id') != proposal['id'] or not json_exact(current.get('snapshot'), proposal['snapshot'])
             or current.get('kind') != 'grant' or current.get('consumed') is not True
-            or type(current.get('revision')) is not int or current['revision'] != proposal['revision'] + 1
-            or grants[0].get('approval_id') != proposal['id']
-            or value.get('proposal_result') != grants[0] or response.get('result') != grants[0]
-            or response.get('error') is not None or type(value.get('sequence')) is not int or value['sequence'] != baseline + 2
+            or type(current.get('revision')) is not int or not json_exact(current['revision'], proposal['revision'] + 1)
+            or not opaque_id(grants[0].get('id')) or not opaque_id(grants[0].get('approval_id'))
+            or not json_exact(value.get('proposal_result'), grants[0]) or not json_exact(response.get('result'), grants[0])
+            or response.get('error') is not None or type(value.get('sequence')) is not int or not json_exact(value['sequence'], baseline + 2)
             or not isinstance(value.get('counts'), dict)
             or set(value['counts']) != set(ZERO_TABLES)
             or any(type(n) is not int or n != 0 for n in value['counts'].values())):
         return 'Exact production Grant commit/CAS/result/zero execution evidence missing'
     grant = grants[0]
     intent = proposal['snapshot']['intent']
-    if (grant.get('project_id') != intent['project_id'] or grant.get('parent_id') is not None
-            or grant.get('root_grant_id') != grant.get('id') or grant.get('depth') != 0 or grant.get('revision') != 1
+    if (grant.get('project_id') != intent['project_id']
+            or not json_exact(grant.get('scope'), grant_scope(intent))
+            or any(type(grant['scope'].get(k)) is not int for k in ['max_attempts', 'max_concurrency', 'max_duration_ms', 'max_depth', 'max_children'])
+            or not json_exact(grant.get('enforcement'), grant_enforcement())
+            or any(type(grant['enforcement'].get(k)) is not bool for k in grant_enforcement()) or grant.get('parent_id') is not None
+            or grant.get('root_grant_id') != grant.get('id') or type(grant.get('depth')) is not int or grant['depth'] != 0
+            or type(grant.get('revision')) is not int or grant['revision'] != 1
             or grant.get('revoked') is not False or grant.get('scope', {}).get('workspace_ids') != [intent['workspace_id']]
             or grant['scope'].get('connection_ids') != [intent['connection_id']]
             or any(grant['scope'].get(k) != intent[k] for k in ['max_attempts', 'max_concurrency', 'max_duration_ms'])
-            or grant.get('workspace_bindings', {}).get(intent['workspace_id']) != proposal['snapshot']['refs']['workspace_identity']
-            or grant.get('connection_bindings', {}).get(intent['connection_id']) != proposal['snapshot']['refs']['connection']):
+            or not json_exact(grant.get('workspace_bindings'), {intent['workspace_id']: proposal['snapshot']['refs']['workspace_identity']})
+            or not json_exact(grant.get('connection_bindings'), {intent['connection_id']: proposal['snapshot']['refs']['connection']})):
         return 'Committed root Grant does not match the exact bounded intent and resolved bindings'
-    grant_events = [e for e in value.get('events', []) if e.get('aggregate_id') == grant['id'] and e.get('kind') == 'execution_grant.approved']
-    if len(grant_events) != 1 or grant_events[0].get('source') != 'user_action' or grant_events[0].get('revision') != grant['revision'] or type(grant_events[0].get('sequence')) is not int or grant_events[0]['sequence'] != baseline + 1:
+    grant_events = [e for e in value.get('events', []) if e.get('kind') == 'execution_grant.approved']
+    expected_grant_event = {'grant_id': grant['id'], 'project_id': grant['project_id'],
+                            'root_grant_id': grant['root_grant_id'], 'approval_id': grant['approval_id'],
+                            'scope': grant['scope'], 'enforcement': grant['enforcement']}
+    if (len(grant_events) != 1 or grant_events[0].get('aggregate_id') != grant['id']
+            or grant_events[0].get('source') != 'user_action'
+            or type(grant_events[0].get('revision')) is not int or not json_exact(grant_events[0]['revision'], grant['revision'])
+            or type(grant_events[0].get('sequence')) is not int or not json_exact(grant_events[0]['sequence'], baseline + 1)
+            or not json_exact(grant_events[0].get('payload'), expected_grant_event)):
         return 'Exact persisted execution_grant.approved event missing'
     confirmations = [event for event in value.get('events', []) if event.get('aggregate_id') == proposal['id'] and event.get('kind') == 'approval.confirmed']
     if (len(confirmations) != 1 or confirmations[0].get('source') != 'local_owner_confirmation'
-            or confirmations[0].get('revision') != current['revision']
-            or type(confirmations[0].get('sequence')) is not int or confirmations[0]['sequence'] != baseline + 2
-            or confirmations[0].get('payload') != {'kind': 'grant', 'proposal_id': proposal['id'], 'consumed': True}):
+            or not json_exact(confirmations[0].get('revision'), current['revision'])
+            or type(confirmations[0].get('sequence')) is not int or not json_exact(confirmations[0]['sequence'], baseline + 2)
+            or not json_exact(confirmations[0].get('payload'), {'kind': 'grant', 'proposal_id': proposal['id'], 'consumed': True})):
         return 'Exact single Core Owner confirmation event missing'
     return None
 
@@ -170,6 +223,52 @@ def expected_message(proposal, source):
     snapshot = json.dumps(proposal['snapshot'], ensure_ascii=False, indent=2, sort_keys=True)
     # serde_json default map is sorted in this workspace; mechanical source/fixture check.
     return template.replace('{}', action, 1).replace('{table_explanation}', '', 1).replace('{snapshot}', snapshot, 1)
+
+
+def presentation_prompts(message):
+    """Independent reversible mirror of native_parent's bounded display format."""
+    if not isinstance(message, str) or len(message.encode('utf-8')) > 1_048_576 + 32_768:
+        raise ValueError('Complete native message exceeds presentation envelope')
+    rows, encoded, start, offset = [], '', 0, 0
+    for char in message:
+        code = ord(char)
+        escaped = (f'\\u{code:04x}' if code in (127, 0x061c) or 128 <= code <= 159 or 0x200b <= code <= 0x200f
+                   or 0x2028 <= code <= 0x202e or 0x2060 <= code <= 0x206f or code == 0xfeff
+                   else json.dumps(char, ensure_ascii=False)[1:-1])
+        if encoded and len(encoded.encode('utf-8')) + len(escaped.encode('utf-8')) > 40:
+            rows.append((start, offset, encoded))
+            start, encoded = offset, ''
+        encoded += escaped
+        offset += len(char.encode('utf-8'))
+    if encoded or not rows:
+        rows.append((start, offset, encoded))
+    restored = ''.join(json.loads('"' + row[2] + '"') for row in rows)
+    if restored != message:
+        raise ValueError('Presentation did not preserve complete original bytes')
+    total = (len(rows) + 7) // 8
+    pages = []
+    for index in range(total):
+        page = rows[index * 8:(index + 1) * 8]
+        body = '\n'.join(f'L{index * 8 + row + 1:05} "{text}"' for row, (_, _, text) in enumerate(page))
+        pages.append(f'Native review page {index + 1}/{total}\nOriginal UTF-8 bytes {page[0][0]}..{page[-1][1]} of {offset}.\nRead JSON strings in L order; escapes preserve ALL text.\nOK reads this page only. Cancel stops this review.\n{body}')
+    pages.append(f'FINAL display confirmation\nAll {total} pages / {offset} original UTF-8 bytes were reviewed.\nOK confirms the original request exactly as displayed.\nAny further required reviews still apply.\nCancel stops without private approval.')
+    return pages
+
+
+def presentation_error(observed, proposal, prompts, phase, index):
+    if (type(index) is not int or not 0 <= index < len(prompts)
+            or type(proposal.get('revision')) is not int or proposal['revision'] <= 0
+            or observed.get('phase') != phase or not json_exact(observed.get('presentation_index'), index)
+            or not json_exact(observed.get('presentation_count'), len(prompts))
+            or observed.get('proposal_id') != proposal['id']
+            or not json_exact(observed.get('proposal_revision'), proposal['revision'])
+            or observed.get('message') != prompts[index]
+            or observed.get('title') != 'AgentBaton — Native owner approval'
+            or observed.get('parent_matches') is not True
+            or observed.get('visible') is not True
+            or observed.get('complete_text_visible') is not True):
+        return 'Sheet ready does not bind the complete exact visible presentation page'
+    return None
 
 
 def group_helpers():
@@ -427,7 +526,7 @@ def run(binary, daemon_path, output):
                 raise ValueError(error)
             message = expected_message(proposal, (Path(__file__).resolve().parents[1] / 'apps/desktop/src-tauri/src/approval.rs').read_text())
             invoke = generated['invoke']
-            fixture = {'kind': 'native_grant_os_dialog_fixture', 'runtime': str(runtime), 'output': str(output), 'proposal': proposal, 'message': message, 'invoke': invoke, 'baseline_sequence': baseline['sequence']}
+            fixture = {'kind': 'native_grant_os_dialog_fixture', 'runtime': str(runtime), 'output': str(output), 'proposal': proposal, 'message': message, 'presentation': presentation_prompts(message), 'invoke': invoke, 'baseline_sequence': baseline['sequence']}
             save(output / 'fixture.json', fixture)
             save(output / 'before.json', baseline)
             app = subprocess.Popen([str(binary.resolve()), str(output / 'fixture.json')], env=env, start_new_session=True)
@@ -435,26 +534,32 @@ def run(binary, daemon_path, output):
             permits = set()
             while not exited_without_reaping(app) and time.monotonic() < deadline:
                 for phase in ['cancel', 'approve']:
-                    ready = output / f'{phase}-sheet-ready.json'
-                    if ready.exists() and phase not in permits:
-                        observed = json.loads(ready.read_text())
-                        if observed.get('proposal_id') != proposal['id'] or observed.get('proposal_revision') != proposal['revision'] or observed.get('message') != message:
-                            raise ValueError('Sheet ready does not bind expected full proposal')
-                        check = database(runtime, proposal['id'])
-                        error = pending_error(check, proposal, baseline['sequence'])
-                        if error:
-                            raise ValueError(error)
-                        if phase == 'approve':
-                            cancel_reply = json.loads((output / 'cancel-reply.json').read_text())
-                            if cancel_reply.get('error', {}).get('code') != 'PERMISSION_DENIED':
-                                raise ValueError('Prior real Cancel path not recorded')
-                        save(output / f'{phase}-before-click-database.json', check)
-                        save(output / f'{phase}-database-permit.json', {'phase': phase, 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'before_click_sequence': baseline['sequence']})
-                        permits.add(phase)
+                    for index, prompt in enumerate(fixture['presentation']):
+                        key = f'{phase}-page-{index + 1:04}'
+                        ready = output / f'{key}-sheet-ready.json'
+                        if ready.exists() and key not in permits:
+                            observed = json.loads(ready.read_text())
+                            error = presentation_error(observed, proposal, fixture['presentation'], phase, index)
+                            if error:
+                                raise ValueError(error)
+                            if index and f'{phase}-page-{index:04}' not in permits:
+                                raise ValueError('Presentation page arrived out of order')
+                            check = database(runtime, proposal['id'])
+                            error = pending_error(check, proposal, baseline['sequence'])
+                            if error:
+                                raise ValueError(error)
+                            if phase == 'approve':
+                                cancel_reply = json.loads((output / 'cancel-reply.json').read_text())
+                                if cancel_reply.get('error', {}).get('code') != 'PERMISSION_DENIED':
+                                    raise ValueError('Prior real Cancel path not recorded')
+                            save(output / f'{key}-before-click-database.json', check)
+                            save(output / f'{key}-database-permit.json', {'phase': phase, 'presentation_index': index, 'presentation_count': len(fixture['presentation']), 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'before_click_sequence': baseline['sequence']})
+                            permits.add(key)
                 time.sleep(.05)
             if not exited_without_reaping(app):
                 raise TimeoutError('Real OS dialog process did not finish')
-            if permits != {'cancel', 'approve'}:
+            expected_permits = {f'{phase}-page-{index + 1:04}' for phase in ['cancel', 'approve'] for index in range(len(fixture['presentation']))}
+            if permits != expected_permits:
                 raise RuntimeError('Real dialog process failed; inspect retained native report')
             after = database(runtime, proposal['id'])
             save(output / 'after.json', after)
@@ -462,15 +567,15 @@ def run(binary, daemon_path, output):
             if error:
                 raise ValueError(error)
             images = {}
-            for phase in ['cancel', 'approve']:
-                raw = (output / f'{phase}-sheet.png').read_bytes()
+            for key in sorted(expected_permits):
+                raw = (output / f'{key}-sheet.png').read_bytes()
                 if len(raw) < 64 or raw[:8] != b'\x89PNG\r\n\x1a\n' or raw[12:16] != b'IHDR':
                     raise ValueError('Missing actual sheet PNG')
                 width, height = int.from_bytes(raw[16:20], 'big'), int.from_bytes(raw[20:24], 'big')
                 if min(width, height) < 20:
                     raise ValueError('Actual sheet image is empty/tiny')
-                images[phase] = {'sha256': hashlib.sha256(raw).hexdigest(), 'width': width, 'height': height, 'visual_review': 'pending_human_or_independent_image_inspection'}
-            result = {'status': 'automated_os_and_database_checks_passed_visual_review_pending', 'dimension': 'actual_macos_grant_cancel_then_same_key_real_ok', 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'grant_id': after['grants'][0]['id'], 'before_sequence': baseline['sequence'], 'after_sequence': after['sequence'], 'images': images, 'model_calls': 'not_run', 'graph_os_owner': 'not_run', 'human_owner_review': 'not_claimed', 'os': sys.platform, 'architecture': platform.machine(), 'harness_binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'daemon_binary_sha256': hashlib.sha256(daemon_path.read_bytes()).hexdigest()}
+                images[key] = {'sha256': hashlib.sha256(raw).hexdigest(), 'width': width, 'height': height, 'visual_review': 'pending_human_or_independent_image_inspection'}
+            result = {'status': 'automated_os_and_database_checks_passed_visual_review_pending', 'dimension': 'actual_macos_grant_cancel_then_same_key_real_ok', 'proposal_id': proposal['id'], 'proposal_revision': proposal['revision'], 'grant_id': after['grants'][0]['id'], 'before_sequence': baseline['sequence'], 'after_sequence': after['sequence'], 'images': images, 'presentation_pages_per_phase': len(fixture['presentation']), 'original_message_sha256': hashlib.sha256(message.encode()).hexdigest(), 'model_calls': 'not_run', 'graph_os_owner': 'not_run', 'human_owner_review': 'not_claimed', 'os': sys.platform, 'architecture': platform.machine(), 'harness_binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'daemon_binary_sha256': hashlib.sha256(daemon_path.read_bytes()).hexdigest()}
         finally:
             cleanup = stop_owned(app, 'app')
             save(output / 'app-cleanup.json', cleanup)

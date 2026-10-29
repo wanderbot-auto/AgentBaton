@@ -35,15 +35,18 @@ def approved():
     after['sequence'] = 11
     after['proposal']['revision'] = 2
     after['proposal']['consumed'] = True
-    grant = {'id': 'grant', 'approval_id': proposal['id'], 'project_id': 'project', 'root_grant_id': 'grant',
+    grant = {'id': 'grant', 'approval_id': 'independent-grant-approval', 'project_id': 'project', 'root_grant_id': 'grant',
              'parent_id': None, 'depth': 0, 'revision': 1, 'revoked': False,
              'scope': {'workspace_ids': ['workspace'], 'connection_ids': ['connection'], 'max_attempts': 1,
-                       'max_concurrency': 1, 'max_duration_ms': 1000},
+                       'max_concurrency': 1, 'max_duration_ms': 1000, 'host_ids': ['local'],
+                       'recipients': [], 'network': {'mode': 'deny'}, 'max_depth': 0, 'max_children': 0},
+             'enforcement': runner.grant_enforcement(),
              'workspace_bindings': {'workspace': proposal['snapshot']['refs']['workspace_identity']},
              'connection_bindings': {'connection': proposal['snapshot']['refs']['connection']}}
     after['grants'] = [grant]
     after['proposal_result'] = grant
-    after['events'] = [{'aggregate_id': 'grant', 'kind': 'execution_grant.approved', 'source': 'user_action', 'revision': 1, 'sequence': 10},
+    after['events'] = [{'aggregate_id': 'grant', 'kind': 'execution_grant.approved', 'source': 'user_action', 'revision': 1, 'sequence': 10,
+                        'payload': {key: grant[field] for key, field in [('grant_id', 'id'), ('project_id', 'project_id'), ('root_grant_id', 'root_grant_id'), ('approval_id', 'approval_id'), ('scope', 'scope'), ('enforcement', 'enforcement')]}},
                        {'aggregate_id': proposal['id'], 'kind': 'approval.confirmed', 'source': 'local_owner_confirmation', 'revision': 2, 'sequence': 11,
                         'payload': {'kind': 'grant', 'proposal_id': proposal['id'], 'consumed': True}}]
     return proposal, after, {'result': grant}
@@ -112,6 +115,37 @@ class OwnerRunnerControls(unittest.TestCase):
                     fixture['client'].call('approvals.finalize', {'proposal_id': proposal['id']})
             self.assertTrue(runner.json.loads((output / 'daemon-cleanup.json').read_text())['ok'])
 
+    def test_real_core_grant_contract_binds_independent_approval_and_owner_proposal(self):
+        daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            with runner.bootstrap(daemon, output) as fixture:
+                runtime, proposal = fixture['runtime'], fixture['proposal']
+                before = runner.database(runtime, proposal['id'])
+                self.assertIsNone(runner.pending_error(before, proposal, before['sequence']))
+                # Private test-only Owner fixture. The host bootstrap client
+                # STILL cannot finalize a Grant; no OS/human approval is claimed.
+                frame = {'api_version': 1, 'request_id': str(runner.uuid.uuid4()),
+                         'token': (runtime / 'session.token').read_text(),
+                         'method': 'approvals.finalize', 'params': {'proposal_id': proposal['id']},
+                         'expected_revision': proposal['revision'],
+                         'idempotency_key': 'proposal:' + proposal['id']}
+                with runner.socket.socket(runner.socket.AF_UNIX) as stream:
+                    stream.settimeout(20)
+                    stream.connect(str(runtime / 'batond.sock'))
+                    stream.sendall(runner.json.dumps(frame).encode() + b'\n')
+                    raw = bytearray()
+                    while not raw.endswith(b'\n'):
+                        chunk = stream.recv(65536)
+                        self.assertTrue(chunk)
+                        self.assertLessEqual(len(raw) + len(chunk), 4 * 1024 * 1024)
+                        raw.extend(chunk)
+                response = runner.json.loads(raw)
+                after = runner.database(runtime, proposal['id'])
+                print('REAL_CORE_GRANT_CONTRACT=' + runner.json.dumps({'proposal': proposal, 'after': after, 'response': response}))
+                self.assertIsNone(runner.approved_error(after, proposal, before['sequence'], response))
+            self.assertTrue(runner.json.loads((output / 'daemon-cleanup.json').read_text())['ok'])
+
     def test_exact_root_grant_commit_event_and_reply_bindings_are_required(self):
         proposal, after, response = approved()
         self.assertIsNone(runner.approved_error(after, proposal, 9, response))
@@ -169,6 +203,130 @@ class OwnerRunnerControls(unittest.TestCase):
         response = copy.deepcopy(response)
         response['result']['approval_id'] = 'other-proposal'
         self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
+
+    def test_opaque_approval_id_is_bound_across_complete_records_and_event_payload(self):
+        proposal, after, response = approved()
+        self.assertNotEqual(after['grants'][0]['approval_id'], proposal['id'])
+        for bad in [None, '', ' ', 'x' * 513, '批' * 171, True]:
+            changed = copy.deepcopy(after)
+            changed['grants'][0]['approval_id'] = bad
+            changed['events'][0]['payload']['approval_id'] = bad
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, {'result': changed['grants'][0]}))
+        # Opaque role IDs are not required to be different either: consistency
+        # with the persisted Grant, not an invented equality/inequality, binds it.
+        changed = copy.deepcopy(after)
+        changed['grants'][0]['approval_id'] = proposal['id']
+        changed['events'][0]['payload']['approval_id'] = proposal['id']
+        self.assertIsNone(runner.approved_error(changed, proposal, 9, {'result': changed['grants'][0]}))
+
+    def test_each_grant_result_and_unique_event_association_is_exact(self):
+        proposal, after, response = approved()
+        for layer in ['database_grant', 'proposal_result', 'response']:
+            changed = copy.deepcopy(after)
+            changed['proposal_result'] = copy.deepcopy(changed['proposal_result'])
+            reply = copy.deepcopy(response)
+            target = {'database_grant': changed['grants'][0], 'proposal_result': changed['proposal_result'], 'response': reply['result']}[layer]
+            target['approval_id'] = 'foreign-opaque-id'
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, reply), layer)
+        for field in ['grant_id', 'project_id', 'root_grant_id', 'approval_id', 'scope', 'enforcement']:
+            changed = copy.deepcopy(after)
+            changed['events'][0]['payload'][field] = 'foreign'
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response), field)
+        changed = copy.deepcopy(after)
+        extra = copy.deepcopy(changed['events'][0])
+        extra['aggregate_id'] = 'foreign-grant'
+        changed['events'].append(extra)
+        self.assertIsNotNone(runner.approved_error(changed, proposal, 9, response))
+
+    def test_self_consistent_expanded_scope_or_false_enforcement_is_not_accepted(self):
+        proposal, after, _ = approved()
+        for container, field, wrong in [('scope', 'host_ids', ['foreign']), ('scope', 'recipients', ['new']),
+                                         ('scope', 'network', {'mode': 'unrestricted'}), ('scope', 'max_depth', 1),
+                                         ('scope', 'max_attempts', True), ('enforcement', 'os_filesystem_sandbox', True),
+                                         ('enforcement', 'baton_mediated_scope', 1)]:
+            changed = copy.deepcopy(after)
+            changed['grants'][0][container][field] = wrong
+            self.assertIsNotNone(runner.approved_error(changed, proposal, 9, {'result': changed['grants'][0]}), (container, field))
+
+    def test_independent_json_records_reject_four_nested_boolean_number_tampers(self):
+        # JSON decode gives distinct records, unlike deepcopy of an aliased
+        # synthetic fixture. Native response/DB/event records are independent.
+        cases = [('grant_event_scope', True), ('grant_event_enforcement', 1),
+                 ('response_scope', True), ('proposal_result_scope', True)]
+        for mode, wrong in cases:
+            with self.subTest(mode=mode):
+                proposal, after, response = runner.json.loads(runner.json.dumps(approved()))
+                if mode == 'grant_event_scope':
+                    after['events'][0]['payload']['scope']['max_attempts'] = wrong
+                elif mode == 'grant_event_enforcement':
+                    after['events'][0]['payload']['enforcement']['baton_mediated_scope'] = wrong
+                elif mode == 'response_scope':
+                    response['result']['scope']['max_attempts'] = wrong
+                else:
+                    after['proposal_result']['scope']['max_attempts'] = wrong
+                self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
+
+    def test_typed_json_equality_preserves_json_types_and_nested_values(self):
+        for left, right in [(True, 1), (1, 1.0), (False, 0.0), ({'x': True}, {'x': 1}),
+                            ([1, {'x': 2}], [1, {'x': 2.0}]), (None, False), ({'x': 1}, {'x': 1, 'y': None})]:
+            self.assertFalse(runner.json_exact(left, right))
+            self.assertFalse(runner.json_exact(right, left))
+        self.assertTrue(runner.json_exact({'id': '你好', 'values': [True, 1, 1.0, None]},
+                                          {'values': [True, 1, 1.0, None], 'id': '你好'}))
+        self.assertFalse(runner.json_exact(float('nan'), float('nan')))
+        self.assertFalse(runner.json_exact(float('inf'), float('inf')))
+
+    def test_independent_snapshots_refs_and_float_payload_tampers_are_rejected(self):
+        cases = ['snapshot_device', 'workspace_binding', 'connection_binding', 'response_float',
+                 'event_float', 'confirmation_bool']
+        for mode in cases:
+            with self.subTest(mode=mode):
+                proposal, after, response = runner.json.loads(runner.json.dumps(approved()))
+                if mode == 'snapshot_device':
+                    after['proposal']['snapshot']['refs']['workspace_identity']['device'] = True
+                elif mode == 'workspace_binding':
+                    for record in [after['grants'][0], after['proposal_result'], response['result']]:
+                        record['workspace_bindings']['workspace']['device'] = True
+                elif mode == 'connection_binding':
+                    for record in [after['grants'][0], after['proposal_result'], response['result']]:
+                        record['connection_bindings']['connection']['revision'] = 2.0
+                elif mode == 'response_float':
+                    response['result']['scope']['max_duration_ms'] = 1000.0
+                elif mode == 'event_float':
+                    after['events'][0]['payload']['scope']['max_duration_ms'] = 1000.0
+                else:
+                    after['events'][1]['payload']['consumed'] = 1
+                self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
+        proposal, pending_value = pending()
+        pending_value = runner.json.loads(runner.json.dumps(pending_value))
+        pending_value['proposal']['snapshot']['refs']['workspace_identity']['device'] = True
+        self.assertIsNotNone(runner.pending_error(pending_value, proposal, 9))
+
+    def test_scalar_schema_and_event_cas_types_never_coerce(self):
+        cases = ['confirmed_revision_float', 'approved_schema_float', 'pending_schema_float',
+                 'grant_revision_bool', 'grant_revision_float', 'reference_revision_bool',
+                 'reference_revision_float']
+        for mode in cases:
+            with self.subTest(mode=mode):
+                proposal, after, response = runner.json.loads(runner.json.dumps(approved()))
+                if mode == 'pending_schema_float':
+                    reference, value = pending()
+                    value['schema_version'] = 12.0
+                    self.assertIsNotNone(runner.pending_error(value, reference, 9))
+                    continue
+                if mode == 'confirmed_revision_float':
+                    after['events'][1]['revision'] = 2.0
+                elif mode == 'approved_schema_float':
+                    after['schema_version'] = 12.0
+                elif mode == 'grant_revision_bool':
+                    after['events'][0]['revision'] = True
+                elif mode == 'grant_revision_float':
+                    after['events'][0]['revision'] = 1.0
+                elif mode == 'reference_revision_bool':
+                    proposal['revision'] = True
+                else:
+                    proposal['revision'] = 1.0
+                self.assertIsNotNone(runner.approved_error(after, proposal, 9, response))
 
     def test_host_client_cannot_finalize_grant_or_generic_mutation(self):
         client = runner.NativeCoreClient(Path('/does-not-exist'))
@@ -382,6 +540,80 @@ class BootstrapPathControls(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'private and owned'):
                 with runner.bootstrap(Path('/not-started'), output):
                     self.fail('Nonprivate evidence must be refused')
+
+
+class PresentationControls(unittest.TestCase):
+    def test_lossless_utf8_pages_preserve_whitespace_and_unicode(self):
+        original = '  first\n\t你好🔒\r\n\0\x7f\u202elast  '
+        prompts = runner.presentation_prompts(original)
+        restored = ''.join(runner.json.loads(line.split(' ', 1)[1])
+                           for page in prompts[:-1] for line in page.splitlines() if line.startswith('L'))
+        self.assertEqual(restored, original)
+        self.assertTrue(prompts[-1].startswith('FINAL display confirmation'))
+        self.assertIn('你好🔒', ''.join(prompts))
+        for prompt in prompts:
+            self.assertLess(len(prompt), 1024)
+            self.assertLessEqual(len(prompt.splitlines()), 12)
+            self.assertTrue(all(line and not line[0].isspace() for line in prompt.splitlines()))
+
+    def test_all_twelve_unicode_bidi_controls_are_visible_escaped_and_lossless(self):
+        controls = [0x061c, 0x200e, 0x200f, 0x202a, 0x202b, 0x202c,
+                    0x202d, 0x202e, 0x2066, 0x2067, 0x2068, 0x2069]
+        self.assertEqual(len(controls), 12)
+        for code in controls:
+            with self.subTest(code=hex(code)):
+                original = f'recipient: abc{chr(code)}123 你好🔒'
+                prompts = runner.presentation_prompts(original)
+                displayed = ''.join(prompts)
+                self.assertNotIn(chr(code), displayed)
+                self.assertIn(chr(92) + f'u{code:04x}', displayed)
+                self.assertIn('你好🔒', displayed)
+                restored = ''.join(runner.json.loads(line.split(' ', 1)[1])
+                                   for page in prompts[:-1] for line in page.splitlines() if line.startswith('L'))
+                self.assertEqual(restored.encode('utf-8'), original.encode('utf-8'))
+
+    def test_canonical_json_row_matches_production_rust_vector(self):
+        self.assertEqual(runner.presentation_prompts(' \t你好🔒\n')[0],
+            'Native review page 1/1\nOriginal UTF-8 bytes 0..13 of 13.\nRead JSON strings in L order; escapes preserve ALL text.\nOK reads this page only. Cancel stops this review.\nL00001 " \\t你好🔒\\n"')
+
+    def test_existing_snapshot_limits_roundtrip_without_summary_or_truncation(self):
+        for size in [0, 16_384, 1_048_576, 1_048_576 + 32_768]:
+            original = 'x' * size
+            prompts = runner.presentation_prompts(original)
+            restored = ''.join(runner.json.loads(line.split(' ', 1)[1])
+                               for page in prompts[:-1] for line in page.splitlines() if line.startswith('L'))
+            self.assertEqual(restored, original)
+            self.assertTrue(all(len(prompt) < 1024 for prompt in prompts))
+        with self.assertRaises(ValueError):
+            runner.presentation_prompts('x' * (1_048_576 + 32_769))
+
+    def test_page_cas_and_index_counts_do_not_coerce_boolean_or_float(self):
+        proposal = {'id': 'proposal', 'revision': 1}
+        prompts = runner.presentation_prompts('complete message')
+        value = {'phase': 'approve', 'presentation_index': 1, 'presentation_count': len(prompts),
+                 'proposal_id': 'proposal', 'proposal_revision': 1, 'message': prompts[1],
+                 'title': 'AgentBaton — Native owner approval', 'parent_matches': True,
+                 'visible': True, 'complete_text_visible': True}
+        self.assertIsNone(runner.presentation_error(value, proposal, prompts, 'approve', 1))
+        for field, wrong in [('presentation_index', True), ('presentation_index', 1.0),
+                             ('presentation_count', float(len(prompts))), ('proposal_revision', True),
+                             ('proposal_revision', 1.0)]:
+            changed = {**value, field: wrong}
+            self.assertIsNotNone(runner.presentation_error(changed, proposal, prompts, 'approve', 1))
+
+    def test_partial_or_reordered_foreign_or_offscreen_page_has_no_host_permit(self):
+        proposal = {'id': 'proposal', 'revision': 3}
+        prompts = runner.presentation_prompts('complete exact message')
+        value = {'phase': 'approve', 'presentation_index': 0, 'presentation_count': len(prompts),
+                 'proposal_id': 'proposal', 'proposal_revision': 3, 'message': prompts[0],
+                 'title': 'AgentBaton — Native owner approval', 'parent_matches': True,
+                 'visible': True, 'complete_text_visible': True}
+        self.assertIsNone(runner.presentation_error(value, proposal, prompts, 'approve', 0))
+        for field, wrong in [('message', prompts[0].lstrip()[:-1]), ('presentation_index', 1),
+                             ('presentation_count', 1), ('proposal_id', 'foreign'), ('proposal_revision', 4),
+                             ('visible', False), ('complete_text_visible', False), ('parent_matches', False)]:
+            changed = {**value, field: wrong}
+            self.assertIsNotNone(runner.presentation_error(changed, proposal, prompts, 'approve', 0))
 
 
 if __name__ == '__main__':

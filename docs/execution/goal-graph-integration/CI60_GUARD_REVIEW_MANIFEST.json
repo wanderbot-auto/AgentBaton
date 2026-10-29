@@ -1,0 +1,84 @@
+{
+  "subject": "53785196ec166637ca89fd732639888a1048360c",
+  "base": "2cbdebba8127ae26749391b113834946ddf8b5b7",
+  "status": "limited_source_ready_P1_static_closed",
+  "finite_checks": 38,
+  "files": [
+    {
+      "path": "REVIEW.md",
+      "bytes": 3166,
+      "sha256": "2aec5438a9a9d31017eb1d56ad7bfcfdb4e6b5e2f8ab5ff7e9ce94236fbf437b"
+    },
+    {
+      "path": "after-manifest.json",
+      "bytes": 9852,
+      "sha256": "c79ca877a1f8beec1b258f2664640cedd330ae9623b314cbf711b1388c44fba0"
+    },
+    {
+      "path": "after-validator.py",
+      "bytes": 4014,
+      "sha256": "b0482a35fc4febee972fb8fa8b9e1e829924d35f9c52b1493d3b7b3edf30f83e"
+    },
+    {
+      "path": "before-manifest.json",
+      "bytes": 9852,
+      "sha256": "12f12308289b820bfbd545f7fe1cc8ebfcebd5efc9b6c81d0a835f0066a76e61"
+    },
+    {
+      "path": "before-validator.py",
+      "bytes": 4014,
+      "sha256": "cd3c3f922c0e173a9242b59255763057c12991a7a9965c58f6fdf6ee6ced704e"
+    },
+    {
+      "path": "bootstrap.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "bootstrap.stdout",
+      "bytes": 71,
+      "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+    },
+    {
+      "path": "infrastructure.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "infrastructure.stdout",
+      "bytes": 231,
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+    },
+    {
+      "path": "manifest-byte-proof.json",
+      "bytes": 283,
+      "sha256": "353d4961964b164f2ff8f3f7ef1f8cf3dac2f4ba34e4260fd2aa279636424a7d"
+    },
+    {
+      "path": "original-3a-RESULT.json",
+      "bytes": 328,
+      "sha256": "4d240c3038390a303e6bb7438e26b35ea94f34b73c77c8528bbb2ebee1cd5f80"
+    },
+    {
+      "path": "original-3a-first-failure.log",
+      "bytes": 667,
+      "sha256": "d50f25ca7767f85f966a683c70437fb3cccdd8aa38a218c35152d25cfe254946"
+    },
+    {
+      "path": "results.json",
+      "bytes": 4693,
+      "sha256": "2f87deabe137b886f9e0d070ba1ba2c1746ffad96f3d9385cac839aa1ed0e537"
+    },
+    {
+      "path": "review.py",
+      "bytes": 5126,
+      "sha256": "dc85ad8c06cd9687fc15fc5c5e3aa0acf165cf312d6309b5a3ac4aebe948a46f"
+    },
+    {
+      "path": "source.diff",
+      "bytes": 1741,
+      "sha256": "d8f02e4cf70d0d73c36469dca9b66cc82f2f728e7590caf287f32519185a9471"
+    }
+  ],
+  "not_run": "realCI/Mac/product"
+}

@@ -3,10 +3,10 @@
 #[cfg(not(debug_assertions))]
 compile_error!("native owner dialog smoke must never ship in release");
 #[cfg(any(target_os = "macos", test))]
-#[path = "native_owner_dialog/controller.rs"]
+#[path = "../native_owner_dialog_test/controller.rs"]
 mod controller;
 #[cfg(all(target_os = "macos", feature = "native-smoke"))]
-#[path = "native_owner_dialog/macos.rs"]
+#[path = "../native_owner_dialog_test/macos.rs"]
 mod macos;
 
 #[cfg(all(target_os = "macos", feature = "native-smoke"))]

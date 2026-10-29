@@ -1,0 +1,360 @@
+{
+  "feature": "e3ccf86a8b12e7ed1371074de095bb454c0b62aa",
+  "actualcheckout": "4a9ade282b3babefbc3cdbe2e93fd037f89bcdaa",
+  "tree": "144ab4e890c06b537c018b609016268513051a56",
+  "mode": "Root retained CI evidence audit; not independent review or new product test execution",
+  "rust": {
+    "outer": 593,
+    "docs": 7,
+    "nested_excluded": 2
+  },
+  "rust_raw_summaries": [
+    {
+      "dimension": "outer",
+      "passed": 1,
+      "raw_line": "2026-10-28T21:22:24.6511672Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.80s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 12,
+      "raw_line": "2026-10-28T21:22:24.6615681Z test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 19,
+      "raw_line": "2026-10-28T21:22:24.6909769Z test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 22,
+      "raw_line": "2026-10-28T21:22:24.8330900Z test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 13,
+      "raw_line": "2026-10-28T21:22:24.8938570Z test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+    },
+    {
+      "dimension": "nested_excluded",
+      "passed": 1,
+      "raw_line": "2026-10-28T21:23:01.6699279Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 68 filtered out; finished in 0.00s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 69,
+      "raw_line": "2026-10-28T21:23:06.2557425Z test result: ok. 69 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 41.36s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 1,
+      "raw_line": "2026-10-28T21:23:06.9102902Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 3,
+      "raw_line": "2026-10-28T21:23:07.6738111Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 14,
+      "raw_line": "2026-10-28T21:23:26.1606206Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.48s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 3,
+      "raw_line": "2026-10-28T21:23:26.3071452Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 3,
+      "raw_line": "2026-10-28T21:23:26.4274092Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 21,
+      "raw_line": "2026-10-28T21:23:31.9306303Z test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.50s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 7,
+      "raw_line": "2026-10-28T21:23:32.0670449Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 3,
+      "raw_line": "2026-10-28T21:23:32.1722750Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 48,
+      "raw_line": "2026-10-28T21:23:32.3102552Z test result: ok. 48 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 3,
+      "raw_line": "2026-10-28T21:23:32.4250366Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 34,
+      "raw_line": "2026-10-28T21:24:15.3517748Z test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 42.92s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 3,
+      "raw_line": "2026-10-28T21:24:15.4879013Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 5,
+      "raw_line": "2026-10-28T21:24:15.6625134Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 2,
+      "raw_line": "2026-10-28T21:24:15.7827089Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 2,
+      "raw_line": "2026-10-28T21:24:15.8937044Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 2,
+      "raw_line": "2026-10-28T21:24:16.0027374Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 3,
+      "raw_line": "2026-10-28T21:24:16.1198305Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 13,
+      "raw_line": "2026-10-28T21:24:24.7684099Z test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.65s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 3,
+      "raw_line": "2026-10-28T21:24:25.6421716Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.87s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 10,
+      "raw_line": "2026-10-28T21:24:29.0726944Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.43s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 55,
+      "raw_line": "2026-10-28T21:27:46.9275931Z test result: ok. 55 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 197.85s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 8,
+      "raw_line": "2026-10-28T21:27:48.4655742Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.54s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 3,
+      "raw_line": "2026-10-28T21:27:48.4685311Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 8,
+      "raw_line": "2026-10-28T21:27:48.4712429Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 20,
+      "raw_line": "2026-10-28T21:27:48.4775573Z test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 10,
+      "raw_line": "2026-10-28T21:27:49.2964774Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.82s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 20,
+      "raw_line": "2026-10-28T21:27:52.4666076Z test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.17s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 1,
+      "raw_line": "2026-10-28T21:27:52.5941843Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 20,
+      "raw_line": "2026-10-28T21:27:54.9059021Z test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.31s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 9,
+      "raw_line": "2026-10-28T21:28:11.5128655Z test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.61s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 28,
+      "raw_line": "2026-10-28T21:28:19.8264927Z test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.31s"
+    },
+    {
+      "dimension": "nested_excluded",
+      "passed": 1,
+      "raw_line": "2026-10-28T21:28:19.8481003Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 24,
+      "raw_line": "2026-10-28T21:28:19.9300224Z test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 21,
+      "raw_line": "2026-10-28T21:28:20.0493007Z test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 5,
+      "raw_line": "2026-10-28T21:28:20.5015661Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 23,
+      "raw_line": "2026-10-28T21:28:23.8617045Z test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.36s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 17,
+      "raw_line": "2026-10-28T21:28:33.6359768Z test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.77s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 0,
+      "raw_line": "2026-10-28T21:28:33.6371792Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 0,
+      "raw_line": "2026-10-28T21:28:33.6383152Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    },
+    {
+      "dimension": "outer",
+      "passed": 2,
+      "raw_line": "2026-10-28T21:28:37.6310177Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.99s"
+    },
+    {
+      "dimension": "docs",
+      "passed": 0,
+      "raw_line": "2026-10-28T21:28:38.5904585Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    },
+    {
+      "dimension": "docs",
+      "passed": 0,
+      "raw_line": "2026-10-28T21:28:39.3781847Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    },
+    {
+      "dimension": "docs",
+      "passed": 0,
+      "raw_line": "2026-10-28T21:28:39.4940002Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    },
+    {
+      "dimension": "docs",
+      "passed": 7,
+      "raw_line": "2026-10-28T21:28:40.8938729Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.19s"
+    }
+  ],
+  "Node": {
+    "files": 37,
+    "passed": 564
+  },
+  "Python_CI": {
+    "runner": 29,
+    "owner": 15
+  },
+  "browser_reports": [
+    {
+      "path": "ui/evidence.json",
+      "checks": 38,
+      "sha256": "6436e4930eedf21905ed963e908d6dff7fcb4ed0885646c4057fd4840a9762f8",
+      "status": "no_root_status_field"
+    },
+    {
+      "path": "ui/goal-graph-command/report.json",
+      "checks": 6,
+      "sha256": "47cd9dc67d87000aa94f84899a2ff989756d7f4cd04eed7324561fcb1b6f5251",
+      "status": "passed"
+    },
+    {
+      "path": "ui/goal-graph-integrity/report.json",
+      "checks": 6,
+      "sha256": "2ae67ec4975124688073dfbf59dc877e86a976f8fe3505927d663031fe281c37",
+      "status": "passed"
+    },
+    {
+      "path": "ui/goal-planning/report.json",
+      "checks": 9,
+      "sha256": "3da1ba120372112654a470898152ae13e61a6d31fa44f0660985d98b46f8c63b",
+      "status": "passed"
+    },
+    {
+      "path": "ui/goal-plan-editor/report.json",
+      "checks": 10,
+      "sha256": "9fc292fa0efa5dfb76b426db15d3820f8c093f4dad38c84e9adda2dab60617de",
+      "status": "passed"
+    },
+    {
+      "path": "ui/goal-graph-owner/report.json",
+      "checks": 6,
+      "sha256": "e327d5b9108bf112ed0d4eea23af40e4260520859932e83230c362a16aac9bd9",
+      "status": "passed"
+    },
+    {
+      "path": "ui/goal-execution/report.json",
+      "checks": 10,
+      "sha256": "7e68fd3619c6ea9055614b13dd6339504baa867800956003b0a870d19efafe71",
+      "status": "passed"
+    },
+    {
+      "path": "ui/goal-graph-data-range/report.json",
+      "checks": 5,
+      "sha256": "2e51055d31ea369144392473ca32c80f4af70c87fcfca60275af309c7efb4c65",
+      "status": "passed"
+    },
+    {
+      "path": "ui/approved-commands/evidence.json",
+      "checks": 5,
+      "sha256": "db692d2c664ac6ec542597a006011997b0ddfc7d19e03532e96193fee5e56f44",
+      "status": "passed"
+    },
+    {
+      "path": "ui/goal-graph-command-timeout/report.json",
+      "checks": 5,
+      "sha256": "969f96a30fc240c41e3bf6bace5debb929a78f01aafbf426c7a959bb3385c5d0",
+      "status": "passed"
+    },
+    {
+      "path": "ui/goal-graph-data/report.json",
+      "checks": 6,
+      "sha256": "98da9d8249c7915abe5bf94a2ca1401cba826d82d577f79ffd489178f8cab9c1",
+      "status": "passed"
+    },
+    {
+      "path": "ui/data-workspaces/report.json",
+      "checks": 8,
+      "sha256": "b494845915c25807da766c17083c21b913800300b01e45c7c1dea12edd0f18b4",
+      "status": "passed"
+    }
+  ],
+  "browser_checks": 114,
+  "PNGs": 70,
+  "provider_captured_frames": 9,
+  "liveProvider": "not_run",
+  "macOS": "pending separately",
+  "Root_actual_images_viewed": [
+    "ui/home-1488x981.png",
+    "ui/goal-graph-command/03-task-accepted-five-node-command.png"
+  ],
+  "remaining_pngs": "68 hash/CRC verified, not visually inspected byRoot"
+}

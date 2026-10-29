@@ -1,0 +1,39 @@
+test_ignored_dependency_docs_do_not_hide_authored_broken_links (test_design_discovery.DesignDiscoveryTests.test_ignored_dependency_docs_do_not_hide_authored_broken_links) ... ok
+test_exact_repository_and_branch (test_execution_authorization.ExecutionAuthorizationTests.test_exact_repository_and_branch) ... ok
+test_goal_keeps_unverified_work_incomplete (test_execution_authorization.ExecutionAuthorizationTests.test_goal_keeps_unverified_work_incomplete) ... ok
+test_high_risk_authorizations_remain_closed (test_execution_authorization.ExecutionAuthorizationTests.test_high_risk_authorizations_remain_closed) ... ok
+test_live_product_approval_has_provenance (test_execution_authorization.ExecutionAuthorizationTests.test_live_product_approval_has_provenance) ... ok
+test_package_authorization_is_explicit_overlay (test_execution_authorization.ExecutionAuthorizationTests.test_package_authorization_is_explicit_overlay) ... ok
+test_remove_provenance_blocks (test_execution_authorization.ExecutionAuthorizationTests.test_remove_provenance_blocks) ... ok
+test_required_execution_documents_exist (test_execution_authorization.ExecutionAuthorizationTests.test_required_execution_documents_exist) ... ok
+test_revoke_blocks_even_with_record (test_execution_authorization.ExecutionAuthorizationTests.test_revoke_blocks_even_with_record) ... ok
+test_account_alone_does_not_unlock (test_preparation.PreparationTests.test_account_alone_does_not_unlock) ... ok
+test_boolean_without_provenance_does_not_unlock (test_preparation.PreparationTests.test_boolean_without_provenance_does_not_unlock) ... ok
+test_bootstrap_rejects_previously_mistyped_owner (test_preparation.PreparationTests.test_bootstrap_rejects_previously_mistyped_owner) ... ok
+test_bootstrap_target_dry_run_is_non_mutating (test_preparation.PreparationTests.test_bootstrap_target_dry_run_is_non_mutating) ... ok
+test_confirmed_target_still_requires_explicit_approval (test_preparation.PreparationTests.test_confirmed_target_still_requires_explicit_approval) ... ok
+test_core_design_not_modified (test_preparation.PreparationTests.test_core_design_not_modified) ... ok
+test_explicitly_closed_gate_still_blocks (test_preparation.PreparationTests.test_explicitly_closed_gate_still_blocks) ... ok
+test_no_real_secret_files (test_preparation.PreparationTests.test_no_real_secret_files) ... ok
+test_no_work_package_implicitly_authorized (test_preparation.PreparationTests.test_no_work_package_implicitly_authorized) ... ok
+test_original_questions_preserved (test_preparation.PreparationTests.test_original_questions_preserved) ... ok
+test_pure_function_accepts_explicit_complete_approval (test_preparation.PreparationTests.test_pure_function_accepts_explicit_complete_approval) ... ok
+test_codesign_presence_is_not_signing_success (test_public_repository.PublicRepositoryTests.test_codesign_presence_is_not_signing_success) ... ok
+test_every_main_pr_is_checked (test_public_repository.PublicRepositoryTests.test_every_main_pr_is_checked) ... ok
+test_exact_ci_names_and_github_actions_source (test_public_repository.PublicRepositoryTests.test_exact_ci_names_and_github_actions_source) ... ok
+test_force_push_and_deletion_are_blocked (test_public_repository.PublicRepositoryTests.test_force_push_and_deletion_are_blocked) ... ok
+test_missing_codesign_is_explicit (test_public_repository.PublicRepositoryTests.test_missing_codesign_is_explicit) ... ok
+test_read_only_ephemeral_runner_without_credentials (test_public_repository.PublicRepositoryTests.test_read_only_ephemeral_runner_without_credentials) ... ok
+test_ruleset_is_main_only_without_bypass (test_public_repository.PublicRepositoryTests.test_ruleset_is_main_only_without_bypass) ... ok
+test_single_maintainer_not_blocked_by_self_review (test_public_repository.PublicRepositoryTests.test_single_maintainer_not_blocked_by_self_review) ... ok
+test_actual_same_architecture_build_has_a_finite_60_minute_budget (test_runtime_policy.RuntimePolicyTests.test_actual_same_architecture_build_has_a_finite_60_minute_budget) ... ok
+test_changed_runner_matrix_or_concurrency_cannot_borrow_budget (test_runtime_policy.RuntimePolicyTests.test_changed_runner_matrix_or_concurrency_cannot_borrow_budget) ... ok
+test_exception_cannot_be_borrowed_by_environment_other_jobs_or_workflows (test_runtime_policy.RuntimePolicyTests.test_exception_cannot_be_borrowed_by_environment_other_jobs_or_workflows) ... ok
+test_larger_zero_and_negative_budgets_are_refused (test_runtime_policy.RuntimePolicyTests.test_larger_zero_and_negative_budgets_are_refused) ... ok
+test_missing_dynamic_and_malformed_timeouts_are_refused (test_runtime_policy.RuntimePolicyTests.test_missing_dynamic_and_malformed_timeouts_are_refused) ... ok
+test_ordinary_job_bound_is_preserved (test_runtime_policy.RuntimePolicyTests.test_ordinary_job_bound_is_preserved) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 0.679s
+
+OK

@@ -1,0 +1,109 @@
+{
+  "state": "source frozen; author finite checks passed; independent review and real build pending",
+  "source_map": {
+    "base": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+    "source_commit": "9c3850d40d78d2317142f604043fd0aaaceb2aa7",
+    "files": [
+      {
+        "path": "apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs",
+        "bytes": 776,
+        "sha256": "8c34e18fab13fd8534833591af09853f7def99531b1639e512bc076985b67814"
+      },
+      {
+        "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+        "bytes": 13526,
+        "sha256": "0fc0d4477e7a9b1eb17611d6729b1bee21893b1391198ce151289ef4d2ebdb04"
+      },
+      {
+        "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs",
+        "bytes": 29153,
+        "sha256": "613fb2c8993a3640bec486b88a3534e3efddcd171e99d366d5a96ee364528361"
+      }
+    ],
+    "original_arm_log": {
+      "path": "/workspace/.onboarding/pr16-c6f6-mac-review/arm-job.log",
+      "bytes": 405615,
+      "sha256": "182f1f85455cc97071181c3d5ec2ef8edd28e46b062fd97c10603d5105b5844d",
+      "lossless_archive_copy": "original-arm-job.log.gz"
+    },
+    "tauri_source_commit": "993038c49185307dfc895ab7657d77ca0d5ed7c7",
+    "tauri_CLI_version": "2.12.4"
+  },
+  "branch": "codex/native-bundle-discovery",
+  "worktree": "/workspace/.worktrees/native-bundle-discovery",
+  "actual_checks": [
+    {
+      "command_record": "before-command.json",
+      "scope": "Cargo metadata --locked --offline --no-deps before",
+      "exit": 0
+    },
+    {
+      "command_record": "after-command.json",
+      "scope": "same metadata after; byte-identical",
+      "exit": 0
+    },
+    {
+      "command_record": "cli-before-command.json",
+      "scope": "initial one-smoke synthetic fixture: old missing helper",
+      "exit": 1
+    },
+    {
+      "command_record": "exact-cli-commands.json",
+      "scope": "two-smoke exact-shape generated CLI fixture",
+      "before_exit": 1,
+      "after_exit": 0
+    },
+    {
+      "command_record": "finite-command.json",
+      "scope": "finite move/protection/source projection/fixture checks",
+      "exit": 0,
+      "passed": 24
+    },
+    {
+      "command_record": "diff-command.json",
+      "scope": "base to frozen source diff --check",
+      "exit": 0
+    },
+    {
+      "command_record": "cli-version-command.json",
+      "scope": "installed CLI version",
+      "exit": 0,
+      "version": "2.12.4"
+    }
+  ],
+  "default_bin_lists": {
+    "pinned_source_derived_actual_project_before": [
+      "agentbaton-desktop",
+      "native_owner_dialog"
+    ],
+    "pinned_source_derived_actual_project_after": [
+      "agentbaton-desktop"
+    ],
+    "installed_CLI_generated_fixture_after": [
+      "agentbaton-desktop"
+    ]
+  },
+  "protected_files": "protected-map.json: 8 files unchanged, including release audit, build.rs, config, manifests/locks, workflow and execution gate",
+  "minimal_delta": "Two 100% helper renames outside src/bin; only two #[path] values changed in debug/feature-gated entry",
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "bytes": 114701,
+    "sha256": "8b868b7c094950ddf7c57d18f939ae824da3d7c18dc8de5de56efd534478475e"
+  },
+  "archive_manifest": "EVIDENCE_ARCHIVE_MANIFEST.json",
+  "not_run": [
+    "Rust compile/unit/controller/clippy/fmt",
+    "real Core/daemon or Python tests using40322 bootstrap",
+    "macOS native build/AppKit/GUI",
+    "production or development app bundle construction",
+    "CI/new artifacts/remote push"
+  ],
+  "limits": [
+    "Installed CLI control uses a generated dependency-free Cargo fixture and inert text binary; its894-byte Debian file is test data only, never installed/executed/shipped",
+    "Actual project default list is a projection of pinned get_binaries source; actual CLI before/after behavior was exercised on the exact three-bin fixture",
+    "Original c6f6 ARM bundle failure is preserved; earlier passing native/UI tests are not rerun or borrowed as candidate verification",
+    "Intel status/artifacts are outside this task and were not fetched; desktop agent owns them"
+  ],
+  "owner_ack": "OWNER-001/002 remain unchanged; this scoped test-helper location fix does not alter UI or permissions",
+  "at_utc": "2026-10-29T00:42:07.060415+00:00"
+}

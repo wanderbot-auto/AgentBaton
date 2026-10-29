@@ -1,0 +1,73 @@
+{
+  "recorded_at": "2026-10-29T02:18:28.568871+00:00",
+  "os": "Linux",
+  "arch": "x86_64",
+  "tools": {
+    "git": {
+      "status": "available",
+      "path": "/usr/local/bin/git",
+      "version": [
+        "git version 2.52.0"
+      ],
+      "exit_code": 0
+    },
+    "node": {
+      "status": "available",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "version": [
+        "v24.19.0"
+      ],
+      "exit_code": 0
+    },
+    "npm": {
+      "status": "available",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+      "version": [
+        "11.9.0"
+      ],
+      "exit_code": 0
+    },
+    "python3": {
+      "status": "available",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "version": [
+        "Python 3.12.14"
+      ],
+      "exit_code": 0
+    },
+    "rustc": {
+      "status": "available",
+      "path": "/workspace/.toolchains/cargo/bin/rustc",
+      "version": [
+        "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+      ],
+      "exit_code": 0
+    },
+    "cargo": {
+      "status": "available",
+      "path": "/workspace/.toolchains/cargo/bin/cargo",
+      "version": [
+        "cargo 1.99.1 (5f94df478 2026-08-27)"
+      ],
+      "exit_code": 0
+    },
+    "rustup": {
+      "status": "available",
+      "path": "/workspace/.toolchains/cargo/bin/rustup",
+      "version": [
+        "rustup 1.29.2 (d8c92c676 2026-10-21)"
+      ],
+      "exit_code": 0
+    },
+    "gh": {
+      "status": "available",
+      "path": "/usr/bin/gh",
+      "version": [
+        "gh version 2.46.0 (2025-01-13 Debian 2.46.0-3)",
+        "https://github.com/cli/cli/releases/tag/v2.46.0"
+      ],
+      "exit_code": 0
+    }
+  },
+  "product_test_status": "not_run"
+}

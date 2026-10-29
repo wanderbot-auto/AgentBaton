@@ -803,7 +803,9 @@ def owned_command_child(daemon_pid: int, diagnostics=None) -> dict | None:
     # that feature entirely. Fallback reads bounded PID/stat PPID metadata ONLY;
     # argv/PGID are read only AFTER the exact private parent identity matches.
     limit = 8192
-    sample = {'parent_pid': daemon_pid, 'discovery': 'task_children', 'pid_stat_examined': 0, 'private_child_candidates': []}
+    sample = {'parent_pid': daemon_pid, 'discovery': 'task_children', 'pid_stat_examined': 0,
+        'private_child_candidates': [], 'private_child_observations': []}
+    current_observation = None
     try:
         parent = proc_identity(daemon_pid); sample['parent_start_ticks'] = parent['start_ticks']
         children = set(); has_children_feature = False
@@ -840,20 +842,29 @@ def owned_command_child(daemon_pid: int, diagnostics=None) -> dict | None:
                 if parent_pid == daemon_pid:
                     children.add(pid)
         for pid in sorted(children):
+            current_observation = None
             try:
                 before = proc_identity(pid)
                 if before['parent_pid'] != daemon_pid:
                     continue  # racing reparent/PID reuse; never read foreign argv
                 if before['state'] in ('Z', 'X'):
                     continue  # already exited; cannot claim a live command observation
+                current_observation = {'pid': pid, 'before': dict(before), 'stage': 'private_ppid_matched',
+                    'raw_len': None, 'trailing_nul': None, 'raw_sha256': None}
+                sample['last_private_child_observation'] = current_observation
+                if len(sample['private_child_observations']) < 16:
+                    sample['private_child_observations'].append(current_observation)
                 with Path(f'/proc/{pid}/cmdline').open('rb') as reader:
                     raw = reader.read(1025)
+                current_observation.update(stage='argv_read', raw_len=len(raw), trailing_nul=raw.endswith(b'\0'), raw_sha256=sha(raw))
                 after = proc_identity(pid)
+                current_observation.update(after_read=dict(after), stage='post_read_identity_checked')
                 if after['state'] in ('Z', 'X') or any(before[k] != after[k] for k in ('pid', 'parent_pid', 'start_ticks')):
                     continue
                 assert len(raw) <= 1024 and raw.endswith(b'\0'), 'Complete bounded private argv required'
                 argv = raw[:-1].split(b'\0'); pgid = os.getpgid(pid)
                 current = proc_identity(pid)
+                current_observation.update(after_pgid=dict(current), pgid=pgid, stage='post_pgid_identity_checked')
                 if current['state'] in ('Z', 'X') or any(before[k] != current[k] for k in ('pid', 'parent_pid', 'start_ticks')):
                     continue
                 assert proc_identity(daemon_pid)['start_ticks'] == parent['start_ticks'], 'Private parent identity changed'
@@ -870,6 +881,16 @@ def owned_command_child(daemon_pid: int, diagnostics=None) -> dict | None:
         return None
     except Exception as failure:
         sample['observer_error'] = {'type': type(failure).__name__, 'message': str(failure)}
+        if current_observation is not None:
+            # Separately timed metadata only; never backfill a later state into
+            # the failing read or dump raw argv/environment/credential bytes.
+            try:
+                current_observation['after_failure'] = proc_identity(current_observation['pid'])
+            except (FileNotFoundError, ProcessLookupError):
+                current_observation['after_failure'] = {'identity_absent': True}
+            except Exception as diagnostic_failure:
+                current_observation['after_failure'] = {'diagnostic_error': type(diagnostic_failure).__name__}
+            sample['failing_private_child_observation'] = dict(current_observation)
         raise  # Permission errors and unexpected failures never become empty/no-process.
     finally:
         if diagnostics is not None:

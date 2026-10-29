@@ -1,0 +1,15 @@
+# Independent guard supplement: CI60 static integration P1
+
+Fixed subject `53785196ec166637ca89fd732639888a1048360c`, parent `2cbdebba8127ae26749391b113834946ddf8b5b7`. Author HEAD2ea0182 is later documentation only; production guard/manifest/workflow bytes independently match subject. Writes confined to this new independent review directory; prior native-discovery39 and CI60 workflow23 sealedreviews are not modified or rerun.
+
+Conclusion: source-ready, P1 closed in the local static infrastructure/bootstrap dimension. This is NOT realCI, macOS packaging or complete product signoff.
+
+The only guard expression changes maximum45→60 for exact workflow product.yml/jobdesktop. Removing that replacement restores the entire previous script bytes: generic30 cap, exact hosted selector, exact two-macOS matrix/order, parallel2/fail-fast guards, global readonly permissions/secrets/actionpins/requiredEnvironment checks remain unchanged. No product/per-test timeout, workflow step, test, skip/retry, runner/resource/purchase/account or approval is introduced. Existing owner-authorized hostedCI quota remains the resource limit.
+
+BOOTSTRAP_MANIFEST changes only the one registered validatorhash cd3c3f922c0e173a9242b59255763057c12991a7a9965c58f6fdf6ee6ced704e→b0482a35fc4febee972fb8fa8b9e1e829924d35f9c52b1493d3b7b3edf30f83e. Full byte substitution and parsed equality were independently verified, not a wholesale manifest regeneration. Other92 registered file hashes match actual files; source diff contains only guard+manifest and does not modify STATUS.
+
+Actual independent Python command review.py exit0,38 finite boundary/provenance checks including actual static commands: validate_infrastructure.py exit0 (2workflows,15pinned action references, remote_ci_executed=false/product_tests_executed=false); verify_bootstrap_manifest.py exit0 (93files). Cases accept exact desktop60/string60 and reject61/invalid types/zero, wrong workflow or job, wrong host, missing/extra/reordered matrix, parallel1/3 or true fail-fast. Generic30/string30 stays accepted and31/60 rejected. Strings remain needed for existing yaml.BaseLoader; no type policy was expanded. Author's37 and independent38 are separate, not summed. No Cargo, daemon, GUI, Nodebuild or remote calls were run.
+
+Original Root3a static failure is copied unchanged: validate_infrastructure.py exit1 Unbounded CI job, raw logSHA d50f25ca7767f85f966a683c70437fb3cccdd8aa38a218c35152d25cfe254946. Original CI60 one-line review23PASS correctly did not prove coordinated checker success; its P1OPEN report/14file manifest remains a historical record. This new actual537 pass closes that mismatch only. Prior Intel45minute cancellation and ARM missinghelper failure remain failed/cancelled; no old or new60minute CI result or installer is inferred.
+
+Remaining validation: next exact hostedCI including Environment checks; actual post-change Apple Silicon/Intel defaultbundle/releaseaudit/developmentpackaging/install evidence. Root separately completed native check/fmt and old helper byteidentity are not re-executed or borrowed here. No remote approval/merge/push or signing/production authority is supplied.

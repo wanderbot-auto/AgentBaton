@@ -1,0 +1,433 @@
+{
+  "state": "author full Environment validation-command chain complete; independent review and new exact CI pending",
+  "base": "2ea01821655cf496354f4daedc4fa33d45ce2222",
+  "source_commit": "9d11a6d0723144a245994a5e7531c282cc60702e",
+  "files": [
+    {
+      "path": "tests/infrastructure/test_runtime_policy.py",
+      "bytes": 3159,
+      "sha256": "0474127b8fbf0432692b2460978d5a07e276583f2c7621a057719b7be3c097de"
+    },
+    {
+      "path": "BOOTSTRAP_MANIFEST.json",
+      "bytes": 9852,
+      "sha256": "3befa16c45d6d288e67a116b338ef99d13bee845b2649b61bd3e6ed4e653cc80"
+    }
+  ],
+  "original_CI_failure": {
+    "run": 40799957732,
+    "job": 123205409543,
+    "feature": "bb343be5bb0403e995a97441ce16670c03bd0f33",
+    "actual_checkout": "1a7682e60354d4a80200ea487725edfc99068a4c",
+    "original_log": "/workspace/.onboarding/pr16-bb343-ci/environment-linux.log",
+    "sha256": "b4ce1b1523df1b7a174a954145780b6cca4c8efc122c6b0b28cffc2a7dfa6e9e",
+    "lossless_copy": "/workspace/.onboarding/native-ci-timeout60-infra-suite/original-environment-linux.log.gz",
+    "result": "34 tests,2 failures: expected45 and non-rejection46"
+  },
+  "old_local_control": {
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/infrastructure",
+      "-p",
+      "test_*.py",
+      "-v"
+    ],
+    "exit": 1,
+    "utc": "2026-10-29T01:31:24.098139+00:00",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "3583a8eb25daf4f606c15d571c5a6e48cb6f7f754355136bd1e72ea3d7296de9"
+  },
+  "actual_checks": [
+    {
+      "tag": "gate",
+      "argv": [
+        "python3",
+        "scripts/check_gate.py",
+        "--scope",
+        "preparation"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T01:31:45.491912+00:00",
+      "stdout_sha256": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "doctor",
+      "argv": [
+        "python3",
+        "scripts/doctor.py",
+        "--strict",
+        "--output",
+        "/workspace/.onboarding/native-ci-timeout60-infra-suite/toolchain-versions.json"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T01:31:45.726492+00:00",
+      "stdout_sha256": "cec2a4fc499447b909e6d38b11615d2a2b9995e0959a4d0ef8a0f9530e151c5e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "bootstrap",
+      "argv": [
+        "python3",
+        "scripts/verify_bootstrap_manifest.py"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T01:31:45.762976+00:00",
+      "stdout_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "design",
+      "argv": [
+        "python3",
+        "scripts/validate_design.py"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T01:31:45.973113+00:00",
+      "stdout_sha256": "45a099e5ed9108d6a604ee4e0996aff01b4e9af1f182843df01f42e008af882a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "infrastructure",
+      "argv": [
+        "python3",
+        "scripts/validate_infrastructure.py"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T01:31:46.028196+00:00",
+      "stdout_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "python34",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T01:31:46.713337+00:00",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e234d2aa79661422716ac88f957c78888e2925cd140038fbbb421757af32866b"
+    },
+    {
+      "tag": "node",
+      "argv": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T01:31:47.151707+00:00",
+      "stdout_sha256": "2c6c7c4121a0573806469549c8310bf4a8c1f7fa11ec1ae2361a18e242b28be5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/workspace/.worktrees/native-bundle-discovery",
+      "exit": 0,
+      "utc": "2026-10-29T01:31:47.156289+00:00",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "new_local_results": {
+    "python": {
+      "tests": 34,
+      "failures": 0,
+      "seconds": 0.557
+    },
+    "root_node": {
+      "tests": 4,
+      "failures": 0
+    },
+    "bootstrap_files": 93,
+    "design_requirements": 130,
+    "questions": 27,
+    "infrastructure_workflows": 2,
+    "action_pins": 15
+  },
+  "mechanical": {
+    "test_changes_exactly": [
+      "case name45 to60",
+      "actual exact60 expectation",
+      "first over-bound46 to61"
+    ],
+    "all_other_test_bytes_unchanged": true,
+    "runtime_policy_test_count_before_after": [
+      6,
+      6
+    ],
+    "bootstrap_paths_before_after": [
+      93,
+      93
+    ],
+    "only_changed_bootstrap_entry": "tests/infrastructure/test_runtime_policy.py",
+    "other92_hashes_and_actual_files_unchanged": true,
+    "source_changes": [
+      "BOOTSTRAP_MANIFEST.json",
+      "tests/infrastructure/test_runtime_policy.py"
+    ],
+    "STATUS_workflow_validator_helpers_locks_unchanged": true,
+    "full_environment_workflow_remaining": [
+      "cargo test --locked --manifest-path tools/environment-smoke/Cargo.toml",
+      "cargo clippy --locked --manifest-path tools/environment-smoke/Cargo.toml --all-targets -- -D warnings"
+    ],
+    "remaining_Rust_status": "not_run pending Root Cargo window"
+  },
+  "pending": [
+    "independent review covering the complete Environment command chain",
+    "new exact remoteCI"
+  ],
+  "not_run": [
+    "new remoteCI or replay of macOS Environment lanes",
+    "ProductRust/native/browser/Provider",
+    "dependency installation; existing installed tools used"
+  ],
+  "evidence_directory": "/workspace/.onboarding/native-ci-timeout60-infra-suite",
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "bytes": 164427,
+    "sha256": "4fca863655d141f3085e4ec94c34369a0270b8890387e52e2f17ca27c3594f6f"
+  },
+  "previous_checkpoint": "9422ff36c497defec5cd4d57e8810be8dbaaa726",
+  "Rust_checks": {
+    "root_commit": "3a91bcec76a34f21edf800df16709b5e958b8012",
+    "commands": [
+      {
+        "tag": "test",
+        "argv": [
+          "cargo",
+          "test",
+          "--locked",
+          "--manifest-path",
+          "tools/environment-smoke/Cargo.toml"
+        ],
+        "cwd": "/workspace/.worktrees/goal-graph-integration",
+        "exit": 0,
+        "elapsed_seconds": 0.22401752600853797,
+        "utc": "2026-10-29T01:38:40.298204+00:00",
+        "stdout_sha256": "57c025902d26ed8603d391eae8758a154236da145a53e2ebef72638187dc4add",
+        "stderr_sha256": "3d60d5d337ce6f9757267de4df1fffcb99438a581f630263ca6477ade5d62379"
+      },
+      {
+        "tag": "clippy",
+        "argv": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--manifest-path",
+          "tools/environment-smoke/Cargo.toml",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "cwd": "/workspace/.worktrees/goal-graph-integration",
+        "exit": 0,
+        "elapsed_seconds": 0.12510000899783336,
+        "utc": "2026-10-29T01:38:40.423503+00:00",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "45bf9c694caa466fc94565733f827c6e8a93114d4a64cdc4d66dad145ef1afa6"
+      }
+    ],
+    "test_count": 2,
+    "failures": 0,
+    "ignored": 0,
+    "clippy": "all-targets -D warnings exit0",
+    "versions": [
+      {
+        "argv": [
+          "cargo",
+          "--version"
+        ],
+        "exit": 0,
+        "stdout": "cargo 1.99.1 (5f94df478 2026-08-27)\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "rustc",
+          "--version"
+        ],
+        "exit": 0,
+        "stdout": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "rustup",
+          "show",
+          "active-toolchain"
+        ],
+        "exit": 0,
+        "stdout": "stable-x86_64-unknown-linux-gnu (default)\n",
+        "stderr": ""
+      }
+    ],
+    "preservation": {
+      "tracked_count": 1296,
+      "before_after_equal": true,
+      "root_commit": "3a91bcec76a34f21edf800df16709b5e958b8012",
+      "tracked_status": "",
+      "shared_target_access": false,
+      "target": "/workspace/.onboarding/native-ci-timeout60-infra-suite/rust-root3a91/target"
+    },
+    "lease": "exclusive Root grant used only for these two fixture commands; explicitly returned before records finalization",
+    "offline": true
+  },
+  "historical_record_notes": {
+    "mechanical.json": "pre-Rust checkpoint recorded waiting lease; retained as history, final Rust results are rust-root3a91/commands.json",
+    "original_CI": "Root reports all3 Environment lanes failed; this leaf reads only the preserved Linux log and does not download/claim separate lane logs"
+  },
+  "integration_chain": {
+    "python_node_static_source": "9d11a6d0723144a245994a5e7531c282cc60702e",
+    "Rust_root_source": "3a91bcec76a34f21edf800df16709b5e958b8012",
+    "identical_validation_input_files": [
+      {
+        "path": ".github/workflows/environment-preflight.yml",
+        "bytes": 3705,
+        "sha256": "3bcfd3051e2995de0e49bff88861fd9972a3f805a7cdc9f9bd13c43d4d0e668c"
+      },
+      {
+        "path": ".github/workflows/product.yml",
+        "bytes": 10965,
+        "sha256": "baa70c8b721b7f82e1645651d2131008c6601bd67c70e2a39600177e42633658"
+      },
+      {
+        "path": "infra/action-pins.json",
+        "bytes": 551,
+        "sha256": "30ceb8840327e5ae7b9f8fd7428c91353224cc8ea4a9b61d06657cf4441d1ceb"
+      },
+      {
+        "path": "infra/execution-gate.json",
+        "bytes": 1786,
+        "sha256": "313c96753ddd8f89d8a69e58428f834596f3059b0d0a41996dc1059ea8170e7e"
+      },
+      {
+        "path": "package-lock.json",
+        "bytes": 300,
+        "sha256": "9290a22a743b7aa5d9a5aa3a9dd14e973796f12318d3190254ba730c0ed2d506"
+      },
+      {
+        "path": "package.json",
+        "bytes": 542,
+        "sha256": "9607a18210d1b94aab64784b7ff1ebaa4c17cc88cfed656f1701bc5ee5c6ac7e"
+      },
+      {
+        "path": "requirements-infra.txt",
+        "bytes": 183,
+        "sha256": "d35c88ad21558b80870d00576d3858dd14fcfd9d92ecf8d3946485b84750994a"
+      },
+      {
+        "path": "scripts/check_gate.py",
+        "bytes": 1106,
+        "sha256": "a72dd16acb351157f570a5d461a86f511527e5adbccfc1b8a0f5149e84886036"
+      },
+      {
+        "path": "scripts/doctor.py",
+        "bytes": 1992,
+        "sha256": "b8e0d7e89220f0233557d51be25ff18af64bc4705b10d8e4e22ae5a14210857e"
+      },
+      {
+        "path": "scripts/validate_design.py",
+        "bytes": 8536,
+        "sha256": "23427936c31e292b46ea6596d0523873e31e26962a71ca27041654ed3965b850"
+      },
+      {
+        "path": "scripts/validate_infrastructure.py",
+        "bytes": 4014,
+        "sha256": "b0482a35fc4febee972fb8fa8b9e1e829924d35f9c52b1493d3b7b3edf30f83e"
+      },
+      {
+        "path": "scripts/verify_bootstrap_manifest.py",
+        "bytes": 1041,
+        "sha256": "993445b8e0927778b5f8eccf0aa9846ed8bf5e75fd60ec244eaabe676d5a3b0f"
+      },
+      {
+        "path": "tests/infrastructure/node-smoke.test.mjs",
+        "bytes": 1559,
+        "sha256": "530030911ebfff4fc4f9ba5ae066d0651d1811a48126a2343b13a0de0b4c2dfb"
+      },
+      {
+        "path": "tests/infrastructure/test_design_discovery.py",
+        "bytes": 1229,
+        "sha256": "077925c8da41255a42b60b8f91d15daed3e3f6702635ce227bf90f10677cad64"
+      },
+      {
+        "path": "tests/infrastructure/test_execution_authorization.py",
+        "bytes": 2782,
+        "sha256": "fd68f798dc1652c1841256f3ada50d543748c74df20d0680618c2de57e4a858b"
+      },
+      {
+        "path": "tests/infrastructure/test_preparation.py",
+        "bytes": 3792,
+        "sha256": "ae1f93ba4af6571bfc8dc92dc08c5979453411959aad009e647e99d081f1771b"
+      },
+      {
+        "path": "tests/infrastructure/test_public_repository.py",
+        "bytes": 3436,
+        "sha256": "6f237ea42b773d167d893958c9f8d3073217a7cb415190df04c1be25d7e29df1"
+      },
+      {
+        "path": "tests/infrastructure/test_runtime_policy.py",
+        "bytes": 3159,
+        "sha256": "0474127b8fbf0432692b2460978d5a07e276583f2c7621a057719b7be3c097de"
+      },
+      {
+        "path": "tools/environment-smoke/Cargo.lock",
+        "bytes": 172,
+        "sha256": "12764e6403954836d4d71337dfb9ddd8a14d292698977287071b4e188b7f25fb"
+      },
+      {
+        "path": "tools/environment-smoke/Cargo.toml",
+        "bytes": 165,
+        "sha256": "5a3620905394b06572ab149967955cbbe609138ef31a5c1cec6e4e85ed7b2434"
+      },
+      {
+        "path": "tools/environment-smoke/src/main.rs",
+        "bytes": 972,
+        "sha256": "3138c6db0bf43dc1b3fbbd358c8f10d44128ced7aad29e4c2f99b247ab29521c"
+      }
+    ],
+    "bootstrap_same_paths": 93,
+    "only_different_registered_value": [
+      "docs/execution/STATUS.md"
+    ],
+    "Root_STATUS_hash": "4e629b81ede93e6bd06098458fc46e6bd910c9a0c72b7ab2ddfc72e79591cc15",
+    "own_STATUS_hash": "608c0a4bc7cba146cd2bc48737cfc56549beb2bebbc3ac6b2f5c676d4753e160",
+    "scope": "same Environment workflow/test/validator/Rust fixture sources; Root intentionally retains separate STATUS baseline. Commands were not all rerun on one commit.",
+    "Root_registered93_match_actual_pre_Rust_snapshot": true,
+    "fixed_Git_objects_independently_rechecked": true,
+    "Root_registered93_check_source": "fixed3a91 Git manifest against actual preRust tracked snapshot"
+  },
+  "scope_limits": [
+    "Python34,Node4 and original static checks ran on the source9d11a6d leaf; Rust2/clippy ran on exact Root3a91 integration. Do not relabel these as all commands independently rerun on one commit.",
+    "21 Environment workflow/test/validator/fixture inputs were verified byte-identical using fixed Git objects. Root intentionally retained a different STATUS bootstrap value. Root93 entries match actual preRust snapshot.",
+    "Root1296 tracked file hashes/modes/commit/status were equal before/after. Separate target avoids Native sidecars/shareddebug tools.",
+    "Test counts remain separate: Python34,Node4,Rust2. They are infrastructure fixtures, not product acceptance."
+  ],
+  "at_utc": "2026-10-29T01:41:48.486886+00:00",
+  "archive_manifest": "EVIDENCE_ARCHIVE_MANIFEST.json"
+}

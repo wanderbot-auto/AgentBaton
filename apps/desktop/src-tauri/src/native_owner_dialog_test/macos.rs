@@ -28,6 +28,8 @@ type CaptureResult = Arc<Mutex<Option<Result<(), String>>>>;
 struct Phase {
     name: &'static str,
     clicked: bool,
+    page: usize,
+    previous_number: Option<isize>,
     capture: Option<CaptureResult>,
     capture_worker: Option<std::thread::JoinHandle<()>>,
     sheet_seen: Option<(isize, Instant)>,
@@ -95,6 +97,8 @@ fn record_report(
         *phase = Phase {
             name: "approve",
             clicked: false,
+            page: 0,
+            previous_number: None,
             capture: None,
             capture_worker: None,
             sheet_seen: None,
@@ -105,9 +109,7 @@ fn record_report(
             .eval(invoke_script(&state.expected))
             .map_err(|e| e.to_string())?;
     } else {
-        if response.get("error").is_some()
-            || response["result"]["approval_id"] != state.expected["proposal"]["id"]
-        {
+        if controller::validate_grant_response(&response, &state.expected).is_err() {
             drop(phase);
             return Err("Grant response mismatch".into());
         }
@@ -176,6 +178,8 @@ fn observe(
     caller: &WebviewWindow,
     expected: &Value,
     phase: &str,
+    index: usize,
+    previous_number: Option<isize>,
     sheet_seen: &mut Option<(isize, Instant)>,
     diagnostic: &mut Option<SheetDiagnostic>,
 ) -> Result<Option<Observation>, String> {
@@ -201,6 +205,12 @@ fn observe(
         return Ok(None);
     }
     let number = sheet.windowNumber();
+    if previous_number == Some(number) {
+        return Ok(None); // Wait for the next real sheet; never reuse the prior click.
+    }
+    let page_message = expected["presentation"][index]
+        .as_str()
+        .ok_or("Missing presentation page")?;
     match sheet_seen {
         None => {
             *sheet_seen = Some((number, Instant::now()));
@@ -219,7 +229,7 @@ fn observe(
             "parent_visible":parent.isVisible(),"sheet_visible":sheet.isVisible(),
             "parent_frame":rect(parent.frame()),"sheet_frame":rect(sheet.frame()),
             "on_screen":sheet.screen().is_some_and(|screen|contains(screen.visibleFrame(),sheet.frame())),
-            "expected_message":controller::diagnostic_text(expected["message"].as_str().ok_or("Missing expected message")?, &mut 0)?,
+            "expected_message":controller::diagnostic_text(page_message, &mut 0)?,
             "expected_title":controller::diagnostic_text("AgentBaton — Native owner approval", &mut 0)?,
             "title_matches":0,"message_matches":0,"views":[],"buttons":[],
             "limits":{"views":256,"class_bytes":256,"field_text_utf8_bytes":controller::DIAGNOSTIC_TEXT_BYTES,"total_text_utf8_bytes":controller::DIAGNOSTIC_TOTAL_TEXT_BYTES},
@@ -268,20 +278,10 @@ fn observe(
             diagnostic["views"][index]["text"] =
                 controller::diagnostic_text(&value, &mut text_bytes)?;
             title_matches += usize::from(value == "AgentBaton — Native owner approval");
-            message_matches += usize::from(
-                value
-                    == expected["message"]
-                        .as_str()
-                        .ok_or("Missing expected message")?,
-            );
+            message_matches += usize::from(value == page_message);
             diagnostic["title_matches"] = json!(title_matches);
             diagnostic["message_matches"] = json!(message_matches);
-            if value
-                == expected["message"]
-                    .as_str()
-                    .ok_or("Missing expected message")?
-                || value == "AgentBaton — Native owner approval"
-            {
+            if value == page_message || value == "AgentBaton — Native owner approval" {
                 let bounds = text.bounds();
                 let cell = text.cell().ok_or("Text has no measurable cell")?;
                 let mut unconstrained = bounds;
@@ -336,9 +336,9 @@ fn observe(
         .screen()
         .is_some_and(|screen| contains(screen.visibleFrame(), sheet.frame()));
     let number = sheet.windowNumber();
-    let value = json!({"phase":phase,"proposal_id":expected["proposal"]["id"],"proposal_revision":expected["proposal"]["revision"],"title":title[0],"message":message[0],"parent_matches":parent_matches,"visible":parent.isVisible() && sheet.isVisible() && on_screen,"complete_text_visible":complete,"window_number":number,"buttons":buttons,"capture_api":"/usr/sbin/screencapture -x -l exact_attached_sheet_window_number","click_api":"NSControl.performClick(None)","automated_fixture_not_human_owner":true});
+    let value = json!({"phase":phase,"presentation_index":index,"presentation_count":expected["presentation"].as_array().unwrap().len(),"proposal_id":expected["proposal"]["id"],"proposal_revision":expected["proposal"]["revision"],"title":title[0],"message":message[0],"parent_matches":parent_matches,"visible":parent.isVisible() && sheet.isVisible() && on_screen,"complete_text_visible":complete,"window_number":number,"buttons":buttons,"capture_api":"/usr/sbin/screencapture -x -l exact_attached_sheet_window_number","click_api":"NSControl.performClick(None)","automated_fixture_not_human_owner":true});
     diagnostic["validation_stage"] = json!("controller_validate");
-    controller::validate(&value, expected, phase)?;
+    controller::validate(&value, expected, phase, index)?;
     Ok(Some(Observation {
         value,
         ok: ok.ok_or("No OK")?,
@@ -401,9 +401,11 @@ fn start_capture(phase: &mut Phase, number: isize, path: PathBuf) {
     }
 }
 fn save_failure(state: &State, phase: &mut Phase) {
-    let path = state
-        .output
-        .join(format!("{}-sheet-diagnostic.json", phase.name));
+    let path = state.output.join(format!(
+        "{}-page-{:04}-sheet-diagnostic.json",
+        phase.name,
+        phase.page + 1
+    ));
     if let Some(failure) = &mut phase.observation_failure {
         if let Err(error) = write(&path, failure) {
             // The final owner-dialog failure report also retains this secondary
@@ -426,7 +428,7 @@ fn poll_failure(state: &State, phase: &mut Phase) -> Result<(), String> {
                 json!({"status":"not_started","reason":"No verified positive owned sheet window number"})
             }
             Some(Ok(())) => {
-                json!({"status":"captured_diagnostic_only","path":format!("{}-sheet.png",phase.name)})
+                json!({"status":"captured_diagnostic_only","path":format!("{}-page-{:04}-sheet.png",phase.name,phase.page + 1)})
             }
             Some(Err(error)) => json!({"status":"failed","secondary_error":error}),
         };
@@ -472,6 +474,8 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
         &caller,
         &state.expected,
         name,
+        phase.page,
+        phase.previous_number,
         &mut phase.sheet_seen,
         &mut diagnostic,
     ) {
@@ -485,14 +489,22 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
                 "no_click_or_database_permit":true}));
             save_failure(&state, &mut phase);
             if let Some(number) = number {
-                let path = state.output.join(format!("{}-sheet.png", phase.name));
+                let path = state.output.join(format!(
+                    "{}-page-{:04}-sheet.png",
+                    phase.name,
+                    phase.page + 1
+                ));
                 start_capture(&mut phase, number, path);
             }
             return poll_failure(&state, &mut phase);
         }
     };
     if phase.capture.is_none() {
-        let path = state.output.join(format!("{}-sheet.png", phase.name));
+        let path = state.output.join(format!(
+            "{}-page-{:04}-sheet.png",
+            phase.name,
+            phase.page + 1
+        ));
         start_capture(&mut phase, observed.number, path);
         return Ok(());
     }
@@ -512,20 +524,26 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
         worker.join().map_err(|_| "Sheet capture worker panicked")?;
     }
     write(
-        &state
-            .output
-            .join(format!("{}-sheet-ready.json", phase.name)),
+        &state.output.join(format!(
+            "{}-page-{:04}-sheet-ready.json",
+            phase.name,
+            phase.page + 1
+        )),
         &observed.value,
     )?;
-    let permit = state
-        .output
-        .join(format!("{}-database-permit.json", phase.name));
+    let permit = state.output.join(format!(
+        "{}-page-{:04}-database-permit.json",
+        phase.name,
+        phase.page + 1
+    ));
     if !permit.exists() {
         return Ok(());
     }
     let permit: Value = serde_json::from_slice(&fs::read(permit).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     if permit["phase"] != phase.name
+        || permit["presentation_index"] != phase.page
+        || permit["presentation_count"] != state.expected["presentation"].as_array().unwrap().len()
         || permit["proposal_id"] != state.expected["proposal"]["id"]
         || permit["proposal_revision"] != state.expected["proposal"]["revision"]
         || permit["before_click_sequence"] != state.expected["baseline_sequence"]
@@ -535,12 +553,21 @@ fn poll(app: &tauri::AppHandle) -> Result<(), String> {
         );
     }
     // Mark before public action to prevent reentrant polling from clicking twice.
-    phase.clicked = true;
-    let button = if phase.name == "cancel" {
+    let final_page = phase.page + 1 == state.expected["presentation"].as_array().unwrap().len();
+    let button = if final_page && phase.name == "cancel" {
         observed.cancel
     } else {
         observed.ok
     };
+    if final_page {
+        phase.clicked = true;
+    } else {
+        phase.page += 1;
+        phase.previous_number = Some(observed.number);
+        phase.sheet_seen = None;
+        phase.capture = None;
+        // capture_worker was genuinely joined above before moving to next page.
+    }
     drop(phase);
     // SAFETY: This is the enabled NSButton dynamically found in this exact live
     // attached sheet on main, after full text/layout/parent/proposal validation.
@@ -570,6 +597,13 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         || expected["message"]
             .as_str()
             .is_none_or(|s| s.is_empty() || s.len() > 24576)
+        || expected["presentation"].as_array().is_none_or(|pages| {
+            pages.len() < 2
+                || pages.len() > 1024
+                || pages
+                    .iter()
+                    .any(|page| page.as_str().is_none_or(|s| s.is_empty() || s.len() > 2048))
+        })
         || expected["kind"] != "native_grant_os_dialog_fixture"
         || expected["proposal"]["kind"] != "grant"
         || expected["proposal"]["consumed"] != false
@@ -597,6 +631,8 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         phase: Mutex::new(Phase {
             name: "cancel",
             clicked: false,
+            page: 0,
+            previous_number: None,
             capture: None,
             capture_worker: None,
             sheet_seen: None,

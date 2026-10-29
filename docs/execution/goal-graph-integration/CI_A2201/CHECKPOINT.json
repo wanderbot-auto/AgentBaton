@@ -1,0 +1,48 @@
+{
+  "at": "2026-10-29T02:57:24.307289+00:00",
+  "feature_head": "a2201fe2729eddb0d76bf3995667d3692126ee0f",
+  "checkout": "7f359dc8807e4d11f8e2dedbf4b0a5cc83c81f16",
+  "tree": "520d7aab6abdd4d659d0a9d301d9e28bdfffafd2",
+  "Environment": 40806943416,
+  "Product": 40806944290,
+  "observed_terminal": {
+    "Environment": "3success; full34Python/4Node/2Rust_env/Clippy each",
+    "Rust": "success593unique+7docs",
+    "UI": "failure Complete bounded private argv required during command-timeout, primarycause unknown;111recordedchecks70PNG includes failed2/1, not fullgreen"
+  },
+  "Mac": "still monitored, not a terminal verdict",
+  "imports": [
+    {
+      "original": "/workspace/.onboarding/pr16-a2201-review/ENVIRONMENT_REVIEW.md",
+      "copied_to": "docs/execution/goal-graph-integration/CI_A2201/ENVIRONMENT_REVIEW.md",
+      "bytes": 3932,
+      "sha256": "a06001624ee1b0645a36f60cf8dd07f723c1e9be37a93901779b81fc3a7e310c"
+    },
+    {
+      "original": "/workspace/.onboarding/pr16-a2201-review/ENVIRONMENT_MANIFEST.json",
+      "copied_to": "docs/execution/goal-graph-integration/CI_A2201/ENVIRONMENT_MANIFEST.json",
+      "bytes": 10075,
+      "sha256": "6347a0029bd8c391ea90bd4e7e719afb0fac165df1704c811f3b07585d55c961"
+    },
+    {
+      "original": "/workspace/.onboarding/pr16-a2201-review/ENVIRONMENT_EVIDENCE.tar.gz",
+      "copied_to": "docs/execution/goal-graph-integration/CI_A2201/ENVIRONMENT_EVIDENCE.tar.gz",
+      "bytes": 72453,
+      "sha256": "f006b4e62ce13c349deda33cde87035d3199c06d9c0b487465cd3374a9302bc7"
+    },
+    {
+      "original": "/workspace/.onboarding/pr16-a2201-linux-review/REVIEW.md",
+      "copied_to": "docs/execution/goal-graph-integration/CI_A2201/LINUX_REVIEW.md",
+      "bytes": 8419,
+      "sha256": "ad41f21b1535d941dddae5a2b162f1c7818dde1cf9707d3fc7dfb8db4b89a2b1"
+    },
+    {
+      "original": "/workspace/.onboarding/pr16-a2201-linux-review/MANIFEST.json",
+      "copied_to": "docs/execution/goal-graph-integration/CI_A2201/LINUX_MANIFEST.json",
+      "bytes": 20117,
+      "sha256": "0976ee78c0b926769a086b44534e65671587d560a45e70b22edf0d4765e207c5"
+    }
+  ],
+  "linux_originals": "/workspace/.onboarding/pr16-a2201-linux-review;2officialZIP+all decoded files retained; originals not duplicated in this compact subset",
+  "limitations": "No inherited bb343 Productgreen/newinstallers or 130reqcompletion. DevelopmentProvider/paid/signing/production restrictions unchanged; noformalApprove/merge."
+}

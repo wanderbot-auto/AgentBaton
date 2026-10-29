@@ -1,0 +1,79 @@
+{
+  "archive": "NATIVE_PAGES_ROOT_EVIDENCE.tar.gz",
+  "bytes": 126322,
+  "sha256": "9f327b953cd553120675ed2eb9eb55fedcb5fe32077e5f0c294c0bb7fffda3d3",
+  "regular_members": 13,
+  "all_member_path_hash_size_roundtrip_verified": true,
+  "files": {
+    "first87/BEFORE.json": {
+      "bytes": 153802,
+      "sha256": "5eeddcb1e28d8748a44df140488837e4cd2cd559a08e2b6fb35e8d3450afc03d"
+    },
+    "first87/RESULT.json": {
+      "bytes": 2724,
+      "sha256": "1c56b4764e15b8e320954b6238519aa0fca9dd5f9fa3f973e4e493ba03d98abc"
+    },
+    "first87/native-0.log": {
+      "bytes": 8180,
+      "sha256": "3b77cc4ab7a861a78fb929ebf3377807472a9b21bcf53d4f324f6f8c815fd95c"
+    },
+    "first87/native-1.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "first87/native-2.log": {
+      "bytes": 607,
+      "sha256": "6cc628a83e98563966c51918154e846d549c56c919243067dab10c480f0b276b"
+    },
+    "first87/run.py": {
+      "bytes": 4689,
+      "sha256": "bf290d51e84205ffd0adec2f18ad38ae9d5eed13b0ff778e20d490761a931b6d"
+    },
+    "second407/BEFORE.json": {
+      "bytes": 153816,
+      "sha256": "a3711f0d960cbad932cfbed67c589409456149520c2a1e7bd3d850b531aba2fa"
+    },
+    "second407/RESULT.json": {
+      "bytes": 2724,
+      "sha256": "0fe0a22f51023806f04a498cee68c43732df2157506eecd1f5c5654b6ab4bdfe"
+    },
+    "second407/native-0.log": {
+      "bytes": 7857,
+      "sha256": "2dd20c2e23efb4f7ed14fcded37eeed9243701c81096cb9eb52e6cd0410fc2ea"
+    },
+    "second407/native-1.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "second407/native-2.log": {
+      "bytes": 185,
+      "sha256": "93ac360d84c4392896777e19f129fd7480677ee8f5b7ddd5e24c836a566d75c7"
+    },
+    "second407/run.py": {
+      "bytes": 4696,
+      "sha256": "cd93416813f40e7c2def1b31ff99e9b8d2d7abe8af48149da66c3606405fd504"
+    },
+    "completed-test-cache-retirement.json": {
+      "bytes": 933,
+      "sha256": "ccaccdd46d84b4983be9b225bb6e751258adcb62037077cd0b2cca001a67596c"
+    }
+  },
+  "source": "407ab9e7b014a1af81e39bf90ffac5034708285f",
+  "final": {
+    "library": 62,
+    "Ownercontroller": 8,
+    "total": 70,
+    "format_exit": 0,
+    "Clippy_alltargets_Dwarnings_exit": 0,
+    "source_before_after_equal": true,
+    "tool_hash_and_inode_restored": true,
+    "temporary_links_removed": true
+  },
+  "historical87": {
+    "library": 61,
+    "Ownercontroller": 8,
+    "total": 69,
+    "scope": "not borrowed as407 proof"
+  },
+  "scope": "Linux compiled library/controller only; AppKit/macOS/actual newNativeGUI not_run; oldCore70a resources for compileonly, targettools081a89eb backup/sha/inode restoration separately recorded"
+}

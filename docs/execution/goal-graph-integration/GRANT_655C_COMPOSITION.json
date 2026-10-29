@@ -1,0 +1,52 @@
+{
+  "at": "2026-10-28T23:36:30.572043+00:00",
+  "composition_source": "4e712823c3ae4bb1307855c2c5ea3993df2848e2",
+  "baseline": "fb7ff7d861872eec18e010f7b64a0ead63740faa",
+  "source_files": [
+    {
+      "path": ".github/workflows/product.yml",
+      "source": "65f7fd26bec8a88307178a69381389de6188efaa",
+      "sha256": "55bd07391841f62a3530d25fb6e436d42957a56c4870baa0caaafb9be29a5d60",
+      "bytes": 10965
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_owner_dialog/controller.rs",
+      "source": "655c6d2985dd8d2d0dcfa16864d12edf2dfca374",
+      "sha256": "0fc0d4477e7a9b1eb17611d6729b1bee21893b1391198ce151289ef4d2ebdb04",
+      "bytes": 13526,
+      "same_Rust_bytes_as_Root10_tested_fbfd": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_owner_dialog/macos.rs",
+      "source": "655c6d2985dd8d2d0dcfa16864d12edf2dfca374",
+      "sha256": "613fb2c8993a3640bec486b88a3534e3efddcd171e99d366d5a96ee364528361",
+      "bytes": 29153,
+      "same_Rust_bytes_as_Root10_tested_fbfd": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "source": "655c6d2985dd8d2d0dcfa16864d12edf2dfca374",
+      "sha256": "c68149b382a565af3a1ff4bdc5b22ab6b2a004f02cc5c358e52ecb3c5397141e",
+      "bytes": 36662
+    },
+    {
+      "path": "scripts/native-owner-dialog-smoke.py",
+      "source": "655c6d2985dd8d2d0dcfa16864d12edf2dfca374",
+      "sha256": "84856cca91aaaa00e5a7f6c3ac5d5dabca63b8d470328c7959730e9510966877",
+      "bytes": 35654
+    }
+  ],
+  "all_other_product_sources_unchanged_from_fb7": true,
+  "shipping_Parent_Core_approval_permissions_locks_unchanged": true,
+  "Node564_37_old_exactCI_frontend_same_bytes": "supporting previousdimensiononly; newexactCIrequired",
+  "RootControllerRust": 10,
+  "Python_author": 29,
+  "Python_independent": 29,
+  "review": {
+    "state": "source-ready;NG-FBFD-01limitedtypedrecord/scalarCASclosed",
+    "report_sha256": "2226c41ef4d484ffbbbe3916fad622bd8f68c584fafb86df8b143daa82b2075c",
+    "manifest_sha256": "4ee424ff48c2bd73e7a80d8aeafd70006814c123cf1481b58b951bbc990cb060",
+    "evidence": "GRANT_TYPED_HISTORY_IMPORT.json"
+  },
+  "new_Mac_or_package": "not_run"
+}

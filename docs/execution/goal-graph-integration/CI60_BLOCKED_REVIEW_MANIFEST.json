@@ -1,0 +1,76 @@
+{
+  "subject": "3a0caa9366640aab8a40911fe814fd77d417c60e",
+  "scope": "limited workflowdelta23PASS; integrationP1OPEN until validator coordinatedfix reviewed",
+  "files": [
+    {
+      "path": "ADR.md",
+      "bytes": 1492,
+      "sha256": "78e50a605382d6ff2e654a212942daef9ccbf1d53c352b5eb51b64d4314a1946"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 3194,
+      "sha256": "d46c891b26fc4529adfcc96e1d9c268e120b570192118b72dd1d9515c03fd1db"
+    },
+    {
+      "path": "after.yml",
+      "bytes": 10965,
+      "sha256": "baa70c8b721b7f82e1645651d2131008c6601bd67c70e2a39600177e42633658"
+    },
+    {
+      "path": "author-initial-check-command.json",
+      "bytes": 392,
+      "sha256": "334ee1bc3dce556079f946167f4055f52dd861ef0403260814d93d810872dd08"
+    },
+    {
+      "path": "author-initial-check.stderr",
+      "bytes": 317,
+      "sha256": "be16329359b264490417efa141a5cb2c18910133cbbaaf9698d68d4e90d7bda7"
+    },
+    {
+      "path": "before.yml",
+      "bytes": 10965,
+      "sha256": "55bd07391841f62a3530d25fb6e436d42957a56c4870baa0caaafb9be29a5d60"
+    },
+    {
+      "path": "intel-annotations.json",
+      "bytes": 1303,
+      "sha256": "f16a1032e28b53f8953d953cc5f5e4d03207cb52d16554f0aab8cd473f929166"
+    },
+    {
+      "path": "intel-artifacts-terminal.json",
+      "bytes": 3095,
+      "sha256": "cbd2c403a74929bf932c3f11cad733199e5f8a4d4d1b35ef2ecf3ea1021918e6"
+    },
+    {
+      "path": "intel-job-terminal.json",
+      "bytes": 4997,
+      "sha256": "a6965f3f6a667004a9b3b3b62992ce62e3b64506836965781e2373f9f8b85c42"
+    },
+    {
+      "path": "results.json",
+      "bytes": 3252,
+      "sha256": "1186b52bc14fec87f617deed91e92bc038627e61d3619862523b51810a0eb2e5"
+    },
+    {
+      "path": "review.py",
+      "bytes": 5234,
+      "sha256": "3441f9f346105f764b66667cececfe4fd5403b922f134d62055d3728ad1f4d9e"
+    },
+    {
+      "path": "root-integration-RESULT.json",
+      "bytes": 328,
+      "sha256": "4d240c3038390a303e6bb7438e26b35ea94f34b73c77c8528bbb2ebee1cd5f80"
+    },
+    {
+      "path": "root-integration-first-failure.log",
+      "bytes": 667,
+      "sha256": "d50f25ca7767f85f966a683c70437fb3cccdd8aa38a218c35152d25cfe254946"
+    },
+    {
+      "path": "supplemental.json",
+      "bytes": 301,
+      "sha256": "d6f155ca43d0fcaad4a8bd4c51cce85e0e6c796ead4f12757ac2cd88c5b1bacf"
+    }
+  ]
+}

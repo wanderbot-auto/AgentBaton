@@ -1,0 +1,72 @@
+{
+  "recorded_at": "2026-10-29T01:04:42.393799+00:00",
+  "reviews": [
+    {
+      "label": "BUNDLE_9C_REVIEW",
+      "review_sha256": "bf4d509145814e6579c749e019acbdfb48a57b1fe534cd393a3783a5d32fdd4c",
+      "manifest_sha256": "f056248876838d1c1cb3c625a807f2ee0fcacfc21e8fcdf9545266313106554d",
+      "archive": "BUNDLE_9C_REVIEW_EVIDENCE.tar.gz",
+      "archive_sha256": "3adbbebd9e1640509287637db784866f701f29ae840f7169fca90e7d5ab34a3f",
+      "members": 53
+    },
+    {
+      "label": "CI60_BLOCKED_REVIEW",
+      "review_sha256": "d46c891b26fc4529adfcc96e1d9c268e120b570192118b72dd1d9515c03fd1db",
+      "manifest_sha256": "3f331630feea99f464e88ca984aa3b11e0be58683f9f4a72ff8bb49a271a982c",
+      "archive": "CI60_BLOCKED_REVIEW_EVIDENCE.tar.gz",
+      "archive_sha256": "51a970762781b2004ff3273e9912a2f18ce6646d834e15401eb5eec3bfba0d9e",
+      "members": 15
+    },
+    {
+      "label": "CI60_GUARD_REVIEW",
+      "review_sha256": "2aec5438a9a9d31017eb1d56ad7bfcfdb4e6b5e2f8ab5ff7e9ce94236fbf437b",
+      "manifest_sha256": "3790ece6cd87d652ff95ed7edf56e5d1d3ac825a25b0ff5f9dd870ffdef3cb7e",
+      "archive": "CI60_GUARD_REVIEW_EVIDENCE.tar.gz",
+      "archive_sha256": "3c8cc5d97b3e38b280af3d6c713dd0570520ca15b4d1a683f7ed2fe5fe9bfc31",
+      "members": 16
+    }
+  ],
+  "Mac": {
+    "feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+    "checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+    "source_manifest_sha256": "6eee4e6219042c997f562d1b0df0c7f4db91903bcac727b716ca3f204d83d442",
+    "archive": "CI_C6F6_MAC_EVIDENCE.tar.gz",
+    "sha256": "f4422a668f4614b2b399d0f04c7251776fe19849d94992abcbfbc5937e86e264",
+    "members": 319,
+    "scope": "Both realNativeOwnerpass; ARMdefaultbundleFAIL/Intelofficial45mincancel; audit/packagesSKIPPED",
+    "original_directory": "/workspace/.onboarding/pr16-c6f6-mac-review",
+    "original_archive_name": "EVIDENCE.tar.gz"
+  },
+  "Linux": {
+    "recorded_at": "2026-10-29T00:15:35.833388+00:00",
+    "feature": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+    "actual_checkout": "e963523c04b27d99d44a7893b161b5180b9818e3",
+    "tree": "32b2747d4541b7f09d05cf21332f6232b081d8a5",
+    "review_sha256": "551af2dae5d59e1060b0bbde7ff45bb2870e6ef53127ed5fafa11991368ee2a8",
+    "manifest_sha256": "f042f3dd5f585f9398e294b63c1ed4df19ec2d7c59ca21ab8361333f287b7b3b",
+    "archive": "/workspace/.onboarding/pr16-c6f6-ci/LINUX_EVIDENCE.tar.gz",
+    "archive_sha256": "afaa7f6f6cdd9cb03bf7bc433cd96f44c3021d5d345642b763815f9a2d47da23",
+    "regular_members": 139,
+    "uncompressed_bytes": 29596546,
+    "source_STATUS_unchanged": true,
+    "scope": "Exact Linux Rust/UI + 3Environment terminal success only, no Mac/packages/Factory13/full Design acceptance. Source branch untouched to preserve running exactCI.",
+    "repository_archive": "CI_C6F6_LINUX_EVIDENCE.tar.gz"
+  },
+  "NativeRoot": {
+    "archive": "NATIVE_MODULE_CHECK_ROOT_EVIDENCE.tar.gz",
+    "sha256": "e31276e4c8177d41eb8b589a477c0758b4194013dbe76717550a86c9c7f97349",
+    "members": 7,
+    "check_exit": 0,
+    "format_exit": 0,
+    "source": "9c3850d40d78d2317142f604043fd0aaaceb2aa7",
+    "integration": "4d2ab1fbb9c4aa562a86de0dd127b61948fdaa2e",
+    "dimension": "Actual Rust Native test-target/module typecheck, not new test execution or Mac. Old5541 tools only macro resources;188f/5779 sharedtools restored exactSHA/inode/nlink.1239 verified reproducible Gitexport cache files retired, original generated DESIGN_VALIDATION evidence/manifests/logs/archives/Git objects/source worktrees/candidates preserved."
+  },
+  "not_claimed": [
+    "new CI success",
+    "new Mac defaultapp/audit/installers",
+    "Factory13 acceptance",
+    "full Design acceptance"
+  ],
+  "Root_import_tool_error": "Initial pack script had unmatched parenthesis and did not execute/write; corrected parser, all archives independently roundtrip checked."
+}
