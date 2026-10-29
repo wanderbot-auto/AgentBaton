@@ -1,0 +1,9 @@
+# Task-workspace public CI evidence
+
+Baseline `6c0908e598381a387a3e5b3207f3a7115905d73c`; requirements AB-SEC-005/007/010 and AB-PRJ-005 evidence privacy. Root's actual five-case Task browser report is private; the original always-upload directory could contain raw logs and arbitrary diagnostics. Fix by a separate finite projector, with Root alone moving driver output/logs to private RUNNER_TEMP and editing workflow. ACK OWNER-001/002; no product scope or authority changes.
+
+CLI: `python scripts/record-task-workspace-ci-evidence.py --private ABS_PRIVATE_DIR --output ABS_NEW_SAFE_DIR --expected-source-head LOWERCASE40`. A valid projection returns0 even for a failed driver report; this is not test acceptance. Missing reports/private directories return2 with pending; invalid input returns1 with a fixed invalid status. Root must preserve the original driver exit independently.
+
+Decision: expose only five fixed case statuses, bounded driver-asserted no-execution/cleanup flags, source/tool/frontend-map/report hashes and at most six exact generated-fixture PNG names after all success gates. Never recursively copy a directory. New output is exclusive/private0700; canonical absolute paths and exclusive caller ownership are required. Do not overwrite existing output or relax ancestor/symlink checks.
+
+Security correction: PNG chunk type/CRC alone is insufficient. Restricted support is lossless existing Chromium IHDR/IDAT+/IEND,8-bit RGB/RGBA/noninterlaced. Ancillary chunks (including legitimate color metadata) and unsupported encodings are refused, not stripped. Streaming bounded zlib validates exact decoded dimensions/filter bytes/EOF with no trailing member; original accepted image bytes/hash remain unchanged. This is syntax validation for source-bound generated fixtures, not arbitrary-image secret redaction, steganography detection or signed authority.
