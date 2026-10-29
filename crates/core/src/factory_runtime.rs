@@ -1833,7 +1833,24 @@ impl FactoryMcpLaunch {
         if self.scope.expires_at_ms <= ms()? {
             return Err(denied());
         }
+        #[cfg(debug_assertions)]
+        let diagnostic_started =
+            crate::ipc::goal_diagnostics::hashing_enabled().then(std::time::Instant::now);
+        #[cfg(debug_assertions)]
+        let diagnostic_image_bytes = diagnostic_started
+            .and_then(|_| std::fs::metadata(&self.scope.bindings.companion.executable).ok())
+            .map_or(0, |m| usize::try_from(m.len()).unwrap_or(usize::MAX));
         let input_pins = recheck_external(&self.scope)?;
+        #[cfg(debug_assertions)]
+        if let Some(clock) = diagnostic_started {
+            crate::ipc::goal_diagnostics::emit(
+                "mcp_external_recheck",
+                Some(clock.elapsed()),
+                [false; 6],
+                diagnostic_image_bytes,
+                None,
+            );
+        }
         let mut unique = std::collections::BTreeMap::new();
         for artifact in &self.handoff {
             if let Some(old) = unique.insert(
@@ -1880,6 +1897,8 @@ impl FactoryMcpLaunch {
             &self.scope.bindings.companion.executable_sha256,
         )
         .map_err(|_| changed())?;
+        #[cfg(debug_assertions)]
+        let diagnostic_provider = diagnostic_started.map(|_| std::time::Instant::now());
         let approved = agentbaton_providers::ApprovedFactoryMcp::from_verified_host(
             &self.scope.bindings.companion.executable,
             &digest,
@@ -1887,6 +1906,16 @@ impl FactoryMcpLaunch {
             &self.scope.approval_id,
         )
         .map_err(|_| changed())?;
+        #[cfg(debug_assertions)]
+        if let Some(clock) = diagnostic_provider {
+            crate::ipc::goal_diagnostics::emit(
+                "mcp_provider_verify",
+                Some(clock.elapsed()),
+                [false; 6],
+                diagnostic_image_bytes,
+                None,
+            );
+        }
         input_pins.verify(true)?;
         Ok(approved)
     }

@@ -3,13 +3,20 @@
 use std::{
     collections::{BTreeMap, VecDeque},
     io::Write,
-    sync::{Mutex, OnceLock},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Mutex, OnceLock,
+    },
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 const MAX_LINES: usize = 512;
 const MAX_BYTES: usize = 131072;
 const MAX_LINE: usize = 256;
 const PER_STAGE: usize = 8;
+static ACTOR_ACTIVE: AtomicBool = AtomicBool::new(false);
+pub(crate) fn hashing_enabled() -> bool {
+    ACTOR_ACTIVE.load(Ordering::Relaxed) && enabled()
+}
 #[derive(Clone, PartialEq, Eq)]
 struct Signature {
     flags: [bool; 6],
@@ -89,7 +96,17 @@ impl Trace {
             return None;
         }
         let at = millis(now.saturating_duration_since(self.start));
-        let line=format!("AB_GOAL_DIAG stage={stage} wall_ms={} at_ms={at} elapsed_ms={} flags={}{}{}{}{}{} count={count} code={code}\n",self.wall_ms,elapsed.map(millis).unwrap_or(0),u8::from(flags[0]),u8::from(flags[1]),u8::from(flags[2]),u8::from(flags[3]),u8::from(flags[4]),u8::from(flags[5]));
+        let valid = match stage {
+            "input_read_issued" => 3,
+            "companion_read_hash"
+            | "companion_sha256"
+            | "mcp_external_recheck"
+            | "mcp_provider_verify"
+            | "factory_query_check"
+            | "factory_git_snapshot" => 0,
+            _ => 63,
+        };
+        let line=format!("AB_GOAL_DIAG stage={stage} wall_ms={} at_ms={at} elapsed_ms={} flags={}{}{}{}{}{} valid={valid} count={count} code={code}\n",self.wall_ms,elapsed.map(millis).unwrap_or(0),u8::from(flags[0]),u8::from(flags[1]),u8::from(flags[2]),u8::from(flags[3]),u8::from(flags[4]),u8::from(flags[5]));
         if line.len() > MAX_LINE {
             return None;
         }
@@ -126,7 +143,14 @@ impl Trace {
 fn allowed_stage(stage: &str) -> bool {
     matches!(
         stage,
-        "factory_tick_begin"
+        "actor_run_enter"
+            | "companion_read_hash"
+            | "companion_sha256"
+            | "mcp_external_recheck"
+            | "mcp_provider_verify"
+            | "factory_query_check"
+            | "factory_git_snapshot"
+            | "factory_tick_begin"
             | "factory_tick_end"
             | "goal_tick_begin"
             | "goal_tick_end"
@@ -219,11 +243,20 @@ pub(crate) fn method_tag(raw: &str) -> usize {
     }
 }
 pub(crate) struct FlushOnDrop;
+impl FlushOnDrop {
+    pub(crate) fn enter() -> Self {
+        if enabled() {
+            ACTOR_ACTIVE.store(true, Ordering::Relaxed);
+        }
+        Self
+    }
+}
 impl Drop for FlushOnDrop {
     fn drop(&mut self) {
         if !enabled() {
             return;
         }
+        ACTOR_ACTIVE.store(false, Ordering::Relaxed);
         let rows = state()
             .lock()
             .ok()

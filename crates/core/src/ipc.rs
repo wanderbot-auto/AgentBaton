@@ -408,7 +408,9 @@ impl Daemon {
     }
     pub fn run(mut self, stop: Arc<AtomicBool>) -> Result<()> {
         #[cfg(debug_assertions)]
-        let _diagnostic_flush = goal_diagnostics::FlushOnDrop;
+        let _diagnostic_flush = goal_diagnostics::FlushOnDrop::enter();
+        #[cfg(debug_assertions)]
+        self.trace_goal_stage("actor_run_enter", None, 0, None);
         let (requests, ready) = mpsc::sync_channel::<ReadyRequest>(16);
         let mut readers: Vec<std::thread::JoinHandle<()>> = vec![];
         while !stop.load(Ordering::Relaxed) {

@@ -253,6 +253,11 @@ pub(super) fn companion_controlled(
             "Baton MCP companion must be a bounded non-writable-by-group/world regular executable",
         ));
     }
+    #[cfg(debug_assertions)]
+    let diagnostic_started =
+        crate::ipc::goal_diagnostics::hashing_enabled().then(std::time::Instant::now);
+    #[cfg(debug_assertions)]
+    let mut diagnostic_hash_elapsed = std::time::Duration::ZERO;
     let mut observed = 0u64;
     let mut hasher = Sha256::new();
     let mut chunk = [0u8; 64 * 1024];
@@ -271,7 +276,13 @@ pub(super) fn companion_controlled(
         if observed > 128 * 1024 * 1024 {
             return Err(limited());
         }
+        #[cfg(debug_assertions)]
+        let diagnostic_update = diagnostic_started.map(|_| std::time::Instant::now());
         hasher.update(&chunk[..n]);
+        #[cfg(debug_assertions)]
+        if let Some(clock) = diagnostic_update {
+            diagnostic_hash_elapsed = diagnostic_hash_elapsed.saturating_add(clock.elapsed());
+        }
     }
     let current = std::fs::symlink_metadata(path).map_err(|_| changed())?;
     if observed != before.len()
@@ -298,9 +309,35 @@ pub(super) fn companion_controlled(
     {
         return Err(changed());
     }
+    #[cfg(debug_assertions)]
+    let diagnostic_finalize = diagnostic_started.map(|_| std::time::Instant::now());
+    let executable_sha256 = format!("{:x}", hasher.finalize());
+    #[cfg(debug_assertions)]
+    if let Some(clock) = diagnostic_finalize {
+        diagnostic_hash_elapsed = diagnostic_hash_elapsed.saturating_add(clock.elapsed());
+    }
+    #[cfg(debug_assertions)]
+    if let Some(clock) = diagnostic_started {
+        let diagnostic_total = clock.elapsed();
+        let bytes = usize::try_from(observed).unwrap_or(usize::MAX);
+        crate::ipc::goal_diagnostics::emit(
+            "companion_sha256",
+            Some(diagnostic_hash_elapsed),
+            [false; 6],
+            bytes,
+            None,
+        );
+        crate::ipc::goal_diagnostics::emit(
+            "companion_read_hash",
+            Some(diagnostic_total),
+            [false; 6],
+            bytes,
+            None,
+        );
+    }
     Ok(FactoryCompanionBinding {
         executable: canonical,
-        executable_sha256: format!("{:x}", hasher.finalize()),
+        executable_sha256,
         argument_template: vec!["factory-mcp".into(), "${SESSION_HANDLE_FILE}".into()],
         credential_transport: "private_0600_file_reference".into(),
         global_daemon_token_available: false,

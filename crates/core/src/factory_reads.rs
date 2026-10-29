@@ -1174,9 +1174,21 @@ impl FactoryReadPlan {
         }
         // Match the live Actor's exact approved business rows BEFORE filesystem
         // reads, preventing an independently replaced readonly DB granting reads.
+        #[cfg(debug_assertions)]
+        let diagnostic_query = crate::ipc::goal_diagnostics::hashing_enabled().then(Instant::now);
         for proof in &self.proofs {
             control.check()?;
             proof.recheck(&connection)?;
+        }
+        #[cfg(debug_assertions)]
+        if let Some(clock) = diagnostic_query {
+            crate::ipc::goal_diagnostics::emit(
+                "factory_query_check",
+                Some(clock.elapsed()),
+                [false; 6],
+                self.proofs.len(),
+                None,
+            );
         }
         let mut reader = Store {
             conn: connection,
@@ -1188,11 +1200,23 @@ impl FactoryReadPlan {
         let workspace = read_workspace(&reader.conn, &self.selection.workspace_ids[0])?;
         let (pins, required) =
             capture_pins(&reader.conn, &self.selection, &workspace, &self.companion)?;
+        #[cfg(debug_assertions)]
+        let diagnostic_git = crate::ipc::goal_diagnostics::hashing_enabled().then(Instant::now);
         let (git_trees, git_refs) = capture_git_trees(
             &reader.conn,
             &self.selection,
             reader.factory_read_control.as_ref().unwrap(),
         )?;
+        #[cfg(debug_assertions)]
+        if let Some(clock) = diagnostic_git {
+            crate::ipc::goal_diagnostics::emit(
+                "factory_git_snapshot",
+                Some(clock.elapsed()),
+                [false; 6],
+                git_trees.len() + git_refs.len(),
+                None,
+            );
+        }
         let bindings = if let Some(scope) = &self.child_planning {
             reader.observe_factory_child_plan_inputs(scope)?
         } else {
