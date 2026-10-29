@@ -1,0 +1,8 @@
+{
+  "reviewed_source": "b8c81d0a827350f7ed17bfdc8630dcaaf7b3bf83",
+  "regular_members": 23,
+  "archive_sha256": "4377c25d40c6df27c6b6034cfeb3add34c53a9b566fde516a02c1aead2ddf2df",
+  "all_roundtrip_verified": true,
+  "followup_changes": "only these4 reviewrecords; no product/test/STATUS/registry changes after independentreview",
+  "newCI": "not yet run; old6success1fail preserved"
+}

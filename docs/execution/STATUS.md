@@ -1,3 +1,9 @@
+## 当前已合入 Goal 基线与 Factory14 验证 — 2026-10-29
+
+PR #16 已经保护合入 main `3fd60f354236ddc5ab0ea2f7665428a8496f4a64`；实际 merge tree `1bdfa98507023b2b48f87cabeb118713dc86ec6b` 与 CI candidate `de113501` 精确相同，两者提交 ID 不同。Ready 后新 Environment40826447998 三项以及 Product40820986808 四项全部通过，独立审查已关闭，无正式 Approve。准确双架构包、SHA、签名限制见本单元 EVIDENCE.json；它们是 schema12 开发包，不是 Factory14 或全产品验收。ARM ad-hoc/Intel unsigned，无正式签名、公证、人工安装或真实产品 Provider 验证。
+
+Factory14 在 `ff5191af` 实际通过 Linux Native Rust 83+30+10=123 项（planning8已含83），原 shared tool inode/权限/硬链接/SHA 及所有源码精确恢复。首个真实 UI14/Core14 浏览器流未匹配动态表单标签，15秒定位超时，0检查/0截图、未审批/MCP；退出上下文后清理异常也保留，不能记绿。脚本修正与独审在进行，Native OS Factory 审批新测试两项证据缺口也在修复。完整130需求与 child Goal/workspace 等范围继续，schema15 子 Goal 仅隔离实现，未集成或验证。最新 OWNER001/002 ACK，无003。被合入的 STATUS 原文另存 STATUS.incoming-main-3fd60f3.md；以下保留本分支既有历史。
+
 ## 当前 Child planning 组合验证 — 2026-10-29T05:53:38.704700+00:00
 
 本分支 `codex/factory-child-planning-integration` 已组合 schema14 Core、完整 Native planning policy、UI 计划历史及固定 MCP/IPC。Core 完整测试在 `68940d76` 通过659项非文档测试和7项文档测试；后续仅类型别名修正的 `f9a7e0c` 通过严格 Clippy/格式检查。实际组合 UI 在 `ea6ca3b0` 通过733项测试（44文件）；f9a 的类型检查和构建通过。完整证据、原失败和精确提交见 `factory-child-planning-integration/EVIDENCE.json`。

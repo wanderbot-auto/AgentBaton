@@ -1,0 +1,10 @@
+{
+  "archive_sha256": "e91e3cff11dbfc9e28300e4d3a0e7657910549bb99501ff9eb8350f1b965e2c2",
+  "bytes": 389839,
+  "regular_members": 51,
+  "all_payloads_exact_roundtrip": true,
+  "scope": "full frozen independentdiagnosticreview directory, not originalCI UI ZIPs or immutablebinary tools; references identified inmanifest",
+  "review_source": "a2a401e3f2b7de95e9bddcd688bcc4ef1578f9d1",
+  "integrated_source_sha256": "a054989b5a20972f332312c3bb7ddf9e87e0ca17181448c4a405459451105ed1",
+  "original_failure": "a220UI remains failure/causeunproven; diagnostics preserves originalbehavior, no timeout/safetyweakening"
+}

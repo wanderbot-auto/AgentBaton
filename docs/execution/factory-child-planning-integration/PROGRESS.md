@@ -7,3 +7,7 @@ The first Native run f9a stopped at the200MiB disk guard during compile (exit-15
 The browser harness0e has independent source review and94+11 pure checks, but real Core/browser execution is NOT_RUN. New actual OS Factory planning dialog tests are in a separate test-only branch; not executed or integrated yet. Independent combined source review is SOURCE_READY_RUNTIME_PENDING.
 
 Next: new-head tools, guarded Native rerun, real UI/IPC, native OS approval, exact schema14 CI/dual packages. Separate PR16 head4f5c now has7 CI successes; its full artifact audit/merge is separate schema12 evidence. No full product completion, actual Provider, remote host, formal signing/notarization or manual install claim.
+
+## Accepted main and Native runtime boundary
+
+Protected main3fd60f3 has the exact tested Goal tree, no formalApprove. Factory14 ff519 actual83+30+10 Rust tests passed with exactsharedtools/source restoration. Browser run1 failed before approval/start/MCP (0checks/0PNG), with cleanupfalse retained. Current source merge keeps all298 code/config payload hashes unchanged and retains schema14 current fixtures. New d27 harness is under independent review; actual revised browser and NativeOS Factory are pending. Full requirements remain incomplete. See post_checkpoint and development_packages_schema12 in EVIDENCE.json.

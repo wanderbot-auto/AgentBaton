@@ -75,5 +75,49 @@
     "child_goal_execution/create_workspace and all remaining full-design requirements",
     "realProvider/remote/signing/manualinstall independently blocked or not_run"
   ],
-  "full_product_complete": false
+  "full_product_complete": false,
+  "post_checkpoint": {
+    "native_source": "ff5191afa76f9b5612558cd8960a7c9a572b2521",
+    "native_library": 83,
+    "native_smoke": 30,
+    "owner_controller": 10,
+    "native_total_unique": 123,
+    "planning8_in_library": true,
+    "native_exact_tools_and_source_restored": true,
+    "native_review_sha256": "ed6d4e6e559b9de4d72dd77c1c0270178aae19969d8859824525dbf58fb5fd15",
+    "native_manifest_sha256": "5b3e1130178fd4aa8fb52ed4ee870f8f67e411213bdca189ee0ce828e78b1320",
+    "browser_run1_source": "ff5191afa76f9b5612558cd8960a7c9a572b2521",
+    "browser_exit": 1,
+    "browser_checks": 0,
+    "browser_screenshots": 0,
+    "browser_cleanup_complete": false,
+    "browser_reason": "exact dynamic label timeout before approval/start/MCP; secondary closedPlaywright-context cleanup error retained",
+    "browser_fixed_harness": "d27be8fe506ac7455b2ac9c000a7e072acaf8a8c under independent review, NOT_RUN",
+    "accepted_main": "3fd60f354236ddc5ab0ea2f7665428a8496f4a64",
+    "tested_candidate": "de1135018a1fef279f37bbd99ab624bca588f52e",
+    "equal_tree": "1bdfa98507023b2b48f87cabeb118713dc86ec6b",
+    "main_merge_payload_changes": [],
+    "OWNER_ACK": [
+      "OWNER-001",
+      "OWNER-002"
+    ]
+  },
+  "development_packages_schema12": {
+    "product_run": 40820986808,
+    "environment_after_ready": 40826447998,
+    "AppleSilicon": {
+      "artifact": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40820986808/artifacts/12876135886",
+      "DMG_SHA256": "d98fd1d51f506311875958ba9e3fb3bde72d58573591739b282630fdf6a4ba7e",
+      "signature": "adhoc/noTeamID"
+    },
+    "Intel": {
+      "artifact": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40820986808/artifacts/12876475535",
+      "DMG_SHA256": "9a9388d9c2d77483c28960042d9cd65ab2dafa0e594a8c8cd8274b2c82f8a5c8",
+      "signature": "unsigned"
+    },
+    "formal_signing_notarization": "not_run",
+    "human_install_defaultlaunch": "not_run",
+    "full_factory14_or_full_design_acceptance": false,
+    "independent_merge_review_sha256": "98245529dd89acb46a1f72c457195559408dd8789ec744e03126b2d84fe773e5"
+  }
 }
