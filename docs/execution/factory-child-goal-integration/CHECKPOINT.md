@@ -1,3 +1,7 @@
+
+## 2026-10-29T20:40:42.716507+00:00 — exact newCI failure
+
+Actual3b/head20d checkout: Envall3PASS; ProductRust24/1 failure in55s readonly observation afterreply, not proven Grant/CPU cause. UI Data8+Graphpass; legacyFactory all3 finalbehavior reached but wrong all-Goal-empty accounting assertion fails. Exact metadata/log/report hashes inPR18_HEAD3B_FAILURES.json. Raw original retained, Maclastread pending, no currentpackages/wholePASS. Diagnostic+strictsharedmeter assertion source underway; budgets/authority not widened. WSI16 integrationactualbridge2+Unix4 separatePASS e203; oldfilter0test notPASS.
 ## 2026-10-29T20:11:43.950362+00:00 — local IO and migration repairs accepted for new CI
 
 Feature Core145 actual outer tests pass (nested1 excluded), including both gates16; debug pair build, featurelib strictClippy, defaultworkspace alltargets strictClippy andfmt passed at their exact recorded heads. Genuine nonempty14→15 migration6 passed. Fixed private driver73pure andactualLinuxChromium/realUnixData8checks/unrun0 passed at1dad36c (7.131s). Preview realcancel finished13 andcopy realcancel/workerjoined finished20, eachrevision3; no partialcopy/midcopy/OSreap claim. Current frontend source byte-equal to2d build; compiledCore0c78, not falsely labeled newhead.
@@ -101,3 +105,8 @@ Core129, corrected reservation6, UI872/51/type/build, strict Clippy and real rew
 ## 2026-10-29T18:18:35.262134+00:00 — cancelled history accepted locally; exact CI next
 
 At2d12: actual UI901/52/type/build passed; browser cancel20.525s/CG01,02,04,06/threePNG/cleanuptrue. New history guard and supported-context regression reviewed. Earlier failures remain. New PR/all seven checks/both real Mac Native15/build/package and traceable installers still NOT_RUN at record time. WSI1/WSI2a stay separate and full130 goal remains incomplete. See [CANCELLED_HISTORY_ACCEPTANCE.json](CANCELLED_HISTORY_ACCEPTANCE.json).
+
+
+## Bounded observation and strict shared-meter repair 2026-10-29T20:59:42.058612+00:00
+
+See OBSERVATION_SHARED_METER_RESULTS.json: local Factory25 and four actual Linux browser cases passed, existing compiled tool/frontend attribution preserved. Remote3b Product4 failures remain; new CI required, no55s renewal/root-cause or Mac/package acceptance inferred. WSI16 continues separately.

@@ -39,6 +39,10 @@ struct ReworkReadReconciliation {
     child: Option<String>,
     goal: Option<String>,
     deadline: Instant,
+    origin: Instant,
+    phase: &'static str,
+    scope_expires_at_ms: i64,
+    calls: u64,
     retry_budget: u8,
     errors: Vec<Value>,
     evidence: PathBuf,
@@ -61,6 +65,51 @@ impl ReworkReadReconciliation {
             _ => false,
         }
     }
+    // A single overwritten scalar record bounds evidence independently of
+    // polling frequency. No raw request, result, credential, ID or Grant is
+    // copied. This is test instrumentation, not an Actor latency measurement.
+    fn observation(
+        &self,
+        method: &'static str,
+        stage: &'static str,
+        started: Instant,
+        reply: Option<&Value>,
+    ) -> Value {
+        let now = Instant::now();
+        let wall_ms = i64::try_from(
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_millis(),
+        )
+        .unwrap();
+        let result = reply.and_then(|v| v.get("result"));
+        // Milestones may omit the already-received reply object. An absent
+        // run state is unobserved, not evidence that a run is incomplete/known.
+        let run_state = result
+            .and_then(|v| v.pointer("/run/state"))
+            .and_then(Value::as_str);
+        json!({"phase":self.phase,"method":method,"stage":stage,"call_number":self.calls,
+            "wall_ms":wall_ms,"scenario_elapsed_ms":self.origin.elapsed().as_millis(),
+            "call_elapsed_ms":started.elapsed().as_millis(),
+            "observation_remaining_ms":self.deadline.saturating_duration_since(now).as_millis(),
+            "observation_overdue_ms":now.saturating_duration_since(self.deadline).as_millis(),
+            "approved_scope_remaining_ms":self.scope_expires_at_ms.saturating_sub(wall_ms),
+            "configured_client_read_timeout_ms":5000,"configured_actor_request_budget_ms":60000,
+            "reply_object_supplied":reply.is_some(),"reply_is_error":reply.is_some_and(|v|v.get("error").is_some()),
+            "reply_revision":reply.and_then(|v|v.get("revision")).and_then(Value::as_u64),
+            "run_revision":result.and_then(|v|v.pointer("/run/revision")).and_then(Value::as_u64),
+            "run_completed":run_state.map(|state|state=="completed"),
+            "run_outcome_unknown":run_state.map(|state|state=="outcome_unknown"),
+            "plan_revision":result.and_then(|v|v.pointer("/summary/plan/revision")).and_then(Value::as_u64),
+            "node_count":result.and_then(|v|v.pointer("/details/nodes")).and_then(Value::as_array).map(Vec::len)})
+    }
+    fn record_observation(&self, value: &Value) {
+        let raw = serde_json::to_vec_pretty(value).unwrap();
+        assert!(raw.len() <= 4096, "scalar evidence has a fixed 4KiB bound");
+        fs::write(self.evidence.join("readonly-observation-last.json"), raw)
+            .expect("preserve bounded readonly phase evidence");
+    }
     fn call(&mut self, runtime: &Path, method: &'static str, params: Value) -> Value {
         assert!(
             self.permits(method, &params),
@@ -69,19 +118,39 @@ impl ReworkReadReconciliation {
         loop {
             assert!(
                 Instant::now() < self.deadline,
-                "the original observation deadline cannot be renewed by reconciliation"
+                "the original observation deadline cannot be renewed by reconciliation; phase={} method={method} calls={}", self.phase, self.calls
             );
+            self.calls += 1;
+            self.record_observation(&self.observation(
+                method,
+                "request_begin",
+                Instant::now(),
+                None,
+            ));
             let started = Instant::now();
             match call(runtime, json!({"method":method,"params":params})) {
                 Ok(reply) => {
+                    // Sample the original condition before diagnostic disk I/O.
+                    // Recording cannot extend or turn a late reply into success.
+                    let received_before_deadline = Instant::now() < self.deadline;
+                    let mut observed =
+                        self.observation(method, "response_received", started, Some(&reply));
+                    observed["received_before_original_deadline"] = json!(received_before_deadline);
+                    self.record_observation(&observed);
                     assert!(
-                        Instant::now() < self.deadline,
-                        "readonly response arrived after the original observation deadline"
+                        received_before_deadline,
+                        "readonly response arrived after the original observation deadline; scalars={observed}"
                     );
                     assert!(reply.get("error").is_none(), "{reply}");
                     return reply["result"].clone();
                 }
                 Err(error) => {
+                    self.record_observation(&self.observation(
+                        method,
+                        "transport_failure",
+                        started,
+                        None,
+                    ));
                     self.errors.push(json!({"method":method,"elapsed_ms":started.elapsed().as_millis(),"actual_transport_error_code":error.code,"actual_side_effect_state":error.side_effect_state,"request_was_readonly":true,"write_retried":false}));
                     fs::write(self.evidence.join("readonly-transport-reconciliation.json"),serde_json::to_vec_pretty(&json!({"dimension":"actual readonly client transport errors; receipt reconciliation is not a product latency PASS","errors":self.errors})).unwrap()).expect("preserve the first readonly transport failure before any retry");
                     assert_eq!(
@@ -107,6 +176,10 @@ fn readonly_reconciliation_whitelist_rejects_writes_and_other_bindings() {
         child: Some("child".into()),
         goal: Some("goal".into()),
         deadline: Instant::now(),
+        origin: Instant::now(),
+        phase: "whitelist_control",
+        scope_expires_at_ms: 0,
+        calls: 0,
         retry_budget: 2,
         errors: vec![],
         evidence: PathBuf::new(),
@@ -274,6 +347,7 @@ fn bootstrap_scope(f: &mut Fixture) -> GoalScopeView {
 #[test]
 fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume(
 ) {
+    let scenario_started = Instant::now();
     let mut f = Fixture::new();
     let companion = PathBuf::from(
         std::env::var_os("AGENTBATON_CHILD_GOAL_COMPANION")
@@ -350,6 +424,9 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     assert_eq!(grant.scope.max_duration_ms, 60000);
     assert_eq!(f.selection.root_budget.runtime_ms, 30000);
     assert_eq!(f.selection.project_budget.runtime_ms, 30000);
+    eprintln!("REWORK_PHASE stage=bootstrap_approved scenario_elapsed_ms={} grant_expires_at_ms={} grant_revoked={} grant_revision={} root_runtime_ms={} project_runtime_ms={}",
+        scenario_started.elapsed().as_millis(), grant.expires_at_ms, grant.revoked, grant.revision,
+        f.selection.root_budget.runtime_ms, f.selection.project_budget.runtime_ms);
     let grant_raw: String = db
         .query_row(
             "SELECT document FROM execution_grants WHERE id=?1",
@@ -490,6 +567,8 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         scope["selection"]["child_planning_policy"]["max_revisions"],
         2
     );
+    eprintln!("REWORK_PHASE stage=factory_approved scenario_elapsed_ms={} scope_expires_at_ms={} scope_revision={} scope_ttl_ms={}",
+        scenario_started.elapsed().as_millis(),scope["expires_at_ms"],scope["revision"],scope["selection"]["ttl_ms"]);
     mixed_call(
         &runtime,
         json!({"method":"factory_runs.start","params":{"scope_id":scope["id"]},"expected_revision":scope["revision"],"idempotency_key":"rework-start-once"}),
@@ -503,10 +582,23 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         child: None,
         goal: None,
         deadline: until,
+        origin: scenario_started,
+        phase: "wait_rework_awaiting_owner",
+        scope_expires_at_ms: scope["expires_at_ms"].as_i64().unwrap(),
+        calls: 0,
         retry_budget: 2,
         errors: vec![],
         evidence: evidence.clone(),
     };
+    eprintln!(
+        "REWORK_PHASE stage=factory_start_returned scalars={}",
+        reads.observation(
+            "factory_runs.start",
+            "owner_write_returned",
+            Instant::now(),
+            None
+        )
+    );
     let before = loop {
         let factory = reads.call(
             &runtime,
@@ -570,6 +662,11 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         );
         std::thread::sleep(Duration::from_millis(10));
     };
+    eprintln!(
+        "REWORK_PHASE stage=rework_awaiting_owner scalars={}",
+        reads.observation("factory_child_goals.get", "milestone", Instant::now(), None)
+    );
+    reads.phase = "owner_exact_second_review";
     let details = &before["details"];
     let goal_id = details["run"]["id"].as_str().unwrap();
     assert_eq!(before["origin"]["initial_plan"]["revision"], 1);
@@ -633,6 +730,16 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     let decision = finalize(&runtime, &p, "rework-exact-second-owner-consent");
     fs::write(evidence.join("owner-write-checkpoint.json"),serde_json::to_vec_pretty(&json!({"method":"approvals.finalize","owner_reply_received":true,"reply_sha256":sha256(&serde_json::to_vec(&decision).unwrap()),"task_accepted":decision["task_accepted"],"write_attempts":1,"write_retried":false})).unwrap()).unwrap();
     assert_eq!(decision["task_accepted"], true);
+    eprintln!(
+        "REWORK_PHASE stage=owner_decision_returned scalars={}",
+        reads.observation(
+            "approvals.finalize",
+            "owner_write_returned",
+            Instant::now(),
+            None
+        )
+    );
+    reads.phase = "wait_parent_resume_completed";
     let final_factory = loop {
         let value = reads.call(
             &runtime,

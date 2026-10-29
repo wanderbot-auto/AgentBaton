@@ -103,3 +103,12 @@ GatedData392 first run FAIL4checks due driver SQL nonexistentcolumns; reviewed d
 Feature Core145 actual outer tests pass (nested1 excluded), including both gates16; debug pair build, featurelib strictClippy, defaultworkspace alltargets strictClippy andfmt passed at their exact recorded heads. Genuine nonempty14→15 migration6 passed. Fixed private driver73pure andactualLinuxChromium/realUnixData8checks/unrun0 passed at1dad36c (7.131s). Preview realcancel finished13 andcopy realcancel/workerjoined finished20, eachrevision3; no partialcopy/midcopy/OSreap claim. Current frontend source byte-equal to2d build; compiledCore0c78, not falsely labeled newhead.
 
 Original cd579 source P2 on revisionbounds and existsFalse absence closed by630 andindependent69c8e136. Alloldfailure/source reviewrejection/rawlogs retained; run3actualPASS remains separate. Report has no dedicated cleanup attestation, not invented. New exact PR18 all7/dualMac/native/release/packages still pending; old14 installers not current15. WSI3 separate branchcodex/task-workspace-binding savedremote67bfae4 with13+1 actual andstrictalltargets; WSI4fixedIPC/genuine15fixture source underway, not integrated. Full130 remains incomplete. See [exact acceptance and dimensions](IO_LOCAL_ACCEPTANCE.json).
+
+## 2026-10-29T20:40:42.716507+00:00 — exact newCI failure
+
+Actual3b/head20d checkout: Envall3PASS; ProductRust24/1 failure in55s readonly observation afterreply, not proven Grant/CPU cause. UI Data8+Graphpass; legacyFactory all3 finalbehavior reached but wrong all-Goal-empty accounting assertion fails. Exact metadata/log/report hashes inPR18_HEAD3B_FAILURES.json. Raw original retained, Maclastread pending, no currentpackages/wholePASS. Diagnostic+strictsharedmeter assertion source underway; budgets/authority not widened. WSI16 integrationactualbridge2+Unix4 separatePASS e203; oldfilter0test notPASS.
+
+
+## Bounded observation and strict shared-meter repair 2026-10-29T20:59:42.058612+00:00
+
+See OBSERVATION_SHARED_METER_RESULTS.json: local Factory25 and four actual Linux browser cases passed, existing compiled tool/frontend attribution preserved. Remote3b Product4 failures remain; new CI required, no55s renewal/root-cause or Mac/package acceptance inferred. WSI16 continues separately.

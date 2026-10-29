@@ -1,3 +1,19 @@
+# PR18 共享账本修复本地通过，返工 CI 根因仍待诊断 — 2026-10-29T20:59:42.058612+00:00
+
+远程PR18仍3b4c4b9/draft/open/unmerged，Environment3PASS/Product4FAIL证据保留。局部新源诊断e165+a7及meter e8已接入30bb083：真实Factory全组25PASS/93.03s，单返工1PASS/32.71s，均未复现CI三lane的原55s失败，不能声称已解决根因。原55观察/60Grant/30runtime/5RPC/60Actor与retry2、所有终态断言保留；诊断c207与共享meter8802独审均闭合，fmt通过，下一准确CI需提供phase/scalar证据。
+
+真实Linux构建前端2d/编译Core0c78/driver9d9分别归属：正常/取消/未知Factory各4checks2PNG通过；childplanning9checks4PNG通过。恰2共享RootGrant/Project meter、3/1/1/3累计尝试与真实settled逐项求和、16结构Goal表与Goal grant历史空、active0及cleanup均通过。18pure、全工作区alltargets严格Clippy、infra84通过；详见[实际窄修与边界](factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json)。Browser不是Native/Mac或真实Provider证明，完整130未完成。
+
+隔离WSI整合已接fixedIPC，准确e203的Core2/Unix4/Node942(53files)/type/build通过。真正旧15非空producer通过；consumer3PASS2FAIL原日志/数据库/ELF保留，fixture侧车计数与FK负控窄修独审中，未转签通过。schema16版本适配静态独审P2已修，正在实际严格inverse回归；Task代码工作区详情组件继续实现。main653679d、OWNER001/002 ACK，无003。没有formalApprove/新费用身份凭据/生产签名授权变化。以下保留历史。
+
+# PR18 新候选真实 CI 四项失败，继续诊断 — 2026-10-29T20:40:42.716507+00:00
+
+head3b4c4b9／实际checkout20d23b5／main653679d：Environment40947058094三个平台全部通过。Product40947058067四项均失败；双Mac同样在返工用例原55s观察期限断言失败，后续Native/WebView/Owner/构建/打包skipped，无本轮安装包。Rust Factoryruntime组24通过1失败，真实返工在原55s整体观察期限后才收到只读reply；现log缺method/phase，不据此猜死锁或放宽原55/60/30s。正在补有界标量诊断。
+
+UI真实Data8/unrun0与全部Graph场景已通过，legacyFactory三路径已分别到completed/cancelled/outcome_unknown，后在全Goal表空断言失败。当前源码已共享goal_ledgers记账，但原artifact未提供具体Goal表行，正在以精确批准Root/Project账本与真实attempt/reservation/settle校验替代错误零表假设；16个结构Goal表与所有权限/非退款约束保留，后续childplanning/childgoal未运行不转签。日志、ZIP与三份原报告保留，见[准确失败边界](factory-child-goal-integration/PR18_HEAD3B_FAILURES.json)。
+
+新schema16隔离整合分支codex/task-workspace-integration已无冲突整合已审WSI1/2/3与fixedIPC源码；2个Core bridge单元和4个实际UnixIPC通过（准确e203），Node/Native/真15迁移与全版本回归待执行。原错误过滤0test证据不作通过。当前PR18远程3b保持冻结，修复源另树进行；完整130与所有权限边界不变，不停止其他已批工作。以下保留历史。
+
 # PR18 本地修复通过，准备准确新 CI — 2026-10-29T20:11:43.950362+00:00
 
 远程PR18仍head79/draft/open/unmerged，旧CI失败完整保留；本地修复记录至ab76aaa。Core带显式测试feature实际145外层单元通过（nested1不重复算）；两个门16、调试工具构建、featurelib与默认工作区alltargets严格Clippy、fmt、真实旧14→15迁移6通过。驱动73纯控与实际Linux Chromium/React/Unix schema15的8项检查通过，0未运行；编译Core0c78、前端2d源字节相同、driver1dad，分别准确归属。
