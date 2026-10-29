@@ -278,6 +278,7 @@ fn first_counter_constructor_refuses_related_attempt_or_orphan_session_or_intent
         "root_orphan_session",
         "project_orphan_session",
         "root_foreign_intent_document",
+        "root_foreign_intent_task_document",
     ] {
         let (mut f, s, g) = queued();
         assert_eq!(
@@ -320,8 +321,8 @@ fn first_counter_constructor_refuses_related_attempt_or_orphan_session_or_intent
             let foreign = case != "root_attempt";
             let task = if foreign { &other.id } else { &s.root_task_id };
             f.store.conn.execute("INSERT INTO attempts VALUES('raw-history-attempt',?1,?1,'{}','raw-history-only')",[task]).unwrap();
-            if case == "root_foreign_intent_document" {
-                let raw = json!({"id":"raw-history-intent","attempt_id":"raw-history-attempt","task_id":other.id,"root_task_id":s.root_task_id,"state":"stopped","binding":{}});
+            if case.starts_with("root_foreign_intent") {
+                let raw = json!({"id":"raw-history-intent","attempt_id":"raw-history-attempt","task_id":if case=="root_foreign_intent_task_document"{&s.root_task_id}else{&other.id},"root_task_id":if case=="root_foreign_intent_task_document"{&other.id}else{&s.root_task_id},"state":"stopped","binding":{}});
                 f.store.conn.execute("INSERT INTO dispatch_intents VALUES('raw-history-intent','raw-history-attempt','stopped',NULL,?1)",[raw.to_string()]).unwrap();
             }
         }
