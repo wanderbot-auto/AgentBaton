@@ -286,6 +286,45 @@ class Projection(unittest.TestCase):
         with mock.patch.object(P.os, 'read', side_effect=replacing):
             with self.assertRaises(P.Invalid): P.read_file(fd, 'readonly-observation-last.json', 4096)
 
+    def test_actual_pretty_stdout_budget_including_newline_is_enforced(self):
+        from itertools import product
+        model = self.collect()['cases'][0]
+        model['post_shutdown']['node_counts'] = {f'{rev}:{kind}:{state}': 1
+            for rev, kind, state in list(product(('1', '2', 'later'),
+                ('work', 'validate', 'owner_approval', 'summary'), sorted(P.NODE_STATES)))[:136]}
+        model['post_shutdown']['validation_counts'] = {f'{rev}:{state}:passed_{passed}:stopped_{stop}:{io}': 1
+            for rev, state, passed, stop, io in list(product(('1', '2', 'later'),
+                ('passed', 'failed', 'cancelled', 'outcome_unknown'), ('true', 'false'),
+                ('true', 'false'), ('worker_joined', 'not_started')))[:64]}
+        for i in range(11):
+            (self.f.root / f'rework-{i:08x}-1234-4234-8234-123456789abc').mkdir(mode=0o700)
+        unbounded = {'contract': P.CONTRACT, 'status': 'collected_post_shutdown',
+            'code': 'FINITE_PROJECTION_COLLECTED', 'not_a_product_or_test_pass': True,
+            'cases': [model] * 12}
+        self.assertLess(len(json.dumps(unbounded).encode()), P.MAX_PUBLIC)
+        self.assertGreater(len(P.render_public(unbounded).encode()), P.MAX_PUBLIC)
+        capture = io.StringIO()
+        with mock.patch.object(P, 'case', return_value=model), contextlib.redirect_stdout(capture):
+            exit_code = P.main(['--evidence-root', str(self.f.root)])
+        result = json.loads(capture.getvalue())
+        self.assertEqual(result['code'], 'PUBLIC_PROJECTION_LIMIT')
+        self.assertEqual(exit_code, 1)
+        self.assertLessEqual(len(capture.getvalue().encode()), P.MAX_PUBLIC)
+        self.assertTrue(capture.getvalue().endswith('\n'))
+
+    def test_invalid_cli_never_echoes_argv_or_exception(self):
+        for argv in ([], ['--' + SECRET], ['--evidence-root'],
+                     ['--evidence-root', str(self.f.root), '--' + SECRET],
+                     ['--evidence', SECRET]):
+            with self.subTest(argv=argv):
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                    with self.assertRaises(SystemExit) as stopped: P.main(argv)
+                self.assertEqual(stopped.exception.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertEqual(stderr.getvalue(), 'INVALID_COLLECTOR_ARGUMENTS\n')
+                self.assertNotIn(SECRET, stderr.getvalue())
+
     def test_public_cli_exit_is_not_a_test_pass_and_failure_has_no_raw_message(self):
         for missing in (False, True):
             path = self.f.root / 'missing' if missing else self.f.root

@@ -13,6 +13,7 @@ from pathlib import Path
 import re
 import sqlite3
 import stat
+import sys
 import tempfile
 
 CONTRACT = 'agentbaton.factory-rework-progress.v1'
@@ -345,6 +346,11 @@ def case(parent, name):
         os.close(fd)
 
 
+def render_public(report):
+    # This exact serialization (including newline) is also the stdout budget.
+    return json.dumps(report, sort_keys=True, indent=2) + '\n'
+
+
 def collect(evidence_root):
     report = {'contract': CONTRACT, 'status': 'pending', 'code': 'NO_RETAINED_REWORK_CASE',
               'not_a_product_or_test_pass': True, 'cases': []}
@@ -376,18 +382,26 @@ def collect(evidence_root):
     except (Invalid, OSError, ValueError, RecursionError, OverflowError):
         report['status'], report['code'] = 'invalid', 'INVALID_EVIDENCE_ROOT'
     # Output bound fails closed; never truncate individual progress fields.
-    if len(json.dumps(report).encode()) > MAX_PUBLIC:
+    if len(render_public(report).encode('utf-8')) > MAX_PUBLIC:
         return {'contract': CONTRACT, 'status': 'invalid', 'code': 'PUBLIC_PROJECTION_LIMIT',
                 'not_a_product_or_test_pass': True, 'cases': []}
     return report
 
 
+class FixedParser(argparse.ArgumentParser):
+    def error(self, _message):
+        # argparse's default includes unknown argv (possibly credentials).
+        sys.stderr.write('INVALID_COLLECTOR_ARGUMENTS\n')
+        raise SystemExit(2)
+
+
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = FixedParser(prog='record-factory-rework-ci-evidence',
+                         description=__doc__, allow_abbrev=False)
     parser.add_argument('--evidence-root', required=True)
     args = parser.parse_args(argv)
     report = collect(args.evidence_root)
-    print(json.dumps(report, sort_keys=True, indent=2))
+    sys.stdout.write(render_public(report))
     return 0 if report['status'] == 'collected_post_shutdown' else 1
 
 
