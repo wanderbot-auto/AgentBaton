@@ -100,7 +100,26 @@
       "later_child_planning_and_child_goal_cases": "NOT_RUN after legacyFactory aggregate failure",
       "log_sha256": "de42c9fd362884253047680575a1ff550e564a92c8302d19a624d0814e156106"
     },
-    "Mac": "last read both in progress/Core/native; later real result pending, no installer acceptance"
+    "Mac": {
+      "status": "both FAILURE",
+      "failed_test": "actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+      "assertion": "readonly response arrived after original observation deadline",
+      "interpretation": "55s end-to-end observation deadline crossed after Ok read; current log lacks method/phase. Does not independently prove RPC5s timeout, Grant60s expiry, deadlock or CPU cause. Scalar diagnostic source under implementation; original budgets unchanged.",
+      "ARM": {
+        "job": 123705085913,
+        "group": "21PASS1FAIL/183.12s",
+        "case_seconds_approx": 62.097,
+        "log_sha256": "d64b9df123d9d45caefcd6a71fe4f409f6086ec5d1d544ebdba55e712c2345c4"
+      },
+      "Intel": {
+        "job": 123705085976,
+        "group": "21PASS1FAIL/212.63s",
+        "case_seconds_approx": 62.932,
+        "log_sha256": "07ad604e5676aa9736a4f402107d5b5d4749e88fd0bfb0b7e5aa0a5918bb10ae"
+      },
+      "owned_cleanup_report": "both joined=true daemon_result=ok",
+      "later_native_webview_owner_build_audit_package": "SKIPPED; no current installer"
+    }
   },
   "artifact": {
     "artifact": 12929049704,
@@ -111,5 +130,6 @@
     "only_three_report_JSONs_read": true
   },
   "scope": "Remote current evidence, no old79 result reuse, no schema14 packages transferred; wholeProduct remains failed/pending, not accepted",
-  "closed_authority": "No new Provider/account/credentials/spend/host/production/sign/license/formalApprove; no merge or bypass"
+  "closed_authority": "No new Provider/account/credentials/spend/host/production/sign/license/formalApprove; no merge or bypass",
+  "updated_at": "2026-10-29T20:49:02.437836+00:00"
 }

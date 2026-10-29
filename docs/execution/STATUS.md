@@ -1,6 +1,6 @@
-# PR18 新候选真实 CI 部分失败，继续诊断 — 2026-10-29T20:40:42.716507+00:00
+# PR18 新候选真实 CI 四项失败，继续诊断 — 2026-10-29T20:40:42.716507+00:00
 
-head3b4c4b9／实际checkout20d23b5／main653679d：Environment40947058094三个平台全部通过。Product40947058067的Rust与UI已失败，双Mac最后读取仍在Core/native阶段，不能记整轮通过或交付新包。Rust Factoryruntime组24通过1失败，真实返工在原55s整体观察期限后才收到只读reply；现log缺method/phase，不据此猜死锁或放宽原55/60/30s。正在补有界标量诊断。
+head3b4c4b9／实际checkout20d23b5／main653679d：Environment40947058094三个平台全部通过。Product40947058067四项均失败；双Mac同样在返工用例原55s观察期限断言失败，后续Native/WebView/Owner/构建/打包skipped，无本轮安装包。Rust Factoryruntime组24通过1失败，真实返工在原55s整体观察期限后才收到只读reply；现log缺method/phase，不据此猜死锁或放宽原55/60/30s。正在补有界标量诊断。
 
 UI真实Data8/unrun0与全部Graph场景已通过，legacyFactory三路径已分别到completed/cancelled/outcome_unknown，后在全Goal表空断言失败。当前源码已共享goal_ledgers记账，但原artifact未提供具体Goal表行，正在以精确批准Root/Project账本与真实attempt/reservation/settle校验替代错误零表假设；16个结构Goal表与所有权限/非退款约束保留，后续childplanning/childgoal未运行不转签。日志、ZIP与三份原报告保留，见[准确失败边界](factory-child-goal-integration/PR18_HEAD3B_FAILURES.json)。
 
