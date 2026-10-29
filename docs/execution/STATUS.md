@@ -1,3 +1,13 @@
+## 当前保护集成与继续执行 — 2026-10-29T09:13:43.957477+00:00
+
+PR17 已在最新准确七项检查全部成功、独立证据审查完成、零未解决线程后保护合入 main `653679db60d5c68f7e3c5b5e146ef58aed10de23`。源码 head `c43ea68695039296be76efb9e8e2ac2d1052fd6e`，实际 CI candidate `c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce` 与合并提交 tree 均 `061b5baac8b51051e57767c43ca10cf66cc03f24`；没有 formal GitHub Approve 或保护绕过。Product40840944666 四项与最新 Environment40843109523 三项成功，早先 Environment40840944705 也成功。最新 main OWNER_INBOX 仅001/002，已 ACK。
+
+当前 schema14 实际证据：Rust659＋7 docs（2 nested重叠不叠加），UI733组件与16条真实Core/IPC路径135检查80PNG，新planning9检查4PNG；每Mac实际83+30+16 Native Rust、103页图，分别9目视/94只校验哈希。开发包、准确SHA、签名状态与人工清单见 [交付说明](factory-child-goal-integration/DEVELOPMENT_INSTALLERS.md)；ARM临时签名/Intel未签名，无Developer ID/公证或人工安装验收。旧9ac失败完整保留，不因Mac通过抹掉整体失败，原argv首次失败根因仍未知。
+
+继续分支 codex/factory-child-goal-integration。schema15 首条真实链在父进程停止回收后因自身预算计数相位 INPUT_CHANGED 拒绝，尚无Worker/Owner/TaskAccepted通过；窄修6ff正在类型检查、三相位测试和独审。真实非空schema14旧库夹具已生成，15迁移未运行。UI15隔离802组件/mock通过、Native18新增Rust未运行，均不冒充当前实际IPC15或Mac通过。详见 [当前检查点](factory-child-goal-integration/CHECKPOINT.md) 与 [证据](factory-child-goal-integration/EVIDENCE.json)。
+
+完整130需求/27决定/WP01–14继续，未标产品完成。真实Provider/远程/新费用/签名公证/正式发布/最终许可证边界不变。以下时间点作为历史保留。
+
 ## 双 Mac 旧候选终态与修复候选推进 — 2026-10-29T08:16:11.748853+00:00
 
 PR17 head9ac / Product40834973094 的双Mac已全部终态成功，Intel于08:12:25UTC结束。实际Native WebView、Grant和Factoryplanning审批、默认应用构建、testcontrol扫描及开发包已执行；原件各一次收取并在独立离线核验。ARM DMG SHA636e71706763a0f08c47bdd5079683e7f0abf8afee7f14fd0e3770535b416ccb，Intel4a76ad193aa43bcc5bb67320cc8382d6cc1d1dfd7f325635371d5c8dd63038a7。签名/页图等最终报告尚待封存，不冒人工安装或正式签名。

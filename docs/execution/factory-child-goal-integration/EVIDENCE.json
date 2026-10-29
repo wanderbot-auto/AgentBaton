@@ -1,0 +1,126 @@
+{
+  "recorded_at": "2026-10-29T09:13:43.957477+00:00",
+  "phase": "schema14_accepted_schema15_implementation_in_progress",
+  "approval_id": "AB-START-001",
+  "branch": "codex/factory-child-goal-integration",
+  "accepted_main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "owner_inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "pr17": {
+    "url": "https://github.com/wanderbot-auto/AgentBaton/pull/17",
+    "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+    "tested_merge_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+    "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+    "exact_equal_tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+    "all_latest_checks_success": 7,
+    "product_run": 40840944666,
+    "latest_environment_run": 40843109523,
+    "first_environment_run": 40840944705,
+    "review_threads_unresolved": 0,
+    "formal_github_approve_submitted": false,
+    "protection_bypassed": false
+  },
+  "schema14_verification": {
+    "environment_each_platform": "50 Python +4 Node +2 Rust; strict Clippy; design/infrastructure validation",
+    "rust_workspace_unique_outer": 659,
+    "rust_doctests": 7,
+    "nested_overlap_excluded": 2,
+    "native_runner_python": 34,
+    "owner_contract_python": 47,
+    "ui_component_tests": 733,
+    "ui_component_files": 44,
+    "browser_actual_core_flows": 16,
+    "browser_checks": 135,
+    "browser_png": 80,
+    "browser_independently_viewed_png": 5,
+    "browser_remaining_hash_only_png": 75,
+    "new_planning_checks": 9,
+    "new_planning_png": 4,
+    "each_mac_native_rust": "83 library +30 smoke +16 Owner controller",
+    "each_mac_native_png": 103,
+    "each_mac_independently_viewed_png": 9,
+    "each_mac_remaining_hash_only_png": 94,
+    "current_schema": 14,
+    "factory_tables": 11,
+    "real_provider": "not_run_not_authorized",
+    "packaged_manual_install": "not_run",
+    "full_product": "incomplete"
+  },
+  "independent_seals": [
+    {
+      "directory": "pr17-c43-review",
+      "report_sha256": "42efe349940d348d9c325bed8ff0b049bc7a2455cf8c0ac3f38899aff5251a2d",
+      "manifest_sha256": "797b42577b3f0a391e28193e6ceb0cdfb6da240bef828cfef8b1f63eff822db0",
+      "files": 896
+    },
+    {
+      "directory": "pr17-c43-ready-environment-review",
+      "report_sha256": "080f36b3a16b32a4c302184a41732fc757db49150089109bc7fbf6b0c9390524",
+      "manifest_sha256": "47ae992d558a20e1215376bc12331f9ea4f2c6e51a5b341c4aaedb8b495e169f",
+      "files": 62
+    },
+    {
+      "directory": "pr17-c43-review/rust-mini-review",
+      "report_sha256": "1e6d443a4f1497633d125d9f5110100a8d2d03b5feb09903ff1b35c0a75188cf",
+      "manifest_sha256": "01fa5d9e02c6d59b6ee42dc80d94b5ae6d46d82f054e2867ae0e981549dab07b"
+    },
+    {
+      "directory": "pr17-c43-ui-independent-review",
+      "report_sha256": "d675401c75e7ce9667aa70e6db5bde6b34d7ffe0ca60a5cded25a6eadcb14b02",
+      "manifest_sha256": "7f1570494241b7de3d72566c2dcc7d19e835eae9c065c4adfa24b479c99db6dd",
+      "files": 37
+    }
+  ],
+  "development_installers": [
+    {
+      "architecture": "arm64",
+      "artifact_id": 12884860971,
+      "dmg_bytes": 9307061,
+      "dmg_sha256": "8f2647bd1dc19f4646a66c7c6d5dcc338ad9f1eeb6bdfe8699bd738ed640e417",
+      "signing": "ad-hoc; no Team ID; no Developer ID/notarization",
+      "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40840944666/artifacts/12884860971",
+      "built_commit": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+      "built_tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+      "manual_install": "NOT_RUN"
+    },
+    {
+      "architecture": "x86_64",
+      "artifact_id": 12884398731,
+      "dmg_bytes": 9740469,
+      "dmg_sha256": "45ed4293ed08e1ced22947b5c7c891c33a549d24e7ff5d2491ca0f3c5503237b",
+      "signing": "unsigned; no Developer ID/notarization",
+      "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/40840944666/artifacts/12884398731",
+      "built_commit": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+      "built_tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+      "manual_install": "NOT_RUN"
+    }
+  ],
+  "prior_failures_preserved": {
+    "source": "9ac06f78b107aa812fcec00f3b0c584911a88274",
+    "product_run": 40834973094,
+    "environment_run": 40834973097,
+    "overall": "failed despite both Mac product jobs passing",
+    "notes": "Mac Environment private-path guard, Rust companion guard and UI bounded-argv observer failures preserved; first argv failure root cause remains unknown. Successful current source does not establish historic cause."
+  },
+  "schema15_next": {
+    "core_source": "6ffaa242de40f64d036cb1ed69d8d8ccbb4609ad",
+    "core_phase_check": "in_progress; not passed",
+    "core_runtime1": "FAILED INPUT_CHANGED after actual parent stop/reap and before Graph Worker/Owner/TaskAccepted",
+    "ui_source": "efc9ecc0592b254975345d5c333c4fc82abc570d",
+    "ui_tests": "802 mock/component tests, isolated; not actual IPC15",
+    "native_source": "121b657c3fdf40523aa157b0b36d9589991c5a3c",
+    "native_tests": "18 new Rust tests NOT_RUN; source reviewed",
+    "actual_schema14_legacy_fixture": "generated by frozen genuine14 pair; nonempty Goal+Factory+plan; FK clean; private raw DB retained, no token/database upload",
+    "legacy_migration15": "NOT_RUN",
+    "remaining": "complete child Goal execution/rework/cancel/recovery, workspace creation and all remaining applicable Design v0.2 requirements"
+  },
+  "authorization_unchanged": {
+    "real_provider_calls": false,
+    "production_release": false,
+    "new_paid_resources": false,
+    "signing_credentials": false,
+    "final_license": false
+  }
+}

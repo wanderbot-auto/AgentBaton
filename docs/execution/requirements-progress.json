@@ -1214,7 +1214,8 @@
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1429,6 +1430,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
@@ -1463,7 +1475,8 @@
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1686,6 +1699,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
@@ -1715,7 +1739,8 @@
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1776,6 +1801,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
@@ -2338,7 +2374,8 @@
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2503,6 +2540,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
@@ -3744,7 +3792,8 @@
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -3914,6 +3963,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
@@ -3931,7 +3991,8 @@
       },
       "evidence": [
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [],
       "verified_slices": [
@@ -3996,6 +4057,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ],
       "coverage": "partial"
@@ -4103,7 +4175,8 @@
         "docs/execution/validation-integration/CORE_REVIEW.md",
         "docs/execution/validation-integration/UI_REVIEW.md",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -4156,6 +4229,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
@@ -4884,7 +4968,8 @@
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
@@ -4925,6 +5010,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
@@ -5094,7 +5190,8 @@
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/project-registry/EVIDENCE.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -5127,6 +5224,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
@@ -5697,7 +5805,8 @@
         "docs/execution/goal-plan-editor-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -5873,6 +5982,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
@@ -5912,7 +6032,8 @@
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -6122,6 +6243,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
@@ -6542,7 +6674,8 @@
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
         "docs/execution/factory-runtime-integration/EVIDENCE.json",
-        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json",
+        "docs/execution/factory-child-goal-integration/EVIDENCE.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -6660,6 +6793,17 @@
           "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
           "coverage": "partial",
           "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
+        },
+        {
+          "slice": "schema14 Factory child planning exact CI and protected integration; execution15 remains pending",
+          "source_head": "c43ea68695039296be76efb9e8e2ac2d1052fd6e",
+          "tested_candidate": "c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce",
+          "actual_merge": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+          "tree": "061b5baac8b51051e57767c43ca10cf66cc03f24",
+          "ci": "Product40840944666 all4 + latest Environment40843109523 all3 SUCCESS",
+          "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
+          "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
+          "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
         }
       ]
     },
