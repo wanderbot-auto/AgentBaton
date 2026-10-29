@@ -13,7 +13,10 @@ def rework_plan(ctx, revision):
  # Initial plan allocation includes normalization and fixed command+cleanup,
  # not just the approved executable's 1000ms wall + 500ms cleanup interval.
  # Both freshly submitted versions declare this before their first admission.
- validator.update({'id':'validate-report','kind':'validate','goal':'Run the same approved exact grep command on this owned candidate','dependencies':[work['id']],'executor':{'kind':'validator','rule_id':checks[0]},'outputs':[],'required_inputs':[candidate],'required_validators':checks,'side_effect':'advisory_read_only','write_set':[],'reservation':{'runtime_ms':4000,'output_bytes':1024,'tokens':None,'cost_microunits':None},'idempotency_key':'fixed-validator'})
+ # The second version's retained-history checks measured3134ms before the
+ # unchanged1000+500ms command/cleanup budget. Allocate this whole new attempt
+ # upfront inside the SAME child20000/root30000ms ceilings, not after a failure.
+ validator.update({'id':'validate-report','kind':'validate','goal':'Run the same approved exact grep command on this owned candidate','dependencies':[work['id']],'executor':{'kind':'validator','rule_id':checks[0]},'outputs':[],'required_inputs':[candidate],'required_validators':checks,'side_effect':'advisory_read_only','write_set':[],'reservation':{'runtime_ms':6000,'output_bytes':1024,'tokens':None,'cost_microunits':None},'idempotency_key':'fixed-validator'})
  owner=copy.deepcopy(validator)
  owner.update({'id':'owner-report','kind':'owner_approval','goal':'Review the repaired complete report after deterministic validation','dependencies':[work['id'],validator['id']],'executor':{'kind':'owner','rule_id':owners[0]},'required_validators':owners,'reservation':{'runtime_ms':1000,'output_bytes':1024,'tokens':None,'cost_microunits':None},'idempotency_key':'fixed-owner'})
  p['nodes']=[work,validator,owner]
