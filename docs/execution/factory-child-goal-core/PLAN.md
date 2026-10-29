@@ -8,3 +8,5 @@ Baseline 1097980c, explicit owner AB-START-001. Latest protected main a1be94d an
 4. Add actual SQLite/migration and generated ACP→MCP→Daemon tests; independent review and integration follow exact source freeze. No real Provider/model account calls.
 
 Cargo and heavy builds are not currently leased to this author. No actual new runtime or tests claimed.
+
+Policy and old14 serialized-scope compatibility selected tests actually passed at4ffb210 (5 selected only). Next implementation remains real failure-stop/recovery/reworks/adoption and API lifecycle; no new execution acceptance claims.

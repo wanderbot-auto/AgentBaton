@@ -36,7 +36,33 @@
   },
   "rust_policy_tests": {
     "written": 5,
-    "status": "not_run"
+    "status": "passed",
+    "source": "4ffb21000030a3f82580f5a9c14ed40056bb13a0",
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--lib",
+      "child_goal_policy_tests",
+      "--",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 91,
+    "test_seconds": 2.19,
+    "compile_seconds": 18.53,
+    "runner_seconds": 20.9,
+    "warnings": 2,
+    "source_and_tools_unchanged": true,
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/lib-policy-1",
+    "lease": "released",
+    "scope": "Core SQLite/Native finalizer plus direct bounded worker body; no daemon/Provider/MCP/child Graph runtime"
   },
   "pending": [
     "IPC/MCP fixed entry points",
@@ -63,7 +89,7 @@
     ],
     "source_and_old_tool_metadata_unchanged": true,
     "lease": "released",
-    "source_fixes": "not_recompiled"
+    "source_fixes": "typecheck passed at0a79421; cfgtest compiled with5 selected tests at4ffb210; historical failures retained"
   },
   "cargo": {
     "source": "0a79421fd7c427acf225b82d8f8f949418239e0f",
