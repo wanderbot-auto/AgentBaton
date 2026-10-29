@@ -1,6 +1,6 @@
 // Mocked Tauri/daemon controls only. No Core15, actual Native dialog or Provider runs.
 import { beforeEach,it,expect,vi } from 'vitest';
-import { render,screen,waitFor } from '@testing-library/react';
+import { act,render,screen,waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FactoryChildGoals } from './FactoryChildGoals';
 import { api,DaemonError } from './api';
@@ -89,4 +89,63 @@ it('keeps Work-only planning readable but blocks dispatch until actual Owner/val
 });
 it('does not open failed-Graph adoption merely because reviewed rework limits are positive',async()=>{
  const user=userEvent.setup(),f=await childGoalFixture(),policy=f.selection.child_goal_execution_policy!;f.selection.root_budget.reworks=1;f.selection.project_budget.reworks=1;policy.root_budget.reworks=1;policy.project_budget.reworks=1;records(f,f.makeView(f.plan,2,'failed'));const p2=await f.nextPlan();render(<FactoryChildGoals {...props(f,p2)}/>);await open(user);await screen.findByTestId('goal-graph-history');expect(screen.getByText(t.failedGate)).toBeInTheDocument();expect(screen.getByRole('button',{name:t.advance})).toBeDisabled();expect(factoryChildGoalApi.advancePlan).not.toHaveBeenCalled();
+});
+
+// Deferred mocked reads reproduce the parent poll/child read overlap, not a
+// Core run or an OS approval. No mutation is retried by these controls.
+function holdNextHead(){
+ let release!:(value:FactoryChildPlanView)=>void;
+ const reply=new Promise<FactoryChildPlanView>(resolve=>{release=resolve;});
+ vi.mocked(factoryChildPlanApi.get).mockImplementationOnce(()=>reply);
+ return release;
+}
+it('keeps one explicit start across a same-snapshot parent read-only refresh',async()=>{
+ const user=userEvent.setup(),f=await childGoalFixture();records(f);
+ const current=props(f),rendered=render(<FactoryChildGoals {...current} parentReadIdentity="same-authority"/>);
+ await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.start})).toBeEnabled());
+ const before=vi.mocked(factoryChildPlanApi.get).mock.calls.length,release=holdNextHead();
+ await user.click(screen.getByRole('button',{name:t.start}));await waitFor(()=>expect(factoryChildPlanApi.get).toHaveBeenCalledTimes(before+1));
+ rendered.rerender(<FactoryChildGoals {...current} scope={structuredClone(f.scope)} target={structuredClone(f.target)} run={structuredClone(f.detail.run)} selected={structuredClone(f.plan)} parentReady={false} parentRefreshOnly parentReadIdentity="same-authority"/>);
+ await act(async()=>release(structuredClone(f.plan)));
+ await waitFor(()=>expect(factoryChildGoalApi.start).toHaveBeenCalledOnce());
+ expect(factoryChildGoalApi.start).toHaveBeenCalledWith(f.scope.id,{task_id:f.task.id,plan:f.plan.reference,expected_factory_run_revision:1},1,expect.any(String));
+ expect(screen.queryByText(t.stale)).toBeNull();
+});
+it('does not treat an unready or unknown parent as a read-only refresh',async()=>{
+ const user=userEvent.setup(),f=await childGoalFixture();records(f);
+ const current=props(f),rendered=render(<FactoryChildGoals {...current} parentReadIdentity="same-authority"/>);
+ await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.start})).toBeEnabled());
+ const before=vi.mocked(factoryChildPlanApi.get).mock.calls.length,release=holdNextHead();await user.click(screen.getByRole('button',{name:t.start}));await waitFor(()=>expect(factoryChildPlanApi.get).toHaveBeenCalledTimes(before+1));
+ rendered.rerender(<FactoryChildGoals {...current} parentReady={false} parentRefreshOnly={false} parentReadIdentity="same-authority"/>);
+ await act(async()=>release(structuredClone(f.plan)));expect(await screen.findByRole('alert')).toHaveTextContent(t.stale);expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
+});
+it.each(['root','scope','target','run','connection','grant','pending-unknown'])('blocks a changed %s authority snapshot during the deferred read',async changed=>{
+ const user=userEvent.setup(),f=await childGoalFixture();records(f);
+ const current=props(f),rendered=render(<FactoryChildGoals {...current} parentReadIdentity="original-authority"/>);
+ await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.start})).toBeEnabled());
+ const before=vi.mocked(factoryChildPlanApi.get).mock.calls.length,release=holdNextHead();await user.click(screen.getByRole('button',{name:t.start}));await waitFor(()=>expect(factoryChildPlanApi.get).toHaveBeenCalledTimes(before+1));
+ const next={...current,scope:structuredClone(f.scope),target:structuredClone(f.target),run:structuredClone(f.detail.run)};
+ if(changed==='scope')next.scope.revision++;
+ if(changed==='target')next.target.revision++;
+ if(changed==='run')next.run.revision++;
+ // Root/connection/Grant are owned by the ancestor. Its complete validated
+ // read fingerprint changes even when the child reference remains identical.
+ rendered.rerender(<FactoryChildGoals {...next} parentReady={false} parentRefreshOnly={changed!=='pending-unknown'} parentReadIdentity={changed==='scope'||changed==='target'||changed==='run'?'original-authority':changed+'-changed'}/>);
+ await act(async()=>release(structuredClone(f.plan)));expect(await screen.findByRole('alert')).toHaveTextContent(t.stale);expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
+});
+it.each(['expired','revoked','spec','unknown'])('preserves fresh %s rejection while the parent only refreshes',async changed=>{
+ const user=userEvent.setup(),f=await childGoalFixture(),state=records(f);
+ const current=props(f),rendered=render(<FactoryChildGoals {...current} parentReadIdentity="same-authority"/>);
+ await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.start})).toBeEnabled());
+ const before=vi.mocked(factoryChildPlanApi.get).mock.calls.length,release=holdNextHead();await user.click(screen.getByRole('button',{name:t.start}));await waitFor(()=>expect(factoryChildPlanApi.get).toHaveBeenCalledTimes(before+1));
+ if(changed==='expired')vi.spyOn(Date,'now').mockReturnValue(f.scope.expires_at_ms+1);
+ // These are observed by the current root/child props as well as server
+ // records; a read-only marker must never bypass an actual change.
+ const next={...current,scope:structuredClone(f.scope)};
+ if(changed==='revoked')next.scope.revoked=true;
+ if(changed==='spec'){state.task.spec_revision=2;next.scope.bindings.root_task={...next.scope.bindings.root_task,spec_revision:2};}
+ if(changed==='unknown'){state.task.state='outcome_unknown';next.scope.bindings.root_task={...next.scope.bindings.root_task,state:'outcome_unknown'};}
+ rendered.rerender(<FactoryChildGoals {...next} parentReady={false} parentRefreshOnly parentReadIdentity="same-authority"/>);
+ try{await act(async()=>release(structuredClone(f.plan)));await screen.findByRole('alert');expect(factoryChildGoalApi.start).not.toHaveBeenCalled();}
+ finally{vi.restoreAllMocks();}
 });
