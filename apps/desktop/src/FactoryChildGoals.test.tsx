@@ -149,3 +149,29 @@ it.each(['expired','revoked','spec','unknown'])('preserves fresh %s rejection wh
  try{await act(async()=>release(structuredClone(f.plan)));await screen.findByRole('alert');expect(factoryChildGoalApi.start).not.toHaveBeenCalled();}
  finally{vi.restoreAllMocks();}
 });
+it.each(['draft','outcome_unknown'])('keeps the exact Factory child path with a separate generic-Unknown Root and %s child',async childState=>{
+ const user=userEvent.setup(),f=await childGoalFixture();
+ // A separate parent prevents the old single-task fixture from conflating the
+ // generic Root projection with the Task selected for child execution. These
+ // are mocked renderer records, not proof of the server's private stop chain.
+ const root={...structuredClone(f.task),id:'separate-root-'+f.task.id,state:'outcome_unknown',revision:4};
+ f.scope.root_task_id=f.selection.root_task_id=root.id;f.scope.bindings.root_task=structuredClone(root);
+ f.detail.run.root_task_id=root.id;f.context.goal.root_task_id=root.id;f.plan.root_task_id=root.id;
+ f.target.parent_task_id=root.id;f.target.root_task_id=root.id;f.target.delegation_id='exact-child-delegation';f.target.state='queued';
+ const rootHandle={...structuredClone(f.target),task_id:root.id,parent_task_id:null,delegation_id:'',state:'waiting_child',revision:6,attempt_id:'normal-root-attempt',confirmed_stop:true};
+ f.detail.tasks=[rootHandle,f.target];f.detail.run.active_task_id=null;f.detail.run.active_session_id=null;f.detail.run.state='waiting_child';
+ f.detail.waiting_relations=[{parent_task_id:root.id,child_task_id:f.task.id,parent_session_id:'normal-root-session',parent_stop_confirmed:true,handoff_digest:null}];
+ const state=records(f);state.task.state=childState;
+ vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(root),structuredClone(state.task)],sequence:1000,api_version:1}));
+ // The real daemon remains authoritative for private normal-handoff proof;
+ // a fixed refusal avoids pretending this mock establishes a completed run.
+ vi.mocked(factoryChildGoalApi.start).mockRejectedValue(new DaemonError('PERMISSION_DENIED','private Core proof still required','not_started'));
+ render(<FactoryChildGoals {...props(f)} parentReadIdentity="exact-separate-root-and-child"/>);await open(user);
+ if(childState==='outcome_unknown'){
+  await waitFor(()=>expect(factoryChildPlanApi.get).toHaveBeenCalled());expect(screen.getByRole('button',{name:t.start})).toBeDisabled();expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
+ }else{
+  await waitFor(()=>expect(screen.getByRole('button',{name:t.start})).toBeEnabled());await user.click(screen.getByRole('button',{name:t.start}));
+  await waitFor(()=>expect(factoryChildGoalApi.start).toHaveBeenCalledOnce());expect(factoryChildGoalApi.start).toHaveBeenCalledWith(f.scope.id,{task_id:f.task.id,plan:f.plan.reference,expected_factory_run_revision:1},1,expect.any(String));
+  expect(await screen.findByRole('alert')).toHaveTextContent('private Core proof still required');
+ }
+});
