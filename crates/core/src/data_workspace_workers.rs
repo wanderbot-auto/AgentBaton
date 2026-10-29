@@ -24,6 +24,9 @@ const IO_BUDGET: Duration = Duration::from_secs(30);
 #[cfg(all(feature = "preview-evidence", not(debug_assertions)))]
 compile_error!("preview-evidence is debug-only and must never enter release applications");
 #[cfg(feature = "preview-evidence")]
+#[path = "copy_evidence_gate.rs"]
+mod copy_evidence_gate;
+#[cfg(feature = "preview-evidence")]
 #[path = "preview_evidence_gate.rs"]
 mod preview_evidence_gate;
 type ReadResult<T> = Box<Result<T>>;
@@ -86,6 +89,8 @@ pub(crate) struct DataWorkspaceWorkers {
     retained: Option<(String, Output, bool, Option<crate::ipc::ReadyRequest>)>,
     #[cfg(feature = "preview-evidence")]
     preview_evidence: Option<Arc<preview_evidence_gate::PreviewEvidenceGate>>,
+    #[cfg(feature = "preview-evidence")]
+    copy_evidence: Option<Arc<copy_evidence_gate::CopyEvidenceGate>>,
 }
 fn cancelled() -> CoreError {
     CoreError::new(
@@ -111,6 +116,9 @@ impl DataWorkspaceWorkers {
         #[cfg(feature = "preview-evidence")]
         let preview_evidence =
             preview_evidence_gate::PreviewEvidenceGate::load(runtime, &runtime_directory)?;
+        #[cfg(feature = "preview-evidence")]
+        let copy_evidence =
+            copy_evidence_gate::CopyEvidenceGate::load(runtime, &runtime_directory)?;
         let workers = Self {
             runtime_root: runtime.into(),
             runtime_directory,
@@ -118,6 +126,8 @@ impl DataWorkspaceWorkers {
             retained: None,
             #[cfg(feature = "preview-evidence")]
             preview_evidence,
+            #[cfg(feature = "preview-evidence")]
+            copy_evidence,
         };
         workers.runtime_privacy_pin()?;
         Ok(workers)
@@ -297,6 +307,8 @@ impl DataWorkspaceWorkers {
             }
         };
         let project_reference = (project.id.clone(), project.revision);
+        #[cfg(feature = "preview-evidence")]
+        let copy_evidence = self.copy_evidence.clone();
         let result = self.spawn(id, false, move |cancel, deadline| {
             Output::copy(copy_exact(
                 &record,
@@ -304,6 +316,8 @@ impl DataWorkspaceWorkers {
                 cancel,
                 deadline,
                 excluded_runtime,
+                #[cfg(feature = "preview-evidence")]
+                copy_evidence,
             ))
         });
         if let Err(error) = &result {
@@ -657,6 +671,9 @@ fn copy_exact(
     cancel: &AtomicBool,
     deadline: Instant,
     excluded_runtime: (u64, u64),
+    #[cfg(feature = "preview-evidence")] copy_evidence: Option<
+        Arc<copy_evidence_gate::CopyEvidenceGate>,
+    >,
 ) -> Result<agentbaton_workspaces::data_workspace::DataWorkspaceCreation> {
     if cancel.load(Ordering::Relaxed) {
         return Err(cancelled());
@@ -694,6 +711,18 @@ fn copy_exact(
             "INPUT_CHANGED",
             "Host-managed root was replaced before copying",
         ));
+    }
+    #[cfg(feature = "preview-evidence")]
+    if let Some(gate) = copy_evidence {
+        // The original Owner-bound record, reverified source snapshot and managed
+        // root already passed. Only this worker's original cancel/deadline waits.
+        gate.wait(
+            &record.id,
+            &record.project_id,
+            &record.snapshot.contract,
+            cancel,
+            deadline,
+        )?;
     }
     create_data_workspace_controlled(&snapshot, &root, &record.id, &control).map_err(data_error)
 }
