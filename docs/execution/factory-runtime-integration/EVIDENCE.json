@@ -37,14 +37,10 @@
   "artifact_manifest": "NATIVE_COMPOSITION_MANIFEST.json",
   "sidecar_copy_incident": "SIDECAR_COPY_CORRECTION.json",
   "not_run": [
-    "successful Factory composed browser/Unix IPC and cancel/unknown cases",
-    "Factory macOS/AppKit/default production release audit/installers",
-    "full workspace and full Factory failure/budget/unknown/recovery regression",
-    "live product Provider/accounts/remote hosts"
-  ],
-  "open_core_findings": [
-    "053 FD053-01 early Data boundary return misses worker check elapsed; author fixing after fixed053",
-    "cooperative Data restore chunk cancellation/deadline still not accepted at053; later source/tests separate"
+    "Root new CAS candidate normal/cancel/unknown composed execution",
+    "Factory macOS/AppKit/default release audit/installers",
+    "Full workspace and full Factory failure/budget/unknown/recovery regression",
+    "Live product Provider/accounts and approved remote hosts"
   ],
   "authority": "AB-START-001 unchanged; no formalApprove/merge/production/private credential/new fee/signing/license grant",
   "composed_Node": {
@@ -65,11 +61,11 @@
     "scope": "Node mocked UI/contract tests and real frontend build; not actual Factory browser/IPC"
   },
   "current_core_followup": {
-    "source": "0efda24e092e630d84e227d06d43b38442672ffe",
-    "integration": "8cbe754a89c52cd828cff59930c8a7f98a96e44e",
-    "production_sources_45_match": true,
-    "candidate": "CANDIDATE_0EF_BINDING.json",
-    "independent_static_review": "0ef no new mustfix; elapsedstaticclosed only; dynamic metadata-stall/inflightcancel not_run; portable review import next"
+    "source": "12e14913d6bc7471cf902e2110097de8e814ddc8",
+    "test_only_bounds": "c3e547308e549afc5bede12513686c9b2635998f",
+    "driver": "744bf29d255b618c54a905dff72a784942903f83",
+    "integration": "c23ee5be2519ca9141d4f2961022e790654425b7",
+    "CAS_fix": "existing WIP author13units+1actualIPC pass; frozen commit and independent review pending; not integrated"
   },
   "first_actual_browser": {
     "evidence": "BROWSER_NORMAL_FIRST_FAILURE.json",
@@ -87,5 +83,83 @@
     "cleanup_complete": false,
     "source": "fc5b08340ec8f5137d240e9b18c8d2602c1a8de1",
     "remaining": "new observer failure; normal/cancel/unknown acceptance remains open"
+  },
+  "current_checkpoint_at": "2026-10-29T00:00:54.899040+00:00",
+  "current_core_followup_historical": {
+    "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+    "integration": "8cbe754a89c52cd828cff59930c8a7f98a96e44e",
+    "production_sources_45_match": true,
+    "candidate": "CANDIDATE_0EF_BINDING.json",
+    "independent_static_review": "0ef no new mustfix; elapsedstaticclosed only; dynamic metadata-stall/inflightcancel not_run; portable review import next"
+  },
+  "historical_open_core_findings_at053": [
+    "053 FD053-01 early Data boundary return misses worker check elapsed; author fixing after fixed053",
+    "cooperative Data restore chunk cancellation/deadline still not accepted at053; later source/tests separate"
+  ],
+  "open_core_findings": [
+    "Large blocked read/control-plane and cancellation join evidence pending",
+    "Complete queued deadline/fault/recovery/full workspace and Mac matrix pending",
+    "Early CAS correction independently reviewing, then Root actual three-flow test pending"
+  ],
+  "historical_runtime_archive": {
+    "archive": "BROWSER_PRE_CAS_RUNTIME_EVIDENCE.tar.gz",
+    "sha256": "d0ad061a2af480bd64d761b9d64e28b30cb728c8c4c6efaf79292f69b72a0cc2",
+    "members": 41,
+    "uncompressed_bytes": 2254844,
+    "manifest_sha256": "93945b99f660586b6fc9b0e0eb323eef5647d8eeb1b334c319269d8e980b0126",
+    "cases": {
+      "reviewed-851-normal": {
+        "status": "passed",
+        "checks": 4,
+        "pngs": 2,
+        "exit": 0,
+        "unchanged": true,
+        "commit": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+        "ended_at": "2026-10-28T22:53:36.627396+00:00",
+        "cleanup_complete": true,
+        "limit": "Separate historical source/tool combination; no new CAS candidate conclusion."
+      },
+      "reviewed-851-cancel": {
+        "status": "failed_or_interrupted",
+        "checks": 2,
+        "pngs": 2,
+        "exit": 1,
+        "unchanged": true,
+        "commit": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+        "ended_at": "2026-10-28T22:53:50.937656+00:00",
+        "cleanup_complete": false,
+        "limit": "Separate historical source/tool combination; no new CAS candidate conclusion."
+      },
+      "reviewed-851-unknown": {
+        "status": "passed",
+        "checks": 4,
+        "pngs": 2,
+        "exit": 0,
+        "unchanged": true,
+        "commit": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+        "ended_at": "2026-10-28T23:23:39.425645+00:00",
+        "cleanup_complete": true,
+        "limit": "Separate historical source/tool combination; no new CAS candidate conclusion."
+      },
+      "reviewed-12e-22cc-normal": {
+        "status": "failed_or_interrupted",
+        "checks": 0,
+        "pngs": 0,
+        "exit": 1,
+        "unchanged": true,
+        "commit": "f588660601ec09efddc882773f45233fe3066ebf",
+        "ended_at": "2026-10-28T23:42:29.838264+00:00",
+        "cleanup_complete": false,
+        "limit": "12e/22cc failed before browser/Provider; its original report did not save exact stale response. Do not fill it from later independent Core reproduction."
+      }
+    },
+    "no_private_database_or_credential_files": true,
+    "all_members_roundtrip_verified": true
+  },
+  "separate_PR16": {
+    "head": "c6f6b3c2be18ecc339f1cba6a9603657739e4cd4",
+    "Product": 40790894775,
+    "Environment": 40790894815,
+    "state": "in_progress; not Factory13 CI"
   }
 }

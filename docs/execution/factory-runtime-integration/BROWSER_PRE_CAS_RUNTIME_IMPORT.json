@@ -1,0 +1,55 @@
+{
+  "archive": "BROWSER_PRE_CAS_RUNTIME_EVIDENCE.tar.gz",
+  "sha256": "d0ad061a2af480bd64d761b9d64e28b30cb728c8c4c6efaf79292f69b72a0cc2",
+  "members": 41,
+  "uncompressed_bytes": 2254844,
+  "manifest_sha256": "93945b99f660586b6fc9b0e0eb323eef5647d8eeb1b334c319269d8e980b0126",
+  "cases": {
+    "reviewed-851-normal": {
+      "status": "passed",
+      "checks": 4,
+      "pngs": 2,
+      "exit": 0,
+      "unchanged": true,
+      "commit": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+      "ended_at": "2026-10-28T22:53:36.627396+00:00",
+      "cleanup_complete": true,
+      "limit": "Separate historical source/tool combination; no new CAS candidate conclusion."
+    },
+    "reviewed-851-cancel": {
+      "status": "failed_or_interrupted",
+      "checks": 2,
+      "pngs": 2,
+      "exit": 1,
+      "unchanged": true,
+      "commit": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+      "ended_at": "2026-10-28T22:53:50.937656+00:00",
+      "cleanup_complete": false,
+      "limit": "Separate historical source/tool combination; no new CAS candidate conclusion."
+    },
+    "reviewed-851-unknown": {
+      "status": "passed",
+      "checks": 4,
+      "pngs": 2,
+      "exit": 0,
+      "unchanged": true,
+      "commit": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+      "ended_at": "2026-10-28T23:23:39.425645+00:00",
+      "cleanup_complete": true,
+      "limit": "Separate historical source/tool combination; no new CAS candidate conclusion."
+    },
+    "reviewed-12e-22cc-normal": {
+      "status": "failed_or_interrupted",
+      "checks": 0,
+      "pngs": 0,
+      "exit": 1,
+      "unchanged": true,
+      "commit": "f588660601ec09efddc882773f45233fe3066ebf",
+      "ended_at": "2026-10-28T23:42:29.838264+00:00",
+      "cleanup_complete": false,
+      "limit": "12e/22cc failed before browser/Provider; its original report did not save exact stale response. Do not fill it from later independent Core reproduction."
+    }
+  },
+  "no_private_database_or_credential_files": true,
+  "all_members_roundtrip_verified": true
+}
