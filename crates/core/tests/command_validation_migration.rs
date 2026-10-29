@@ -464,10 +464,26 @@ fn fixture_inverse_caller_failure_rolls_back_complete_wal_database_and_pragmas()
         reached_caller_ddl,
         "must test the caller's late failure, not an early guard"
     );
-    assert!(
-        matches!(&generated, Err(rusqlite::Error::SqliteFailure(_, Some(message))) if message == "table fixture_caller_collision already exists"),
-        "expected the fixed caller DDL collision"
-    );
+    // Bundled modern SQLite reports prepare-time token offsets through SqlInputError.
+    let fixed_collision = match &generated {
+        Err(rusqlite::Error::SqliteFailure(error, Some(message))) => {
+            error.extended_code == rusqlite::ffi::SQLITE_ERROR
+                && message == "table fixture_caller_collision already exists"
+        }
+        Err(rusqlite::Error::SqlInputError {
+            error,
+            msg,
+            sql,
+            offset,
+        }) => {
+            error.extended_code == rusqlite::ffi::SQLITE_ERROR
+                && msg == "table fixture_caller_collision already exists"
+                && sql == "CREATE TABLE fixture_caller_collision(sentinel TEXT);"
+                && *offset == 13
+        }
+        _ => false,
+    };
+    assert!(fixed_collision, "expected the fixed caller DDL collision");
     restored.unwrap();
     let logical_after = fixture_logical_snapshot(&connection);
     assert!(
