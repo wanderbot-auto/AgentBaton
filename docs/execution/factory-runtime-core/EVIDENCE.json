@@ -1290,5 +1290,894 @@
     },
     "lease": "returned to parent; no Cargo in recovery",
     "scope": "narrow Owner start CAS correction; not Task/Git acceptance or complete Factory/product acceptance"
+  },
+  "large_data_read_checkpoint": {
+    "source_commit": "259b2f7bc8b3e98e230e3c158992a93efab99c02",
+    "snapshot_path": "artifacts/factory-runtime-core/large-data-read-source-snapshot.json",
+    "snapshot_sha256": "29716cca9cff6f7536259f3feebd11fdee87de20b86c03d436eb819e3477664d",
+    "snapshot": {
+      "state": "test-only generated Linux post-read synthetic stall; not kernel interruption or full Factory acceptance",
+      "source_commit": "259b2f7bc8b3e98e230e3c158992a93efab99c02",
+      "base_commit": "265036ccf77771e066bddfd0a5f0768efbe0cd0b",
+      "test_sources": {
+        "crates/core/tests/factory_runtime_ipc.rs": "b49b25c2159e942867d1656a1ad53f54522505fbdee6a1a3adf9fc9c32caaa82",
+        "crates/core/tests/fixtures/factory_large_data_gate.rs": "2b79fbd672821c53eedccbd95e5d9dc4f40d3b47d4df122f5b2cf12c00e5c175",
+        "crates/core/tests/fixtures/factory_data_read_gate.c": "4d389141afc0283dac340857f89a4eabfa25fd2a7186af0ec74fe80acd55e5dd"
+      },
+      "production_sources": {
+        "apps/cli/src/main.rs": "42a4992646b30dcfbfce56b87c4f6c8593bddf7149601de9c1f46760f273f495",
+        "apps/daemon/src/main.rs": "372f71e1b9a4cefbb158324e7d73207e892056736e5557d25723fb64259eea7c",
+        "crates/core/src/command_validation.rs": "804cede65389ea44810e4646a668d05dac056e0c71069640b5cb9cb55aef14e2",
+        "crates/core/src/command_workers.rs": "73c26d9f2db4e5e59cdbe13655af536a64d7ceb9f95977f8f90da9a9cc2ddd84",
+        "crates/core/src/data_validation.rs": "a3694819f13551ae250b36be99314376bdba86ec531752c082aa9fa69a2d3bdf",
+        "crates/core/src/data_workspace_workers.rs": "b3c3e1dee67d6707d44781d656115df0c2e2a23c6a9442707879ccb2a893dc08",
+        "crates/core/src/data_workspaces.rs": "87ae5614025fb8ce7c6b94603f8f27a34f9ef651a9cafcc6d58cfe2d8887e3cb",
+        "crates/core/src/execution.rs": "1deb328b931d6bab1d894a38b3d51e99ace1466f2a5d0910b84a6b37477d728f",
+        "crates/core/src/factory.rs": "3334a1e32004b2f9406f680cd7eef36f038def917e503ad4d22b73308d309d7d",
+        "crates/core/src/factory_budget.rs": "f6cbcdc366735822ed410fb342992b55df31ca53f66cbd177729a460c5472aca",
+        "crates/core/src/factory_capture.rs": "389a0943283dcda19bef025c16d1735df2d65af7b0bed8dbd85fa253a1c39ed9",
+        "crates/core/src/factory_companion.rs": "e9bcd9e35cd38b9d96071618316f337cef394457e582127ae0bf2d85cc00a299",
+        "crates/core/src/factory_reads.rs": "d2d5929c3b27919cde4e484b30d7b7039303871b48cf3b0c7d108527a4d9c169",
+        "crates/core/src/factory_runtime.rs": "471d0cfdde2104e527b29e96c938676dc29399dc32c92cb216866a4c8d7293dd",
+        "crates/core/src/factory_store.rs": "a26577fd40abcd3b5b73d631a81ef163415a5f661791f12fa4565b9564269bac",
+        "crates/core/src/goal_evidence.rs": "d786d708aef63e82bdf081a2f5fd5314f184f7f1e7b7b81512d114b74ab1f802",
+        "crates/core/src/goal_graph.rs": "80e01d81cf8ecee3c4e64a046f8413600e7448fca2ed3abdc9b8e479624be7d7",
+        "crates/core/src/goal_graph_validators.rs": "969b6941f6827a9460144d329986c6d0f75d9a99b9856ae204bcc073cb157820",
+        "crates/core/src/goal_plan.rs": "243ef4b34ef963d41a07287360a192a4f9336c21ccc48b6650170793cac81c21",
+        "crates/core/src/goal_runtime.rs": "1faa97b5ba7b9fe052e23fa889a7a84109627b374a8cfe0426b419252484de56",
+        "crates/core/src/goal_store.rs": "358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816",
+        "crates/core/src/goal_validator_io.rs": "bae0720b9324dbd2634f05b39dd42d472da652480288ab9e621b65c44b286f57",
+        "crates/core/src/ipc.rs": "a0707471d9eba23b8fc34be50c39bd6a3ad54eebff6940fdef7ac6eb73ec261e",
+        "crates/core/src/lib.rs": "9a649e6f48cbd34c4bc6c4c1fdc168195243d2735bf472974429eb32c35d1cb2",
+        "crates/core/src/policy.rs": "724b3ff18606fc9852f9b7bd423c5220e9c7ef3b9e1446dcbb71aad4e6d8d032",
+        "crates/core/src/registry.rs": "2e364198355ad5c2bea1077c2c3b7aada842c5dee34826a093bd53817fa2fa45",
+        "crates/core/src/routes.rs": "259642508b6bba313f2545b122986d377b434af6f6caccfcf3208a8bb3c128a1",
+        "crates/core/src/runtime_config.rs": "73e326b050e7fe661fe8a83e19775ea1d0d9da431e2909a1cb4e14c51d0ff3da",
+        "crates/core/src/sessions.rs": "c63ab1c299c6b62c51e47040f64a52c2665ddc4cb66ae28d4c45f4f6574f8291",
+        "crates/core/src/storage.rs": "cf1610158d80d40cfd0dfe988cee158abdd412fd2e5cd59c3af448a51f717cbd",
+        "crates/core/src/validation.rs": "54dbcb97fcb5cb70c74feb07fb5a737defb8dd0c6af931abbe59ae9143ce71db",
+        "crates/providers/src/codex.rs": "295a0e5ac624e375e0a5cbae7e419594627f657d6485e2f39098e077958099dd",
+        "crates/providers/src/connections.rs": "37fe79be1974b4af019722ea9c4b6d73acecc8d21f96c9d4bd0c3b4add941eb1",
+        "crates/providers/src/driver.rs": "635fb3065e3347e5b7d15412c8f0e4b24032ecf1b0cd341906b24b04a0c8db6a",
+        "crates/providers/src/framing.rs": "22b56ac5349f5161fcef4721312131e63d7d83e67c5084e7395098a1bc6411f0",
+        "crates/providers/src/installation.rs": "c623fcb56a356977eb406c93693c30504c7aff1ece153f713d090f5e3c323d87",
+        "crates/providers/src/lib.rs": "dc6d3d83d2f9fbc45b6934e01e8b004bfe9ad59cedd5476f689cbf7aeec4038c",
+        "crates/providers/src/process_io.rs": "ab0ad1edd09f59dd500f1446909f490926e0a2af8d5033fdc403189774973774",
+        "crates/providers/src/session_configuration.rs": "5dc7c6a7f366df718ad17476d45ecde52c3841b8434b9bb9d2cc0147bf534af2",
+        "crates/providers/src/transport.rs": "706f2dd868484ee0aa5cb6c3ff1f2defa6bbb547c08e5a5d6ab58acd7c7c8eff",
+        "crates/workspaces/src/adoption.rs": "be970ed01ee18bebe9b06e62087d0bd7c52e97bfca6db0dcaec60cbedeba9472",
+        "crates/workspaces/src/command_validation.rs": "76a5eeaa2a1822b40d206af63ec32d643da9278e502e72c82da510d62cf8184e",
+        "crates/workspaces/src/data_workspace.rs": "73070eb6d24e073a3d97926f6549635ce63ba7a4a6ecfdb28f91e3b67c65d54f",
+        "crates/workspaces/src/deterministic.rs": "44e8feda9a9dbd91d7fb5db1ed0c38424ef380fbb8fc3ec565ea3f1591a97c26",
+        "crates/workspaces/src/lib.rs": "352168f4fcd354fb3a34020b24c50cadec394f45b133ad9709a58cc17ef94e26",
+        "crates/workspaces/src/validation.rs": "92ea96d82f7711bca1e5112a59fdbd9f0617df0ce887ce9f55e2c8ac25cd4c83"
+      },
+      "production_delta": [],
+      "immutable_product_candidate": {
+        "manifest_path": "/workspace/AgentBaton/.onboarding/factory-owner-cas-candidate-20261028/manifest.json",
+        "manifest_sha256": "6cdfc423d2c15c5f91087350fa9742123bfdf58a1f88eca3434502f75cb5cd01",
+        "binaries": {
+          "batond": {
+            "path": "/workspace/AgentBaton/.onboarding/factory-owner-cas-candidate-20261028/batond",
+            "sha256": "2f5eb74f52b0653397683def7f66c579418c95f133cfc692bae68511be30c6b3",
+            "bytes": 112100616
+          },
+          "baton": {
+            "path": "/workspace/AgentBaton/.onboarding/factory-owner-cas-candidate-20261028/baton",
+            "sha256": "57798c44229c1a7ae7c99b1e1a31b7b8c3549a8f6be5fbfe64df1b0258402468",
+            "bytes": 81315144
+          }
+        }
+      },
+      "verification": {
+        "command": "cargo test --locked -p agentbaton-core --test factory_runtime_ipc actual_large_data_read_ -- --nocapture",
+        "distinct_tests": 3,
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "seconds": 50.28,
+        "alltarget_core_clippy": "PASS0.44s",
+        "fmt": "PASS",
+        "diff_check": "PASS"
+      },
+      "final_actual_cases": [
+        {
+          "outcome_path": "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/outcome.json",
+          "outcome": {
+            "active_before_release": 1,
+            "actual_read_bytes_before_stall": 65536,
+            "approved_scope_ttl_ms": 30000,
+            "attempts": 1,
+            "children": 0,
+            "complete_descendant_containment": "not_established",
+            "consumed": 1,
+            "dataset_bytes": 16777216,
+            "explicit_owner_cancel_issued": true,
+            "kernel_read_interruption": "not_claimed",
+            "leases_before_release": 1,
+            "macOS": "not_run",
+            "mode": "read_gate_cancel",
+            "original_leader_reaped": true,
+            "original_request_nonce": "controlled-large-data-original-nonce",
+            "owner_revoke_elapsed_ms": null,
+            "owner_status_elapsed_ms": 26,
+            "owner_status_responsive": true,
+            "owner_stop_elapsed_ms": 23,
+            "read_response": {
+              "error": {
+                "code": "CANCEL_REQUESTED",
+                "details_ref": null,
+                "message": "Data I/O cancellation was observed; partial files are retained",
+                "retryable": false,
+                "side_effect_state": "not_started"
+              },
+              "request_id": "controlled-large-data-original-nonce",
+              "revision": 0,
+              "warnings": []
+            },
+            "read_worker_thread_gone_after_pending_reply": true,
+            "ready_request_queue_deadline": "not_run; expiry mode tests approved scope expiry",
+            "worker_busy_until_explicit_release": true
+          },
+          "build": {
+            "cc_argv": [
+              "-shared",
+              "-fPIC",
+              "-O2",
+              "-std=c11",
+              "-pthread",
+              "/tmp/.tmp3wXSnE/generated-read-gate/generated-gate.c",
+              "-ldl",
+              "-o",
+              "/tmp/.tmp3wXSnE/generated-read-gate/generated-gate.so"
+            ],
+            "explicit_daemon_environment": {
+              "LD_PRELOAD": "/tmp/.tmp3wXSnE/generated-read-gate/generated-gate.so"
+            },
+            "hard_failure_pause_bound_seconds": 10,
+            "installed_stripped_daemon_path": "/tmp/.tmp3wXSnE/installed/batond",
+            "installed_stripped_daemon_sha256": "054991be6d7dfb8e9d48680cba2c6590747dfa8bf9770dd7135be3e498a8fa45",
+            "library_sha256": "02ecc16fa9d7bb7a782b8c8fc846f8c1209b7b1998268e25c12c12ee863981bd",
+            "mode": "read_gate_cancel",
+            "not_injected_into": [
+              "Cargo",
+              "rustc",
+              "Host",
+              "other daemons",
+              "Providers"
+            ],
+            "raw_daemon_path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+            "raw_daemon_sha256": "2f5eb74f52b0653397683def7f66c579418c95f133cfc692bae68511be30c6b3",
+            "scope": "generated own-daemon Linux synthetic post-read stall only",
+            "source_sha256": "803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e"
+          },
+          "daemon_exit": {
+            "all_descendants_gone": "not_claimed",
+            "elapsed_ms": 10,
+            "pid": 1009317,
+            "signal": "SIGTERM sent only to original unreaped Child",
+            "status_code": 0
+          },
+          "actual_read_entered": {
+            "device": 34,
+            "inode": 547886,
+            "pid": 1009317,
+            "read_bytes": 65536,
+            "tid": 1009835
+          },
+          "compiler_version": "cc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+        },
+        {
+          "outcome_path": "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/outcome.json",
+          "outcome": {
+            "active_before_release": 1,
+            "actual_read_bytes_before_stall": 65536,
+            "approved_scope_ttl_ms": 30000,
+            "attempts": 1,
+            "children": 0,
+            "complete_descendant_containment": "not_established",
+            "consumed": 1,
+            "dataset_bytes": 16777216,
+            "explicit_owner_cancel_issued": false,
+            "kernel_read_interruption": "not_claimed",
+            "leases_before_release": 1,
+            "macOS": "not_run",
+            "mode": "read_gate_revoke",
+            "original_leader_reaped": true,
+            "original_request_nonce": "controlled-large-data-original-nonce",
+            "owner_revoke_elapsed_ms": 30,
+            "owner_status_elapsed_ms": 25,
+            "owner_status_responsive": true,
+            "owner_stop_elapsed_ms": null,
+            "read_response": {
+              "error": {
+                "code": "CANCEL_REQUESTED",
+                "details_ref": null,
+                "message": "Data I/O cancellation was observed; partial files are retained",
+                "retryable": false,
+                "side_effect_state": "not_started"
+              },
+              "request_id": "controlled-large-data-original-nonce",
+              "revision": 0,
+              "warnings": []
+            },
+            "read_worker_thread_gone_after_pending_reply": true,
+            "ready_request_queue_deadline": "not_run; expiry mode tests approved scope expiry",
+            "worker_busy_until_explicit_release": true
+          },
+          "build": {
+            "cc_argv": [
+              "-shared",
+              "-fPIC",
+              "-O2",
+              "-std=c11",
+              "-pthread",
+              "/tmp/.tmp39rdNK/generated-read-gate/generated-gate.c",
+              "-ldl",
+              "-o",
+              "/tmp/.tmp39rdNK/generated-read-gate/generated-gate.so"
+            ],
+            "explicit_daemon_environment": {
+              "LD_PRELOAD": "/tmp/.tmp39rdNK/generated-read-gate/generated-gate.so"
+            },
+            "hard_failure_pause_bound_seconds": 10,
+            "installed_stripped_daemon_path": "/tmp/.tmp39rdNK/installed/batond",
+            "installed_stripped_daemon_sha256": "054991be6d7dfb8e9d48680cba2c6590747dfa8bf9770dd7135be3e498a8fa45",
+            "library_sha256": "f33e90af5daecb18dce946c932054e365136163f546f41147b449a787e020119",
+            "mode": "read_gate_revoke",
+            "not_injected_into": [
+              "Cargo",
+              "rustc",
+              "Host",
+              "other daemons",
+              "Providers"
+            ],
+            "raw_daemon_path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+            "raw_daemon_sha256": "2f5eb74f52b0653397683def7f66c579418c95f133cfc692bae68511be30c6b3",
+            "scope": "generated own-daemon Linux synthetic post-read stall only",
+            "source_sha256": "1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329"
+          },
+          "daemon_exit": {
+            "all_descendants_gone": "not_claimed",
+            "elapsed_ms": 15,
+            "pid": 1009902,
+            "signal": "SIGTERM sent only to original unreaped Child",
+            "status_code": 0
+          },
+          "actual_read_entered": {
+            "device": 34,
+            "inode": 547992,
+            "pid": 1009902,
+            "read_bytes": 65536,
+            "tid": 1010584
+          },
+          "compiler_version": "cc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+        },
+        {
+          "outcome_path": "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/outcome.json",
+          "outcome": {
+            "active_before_release": 1,
+            "actual_read_bytes_before_stall": 65536,
+            "approved_scope_ttl_ms": 4000,
+            "attempts": 1,
+            "children": 0,
+            "complete_descendant_containment": "not_established",
+            "consumed": 1,
+            "dataset_bytes": 16777216,
+            "explicit_owner_cancel_issued": false,
+            "kernel_read_interruption": "not_claimed",
+            "leases_before_release": 1,
+            "macOS": "not_run",
+            "mode": "read_gate_expiry",
+            "original_leader_reaped": true,
+            "original_request_nonce": "controlled-large-data-original-nonce",
+            "owner_revoke_elapsed_ms": null,
+            "owner_status_elapsed_ms": 22,
+            "owner_status_responsive": true,
+            "owner_stop_elapsed_ms": null,
+            "read_response": {
+              "error": {
+                "code": "CANCEL_REQUESTED",
+                "details_ref": null,
+                "message": "Data I/O cancellation was observed; partial files are retained",
+                "retryable": false,
+                "side_effect_state": "not_started"
+              },
+              "request_id": "controlled-large-data-original-nonce",
+              "revision": 0,
+              "warnings": []
+            },
+            "read_worker_thread_gone_after_pending_reply": true,
+            "ready_request_queue_deadline": "not_run; expiry mode tests approved scope expiry",
+            "worker_busy_until_explicit_release": true
+          },
+          "build": {
+            "cc_argv": [
+              "-shared",
+              "-fPIC",
+              "-O2",
+              "-std=c11",
+              "-pthread",
+              "/tmp/.tmpM6ZO6R/generated-read-gate/generated-gate.c",
+              "-ldl",
+              "-o",
+              "/tmp/.tmpM6ZO6R/generated-read-gate/generated-gate.so"
+            ],
+            "explicit_daemon_environment": {
+              "LD_PRELOAD": "/tmp/.tmpM6ZO6R/generated-read-gate/generated-gate.so"
+            },
+            "hard_failure_pause_bound_seconds": 10,
+            "installed_stripped_daemon_path": "/tmp/.tmpM6ZO6R/installed/batond",
+            "installed_stripped_daemon_sha256": "054991be6d7dfb8e9d48680cba2c6590747dfa8bf9770dd7135be3e498a8fa45",
+            "library_sha256": "5b2443501df90f615fafbdd89c6a652eb6a2bad8bca7e8d895834ac0b9add65e",
+            "mode": "read_gate_expiry",
+            "not_injected_into": [
+              "Cargo",
+              "rustc",
+              "Host",
+              "other daemons",
+              "Providers"
+            ],
+            "raw_daemon_path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+            "raw_daemon_sha256": "2f5eb74f52b0653397683def7f66c579418c95f133cfc692bae68511be30c6b3",
+            "scope": "generated own-daemon Linux synthetic post-read stall only",
+            "source_sha256": "0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2"
+          },
+          "daemon_exit": {
+            "all_descendants_gone": "not_claimed",
+            "elapsed_ms": 10,
+            "pid": 1010608,
+            "signal": "SIGTERM sent only to original unreaped Child",
+            "status_code": 0
+          },
+          "actual_read_entered": {
+            "device": 34,
+            "inode": 548106,
+            "pid": 1010608,
+            "read_bytes": 65536,
+            "tid": 1011141
+          },
+          "compiler_version": "cc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+        }
+      ],
+      "artifacts": {
+        "artifacts/factory-runtime-core/large-data-read-clippy-fixed.log": {
+          "sha256": "366116159664db104b7b6ed3c52344c85e30c2b9da688bbe90c77a6c101bded3",
+          "bytes": 165
+        },
+        "artifacts/factory-runtime-core/large-data-read-combined-stop-source/factory_data_read_gate.c": {
+          "sha256": "4d389141afc0283dac340857f89a4eabfa25fd2a7186af0ec74fe80acd55e5dd",
+          "bytes": 3221
+        },
+        "artifacts/factory-runtime-core/large-data-read-combined-stop-source/factory_large_data_gate.rs": {
+          "sha256": "6b1a18fbaf479063b32c913307143a71bbe85164cb5ce9c124a8bdc67e88c0ec",
+          "bytes": 17410
+        },
+        "artifacts/factory-runtime-core/large-data-read-combined-stop-source/factory_runtime_ipc.rs": {
+          "sha256": "b1413df95f4877f561b445251453f3efa9d812dc8244e07bf9a2a06e4ff5ea3b",
+          "bytes": 83524
+        },
+        "artifacts/factory-runtime-core/large-data-read-combined-stop-source/manifest.json": {
+          "sha256": "5236718426e11eae3e3f87aad5ccf81582240e140a5bdcb925e83754ffa0d8db",
+          "bytes": 516
+        },
+        "artifacts/factory-runtime-core/large-data-read-final-clippy-exit.json": {
+          "sha256": "2b70081b573872dcecace06d8e2b03c30a5c6b495484e8025803a64af1c1e48d",
+          "bytes": 18
+        },
+        "artifacts/factory-runtime-core/large-data-read-final-clippy.log": {
+          "sha256": "4ccff58ecf899be02e79254012136bdeebf489b3a18ddaf3b3c800e5e504a5ff",
+          "bytes": 779
+        },
+        "artifacts/factory-runtime-core/large-data-read-final-three-exit.json": {
+          "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01",
+          "bytes": 16
+        },
+        "artifacts/factory-runtime-core/large-data-read-final-three.log": {
+          "sha256": "3e6e6f6a4586fa711204cd99237122af355a2a945b5da4d754a0ba13c475b081",
+          "bytes": 722
+        },
+        "artifacts/factory-runtime-core/large-data-read-first-cancel-exit.json": {
+          "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01",
+          "bytes": 16
+        },
+        "artifacts/factory-runtime-core/large-data-read-first-cancel.log": {
+          "sha256": "f49abeb6543fbbbf627495a82871a8f89880b3a046a54fed030c72c63bc84d09",
+          "bytes": 537
+        },
+        "artifacts/factory-runtime-core/large-data-read-frozen-fmt.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-frozen-three-exit.json": {
+          "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01",
+          "bytes": 16
+        },
+        "artifacts/factory-runtime-core/large-data-read-frozen-three.log": {
+          "sha256": "3838821106510badddbaaca8724e9df41e57a03a7ad476f74a1e3fa20991ca0d",
+          "bytes": 722
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/actual-read-entered.json": {
+          "sha256": "b1d0ba270ea0e8c337823ae331665d94694ec0876ccea5b51076c5b09b239320",
+          "bytes": 96
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/build.json": {
+          "sha256": "fdf35e3a9c1c8fdbb206b5d01e8306517f1ef2456f097dd33537433ce7ee41f9",
+          "bytes": 1154
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/cc-version.stdout": {
+          "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc",
+          "bytes": 231
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/cc.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/cc.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/generated-gate.c": {
+          "sha256": "1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33",
+          "bytes": 3279
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/generated-gate.so": {
+          "sha256": "235e2d83e61b104d211b6c41da35ed6d276d4a7ade988c37c731478226642ba1",
+          "bytes": 16336
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/outcome.json": {
+          "sha256": "57c5d210cf212cef3e7a4cbd071570fbf23b5f321cce6413fbcabb6903011e5d",
+          "bytes": 1125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/owned-daemon-exit.json": {
+          "sha256": "f797d9d5c130d58052a9f5b1c31b1e6eff8f09b49d0ee1038e587cb8b05599c6",
+          "bytes": 161
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/owned-process-after-read.json": {
+          "sha256": "c6f87697b39a6d39c6df3f7f521f9a502df5591fba870e810b494ea1523ce608",
+          "bytes": 125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-1b9af95ddd24ae2179500b8068dab3c3027f16b34556c5e44f18ab2f08bc0d33/owned-process-before.json": {
+          "sha256": "83d09554759d0bf463546397183db8d6360e8f234585b5ccba0ab874bd81d79e",
+          "bytes": 418
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/actual-read-entered.json": {
+          "sha256": "28fcfe15a87450c8fe499d125b5aa9bd06f587916ebe946c371f2e57537215dc",
+          "bytes": 96
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/build.json": {
+          "sha256": "a9027f781c11be7f21f5a920914b58199aff5b5baf7677028683448c79f42457",
+          "bytes": 1154
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/cc-version.stdout": {
+          "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc",
+          "bytes": 231
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/cc.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/cc.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/generated-gate.c": {
+          "sha256": "4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763",
+          "bytes": 3279
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/generated-gate.so": {
+          "sha256": "dfd805583867ffcbfb80e7eadbcd305adcde8191c4121c7a0ed1722a4c5cfc52",
+          "bytes": 16336
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/outcome.json": {
+          "sha256": "81867cc40d4bc09e66845be6735c34f53eb871e3b1e3d5456b39662b0b055dae",
+          "bytes": 1190
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/owned-daemon-exit.json": {
+          "sha256": "ccf1e9668250fcf169a658576278ed58e7184ca0e79d474d101e9e7856450892",
+          "bytes": 161
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/owned-process-after-read.json": {
+          "sha256": "75457325125e122141e2a64935837749c295765589136b45ada6537f67336ed3",
+          "bytes": 125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-4de5a303a5b6ae7e6c902fe11b9e9d18ca8bc473b220c42bb67c660a6aafc763/owned-process-before.json": {
+          "sha256": "c70515434e63586fbf1b994b1aba923801518118febf4396a300f317e2bc5394",
+          "bytes": 418
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/actual-read-entered.json": {
+          "sha256": "11a87b11310b593c3820ca7ab8cca50d055e6135dbbdaa34b3f3b1bd56acd7e1",
+          "bytes": 96
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/build.json": {
+          "sha256": "25b6c273dc3cd79334ba09b671f18c72ed7f66d36de4669cb7c46fa34bb4abf6",
+          "bytes": 1154
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/cc-version.stdout": {
+          "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc",
+          "bytes": 231
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/cc.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/cc.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/generated-gate.c": {
+          "sha256": "803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e",
+          "bytes": 3279
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/generated-gate.so": {
+          "sha256": "02ecc16fa9d7bb7a782b8c8fc846f8c1209b7b1998268e25c12c12ee863981bd",
+          "bytes": 16336
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/outcome.json": {
+          "sha256": "ef8debf3e7f461d958b130d414dca1ceec636eb14fead02e6fc4c6bfde97d21b",
+          "bytes": 1190
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/owned-daemon-exit.json": {
+          "sha256": "e6b862085f17072771584b74009ade6c9ab7e912b1ce41e0b9a98f0b5da8e01e",
+          "bytes": 161
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/owned-process-after-read.json": {
+          "sha256": "dc6cc2d80de7f50d936acb48f22b201dec6481dfb34603f7dc694571602e1901",
+          "bytes": 125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-803e571213fe123051362871bec6bd6034b6a6b3cc1ff831218291b568d8ba7e/owned-process-before.json": {
+          "sha256": "8672e49691beee27ad6b21774a9c91e9cf58a37e3a8907a2c6b3baaf36464d98",
+          "bytes": 418
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-cff42be3b894274c9064c19a55d581fdd6c228c16fa173fb77597575c8420928/actual-read-entered.json": {
+          "sha256": "5d77c4a4670aba6de4f86e761c523b0fe36a9ebb9ae74042599d242315f56ab0",
+          "bytes": 96
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-cff42be3b894274c9064c19a55d581fdd6c228c16fa173fb77597575c8420928/build.json": {
+          "sha256": "80d4244d66978c637aea97058991ce30efaba81d7437d0d294f57eea8200d9e4",
+          "bytes": 1154
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-cff42be3b894274c9064c19a55d581fdd6c228c16fa173fb77597575c8420928/cc-version.stdout": {
+          "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc",
+          "bytes": 231
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-cff42be3b894274c9064c19a55d581fdd6c228c16fa173fb77597575c8420928/cc.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-cff42be3b894274c9064c19a55d581fdd6c228c16fa173fb77597575c8420928/cc.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-cff42be3b894274c9064c19a55d581fdd6c228c16fa173fb77597575c8420928/generated-gate.c": {
+          "sha256": "cff42be3b894274c9064c19a55d581fdd6c228c16fa173fb77597575c8420928",
+          "bytes": 3279
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-cff42be3b894274c9064c19a55d581fdd6c228c16fa173fb77597575c8420928/generated-gate.so": {
+          "sha256": "bea90e6885a18904baddf4ee4670b56a52f7519778a9f57e2e0d4f0fb00cff26",
+          "bytes": 16336
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_cancel-cff42be3b894274c9064c19a55d581fdd6c228c16fa173fb77597575c8420928/outcome.json": {
+          "sha256": "d09197640a5f4dfbf49ee1b397e54607411574505f922fdaa67a765a59ac4916",
+          "bytes": 911
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/actual-read-entered.json": {
+          "sha256": "5066583821db7da3788b484014b0d2e082be44b260f62afe7d40aca8b3d2d16e",
+          "bytes": 96
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/build.json": {
+          "sha256": "8db364f4028c420f05568c2eba6120e7eab6199a4d2dfd091be8bd6c61ac0a8d",
+          "bytes": 1154
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/cc-version.stdout": {
+          "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc",
+          "bytes": 231
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/cc.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/cc.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/generated-gate.c": {
+          "sha256": "0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2",
+          "bytes": 3279
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/generated-gate.so": {
+          "sha256": "5b2443501df90f615fafbdd89c6a652eb6a2bad8bca7e8d895834ac0b9add65e",
+          "bytes": 16336
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/outcome.json": {
+          "sha256": "a4ca9824d7f1636ea82af121b451a997ddb43697e707f1e4104dbc623c19f192",
+          "bytes": 1192
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/owned-daemon-exit.json": {
+          "sha256": "29b66232110f1a5a31175b625864ff7a0eea45478c12ca1dcd43c2746c3221cb",
+          "bytes": 161
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/owned-process-after-read.json": {
+          "sha256": "3ae5054d54dd8d891292307828530dab517ce81cf3df4e84925dd8f08b535425",
+          "bytes": 125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-0dd36d4e51ac94b468260d6ab8c92f729681d1888a85fbca458b6b0acb430dc2/owned-process-before.json": {
+          "sha256": "2dada3485b8cdb0328ef5f5dbd3cdce09948052c805a6d5cc24d6500e26a61be",
+          "bytes": 418
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/actual-read-entered.json": {
+          "sha256": "082201091deb7531802f37f13d102ada282b6835add365d690ff5cebe38d6cb5",
+          "bytes": 96
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/build.json": {
+          "sha256": "198a6e41cf9eb2696bce093e2e2f5de99b4c89e44843385a336f5b5cc640d918",
+          "bytes": 1154
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/cc-version.stdout": {
+          "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc",
+          "bytes": 231
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/cc.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/cc.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/generated-gate.c": {
+          "sha256": "af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74",
+          "bytes": 3279
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/generated-gate.so": {
+          "sha256": "0437d6c05abd6a7d5267ea3c12c6b00330e483ffcab062b2eada4e11952db030",
+          "bytes": 16336
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/outcome.json": {
+          "sha256": "84ef323a670d4267ecad58fe7712cd1555c4375805d8d43d45dab715dc2669d9",
+          "bytes": 1192
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/owned-daemon-exit.json": {
+          "sha256": "83813a33f1238b2f70756babd8e3d819875fdfd8d4d64aad982e4cd3b22892b3",
+          "bytes": 161
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/owned-process-after-read.json": {
+          "sha256": "b0434f4fdb9f8104c79834ee86580bbead67172882e7891dbd11d73eb32bebe5",
+          "bytes": 125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-af3abc9661930653d41af757284ddd743fe8a45069b59ad5ff46aeb5cf61bd74/owned-process-before.json": {
+          "sha256": "3d920d9b618980dd6f810f5a9bd1c65c9e02e2ff7a571e0cf152894a124b0077",
+          "bytes": 418
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/actual-read-entered.json": {
+          "sha256": "1e35e7f56046caefb658f2e74ddf500c069c83a6d8f511aab24a99144a9afeed",
+          "bytes": 96
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/build.json": {
+          "sha256": "2cf052c7313f2873b5c3e1ee400c5d1de8563165cb94ceda3c895eca31096473",
+          "bytes": 1154
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/cc-version.stdout": {
+          "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc",
+          "bytes": 231
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/cc.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/cc.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/generated-gate.c": {
+          "sha256": "ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a",
+          "bytes": 3279
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/generated-gate.so": {
+          "sha256": "24946d9ed56cf8f6dd613bd55fa6d3625c60670fc6846aff5468f2e4f0ac924b",
+          "bytes": 16336
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/outcome.json": {
+          "sha256": "57879ac6beefe1cff3c09036416415bcc60acc047b3b8468e8f6208d2c1ac0ed",
+          "bytes": 1125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/owned-daemon-exit.json": {
+          "sha256": "1459e76aac55c6f8a22e105a24d98b91cdaee0ea8784b8203fb6f80e20cafb15",
+          "bytes": 161
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/owned-process-after-read.json": {
+          "sha256": "571687039bcc1f87607064468cddca73fd2ca7cb79dcbd94504acda402a748b2",
+          "bytes": 125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_expiry-ce620eefad809fef0aeb4d78f6b5d5173bf72435a5ec01c55b6979c27d943d1a/owned-process-before.json": {
+          "sha256": "03727723d6f79d80724d507a5504e3376c0ddd952daf61983058eed0a157730e",
+          "bytes": 418
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/actual-read-entered.json": {
+          "sha256": "67a6c7ae4011baab7525f0800cb6aab3b1eb51d15cc2741923a2704cff272eca",
+          "bytes": 96
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/build.json": {
+          "sha256": "0283c5b809698cd75d645a302cd79215050e74bbe738b182bd63fbcf6c7f2898",
+          "bytes": 1154
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/cc-version.stdout": {
+          "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc",
+          "bytes": 231
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/cc.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/cc.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/generated-gate.c": {
+          "sha256": "1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329",
+          "bytes": 3279
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/generated-gate.so": {
+          "sha256": "f33e90af5daecb18dce946c932054e365136163f546f41147b449a787e020119",
+          "bytes": 16336
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/outcome.json": {
+          "sha256": "038e2fe34f541ef2a8e3dfbfee1617d5876bdde36380dd1c1c76fd7491031005",
+          "bytes": 1191
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/owned-daemon-exit.json": {
+          "sha256": "eb2514d26ee205cc0aa8ae779afc430010de36a66821e7f7705d806846258e7d",
+          "bytes": 161
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/owned-process-after-read.json": {
+          "sha256": "65e5dc1ae1e97e90421f2148d729e55237c7f9960939a554b724f1e32c96460e",
+          "bytes": 125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-1f16729d4a368443b7cee3ce1e07a09d5a2e3fa776a62545f577e1651a6fd329/owned-process-before.json": {
+          "sha256": "66449fc1a186ec991c1a060a5e99b5cde5ff5769005f5c99bd5376f0e90572d3",
+          "bytes": 418
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/actual-read-entered.json": {
+          "sha256": "123ea4b3bdeeff059ffd83b3f8137461cc826d5dd18e26e934e865b98d766820",
+          "bytes": 96
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/build.json": {
+          "sha256": "323ec168fac9a2e83f7de7895a4711ed090c990f67d5192269ad8d4de7f24c43",
+          "bytes": 1154
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/cc-version.stdout": {
+          "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc",
+          "bytes": 231
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/cc.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/cc.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/generated-gate.c": {
+          "sha256": "a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa",
+          "bytes": 3279
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/generated-gate.so": {
+          "sha256": "9c02f85be8e8f53a2fa7be6154bd0fb1a42f8002562b2a1e586a375a7f8ac9a3",
+          "bytes": 16336
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/outcome.json": {
+          "sha256": "14ec39b53aaa8582aeaae5c0804a066f17bdf6da5e7ff24a4a8931d1d96d9a1b",
+          "bytes": 1191
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/owned-daemon-exit.json": {
+          "sha256": "5a9252690676ebd029fc65b92a6d7fb9b822f3ab0802a81efdb5386a8918c47f",
+          "bytes": 161
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/owned-process-after-read.json": {
+          "sha256": "cc8022bcfcda0e52fa825dd9cfe3a71acddde9ab315b9e00e2ac91702d394beb",
+          "bytes": 125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-a9bbd6b4b3a50ac8de2daf0e37c191fcb535021eeae79b4a582015906553a8fa/owned-process-before.json": {
+          "sha256": "8942b822d4ec5169006e278c894d31c2d3c5d5d0b280a63018029158036f1050",
+          "bytes": 418
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/actual-read-entered.json": {
+          "sha256": "0ce7e2aba3169018019764004a567e6b51cfcb201e1bec2b1743e84e984d848e",
+          "bytes": 96
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/build.json": {
+          "sha256": "72563e636851539729c5c515ab61cf5726928cce041efb229b156de253510485",
+          "bytes": 1154
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/cc-version.stdout": {
+          "sha256": "78fc11ae2c3ff7c235eb18ed90989d18f6cc864fb27027f839368cd0888deebc",
+          "bytes": 231
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/cc.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/cc.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/generated-gate.c": {
+          "sha256": "bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2",
+          "bytes": 3279
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/generated-gate.so": {
+          "sha256": "75f37037628dfa6fd3e6d28d7bdae27860cda5876071a9ec1608af86a228a95c",
+          "bytes": 16336
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/outcome.json": {
+          "sha256": "feb4b90cc77122ceb7263eef7ba250c30bb592332a95889731c78d8b0149d6d3",
+          "bytes": 1123
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/owned-daemon-exit.json": {
+          "sha256": "242253aac7918a804af741ba65d27fd846933ad9bc6eca39a8f5cc940158f779",
+          "bytes": 161
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/owned-process-after-read.json": {
+          "sha256": "ee18abc4e179e4ee62ba3fa970670582b27b14967b19786a3b8ea8913a42807c",
+          "bytes": 125
+        },
+        "artifacts/factory-runtime-core/large-data-read-shim/read_gate_revoke-bbf9fee86d2ad9f0e7e6eff22ee700f2b7609e595f3e28697ac686f480fc8ed2/owned-process-before.json": {
+          "sha256": "cce3e0149231016ee94658782e5562a1b453fbe53df0fdf7e4085b28e33250a2",
+          "bytes": 418
+        },
+        "artifacts/factory-runtime-core/large-data-read-three-first-exit.json": {
+          "sha256": "2b70081b573872dcecace06d8e2b03c30a5c6b495484e8025803a64af1c1e48d",
+          "bytes": 18
+        },
+        "artifacts/factory-runtime-core/large-data-read-three-first.log": {
+          "sha256": "8fca4dd26811a0a2e289eaf40b6dfa33ede543946f49876e0c6b89f94262f27d",
+          "bytes": 475
+        },
+        "artifacts/factory-runtime-core/large-data-read-three-second-exit.json": {
+          "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01",
+          "bytes": 16
+        },
+        "artifacts/factory-runtime-core/large-data-read-three-second.log": {
+          "sha256": "fcf81f35cb903b36fe531cc7178f3c5a9220f6fb76caafa080c0df5b74591589",
+          "bytes": 722
+        }
+      },
+      "historical_attempts": {
+        "first_cancel_only": "PASS16.89s; earlier test source without all later observations",
+        "first_three_compile": "FAIL101 E0425 test-only accidental gate call in unrelated branch; preserved",
+        "combined_stop_three": "PASS51.19s but revoke/expiry followed by Ownercancel; not independent proof",
+        "strict_three_before_argument_cleanup": "PASS50.82s; same separate trigger semantics before Clippy-only parameter refactor",
+        "first_clippy": "FAIL101 too_many_arguments8/7; redundant project arg removed, no lint suppression",
+        "final_three": "PASS50.28s at exact source commit; do not sum repeated cases"
+      },
+      "remaining_not_run": [
+        "original authorized ReadyRequest queue deadline",
+        "interrupting a blocked kernel syscall",
+        "Mac shim/real Mac runtime",
+        "large capture/preflight/terminal-journal failure matrix",
+        "whole descendant containment",
+        "full current workspace regression"
+      ],
+      "stash_preserved": {
+        "ref": "refs/codex-checkpoints/factory-large-data-read-wip",
+        "sha": "da4ae89c6e71928e3cdc527ee875ce67ea113fb6",
+        "action": "applied without dropping; one insertion conflict resolved retaining CAS and all3 new tests"
+      },
+      "compiler_identity_post_run_observation": {
+        "lookup_path": "/usr/bin/cc",
+        "lookup_PATH": "/usr/bin:/bin (explicit Command env_clear)",
+        "canonical_executable": "/usr/bin/x86_64-linux-gnu-gcc-14",
+        "sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f",
+        "bytes": 1162264,
+        "device": 27,
+        "inode": 9223372036855079055,
+        "observation_scope": "read after completed final tests; compile-time per-case argv/version/source/library retained, not a pre-execution compiler-image pin"
+      }
+    },
+    "unique_final_tests": 3,
+    "counting": "do not add earlier1/3/3 passes or historical25/27/CAS14",
+    "production_change": false,
+    "scope": "Linux generated post-read synthetic stall only; not kernel interruption, Mac or complete Factory acceptance",
+    "lease": "returned to parent before docs"
   }
 }

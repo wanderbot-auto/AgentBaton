@@ -20,3 +20,10 @@ Mixed-ledger subunit: execute an ordinary managed conversation, an explicitly ap
 ## Owner start CAS correction
 
 Before any new Factory Owner start read plan, projection, descriptor/image lookup or worker allocation, compare the requested revision with the persisted approved scope. Preserve exact-key historical replay before this fresh-request check. Exercise a real Directory/Data Owner IPC wrong-CAS request with zero intent/key/journal effects, then the corrected same key through generated MCP execution and exact history after removing the companion. Keep the existing driver STALE_REVISION assertion, caps, deadlines, public DTOs and schema13 unchanged. This is a narrow correction, not the remaining large-read/fault/full-regression acceptance.
+
+
+## Large Data owned-read test boundary
+
+Use only a Linux generated fixture shared library, loaded through the explicit environment of this test's own standalone daemon. No Cargo/rustc/Host/other-daemon/Provider injection, public RPC, product flag or production changes. The interposer matches the selected private regular-file device/inode/size, UID,0600/single-link identity while the fixture retains its original FD. It pauses only after a real65536-byte read and uses a private marker/release with10s test-failure bound. Keep original cancellation/deadline/resource semantics and distinguish approved Scope expiry from the original queued ReadyRequest deadline.
+
+Exercise independent Ownercancel, Ownerrevoke without later Ownercancel, and actual approved4000ms Scope expiry without later Ownercancel. While the original read is held, require Owner reads/control responses, an unfinished original request/thread and unreleased attempt/lease. After explicit fixture release, require the original nonce's refusal, actual worker exit/join and original owned leader reap before final active0/lease0, with consumed1 and no child. Preserve bounded original-daemon SIGTERM cleanup and all failed attempts; do not infer complete descendant containment or interrupted kernel I/O.

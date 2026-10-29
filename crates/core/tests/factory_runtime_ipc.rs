@@ -11,6 +11,9 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
 };
+#[cfg(target_os = "linux")]
+#[path = "fixtures/factory_large_data_gate.rs"]
+mod large_data_gate;
 struct Fixture {
     _temp: tempfile::TempDir,
     path: PathBuf,
@@ -201,7 +204,7 @@ mcp=None;mid=0
 for line in sys.stdin:
  r=json.loads(line);method=r.get('method')
  if method=='initialize':
-  assert not any(k in os.environ for k in ('GH_TOKEN','GITHUB_TOKEN','OPENAI_API_KEY'))
+  assert not any(k in os.environ for k in ('GH_TOKEN','GITHUB_TOKEN','OPENAI_API_KEY','LD_PRELOAD'))
   response(r,{'protocolVersion':1,'agentCapabilities':{}})
  elif method=='session/new':
   servers=r['params']['mcpServers']
@@ -1516,14 +1519,46 @@ fn actual_data_scoped_four_methods_fail_closed_after_input_drift_but_owner_stop_
 fn actual_data_factory_wrong_start_revision_is_stale_before_read_worker_or_intent() {
     run_data_mode("wrong_start_revision");
 }
+#[cfg(target_os = "linux")]
+#[test]
+fn actual_large_data_read_owner_cancel_is_responsive_until_release_and_true_join() {
+    run_data_mode("read_gate_cancel");
+}
+#[cfg(target_os = "linux")]
+#[test]
+fn actual_large_data_read_owner_revoke_is_responsive_until_release_and_true_join() {
+    run_data_mode("read_gate_revoke");
+}
+#[cfg(target_os = "linux")]
+#[test]
+fn actual_large_data_read_scope_expiry_cancels_without_inventing_kernel_interruption() {
+    run_data_mode("read_gate_expiry");
+}
 fn run_data_mode(mode: &str) {
     use agentbaton_core::ipc::call;
     use serde_json::Value;
     use std::time::{Duration, Instant};
-    struct OwnedDaemon(std::process::Child);
+    struct OwnedDaemon(std::process::Child, bool);
     impl Drop for OwnedDaemon {
         fn drop(&mut self) {
-            // Only this original Child is controlled; no PID scanning.
+            // Only this original unreaped Child is controlled; no PID scanning.
+            if self.0.try_wait().ok().flatten().is_some() {
+                return;
+            }
+            if self.1 {
+                // Large-read failure cleanup first releases its private gate,
+                // then gives the real daemon its original owned-worker shutdown.
+                unsafe {
+                    libc::kill(self.0.id() as i32, libc::SIGTERM);
+                }
+                let until = Instant::now() + Duration::from_secs(5);
+                while Instant::now() < until {
+                    if self.0.try_wait().ok().flatten().is_some() {
+                        return;
+                    }
+                    std::thread::sleep(Duration::from_millis(5));
+                }
+            }
             let _ = self.0.kill();
             let _ = self.0.wait();
         }
@@ -1540,8 +1575,17 @@ fn run_data_mode(mode: &str) {
         fs::create_dir(path).unwrap();
         fs::set_permissions(path, fs::Permissions::from_mode(0o700)).unwrap();
     }
-    fs::write(source.join("input.txt"), b"fixed input\n").unwrap();
-    let before = fs::read(source.join("input.txt")).unwrap();
+    let input_limit = if mode.starts_with("read_gate_") {
+        16 * 1024 * 1024
+    } else {
+        1024
+    };
+    let before = if mode.starts_with("read_gate_") {
+        vec![b'Q'; input_limit]
+    } else {
+        b"fixed input\n".to_vec()
+    };
+    fs::write(source.join("input.txt"), &before).unwrap();
     let target = PathBuf::from(std::env::var_os("CARGO_TARGET_DIR").unwrap());
     for name in ["batond", "baton"] {
         let output = installed.join(name);
@@ -1554,16 +1598,29 @@ fn run_data_mode(mode: &str) {
             .unwrap()
             .success());
     }
-    let mut daemon = OwnedDaemon(
-        Command::new(installed.join("batond"))
-            .env_clear()
-            .env("PATH", "/usr/bin:/bin")
-            .env("BATON_RUNTIME_DIR", &runtime)
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null())
-            .spawn()
-            .unwrap(),
-    );
+    #[cfg(target_os = "linux")]
+    let mut read_gate = if mode.starts_with("read_gate_") {
+        Some(large_data_gate::ReadGate::compile(
+            &base,
+            mode,
+            &installed.join("batond"),
+            &target.join("debug/batond"),
+        ))
+    } else {
+        None
+    };
+    let mut command = Command::new(installed.join("batond"));
+    command
+        .env_clear()
+        .env("PATH", "/usr/bin:/bin")
+        .env("BATON_RUNTIME_DIR", &runtime)
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null());
+    #[cfg(target_os = "linux")]
+    if let Some(gate) = &read_gate {
+        gate.configure_own_daemon(&mut command);
+    }
+    let mut daemon = OwnedDaemon(command.spawn().unwrap(), mode.starts_with("read_gate_"));
     let ready = Instant::now() + Duration::from_secs(5);
     while !runtime.join("batond.sock").exists() {
         assert!(
@@ -1612,7 +1669,7 @@ fn run_data_mode(mode: &str) {
     );
     let preview = rpc(
         "data_workspace_previews.start",
-        json!({"project_id":project["id"],"files":[{"artifact_id":"input","relative_path":"input.txt","max_bytes":1024,"expected_sha256":sha256(&before)}],"limits":{"max_file_bytes":1024,"max_total_bytes":1024,"max_files":1}}),
+        json!({"project_id":project["id"],"files":[{"artifact_id":"input","relative_path":"input.txt","max_bytes":input_limit,"expected_sha256":sha256(&before)}],"limits":{"max_file_bytes":input_limit,"max_total_bytes":input_limit,"max_files":1}}),
         Some("data-preview"),
         project["revision"].as_u64(),
     );
@@ -1647,7 +1704,7 @@ fn run_data_mode(mode: &str) {
         .replace("status_workspace", "data_workspace");
     // Fixture-only, nonsecret host-generated identifier; it grants no rights.
     let connection_label = base.join("generated-connection-label.txt");
-    fs::write(&provider, body.replace("mcp=None;mid=0", &format!("data_connection=open({0}).read() if os.path.exists({0}) else ''\ndata_workspace={1}\nfixture_mode={2}\nmcp=None;mid=0",serde_json::to_string(&connection_label).unwrap(),copied["workspace_id"],serde_json::to_string(if mode=="input_drift"{"pin_drift"}else{"normal"}).unwrap()))).unwrap();
+    fs::write(&provider, body.replace("mcp=None;mid=0", &format!("data_connection=open({0}).read() if os.path.exists({0}) else ''\ndata_workspace={1}\nfixture_mode={2}\nmcp=None;mid=0",serde_json::to_string(&connection_label).unwrap(),copied["workspace_id"],serde_json::to_string(if mode=="input_drift"||mode.starts_with("read_gate_"){"pin_drift"}else{"normal"}).unwrap()))).unwrap();
     fs::set_permissions(&provider, fs::Permissions::from_mode(0o700)).unwrap();
     let p = rpc(
         "connections.propose",
@@ -1686,10 +1743,10 @@ fn run_data_mode(mode: &str) {
     );
     let grant = approve(&p, "trusted-data-grant-owner");
     let budget = json!({"attempts":8,"parallel":1,"runtime_ms":30000,"output_bytes":12288,"children":3,"reworks":0,"tokens":null,"cost_microunits":null});
-    let selection = json!({"root_task_id":task["id"],"expected_task_revision":task["revision"],"grant_id":grant["id"],"expected_grant_revision":grant["revision"],"connection_ids":[connection["id"]],"workspace_ids":[copied["workspace_id"]],"inputs":[{"artifact_id":"input","relative_path":"inputs/input.txt","max_bytes":1024,"expected_sha256":sha256(&before)}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":4096,"expected_sha256":null}],"recipients":[],"max_depth":2,"max_children":2,"max_total_nodes":4,"root_budget":budget,"project_budget":budget,"ttl_ms":30000,"capabilities":{"delegate_task":true,"resume_parent_as_new_attempt":true,"child_planning":false,"child_goal_execution":false,"create_workspace":false}});
+    let selection = json!({"root_task_id":task["id"],"expected_task_revision":task["revision"],"grant_id":grant["id"],"expected_grant_revision":grant["revision"],"connection_ids":[connection["id"]],"workspace_ids":[copied["workspace_id"]],"inputs":[{"artifact_id":"input","relative_path":"inputs/input.txt","max_bytes":input_limit,"expected_sha256":sha256(&before)}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":4096,"expected_sha256":null}],"recipients":[],"max_depth":2,"max_children":2,"max_total_nodes":4,"root_budget":budget,"project_budget":budget,"ttl_ms":if mode=="read_gate_expiry"{4000}else{30000},"capabilities":{"delegate_task":true,"resume_parent_as_new_attempt":true,"child_planning":false,"child_goal_execution":false,"create_workspace":false}});
     let proposal = rpc(
         "factory_scopes.propose",
-        selection,
+        selection.clone(),
         Some("data-factory-proposal"),
         None,
     );
@@ -1796,6 +1853,22 @@ fn run_data_mode(mode: &str) {
         scope["revision"].as_u64(),
     );
     assert_eq!(start["state"], "queued");
+    #[cfg(target_os = "linux")]
+    if let Some(gate) = &mut read_gate {
+        assert_eq!(scope["project_id"], project["id"]);
+        large_data_gate::run_inflight_case(
+            gate,
+            &runtime,
+            &workspace,
+            &scope,
+            &selection,
+            daemon.0.id(),
+            mode,
+        );
+        assert_eq!(fs::read(source.join("input.txt")).unwrap(), before);
+        gate.stop_original_daemon(&mut daemon.0);
+        return;
+    }
     if mode == "input_drift" {
         let until = Instant::now() + Duration::from_secs(5);
         while !workspace.join("reports/pin-ready").exists() {
