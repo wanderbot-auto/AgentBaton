@@ -2471,6 +2471,8 @@ pub(crate) use runtime::factory::request_stop as request_factory_child_goal_stop
 
 pub(crate) use runtime::factory::accepted_stop as factory_child_goal_accepted_stop;
 
+pub(crate) use runtime::factory::reserved_task_continuation as reserved_factory_goal_task_continuation;
+
 pub(crate) use runtime::GoalReservationRead;
 
 pub(crate) use runtime::preflight_factory_goal_reservation;

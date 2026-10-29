@@ -1700,6 +1700,55 @@ fn committed_read(
 fn raw_session(db: &Connection, id: &str) -> Result<crate::sessions::ManagedSession> {
     raw(db, "sessions", id)
 }
+/// Continue only the genuine completed Factory handoff whose new derived Goal
+/// reservation has just been written in this SAME transaction. This is not a
+/// general dispatch exception for Task OutcomeUnknown or an unknown Graph.
+pub(crate) fn reserved_task_continuation(
+    db: &Connection,
+    context: &GoalDispatchContext,
+    session: &crate::sessions::ManagedSession,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<bool> {
+    if !marked_run(db, &context.run.id)? {
+        return Ok(false);
+    }
+    if db.is_autocommit() {
+        return Err(denied());
+    }
+    let r = run(db, &context.run.id)?;
+    if r.revision != context.run.revision.checked_add(1).ok_or_else(limited)?
+        || r.plan_revision != context.run.plan_revision
+        || r.plan_digest != context.run.plan_digest
+        || r.task_id != context.run.task_id
+        || r.root_grant_id != context.run.root_grant_id
+    {
+        return Err(changed());
+    }
+    let n = node_records(db, &r.id)?
+        .into_iter()
+        .find(|n| n.node.id == context.node.id)
+        .ok_or_else(changed)?;
+    if n.node != context.node {
+        return Err(changed());
+    }
+    let task: Task = raw(db, "tasks", &r.task_id)?;
+    if task.state != TaskState::OutcomeUnknown {
+        return Err(denied());
+    }
+    // Reuses typed issuer/normal Factory handoff, live Grant/input metadata,
+    // exact prepared intent/session/lease, reservation and ordered Node receipt.
+    // The final Task write/event still precedes seal_committed_read below.
+    committed_read(
+        db,
+        &r,
+        &n,
+        &session.attempt_id,
+        &session.intent_id,
+        Some(session),
+        data,
+    )?;
+    Ok(true)
+}
 pub(super) fn seal_committed_read(
     db: &Connection,
     r: &GoalRun,

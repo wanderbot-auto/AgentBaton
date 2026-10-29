@@ -653,6 +653,20 @@ impl Store {
                 self.data_input.as_ref(),
                 self.graph_input.as_ref(),
             )?;
+            if task.state == TaskState::OutcomeUnknown
+                && crate::goal_store::reserved_factory_goal_task_continuation(
+                    &tx,
+                    context,
+                    &session,
+                    self.data_input.as_ref(),
+                )?
+            {
+                // The old generic unknown projection represented an actually
+                // joined, normally completed Factory handoff. Only this fully
+                // verified new derived reservation continues the Task; this is
+                // neither a worker-start receipt nor a general unknown retry.
+                task.state = TaskState::Running;
+            }
         }
         if let Some(context) = factory.as_ref() {
             crate::factory::reserve_factory_session(
