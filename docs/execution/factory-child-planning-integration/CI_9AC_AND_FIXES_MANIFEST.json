@@ -1,0 +1,66 @@
+{
+  "archive_sha256": "7430dc730a449fe33991193cc80e4f1079ceb88fed738fda2082fc231850d9c2",
+  "members": [
+    {
+      "path": "pr17-9ac-linux-review/REVIEW.md",
+      "sha256": "81aa37fd2a93df134c6c54257da0cd187b698cef8dbff2a28060483b656d92bb",
+      "bytes": 8560
+    },
+    {
+      "path": "pr17-9ac-linux-review/MANIFEST.json",
+      "sha256": "adf357a7f02e297ad8b97c50bbcbca273f67ddf2dec51481680e1e81c9b33b16",
+      "bytes": 5206
+    },
+    {
+      "path": "pr17-short-fixture-independent-review/REVIEW.md",
+      "sha256": "21a83a47aaf24bfffb6e602eb4c94e7fd4ae55191b58d6e8eaa6a45a303ca5ef",
+      "bytes": 3377
+    },
+    {
+      "path": "pr17-short-fixture-independent-review/MANIFEST.json",
+      "sha256": "18aac99abb2c50b580d7614ca8e326738f0e95e356e48e4f2bea2b936ce79b16",
+      "bytes": 3328
+    },
+    {
+      "path": "pr17-factory-argv-diagnostic-review/REVIEW.md",
+      "sha256": "9dd18030d73a6076385bb1f5c734c6f091bcf9f2ea4d630560c494b82f534307",
+      "bytes": 3449
+    },
+    {
+      "path": "pr17-factory-argv-diagnostic-review/MANIFEST.json",
+      "sha256": "6b9c11c7681d670c39f75dd2c53604d4d550f7c2625449f28573e7d342e59c3d",
+      "bytes": 2272
+    },
+    {
+      "path": "native-factory-hardlink-independent-review/REVIEW.md",
+      "sha256": "583f9cda58087fdf4e4f5774fbfdd87bfa24e3dad1df5707778c2e371bde8de6",
+      "bytes": 4049
+    },
+    {
+      "path": "native-factory-hardlink-independent-review/MANIFEST.json",
+      "sha256": "9aea35f871dfb16bd681ec527fa5aa1dccbcdbcb2bb43397335e011684f972ea",
+      "bytes": 3055
+    },
+    {
+      "path": "factory-child-planning-run5-review/final-by-integration-review/REVIEW.md",
+      "sha256": "252636312325d67713809c97b92c5a71354c0e5f2f5e0eb856558f13e109be68",
+      "bytes": 5236
+    },
+    {
+      "path": "factory-child-planning-run5-review/final-by-integration-review/MANIFEST.json",
+      "sha256": "a65a783d8cf08fe59173dfdb3e16e97c119590c9158a2c8d433b58bf64e4426b",
+      "bytes": 543
+    },
+    {
+      "path": "factory14-final-composition-independent-review/REVIEW.md",
+      "sha256": "1dae9c67e5838ddeba2b0beeeac17fe87a7d544c48d4698a5ee894e285a87074",
+      "bytes": 12066
+    },
+    {
+      "path": "factory14-final-composition-independent-review/MANIFEST.json",
+      "sha256": "390f6584371b8106e602d538fd36326b0025e697807bf16c23642a7afc31be23",
+      "bytes": 1630
+    }
+  ],
+  "scope": "Compact independent reports/manifests; original raw logs, ZIPs, stopped ephemeral fixture material and private data remain in original paths."
+}

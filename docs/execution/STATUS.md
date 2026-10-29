@@ -1,3 +1,11 @@
+## 当前 PR17 首轮远程结果与候选修复 — 2026-10-29T08:05:23.438761+00:00
+
+草稿 PR17 head `9ac06f7`，准确检出 `4593668` / tree `205f01a`。Environment Ubuntu通过、两Mac失败于49项中的3个私有运行时夹具提前守卫。Product Rust工作区659＋7通过（2个nested不加），Native报告34通过，Owner47一项companion安全守卫错误，Clippy未执行。UI原15路径126检查/76PNG通过，新planning在2检查/2PNG后因8KiB/NUL进程观察守卫失败；首次PID/长度/状态未保存，不猜测原因。ARM产品job已实际成功且原件已一次采齐，离线验包中；Intel最后仍运行，不称双架构通过。
+
+本地候选 `6753768` 已合三项独审修复：短canonical测试目录（原49+新增1通过）、不改变拒绝逻辑的首argv失败诊断、仅新Core夹具使用单硬链接私有工具副本（原共享样本拒绝、修后47通过且原工具元数据不变）。生产安全边界与旧断言未放宽。历史CI未记录FD stat，不能拿本机nlink倒填。候选尚未推送，等待原Mac终态避免并发自动取消；全部准确新CI仍须执行后再考虑合入。
+
+本地run5独立补封完成，9项/4PNG/真实恢复与停止仅证Linux/generatedProvider/privateOwner模拟；不覆盖上述远程红灯。独立组合审查为结构SOURCE_READY_FOR_CI，明确NOT_READY_MERGE。完整证据见本单元EVIDENCE.json及CI_9AC_AND_FIXES_REVIEW归档。schema15隔离分支策略5例和UI802组件测试通过，Native13未运行/真实完整生命周期仍WIP；130需求/27决定/WP01–14不缩范围。main3fd60f3/OWNER001002ACK；无formalApprove/生产/真实Provider/新费用/签名/许可证扩权。以下保留历史。
+
 ## 当前 Factory14 完整本地规划流程 — 2026-10-29T07:18:54.488006+00:00
 
 `codex/factory-child-planning-integration` 当前实现源码 `80c70cdf`：真实 UI14/Core14 IPC run5 完整通过9项检查、4PNG、17.14秒，清理成功；6份原始计划/回执链、UI编辑、UI与Core拒绝/stale、真实r4丢回复的显式精确恢复、停止与预算均完成。独立运行证据审查进行中，不能预写为通过。该路径采用 Linux Chromium、生成 ACP/MCP5 和私有 Native审批模拟，不冒实际OS/Mac或真实Provider。

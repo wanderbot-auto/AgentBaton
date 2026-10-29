@@ -171,7 +171,9 @@
         "not Mac schema14 or realproductProvider"
       ],
       "raw_originals": "/workspace/.onboarding/factory-child-planning-real-browser/run5",
-      "independent_evidence_review": "in_progress data_core_resume; no fabricated finalreview"
+      "independent_evidence_review": "sealed new independent context, original reviewer files unmodified",
+      "review_sha256": "252636312325d67713809c97b92c5a71354c0e5f2f5e0eb856558f13e109be68",
+      "readonly_requests_between_replydrop_and_recover": 12
     },
     "CI": {
       "new_browser_wiring_review": "56ae82c7fb6956d1e3f25675c133cee16c53a949f541e1b3bf378f461b6f47d9",
@@ -188,5 +190,55 @@
       "browserrun1exactlabel+closedengine,run2nestedsummary,run3nestedalert,run4badSQLcolumn: alloverallfailed/cleanupfalse retained"
     ],
     "complete_product": false
+  },
+  "PR17_first_remote_candidate": {
+    "at": "2026-10-29T08:05:23.438761+00:00",
+    "PR": "https://github.com/wanderbot-auto/AgentBaton/pull/17",
+    "head": "9ac06f78b107aa812fcec00f3b0c584911a88274",
+    "actualcheckout": "4593668cf8e03c84689012acce401a454e2c01eb",
+    "tree": "205f01a1088d2c58a402b0b5921e40c7d23845b3",
+    "Environment_run": 40834973097,
+    "Product_run": 40834973094,
+    "Environment": "UbuntuPASS,ARMandIntelFAIL:49tests3errors beforeintendedstopnegative dueprivate-runtimeguard;actualhistoricalinputpathnotlogged",
+    "Rust": "workspace659+7PASS,2nestedexcluded;NativeRunner34PASS;Owner47=46PASS1ERRORcompanionguard;ClippySKIPPED",
+    "UI": "Node733/44PASS;old15flows126checks76PNGpass;childplanning2checks2PNGFAILcombined8KiB/NULargvguard,firstPID/length/stateunknown;total128recordedchecks78imagesNOTfullpass",
+    "ARM": "APIterminalSUCCESS,originalnative/devZIPlogcollectedonce,offlineauditinprogress;nohash/signatureclaimyet",
+    "Intel": "lastknownCore/nativeinprogress,notterminal",
+    "Linux_independent_review_sha256": "81aa37fd2a93df134c6c54257da0cd187b698cef8dbff2a28060483b656d92bb",
+    "source_not_ready_merge": true
+  },
+  "PR17_local_candidate_fixes": {
+    "head": "675376800b65d1d48120b754c4568373f1b6974d",
+    "not_pushed_while_oldMac_running": true,
+    "short_runtime_fixture": {
+      "commit": "f6a31a27d7be737ab86a5f07f91363e293d9b436",
+      "change": "Testsetup uses shortcanonical /tmp,original49 retained plus1 longpathpreSpawnnegative",
+      "actual_result": "100byte defaulttemp replay old2methods3guarderrors/new2methods0; full50PASS",
+      "review": "21a83a47aaf24bfffb6e602eb4c94e7fd4ae55191b58d6e8eaa6a45a303ca5ef",
+      "production_helper_changed": false,
+      "newMac_run": "not_run"
+    },
+    "argv_diagnostics": {
+      "commit": "7dcf0ceaca9caab177dd5d8a866f8d5880cd8083",
+      "change": "OriginalguardrejectsNone/over8192/noNUL unchanged,onlyfirstfailure PIDtuple/state/length/NUL/SHA metadata without rawargv",
+      "review": "9dd18030d73a6076385bb1f5c734c6f091bcf9f2ea4d630560c494b82f534307",
+      "current_CI_cause_established": false,
+      "latercleanup_not_backfilled": true
+    },
+    "actual_Core_privatecopy": {
+      "source": "038e048d3e87b79bd242badf8d5862f7ed850d98",
+      "change": "OnlynewactualCoretest uses private0700 samebytes daemon+CLI500singlelink copies;46othersunchanged;Coreguard/run_factory/Nativebinaryuntouched",
+      "local_causal_sample": "sharedsamebytes nlink2 denied;privatecopy1 accepted;originalallmetadata/aliasesunchanged",
+      "actual_after": "47PASS8.604s onsharedinput",
+      "CI_original_FD_stat": "notretained,doNOTbackfilllocalnlink",
+      "review": "583f9cda58087fdf4e4f5774fbfdd87bfa24e3dad1df5707778c2e371bde8de6"
+    }
+  },
+  "parallel_schema15_partial": {
+    "Core": "0a79421checkPASS7WIPwarnings;4ffb210libpolicy5PASS91filtered,notfullsuite/migration/runtime",
+    "UI": "5414490types/focused69/full802/buildPASS componentmockonly;noIPC15",
+    "Native": "d250source-reviewed383d8d7,13newRustNOTRUN;reworksconditionfollowupinprogress",
+    "runtime": "Lifecycle/failedallstop→originalplannerresume/append-onlysameGraphadoption andMCPregistrationWIP;oldfalse/planningreworks0",
+    "not_current14_delivery": true
   }
 }
