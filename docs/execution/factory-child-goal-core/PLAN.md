@@ -16,3 +16,5 @@ Next verification order: freeze source; one new check/cfgtest compile under excl
 Current5491 source library typecheck is actually green. Next cfgtest-selected6policy+1tool-schema then protected newCLI15/generated actual normal case, followed by lifecycle adversarial/migration/independent review. No Cargo lease is held.
 
 Staged current-source7lib/build/freshschema15probe have actually passed at2a1689c. Next authorized stage is the exact generated ACP child-Graph Owner/parent normal test using frozen15companion; await Root lease before starting. Independent migration test leaf owns factory_child_goal_legacy_migration.rs, do not duplicate its file or borrow empty probe as nonempty migration evidence.
+
+Next after preserved runtime1 failure: fixed-source check/cfgtest3new admission projection controls and independent review; rebuild exactprivate15 sourcepair before any second generated chain, under Root lease. Real Native14 nonempty migration leaf remains separate; no Cargo lease held here.

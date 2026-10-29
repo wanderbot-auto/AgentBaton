@@ -535,6 +535,13 @@ impl Store {
                 "Local supervisor concurrency limit reached",
             ));
         }
+        if let Some(context) = goal.as_ref() {
+            crate::goal_store::preflight_factory_goal_reservation(
+                &tx,
+                context,
+                self.data_input.as_ref(),
+            )?;
+        }
         for scope in [
             format!("project:{}", task.project_id),
             format!("root:{}", canonical_root),

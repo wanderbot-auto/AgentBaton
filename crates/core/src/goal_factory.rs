@@ -232,6 +232,23 @@ pub(super) fn live_scope(
     data: Option<&crate::data_workspaces::DataInputWitness>,
     require_head: bool,
 ) -> Result<(ScopeRecord, ApprovedGoalScope)> {
+    live_scope_phase(db, r, data, require_head, None)
+}
+pub(super) fn live_scope_for_reservation(
+    db: &Connection,
+    r: &GoalRun,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+    phase: &GoalReservationRead<'_>,
+) -> Result<(ScopeRecord, ApprovedGoalScope)> {
+    live_scope_phase(db, r, data, true, Some(phase))
+}
+fn live_scope_phase(
+    db: &Connection,
+    r: &GoalRun,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+    require_head: bool,
+    phase: Option<&GoalReservationRead<'_>>,
+) -> Result<(ScopeRecord, ApprovedGoalScope)> {
     let record = checked_record(db, &r.id)?;
     capability(db, r)?;
     crate::factory::live_child_goal_scope(db, &record.origin.factory_scope_id, &r.task_id, data)?;
@@ -243,11 +260,22 @@ pub(super) fn live_scope(
             "A derived child Goal requires its exact request's joined Factory I/O observation",
         )
     })?;
-    witness
-        .factory
-        .as_ref()
-        .ok_or_else(denied)?
-        .recheck_child_goal(db, witness, &factory_scope)?;
+    let read = witness.factory.as_ref().ok_or_else(denied)?;
+    if let Some(phase) = phase {
+        let scope: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
+        if phase.run().id != r.id
+            || phase.run().revision != r.revision
+            || phase.run().task_id != r.task_id
+            || phase.run().root_grant_id != r.root_grant_id
+            || phase.node().workspace_id != scope.refs.workspace.id
+            || phase.binding() != &recorded_scope_view(db, &scope)?.binding
+        {
+            return Err(changed());
+        }
+        read.recheck_child_goal_reservation(db, witness, &factory_scope, phase)?;
+    } else {
+        read.recheck_child_goal(db, witness, &factory_scope)?;
+    }
 
     let scope: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
     let task: Task = raw(db, "tasks", &r.task_id)?;
@@ -1314,17 +1342,6 @@ impl Store {
         )?;
         tx.commit().map_err(db_error)?;
         Ok(true)
-    }
-}
-
-impl Store {
-    pub(crate) fn factory_child_goal_failure_context(&self, id: &str) -> Result<Value> {
-        let r = run(&self.conn, id)?;
-        checked_record(&self.conn, id)?;
-        let mut context = verify_confirmed_failure(&self.conn, &r)?;
-        context["plan"] = json!(summary(&self.conn, id)?.plan);
-        context["observations_ref"] = json!(format!("factory_child_goals.get:{id}"));
-        Ok(context)
     }
 }
 

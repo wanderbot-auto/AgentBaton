@@ -92,6 +92,131 @@ impl QueryProof {
         Ok(())
     }
 }
+// Constructed only after the private Goal atomic-reservation phase and exact
+// newly inserted intent/session have been checked against their durable origin.
+struct OwnedGoalReadDelta {
+    project_budget: String,
+    root_budget: String,
+    root_task: String,
+    task: String,
+    intent_row: String,
+}
+impl QueryProof {
+    fn recheck_owned_goal(
+        &self,
+        db: &Connection,
+        delta: &OwnedGoalReadDelta,
+        remaining: &mut (usize, usize),
+    ) -> Result<()> {
+        let current = Self::capture_bounded(db, self.sql, self.args.clone(), remaining)?;
+        let mut expected = self.rows.clone();
+        if self.sql=="SELECT json_array(total_limit,parallel_limit,consumed,active) AS value FROM budgets WHERE scope=?1" && self.args.len()==1 && (self.args[0]==delta.project_budget || self.args[0]==delta.root_budget) {
+            if expected.len()!=1{return Err(changed());}
+            let old:Vec<u64>=serde_json::from_str(&expected[0]).map_err(|_|changed())?;
+            if old.len()!=4 || old[2]>=old[0] || old[3]>=old[1] {return Err(changed());}
+            expected[0]=encode(&[old[0],old[1],old[2].checked_add(1).ok_or_else(limited)?,old[3].checked_add(1).ok_or_else(limited)?])?;
+        }else if self.sql=="SELECT json_array(d.id,d.state,d.document,a.binding) AS value FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE a.task_id=?1 ORDER BY d.id" && self.args==[delta.root_task.clone()] && delta.task==delta.root_task {
+            let id=|row:&str|->Result<String>{let v:serde_json::Value=decode(row)?;Ok(v[0].as_str().ok_or_else(changed)?.to_owned())};
+            let added=id(&delta.intent_row)?;
+            if expected.iter().map(|r|id(r)).collect::<Result<Vec<_>>>()?.contains(&added){return Err(changed());}
+            expected.push(delta.intent_row.clone());
+            let mut keyed=expected.into_iter().map(|r|Ok((id(&r)?,r))).collect::<Result<Vec<_>>>()?;
+            keyed.sort_by(|a,b|a.0.cmp(&b.0));expected=keyed.into_iter().map(|(_,r)|r).collect();
+        }
+        if current.rows != expected {
+            return Err(changed());
+        }
+        Ok(())
+    }
+}
+fn owned_goal_delta(
+    db: &Connection,
+    scope: &super::FactoryScope,
+    p: &crate::goal_store::GoalReservationRead<'_>,
+) -> Result<OwnedGoalReadDelta> {
+    let r = p.run();
+    let node = p.node();
+    let source:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM factory_child_goal_runs f JOIN goal_runs g ON g.id=f.goal_run_id WHERE f.goal_run_id=?1 AND f.goal_scope_id=?2 AND f.factory_scope_id=?3 AND f.task_id=?4 AND f.root_task_id=?5 AND g.scope_id=?2 AND g.task_id=?4 AND g.project_id=?6 AND json_extract(g.document,'$.root_grant_id')=?7)",rusqlite::params![r.id,r.scope_id,scope.id,r.task_id,scope.root_task_id,scope.project_id,scope.root_grant_id],|row|row.get(0)).map_err(db_error)?;
+    let current:Option<String>=db.query_row("SELECT CASE WHEN octet_length(document)<=262144 THEN document END FROM goal_run_nodes WHERE run_id=?1 AND node_id=?2 AND plan_revision=?3 AND state='not_started' AND session_id IS NULL AND attempt_id IS NULL",rusqlite::params![r.id,node.id,i64::try_from(r.plan_revision).map_err(|_|changed())?],|row|row.get(0)).map_err(db_error)?;
+    let current: serde_json::Value = decode(&current.ok_or_else(limited)?)?;
+    if !source
+        || current["node"] != serde_json::json!(node)
+        || p.binding().workspace_id != node.workspace_id
+        || p.binding().policy_revision
+            != format!("{}:{}", scope.root_grant_id, scope.root_grant_revision)
+    {
+        return Err(changed());
+    }
+    let raw:Option<String>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM dispatch_intents WHERE id=?1 AND attempt_id=?2 AND state='prepared' AND executor_instance IS NULL",rusqlite::params![p.intent_id(),p.attempt_id()],|row|row.get(0)).map_err(db_error)?;
+    let raw = raw.ok_or_else(limited)?;
+    let actual: serde_json::Value = decode(&raw)?;
+    let expected = crate::execution::DispatchIntent {
+        id: p.intent_id().into(),
+        attempt_id: p.attempt_id().into(),
+        task_id: r.task_id.clone(),
+        root_task_id: scope.root_task_id.clone(),
+        state: crate::execution::IntentState::Prepared,
+        executor_instance: None,
+        binding: p.binding().clone(),
+    };
+    if actual != serde_json::json!(expected) {
+        return Err(changed());
+    }
+    let attempt:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM attempts WHERE id=?1 AND task_id=?2 AND root_task_id=?3 AND binding=?4) AND NOT EXISTS(SELECT 1 FROM factory_attempts WHERE attempt_id=?1) AND NOT EXISTS(SELECT 1 FROM goal_run_reservations WHERE attempt_id=?1)",rusqlite::params![p.attempt_id(),r.task_id,scope.root_task_id,encode(p.binding())?],|row|row.get(0)).map_err(db_error)?;
+    if !attempt {
+        return Err(changed());
+    }
+    let sessions: u32 = db
+        .query_row(
+            "SELECT count(*) FROM sessions WHERE json_extract(document,'$.attempt_id')=?1",
+            [p.attempt_id()],
+            |row| row.get(0),
+        )
+        .map_err(db_error)?;
+    if let Some(session) = p.session() {
+        if sessions != 1
+            || !matches!(
+                node.kind,
+                crate::goal_plan::NodeKind::Work | crate::goal_plan::NodeKind::Summary
+            )
+            || session.task_id != r.task_id
+            || session.project_id != r.project_id
+            || session.grant_id != r.root_grant_id
+            || session.attempt_id != p.attempt_id()
+            || session.intent_id != p.intent_id()
+            || session.workspace_id != node.workspace_id
+            || session.connection_id != p.binding().connection_id
+            || session.state != "starting"
+            || session.revision != 1
+            || session.turn_state.is_some()
+            || session.native_session_id.is_some()
+        {
+            return Err(changed());
+        }
+        let raw:Option<String>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM sessions WHERE id=?1 AND task_id=?2 AND root_grant_id=?3",rusqlite::params![session.id,r.task_id,r.root_grant_id],|row|row.get(0)).map_err(db_error)?;
+        if decode::<serde_json::Value>(&raw.ok_or_else(limited)?)? != serde_json::json!(session) {
+            return Err(changed());
+        }
+        let lease:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM workspace_leases WHERE resource=?1 AND holder=?2 AND fencing_token=?3)",rusqlite::params![node.workspace_id,session.id,i64::try_from(session.fencing_token).map_err(|_|changed())?],|row|row.get(0)).map_err(db_error)?;
+        if !lease {
+            return Err(changed());
+        }
+    } else if sessions != 0
+        || node.kind != crate::goal_plan::NodeKind::Validate
+        || !matches!(node.executor, crate::goal_plan::Executor::Validator { .. })
+    {
+        return Err(changed());
+    }
+    let intent_row:String=db.query_row("SELECT json_array(d.id,d.state,d.document,a.binding) FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE d.id=?1",[p.intent_id()],|row|row.get(0)).map_err(db_error)?;
+    Ok(OwnedGoalReadDelta {
+        project_budget: format!("project:{}", scope.project_id),
+        root_budget: format!("root:{}", scope.root_task_id),
+        root_task: scope.root_task_id.clone(),
+        task: r.task_id.clone(),
+        intent_row,
+    })
+}
+
 // This seals the complete observed work tree, not just selected inputs. A
 // directory stamp detects entry creation/removal, while each nofollow leaf stat
 // detects edits outside the selected set. Captured BEFORE the worker's full Git
@@ -1078,6 +1203,25 @@ impl FactoryReadWitness {
         witness: &crate::data_workspaces::DataInputWitness,
         scope: &super::FactoryScope,
     ) -> Result<()> {
+        self.recheck_child_goal_phase(db, witness, scope, None)
+    }
+    pub(crate) fn recheck_child_goal_reservation(
+        &self,
+        db: &Connection,
+        witness: &crate::data_workspaces::DataInputWitness,
+        scope: &super::FactoryScope,
+        phase: &crate::goal_store::GoalReservationRead<'_>,
+    ) -> Result<()> {
+        let delta = owned_goal_delta(db, scope, phase)?;
+        self.recheck_child_goal_phase(db, witness, scope, Some(&delta))
+    }
+    fn recheck_child_goal_phase(
+        &self,
+        db: &Connection,
+        witness: &crate::data_workspaces::DataInputWitness,
+        scope: &super::FactoryScope,
+        delta: Option<&OwnedGoalReadDelta>,
+    ) -> Result<()> {
         if !self.child_planning
             || Instant::now() >= self.deadline
             || self.selection != scope.selection
@@ -1089,8 +1233,13 @@ impl FactoryReadWitness {
             return Err(changed());
         }
         self.database.recheck()?;
+        let mut remaining = (4_194_304, 100_000);
         for proof in &self.proofs {
-            proof.recheck(db)?;
+            if let Some(delta) = delta {
+                proof.recheck_owned_goal(db, delta, &mut remaining)?;
+            } else {
+                proof.recheck(db)?;
+            }
         }
         for pin in &self.pins {
             pin.verify(false)?;
@@ -1902,5 +2051,137 @@ mod tests {
     }
     mod child_planning_tests {
         include!("factory_child_plan_tests.rs");
+    }
+}
+
+#[cfg(test)]
+mod child_goal_admission_tests {
+    use super::*;
+    const COUNTERS:&str="SELECT json_array(total_limit,parallel_limit,consumed,active) AS value FROM budgets WHERE scope=?1";
+    const INTENTS:&str="SELECT json_array(d.id,d.state,d.document,a.binding) AS value FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE a.task_id=?1 ORDER BY d.id";
+    fn db() -> Connection {
+        let db = Connection::open_in_memory().unwrap();
+        db.execute_batch("CREATE TABLE budgets(scope TEXT PRIMARY KEY,total_limit INTEGER,parallel_limit INTEGER,consumed INTEGER,active INTEGER);INSERT INTO budgets VALUES('project:p',8,4,1,0),('root:r',8,4,1,0),('root:foreign',8,4,0,0);CREATE TABLE attempts(id TEXT PRIMARY KEY,task_id TEXT,binding TEXT);CREATE TABLE dispatch_intents(id TEXT PRIMARY KEY,attempt_id TEXT,state TEXT,document TEXT);").unwrap();
+        db
+    }
+    fn delta() -> OwnedGoalReadDelta {
+        OwnedGoalReadDelta {
+            project_budget: "project:p".into(),
+            root_budget: "root:r".into(),
+            root_task: "r".into(),
+            task: "r".into(),
+            intent_row: "[\"own\",\"prepared\",\"fixed intent bytes\",\"fixed binding bytes\"]"
+                .into(),
+        }
+    }
+    fn check(p: &QueryProof, db: &Connection, d: &OwnedGoalReadDelta) -> Result<()> {
+        p.recheck_owned_goal(db, d, &mut (4_194_304, 100_000))
+    }
+    #[test]
+    fn exact_own_counter_delta_retains_limits_and_rejects_extra_missing_or_double_charge() {
+        // This is a real SQLite readset projection unit, not an authority token
+        // or owned process test. Production phase construction has separate
+        // exact Goal/node/intent/session/lease checks before this helper.
+        let db = db();
+        let d = delta();
+        for key in [&d.project_budget, &d.root_budget] {
+            let p = QueryProof::capture(&db, COUNTERS, vec![key.clone()]).unwrap();
+            assert!(
+                check(&p, &db, &d).is_err(),
+                "missing own increment must refuse"
+            );
+            db.execute(
+                "UPDATE budgets SET consumed=consumed+1,active=active+1 WHERE scope=?1",
+                [key],
+            )
+            .unwrap();
+            check(&p, &db, &d).unwrap();
+            db.execute("SAVEPOINT corrupt", []).unwrap();
+            db.execute(
+                "UPDATE budgets SET consumed=consumed+1 WHERE scope=?1",
+                [key],
+            )
+            .unwrap();
+            assert!(
+                check(&p, &db, &d).is_err(),
+                "extra/double charge must refuse"
+            );
+            db.execute_batch("ROLLBACK TO corrupt;RELEASE corrupt;")
+                .unwrap();
+            db.execute("SAVEPOINT corrupt", []).unwrap();
+            db.execute(
+                "UPDATE budgets SET total_limit=total_limit+1 WHERE scope=?1",
+                [key],
+            )
+            .unwrap();
+            assert!(
+                check(&p, &db, &d).is_err(),
+                "unreviewed ceiling must refuse"
+            );
+            db.execute_batch("ROLLBACK TO corrupt;RELEASE corrupt;")
+                .unwrap();
+            check(&p, &db, &d).unwrap();
+        }
+    }
+    #[test]
+    fn an_unrelated_root_never_gets_the_owned_counter_exception() {
+        let db = db();
+        let p = QueryProof::capture(&db, COUNTERS, vec!["root:foreign".into()]).unwrap();
+        check(&p, &db, &delta()).unwrap();
+        db.execute(
+            "UPDATE budgets SET consumed=consumed+1,active=active+1 WHERE scope='root:foreign'",
+            [],
+        )
+        .unwrap();
+        assert!(check(&p, &db, &delta()).is_err());
+    }
+    #[test]
+    fn exact_pending_intent_and_root_target_dedup_reject_foreign_binding_missing_and_repeat() {
+        let db = db();
+        let p = QueryProof::capture(&db, INTENTS, vec!["r".into()]).unwrap();
+        let d = delta();
+        assert!(check(&p, &db, &d).is_err(), "missing own pending intent");
+        db.execute(
+            "INSERT INTO attempts VALUES('a','r','fixed binding bytes')",
+            [],
+        )
+        .unwrap();
+        db.execute(
+            "INSERT INTO dispatch_intents VALUES('own','a','prepared','fixed intent bytes')",
+            [],
+        )
+        .unwrap();
+        check(&p, &db, &d).unwrap();
+        db.execute("SAVEPOINT corrupt", []).unwrap();
+        db.execute("UPDATE attempts SET binding='foreign binding bytes'", [])
+            .unwrap();
+        assert!(check(&p, &db, &d).is_err());
+        db.execute_batch("ROLLBACK TO corrupt;RELEASE corrupt;")
+            .unwrap();
+        db.execute("SAVEPOINT corrupt", []).unwrap();
+        db.execute(
+            "INSERT INTO attempts VALUES('b','r','fixed binding bytes')",
+            [],
+        )
+        .unwrap();
+        db.execute(
+            "INSERT INTO dispatch_intents VALUES('foreign','b','prepared','fixed intent bytes')",
+            [],
+        )
+        .unwrap();
+        assert!(check(&p, &db, &d).is_err());
+        db.execute_batch("ROLLBACK TO corrupt;RELEASE corrupt;")
+            .unwrap();
+        let captured_twice = QueryProof::capture(&db, INTENTS, vec!["r".into()]).unwrap();
+        assert!(
+            check(&captured_twice, &db, &d).is_err(),
+            "already observed intent cannot be added twice"
+        );
+        let mut descendant = d;
+        descendant.task = "child".into();
+        assert!(
+            check(&p, &db, &descendant).is_err(),
+            "child admission cannot change root's intent history"
+        );
     }
 }

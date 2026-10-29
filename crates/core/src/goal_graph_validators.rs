@@ -362,6 +362,7 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
+        preflight_factory_goal_reservation(&tx, &context, self.data_input.as_ref())?;
         for key in [
             format!("project:{}", r.project_id),
             format!("root:{}", root_task(&record)),
@@ -392,6 +393,7 @@ impl Store {
             &context,
             GoalAttemptTarget {
                 attempt_id: &intent.attempt_id,
+                intent_id: &intent.id,
                 task_id: &r.task_id,
                 grant_id: &r.root_grant_id,
                 session: None,

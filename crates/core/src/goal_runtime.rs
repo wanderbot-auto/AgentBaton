@@ -1044,6 +1044,7 @@ pub(crate) fn reserve_session(
         c,
         GoalAttemptTarget {
             attempt_id: &s.attempt_id,
+            intent_id: &s.intent_id,
             task_id: &s.task_id,
             grant_id: &s.grant_id,
             session: Some(s),
@@ -1055,9 +1056,75 @@ pub(crate) fn reserve_session(
 }
 struct GoalAttemptTarget<'a> {
     attempt_id: &'a str,
+    intent_id: &'a str,
     task_id: &'a str,
     grant_id: &'a str,
     session: Option<&'a crate::sessions::ManagedSession>,
+}
+/// Full strict readset consumption before generic attempt counters/rows are
+/// changed, inside the SAME SQLite transaction. Native/ordinary paths retain
+/// their original checks and never acquire the Factory phase exception.
+pub(crate) fn preflight_factory_goal_reservation(
+    db: &Connection,
+    c: &GoalDispatchContext,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<()> {
+    if !factory::marked_run(db, &c.run.id)? {
+        return Ok(());
+    }
+    let current = run(db, &c.run.id)?;
+    if current.revision != c.run.revision
+        || current.plan_revision != c.run.plan_revision
+        || current.plan_digest != c.run.plan_digest
+        || current.task_id != c.run.task_id
+        || current.root_grant_id != c.run.root_grant_id
+        || current.cancel_requested
+        || sequence(db)? != c.ledger_revision
+    {
+        return Err(changed());
+    }
+    checked_runtime_scope(db, &current, data)?;
+    let n = node_records(db, &current.id)?
+        .into_iter()
+        .find(|n| n.node.id == c.node.id)
+        .ok_or_else(changed)?;
+    if n.node != c.node
+        || n.state != "not_started"
+        || n.session_id.is_some()
+        || n.attempt_id.is_some()
+    {
+        return Err(changed());
+    }
+    Ok(())
+}
+/// Only the atomic reservation code constructs this phase token. No wire or
+/// legacy/native caller can request a relaxed business-read comparison.
+pub(crate) struct GoalReservationRead<'a> {
+    context: &'a GoalDispatchContext,
+    attempt_id: &'a str,
+    intent_id: &'a str,
+    session: Option<&'a crate::sessions::ManagedSession>,
+    binding: &'a ExecutionBinding,
+}
+impl GoalReservationRead<'_> {
+    pub(crate) fn run(&self) -> &GoalRun {
+        &self.context.run
+    }
+    pub(crate) fn node(&self) -> &PlanNode {
+        &self.context.node
+    }
+    pub(crate) fn attempt_id(&self) -> &str {
+        self.attempt_id
+    }
+    pub(crate) fn intent_id(&self) -> &str {
+        self.intent_id
+    }
+    pub(crate) fn session(&self) -> Option<&crate::sessions::ManagedSession> {
+        self.session
+    }
+    pub(crate) fn binding(&self) -> &ExecutionBinding {
+        self.binding
+    }
 }
 fn reserve_attempt(
     db: &Connection,
@@ -1078,10 +1145,6 @@ fn reserve_attempt(
             "Goal dispatch changed before atomic reservation",
         ));
     }
-    let (scope, approved) = checked_runtime_scope(db, &r, data)?;
-    if graph::is_graph_run(db, &r.id)? {
-        graph::require_attempt_read(db, &r, &c.node, graph_input, target.session)?;
-    }
     let nodes = node_records(db, &r.id)?;
     let mut n = nodes
         .into_iter()
@@ -1089,6 +1152,21 @@ fn reserve_attempt(
         .ok_or_else(changed)?;
     if n.node != c.node || target.task_id != r.task_id || target.grant_id != r.root_grant_id {
         return Err(changed());
+    }
+    let phase = GoalReservationRead {
+        context: c,
+        attempt_id: target.attempt_id,
+        intent_id: target.intent_id,
+        session: target.session,
+        binding,
+    };
+    let (scope, approved) = if factory::marked_run(db, &r.id)? {
+        factory::live_scope_for_reservation(db, &r, data, &phase)?
+    } else {
+        checked_runtime_scope(db, &r, data)?
+    };
+    if graph::is_graph_run(db, &r.id)? {
+        graph::require_attempt_read(db, &r, &c.node, graph_input, target.session)?;
     }
     let expected = match &n.node.executor {
         Executor::Connection { binding, .. } => binding.as_ref().clone(),

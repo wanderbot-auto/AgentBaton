@@ -171,8 +171,7 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
     let reply=call(&runtime,json!({"method":"factory_runs.start","params":{"scope_id":scope.id},"expected_revision":scope.revision,"idempotency_key":"child-goal-root-start"})).unwrap();
     assert!(reply.get("error").is_none(), "{reply}");
     let until = Instant::now() + Duration::from_secs(15);
-    let mut owner = None;
-    loop {
+    let (before, proposal, decision) = loop {
         let runs = mixed_call(
             &runtime,
             json!({"method":"factory_runs.get","params":{"scope_id":scope.id}}),
@@ -225,15 +224,13 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
                         json!({"method":"approvals.finalize","params":{"proposal_id":proposal["id"]},"expected_revision":proposal["revision"],"idempotency_key":"child-goal-private-owner-finalize"}),
                     );
                     assert_eq!(decision["task_accepted"], true);
-                    owner = Some((view, proposal, decision));
-                    break;
+                    break (view, proposal, decision);
                 }
             }
         }
         assert!(Instant::now()<until,"actual child Goal did not reach owned candidate/private Owner review; run={runs}; stderr={:?}",fs::read_to_string(workspace.join("reports/fixture-stderr.txt")));
         std::thread::sleep(Duration::from_millis(10));
-    }
-    let (before, proposal, decision) = owner.unwrap();
+    };
     let final_run = loop {
         let r = mixed_call(
             &runtime,
