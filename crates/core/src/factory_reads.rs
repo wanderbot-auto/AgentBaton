@@ -244,12 +244,12 @@ fn owned_goal_delta(
         return Err(changed());
     }
     let project_attempt_count: u64 = if needs_initializer {
-        db.query_row("SELECT count(DISTINCT a.id) FROM attempts a WHERE EXISTS(SELECT 1 FROM tasks t WHERE (t.id=a.task_id OR t.id=a.root_task_id) AND json_extract(t.document,'$.project_id')=?1) OR EXISTS(SELECT 1 FROM execution_grants g WHERE (g.project_id=?1 OR json_extract(g.document,'$.project_id')=?1) AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':')",[&scope.project_id],|row|row.get(0)).map_err(db_error)?
+        u64::try_from(db.query_row("SELECT count(DISTINCT a.id) FROM attempts a WHERE EXISTS(SELECT 1 FROM tasks t WHERE (t.id=a.task_id OR t.id=a.root_task_id) AND json_extract(t.document,'$.project_id')=?1) OR EXISTS(SELECT 1 FROM execution_grants g WHERE (g.project_id=?1 OR json_extract(g.document,'$.project_id')=?1) AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':')",[&scope.project_id],|row|row.get::<_, i64>(0)).map_err(db_error)?).map_err(|_|changed())?
     } else {
         0
     };
     let root_attempt_count: u64 = if needs_initializer {
-        db.query_row("SELECT count(DISTINCT a.id) FROM attempts a WHERE a.root_task_id=?1 OR a.task_id=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':') OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?2)",rusqlite::params![scope.root_task_id,scope.root_grant_id],|row|row.get(0)).map_err(db_error)?
+        u64::try_from(db.query_row("SELECT count(DISTINCT a.id) FROM attempts a WHERE a.root_task_id=?1 OR a.task_id=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':') OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?2)",rusqlite::params![scope.root_task_id,scope.root_grant_id],|row|row.get::<_, i64>(0)).map_err(db_error)?).map_err(|_|changed())?
     } else {
         0
     };
@@ -257,22 +257,22 @@ fn owned_goal_delta(
     // history independently so an orphan/legacy row cannot disappear merely
     // because no attempts row maps it. Intent history is likewise independent.
     let project_session_count: u64 = if needs_initializer {
-        db.query_row("SELECT count(*) FROM sessions s WHERE s.project_id=?1 OR json_extract(s.document,'$.project_id')=?1 OR EXISTS(SELECT 1 FROM tasks t WHERE (t.id=s.task_id OR t.id=json_extract(s.document,'$.task_id')) AND json_extract(t.document,'$.project_id')=?1) OR EXISTS(SELECT 1 FROM execution_grants g WHERE (g.project_id=?1 OR json_extract(g.document,'$.project_id')=?1) AND (g.id=s.grant_id OR g.id=s.root_grant_id OR g.id=json_extract(s.document,'$.grant_id')))",[&scope.project_id],|row|row.get(0)).map_err(db_error)?
+        u64::try_from(db.query_row("SELECT count(*) FROM sessions s WHERE s.project_id=?1 OR json_extract(s.document,'$.project_id')=?1 OR EXISTS(SELECT 1 FROM tasks t WHERE (t.id=s.task_id OR t.id=json_extract(s.document,'$.task_id')) AND json_extract(t.document,'$.project_id')=?1) OR EXISTS(SELECT 1 FROM execution_grants g WHERE (g.project_id=?1 OR json_extract(g.document,'$.project_id')=?1) AND (g.id=s.grant_id OR g.id=s.root_grant_id OR g.id=json_extract(s.document,'$.grant_id')))",[&scope.project_id],|row|row.get::<_, i64>(0)).map_err(db_error)?).map_err(|_|changed())?
     } else {
         0
     };
     let root_session_count: u64 = if needs_initializer {
-        db.query_row("SELECT count(*) FROM sessions s WHERE s.root_grant_id=?1 OR s.task_id=?2 OR json_extract(s.document,'$.task_id')=?2 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?1 AND (g.id=s.grant_id OR g.id=s.root_grant_id OR g.id=json_extract(s.document,'$.grant_id')))",rusqlite::params![scope.root_grant_id,scope.root_task_id],|row|row.get(0)).map_err(db_error)?
+        u64::try_from(db.query_row("SELECT count(*) FROM sessions s WHERE s.root_grant_id=?1 OR s.task_id=?2 OR json_extract(s.document,'$.task_id')=?2 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?1 AND (g.id=s.grant_id OR g.id=s.root_grant_id OR g.id=json_extract(s.document,'$.grant_id')))",rusqlite::params![scope.root_grant_id,scope.root_task_id],|row|row.get::<_, i64>(0)).map_err(db_error)?).map_err(|_|changed())?
     } else {
         0
     };
     let project_intent_count: u64 = if needs_initializer {
-        db.query_row("SELECT count(DISTINCT d.id) FROM dispatch_intents d LEFT JOIN attempts a ON a.id=d.attempt_id WHERE EXISTS(SELECT 1 FROM tasks t WHERE json_extract(t.document,'$.project_id')=?1 AND (t.id=a.task_id OR t.id=a.root_task_id OR t.id=json_extract(d.document,'$.task_id') OR t.id=json_extract(d.document,'$.root_task_id'))) OR EXISTS(SELECT 1 FROM execution_grants g WHERE (g.project_id=?1 OR json_extract(g.document,'$.project_id')=?1) AND (substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':' OR substr(json_extract(d.document,'$.binding.policy_revision'),1,length(g.id)+1)=g.id||':'))",[&scope.project_id],|row|row.get(0)).map_err(db_error)?
+        u64::try_from(db.query_row("SELECT count(DISTINCT d.id) FROM dispatch_intents d LEFT JOIN attempts a ON a.id=d.attempt_id WHERE EXISTS(SELECT 1 FROM tasks t WHERE json_extract(t.document,'$.project_id')=?1 AND (t.id=a.task_id OR t.id=a.root_task_id OR t.id=json_extract(d.document,'$.task_id') OR t.id=json_extract(d.document,'$.root_task_id'))) OR EXISTS(SELECT 1 FROM execution_grants g WHERE (g.project_id=?1 OR json_extract(g.document,'$.project_id')=?1) AND (substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':' OR substr(json_extract(d.document,'$.binding.policy_revision'),1,length(g.id)+1)=g.id||':'))",[&scope.project_id],|row|row.get::<_, i64>(0)).map_err(db_error)?).map_err(|_|changed())?
     } else {
         0
     };
     let root_intent_count: u64 = if needs_initializer {
-        db.query_row("SELECT count(DISTINCT d.id) FROM dispatch_intents d LEFT JOIN attempts a ON a.id=d.attempt_id WHERE a.root_task_id=?1 OR a.task_id=?1 OR json_extract(d.document,'$.root_task_id')=?1 OR json_extract(d.document,'$.task_id')=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND (substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':' OR substr(json_extract(d.document,'$.binding.policy_revision'),1,length(g.id)+1)=g.id||':'))",rusqlite::params![scope.root_task_id,scope.root_grant_id],|row|row.get(0)).map_err(db_error)?
+        u64::try_from(db.query_row("SELECT count(DISTINCT d.id) FROM dispatch_intents d LEFT JOIN attempts a ON a.id=d.attempt_id WHERE a.root_task_id=?1 OR a.task_id=?1 OR json_extract(d.document,'$.root_task_id')=?1 OR json_extract(d.document,'$.task_id')=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND (substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':' OR substr(json_extract(d.document,'$.binding.policy_revision'),1,length(g.id)+1)=g.id||':'))",rusqlite::params![scope.root_task_id,scope.root_grant_id],|row|row.get::<_, i64>(0)).map_err(db_error)?).map_err(|_|changed())?
     } else {
         0
     };
