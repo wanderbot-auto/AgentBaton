@@ -215,7 +215,7 @@ def main():
                     factory_selection = {'root_task_id':factory_task['id'],'expected_task_revision':factory_task['revision'],'grant_id':grant['id'],'expected_grant_revision':current_grant['revision'],'connection_ids':[connection['id']],'workspace_ids':[workspace['id']],
                         'inputs':[{'artifact_id':'input','relative_path':'file','max_bytes':1024,'expected_sha256':sha(b'baseline')}], 'outputs':[artifact], 'recipients':[], 'max_depth':1,'max_children':3,'max_total_nodes':4,'root_budget':budget,'project_budget':budget,'ttl_ms':600_000,
                         'capabilities':{'delegate_task':True,'resume_parent_as_new_attempt':True,'child_planning':True,'child_goal_execution':False,'create_workspace':False},
-                        'child_planning_policy':{'max_nodes':8,'max_revisions':16,'max_plan_bytes':262144,'outputs':[{'artifact':artifact,'validators':[]}],'writable_prefixes':['reports'],'owner_acceptance_criteria':'Store historical plan only; separate Owner acceptance is required'}}
+                        'child_planning_policy':{'max_nodes':8,'max_revisions':16,'max_plan_bytes':262144,'outputs':[{'artifact':artifact,'validators':[]}],'writable_prefixes':['reports/report.txt'],'owner_acceptance_criteria':'Store historical plan only; separate Owner acceptance is required'}}
                     _, factory_scope = approve('factory_scopes.propose', factory_selection, 'legacy:factory-scope', 'factory')
                     call('factory_runs.start', {'scope_id':factory_scope['id']}, 'legacy:factory-start', factory_scope['revision'])
                     wait(lambda: list(runtime.glob('workspaces/**/reports/migration-owned-*.json')), lambda markers: len(markers) >= 2)
