@@ -1293,6 +1293,12 @@ impl Store {
             self.reconcile_factory_child_goals(&id)?;
             let s = scope(&self.conn, &id)?;
             let mut r = run(&self.conn, &id)?;
+            // Reconciliation can complete a root-target Graph by projecting
+            // its exact already-accepted history. Never reinterpret that
+            // terminal result as a new live-admission failure and cancel it.
+            if r.state == "completed" {
+                continue;
+            }
             let authorized = base_live(&self.conn, &s).is_ok();
             let all = bindings(&self.conn, &r)?;
             if r.cancel_requested || !authorized {
@@ -1354,6 +1360,15 @@ impl Store {
                 if let Some(id) = active {
                     return Ok(Some(FactoryAction::Stop(id)));
                 }
+                continue;
+            }
+            // Reconciliation may just have discovered an unknown/blocked
+            // outcome in this same tick. Preserve cancellation/expiry cleanup
+            // above, but never admit another sibling from that run below.
+            if matches!(
+                r.state.as_str(),
+                "cancelled" | "blocked" | "outcome_unknown"
+            ) {
                 continue;
             }
             if let Some(session_id) = r.active_session_id.clone() {

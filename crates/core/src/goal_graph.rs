@@ -240,8 +240,12 @@ pub(super) fn checked_capability(db: &Connection, r: &GoalRun) -> Result<GraphAu
         return factory::capability(db, r);
     }
     raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(run_id)+octet_length(approval_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_capabilities WHERE run_id=?1",[&r.id],1,MAX_STORED_BYTES)?;
-    let stored: Option<Option<String>> = db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_graph_capabilities WHERE run_id=?1",[&r.id],|row|row.get(0)).optional().map_err(db_error)?;
-    let cap: GraphCapability = decode(&stored.ok_or_else(denied)?.ok_or_else(limited)?)?;
+    let stored:Option<(String,String,i64,Option<String>)>=db.query_row("SELECT run_id,approval_id,version,CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_graph_capabilities WHERE run_id=?1",[&r.id],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?))).optional().map_err(db_error)?;
+    let (run_id, approval_id, version, document) = stored.ok_or_else(denied)?;
+    let cap: GraphCapability = decode(&document.ok_or_else(limited)?)?;
+    if run_id != cap.run_id || approval_id != cap.approval_id || version != i64::from(cap.version) {
+        return Err(changed());
+    }
     let (p, result) = native_confirmation(db, &r.id, "goal_graph_execution")?;
     if cap.version != GRAPH_CONTRACT_VERSION
         || cap.run_id != r.id
@@ -3214,4 +3218,14 @@ mod proposal_size_tests {
             "ordinary UUID alone would incorrectly pass the old control-id bound"
         );
     }
+}
+
+pub(super) fn verify_pending_factory_validator(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    attempt: &str,
+    intent: &str,
+) -> Result<()> {
+    validators::verify_pending_factory_validator(db, r, n, attempt, intent)
 }

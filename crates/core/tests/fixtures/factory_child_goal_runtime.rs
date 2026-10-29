@@ -65,6 +65,13 @@ impl Drop for RunningDaemon {
 }
 #[test]
 fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume() {
+    actual_generated_child_goal(false);
+}
+#[test]
+fn actual_factory_root_goal_owned_stop_owner_acceptance_completes_without_cancel_or_resume() {
+    actual_generated_child_goal(true);
+}
+fn actual_generated_child_goal(root_self: bool) {
     let mut f = Fixture::new();
     let companion=PathBuf::from(std::env::var_os("AGENTBATON_CHILD_GOAL_COMPANION").expect("Provide an explicitly frozen matching schema15 Baton companion; schema14 tools are not this test"));
     assert!(companion.is_absolute());
@@ -79,6 +86,7 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
     let script = child_goal_provider(
         &f.selection.connection_ids[0],
         &f.selection.workspace_ids[0],
+        root_self,
     );
     fs::write(&provider, &script).unwrap();
     fs::set_permissions(&provider, fs::Permissions::from_mode(0o700)).unwrap();
@@ -180,7 +188,7 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
             .as_array()
             .unwrap()
             .iter()
-            .find(|t| !t["parent_task_id"].is_null())
+            .find(|t| t["parent_task_id"].is_null() == root_self)
         {
             let list = mixed_call(
                 &runtime,
@@ -245,9 +253,20 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
         );
         std::thread::sleep(Duration::from_millis(10));
     };
+    assert_eq!(final_run["run"]["cancel_requested"], false);
+    if root_self {
+        assert_eq!(final_run["tasks"].as_array().unwrap().len(), 1);
+        assert_eq!(final_run["tasks"][0]["task_id"], scope.root_task_id);
+        assert_eq!(final_run["tasks"][0]["result_available"], true);
+        assert_eq!(final_run["tasks"][0]["cancel_requested"], false);
+    }
     assert_eq!(
         fs::read_to_string(workspace.join("reports/mcp-stages.txt")).unwrap(),
-        "parent-initial\nparent-resumed\n"
+        if root_self {
+            "parent-initial\n"
+        } else {
+            "parent-initial\nparent-resumed\n"
+        }
     );
     drop(running); // Actual daemon shutdown / owned reap before DB assertions.
     let cleanup: serde_json::Value =
@@ -261,7 +280,19 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
             .unwrap(),
         15
     );
-    for (sql,expected) in [("SELECT count(*) FROM factory_child_goal_runs",1),("SELECT count(*) FROM factory_attempts",2),("SELECT count(*) FROM goal_run_reservations",1),("SELECT count(*) FROM goal_graph_capabilities",0),("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",0),("SELECT count(*) FROM workspace_leases WHERE holder!=''",0),("SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'",1),("SELECT count(*) FROM attempts WHERE root_task_id!=(SELECT root_task_id FROM factory_scopes LIMIT 1)",0)]{assert_eq!(db.query_row(sql,[],|row|row.get::<_,i64>(0)).unwrap(),expected,"{sql}");}
+    for (sql,expected) in [("SELECT count(*) FROM factory_child_goal_runs",1),("SELECT count(*) FROM factory_attempts",if root_self {1}else{2}),("SELECT count(*) FROM goal_run_reservations",1),("SELECT count(*) FROM goal_graph_capabilities",0),("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",0),("SELECT count(*) FROM workspace_leases WHERE holder!=''",0),("SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'",1),("SELECT count(*) FROM attempts WHERE root_task_id!=(SELECT root_task_id FROM factory_scopes LIMIT 1)",0)]{assert_eq!(db.query_row(sql,[],|row|row.get::<_,i64>(0)).unwrap(),expected,"{sql}");}
+    if root_self {
+        let root_result: String = db.query_row("SELECT json_extract(document,'$.result.acceptance_state') FROM factory_task_bindings WHERE task_id=?1",[&scope.root_task_id],|row|row.get(0)).unwrap();
+        assert_eq!(root_result, "task_accepted");
+        let task_state: String = db
+            .query_row(
+                "SELECT json_extract(document,'$.state') FROM tasks WHERE id=?1",
+                [&scope.root_task_id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(task_state, "accepted");
+    }
     let stored_grant: serde_json::Value = serde_json::from_str(
         &db.query_row(
             "SELECT document FROM execution_grants WHERE id=?1",
@@ -272,7 +303,7 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
     )
     .unwrap();
     assert_eq!(stored_grant, json!(grant));
-    let body = json!({"dimension":"generated local ACP + actual fixed schema15 MCP + Actor UnixIPC + actual joined workers/private Owner finalizer; no paid Provider or OS dialog","source_hashes":{"factory_child_goal_runtime.rs":sha256(include_bytes!("factory_child_goal_runtime.rs")),"core_goal_factory.rs":sha256(include_bytes!("../../src/goal_factory.rs")),"core_graph_stop.rs":sha256(include_bytes!("../../src/goal_graph_stop.rs"))},"companion_sha256":sha256(&fs::read(companion).unwrap()),"scope":scope,"before_owner":before,"owner_proposal":proposal,"owner_decision":decision,"final_factory":final_run,"journal":db_events(&f.path)});
+    let body = json!({"dimension":"generated local ACP + actual fixed schema15 MCP + Actor UnixIPC + actual joined workers/private Owner finalizer; no paid Provider or OS dialog","root_self":root_self,"source_hashes":{"factory_child_goal_runtime.rs":sha256(include_bytes!("factory_child_goal_runtime.rs")),"core_goal_factory.rs":sha256(include_bytes!("../../src/goal_factory.rs")),"core_graph_stop.rs":sha256(include_bytes!("../../src/goal_graph_stop.rs"))},"companion_sha256":sha256(&fs::read(companion).unwrap()),"scope":scope,"before_owner":before,"owner_proposal":proposal,"owner_decision":decision,"final_factory":final_run,"journal":db_events(&f.path)});
     let bytes = serde_json::to_vec_pretty(&body).unwrap();
     let hash = sha256(&bytes);
     fs::write(
@@ -284,7 +315,7 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
     .unwrap();
 }
 
-fn child_goal_provider(connection: &str, workspace: &str) -> String {
+fn child_goal_provider(connection: &str, workspace: &str, root_self: bool) -> String {
     let mut script = ACP_FACTORY.replace(
         "mcp=None;mid=0",
         &format!(
@@ -322,6 +353,28 @@ fn child_goal_provider(connection: &str, workspace: &str) -> String {
    assert c['handoff_result']['task']['confirmed_stop']is True
    assert any(x.startswith('goal-task-acceptance:')for x in c['handoff_result']['validation_refs'])
 "#);
+    if root_self {
+        let marker = "   child=tool('delegate_task',{'goal':'Produce and accept only the actual fixed child report'";
+        assert_eq!(
+            script
+                .lines()
+                .filter(|line| line.starts_with(marker))
+                .count(),
+            1
+        );
+        script = script
+            .lines()
+            .map(|line| {
+                if line.starts_with(marker) {
+                    "   child={'task_id':c['task_id']}"
+                } else {
+                    line
+                }
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+            + "\n";
+    }
     // Each inserted hook carries the real same GoalPlan model. Graph workers
     // have zero MCP servers and never receive a separate Factory credential.
     script = script.replace(

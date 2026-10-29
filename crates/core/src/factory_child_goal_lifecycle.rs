@@ -5,9 +5,14 @@ use super::*;
 impl Store {
     pub(super) fn reconcile_factory_child_goals(&mut self, scope_id: &str) -> Result<()> {
         let s = scope(&self.conn, scope_id)?;
-        if !s.selection.capabilities.child_goal_execution || base_live(&self.conn, &s).is_err() {
+        if !s.selection.capabilities.child_goal_execution {
             return Ok(());
         }
+        // A genuine accepted result is immutable history, even when accepting
+        // this Factory root made new live admission unavailable. This never
+        // authorizes a new worker or failed-Goal recovery under an expired,
+        // revoked or terminal scope.
+        let live = base_live(&self.conn, &s).is_ok();
         let current = run(&self.conn, scope_id)?;
         if current.cancel_requested
             || current.active_session_id.is_some()
@@ -36,11 +41,12 @@ impl Store {
             }
             if g.task_accepted && g.run.state == "accepted" {
                 self.finish_factory_child_goal(scope_id, &b.handle.task_id, goal_id)?;
-            } else if matches!(g.run.state.as_str(), "blocked" | "failed")
+            } else if live
+                && matches!(g.run.state.as_str(), "blocked" | "failed")
                 && self.confirm_factory_child_goal_failure(goal_id)?
             {
                 self.prepare_factory_goal_recovery(scope_id, &b.handle.task_id, goal_id)?;
-            } else if g.run.state == "outcome_unknown" {
+            } else if live && g.run.state == "outcome_unknown" {
                 let tx = self
                     .conn
                     .transaction_with_behavior(TransactionBehavior::Immediate)

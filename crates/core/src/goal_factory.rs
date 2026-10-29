@@ -276,7 +276,17 @@ fn live_scope_phase(
     } else {
         read.recheck_child_goal(db, witness, &factory_scope)?;
     }
-
+    live_scope_state(db, r, data, require_head)
+}
+// Shared by strict/pending admission and the same-transaction committed launch
+// proof. The business snapshot alone does not replace any existing live Task,
+// derived-scope, Grant or current-plan authority condition.
+fn live_scope_state(
+    db: &Connection,
+    r: &GoalRun,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+    require_head: bool,
+) -> Result<(ScopeRecord, ApprovedGoalScope)> {
     let scope: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
     let task: Task = raw(db, "tasks", &r.task_id)?;
     if scope.revoked
@@ -1562,4 +1572,205 @@ impl Store {
         }
         Ok(old)
     }
+}
+
+fn committed_read(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    attempt: &str,
+    intent_id: &str,
+    session: Option<&crate::sessions::ManagedSession>,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<(crate::factory::FactoryScope, GoalCommittedRead)> {
+    let issuer = checked_record(db, &r.id)?;
+    capability(db, r)?;
+    crate::factory::live_child_goal_scope(db, &issuer.origin.factory_scope_id, &r.task_id, data)?;
+    let scope = crate::factory::checked_child_goal_scope(db, &issuer.origin.factory_scope_id)?;
+    let (record, _) = live_scope_state(db, r, data, true)?;
+    let current = node_records(db, &r.id)?
+        .into_iter()
+        .find(|x| x.node.id == n.node.id)
+        .ok_or_else(changed)?;
+    if r.state != "running"
+        || r.cancel_requested
+        || current.state != "reserved"
+        || current.plan_revision != r.plan_revision
+        || current.node != n.node
+        || current.attempt_id.as_deref() != Some(attempt)
+        || current.session_id.as_deref() != session.map(|s| s.id.as_str())
+        || current.stop_confirmed
+        || !adopted_head_is_current(db, r)?
+    {
+        return Err(denied());
+    }
+    let witness = data.ok_or_else(denied)?;
+    let input = witness.factory.as_ref().ok_or_else(denied)?;
+    let binding = recorded_scope_view(db, &record)?.binding;
+    let raw:Option<String>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM dispatch_intents WHERE id=?1 AND attempt_id=?2 AND state='prepared' AND executor_instance IS NULL",params![intent_id,attempt],|row|row.get(0)).map_err(db_error)?;
+    let intent: crate::execution::DispatchIntent = decode(&raw.ok_or_else(limited)?)?;
+    if intent.id != intent_id
+        || intent.attempt_id != attempt
+        || intent.task_id != r.task_id
+        || intent.root_task_id != scope.root_task_id
+        || intent.binding != binding
+        || intent.state != crate::execution::IntentState::Prepared
+        || intent.executor_instance.is_some()
+    {
+        return Err(changed());
+    }
+    if let Some(s) = session {
+        let actual: crate::sessions::ManagedSession = raw_session(db, &s.id)?;
+        if json!(actual) != json!(s)
+            || s.id != current.session_id.as_deref().ok_or_else(changed)?
+            || s.task_id != r.task_id
+            || s.project_id != r.project_id
+            || s.attempt_id != attempt
+            || s.intent_id != intent_id
+            || s.grant_id != r.root_grant_id
+            || s.workspace_id != binding.workspace_id
+            || s.connection_id != binding.connection_id
+            || s.state != "starting"
+            || s.native_session_id.is_some()
+            || s.turn_state.is_some()
+        {
+            return Err(changed());
+        }
+        let lease:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM workspace_leases WHERE resource=?1 AND holder=?2 AND fencing_token=?3)",params![s.workspace_id,s.id,sql_num(s.fencing_token)?],|row|row.get(0)).map_err(db_error)?;
+        if !lease {
+            return Err(changed());
+        }
+    } else {
+        if current.node.kind != NodeKind::Validate || current.session_id.is_some() {
+            return Err(changed());
+        }
+        graph::verify_pending_factory_validator(db, r, &current, attempt, intent_id)?;
+    }
+    let reserved:Option<String>=db.query_row("SELECT document FROM goal_run_reservations WHERE attempt_id=?1 AND run_id=?2 AND node_id=?3 AND octet_length(document)<=262144",params![attempt,r.id,n.node.id],|row|row.get(0)).optional().map_err(db_error)?;
+    let reservation: ReservationRecord = decode(&reserved.ok_or_else(denied)?)?;
+    if reservation.settled
+        || reservation.run_id != r.id
+        || reservation.node_id != n.node.id
+        || reservation.plan_revision != r.plan_revision
+        || reservation.reservation != n.node.reservation
+        || reservation.actual_runtime_ms.is_some()
+        || reservation.actual_output_bytes.is_some()
+    {
+        return Err(changed());
+    }
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.payload.attempt_id')=?2",params![r.id,attempt],1,MAX_STORED_BYTES)?;
+    let (reserved_sequence,event_raw):(i64,String)=db.query_row("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.payload.attempt_id')=?2",params![r.id,attempt],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
+    let e: Event = decode(&event_raw)?;
+    if reserved_sequence <= 0
+        // Stored journal documents use sequence=0; only the physical SQLite
+        // row carries authority. Public event projection fills that value in.
+        || e.sequence != 0
+        || e.source != "goal_core"
+        || e.aggregate_id != r.id
+        || e.kind != "goal.node_reserved"
+        || e.revision != r.revision
+        || e.payload["node_id"] != n.node.id
+        || e.payload["attempt_id"] != attempt
+        || e.payload["session_id"] != json!(session.map(|s| &s.id))
+        || e.payload["plan_revision"] != r.plan_revision
+        || e.payload["plan_digest"] != r.plan_digest
+        || e.payload["reservation"] != json!(n.node.reservation)
+        || e.payload["factory_read_request_sha256"] != input.request_hash()
+        || e.payload["factory_dispatch_intent_id"] != intent_id
+        || e.payload["factory_reservation_digest"] != sha(&reservation)?
+    {
+        return Err(denied());
+    }
+    refuse_retained_overrun(db, &r.root_grant_id, &r.project_id)?;
+    let token = GoalCommittedRead {
+        fingerprint: json!({"factory_scope_id":scope.id,"factory_scope_revision":scope.revision,"factory_scope_digest":scope.contract_digest,"run_id":r.id,"run_revision":r.revision,"scope_id":r.scope_id,"node_id":n.node.id,"node_digest":sha(&n.node)?,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"task_id":r.task_id,"root_task_id":scope.root_task_id,"root_grant_id":r.root_grant_id,"project_id":r.project_id,"session_id":session.map(|s|&s.id),"session_digest":session.map(sha).transpose()?,"attempt_id":attempt,"intent_id":intent_id,"binding_digest":sha(&binding)?,"request_hash":input.request_hash(),"node_reserved_sequence":reserved_sequence,"last_sequence":sequence(db)?}),
+    };
+    Ok((scope, token))
+}
+fn raw_session(db: &Connection, id: &str) -> Result<crate::sessions::ManagedSession> {
+    raw(db, "sessions", id)
+}
+pub(super) fn seal_committed_read(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    attempt: &str,
+    intent: &str,
+    session: Option<&crate::sessions::ManagedSession>,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<()> {
+    let (scope, proof) = committed_read(db, r, n, attempt, intent, session, data)?;
+    let witness = data.ok_or_else(denied)?;
+    witness
+        .factory
+        .as_ref()
+        .ok_or_else(denied)?
+        .seal_child_goal_commit(db, witness, &scope, &proof)
+}
+pub(super) fn consume_committed_read(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    attempt: &str,
+    intent: &str,
+    session: Option<&crate::sessions::ManagedSession>,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<()> {
+    let (scope, proof) = committed_read(db, r, n, attempt, intent, session, data)?;
+    let witness = data.ok_or_else(denied)?;
+    witness
+        .factory
+        .as_ref()
+        .ok_or_else(denied)?
+        .consume_child_goal_commit(db, witness, &scope, &proof)
+}
+
+/// A never-started target may keep editing/adopting its saved planning head.
+/// This proves the real derived issuer and every prior node/reservation, rather
+/// than treating a handle state string as a completed/unknown stop proof.
+pub(crate) fn require_queued_unstarted_target(
+    db: &Connection,
+    goal_id: &str,
+    factory_scope_id: &str,
+    factory_run_id: &str,
+    task_id: &str,
+) -> Result<()> {
+    let source = checked_record(db, goal_id)?;
+    let r = run(db, goal_id)?;
+    capability(db, &r)?;
+    if source.origin.factory_scope_id != factory_scope_id
+        || source.origin.factory_run_id != factory_run_id
+        || source.initial_run.task_id != task_id
+        || r.task_id != task_id
+        || r.state != "queued"
+        || r.cancel_requested
+        || r.task_accepted
+    {
+        return Err(denied());
+    }
+    let nodes = node_records(db, goal_id)?;
+    if nodes.is_empty()
+        || nodes.iter().any(|n| {
+            n.state != "not_started"
+                || n.attempt_id.is_some()
+                || n.session_id.is_some()
+                || n.stop_confirmed
+                || n.actual_runtime_ms.is_some()
+                || n.actual_output_bytes.is_some()
+        })
+    {
+        return Err(denied());
+    }
+    let started:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_nodes WHERE run_id=?1 AND (state!='not_started' OR session_id IS NOT NULL OR attempt_id IS NOT NULL OR json_extract(document,'$.state') IS NOT 'not_started' OR json_extract(document,'$.attempt_id') IS NOT NULL OR json_extract(document,'$.session_id') IS NOT NULL)) OR EXISTS(SELECT 1 FROM goal_run_reservations WHERE run_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_jobs WHERE run_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_candidates WHERE run_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_validations WHERE run_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_owner_decisions WHERE run_id=?1) OR EXISTS(SELECT 1 FROM goal_graph_acceptances WHERE run_id=?1)",[goal_id],|row|row.get(0)).map_err(db_error)?;
+    if started {
+        return Err(denied());
+    }
+    // A dangling/foreign pending attempt or writer is not a never-started
+    // proof merely because no current Goal Node points at it. Retain all
+    // existing cumulative shared budget rows; planning does not reset them.
+    let other_work:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM attempts WHERE task_id=?1) OR EXISTS(SELECT 1 FROM sessions WHERE task_id=?1 OR json_extract(document,'$.task_id')=?1) OR EXISTS(SELECT 1 FROM dispatch_intents d LEFT JOIN attempts a ON a.id=d.attempt_id WHERE a.task_id=?1 OR json_extract(d.document,'$.task_id')=?1) OR EXISTS(SELECT 1 FROM workspace_leases WHERE resource=?2 AND holder!='')",params![task_id,source.target_request.workspace_id],|row|row.get(0)).map_err(db_error)?;
+    if other_work {
+        return Err(denied());
+    }
+    Ok(())
 }

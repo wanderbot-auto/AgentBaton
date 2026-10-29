@@ -4,7 +4,19 @@ use super::*;
 use crate::{factory::*, goal_plan::*};
 use serde_json::json;
 fn fixture() -> (Fixture, FactoryScope) {
-    let mut f = Fixture::new();
+    let pair = fixture_from(Fixture::new());
+    assert_eq!(
+        pair.0
+            .store
+            .get_grant(&pair.1.root_grant_id)
+            .unwrap()
+            .scope
+            .max_children,
+        0
+    );
+    pair
+}
+fn fixture_from(mut f: Fixture) -> (Fixture, FactoryScope) {
     f.selection.capabilities.child_planning = true;
     f.selection.child_planning_policy = Some(FactoryChildPlanningPolicy {
         max_nodes: 8,
@@ -26,7 +38,6 @@ fn fixture() -> (Fixture, FactoryScope) {
     });
     let grant_before =
         serde_json::to_value(f.store.get_grant(&f.selection.grant_id).unwrap()).unwrap();
-    assert_eq!(grant_before["scope"]["max_children"], 0);
     let w = f.observe(f.plan());
     f.store.data_input = Some(w);
     let proposal = f
@@ -476,4 +487,8 @@ fn child_plan_history_remains_readonly_after_revoke_exact_key_does_not_upgrade_a
 
 mod child_goal_policy_tests {
     include!("factory_child_goal_policy_tests.rs");
+}
+
+mod child_goal_state_tests {
+    include!("factory_child_goal_state_tests.rs");
 }

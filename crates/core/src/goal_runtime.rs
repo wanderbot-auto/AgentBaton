@@ -1097,6 +1097,16 @@ pub(crate) fn preflight_factory_goal_reservation(
     }
     Ok(())
 }
+/// Opaque same-handler proof of the exact already-committed attempt. Only
+/// Goal runtime constructs it from current durable source, never wire labels.
+pub(crate) struct GoalCommittedRead {
+    fingerprint: Value,
+}
+impl GoalCommittedRead {
+    pub(crate) fn fingerprint(&self) -> &Value {
+        &self.fingerprint
+    }
+}
 /// Only the atomic reservation code constructs this phase token. No wire or
 /// legacy/native caller can request a relaxed business-read comparison.
 pub(crate) struct GoalReservationRead<'a> {
@@ -1369,11 +1379,44 @@ fn reserve_attempt(
     n.started_at_ms = Some(ms()?);
     save_node(db, &r.id, &n)?;
     r.state = "running".into();
-    let payload = json!({"node_id":n.node.id,"attempt_id":target.attempt_id,"session_id":target.session.map(|s|&s.id),"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"reservation":n.node.reservation,"actual_runtime_ms":null,"actual_output_bytes":null,"tokens":null,"cost_microunits":null,"task_accepted":false});
+    let mut payload = json!({"node_id":n.node.id,"attempt_id":target.attempt_id,"session_id":target.session.map(|s|&s.id),"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"reservation":n.node.reservation,"actual_runtime_ms":null,"actual_output_bytes":null,"tokens":null,"cost_microunits":null,"task_accepted":false});
+    if factory::marked_run(db, &r.id)? {
+        let original = data.and_then(|d| d.factory.as_ref()).ok_or_else(denied)?;
+        payload["factory_read_request_sha256"] = json!(original.request_hash());
+        payload["factory_dispatch_intent_id"] = json!(target.intent_id);
+        payload["factory_reservation_digest"] = json!(sha(&receipt)?);
+    }
     save_run(db, &mut r, "goal.node_reserved", payload)?;
     Ok(())
 }
 
+pub(crate) fn seal_factory_goal_read(
+    db: &Connection,
+    c: &GoalDispatchContext,
+    attempt_id: &str,
+    intent_id: &str,
+    session: Option<&crate::sessions::ManagedSession>,
+    data: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<()> {
+    if !factory::marked_run(db, &c.run.id)? {
+        return Ok(());
+    }
+    let r = run(db, &c.run.id)?;
+    if r.revision != c.run.revision.checked_add(1).ok_or_else(limited)?
+        || r.plan_revision != c.run.plan_revision
+        || r.plan_digest != c.run.plan_digest
+    {
+        return Err(changed());
+    }
+    let n = node_records(db, &r.id)?
+        .into_iter()
+        .find(|n| n.node.id == c.node.id)
+        .ok_or_else(changed)?;
+    if n.node != c.node {
+        return Err(changed());
+    }
+    factory::seal_committed_read(db, &r, &n, attempt_id, intent_id, session, data)
+}
 impl Store {
     pub(crate) fn goal_session_duration(&self, id: &str) -> Result<Option<u64>> {
         if !owns_session(&self.conn, id)? {
@@ -1381,8 +1424,22 @@ impl Store {
         }
         let (run_id,doc):(String,String)=self.conn.query_row("SELECT run_id,document FROM goal_run_nodes WHERE session_id=?1 AND octet_length(document)<=262144",[id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
         let r = run(&self.conn, &run_id)?;
-        checked_runtime_scope(&self.conn, &r, self.data_input.as_ref())?;
         let n: RuntimeNode = decode(&doc)?;
+        if factory::marked_run(&self.conn, &r.id)? {
+            let session = self.get_session(id)?;
+            factory::consume_committed_read(
+                &self.conn,
+                &r,
+                &n,
+                &session.attempt_id,
+                &session.intent_id,
+                Some(&session),
+                self.data_input.as_ref(),
+            )?;
+        } else {
+            checked_runtime_scope(&self.conn, &r, self.data_input.as_ref())?;
+        }
+
         if n.session_id.as_deref() != Some(id) || n.state != "reserved" || r.cancel_requested {
             return Err(denied());
         }

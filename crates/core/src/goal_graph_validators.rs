@@ -437,6 +437,14 @@ impl Store {
             "goal.validator_prepared",
             json!({"job_id":origin.id,"origin_digest":sha(&origin)?,"node_id":origin.node_id,"attempt_id":origin.attempt_id,"intent_id":origin.intent_id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"definition_digest":origin.definition_digest,"reservation":origin.reservation,"executor_started":false,"task_accepted":false}),
         )?;
+        seal_factory_goal_read(
+            &tx,
+            &context,
+            &origin.attempt_id,
+            &origin.intent_id,
+            None,
+            self.data_input.as_ref(),
+        )?;
         tx.commit().map_err(db_error)?;
         Ok(Some(PreparedGraphValidation {
             origin,
@@ -478,6 +486,7 @@ impl ValidatorWorkers {
                 queued_at.elapsed(),
             );
         }
+        store.consume_factory_validator_read(&origin)?;
         // The irreversible boundary is durable before any thread or child can
         // execute. A failed thread constructor is a distinct not-started proof.
         store.mark_dispatch_started(&origin.intent_id, &origin.id)?;
@@ -1261,4 +1270,62 @@ pub(super) fn node_job_id(db: &Connection, r: &GoalRun, n: &RuntimeNode) -> Resu
     )
     .optional()
     .map_err(db_error)
+}
+
+impl Store {
+    fn consume_factory_validator_read(&self, origin: &ValidatorOrigin) -> Result<()> {
+        let (r, _) = self.checked_validator_origin(origin)?;
+        if !factory::marked_run(&self.conn, &r.id)? {
+            return Ok(());
+        }
+        let n = node_records(&self.conn, &r.id)?
+            .into_iter()
+            .find(|n| n.node.id == origin.node_id)
+            .ok_or_else(changed)?;
+        factory::consume_committed_read(
+            &self.conn,
+            &r,
+            &n,
+            &origin.attempt_id,
+            &origin.intent_id,
+            None,
+            self.data_input.as_ref(),
+        )
+    }
+}
+
+pub(super) fn verify_pending_factory_validator(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    attempt: &str,
+    intent: &str,
+) -> Result<()> {
+    let id:String=db.query_row("SELECT id FROM goal_graph_jobs WHERE run_id=?1 AND node_id=?2 AND attempt_id=?3 AND state='prepared'",params![r.id,n.node.id,attempt],|row|row.get(0)).map_err(db_error)?;
+    let (o, state) = origin_record(db, &id)?;
+    let scope: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
+    let lease: Option<(String, i64)> = db
+        .query_row(
+            "SELECT holder,fencing_token FROM workspace_leases WHERE resource=?1",
+            [&o.workspace_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .optional()
+        .map_err(db_error)?;
+    if state != "prepared"
+        || o.run_id != r.id
+        || o.node_id != n.node.id
+        || o.plan_revision != r.plan_revision
+        || o.plan_digest != r.plan_digest
+        || o.attempt_id != attempt
+        || o.intent_id != intent
+        || o.workspace_id != n.node.workspace_id
+        || o.reservation != n.node.reservation
+        || scope.refs.workspace.identity.as_ref() != Some(&o.root)
+        || sha(&checked_capability(db, r)?.snapshot)? != o.capability_digest
+        || lease != Some((String::new(), sql_num(o.writer_epoch)?))
+    {
+        return Err(changed());
+    }
+    Ok(())
 }

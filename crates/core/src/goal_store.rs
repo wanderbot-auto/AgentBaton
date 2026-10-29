@@ -2472,3 +2472,8 @@ pub(crate) use runtime::factory::request_stop as request_factory_child_goal_stop
 pub(crate) use runtime::GoalReservationRead;
 
 pub(crate) use runtime::preflight_factory_goal_reservation;
+
+pub(crate) use runtime::{seal_factory_goal_read, GoalCommittedRead};
+
+// Planning permission only; no new Graph admission or stop proof is minted.
+pub(crate) use runtime::factory::require_queued_unstarted_target as require_factory_queued_unstarted_goal;

@@ -21,7 +21,7 @@
     "AB-COR-002",
     "AB-COR-007"
   ],
-  "runtime": "actual_normal_chain1_failed_before_graph_dispatch_source_fix_not_reverified",
+  "runtime": "actual_normal_chain1_failed_before_graph_dispatch_new_post_commit_snapshot_not_compiled",
   "native": "not_run",
   "macos": "not_run",
   "provider_calls": "not_authorized_not_run",
@@ -70,7 +70,8 @@
     "cancel/revoke/expiry/unknown/restart/ancestor budget real controls",
     "nonempty actual Native Goal+Factory14 migration raw-before-recovery/FK/rollback/future16 controls (independent test leaf)",
     "Native15 compile/real IPC and UI15 actual runtime fixtures",
-    "independent review/full integration/CI/macOS"
+    "independent review/full integration/CI/macOS",
+    "all source after357 actual boundary needs new typecheck/control run and matching tools before runtime rerun"
   ],
   "latest_public_wire_contract": "2a3d6ae",
   "factory_record_counts": 12,
@@ -370,12 +371,76 @@
     "diagnosis_sql_clone": "/workspace/.onboarding/factory-child-goal-core/runtime-normal-1/diagnosis-shared-counter-readset.json"
   },
   "pending_reservation_fix": {
-    "status": "source_only_not_compiled_or_run",
+    "status": "passed_selected3_sql_projection_tests_only",
     "new_phase_projection_unit_tests": 3,
     "new_wire_fields": false,
     "original_auth_TTL_budget_relaxation": false,
     "private_phase_token": "GoalReservationRead non-Deserialize constructor only atomic reserve path",
     "full_pre_mutation_readset": true,
-    "post_mutation_exact_own_delta_plus_all_other_strict_rechecks": true
+    "post_mutation_exact_own_delta_plus_all_other_strict_rechecks": true,
+    "source": "6ffaa242de40f64d036cb1ed69d8d8ccbb4609ad",
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/lib-phase-1",
+    "actual_tests": 3,
+    "full_runtime": false
+  },
+  "latest_actual_check": {
+    "source": "ec4669cb1f80cf4bf65c91e128ae6df2b03102b5",
+    "production_source": "357ee2c",
+    "result": "passed",
+    "warnings": 0,
+    "cargo_seconds": 7.34,
+    "runner_seconds": 7.895,
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/check-7"
+  },
+  "committed_launch_snapshot": {
+    "source": "357ee2c",
+    "status": "passed5_query_units_at357_later_gate_and_sentinel_changes_unverified",
+    "full_original_sql_args_covered": true,
+    "new_sql_snapshot_unit_tests_written": 2,
+    "total_admission_filter_written": 5,
+    "original_input_FD_Grant_TTL_guards_retained": true,
+    "new_wire_authority": false,
+    "latest_source": "d9f50bf",
+    "original_scope_grant_task_plan_checks_restored_at": "884c448",
+    "incorrect_event_sequence_check": "8034fae_static_error_not_runtime_tested",
+    "canonical_event_sequence_fix": "10763aa_not_run"
+  },
+  "native_cap_column_fix": {
+    "source": "160761fc8b3534fc15bba17b282ad48a33886117",
+    "status": "typecompiled_at_ec4669c_no_actual_migration_retest",
+    "original_true_legacy_run": "4PASS_2FAIL_preserved",
+    "failure_types": [
+      "real_relational_document_approval_mismatch_accepted",
+      "test_backup_enumerator_counted_wal_shm"
+    ]
+  },
+  "new_static_pending": {
+    "root_self_projection": {
+      "source": "20097e6 plus d9f50bf",
+      "actual_runtime_test_written": "actual_factory_root_goal_owned_stop_owner_acceptance_completes_without_cancel_or_resume",
+      "status": "not_run"
+    },
+    "queued_adoption": {
+      "source": "2bd93aa plus339cdde plus10763aa",
+      "actual_core_sqlite_tests_written": 3,
+      "filter": "child_goal_state_tests",
+      "status": "not_compiled_not_run",
+      "no_daemon_or_process_claim": true
+    }
+  },
+  "latest_known_protected_main_boundary": "653679db60d5c68f7e3c5b5e146ef58aed10de23 (reported by Root; own isolated baseline unchanged)",
+  "latest_actual_admission_units": {
+    "source": "ec4669cb1f80cf4bf65c91e128ae6df2b03102b5",
+    "production_source": "357ee2c",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 98,
+    "test_seconds": 0.01,
+    "compile_seconds": 15.12,
+    "runner_seconds": 15.665,
+    "dimension": "real SQLite query projection/snapshot only; not complete authority or process lifecycle",
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/lib-phase-2",
+    "lease": "released"
   }
 }

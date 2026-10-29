@@ -747,7 +747,44 @@ pub(crate) struct FactoryReadPlan {
     proofs: Vec<QueryProof>,
     request_hash: String,
 }
+struct CommittedGoalRead {
+    fingerprint: serde_json::Value,
+    queries: Vec<QueryProof>,
+    consumed: bool,
+}
+impl CommittedGoalRead {
+    fn verify_queries(
+        &self,
+        db: &Connection,
+        originals: &[QueryProof],
+        fingerprint: &serde_json::Value,
+    ) -> Result<()> {
+        if self.consumed
+            || self.fingerprint != *fingerprint
+            || self.queries.len() != originals.len()
+        {
+            return Err(denied());
+        }
+        let mut remaining = (4_194_304, 100_000);
+        for (captured, original) in self.queries.iter().zip(originals) {
+            if captured.sql != original.sql || captured.args != original.args {
+                return Err(changed());
+            }
+            let current = QueryProof::capture_bounded(
+                db,
+                captured.sql,
+                captured.args.clone(),
+                &mut remaining,
+            )?;
+            if current.rows != captured.rows {
+                return Err(changed());
+            }
+        }
+        Ok(())
+    }
+}
 pub(crate) struct FactoryReadWitness {
+    committed: std::cell::RefCell<Option<CommittedGoalRead>>,
     child_planning: bool,
     selection: FactoryScopeSelection,
     companion: PathBuf,
@@ -1178,6 +1215,7 @@ impl FactoryReadPlan {
         reader.conn.execute_batch("ROLLBACK;").map_err(db_error)?;
         let mut witness = reader.data_input.take().ok_or_else(changed)?;
         witness.factory = Some(Box::new(FactoryReadWitness {
+            committed: std::cell::RefCell::new(None),
             child_planning: self.child_planning.is_some(),
             selection: self.selection,
             companion: self.companion,
@@ -1222,6 +1260,22 @@ impl FactoryReadWitness {
         scope: &super::FactoryScope,
         delta: Option<&OwnedGoalReadDelta>,
     ) -> Result<()> {
+        self.check_child_goal_header(witness, scope)?;
+        let mut remaining = (4_194_304, 100_000);
+        for proof in &self.proofs {
+            if let Some(delta) = delta {
+                proof.recheck_owned_goal(db, delta, &mut remaining)?;
+            } else {
+                proof.recheck(db)?;
+            }
+        }
+        self.check_child_goal_inputs(db, scope)
+    }
+    fn check_child_goal_header(
+        &self,
+        witness: &crate::data_workspaces::DataInputWitness,
+        scope: &super::FactoryScope,
+    ) -> Result<()> {
         if !self.child_planning
             || Instant::now() >= self.deadline
             || self.selection != scope.selection
@@ -1233,14 +1287,9 @@ impl FactoryReadWitness {
             return Err(changed());
         }
         self.database.recheck()?;
-        let mut remaining = (4_194_304, 100_000);
-        for proof in &self.proofs {
-            if let Some(delta) = delta {
-                proof.recheck_owned_goal(db, delta, &mut remaining)?;
-            } else {
-                proof.recheck(db)?;
-            }
-        }
+        Ok(())
+    }
+    fn check_child_goal_inputs(&self, db: &Connection, scope: &super::FactoryScope) -> Result<()> {
         for pin in &self.pins {
             pin.verify(false)?;
         }
@@ -1257,6 +1306,59 @@ impl FactoryReadWitness {
                 "The original joined Factory input observation expired before child Goal admission",
             ));
         }
+        Ok(())
+    }
+    pub(crate) fn request_hash(&self) -> &str {
+        &self.request_hash
+    }
+    pub(crate) fn seal_child_goal_commit(
+        &self,
+        db: &Connection,
+        witness: &crate::data_workspaces::DataInputWitness,
+        scope: &super::FactoryScope,
+        proof: &crate::goal_store::GoalCommittedRead,
+    ) -> Result<()> {
+        // Only the legitimate admission transaction's final exit can capture;
+        // later readonly/public paths cannot rebase a changed business snapshot.
+        if db.is_autocommit() {
+            return Err(denied());
+        }
+        self.check_child_goal_header(witness, scope)?;
+        let mut slot = self.committed.try_borrow_mut().map_err(|_| changed())?;
+        if slot.is_some() {
+            return Err(denied());
+        }
+        let mut remaining = (4_194_304, 100_000);
+        let mut queries = Vec::with_capacity(self.proofs.len());
+        for original in &self.proofs {
+            queries.push(QueryProof::capture_bounded(
+                db,
+                original.sql,
+                original.args.clone(),
+                &mut remaining,
+            )?);
+        }
+        self.check_child_goal_inputs(db, scope)?;
+        *slot = Some(CommittedGoalRead {
+            fingerprint: proof.fingerprint().clone(),
+            queries,
+            consumed: false,
+        });
+        Ok(())
+    }
+    pub(crate) fn consume_child_goal_commit(
+        &self,
+        db: &Connection,
+        witness: &crate::data_workspaces::DataInputWitness,
+        scope: &super::FactoryScope,
+        proof: &crate::goal_store::GoalCommittedRead,
+    ) -> Result<()> {
+        self.check_child_goal_header(witness, scope)?;
+        let mut slot = self.committed.try_borrow_mut().map_err(|_| changed())?;
+        let post = slot.as_mut().ok_or_else(denied)?;
+        post.verify_queries(db, &self.proofs, proof.fingerprint())?;
+        self.check_child_goal_inputs(db, scope)?;
+        post.consumed = true;
         Ok(())
     }
     pub(crate) fn is_child_planning(&self) -> bool {
@@ -2182,6 +2284,96 @@ mod child_goal_admission_tests {
         assert!(
             check(&p, &db, &descendant).is_err(),
             "child admission cannot change root's intent history"
+        );
+    }
+
+    #[test]
+    fn committed_snapshot_preserves_all_queries_and_rejects_later_budget_or_metadata_changes() {
+        // Real SQLite snapshot/projection unit only; opaque Goal token creation
+        // and original FD/input/expiry checks are separate production gates.
+        let db = db();
+        db.execute_batch("CREATE TABLE metadata(id TEXT PRIMARY KEY,document TEXT);INSERT INTO metadata VALUES('scope','{\"revoked\":false,\"task_revision\":1}');").unwrap();
+        let meta = "SELECT document AS value FROM metadata WHERE id=?1";
+        let originals = vec![
+            QueryProof::capture(&db, COUNTERS, vec!["project:p".into()]).unwrap(),
+            QueryProof::capture(&db, COUNTERS, vec!["root:r".into()]).unwrap(),
+            QueryProof::capture(&db, meta, vec!["scope".into()]).unwrap(),
+        ];
+        db.execute("UPDATE budgets SET consumed=consumed+1,active=active+1 WHERE scope IN('project:p','root:r')",[]).unwrap();
+        let capture = || {
+            originals
+                .iter()
+                .map(|q| QueryProof::capture(&db, q.sql, q.args.clone()).unwrap())
+                .collect::<Vec<_>>()
+        };
+        let fingerprint = serde_json::json!({"session":"own","attempt":"a","intent":"i","request":"fixed-sha","fence":2,"sequence":9});
+        let post = CommittedGoalRead {
+            fingerprint: fingerprint.clone(),
+            queries: capture(),
+            consumed: false,
+        };
+        post.verify_queries(&db, &originals, &fingerprint).unwrap();
+        assert_ne!(
+            post.queries[0].rows, originals[0].rows,
+            "the captured exact own committed budget is distinct from the pre-admission snapshot"
+        );
+        for sql in [
+            "UPDATE budgets SET consumed=consumed+1 WHERE scope='project:p'",
+            "UPDATE budgets SET active=active+1 WHERE scope='root:r'",
+            "UPDATE metadata SET document='{\"revoked\":true,\"task_revision\":1}'",
+            "UPDATE metadata SET document='{\"revoked\":false,\"task_revision\":2}'",
+        ] {
+            db.execute_batch("SAVEPOINT corrupt").unwrap();
+            db.execute(sql, []).unwrap();
+            assert!(
+                post.verify_queries(&db, &originals, &fingerprint).is_err(),
+                "{sql}"
+            );
+            db.execute_batch("ROLLBACK TO corrupt;RELEASE corrupt;")
+                .unwrap();
+        }
+        post.verify_queries(&db, &originals, &fingerprint).unwrap();
+        let partial = CommittedGoalRead {
+            fingerprint: fingerprint.clone(),
+            queries: capture().into_iter().take(2).collect(),
+            consumed: false,
+        };
+        assert!(
+            partial
+                .verify_queries(&db, &originals, &fingerprint)
+                .is_err(),
+            "no query may be silently dropped"
+        );
+    }
+    #[test]
+    fn committed_snapshot_cannot_be_rebound_reconsumed_or_substitute_other_query_arguments() {
+        let db = db();
+        let original = QueryProof::capture(&db, COUNTERS, vec!["root:r".into()]).unwrap();
+        let fingerprint = serde_json::json!({"session":"own","attempt":"a","intent":"i","request":"fixed-sha","grant":"g","run":"r","node":"n","fence":2,"sequence":9});
+        let mut post = CommittedGoalRead {
+            fingerprint: fingerprint.clone(),
+            queries: vec![QueryProof::capture(&db, COUNTERS, vec!["root:r".into()]).unwrap()],
+            consumed: false,
+        };
+        let originals = [original];
+        post.verify_queries(&db, &originals, &fingerprint).unwrap();
+        for field in [
+            "session", "attempt", "intent", "request", "grant", "run", "node", "fence", "sequence",
+        ] {
+            let mut changed = fingerprint.clone();
+            changed[field] = serde_json::json!("foreign");
+            assert!(
+                post.verify_queries(&db, &originals, &changed).is_err(),
+                "{field}"
+            );
+        }
+        post.queries[0].args[0] = "root:foreign".into();
+        assert!(post.verify_queries(&db, &originals, &fingerprint).is_err());
+        post.queries[0].args[0] = "root:r".into();
+        post.consumed = true;
+        assert!(
+            post.verify_queries(&db, &originals, &fingerprint).is_err(),
+            "a committed proof is consumed only once"
         );
     }
 }
