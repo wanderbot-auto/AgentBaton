@@ -65,7 +65,8 @@
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/task-workspace-binding/LOCAL_RUST_RESULTS.json",
-        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json"
+        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
+        "docs/execution/task-workspace-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -108,19 +109,13 @@
         "full_requirement": "not fully accepted"
       },
       "task_workspace_binding_contribution": {
-        "status": "partial; source integrated on isolated feature branch, no exact CI/native acceptance",
-        "core_source": "2b9080a +2f0b9b3 +4d463184",
-        "ipc_source": "3362cbad7f62feeb45b7efdf5b03c5c0ccf5eeb9",
-        "tested_integration_source": "e203f6dcac06246d26e58ef22275c888a44db200",
-        "actual_local": "Core bridge2/real UnixIPC4/frontend942 in53files/typecheck/build PASS; earlier binding13+publicbackend1 separately attributed",
-        "evidence": "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
-        "genuine_schema15": "old15 actual nonempty producer passed at1ebf9e9; consumer3PASS2FAIL, original failures/DB/ELF retained; narrow fixture fixes under independent review, not yet rerun",
-        "schema16_test_adapters": "e57a99f source independently closed; Rust/global regression NOT_RUN",
-        "limits": [
-          "No same-candidate CI/Mac/Native/real Provider claim",
-          "Task binding UI interaction still implementing",
-          "Binding/receipt/host/path do not authorize execution; actual Grant and original policy required"
-        ]
+        "coverage": "partial",
+        "local_evidence": "docs/execution/task-workspace-integration/EVIDENCE.json",
+        "actual_unix_IPC": 4,
+        "actual_browser_prior_four": "passed at compiledCore/frontend840/driver3008",
+        "session_new_source": "e313 local40target+995fullNode/type/build passed; fifth realbrowser pending",
+        "platform": "schema16 Native/Mac/exactCI/installers not_run; localNativecheck externalcapacity interrupted",
+        "full_requirement": "not fully accepted; default dispatch/adoption/remote/child isolation remain"
       }
     },
     {
@@ -145,7 +140,8 @@
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/task-workspace-binding/LOCAL_RUST_RESULTS.json",
-        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json"
+        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
+        "docs/execution/task-workspace-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -188,19 +184,13 @@
         "full_requirement": "not fully accepted"
       },
       "task_workspace_binding_contribution": {
-        "status": "partial; source integrated on isolated feature branch, no exact CI/native acceptance",
-        "core_source": "2b9080a +2f0b9b3 +4d463184",
-        "ipc_source": "3362cbad7f62feeb45b7efdf5b03c5c0ccf5eeb9",
-        "tested_integration_source": "e203f6dcac06246d26e58ef22275c888a44db200",
-        "actual_local": "Core bridge2/real UnixIPC4/frontend942 in53files/typecheck/build PASS; earlier binding13+publicbackend1 separately attributed",
-        "evidence": "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
-        "genuine_schema15": "old15 actual nonempty producer passed at1ebf9e9; consumer3PASS2FAIL, original failures/DB/ELF retained; narrow fixture fixes under independent review, not yet rerun",
-        "schema16_test_adapters": "e57a99f source independently closed; Rust/global regression NOT_RUN",
-        "limits": [
-          "No same-candidate CI/Mac/Native/real Provider claim",
-          "Task binding UI interaction still implementing",
-          "Binding/receipt/host/path do not authorize execution; actual Grant and original policy required"
-        ]
+        "coverage": "partial",
+        "local_evidence": "docs/execution/task-workspace-integration/EVIDENCE.json",
+        "actual_unix_IPC": 4,
+        "actual_browser_prior_four": "passed at compiledCore/frontend840/driver3008",
+        "session_new_source": "e313 local40target+995fullNode/type/build passed; fifth realbrowser pending",
+        "platform": "schema16 Native/Mac/exactCI/installers not_run; localNativecheck externalcapacity interrupted",
+        "full_requirement": "not fully accepted; default dispatch/adoption/remote/child isolation remain"
       }
     },
     {
@@ -255,7 +245,8 @@
         "docs/execution/project-registry/EVIDENCE.json",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/task-workspace-binding/LOCAL_RUST_RESULTS.json",
-        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json"
+        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
+        "docs/execution/task-workspace-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -298,19 +289,13 @@
         "full_requirement": "not fully accepted"
       },
       "task_workspace_binding_contribution": {
-        "status": "partial; source integrated on isolated feature branch, no exact CI/native acceptance",
-        "core_source": "2b9080a +2f0b9b3 +4d463184",
-        "ipc_source": "3362cbad7f62feeb45b7efdf5b03c5c0ccf5eeb9",
-        "tested_integration_source": "e203f6dcac06246d26e58ef22275c888a44db200",
-        "actual_local": "Core bridge2/real UnixIPC4/frontend942 in53files/typecheck/build PASS; earlier binding13+publicbackend1 separately attributed",
-        "evidence": "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
-        "genuine_schema15": "old15 actual nonempty producer passed at1ebf9e9; consumer3PASS2FAIL, original failures/DB/ELF retained; narrow fixture fixes under independent review, not yet rerun",
-        "schema16_test_adapters": "e57a99f source independently closed; Rust/global regression NOT_RUN",
-        "limits": [
-          "No same-candidate CI/Mac/Native/real Provider claim",
-          "Task binding UI interaction still implementing",
-          "Binding/receipt/host/path do not authorize execution; actual Grant and original policy required"
-        ]
+        "coverage": "partial",
+        "local_evidence": "docs/execution/task-workspace-integration/EVIDENCE.json",
+        "actual_unix_IPC": 4,
+        "actual_browser_prior_four": "passed at compiledCore/frontend840/driver3008",
+        "session_new_source": "e313 local40target+995fullNode/type/build passed; fifth realbrowser pending",
+        "platform": "schema16 Native/Mac/exactCI/installers not_run; localNativecheck externalcapacity interrupted",
+        "full_requirement": "not fully accepted; default dispatch/adoption/remote/child isolation remain"
       }
     },
     {
@@ -4650,7 +4635,8 @@
         "docs/execution/validation-integration/UI_REVIEW.md",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/task-workspace-binding/LOCAL_RUST_RESULTS.json",
-        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json"
+        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
+        "docs/execution/task-workspace-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Actual schema5 backup/failure/future-version tests pass locally; full upgrade/support matrix remains open.",
@@ -4687,19 +4673,13 @@
         }
       ],
       "task_workspace_binding_contribution": {
-        "status": "partial; source integrated on isolated feature branch, no exact CI/native acceptance",
-        "core_source": "2b9080a +2f0b9b3 +4d463184",
-        "ipc_source": "3362cbad7f62feeb45b7efdf5b03c5c0ccf5eeb9",
-        "tested_integration_source": "e203f6dcac06246d26e58ef22275c888a44db200",
-        "actual_local": "Core bridge2/real UnixIPC4/frontend942 in53files/typecheck/build PASS; earlier binding13+publicbackend1 separately attributed",
-        "evidence": "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
-        "genuine_schema15": "old15 actual nonempty producer passed at1ebf9e9; consumer3PASS2FAIL, original failures/DB/ELF retained; narrow fixture fixes under independent review, not yet rerun",
-        "schema16_test_adapters": "e57a99f source independently closed; Rust/global regression NOT_RUN",
-        "limits": [
-          "No same-candidate CI/Mac/Native/real Provider claim",
-          "Task binding UI interaction still implementing",
-          "Binding/receipt/host/path do not authorize execution; actual Grant and original policy required"
-        ]
+        "coverage": "partial",
+        "local_evidence": "docs/execution/task-workspace-integration/EVIDENCE.json",
+        "actual_unix_IPC": 4,
+        "actual_browser_prior_four": "passed at compiledCore/frontend840/driver3008",
+        "session_new_source": "e313 local40target+995fullNode/type/build passed; fifth realbrowser pending",
+        "platform": "schema16 Native/Mac/exactCI/installers not_run; localNativecheck externalcapacity interrupted",
+        "full_requirement": "not fully accepted; default dispatch/adoption/remote/child isolation remain"
       }
     },
     {

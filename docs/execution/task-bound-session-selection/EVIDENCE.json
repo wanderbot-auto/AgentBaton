@@ -102,5 +102,148 @@
     },
     "actual_new_type_or_test_or_product": "NOT_RUN",
     "original_source_and_seals_preserved": true
+  },
+  "Root_actual_e313_results": [
+    {
+      "record": "task-bound-session-components2",
+      "source": "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test",
+        "--",
+        "ManagedSessionsTaskBinding.test.tsx",
+        "SessionWorkbench.test.tsx"
+      ],
+      "exit": 0,
+      "seconds": 4.612096134020248,
+      "minimum_free_bytes": 236453888,
+      "interruption": null,
+      "log_sha256": "7e7f17c818024bd46f3f5453ee5655a81c54d4b13abe4f89b6112aecd6cd3c9d",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "task-bound-session-typecheck2",
+      "source": "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "seconds": 1.104313618998276,
+      "minimum_free_bytes": 236036096,
+      "interruption": null,
+      "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "task-bound-session-full-ui2",
+      "source": "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 33.80416133700055,
+      "minimum_free_bytes": 218529792,
+      "interruption": null,
+      "log_sha256": "c3cf6861d108afd5171342509351765b0ada0edfdba0a1f6f9324db13651dfe9",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "task-bound-session-build2",
+      "source": "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 2.0149636970018037,
+      "minimum_free_bytes": 218513408,
+      "interruption": null,
+      "log_sha256": "48c9237ca4ac5b42e457a4c98b9420e549c894425d4e07ed7432bfe7c637b6b5",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "task-bound-session-core-tools2",
+      "source": "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton"
+      ],
+      "exit": 0,
+      "seconds": 15.743465052015381,
+      "minimum_free_bytes": 217657344,
+      "interruption": null,
+      "log_sha256": "50c5658500a92738fddf0d255e675909d7b6362b024b248a2258873e4a7be2a2",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "task-bound-session-core-freeze2",
+      "source": "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
+      "root": "/workspace/.worktrees/task-workspace-integration",
+      "command": [
+        "python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--source",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+        "--output",
+        "/workspace/.onboarding/task-bound-session-schema16-frozen",
+        "--evidence",
+        "/workspace/.onboarding/task-bound-session-schema16-probe"
+      ],
+      "exit": 0,
+      "seconds": 0.40164480300154537,
+      "minimum_free_bytes": 196636672,
+      "interruption": null,
+      "log_sha256": "5b6c782a744cfd6b70f8422a205a3ec6f26b2ba5dfcece8e44331d83440e36dc",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  ],
+  "Root_actual_e313_counts": {
+    "targeted": 40,
+    "full_Node": 995,
+    "files": 55,
+    "typecheck": "passed",
+    "build": "passed",
+    "real_session_dialog_flow": "not_run; mandatory fifth case being implemented"
   }
 }

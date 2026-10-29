@@ -149,5 +149,60 @@
     "No nonempty Goal/Factory old15 history, no late migration write fault claim",
     "Native/macOS/exactCI/current UI interactions still pending",
     "Original failed database/sidecars/ELF preserved; no production policy change"
-  ]
+  ],
+  "input2_generator_result": {
+    "source": "26fae711baac59504767a02ef5946c3b0ce79a47",
+    "root": "/workspace/.worktrees/task-workspace-integration",
+    "command": [
+      "python3",
+      "crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py",
+      "--frozen",
+      "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen",
+      "--output",
+      "/workspace/.onboarding/task-workspace-actual15-input2",
+      "--build-evidence",
+      "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/RESULTS.json"
+    ],
+    "exit": 0,
+    "seconds": 0.802177642006427,
+    "minimum_free_bytes": 240979968,
+    "interruption": null,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "input2_consumer_result": {
+    "source": "840334e2507c7b2b39e89917b491e75c1ca3de18",
+    "root": "/workspace/.worktrees/task-workspace-integration",
+    "command": [
+      "env",
+      "AGENTBATON_ACTUAL_SCHEMA15_FIXTURE=/workspace/.onboarding/task-workspace-actual15-input2",
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--features",
+      "actual-schema15-migration-tests",
+      "--test",
+      "task_workspace_actual15_migration",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 17.160356292995857,
+    "minimum_free_bytes": 191336448,
+    "interruption": null,
+    "log_sha256": "1c567942b7d27c4eb817cf88e7ec0dced81665acd91294a3f0f319977e3489d4",
+    "summaries": [
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s"
+    ],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "input2_note": "New genuine old15 input2 generated after native helper16 revision; input1 untouched, new5PASS source840. No nonempty oldGoal/Factory history claim."
 }

@@ -130,5 +130,7 @@
     "Native frame and dual macOS",
     "genuine schema15 migration still pending",
     "comprehensive schema16 regression pending"
-  ]
+  ],
+  "subsequent_integration_evidence": "docs/execution/task-workspace-integration/EVIDENCE.json",
+  "historical_not_passed_note": "Original not_passed list above records e203 state only; genuine15 and later local regression results are separately source-attributed in subsequent evidence, Native/Mac still pending."
 }

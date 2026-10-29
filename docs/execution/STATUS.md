@@ -1,3 +1,9 @@
+# Task 工作区与只读执行选择：局部真实验证继续 — 2026-10-29T22:23:32.173082+00:00
+
+e313 Session修复的40针对性、全前端995/55files、type/build通过；同源Core/CLI实编与私有schema16空库/CLI/SIGTERM probe通过。P2旧Task时序独审闭合。历史840/3008四场景真实UI/UnixIPC通过，新增第五场景正在实现，不移签。Core156、strict inverse7、真14六项/真15 input2五项、前端和CI源码独审按各自准确source记录，见[集成证据](task-workspace-integration/EVIDENCE.json)。
+
+依赖PR18 accurate727 Env3/Rust/UI通过而双Mac返工观察失败，后续桌面/构建/包skipped；原55/60/30/5/60不改。schema16 exactCI/Mac/native/包尚未通过。完整130、默认coding隔离/child绑定/验收合入/remote等保留未完范围；OWNER001/002ACK/main653679d，无新授权，无生产/凭据/付费/正式Approve操作。以下保留历史。
+
 # PR18 新候选已完成本地复核，准备准确七 CI — 2026-10-29T21:50:26.746081+00:00
 
 当前远程be12仍旧终态Env3/UI1PASS、Rustscope/双Mac返工FAIL；本地sourcefef00b4整合已独审8028精确负控与5744观察去冗余。Root实际scope11PASS9.35s、完整Factory25PASS89.42s；single34.30/profile35.47只作诊断不重复计数、不证明优于旧32.71。原55/60/30/5/60与10ms/retry2/白名单和全部Owner、Validator、同Graph、parent/预算最终断言保持。fmt/全workspace alltargets严格Clippy/infra84通过；编译容量中断及一次纯检查外部容量中断均保留，不算产品测试失败或通过。详见[新候选本地证据](factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json)。下一准确七CI/实际双Mac/native/releaseaudit/新开发包未跑，PR仍draft，完整130未完成。
