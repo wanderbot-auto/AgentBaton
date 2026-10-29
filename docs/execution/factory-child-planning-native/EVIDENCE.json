@@ -203,9 +203,28 @@
   ],
   "archive": {
     "path": "EVIDENCE.tar.gz",
-    "bytes": 62565,
-    "sha256": "8c8da76dcd63d9fc1b4ba4cce2328ea39bba413bbcc8b6d22fb21c1423786e07"
+    "bytes": 65241,
+    "sha256": "2874054e406079a0a0accff4a784e98ace58d3f8bac74fe87becf92e95b32e4b"
   },
   "archive_manifest": "EVIDENCE_ARCHIVE_MANIFEST.json",
-  "at_utc": "2026-10-29T03:18:03.014974+00:00"
+  "at_utc": "2026-10-29T03:18:03.014974+00:00",
+  "replay_revision": {
+    "prior_records": "879ba6a56a3fd2abf55a00d63869f99a7fdd5f5b",
+    "prior_archive_sha256": "8c8da76dcd63d9fc1b4ba4cce2328ea39bba413bbcc8b6d22fb21c1423786e07",
+    "reason": "Evidence checker now uses frozen source commit diff and verifies both actual source files equal Git objects, so replay survives docs-only commits",
+    "actual_command": {
+      "argv": [
+        "python3",
+        "/workspace/.onboarding/factory-child-planning-native/check_source_contract.py"
+      ],
+      "exit": 0,
+      "utc": "2026-10-29T03:18:50.814399+00:00",
+      "stdout_sha256": "08ebced5f7995239ce54abe2734d203383f4e00972b4f0ace45c63e348669953",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_commit": "8d82dc789347fcc3bdbc0187cea53007324bf07a",
+      "scope": "Pin checker source diff to frozen source so later own-doc commits do not invalidate replay; no product changes"
+    },
+    "all46_names_and_source_hashes_unchanged": true,
+    "source_changed": false
+  }
 }
