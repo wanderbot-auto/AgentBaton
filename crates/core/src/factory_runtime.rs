@@ -1296,10 +1296,7 @@ impl Store {
             // Reconciliation can complete a root-target Graph by projecting
             // its exact already-accepted history. Never reinterpret that
             // terminal result as a new live-admission failure and cancel it.
-            if matches!(
-                r.state.as_str(),
-                "completed" | "cancelled" | "blocked" | "outcome_unknown"
-            ) {
+            if r.state == "completed" {
                 continue;
             }
             let authorized = base_live(&self.conn, &s).is_ok();
