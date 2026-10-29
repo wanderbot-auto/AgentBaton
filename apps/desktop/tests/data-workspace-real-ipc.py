@@ -341,13 +341,15 @@ def main():
                 assert terminal['state'] == 'cancelled' and terminal['snapshot'] is None and (terminal.get('error') or {}).get('code') == 'CANCEL_REQUESTED', 'Missing real preview cancellation'
                 with sqlite3.connect(f'file:{runtime / "baton.sqlite3"}?mode=ro', uri=True) as store:
                     store.execute('PRAGMA query_only=ON'); store.execute('BEGIN')
-                    events = store.execute("SELECT sequence,revision,kind,payload FROM events WHERE aggregate_id=? AND kind IN ('data_workspace.preview_cancel_requested','data_workspace.preview_finished') ORDER BY sequence LIMIT 3", [terminal['id']]).fetchall()
-                assert len(events) == 2, 'Missing or repeated preview cancellation commitments'
-                requested, finished = events
-                assert requested[2] == 'data_workspace.preview_cancel_requested' and json.loads(requested[3]) == {'confirmed_stop': False}, 'Wrong preview cancel commitment'
-                assert finished[2] == 'data_workspace.preview_finished' and json.loads(finished[3]) == {'state': 'cancelled', 'copy_authorized': False}, 'Wrong preview terminal commitment'
-                assert requested[0] < finished[0] and requested[1] < finished[1] == terminal['revision'], 'Unordered preview cancellation commitments'
-                return {'cancel_requested_sequence': requested[0], 'finished_sequence': finished[0], 'terminal_revision': finished[1],
+                    rows = store.execute("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id')=? AND json_extract(document,'$.kind') IN ('data_workspace.preview_cancel_requested','data_workspace.preview_finished') ORDER BY sequence LIMIT 3", [terminal['id']]).fetchall()
+                assert len(rows) == 2, 'Missing or repeated preview cancellation commitments'
+                events = [(sequence, json.loads(document, object_pairs_hook=unique_object)) for sequence, document in rows]
+                assert all(isinstance(event, dict) and event.get('aggregate_id') == terminal['id'] and type(event.get('revision')) is int and 1 <= event['revision'] <= 18_446_744_073_709_551_615 for _, event in events), 'Malformed preview event document'
+                (requested_sequence, requested), (finished_sequence, finished) = events
+                assert requested['kind'] == 'data_workspace.preview_cancel_requested' and requested['payload'] == {'confirmed_stop': False} and requested['payload']['confirmed_stop'] is False, 'Wrong preview cancel commitment'
+                assert finished['kind'] == 'data_workspace.preview_finished' and finished['payload'] == {'state': 'cancelled', 'copy_authorized': False} and finished['payload']['copy_authorized'] is False, 'Wrong preview terminal commitment'
+                assert requested_sequence < finished_sequence and requested['revision'] < finished['revision'] == terminal['revision'], 'Unordered preview cancellation commitments'
+                return {'cancel_requested_sequence': requested_sequence, 'finished_sequence': finished_sequence, 'terminal_revision': finished['revision'],
                         'worker_join_evidence': 'preview_finished after thread.join in the pinned Core producer',
                         'stage': 'gated_before_scan', 'mid_read_cancellation_claimed': False, 'OS_process_reap_claimed': False}
 
