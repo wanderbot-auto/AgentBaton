@@ -73,6 +73,60 @@ pub struct CodeWorkspacePreparation {
     pub creates_workspace: bool,
 }
 
+/// Renderer-only projection. Filesystem u64 values become decimal TEXT here, before
+/// any JSON/JavaScript number conversion. Existing registry wire formats stay unchanged.
+#[derive(Debug, Serialize)]
+pub(crate) struct CodeWorkspacePreparationWire {
+    task_id: String,
+    task_revision: u64,
+    spec_revision: u64,
+    project_id: String,
+    project_revision: Option<u64>,
+    host_id: String,
+    source: Option<CodeWorkspaceIdentityWire>,
+    source_head: Option<String>,
+    preparation_key: Option<String>,
+    state: CodeWorkspacePreparationState,
+    reason: CodeWorkspacePreparationReason,
+    candidates: Vec<CodeWorkspaceCandidateInfo>,
+    execution_authorized: bool,
+    creates_workspace: bool,
+}
+
+#[derive(Debug, Serialize)]
+struct CodeWorkspaceIdentityWire {
+    canonical_root: PathBuf,
+    device: String,
+    inode: String,
+    kind: WorkspaceKind,
+}
+
+impl From<CodeWorkspacePreparation> for CodeWorkspacePreparationWire {
+    fn from(value: CodeWorkspacePreparation) -> Self {
+        Self {
+            task_id: value.task_id,
+            task_revision: value.task_revision,
+            spec_revision: value.spec_revision,
+            project_id: value.project_id,
+            project_revision: value.project_revision,
+            host_id: value.host_id,
+            source: value.source.map(|source| CodeWorkspaceIdentityWire {
+                canonical_root: source.canonical_root,
+                device: source.device.to_string(),
+                inode: source.inode.to_string(),
+                kind: source.kind,
+            }),
+            source_head: value.source_head,
+            preparation_key: value.preparation_key,
+            state: value.state,
+            reason: value.reason,
+            candidates: value.candidates,
+            execution_authorized: value.execution_authorized,
+            creates_workspace: value.creates_workspace,
+        }
+    }
+}
+
 fn changed() -> CoreError {
     CoreError::new(
         "INPUT_CHANGED",
@@ -326,3 +380,7 @@ impl Store {
 #[cfg(test)]
 #[path = "workspace_resolution_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "workspace_preparation_wire_tests.rs"]
+mod wire_tests;
