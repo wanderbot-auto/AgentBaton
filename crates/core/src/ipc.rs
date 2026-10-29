@@ -2581,6 +2581,7 @@ mod factory_queue_deadline_tests {
     fn a_new_recovery_attempt_counts_its_queue_not_the_old_graph_interval() {
         let base = Instant::now();
         let prepared = base + Duration::from_secs(7);
+        let verified_and_committed = prepared + Duration::from_millis(400);
         let observed = base + Duration::from_secs(8);
         let mut clocks = std::collections::HashMap::new();
         clocks.insert("child".into(), FactoryQueueClock::initial(base));
@@ -2592,6 +2593,15 @@ mod factory_queue_deadline_tests {
             Duration::from_secs(1)
         );
         assert_eq!(observed.duration_since(base), Duration::from_secs(8));
+        assert_eq!(
+            observed.duration_since(verified_and_committed),
+            Duration::from_millis(600)
+        );
+        assert!(
+            observed.duration_since(clock.queued_at)
+                > observed.duration_since(verified_and_committed),
+            "the new attempt must also count its pre-commit preparation and authority checks"
+        );
         // Neither side is free: the new preparation/wait remains charged;
         // the prior Graph interval remains in its own unchanged reservations.
         assert!(observed.duration_since(clock.queued_at) > Duration::ZERO);

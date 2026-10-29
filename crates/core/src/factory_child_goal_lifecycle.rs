@@ -74,6 +74,9 @@ impl Store {
         task_id: &str,
         goal_id: &str,
     ) -> Result<()> {
+        // Include the whole new-attempt preparation (transaction wait and all
+        // live/stop/rework checks). Only a successful commit publishes it.
+        let queued_at = std::time::Instant::now();
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -115,7 +118,6 @@ impl Store {
         // planner attempt after authenticated all-stop failure, not a restart
         // of that old queue interval. Include this preparation and every later
         // wait/preflight in its own monotonic interval; never renew Scope TTL.
-        let queued_at = std::time::Instant::now();
         let context = match crate::goal_store::reserve_factory_child_goal_rework(&tx, goal_id) {
             Ok(context) => context,
             Err(mut e) if matches!(e.code.as_str(), "RESOURCE_LIMIT" | "BUDGET_UNKNOWN") => {
