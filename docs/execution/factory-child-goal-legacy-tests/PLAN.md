@@ -2,7 +2,7 @@
 
 Authorization: AB-START-001, Design v0.2. Assigned WP01/WP08/SEC/COR migration evidence only. Baseline `5491c94cffbe40292ff977e0d9cfedcb55026c9e`; current merged main `3fd60f354236ddc5ab0ea2f7665428a8496f4a64`. Latest merged OWNER_INBOX entries 001 and 002 acknowledged; no 003 observed. No authorization expansion.
 
-Allowed files: new `crates/core/tests/factory_child_goal_legacy_migration.rs`, its new `fixtures/child_goal_legacy_migration/` subtree and these records. Core/migrations/protocol/existing fixtures/CLI/UI/CI/locks/global STATUS are excluded. Core author is sole schema writer. No remote writes.
+Allowed files: new `crates/core/tests/factory_child_goal_legacy_migration.rs`, its new `fixtures/child_goal_legacy_migration/` subtree and these records. Coordinator subsequently expanded this list solely for `crates/core/Cargo.toml`'s empty test feature and dedicated target gate, without dependency/lock changes. Core implementation/migrations/protocol/existing fixtures/CLI/UI/CI/locks/global STATUS are excluded. Core author is sole schema writer. No remote writes.
 
 1. Prepare fail-closed tests against real nonempty schema14 input and a bounded generator using frozen f032 tools. Use actual private authenticated Core approvals, not synthesized Native authority.
 2. Obtain the coordinator's process window; generate real Native Goal scope, Graph execution approval/capability and terminal joined Graph, plus separate real Factory14 scope/run/child plan. Retain exact RPC proposal/result bytes and ordered original database rows. Capture old daemon source/hash/manifest and clean shutdown.
@@ -15,7 +15,7 @@ There is no public migration-only entry point. This suite deliberately calls Sto
 
 The six tests have no ignore/skip/missing-input success path. They consume only an explicit private0700 `AGENTBATON_ACTUAL_SCHEMA14_FIXTURE` directory, require original source/pair hashes, real initial14 probe, clean joined processes, actual nonempty proofs, data SHA and foreign keys. Original generated DB/RPC/capabilities are not committed or public-uploaded.
 
-Coordinator approved adding the following to `crates/core/Cargo.toml`; this agent does not edit that excluded manifest:
+Coordinator explicitly added the following `crates/core/Cargo.toml` gate to this agent's allowlist; it is now implemented, without dependency/lock changes:
 
 ```toml
 [features]
@@ -27,6 +27,6 @@ path = "tests/factory_child_goal_legacy_migration.rs"
 required-features = ["actual-legacy-migration-tests"]
 ```
 
-Ordinary suites then explicitly report these six as NOT_RUN; they are not included in ordinary659+7 counts. A separate required CI step must generate genuine14 input and run this exact target with the feature and private fixture env. Until the Cargo gate is installed, do not integrate this automatically discovered target into ordinary runs without its input. CI integration is PENDING; this is not permission to omit the migration gate from acceptance.
+Ordinary suites explicitly report these six as NOT_RUN; they are not included in ordinary659+7 counts. A separate required CI step must generate genuine14 input and run this exact target with the feature and private fixture env. CI integration is PENDING; this is not permission to omit the migration gate from acceptance.
 
 Rebuilding f032 on another platform/path/toolchain produces new measured hashes. The current generator pins the actual original Linux f032 pair, so CI source-build provenance/manifest contract must be separately integrated and reviewed by the coordinator. New build hashes cannot be relabelled as the original frozen hashes. No CI reproducibility success is currently claimed.
