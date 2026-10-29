@@ -28,7 +28,7 @@ import time
 import uuid
 
 
-# Exact schema15 tables: never substitute old test DDL or silently skip absent
+# Exact schema16 tables: never substitute old test DDL or silently skip absent
 # tables. Every Goal store/runtime/graph table is empty in this Grant-only probe.
 GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
                'goal_plan_revisions', 'goal_plan_proposals', 'goal_ledgers',
@@ -136,7 +136,7 @@ def json_exact(left, right):
 def pending_error(value, proposal, sequence):
     if (type(sequence) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 15)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 16)
             or type(value.get('sequence')) is not int or not json_exact(value['sequence'], sequence)
             or not json_exact(value.get('proposal'), proposal) or proposal.get('kind') != 'grant'
             or proposal.get('consumed') is not False or value.get('proposal_result') is not None
@@ -174,7 +174,7 @@ def approved_error(value, proposal, baseline, response):
     current = value.get('proposal', {})
     if (type(baseline) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 15)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 16)
             or not isinstance(grants, list) or len(grants) != 1
             or current.get('id') != proposal['id'] or not json_exact(current.get('snapshot'), proposal['snapshot'])
             or current.get('kind') != 'grant' or current.get('consumed') is not True
@@ -878,7 +878,7 @@ def factory_database(runtime, proposal_id):
 def factory_pending_error(value, fixture, before):
     proposal = fixture['proposal']
     if (type(before.get('sequence')) is not int or type(proposal.get('revision')) is not int
-            or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 15)
+            or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 16)
             or not json_exact(value.get('sequence'), before['sequence'])
             or proposal.get('kind') != 'factory' or proposal.get('consumed') is not False
             or not json_exact(value.get('proposal'), proposal) or value.get('proposal_result') is not None
@@ -905,7 +905,7 @@ def factory_approved_error(value, fixture, before, response):
     counts = {name: int(name == 'factory_scopes') for name in ZERO_TABLES}
     if (type(before.get('sequence')) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0 or not isinstance(scope, dict) or response.get('error') is not None
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 15)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 16)
             or not json_exact(value.get('sequence'), before['sequence'] + 1)
             or not json_exact(value.get('proposal'), current)
             or not json_exact(value.get('proposal_result'), scope)

@@ -53,7 +53,7 @@ def strict_json_equal(left,right):
     return False
 
 def candidate_summary(raw):
-    m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==15 and m.get('dirty')is False)
+    m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==16 and m.get('dirty')is False)
     for key in ('git_head','source_head','compiled_core_source_head'):
         require(type(m.get(key))is str and re.fullmatch('[0-9a-f]{40}',m[key])is not None)
     require(m['git_head']==m['source_head']==m['compiled_core_source_head'])
@@ -61,7 +61,7 @@ def candidate_summary(raw):
     for value in tools.values():require(type(value)is str and re.fullmatch('[0-9a-f]{64}',value)is not None)
     assets=m.get('frontend_assets');require(type(assets)is dict and 0<len(assets)<=4096)
     for key,value in assets.items():require(type(key)is str and type(value)is str and re.fullmatch('[0-9a-f]{64}',value)is not None)
-    summary={'schema':15,'source_head':m['source_head'],'compiled_core_source_head':m['compiled_core_source_head'],
+    summary={'schema':16,'source_head':m['source_head'],'compiled_core_source_head':m['compiled_core_source_head'],
         'manifest_sha256':sha(raw),'tools_sha256':{'batond':tools['batond'],'baton':tools['baton']},
         'frontend_asset_count':len(assets),'frontend_assets_sha256':sha(json.dumps(assets,sort_keys=True,separators=(',',':')).encode())}
     return m,summary
