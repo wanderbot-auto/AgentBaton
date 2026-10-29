@@ -1952,7 +1952,8 @@ mod tests {
             .unwrap();
             let error = plan
                 .execute(witness, Arc::new(AtomicBool::new(false)), deadline)
-                .unwrap_err();
+                .err()
+                .expect("old and future schemas must not yield a current read witness");
             assert_eq!(error.code, "INPUT_CHANGED");
             assert_eq!(error.side_effect_state, "not_started");
             assert_eq!(f.store.sequence().unwrap(), sequence);
