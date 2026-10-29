@@ -1415,8 +1415,177 @@ fn factory_artifacts(value: &Value) -> bool {
             })
     })
 }
+// Optional planning fields are present only for a new explicit planning grant.
+// None is omitted by the Core DTO, preserving old false-capability snapshots.
+fn factory_planning_fields(value: &Value, fields: &[&str], field: &str, enabled: bool) -> bool {
+    if enabled {
+        value.as_object().is_some_and(|object| {
+            object.len() == fields.len() + 1
+                && object.contains_key(field)
+                && fields.iter().all(|name| object.contains_key(*name))
+        })
+    } else {
+        exact_fields(value, fields)
+    }
+}
+fn factory_planning_reference(value: &Value) -> bool {
+    exact_fields(value, &["kind", "policy_id", "revision"])
+        && matches!(
+            value["kind"].as_str(),
+            Some("integrity" | "data" | "command")
+        )
+        && graph_id(&value["policy_id"])
+        && graph_revision(&value["revision"])
+}
+fn factory_planning_policy(policy: &Value, selection: &Value) -> bool {
+    if !exact_fields(
+        policy,
+        &[
+            "max_nodes",
+            "max_revisions",
+            "max_plan_bytes",
+            "outputs",
+            "writable_prefixes",
+            "owner_acceptance_criteria",
+        ],
+    ) || !factory_safe(&policy["max_nodes"], 1, 256)
+        || !factory_safe(&policy["max_revisions"], 1, 256)
+        || !factory_safe(&policy["max_plan_bytes"], 1, 262_144)
+        || !policy["owner_acceptance_criteria"]
+            .as_str()
+            .is_some_and(|v| !v.trim().is_empty() && v.len() <= 16_384)
+    {
+        return false;
+    }
+    let (Some(outputs), Some(selected), Some(prefixes)) = (
+        policy["outputs"].as_array(),
+        selection["outputs"].as_array(),
+        policy["writable_prefixes"].as_array(),
+    ) else {
+        return false;
+    };
+    outputs.len() == selected.len()
+        && !outputs.is_empty()
+        && outputs.len() <= 16
+        && outputs.iter().enumerate().all(|(i, output)| {
+            exact_fields(output, &["artifact", "validators"])
+                && selected.contains(&output["artifact"])
+                && !outputs[..i]
+                    .iter()
+                    .any(|old| old["artifact"] == output["artifact"])
+                && output["validators"].as_array().is_some_and(|refs| {
+                    refs.len() <= 16
+                        && refs.iter().enumerate().all(|(j, reference)| {
+                            factory_planning_reference(reference) && !refs[..j].contains(reference)
+                        })
+                })
+        })
+        && prefixes.len() <= 16
+        && prefixes.iter().enumerate().all(|(i, prefix)| {
+            prefix.is_string()
+                && !prefixes[..i].contains(prefix)
+                && selected.iter().any(|a| a["relative_path"] == *prefix)
+        })
+}
+fn factory_planning_binding(binding: &Value, selection: &Value, bindings: &Value) -> bool {
+    if !exact_fields(
+        binding,
+        &[
+            "schema_version",
+            "authority_kind",
+            "policy",
+            "owner_rule_id",
+            "input_rule_id",
+            "validator_definitions",
+            "definition_digest",
+            "goal_execution_authorized",
+            "new_workspace_authorized",
+        ],
+    ) || !factory_safe(&binding["schema_version"], 1, 1)
+        || binding["authority_kind"] != "factory_child_planning_only"
+        || binding["policy"] != selection["child_planning_policy"]
+        || binding["owner_rule_id"] != "factory-child-owner-review"
+        || binding["input_rule_id"] != "factory-child-input-sha256"
+        || !graph_hash(&binding["definition_digest"])
+        || binding["goal_execution_authorized"] != false
+        || binding["new_workspace_authorized"] != false
+    {
+        return false;
+    }
+    let Some(definitions) = binding["validator_definitions"].as_object() else {
+        return false;
+    };
+    let Some(outputs) = selection["child_planning_policy"]["outputs"].as_array() else {
+        return false;
+    };
+    let refs = outputs
+        .iter()
+        .filter_map(|o| o["validators"].as_array())
+        .flatten()
+        .collect::<Vec<_>>();
+    // Digests are Core-resolved evidence, displayed without normalization. Core
+    // validates/recomputes them and the complete original Native policy origin;
+    // Native independently checks shape, references and exact final receipt.
+    definitions.len() <= 256
+        && definitions.iter().all(|(key, row)| {
+            let reference = &row["reference"];
+            let definition = &row["definition"];
+            exact_fields(
+                row,
+                &[
+                    "reference",
+                    "rule_id",
+                    "digest",
+                    "definition",
+                    "source_runs_started",
+                    "source_run_states",
+                ],
+            ) && factory_planning_reference(reference)
+                && refs.contains(&reference)
+                && key
+                    == &format!(
+                        "{}:{}",
+                        reference["kind"].as_str().unwrap_or(""),
+                        reference["policy_id"].as_str().unwrap_or("")
+                    )
+                && row["rule_id"] == *key
+                && graph_hash(&row["digest"])
+                && definition.is_object()
+                && definition["id"] == reference["policy_id"]
+                && graph_revision(&definition["revision"])
+                && definition["revision"] == reference["revision"]
+                && definition["project_id"] == bindings["root_task"]["project_id"]
+                && selection["workspace_ids"]
+                    .as_array()
+                    .is_some_and(|ids| ids.contains(&definition["workspace_id"]))
+                && graph_id(&definition["approval_id"])
+                && definition["revoked"] == false
+                && definition["scope"]
+                    == match reference["kind"].as_str() {
+                        Some("integrity") => "artifact_integrity_only",
+                        Some("data") => "data_contract_only",
+                        _ => "approved_deterministic_command_only",
+                    }
+                && factory_safe(&row["source_runs_started"], 0, 0)
+                && row["source_run_states"]
+                    .as_array()
+                    .is_some_and(Vec::is_empty)
+        })
+        && refs.iter().all(|reference| {
+            let key = format!(
+                "{}:{}",
+                reference["kind"].as_str().unwrap_or(""),
+                reference["policy_id"].as_str().unwrap_or("")
+            );
+            definitions
+                .get(&key)
+                .is_some_and(|row| row["reference"] == **reference)
+        })
+}
+
 fn factory_selection_matches(value: &Value) -> bool {
-    exact_fields(
+    let planning = value["capabilities"]["child_planning"] == true;
+    factory_planning_fields(
         value,
         &[
             "root_task_id",
@@ -1436,6 +1605,8 @@ fn factory_selection_matches(value: &Value) -> bool {
             "ttl_ms",
             "capabilities",
         ],
+        "child_planning_policy",
+        planning,
     ) && graph_id(&value["root_task_id"])
         && graph_id(&value["grant_id"])
         && graph_revision(&value["expected_task_revision"])
@@ -1493,9 +1664,13 @@ fn factory_selection_matches(value: &Value) -> bool {
         ]
         .iter()
         .all(|k| value["root_budget"][*k].as_u64() <= value["project_budget"][*k].as_u64())
-        && ["child_planning", "child_goal_execution", "create_workspace"]
-            .iter()
-            .all(|key| value["capabilities"][*key] == false)
+        && value["capabilities"]["child_goal_execution"] == false
+        && value["capabilities"]["create_workspace"] == false
+        && if planning {
+            factory_planning_policy(&value["child_planning_policy"], value)
+        } else {
+            value["capabilities"]["child_planning"] == false
+        }
 }
 fn factory_contract_matches(contract: &Value, requirements: &Value, workspaces: &Value) -> bool {
     exact_fields(contract,&["canonical_root","root_device","root_inode","requirement"])
@@ -1517,7 +1692,7 @@ fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
         || snapshot["selection"] != *selection
         || !factory_selection_matches(selection)
         || !graph_hash(&snapshot["contract_digest"])
-        || !exact_fields(
+        || !factory_planning_fields(
             b,
             &[
                 "project",
@@ -1531,7 +1706,11 @@ fn factory_snapshot_matches(snapshot: &Value, selection: &Value) -> bool {
                 "guarantees",
                 "start_contract",
             ],
+            "child_planning",
+            selection["capabilities"]["child_planning"] == true,
         )
+        || (selection["capabilities"]["child_planning"] == true
+            && !factory_planning_binding(&b["child_planning"], selection, b))
         || !exact_fields(
             project,
             &[
@@ -1793,7 +1972,11 @@ pub fn confirm_factory_and_finalize(
     let revision = proposal["revision"].as_u64().unwrap();
     let total = pages.iter().map(String::len).sum::<usize>();
     let mut offset = 0;
-    let action="Review INDEPENDENT bounded Factory task-delegation authority. Existing Grant execution authority and Factory task-splitting limits are distinct and both displayed. Approval does NOT start a run. Parent continuation is a NEW attempt with explicit handoff, not restored native context. No child planning/Goal execution/workspace creation, OS sandbox, network/account isolation, output quota or process-tree containment is granted. / 独立审查有界委派；Grant执行权限与Factory任务拆分上限分别核对；批准不启动，父任务以新尝试交接，不恢复原生上下文。";
+    let action = if selection["capabilities"]["child_planning"] == true {
+        "Review INDEPENDENT bounded Factory delegation AND versioned child PLAN STORAGE ONLY. Review every planning limit, output/validator definition, writable path and Owner acceptance criterion in the complete server snapshot. Approval does NOT start a run or execute a plan/validator. Child Goal execution, workspace creation, Task acceptance, new Grant authority, OS sandbox and native-context restoration are NOT granted. Parent continuation remains a NEW attempt. / 独立批准有界委派与子计划版本存储；完整核对规划限额、输出、检查定义、可写路径及负责人验收标准。批准不启动，不执行计划或检查，不授予子Goal执行、工作区创建、任务验收、新Grant权限或系统隔离；父任务仍以新尝试交接。"
+    } else {
+        "Review INDEPENDENT bounded Factory task-delegation authority. Existing Grant execution authority and Factory task-splitting limits are distinct and both displayed. Approval does NOT start a run. Parent continuation is a NEW attempt with explicit handoff, not restored native context. No child planning/Goal execution/workspace creation, OS sandbox, network/account isolation, output quota or process-tree containment is granted. / 独立审查有界委派；Grant执行权限与Factory任务拆分上限分别核对；批准不启动，父任务以新尝试交接，不恢复原生上下文。"
+    };
     for (index, page) in pages.iter().enumerate() {
         let end = offset + page.len();
         let message=format!("{action}\n\nFactory proposal {id} / revision {revision}. Page {}/{}; complete JSON UTF-8 bytes {}..{} of {}. OK only reviews this page; final confirmation is still required. Cancel stops review without a rejection receipt.\n\n{page}",index+1,pages.len(),offset,end,total);
@@ -3420,6 +3603,300 @@ mod factory_tests {
             )
             .unwrap();
             assert_eq!(denied["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+        }
+    }
+    fn planning_fixture() -> (Value, Value) {
+        let (mut selection, mut proposal) = fixture();
+        let policy = json!({"max_nodes":8,"max_revisions":4,"max_plan_bytes":262144,"outputs":[{"artifact":selection["outputs"][0],"validators":[]}],"writable_prefixes":["report.txt"],"owner_acceptance_criteria":"核对完整报告与计划；planning is not execution 🧭"});
+        selection["capabilities"]["child_planning"] = json!(true);
+        selection["child_planning_policy"] = policy.clone();
+        proposal["result"]["snapshot"]["selection"] = selection.clone();
+        proposal["result"]["snapshot"]["bindings"]["child_planning"] = json!({"schema_version":1,"authority_kind":"factory_child_planning_only","policy":policy,"owner_rule_id":"factory-child-owner-review","input_rule_id":"factory-child-input-sha256","validator_definitions":{},"definition_digest":"e".repeat(64),"goal_execution_authorized":false,"new_workspace_authorized":false});
+        (selection, proposal)
+    }
+    #[test]
+    fn planning_complete_policy_and_resolved_binding_are_reviewed_without_starting() {
+        let (selection, proposal) = planning_fixture();
+        let messages = RefCell::new(Vec::new());
+        let calls = Cell::new(0);
+        let result = scope_result(&proposal);
+        let value = confirm_factory_and_finalize(
+            proposal.clone(),
+            &selection,
+            |message| {
+                messages.borrow_mut().push(message.to_owned());
+                true
+            },
+            |frame| {
+                calls.set(calls.get() + 1);
+                assert_eq!(frame["method"], "approvals.finalize");
+                assert_eq!(frame["expected_revision"], 3);
+                Ok(result.clone())
+            },
+        )
+        .unwrap();
+        assert_eq!(value, result);
+        assert_eq!(calls.get(), 1);
+        assert!(messages
+            .borrow()
+            .iter()
+            .all(|m| m.contains("PLAN STORAGE ONLY")));
+        let original = serde_json::to_string(&proposal["result"]["snapshot"]).unwrap();
+        assert_eq!(
+            graph_review_pages(&proposal["result"]["snapshot"])
+                .unwrap()
+                .concat(),
+            original
+        );
+        for field in [
+            "max_nodes",
+            "max_revisions",
+            "max_plan_bytes",
+            "outputs",
+            "writable_prefixes",
+            "owner_acceptance_criteria",
+            "validator_definitions",
+            "definition_digest",
+            "goal_execution_authorized",
+            "new_workspace_authorized",
+        ] {
+            assert!(original.contains(field));
+        }
+        assert!(original.contains("9223372036854775809"));
+    }
+    #[test]
+    fn planning_missing_or_expanded_policy_and_execution_authority_never_prompt() {
+        let (selection, proposal) = planning_fixture();
+        for variant in [
+            "missing-policy",
+            "missing-binding",
+            "policy-mismatch",
+            "max-nodes",
+            "max-revisions",
+            "max-bytes",
+            "boolean-limit",
+            "float-limit",
+            "foreign-output",
+            "wider-path",
+            "empty-criteria",
+            "unknown-policy-field",
+            "wrong-kind",
+            "wrong-owner-rule",
+            "wrong-input-rule",
+            "goal-execution",
+            "new-workspace",
+            "capability-goal",
+            "capability-workspace",
+        ] {
+            let mut s = selection.clone();
+            let mut p = proposal.clone();
+            match variant {
+                "missing-policy" => {
+                    s.as_object_mut().unwrap().remove("child_planning_policy");
+                }
+                "missing-binding" => {
+                    p["result"]["snapshot"]["bindings"]
+                        .as_object_mut()
+                        .unwrap()
+                        .remove("child_planning");
+                }
+                "policy-mismatch" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]["policy"]["max_nodes"] =
+                        json!(7)
+                }
+                "max-nodes" => s["child_planning_policy"]["max_nodes"] = json!(257),
+                "max-revisions" => s["child_planning_policy"]["max_revisions"] = json!(0),
+                "max-bytes" => s["child_planning_policy"]["max_plan_bytes"] = json!(262145),
+                "boolean-limit" => s["child_planning_policy"]["max_nodes"] = json!(true),
+                "float-limit" => s["child_planning_policy"]["max_nodes"] = json!(8.0),
+                "foreign-output" => {
+                    s["child_planning_policy"]["outputs"][0]["artifact"]["artifact_id"] =
+                        json!("foreign")
+                }
+                "wider-path" => {
+                    s["child_planning_policy"]["writable_prefixes"] = json!(["../outside"])
+                }
+                "empty-criteria" => {
+                    s["child_planning_policy"]["owner_acceptance_criteria"] = json!(" \n")
+                }
+                "unknown-policy-field" => s["child_planning_policy"]["execute"] = json!(true),
+                "wrong-kind" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]["authority_kind"] =
+                        json!("goal_execution")
+                }
+                "wrong-owner-rule" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]["owner_rule_id"] =
+                        json!("foreign")
+                }
+                "wrong-input-rule" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]["input_rule_id"] =
+                        json!("foreign")
+                }
+                "goal-execution" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]
+                        ["goal_execution_authorized"] = json!(true)
+                }
+                "new-workspace" => {
+                    p["result"]["snapshot"]["bindings"]["child_planning"]
+                        ["new_workspace_authorized"] = json!(true)
+                }
+                "capability-goal" => s["capabilities"]["child_goal_execution"] = json!(true),
+                _ => s["capabilities"]["create_workspace"] = json!(true),
+            }
+            p["result"]["snapshot"]["selection"] = s.clone();
+            let denied = confirm_factory_and_finalize(
+                p,
+                &s,
+                |_| panic!("invalid planning prompt {variant}"),
+                |_| panic!("invalid planning finalize {variant}"),
+            )
+            .unwrap();
+            assert_eq!(
+                denied["error"]["code"], "INVALID_APPROVAL_PROPOSAL",
+                "{variant}"
+            );
+        }
+    }
+    #[test]
+    fn planning_false_legacy_scope_does_not_gain_policy_or_binding() {
+        let (selection, proposal) = fixture();
+        assert!(factory_snapshot_matches(
+            &proposal["result"]["snapshot"],
+            &selection
+        ));
+        let mut s = selection.clone();
+        s["child_planning_policy"] = Value::Null;
+        let mut p = proposal.clone();
+        p["result"]["snapshot"]["selection"] = s.clone();
+        assert!(!factory_snapshot_matches(&p["result"]["snapshot"], &s));
+        let mut p = proposal.clone();
+        p["result"]["snapshot"]["bindings"]["child_planning"] = Value::Null;
+        assert!(!factory_snapshot_matches(
+            &p["result"]["snapshot"],
+            &selection
+        ));
+        let messages = RefCell::new(Vec::new());
+        let result = scope_result(&proposal);
+        confirm_factory_and_finalize(
+            proposal,
+            &selection,
+            |message| {
+                messages.borrow_mut().push(message.to_owned());
+                true
+            },
+            |_| Ok(result),
+        )
+        .unwrap();
+        assert!(messages
+            .borrow()
+            .iter()
+            .all(|m| m.contains("No child planning/Goal execution/workspace creation")));
+    }
+    #[test]
+    fn planning_cancel_every_complete_page_and_final_is_zero_finalize() {
+        let (mut selection, mut proposal) = planning_fixture();
+        selection["child_planning_policy"]["owner_acceptance_criteria"] =
+            json!("中文🧭".repeat(1000));
+        proposal["result"]["snapshot"]["selection"] = selection.clone();
+        proposal["result"]["snapshot"]["bindings"]["child_planning"]["policy"] =
+            selection["child_planning_policy"].clone();
+        let pages = graph_review_pages(&proposal["result"]["snapshot"]).unwrap();
+        assert!(pages.len() > 1);
+        for decline in 0..=pages.len() {
+            let prompts = Cell::new(0);
+            let denied = confirm_factory_and_finalize(
+                proposal.clone(),
+                &selection,
+                |message| {
+                    assert!(message.len() <= 16384);
+                    let i = prompts.get();
+                    prompts.set(i + 1);
+                    i != decline
+                },
+                |_| panic!("cancel must never finalize"),
+            )
+            .unwrap();
+            assert_eq!(denied["error"]["code"], "PERMISSION_DENIED");
+            assert_eq!(prompts.get(), decline + 1);
+        }
+    }
+    #[test]
+    fn planning_foreign_final_receipt_retains_unknown_and_never_replays() {
+        let (selection, proposal) = planning_fixture();
+        let mut result = scope_result(&proposal);
+        result["result"]["bindings"]["child_planning"]["policy"]["max_nodes"] = json!(9);
+        let count = Cell::new(0);
+        let reply = confirm_factory_and_finalize(
+            proposal,
+            &selection,
+            |_| true,
+            |_| {
+                count.set(count.get() + 1);
+                Ok(result)
+            },
+        )
+        .unwrap();
+        assert_eq!(count.get(), 1);
+        assert_eq!(reply["error"]["code"], "OUTCOME_UNKNOWN");
+        assert_eq!(reply["error"]["side_effect_state"], "unknown");
+    }
+    #[test]
+    fn planning_validator_references_are_complete_exact_and_not_run_receipts() {
+        let (mut selection, mut proposal) = planning_fixture();
+        let reference = json!({"kind":"integrity","policy_id":"integrity-policy","revision":1});
+        selection["child_planning_policy"]["outputs"][0]["validators"] = json!([reference]);
+        proposal["result"]["snapshot"]["selection"] = selection.clone();
+        let binding = &mut proposal["result"]["snapshot"]["bindings"]["child_planning"];
+        binding["policy"] = selection["child_planning_policy"].clone();
+        binding["validator_definitions"] = json!({"integrity:integrity-policy":{"reference":reference,"rule_id":"integrity:integrity-policy","digest":"f".repeat(64),"definition":{"id":"integrity-policy","project_id":"project","workspace_id":"workspace","revision":1,"approval_id":"original-native-policy","revoked":false,"scope":"artifact_integrity_only","full_unknown_native_definition":"preserved and displayed"},"source_runs_started":0,"source_run_states":[]}});
+        assert!(factory_snapshot_matches(
+            &proposal["result"]["snapshot"],
+            &selection
+        ));
+        for variant in [
+            "missing",
+            "extra",
+            "reference",
+            "project",
+            "workspace",
+            "revoked",
+            "used",
+            "state",
+            "digest",
+        ] {
+            let mut p = proposal.clone();
+            let definitions =
+                &mut p["result"]["snapshot"]["bindings"]["child_planning"]["validator_definitions"];
+            match variant {
+                "missing" => *definitions = json!({}),
+                "extra" => definitions["foreign"] = json!({}),
+                "reference" => {
+                    definitions["integrity:integrity-policy"]["reference"]["revision"] = json!(2)
+                }
+                "project" => {
+                    definitions["integrity:integrity-policy"]["definition"]["project_id"] =
+                        json!("foreign")
+                }
+                "workspace" => {
+                    definitions["integrity:integrity-policy"]["definition"]["workspace_id"] =
+                        json!("foreign")
+                }
+                "revoked" => {
+                    definitions["integrity:integrity-policy"]["definition"]["revoked"] = json!(true)
+                }
+                "used" => {
+                    definitions["integrity:integrity-policy"]["source_runs_started"] = json!(1)
+                }
+                "state" => {
+                    definitions["integrity:integrity-policy"]["source_run_states"] =
+                        json!(["passed"])
+                }
+                _ => definitions["integrity:integrity-policy"]["digest"] = json!("not-a-digest"),
+            };
+            assert!(
+                !factory_snapshot_matches(&p["result"]["snapshot"], &selection),
+                "{variant}"
+            );
         }
     }
 }
