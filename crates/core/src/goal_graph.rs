@@ -3219,3 +3219,13 @@ mod proposal_size_tests {
         );
     }
 }
+
+pub(super) fn verify_pending_factory_validator(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    attempt: &str,
+    intent: &str,
+) -> Result<()> {
+    validators::verify_pending_factory_validator(db, r, n, attempt, intent)
+}

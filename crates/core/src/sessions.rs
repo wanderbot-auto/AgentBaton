@@ -680,6 +680,16 @@ impl Store {
             json!({"task_id":task.id,"attempt_id":intent.attempt_id,"intent_id":intent.id,"binding":intent.binding,"fencing_token":session.fencing_token,"identity_status":"unknown","history_capture":{"normalized_updates":true,"raw_protocol":false,"stderr":false,"completeness":"partial"}}),
             "user_action",
         )?;
+        if let Some(context) = goal.as_ref() {
+            crate::goal_store::seal_factory_goal_read(
+                &tx,
+                context,
+                &session.attempt_id,
+                &session.intent_id,
+                Some(&session),
+                self.data_input.as_ref(),
+            )?;
+        }
         tx.commit().map_err(db_error)?;
         Ok(session)
     }
