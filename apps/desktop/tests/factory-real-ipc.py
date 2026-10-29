@@ -357,8 +357,35 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                         except FileNotFoundError: after = None
                         assert after is None or after['start_ticks'] != expected['start_ticks'], 'Bound MCP still exists after late adopted-child wait'
                         continue
-                    assert observed is not None
-                    assert len(observed)<=8192 and observed.endswith(b'\0')
+                    try:
+                        assert observed is not None
+                        assert len(observed)<=8192 and observed.endswith(b'\0')
+                    except AssertionError:
+                        observation = {
+                            'stage': 'fixed_generated_argv_before_acceptance',
+                            'field': field, 'expected_identity': {key: expected[key] for key in ('pid', 'pgid', 'start_ticks')},
+                            'identity_before': {key: current[key] for key in ('pid', 'parent_pid', 'start_ticks', 'state')}, 'record_sha256': sha(raw),
+                            'previously_bound': old is not None,
+                            'read_present': observed is not None,
+                            'read_bytes': len(observed) if observed is not None else None,
+                            'ends_nul': observed.endswith(b'\0') if observed is not None else False,
+                            'argv_sha256': sha(observed) if observed is not None else None,
+                        }
+                        try:
+                            after = support.proc_identity(expected['pid'])
+                            observation['identity_after'] = {key: after[key] for key in ('pid', 'parent_pid', 'start_ticks', 'state')}
+                        except (FileNotFoundError, ProcessLookupError):
+                            observation['identity_after'] = None
+                        except Exception as error:
+                            observation['identity_after'] = None
+                            observation['identity_after_error'] = type(error).__name__
+                        try:
+                            diagnostic = output / 'fixed-argv-first-failure.json'
+                            if not diagnostic.exists():
+                                write_private_json(diagnostic, observation)
+                        except Exception as error:
+                            observation['diagnostic_write_error'] = type(error).__name__
+                        raise AssertionError('Fixed generated argv guard failed: ' + json.dumps(observation, sort_keys=True))
                     actual = [x.decode() for x in observed[:-1].split(b'\0')]
                     assert actual[-len(expected_argv):] == expected_argv and os.getpgid(expected['pid'])==expected['pgid']
                     assert support.proc_identity(expected['pid'])['start_ticks']==expected['start_ticks']
