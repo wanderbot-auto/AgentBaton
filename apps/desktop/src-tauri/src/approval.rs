@@ -1381,9 +1381,12 @@ fn factory_budget(value: &Value) -> bool {
         )
         && factory_safe(&value["runtime_ms"], 1, 604800000)
         && factory_safe(&value["output_bytes"], 1, 9_007_199_254_740_991)
-        && ["children", "reworks"]
-            .iter()
-            .all(|key| factory_safe(&value[*key], 0, 1000))
+        && factory_safe(&value["children"], 0, 1000)
+        && factory_safe(
+            &value["reworks"],
+            0,
+            value["attempts"].as_u64().unwrap_or(0).saturating_sub(1),
+        )
         && ["tokens", "cost_microunits"].iter().all(|key| {
             value[*key].is_null() || factory_safe(&value[*key], 0, 9_007_199_254_740_991)
         })
@@ -1622,8 +1625,6 @@ fn factory_execution_policy(policy: &Value) -> bool {
         && factory_safe(&policy["max_total_runs"], 1, 1000)
         && policy["require_owner_acceptance"] == true
         && factory_budget_narrower(&policy["root_budget"], &policy["project_budget"])
-        && policy["root_budget"]["reworks"] == 0
-        && policy["project_budget"]["reworks"] == 0
 }
 fn factory_execution_binding_shape(binding: &Value) -> bool {
     exact_fields(
@@ -1914,7 +1915,7 @@ fn factory_selection_matches(value: &Value) -> bool {
         })
         && value["max_children"].as_u64() < value["max_total_nodes"].as_u64()
         && ["root_budget", "project_budget"].iter().all(|k| {
-            value[*k]["reworks"] == 0
+            (execution || value[*k]["reworks"] == 0)
                 && value[*k]["tokens"].is_null()
                 && value[*k]["cost_microunits"].is_null()
         })
@@ -1931,6 +1932,17 @@ fn factory_selection_matches(value: &Value) -> bool {
         && (if execution {
             planning
                 && factory_execution_policy(&value["child_goal_execution_policy"])
+                // Reworks are separate explicit consent in both complete
+                // policies, never an upgrade of a false/planning-only scope.
+                && ["root_budget", "project_budget"].iter().all(|k| {
+                    value["child_goal_execution_policy"][*k]["reworks"]
+                        == value[*k]["reworks"]
+                })
+                && value["root_budget"]["reworks"].as_u64().is_some_and(|n| {
+                    value["child_planning_policy"]["max_revisions"]
+                        .as_u64()
+                        .is_some_and(|revisions| n < revisions)
+                })
                 && factory_budget_narrower(
                     &value["child_goal_execution_policy"]["root_budget"],
                     &value["root_budget"],
@@ -4446,6 +4458,195 @@ mod factory_tests {
         b["approved_grant"]["scope"]["max_depth"] = json!(1);
         b["child_goal_execution"] = json!({"schema_version":1,"authority_kind":"factory_child_goal_execution_v1","policy":policy,"planning_policy_digest":b["child_planning"]["definition_digest"],"root_grant_id":"grant","root_grant_revision":2,"original_max_children":1,"original_max_depth":1,"graph_contract_version":1,"definition_digest":"f".repeat(64),"new_workspace_authorized":false});
         (selection, p)
+    }
+    fn reworks_fixture() -> (Value, Value) {
+        let (mut selection, mut proposal) = execution_fixture();
+        for budget in ["root_budget", "project_budget"] {
+            selection[budget]["reworks"] = json!(1);
+            selection["child_goal_execution_policy"][budget]["reworks"] = json!(1);
+        }
+        sync_reworks_snapshot(&selection, &mut proposal);
+        (selection, proposal)
+    }
+    fn sync_reworks_snapshot(selection: &Value, proposal: &mut Value) {
+        proposal["result"]["snapshot"]["selection"] = selection.clone();
+        proposal["result"]["snapshot"]["bindings"]["child_planning"]["policy"] =
+            selection["child_planning_policy"].clone();
+        proposal["result"]["snapshot"]["bindings"]["child_goal_execution"]["policy"] =
+            selection["child_goal_execution_policy"].clone();
+    }
+    #[test]
+    fn explicit_reworks_complete_layers_round_trip_without_changing_original_grant() {
+        let (selection, proposal) = reworks_fixture();
+        assert!(factory_snapshot_matches(
+            &proposal["result"]["snapshot"],
+            &selection
+        ));
+        let original_grant = proposal["result"]["snapshot"]["bindings"]["approved_grant"].clone();
+        let expected = serde_json::to_string(&proposal["result"]["snapshot"]).unwrap();
+        let mut parts = Vec::new();
+        let result = confirm_factory_and_finalize(
+            proposal.clone(),
+            &selection,
+            |message| {
+                if !message.contains("FINAL independent") {
+                    parts.push(message.rsplit("\n\n").next().unwrap().to_owned());
+                }
+                true
+            },
+            |frame| {
+                assert_eq!(frame["method"], "approvals.finalize");
+                Ok(scope_result(&proposal))
+            },
+        )
+        .unwrap();
+        assert_eq!(parts.concat(), expected);
+        assert_eq!(
+            result["result"]["bindings"]["approved_grant"],
+            original_grant
+        );
+        assert_eq!(result["result"]["selection"]["root_budget"]["reworks"], 1);
+        assert_eq!(
+            result["result"]["bindings"]["child_goal_execution"]["policy"]["root_budget"]
+                ["reworks"],
+            1
+        );
+        assert_eq!(
+            result["result"]["bindings"]["child_planning"]["goal_execution_authorized"],
+            false
+        );
+    }
+    #[test]
+    fn reworks_layer_mismatch_attempt_or_planning_boundary_never_prompts() {
+        let (selection, proposal) = reworks_fixture();
+        for pointer in [
+            "/root_budget/reworks",
+            "/project_budget/reworks",
+            "/child_goal_execution_policy/root_budget/reworks",
+            "/child_goal_execution_policy/project_budget/reworks",
+            "/child_goal_execution_policy/root_budget/attempts",
+            "/child_goal_execution_policy/project_budget/attempts",
+            "/child_planning_policy/max_revisions",
+        ] {
+            let mut bad = selection.clone();
+            *bad.pointer_mut(pointer).unwrap() = if pointer.ends_with("reworks") {
+                json!(0)
+            } else {
+                json!(1)
+            };
+            let mut p = proposal.clone();
+            sync_reworks_snapshot(&bad, &mut p);
+            let denied = confirm_factory_and_finalize(
+                p,
+                &bad,
+                |_| panic!("invalid reworks prompted: {pointer}"),
+                |_| panic!("invalid reworks finalized: {pointer}"),
+            )
+            .unwrap();
+            assert_eq!(denied["error"]["code"], "INVALID_APPROVAL_PROPOSAL");
+        }
+        let mut bad = selection.clone();
+        for budget in ["root_budget", "project_budget"] {
+            bad[budget]["reworks"] = json!(2);
+            bad["child_goal_execution_policy"][budget]["reworks"] = json!(2);
+        }
+        assert!(!factory_selection_matches(&bad)); // attempts2 permits at most1.
+        bad["child_goal_execution_policy"]["root_budget"]["attempts"] = json!(3);
+        bad["child_goal_execution_policy"]["project_budget"]["attempts"] = json!(3);
+        bad["child_planning_policy"]["max_revisions"] = json!(2);
+        assert!(!factory_selection_matches(&bad)); // revisions2 permits at most1.
+        bad["child_planning_policy"]["max_revisions"] = json!(3);
+        assert!(factory_selection_matches(&bad));
+    }
+    #[test]
+    fn reworks_legacy_planning_only_and_missing_execution_binding_cannot_upgrade() {
+        for planning in [false, true] {
+            let (mut selection, mut proposal) = if planning {
+                planning_fixture()
+            } else {
+                fixture()
+            };
+            for budget in ["root_budget", "project_budget"] {
+                selection[budget]["reworks"] = json!(1);
+            }
+            proposal["result"]["snapshot"]["selection"] = selection.clone();
+            assert!(!factory_snapshot_matches(
+                &proposal["result"]["snapshot"],
+                &selection
+            ));
+        }
+        let (selection, proposal) = reworks_fixture();
+        for omitted in [true, false] {
+            let mut p = proposal.clone();
+            if omitted {
+                p["result"]["snapshot"]["bindings"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("child_goal_execution");
+            } else {
+                p["result"]["snapshot"]["bindings"]["child_goal_execution"] = Value::Null;
+            }
+            assert!(!factory_snapshot_matches(
+                &p["result"]["snapshot"],
+                &selection
+            ));
+        }
+        let mut p = proposal;
+        p["result"]["snapshot"]["bindings"]["child_goal_execution"]["policy"]["root_budget"]
+            ["reworks"] = json!(0);
+        assert!(!factory_snapshot_matches(
+            &p["result"]["snapshot"],
+            &selection
+        ));
+    }
+    #[test]
+    fn reworks_project_bound_has_no_extra_native_thousand_cap_and_types_are_exact() {
+        let (mut selection, mut proposal) = reworks_fixture();
+        selection["project_budget"]["attempts"] = json!(100000);
+        selection["project_budget"]["reworks"] = json!(99999);
+        selection["child_goal_execution_policy"]["project_budget"] =
+            selection["project_budget"].clone();
+        sync_reworks_snapshot(&selection, &mut proposal);
+        assert!(factory_snapshot_matches(
+            &proposal["result"]["snapshot"],
+            &selection
+        ));
+        for bad in [
+            json!(100000),
+            json!(-1),
+            json!(true),
+            json!(1.0),
+            json!("1"),
+            Value::Null,
+        ] {
+            let mut s = selection.clone();
+            s["project_budget"]["reworks"] = bad.clone();
+            s["child_goal_execution_policy"]["project_budget"]["reworks"] = bad;
+            assert!(!factory_selection_matches(&s));
+        }
+        selection["project_budget"]["children"] = json!(1001);
+        assert!(!factory_selection_matches(&selection));
+    }
+    #[test]
+    fn reworks_cancel_at_each_full_review_page_or_final_never_finalizes() {
+        let (selection, proposal) = reworks_fixture();
+        let pages = graph_review_pages(&proposal["result"]["snapshot"]).unwrap();
+        for decline in 0..=pages.len() {
+            let prompts = Cell::new(0);
+            let denied = confirm_factory_and_finalize(
+                proposal.clone(),
+                &selection,
+                |_| {
+                    let i = prompts.get();
+                    prompts.set(i + 1);
+                    i != decline
+                },
+                |_| panic!("reworks cancellation must never finalize"),
+            )
+            .unwrap();
+            assert_eq!(denied["error"]["code"], "PERMISSION_DENIED");
+            assert_eq!(prompts.get(), decline + 1);
+        }
     }
     #[test]
     fn explicit_execution_policy_full_snapshot_keeps_original_grant_and_does_not_start() {
