@@ -2180,7 +2180,7 @@ mod fixture_tests {
         assert_eq!(goal_database_snapshot(&runtime).unwrap()["sequence"], 0);
         assert_eq!(
             goal_execution_database_snapshot(&runtime).unwrap()["schema_version"],
-            13
+            14
         );
         let mut report = graph_report_fixture(0);
         record_goal_graph_checkpoint(0, "main", &mut report, "before", before.clone()).unwrap();
