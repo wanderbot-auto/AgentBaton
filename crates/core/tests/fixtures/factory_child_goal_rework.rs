@@ -32,6 +32,123 @@ fn wait_until(
     }
 }
 
+// Only this scenario's fixed, already-bound readonly observations may recover
+// from a transport failure. In particular this never retries an Owner write.
+struct ReworkReadReconciliation {
+    scope: String,
+    child: Option<String>,
+    goal: Option<String>,
+    deadline: Instant,
+    retry_budget: u8,
+    errors: Vec<Value>,
+    evidence: PathBuf,
+}
+impl ReworkReadReconciliation {
+    fn permits(&self, method: &str, params: &Value) -> bool {
+        match method {
+            "factory_runs.get" => *params == json!({"scope_id":self.scope}),
+            "factory_child_goals.list" => self.child.as_ref().is_some_and(|child| {
+                *params == json!({"scope_id":self.scope,"task_id":child,"goal_run_id":null})
+            }),
+            "factory_child_goals.get" => {
+                self.child
+                    .as_ref()
+                    .zip(self.goal.as_ref())
+                    .is_some_and(|(child, goal)| {
+                        *params == json!({"scope_id":self.scope,"task_id":child,"goal_run_id":goal})
+                    })
+            }
+            _ => false,
+        }
+    }
+    fn call(&mut self, runtime: &Path, method: &'static str, params: Value) -> Value {
+        assert!(
+            self.permits(method, &params),
+            "only the original bound readonly observation may be reconciled"
+        );
+        loop {
+            assert!(
+                Instant::now() < self.deadline,
+                "the original observation deadline cannot be renewed by reconciliation"
+            );
+            let started = Instant::now();
+            match call(runtime, json!({"method":method,"params":params})) {
+                Ok(reply) => {
+                    assert!(
+                        Instant::now() < self.deadline,
+                        "readonly response arrived after the original observation deadline"
+                    );
+                    assert!(reply.get("error").is_none(), "{reply}");
+                    return reply["result"].clone();
+                }
+                Err(error) => {
+                    self.errors.push(json!({"method":method,"elapsed_ms":started.elapsed().as_millis(),"actual_transport_error_code":error.code,"actual_side_effect_state":error.side_effect_state,"request_was_readonly":true,"write_retried":false}));
+                    fs::write(self.evidence.join("readonly-transport-reconciliation.json"),serde_json::to_vec_pretty(&json!({"dimension":"actual readonly client transport errors; receipt reconciliation is not a product latency PASS","errors":self.errors})).unwrap()).expect("preserve the first readonly transport failure before any retry");
+                    assert_eq!(
+                        error.code, "PROVIDER_DISCONNECTED",
+                        "only this exact transport failure permits a readonly re-read"
+                    );
+                    assert!(self.retry_budget>0,"fixed readonly reconciliation attempts exhausted; original transport error remains recorded");
+                    assert!(
+                        Instant::now() < self.deadline,
+                        "original observation expired after transport failure"
+                    );
+                    self.retry_budget -= 1;
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn readonly_reconciliation_whitelist_rejects_writes_and_other_bindings() {
+    let reads = ReworkReadReconciliation {
+        scope: "scope".into(),
+        child: Some("child".into()),
+        goal: Some("goal".into()),
+        deadline: Instant::now(),
+        retry_budget: 2,
+        errors: vec![],
+        evidence: PathBuf::new(),
+    };
+    assert!(reads.permits("factory_runs.get", &json!({"scope_id":"scope"})));
+    assert!(reads.permits(
+        "factory_child_goals.list",
+        &json!({"scope_id":"scope","task_id":"child","goal_run_id":null})
+    ));
+    assert!(reads.permits(
+        "factory_child_goals.get",
+        &json!({"scope_id":"scope","task_id":"child","goal_run_id":"goal"})
+    ));
+    for (method, params) in [
+        ("approvals.finalize", json!({"scope_id":"scope"})),
+        (
+            "factory_child_goals.advance_plan",
+            json!({"scope_id":"scope"}),
+        ),
+        ("sessions.create", json!({"scope_id":"scope"})),
+        ("factory_runs.get", json!({"scope_id":"foreign"})),
+        (
+            "factory_runs.get",
+            json!({"scope_id":"scope","idempotency_key":"write"}),
+        ),
+        (
+            "factory_child_goals.list",
+            json!({"scope_id":"scope","task_id":"foreign","goal_run_id":null}),
+        ),
+        (
+            "factory_child_goals.get",
+            json!({"scope_id":"scope","task_id":"child","goal_run_id":"foreign"}),
+        ),
+        (
+            "factory_child_goals.get",
+            json!({"scope_id":"scope","task_id":"foreign","goal_run_id":"goal"}),
+        ),
+    ] {
+        assert!(!reads.permits(method, &params), "{method} {params}");
+    }
+}
+
 // Establish all shared ceilings before either execution approval. The original
 // children0 fixture Grant is retained untouched; this is a separate real Native
 // Grant and Goal scope, not a synthetic approval or an edited stored policy.
@@ -381,26 +498,53 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     // distinct from its unchanged30s cumulative execution budget. Existing
     // normal/1s observers and the original30s expiry failure stay unchanged.
     let until = Instant::now() + Duration::from_secs(55);
+    let mut reads = ReworkReadReconciliation {
+        scope: scope["id"].as_str().unwrap().into(),
+        child: None,
+        goal: None,
+        deadline: until,
+        retry_budget: 2,
+        errors: vec![],
+        evidence: evidence.clone(),
+    };
     let before = loop {
-        let factory = mixed_call(
+        let factory = reads.call(
             &runtime,
-            json!({"method":"factory_runs.get","params":{"scope_id":scope["id"]}}),
+            "factory_runs.get",
+            json!({"scope_id":scope["id"]}),
         );
+        assert_eq!(factory["run"]["scope_id"], scope["id"]);
         if let Some(child) = factory["tasks"]
             .as_array()
             .unwrap()
             .iter()
             .find(|t| !t["parent_task_id"].is_null())
         {
-            let list = mixed_call(
+            assert_eq!(child["parent_task_id"], scope["root_task_id"]);
+            assert_eq!(child["factory_scope_id"], scope["id"]);
+            let task = child["task_id"].as_str().unwrap().to_owned();
+            if let Some(old) = &reads.child {
+                assert_eq!(old, &task);
+            } else {
+                reads.child = Some(task);
+            }
+            let list = reads.call(
                 &runtime,
-                json!({"method":"factory_child_goals.list","params":{"scope_id":scope["id"],"task_id":child["task_id"],"goal_run_id":null}}),
+                "factory_child_goals.list",
+                json!({"scope_id":scope["id"],"task_id":child["task_id"],"goal_run_id":null}),
             );
             if let Some(summary) = list.as_array().unwrap().first() {
-                let view = mixed_call(
-                    &runtime,
-                    json!({"method":"factory_child_goals.get","params":{"scope_id":scope["id"],"task_id":child["task_id"],"goal_run_id":summary["goal"]["run"]["id"]}}),
-                );
+                assert_eq!(summary["factory_scope_id"], scope["id"]);
+                assert_eq!(summary["task_id"], child["task_id"]);
+                let goal = summary["goal"]["run"]["id"].as_str().unwrap().to_owned();
+                if let Some(old) = &reads.goal {
+                    assert_eq!(old, &goal);
+                } else {
+                    reads.goal = Some(goal);
+                }
+                let view=reads.call(&runtime,"factory_child_goals.get",json!({"scope_id":scope["id"],"task_id":child["task_id"],"goal_run_id":summary["goal"]["run"]["id"]}));
+                assert_eq!(view["details"]["run"]["id"], summary["goal"]["run"]["id"]);
+                assert_eq!(view["details"]["run"]["task_id"], child["task_id"]);
                 assert_ne!(
                     view["summary"]["goal"]["run"]["state"], "outcome_unknown",
                     "unknown must never become an automatic rework: {view}"
@@ -485,15 +629,25 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         p["snapshot"]["candidate_receipts"],
         json!(current_candidates)
     );
+    fs::write(evidence.join("owner-write-checkpoint.json"),serde_json::to_vec_pretty(&json!({"method":"approvals.finalize","owner_reply_received":false,"single_write_call_planned":true,"actual_send_confirmed":false,"write_retried":false})).unwrap()).unwrap();
     let decision = finalize(&runtime, &p, "rework-exact-second-owner-consent");
+    fs::write(evidence.join("owner-write-checkpoint.json"),serde_json::to_vec_pretty(&json!({"method":"approvals.finalize","owner_reply_received":true,"reply_sha256":sha256(&serde_json::to_vec(&decision).unwrap()),"task_accepted":decision["task_accepted"],"write_attempts":1,"write_retried":false})).unwrap()).unwrap();
     assert_eq!(decision["task_accepted"], true);
-    let final_factory = wait_until(
-        &runtime,
-        "factory_runs.get",
-        json!({"scope_id":scope["id"]}),
-        until,
-        |v| v["run"]["state"] == "completed",
-    );
+    let final_factory = loop {
+        let value = reads.call(
+            &runtime,
+            "factory_runs.get",
+            json!({"scope_id":scope["id"]}),
+        );
+        if value["run"]["state"] == "completed" {
+            break value;
+        }
+        assert!(
+            Instant::now() < until,
+            "parent did not finish within the original observation window: {value}"
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    };
     assert_eq!(
         fs::read_to_string(workspace_root.join("reports/mcp-stages.txt")).unwrap(),
         "parent-initial\nchild-recovery\nparent-resumed\n"
@@ -609,7 +763,7 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
                 .unwrap()
     );
     let journal = db_events(&f.path);
-    let body = json!({"dimension":"real generated ACP/private scoped MCP7/Actor/owned Graph and sessionless fixed Command/joined bounded rework/private Owner/parent resume; no model or OS dialog","factory_scope_approval_route":"original retained Store::propose_factory_scope(selection,private0500-single-link-companion)+trusted fixture finalize_proposal; not factory_scopes.propose IPC or OS dialog","test_source_sha256":sha256(include_bytes!("factory_child_goal_rework.rs")),"provider_source_sha256":sha256(include_bytes!("factory_child_goal_rework_acp.py")),"companion_sha256":companion_sha,"fixed_command_sha256":executable_sha,"initial_scope":scope,"definition":definition,"recovery":recovery,"before_owner":before,"owner_proposal":p,"owner_decision":decision,"final_factory":final_factory,"journal":journal});
+    let body = json!({"dimension":"real generated ACP/private scoped MCP7/Actor/owned Graph and sessionless fixed Command/joined bounded rework/private Owner/parent resume; no model or OS dialog","factory_scope_approval_route":"original retained Store::propose_factory_scope(selection,private0500-single-link-companion)+trusted fixture finalize_proposal; not factory_scopes.propose IPC or OS dialog","readonly_transport_errors":reads.errors,"readonly_reconciliation_scope":"only bound get/list within original55s; recorded transport failures are not a product latency PASS; Owner writes never retried","test_source_sha256":sha256(include_bytes!("factory_child_goal_rework.rs")),"provider_source_sha256":sha256(include_bytes!("factory_child_goal_rework_acp.py")),"companion_sha256":companion_sha,"fixed_command_sha256":executable_sha,"initial_scope":scope,"definition":definition,"recovery":recovery,"before_owner":before,"owner_proposal":p,"owner_decision":decision,"final_factory":final_factory,"journal":journal});
     fs::write(
         evidence.join("complete.json"),
         serde_json::to_vec_pretty(&body).unwrap(),
