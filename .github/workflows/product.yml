@@ -28,7 +28,15 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/provider-contract
+          # Planning integration tests require matching normal tools before tests.
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema14-tools"
+          export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+          cargo build --workspace --locked --bins
+          python3 scripts/prepare-factory-test-tools.py --source "$CARGO_TARGET_DIR/debug" --output "$AGENTBATON_FACTORY_TEST_TOOLS" --evidence artifacts/provider-contract/factory-test-tools
           AGENTBATON_TEST_SCHEMA_CAPTURE="$GITHUB_WORKSPACE/artifacts/provider-contract/wire.ndjson" cargo test --workspace --locked
+          python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS"
+          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION
       - name: Validate captured messages against hash-pinned official native schema
         run: |
           set -euo pipefail
@@ -183,7 +191,15 @@ jobs:
           RUST_TEST_THREADS: '1'
         run: |
           set -euo pipefail
+          # Planning integration tests require matching normal tools before tests.
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema14-tools"
+          export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+          cargo build --workspace --locked --bins
+          python3 scripts/prepare-factory-test-tools.py --source "$CARGO_TARGET_DIR/debug" --output "$AGENTBATON_FACTORY_TEST_TOOLS" --evidence artifacts/native-smoke/factory-test-tools
           cargo test --workspace --locked -- --show-output
+          python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS"
+          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION
           cargo build --locked --bin batond --bin baton
           python3 scripts/smoke-local-product.py
           cargo build --release --locked --bin batond --bin baton
