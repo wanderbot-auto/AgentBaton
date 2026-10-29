@@ -99,6 +99,10 @@ function WorkspacePanel(props: Props & { open: boolean }) {
       saved.observed = { value, at: new Date().toISOString() };
       if (mounted.current) { setObserved(saved.observed); if (fingerprint(current.current.task) === identity) await refresh(); }
     } catch (failure) {
+      // A failed identity check invalidates the previous observation. A later
+      // Task-only read cannot recreate filesystem proof from an unchanged row.
+      saved.observed = null;
+      if (mounted.current) setObserved(null);
       if (op.uncertain || unknown(failure)) remember({ ...op, uncertain: true, reconciled: false });
       else remember(null);
       if (mounted.current) setError(`${t.error} ${failure instanceof Error ? failure.message : ''}`);

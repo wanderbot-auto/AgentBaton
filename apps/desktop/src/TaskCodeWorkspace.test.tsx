@@ -93,6 +93,24 @@ describe('Task code workspace component / mocked fixed daemon transport only', (
     render(<TaskCodeWorkspace task={f.task} language="en" connected />); await expand(user); await user.click(screen.getByRole('button', { name: 'Revalidate the original binding' })); await screen.findByText('Filesystem identity revalidated');
     expect(api.workspacesPrepareTaskGit).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ expected_task_revision: 1, expected_spec_revision: 2, expected_project_revision: 3 }), 'original-key');
   });
+  it('invalidates successful filesystem proof after same-key INPUT_CHANGED and cannot restore it through a Task-only refresh', async () => {
+    const user = userEvent.setup(), f = fixture(), view = f.view('original-key'); setup(f);
+    vi.mocked(api.taskGet).mockResolvedValue({ ...f.task, revision: 3, code_workspace_binding: view.binding });
+    vi.mocked(api.workspacesPrepareTaskGit).mockResolvedValueOnce(view).mockRejectedValueOnce(new DaemonError('INPUT_CHANGED', 'source identity changed', 'not_started')).mockResolvedValueOnce(view);
+    render(<TaskCodeWorkspace task={f.task} language="en" connected />); await expand(user);
+    const revalidate = () => screen.getByRole('button', { name: 'Revalidate the original binding' });
+    await user.click(revalidate()); await screen.findByText('Filesystem identity revalidated');
+    await waitFor(() => expect(revalidate()).toBeEnabled()); await user.click(revalidate());
+    expect(await screen.findByRole('alert')).toHaveTextContent('source identity changed');
+    expect(screen.queryByText('Filesystem identity revalidated')).toBeNull();
+    await user.click(refresh()); await waitFor(() => expect(revalidate()).toBeEnabled());
+    expect(screen.getByText(/Stored binding only/)).toBeVisible(); expect(screen.queryByText('Filesystem identity revalidated')).toBeNull();
+    expect(api.workspacesResolve).not.toHaveBeenCalled(); expect(api.workspacesPrepareTaskGit).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(api.workspacesPrepareTaskGit).mock.calls[1]).toEqual(vi.mocked(api.workspacesPrepareTaskGit).mock.calls[0]);
+    // Only a new explicit successful Core identity revalidation restores proof.
+    await user.click(revalidate()); await screen.findByText('Filesystem identity revalidated');
+    expect(vi.mocked(api.workspacesPrepareTaskGit).mock.calls[2]).toEqual(vi.mocked(api.workspacesPrepareTaskGit).mock.calls[0]);
+  });
   it('does not silently promote existing project workspace candidates into task assignments', async () => {
     const user = userEvent.setup(), f = fixture(); setup(f); vi.mocked(api.workspacesResolve).mockResolvedValue({ ...f.preparation, candidates: [{ workspace_id: 'candidate', revision: 1, root: '/candidate', recorded_state: 'ready', has_unreconciled_lease: true, assigned_to_task: false, identity_revalidated: false }] });
     render(<TaskCodeWorkspace task={f.task} language="en" connected />); await expand(user); await user.click(screen.getByText('Existing project workspaces', { selector: 'summary' }));
