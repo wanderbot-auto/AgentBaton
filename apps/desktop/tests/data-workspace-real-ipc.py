@@ -183,6 +183,22 @@ def preview_evidence_ready(runtime, gate, preview_id, project_id):
             'nonce_preview_project_matched': True, 'observed_monotonic_ns': time.monotonic_ns()}
 
 
+def wait_preview_evidence_ready(read, predicate, *, seconds=15, pump):
+    """Single absolute ready-observation deadline; no success after a slow read."""
+    assert type(seconds) is int and seconds == 15, 'Preview evidence observation is fixed at 15 seconds'
+    deadline = time.monotonic() + seconds
+    while True:
+        assert time.monotonic() < deadline, 'Preview evidence observation deadline exceeded'
+        pump()
+        assert time.monotonic() < deadline, 'Preview evidence observation deadline exceeded'
+        value = read()
+        assert time.monotonic() < deadline, 'Preview evidence observation deadline exceeded'
+        if predicate(value):
+            assert time.monotonic() < deadline, 'Preview evidence observation deadline exceeded'
+            return value
+        time.sleep(.02)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--batond', type=Path, required=True)
@@ -691,7 +707,7 @@ def main():
                     started, _ = start_preview(panel, 'preview-cancel')
                     if evidence_gate is not None:
                         assert started['selection']['files'] == evidence_gate['files'] and started['selection']['limits'] == evidence_gate['limits'], 'UI selection differs from evidence descriptor'
-                        ready = wait(lambda: preview_evidence_ready(runtime, evidence_gate, started['id'], projects['preview-cancel']['id']), lambda value: value is not None, seconds=15)
+                        ready = wait_preview_evidence_ready(lambda: preview_evidence_ready(runtime, evidence_gate, started['id'], projects['preview-cancel']['id']), lambda value: value is not None, seconds=15, pump=pump)
                         report['observations']['preview_evidence_ready'] = ready
                     # The start acknowledgement already refreshes the real UI.
                     # Go directly to this exact record; no second list roundtrip.
