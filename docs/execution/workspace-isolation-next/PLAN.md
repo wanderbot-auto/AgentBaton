@@ -2,7 +2,17 @@
 
 基线 `8c178088d7213f625695a9d31a5b6d31cc342a42`，tree `b926b5318208fdb33d321173f026e65b83e04329`；分支 `codex/workspace-isolation-next`。范围：Design v0.2 / AB-START-001 / WP05，并与 WP08 的 Task/Router/派发、WP11 桌面连接。保留130项范围、27题决定及 OWNER-001/002；本调查不修改共享需求表，不将 specified 快照解释为未获开发授权。
 
-本次只写本目录 PLAN/PROGRESS/CHECKPOINT/EVIDENCE 四文件。产品、依赖、锁、DDL/schema、CI、全局 STATUS、用户项目、运行中的 Factory15 均不修改。不执行 Cargo/npm、产品、真实 Host/Provider、模型或私有账户。费用、生产发布、签名、最终许可证仍单独关闭。计划不能计作产品完成。
+初始调查提交eb0312f只写本目录四文件。随后Root明确分配WSI-1最小实现：仅新增内部readonly模块、lib登记、专属测试和本四记录。依赖、锁、DDL/schema、CI、全局 STATUS、用户项目、运行中的 Factory15均不修改。不执行 Cargo/npm、产品、真实 Host/Provider、模型或私有账户。费用、生产发布、签名、最终许可证仍单独关闭。计划不能计作产品完成。
+
+## WSI-1已冻结的内部Rust合同（源dedee373，尚未编译/测试）
+
+`Store::resolve_code_workspace_preparation(&self, &CodeWorkspacePreparationRequest) -> Result<CodeWorkspacePreparation>`。模块本身private，DTO仅re-export给Rust；无IPC/Native/TS。request仅task_id/expected_task_revision/expected_project_revision/host_id四字段且拒未知字段；host只local。方法名固定code preparation目的，不从goal文本猜权限。
+
+结果含真实task/spec/project版本、local host、可选source WorkspaceIdentity与当前HEAD、有限Git准备key、固定state/reason与候选metadata。personal项目占位返回NeedsRegisteredProject；Git默认NeedsGitWorkspace；Directory默认NeedsDatasetSelection且因未选dataset不虚构版本/key。非draft仅Blocked/TaskNotDraft，防止把准备建议用于运行中任务迁移。每个结果的execution_authorized/creates_workspace均false；候选assigned_to_task/identity_revalidated均false，没有Ready变体或自动分配。
+
+实现复用get/get_project/inspect，在显式Deferred只读transaction中检查版本/归属，成功rollback释放读快照，失败由RAII回滚。Task/Project文档最多256KiB；candidate<=1000、单项256KiB/总4MiB，关系列/document/root pin一致。非空lease holder不管UTC是否过期均标has_unreconciled_lease，绝不释放。key仅为task/spec/project/source身份及实际Git HEAD的有限hash建议；不把dirty字节计入HEAD版本，不是权限、assignment或持久平台。
+
+新增9个测试函数源码使用真实临时Store/Git/Directory；所有read分支断言持久表/事件/sequence与source/managed文件和空目录前后一致。**它们尚未编译、尚未执行**。后续必须独审、Root获得Cargo窗口实跑及修复，再进入WSI-2/3；这一步不完成AB-PRJ-005。
 
 ## 需求与现状
 

@@ -46,4 +46,20 @@
 
 ## 本单元验证与未运行
 
-本单元只做文档范围、引用和固定SHA/文件一致性检查，提交前 `git diff --check`；不写镜像单元测试。所有后续resolver/UI/default-task/并发/移动链的产品测试均NOT_RUN。真实Provider/远程Host/OS沙箱/实际新Mac安装与运行/最低OS/签名/最终许可证未验，也未增加资金或身份权限。下一实现的每条正常与失败路径列在PLAN，只有真实编码、执行测试、独审、准确CI后才能新增验证分片。
+调查阶段只做文档范围、引用和固定SHA/文件一致性检查。Root随后另行批准WSI-1实现，新增源与待执行测试如下；UI/default-task/并发/移动链产品测试仍NOT_RUN。真实Provider/远程Host/OS沙箱/实际新Mac安装与运行/最低OS/签名/最终许可证未验，也未增加资金或身份权限。只有真实执行测试、独审、准确CI后才能新增验证分片。
+
+## WSI-1实现源冻结：dedee373bd9f587de87ebe545ecaa88916a7d2b9
+
+| 路径 | 范围 |
+| --- | --- |
+| `crates/core/src/workspace_resolution.rs` | private模块、public Rust DTO及Store只读方法；有界读快照、现有inspect/get、无SQL/FS写操作、两授权/创建false、候选不分配 |
+| `crates/core/src/workspace_resolution_tests.rs` | 9真实Store/Git/Directory测试函数源；不调用Provider/Actor/模型；Root后续执行临时Git夹具 |
+| `crates/core/src/lib.rs` | 五行模块登记/DTO re-export，无IPC或Native入口 |
+
+冻结SHA-256：resolver `824207ee69dce76abbbda02d879208d35b0c8c321565aeaf7f6eb3030f6e4fdf`；专属tests `09f08818482f7a26dbb7bc101f20935b2469a46a5da0a4835c35b4a12b2ad3ab`；lib `84d11315f989aa93c3dd2c9388d83a19c4571a5d991c3dc6a9d98b468dc857d1`。格式器实际版本 `rustfmt 1.10.0-stable (58cf8f9c35 2026-10-13)`；不是rustc/Cargo运行记录。
+
+实际作者命令：`/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt --edition 2021 --config skip_children=true`对上述三文件applied；同参数`--check` exit0；`git diff --cached --check` exit0；Python只核三路径、request四字段、无INSERT/UPDATE/DELETE/create/Command标记和9个test函数，exit0。这不是执行Rust单元测试或编译证明，亦不是独立review。未对lib递归格式化其它模块。
+
+计划由Root在取得共享target窗口后真实运行（本作者**未运行**）：`cargo test --offline --locked -p agentbaton-core --lib workspace_resolution::tests -- --nocapture --test-threads=1`；再按实际集成范围执行strict Clippy/format及必要回归。不得记录0selected为9PASS，也不得将此模块的纯/Store结果冒充真实Provider、默认Task UI或Mac链路。
+
+测试源码覆盖持久所有table值及sqlite_sequence、源/managed文件与空目录不变；候选foreign关联/root/identity/oversize拒绝，lease过UTC仍busy，stable key跟task/project/HEAD而不混dirty字节；personal project marker不映射host/path；cancelled Task只返回blocked。上述都是待执行断言，不是假造成功receipt。Factory new_workspace=false、原Grant/budget/DDL和现创建/复制原语全未修改。

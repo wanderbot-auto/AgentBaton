@@ -1,6 +1,6 @@
 # 调查进展
 
-状态：SOURCE_INVESTIGATION_COMPLETE / IMPLEMENTATION_AND_NEW_TESTS_NOT_RUN。固定源8c178088，只有本目录四记录发生改动。
+状态：WSI1_SOURCE_IMPLEMENTED / NOT_COMPILED / TESTS_NOT_RUN。调查基线8c178088；调查提交eb0312f只有四记录。Root随后批准的WSI-1源提交`dedee373bd9f587de87ebe545ecaa88916a7d2b9`仅新增workspace_resolution.rs、workspace_resolution_tests.rs及lib五行登记/re-export；本轮记录另行更新，无IPC/Native/TS/DDL/锁改变。
 
 已读AGENTS/gate/APPROVAL、GOAL、RUNBOOK、MASTER_PROMPT对应执行原则及OWNER_INBOX。ACK OWNER-001/002；文件里的历史“待ACK”不是本次授权未生效。未发现OWNER-003；未新增授权。specs中specified/not_granted是设计快照，当前三个需求在实际进度表均partial/implementing，未将该状态改绿。
 
@@ -24,6 +24,12 @@
 
 重新检查已有PR17 c43官方Rust原log（既有once下载，未重新取远端）：project_ipc3、registry10、workspaces/safety23真实通过；五个相关源码/测试文件与本基线逐字相同，见EVIDENCE。另三项既有Data真实测试的同名通过行也已确认；Data/Session/Factory整体源码此后变化，不能跨版本移签整套结果。
 
-本次执行只有读取、固定Git比较和四份记录编辑；不跑任何产品测试。初次两个exec transport disconnected后，一次短git status成功恢复，同一worktree继续，没有重建替代任务。少量初始搜索使用旧文件名TaskComposer/SessionWorkbench，随后定位到App/ManagedSessions；这是定位错误，不是产品失败。所有旧真实失败/CI/当前15运行继续独立保留。
+调查阶段只有读取、固定Git比较和四份记录编辑。WSI-1阶段编写真实只读实现和测试源码，使用rustfmt解析/格式化并检查这三个限定文件，未跑任何产品测试/编译。初次两个exec transport disconnected后，一次短git status成功恢复，同一worktree继续，没有重建替代任务。少量初始搜索使用旧文件名TaskComposer/SessionWorkbench，随后定位到App/ManagedSessions；这是定位错误，不是产品失败。所有旧真实失败/CI/当前15运行继续独立保留。
 
-建议Root在当前15稳定、Core公共接口owner释放后先给WSI-1/2窄作者单元，再并行分配UI与独审。当前无需新费用、凭据、真实Provider或负责人决定；阻塞只是公共Task/preparation合同和当前Core writer归属未冻结。后续测试按PLAN完整执行，不能停在resolver或一个页面即宣布总目标完成。
+Root已确认四字段和Rust可见性合同，WSI-1源现供独审；当前Core共享target仍Root独占，作者没有Cargo lease。无新增费用、凭据、真实Provider或负责人决定。WSI-2仍需任务准备关联/既有创建审批默认入口，不能停在resolver或一个页面即宣布总目标完成。
+
+## WSI-1源码与测试覆盖（不是实际PASS）
+
+已写9函数：personal项目占位与host区分；现成ready Git仅metadata；Directory不复制/不Git init；stale/archive/foreign-host/unknown引用；源目录替换与Git linkage变化；foreign/root/identity/oversize candidate；过期非空lease不释放；稳定key在task/project/HEAD变化而dirty字节不混入；cancelled task阻塞/请求不能注入授权字段。公共方法返回false旗标、无ready/assigned状态。每个解析调用前后比对全表SQLite值（含sequence）、用户source及managed文件/目录；没有伪Provider或假worker-join。
+
+作者检查仅rustfmt applied/check及有限源码范围/marker核对；测试未运行，Rust类型兼容、Clippy、真实只读断言均待Root实证。非draft阻塞和Directory key为空是保守准备语义，不修改既有Session/Factory权限或工作区行为。
