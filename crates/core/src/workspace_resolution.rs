@@ -6,7 +6,7 @@ use agentbaton_workspaces::{inspect, WorkspaceError, WorkspaceIdentity, Workspac
 use rusqlite::{params, Connection, Transaction, TransactionBehavior};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 const MAX_DOCUMENT_BYTES: i64 = 262_144;
 const MAX_CANDIDATE_BYTES: i64 = 4_194_304;
@@ -140,7 +140,7 @@ fn candidates(db: &Connection, project_id: &str) -> Result<Vec<CodeWorkspaceCand
             || workspace.project_id != owner
             || owner != project_id
             || workspace.state != state
-            || workspace.root != PathBuf::from(root)
+            || workspace.root.as_path() != Path::new(&root)
             || !matches!(state.as_str(), "ready" | "creating" | "outcome_unknown")
             || workspace.revision == 0
             || !workspace.root.is_absolute()
