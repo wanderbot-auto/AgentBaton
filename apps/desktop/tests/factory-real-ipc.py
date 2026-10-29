@@ -466,6 +466,36 @@ def verify_attempt_budgets(rows, task_id, project_id, expected_attempts, expecte
         assert type(row['active']) is int and row['active'] == expected_active, ('Exact observed active count required', row, expected_active)
 
 
+def confirmed_start_response(entries, scope, project_id, task_id):
+    """No run query until the unique real browser start has a valid Core receipt."""
+    if not entries:
+        return None
+    assert len(entries) == 1, 'Exactly one browser start request/response required'
+    entry = entries[0]
+    assert entry['method'] == 'factory_runs.start' and entry['params'] == {'scope_id': scope['id']}
+    assert type(entry['revision']) is int and entry['revision'] == scope['revision']
+    assert isinstance(entry['key'], str) and re.fullmatch('[A-Za-z0-9:_-]{1,128}', entry['key'])
+    assert re.fullmatch('[a-f0-9]{64}', entry['request_body_sha256'])
+    assert type(entry['response_complete']) is bool
+    if not entry['response_complete']:
+        return None
+    assert re.fullmatch('[a-f0-9]{64}', entry['original_core_reply_sha256'])
+    reply = entry['response']
+    assert set(reply) == {'request_id', 'result', 'revision', 'warnings'} and not reply.get('error'), reply
+    assert isinstance(reply['request_id'], str) and reply['request_id'] and safe_integer(reply['revision'], 1)
+    assert isinstance(reply['warnings'], list)
+    run = reply['result']
+    assert set(run) == {'active_session_id', 'active_task_id', 'cancel_requested', 'context_continuation',
+        'created_at', 'id', 'last_error', 'project_id', 'revision', 'root_task_id', 'scope_id', 'state', 'updated_at'}
+    assert run['scope_id'] == scope['id'] and run['project_id'] == project_id and run['root_task_id'] == task_id
+    assert isinstance(run['id'], str) and run['id'] and type(run['revision']) is int and run['revision'] == 1
+    assert run['state'] == 'queued' and run['cancel_requested'] is False and run['last_error'] is None
+    assert run['active_session_id'] is None and run['active_task_id'] is None
+    assert run['context_continuation'] == 'new_attempt_explicit_handoff_only'
+    assert isinstance(run['created_at'], str) and run['created_at'] and run['updated_at'] == run['created_at']
+    return entry
+
+
 @dataclass(frozen=True)
 class Bounds:
     # Only filled from private authenticated actual Core results, never HTTP.
@@ -772,10 +802,18 @@ def runtime_driver(args, output, attribution, prepared):
     token = ''; pump = lambda: None; observe_records = lambda: []
     def clean(value):
         return str(value).replace(token, '[redacted generated Owner token]') if token else str(value)
-    def wait(read, predicate, seconds=15):
-        deadline = time.monotonic() + seconds
+    def wait(read, predicate, seconds=15, observe=True, deadline=None):
+        shared_deadline = deadline is not None
+        if deadline is None:
+            deadline = time.monotonic() + seconds
         while True:
-            pump(); value = read(); observe_records()
+            if shared_deadline:
+                assert time.monotonic() < deadline, 'Original UI start-phase observation deadline exhausted'
+            pump(); value = read()
+            if observe:
+                observe_records()
+            if shared_deadline:
+                assert time.monotonic() < deadline, 'Original UI start-phase observation deadline exhausted'
             if predicate(value):
                 return value
             assert time.monotonic() < deadline, clean(('Observation timed out', value))
@@ -929,15 +967,25 @@ def runtime_driver(args, output, attribution, prepared):
                         except BoundaryRefusal as failure:
                             self.send_error(failure.status); return
                         context.update(method=call.method, stage='core_call')
+                        trace = {'method': call.method, 'params': call.params, 'key': call.key, 'revision': call.revision,
+                            'request_body_sha256': sha(raw)}
+                        if call.method == 'factory_runs.start':
+                            trace['response_complete'] = False
+                            with lock:
+                                report['http'].append(trace)
                         try:
                             value, reply = host.wire(call)
                             with lock:
-                                report['http'].append({'method': call.method, 'params': call.params, 'key': call.key, 'revision': call.revision,
-                                    'request_body_sha256': sha(raw), 'original_core_reply_sha256': sha(reply), 'response': value})
+                                trace.update(original_core_reply_sha256=sha(reply), response=value)
+                                if call.method != 'factory_runs.start':
+                                    report['http'].append(trace)
                             context['stage'] = 'response_headers'
                             self.send_response(200); self.send_header('Content-Type', 'application/json')
                             self.send_header('Content-Length', str(len(reply))); self.end_headers()
                             context['stage'] = 'response_body'; self.wfile.write(reply); context['stage'] = 'complete'
+                            if call.method == 'factory_runs.start':
+                                with lock:
+                                    trace['response_complete'] = True
                         except (BrokenPipeError, ConnectionResetError) as failure:
                             if call.method in READS and context['stage'] == 'response_body':
                                 report['readonly_aborts'].append({**context, 'type': type(failure).__name__})
@@ -979,9 +1027,19 @@ def runtime_driver(args, output, attribution, prepared):
                     report['observations']['http_authority_denied'] = denied
                     shot('01-real-approved-scope-not-started', panel.get_by_role('button', name='Start approved Factory run', exact=True))
                     passed('built UI reads genuine scope; folded load and explicit start; HTTP denies Owner and Agent tools')
+                    start_phase_deadline = time.monotonic() + 15
                     panel.get_by_role('button', name='Start approved Factory run', exact=True).click()
+                    def read_start_confirmation():
+                        with lock:
+                            assert not report['http_unexpected_errors'], report['http_unexpected_errors']
+                            entries = [r for r in report['http'] if r['method'] == 'factory_runs.start']
+                        return confirmed_start_response(entries, scope, project['id'], task['id'])
+                    start_confirmation = wait(read_start_confirmation, lambda value: value is not None,
+                        observe=False, deadline=start_phase_deadline)
+                    report['observations']['actual_confirmed_browser_start'] = start_confirmation
                     if args.case == 'cancel':
-                        wait(lambda: list((workspace_root / 'reports').glob('fixture-request-*.json')), bool)
+                        wait(lambda: list((workspace_root / 'reports').glob('fixture-request-*.json')), bool,
+                            deadline=start_phase_deadline)
                         panel.get_by_role('button', name='Refresh Factory records', exact=True).click()
                         expect(panel.get_by_role('button', name='Request Factory cancellation', exact=True)).to_be_enabled()
                         panel.get_by_role('button', name='Request Factory cancellation', exact=True).click()
@@ -990,7 +1048,9 @@ def runtime_driver(args, output, attribution, prepared):
                         assert requested['result']['cancel_requested'] is True
                         report['observations']['actual_cancel_intent_receipt'] = requested
                     terminal = {'normal': 'completed', 'cancel': 'cancelled', 'unknown': 'outcome_unknown'}[args.case]
-                    detail = wait(lambda: host.result('factory_runs.get', {'scope_id': scope['id']}), lambda d: d['run']['state'] == terminal)
+                    detail = wait(lambda: host.result('factory_runs.get', {'scope_id': scope['id']}),
+                        lambda d: d['run']['state'] == terminal,
+                        deadline=start_phase_deadline if args.case != 'cancel' else None)
                     report['observations']['terminal'] = detail
                     assert detail['run']['scope_id'] == scope['id'] and detail['run']['context_continuation'] == 'new_attempt_explicit_handoff_only'
                     assert len(detail['tasks']) == (2 if args.case == 'normal' else 1)
