@@ -51,3 +51,8 @@ Independent202blocked showed early reaper may see R, then concurrent groupSIGKIL
 ## Wrong-start CAS diagnostic ordering only
 
 Root's12e+22cc actualnormal failed before firstcheck/browser/Provider at the existing wrong-start CAS assertion. Retain complete actual stale reply in observations before that assertion, preserving expected STALE_REVISION, empty sessions and every call/limit. This is diagnostics only; do not guess missing old reply or relax Core error semantics. Root/Core investigate separately and Root runs next exact-source case after mechanical review.
+
+
+## Real UI start acknowledgment ordering without extending the phase
+
+After click, wait for the unique real scoped/CAS/key start request plus complete valid queued Core receipt and server HTTP reply write before any terminal read. Register inflight start before Core call so duplicates/pending replies are visible; no fabricated success or generic NOT_FOUND swallowing. One monotonic deadline is fixed before click: acknowledgment and normal/unknown terminal share original15s; cancellation acknowledgment and firstfixture record share original15s, while its existing subsequent intent/terminal15s phases stay unchanged. Check shared deadline both before and after reads so a late receipt cannot obtain another15s. Core/session/FD/cleanup/authority/allowlist invariants stay fixed. Root actualreplays after independent review; pure controlled clock/trace tests cannot prove real HTTP/browser completion.

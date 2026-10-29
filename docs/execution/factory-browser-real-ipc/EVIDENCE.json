@@ -2362,5 +2362,325 @@
     "unchanged": "all assertions/calls/boundaries/deadlines/typed13/actualDB13",
     "new_Core_browser": "NOT_RUN; no unnecessary unchanged suite repeat",
     "independent": "original reviewer explicitly followup-resumed; pending"
+  },
+  "start_acknowledgment_revision": {
+    "source_commit": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+    "source_sha256": "ad0f5b6ac01214e13852ee330412dd878c56a72cb987f795b697e5079b276b63",
+    "status": "frozen_pending_independent_review",
+    "root_prior_actual": {
+      "integration": "38f8cd60d91d9cd1c7a5215ab720b60400ca81c8",
+      "Core": "db949CAS",
+      "driver": "744",
+      "status": "failed_or_interrupted",
+      "checks": 2,
+      "PNG": 2,
+      "observations": "wrongCASSTALE/notstarted correct; earlygetNOT_FOUNDrev13 BEFORE startqueuedreplyrev14, laterfailureFactoryrunningrev19 differenttimes",
+      "files": [
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-db949-744-normal/BEFORE.json",
+          "sha256": "37381c14547add6eff769876d01c98bc3de04cb6565bd098138541dc092ca438",
+          "bytes": 10367
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-db949-744-normal/RESULT.json",
+          "sha256": "b65ef6e79b5bf1b272436b85daa2960ba5ea2651f165d29979c27c2b6a998012",
+          "bytes": 10587
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-db949-744-normal/evidence/01-real-approved-scope-not-started.png",
+          "sha256": "e44528c1906b2481198453b1053cf0b51c5057917d0afcf7e91829a498e1907f",
+          "bytes": 156909
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-db949-744-normal/evidence/daemon.log",
+          "sha256": "2d95c486eaca10cab6fc4da7156ce4da0b99eeed135e2eb4937878ed972d570a",
+          "bytes": 59
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-db949-744-normal/evidence/diagnostics-f197e7b7ffb545f0a1621ea4344c9023.json",
+          "sha256": "86673800c62a52e16e5b725a83e016c6376035ed2c4e47ae5477e0a4f1b08b43",
+          "bytes": 38801
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-db949-744-normal/evidence/failure-current-ui.png",
+          "sha256": "c6b0f318abfde095e677d7a98879c604acc7640e8204f4325bd56b9e9a90539d",
+          "bytes": 156373
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-db949-744-normal/evidence/report.json",
+          "sha256": "cae193224b44b3f580e2d92e29ffd891cfc057543774f51cc6775e2bdea89daf",
+          "bytes": 96215
+        },
+        {
+          "path": "/workspace/.onboarding/factory-browser-root/reviewed-db949-744-normal/runner.log",
+          "sha256": "75104da0621a6d44f979d65f82ad314eda62fe72c9f2059c3d8109791fd1d1a7",
+          "bytes": 171
+        }
+      ]
+    },
+    "changes": [
+      "record actualstart request before Corecall and originalreply/write completion",
+      "exactunique scope/CAS/key/fullqueuedreceipt confirmation before terminalquery; noerror swallowing",
+      "samefixed15s startphase forack+normal/unknownterminal orack+cancelfirstfixture; no reset; lateacks fail",
+      "latercancelintent/terminal original15s stages unchanged"
+    ],
+    "controls": {
+      "source_sha256": "ad0f5b6ac01214e13852ee330412dd878c56a72cb987f795b697e5079b276b63",
+      "commands": [
+        {
+          "name": "controlled-order",
+          "command": [
+            "python3",
+            "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/controls.py"
+          ],
+          "exitcode": 0,
+          "log_sha256": "a37ae742006f24e478be289b760e681969cd883dee52741553488e3eee58648b"
+        },
+        {
+          "name": "boundary",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/boundary"
+          ],
+          "exitcode": 0,
+          "log_sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f"
+        },
+        {
+          "name": "fixture",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--fixture-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/fixture"
+          ],
+          "exitcode": 0,
+          "log_sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1"
+        },
+        {
+          "name": "cleanup",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--cleanup-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/cleanup"
+          ],
+          "exitcode": 0,
+          "log_sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479"
+        },
+        {
+          "name": "diagnostic",
+          "command": [
+            "python3",
+            "apps/desktop/tests/factory-real-ipc.py",
+            "--diagnostic-self-check",
+            "--output",
+            "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/diagnostic"
+          ],
+          "exitcode": 0,
+          "log_sha256": "28b0586c7edc0fe66831c37654122f938ca36ecd9f3a1d3ef1554bf12bb62025"
+        }
+      ],
+      "unchanged_from744": [
+        "FixtureControllerReaper",
+        "collect_started_records",
+        "inspect_owned_records",
+        "decode_envelope",
+        "decode_http",
+        "preflight"
+      ],
+      "Core_browser": "NOT_RUN; controlled unit clock/trace only, no actualclock/runtime evidence"
+    },
+    "controlled_order_results": {
+      "source_sha256": "ad0f5b6ac01214e13852ee330412dd878c56a72cb987f795b697e5079b276b63",
+      "status": "passed",
+      "count": 26,
+      "checks": [
+        {
+          "name": "no response is pending, not a run query",
+          "status": "passed"
+        },
+        {
+          "name": "Core reply not yet written cannot confirm browser start",
+          "status": "passed"
+        },
+        {
+          "name": "inflight actual request without Core reply remains pending",
+          "status": "passed"
+        },
+        {
+          "name": "whole queued receipt accepted unchanged",
+          "status": "passed"
+        },
+        {
+          "name": "controlled asynchronous request pending then complete before observe/get",
+          "status": "passed"
+        },
+        {
+          "name": "terminal query occurs after confirmed reply within same deadline",
+          "status": "passed"
+        },
+        {
+          "name": "ack-late",
+          "status": "passed"
+        },
+        {
+          "name": "terminal-exhausts-original-budget",
+          "status": "passed"
+        },
+        {
+          "name": "cancel-fixture-exhausts-shared-budget",
+          "status": "passed"
+        },
+        {
+          "name": "never-written response exhausts shared stage without any get",
+          "status": "passed"
+        },
+        {
+          "name": "duplicate cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "scope cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "revision cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "bool-revision cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "key-empty cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "bad-hash cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "error-reply cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "project cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "root cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "run-state cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "run-revision cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "missing-run-field cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "active-session cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "cancel-requested cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "context cannot enable terminal query",
+          "status": "passed"
+        },
+        {
+          "name": "response-complete-type cannot enable terminal query",
+          "status": "passed"
+        }
+      ],
+      "dimension": "exact extracted wait+pure confirmation helper, deterministic unit-only clock and HTTP trace DTO, NO actualHTTP/Core/browser/clock evidence"
+    },
+    "counts": {
+      "controlled_order_budget": 26,
+      "boundary": 63,
+      "fixture": 13,
+      "cleanup": 28,
+      "diagnostic": 25
+    },
+    "artifacts": [
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/boundary/boundary-checks.json",
+        "sha256": "67ef9c0a16c1d2dfbe93de9324ac178f23b5cb62e900aacd1e8215ee151fe614",
+        "bytes": 5294
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/boundary.log",
+        "sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/cleanup/cleanup-unit-checks.json",
+        "sha256": "690945ee6c17927ce5297bdd3a9a9f724d2e9195c74fe6c182f7b01bdb1fca4f",
+        "bytes": 2986
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/cleanup.log",
+        "sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/commands.json",
+        "sha256": "43efa667cfc330b437d99867e876c6521439a8067a9dd664c6fd2031ba093e12",
+        "bytes": 2204
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/controlled-order.log",
+        "sha256": "a37ae742006f24e478be289b760e681969cd883dee52741553488e3eee58648b",
+        "bytes": 64
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/controls.py",
+        "sha256": "f08a4260822ce00f95adb9dd659e578f6a4b29bc386a89872e0432d71c0afae5",
+        "bytes": 5757
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/diagnostic/diagnostic-unit-checks.json",
+        "sha256": "191c4b4eb48984da359831ae84306ebaa779281fdee85790da8e5e8a3328dd6f",
+        "bytes": 3238
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/diagnostic.log",
+        "sha256": "28b0586c7edc0fe66831c37654122f938ca36ecd9f3a1d3ef1554bf12bb62025",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/fixture/fixture-unit-checks.json",
+        "sha256": "2c2272f5864e15e56d4ef5c8672fd1c5b76078a017cda93baf13655a9761295a",
+        "bytes": 1685
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/fixture.log",
+        "sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1",
+        "bytes": 34
+      },
+      {
+        "path": "/workspace/.onboarding/factory-browser-diagnostics/start-ack-freeze/results.json",
+        "sha256": "b21af9a4ab53eb988cf91a2fd8d8982d0cad3077338892c0cb01aec90b563059",
+        "bytes": 2858
+      }
+    ],
+    "dimensions": "deterministic unit-onlyclock+HTTPtraceDTO/exactwait; no actualHTTP/clock/Core/browser/Provider/nativeOS proof",
+    "exploratory": "priorstart-ack-final25pure controls separate, not added to final26",
+    "unchanged": "reaper/collector/cleanup/decode/preflight exactsourcebyteequal744; no Core/UI/Native/CI/schema/lock changes",
+    "new_runtime": "NOT_RUN;Root threecases after exactindependent approval",
+    "independent": "original reviewer explicitlyfollowup-resumed52ee; pending",
+    "scope": "onlyscript+4ownrecords; all prior runtime/sealedreviews and oldorphans untouched"
   }
 }
