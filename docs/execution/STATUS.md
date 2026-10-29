@@ -1,3 +1,13 @@
+## 当前诊断候选与精确 CI 终态 — 2026-10-29T03:22:04.300888+00:00
+
+PR16远端被测a2201fe2729eddb0d76bf3995667d3692126ee0f/actual7f359dc8807e4d11f8e2dedbf4b0a5cc83c81f16/tree520d7aab6abdd4d659d0a9d301d9e28bdfffafd2：Environment40806943416完整三项成功，Product40806944290的Rust及双Mac成功、UI失败，总6success/1fail；Product总体failure，不能合入。双Mac均完成真实Core/native/readonly/Owner/defaultbuild/releaseaudit/开发打包；Apple Silicon与Intel本次真实包及各自签名、SHA和人工未验项目见goal-graph-integration/DEVELOPMENT_DELIVERY_A2201.md，不能作Factory13或整个产品验收。原a220 UI firstcause仍未确认，不能把70a本地5checks/1PNG通过倒填。
+
+本地仅追加Graph owned_command_child诊断source a054989b5a20972f332312c3bb7ddf9e87e0ca17181448c4a405459451105ed1及真实记录。原≤1024/NUL/PPID/start/PGID、5s观察/1500ms产品期限和全部失败断言保持，独审dc836104/e74d86c2验证原assert AST/函数外字节与独立受控进程正负控；不会吞错或据推测跳过pre-exec。下一候选若再次失败会保存真正PID、前后身份、长度/NUL和boundedSHA；新准确七CI仍需自己通过。Root非Rust完整Python34/Node4、gate/doctor和三个static0；Rust环境小链最近依据是本次a220三平台真实CI，不虚构新本地重跑。无formalApprove/merge。
+
+独立Factory线Root6d666ed3完整645unique+7docs/Clippy/fmt0且独审bf880188/470be657，nested5不叠加，1308tracked相等；其本地TEST_DEBUG0维度不移作PR16或Mac13。Root正在同步本线已审查Nativehelper/CI60/严格类型到Factory分支，Core源与上述645相同；NativeOwner Python30（含schema13实际路径bootstrap）及Python34/Node4通过，合成审查待完成。下一child_planning Core/Native/UI均真实编码，schema14/同GoalPlan持久修订/窄scoped工具/完整新Nativepolicy/Ref历史+单原文读取，类型修复与新测试仍进行，不标能力通过；旧false不升级、childGoal/workspace仍false。
+
+main最近a1be94/OWNER001002ACK无003，130项/27决定/WP01–14未完成。真实产品Provider/私人身份、新费用资源或主机、生产、签名公证与最终许可证仍关闭。以下为历史检查点。
+
 ## 当前精确 CI 与持续实现检查点 — 2026-10-29T02:58:06.016877+00:00
 
 PR16 head a2201fe2729eddb0d76bf3995667d3692126ee0f，实际 CI 检出7f359dc8807e4d11f8e2dedbf4b0a5cc83c81f16/tree520d7aab6abdd4d659d0a9d301d9e28bdfffafd2。Environment40806943416三平台完整链均通过（各Python34/Node4/environmentRust2/Clippy），原bb343的45/46旧测试失败仍保留。Product40806944290的Rust通过593unique+7doctests；UI失败于command-timeout进程观察器的完整有界argv断言。现有报告缺失败PID/argv长度/NUL/前后身份，不能判断底层原因或声明产品deadline失败。11完整UI流109checks/69PNG，失败流2checks/1PNG，合111记录/70PNG，不是完整114通过。双Mac仍由现有监测器核验，终态/新安装包未据此断言。独立Environment封存及Linux失败审查见goal-graph-integration/CI_A2201；不将旧bb343的Product通过/双DMG移作新提交证明。
