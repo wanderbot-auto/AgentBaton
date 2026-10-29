@@ -329,6 +329,36 @@ fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
         let _ = stream.write_all(&output);
     }
 }
+struct FactoryQueueClock {
+    queued_at: Instant,
+    recovery_round: Option<u32>,
+}
+impl FactoryQueueClock {
+    fn initial(queued_at: Instant) -> Self {
+        Self {
+            queued_at,
+            recovery_round: None,
+        }
+    }
+    fn record_recovery(
+        clocks: &mut std::collections::HashMap<String, Self>,
+        task: String,
+        round: u32,
+        queued_at: Instant,
+    ) {
+        let current = clocks.entry(task).or_insert_with(|| Self {
+            queued_at,
+            recovery_round: Some(round),
+        });
+        if current.recovery_round.is_none_or(|old| round > old) {
+            *current = Self {
+                queued_at,
+                recovery_round: Some(round),
+            };
+        }
+    }
+}
+
 pub struct Daemon {
     listener: UnixListener,
     store: Store,
@@ -340,7 +370,7 @@ pub struct Daemon {
     command_workers: crate::command_workers::CommandWorkers,
     data_workers: crate::data_workspace_workers::DataWorkspaceWorkers,
     goal_pending: Option<(String, Receiver<Value>)>,
-    factory_queue_clocks: std::collections::HashMap<String, Instant>,
+    factory_queue_clocks: std::collections::HashMap<String, FactoryQueueClock>,
     factory_pending: Option<(String, Receiver<Value>)>,
     factory_fatal_error: Option<CoreError>,
     graph_workers: crate::goal_store::GraphWorkers,
@@ -598,7 +628,7 @@ impl Daemon {
                 let key=r.idempotency_key.ok_or_else(invalid)?;
                 let replay=self.store.factory_start_replay(&p.scope_id,revision,&key)?.is_some();
                 let run=self.store.start_factory_run(&p.scope_id,revision,&key)?;
-                if !replay && run.state=="queued" {self.factory_queue_clocks.entry(run.root_task_id.clone()).or_insert_with(Instant::now);}
+                if !replay && run.state=="queued" {self.factory_queue_clocks.entry(run.root_task_id.clone()).or_insert_with(||FactoryQueueClock::initial(Instant::now()));}
                 Ok(json!(run))
             }
             "factory_runs.get" => {
@@ -2464,7 +2494,7 @@ impl Daemon {
                     if let Some(task) = outcome.result["task_id"].as_str() {
                         self.factory_queue_clocks
                             .entry(task.to_owned())
-                            .or_insert_with(Instant::now);
+                            .or_insert_with(|| FactoryQueueClock::initial(Instant::now()));
                     }
                 }
                 for session in outcome.stops {
@@ -2505,7 +2535,16 @@ impl Daemon {
         {
             return Ok(());
         }
-        let Some(action) = self.store.next_factory_action()? else {
+        let action = self.store.next_factory_action()?;
+        for (task, round, queued_at) in self.store.factory_recovery_queue_epochs.drain(..) {
+            FactoryQueueClock::record_recovery(
+                &mut self.factory_queue_clocks,
+                task,
+                round,
+                queued_at,
+            );
+        }
+        let Some(action) = action else {
             return Ok(());
         };
         match action {
@@ -2523,6 +2562,7 @@ impl Daemon {
                 let queued = self
                     .factory_queue_clocks
                     .remove(&task)
+                    .map(|clock| clock.queued_at)
                     .unwrap_or_else(Instant::now);
                 let (raw, ticket) = context.ticket(queued)?;
                 self.schedule_factory_ticket(raw, ticket);
@@ -2536,6 +2576,78 @@ impl Daemon {
 mod factory_queue_deadline_tests {
     use super::*;
     use std::os::unix::fs::PermissionsExt;
+
+    #[test]
+    fn a_new_recovery_attempt_counts_its_queue_not_the_old_graph_interval() {
+        let base = Instant::now();
+        let prepared = base + Duration::from_secs(7);
+        let observed = base + Duration::from_secs(8);
+        let mut clocks = std::collections::HashMap::new();
+        clocks.insert("child".into(), FactoryQueueClock::initial(base));
+        FactoryQueueClock::record_recovery(&mut clocks, "child".into(), 1, prepared);
+        let clock = clocks.remove("child").unwrap();
+        assert_eq!(clock.recovery_round, Some(1));
+        assert_eq!(
+            observed.duration_since(clock.queued_at),
+            Duration::from_secs(1)
+        );
+        assert_eq!(observed.duration_since(base), Duration::from_secs(8));
+        // Neither side is free: the new preparation/wait remains charged;
+        // the prior Graph interval remains in its own unchanged reservations.
+        assert!(observed.duration_since(clock.queued_at) > Duration::ZERO);
+    }
+
+    #[test]
+    fn same_or_older_recovery_round_cannot_renew_real_wait_or_deadline() {
+        let base = Instant::now();
+        let mut clocks = std::collections::HashMap::new();
+        FactoryQueueClock::record_recovery(&mut clocks, "child".into(), 2, base);
+        FactoryQueueClock::record_recovery(
+            &mut clocks,
+            "child".into(),
+            2,
+            base + Duration::from_secs(3),
+        );
+        FactoryQueueClock::record_recovery(
+            &mut clocks,
+            "child".into(),
+            1,
+            base + Duration::from_secs(4),
+        );
+        let clock = clocks.get("child").unwrap();
+        assert_eq!(clock.recovery_round, Some(2));
+        assert_eq!(clock.queued_at, base);
+        assert_eq!(
+            (base + Duration::from_secs(5)).duration_since(clock.queued_at),
+            Duration::from_secs(5)
+        );
+        assert!(
+            (base + Duration::from_millis(1500)).duration_since(clock.queued_at)
+                > Duration::from_millis(1200)
+        );
+    }
+
+    #[test]
+    fn recovery_epoch_changes_only_its_task_and_initial_queue_replays_keep_it() {
+        let base = Instant::now();
+        let prepared = base + Duration::from_secs(2);
+        let mut clocks = std::collections::HashMap::new();
+        clocks.insert("other".into(), FactoryQueueClock::initial(base));
+        clocks.insert("child".into(), FactoryQueueClock::initial(base));
+        FactoryQueueClock::record_recovery(&mut clocks, "child".into(), 1, prepared);
+        clocks
+            .entry("child".into())
+            .or_insert_with(|| FactoryQueueClock::initial(base + Duration::from_secs(5)));
+        assert_eq!(clocks["other"].queued_at, base);
+        assert_eq!(clocks["other"].recovery_round, None);
+        assert_eq!(clocks["child"].queued_at, prepared);
+        assert_eq!(clocks["child"].recovery_round, Some(1));
+        assert_eq!(
+            (base + Duration::from_secs(8)).duration_since(clocks["child"].queued_at),
+            Duration::from_secs(6)
+        );
+    }
+
     #[test]
     fn expired_scoped_queue_request_is_rejected_before_authentication_or_any_mutation() {
         let temp = tempfile::Builder::new()

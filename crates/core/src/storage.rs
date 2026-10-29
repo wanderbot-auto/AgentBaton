@@ -88,6 +88,9 @@ pub struct Store {
     pub(crate) graph_input: Option<crate::goal_store::GraphReadWitness>,
     pub(crate) factory_read_control: Option<crate::factory::FactoryReadControl>,
     pub(crate) graph_capture_clocks: std::collections::HashMap<String, std::time::Instant>,
+    // Timing notifications only, emitted after a verified new planner-recovery
+    // transaction commits. They are neither persisted authority nor a refund.
+    pub(crate) factory_recovery_queue_epochs: Vec<(String, u32, std::time::Instant)>,
 }
 impl Store {
     pub fn open(path: &Path) -> Result<Self> {
@@ -287,6 +290,7 @@ impl Store {
             graph_input: None,
             factory_read_control: None,
             graph_capture_clocks: Default::default(),
+            factory_recovery_queue_epochs: Vec::new(),
         };
         store.recover_dispatches()?;
         store.recover_workspace_creations()?;

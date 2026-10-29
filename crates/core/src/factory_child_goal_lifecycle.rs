@@ -107,6 +107,15 @@ impl Store {
                 return Err(denied());
             }
         }
+        if self.factory_recovery_queue_epochs.len() >= 1000 {
+            return Err(limited());
+        }
+        // The old delegation queue may have handed ownership directly to a
+        // Graph without ever launching a Factory planner. This is a NEW
+        // planner attempt after authenticated all-stop failure, not a restart
+        // of that old queue interval. Include this preparation and every later
+        // wait/preflight in its own monotonic interval; never renew Scope TTL.
+        let queued_at = std::time::Instant::now();
         let context = match crate::goal_store::reserve_factory_child_goal_rework(&tx, goal_id) {
             Ok(context) => context,
             Err(mut e) if matches!(e.code.as_str(), "RESOURCE_LIMIT" | "BUDGET_UNKNOWN") => {
@@ -144,7 +153,13 @@ impl Store {
             "factory.child_goal_planner_recovery_prepared",
             json!({"task_id":task_id,"goal_run_id":goal_id,"previous_planner_session_id":old_session,"failure_context":context,"context_continuation":"new_attempt_explicit_handoff_only","same_original_connection":b.request.connection_id,"new_permissions":false,"reservation_refunded":false,"task_accepted":false}),
         )?;
-        tx.commit().map_err(db_error)
+        tx.commit().map_err(db_error)?;
+        // Publish only after the original live/normal-stop/rework guards and
+        // all writes commit. Failed/unknown/cancelled recovery emits no epoch;
+        // resuming state prevents a replay from creating the same round again.
+        self.factory_recovery_queue_epochs
+            .push((task_id.to_owned(), b.round, queued_at));
+        Ok(())
     }
     fn finish_factory_child_goal(
         &mut self,
