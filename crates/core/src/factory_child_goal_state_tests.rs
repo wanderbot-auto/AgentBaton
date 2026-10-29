@@ -457,6 +457,10 @@ fn same_tick_unknown_blocks_a_queued_sibling_but_keeps_revocation_cleanup() {
     }
 }
 
+mod reservation_tests {
+    include!("factory_child_goal_reservation_tests.rs");
+}
+
 mod authority_tests {
     include!("factory_child_goal_authority_tests.rs");
 }
