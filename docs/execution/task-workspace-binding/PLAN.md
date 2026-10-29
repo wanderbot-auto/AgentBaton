@@ -25,3 +25,17 @@ startup将pending/creating关联对账为unknown，不猜FS已完成、不再次
 采用Task文档保存唯一默认binding、现registry写意图与幂等表保留原receipt；无新表/平台。新状态是准备证据，不是授权；原Grant/Factory new_workspace=false不变。Task绑定对普通Session准入的严格检查需要一个明确调用点；若Root未分配sessions.rs，本单元不得虚称执行路径已强制遵守binding。
 
 只写限定Core/专属测试和四记录，不改IPC/Native/TS/锁/权限。作者不Cargo/Node/真实Git/Actor/Provider/目标工具，所有新增Rust与Mac验证NOT_RUN；源独审后Root实际串行。
+
+## 源实现冻结与Root允许的准入接线
+
+首功能源95438f49d9df04238e8c574c32f81aadac0a3002；最终功能/测试源 `2b9080a6ce03080fd7a890246065934a799b11b5`。原合同比较source pin等路径都保留。Root已明确许可sessions.rs唯一内部binding-admission guard：在原Session幂等历史回执分支之后、原Task CAS/state之后、新Grant校验之前；只有Task binding Some才查，None原行为不变。Factory Task ctor仅补None，无创建policy/预算扩展。
+
+当前状态严格pending→ready/outcome_unknown；唯一生产create_isolated在独立checkout helper中，reservation提交后立即再验Task/source/pin/root/空lease，未知不调用它。两个commit边界均联读核对Task/workspace/原幂等receipt后提交。recovery按实际Task主键重新有界读doc并验证id，不能按被复制文档的id写另一个Task。相同Task绑定被清空但receipt历史还在也不能换key再创建。
+
+Task当前revision只需不倒退到reserved之前，不能永久等于历史reserved_revision；新Session自身expectedTaskCAS仍严格。准备重放/准入重查原registered source HEAD/pin，但managed root只强制物理身份/commondir，不把合法输出提交或dirty当目录替换。原Grant精确输入校验、candidate/rework验证及lease仍独立严格；guard通过不等于新增执行批准。
+
+## 专属测试源（13unit+1integration，NOT_RUN）
+
+涵盖None字节/decimal大数、双Task独立目录/同key重启与冲突、拒绝零写、pending重启未知和真实目录碰撞、最终event1811回滚、cancel/spec/source漂移不ready、输出commit与Task revision推进不永久锁绑定、原Grant仍必需、过期非空lease、根替换/清空binding拒新key、受控v15形状备份/17拒/隐藏新字段拒、reservation迟故障回滚、错Task主键复制doc恢复拒绝、reservation后FS前source漂移拒绝，以及独立公开Rust合同。没有fake Worker join/TaskAccepted/Provider。
+
+其中v15形状测试明确由本源16初始化后受控降pragma，仅为格式/迁移primitive control，不充当genuine旧15应用证据。Root后续必须实际旧15生产者夹具及旧consumer/CI适配。现已知非本路径Task ctor `crates/core/tests/goal_plan.rs:40`需集成补None，作者未越权修改；旧schema15版本断言亦不批量替换。
