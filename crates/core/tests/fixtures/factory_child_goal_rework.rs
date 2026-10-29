@@ -3,6 +3,7 @@
 use super::*;
 use agentbaton_core::{goal_plan::*, goal_store::*};
 use serde_json::Value;
+use std::os::unix::fs::MetadataExt;
 
 fn finalize(runtime: &Path, proposal: &Value, key: &str) -> Value {
     mixed_call(
@@ -164,7 +165,9 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     assert!(companion.is_absolute());
     let companion_sha = sha256(&fs::read(&companion).unwrap());
     fs::copy(&companion, &f.companion).unwrap();
-    fs::set_permissions(&f.companion, fs::Permissions::from_mode(0o700)).unwrap();
+    fs::set_permissions(&f.companion, fs::Permissions::from_mode(0o500)).unwrap();
+    assert_eq!(fs::metadata(&f.companion).unwrap().nlink(), 1);
+    assert_eq!(sha256(&fs::read(&f.companion).unwrap()), companion_sha);
     let provider = f
         ._temp
         .path()
@@ -236,8 +239,9 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         .unwrap()
         .into();
     let runtime = f._temp.path().canonicalize().unwrap();
-    drop(db);
-    drop(f.store);
+    // Keep this original Store and observer connection until the trusted
+    // fixture's Factory approval below. Do not reopen Store (which performs
+    // recovery), or derive its private companion from a Cargo debug/deps ELF.
     let daemon = Daemon::bind(&runtime).unwrap();
     let stop = Arc::new(AtomicBool::new(false));
     let workerstop = stop.clone();
@@ -290,6 +294,19 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         Instant::now() + Duration::from_secs(5),
         |v| v["run"]["state"] == "cancelled",
     );
+    // The bootstrap candidate was genuinely stopped before cancellation. Its
+    // owned intent/lease and all test jobs must be idle before the original
+    // fixture Store prepares authority; an unknown/active source cannot pass.
+    for sql in [
+        "SELECT count(*) FROM sessions WHERE state!='stopped' OR json_extract(document,'$.state')!='stopped'",
+        "SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",
+        "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+        "SELECT count(*) FROM goal_graph_jobs WHERE state IN('prepared','running','cancel_requested','outcome_unknown')",
+        "SELECT count(*) FROM command_validation_runs WHERE state IN('prepared','running','cancel_requested','outcome_unknown')",
+        "SELECT count(*) FROM factory_attempts",
+    ] {
+        assert_eq!(db.query_row(sql, [], |row| row.get::<_, i64>(0)).unwrap(),0,"bootstrap must be truly idle before fixture approval: {sql}");
+    }
     f.selection.capabilities.child_planning = true;
     f.selection.capabilities.child_goal_execution = true;
     f.selection.child_planning_policy=Some(FactoryChildPlanningPolicy {max_nodes:3,max_revisions:2,max_plan_bytes:262144,outputs:vec![GoalOutputSelection {artifact:f.selection.outputs[0].clone(),validators:vec![GoalValidatorRef {kind:GoalValidatorKind::Command,policy_id:definition["id"].as_str().unwrap().into(),revision:definition["revision"].as_u64().unwrap()}]}],writable_prefixes:vec!["reports/report.txt".into()],owner_acceptance_criteria:"Owner must accept the new exact repaired report after the same approved deterministic command passes; first-version evidence never accepts the second".into()});
@@ -301,11 +318,31 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         project_budget: f.selection.project_budget.clone(),
         require_owner_acceptance: true,
     });
-    let p = mixed_call(
-        &runtime,
-        json!({"method":"factory_scopes.propose","params":f.selection,"idempotency_key":"rework-full-initial-factory-review"}),
+    // Existing trusted-host test approval path. Both proposal and finalizer
+    // recheck this private0500/single-link exact companion. The production IPC
+    // companion_path and all executable permission/link guards are unchanged.
+    let p = f
+        .store
+        .propose_factory_scope(
+            &f.selection,
+            "rework-full-initial-factory-review",
+            &f.companion,
+        )
+        .unwrap();
+    let scope = f.store.finalize_proposal(&p.id, p.revision).unwrap();
+    assert_eq!(
+        scope["bindings"]["companion"]["executable"],
+        json!(f.companion)
     );
-    let scope = finalize(&runtime, &p, "rework-full-native-execution-consent");
+    assert_eq!(
+        scope["bindings"]["companion"]["executable_sha256"],
+        companion_sha
+    );
+    // Close the retained connections before autonomous work. Daemon shutdown
+    // remains the last Store close/checkpoint before existing private evidence
+    // capture; no extra open/recovery or lingering observer masks WAL state.
+    drop(db);
+    drop(f.store);
     assert_eq!(scope["root_grant_id"], grant.id);
     assert_eq!(scope["selection"]["root_budget"]["reworks"], 1);
     assert_eq!(
@@ -518,7 +555,7 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
                 .unwrap()
     );
     let journal = db_events(&f.path);
-    let body = json!({"dimension":"real generated ACP/private scoped MCP7/Actor/owned Graph and sessionless fixed Command/joined bounded rework/private Owner/parent resume; no model or OS dialog","test_source_sha256":sha256(include_bytes!("factory_child_goal_rework.rs")),"provider_source_sha256":sha256(include_bytes!("factory_child_goal_rework_acp.py")),"companion_sha256":companion_sha,"fixed_command_sha256":executable_sha,"initial_scope":scope,"definition":definition,"recovery":recovery,"before_owner":before,"owner_proposal":p,"owner_decision":decision,"final_factory":final_factory,"journal":journal});
+    let body = json!({"dimension":"real generated ACP/private scoped MCP7/Actor/owned Graph and sessionless fixed Command/joined bounded rework/private Owner/parent resume; no model or OS dialog","factory_scope_approval_route":"original retained Store::propose_factory_scope(selection,private0500-single-link-companion)+trusted fixture finalize_proposal; not factory_scopes.propose IPC or OS dialog","test_source_sha256":sha256(include_bytes!("factory_child_goal_rework.rs")),"provider_source_sha256":sha256(include_bytes!("factory_child_goal_rework_acp.py")),"companion_sha256":companion_sha,"fixed_command_sha256":executable_sha,"initial_scope":scope,"definition":definition,"recovery":recovery,"before_owner":before,"owner_proposal":p,"owner_decision":decision,"final_factory":final_factory,"journal":journal});
     fs::write(
         evidence.join("complete.json"),
         serde_json::to_vec_pretty(&body).unwrap(),
