@@ -39,7 +39,7 @@ export function childGoalSummaryMeetsFloor(next:FactoryChildGoalSummary,prior:Fa
  return next.authority_kind===prior.authority_kind&&next.factory_scope_id===prior.factory_scope_id&&next.factory_run_id===prior.factory_run_id&&next.factory_root_task_id===prior.factory_root_task_id&&next.parent_task_id===prior.parent_task_id&&next.task_id===prior.task_id&&next.execution_policy_digest===prior.execution_policy_digest&&next.plan.revision>=prior.plan.revision&&(next.plan.revision!==prior.plan.revision||factorySame(next.plan,prior.plan))&&graphSummaryMeetsFloor(next.goal,prior.goal);
 }
 export function childGoalRefSame(a:FactoryChildPlanRef,b:FactoryChildPlanRef):boolean{return factorySame(a,b);}
-export const childGoalScopeFingerprint=(s:FactoryScope)=>JSON.stringify([s.id,s.approval_id,s.contract_digest,s.root_grant_id,s.root_grant_revision,s.selection,s.bindings.child_planning,s.bindings.child_goal_execution]);
+export const childGoalScopeFingerprint=(s:FactoryScope)=>JSON.stringify([s.id,s.approval_id,s.contract_digest,s.expires_at_ms,s.root_grant_id,s.root_grant_revision,s.selection,s.bindings.child_planning,s.bindings.child_goal_execution]);
 /** The displayed current Graph nodes must be the exact adopted saved proposal,
  * including Owner criteria/executor/input/output/budget fields. */
 export function childGoalPlanMatchesGraph(v:FactoryChildGoalView,plan:{reference:FactoryChildPlanRef;proposal:{nodes:unknown[]}}):boolean {

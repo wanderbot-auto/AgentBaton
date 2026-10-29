@@ -18,7 +18,7 @@ type Props={scope:FactoryScope;target:FactoryTaskHandle;run:FactoryRun;selected:
 type Receipt={runId:string;revision:number;decisionId?:string;approvalId?:string;decision?:'accepted'|'rejected'};
 type Intent={kind:'start'|'cancel'|'advance'|'owner'|'reject';key:string;scopeId:string;taskId:string;factoryRunId:string;scopeRevision:number;goalRunId:string|null;goalRevision:number;request:FactoryChildGoalSubmission|null;nodeId:string|null;planRevision:number;planDigest:string;ledger:number;unknown:boolean;reconciled:boolean;receipt?:Receipt};
 type Floor={summary:FactoryChildGoalSummary;details:GraphRunDetails|null;origin:string|null};
-type Memory={pending:Intent|null;scope:string;scopeRevision:number;factoryRevision:number;taskRevision:number;taskFingerprint:string;floors:Map<string,Floor>};
+type Memory={active:number;pending:Intent|null;scope:string;scopeRevision:number;factoryRevision:number;taskRevision:number;taskFingerprint:string;floors:Map<string,Floor>};
 const memories=new Map<string,Memory>();
 const uncertain=(error:unknown)=>!(error instanceof DaemonError)||error.code==='OUTCOME_UNKNOWN'||!['none','not_started'].includes(error.sideEffectState);
 type ReadSummary={scope:FactoryScope;family:FactoryRunDetails;target:FactoryTaskHandle;task:Task;rows:FactoryChildGoalSummary[];grant:ExecutionGrant|null};
@@ -31,12 +31,12 @@ export function FactoryChildGoals(props:Props){
 }
 function ChildGoalPanel(props:Props&{open:boolean}){
  const {language,connected,open}=props,t=childGoalMessages[language],identity=`${props.scope.id}:${props.target.task_id}`;
- const [saved]=useState(()=>{const prior=memories.get(identity);if(prior)return prior;const item:Memory={pending:null,scope:childGoalScopeFingerprint(props.scope),scopeRevision:props.scope.revision,factoryRevision:0,taskRevision:0,taskFingerprint:'',floors:new Map()};if(memories.size<64)memories.set(identity,item);return item;});
+ const [saved]=useState(()=>{const prior=memories.get(identity);if(prior)return prior;if(memories.size>=64){const disposable=[...memories].find(([,entry])=>entry.active===0&&entry.pending===null);if(disposable)memories.delete(disposable[0]);}const item:Memory={active:0,pending:null,scope:childGoalScopeFingerprint(props.scope),scopeRevision:props.scope.revision,factoryRevision:0,taskRevision:0,taskFingerprint:'',floors:new Map()};if(memories.size<64)memories.set(identity,item);return item;});
  const capacity=memories.get(identity)!==saved;
  const [summary,setSummary]=useState<ReadSummary|null>(null),[summaryFresh,setSummaryFresh]=useState(false),[data,setData]=useState<Snapshot|null>(null),[pending,setPending]=useState(saved.pending),[fresh,setFresh]=useState(false),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[error,setError]=useState(''),[tick,setTick]=useState(0),[paused,setPaused]=useState(false);
  const summaryRead=useRef<{stamp:number;value:ReadSummary}|null>(null);
  const current=useRef(props),mounted=useRef(true),epoch=useRef(0),writing=useRef(false),reads=useRef(0),choice=useRef('');current.current=props;
- useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;++epoch.current;};},[]);
+ useEffect(()=>{mounted.current=true;++saved.active;return()=>{mounted.current=false;--saved.active;++epoch.current;};},[saved]);
  function remember(op:Intent|null){saved.pending=op;if(mounted.current)setPending(op);}
  const refresh=useCallback(async(manual=true):Promise<Snapshot|null>=>{
   if(manual){reads.current=0;setPaused(false);}const stamp=++epoch.current;setFresh(false);setSummaryFresh(false);setError('');
