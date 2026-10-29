@@ -888,6 +888,8 @@ def owned_command_child(daemon_pid: int, diagnostics=None) -> dict | None:
                 current_observation['after_failure'] = proc_identity(current_observation['pid'])
             except (FileNotFoundError, ProcessLookupError):
                 current_observation['after_failure'] = {'identity_absent': True}
+            except Exception as diagnostic_failure:
+                current_observation['after_failure'] = {'diagnostic_error': type(diagnostic_failure).__name__}
             sample['failing_private_child_observation'] = dict(current_observation)
         raise  # Permission errors and unexpected failures never become empty/no-process.
     finally:
