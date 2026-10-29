@@ -206,5 +206,17 @@
     "archive": "docs/execution/factory-child-goal-integration/NATIVE_LINUX_LOCAL.tar.gz",
     "archive_sha256": "bff6cf1563b94bf9bcffe870e62d192e8147b082ddc45d6c51f9356823ada7a5",
     "independent_evidence_review": "pending"
+  },
+  "integrated_frontend_build": {
+    "evidence": "docs/execution/factory-child-goal-integration/UI_BUILD.json",
+    "source": "dbd6bcc3a6df16dedacdfb0b2d930e1c3c89ee91",
+    "typecheck_exit": 0,
+    "build_exit": 0,
+    "actual_component_tests_in_this_run": "NOT_RUN",
+    "built_assets": {
+      "assets/index-DczAmFjL.css": "bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944",
+      "assets/index-UQZ0WrqV.js": "23a082350ed6bbda540017cc277f25986fdb87c7cb5b7d2301c24e191be7e927",
+      "index.html": "321e8b28a8d618314b66cde040c54f5402e7898877faf64acfa67b225a51d96c"
+    }
   }
 }

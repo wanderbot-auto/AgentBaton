@@ -1,3 +1,13 @@
+## 当前子 Goal 集成与真实测试 — 2026-10-29T09:40:17.225888+00:00
+
+main653679d 是 PR17 保护合入、七项准确成功的 schema14 树，OWNER001/002 已 ACK。当前 codex/factory-child-goal-integration 已在远端保存 dbd6bcc 工作检查点，新增本地9d64b86记录147项 Native 实测；尚未建立下一 PR/新CI。不会把原七项绿移给 schema15。
+
+在准确集成 a07a7f9 实际执行 Linux Native Rust：101库＋30smoke＋16Ownercontroller＝147项全通过、零跳过，含18新增 policy/bridge 用例。正常工具明确预先构建并探测为同head15/12零表，测试后其inode/mode/nlink/SHA/别名与源码均恢复；原14及私有2a工具证据保留。新147独立证据审查进行中。准确dbd6bcc UI类型与构建通过，802组件属于隔离的逐字等价UI源，不是此次重跑；新子Goal实际浏览器驱动正在编码。
+
+真实14非空旧库→15六迁移：4通过/2失败，保留失败DB/ELF。其中Native cap数据库列与JSON内容不一致未拒绝是产品缺口，160窄修尚未编译/复测；另backup枚举WAL/SHM是测试helper缺陷已修未复测。6ff三预算相位SQL测试虽通过，后续launch仍需精确同请求post-reservation完整读集复核；唯一Core作者持续修复，不以跳过INPUT_CHANGED求通过。
+
+[当前执行与测试证据](factory-child-goal-integration/EVIDENCE.json) 保留准确源码和维度。schema14 [双架构开发包](factory-child-goal-integration/DEVELOPMENT_INSTALLERS.md) 可下载；新15仍未Mac验证。没有正式签名、公证、人工安装、真实Provider或完整130验收声明；完整范围及权限边界保持。以下为历史。
+
 ## 当前保护集成与继续执行 — 2026-10-29T09:13:43.957477+00:00
 
 PR17 已在最新准确七项检查全部成功、独立证据审查完成、零未解决线程后保护合入 main `653679db60d5c68f7e3c5b5e146ef58aed10de23`。源码 head `c43ea68695039296be76efb9e8e2ac2d1052fd6e`，实际 CI candidate `c69b3aad59d8379c1dbd2a2cd2ac9cef937cffce` 与合并提交 tree 均 `061b5baac8b51051e57767c43ca10cf66cc03f24`；没有 formal GitHub Approve 或保护绕过。Product40840944666 四项与最新 Environment40843109523 三项成功，早先 Environment40840944705 也成功。最新 main OWNER_INBOX 仅001/002，已 ACK。

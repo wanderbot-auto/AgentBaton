@@ -1,0 +1,52 @@
+{
+  "commands": [
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "/workspace/.worktrees/factory-runtime-integration/apps/desktop",
+      "source": "dbd6bcc3a6df16dedacdfb0b2d930e1c3c89ee91",
+      "exit": 0,
+      "seconds": 1.3703275099978782,
+      "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e",
+      "at": "2026-10-29T09:22:44.631212+00:00"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--",
+        "--config",
+        "/workspace/.onboarding/factory-child-goal-integrated-ui-build/vite-validation.config.mts",
+        "--configLoader",
+        "runner"
+      ],
+      "cwd": "/workspace/.worktrees/factory-runtime-integration/apps/desktop",
+      "source": "dbd6bcc3a6df16dedacdfb0b2d930e1c3c89ee91",
+      "exit": 0,
+      "seconds": 1.5491397349978797,
+      "log_sha256": "bb85b425c40c29a0577fb02706cd6d14c23993aa8597f9d38f388e2677d2c882",
+      "at": "2026-10-29T09:22:46.180747+00:00"
+    }
+  ],
+  "built_assets": {
+    "assets/index-DczAmFjL.css": "bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944",
+    "assets/index-UQZ0WrqV.js": "23a082350ed6bbda540017cc277f25986fdb87c7cb5b7d2301c24e191be7e927",
+    "index.html": "321e8b28a8d618314b66cde040c54f5402e7898877faf64acfa67b225a51d96c"
+  },
+  "source_before_sha256": "446c3e703718efc41d586993befdb61328b9aa5120002732f347f688a33a9169",
+  "source_after_sha256": "7cfbb4601c33346fb7600b7fb893359646accc41c25f569beb3200ed64bf055d",
+  "source_equal": true,
+  "borrowed_exact_module_symlink_removed": true,
+  "original_target_inode": 530427,
+  "dimension": "actual integrated frontend type/build only;802 isolated source-equivalent component tests not rerun here; no browser/IPC15/native claim",
+  "logs": {
+    "typecheck.log": "\n> @agentbaton/desktop@0.1.0 typecheck\n> tsc --noEmit\n\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.1\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1\nnpm notice To update run: npm install -g npm@12.2.1\nnpm notice\n",
+    "build.log": "\n> @agentbaton/desktop@0.1.0 build\n> tsc --noEmit && vite build --config /workspace/.onboarding/factory-child-goal-integrated-ui-build/vite-validation.config.mts --configLoader runner\n\nvite v8.3.5 building client environment for production...\ntransforming...\n✓ 70 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.44 kB │ gzip:   0.28 kB\ndist/assets/index-DczAmFjL.css   30.38 kB │ gzip:   6.17 kB\ndist/assets/index-UQZ0WrqV.js   636.54 kB │ gzip: 189.58 kB\n\n✓ built in 240ms\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n"
+  }
+}
