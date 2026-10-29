@@ -63,7 +63,9 @@
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/project-registry/EVIDENCE.json",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/task-workspace-binding/LOCAL_RUST_RESULTS.json",
+        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -104,6 +106,21 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
+      },
+      "task_workspace_binding_contribution": {
+        "status": "partial; source integrated on isolated feature branch, no exact CI/native acceptance",
+        "core_source": "2b9080a +2f0b9b3 +4d463184",
+        "ipc_source": "3362cbad7f62feeb45b7efdf5b03c5c0ccf5eeb9",
+        "tested_integration_source": "e203f6dcac06246d26e58ef22275c888a44db200",
+        "actual_local": "Core bridge2/real UnixIPC4/frontend942 in53files/typecheck/build PASS; earlier binding13+publicbackend1 separately attributed",
+        "evidence": "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
+        "genuine_schema15": "old15 actual nonempty producer passed at1ebf9e9; consumer3PASS2FAIL, original failures/DB/ELF retained; narrow fixture fixes under independent review, not yet rerun",
+        "schema16_test_adapters": "e57a99f source independently closed; Rust/global regression NOT_RUN",
+        "limits": [
+          "No same-candidate CI/Mac/Native/real Provider claim",
+          "Task binding UI interaction still implementing",
+          "Binding/receipt/host/path do not authorize execution; actual Grant and original policy required"
+        ]
       }
     },
     {
@@ -126,7 +143,9 @@
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/project-registry/EVIDENCE.json",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/task-workspace-binding/LOCAL_RUST_RESULTS.json",
+        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -167,6 +186,21 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
+      },
+      "task_workspace_binding_contribution": {
+        "status": "partial; source integrated on isolated feature branch, no exact CI/native acceptance",
+        "core_source": "2b9080a +2f0b9b3 +4d463184",
+        "ipc_source": "3362cbad7f62feeb45b7efdf5b03c5c0ccf5eeb9",
+        "tested_integration_source": "e203f6dcac06246d26e58ef22275c888a44db200",
+        "actual_local": "Core bridge2/real UnixIPC4/frontend942 in53files/typecheck/build PASS; earlier binding13+publicbackend1 separately attributed",
+        "evidence": "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
+        "genuine_schema15": "old15 actual nonempty producer passed at1ebf9e9; consumer3PASS2FAIL, original failures/DB/ELF retained; narrow fixture fixes under independent review, not yet rerun",
+        "schema16_test_adapters": "e57a99f source independently closed; Rust/global regression NOT_RUN",
+        "limits": [
+          "No same-candidate CI/Mac/Native/real Provider claim",
+          "Task binding UI interaction still implementing",
+          "Binding/receipt/host/path do not authorize execution; actual Grant and original policy required"
+        ]
       }
     },
     {
@@ -219,7 +253,9 @@
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/project-registry/EVIDENCE.json",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/task-workspace-binding/LOCAL_RUST_RESULTS.json",
+        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json"
       ],
       "limitations": [
         "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
@@ -260,6 +296,21 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
+      },
+      "task_workspace_binding_contribution": {
+        "status": "partial; source integrated on isolated feature branch, no exact CI/native acceptance",
+        "core_source": "2b9080a +2f0b9b3 +4d463184",
+        "ipc_source": "3362cbad7f62feeb45b7efdf5b03c5c0ccf5eeb9",
+        "tested_integration_source": "e203f6dcac06246d26e58ef22275c888a44db200",
+        "actual_local": "Core bridge2/real UnixIPC4/frontend942 in53files/typecheck/build PASS; earlier binding13+publicbackend1 separately attributed",
+        "evidence": "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
+        "genuine_schema15": "old15 actual nonempty producer passed at1ebf9e9; consumer3PASS2FAIL, original failures/DB/ELF retained; narrow fixture fixes under independent review, not yet rerun",
+        "schema16_test_adapters": "e57a99f source independently closed; Rust/global regression NOT_RUN",
+        "limits": [
+          "No same-candidate CI/Mac/Native/real Provider claim",
+          "Task binding UI interaction still implementing",
+          "Binding/receipt/host/path do not authorize execution; actual Grant and original policy required"
+        ]
       }
     },
     {
@@ -4480,7 +4531,9 @@
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
         "docs/execution/validation-integration/UI_REVIEW.md",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/task-workspace-binding/LOCAL_RUST_RESULTS.json",
+        "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json"
       ],
       "limitations": [
         "Actual schema5 backup/failure/future-version tests pass locally; full upgrade/support matrix remains open.",
@@ -4515,7 +4568,22 @@
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
-      ]
+      ],
+      "task_workspace_binding_contribution": {
+        "status": "partial; source integrated on isolated feature branch, no exact CI/native acceptance",
+        "core_source": "2b9080a +2f0b9b3 +4d463184",
+        "ipc_source": "3362cbad7f62feeb45b7efdf5b03c5c0ccf5eeb9",
+        "tested_integration_source": "e203f6dcac06246d26e58ef22275c888a44db200",
+        "actual_local": "Core bridge2/real UnixIPC4/frontend942 in53files/typecheck/build PASS; earlier binding13+publicbackend1 separately attributed",
+        "evidence": "docs/execution/task-workspace-binding-ipc/ROOT_LOCAL_RESULTS.json",
+        "genuine_schema15": "old15 actual nonempty producer passed at1ebf9e9; consumer3PASS2FAIL, original failures/DB/ELF retained; narrow fixture fixes under independent review, not yet rerun",
+        "schema16_test_adapters": "e57a99f source independently closed; Rust/global regression NOT_RUN",
+        "limits": [
+          "No same-candidate CI/Mac/Native/real Provider claim",
+          "Task binding UI interaction still implementing",
+          "Binding/receipt/host/path do not authorize execution; actual Grant and original policy required"
+        ]
+      }
     },
     {
       "id": "AB-SEC-008",
