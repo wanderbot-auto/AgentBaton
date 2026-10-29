@@ -618,12 +618,13 @@ def summary_self_check(previous_report):
     calls=[n for n in ast.walk(fn)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='locator'and 'Selected recorded revision: r1' in ast.unparse(n.func.value)]
     assert len(calls)==1 and ast.literal_eval(calls[0].args[0])==':scope > summary'
     checks.append('actual-runtime-AST-uses-direct-summary-at-exact-revision')
-    pending=ET.fromstring('<section><p role="alert">Submission outcome unknown. Read history.</p><p>Submission outcome unknown. Read history.</p><button>Recover the exact plan submission</button></section>')
+    pending=ET.fromstring('<section><p role="alert">Submission outcome unknown. Read history.</p><p>Submission outcome unknown. Read history.</p><p role="alert">History changed while editing.</p><button>Recover the exact plan submission</button></section>')
     assert len([e for e in pending.findall('./p')if e.text.startswith('Submission outcome unknown.')])==2
-    assert len(pending.findall('./p[@role="alert"]'))==1
+    assert len(pending.findall('./p[@role="alert"]'))==2
+    assert len([e for e in pending.findall('./p[@role="alert"]')if e.text.startswith('Submission outcome unknown.')])==1
     checks.append('pending-text-two-render-sites-one-alert-model')
     source=ast.unparse(fn)
-    assert "expect(root_region.get_by_role('alert')).to_contain_text('Submission outcome unknown.')" in source
+    assert "expect(root_region.get_by_role('alert').filter(has_text='Submission outcome unknown.')).to_contain_text('Submission outcome unknown.')" in source
     checks.append('actual-runtime-pending-assertion-is-unique-alert')
     assert "fixed_form_control(root_region, 'Complete GoalPlan JSON draft', 'textarea')" in source
     checks.append('actual-runtime-draft-uses-exact-static-field-check')
@@ -965,7 +966,7 @@ def runtime_driver(args, output, manifest):
         raw4 = next_raw(stored, 'Actual lost-response UI revision four')
         draft.fill(raw4); faults['drop_next_submit'] = True
         root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
-        expect(root_region.get_by_role('alert')).to_contain_text('Submission outcome unknown.')
+        expect(root_region.get_by_role('alert').filter(has_text='Submission outcome unknown.')).to_contain_text('Submission outcome unknown.')
         lost = [r for r in report['http'] if r.get('actual_committed_reply_deliberately_dropped')]
         assert len(lost) == 1 and lost[0]['params']['plan_json'] == raw4
         assert lost[0]['host_observed_utc_ms']<min(scope['expires_at_ms'],grant['expires_at_ms'])
