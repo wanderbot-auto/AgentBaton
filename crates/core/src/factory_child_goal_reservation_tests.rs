@@ -274,6 +274,7 @@ fn first_counter_constructor_refuses_related_attempt_or_orphan_session_or_intent
     // No successful legacy attempt, stop, join or new authority is fabricated.
     for case in [
         "root_attempt",
+        "root_attempt_task_mismatch",
         "project_foreign_root_attempt",
         "root_orphan_session",
         "project_orphan_session",
@@ -318,9 +319,17 @@ fn first_counter_constructor_refuses_related_attempt_or_orphan_session_or_intent
             let raw = json!({"id":"orphan-history-session","task_id":task,"project_id":s.project_id,"grant_id":s.root_grant_id,"attempt_id":"missing-history-attempt","state":"failed"});
             f.store.conn.execute("INSERT INTO sessions VALUES('orphan-history-session',?1,?2,?3,?4,?5,?5,'failed',?6,'raw-orphan-history','{}')",rusqlite::params![task,s.project_id,s.selection.workspace_ids[0],s.selection.connection_ids[0],s.root_grant_id,raw.to_string()]).unwrap();
         } else {
-            let foreign = case != "root_attempt";
-            let task = if foreign { &other.id } else { &s.root_task_id };
-            f.store.conn.execute("INSERT INTO attempts VALUES('raw-history-attempt',?1,?1,'{}','raw-history-only')",[task]).unwrap();
+            let task = if matches!(case, "root_attempt" | "root_attempt_task_mismatch") {
+                &s.root_task_id
+            } else {
+                &other.id
+            };
+            let root = if case == "root_attempt" {
+                &s.root_task_id
+            } else {
+                &other.id
+            };
+            f.store.conn.execute("INSERT INTO attempts VALUES('raw-history-attempt',?1,?2,'{}','raw-history-only')",rusqlite::params![task,root]).unwrap();
             if case.starts_with("root_foreign_intent") {
                 let raw = json!({"id":"raw-history-intent","attempt_id":"raw-history-attempt","task_id":if case=="root_foreign_intent_task_document"{&s.root_task_id}else{&other.id},"root_task_id":if case=="root_foreign_intent_task_document"{&other.id}else{&s.root_task_id},"state":"stopped","binding":{}});
                 f.store.conn.execute("INSERT INTO dispatch_intents VALUES('raw-history-intent','raw-history-attempt','stopped',NULL,?1)",[raw.to_string()]).unwrap();
