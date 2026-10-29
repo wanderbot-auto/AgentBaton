@@ -186,13 +186,19 @@ def main():
                     _, connection = approve('connections.propose', {'name': 'Generated migration-only ACP', 'provider': 'custom_acp', 'executable': str(provider), 'arguments': []}, 'legacy:connection', 'connection')
                     wait(lambda: call('connections.list', {}), lambda rows: any(c['id'] == connection['id'] and c['probe_state'] == 'ready' for c in rows))
                     source = root / 'source'; source.mkdir(mode=0o700); (source / 'file').write_bytes(b'baseline')
+                    (source / '.gitignore').write_text('reports/\n')
                     git_env = {**clean_env, 'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null', 'GIT_TERMINAL_PROMPT': '0'}
                     def git(*argv):
                         return subprocess.check_output(['git','-C',str(source),'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','-c','core.hooksPath=/dev/null',*argv], env=git_env, text=True).strip()
-                    git('init','-q','--initial-branch=main'); git('add','file'); git('commit','-qm','fixed generated migration input')
+                    git('init','-q','--initial-branch=main'); git('add','file','.gitignore'); git('commit','-qm','fixed generated migration input and declared reports directory')
                     project = call('projects.import', {'path': str(source), 'name': 'Actual legacy migration fixture'}, 'legacy:project')
                     workspace = call('workspaces.create', {'project_id': project['id'], 'expected_head': git('rev-parse','HEAD')}, 'legacy:workspace', project['revision'])
+                    current_project = next(p for p in call('projects.list', {}) if p['id'] == project['id'])
+                    factory_workspace = call('workspaces.create', {'project_id': project['id'], 'expected_head': git('rev-parse','HEAD')}, 'legacy:factory-workspace', current_project['revision'])
+                    assert factory_workspace['id'] != workspace['id'] and factory_workspace['root'] != workspace['root']
                     _, grant = approve('grants.propose', {'project_id': project['id'], 'workspace_id': workspace['id'], 'connection_id': connection['id'], 'max_attempts': 8, 'max_concurrency': 1, 'max_duration_ms': 600_000}, 'legacy:grant', 'grant')
+                    _, factory_grant = approve('grants.propose', {'project_id': project['id'], 'workspace_id': factory_workspace['id'], 'connection_id': connection['id'], 'max_attempts': 8, 'max_concurrency': 1, 'max_duration_ms': 600_000}, 'legacy:factory-grant', 'grant')
+                    assert factory_grant['id'] != grant['id']
                     task = call('tasks.create', {'project_id': project['id'], 'goal': 'Fixed actual Native Graph migration history'}, 'legacy:goal-task')
                     selection = ns['scope_selection'](task, grant, count=1, max_nodes=4)
                     selection['inputs'][0]['relative_path'] = 'file'
@@ -209,10 +215,9 @@ def main():
                     call('goal_graph_runs.cancel', {'run_id': graph['run']['id']}, 'legacy:cancel-graph', graph['run']['revision'])
                     graph = wait(lambda: call('goal_graph_runs.get', {'run_id': graph_result['run']['id']}), lambda d: d['run']['state'] == 'cancelled')
                     factory_task = call('tasks.create', {'project_id': project['id'], 'goal': 'Fixed Factory14 planning history only'}, 'legacy:factory-task')
-                    current_grant = next(g for g in call('grants.list', {'project_id': project['id']}) if g['id'] == grant['id'])
                     budget = {'attempts':8,'parallel':1,'runtime_ms':10_000,'output_bytes':8192,'children':3,'reworks':0,'tokens':None,'cost_microunits':None}
                     artifact = {'artifact_id':'report','relative_path':'reports/report.txt','max_bytes':1024,'expected_sha256':None}
-                    factory_selection = {'root_task_id':factory_task['id'],'expected_task_revision':factory_task['revision'],'grant_id':grant['id'],'expected_grant_revision':current_grant['revision'],'connection_ids':[connection['id']],'workspace_ids':[workspace['id']],
+                    factory_selection = {'root_task_id':factory_task['id'],'expected_task_revision':factory_task['revision'],'grant_id':factory_grant['id'],'expected_grant_revision':factory_grant['revision'],'connection_ids':[connection['id']],'workspace_ids':[factory_workspace['id']],
                         'inputs':[{'artifact_id':'input','relative_path':'file','max_bytes':1024,'expected_sha256':sha(b'baseline')}], 'outputs':[artifact], 'recipients':[], 'max_depth':1,'max_children':3,'max_total_nodes':4,'root_budget':budget,'project_budget':budget,'ttl_ms':600_000,
                         'capabilities':{'delegate_task':True,'resume_parent_as_new_attempt':True,'child_planning':True,'child_goal_execution':False,'create_workspace':False},
                         'child_planning_policy':{'max_nodes':8,'max_revisions':16,'max_plan_bytes':262144,'outputs':[{'artifact':artifact,'validators':[]}],'writable_prefixes':['reports/report.txt'],'owner_acceptance_criteria':'Store historical plan only; separate Owner acceptance is required'}}
@@ -229,7 +234,7 @@ def main():
                     run = call('factory_runs.get', {'scope_id':factory_scope['id']})
                     call('factory_runs.cancel', {'scope_id':factory_scope['id']}, 'legacy:cancel-factory', run['run']['revision'])
                     wait(lambda: call('factory_runs.get', {'scope_id':factory_scope['id']}), lambda r: r['run']['state'] == 'cancelled')
-                    report.update(native_goal_scope_id=scope['id'],native_graph_run_id=graph_result['run']['id'],native_graph_approval_id=graph_proposal['id'],factory_scope_id=factory_scope['id'])
+                    report.update(native_goal_scope_id=scope['id'],native_graph_run_id=graph_result['run']['id'],native_graph_approval_id=graph_proposal['id'],factory_scope_id=factory_scope['id'],native_goal_grant_id=grant['id'],factory_grant_id=factory_grant['id'],native_goal_workspace_id=workspace['id'],factory_workspace_id=factory_workspace['id'])
                 finally:
                     if daemon.poll() is None: daemon.send_signal(signal.SIGTERM)
                     try: report['daemon_exit'] = daemon.wait(timeout=15)

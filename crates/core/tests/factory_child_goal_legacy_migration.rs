@@ -27,6 +27,10 @@ fn fixture() -> (tempfile::TempDir, PathBuf, Value) {
     let owned = manifest["owned_processes"].as_array().unwrap();
     assert!(owned.len() >= 2 && owned.iter().all(|p| p["gone_after_join"] == true));
     assert_eq!(manifest["source_commit"], "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701");
+    assert_eq!(manifest["binaries"]["batond"], "1c835dcd2b925baeb2f0131b225c1047bdc89c4452417a302fae34a133c4cf73");
+    assert_eq!(manifest["binaries"]["baton"], "d90cf23761b83dc7eeeb92291b411a573e9cfb6ecde3750bc3bb376d2fe66797");
+    assert_ne!(manifest["native_goal_grant_id"],manifest["factory_grant_id"]);
+    assert_ne!(manifest["native_goal_workspace_id"],manifest["factory_workspace_id"]);
     let bytes = fs::read(source.join("actual-schema14.sqlite3")).unwrap();
     assert_eq!(agentbaton_workspaces::validation::sha256(&bytes), manifest["database_sha256"]);
     let dir = tempfile::Builder::new().prefix("legacy14-")
