@@ -61,3 +61,8 @@ Core6ff check and three SQLite phase tests passed, but independent source review
 At Root a07a7f9, same-head workspace tools were built (23.53s, exit0) and privately frozen/probed as exact15/twelve zero tables (1.50s, exit0). Guarded Linux Native Rust actually passed101 library +30 smoke +16 Owner controller =147 unique,0 ignored, exit0. This includes18 new policy/bridge cases. Source and normal debug tool inode/mode/nlink/SHA/aliases were restored after tests; temporary sidecar links removed.
 
 The normal tools were deliberately rebuilt from prior2a15 to a07a15 before the Native test, with old bytes retained separately. The frozen14 and private2a inputs remain separate. No claim of new real macOS/OS dialog, live Provider, browser execution15 or successful child Goal runtime is made. Portable raw logs, tool/source records and runner are in NATIVE_LINUX_LOCAL.tar.gz; independent evidence review is pending.
+
+
+### 2026-10-29T15:10:17.648651+00:00 — historical digest and true migration
+
+Two recorded digest tests passed after an earlier zero-selected filter (compile only). Fresh same-head real rework remains FAILED: revision2 adoption and Worker candidate succeeded, then event133 RESOURCE_LIMIT blocked its Validator. Original runtime2 preflight did not execute grep. Linux updated legacy consumer passed six functions against retained genuine14; strict Clippy failed three production lints and remains open. Mac and browser new flows NOT_RUN. See REWORK_DIGEST_AND_MIGRATION_RESULTS.json; continue authorized work, full130 incomplete.

@@ -59,3 +59,8 @@ Currentblockingruntime2: exact01 actualchildprocesscaseFAILED exit101/test27.04s
 Desktop realdriver NOT_RUN; reviewer found/fixed14byte cancellation literal accidentallychangedwithschema and is closing strict failure preservation/noimplicitstart/historicalNativeGrant checks. ExplicitNativeGoal approval maychangefixture Grant0→3 beforeFactory consent; thereafter Factoryderivedscope cannotraise thatapprovedGrant. Additionaltwoauthorityfaulttests e95 are not integrated/run yet; readonlylegacylist classification gap pendingactualevidence.
 
 Root CI newfinitepublicmetadata projection0ab replaces untyped dict forwarding;8pure+realmetadata projection passed, independentreviewpending. Existing7checks/runners/pins/timeouts/permissions preserved; no formalApprove/nextmerge/production/signing/privateProvider grant. Full130/27/WP01–14 continues.
+
+
+### 2026-10-29T15:10:17.648651+00:00 — historical digest and true migration
+
+Two recorded digest tests passed after an earlier zero-selected filter (compile only). Fresh same-head real rework remains FAILED: revision2 adoption and Worker candidate succeeded, then event133 RESOURCE_LIMIT blocked its Validator. Original runtime2 preflight did not execute grep. Linux updated legacy consumer passed six functions against retained genuine14; strict Clippy failed three production lints and remains open. Mac and browser new flows NOT_RUN. See REWORK_DIGEST_AND_MIGRATION_RESULTS.json; continue authorized work, full130 incomplete.
