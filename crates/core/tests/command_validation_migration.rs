@@ -283,7 +283,7 @@ fn fixture_inverse_restores_native_identity_fks_and_preserves_other_schema_and_b
         foreign.sort();
         (columns, foreign)
     };
-    let before_native = ["goal_scopes", "goal_runs"].map(|table| native_shape(table));
+    let before_native = ["goal_scopes", "goal_runs"].map(&native_shape);
     let before: Vec<SchemaObject> = connection
         .prepare("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name")
         .unwrap()
