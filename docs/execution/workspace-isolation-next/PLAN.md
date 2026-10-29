@@ -81,3 +81,7 @@ Factory/childGoal是后续独立权限合同：当前 `selection.workspace_ids.l
 ## WSI-1受控实际测试完成（Root执行）
 
 Root在精确docs/source head `5c70c314d22f55396c6d5905a89742b0f54bec50` 运行原targeted lib命令，10函数PASS/0failed/0ignored，test3.54s，wrapper25.261956s；这包括F1新1fn/4cases。源码时间点NOT_RUN记录保持历史，不回写dedee/e87。只读resolver的该Store/Git/Directory测试分片已实际通过；strict Clippy/完整回归、IPC/Native/TS、WSI-2/3默认Task链与Mac仍待后续独立工作单元。下一只读wire合同先提出给Root确认，不在本leaf写IPC或UI。
+
+## 严格Clippy实际失败后的等价窄修
+
+Root在00f9917实际执行严格Core lib Clippy，唯一错误为workspace_resolution.rs:143的cmp_owned。修复源 `3e4c0e7df1bc3dc586ccd5a9ec34adb5e64fb29c` 仅将比较改为借用Path并加入Path import，不加allow、不降低门限；原10测试与所有权限/只读语义不变。新源需独审及Root精确Clippy/targeted结果，不能直接移签旧10PASS。WSI2a原则合同接受但尚未编码；Factory/MCP scoped companion不自动获得source-read方法，未来需明确restrictedmethod拒绝与角色负控。

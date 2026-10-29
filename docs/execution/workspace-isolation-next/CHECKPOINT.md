@@ -24,3 +24,9 @@
 - 已验证head：`5c70c314d22f55396c6d5905a89742b0f54bec50`（源仍7a04）；Root targeted lib 10PASS/0skip，exit0，test3.54s，wrapper25.261956s；log SHA `0bd8fe867596acde75ea463cd772dec8a7288f86aa44534cdca3f6e473e831af`。
 - 原件：`/workspace/.onboarding/workspace-isolation-wsi1-targeted1/{RESULTS.json,command-0.log,SOURCE_BEFORE.json,SOURCE_AFTER.json,TOOLS_BEFORE_AFTER.json}`。作者只读复核source清单前后全同与四工具SHA前后全同；没有运行bins/Native/用户Git或产品。
 - 源7a04和四字段内部合同不变；本次仅追加四docs。历史NOT_RUN/旧BLOCKED不抹去。严格Clippy、完整回归、真实IPC/TS/Native与Mac仍未运行；WSI-2/3/default task行为尚未完成。下一步先向Root给出一个固定只读IPC与FS-u64十进制字符串wire建议，待其确认后另leaf实现。
+
+## 当前最新源：Clippy窄修待验证
+
+- Source `3e4c0e7df1bc3dc586ccd5a9ec34adb5e64fb29c`，parent00f9917；resolver SHA `52d37b359ab91bbca1051ecf54d5b89076a84ec6516d071addfba15bc4d7af1b`。仅借用Path比较两site，专属tests/lib原字节不变；四docs另提交。
+- Root libClippy @00f9917 实际101/12.035461s，log SHA `d872b233a0bb0ea7cc8c4dc281651347b2bbc66389cd0559c0350d07770604d4`，原件 `.onboarding/workspace-isolation-wsi1-lib-clippy1`。不得抹为PASS或与旧alltargets问题混同。
+- 新源rustfmt/逆改整文件等价/diffcheck0，独审与Root新源实际Clippy和10tests待完成。旧5c70c314 targeted10PASS保留准确绑定；没有IPC实现。WSI2a合同只消息提出，Root原则接受但要求先完成这次修复及实际验证，不能自行写public接口。

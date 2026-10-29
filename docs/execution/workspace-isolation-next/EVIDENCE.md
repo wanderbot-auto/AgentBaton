@@ -88,3 +88,11 @@ lib SHA仍为上文84d11315，无模块/wire变更。关系pin使用CASE有界�
 command-0.log SHA-256 `0bd8fe867596acde75ea463cd772dec8a7288f86aa44534cdca3f6e473e831af`；作者本次Python只读实核该SHA==RESULTS声明、SOURCE_BEFORE.json==SOURCE_AFTER.json、TOOLS_BEFORE_AFTER.json的before==after且equal=true，exit0。工具清单包含normal-debug baton/batond与fresh15frozen baton/batond四路径：各CLI SHA `0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f`，各daemon SHA `5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984` 前后不变。仅lib测试，没有把这些工具当WSI新IPC可执行产物。
 
 该结果验证真实临时Store/Git/Directory测试断言，包括F1四坏row变体及零写快照。它不是Actor/Provider、默认Task准备/分配、IPC/Native/TS、Mac或完整Core验收。原源冻结时NOT_RUN和dedee BLOCKED仍属真实历史；strict Clippy与完整产品需求仍待后续。
+
+## Root strict libClippy真实FAIL与借用比较修复
+
+原件 `/workspace/.onboarding/workspace-isolation-wsi1-lib-clippy1/{RESULTS.json,command-0.log}`；精确source00f9917319311699b19a1ddd76460b74258b9c2f。Root命令 `/workspace/.toolchains/cargo/bin/cargo clippy --offline --locked -p agentbaton-core --lib -- -D warnings`，exit101、wrapper12.035460552986478s、minimum_free_bytes497750016、interruption=null。唯一编译拒绝cmp_owned在resolver143行临时PathBuf比较；log SHA `d872b233a0bb0ea7cc8c4dc281651347b2bbc66389cd0559c0350d07770604d4` 作者只读实核匹配RESULTS，未重跑。原10个Store测试通过不等于lint通过，历史base8c alltargets问题也不能作为本次失败归因。
+
+新源码leaf `3e4c0e7df1bc3dc586ccd5a9ec34adb5e64fb29c` 仅resolver import由PathBuf改{Path,PathBuf}，比较由workspace.root != PathBuf::from(root)改workspace.root.as_path() != Path::new(&root)。两边借用原路径作相同Path比较，不新分配、不改规范化/FS/SQL/权限。resolver SHA `52d37b359ab91bbca1051ecf54d5b89076a84ec6516d071addfba15bc4d7af1b`；tests仍9ef80a87597f4e0e09c1f25ccd2c631c40aa851d8126e53fa8e9eb4ffcd9cd74，lib仍84d11315f989aa93c3dd2c9388d83a19c4571a5d991c3dc6a9d98b468dc857d1。
+
+作者实际选择性rustfmt --check、Python两site逆替整文件逐字恢复parent及唯一源码路径检查、git diff --check均exit0。未加allow/降lint/跳测试，未运行Cargo或产品。新source独审及Clippy/targeted仍待Root真实执行；旧目标10PASS不能自动移签。本次仅等价lint修复，不接WSI2a IPC，也不令Factory/MCP companion拥有新读取权限。

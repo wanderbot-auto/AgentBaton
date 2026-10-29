@@ -47,3 +47,9 @@ GoalLegacy独立定向复审已给SOURCE_READY_FOR_ROOT_CONTROLLED_TESTS，16 st
 Root在 `5c70c314d22f55396c6d5905a89742b0f54bec50` 实际运行 `cargo test --offline --locked -p agentbaton-core --lib workspace_resolution::tests -- --nocapture --test-threads=1`：10PASS/0failed/0ignored/128filtered，test3.54s，wrapper25.261956s，exit0。执行者是Root，作者本轮只读核RESULTS、原log SHA、source before/after和工具hash清单，未另跑Cargo。四个normal-debug/frozen15工具SHA前后相同，证明该次lib测试未替换它们。
 
 当前最新状态为WSI1_TARGETED_STORE_TESTS_PASS；此前NOT_COMPILED/NOT_RUN和dedee源码阻塞保留为各自时点事实。不能扩为完整Core/Clippy/Actor/Native/真实IPC/默认任务UI/Mac通过。下一只读resolve wire建议准备中，尚未实现。
+
+## 实际Clippy失败保留与最小源码修复（3e4c0e7）
+
+Root实际 `cargo clippy --offline --locked -p agentbaton-core --lib -- -D warnings` 在00f9917 exit101、wrapper12.035460552986478s，唯一新错误cmp_owned（workspace.root != PathBuf::from(root)）。这是已执行的lint失败，与旧base8c alltargets诊断问题或Store10PASS不同，原件保留。
+
+源码3e4c0e7只改import Path和workspace.root.as_path()!=Path::new(&root)两处；Python逆替整个文件等parent，rustfmt --check与diffcheck实际exit0。作者没有运行Cargo。旧10PASS仍绑定5c70c314；新源Clippy/targeted待Root重绑定、独审另revision。内部合同/Factory权限/IPC/DDL/TS完全不动。
