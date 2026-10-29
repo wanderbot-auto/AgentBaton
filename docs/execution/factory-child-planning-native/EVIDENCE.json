@@ -1,0 +1,211 @@
+{
+  "state": "Native source candidate frozen; pure checks passed; compiled tests/independent review/runtime pending",
+  "base": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+  "source_commit": "8d82dc789347fcc3bdbc0187cea53007324bf07a",
+  "branch": "codex/factory-child-planning-native",
+  "worktree": "/workspace/.worktrees/factory-child-planning-native",
+  "requirements_partial": [
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-SEC-002",
+    "AB-SEC-003",
+    "AB-SEC-005",
+    "AB-SEC-010",
+    "AB-COR-002",
+    "AB-COR-007"
+  ],
+  "source_map": {
+    "base": "6d666ed3a52ad14889440b84a903c58e050fa24c",
+    "source_commit": "8d82dc789347fcc3bdbc0187cea53007324bf07a",
+    "branch": "codex/factory-child-planning-native",
+    "files": [
+      {
+        "path": "apps/desktop/src-tauri/src/approval.rs",
+        "bytes": 198846,
+        "sha256": "8c3fab5e59e19a78e4216be080afce0c5eecd9932f87bb0f24a3384c9db2388b"
+      },
+      {
+        "path": "apps/desktop/src-tauri/src/lib.rs",
+        "bytes": 53757,
+        "sha256": "e3a9a4676f72795a5f92205aa5aa3425b4b2c78a4b696b8d02736b3945266f04"
+      }
+    ],
+    "old_fixture_path": "apps/desktop/src-tauri/tests/fixtures/factory-wire-bundle-0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64.json",
+    "old_fixture_sha256": "0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64",
+    "sparse_patterns": [
+      "/*",
+      "!/*/",
+      "/apps/desktop/src-tauri/",
+      "/crates/",
+      "/codex/",
+      "/infra/",
+      "/specs/",
+      "/docs/execution/factory-child-planning-native/"
+    ],
+    "exact_diff_stat": " apps/desktop/src-tauri/src/approval.rs | 489 ++++++++++++++++++++++++++++++++-\n apps/desktop/src-tauri/src/lib.rs      | 129 +++++++++\n 2 files changed, 612 insertions(+), 6 deletions(-)\n",
+    "Option_None_contract": "Root confirmed false requests omit policy; explicit null remains failclosed, no canonicalization",
+    "Core_DTO_coordination": "public v1 fields locked; only listRefs comment correction09a differs from frozen811; both preserved"
+  },
+  "public_contract": {
+    "DTO_v1_sha256": "811db32b84fbd6ec5ef86367c587014bac354a041885afa962029e9ba81edd86",
+    "DTO_listrefs_sha256": "09a76feff2c915ecc7437f4f8b888e093d08549c20b33d90c6d931b9c7672f84",
+    "DTO_difference": "one Query comment bounded revisions -> bounded revision refs, all public field bytes unchanged; confirmed and independently reversed hash",
+    "initial_source_capture_failure": "Current file differed from811; assert failed before recording raw file; preserved provenance, recovered actual frozen811 copy from Core. No product test failure.",
+    "Core_confirmed_constants": {
+      "schema_version": 1,
+      "authority_kind": "factory_child_planning_only",
+      "owner_rule_id": "factory-child-owner-review",
+      "input_rule_id": "factory-child-input-sha256",
+      "max_nodes": [
+        1,
+        256
+      ],
+      "max_revisions": [
+        1,
+        256
+      ],
+      "max_plan_bytes": [
+        1,
+        262144
+      ],
+      "criteria_max_bytes": 16384,
+      "max_validators_per_output": 16,
+      "max_exact_output_paths": 16
+    },
+    "list_result": "Vec<FactoryChildPlanRef>,ascending; full raw plan only get",
+    "submit_envelope_expected_revision": "FactoryScope.revision",
+    "definition_digest": "Core-computed/revalidated; Native checks shape and presents full immutable snapshot with exact receipt binding, no independent SHA dependency",
+    "source_runs_note": "Core confirms0/[] for this resolver; Integrity/Data fields do not assert validators never ran historically",
+    "false_None": "Option omitted by DTO to keep old snapshot bytes; explicit null in renderer selection is not normalized to approval"
+  },
+  "actual_commands": [
+    {
+      "tag": "pure",
+      "argv": [
+        "python3",
+        "/workspace/.onboarding/factory-child-planning-native/check_source_contract.py"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-planning-native",
+      "exit": 0,
+      "utc": "2026-10-29T03:11:16.296781+00:00",
+      "stdout_sha256": "08ebced5f7995239ce54abe2734d203383f4e00972b4f0ace45c63e348669953",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "fmt",
+      "argv": [
+        "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+        "--check",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "apps/desktop/src-tauri/src/approval.rs",
+        "apps/desktop/src-tauri/src/lib.rs"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-planning-native",
+      "exit": 0,
+      "utc": "2026-10-29T03:11:16.569687+00:00",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tag": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-planning-native",
+      "exit": 0,
+      "utc": "2026-10-29T03:11:16.578771+00:00",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "pure_checks": {
+    "passed": 46,
+    "scope": "static shape/mechanical/source-contract checks only; not Rust execution",
+    "result": "pure-results.json"
+  },
+  "new_Rust_tests": {
+    "authored": 8,
+    "planning_tests": 6,
+    "fixed_bridge_tests": 2,
+    "executed": false,
+    "cases": [
+      "complete raw policy/bindings full-u64 review and final frame",
+      "19 missing/malformed/expanded authority variants before any prompt",
+      "false omitted-policy legacy bytes and no null normalization",
+      "cancel at every page/final zero-finalize",
+      "changed postfinal receipt remains unknown with no replay",
+      "complete exact validator references and9 missing/foreign/used/digest variants",
+      "three fixed read method frames/get revision",
+      "submit raw UTF8 text, inner/outerCAS and originalkey"
+    ]
+  },
+  "source_capture_note": "Initial capture assertion failed when current DTO file hash no longer811. Core supplied frozen811 and09a; independently reverse exactly one listRefs comment and restore811 whole-file hash. No public field changed and no moving WIP was mislabeled. Both exact files preserved.",
+  "approval_boundary": "Same existing Factory kind and private finalize, complete original snapshot pages; only true/new policy grants plan storage. Old false payload/action bytes remain. No plan/validator execution, new workspace or TaskAccepted authority.",
+  "Core_Native_split": "Core validates freshness/origin/semantics and recomputes canonical definition digests. Native checks exact top-level field sets, selected artifacts/paths, reference/state/scope identity and digest formats, displays full server data losslessly and checks entire final selection/bindings/digest receipt. Native does not independently recompute SHA or replace server validation.",
+  "routes": {
+    "context": {
+      "tauri": "factory_child_plans_context",
+      "params": [
+        "scope_id",
+        "task_id"
+      ]
+    },
+    "get": {
+      "tauri": "factory_child_plans_get",
+      "params": [
+        "scope_id",
+        "task_id",
+        "optional plan_revision"
+      ]
+    },
+    "list": {
+      "tauri": "factory_child_plans_list",
+      "params": [
+        "scope_id",
+        "task_id"
+      ],
+      "response": "bounded ascending FactoryChildPlanRef values, full text only get"
+    },
+    "submit": {
+      "tauri": "factory_child_plans_submit",
+      "params": [
+        "scope_id",
+        "task_id",
+        "plan_json",
+        "expected_plan_revision"
+      ],
+      "envelope": [
+        "expected_revision = FactoryScope.revision",
+        "idempotency_key"
+      ],
+      "response": "Core value passthrough; no retry or per-plan approval"
+    }
+  },
+  "unchanged": [
+    "Core/DTO/schema/locks/STATUS/UI",
+    "existing Factory scope/run routes",
+    "all original Rust test names",
+    "review kernel, native parent and original page/cancel/finalCAS/receipt tail",
+    "false-capability action literal and actual old Factory fixture",
+    "1MiB snapshot/12KiB JSON page/16KiB display limits"
+  ],
+  "not_run": [
+    "Cargo/NativeRust8 tests or existing compiled suite",
+    "clippy/typecheck",
+    "actual Core/Factory IPC and persistent child plan",
+    "browser/macOS/AppKit/CI",
+    "real Provider/model"
+  ],
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "bytes": 62565,
+    "sha256": "8c8da76dcd63d9fc1b4ba4cce2328ea39bba413bbcc8b6d22fb21c1423786e07"
+  },
+  "archive_manifest": "EVIDENCE_ARCHIVE_MANIFEST.json",
+  "at_utc": "2026-10-29T03:18:03.014974+00:00"
+}
