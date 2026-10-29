@@ -80,7 +80,7 @@ jobs:
           assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
           fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
           with os.fdopen(fd, 'wb') as report:
-              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', 'artifacts/factory-child-goal-core'], stdout=report, check=True)
+              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
@@ -344,7 +344,7 @@ jobs:
           assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
           fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
           with os.fdopen(fd, 'wb') as report:
-              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', 'artifacts/factory-child-goal-core'], stdout=report, check=True)
+              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
