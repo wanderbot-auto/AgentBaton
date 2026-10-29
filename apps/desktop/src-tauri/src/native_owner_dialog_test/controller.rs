@@ -1,4 +1,7 @@
 //! Pure validation of observations. These tests are NOT OS-dialog evidence.
+use agentbaton_desktop::native_review_test_limits::{
+    REVIEW_MESSAGE_BYTES, REVIEW_ROWS_PER_PAGE, REVIEW_ROW_ENCODED_BYTES,
+};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 

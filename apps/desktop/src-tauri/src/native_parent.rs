@@ -23,9 +23,9 @@ const MAIN_THREAD_DEADLINE: Duration = Duration::from_secs(5);
 
 // Presentation bounds are independent of approval snapshot bounds. This permits
 // the existing full 1MiB snapshot plus its host-authored explanatory envelope.
-const REVIEW_MESSAGE_BYTES: usize = 1_048_576 + 32_768;
-const REVIEW_ROW_ENCODED_BYTES: usize = 40;
-const REVIEW_ROWS_PER_PAGE: usize = 8;
+pub(super) const REVIEW_MESSAGE_BYTES: usize = 1_048_576 + 32_768;
+pub(super) const REVIEW_ROW_ENCODED_BYTES: usize = 40;
+pub(super) const REVIEW_ROWS_PER_PAGE: usize = 8;
 
 /// Entire original message, reversibly encoded. Every display line has a
 /// non-whitespace prefix: native text layout cannot eat original indentation.
