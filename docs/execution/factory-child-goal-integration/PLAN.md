@@ -20,3 +20,8 @@ At2d12: actual UI901/52/type/build passed; browser cancel20.525s/CG01,02,04,06/t
 ## 2026-10-29T20:11:43.950362+00:00 — next integration boundary
 
 Local reviewed IO fixture controls/default-off and genuine14 regression pass. Run final infrastructure/design/bootstrap validation, publish one new PR18 candidate, read exact seven checks and dualMac outputs; fix any real failures without guard weakening. Then integrate under existing protected rules and continue WSI3/4 and genuine15→16 migration plus remaining full130 requirements. No formal Approve/production/provider/spend/signing/license expansion.
+
+
+## 准确727 CI终态 · 2026-10-29T22:21:34.361300+00:00
+
+head72735c2／实际checkoutb17a004／main653679d：Environment40961152800三项、Product40961152550的Rust/UI通过；ARM与Intel均在原55s返工观察门槛失败(21/1，182.13s/201.06s)。late list分别210ms/361ms，授权仍余955ms/960ms，零fullget；现有投影缺数组进度，尚不能确定节点状态或共同根因。保留原期限和断言，补有界进度与安全post-join投影；不上传原始DB。后续Native/构建/包跳过，无15安装包。详见HEAD727_CI_RESULTS.json；旧be12/3b失败不覆盖。

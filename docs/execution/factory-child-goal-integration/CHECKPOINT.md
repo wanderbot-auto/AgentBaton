@@ -120,3 +120,8 @@ See BE12_CI_RESULTS.json. Environment3/UI1PASS; Rustscope10/1 failure after Fact
 ## Source5744 and8028 local integration
 
 POLLING_AND_CAPABILITY_RESULTS.json records exact25 Factory/11scope passes, original deadlines/final assertions, independent reviews, fmt/Clippy/infra and preserved capacity stops. Filtered/profile repetitions do not add unique cases or prove performance improvement. New exactsevenCI and bothMac remain mandatory; no current15 installer. Schema16 actualUI/core/browser work continues independently.
+
+
+## 准确727 CI终态 · 2026-10-29T22:21:34.361300+00:00
+
+head72735c2／实际checkoutb17a004／main653679d：Environment40961152800三项、Product40961152550的Rust/UI通过；ARM与Intel均在原55s返工观察门槛失败(21/1，182.13s/201.06s)。late list分别210ms/361ms，授权仍余955ms/960ms，零fullget；现有投影缺数组进度，尚不能确定节点状态或共同根因。保留原期限和断言，补有界进度与安全post-join投影；不上传原始DB。后续Native/构建/包跳过，无15安装包。详见HEAD727_CI_RESULTS.json；旧be12/3b失败不覆盖。

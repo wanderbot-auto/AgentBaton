@@ -1,3 +1,9 @@
+# PR18 准确727：Rust/UI和Environment通过，双Mac返工失败 — 2026-10-29T22:21:34.361300+00:00
+
+head72735c2／实际checkoutb17a004／main653679d：Environment40961152800三项、Product40961152550的Rust/UI通过；ARM与Intel均在原55s返工观察门槛失败(21/1，182.13s/201.06s)。late list分别210ms/361ms，授权仍余955ms/960ms，零fullget；现有投影缺数组进度，尚不能确定节点状态或共同根因。保留原期限和断言，补有界进度与安全post-join投影；不上传原始DB。后续Native/构建/包跳过，无15安装包。详见HEAD727_CI_RESULTS.json；旧be12/3b失败不覆盖。
+
+隔离schema16继续：Session新P2时序修复独审闭合，针对40、完整Node995/55files、type/build实际通过e313；新第五个真UI/IPC对话框默认绑定验收在实现中，不把原4场景当新场景通过。Native/Mac16与完整130仍未验收。main653679d/OWNER001/002 ACK，无新指令；所有凭据/费用/生产/签名/正式Approve边界保持。
+
 # PR18 新候选已完成本地复核，准备准确七 CI — 2026-10-29T21:50:26.746081+00:00
 
 当前远程be12仍旧终态Env3/UI1PASS、Rustscope/双Mac返工FAIL；本地sourcefef00b4整合已独审8028精确负控与5744观察去冗余。Root实际scope11PASS9.35s、完整Factory25PASS89.42s；single34.30/profile35.47只作诊断不重复计数、不证明优于旧32.71。原55/60/30/5/60与10ms/retry2/白名单和全部Owner、Validator、同Graph、parent/预算最终断言保持。fmt/全workspace alltargets严格Clippy/infra84通过；编译容量中断及一次纯检查外部容量中断均保留，不算产品测试失败或通过。详见[新候选本地证据](factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json)。下一准确七CI/实际双Mac/native/releaseaudit/新开发包未跑，PR仍draft，完整130未完成。
