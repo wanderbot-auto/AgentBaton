@@ -64,3 +64,8 @@ Root CI newfinitepublicmetadata projection0ab replaces untyped dict forwarding;8
 ### 2026-10-29T15:10:17.648651+00:00 — historical digest and true migration
 
 Two recorded digest tests passed after an earlier zero-selected filter (compile only). Fresh same-head real rework remains FAILED: revision2 adoption and Worker candidate succeeded, then event133 RESOURCE_LIMIT blocked its Validator. Original runtime2 preflight did not execute grep. Linux updated legacy consumer passed six functions against retained genuine14; strict Clippy failed three production lints and remains open. Mac and browser new flows NOT_RUN. See REWORK_DIGEST_AND_MIGRATION_RESULTS.json; continue authorized work, full130 incomplete.
+
+
+### 2026-10-29T15:20:30.454825+00:00 — actual checks and retained refusals
+
+UI typecheck/build and802 tests passed atd64, infrastructure71 passed at310, strict migration Clippy passed at2b47 after earlier failures. FullCore125 collector interrupted at90s; NOTPASS, original log/ELF retained. Browser normal at310 failed exact row before refresh completed after64 actual raw captures with0failures. NewCI928 privacy finding BLOCKED import; public finite staging pending. See UI_REGRESSION_AND_CI_BOUNDARIES.json; full130 remains incomplete.
