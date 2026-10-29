@@ -1,0 +1,513 @@
+{
+  "source_commit": "d250d3bd20d8295f238974c4c2f64564ffbdd735",
+  "source_snapshot": {
+    "source_commit": "d250d3bd20d8295f238974c4c2f64564ffbdd735",
+    "base": "2a3d6ae88f93fa074ada32973ed7a400cf500e89",
+    "tree": "c318ee37b8194ba1d0a5616ea8a2aa815f13b026",
+    "source_files": {
+      "apps/desktop/src-tauri/src/approval.rs": {
+        "sha256": "522494209bbeed889a172ff1cf8091e37974f20d9b745bc86079fcbfd4cf1c0e",
+        "bytes": 228936
+      },
+      "apps/desktop/src-tauri/src/lib.rs": {
+        "sha256": "42436040fe18ce7b990d437197c63ff482789bd3e2ea72e884b1c6ad5b333c30",
+        "bytes": 61471
+      }
+    },
+    "source_before_after_equal": true,
+    "commands": [
+      {
+        "name": "source48",
+        "argv": [
+          "python",
+          "-B",
+          "/workspace/.onboarding/factory-child-goal-native/check_source.py"
+        ],
+        "cwd": "/workspace/.worktrees/factory-child-goal-native",
+        "start_UTC": "2026-10-29T07:15:53.828438+00:00",
+        "exit": 0,
+        "stdout": "source48.stdout",
+        "stdout_sha256": "7290ec254253125fe8060f53ae245bc36f7eea17e2077c79a3ab39c4197ee18d",
+        "stderr": "source48.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "rustfmt",
+        "argv": [
+          "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+          "--edition",
+          "2021",
+          "--check",
+          "apps/desktop/src-tauri/src/approval.rs",
+          "apps/desktop/src-tauri/src/lib.rs"
+        ],
+        "cwd": "/workspace/.worktrees/factory-child-goal-native",
+        "start_UTC": "2026-10-29T07:15:55.701783+00:00",
+        "exit": 0,
+        "stdout": "rustfmt.stdout",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "rustfmt.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "diffcheck",
+        "argv": [
+          "git",
+          "diff",
+          "--check",
+          "d250d3bd20d8295f238974c4c2f64564ffbdd735^",
+          "d250d3bd20d8295f238974c4c2f64564ffbdd735"
+        ],
+        "cwd": "/workspace/.worktrees/factory-child-goal-native",
+        "start_UTC": "2026-10-29T07:15:56.185688+00:00",
+        "exit": 0,
+        "stdout": "diffcheck.stdout",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "diffcheck.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "frozen_contract_inputs": {
+      "crates/core/src/factory.rs": {
+        "sha256": "0b80ec7dd55bd004ed30ccffe1ed2d902540d7652791006b304981038bcc11bc",
+        "copy": "INPUT-factory.rs",
+        "bytes": 18156
+      },
+      "crates/core/src/goal_graph.rs": {
+        "sha256": "27965418bffc85220147501a38203c7f093337db33aa18bd5321a823714d761d",
+        "copy": "INPUT-goal_graph.rs",
+        "bytes": 136765
+      },
+      "crates/core/src/factory_child_goal.rs": {
+        "sha256": "1df4bda06814cba3974c230dc8f558feafe8e176048fc890454a65e63a171181",
+        "copy": "INPUT-factory_child_goal.rs",
+        "bytes": 19981
+      },
+      "crates/core/src/goal_factory.rs": {
+        "sha256": "484b879f8e35ba594ad8092f6a927d5be2a932e325775f0b19fe8b3e1f44dfaa",
+        "copy": "INPUT-goal_factory.rs",
+        "bytes": 38766
+      },
+      "docs/execution/factory-child-goal-core/WIRE_CONTRACT.md": {
+        "sha256": "47eefd55821582af9f08892cb459e2f4303ed5984fd59b832f4164498dd84f74",
+        "copy": "INPUT-WIRE_CONTRACT.md",
+        "bytes": 8091
+      }
+    },
+    "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "all_new_Rust_tests": {
+      "added": 13,
+      "execution": "NOT_RUN",
+      "approval_markers": 67,
+      "bridge_markers": 14,
+      "library_total_including_unchanged_parent15": 96,
+      "counts_are_source_expectations_only": true
+    },
+    "not_run": [
+      "Cargo",
+      "Rust unit/type/Clippy",
+      "Core/schema15 runtime/migration/IPC/ledger/dispatch",
+      "Node/browser",
+      "Native AppKit/Mac",
+      "CI",
+      "Provider/accounts/credentials",
+      "packages"
+    ],
+    "integration_constraint": "Retain Root later c0a readonly constant fix and later CI/test fixes; cherry-pick these two source deltas, never replace whole files with this2a3 baseline"
+  },
+  "static_checks": {
+    "base": "2a3d6ae88f93fa074ada32973ed7a400cf500e89",
+    "checks": [
+      {
+        "name": "all_prior_Rust_tests_byte_equal:apps/desktop/src-tauri/src/approval.rs",
+        "passed": true,
+        "detail": {
+          "old": 57,
+          "new": 67,
+          "added": [
+            "execution_missing_policy_old_none_or_expanded_grant_budget_never_prompts",
+            "explicit_execution_policy_full_snapshot_keeps_original_grant_and_does_not_start",
+            "factory_get_missing_foreign_scope_task_origin_or_authority_cannot_fall_back_to_legacy",
+            "factory_get_preserves_full_mandatory_server_origin_and_distinct_history_without_minting",
+            "factory_owner_cancel_every_page_and_final_is_zero_decision_for_approve_and_reject",
+            "factory_owner_complete_origin_candidate_criterion_and_initial_ref_are_all_paged",
+            "factory_owner_missing_null_cross_scope_or_malformed_origin_never_prompts",
+            "factory_owner_root_lineage_and_saved_initial_ref_stay_distinct_from_current_plan",
+            "false_execution_legacy_selection_and_binding_remain_omitted_not_null",
+            "legacy_owner_origin_omission_preserves_bytes_but_explicit_null_does_not_upgrade"
+          ]
+        }
+      },
+      {
+        "name": "all_prior_Rust_tests_byte_equal:apps/desktop/src-tauri/src/lib.rs",
+        "passed": true,
+        "detail": {
+          "old": 11,
+          "new": 14,
+          "added": [
+            "child_goal_fixed_frames_preserve_three_separate_cas_values_original_key_and_inner_snake_case",
+            "child_goal_read_routes_have_explicit_nullable_run_and_no_cas_or_mutation_key",
+            "child_goal_typed_request_does_not_accept_authority_caller_tokens_or_float_revisions"
+          ]
+        }
+      },
+      {
+        "name": "unchanged:apps/desktop/src-tauri/src/native_parent.rs",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "unchanged:apps/desktop/src-tauri/Cargo.toml",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "unchanged:apps/desktop/src-tauri/Cargo.lock",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "unchanged:apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "unchanged:apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "unchanged:apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "unchanged:crates/core/src/factory.rs",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "unchanged:crates/core/src/goal_graph.rs",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "fixed_tauri_registered:start",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "fixed_core_method:start",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "frozen_wire_names:start",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "fixed_tauri_registered:get",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "fixed_core_method:get",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "frozen_wire_names:get",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "fixed_tauri_registered:list",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "fixed_core_method:list",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "frozen_wire_names:list",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "fixed_tauri_registered:cancel",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "fixed_core_method:cancel",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "frozen_wire_names:cancel",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "fixed_tauri_registered:advance_plan",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "fixed_core_method:advance_plan",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "frozen_wire_names:advance_plan",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "typed_inner_request_only",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "no_HTTP_or_token_method_bridge",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "wire_snake_field:scope_id",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "wire_snake_field:request",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "wire_snake_field:expected_goal_run_revision",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "wire_snake_field:expected_revision",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "wire_snake_field:idempotency_key",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "wire_snake_field:goal_run_id",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "get_list_explicit_nullable_run",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "Core_typed_origin_not_assembled",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "get_requires_typed_view",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "old_private_Node_routes_preserved",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "no_new_approval_kind",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "legacy_None_no_insertion",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "initial_ref_full_scope_run_task_binding",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "digest_domains_not_conflated",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "full_criterion_bound",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "old_false_planning_caption_complete_bytes",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "original_review_bound:GRAPH_REVIEW_SNAPSHOT_BYTES: usize = 1_048_576",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "original_review_bound:GRAPH_REVIEW_PAGE_BYTES: usize = 12_288",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "original_review_bound:message.len() > 16_384",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "no_Native15_Cargo_claim",
+        "passed": true,
+        "detail": "Static checks and parse only; no Rust compilation/unit execution, Core/IPC, Node, AppKit/Mac, CI or packages"
+      },
+      {
+        "name": "two_allowed_production_paths_only",
+        "passed": true,
+        "detail": null
+      }
+    ],
+    "count": 48,
+    "source": {
+      "apps/desktop/src-tauri/src/approval.rs": "522494209bbeed889a172ff1cf8091e37974f20d9b745bc86079fcbfd4cf1c0e",
+      "apps/desktop/src-tauri/src/lib.rs": "42436040fe18ce7b990d437197c63ff482789bd3e2ea72e884b1c6ad5b333c30"
+    },
+    "Rust_markers": {
+      "approval": 67,
+      "bridge_lib": 14
+    },
+    "status": "STATIC_ONLY_RUNTIME_NOT_RUN"
+  },
+  "archive": {
+    "path": "docs/execution/factory-child-goal-native/EVIDENCE.tar.gz",
+    "sha256": "6816d93dcf71d79c5e63290a72d568734a36e3af31b21fca10b093d2e5c9ef72",
+    "bytes": 59699,
+    "regular_members": 21,
+    "symlinks": 0,
+    "all_bytes_roundtrip": true
+  },
+  "manifest_sha256": "093b028172990d45afc99ad329d261b898b538726fae8f0bf9456b1ecba3fcc9",
+  "archive_members": {
+    "CHECKS.json": {
+      "bytes": 7161,
+      "sha256": "680581ca1adf005188cc5c20dc03c0d0887d7b3aa41281fa477a75eb40b08c33"
+    },
+    "INPUT-WIRE_CONTRACT.md": {
+      "bytes": 8091,
+      "sha256": "47eefd55821582af9f08892cb459e2f4303ed5984fd59b832f4164498dd84f74"
+    },
+    "INPUT-factory.rs": {
+      "bytes": 18156,
+      "sha256": "0b80ec7dd55bd004ed30ccffe1ed2d902540d7652791006b304981038bcc11bc"
+    },
+    "INPUT-factory_child_goal.rs": {
+      "bytes": 19981,
+      "sha256": "1df4bda06814cba3974c230dc8f558feafe8e176048fc890454a65e63a171181"
+    },
+    "INPUT-goal_factory.rs": {
+      "bytes": 38766,
+      "sha256": "484b879f8e35ba594ad8092f6a927d5be2a932e325775f0b19fe8b3e1f44dfaa"
+    },
+    "INPUT-goal_graph.rs": {
+      "bytes": 136765,
+      "sha256": "27965418bffc85220147501a38203c7f093337db33aa18bd5321a823714d761d"
+    },
+    "READ_LIMITS.json": {
+      "bytes": 1080,
+      "sha256": "b8f2fb28b8e8f3a1d2fb902bd31c71840b58ae34e132a6b46811061614f0b931"
+    },
+    "SOURCE_SNAPSHOT.json": {
+      "bytes": 4170,
+      "sha256": "cd80902f15d52ae3112a2b9987b43e429fe4b339cb4bb73b67def4e360d64985"
+    },
+    "add_tests.py": {
+      "bytes": 14509,
+      "sha256": "d651e970c4a0ecb3ebaf8096c9099e12a65c6128f8720806b3679808792c3602"
+    },
+    "check-first.log": {
+      "bytes": 85,
+      "sha256": "7290ec254253125fe8060f53ae245bc36f7eea17e2077c79a3ab39c4197ee18d"
+    },
+    "check_source.py": {
+      "bytes": 6213,
+      "sha256": "3bf83f7f6a31c88786b3597110ad02f1528df59b3dd8d6b47880b9b3dea01e6c"
+    },
+    "collect_final.py": {
+      "bytes": 2909,
+      "sha256": "123b1e3e35a5b80401f518946febf1368a2cffd89f0fc48f7f8e81a10d229dc3"
+    },
+    "diffcheck.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "diffcheck.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "edit_approval.py": {
+      "bytes": 10428,
+      "sha256": "6c459a9c97f4f7e306e950c16306978fa40b5044af41342d4dcb6b3d2e9a9464"
+    },
+    "edit_bridges.py": {
+      "bytes": 6761,
+      "sha256": "158e3802b1f1f4b073361e2330af281b2aab60853705a4f00f94dbebd2e731d6"
+    },
+    "rustfmt.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "rustfmt.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source48.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source48.stdout": {
+      "bytes": 85,
+      "sha256": "7290ec254253125fe8060f53ae245bc36f7eea17e2077c79a3ab39c4197ee18d"
+    }
+  },
+  "requirements_partial": [
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-SEC-002",
+    "AB-SEC-003",
+    "AB-SEC-005",
+    "AB-SEC-010",
+    "AB-COR-002",
+    "AB-COR-007"
+  ],
+  "not_run": [
+    "new13Rust tests or96totalmarkers",
+    "Cargo/type/Clippy",
+    "Core15 migration/dispatch/IO/ledger/stop/handoff",
+    "actual UnixIPC/UI/browser",
+    "AppKit/AppleSilicon/IntelNative",
+    "Provider/model/credentials/remote/spend",
+    "CI/packages"
+  ],
+  "independent_review": "Root has assigned fixed-source review; pending final report, not self-approved",
+  "limits": [
+    "Native validates public DTO structure/relationships and displays whole JSON; Core typed issuer/freshness validates real authority",
+    "Policy and origin digests remain server-resolved data; Native does not synthesize capability/proposal/root",
+    "No actual v15 DTO fixture/runtime execution has been borrowed from v14",
+    "Retain Root newer shared-constant/CI/test fixes on integration; do not whole-file replace from this baseline"
+  ]
+}
