@@ -921,5 +921,16 @@
       ],
       "note": "Gate/doctor/bootstrap/design/infra/complete34/rootNode4/diff after integration and currentSTATUS; Root exactRust2/Clippy previouslyat3a91, sameRustsource/lock"
     }
+  },
+  "final_a945_environment_integration_review": {
+    "subject": "a94517ce373e279a29176ab8ab4f210897ea1a9b",
+    "report_sha256": "2789a6ec1385bf1106e86a09b752d6b7b4c2baa9145e1f2a5ef4cb1e4a795ca2",
+    "manifest_sha256": "71a475845c383dd05697b7d40816d606e1e4186c396766f9f75d9996e405267f",
+    "archive": "FINAL_A945_ENV_INTEGRATION_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "79c94b209a8a3d96270353fc5bfb00a7e8d65386805cbf5cabee2041ab565a22",
+    "members": 51,
+    "Root_all_members_verified": true,
+    "verdict": "source/records-ready only; exactnew7CIrequired, noformalApprove/fullProductacceptance",
+    "source_STATUS_unchanged_after_review": true
   }
 }
