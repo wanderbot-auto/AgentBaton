@@ -635,5 +635,251 @@ class EventProjection(unittest.TestCase):
         self.assertEqual(P.SCHEMA, 15)
 
 
+class ValidationObservations(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.f = Fixture(Path(self.temp.name))
+
+    def write_receipt(self, revision, observation, runtime=1234):
+        value = dict(plan_revision=revision, state='failed', passed=False,
+            stop_confirmed=True, io_completion='worker_joined',
+            actual_runtime_ms=runtime, observation=observation)
+        self.f.sql('UPDATE goal_graph_validations SET document=? WHERE plan_revision=?',
+            (json.dumps(value), revision))
+
+    def collect(self):
+        out = P.collect(str(self.f.root))
+        public = P.render_public(out)
+        self.assertNotIn(SECRET, public)
+        self.assertLessEqual(len(public.encode()), P.MAX_PUBLIC)
+        return out
+
+    def observations(self):
+        out = self.collect()
+        self.assertEqual(out['status'], 'collected_post_shutdown')
+        return out['cases'][0]['post_shutdown']['validation_observations']
+
+    def test_actual_command_exit_one_and_zero_are_distinct_not_inferred_from_join(self):
+        for revision, code in ((1, 1), (2, 0)):
+            self.write_receipt(revision, dict(process_started=True, exit_code=code,
+                goal_io=dict(state='observed'), stdout=SECRET, argv=[SECRET]))
+        out = self.observations()
+        self.assertEqual(set(out), {'1', '2'})
+        for revision, code in (('1', 1), ('2', 0)):
+            self.assertEqual(out[revision], dict(actual_runtime_ms=1234,
+                goal_io_state='observed', error_code=None, process_started=True, exit_code=code))
+
+    def test_joined_preflight_rejection_has_unknown_process_not_false(self):
+        self.write_receipt(2, dict(goal_io=dict(state='not_started_or_preflight_rejected',
+            error_code='DEADLINE_EXCEEDED'), message=SECRET), runtime=4501)
+        self.assertEqual(self.observations()['2'], dict(actual_runtime_ms=4501,
+            goal_io_state='not_started_or_preflight_rejected', error_code='DEADLINE_EXCEEDED',
+            process_started=None, exit_code=None))
+
+    def test_post_command_io_failure_retains_real_exit_zero(self):
+        self.write_receipt(2, dict(process_started=True, exit_code=0,
+            goal_io=dict(state='observation_rejected', error_code='INPUT_CHANGED')))
+        value = self.observations()['2']
+        self.assertEqual(value['goal_io_state'], 'observation_rejected')
+        self.assertEqual(value['error_code'], 'INPUT_CHANGED')
+        self.assertIs(value['process_started'], True)
+        self.assertEqual(value['exit_code'], 0)
+
+    def test_missing_and_explicit_false_start_are_different(self):
+        self.write_receipt(1, None, runtime=None)
+        self.write_receipt(2, dict(process_started=False, exit_code=None))
+        out = self.observations()
+        self.assertIsNone(out['1']['actual_runtime_ms'])
+        self.assertIsNone(out['1']['process_started'])
+        self.assertIsNone(out['1']['goal_io_state'])
+        self.assertIs(out['2']['process_started'], False)
+
+    def test_unknown_state_and_code_are_fixed_unrecognized_without_canary(self):
+        self.write_receipt(2, dict(goal_io=dict(state=SECRET, error_code=SECRET)))
+        out = self.observations()['2']
+        self.assertEqual(out['goal_io_state'], 'unrecognized')
+        self.assertEqual(out['error_code'], 'unrecognized')
+
+    def test_scalar_types_are_strict_and_invalid_never_copies_message(self):
+        variants = [dict(process_started=1), dict(process_started='false'),
+            dict(exit_code=True), dict(exit_code='1'), dict(goal_io=False),
+            dict(goal_io=dict(state=1)), dict(goal_io=dict(error_code=True))]
+        for value in variants:
+            with self.subTest(value=value):
+                self.write_receipt(2, value)
+                self.assertEqual(self.collect()['cases'][0]['status'], 'invalid')
+        for runtime in (True, -1, '1', 1 << 64):
+            with self.subTest(runtime=runtime):
+                self.write_receipt(2, {}, runtime=runtime)
+                self.assertEqual(self.collect()['cases'][0]['status'], 'invalid')
+
+    def test_exit_code_is_exact_signed_i32_not_unbounded(self):
+        for code in (-(1 << 31), (1 << 31) - 1):
+            self.write_receipt(2, dict(exit_code=code))
+            self.assertEqual(self.observations()['2']['exit_code'], code)
+        for code in (-(1 << 31) - 1, 1 << 31):
+            self.write_receipt(2, dict(exit_code=code))
+            self.assertEqual(self.collect()['cases'][0]['status'], 'invalid')
+
+    def test_other_goal_receipt_cannot_fill_selected_revision(self):
+        self.f.sql('DELETE FROM goal_graph_validations WHERE plan_revision=2')
+        self.f.sql('INSERT INTO goal_graph_validations VALUES(?,?,?)', ('another-generated-goal', 2,
+            json.dumps(dict(plan_revision=2, observation=dict(process_started=True, exit_code=99)))))
+        self.assertIsNone(self.observations()['2'])
+
+    def test_duplicate_same_revision_receipts_are_not_arbitrarily_selected(self):
+        self.f.sql('INSERT INTO goal_graph_validations SELECT * FROM goal_graph_validations WHERE plan_revision=2')
+        self.assertEqual(self.collect()['cases'][0]['status'], 'invalid')
+
+    def test_absent_validation_rows_leave_two_explicit_nulls(self):
+        self.f.sql('DELETE FROM goal_graph_validations')
+        self.assertEqual(self.observations(), {'1': None, '2': None})
+
+    def test_later_revision_is_not_published_as_a_third_observation(self):
+        self.f.sql('UPDATE goal_graph_validations SET plan_revision=3,document=json_set(document,\'$.plan_revision\',3) WHERE plan_revision=2')
+        out = self.observations()
+        self.assertEqual(set(out), {'1', '2'})
+        self.assertIsNone(out['2'])
+
+    def test_duplicate_json_key_in_selected_receipt_is_rejected(self):
+        self.f.sql('UPDATE goal_graph_validations SET document=? WHERE plan_revision=2',
+            ('{"plan_revision":2,"state":"failed","passed":false,"stop_confirmed":true,'
+             '"io_completion":"worker_joined","actual_runtime_ms":1,"actual_runtime_ms":2}',))
+        self.assertEqual(self.collect()['cases'][0]['status'], 'invalid')
+
+
+class BudgetProjection(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.f = Fixture(Path(self.temp.name))
+        self.scope, self.child = SECRET + '-scope', SECRET + '-child'
+        self.root, self.project = SECRET + '-grant', SECRET + '-project'
+        conn = sqlite3.connect(self.f.db)
+        conn.executescript('''ALTER TABLE factory_child_goal_runs ADD COLUMN factory_scope_id TEXT;
+ALTER TABLE factory_child_goal_runs ADD COLUMN task_id TEXT;
+CREATE TABLE goal_ledgers(scope TEXT PRIMARY KEY,document TEXT);
+CREATE TABLE goal_run_reservations(attempt_id TEXT PRIMARY KEY,run_id TEXT,document TEXT);
+CREATE TABLE factory_budget_reservations(attempt_id TEXT PRIMARY KEY,scope_id TEXT,document TEXT);
+''')
+        run = dict(id=SECRET, task_id=self.child, root_grant_id=self.root,
+            project_id=self.project, plan_revision=2, state='cancelled',
+            task_accepted=False, cancel_requested=True)
+        derived = dict(run_id=SECRET, initial_run=run,
+            origin=dict(factory_scope_id=self.scope, initial_plan=dict(task_id=self.child)))
+        conn.execute('UPDATE goal_runs SET document=?', (json.dumps(run),))
+        conn.execute('UPDATE factory_child_goal_runs SET factory_scope_id=?,task_id=?,document=?',
+            (self.scope, self.child, json.dumps(derived)))
+        for key in ('root-grant:' + self.root, 'project:' + self.project):
+            conn.execute('INSERT INTO goal_ledgers VALUES(?,?)',
+                (key, json.dumps(dict(runtime_ms=15000, observed_attempts=6, private=SECRET))))
+        for i, runtime in enumerate((1000, 2000, 3000)):
+            conn.execute('INSERT INTO goal_run_reservations VALUES(?,?,?)',
+                ('graph-' + str(i), SECRET, json.dumps(dict(run_id=SECRET,
+                    settled=True, actual_runtime_ms=runtime))))
+        for attempt, task, ancestors, settled, runtime in (
+                ('recovery', self.child, [SECRET + '-parent', self.child], True, 4000),
+                ('parent', SECRET + '-parent', [SECRET + '-parent'], True, 5000),
+                ('held', self.child, [SECRET + '-parent', self.child], False, None)):
+            conn.execute('INSERT INTO factory_budget_reservations VALUES(?,?,?)',
+                (attempt, self.scope, json.dumps(dict(attempt_id=attempt,
+                    authority_kind='factory_task', scope_id=self.scope,
+                    root_grant_id=self.root, project_id=self.project, task_id=task,
+                    ancestors=ancestors, settled=settled, actual_runtime_ms=runtime,
+                    reservation=dict(runtime_ms=6000)))))
+        conn.commit(); conn.close(); self.f.receipt()
+
+    def mutated_raw(self, sql, params=()):
+        path = Path(self.temp.name) / 'generated-budget-control.sqlite3'
+        path.write_bytes(self.f.db.read_bytes())
+        conn = sqlite3.connect(path)
+        try:
+            conn.execute(sql, params)
+            conn.commit()
+        finally:
+            conn.close()
+        return path.read_bytes()
+
+    def collect(self):
+        out = P.collect(str(self.f.root))
+        self.assertNotIn(SECRET, P.render_public(out))
+        return out
+
+    def budget(self):
+        out = self.collect()
+        self.assertEqual(out['status'], 'collected_post_shutdown')
+        return out['cases'][0]['post_shutdown']['budget_usage']
+
+    def test_existing_ledgers_and_child_recovery_are_separate_without_graph_mirror(self):
+        value = self.budget()
+        self.assertEqual(value['status'], 'collected_post_shutdown_budget_facts')
+        self.assertEqual(value['root'], dict(actual_runtime_ms=15000, observed_attempts=6, runtime_unknown=False))
+        self.assertEqual(value['project'], value['root'])
+        self.assertEqual(value['child'], dict(settled_count=4, unsettled_count=1,
+            settled_actual_runtime_ms=10000, unsettled_reserved_runtime_ms=6000,
+            settled_runtime_unknown=False))
+        self.assertTrue(value['not_an_authority_or_admission_verdict'])
+        self.assertEqual(value['snapshot_time'], 'post_owned_shutdown_not_admission_instant')
+
+    def test_missing_table_ledger_or_binding_is_pending_never_zero(self):
+        for sql in ('DROP TABLE goal_ledgers', 'DELETE FROM goal_ledgers',
+                "UPDATE factory_child_goal_runs SET document='{}'"):
+            with self.subTest(sql=sql):
+                value = P.project_db(self.mutated_raw(sql))['budget_usage']
+                self.assertEqual(value['status'], 'pending')
+                self.assertIsNone(value['child'])
+
+    def test_unknown_runtime_is_null_pending_not_refunded_zero(self):
+        self.f.sql("UPDATE factory_budget_reservations SET document=json_set(document,'$.actual_runtime_ms',NULL) WHERE attempt_id='recovery'")
+        self.f.sql("UPDATE goal_ledgers SET document=json_set(document,'$.runtime_ms',NULL)")
+        value = self.budget()
+        self.assertEqual(value['status'], 'pending')
+        self.assertTrue(value['root']['runtime_unknown'])
+        self.assertIsNone(value['root']['actual_runtime_ms'])
+        self.assertTrue(value['child']['settled_runtime_unknown'])
+        self.assertIsNone(value['child']['settled_actual_runtime_ms'])
+        self.assertEqual(value['child']['unsettled_reserved_runtime_ms'], 6000)
+
+    def test_legacy_row_other_scope_and_other_goal_do_not_charge_this_child(self):
+        self.f.sql('INSERT INTO factory_budget_reservations VALUES(?,?,?)',
+            ('unrelated', None, json.dumps(dict(authority_kind='legacy_shared_session', private=SECRET))))
+        self.f.sql('INSERT INTO goal_run_reservations VALUES(?,?,?)',
+            ('foreign-graph', 'another-goal', json.dumps(dict(private=SECRET))))
+        self.assertEqual(self.budget()['child']['settled_actual_runtime_ms'], 10000)
+
+    def test_wrong_root_project_scope_task_and_duplicate_ancestor_are_refused(self):
+        for field, value in (('root_grant_id', 'other'), ('project_id', 'other'),
+                ('scope_id', 'other'), ('authority_kind', SECRET), ('settled', 1),
+                ('ancestors', [self.child, self.child]), ('task_id', 'foreign-task')):
+            with self.subTest(field=field):
+                conn = sqlite3.connect(self.f.db)
+                raw = json.loads(conn.execute("SELECT document FROM factory_budget_reservations WHERE attempt_id='recovery'").fetchone()[0])
+                conn.close()
+                raw[field] = value
+                data = self.mutated_raw("UPDATE factory_budget_reservations SET document=? WHERE attempt_id='recovery'", (json.dumps(raw),))
+                with self.assertRaises(P.Invalid): P.project_db(data)
+
+    def test_duplicate_attempt_across_original_tables_is_not_double_counted(self):
+        self.f.sql('INSERT INTO goal_run_reservations VALUES(?,?,?)',
+            ('recovery', SECRET, json.dumps(dict(run_id=SECRET, settled=True, actual_runtime_ms=4000))))
+        self.assertEqual(self.collect()['cases'][0]['status'], 'invalid')
+
+    def test_boolean_negative_and_overflow_metrics_are_rejected(self):
+        for runtime in (True, -1, '1', 1 << 64):
+            with self.subTest(runtime=runtime):
+                data = self.mutated_raw('UPDATE goal_ledgers SET document=?',
+                    (json.dumps(dict(runtime_ms=runtime, observed_attempts=6)),))
+                with self.assertRaises(P.Invalid): P.project_db(data)
+
+    def test_row_budget_and_view_are_refused_before_materializing(self):
+        self.f.sql('INSERT INTO goal_ledgers SELECT ?1,document FROM goal_ledgers LIMIT 1', ('extra',))
+        with mock.patch.object(P, 'MAX_ROWS', 2):
+            self.assertEqual(self.collect()['cases'][0]['status'], 'invalid')
+        self.f.sql('DROP TABLE goal_ledgers')
+        self.f.sql("CREATE VIEW goal_ledgers AS SELECT 1 scope,'{}' document")
+        self.assertEqual(self.collect()['cases'][0]['status'], 'invalid')
+
+
 if __name__ == '__main__':
     unittest.main()

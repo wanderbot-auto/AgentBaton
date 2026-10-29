@@ -32,6 +32,10 @@ REASON_CODES = frozenset(('WORKSPACE_BUSY', 'STALE_REVISION', 'INPUT_CHANGED',
     'AUTH_REQUIRED', 'RESOURCE_LIMIT', 'DEADLINE_EXCEEDED', 'OUTCOME_UNKNOWN',
     'BUDGET_UNKNOWN', 'INTERNAL_ERROR', 'PERMISSION_DENIED',
     'CAPABILITY_UNSUPPORTED', 'CONFIG_CONFLICT', 'INTERNAL_ADVANCE_INTERRUPTED'))
+VALIDATION_IO_STATES = frozenset(('observed', 'observation_rejected',
+                                'not_started_or_preflight_rejected'))
+VALIDATION_ERROR_CODES = REASON_CODES | frozenset(('CANCEL_REQUESTED',
+    'ENFORCEMENT_UNAVAILABLE', 'INVALID_REQUEST'))
 RUN_STATES = frozenset(('queued', 'running', 'awaiting_acceptance', 'blocked',
     'failed', 'cancel_requested', 'cancelled', 'outcome_unknown', 'accepted', 'completed'))
 NODE_STATES = RUN_STATES | frozenset(('not_started', 'ready', 'reserved', 'stopping',
@@ -216,6 +220,147 @@ def bucket_revision(value):
     integer(value)
     need(value > 0)
     return str(value) if value in (1, 2) else 'later'
+
+
+def validation_observations(conn, selected):
+    """Existing receipt scalars only, for this fixture's two plan versions.
+
+    Missing library fields do not mean the command did not start. In particular,
+    a joined preflight rejection has no CommandValidationView at all. These
+    post-join facts are not a new receipt authenticator or deadline observation.
+    """
+    result = {'1': None, '2': None}
+    for revision, raw in conn.execute(
+            'SELECT plan_revision,document FROM goal_graph_validations '
+            f'WHERE run_id IN ({selected}) AND plan_revision IN (1,2) ORDER BY plan_revision'):
+        key = str(integer(revision, 2))
+        need(key in result and result[key] is None)
+        value = strict_json(raw)
+        need(type(value) is dict and type(value.get('plan_revision')) is int
+             and value['plan_revision'] == revision)
+        out = {'actual_runtime_ms': integer(value.get('actual_runtime_ms'), nullable=True),
+               'goal_io_state': None, 'error_code': None,
+               'process_started': None, 'exit_code': None}
+        view = value.get('observation')
+        # A missing/non-object historical observation is unavailable, not a
+        # fabricated false process-start or exit-code observation.
+        if type(view) is dict:
+            out['process_started'] = boolean(view.get('process_started'), nullable=True)
+            exit_code = integer(view.get('exit_code'), (1 << 31) - 1, nullable=True, signed=True)
+            need(exit_code is None or exit_code >= -(1 << 31))
+            out['exit_code'] = exit_code
+            goal_io = view.get('goal_io')
+            if goal_io is not None:
+                need(type(goal_io) is dict)
+                state = goal_io.get('state')
+                if state is not None:
+                    need(type(state) is str)
+                    out['goal_io_state'] = state if state in VALIDATION_IO_STATES else 'unrecognized'
+                code = goal_io.get('error_code')
+                if code is not None:
+                    need(type(code) is str)
+                    out['error_code'] = code if code in VALIDATION_ERROR_CODES else 'unrecognized'
+        result[key] = out
+    return result
+
+
+def budget_usage(conn):
+    """Post-join existing ledger/child-record facts, not admission or authority.
+
+    Graph reservations are read once from their original table. Factory's
+    runtime-derived Graph mirror is deliberately not reconstructed or summed.
+    Missing old evidence stays pending; no limit or remaining budget is inferred.
+    """
+    out = {'status': 'pending', 'code': 'unknown_not_available',
+           'snapshot_time': 'post_owned_shutdown_not_admission_instant',
+           'not_an_authority_or_admission_verdict': True,
+           'root': None, 'project': None, 'child': None}
+    try:
+        for table in ('goal_run_reservations', 'factory_budget_reservations', 'goal_ledgers'):
+            row = conn.execute('SELECT type,sql FROM sqlite_master WHERE name=?', (table,)).fetchone()
+            if row is None:
+                return out
+            need(row[0] == 'table' and type(row[1]) is str
+                 and re.match(r'CREATE\s+TABLE\s', row[1], re.I))
+            count, total, maximum = conn.execute(
+                f'SELECT count(*),coalesce(sum(length(CAST(document AS BLOB))),0),'
+                f'coalesce(max(length(CAST(document AS BLOB))),0) FROM {table}').fetchone()
+            integer(count, MAX_ROWS)
+            integer(total, 4 * 1024 * 1024)
+            integer(maximum, 1024 * 1024)
+        rows = conn.execute('SELECT goal_run_id,factory_scope_id,task_id,document '
+                            'FROM factory_child_goal_runs').fetchall()
+        need(len(rows) == 1)
+        goal, scope, child, raw = rows[0]
+        need(all(type(key) is str and 0 < len(key.encode()) <= 512 for key in (goal, scope, child)))
+        record = strict_json(raw)
+        initial, origin = record['initial_run'], record['origin']
+        need(record['run_id'] == goal and initial['id'] == goal and initial['task_id'] == child
+             and origin['factory_scope_id'] == scope and origin['initial_plan']['task_id'] == child)
+        root, project = initial['root_grant_id'], initial['project_id']
+        need(all(type(key) is str and 0 < len(key.encode()) <= 512 for key in (root, project)))
+        current_raw = conn.execute('SELECT document FROM goal_runs WHERE id=?', (goal,)).fetchone()
+        if current_raw is None:
+            return out
+        current = strict_json(current_raw[0])
+        need(current['id'] == goal and current['task_id'] == child
+             and current['root_grant_id'] == root and current['project_id'] == project)
+        for name, key in (('root', 'root-grant:' + root), ('project', 'project:' + project)):
+            row = conn.execute('SELECT document FROM goal_ledgers WHERE scope=?', (key,)).fetchone()
+            if row is None:
+                return out
+            ledger = strict_json(row[0])
+            out[name] = {'actual_runtime_ms': integer(ledger['runtime_ms'], nullable=True),
+                         'observed_attempts': integer(ledger['observed_attempts'], (1 << 32) - 1)}
+            out[name]['runtime_unknown'] = out[name]['actual_runtime_ms'] is None
+        totals = {'settled_count': 0, 'unsettled_count': 0,
+                  'settled_actual_runtime_ms': 0, 'unsettled_reserved_runtime_ms': 0,
+                  'settled_runtime_unknown': False}
+        seen = set()
+
+        def add(attempt, value):
+            need(type(attempt) is str and 0 < len(attempt.encode()) <= 512 and attempt not in seen)
+            seen.add(attempt)
+            settled = boolean(value['settled'])
+            if settled:
+                totals['settled_count'] += 1
+                actual = integer(value['actual_runtime_ms'], nullable=True)
+                if actual is None:
+                    totals['settled_runtime_unknown'] = True
+                    totals['settled_actual_runtime_ms'] = None
+                elif totals['settled_actual_runtime_ms'] is not None:
+                    totals['settled_actual_runtime_ms'] = integer(totals['settled_actual_runtime_ms'] + actual)
+            else:
+                totals['unsettled_count'] += 1
+                reserved = integer(value['reservation']['runtime_ms'])
+                totals['unsettled_reserved_runtime_ms'] = integer(totals['unsettled_reserved_runtime_ms'] + reserved)
+
+        for attempt, run, raw in conn.execute(
+                'SELECT attempt_id,run_id,document FROM goal_run_reservations WHERE run_id=?', (goal,)):
+            value = strict_json(raw)
+            need(run == goal and value['run_id'] == goal)
+            add(attempt, value)
+        for attempt, row_scope, raw in conn.execute(
+                'SELECT attempt_id,scope_id,document FROM factory_budget_reservations WHERE scope_id=?', (scope,)):
+            value = strict_json(raw)
+            ancestors = value['ancestors']
+            need(type(ancestors) is list and 0 < len(ancestors) <= 33
+                 and all(type(key) is str and 0 < len(key.encode()) <= 512 for key in ancestors)
+                 and len(set(ancestors)) == len(ancestors))
+            need(value['authority_kind'] == 'factory_task' and row_scope == scope == value['scope_id']
+                 and value['attempt_id'] == attempt and value['root_grant_id'] == root
+                 and value['project_id'] == project and value['task_id'] in ancestors)
+            if child in ancestors:
+                add(attempt, value)
+        out['child'] = totals
+        unknown = (out['root']['runtime_unknown'] or out['project']['runtime_unknown']
+                   or totals['settled_runtime_unknown'])
+        out['status'] = 'pending' if unknown else 'collected_post_shutdown_budget_facts'
+        out['code'] = 'unknown_runtime_observation' if unknown else 'existing_ledger_and_child_records'
+        return out
+    except (sqlite3.Error, KeyError, TypeError):
+        # Old/missing metadata is not a zero consumption or a successful test.
+        return out
 
 
 def event_fields(event, subject, observed_plan_revision):
@@ -433,6 +578,8 @@ def project_db(raw, observation=None):
             return {'schema': SCHEMA, 'child_graph_count': 1, 'runs': runs,
                     'node_counts': dict(sorted(nodes.items())),
                     'validation_counts': dict(sorted(validations.items())),
+                    'validation_observations': validation_observations(conn, selected),
+                    'budget_usage': budget_usage(conn),
                     'associated_events': project_events(conn, observation)}
         finally:
             conn.close()
