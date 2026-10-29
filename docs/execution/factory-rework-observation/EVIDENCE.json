@@ -700,5 +700,123 @@
       "sha256": "581290486f269e15ba924159c4cd67f58221246379e28b393a8ffa36a6a3dca3"
     },
     "current_claim": "source and pure controls only; pending independent review; neither full runtime nor Mac CI fixed"
+  },
+  "environment_a866_temporary_root_fixture_correction": {
+    "source_commit": "1e720725b482732d413aa0818431abe436ea25c8",
+    "parent": "5509ca137d0a4b7fc51ceb964fd4a3aeaaaa8e0e",
+    "source_sha256": "72655a4f72e0db198be278c9961005966f3a4b98cf3ad84cdf7e685995877621",
+    "source_manifest": {
+      "path": "/workspace/.onboarding/factory-rework-temp-root-fixture/SOURCE_MANIFEST.json",
+      "sha256": "aae45e4ced0accc1fe89412a288a6e833f4ef7689e14c4869fe8dda284b245b0"
+    },
+    "exact_scope": "one test helper root assignment/comments and one regression; old22 bodies/negative cases unchanged",
+    "checks": {
+      "base": "5509ca137d0a4b7fc51ceb964fd4a3aeaaaa8e0e",
+      "source_file": "tests/infrastructure/test_factory_rework_ci_evidence.py",
+      "old_test_sha256": "9ee0b006bf628337e052e9847086ee59f12212c8114c6b9b4abbd90f9abe4949",
+      "new_test_sha256": "72655a4f72e0db198be278c9961005966f3a4b98cf3ad84cdf7e685995877621",
+      "collector_sha256_unchanged": "c321a66e791388d5b6e722146138b3aa12bacaa3938789a25ba7e4bec8f6042c",
+      "checks": {
+        "one_fixture_only": true,
+        "inverse_comments_one_root_assignment_and_one_regression_byte_equal": true,
+        "all_original22_tests_and_all_negative_cases_byte_equal": true,
+        "collector_and_all_rust_sources_byte_equal": true,
+        "generated_root_resolve_strict_only": true,
+        "explicit_untrusted_symlink_input_still_rejected": true,
+        "python_ast_parse": true
+      },
+      "original_mac_failures": {
+        "arm": {
+          "path": "/workspace/.onboarding/pr18-heada866-failures/environment-arm.log",
+          "sha256": "2b3e8eec48fc92550438f8b48726c5a2d3e07056e5fe8e3600ed632c1322ac47",
+          "original_suite_tests": 106,
+          "failures": 3,
+          "errors": 28,
+          "direct_phase_evidence": "NotADirectoryError errno20 at os.open(part,flags,dir_fd=fd), component var",
+          "not_claimed": "full Mac cause/fix verified or production NoFollow defect"
+        },
+        "intel": {
+          "path": "/workspace/.onboarding/pr18-heada866-failures/environment-intel.log",
+          "sha256": "d31fcb253a67ee2e9f18f154363bed77195758e2b8ed5d89b950d9c4f4a48660",
+          "original_suite_tests": 106,
+          "failures": 3,
+          "errors": 28,
+          "direct_phase_evidence": "NotADirectoryError errno20 at os.open(part,flags,dir_fd=fd), component var",
+          "not_claimed": "full Mac cause/fix verified or production NoFollow defect"
+        }
+      },
+      "commands": [
+        {
+          "argv": [
+            "python3",
+            "/workspace/.onboarding/factory-rework-temp-root-fixture/alias-control.py"
+          ],
+          "source": "base5509",
+          "exit": 1,
+          "log": "old-alias-positive.log",
+          "outer_tests": 1,
+          "failures": 1
+        },
+        {
+          "argv": [
+            "python3",
+            "/workspace/.onboarding/factory-rework-temp-root-fixture/alias-control.py",
+            "--all"
+          ],
+          "source": "new source hash",
+          "exit": 0,
+          "log": "fixed-alias-all.log",
+          "unique_tests": 23,
+          "seconds": 0.05
+        },
+        {
+          "argv": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests/infrastructure",
+            "-p",
+            "test_factory_rework_ci_evidence.py",
+            "-v"
+          ],
+          "exit": 0,
+          "log": "fixed-native-all.log",
+          "unique_tests": 23,
+          "seconds": 0.061
+        }
+      ],
+      "counting": "23 unique tests; same23 executed in two path conditions, not46; old singleFAIL separate",
+      "not_run": [
+        "Mac/CI rerun",
+        "full Environment suite",
+        "Cargo",
+        "Actor/daemon/browser",
+        "remote/Provider"
+      ],
+      "no_production_change": true
+    },
+    "artifact_root": "/workspace/.onboarding/factory-rework-temp-root-fixture",
+    "unique_tests": 23,
+    "path_conditions_executed": 2,
+    "not46tests": true,
+    "old_actual_control": {
+      "exit": 1,
+      "failures": 1,
+      "log": "old-alias-positive.log"
+    },
+    "collector_script_sha256_unchanged": "c321a66e791388d5b6e722146138b3aa12bacaa3938789a25ba7e4bec8f6042c",
+    "only_fixture_root_resolved": true,
+    "production_nofollow_and_alias_negatives_preserved": true,
+    "actual_mac_alias_mapping_not_recorded": true,
+    "claim": "Linux generated-alias causal control and test-only fix; actual Mac var rejection consistent with alias candidate, exact alias target not retained in CI",
+    "not_run": [
+      "Mac CI rerun",
+      "full106Environment rerun",
+      "Cargo/Actor/daemon/browser",
+      "Product workflow/push"
+    ],
+    "no_heavy_or_remote_actions": true
   }
 }
