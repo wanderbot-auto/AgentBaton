@@ -1763,5 +1763,12 @@ pub(crate) fn require_queued_unstarted_target(
     if started {
         return Err(denied());
     }
+    // A dangling/foreign pending attempt or writer is not a never-started
+    // proof merely because no current Goal Node points at it. Retain all
+    // existing cumulative shared budget rows; planning does not reset them.
+    let other_work:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM attempts WHERE task_id=?1) OR EXISTS(SELECT 1 FROM sessions WHERE json_extract(document,'$.task_id')=?1) OR EXISTS(SELECT 1 FROM dispatch_intents d LEFT JOIN attempts a ON a.id=d.attempt_id WHERE a.task_id=?1 OR json_extract(d.document,'$.task_id')=?1) OR EXISTS(SELECT 1 FROM workspace_leases WHERE resource=?2 AND holder!='')",params![task_id,source.target_request.workspace_id],|row|row.get(0)).map_err(db_error)?;
+    if other_work {
+        return Err(denied());
+    }
     Ok(())
 }
