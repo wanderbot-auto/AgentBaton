@@ -4,6 +4,9 @@ import ast
 import hashlib
 import json
 import os
+import socket
+import subprocess
+import sys
 from pathlib import Path
 import tempfile
 import textwrap
@@ -92,6 +95,33 @@ class ChildGoalProjectionTests(unittest.TestCase):
             with self.assertRaises(P.Refused):P.regular_bytes(p,100,private=True)
             p.chmod(0o600)
             with self.assertRaises(P.Refused):P.regular_bytes(p,1,private=True)
+
+    def test_candidate_json_types_cannot_coerce_schema_dirty_or_nested_values(self):
+        _,m,s,r=inputs()
+        for key,value in [('schema',15.0),('dirty',0),('schema',True)]:
+            bad=copy.deepcopy(r);bad['candidate'][key]=value
+            with self.subTest(key=key,value=value),self.assertRaises(P.Refused):P.project(bad,m,s,'normal',0,'e'*64)
+        for left,right in [({'v':[False]},{'v':[0]}),({'v':[1]},{'v':[1.0]}),([1,2],[2,1]),({'x':1},{'y':1}),(0.0,-0.0),({True:1},{1:1})]:
+            self.assertFalse(P.strict_json_equal(left,right))
+        self.assertTrue(P.strict_json_equal({'v':[False,1,1.0,None]},{'v':[False,1,1.0,None]}))
+        for raw in [b'{"v":NaN}',b'{"v":Infinity}',b'{"v":-Infinity}']:
+            with self.assertRaises(P.Refused):P.decode(raw)
+
+    def test_fifo_and_unix_socket_are_rejected_without_waiting_for_a_writer(self):
+        # A bounded, directly owned pure helper protects the suite if the
+        # nonblocking-open guard ever regresses. No user/Core process touched.
+        code="import runpy,sys; m=runpy.run_path(sys.argv[1],run_name='pure_fd_control');\ntry: m['regular_bytes'](sys.argv[2],100,private=True)\nexcept (OSError,ValueError): print('refused')\nelse: raise SystemExit(3)"
+        with tempfile.TemporaryDirectory()as tmp:
+            root=Path(tmp);fifo=root/'fifo';os.mkfifo(fifo,0o600)
+            endpoint=root/'socket'
+            with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)as owner:
+                owner.bind(str(endpoint));endpoint.chmod(0o600)
+                for path in [fifo,endpoint]:
+                    with self.subTest(kind=path.name),subprocess.Popen([sys.executable,'-c',code,P.__file__,str(path)],stdout=subprocess.PIPE,stderr=subprocess.PIPE)as child:
+                        try:stdout,stderr=child.communicate(timeout=2)
+                        except subprocess.TimeoutExpired:
+                            child.kill();child.communicate();self.fail('Pure owned fd refusal helper exceeded its bound')
+                        self.assertEqual(child.returncode,0);self.assertEqual(stdout,b'refused\n');self.assertEqual(stderr,b'')
 
     def test_final_publish_failure_never_exposes_passed_final_name(self):
         for operation in ['fchmod','replace']:

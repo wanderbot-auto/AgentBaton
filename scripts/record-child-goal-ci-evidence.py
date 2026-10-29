@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -24,7 +25,7 @@ def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 def regular_bytes(path, maximum, private=False):
-    with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW),'rb') as stream:
+    with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as stream:
         info=os.fstat(stream.fileno())
         require(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and 0<info.st_size<=maximum)
         if private:require(stat.S_IMODE(info.st_mode)==0o600)
@@ -38,7 +39,18 @@ def unique_object(pairs):
     return value
 
 def decode(raw):
-    return json.loads(raw,object_pairs_hook=unique_object)
+    def invalid_constant(_):raise Refused('Non-JSON numeric constant')
+    return json.loads(raw,object_pairs_hook=unique_object,parse_constant=invalid_constant)
+
+def strict_json_equal(left,right):
+    if type(left)is not type(right):return False
+    if type(left)is dict:
+        return all(type(k)is str for k in left)and all(type(k)is str for k in right)and left.keys()==right.keys()and all(strict_json_equal(left[k],right[k])for k in left)
+    if type(left)is list:
+        return len(left)==len(right)and all(strict_json_equal(a,b)for a,b in zip(left,right))
+    if type(left)is float:return math.isfinite(left)and math.isfinite(right)and left.hex()==right.hex()
+    if type(left)in (str,int,bool,type(None)):return left==right
+    return False
 
 def candidate_summary(raw):
     m=decode(raw);require(type(m)is dict and type(m.get('schema'))is int and m['schema']==15 and m.get('dirty')is False)
@@ -57,7 +69,7 @@ def candidate_summary(raw):
 def project(report, candidate, summary, case, exit_code, harness_sha):
     require(case in CASES and (exit_code is None or type(exit_code)is int and -128<=exit_code<=255))
     require(type(report)is dict and report.get('case')==case and report.get('status')in ('passed','failed_or_interrupted'))
-    require(report.get('candidate')==candidate and report.get('manifest_sha256')==summary['manifest_sha256'])
+    require(strict_json_equal(report.get('candidate'),candidate) and report.get('manifest_sha256')==summary['manifest_sha256'])
     require(report.get('harness_sha256')==harness_sha)
     checks=report.get('checks');require(type(checks)is list and len(checks)<=6)
     safe=[];seen=set()
