@@ -1,3 +1,11 @@
+## 当前 Child planning 组合验证 — 2026-10-29T05:53:38.704700+00:00
+
+本分支 `codex/factory-child-planning-integration` 已组合 schema14 Core、完整 Native planning policy、UI 计划历史及固定 MCP/IPC。Core 完整测试在 `68940d76` 通过659项非文档测试和7项文档测试；后续仅类型别名修正的 `f9a7e0c` 通过严格 Clippy/格式检查。实际组合 UI 在 `ea6ca3b0` 通过733项测试（44文件）；f9a 的类型检查和构建通过。完整证据、原失败和精确提交见 `factory-child-planning-integration/EVIDENCE.json`。
+
+首轮 Linux Native 编译触发200MiB磁盘守卫，退出-15，尚未运行测试；原工具 inode/权限/硬链接/SHA 和源码已恢复。独审发现一处当前 schema13 断言，已单独修为14，历史负控不变。真实 UI14/Core14 浏览器 IPC、Native OS Factory planning 和双架构 schema14 CI 仍待运行。child Goal 执行与新 workspace 创建仍未实现，130项需求/27决定/WP01–14目标未完成。
+
+独立分支 PR16 当前 `4f5c61e` 的七项准确CI已全部成功，正在审查双架构包原件；不能将其 schema12 结果替代 Factory14 验证。最新 main `a1be94` / OWNER001、002 ACK，无003。仍无正式 GitHub Approve、真实产品 Provider、额外费用资源、生产、签名公证或最终许可证扩权。以下为保留历史。
+
 ## 当前 Foundation13 与新准确 CI — 2026-10-29T03:30:38.015548+00:00
 
 本分支codex/factory-runtime-integration已合Goal诊断/Nativehelper/CI60到44d87fdb，后续faea4a2仅更新4unitrecords/130需求partial证据和真实新包记录。Core、Coretests、Cargo与6d666ed3完整645unique+7docs/fullClippy/fmt通过的payload完全相同；这是源码等价维度，未把新合成SHA冒为重跑645。NativeOwner strictjson/type/CAS保留、schema仅当前13，实际Python30含原schema13bootstrap、Python34/Node4及三static通过。独立最终合成审查正在安排，尚未Factorypush/PR/新CI。

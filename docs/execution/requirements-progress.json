@@ -1213,7 +1213,8 @@
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1407,6 +1408,16 @@
           "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
           "status": "partial dimension only; notwhole requirement acceptance",
           "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ]
     },
@@ -1440,7 +1451,8 @@
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1642,6 +1654,16 @@
           "evidence": "docs/execution/goal-graph-integration/C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
           "status": "partial exact historical native slice, whole requirement not accepted",
           "limitations": "ARMdefaultbundleFAIL/Intelofficial45mCANCELLED; audits/packagesSKIPPED. New byte-preserving modulemove/CI60 bounded guard reviewed+LinuxRustcheck only, newactualMac pending. NotFactory13/liveProvider/fullscope."
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ]
     },
@@ -1670,7 +1692,8 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/goal-integration/EVIDENCE.json",
         "docs/execution/goal-store/REVIEW.md",
-        "docs/execution/goal-ui-real-ipc/REVIEW.md"
+        "docs/execution/goal-ui-real-ipc/REVIEW.md",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1710,6 +1733,16 @@
           "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
           "status": "partial dimension only; notwhole requirement acceptance",
           "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ]
     },
@@ -2271,7 +2304,8 @@
         "docs/execution/goal-store/REVIEW.md",
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2415,6 +2449,16 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ]
     },
@@ -3655,7 +3699,8 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -3804,6 +3849,16 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ]
     },
@@ -3820,7 +3875,8 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [],
       "verified_slices": [
@@ -3864,6 +3920,16 @@
           "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
           "status": "partial dimension only; notwhole requirement acceptance",
           "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ],
       "coverage": "partial"
@@ -3970,7 +4036,8 @@
         "docs/execution/validation-integration/EVIDENCE.json",
         "docs/execution/validation-integration/CORE_REVIEW.md",
         "docs/execution/validation-integration/UI_REVIEW.md",
-        "docs/execution/data-runtime-integration/EVIDENCE.json"
+        "docs/execution/data-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -4002,6 +4069,16 @@
           "mac_both": "Core21/migration3/path24/Native22+12/readonlyUI/lifecycle/defaultreleaseaudit/devDMG actualpassed",
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ]
     },
@@ -4729,7 +4806,8 @@
         "native_x86_64": "not_run"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
@@ -4749,6 +4827,16 @@
           "evidence": "docs/execution/factory-runtime-integration/FULL_FIFTH_REVIEW_IMPORTS.json",
           "status": "partial dimension only; notwhole requirement acceptance",
           "remaining": "Native/schema14/realProvider/remote/fullfaultqueueandworkspacecreation coverage stillseparate; newchildplanning code unverified"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ]
     },
@@ -4917,7 +5005,8 @@
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -4928,7 +5017,19 @@
         "crates/core/tests/ipc.rs",
         "crates/core/tests/execution.rs"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        }
+      ]
     },
     {
       "id": "AB-ACP-001",
@@ -5496,7 +5597,8 @@
         "docs/execution/goal-editing-context/REVIEW.md",
         "docs/execution/goal-plan-editor-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json"
+        "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -5651,6 +5753,16 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ]
     },
@@ -5689,7 +5801,8 @@
         "docs/execution/goal-ui-real-ipc/REVIEW.md",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -5878,6 +5991,16 @@
           "evidence": "docs/execution/goal-graph-integration/EVIDENCE.json#ci_e3cc",
           "dimension": "Linux593+7/Node564 and12actualflows; bothMacNative/readOnlypassed butOwnerfailed preClick/onscreen, releasepackagesnotrun",
           "status": "partial"
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ]
     },
@@ -6297,7 +6420,8 @@
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-ui/INDEPENDENT_VERIFICATION.json",
-        "docs/execution/factory-runtime-integration/EVIDENCE.json"
+        "docs/execution/factory-runtime-integration/EVIDENCE.json",
+        "docs/execution/factory-child-planning-integration/EVIDENCE.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -6394,6 +6518,16 @@
           "evidence": "docs/execution/goal-graph-integration/C6F6_AND_BUNDLE_REVIEW_IMPORT.json",
           "status": "partial exact historical native slice, whole requirement not accepted",
           "limitations": "ARMdefaultbundleFAIL/Intelofficial45mCANCELLED; audits/packagesSKIPPED. New byte-preserving modulemove/CI60 bounded guard reviewed+LinuxRustcheck only, newactualMac pending. NotFactory13/liveProvider/fullscope."
+        },
+        {
+          "slice": "same_goal_plan_revision_planning_only_composed_core14",
+          "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+          "workspace_outer": 659,
+          "docs": 7,
+          "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+          "node": 733,
+          "coverage": "partial",
+          "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
         }
       ]
     },

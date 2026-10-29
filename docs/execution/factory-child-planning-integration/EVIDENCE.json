@@ -1,0 +1,79 @@
+{
+  "at": "2026-10-29T05:53:38.704700+00:00",
+  "source_at_checkpoint": "1097980c7eb86a88f679014c2242b8abc1231d61",
+  "branch": "codex/factory-child-planning-integration",
+  "approval": "AB-START-001",
+  "inbox_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "requirements": [
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-005",
+    "AB-TSK-012",
+    "AB-SEC-002",
+    "AB-SEC-003",
+    "AB-SEC-005",
+    "AB-SEC-010",
+    "AB-COR-002",
+    "AB-COR-007"
+  ],
+  "workspace": {
+    "source": "68940d76e07da13bc4845a7a962c4fab836809d3",
+    "outer_passed": 659,
+    "docs_passed": 7,
+    "nested_overlap_not_added": 5,
+    "failed": 0,
+    "seconds": 626.21,
+    "profile": "Linux TEST_DEBUG0 offline jobs2 serial; not Native workspace/Mac/liveProvider",
+    "post_tests_clippy": "exit101 type_complexity; preserved"
+  },
+  "lint_fix": {
+    "source": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
+    "change": "StoredPlanRow type alias only, no SQL/tuple-order/behavior change",
+    "clippy_exit": 0,
+    "fmt_exit": 0,
+    "not_claimed": "full659 rerun on f9a"
+  },
+  "frontend": {
+    "build_source": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
+    "typecheck_exit": 0,
+    "build_exit": 0,
+    "node_source": "ea6ca3b0b6e30782b66decd78f0d4c3d435ba634",
+    "node_passed": 733,
+    "test_files": 44,
+    "node_exit": 0
+  },
+  "native_first_run": {
+    "source": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
+    "exit": -15,
+    "reason": "200MiB disk guard during compile",
+    "tests_reached": 0,
+    "exact_original_tools_restored": true,
+    "tracked_before_after_equal": true,
+    "pending_fix": "dd2c29b changes exactly one current positive fixture schema13 to14; historical13 negatives remain"
+  },
+  "browser": {
+    "source": "0e1a4145e33f9cadf9f4da9095690b2fe293e578",
+    "independent_review_sha256": "ee281f08ac430e3f05e66a638d88f77e292d4c6f8fc56f5f8573277b26af5e1b",
+    "pure_controls": 94,
+    "additional_independent_controls": 11,
+    "actual_runtime": "not_run"
+  },
+  "composition_review": {
+    "sha256": "c4dd382cffff74b26f771c29fec2966e8abf3c37cf6122f6ca596155c9a50f9d",
+    "manifest_sha256": "b905237bda919d3669149898ee86b8a710a4b1042daaf7b316dcdcca441071d2",
+    "verdict": "SOURCE_READY_RUNTIME_PENDING"
+  },
+  "remaining": [
+    "new-head normal tools preparation and guarded Native Rust tests",
+    "fresh actual UI14/Core14 Unix IPC browser flow",
+    "real native OS Factory planning approval and dual Mac schema14 CI",
+    "child_goal_execution/create_workspace and all remaining full-design requirements",
+    "realProvider/remote/signing/manualinstall independently blocked or not_run"
+  ],
+  "full_product_complete": false
+}
