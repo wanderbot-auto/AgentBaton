@@ -66,13 +66,15 @@ fn actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_r
     // original children/depth ceilings before the separate Factory approval.
     // The base children0 Grant is never edited or silently upgraded.
     let base_grant = f.store.get_grant(&f.selection.grant_id).unwrap();
+    // The independent Native Goal approval establishes the same shared meter
+    // ceiling BEFORE Factory approval; a later scope must not raise/reset it.
+    f.selection.root_budget.output_bytes = 12288;
+    f.selection.project_budget.output_bytes = 12288;
     let _unexecuted_native = prepare_mixed_goal(&mut f);
     assert_eq!(
         json!(f.store.get_grant(&base_grant.id).unwrap()),
         json!(base_grant)
     );
-    f.selection.root_budget.output_bytes = 12288;
-    f.selection.project_budget.output_bytes = 12288;
     f.selection.capabilities.child_planning = true;
     f.selection.capabilities.child_goal_execution = true;
     f.selection.child_planning_policy = Some(FactoryChildPlanningPolicy {
