@@ -3,7 +3,7 @@ use super::*;
 
 pub(super) const AUTHORITY: &str = "factory_child_goal_execution_v1";
 
-pub(super) fn policy_limits(
+pub(crate) fn policy_limits(
     selection: &FactoryScopeSelection,
     policy: &FactoryChildGoalExecutionPolicy,
     grant: &crate::policy::ExecutionGrant,
@@ -49,7 +49,7 @@ pub(super) fn policy_limits(
     Ok(())
 }
 
-pub(super) fn resolve_binding(
+pub(crate) fn resolve_binding(
     selection: &FactoryScopeSelection,
     grant: &crate::policy::ExecutionGrant,
     planning: Option<&FactoryChildPlanningBinding>,
@@ -538,4 +538,31 @@ pub(crate) fn mark_queued(
         "factory.child_goal_queued",
         json!({"task_id":source.task.id,"goal_run_id":goal_run_id,"provider_started":false,"stop_confirmed":false,"task_accepted":false}),
     )
+}
+
+/// Reconstruct the host policy from real native Factory records and immutable
+/// target request. Persisted JSON is compared to this value, never deserialized
+/// into a host/approved policy type.
+pub(crate) fn expected_policy(
+    db: &Connection,
+    scope_id: &str,
+    task_id: &str,
+) -> Result<crate::goal_plan::HostGoalPolicy> {
+    let scope = checked_scope(db, scope_id)?;
+    let execution = approved_binding(&scope)?;
+    let r = run(db, scope_id)?;
+    let target = binding(db, &r.id, task_id)?;
+    let lineage = lineage(db, task_id)?;
+    let mut policy = child_plan::host_policy(&scope, &target)?;
+    policy.max_nodes = execution.policy.max_nodes;
+    policy.max_depth = scope
+        .bindings
+        .approved_grant
+        .scope
+        .max_depth
+        .checked_sub(lineage.depth)
+        .ok_or_else(denied)?;
+    policy.root_budget = intersect_budget(&target.request.budget, &execution.policy.root_budget);
+    policy.project_budget = execution.policy.project_budget.clone();
+    Ok(policy)
 }

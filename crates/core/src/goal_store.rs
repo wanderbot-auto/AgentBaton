@@ -1047,9 +1047,19 @@ fn host_policy(s: &GoalScopeSelection, r: &GoalRefs) -> Result<HostGoalPolicy> {
         acceptance_rules: BTreeSet::from([OWNER_RULE.into()]),
     })
 }
-fn policy_for_record(record: &ScopeRecord) -> Result<HostGoalPolicy> {
+fn policy_for_record(db: &Connection, record: &ScopeRecord) -> Result<HostGoalPolicy> {
     match &record.factory_origin {
-        Some(origin) => Ok(origin.policy.clone()),
+        Some(origin) => {
+            let policy = crate::factory::expected_child_goal_policy(
+                db,
+                &origin.factory_scope_id,
+                &record.refs.task_id,
+            )?;
+            if json!(policy) != origin.policy {
+                return Err(changed());
+            }
+            Ok(policy)
+        }
         None => host_policy(&record.selection, &record.refs),
     }
 }
@@ -1073,12 +1083,12 @@ fn input_rule(record: &ScopeRecord) -> &str {
         INPUT_RULE
     }
 }
-fn approved_scope(task: &Task, record: &ScopeRecord) -> Result<ApprovedGoalScope> {
+fn approved_scope(db: &Connection, task: &Task, record: &ScopeRecord) -> Result<ApprovedGoalScope> {
     if let Some(origin) = &record.factory_origin {
         return ApprovedGoalScope::from_verified_factory(
             task,
             &record.refs.grant_after,
-            origin.policy.clone(),
+            policy_for_record(db, record)?,
             &record.approval_id,
             origin.approval_revision,
             &origin.planning_policy_digest,
@@ -1097,8 +1107,12 @@ fn approved_scope(task: &Task, record: &ScopeRecord) -> Result<ApprovedGoalScope
     .bind_native_goal_approval(&record.approval_id)
     .map_err(plan_error)
 }
-fn scope_view(record: &ScopeRecord, scope: &ApprovedGoalScope) -> Result<GoalScopeView> {
-    let view = recorded_scope_view(record)?;
+fn scope_view(
+    db: &Connection,
+    record: &ScopeRecord,
+    scope: &ApprovedGoalScope,
+) -> Result<GoalScopeView> {
+    let view = recorded_scope_view(db, record)?;
     if view.goal != *scope.goal() || view.scope_digest != scope.digest() {
         return Err(changed());
     }
@@ -1106,8 +1120,8 @@ fn scope_view(record: &ScopeRecord, scope: &ApprovedGoalScope) -> Result<GoalSco
 }
 /// Plain recorded data, not a reconstructed execution authority. In particular,
 /// historical reads never backdate host time or mint an expired scope token.
-fn recorded_scope_view(record: &ScopeRecord) -> Result<GoalScopeView> {
-    let p = policy_for_record(record)?;
+fn recorded_scope_view(db: &Connection, record: &ScopeRecord) -> Result<GoalScopeView> {
+    let p = policy_for_record(db, record)?;
     let edit_context = GoalPlanEditingContext {
         max_nodes: record.selection.max_nodes,
         writable_prefixes: record.selection.writable_prefixes.clone(),
@@ -1133,7 +1147,7 @@ fn recorded_scope_view(record: &ScopeRecord) -> Result<GoalScopeView> {
     let connection_id = record.refs.connection["id"].as_str().ok_or_else(changed)?;
     let c = &record.refs.grant_after.connection_bindings[connection_id];
     let binding = ExecutionBinding {
-        connection_id: connection_id.clone(),
+        connection_id: connection_id.to_owned(),
         environment_id: c.environment_id.clone(),
         identity_ref: c.identity_ref.clone(),
         host_id: c.host_id.clone(),
@@ -1350,7 +1364,7 @@ fn read_scope(
             }
         }
     }
-    let scope = approved_scope(&task, &r)?;
+    let scope = approved_scope(db, &task, &r)?;
     if scope.digest() != r.scope_digest {
         return Err(changed());
     }
@@ -1581,9 +1595,9 @@ impl Store {
             created_at: now()?,
         };
         let task: Task = raw(&tx, "tasks", &record.refs.task_id)?;
-        let scope = approved_scope(&task, &record)?;
+        let scope = approved_scope(&tx, &task, &record)?;
         record.scope_digest = scope.digest().into();
-        let view = scope_view(&record, &scope)?;
+        let view = scope_view(&tx, &record, &scope)?;
         tx.execute("INSERT INTO goal_scopes(id,task_id,root_grant_id,revision,revoked,document) VALUES(?1,?2,?3,1,0,?4)",params![id,record.refs.task_id,record.refs.grant_after.id,encode(&record)?]).map_err(db_error)?;
         p.consumed = true;
         p.revision = p.revision.checked_add(1).ok_or_else(limited)?;
@@ -1727,7 +1741,7 @@ fn stored_scope_view(db: &Connection, id: &str) -> Result<GoalScopeView> {
     {
         return Err(changed());
     }
-    let view = recorded_scope_view(&r)?;
+    let view = recorded_scope_view(db, &r)?;
     let mut approved = view.clone();
     approved.revision = 1;
     approved.revoked = false;

@@ -14,7 +14,7 @@ pub(crate) struct FactoryGoalOrigin {
     pub(crate) execution_policy_digest: String,
     pub(crate) planning_policy_digest: String,
     pub(crate) initial_plan: FactoryChildPlanRef,
-    pub(crate) policy: HostGoalPolicy,
+    pub(crate) policy: Value,
     pub(crate) approval_revision: u64,
     pub(crate) expires_at_ms: i64,
 }
@@ -44,7 +44,7 @@ fn commitment(record: &DerivedRecord) -> Result<String> {
         .remove("receipt_sequence");
     sha(&v)
 }
-pub(super) fn marked_scope(db: &Connection, scope_id: &str) -> Result<bool> {
+pub(crate) fn marked_scope(db: &Connection, scope_id: &str) -> Result<bool> {
     db.query_row("SELECT EXISTS(SELECT 1 FROM goal_scopes WHERE id=?1 AND json_type(document,'$.factory_origin') IS NOT NULL AND json_type(document,'$.factory_origin')!='null')",[scope_id],|r|r.get(0)).map_err(db_error)
 }
 pub(super) fn marked_run(db: &Connection, id: &str) -> Result<bool> {
@@ -62,8 +62,9 @@ fn checked_record(db: &Connection, id: &str) -> Result<DerivedRecord> {
     if rows > MAX_STORED_BYTES {
         return Err(limited());
     }
-    let stored:Option<(String,String,u64)>=db.query_row("SELECT document,record_digest,receipt_sequence FROM factory_child_goal_runs WHERE goal_run_id=?1",[id],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).optional().map_err(db_error)?;
-    let (doc, digest, seq) = stored.ok_or_else(denied)?;
+    let stored:Option<(String,String,i64)>=db.query_row("SELECT document,record_digest,receipt_sequence FROM factory_child_goal_runs WHERE goal_run_id=?1",[id],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).optional().map_err(db_error)?;
+    let (doc, digest, raw_seq) = stored.ok_or_else(denied)?;
+    let seq = u64::try_from(raw_seq).map_err(|_| changed())?;
     let record: DerivedRecord = decode(&doc)?;
     let s = crate::factory::checked_child_goal_scope(db, &record.origin.factory_scope_id)?;
     let execution = s
@@ -181,7 +182,7 @@ pub(super) fn capability(db: &Connection, r: &GoalRun) -> Result<graph::GraphAut
         snapshot: record.snapshot,
     })
 }
-pub(super) fn historical_scope(db: &Connection, id: &str) -> Result<GoalScopeView> {
+pub(crate) fn historical_scope(db: &Connection, id: &str) -> Result<GoalScopeView> {
     let run_id: String = db
         .query_row(
             "SELECT goal_run_id FROM factory_child_goal_runs WHERE goal_scope_id=?1",
@@ -194,7 +195,7 @@ pub(super) fn historical_scope(db: &Connection, id: &str) -> Result<GoalScopeVie
     if record.scope_id != id {
         return Err(changed());
     }
-    recorded_scope_view(&scope)
+    recorded_scope_view(db, &scope)
 }
 pub(super) fn live_scope(
     db: &Connection,
@@ -243,7 +244,7 @@ pub(super) fn live_scope(
     if original != scope.refs.grant_after {
         return Err(changed());
     }
-    let approved = approved_scope(&task, &scope)?;
+    let approved = approved_scope(db, &task, &scope)?;
     let (_, plan) = current_plan(db, &r.scope_id, &approved)?;
     if require_head && (plan.digest != r.plan_digest || plan.proposal.revision != r.plan_revision) {
         return Err(err(
@@ -319,7 +320,7 @@ pub(crate) fn verify_native_history_before_migration(db: &Connection) -> Result<
             return Err(changed());
         }
         let digest = sha(&proposal.snapshot)?;
-        let (confirmed,authorized):(Option<u64>,Option<u64>)=db.query_row("SELECT (SELECT min(sequence) FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.kind')='approval.confirmed' AND json_extract(document,'$.payload.kind')=?2 AND json_extract(document,'$.payload.run_id')=?1 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3),(SELECT min(sequence) FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.run_authorized' AND json_extract(document,'$.payload.scope_id')=?4 AND json_extract(document,'$.payload.plan_digest')=?5 AND json_extract(document,'$.payload.plan_revision')=?6 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3 AND json_extract(document,'$.payload.reservation_made')=0 AND json_extract(document,'$.payload.dispatched')=0)",params![r.id,proposal.kind,digest,r.scope_id,initial["plan_digest"].as_str().ok_or_else(changed)?,initial["plan_revision"].as_u64().ok_or_else(changed)?],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+        let (confirmed,authorized):(Option<i64>,Option<i64>)=db.query_row("SELECT (SELECT min(sequence) FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.kind')='approval.confirmed' AND json_extract(document,'$.payload.kind')=?2 AND json_extract(document,'$.payload.run_id')=?1 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3),(SELECT min(sequence) FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.run_authorized' AND json_extract(document,'$.payload.scope_id')=?4 AND json_extract(document,'$.payload.plan_digest')=?5 AND json_extract(document,'$.payload.plan_revision')=?6 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3 AND json_extract(document,'$.payload.reservation_made')=0 AND json_extract(document,'$.payload.dispatched')=0)",params![r.id,proposal.kind,digest,r.scope_id,initial["plan_digest"].as_str().ok_or_else(changed)?,sql_num(initial["plan_revision"].as_u64().ok_or_else(changed)?)?],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
         if !matches!((confirmed,authorized),(Some(a),Some(b)) if a>0&&b>a) {
             return Err(denied());
         }
@@ -357,7 +358,7 @@ impl Store {
             execution_policy_digest: execution.definition_digest.clone(),
             planning_policy_digest: execution.planning_policy_digest.clone(),
             initial_plan: selected.reference.clone(),
-            policy: source.host_policy.clone(),
+            policy: json!(source.host_policy),
             approval_revision: 1,
             expires_at_ms: source.scope.expires_at_ms,
         };
@@ -457,13 +458,13 @@ impl Store {
                 expected_grant_revision: source.scope.root_grant_revision,
                 max_nodes: execution.policy.max_nodes,
                 new_max_children: source.scope.bindings.approved_grant.scope.max_children,
-                new_max_depth: origin.policy.max_depth,
+                new_max_depth: source.host_policy.max_depth,
                 root_budget: execution.policy.root_budget.clone(),
                 project_budget: execution.policy.project_budget.clone(),
                 inputs: refs.inputs.iter().map(|i| i.artifact.clone()).collect(),
                 outputs,
-                writable_prefixes: origin
-                    .policy
+                writable_prefixes: source
+                    .host_policy
                     .workspaces
                     .values()
                     .flat_map(|w| w.writable_prefixes.clone())
@@ -481,7 +482,7 @@ impl Store {
             scope_digest: origin.planning_policy_digest.clone(),
             created_at: now()?,
         };
-        let approved = approved_scope(&source.task, &record)?;
+        let approved = approved_scope(&self.conn, &source.task, &record)?;
         let plan = ValidatedPlan::from_verified_factory_saved(&approved, selected.proposal.clone())
             .map_err(plan_error)?;
         if plan.digest() != selected.reference.plan_digest {
@@ -513,7 +514,7 @@ impl Store {
             state: "validated_proposal".into(),
             dispatched: false,
         };
-        let snapshot = json!({"graph_contract_version":1,"factory_origin":origin,"scope":recorded_scope_view(&record)?,"root_grant":record.refs.grant_after,"existing_connection":connection_summary(&record.refs)?,"plan":plan_view,"definition_reuse":graph::definition_permissions(&record)?,"execution":"factory_child_goal_graph_v1_existing_workspace","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"subject_rebinding":{"mode":"this_run_current_plan_owned_producer_only","requires_owned_stop_and_capture":true,"allows_legacy_candidate_backfill":false},"budgets":{"root":execution.policy.root_budget,"project":execution.policy.project_budget},"io_limits":{"max_total_artifact_bytes":16777216,"max_artifact_refs":64,"cancel_requires_actual_join":true,"timeout_without_join_is_unknown":true},"native_factory_approval_id":source.scope.approval_id});
+        let snapshot = json!({"graph_contract_version":1,"factory_origin":origin,"scope":recorded_scope_view(&self.conn,&record)?,"root_grant":record.refs.grant_after,"existing_connection":connection_summary(&record.refs)?,"plan":plan_view,"definition_reuse":graph::definition_permissions(&record)?,"execution":"factory_child_goal_graph_v1_existing_workspace","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"subject_rebinding":{"mode":"this_run_current_plan_owned_producer_only","requires_owned_stop_and_capture":true,"allows_legacy_candidate_backfill":false},"budgets":{"root":execution.policy.root_budget,"project":execution.policy.project_budget},"io_limits":{"max_total_artifact_bytes":16777216,"max_artifact_refs":64,"cancel_requires_actual_join":true,"timeout_without_join_is_unknown":true},"native_factory_approval_id":source.scope.approval_id});
         let caller_task = caller
             .as_ref()
             .map_or(source.task.id.clone(), |c| c.0.clone());

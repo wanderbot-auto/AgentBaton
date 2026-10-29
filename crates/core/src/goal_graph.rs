@@ -2232,7 +2232,10 @@ impl Store {
             plan_revision: r.plan_revision,
             plan_digest: r.plan_digest.clone(),
             node_id: n.node.id.clone(),
-            rule_id: owner_rule(&record).into(),
+            rule_id: p.snapshot["criterion"]["rule_id"]
+                .as_str()
+                .ok_or_else(changed)?
+                .into(),
             criterion_digest: p.snapshot["criterion"]["criterion_digest"]
                 .as_str()
                 .ok_or_else(changed)?
@@ -2901,7 +2904,7 @@ fn node_acceptance_state(
             .node
             .required_validators
             .iter()
-            .any(|v| v != owner_rule(record) && v != input_rule(record))
+            .any(|v| v != owner_rule(&record) && v != input_rule(&record))
             && rules_satisfied(&record, &n.node, &refs, validations, owners, true)
         {
             "validated"

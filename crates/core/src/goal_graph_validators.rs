@@ -313,7 +313,7 @@ impl Store {
                 consumed.push(item);
             }
         }
-        let binding = scope_view(&record, &scope)?.binding;
+        let binding = scope_view(&self.conn, &record, &scope)?.binding;
         let task = self.get(&r.task_id)?;
         let lease = self
             .workspace_lease(&record.refs.workspace.id)?

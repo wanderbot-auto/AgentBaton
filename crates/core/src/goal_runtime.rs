@@ -361,7 +361,7 @@ fn snapshot_base(
     require_metered_capabilities(&plan.proposal)?;
     // A complete plan is reviewed; neither IDs nor a digest-only surrogate grant
     // unseen nodes or permissions. Large owner reviews must use a separate UI design.
-    let v = json!({"intent":s,"scope":scope_view(&r,&scope)?,"root_grant":r.refs.grant_after,"existing_connection":connection_summary(&r.refs)?,"plan":plan,"execution":"bounded_existing_workspace_only","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"warning":"Approve autonomous execution of this plan and later validated versions within this exact Goal scope, fixed inputs/capabilities and shared cumulative budgets. Each version requires exact Store compare-and-swap and retained lineage. No new workspace, identity, host or recipient is granted. Node completion is only candidate evidence. Unknown effects and budget overrun block further execution. Output accounting observes declared selected artifacts at stop; it is not an OS filesystem quota."});
+    let v = json!({"intent":s,"scope":scope_view(db,&r,&scope)?,"root_grant":r.refs.grant_after,"existing_connection":connection_summary(&r.refs)?,"plan":plan,"execution":"bounded_existing_workspace_only","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"warning":"Approve autonomous execution of this plan and later validated versions within this exact Goal scope, fixed inputs/capabilities and shared cumulative budgets. Each version requires exact Store compare-and-swap and retained lineage. No new workspace, identity, host or recipient is granted. Node completion is only candidate evidence. Unknown effects and budget overrun block further execution. Output accounting observes declared selected artifacts at stop; it is not an OS filesystem quota."});
     Ok(v)
 }
 fn snapshot(
@@ -461,7 +461,7 @@ impl Store {
         }
         if plan.proposal.revision != s.expected_plan_revision
             || p.snapshot["plan"] != json!(plan)
-            || p.snapshot["scope"] != json!(scope_view(&scope_record, &scope)?)
+            || p.snapshot["scope"] != json!(scope_view(&tx, &scope_record, &scope)?)
             || p.snapshot["root_grant"] != json!(scope_record.refs.grant_after)
             || p.snapshot["existing_connection"] != connection_summary(&scope_record.refs)?
         {
@@ -793,7 +793,7 @@ fn checked_runtime_scope_at(
             return Err(changed());
         }
     }
-    let scope = approved_scope(&task, &record)?;
+    let scope = approved_scope(db, &task, &record)?;
     let (_, plan) = current_plan(db, &r.scope_id, &scope)?;
     require_output_mappings(&record.selection, &plan.proposal)?;
     require_metered_capabilities(&plan.proposal)?;
@@ -1087,7 +1087,7 @@ fn reserve_attempt(
     let expected = match &n.node.executor {
         Executor::Connection { binding, .. } => binding.as_ref().clone(),
         Executor::Validator { .. } if graph::is_graph_run(db, &r.id)? => {
-            scope_view(&scope, &approved)?.binding
+            scope_view(db, &scope, &approved)?.binding
         }
         _ => return Err(denied()),
     };

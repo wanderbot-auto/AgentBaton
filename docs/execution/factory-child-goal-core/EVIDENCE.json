@@ -21,7 +21,21 @@
     "AB-COR-002",
     "AB-COR-007"
   ],
-  "cargo": "single_check_only_lease_granted_result_pending",
+  "cargo": {
+    "source": "e363569d0d397ed07de5e7403f978fc496741e18",
+    "result": "failed",
+    "exit_code": 101,
+    "wall_seconds": 8.085,
+    "errors": 21,
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/check-3",
+    "setup_failures": [
+      "check-1",
+      "check-2"
+    ],
+    "source_and_old_tool_metadata_unchanged": true,
+    "lease": "released",
+    "source_fixes": "not_recompiled"
+  },
   "runtime": "not_operational_IPC_MCP_execution_not_registered",
   "native": "not_run",
   "macos": "not_run",
@@ -36,7 +50,7 @@
     "does_not_prove": "Rust Store migration, native Goal provenance, derived Graph runtime"
   },
   "rust_policy_tests": {
-    "written": 4,
+    "written": 5,
     "status": "not_run"
   },
   "pending": [

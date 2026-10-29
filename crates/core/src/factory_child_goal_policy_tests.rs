@@ -132,3 +132,29 @@ fn derived_execution_policy_cannot_reset_shared_budget_or_claim_unknown_meter() 
         .cost_microunits = Some(1);
     assert!(resolve(&s, &scope).is_err());
 }
+
+#[test]
+fn recorded_schema14_factory_scope_roundtrips_without_new_authority_or_fresh_counts() {
+    let original: serde_json::Value = serde_json::from_str(include_str!(
+        "../tests/fixtures/factory_actual_parent_yield.json"
+    ))
+    .unwrap();
+    let original_scope = original["scope"].clone();
+    let scope: FactoryScope = serde_json::from_value(original_scope.clone()).unwrap();
+    assert_eq!(json!(scope), original_scope);
+    assert!(!scope.selection.capabilities.child_goal_execution);
+    assert!(scope.selection.child_goal_execution_policy.is_none());
+    assert!(scope.bindings.child_goal_execution.is_none());
+    assert_eq!(
+        crate::factory::store::sha(
+            &json!({"schema_version":1,"selection":scope.selection,"bindings":scope.bindings})
+        )
+        .unwrap(),
+        scope.contract_digest
+    );
+    // Counts are a separate fresh schema15 readonly response, never inserted
+    // into the original FactoryScope approval/result serialization.
+    assert!(!serde_json::to_string(&scope)
+        .unwrap()
+        .contains("child_goal_runs"));
+}

@@ -926,11 +926,11 @@ impl Store {
             .query_row(
                 "SELECT count(*) FROM factory_child_goal_runs WHERE root_task_id=?1",
                 [root_task_id],
-                |r| r.get::<_, u64>(0),
+                |r| r.get::<_, i64>(0),
             )
             .map_err(db_error)?;
         Ok(FactoryRecordCounts {
-            child_goal_runs,
+            child_goal_runs: u64::try_from(child_goal_runs).map_err(|_| changed())?,
             child_plan_heads,
             child_plan_revisions,
             scopes,

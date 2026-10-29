@@ -2201,3 +2201,5 @@ pub(crate) use child_goal::ancestor_budgets as child_goal_ancestor_budgets;
 pub(crate) use child_goal::verify_target_request as verify_child_goal_target_request;
 
 pub(crate) use child_goal::mark_queued as mark_child_goal_queued;
+
+pub(crate) use child_goal::expected_policy as expected_child_goal_policy;

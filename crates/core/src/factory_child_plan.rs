@@ -88,9 +88,7 @@ pub(crate) fn resolve_binding(
     let Some(p) = &s.child_planning_policy else {
         return Ok(None);
     };
-    if !s.capabilities.child_planning
-        || s.capabilities.create_workspace
-    {
+    if !s.capabilities.child_planning || s.capabilities.create_workspace {
         return Err(denied());
     }
     policy_limits(s, p)?;
@@ -665,7 +663,10 @@ pub(super) fn recorded_context(
     Ok(view)
 }
 impl Store {
-    fn factory_child_read_task(db: &Connection, id: &str) -> Result<crate::storage::Task> {
+    pub(super) fn factory_child_read_task(
+        db: &Connection,
+        id: &str,
+    ) -> Result<crate::storage::Task> {
         let raw:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM tasks WHERE id=?1",[id],|r|r.get(0)).optional().map_err(db_error)?;
         decode(&raw.flatten().ok_or_else(changed)?)
     }
@@ -709,7 +710,10 @@ impl Store {
         mutable_target(&self.conn, &caller.scope, &target)?;
         self.prepare_factory_child_plan_read(&caller.scope, raw)
     }
-    fn require_factory_child_plan_observation(&self, scope: &FactoryScope) -> Result<()> {
+    pub(super) fn require_factory_child_plan_observation(
+        &self,
+        scope: &FactoryScope,
+    ) -> Result<()> {
         if !self
             .data_input
             .as_ref()
