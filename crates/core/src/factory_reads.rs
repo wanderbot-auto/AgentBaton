@@ -1546,7 +1546,7 @@ mod tests {
         assert!(readonly
             .execute("INSERT INTO events(document) VALUES('{}')", [])
             .is_err());
-        assert!(readonly.execute_batch("PRAGMA user_version=14;").is_err());
+        assert!(readonly.execute_batch("PRAGMA user_version=15;").is_err());
         assert!(readonly
             .execute_batch("CREATE TABLE cannot_create(value TEXT);")
             .is_err());
@@ -1556,7 +1556,7 @@ mod tests {
                 .conn
                 .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
                 .unwrap(),
-            13
+            14
         );
     }
     #[test]
