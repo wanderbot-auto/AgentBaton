@@ -1,0 +1,5 @@
+# schema14 CI and legacy harness alignment
+
+Base `1f325d80561ea48301f5f72b2ecf4c7c9745efb9`; sparse isolated branch `codex/factory-child-planning-ci`. Requirements AB-TSK-009/011, AB-SEC-003, AB-COR-002. This leaf aligns current-schema evidence gates, not implementation or acceptance of child planning.
+
+Only candidate schema, strict current/future guards/labels, two child-plan zero-table observations and the Native eleven-counter contract change. Preserve original nine Factory counters and original19 session/attempt/Goal zero tables, all original assertions, all four scoped tools, HTTP boundaries, observers, operation limits, CI60/check names/hosts/steps and twelve legacy plus three Factory flows with aggregate failure. Use complete-source inverse-byte proof and finite/Python controls, then independent review. Root composes actual schema14 source/tools and separate causal browser fix before runtime/CI validation. No Cargo/browser/old13-as14/Provider/accounts/target/Native Rust/Core/UI/locks/STATUS changes.
