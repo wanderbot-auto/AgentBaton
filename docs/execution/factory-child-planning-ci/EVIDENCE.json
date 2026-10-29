@@ -250,4 +250,102 @@
     "complete product"
   ],
   "permissions": "Only authorized ten sources and own four records; no Cargo/target/remote/product Core/Native Rust/UI/lock/gate/STATUS mutation"
+,
+  "tools_prebuild_followup": {
+    "state": "source frozen; author finite/Python checks passed; independent review and precise integratedCI pending",
+    "source_commit": "6ab36d95c46d59725938d2ef233ecf71a47c5d40",
+    "source_tree": "4023b567a5b586b5be6cd22ab012461a293cfae1",
+    "base": "fdb900e73fe37bfeaea223233a4c4a5e7b1e90b1",
+    "changes": [
+      {
+        "path": ".github/workflows/product.yml",
+        "bytes": 13389,
+        "sha256": "fcb915d9cdce919c843967e063f5756de19e834b00b5cf7789a8c61c2e89ee87"
+      },
+      {
+        "path": "scripts/prepare-factory-test-tools.py",
+        "bytes": 9567,
+        "sha256": "ff88bc8dd1078ac2ee592b1e8f583764851fb77f4c5e6686eda6b3fd9da4368a"
+      },
+      {
+        "path": "tests/infrastructure/test_factory_test_tools.py",
+        "bytes": 12321,
+        "sha256": "ddbbea8fb4dbe0af37e3e43d22a84fc3fbe66809e002a9c46d4493021ff06f3a"
+      }
+    ],
+    "workflow_added_lines": 16,
+    "historical745_and_fdb": "kept as prior scope; original complete-current-file schema-only inverse claim does not cover new prebuild design",
+    "tests": {
+      "infrastructure_python": {
+        "count": 49,
+        "unchanged_original": 34,
+        "new": 15,
+        "exit": 0
+      },
+      "infrastructure_node": {
+        "count": 4,
+        "exit": 0
+      },
+      "finite": {
+        "count": 163,
+        "exit": 0
+      },
+      "infra_validator": {
+        "workflows": 2,
+        "pins": 15,
+        "exit": 0
+      },
+      "diff_check": {
+        "exit": 0
+      }
+    },
+    "actual_linux_probes": {
+      "tool_compiled_source_commit": "92658e4cecd74517371aaf47c5ce0f7de38e0eb0",
+      "tool_git_tree": "dca6c27b8d261c022f341486488665fbc1f8d653",
+      "daemon_sha256": "64d0a247a2eb15d4fe194cc6d5e34bf26bdf88e5fb73bf2b33763396760d2c05",
+      "cli_sha256": "f25c935666d13b0443a2837530fa3a7e249d3f2d703c42c3404ac7566068dda9",
+      "second_actual_helper_sha256": "41406c4d2090f107a1d79959dbd2c0df94c720a7dedc1da9c947f9910279da38",
+      "second_actual_report_sha256": "aedefc8b3d28503eacf42b9c2e607f1fc4516fedfceac7e3bac51e892fa19378",
+      "source_and_frozen_hashes_before_after": "equal",
+      "runtime_mode": "0o700",
+      "socket_utf8_bytes": 30,
+      "snapshot_api_version": 1,
+      "database_schema": 14,
+      "eleven_factory_counts": 0,
+      "snapshot_and_database_sequence": 0,
+      "snapshot_exit": 0,
+      "sigterm_sent": true,
+      "wait_exit": 0,
+      "forced_kill": false,
+      "owned_pid_gone": true,
+      "final_source_limitation": "Only sha256 function changed to portable streaming after actual414 probe; other runtime AST identical. Complete final-helper probe stopped at HEAD preflight before binary reads/Popen when Core docsHEAD changed; NOT_RUN, not runtime failure."
+    },
+    "archive": {
+      "path": "/workspace/.onboarding/factory-child-planning-ci/tools-prebuild/EVIDENCE.tar.gz",
+      "bytes": 39659,
+      "sha256": "f2cdd631f02323c9826692ca1bfd8a2fcd6aebc08144b4185f3528de44a8d72d",
+      "manifest_sha256": "e91d694b366bb8fa3633ce8a58fa2f76b807f2675b1bab5f324654567addb444",
+      "payload_members": 57,
+      "total_regular_members": 58,
+      "roundtrip": true,
+      "binary_files_in_archive": false
+    },
+    "retained_failures": {
+      "initial_unit_error": "first15predecessor14 fixture attempted unlink already-missing file; original source+actual tool result retained in initial-unit-error.json",
+      "first_full48": "1FAIL6ERROR: 5 missing sparsespec/reference/STATUS errors + design missingspec failure + Mock PID omitted during cleanup JSON; raw full stdout/stderr retained. Read-only sparse dependencies restored; mock PID fixed. No old test deletion or limit change.",
+      "final_counts": "49Python=34unchanged+15new,4existingNode;163finite;infra2/15;all exit0",
+      "probes": "first25c and second414 really ran with actual92658 normal private tools. Exact SHA source snapshots reconstructed from the known inverse source operations and checked against actual recorded script SHA, then stored; not a claim they were saved before execution. Final third attempt stopped at frozenHEAD preflight before tool-hash reads/Popen because Core had added docs60d; outer shell tool exit0 due following cat, inner uncaught AssertionError traceback retained, no captured innerreturncode claim. No old13fallback.",
+      "probe_evidence": "Only normal current14ELF copies were executed; generated copy fixtures in unit tests never executed. Their mocked probe replies solely isolate guard/cleanup rejection and cannot establish realCore success. Actual toolELF copies excluded from archive; metadata/hashes/raw private output included.",
+      "future": "macOS execution, clean samecandidate CI prebuild/fullworkspace/Native/fullbrowser and new child-planning e2e not run by leaf"
+    },
+    "not_run": [
+      "local Cargo/shared targets",
+      "exact final integrated CI/workspace build tests",
+      "final helper complete daemon execution after portablehash-onlydelta",
+      "macOS/NativeRust/WebView/OSdialogs/release packaging audit",
+      "12legacy+3Factory actual browser flows under newcandidate",
+      "new child-planning end-to-end",
+      "real Provider/model/credentials/remote actions"
+    ]
+  }
 }
