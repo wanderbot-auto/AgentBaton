@@ -17,6 +17,11 @@ pub use runtime_config::RuntimeBinding;
 pub mod sessions;
 pub mod storage;
 pub mod validation;
+mod workspace_resolution;
+pub use workspace_resolution::{
+    CodeWorkspaceCandidateInfo, CodeWorkspacePreparation, CodeWorkspacePreparationReason,
+    CodeWorkspacePreparationRequest, CodeWorkspacePreparationState,
+};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
