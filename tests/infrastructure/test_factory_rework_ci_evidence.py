@@ -66,7 +66,9 @@ CREATE TABLE goal_graph_validations(run_id TEXT,plan_revision INTEGER,document T
 
 class Fixture:
     def __init__(self, root):
-        self.root = root / 'evidence'
+        # tempfile may return a platform alias (macOS /var -> /private/var).
+        # Resolve only our generated fixture root, never collector input.
+        self.root = root.resolve(strict=True) / 'evidence'
         self.root.mkdir(mode=0o755)
         self.case = self.root / 'rework-12345678-1234-4234-8234-123456789abc'
         self.case.mkdir(mode=0o700)
@@ -123,6 +125,20 @@ class Projection(unittest.TestCase):
         self.assertEqual(case['post_shutdown']['node_counts']['2:owner_approval:awaiting_owner'], 1)
         self.assertEqual(len(case['post_shutdown']['validation_counts']), 2)
         self.assertEqual(before, {p.name: p.read_bytes() for p in self.f.case.iterdir()})
+
+    def test_fixture_canonicalizes_owned_temp_alias_but_collector_still_refuses_it(self):
+        base = Path(self.temp.name).resolve(strict=True)
+        physical = base / 'physical-temp-root'
+        physical.mkdir(mode=0o700)
+        alias = base / 'generated-var-alias'
+        alias.symlink_to(physical, target_is_directory=True)
+        fixture = Fixture(alias)
+        self.assertEqual(fixture.root, physical / 'evidence')
+        self.assertEqual(P.collect(str(fixture.root))['status'], 'collected_post_shutdown')
+        refused = P.collect(str(alias / 'evidence'))
+        self.assertEqual(refused['status'], 'invalid')
+        self.assertEqual(refused['code'], 'INVALID_EVIDENCE_ROOT')
+        self.assertEqual(refused['cases'], [])
 
     def test_missing_root_case_and_scalar_are_pending_not_pass(self):
         self.assertEqual(P.collect(str(self.f.root / 'missing'))['status'], 'pending')
