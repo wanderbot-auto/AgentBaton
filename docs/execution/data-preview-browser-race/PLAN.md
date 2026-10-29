@@ -17,3 +17,7 @@ Root separately authorized explicit --preview-evidence adaptation for the nondef
 ## Absolute ready deadline review follow-up — 2026-10-29T19:24:21.032282+00:00
 
 Independent review requires the new ready observation to reject a result read after its fixed15s deadline. Use one dedicated absolute-deadline helper only in that gate path; do not change the old global wait, natural-race handling, Core30s, budgets or write behavior. Retain prior counterexample and all25 earlier test bytes.
+
+## Actual two-column event schema correction — 2026-10-29T19:42:40.268881+00:00
+
+Actual gated run exposed an author SQL/schema error in the new readonly preview commitment query. Correct only that function to read the real events(sequence,document) layout and add an inert SQLite regression using that exact table layout; preserve cancel/stop/terminal/order/CAS/source conditions, all old tests and original failed run. No product execution by this author.

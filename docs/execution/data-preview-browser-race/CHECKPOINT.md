@@ -17,3 +17,7 @@ Sourcee552a37d207ff310a11b9aac6e58740a73522bba frozen for independent review; tr
 ## Absolute ready deadline review follow-up — 2026-10-29T19:24:21.032282+00:00
 
 Source11ab56b4bd0798b3c071db48d3333410c0e84f68 frozen; author evidence /workspace/.onboarding/data-preview-browser-race/preview-ready-deadline-follow-up. Prior e552 source/25pure/sourceNOTRUN and independent deadline counterexample remain immutable. Native reviewer has fixed source for narrow closure. Real feature+flag/Core/browser integration remains NOT_RUN; Root owns subsequent review/execution and failure retention. No retry/newkey/release hook or policy increase.
+
+## Actual two-column event schema correction — 2026-10-29T19:42:40.268881+00:00
+
+Fix-only source d39e78626694abd97a3ad32197f307f6415bffea frozen; /workspace/.onboarding/data-preview-browser-race/event-document-follow-up holds source/schema map, original failure finite attribution and pure logs. Root392 driver was byte-identical to the old11ab driver, confirming original failure source. Old gated run is still wholeFAIL; actual ready observation does not establish completion. Root controls subsequent review and one new output/run; no retry/timeout/budget/gate weakening or private DB/RPC/Grant copy.

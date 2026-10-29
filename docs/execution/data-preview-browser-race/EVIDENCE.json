@@ -228,5 +228,83 @@
     "late_observation_rejected": true,
     "hard_OS_IO_interruption_claimed": false,
     "Core_budget_and_natural_race_unchanged": true
+  },
+  "event_document_schema_follow_up": {
+    "recorded_at_utc": "2026-10-29T19:41:35.944705+00:00",
+    "base_source": "11ab56b4bd0798b3c071db48d3333410c0e84f68",
+    "entire_driver_inverse_outside_commitment_function": true,
+    "all_original_36_tests_three_files_entire_byte_equal": true,
+    "new_inert_SQLite_test_count": 11,
+    "total_pure_test_count": 47,
+    "compile_5_files": "PASS in memory",
+    "source_schema_binding": {
+      "Core_commit": "39245be",
+      "events_columns": [
+        "sequence",
+        "document"
+      ],
+      "revision_kind_payload_aggregate_id": "JSON fields inside document",
+      "storage_source_sha256": "60996f4587d4d021496e6ae6897b12c9937d1dd4cf1e2002ecadc0494762a1d2"
+    },
+    "original_actual_failure": {
+      "report_sha256": "7306414b3aab19644743180cbabca18df05221a716fd9da692142611a9744326",
+      "log_sha256": "3184c2dbb3d8126c9b65842f7066a8c8b40f20ec882f78c44dbf7606675d5ea6",
+      "status": "failed_or_interrupted",
+      "checks_passed": 4,
+      "failure_type": "OperationalError",
+      "failure_message": "no such column: revision",
+      "actual_ready_recorded": true,
+      "retained_DB_read": false,
+      "retained_DB_available": false,
+      "old_driver_Root392_byte_matches_base": true,
+      "daemon_sha256": "c6021f97fccbe4682a8e90b5a0d618becfe3616038b5ee0e7c35ee5c24034a27",
+      "original_report_unmodified": true
+    },
+    "source_map": {
+      "apps/desktop/tests/data-workspace-real-ipc.py": {
+        "sha256": "69328710c620ca9477d46a9645a86761567cdbae31a0f3fc96d125b32612c7ec",
+        "bytes": 68493
+      },
+      "apps/desktop/tests/test_data_preview_browser_timing.py": {
+        "sha256": "ba365a91a70f164d6aa11cbc0f7bfe07add73afe8657c64656d3c5e34565761e",
+        "bytes": 11477
+      },
+      "apps/desktop/tests/test_data_preview_evidence.py": {
+        "sha256": "0f6a8257ca4a4d28855e8c781bd85991fbba8999a8405dddf8379c3447c66b0d",
+        "bytes": 10017
+      },
+      "apps/desktop/tests/test_data_preview_evidence_deadline.py": {
+        "sha256": "39fb024352e2d6ef4dffe96eecf97b9cf60a18ca775678357e464bc5091b48e3",
+        "bytes": 6112
+      },
+      "apps/desktop/tests/test_data_preview_commitments.py": {
+        "sha256": "0a49dc0e5d225bbcf692197794d6624ab8d4307629f86a187d9dcbce548ecd64",
+        "bytes": 7187
+      }
+    },
+    "log_map": {
+      "timing-tests.log": {
+        "sha256": "5d6a2ed72d8a1044039f59b095e83dd79012334938689baf3ff6307d63217d0d",
+        "bytes": 110
+      },
+      "private-file-tests.log": {
+        "sha256": "98e2c1e6dafa9adb3a4f63f209231ed30ebe6a2630338bfd8598bb714b880db7",
+        "bytes": 113
+      },
+      "deadline-tests.log": {
+        "sha256": "82f73b7d31ec97aeccbbafc9010eeab3c8220fb6ade75955854be5e7e4a88692",
+        "bytes": 110
+      },
+      "journal-tests.log": {
+        "sha256": "c31e811c47f992d66e20f9b41cd43f0634edac76521e17dbdc11a485fe59c061",
+        "bytes": 110
+      }
+    },
+    "private_raw_DB_RPC_Grant_copied": false,
+    "actual_Core_Node_Cargo_browser_Actor": "NOT_RUN",
+    "unit_scope": "inert exact2column SQLite event table, not migration15 or real worker join",
+    "source_commit": "d39e78626694abd97a3ad32197f307f6415bffea",
+    "inert_SQLite_not_migration_or_worker_evidence": true,
+    "original_actual_gated_failure_preserved": true
   }
 }
