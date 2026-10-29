@@ -4,20 +4,33 @@
 use super::*;
 
 fn reserved() -> (Fixture, FactoryScope, FactoryChildGoalSummary) {
-    let (mut f, s, g) = queue_fixture(execution_fixture_with_root_budget(true));
+    reserved_with_prior_root_counter(true)
+}
+fn reserved_with_prior_root_counter(
+    prior_counter: bool,
+) -> (Fixture, FactoryScope, FactoryChildGoalSummary) {
+    let (mut f, s, g) = queue_fixture(execution_fixture_with_root_budget(prior_counter));
     // This test isolates receipt matching with counters established by real
     // earlier Native approval. The distinct Owner-first absent-counter phase
     // boundary is not hidden by fabricated counter rows or claimed covered.
-    let root_counter: (i64, i64) = f
+    let present: i64 = f
         .store
         .conn
         .query_row(
-            "SELECT consumed,active FROM budgets WHERE scope=?1",
+            "SELECT count(*) FROM budgets WHERE scope=?1",
             [format!("root:{}", s.root_task_id)],
-            |row| Ok((row.get(0)?, row.get(1)?)),
+            |row| row.get(0),
         )
         .unwrap();
-    assert_eq!(root_counter, (0, 0));
+    assert_eq!(present, if prior_counter { 1 } else { 0 });
+    assert_eq!(
+        f.store
+            .conn
+            .query_row("SELECT count(*) FROM attempts", [], |row| row
+                .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
     f.raw = format!("actual direct reservation {}", uuid::Uuid::new_v4());
     let read = f
         .store
@@ -67,6 +80,46 @@ fn reserved() -> (Fixture, FactoryScope, FactoryChildGoalSummary) {
         .exists([])
         .unwrap());
     (f, s, g)
+}
+
+#[test]
+fn owner_first_goal_reservation_initializes_only_its_original_root_counter_atomically() {
+    let (f, s, g) = reserved_with_prior_root_counter(false);
+    let current: (u32, u32, u32, u32) = f
+        .store
+        .conn
+        .query_row(
+            "SELECT total_limit,parallel_limit,consumed,active FROM budgets WHERE scope=?1",
+            [format!("root:{}", s.root_task_id)],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+        )
+        .unwrap();
+    assert_eq!(
+        current,
+        (
+            s.bindings.approved_grant.scope.max_attempts,
+            s.bindings.approved_grant.scope.max_concurrency,
+            1,
+            1
+        )
+    );
+    assert_eq!(
+        crate::factory::budget_records(&f.store.conn, &s.root_grant_id, &s.project_id)
+            .unwrap()
+            .len(),
+        1
+    );
+    assert_eq!(
+        f.store
+            .conn
+            .query_row(
+                "SELECT count(*) FROM goal_run_reservations WHERE run_id=?1",
+                [&g.goal.run.id],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+        1
+    );
 }
 
 #[test]
