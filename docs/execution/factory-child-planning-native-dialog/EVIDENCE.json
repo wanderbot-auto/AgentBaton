@@ -1,0 +1,451 @@
+{
+  "schema_version": 1,
+  "source_base": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
+  "initial_source": "9da4ce7d88b497527cd5c70c987dc5acc2f28199",
+  "source_commit": "6002b10f7d0522791efef05a3461d7e6d68bb99b",
+  "source_snapshot": {
+    "base": "9da4ce7d88b497527cd5c70c987dc5acc2f28199",
+    "source_commit": "6002b10f7d0522791efef05a3461d7e6d68bb99b",
+    "source_tree": "ce5775ecab4f5c2b78df949225d0354e9d1d3422",
+    "tracked_paths": 1520,
+    "sparse_absent": 1466,
+    "tracked_before_after_equal": true,
+    "source_files": {
+      "apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs": {
+        "sha256": "e7b8e4bf6d6656f2dc9e5c2c92c656dad2ea7ad6230cb97243f13f2fae2d7fdb",
+        "bytes": 843
+      },
+      "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs": {
+        "sha256": "0f64199e279463c63d8f9bb748787584e038ab94dd4f7dd0c3b4f1cd21d9ce35",
+        "bytes": 34458
+      },
+      "apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs": {
+        "sha256": "649b572fb5723ea96d294694b05e0de8c9a8286098d253572566fb4fb6ccf1c1",
+        "bytes": 30706
+      },
+      "apps/desktop/src-tauri/tests/test_native_owner_dialog.py": {
+        "sha256": "d19e5df0aac52a37685548a7d3c5d595e51edb86b7040a69eda4b306ed6f7a2a",
+        "bytes": 64698
+      },
+      "scripts/native-owner-dialog-smoke.py": {
+        "sha256": "87ef6b19a9ef52d9e7b3899fa7e18c40153f639a5d8ccf8f60f8343effc6b0a2",
+        "bytes": 69626
+      }
+    },
+    "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "standalone_rustfmt_version": "rustfmt 1.10.0-stable (58cf8f9c35 2026-10-13)",
+    "commands": [
+      {
+        "name": "pure-final",
+        "argv": [
+          "python",
+          "-B",
+          "/workspace/.onboarding/factory-child-planning-native-dialog/run_pure.py"
+        ],
+        "cwd": "/workspace/.worktrees/factory-child-planning-native-dialog",
+        "start_UTC": "2026-10-29T06:21:46.647317+00:00",
+        "end_UTC": "2026-10-29T06:21:51.625527+00:00",
+        "exit": 0,
+        "stdout": "pure-final.stdout",
+        "stdout_sha256": "b419f63022fb777612d3bf9318bd649348756f03fe6fc6906b472ac3f6d3c151",
+        "stderr": "pure-final.stderr",
+        "stderr_sha256": "4801f7119c692527fe2733ca6d438ca6a9fe72dae0f4c2cda4d278eec4a049d8"
+      },
+      {
+        "name": "preservation-final-structured",
+        "argv": [
+          "python",
+          "-B",
+          "/workspace/.onboarding/factory-child-planning-native-dialog/receipt-and-native-pin-fix/check_preservation.py"
+        ],
+        "cwd": "/workspace/.worktrees/factory-child-planning-native-dialog",
+        "start_UTC": "2026-10-29T06:21:51.625631+00:00",
+        "end_UTC": "2026-10-29T06:21:51.880539+00:00",
+        "exit": 0,
+        "stdout": "preservation-final-structured.stdout",
+        "stdout_sha256": "54037b57b6e0cdac9f76b32239a3ce61a9bbe98ab98775df7f895e69dc777d2b",
+        "stderr": "preservation-final-structured.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "rustfmt-final",
+        "argv": [
+          "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+          "--edition",
+          "2021",
+          "--check",
+          "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+          "apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs",
+          "apps/desktop/src-tauri/src/bin/native_owner_dialog_smoke.rs"
+        ],
+        "cwd": "/workspace/.worktrees/factory-child-planning-native-dialog",
+        "start_UTC": "2026-10-29T06:21:51.880689+00:00",
+        "end_UTC": "2026-10-29T06:21:51.929964+00:00",
+        "exit": 0,
+        "stdout": "rustfmt-final.stdout",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "rustfmt-final.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "source-diff-check",
+        "argv": [
+          "git",
+          "diff",
+          "--check",
+          "6002b10f7d0522791efef05a3461d7e6d68bb99b^",
+          "6002b10f7d0522791efef05a3461d7e6d68bb99b"
+        ],
+        "cwd": "/workspace/.worktrees/factory-child-planning-native-dialog",
+        "start_UTC": "2026-10-29T06:21:51.930014+00:00",
+        "end_UTC": "2026-10-29T06:21:51.934201+00:00",
+        "exit": 0,
+        "stdout": "source-diff-check.stdout",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "source-diff-check.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "python_syntax_compile_AST": "PASS (compile object only, no pycache writes)",
+    "actual_Core_Native_Rust_AppKit_Mac_browser_Provider": "NOT_RUN",
+    "remaining_actual_Core_tests": 5,
+    "future_Rust_controller_tests": 16,
+    "pure_Python_executed": 42,
+    "entire_Python_discovered": 47,
+    "record_boundary": "test-only source and generated/synthetic controls; no actual Factory approval was executed"
+  },
+  "fix_preservation": {
+    "old43Python_test_AST_unchanged": true,
+    "new4Metadata_SQL_controls": true,
+    "entire_discovered": 47,
+    "actualCore_NOT_RUN": 5,
+    "pure_executed": 42,
+    "Rust3Files_byte_equal_9da": true,
+    "Rust16_NOT_RUN": true,
+    "current_fix_paths": [
+      "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "scripts/native-owner-dialog-smoke.py"
+    ]
+  },
+  "archive": {
+    "path": "docs/execution/factory-child-planning-native-dialog/EVIDENCE.tar.gz",
+    "bytes": 90599,
+    "sha256": "795a2ea9ed242885e71f4e20cd5c0ae26d2919d48a064df9798ad954d6ff8035",
+    "regular_members": 66,
+    "symlinks": 0,
+    "all_member_bytes_roundtrip": true
+  },
+  "archive_manifest_sha256": "5639d4c79198044fc99aaa3172aec55bdc09a56a6bd1b782794e41be32e6eb77",
+  "archive_members": {
+    "COMMAND_RESULTS.json": {
+      "bytes": 2824,
+      "sha256": "87fde46e44e21fd44f9307e13c7b68c2c2f96bb94f9a0752c6ec6696e588e055"
+    },
+    "FIX_PRESERVATION.json": {
+      "bytes": 359,
+      "sha256": "eebda946eac54d33e7943bdd498eccc65c971301371623fe58970c13122506ff"
+    },
+    "PRESERVATION.json": {
+      "bytes": 5813,
+      "sha256": "6990acf64d8fb2253a3a0a9393c2b89fed80546652dc27889862c69ef5fefd8e"
+    },
+    "PROPOSED_AUDIT_PATCH.diff": {
+      "bytes": 631,
+      "sha256": "e34b86e858e410370d2173531f22039c6988d5acd4b41c86b2cde95fb7cf61c3"
+    },
+    "PROPOSED_CI_PATCH.diff": {
+      "bytes": 1164,
+      "sha256": "603ad5a749fc01d76b2593170ed9eae1ac2656a80df34d1599a56a680290e032"
+    },
+    "SCANNER_CONTROLS.json": {
+      "bytes": 9198,
+      "sha256": "dad8e1572cc6a8c25c7c2ddb10cec574f9c5f87a5bf14c4db075d6bef5944747"
+    },
+    "SOURCE_SNAPSHOT.json": {
+      "bytes": 4717,
+      "sha256": "2d4689fdd42b8fd9520a3d801aa43142a1f617ca0fc26380bbb3a1ab3b072ab1"
+    },
+    "STAGE9DA_EVIDENCE.tar.gz": {
+      "bytes": 30846,
+      "sha256": "cecce8e2fddafe08b24938ba3e5e5d3a5dba155b9bfdd678a933298dea9b0617"
+    },
+    "STAGE9DA_MANIFEST.json": {
+      "bytes": 4333,
+      "sha256": "23295caa438d4154f8681afdf2d78df3a9553ff15cbe44a0c29ee62a398a1700"
+    },
+    "apply_fix.py": {
+      "bytes": 7733,
+      "sha256": "017d1f0941a0772e52c3f20c3c04bb9757ccb8cfb3ebc6bbac4f8519daab6304"
+    },
+    "captured-core-r2-INPUT.json": {
+      "bytes": 33020,
+      "sha256": "317406b18ff81f4825b3182443ce07240f8a2f41106f7b41d7e64c5a3047085d"
+    },
+    "captured-shape-replay.json": {
+      "bytes": 325,
+      "sha256": "833f10b9501279a8ab7e632c9dd92ae28fee310722d9982d9e6ea74e1f24a1aa"
+    },
+    "check_preservation.py": {
+      "bytes": 6868,
+      "sha256": "3b38353da2429911b03687901f272b6f50037f1a826633c5bf0d3c5b09d5b919"
+    },
+    "collect_final.py": {
+      "bytes": 3411,
+      "sha256": "3d61b57b28b9f55641b0e561ad5fb0c6abf8b6db643ac15d8a87d70bcf04c737"
+    },
+    "fixed-result-controls.log": {
+      "bytes": 390,
+      "sha256": "6ac817869f428162e7778928f8f1f3cf3cd81e4e2adee13955c19f8bea5779b0"
+    },
+    "old-audit-AGENTBATON_SMOKE_COMMIT.stderr": {
+      "bytes": 75,
+      "sha256": "3ff7373229f22de53fa1676b515d6bc7836ab152c5c7fee56dc83c24242bd205"
+    },
+    "old-audit-AGENTBATON_SMOKE_COMMIT.stdout": {
+      "bytes": 45,
+      "sha256": "bc889631a5bef3d0b777ed550c61cc57b17472e55b022b487135caf4a4545bfa"
+    },
+    "old-audit-grep_failure.stderr": {
+      "bytes": 38,
+      "sha256": "989a7df818d5de9411690bd81d9d8959c913ce1fe6b0c96a3f91a1a0bee3a268"
+    },
+    "old-audit-grep_failure.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "old-audit-native-smoke-create.stderr": {
+      "bytes": 75,
+      "sha256": "3ff7373229f22de53fa1676b515d6bc7836ab152c5c7fee56dc83c24242bd205"
+    },
+    "old-audit-native-smoke-create.stdout": {
+      "bytes": 41,
+      "sha256": "3204e51d46062d68846c5d719be50246f1485c8c937c7df2d78d72054ace913a"
+    },
+    "old-audit-native_factory_planning_os_dialog_fixture.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "old-audit-native_factory_planning_os_dialog_fixture.stdout": {
+      "bytes": 69,
+      "sha256": "8ff1b93356831bc288ee26b9dfbae0dbcddae0bad376b6815370d10ea375cd85"
+    },
+    "old-audit-native_smoke_report.stderr": {
+      "bytes": 75,
+      "sha256": "3ff7373229f22de53fa1676b515d6bc7836ab152c5c7fee56dc83c24242bd205"
+    },
+    "old-audit-native_smoke_report.stdout": {
+      "bytes": 41,
+      "sha256": "f32e754f8dd0a37b6b58ce93b2674067078d9acd2ba721e018f0fdafe47a1f71"
+    },
+    "old-audit-normal_production_words.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "old-audit-normal_production_words.stdout": {
+      "bytes": 69,
+      "sha256": "8ff1b93356831bc288ee26b9dfbae0dbcddae0bad376b6815370d10ea375cd85"
+    },
+    "old-audit-owner_dialog_report.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "old-audit-owner_dialog_report.stdout": {
+      "bytes": 69,
+      "sha256": "8ff1b93356831bc288ee26b9dfbae0dbcddae0bad376b6815370d10ea375cd85"
+    },
+    "old-audit-strings_failure.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "old-audit-strings_failure.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "old-result-controls.log": {
+      "bytes": 6347,
+      "sha256": "815e8bf433bc6cf6492db00243ff9a019213a769b4e208c08790d4d454a3f244"
+    },
+    "old9da-native-owner-dialog-smoke.py": {
+      "bytes": 62210,
+      "sha256": "7e6e2f6336e8f789e51ada2298cdd0e9213ec2d9803bb254bab04ade36845402"
+    },
+    "old9da-test_native_owner_dialog.py": {
+      "bytes": 57502,
+      "sha256": "3c72458bfc2960abffd81768ac48d2983d9a041ea3ffdb64201c94b265aa2076"
+    },
+    "original-audit.sh": {
+      "bytes": 859,
+      "sha256": "dd60a45803ebc66c8dc5a19bba24da35b6e20716589b332314c7d1ecc4fa52d0"
+    },
+    "preservation-final-structured.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "preservation-final-structured.stdout": {
+      "bytes": 447,
+      "sha256": "54037b57b6e0cdac9f76b32239a3ce61a9bbe98ab98775df7f895e69dc777d2b"
+    },
+    "proposed-audit-AGENTBATON_SMOKE_COMMIT.stderr": {
+      "bytes": 75,
+      "sha256": "3ff7373229f22de53fa1676b515d6bc7836ab152c5c7fee56dc83c24242bd205"
+    },
+    "proposed-audit-AGENTBATON_SMOKE_COMMIT.stdout": {
+      "bytes": 45,
+      "sha256": "bc889631a5bef3d0b777ed550c61cc57b17472e55b022b487135caf4a4545bfa"
+    },
+    "proposed-audit-grep_failure.stderr": {
+      "bytes": 38,
+      "sha256": "989a7df818d5de9411690bd81d9d8959c913ce1fe6b0c96a3f91a1a0bee3a268"
+    },
+    "proposed-audit-grep_failure.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "proposed-audit-native-smoke-create.stderr": {
+      "bytes": 75,
+      "sha256": "3ff7373229f22de53fa1676b515d6bc7836ab152c5c7fee56dc83c24242bd205"
+    },
+    "proposed-audit-native-smoke-create.stdout": {
+      "bytes": 41,
+      "sha256": "3204e51d46062d68846c5d719be50246f1485c8c937c7df2d78d72054ace913a"
+    },
+    "proposed-audit-native_factory_planning_os_dialog_fixture.stderr": {
+      "bytes": 75,
+      "sha256": "3ff7373229f22de53fa1676b515d6bc7836ab152c5c7fee56dc83c24242bd205"
+    },
+    "proposed-audit-native_factory_planning_os_dialog_fixture.stdout": {
+      "bytes": 63,
+      "sha256": "ef176228c5db0bc8c0ade31b28c267626f26e6aca3886b2e2c9c576420f2f6ed"
+    },
+    "proposed-audit-native_smoke_report.stderr": {
+      "bytes": 75,
+      "sha256": "3ff7373229f22de53fa1676b515d6bc7836ab152c5c7fee56dc83c24242bd205"
+    },
+    "proposed-audit-native_smoke_report.stdout": {
+      "bytes": 41,
+      "sha256": "f32e754f8dd0a37b6b58ce93b2674067078d9acd2ba721e018f0fdafe47a1f71"
+    },
+    "proposed-audit-normal_production_words.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "proposed-audit-normal_production_words.stdout": {
+      "bytes": 69,
+      "sha256": "8ff1b93356831bc288ee26b9dfbae0dbcddae0bad376b6815370d10ea375cd85"
+    },
+    "proposed-audit-owner_dialog_report.stderr": {
+      "bytes": 75,
+      "sha256": "3ff7373229f22de53fa1676b515d6bc7836ab152c5c7fee56dc83c24242bd205"
+    },
+    "proposed-audit-owner_dialog_report.stdout": {
+      "bytes": 41,
+      "sha256": "07647dc44fe908ca441c24de247b5f7e1fe6c5e141f19c868243241aa47f3e7e"
+    },
+    "proposed-audit-strings_failure.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "proposed-audit-strings_failure.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "proposed-audit.sh": {
+      "bytes": 921,
+      "sha256": "59ec13c26e550f31fb9dcfefca444fa28e95f83355919dea1ea9831284bb1d2c"
+    },
+    "pure-final.stderr": {
+      "bytes": 8065,
+      "sha256": "4801f7119c692527fe2733ca6d438ca6a9fe72dae0f4c2cda4d278eec4a049d8"
+    },
+    "pure-final.stdout": {
+      "bytes": 5345,
+      "sha256": "b419f63022fb777612d3bf9318bd649348756f03fe6fc6906b472ac3f6d3c151"
+    },
+    "pure-first.log": {
+      "bytes": 13410,
+      "sha256": "091ee6771c5c7e59ca15d87b9b37523a41c87b0457034025ba3b1ae1cbc0e570"
+    },
+    "result_controls.py": {
+      "bytes": 2301,
+      "sha256": "75f025c555a679d514937be545c317e3b618b330357caffa5c1b6b2afa76bf50"
+    },
+    "run_pure.py": {
+      "bytes": 1491,
+      "sha256": "d6cce1641a26346966a7c87f5f0bccbacb3b344541c22b919a7609fd693c36c1"
+    },
+    "rustfmt-final.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "rustfmt-final.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scanner-controls.log": {
+      "bytes": 174,
+      "sha256": "ac75d941c69e01db7ec31005d315be5c16630c267bcf4b8cda18fa1416f5b704"
+    },
+    "scanner_controls.py": {
+      "bytes": 2759,
+      "sha256": "163acfd022dd6c95efa4bc7dbf94b4aefc7c1ab8be98d82a3ba331a20f1f8ec7"
+    },
+    "source-diff-check.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source-diff-check.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "initial_stage": {
+    "status": "BLOCKED historical source, preserved",
+    "manifest_sha256": "23295caa438d4154f8681afdf2d78df3a9553ff15cbe44a0c29ee62a398a1700",
+    "archive_sha256": "cecce8e2fddafe08b24938ba3e5e5d3a5dba155b9bfdd678a933298dea9b0617",
+    "independent_REVIEW_sha256": "726b2f5c9e2e63dd4d3c6565c4f59b493a08356e27518aecc73bd4252c49fad0",
+    "independent_MANIFEST_sha256": "59267a6320be9cc506c2759298830476d8bf3707f465c102d387e59df98c4705"
+  },
+  "independent_fix_review": {
+    "status": "6002 source-ready notification received; actual42pure+7metadata/order controls reported by independent reviewer, report separately sealed by reviewer",
+    "actual_Core_Rust_OS": "NOT_RUN; no compiler/build provenance claimed from metadata"
+  },
+  "actual_test_dimensions": {
+    "author_pure_python": 42,
+    "full_discovery": 47,
+    "actual_Core_cases_not_run": 5,
+    "Rust_controller_test_markers_not_run": 16,
+    "Rustfmt_parser_check_exit": 0,
+    "actual_Core_IPC_Native_AppKit_ARM_Intel_Provider_CI_packages": "NOT_RUN"
+  },
+  "result_only_controls": {
+    "old_exact_SQL_exit": 1,
+    "old_result_only_subcase_failures": 6,
+    "document_two_subcases_already_detected": true,
+    "fixed_control_exit": 0,
+    "scope": "one generated realSQLite table, not a Core migration/runtime"
+  },
+  "scanner_proposals": {
+    "workflow_modified": false,
+    "release_scanner_modified": false,
+    "old_new_marker_acceptances_observed": 2,
+    "proposed_synthetic_text_cases": 8,
+    "actual_release_bundle_scan": "NOT_RUN"
+  },
+  "authorization": {
+    "OwnerInbox_ACK": [
+      "OWNER-001",
+      "OWNER-002"
+    ],
+    "product_gate_unchanged": true,
+    "production_sources_Cargo_locks_schema_permissions_unchanged": true,
+    "real_Provider_credentials_models_spend": "NOT_AUTHORIZED/NOT_RUN",
+    "shared_target_tools_root_source_writes": "NONE"
+  },
+  "limits": [
+    "Factory OS real cancellation default final nested page; any-index choice and pure all-page logic are not actual all-index OS execution",
+    "Factory minimal policy has no validator refs; full JSON nonempty definitions have pure/mechanical coverage only",
+    "Captured Core R2 input is earlier author-produced DTO data, not current source/live schema proof",
+    "Path/hash/file metadata is not compilation proof or an OS sandbox; Root/CI must bind actual same-checkout build logs and raw Native hash",
+    "Full product acceptance and delivery are not claimed"
+  ]
+}
