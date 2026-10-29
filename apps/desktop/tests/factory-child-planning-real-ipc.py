@@ -584,6 +584,54 @@ def locator_self_check(previous_report, output):
         'synthetic_capture':current['screenshots'],'dimension':'actual prior failure evidence plus finite fake locator/engine controls and source AST; NO new browser/Core/IPC run'}
 
 
+def summary_self_check(previous_report):
+    """The observed nested-summary ambiguity, without a browser retry."""
+    import ast
+    import xml.etree.ElementTree as ET
+    raw,pin=base.bounded_file(previous_report,4*MAX_WIRE,previous_report.parent)
+    previous=json.loads(raw,object_pairs_hook=unique_object)
+    assert previous['harness_sha256']=='613ebf871d5d98510cddd5dfad5e595a69f0186ac4ad47d21ac7aab28487adeb'
+    assert [c['id']for c in previous['checks']]==['CP01','CP02','CP03']
+    assert 'strict mode violation' in previous['failure']['message']
+    assert 'resolved to 2 elements' in previous['failure']['message']
+    assert 'Selected recorded revision: r1' in previous['failure']['message']
+    assert 'Plan reference and receipt' in previous['failure']['message']
+    assert previous['cleanup_complete'] is False and len(previous['screenshots'])==2
+    checks=['actual-run2-strict-two-summary-failure-preserved']
+    tree=ET.fromstring('<details><summary>Selected recorded revision: r1</summary><p>date</p><details><summary>Plan reference and receipt</summary><pre>ref</pre></details><pre>original plan</pre></details>')
+    assert len(tree.findall('.//summary'))==2
+    checks.append('old-descendant-summary-model-is-ambiguous')
+    def exact_direct(node):
+        rows=node.findall('./summary')
+        assert len(rows)==1 and rows[0].text=='Selected recorded revision: r1'
+        return rows[0]
+    assert exact_direct(tree).text=='Selected recorded revision: r1'
+    checks.append('direct-summary-model-selects-only-recorded-revision')
+    foreign=copy.deepcopy(tree);foreign.find('./summary').text='Selected recorded revision: r2'
+    duplicate=copy.deepcopy(tree);ET.SubElement(duplicate,'summary').text='Selected recorded revision: r1'
+    for name,bad in [('foreign-caption',foreign),('duplicate-direct-summary',duplicate)]:
+        try:exact_direct(bad)
+        except AssertionError:pass
+        else:raise AssertionError('Ambiguous or foreign direct summary accepted')
+        checks.append('reject:'+name)
+    fn=next(n for n in ast.parse(Path(__file__).read_text()).body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    calls=[n for n in ast.walk(fn)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='locator'and 'Selected recorded revision: r1' in ast.unparse(n.func.value)]
+    assert len(calls)==1 and ast.literal_eval(calls[0].args[0])==':scope > summary'
+    checks.append('actual-runtime-AST-uses-direct-summary-at-exact-revision')
+    pending=ET.fromstring('<section><p role="alert">Submission outcome unknown. Read history.</p><p>Submission outcome unknown. Read history.</p><p role="alert">History changed while editing.</p><button>Recover the exact plan submission</button></section>')
+    assert len([e for e in pending.findall('./p')if e.text.startswith('Submission outcome unknown.')])==2
+    assert len(pending.findall('./p[@role="alert"]'))==2
+    assert len([e for e in pending.findall('./p[@role="alert"]')if e.text.startswith('Submission outcome unknown.')])==1
+    checks.append('pending-text-two-render-sites-one-alert-model')
+    source=ast.unparse(fn)
+    assert "expect(root_region.get_by_role('alert').filter(has_text='Submission outcome unknown.')).to_contain_text('Submission outcome unknown.')" in source
+    checks.append('actual-runtime-pending-assertion-is-unique-alert')
+    assert "fixed_form_control(root_region, 'Complete GoalPlan JSON draft', 'textarea')" in source
+    checks.append('actual-runtime-draft-uses-exact-static-field-check')
+    return {'status':'passed','count':len(checks),'checks':checks,'previous_actual_report_pin':pin,
+        'dimension':'actual prior browser failure plus finite XML descendant/direct-child model and source AST; NO new browser/Core/IPC execution'}
+
+
 def runtime_driver(args, output, manifest):
     from playwright.sync_api import expect, sync_playwright
     raw_daemon = args.tools / 'batond'; raw_cli = args.tools / 'baton'
@@ -857,7 +905,7 @@ def runtime_driver(args, output, manifest):
         expect(child_region.get_by_text('Current plan head: r2', exact=False)).to_be_visible()
         child_region.locator('details').filter(has=page.get_by_text('Immutable plan revisions', exact=True)).locator('summary').click()
         child_region.get_by_role('button', name=re.compile(r'^r1 · ')).click()
-        child_region.locator('details').filter(has=page.get_by_text('Selected recorded revision: r1', exact=True)).locator('summary').click()
+        child_region.locator('details').filter(has=page.get_by_text('Selected recorded revision: r1', exact=True)).locator(':scope > summary').click()
         recorded = child_region.get_by_label('Original stored plan text', exact=True).text_content()
         actual_child_one = host.result('factory_child_plans.get', {'scope_id': scope['id'], 'task_id': child_id, 'plan_revision': 1})
         assert recorded == actual_child_one['plan_json']
@@ -867,7 +915,7 @@ def runtime_driver(args, output, manifest):
         editor.get_by_role('button', name='Prepare steps from latest revision', exact=True).click()
         fixed_form_control(editor,'Step goal fixed-work','textarea').fill('Actual UI revised bounded root plan')
         editor.get_by_role('button', name='Apply steps to JSON draft', exact=True).click()
-        draft = root_region.get_by_label('Complete GoalPlan JSON draft', exact=True)
+        draft = fixed_form_control(root_region,'Complete GoalPlan JSON draft','textarea')
         original_draft = draft.input_value(); parsed = json.loads(original_draft)
         assert parsed['revision'] == 3 and parsed['expected_revision'] == 2
         assert parsed['nodes'][0]['goal'] == 'Actual UI revised bounded root plan'
@@ -918,7 +966,7 @@ def runtime_driver(args, output, manifest):
         raw4 = next_raw(stored, 'Actual lost-response UI revision four')
         draft.fill(raw4); faults['drop_next_submit'] = True
         root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
-        expect(root_region.get_by_text('Submission outcome unknown.', exact=False)).to_be_visible()
+        expect(root_region.get_by_role('alert').filter(has_text='Submission outcome unknown.')).to_contain_text('Submission outcome unknown.')
         lost = [r for r in report['http'] if r.get('actual_committed_reply_deliberately_dropped')]
         assert len(lost) == 1 and lost[0]['params']['plan_json'] == raw4
         assert lost[0]['host_observed_utc_ms']<min(scope['expires_at_ms'],grant['expires_at_ms'])
@@ -1065,12 +1113,13 @@ def main():
     parser.add_argument('--fixture-self-check', type=Path)
     parser.add_argument('--review-self-check', type=Path)
     parser.add_argument('--locator-self-check', type=Path)
+    parser.add_argument('--summary-self-check', type=Path)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--tools', type=Path)
     parser.add_argument('--frontend', type=Path)
     parser.add_argument('--manifest', type=Path)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
-    args = parser.parse_args(); assert sum([args.self_check,args.run,bool(args.fixture_self_check),bool(args.review_self_check),bool(args.locator_self_check)]) <= 1
+    args = parser.parse_args(); assert sum([args.self_check,args.run,bool(args.fixture_self_check),bool(args.review_self_check),bool(args.locator_self_check),bool(args.summary_self_check)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False); output.chmod(0o700)
     if args.self_check:
         value = self_check(); value.update(harness_sha256=sha(Path(__file__).read_bytes()), support_sha256=sha(BASE_PATH.read_bytes()))
@@ -1084,6 +1133,9 @@ def main():
     if args.locator_self_check:
         value=locator_self_check(args.locator_self_check.resolve(strict=True),output);value['harness_sha256']=sha(Path(__file__).read_bytes())
         base.write_private_json(output/'locator-check.json',value);print(json.dumps(value));return 0
+    if args.summary_self_check:
+        value=summary_self_check(args.summary_self_check.resolve(strict=True));value['harness_sha256']=sha(Path(__file__).read_bytes())
+        base.write_private_json(output/'summary-check.json',value);print(json.dumps(value));return 0
     if not args.run:
         base.write_private_json(output / 'NOT_RUN.json', {'actual_runtime': 'not_run',
             'pending': ['Root reviewed harness', 'fixed schema14 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
