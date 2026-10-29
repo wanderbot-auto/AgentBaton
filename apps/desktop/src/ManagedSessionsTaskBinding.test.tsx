@@ -2,7 +2,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api, DaemonError, type ManagedWorkspace, type Project, type Task } from './api';
-import { ManagedSessions } from './ManagedSessions';
+import { ManagedSessions, initialTaskSelectionCurrent } from './ManagedSessions';
 import { sessionApi, type ExecutionGrant, type NamedConnection } from './session-api';
 import type { TaskWorkspaceBinding } from './task-workspace-binding-wire';
 vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), api: { taskGet: vi.fn(), workspacesList: vi.fn(), snapshot: vi.fn(), events: vi.fn() } }));
@@ -44,6 +44,28 @@ async function chooseConnection(user: ReturnType<typeof userEvent.setup>, f: Ret
 beforeEach(() => vi.resetAllMocks());
 
 describe('Task-bound session selection / mocked fixed read and native transport; not FS or Provider proof', () => {
+  it('uses the actual synchronous applied/rendered epoch predicate before effects, including A-B-A', () => {
+    const appliedA = JSON.stringify([0, ['project', 'task-A']]), renderedB = JSON.stringify([1, ['project', 'task-B']]), returnedA = JSON.stringify([2, ['project', 'task-A']]);
+    expect(initialTaskSelectionCurrent(appliedA, renderedB)).toBe(false);
+    expect(initialTaskSelectionCurrent(appliedA, returnedA)).toBe(false);
+    expect(initialTaskSelectionCurrent(renderedB, renderedB)).toBe(true);
+    // A later manual task choice does not change the parent initial epoch.
+    expect(initialTaskSelectionCurrent(appliedA, appliedA)).toBe(true);
+  });
+  it('invalidates old acknowledged scope on parent initialTaskId change and waits for B Get before permitting later manual choices', async () => {
+    const user = userEvent.setup(), a = fixture(), b0 = fixture(); const b = { ...b0, project: a.project, workspace: { ...b0.workspace, project_id: a.project.id }, task: { ...b0.task, project_id: a.project.id, code_workspace_binding: { ...b0.binding, receipt: { ...b0.binding.receipt, project_id: a.project.id } } } };
+    setup(a); vi.mocked(api.workspacesList).mockResolvedValue([a.workspace, b.workspace]); const delayedB = deferred<Task>();
+    vi.mocked(api.taskGet).mockImplementation(id => id === a.task.id ? Promise.resolve(a.task) : delayedB.promise);
+    const page = render(element(a, { tasks: [a.task, b.task] })); await ready(a); await chooseConnection(user, a); await user.click(ack()); await user.selectOptions(grantPicker(), a.grant.id); expect(create()).toBeEnabled();
+    const before = vi.mocked(api.taskGet).mock.calls.filter(([id]) => id === a.task.id).length;
+    page.rerender(element(a, { initialTaskId: b.task.id, tasks: [a.task, b.task] }));
+    expect(ack()).not.toBeChecked(); expect(grantPicker()).toHaveValue(''); expect(authorize()).toBeDisabled(); expect(create()).toBeDisabled();
+    await waitFor(() => expect(api.taskGet).toHaveBeenCalledWith(b.task.id));
+    expect(vi.mocked(api.taskGet).mock.calls.filter(([id]) => id === a.task.id)).toHaveLength(before);
+    expect(create()).toBeDisabled(); expect(sessionApi.sessionsCreate).not.toHaveBeenCalled();
+    await act(async () => { delayedB.resolve(b.task); }); await waitFor(() => expect(workspacePicker()).toHaveValue(b.workspace.id)); expect(grantPicker()).toHaveValue(''); expect(ack()).not.toBeChecked();
+    await user.selectOptions(taskPicker(), a.task.id); await ready(a); expect(taskPicker()).toHaveValue(a.task.id); expect(sessionApi.grantsCreate).not.toHaveBeenCalled(); expect(sessionApi.sessionsCreate).not.toHaveBeenCalled();
+  });
   it('locates only the ready bound workspace despite list order and performs no implicit write', async () => {
     const f = fixture(); setup(f); render(element(f)); await ready(f);
     expect(api.taskGet).toHaveBeenCalledWith(f.task.id); expect(workspacePicker()).toBeDisabled();

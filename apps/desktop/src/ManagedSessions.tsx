@@ -21,9 +21,18 @@ function boundWorkspaceChoice(task: Task | undefined, project: Project | undefin
   } catch { return null; }
 }
 
+// Local render provenance only; never an approval or IPC field.
+export function initialTaskSelectionCurrent(applied: string, rendered: string): boolean { return applied === rendered; }
+
 interface Props { language: Language; connected: boolean; projects: Project[]; tasks: Task[]; projectId: string; onProjectChange: (id: string) => void; refreshTasks: () => Promise<void>; initialTaskId?: string }
 export function ManagedSessions({ language, connected, projects, tasks, projectId, onProjectChange, refreshTasks, initialTaskId }: Props) {
   const t = sessionMessages[language];
+  const initialSelectionIdentity = JSON.stringify([projectId, initialTaskId ?? null]);
+  const initialSelectionEpoch = useRef({ identity: initialSelectionIdentity, revision: 0 });
+  if (initialSelectionEpoch.current.identity !== initialSelectionIdentity) initialSelectionEpoch.current = { identity: initialSelectionIdentity, revision: initialSelectionEpoch.current.revision + 1 };
+  const initialSelectionStamp = JSON.stringify([initialSelectionEpoch.current.revision, initialSelectionIdentity]);
+  const [appliedInitialSelection, setAppliedInitialSelection] = useState(initialSelectionStamp);
+  const initialSelectionReady = initialTaskSelectionCurrent(appliedInitialSelection, initialSelectionStamp);
   const [connections, setConnections] = useState<NamedConnection[]>([]);
   const [sessions, setSessions] = useState<ManagedSession[]>([]);
   const [grants, setGrants] = useState<ExecutionGrant[]>([]);
@@ -64,11 +73,11 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   const workspace = workspaces.find(record => record.id === workspaceId);
   const connection = connections.find(record => record.id === connectionId);
   const parentTask = tasks.find(record => record.id === taskId);
-  const taskSourceContext = JSON.stringify([projectId, taskId, parentTask?.revision, parentTask?.spec_revision, parentTask?.state, parentTask?.code_workspace_binding ?? null]);
+  const taskSourceContext = JSON.stringify([initialSelectionStamp, projectId, taskId, parentTask?.revision, parentTask?.spec_revision, parentTask?.state, parentTask?.code_workspace_binding ?? null]);
   const taskSourceCurrent = useRef({ context: taskSourceContext, projectId, connected }); taskSourceCurrent.current = { context: taskSourceContext, projectId, connected };
   const task = taskObservation?.context === taskSourceContext ? taskObservation.task : parentTask;
-  const taskFresh = !taskId || connected && taskReadReady && !taskReading && taskObservation?.context === taskSourceContext;
-  const taskContext = JSON.stringify([projectId, project?.revision, project?.archived, taskId, task?.project_id, task?.revision, task?.spec_revision, task?.state, task?.code_workspace_binding ?? null]);
+  const taskFresh = initialSelectionReady && (!taskId || connected && taskReadReady && !taskReading && taskObservation?.context === taskSourceContext);
+  const taskContext = JSON.stringify([initialSelectionStamp, projectId, project?.revision, project?.archived, taskId, task?.project_id, task?.revision, task?.spec_revision, task?.state, task?.code_workspace_binding ?? null]);
   const boundChoice = taskId && !task ? null : boundWorkspaceChoice(task, project, projectId, workspaces);
   const boundUsable = taskFresh && (boundChoice === undefined || typeof boundChoice === 'string' && boundChoice === workspaceId);
   const scopeCurrent = connected && scopeReady && scopeProject === projectId;
@@ -98,7 +107,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
   }, [connected]);
   useEffect(() => { void refresh(); }, [refresh]);
   const refreshTask = useCallback(async () => {
-    if (taskSourceCurrent.current.context !== taskSourceContext || taskSourceCurrent.current.connected !== connected) return;
+    if (!initialSelectionReady || taskSourceCurrent.current.context !== taskSourceContext || taskSourceCurrent.current.connected !== connected) return;
     const request = ++taskRequest.current; setTaskReadReady(false);
     if (!taskId || !connected) { setTaskReading(false); return; }
     setTaskReading(true); setAcknowledged(false); setGrantId(''); setGrantContext('');
@@ -110,7 +119,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
       taskFloors.current.set(taskId, record); setTaskObservation({ context: taskSourceContext, task: record }); setTaskReadReady(true);
     } catch (e) { if (request === taskRequest.current && taskSourceCurrent.current.context === taskSourceContext) { setTaskReadReady(false); setError(e instanceof Error ? e.message : String(e)); } }
     finally { if (request === taskRequest.current && taskSourceCurrent.current.context === taskSourceContext) setTaskReading(false); }
-  }, [taskSourceContext, taskId, projectId, connected, parentTask?.revision, t.scopeStale]);
+  }, [taskSourceContext, taskId, projectId, connected, parentTask?.revision, t.scopeStale, initialSelectionReady]);
   useEffect(() => { void refreshTask(); return () => { ++taskRequest.current; }; }, [refreshTask]);
   const refreshScope = useCallback(async () => {
     if (scopeCurrentProps.current.projectId !== projectId || scopeCurrentProps.current.connected !== connected) return;
@@ -123,7 +132,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
       setWorkspaces(nextWorkspaces); setGrants(nextGrants); setScopeProject(projectId); setScopeReady(true);
     } catch (e) { if (request === scopeRequest.current) setError(e instanceof Error ? e.message : String(e)); }
   }, [projectId, connected]);
-  useEffect(() => { setWorkspaceId(''); setGrantId(''); setTaskId(initialTaskId ?? ''); setAcknowledged(false); }, [projectId, initialTaskId]);
+  useEffect(() => { setWorkspaceId(''); setGrantId(''); setTaskId(initialTaskId ?? ''); setAcknowledged(false); setAppliedInitialSelection(initialSelectionStamp); }, [projectId, initialTaskId, initialSelectionStamp]);
   useEffect(() => { void refreshScope(); return () => { ++scopeRequest.current; }; }, [refreshScope]);
   useEffect(() => { setAcknowledged(false); setGrantId(''); }, [workspaceId, connectionId, attempts, concurrency, duration]);
   useEffect(() => {
@@ -214,7 +223,7 @@ export function ManagedSessions({ language, connected, projects, tasks, projectI
     <fieldset disabled={busy || !connected} className="session-scope"><legend>{t.grantTitle}</legend>
       <label htmlFor="session-project">{t.project}</label><select id="session-project" value={projectId} onChange={event => onProjectChange(event.target.value)}><option value="">{t.choose}</option>{projects.filter(record => !record.archived).map(record => <option key={record.id} value={record.id}>{record.name}</option>)}</select>
       <label htmlFor="session-task">{t.task}</label><select id="session-task" value={taskId} onChange={event => setTaskId(event.target.value)}><option value="">{t.choose}</option>{tasks.filter(record => record.project_id === projectId).map(record => <option key={record.id} value={record.id} disabled={record.state !== 'draft'}>{record.goal} ({record.state})</option>)}</select>
-      <label htmlFor="session-workspace">{t.workspace}</label><select id="session-workspace" value={workspaceId} disabled={!scopeCurrent || boundChoice !== undefined} onChange={event => { if (boundChoice === undefined) setWorkspaceId(event.target.value); }}><option value="">{t.choose}</option>{workspaces.filter(record => record.project_id === projectId).map(record => <option key={record.id} value={record.id} disabled={record.state !== 'ready'}>{record.root} ({record.state})</option>)}</select>
+      <label htmlFor="session-workspace">{t.workspace}</label><select id="session-workspace" value={workspaceId} disabled={!initialSelectionReady || !scopeCurrent || boundChoice !== undefined} onChange={event => { if (boundChoice === undefined) setWorkspaceId(event.target.value); }}><option value="">{t.choose}</option>{workspaces.filter(record => record.project_id === projectId).map(record => <option key={record.id} value={record.id} disabled={record.state !== 'ready'}>{record.root} ({record.state})</option>)}</select>
       <label htmlFor="session-connection">{t.connection}</label><select id="session-connection" value={connectionId} onChange={event => setConnectionId(event.target.value)}><option value="">{t.choose}</option>{connections.map(record => <option key={record.id} value={record.id} disabled={record.probe_state !== 'ready'}>{record.name} ({record.probe_state})</option>)}</select>
       <label htmlFor="grant-attempts">{t.attempts}</label><input id="grant-attempts" type="number" min={1} max={100} value={attempts} onChange={event => setAttempts(Number(event.target.value))} />
       <label htmlFor="grant-concurrency">{t.concurrency}</label><input id="grant-concurrency" type="number" min={1} max={attempts} value={concurrency} onChange={event => setConcurrency(Number(event.target.value))} />
