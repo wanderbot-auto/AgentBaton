@@ -136,5 +136,15 @@
     "Provider",
     "packages"
   ],
-  "integration_constraint": "Retain later Root c0a shared const bridge; integrate deltas, not whole old files. New independent review and current Core15/Mac execution still required."
+  "integration_constraint": "Retain later Root c0a shared const bridge; integrate deltas, not whole old files. New independent review and current Core15/Mac execution still required.",
+  "erratum": {
+    "status": "SUPERSEDED_INCOMPLETE_SPECIFICATION",
+    "corrected_source": "b97501c2719b0eaf0a459e79d09fd771a7231b03",
+    "corrected_record": "cap-erratum/EVIDENCE.json",
+    "incorrect_prior_claim": "project99999 positive",
+    "actual_general_cap": 1000,
+    "prior26_static38_arithmetic_raw_exits_unchanged": true,
+    "prior_raw_archive_unchanged": true,
+    "Rust_Core_execution_never_established": true
+  }
 }

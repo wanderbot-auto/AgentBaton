@@ -7,3 +7,8 @@ ADR: explicit execution policy is required for nonzero reworks. Enforce exact ro
 Full selection and complete resolved execution binding remain in existing lossless Native pages, including both budget layers. Existing private Owner candidate/criterion/validation/origin/CAS review is unchanged. Per-output executable-plan Owner/validator candidate consumption is Core admission, never a Native synthetic authority; stored Work-only planning is not execution.
 
 Add meaningful Rust test source, perform source-preservation/arithmetic-specification/rustfmt checks, freeze source and portable raw command evidence. New independent review precedes Root-leased Rust/Core/Mac tests. Do not borrow Native14, UI802 or old d250 review results.
+
+
+## Erratum — superseded project reworks interpretation
+
+The earlier claim/positive vector allowing project reworks99999 is incorrect. Full frozen Core4ff BudgetLimits::narrower invokes valid() on both sides, and valid() enforces the general reworks<=1000 cap. Source b97501c2719b0eaf0a459e79d09fd771a7231b03 restores that cap in addition to attempts−1/exact execution-layer equality/root planning bounds. See cap-erratum/ records. Prior9c81 source and actual26+38 raw outputs remain preserved as a historical **wrong specification**, not Core/runtime evidence. No previous Rust/Core/Mac test is newly claimed.

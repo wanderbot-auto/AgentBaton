@@ -5,3 +5,8 @@ Implemented the three narrow condition changes in approval.rs; lib.rs, five type
 Actually ran26 static source-preservation checks and38 finite arithmetic specification vectors, plus standalone rustfmt parser/check and source-range/cumulative diff checks; all exit0 with raw stdout/stderr/argv retained in EVIDENCE.tar.gz. Arithmetic vectors do not execute Rust or prove authentication, dispatch, CAS, join, shared metering or runtime recovery. Five added tests and original13 are NOT_RUN; expected101 library markers is not a pass count. No Cargo/Node/Core/Mac/CI was run.
 
 Old source d250, prior477 records/archive and independent383d8/7138 review remain immutable. Source snapshot before/after equal. Core failed-Graph→actual owned-stop→original planner next attempt remains WIP and is not claimed implemented/tested by this Native leaf. No new scope or approval upgrade follows from a displayed flag.
+
+
+## Erratum — superseded project reworks interpretation
+
+The earlier claim/positive vector allowing project reworks99999 is incorrect. Full frozen Core4ff BudgetLimits::narrower invokes valid() on both sides, and valid() enforces the general reworks<=1000 cap. Source b97501c2719b0eaf0a459e79d09fd771a7231b03 restores that cap in addition to attempts−1/exact execution-layer equality/root planning bounds. See cap-erratum/ records. Prior9c81 source and actual26+38 raw outputs remain preserved as a historical **wrong specification**, not Core/runtime evidence. No previous Rust/Core/Mac test is newly claimed.
