@@ -749,6 +749,89 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         assert!(node["actual_output_bytes"].is_u64());
         assert_ne!(node["state"], "outcome_unknown");
     }
+    // This real chain, unlike the single-reservation library fixture, supplies
+    // two legal reservations in each of two revisions of the SAME derived run.
+    // Compare every durable fee/stop/binding to the authenticated public Node
+    // history, without fabricating another run or exposing a test wire method.
+    let mut q = db.prepare("SELECT attempt_id,node_id,document FROM goal_run_reservations WHERE run_id=?1 ORDER BY json_extract(document,'$.plan_revision'),node_id").unwrap();
+    let rows = q
+        .query_map([goal_id], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+            ))
+        })
+        .unwrap();
+    let mut revisions = std::collections::BTreeMap::<u64, usize>::new();
+    let mut positive_history = Vec::new();
+    for row in rows {
+        let (attempt, node_id, raw) = row.unwrap();
+        let receipt: Value = serde_json::from_str(&raw).unwrap();
+        let revision = receipt["plan_revision"].as_u64().unwrap();
+        let node = details["nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|n| n["attempt_id"] == attempt && n["plan_revision"] == revision)
+            .expect("every real reservation must retain its exact authenticated historical Node");
+        assert_eq!(receipt["run_id"], goal_id);
+        assert_eq!(receipt["node_id"], node_id);
+        assert_eq!(node["node"]["id"], node_id);
+        assert_eq!(receipt["reservation"], node["node"]["reservation"]);
+        assert_eq!(receipt["settled"], true);
+        assert_eq!(node["stop_confirmed"], true);
+        for field in [
+            "actual_runtime_ms",
+            "actual_output_bytes",
+            "tokens",
+            "cost_microunits",
+        ] {
+            assert_eq!(receipt[field], node[field], "{revision}/{node_id}/{field}");
+        }
+        assert!(receipt["actual_runtime_ms"].is_u64());
+        assert!(receipt["actual_output_bytes"].is_u64());
+        *revisions.entry(revision).or_default() += 1;
+        positive_history.push(json!({"attempt_id":attempt,"node_id":node_id,"receipt":receipt}));
+    }
+    assert_eq!(
+        revisions,
+        std::collections::BTreeMap::from([(1, 2), (2, 2)])
+    );
+    assert_eq!(positive_history.len(), 4);
+    // All eight actually settled attempts share this project/root-Grant. Their
+    // exact persisted actual fees must match both common ledgers once, without
+    // charging the derived projection a second time or resetting old costs.
+    let mut fees = db.prepare("SELECT document FROM goal_run_reservations UNION ALL SELECT document FROM factory_budget_reservations").unwrap();
+    let mut count = 0;
+    let (mut runtime, mut output) = (0u64, 0u64);
+    for raw in fees.query_map([], |row| row.get::<_, String>(0)).unwrap() {
+        let receipt: Value = serde_json::from_str(&raw.unwrap()).unwrap();
+        assert_eq!(receipt["settled"], true);
+        runtime = runtime
+            .checked_add(receipt["actual_runtime_ms"].as_u64().unwrap())
+            .unwrap();
+        output = output
+            .checked_add(receipt["actual_output_bytes"].as_u64().unwrap())
+            .unwrap();
+        count += 1;
+    }
+    assert_eq!(count, 8);
+    for key in [
+        format!("project:{}", scope["project_id"].as_str().unwrap()),
+        format!("root-grant:{}", grant.root_grant_id),
+    ] {
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM goal_ledgers WHERE scope=?1",
+                [&key],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let ledger: Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(ledger["runtime_ms"], runtime, "{key}");
+        assert_eq!(ledger["output_bytes"], output, "{key}");
+    }
     let sequence = |kind: &str| {
         db.query_row("SELECT sequence FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')=?2",params![goal_id,kind],|r|r.get::<_,i64>(0)).unwrap()
     };
@@ -763,7 +846,7 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
                 .unwrap()
     );
     let journal = db_events(&f.path);
-    let body = json!({"dimension":"real generated ACP/private scoped MCP7/Actor/owned Graph and sessionless fixed Command/joined bounded rework/private Owner/parent resume; no model or OS dialog","factory_scope_approval_route":"original retained Store::propose_factory_scope(selection,private0500-single-link-companion)+trusted fixture finalize_proposal; not factory_scopes.propose IPC or OS dialog","readonly_transport_errors":reads.errors,"readonly_reconciliation_scope":"only bound get/list within original55s; recorded transport failures are not a product latency PASS; Owner writes never retried","test_source_sha256":sha256(include_bytes!("factory_child_goal_rework.rs")),"provider_source_sha256":sha256(include_bytes!("factory_child_goal_rework_acp.py")),"companion_sha256":companion_sha,"fixed_command_sha256":executable_sha,"initial_scope":scope,"definition":definition,"recovery":recovery,"before_owner":before,"owner_proposal":p,"owner_decision":decision,"final_factory":final_factory,"journal":journal});
+    let body = json!({"dimension":"real generated ACP/private scoped MCP7/Actor/owned Graph and sessionless fixed Command/joined bounded rework/private Owner/parent resume; no model or OS dialog","positive_budget_history":{"run_id":goal_id,"revisions_each_two":revisions,"receipts":positive_history,"shared_actual_runtime_ms":runtime,"shared_actual_output_bytes":output,"settled_attempt_count":count,"cross_run_reuse":"not claimed"},"factory_scope_approval_route":"original retained Store::propose_factory_scope(selection,private0500-single-link-companion)+trusted fixture finalize_proposal; not factory_scopes.propose IPC or OS dialog","readonly_transport_errors":reads.errors,"readonly_reconciliation_scope":"only bound get/list within original55s; recorded transport failures are not a product latency PASS; Owner writes never retried","test_source_sha256":sha256(include_bytes!("factory_child_goal_rework.rs")),"provider_source_sha256":sha256(include_bytes!("factory_child_goal_rework_acp.py")),"companion_sha256":companion_sha,"fixed_command_sha256":executable_sha,"initial_scope":scope,"definition":definition,"recovery":recovery,"before_owner":before,"owner_proposal":p,"owner_decision":decision,"final_factory":final_factory,"journal":journal});
     fs::write(
         evidence.join("complete.json"),
         serde_json::to_vec_pretty(&body).unwrap(),
