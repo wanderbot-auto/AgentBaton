@@ -131,6 +131,50 @@ class DriverTimingTests(unittest.TestCase):
         self.assertEqual(report['requests'], [])
         self.assertEqual(report['observations']['adapter_failure_timings'], [{'method': 'system.snapshot', 'timing': {'http_received_ns': 1000, 'pre_ipc_ns': 2000, 'post_ipc_ns': 3000}}])
 
+    def assert_connection_error_boundaries(self, error):
+        calls = []
+
+        def fail(*args):
+            calls.append(args)
+            raise error('IPC transport deliberately interrupted')
+
+        clock = TickClock()
+        scope, report = self.make_handler(fail, clock)
+        req = self.request(scope)
+        req.do_POST()
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(clock.calls, 3)
+        self.assertEqual(req.statuses, [])  # Preserve the original no-response failure.
+        self.assertEqual(req.wfile.getvalue(), b'')
+        self.assertEqual(report['requests'], [])
+        self.assertEqual(report['observations'].get('client_aborts', 0), 0)
+        self.assertEqual(report['observations']['adapter_failure_timings'], [{'method': 'system.snapshot', 'timing': {'http_received_ns': 1000, 'pre_ipc_ns': 2000, 'post_ipc_ns': 3000}, 'phase': 'ipc'}])
+        self.assertIn('deliberately interrupted', report['observations']['adapter_error'])
+
+        # The same exception from response writing is a genuine HTTP abort,
+        # after a real return from the inert transport callback, not IPC failure.
+        sentinel = {'transport_sentinel': 'not a product DTO'}
+        scope, report = self.make_handler(lambda *args: sentinel, TickClock())
+        req = self.request(scope)
+
+        class InterruptedWriter:
+            def write(self, raw):
+                raise error('HTTP writer deliberately interrupted')
+
+        req.wfile = InterruptedWriter()
+        req.do_POST()
+        self.assertEqual(req.statuses, [200])
+        self.assertEqual(report['observations']['client_aborts'], 1)
+        self.assertNotIn('adapter_failure_timings', report['observations'])
+        self.assertIs(report['requests'][0]['response'], sentinel)
+        self.assertEqual(report['requests'][0]['timing'], {'http_received_ns': 1000, 'pre_ipc_ns': 2000, 'post_ipc_ns': 3000})
+
+    def test_ipc_broken_pipe_is_not_an_http_client_abort(self):
+        self.assert_connection_error_boundaries(BrokenPipeError)
+
+    def test_ipc_connection_reset_is_not_an_http_client_abort(self):
+        self.assert_connection_error_boundaries(ConnectionResetError)
+
     def test_dropped_verified_response_is_never_rewritten_to_cancelled(self):
         sentinel = {'result': {'id': 'preview-fixture', 'state': 'verified', 'revision': 2}}
         scope, report = self.make_handler(lambda *a: sentinel, TickClock())

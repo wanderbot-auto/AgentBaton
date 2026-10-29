@@ -386,15 +386,18 @@ def main():
                     except (AssertionError, ValueError, KeyError, TypeError):
                         self.send_error(400); return
                     timing = {'http_received_ns': received_ns}
+                    phase = 'ipc'
                     try:
                         timing['pre_ipc_ns'] = time.monotonic_ns()
                         try:
                             response = ipc(method, params, key, revision)
                         finally:
                             timing['post_ipc_ns'] = time.monotonic_ns()
+                        phase = 'capture'
                         remember(method, response)
                         entry = {'method': method, 'args': values, 'response': response, 'timing': timing}
                         report['requests'].append(entry)
+                        phase = 'http_response'
                         with fault_lock:
                             drop = method in {'data_workspace_previews.cancel', 'data_workspaces.cancel'} and drop_cancel['target'] in {params.get('preview_id'), params.get('creation_id')} and drop_cancel['target'] is not None and isinstance(response.get('result'), dict) and response['result'].get('id') == drop_cancel['target']
                             if drop:
@@ -411,8 +414,12 @@ def main():
                         self.send_header('Content-Length', str(len(raw)))
                         self.send_header('Cache-Control', 'no-store')
                         self.end_headers(); self.wfile.write(raw)
-                    except (BrokenPipeError, ConnectionResetError):
-                        report['observations']['client_aborts'] = report['observations'].get('client_aborts', 0) + 1
+                    except (BrokenPipeError, ConnectionResetError) as failure:
+                        if phase == 'http_response':
+                            report['observations']['client_aborts'] = report['observations'].get('client_aborts', 0) + 1
+                        else:
+                            report['observations'].setdefault('adapter_failure_timings', []).append({'method': method, 'timing': timing, 'phase': phase})
+                            report['observations']['adapter_error'] = safe(failure)
                     except (AssertionError, OSError, ValueError) as failure:
                         report['observations'].setdefault('adapter_failure_timings', []).append({'method': method, 'timing': timing})
                         report['observations']['adapter_error'] = safe(failure)
