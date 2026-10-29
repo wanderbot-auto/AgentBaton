@@ -26,7 +26,7 @@ import time
 import uuid
 
 
-# Exact schema13 tables: never substitute old test DDL or silently skip absent
+# Exact schema14 tables: never substitute old test DDL or silently skip absent
 # tables. Every Goal store/runtime/graph table is empty in this Grant-only probe.
 GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
                'goal_plan_revisions', 'goal_plan_proposals', 'goal_ledgers',
@@ -36,7 +36,8 @@ GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
                'goal_graph_owner_decisions', 'goal_graph_acceptances')
 FACTORY_TABLES = ('factory_scopes', 'factory_runs', 'factory_task_lineage',
                   'factory_task_bindings', 'factory_delegations', 'factory_attempts',
-                  'factory_scoped_handles', 'factory_handoffs', 'factory_budget_reservations')
+                  'factory_scoped_handles', 'factory_handoffs', 'factory_budget_reservations',
+                  'factory_child_plan_heads', 'factory_child_plan_revisions')
 ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES, *FACTORY_TABLES)
 
 
@@ -126,7 +127,7 @@ def json_exact(left, right):
 def pending_error(value, proposal, sequence):
     if (type(sequence) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 13)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 14)
             or type(value.get('sequence')) is not int or not json_exact(value['sequence'], sequence)
             or not json_exact(value.get('proposal'), proposal) or proposal.get('kind') != 'grant'
             or proposal.get('consumed') is not False or value.get('proposal_result') is not None
@@ -164,7 +165,7 @@ def approved_error(value, proposal, baseline, response):
     current = value.get('proposal', {})
     if (type(baseline) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 13)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 14)
             or not isinstance(grants, list) or len(grants) != 1
             or current.get('id') != proposal['id'] or not json_exact(current.get('snapshot'), proposal['snapshot'])
             or current.get('kind') != 'grant' or current.get('consumed') is not True

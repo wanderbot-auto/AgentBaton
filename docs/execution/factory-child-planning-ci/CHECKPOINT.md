@@ -1,0 +1,7 @@
+# Checkpoint
+
+Worktree `/workspace/.worktrees/factory-child-planning-ci`, branch `codex/factory-child-planning-ci`, base `1f325d80561ea48301f5f72b2ecf4c7c9745efb9`, source `745baac3fbdd664c35279585dca6a72edb1febdf`, source tree `98c2df9c5d0724c3234383f4c897dd2fa9ceadfa`. Ten source paths and exact before/after hashes are in EVIDENCE.json; four own records are a separate documentation commit. No push/PR/remote/CI or target lease was used.
+
+Portable author evidence is `/workspace/.onboarding/factory-child-planning-ci/EVIDENCE.tar.gz`,145076bytes/SHA `2e2fc9bb5d7cea2fbf042a50f8e8ae6eca3653835ee356cb29b1a052b9bd9f85`,39 safe regular members with complete bytes/hash/mode roundtrip. External manifest SHA `c771cbad12b6470347d720060e101b73dee9f6b3143c63813ec482f44cc3ba29`. Evidence includes source bytes, exact inverse transformations,212 finite results,32/26 actual Python logs, four real-Core not_run IDs, formal Core count binding and retained setup failures. It excludes disposable temp/cache directories and all historical archive binaries.
+
+Next: independent source/finite review; Root merges this mechanical patch with actual frozen schema14 Core and separately owned Native Rust counter/testbin changes plus the separate causal Graph fix. Then run all four real-Core Owner cases, actual legacy12+Factory3 browser flows and Native/macOS/exact CI. Never run the schema13 candidate as14 or borrow schema13 historical passes. True child planning/approval/MCP/browser capability cases remain another explicit work unit. Product/gate/STATUS/locks unchanged.
