@@ -581,7 +581,12 @@ impl Store {
         if ids.len() > 256 {
             return Err(limited());
         }
-        ids.iter().map(|id| run(&self.conn, id)).collect()
+        ids.iter()
+            .map(|id| {
+                graph::require_legacy_run(&self.conn, id)?;
+                run(&self.conn, id)
+            })
+            .collect()
     }
     pub fn cancel_goal_run(&mut self, id: &str, revision: u64, key_id: &str) -> Result<GoalRun> {
         self.record_goal_cancel(id, revision, key_id)
@@ -2969,6 +2974,32 @@ mod tests {
             scope,
             run,
         }
+    }
+    #[test]
+    fn confirmed_native_legacy_list_preserves_exact_readonly_history() {
+        // Real Native Grant/scope/execution receipts with the existing explicit
+        // synthetic ready connection; no Provider or worker is started here.
+        let f = fixture(4);
+        let before = f.store.sequence().unwrap();
+        let exact = f.store.get_goal_run(&f.run.id).unwrap();
+        let listed = f.store.list_goal_runs(&f.run.task_id).unwrap();
+        assert_eq!(listed.len(), 1);
+        assert_eq!(json!(listed[0]), json!(exact));
+        assert_eq!(f.store.sequence().unwrap(), before);
+        assert_eq!(
+            f.store
+                .conn
+                .query_row("SELECT count(*) FROM attempts", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            0
+        );
+        assert_eq!(
+            f.store
+                .conn
+                .query_row("SELECT count(*) FROM sessions", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            0
+        );
     }
     fn reserve(f: &mut Fixture) -> crate::sessions::ManagedSession {
         let p = GoalRunDispatch {
