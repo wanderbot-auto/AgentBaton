@@ -859,5 +859,102 @@ class FactoryPlanningControls(unittest.TestCase):
             self.assertTrue(runner.json.loads((output / 'daemon-cleanup.json').read_text())['ok'])
 
 
+class FactoryEvidenceClosureControls(unittest.TestCase):
+    def test_other_proposal_complete_typed_raw_result_changes_never_look_unchanged(self):
+        # One real SQLite table with the exact three-column shape; generated
+        # unit data only, NOT an actual Core migration/runtime or Owner result.
+        cases = [('receipt', 'changed'), (None, 'null'), ('null', None),
+                 ('null', b'null'), ('', None), ('中文😀', '中文😀'.encode())]
+        for original, changed in cases:
+            with self.subTest(original=repr(original), changed=repr(changed)), sqlite3.connect(':memory:') as conn:
+                conn.execute('CREATE TABLE approval_proposals(id TEXT PRIMARY KEY,document TEXT NOT NULL,result TEXT)')
+                conn.execute('INSERT INTO approval_proposals VALUES(?,?,?)', ('other', '{"consumed":true,"expires_at_ms":999}', original))
+                before = runner.other_proposal_rows(conn, 'target')
+                conn.execute('UPDATE approval_proposals SET result=?', (changed,))
+                after = runner.other_proposal_rows(conn, 'target')
+                self.assertFalse(runner.json_exact(before, after))
+                self.assertEqual(before['other']['document'], after['other']['document'])
+                self.assertIn(before['other']['result']['sqlite_type'], ['null', 'text', 'blob'])
+        for document in ['{"consumed":false,"expires_at_ms":999}', '{"consumed":true,"expires_at_ms":1000}']:
+            with self.subTest(document=document), sqlite3.connect(':memory:') as conn:
+                conn.execute('CREATE TABLE approval_proposals(id TEXT PRIMARY KEY,document TEXT NOT NULL,result TEXT)')
+                conn.execute('INSERT INTO approval_proposals VALUES(?,?,?)', ('other', '{"consumed":true,"expires_at_ms":999}', 'receipt'))
+                before = runner.other_proposal_rows(conn, 'target')
+                conn.execute('UPDATE approval_proposals SET document=?', (document,))
+                self.assertFalse(runner.json_exact(before, runner.other_proposal_rows(conn, 'target')))
+        self.assertNotEqual(runner.sqlite_raw(None, 'null'), runner.sqlite_raw('null', 'text'))
+        self.assertNotEqual(runner.sqlite_raw('null', 'text'), runner.sqlite_raw(b'null', 'blob'))
+        with self.assertRaises(ValueError):
+            runner.sqlite_raw(True, 'integer')
+
+    def test_native_binary_exact_source_path_hash_size_stays_bound_without_resource_relocation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            executable = root / runner.NATIVE_OWNER_BINARY
+            executable.write_bytes(b'Synthetic file metadata fixture, NEVER executed\n')
+            executable.chmod(0o700)
+            output = root / 'evidence'; output.mkdir(mode=0o700)
+            with runner.native_binary_witness(executable, output) as record:
+                self.assertEqual(record['path'], str(executable.resolve()))
+                self.assertEqual(record['bytes'], executable.stat().st_size)
+                self.assertEqual(record['sha256'], runner.hashlib.sha256(executable.read_bytes()).hexdigest())
+                self.assertTrue(runner.native_binary_check(record)['stable'])
+            before = runner.json.loads((output / 'native-binary-before.json').read_text())
+            after = runner.json.loads((output / 'native-binary-after.json').read_text())
+            self.assertTrue(after['stable'])
+            self.assertEqual(before['source'], before['executed'])
+            self.assertIn('no Native copy', before['resource_contract'])
+            changed_output = root / 'changed'; changed_output.mkdir(mode=0o700)
+            with self.assertRaisesRegex(RuntimeError, 'changed'):
+                with runner.native_binary_witness(executable, changed_output):
+                    executable.write_bytes(b'changed source bytes')
+            self.assertFalse(runner.json.loads((changed_output / 'native-binary-after.json').read_text())['stable'])
+
+    def test_native_binary_wrong_file_types_never_open_and_original_failure_is_retained(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for mode in ['fifo', 'directory', 'symlink', 'default-app', 'writable']:
+                with self.subTest(mode=mode):
+                    folder = root / mode; folder.mkdir()
+                    executable = folder / runner.NATIVE_OWNER_BINARY
+                    if mode == 'fifo':
+                        os.mkfifo(executable, mode=0o700)
+                    elif mode == 'directory':
+                        executable.mkdir()
+                    elif mode == 'symlink':
+                        target = folder / 'target'; target.write_bytes(b'never executed'); target.chmod(0o700)
+                        executable.symlink_to(target)
+                    elif mode == 'default-app':
+                        executable = folder / 'agentbaton-desktop'; executable.write_bytes(b'not a test binary'); executable.chmod(0o700)
+                    else:
+                        executable.write_bytes(b'never executed'); executable.chmod(0o777)
+                    with mock.patch.object(runner.os, 'open') as open_file:
+                        with self.assertRaises(ValueError):
+                            runner.native_binary_record(executable)
+                        open_file.assert_not_called()
+            executable = root / runner.NATIVE_OWNER_BINARY
+            executable.write_bytes(b'not executed'); executable.chmod(0o700)
+            output = root / 'failure'; output.mkdir(mode=0o700)
+            with self.assertRaisesRegex(RuntimeError, 'original deadline cause'):
+                with runner.native_binary_witness(executable, output):
+                    executable.write_bytes(b'changed after original failure')
+                    raise RuntimeError('original deadline cause')
+            report = runner.json.loads((output / 'native-binary-after.json').read_text())
+            self.assertFalse(report['stable'])
+            self.assertEqual(report['original_failure'], {'type': 'RuntimeError', 'message': 'original deadline cause'})
+
+    def test_factory_postcheck_and_cleanup_failures_are_secondary_to_original_error(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            with mock.patch.object(runner, 'stop_owned', side_effect=RuntimeError('cleanup fault')), mock.patch.object(runner, 'native_binary_check', return_value={'stable': False, 'error': 'changed'}):
+                # Mock-only cleanup failure control, no process/Native execution.
+                runner._finish_factory_app(None, {}, output, {'type': 'TimeoutError', 'message': 'first cause'})
+                record = runner.json.loads((output / 'secondary-cleanup-errors.json').read_text())
+                self.assertEqual(record['original_failure']['message'], 'first cause')
+                self.assertEqual([x['stage'] for x in record['secondary']], ['owned_app_cleanup', 'native_binary_postcheck'])
+                with self.assertRaisesRegex(RuntimeError, 'owned_app_cleanup'):
+                    runner._finish_factory_app(None, {}, output, None)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -109,7 +109,7 @@ def database(runtime, proposal_id, *, factory_planning=False):
         extra = {}
         if factory_planning:
             extra = {'grant_documents': dict(conn.execute('SELECT id,document FROM execution_grants')),
-                     'other_proposals': dict(conn.execute('SELECT id,document FROM approval_proposals WHERE id!=?', (proposal_id,))),
+                     'other_proposals': other_proposal_rows(conn, proposal_id),
                      'task_documents': dict(conn.execute('SELECT id,document FROM tasks')),
                      'scopes': [{'document': json.loads(doc), 'owner_sequence': seq} for doc, seq in conn.execute('SELECT document,owner_sequence FROM factory_scopes')],
                      'dispatch_intents': conn.execute('SELECT count(*) FROM dispatch_intents').fetchone()[0]}
@@ -770,6 +770,106 @@ def prepare_factory(generated):
     return proposal, {'selection': selection, 'idempotencyKey': FACTORY_KEY}
 
 
+
+def sqlite_raw(value, kind):
+    """Lossless typed SQLite cell, never parse/normalize another receipt JSON."""
+    if kind == 'null' and value is None:
+        return {'sqlite_type': 'null', 'value': None}
+    if kind == 'text' and type(value) is str:
+        value.encode('utf-8')  # invalid text is failure, not a replacement string
+        return {'sqlite_type': 'text', 'value': value}
+    if kind == 'blob' and type(value) is bytes:
+        return {'sqlite_type': 'blob', 'hex': value.hex()}
+    if kind == 'integer' and type(value) is int:
+        return {'sqlite_type': 'integer', 'value': value}
+    if kind == 'real' and type(value) is float and math.isfinite(value):
+        return {'sqlite_type': 'real', 'value': value}
+    raise ValueError('Unsupported or mismatched SQLite storage class')
+
+
+def other_proposal_rows(conn, excluded):
+    # Actual approval_proposals has exactly id/document/result. Consumed,
+    # expiry and every other immutable proposal field live inside document.
+    rows = {}
+    for key, document, result, doc_type, result_type in conn.execute(
+            'SELECT id,document,result,typeof(document),typeof(result) FROM approval_proposals WHERE id!=?', (excluded,)):
+        if type(key) is not str or key in rows:
+            raise ValueError('Invalid/ambiguous non-target approval primary key')
+        rows[key] = {'document': sqlite_raw(document, doc_type), 'result': sqlite_raw(result, result_type)}
+    return rows
+
+
+NATIVE_OWNER_BINARY = 'agentbaton-native-owner-dialog-smoke'
+
+
+def native_binary_record(path):
+    """Record the explicit compiled test executable without reading FIFO/links.
+
+    This is byte/identity evidence, not compiler provenance or an OS sandbox.
+    The actual build log + checkout + this raw hash supply that separate proof.
+    """
+    requested = Path(path).absolute()
+    if requested.name != NATIVE_OWNER_BINARY:
+        raise ValueError('Only the fixed Native Owner test executable is supported; not the default application')
+    initial = requested.lstat()
+    if (not stat.S_ISREG(initial.st_mode) or initial.st_uid != os.geteuid()
+            or initial.st_mode & 0o022 or not initial.st_mode & 0o111):
+        raise ValueError('Native test executable must be an owned regular non-writable-by-group/world executable, not a link/FIFO/directory')
+    canonical = requested.resolve(strict=True)
+    fields = ('st_dev', 'st_ino', 'st_nlink', 'st_mode', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+    fd = os.open(canonical, os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0))
+    try:
+        before = os.fstat(fd)
+        if any(getattr(before, name) != getattr(initial, name) for name in fields):
+            raise ValueError('Native test executable changed before capture')
+        digest_value, size = hashlib.sha256(), 0
+        while chunk := os.read(fd, 65536):
+            digest_value.update(chunk)
+            size += len(chunk)
+        after = os.fstat(fd)
+        live = canonical.lstat()
+        if (size != before.st_size or any(getattr(after, name) != getattr(before, name) for name in fields)
+                or any(getattr(live, name) != getattr(before, name) for name in fields)):
+            raise ValueError('Native test executable changed during capture')
+        return {'path': str(canonical), 'sha256': digest_value.hexdigest(), 'bytes': size,
+                'device': before.st_dev, 'inode': before.st_ino, 'nlink': before.st_nlink,
+                'mode': stat.S_IMODE(before.st_mode), 'mtime_ns': before.st_mtime_ns, 'ctime_ns': before.st_ctime_ns}
+    finally:
+        os.close(fd)
+
+
+def native_binary_check(original):
+    try:
+        observed = native_binary_record(Path(original['path']))
+        return {'stable': json_exact(observed, original), 'observed': observed}
+    except Exception as error:
+        return {'stable': False, 'error': {'type': type(error).__name__, 'message': str(error)}}
+
+
+@contextmanager
+def native_binary_witness(binary, output):
+    original = native_binary_record(binary)
+    save(output / 'native-binary-before.json', {'source': original, 'executed': original,
+         'resource_contract': 'Execute the original canonical build path; no Native copy/resource-directory relocation',
+         'compiler_provenance': 'Not certified by path/hash; bind real same-checkout build log separately'})
+    primary = None
+    try:
+        yield original
+    except BaseException as error:
+        primary = {'type': type(error).__name__, 'message': str(error)}
+        raise
+    finally:
+        after = native_binary_check(original)
+        after['original_failure'] = primary
+        try:
+            save(output / 'native-binary-after.json', after)
+        except Exception as secondary:
+            if primary is None:
+                raise
+            print('SECONDARY Native binary evidence write failure: ' + repr(secondary), file=sys.stderr)
+        if not after['stable'] and primary is None:
+            raise RuntimeError('Native test executable changed; no successful Factory evidence')
+
 def factory_database(runtime, proposal_id):
     # One readonly SQLite transaction binds sequence, receipt and ALL raw docs.
     return database(runtime, proposal_id, factory_planning=True)
@@ -868,6 +968,42 @@ def run_factory(binary, daemon_path, companion_path, output, cancel_at=None):
     output = output.resolve()
     if any(output.iterdir()):
         raise ValueError('Use a fresh empty Factory evidence directory')
+    with native_binary_witness(binary, output) as native:
+        result = _run_factory_pinned(Path(native['path']), daemon_path, companion_path, output, cancel_at, native)
+    # No successful result is persisted until the final binary stability check.
+    save(output / 'result.json', result)
+
+
+
+def _finish_factory_app(app, native, output, primary):
+    """Only this fixture's existing owned cleanup; never mask the first failure."""
+    secondary = []
+    try:
+        cleanup = stop_owned(app, 'app')
+    except Exception as error:
+        cleanup = {'ok': False, 'error': {'type': type(error).__name__, 'message': str(error)}}
+    if cleanup.get('ok') is not True:
+        secondary.append({'stage': 'owned_app_cleanup', 'record': cleanup})
+    after = native_binary_check(native)
+    if not after['stable']:
+        secondary.append({'stage': 'native_binary_postcheck', 'record': after})
+    for name, value in [('app-cleanup.json', cleanup), ('native-binary-after.json', after)]:
+        try:
+            save(output / name, value)
+        except Exception as error:
+            secondary.append({'stage': name, 'error': repr(error)})
+    if secondary:
+        try:
+            save(output / 'secondary-cleanup-errors.json', {'original_failure': primary, 'secondary': secondary})
+        except Exception as error:
+            print('SECONDARY cleanup diagnostic write: ' + repr(error), file=sys.stderr)
+        if primary is None:
+            raise RuntimeError('Factory cleanup/Native executable check failed: ' + secondary[0]['stage'])
+    return cleanup, after
+
+def _run_factory_pinned(binary, daemon_path, companion_path, output, cancel_at, native):
+    # Keep the existing Native executable/resource location. Only the normal
+    # generated daemon/companion are copied beside one another as before.
     installed = output / 'private-tools'
     installed.mkdir(mode=0o700)
     tool_record = {}
@@ -908,6 +1044,10 @@ def run_factory(binary, daemon_path, companion_path, output, cancel_at=None):
             limit = fixture['cancel_at'] + 1 if phase == 'cancel' else len(pages)
             phase_failure = None
             try:
+                native_before = native_binary_check(native)
+                save(phase_out / 'native-binary-before.json', native_before)
+                if not native_before['stable']:
+                    raise ValueError('Native test executable changed before actual Popen')
                 app = subprocess.Popen([str(binary.resolve()), str(phase_out / 'fixture.json')], env=generated['env'], start_new_session=True)
                 deadline = time.monotonic() + 85
                 while not exited_without_reaping(app) and time.monotonic() < deadline:
@@ -954,21 +1094,26 @@ def run_factory(binary, daemon_path, companion_path, output, cancel_at=None):
                 phase_results.append({'phase': phase, 'pages_observed': limit, 'total_pages': len(pages), 'images': images})
             except BaseException as error:
                 phase_failure = {'type': type(error).__name__, 'message': str(error)}
-                save(phase_out / 'original-failure.json', phase_failure)
+                try:
+                    save(phase_out / 'original-failure.json', phase_failure)
+                except Exception as secondary:
+                    print('SECONDARY original failure evidence write: ' + repr(secondary), file=sys.stderr)
                 try:
                     save(phase_out / 'failure-database.json', factory_database(runtime, proposal['id']))
                 except Exception as secondary:
-                    save(phase_out / 'failure-database-error.json', {'type': type(secondary).__name__, 'message': str(secondary)})
+                    try:
+                        save(phase_out / 'failure-database-error.json', {'type': type(secondary).__name__, 'message': str(secondary)})
+                    except Exception as write_error:
+                        print('SECONDARY database diagnostic write: ' + repr(write_error), file=sys.stderr)
                 raise
             finally:
-                cleanup = stop_owned(app, 'app')
-                save(phase_out / 'app-cleanup.json', cleanup)
-                if not cleanup['ok'] and phase_failure is None:
-                    raise RuntimeError('Factory OS app did not exit cleanly')
-    save(output / 'result.json', {'status': 'actual_factory_planning_cancel_and_same_key_approval_visual_review_pending',
+                _finish_factory_app(app, native, phase_out, phase_failure)
+    return {'status': 'actual_factory_planning_cancel_and_same_key_approval_visual_review_pending',
          'proposal_id': proposal['id'], 'phases': phase_results, 'daemon_cleanup': generated['daemon_cleanup'],
          'dimension': 'actual_macos_factory_planning_only_no_execution', 'real_provider': 'not_run',
-         'human_owner_approval': 'not_claimed', 'os': sys.platform, 'architecture': platform.machine()})
+         'human_owner_approval': 'not_claimed', 'os': sys.platform, 'architecture': platform.machine(),
+         'harness_binary_sha256': native['sha256'], 'harness_binary_path': native['path'],
+         'harness_binary_bytes': native['bytes'], 'harness_binary': native}
 
 
 if __name__ == '__main__':
