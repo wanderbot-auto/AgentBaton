@@ -42,6 +42,7 @@ MAX_REPORT = 4 * 1024 * 1024
 MAX_PNG = 32 * 1024 * 1024
 MAX_PNG_TOTAL = 64 * 1024 * 1024
 MAX_PUBLIC_SUMMARY = 128 * 1024
+MAX_PNG_DECODED = 64 * 1024 * 1024
 
 
 class Refused(ValueError):
@@ -255,6 +256,39 @@ def project(report, report_hash, expected, harness):
     return result
 
 
+def png_pixels(raw, ranges, width, height, channels):
+    """Validate bounded noninterlaced PNG scanlines without retaining pixels.
+
+    This is syntax validation, not visual redaction or steganography detection.
+    Every compressed member must be the one complete zlib stream for the exact
+    IHDR dimensions; arbitrary/trailing bytes cannot become an opaque payload.
+    """
+    row_bytes = width * channels + 1
+    expected = row_bytes * height
+    require(expected <= MAX_PNG_DECODED)
+    inflater = zlib.decompressobj()
+    decoded = 0
+    try:
+        for start, end in ranges:
+            for offset in range(start, end, 65536):
+                pending = raw[offset:min(offset + 65536, end)]
+                while pending:
+                    prior = pending
+                    pixels = inflater.decompress(pending, min(65536, expected - decoded + 1))
+                    require(decoded + len(pixels) <= expected and not inflater.unused_data)
+                    # Filter bytes occur at each exact scanline boundary, even
+                    # when a row or compressed stream crosses IDAT/read chunks.
+                    for position in range((-decoded) % row_bytes, len(pixels), row_bytes):
+                        require(pixels[position] <= 4)
+                    decoded += len(pixels)
+                    pending = inflater.unconsumed_tail
+                    require(not pending or pixels or pending != prior)
+        require(inflater.eof and not inflater.unused_data and not inflater.unconsumed_tail
+                and decoded == expected)
+    except zlib.error:
+        raise Refused('PNG pixel stream refused') from None
+
+
 def png_bytes(raw, row, name):
     require(type(row) is dict and digest(row.get('sha256')) == sha(raw))
     viewport = row.get('viewport')
@@ -265,21 +299,24 @@ def png_bytes(raw, row, name):
     require(len(raw) >= 45 and raw[:8] == b'\x89PNG\r\n\x1a\n' and raw[8:12] == b'\0\0\0\r' and raw[12:16] == b'IHDR')
     width, height, depth, color, compression, filtering, interlace = struct.unpack('>IIBBBBB', raw[16:29])
     require(width == expected[0] and expected[1] <= height <= 16384 and width * height <= 33554432
-            and depth == 8 and color in (2, 6) and compression == filtering == 0 and interlace in (0, 1)
+            and depth == 8 and color in (2, 6) and compression == filtering == interlace == 0
             and zlib.crc32(raw[12:29]) & 0xffffffff == int.from_bytes(raw[29:33], 'big'))
-    # Fixed PNG chunk syntax, CRCs and IEND prevent disguised/trailing payloads.
+    # Deliberately support only Chromium's observed IHDR/IDAT+/IEND form.
+    # All ancillary metadata (including legitimate gAMA) is unsupported rather
+    # than copied or rewritten. The original accepted PNG bytes/hash stay exact.
     offset, seen_data, seen_end = 33, False, False
-    chunks = 0
+    chunks, ranges = 0, []
     while offset < len(raw):
         require(offset + 12 <= len(raw))
         length = int.from_bytes(raw[offset:offset+4], 'big')
         kind = raw[offset+4:offset+8]
         end = offset + 12 + length
-        require(end <= len(raw) and kind in (b'IDAT', b'IEND', b'sRGB', b'gAMA', b'cHRM', b'pHYs'))
+        require(end <= len(raw) and kind in (b'IDAT', b'IEND'))
         require(zlib.crc32(raw[offset+4:end-4]) & 0xffffffff == int.from_bytes(raw[end-4:end], 'big'))
         if kind == b'IDAT':
             require(not seen_end)
             seen_data = True
+            ranges.append((offset + 8, end - 4))
         if kind == b'IEND':
             require(length == 0 and seen_data and end == len(raw))
             seen_end = True
@@ -287,6 +324,7 @@ def png_bytes(raw, row, name):
         chunks += 1
         require(chunks <= 4096)
     require(seen_end)
+    png_pixels(raw, ranges, width, height, 3 if color == 2 else 4)
     return {'name': name, 'sha256': sha(raw), 'bytes': len(raw), 'width': width, 'height': height}
 
 

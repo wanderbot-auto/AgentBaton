@@ -297,6 +297,71 @@ class TaskWorkspaceProjectionTests(unittest.TestCase):
                 (self.private / 'report.json').write_text(json.dumps(value))
             code, _, out = self.run_projection(); self.assertEqual(code, 1); self.assert_no_images(out)
 
+    def test_png_ancillary_canary_and_raw_idat_rejected_via_main(self):
+        secret = b'PRIVATE_STDERR_CANARY_NOT_SCREENSHOT_METADATA'
+        for mode in ['gAMA-text', 'raw-IDAT']:
+            with self.subTest(mode=mode):
+                value = self.write(); path = self.private / P.PNG_NAMES[0]; original = path.read_bytes()
+                if mode == 'gAMA-text':
+                    raw = original[:33] + chunk(b'gAMA', secret) + original[33:]
+                else:
+                    raw = original[:33] + chunk(b'IDAT', secret) + chunk(b'IEND', b'')
+                path.write_bytes(raw); value['screenshots'][0]['sha256'] = P.sha(raw)
+                (self.private / 'report.json').write_text(json.dumps(value))
+                code, result, out = self.run_projection()
+                self.assertEqual(code, 1); self.assertEqual(result['status'], 'invalid')
+                self.assert_no_images(out)
+                self.assertNotIn(secret, (out / 'summary.json').read_bytes())
+
+    def test_png_zlib_dimensions_filters_eof_and_metadata_fail_closed_via_main(self):
+        rows = bytes((1440 * 4 + 1) * 1100)
+        encoded = zlib.compress(rows)
+        for mode in ['short', 'long', 'bad-filter', 'truncated', 'trailing', 'concatenated', 'metadata', 'interlaced']:
+            with self.subTest(mode=mode):
+                value = self.write(); path = self.private / P.PNG_NAMES[0]
+                header = path.read_bytes()[:33]
+                if mode == 'short': data = zlib.compress(rows[:-1])
+                elif mode == 'long': data = zlib.compress(rows + b'\0')
+                elif mode == 'bad-filter':
+                    invalid = bytearray(rows); invalid[(1440 * 4 + 1) * 63] = 5
+                    data = zlib.compress(invalid)
+                elif mode == 'truncated': data = encoded[:-1]
+                elif mode == 'trailing': data = encoded + SECRET.encode()
+                elif mode == 'concatenated': data = encoded + zlib.compress(b'')
+                else: data = encoded
+                if mode == 'interlaced':
+                    header = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 1440, 1100, 8, 6, 0, 0, 1))
+                # Legitimate ancillary metadata is deliberately unsupported,
+                # not silently stripped or passed as opaque public payload.
+                ancillary = chunk(b'gAMA', struct.pack('>I', 45455)) if mode == 'metadata' else b''
+                raw = header + ancillary + chunk(b'IDAT', data) + chunk(b'IEND', b'')
+                path.write_bytes(raw); value['screenshots'][0]['sha256'] = P.sha(raw)
+                (self.private / 'report.json').write_text(json.dumps(value))
+                code, result, out = self.run_projection()
+                self.assertEqual(code, 1); self.assertEqual(result['status'], 'invalid'); self.assert_no_images(out)
+
+    def test_png_rgb_multiple_idat_and_legal_filter_values_preserve_original_hash(self):
+        value = self.write(); path = self.private / P.PNG_NAMES[0]
+        row_bytes = 1440 * 3 + 1
+        pixels = bytearray(row_bytes * 1100)
+        for row in range(1100): pixels[row * row_bytes] = row % 5
+        encoded = zlib.compress(pixels)
+        raw = (b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 1440, 1100, 8, 2, 0, 0, 0))
+               + b''.join(chunk(b'IDAT', encoded[n:n + 7]) for n in range(0, len(encoded), 7)) + chunk(b'IEND', b''))
+        path.write_bytes(raw); value['screenshots'][0]['sha256'] = P.sha(raw)
+        (self.private / 'report.json').write_text(json.dumps(value))
+        code, result, out = self.run_projection()
+        self.assertEqual(code, 0); self.assertEqual(result['status'], 'passed')
+        self.assertEqual((out / path.name).read_bytes(), raw)
+        self.assertEqual(result['screenshots'][0]['sha256'], P.sha(raw))
+
+    def test_png_decoded_budget_refuses_before_inflater_creation(self):
+        self.write()
+        with mock.patch.object(P, 'MAX_PNG_DECODED', 10), mock.patch.object(P.zlib, 'decompressobj') as inflate:
+            code, result, out = self.run_projection()
+        self.assertEqual(code, 1); self.assertEqual(result['status'], 'invalid'); self.assert_no_images(out)
+        inflate.assert_not_called()
+
     def test_png_private_mode_link_and_byte_caps_refuse(self):
         for mode in ['permission', 'link', 'cap', 'total']:
             self.write(); path = self.private / P.PNG_NAMES[0]
