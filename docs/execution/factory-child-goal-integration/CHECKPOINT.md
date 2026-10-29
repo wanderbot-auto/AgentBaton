@@ -1,3 +1,9 @@
+## 2026-10-29T20:11:43.950362+00:00 — local IO and migration repairs accepted for new CI
+
+Feature Core145 actual outer tests pass (nested1 excluded), including both gates16; debug pair build, featurelib strictClippy, defaultworkspace alltargets strictClippy andfmt passed at their exact recorded heads. Genuine nonempty14→15 migration6 passed. Fixed private driver73pure andactualLinuxChromium/realUnixData8checks/unrun0 passed at1dad36c (7.131s). Preview realcancel finished13 andcopy realcancel/workerjoined finished20, eachrevision3; no partialcopy/midcopy/OSreap claim. Current frontend source byte-equal to2d build; compiledCore0c78, not falsely labeled newhead.
+
+Original cd579 source P2 on revisionbounds and existsFalse absence closed by630 andindependent69c8e136. Alloldfailure/source reviewrejection/rawlogs retained; run3actualPASS remains separate. Report has no dedicated cleanup attestation, not invented. New exact PR18 all7/dualMac/native/release/packages still pending; old14 installers not current15. WSI3 separate branchcodex/task-workspace-binding savedremote67bfae4 with13+1 actual andstrictalltargets; WSI4fixedIPC/genuine15fixture source underway, not integrated. Full130 remains incomplete. See [exact acceptance and dimensions](IO_LOCAL_ACCEPTANCE.json).
+
 ## 2026-10-29T19:46:59.802941+00:00 — schema15 regression and precise preview evidence boundary
 
 At0b5: all16 selected Rust targets executed,14 targets PASS; caller migration5/1 and sessions56/2 failures retained. Narrow reviewed fixes subsequently pass actual6 and2 respectively at exact recorded commits (56 filtered in sessions rerun, not full58). Feature392 actual8units/build pass; strictfeaturelibClippy9a passes, and debugassertions-OFF compile is refused by the exact single compile_error (not a real release app). Infrastructure84 passes at0f.

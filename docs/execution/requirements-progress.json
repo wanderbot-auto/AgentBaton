@@ -2120,6 +2120,13 @@
           "source_commit": "7d1566566a4c20c00c76c4d6a98eea35a101af95",
           "evidence": "docs/execution/factory-child-goal-integration/REGRESSION_AND_PREVIEW_FAILURES.json",
           "coverage": "partial generated Linux fixture only; preview actual cancelled/orderedfinish, copy actual Ready won despite cancel request; full run incomplete, no Native/Provider/partialcopy/OSstop claim"
+        },
+        {
+          "slice": "actual_data_before_scan_and_before_copy_cancel_with_strict_private_evidence",
+          "source_commit": "1dad36c330095448a5582857297296bdd52dbffa",
+          "evidence": "docs/execution/factory-child-goal-integration/IO_LOCAL_ACCEPTANCE.json",
+          "coverage": "partial Linux generated fixture; actual cancel/workerjoined; not midcopy/partialwrite/OSstop/Native/Provider/macOS/complete cleanup/full product",
+          "actual": "8checks/unrun0; independent source P2 closed630;73pure"
         }
       ]
     },

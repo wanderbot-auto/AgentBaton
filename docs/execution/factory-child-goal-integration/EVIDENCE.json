@@ -276,5 +276,6 @@
     "browser15": "not_run",
     "full_product": "incomplete"
   },
-  "latest_local_regression_and_preview_failures": "docs/execution/factory-child-goal-integration/REGRESSION_AND_PREVIEW_FAILURES.json"
+  "latest_local_regression_and_preview_failures": "docs/execution/factory-child-goal-integration/REGRESSION_AND_PREVIEW_FAILURES.json",
+  "latest_private_io_local_acceptance": "docs/execution/factory-child-goal-integration/IO_LOCAL_ACCEPTANCE.json"
 }

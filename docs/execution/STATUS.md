@@ -1,3 +1,11 @@
+# PR18 本地修复通过，准备准确新 CI — 2026-10-29T20:11:43.950362+00:00
+
+远程PR18仍head79/draft/open/unmerged，旧CI失败完整保留；本地修复记录至ab76aaa。Core带显式测试feature实际145外层单元通过（nested1不重复算）；两个门16、调试工具构建、featurelib与默认工作区alltargets严格Clippy、fmt、真实旧14→15迁移6通过。驱动73纯控与实际Linux Chromium/React/Unix schema15的8项检查通过，0未运行；编译Core0c78、前端2d源字节相同、driver1dad，分别准确归属。
+
+新证据仅before_scan和before_copy真实取消/worker join；不冒partialwrite/midcopy/OSstop/Native/Provider/Mac。原SQL失败、自然竞态exit2、cd579两P2独审拒绝都保留；630补严格revision/lstat后独审闭合、实际run4通过（7.131s）。report无完整cleanup字段不倒造。详见[准确本地验收](factory-child-goal-integration/IO_LOCAL_ACCEPTANCE.json)。下一步校验后推送新准确PR18候选，七CI/双Mac/新15开发包尚待，旧14包不能替代。
+
+WSI3另树已实际13+1通过、全workspace alltargets严格Clippy通过，分支codex/task-workspace-binding已保存remote67bfae4；新fixedIPC及真正15→16迁移夹具仍研发，不混入本Factory PR。完整130/WP01–14继续。main653679d、OWNER001/002ACK无003，AB-START-001权限不扩；正式Approve仍须具体PR当次确认。以下保留历史。
+
 # 本地回归、预览取消通过与复制覆盖缺口 — 2026-10-29T19:46:59.802941+00:00
 
 PR18远程仍head79/draft/open/unmerged；首轮真实CI失败不改写。当前本地42c5fdd：16个选定Rust目标均实际执行，14目标全通过，另两目标旧3失败保留；独审窄修后migration6通过、Goal/Graph两case通过（其余56过滤，非新全58）。完整infra84通过。

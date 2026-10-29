@@ -1,0 +1,322 @@
+{
+  "recorded_at": "2026-10-29T20:11:43.950362+00:00",
+  "recorded_source": "ab76aaa141773b84cd4779e471080874589f2f91",
+  "phase": "local repair acceptance; new exact PR18 CI still pending",
+  "approval": "AB-START-001; full130/WP01-14 incomplete",
+  "feature_core_source": "0c78e8517dd4655551c3d19b258a92028997317c",
+  "frontend_build_source": "2d12dff1cbf6748c2f9c2fef51600ff49d4d23b3",
+  "frontend_current_source_paths_byte_equal_build_source": true,
+  "feature_units_and_debug_build": [
+    {
+      "source": "0c78e8517dd4655551c3d19b258a92028997317c",
+      "name": "feature_units",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "preview-evidence",
+        "--lib",
+        "evidence_gate",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 19.42830027602031,
+      "minimum_free_bytes": 343224320,
+      "interruption": null,
+      "log_sha256": "564c18fc4eadd1b6ca47ccdafd215831867b09aaceeba28b3ae64f4c4f589b52",
+      "summaries": [
+        "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 129 filtered out; finished in 0.16s"
+      ],
+      "profile": "debug assertions on, dev/test debug symbols0; explicit nondefault preview-evidence; no release/native claim"
+    },
+    {
+      "source": "0c78e8517dd4655551c3d19b258a92028997317c",
+      "name": "debug_tools",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton",
+        "--features",
+        "agentbaton-core/preview-evidence"
+      ],
+      "exit": 0,
+      "seconds": 19.048196843999904,
+      "minimum_free_bytes": 364023808,
+      "interruption": null,
+      "log_sha256": "8a285baa57aaa96ec88c5abb3bae4f902c063a4ad0ce3471e50496854acc8ef9",
+      "summaries": [],
+      "profile": "debug assertions on, dev/test debug symbols0; explicit nondefault preview-evidence; no release/native claim"
+    }
+  ],
+  "full_feature_core": {
+    "raw_result": {
+      "source": "9cfcc94a54ff82d7dd8da1490ab137380c50eb08",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "preview-evidence",
+        "--lib",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 95.7628462149878,
+      "minimum_free_bytes": 360992768,
+      "interruption": null,
+      "log_sha256": "566e10a5b667a5eaf5ad5565658705fe3aa793f787cfd0f303a957e83c1df540",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 144 filtered out; finished in 0.00s",
+        "test result: ok. 145 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 95.58s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "unique_outer_tests": 145,
+    "nested_overlapping_helper_excluded": 1,
+    "zero_ignored": true
+  },
+  "feature_clippy": {
+    "source": "0c78e8517dd4655551c3d19b258a92028997317c",
+    "root": "/workspace/.worktrees/factory-runtime-integration",
+    "command": [
+      "cargo",
+      "clippy",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--features",
+      "preview-evidence",
+      "--lib",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 9.430004310997901,
+    "minimum_free_bytes": 398032896,
+    "interruption": null,
+    "log_sha256": "add85abee633f36472867ea95df0a41d4113e82ad6ff949be88700885ee5b66e",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "default_workspace_alltargets_clippy": {
+    "source": "9cfcc94a54ff82d7dd8da1490ab137380c50eb08",
+    "root": "/workspace/.worktrees/factory-runtime-integration",
+    "command": [
+      "cargo",
+      "clippy",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 12.366940485982923,
+    "minimum_free_bytes": 360873984,
+    "interruption": null,
+    "log_sha256": "00550226c02bd8062c3a67f01d29bce4b9f0d4645cc2b95b0eb0327c84ce838e",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "format": {
+    "source": "9cfcc94a54ff82d7dd8da1490ab137380c50eb08",
+    "root": "/workspace/.worktrees/factory-runtime-integration",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 1.3066359170188662,
+    "minimum_free_bytes": 361242624,
+    "interruption": null,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "private_driver_pure": {
+    "result": {
+      "source": "1dad36c330095448a5582857297296bdd52dbffa",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "apps.desktop.tests.test_data_preview_browser_timing",
+        "apps.desktop.tests.test_data_preview_evidence",
+        "apps.desktop.tests.test_data_preview_evidence_deadline",
+        "apps.desktop.tests.test_data_preview_commitments",
+        "apps.desktop.tests.test_data_copy_evidence",
+        "apps.desktop.tests.test_data_copy_evidence_boundaries"
+      ],
+      "exit": 0,
+      "seconds": 0.7019988609827124,
+      "minimum_free_bytes": 359751680,
+      "interruption": null,
+      "log_sha256": "f26422789a788d8af3f5f2ab115efc867819ea4d707d1b170813d065956486cf",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "tests": 73,
+    "dimension": "Python/owned inert SQLite and file controls, not product proof"
+  },
+  "genuine14_to_current15": {
+    "result": {
+      "source": "9cfcc94a54ff82d7dd8da1490ab137380c50eb08",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--features",
+        "actual-legacy-migration-tests",
+        "--test",
+        "factory_child_goal_legacy_migration",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 17.663204456010135,
+      "minimum_free_bytes": 359936000,
+      "interruption": null,
+      "log_sha256": "bffd40ca4c236cadc64b45d38efb78e45304306085ddd5ade4e50e09bad0ae3a",
+      "summaries": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.60s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    "fixture_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+    "fixture": "actual generated old14 history, not reversed synthetic15",
+    "dimension": "real old nonempty native/Factory SQLite history and current Store15;6 actual tests; not schema16 acceptance"
+  },
+  "actual_browser": {
+    "result": {
+      "source": "1dad36c330095448a5582857297296bdd52dbffa",
+      "command": [
+        "python3",
+        "apps/desktop/tests/data-workspace-real-ipc.py",
+        "--preview-evidence",
+        "--batond",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+        "--frontend",
+        "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+        "--candidate-manifest",
+        "/workspace/.onboarding/pr18-data-preview-copy-gated-run4/manifest.json",
+        "--output",
+        "/workspace/.onboarding/pr18-data-preview-copy-gated-run4/evidence"
+      ],
+      "exit": 0,
+      "seconds": 7.1314797989907674,
+      "minimum_free_bytes": 360005632,
+      "interruption": null,
+      "log_sha256": "baac9b5cb3bf0c3856143f1b9d0a35d64fc01d037b3d0ed4e2138d0ba4682ffd",
+      "report_sha256": "6d21f82ce868bb156fc60c8c9c2d360d1aae0e79becf05023d7922feadbc5880",
+      "status": "passed",
+      "checks": 8,
+      "unrun": [],
+      "source_tools_frontend_unchanged": true,
+      "limits": "original32MiB regular input/64MiB4files/30s unchanged; private explicit before-scan and before-copy waits only; original cancel and join",
+      "dimension": "actual React/Linux Chromium/authenticated Unix schema15; host Owner fixture outsideHTTP not native dialog/Provider/Mac"
+    },
+    "compiled_core_and_tools": {
+      "batond": {
+        "path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/batond",
+        "bytes": 35135744,
+        "sha256": "6f5100d35f139162e335fef8c842f80daa55640690fa91f8df6e1256dc2f90e0"
+      },
+      "baton": {
+        "path": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug/baton",
+        "bytes": 2815584,
+        "sha256": "d38924ac7ebfc56576ef5e224c46be6983b5eadb02b5885fecf37085eccb847d"
+      }
+    },
+    "source_pins_verified_by_runner": true,
+    "preview": {
+      "state": "cancelled",
+      "cancel_requested_sequence": 12,
+      "finished_sequence": 13,
+      "terminal_revision": 3,
+      "no_snapshot": true,
+      "evidence_stage": "before_scan"
+    },
+    "copy": {
+      "state": "cancelled",
+      "io_completion": "worker_joined",
+      "finished_sequence": 20,
+      "terminal_revision": 3,
+      "no_contract_or_observation": true,
+      "evidence_stage": "before_copy",
+      "destination_entry_absence_required_by_success_path": "lstat raises exactly ENOENT at the observation, not existsFalse; dangling/other errors rejected before publishing observation",
+      "independent_errno_snapshot_in_report": false
+    },
+    "Root_visual_inspection": "run3 PNG05 viewed; run4 screenshots hashes inspected only, no claim all6 visually reviewed",
+    "limits": "original32MiB selected regular input,64MiB/4files policy,30s CopyControl unchanged. Private gates only original cancel/deadline.",
+    "unclaimed": [
+      "natural race coverage of both operations in same run",
+      "partial write or mid-copy cancellation",
+      "OS process reap/global filesystem quiescence",
+      "complete cleanup/graceful daemon-exit attestation (report has no dedicated fields; finally attempts terminate/wait5s/kill fallback)",
+      "native OS OwnerDialog/WebView/macOS/live Provider/sandbox/Task acceptance"
+    ]
+  },
+  "reviews": {
+    "Core_copy_2c5": "39a98cc94df9470cc03856484e569399e1e96d1503fbbe3931eeecfeb38e5fa5",
+    "Python_630_closure": "69c8e136c9fdc5f0ad13c9a215c0592a188444f497e6b6fbdf7b54935c3d7487",
+    "Python_630_manifest": "8e3f6e2921b2bf37da4fa8f54ef788d109ed6ec588d4867518e66350c3f308bf",
+    "Python_cd_original_CHANGES_REQUIRED": "e21685f422f959ed92709a7578bb25a69d19657de6d6c77be59d76520637cee9",
+    "CI_392_earlier_wiring_review": "cc1088b7496161a4f862f23de77639f1deb247b74700f131254c88e6079c4283",
+    "CI_followups": "Only add five exact pure files after initial timing step and expand Rust filter from preview_evidence_gate to evidence_gate; same job names/pins/budgets/token permissions. Root reviewed command wiring, real run16 and pure73 recorded; no formal GitHub Approve."
+  },
+  "preserved": {
+    "previous_results": "REGRESSION_AND_PREVIEW_FAILURES.json and PR18_FIRST_CI_FAILURES.json; all originals in private cache",
+    "run3": "exit0/8PASS actual at9cf remains observed; later source reviewP2 was CHANGES_REQUIRED separately, not retroactively a product failure",
+    "run4": "source630 closes positive-u64 and lstat absence guards, independent review/source+actual evidence closed",
+    "old_natural_races": "preview verified/copy Ready retained with exit2, never promoted to cancellation"
+  },
+  "remaining": [
+    "new exact-head PR18 all7 CI, real ARM/Intel Core/native/WebView/Owner/release audit/build/dev installers",
+    "schema16 genuine15 migration and version-consumer regressions",
+    "WSI4 fixed IPC/Native/UI and remaining full130 scope",
+    "real Provider/approved remote hosts/manual install/platform limitations as separately gated"
+  ],
+  "authority": "No new real Provider/account/credentials/spend/hosts/production/signing/license; no formal GitHub Approve. Current branch-protection settings read403 stopped, no bypass."
+}

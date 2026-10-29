@@ -16,3 +16,7 @@ Next dependency-ready acceptance unit after normal authority/lifecycle boundarie
 ## 2026-10-29T18:18:35.262134+00:00 — cancelled history accepted locally; exact CI next
 
 At2d12: actual UI901/52/type/build passed; browser cancel20.525s/CG01,02,04,06/threePNG/cleanuptrue. New history guard and supported-context regression reviewed. Earlier failures remain. New PR/all seven checks/both real Mac Native15/build/package and traceable installers still NOT_RUN at record time. WSI1/WSI2a stay separate and full130 goal remains incomplete. See [CANCELLED_HISTORY_ACCEPTANCE.json](CANCELLED_HISTORY_ACCEPTANCE.json).
+
+## 2026-10-29T20:11:43.950362+00:00 — next integration boundary
+
+Local reviewed IO fixture controls/default-off and genuine14 regression pass. Run final infrastructure/design/bootstrap validation, publish one new PR18 candidate, read exact seven checks and dualMac outputs; fix any real failures without guard weakening. Then integrate under existing protected rules and continue WSI3/4 and genuine15→16 migration plus remaining full130 requirements. No formal Approve/production/provider/spend/signing/license expansion.
