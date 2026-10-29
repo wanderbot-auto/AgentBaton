@@ -1,0 +1,71 @@
+{
+  "state": "source frozen, author static checks passed, independent review and new CI pending",
+  "base": "4d2ab1fbb9c4aa562a86de0dd127b61948fdaa2e",
+  "source_commit": "3a0caa9366640aab8a40911fe814fd77d417c60e",
+  "workflow_sha256": "baa70c8b721b7f82e1645651d2131008c6601bd67c70e2a39600177e42633658",
+  "delta": "desktop job-level timeout-minutes45 to60; only one workflow line",
+  "authority": "Root explicit scoped instruction; existing standard hosted runners/matrix/quota, no new purchase/account/resource. Root reported public repository API verification; this leaf did not perform that API lookup.",
+  "actual_evidence": [
+    {
+      "path": "intel-check-annotations.json",
+      "bytes": 1303,
+      "sha256": "f16a1032e28b53f8953d953cc5f5e4d03207cb52d16554f0aab8cd473f929166"
+    },
+    {
+      "path": "SUMMARY.md",
+      "bytes": 5660,
+      "sha256": "eae25fe3707f8a128235a7c34196784e3bc06f8d47126cef6faf29caf252b4c5"
+    },
+    {
+      "path": "EVIDENCE_IMPORT.json",
+      "bytes": 520,
+      "sha256": "424ee51e2e4e61c63960022342aa971a4f3c2aa2ce94e0d3b14239aa7d801417"
+    }
+  ],
+  "observed_failures": {
+    "Intel": "job123175557621 CANCELLED; official annotation maximum45m0s; stopped in release compilation after successful native readonly/Owner dimensions",
+    "ARM": "job123175557753 FAILURE; release executable compiled, bundler missing native_owner_dialog. Separate observed failure, addressed by earlier helper relocation candidate9c; no common cause claim."
+  },
+  "checks": [
+    {
+      "record": "initial-check-command.json",
+      "exit": 1,
+      "cause": "checker incorrectly addressed job ID rust; actual job ID is core. Source was not changed to satisfy checker. Raw KeyError and original checker preserved."
+    },
+    {
+      "record": "pre-freeze-check-command.json",
+      "exit": 0,
+      "passed": 16
+    },
+    {
+      "record": "check-command.json",
+      "exit": 0,
+      "passed": 16,
+      "note": "same checks pinned to source commit for replay after docs commit"
+    },
+    {
+      "record": "diff-command.json",
+      "exit": 0
+    }
+  ],
+  "preserved": [
+    "entire workflow except one timeout line",
+    "same matrix/runners/steps/checknames/actions pins",
+    "same permissions/dependencies/artifacts/audit",
+    "non-desktop job25/20 caps and all original per-test/product limits",
+    "helper bytes/source and original module-move records/archive"
+  ],
+  "not_run": [
+    "new CI or actual new desktop job duration",
+    "Cargo/build/native tests/daemon/browser",
+    "macOS package/sign/install"
+  ],
+  "limits": "60 minutes is a bounded scheduling allowance, not a demonstrated speed improvement or proof the next build will finish. Does not fix the ARM phantom-binary error by itself.",
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "bytes": 9952,
+    "sha256": "6cf521cd6a56954378f4849abab1be57fc343a9b55a759d83d768176dbce41a4"
+  },
+  "archive_manifest": "EVIDENCE_ARCHIVE_MANIFEST.json",
+  "at_utc": "2026-10-29T00:57:38.873992+00:00"
+}
