@@ -1,3 +1,11 @@
+# 当前预算复用及取消历史检查点 — 2026-10-29T18:01:02.797400+00:00
+
+当前Core baa72ac完整129项通过、无跳过；UI61dd类型/872项51文件/构建通过，961工作区alltargets严格Clippy通过。真实返工10及两版四条预留、八条费用两级账本正控通过；同预留阶段单样本4455→1281ms，仅为一次实测观察。旧新增负控夹具CHECK长度失败与失败ELF保留，合法64hex错值修复后六项通过。
+
+取消新961已真实提交、丢回包、同key/payload/CAS恢复并最终cancelled，CG04通过；整轮仍FAIL，因为父Factory取消后最终只读历史控件消失/超时，正修UI。上一轮Scope未变、Goal到期后版本推进、旧CAS被正确拒绝，也完整保留，不相互冒充。Core/Node/浏览器/真实Provider/Mac维度分列。
+
+当前分支codex/factory-child-goal-integration，远程上次8561999；新PR/CI尚未创建。Native新runner修复独审通过但实际回归受本地容量约束，双Mac15与新安装包待CI。WSI1下一独立工作单元已写只读源码及九项测试，尚未编译/运行，独审发现Project关系pin不一致须修。完整130/WP01–14继续，main653679d、OWNER001/002ACK无003，原权限不变。见[准确证据](factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json)。以下保留历史。
+
 # 当前实际返工与浏览器结果 — 2026-10-29T17:26:14.309266+00:00
 
 真实返工7/8/9均通过：Commandexit1→同Graph r2→Commandexit0→私有Owner验收→TaskAccepted→新父attempt完成，原累计预算与原始Grant保护断言通过。runtime7独审已核；Owner写恰一次、收到回复，单次只读5158ms未知传输经绑定重查恢复，不能冒响应性能通过。最新分段实测将约4.5秒同步延迟定位到Factory预算预留，正做同事务严格读复用，尚未修完。

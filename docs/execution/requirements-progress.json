@@ -2393,7 +2393,8 @@
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
         "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2584,6 +2585,17 @@
           "browser": "normala9PASS;lost-start8cPASS;cancelFAIL andnotaccepted",
           "evidence": "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
           "limits": "GeneratedProvider/privateOwnerfixture only; performanceopen; no newMac/liveProvider/nativeOS/full130acceptance"
+        },
+        {
+          "slice": "transaction_local_historical_budget_reuse_and_exact_rework_fee_projection",
+          "source_commit": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+          "dimensions": [
+            "Core129 unit pass",
+            "reservation6 selected pass",
+            "actual account-free Command exit1 to same Graph r2 exit0 to private Owner to parent completion pass"
+          ],
+          "coverage": "partial; cross-run positive and performance SLA not claimed; native/macOS/current browser full cancellation not accepted",
+          "evidence": "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
         }
       ]
     },
@@ -2937,7 +2949,8 @@
         "docs/execution/command-integration/EVIDENCE.json",
         "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
         "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3030,6 +3043,17 @@
           "browser": "normala9PASS;lost-start8cPASS;cancelFAIL andnotaccepted",
           "evidence": "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
           "limits": "GeneratedProvider/privateOwnerfixture only; performanceopen; no newMac/liveProvider/nativeOS/full130acceptance"
+        },
+        {
+          "slice": "transaction_local_historical_budget_reuse_and_exact_rework_fee_projection",
+          "source_commit": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+          "dimensions": [
+            "Core129 unit pass",
+            "reservation6 selected pass",
+            "actual account-free Command exit1 to same Graph r2 exit0 to private Owner to parent completion pass"
+          ],
+          "coverage": "partial; cross-run positive and performance SLA not claimed; native/macOS/current browser full cancellation not accepted",
+          "evidence": "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
         }
       ]
     },
@@ -3405,7 +3429,8 @@
         "docs/execution/command-integration/EVIDENCE.json",
         "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
         "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3489,6 +3514,17 @@
           "browser": "normala9PASS;lost-start8cPASS;cancelFAIL andnotaccepted",
           "evidence": "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
           "limits": "GeneratedProvider/privateOwnerfixture only; performanceopen; no newMac/liveProvider/nativeOS/full130acceptance"
+        },
+        {
+          "slice": "transaction_local_historical_budget_reuse_and_exact_rework_fee_projection",
+          "source_commit": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+          "dimensions": [
+            "Core129 unit pass",
+            "reservation6 selected pass",
+            "actual account-free Command exit1 to same Graph r2 exit0 to private Owner to parent completion pass"
+          ],
+          "coverage": "partial; cross-run positive and performance SLA not claimed; native/macOS/current browser full cancellation not accepted",
+          "evidence": "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
         }
       ]
     },
@@ -5899,7 +5935,8 @@
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
         "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -6101,6 +6138,17 @@
           "browser": "normala9PASS;lost-start8cPASS;cancelFAIL andnotaccepted",
           "evidence": "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
           "limits": "GeneratedProvider/privateOwnerfixture only; performanceopen; no newMac/liveProvider/nativeOS/full130acceptance"
+        },
+        {
+          "slice": "transaction_local_historical_budget_reuse_and_exact_rework_fee_projection",
+          "source_commit": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+          "dimensions": [
+            "Core129 unit pass",
+            "reservation6 selected pass",
+            "actual account-free Command exit1 to same Graph r2 exit0 to private Owner to parent completion pass"
+          ],
+          "coverage": "partial; cross-run positive and performance SLA not claimed; native/macOS/current browser full cancellation not accepted",
+          "evidence": "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json"
         }
       ]
     },

@@ -1,0 +1,293 @@
+{
+  "recorded_at": "2026-10-29T18:01:02.797400+00:00",
+  "authority": "AB-START-001 unchanged; full130/WP01-WP14 remains incomplete",
+  "source_heads": {
+    "Core_and_rework": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+    "UI_build": "61dd0c9c6193c547ac102dd6da6cc12be7acaceb",
+    "strict_clippy_and_first_summary_driver": "961253c77baefed45780b0f2241c81f2d8d0834a"
+  },
+  "reservation_units_original_failure": [
+    {
+      "source": "72bf7d129f289c72c0bd244b22f23509fce1dd8f",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "reservation_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 35.48324814901571,
+      "minimum_free_bytes": 326684672,
+      "interruption": null,
+      "log_sha256": "c1aeab160737093c4360e4b8b479a383ecf347079c4b5ba2807efc8d5e03be42",
+      "summaries": [
+        "test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 123 filtered out; finished in 18.06s"
+      ]
+    }
+  ],
+  "reservation_units_corrected": [
+    {
+      "source": "ce49dc8892fcb8c14d4c69aecd422989a5d43576",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "reservation_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 35.79705385197303,
+      "minimum_free_bytes": 286875648,
+      "interruption": null,
+      "log_sha256": "a73c2e3b8062f000e5709e80fcc7a5243a4ccea889fcd023a0de8692e9f2931d",
+      "summaries": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 123 filtered out; finished in 18.58s"
+      ]
+    }
+  ],
+  "actual_rework10": [
+    {
+      "source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 52.64614057299332,
+      "minimum_free_bytes": 388288512,
+      "interruption": null,
+      "log_sha256": "28451ed4f777587d7da21f62483261fe287bc0f6eecf5819e992c405775c64a1",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 34.97s"
+      ]
+    }
+  ],
+  "full_Core_lib": [
+    {
+      "source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 93.65869035199285,
+      "minimum_free_bytes": 517124096,
+      "interruption": null,
+      "log_sha256": "6027f9b2af0aab3ede98ae0a085bd538db2460bd52bd5e322fe0f0eee1731285",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 128 filtered out; finished in 0.00s",
+        "test result: ok. 129 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 93.50s"
+      ]
+    }
+  ],
+  "strict_workspace_clippy": [
+    {
+      "source": "961253c77baefed45780b0f2241c81f2d8d0834a",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 13.152465012011817,
+      "minimum_free_bytes": 515969024,
+      "interruption": null,
+      "log_sha256": "8fcad94362cf61a91048810a9d836fa926f875fcee0b8368550b5f60765c29b2",
+      "summaries": []
+    }
+  ],
+  "UI": [
+    {
+      "source": "61dd0c9c6193c547ac102dd6da6cc12be7acaceb",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "seconds": 1.172746600001119,
+      "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+    },
+    {
+      "source": "61dd0c9c6193c547ac102dd6da6cc12be7acaceb",
+      "command": [
+        "npm",
+        "run",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 30.047076096001547,
+      "log_sha256": "af7ec8851aa7914b4d7a50199a514a1ea4ff02f070fb96abd566b405b30c0dcd"
+    },
+    {
+      "source": "61dd0c9c6193c547ac102dd6da6cc12be7acaceb",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 1.4822701929952018,
+      "log_sha256": "6aafd0d231aa28a6a38cc84f1b879aadab04354d17a4c34c06f984caa90c6e8e"
+    }
+  ],
+  "UI_summary": "872 tests / 51 files, typecheck and build exit0; not macOS/native validation",
+  "performance_observation": {
+    "before_source": "50f41e1752e84772fd137a03e6424e210abcfa29",
+    "before_reservation_ms": 4455,
+    "after_source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+    "after_reservation_ms": 1281,
+    "limitation": "One real new-database sample each, inclusive wall time; not statistical benchmark, CPU attribution, latency SLA or complete performance acceptance",
+    "cache_scope": "One checked transaction-local history read only; original per-row receipts, live authorization, expiry, executable hash and new-write recheck retained"
+  },
+  "actual_multi_revision_positive": {
+    "derived_reservations": 4,
+    "plan_revisions": [
+      1,
+      2
+    ],
+    "rows_each_revision": 2,
+    "all_settled_Goal_and_Factory_attempts": 8,
+    "all_attempt_runtime_ms": 16678,
+    "all_attempt_output_bytes": 162,
+    "project_and_original_root_grant_ledgers_exact": true,
+    "cross_run_positive": "not_claimed"
+  },
+  "cancel_before_driver_change": {
+    "source": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+    "command": [
+      "python3",
+      "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "--run",
+      "--case",
+      "cancel",
+      "--tools",
+      "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen",
+      "--manifest",
+      "/workspace/.onboarding/factory-child-goal-browser-summary-cancel1/manifest.json",
+      "--frontend",
+      "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+      "--output",
+      "/workspace/.onboarding/factory-child-goal-browser-summary-cancel1/cancel"
+    ],
+    "exit": 1,
+    "seconds": 35.790072653995594,
+    "minimum_free_bytes": 517885952,
+    "interruption": null,
+    "log_sha256": "25d3875bca25c39642e87620fb27eecaa1b5f05a8a92aaedeb49c511962f460a",
+    "report_sha256": "d988aca5444eb3f2cf7f5e7b1a05784fc2b40362f51047a3658649945c1f4eb6",
+    "status": "failed_or_interrupted",
+    "checks": 2,
+    "screenshots": 3,
+    "cleanup_complete": false,
+    "source_tools_assets_before_after_equal": true,
+    "guard_scope": "180s external test controller only; original product Grant/Scope/runtime and per-stage15s unchanged",
+    "dimensions": "actual React/Linux Chromium/authenticated Unix Core15/generated ACP+MCP/private Owner fixture; not OS dialog or real Provider account"
+  },
+  "cancel_first_summary": {
+    "source": "961253c77baefed45780b0f2241c81f2d8d0834a",
+    "command": [
+      "python3",
+      "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "--run",
+      "--case",
+      "cancel",
+      "--tools",
+      "/workspace/.onboarding/factory-budget-history-cache-current-preflight1/frozen",
+      "--manifest",
+      "/workspace/.onboarding/factory-child-goal-browser-first-summary-cancel1/manifest.json",
+      "--frontend",
+      "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+      "--output",
+      "/workspace/.onboarding/factory-child-goal-browser-first-summary-cancel1/cancel"
+    ],
+    "exit": 1,
+    "seconds": 37.874853191984585,
+    "minimum_free_bytes": 507011072,
+    "interruption": null,
+    "log_sha256": "c885e8013cec009b891722dbe4348fdbdd393fc600dba1c3aec611222c10d3b9",
+    "report_sha256": "27cacba15b85d13cf6fbbcec09aeb4c954a976206a783e55d86bdaec78b92c36",
+    "status": "failed_or_interrupted",
+    "checks": 3,
+    "screenshots": 3,
+    "cleanup_complete": false,
+    "source_tools_assets_before_after_equal": true,
+    "guard_scope": "180s external test controller only; original product Grant/Scope/runtime and per-stage15s unchanged",
+    "dimensions": "actual React/Linux Chromium/authenticated Unix Core15/generated ACP+MCP/private Owner fixture; not OS dialog or real Provider account"
+  },
+  "cancel_findings": {
+    "prior_run": "Scope remained revision1. Work settled10001ms and Goal revision2/running became3/outcome_unknown before cancellation. Exact old CAS correctly refused STALE_REVISION/not_started; no committed reply was dropped. Request send/Actor arrival times unavailable, so no unique latency attribution.",
+    "latest_run": "CG01/CG02/CG04 passed: successful cancel committed, reply deliberately dropped, explicit exact-key/payload/CAS recovery returned original receipt and actual Goal reached cancelled. Whole run remains FAILED: final history Refresh after parent Factory cancellation detached/timeout. Three screenshots and original failure retained; not complete cancellation acceptance.",
+    "fix_pending": "Read-only cancelled history rendering; do not weaken mutation or CAS gates",
+    "old_manifest_metadata_correction": {
+      "original_manifest_sha256": "10a7592c48dd5dab828b64c0affb7eb5aa0cf74b9e55bef67f94865030b92d7a",
+      "field": "compiled_core_tree",
+      "original_field_contains": "actual crates/core subtree instead of whole compiled Git tree",
+      "compiled_source_head": "baa72ac04944ccd1a1abc659084f5bc6cd148f33",
+      "correct_whole_git_tree": "fabfe01e74189f4986ea8c133f32a5f1ed52006b",
+      "original_subtree_value": "979ff2acfdf18c17c6ebc757dc70462f85ad2167",
+      "unchanged": "original report, manifest, binary hashes, source SHA, logs and FAIL result retained"
+    }
+  },
+  "reviews": {
+    "cache_source": "factory-child-goal-budget-history-b24-independent-review",
+    "test_fixture_fix": "factory-child-goal-budget-history-b24-independent-review/revision-4d9d645",
+    "multi_revision_assertions": "factory-child-goal-budget-history-b24-independent-review/revision-ccb78f7",
+    "actual_rework_units": "factory-child-goal-budget-history-runtime10-independent-audit",
+    "summary_cancel_UI": "child-goal-summary-cancel-604322-independent-review",
+    "first_summary_driver": "factory-child-goal-cancel-refresh-961-independent-review"
+  },
+  "not_run_or_pending": [
+    "New real Native regression: prepared runner first6327 BLOCKED; repaired290b source independently ready, actual run blocked by bounded disk capacity",
+    "Fresh schema15 PR and all seven CI checks, both real Mac native lanes, new traceable15 installers",
+    "Current-source normal/lost-start browser reruns (prior-source actual passes retained separately)",
+    "Current-source genuine nonempty schema14 migration rerun",
+    "Default Task workspace isolation WSI1 source independent review found project relational/document identity mismatch; separate next workstream fix pending",
+    "Remaining full130 requirements and authorized work packages; no completion percentage or full-product claim"
+  ],
+  "boundaries": [
+    "All generated ACP/MCP/private Owner fixtures account-free; not real Provider or model calls",
+    "Linux browser/Unix IPC is not macOS, OS Owner dialog or signed application acceptance",
+    "No formal GitHub Approve, production release, private identity, new spend, signing key or license decision"
+  ]
+}

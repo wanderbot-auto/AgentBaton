@@ -79,3 +79,8 @@ Exact09d fullCore128PASS/0skip and strictworkspacealltargetsClippyPASS. Exact636
 ### 2026-10-29T17:26:14.309266+00:00 — actual full rework and browser evidence
 
 Actualrework7/8/9 eachPASS with strict receipts and budgets; read timeout explicitly reconciled withoutwrite retry, not a performancePASS. Normal browsera9 andlost-start8c passed withcleanuptrue; cancel stillFAIL/unknown afterdeadline. UI851/type/build andintegratedinfra82 passed, strictalltargetsClippy passedat50. Sourcecancellationfastsummary andtransaction-local reservation optimization pending; fullnative/dualMac/newpackages/130 incomplete. See FULL_REWORK_AND_BROWSER_RESULTS.json.
+
+
+## 2026-10-29T18:01:02.797400+00:00 — budget reuse and cancellation history
+
+Core129, corrected reservation6, UI872/51/type/build, strict Clippy and real rework10 passed at their exact recorded heads. Live cancellation/reply loss/recovery reached cancelled, but complete browser run failed at final cancelled-history rendering; fix pending, no whole-run PASS. See [BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json](BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json). New PR/Mac15/Native/installers and full130 remain incomplete.
