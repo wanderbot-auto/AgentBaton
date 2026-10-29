@@ -10,9 +10,9 @@ fn reserved_with_prior_root_counter(
     prior_counter: bool,
 ) -> (Fixture, FactoryScope, FactoryChildGoalSummary) {
     let (mut f, s, g) = queue_fixture(execution_fixture_with_root_budget(prior_counter));
-    // This test isolates receipt matching with counters established by real
-    // earlier Native approval. The distinct Owner-first absent-counter phase
-    // boundary is not hidden by fabricated counter rows or claimed covered.
+    // Receipt controls use real prior Native approval to establish counters;
+    // the separate Owner-first control intentionally retains counter absence.
+    // Neither branch fabricates a counter or a process/join receipt.
     let present: i64 = f
         .store
         .conn
@@ -47,6 +47,10 @@ fn reserved_with_prior_root_counter(
             .unwrap(),
         0
     );
+    let unrelated_before: String = f.store.conn.query_row(
+        "SELECT COALESCE(json_group_array(json_array(scope,total_limit,parallel_limit,consumed,active)),'[]') FROM (SELECT * FROM budgets WHERE scope NOT IN(?1,?2) ORDER BY scope)",
+        rusqlite::params![format!("root:{}",s.root_task_id),format!("project:{}",s.project_id)], |row|row.get(0),
+    ).unwrap();
     f.raw = format!("actual direct reservation {}", uuid::Uuid::new_v4());
     let read = f
         .store
@@ -65,6 +69,14 @@ fn reserved_with_prior_root_counter(
         .unwrap()
         .expect("real direct reservation must not block on its own Core-written receipt");
     assert_eq!(session.state, "starting");
+    let unrelated_after: String = f.store.conn.query_row(
+        "SELECT COALESCE(json_group_array(json_array(scope,total_limit,parallel_limit,consumed,active)),'[]') FROM (SELECT * FROM budgets WHERE scope NOT IN(?1,?2) ORDER BY scope)",
+        rusqlite::params![format!("root:{}",s.root_task_id),format!("project:{}",s.project_id)], |row|row.get(0),
+    ).unwrap();
+    assert_eq!(
+        unrelated_after, unrelated_before,
+        "unrelated approved counters remain exactly unchanged"
+    );
     f.store.data_input = None;
     assert_eq!(
         f.store
@@ -136,6 +148,123 @@ fn owner_first_goal_reservation_initializes_only_its_original_root_counter_atomi
             .unwrap(),
         1
     );
+}
+
+#[test]
+fn owner_first_counter_initializer_rolls_back_when_session_launch_journal_fails() {
+    let (mut f, s, g) = queued();
+    assert_eq!(
+        f.store
+            .conn
+            .query_row(
+                "SELECT count(*) FROM budgets WHERE scope=?1",
+                [format!("root:{}", s.root_task_id)],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+        0
+    );
+    let before = unchanged_execution(&f);
+    let task_before: String = f
+        .store
+        .conn
+        .query_row(
+            "SELECT document FROM tasks WHERE id=?1",
+            [&s.root_task_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let run_before: String = f
+        .store
+        .conn
+        .query_row(
+            "SELECT document FROM goal_runs WHERE id=?1",
+            [&g.goal.run.id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    f.raw = format!("counter rollback {}", uuid::Uuid::new_v4());
+    let read = f
+        .store
+        .prepare_factory_child_goal_read(&s.id, &s.root_task_id, &f.raw, false)
+        .unwrap();
+    f.store.data_input = Some(f.observe(read));
+    f.store.conn.execute_batch("CREATE TRIGGER refuse_counter_launch_journal BEFORE INSERT ON events WHEN json_extract(NEW.document,'$.kind')='session.launch_reserved' BEGIN SELECT RAISE(ABORT,'controlled launch journal failure'); END;").unwrap();
+    let seq = f.store.sequence().unwrap();
+    let error = f
+        .store
+        .goal_dispatch_session(
+            &crate::goal_store::GoalRunDispatch {
+                run_id: g.goal.run.id.clone(),
+                expected_ledger_revision: seq,
+            },
+            g.goal.run.revision,
+        )
+        .unwrap_err();
+    assert_eq!(error.code, "INTERNAL_ERROR");
+    assert_eq!(
+        error.details_ref.as_deref(),
+        Some("sqlite-code:1811"),
+        "must reach the intended SQLite trigger, not an earlier authority/readset refusal"
+    );
+    assert_eq!(f.store.sequence().unwrap(), seq);
+    assert_eq!(unchanged_execution(&f), before);
+    assert_eq!(
+        f.store
+            .conn
+            .query_row(
+                "SELECT document FROM tasks WHERE id=?1",
+                [&s.root_task_id],
+                |row| row.get::<_, String>(0)
+            )
+            .unwrap(),
+        task_before
+    );
+    assert_eq!(
+        f.store
+            .conn
+            .query_row(
+                "SELECT document FROM goal_runs WHERE id=?1",
+                [&g.goal.run.id],
+                |row| row.get::<_, String>(0)
+            )
+            .unwrap(),
+        run_before
+    );
+    for table in [
+        "attempts",
+        "sessions",
+        "dispatch_intents",
+        "goal_run_reservations",
+    ] {
+        assert_eq!(
+            f.store
+                .conn
+                .query_row(&format!("SELECT count(*) FROM {table}"), [], |row| row
+                    .get::<_, i64>(0))
+                .unwrap(),
+            0,
+            "{table}"
+        );
+    }
+    assert_eq!(
+        f.store
+            .conn
+            .query_row(
+                "SELECT count(*) FROM budgets WHERE scope=?1",
+                [format!("root:{}", s.root_task_id)],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+        0
+    );
+    assert!(!f
+        .store
+        .conn
+        .prepare("PRAGMA foreign_key_check")
+        .unwrap()
+        .exists([])
+        .unwrap());
 }
 
 #[test]
