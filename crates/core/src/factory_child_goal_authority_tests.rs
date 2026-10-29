@@ -138,35 +138,44 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
             .exists([])
             .unwrap());
         let seq = f.store.sequence().unwrap();
-        let source_error = |e: crate::CoreError| {
-            assert!(
-                matches!(
-                    e.code.as_str(),
-                    "AUTH_REQUIRED" | "INPUT_CHANGED" | "CAPABILITY_UNSUPPORTED"
-                ),
-                "missing={missing}: {}",
-                e.code
-            );
+        let source_error = |route: &str, e: crate::CoreError| {
+            // Preserve the existing distinct refusal contracts. GoalStore's
+            // private denied() is PERMISSION_DENIED; legacy graph classification
+            // is CAPABILITY_UNSUPPORTED; malformed real issuer proof is INPUT_CHANGED.
+            let expected = match route {
+                "legacy_get" | "legacy_cancel" => "CAPABILITY_UNSUPPORTED",
+                "fixed_get" | "graph_details" | "fixed_advance" | "owner" if !missing => {
+                    "INPUT_CHANGED"
+                }
+                "fixed_get" | "graph_details" | "fixed_advance" | "owner" | "native_cancel"
+                | "legacy_advance" | "native_advance" => "PERMISSION_DENIED",
+                _ => panic!("unknown fixed test route"),
+            };
+            assert_eq!(e.code, expected, "missing={missing},route={route}");
         };
         source_error(
+            "fixed_get",
             f.store
                 .get_factory_child_goal(&goal_query(&s, &g))
                 .err()
                 .expect("fixed Factory get needs its real issuer"),
         );
         source_error(
+            "legacy_get",
             f.store
                 .get_goal_run(&g.goal.run.id)
                 .err()
                 .expect("derived source never becomes legacy"),
         );
         source_error(
+            "graph_details",
             f.store
                 .goal_graph_details(&g.goal.run.id)
                 .err()
                 .expect("shared Graph details validates the complete issuer"),
         );
         source_error(
+            "legacy_cancel",
             f.store
                 .cancel_goal_run(
                     &g.goal.run.id,
@@ -177,6 +186,7 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
                 .expect("no legacy cancel"),
         );
         source_error(
+            "native_cancel",
             f.store
                 .cancel_goal_graph_with_stops(
                     &g.goal.run.id,
@@ -192,6 +202,7 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
             expected_ledger_revision: seq,
         };
         source_error(
+            "legacy_advance",
             f.store
                 .advance_goal_plan(
                     &native_advance,
@@ -202,6 +213,7 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
                 .expect("no legacy advance"),
         );
         source_error(
+            "native_advance",
             f.store
                 .advance_goal_graph_plan(
                     &native_advance,
@@ -223,6 +235,7 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
             expected_goal_run_revision: g.goal.run.revision,
         };
         source_error(
+            "fixed_advance",
             f.store
                 .advance_factory_child_goal(&advance, s.revision, "issuer-fixed-advance")
                 .err()
@@ -235,6 +248,7 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
             expected_ledger_revision: seq,
         };
         source_error(
+            "owner",
             f.store
                 .propose_goal_node_acceptance(&owner, g.goal.run.revision, "issuer-owner-proposal")
                 .err()
