@@ -1,0 +1,197 @@
+{
+  "recorded_at": "2026-10-29T20:43:28.018881+00:00",
+  "base": "3b4c4b9dfa15588358716643c81006c4bd1e95a8",
+  "source_commit": "e8adb9fe2ea68b0eccfb600d896b57573b62391d",
+  "source_pins": {
+    "apps/desktop/tests/factory-real-ipc.py": "7022bdc483da5b4e275fa8e1cc530090933038b8017bee7cfea5607fb2791653",
+    "apps/desktop/tests/factory-child-planning-real-ipc.py": "9785c3c971ed08acec5eb75d2533cc8473064690adc01f24fb17b344ec1d93c8",
+    "apps/desktop/tests/test_factory_shared_goal_meters.py": "e2ceabfc4504770ab042318946908bf9db43643107287b3298215892ac95f0c1"
+  },
+  "core_source_pins": {
+    "factory_runtime.rs": "9e188e0c84295a162e8aced99c18af18f950f8bd1a7cdc6ee8b0466a3eece48a",
+    "factory_budget.rs": "d97a0dee937d2a79e1613c69b44ad9235003daed94e2344a02272163e725fb95",
+    "goal_runtime.rs": "405564b27d0bdede1d10a60ac5a41c835e5f09b2912fd90c248d64996bae65db",
+    "goal_store.rs": "3dd18953672c4836d964fbc7ebe9c8813760e6f8ba4e6260b6298b39bd82fb39",
+    "factory_store.rs": "8455e538160cf93a6033943b95fc25b868ef0ca4f0eb20fc2814bfa5baafae29"
+  },
+  "support_global_legacy_set_byte_unchanged": true,
+  "source_AST_preservation": {
+    "apps/desktop/tests/factory-real-ipc.py": {
+      "unchanged": [
+        "sha",
+        "install_private_tools",
+        "bounded_file",
+        "write_private_json",
+        "diagnostic_snapshot",
+        "FixtureControllerReaper",
+        "collect_started_records",
+        "note_failure",
+        "cleanup_call",
+        "runtime_exit",
+        "inspect_owned_records",
+        "verify_attempt_budgets",
+        "confirmed_start_response",
+        "Bounds",
+        "decode_envelope",
+        "decode_http",
+        "PrivateHost",
+        "review_factory",
+        "preflight",
+        "boundary_self_check",
+        "fixture_self_check",
+        "cleanup_self_check",
+        "diagnostic_self_check",
+        "main"
+      ],
+      "changed": [
+        "runtime_driver"
+      ],
+      "added": [
+        "verify_legacy_factory_shared_budget"
+      ]
+    },
+    "apps/desktop/tests/factory-child-planning-real-ipc.py": {
+      "unchanged": [
+        "Bounds",
+        "decode_envelope",
+        "decode_http",
+        "generated_acp",
+        "review_scope",
+        "fingerprint_db",
+        "verify_plan",
+        "verify_exact_recovery",
+        "record_http_abort",
+        "seal_runtime_report",
+        "runtime_exit",
+        "next_raw",
+        "self_check",
+        "fixture_self_check",
+        "review_self_check",
+        "require_fixed_field",
+        "fixed_form_control",
+        "capture_browser_failure",
+        "close_browser_engine",
+        "locator_self_check",
+        "summary_self_check",
+        "alert_self_check",
+        "sql_self_check",
+        "main"
+      ],
+      "changed": [
+        "runtime_driver"
+      ],
+      "added": []
+    }
+  },
+  "original_failures": {
+    "factory-normal-report.json": {
+      "sha256": "4489f4b56c8d103ccaaca94fbb3a8d1c87291fd9aed0690f13944f8e006fa842",
+      "status": "failed_or_interrupted",
+      "original_failure_line": 1127,
+      "observed_terminal": "completed",
+      "actual_factory_attempt_rows": 3,
+      "goal_table_counts_saved": false,
+      "raw_database_available_in_artifact": false
+    },
+    "factory-cancel-report.json": {
+      "sha256": "0509b57883a739aa8446c04228a3959c5b90e904834cb574ff5674bf50a74017",
+      "status": "failed_or_interrupted",
+      "original_failure_line": 1127,
+      "observed_terminal": "cancelled",
+      "actual_factory_attempt_rows": 1,
+      "goal_table_counts_saved": false,
+      "raw_database_available_in_artifact": false
+    },
+    "factory-unknown-report.json": {
+      "sha256": "f77d1882b0f36c07920a03687cab7a22c0fccfda9eb404311f26356e29cfe2e0",
+      "status": "failed_or_interrupted",
+      "original_failure_line": 1127,
+      "observed_terminal": "outcome_unknown",
+      "actual_factory_attempt_rows": 1,
+      "goal_table_counts_saved": false,
+      "raw_database_available_in_artifact": false
+    }
+  },
+  "finite_existing_diagnostic_compatibility": [
+    {
+      "case": "factory-cancel",
+      "diagnostic_member_sha256": "9cab06143497866118db8ea3a95e77debf7073adf646a4656338c3cf2e242b17",
+      "finite_binding_checks_all_match": true,
+      "attempts_checked": 1,
+      "dimension": "Read-only existing partial diagnostics, not reconstructed DB or new product execution"
+    },
+    {
+      "case": "factory-normal",
+      "diagnostic_member_sha256": "79c29f4bb61852d456b07a9b4bd87bb296fd48ccc9b7083f2aee3b2a25765e0b",
+      "finite_binding_checks_all_match": true,
+      "attempts_checked": 3,
+      "dimension": "Read-only existing partial diagnostics, not reconstructed DB or new product execution"
+    },
+    {
+      "case": "factory-unknown",
+      "diagnostic_member_sha256": "7b8ca1888c7278209aa94aaac4a9327d30e01efd4f9470217e38ad192a4aa910",
+      "finite_binding_checks_all_match": true,
+      "attempts_checked": 1,
+      "dimension": "Read-only existing partial diagnostics, not reconstructed DB or new product execution"
+    }
+  ],
+  "checks": {
+    "shared_inert_sqlite_tests": 18,
+    "legacy_boundary_selfchecks": 63,
+    "planning_boundary_selfchecks": 46,
+    "in_memory_compile_files": 3,
+    "diff_check_exit": 0
+  },
+  "actual_product": "NOT_RUN",
+  "new_Core_Cargo_Node_browser_Actor": "NOT_RUN",
+  "source_diagnosis": "Factory reserve_shared_execution_meter calls remember_meter/reserve_meter for exactly Project/RootGrant; only goal_ledgers populated by this source path. Original artifact omitted goal table counts, so exact original SQL nonzero table not directly observed.",
+  "requirements": [
+    "AB-TSK-004",
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-VAL-003",
+    "AB-VAL-007"
+  ],
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "commands": [
+    {
+      "command": "python3 -B apps/desktop/tests/test_factory_shared_goal_meters.py",
+      "exit": 0,
+      "count": 18,
+      "dimension": "inert SQLite/stdlib controls"
+    },
+    {
+      "command": "python3 -B apps/desktop/tests/factory-real-ipc.py --self-check --output <own>/fixed-legacy-self-check",
+      "exit": 0,
+      "count": 63,
+      "dimension": "existing pure boundaries"
+    },
+    {
+      "command": "python3 -B apps/desktop/tests/factory-child-planning-real-ipc.py --self-check --output <own>/fixed-planning-self-check",
+      "exit": 0,
+      "count": 46,
+      "dimension": "existing pure boundaries/generated syntax; no subprocess"
+    },
+    {
+      "command": "compile(bytes,path,exec) for3 sources",
+      "exit": 0
+    },
+    {
+      "command": "git diff 3b4c4b9 e8adb9f --check",
+      "exit": 0
+    }
+  ],
+  "not_run": [
+    "actual Factory normal/cancel/unknown reruns",
+    "actual child-planning",
+    "Cargo/Core/Actor/daemon",
+    "Node/build/browser",
+    "Mac Native",
+    "CI/packages/Provider"
+  ],
+  "raw_private_copies": false,
+  "original_failed_evidence_modified": false
+}
