@@ -661,6 +661,168 @@ def fixture_cleanup_permitted(*,daemon_complete,factory_identities_complete,http
         graph_complete,raw_database_retained,session_coverage_confirmed,business_passed))
 
 
+class WireEvidenceRecorder:
+    """Test-only original reply capture; no IPC or business-result synthesis.
+
+    Allocation and metadata locks never cover IPC or file IO. A failed slot is
+    consumed forever; an existing/partial file is preserved, never overwritten.
+    """
+    def __init__(self,output,report):
+        self.output=output;self.report=report;self._lock=threading.Lock();self._next=0;self._bytes=0
+        report['actual_core_wires']=[];report['actual_core_wire_attempts']=[];report['actual_core_wire_failures']=[]
+
+    def begin(self,call):
+        params=copy.deepcopy(call.params)
+        with self._lock:
+            require(self._next<2048,'Bounded actual Core observation count exceeded')
+            sequence=self._next;self._next+=1
+            slot={'sequence':sequence,'method':call.method,'params':params,'key':call.key,'revision':call.revision,
+                'original_reply_path':str(self.output/('wire-reply-'+str(sequence)+'.json')),'capture_state':'pending'}
+            self.report['actual_core_wire_attempts'].append(slot)
+        return slot
+
+    def failed(self,slot,error,stage,raw=None):
+        entry={**slot,'capture_state':'failed','stage':stage,'error_type':type(error).__name__,'error':str(error),
+            'received_sha256':base.sha(raw)if raw is not None else None,
+            'received_bytes':len(raw)if raw is not None else None,
+            'retained_path_exists':Path(slot['original_reply_path']).exists(),'capture_complete':False}
+        with self._lock:
+            slot['capture_state']='failed';self.report['actual_core_wire_failures'].append(entry)
+
+    def _write(self,path,raw):
+        fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+        with os.fdopen(fd,'wb')as writer:
+            written=writer.write(raw)
+            require(written==len(raw),'Incomplete original wire write')
+
+    def finish(self,slot,raw):
+        try:
+            require(type(raw)is bytes and len(raw)>0,'Original wire bytes required')
+            with self._lock:
+                require(slot['capture_state']=='pending','Wire slot already completed')
+                self._bytes+=len(raw);within_limit=self._bytes<=16*1024*1024
+            require(within_limit,'Bounded original Core reply evidence exceeded16MiB')
+            capacity=os.statvfs(self.output)
+            require(capacity.f_bavail*capacity.f_frsize>=200*1024*1024+len(raw),'Retain200MiB evidence guard')
+            self._write(Path(slot['original_reply_path']),raw)
+            entry={**slot,'capture_state':'captured','sha256':base.sha(raw),'bytes':len(raw),'capture_complete':True}
+            with self._lock:
+                slot['capture_state']='captured';self.report['actual_core_wires'].append(entry)
+            return entry
+        except BaseException as error:
+            self.failed(slot,error,'raw_capture',raw)
+            raise
+
+
+def wire_recording_self_check(output):
+    """Actual multithread exclusive file IO, with opaque non-Core unit bytes."""
+    checks=[];report={};directory=output/'parallel';directory.mkdir(mode=0o700)
+    recorder=WireEvidenceRecorder(directory,report);barrier=threading.Barrier(16);errors=[];mutex=threading.Lock();expected={}
+    def run(worker):
+        try:
+            barrier.wait(timeout=5)
+            for index in range(8):
+                label=str(worker)+':'+str(index);call=FixedCall('file-control-only',{'label':label},'unit-'+label,index+1)
+                raw=b'opaque file control\x00'+label.encode()+' 中文🧪\n'.encode()
+                slot=recorder.begin(call);call.params['label']='caller-mutated-after-allocation'
+                entry=recorder.finish(slot,raw)
+                with mutex:expected[entry['sequence']]={'label':label,'raw':raw,'key':'unit-'+label,'revision':index+1}
+        except BaseException as error:
+            with mutex:errors.append(repr(error))
+    threads=[threading.Thread(target=run,args=(i,))for i in range(16)]
+    for thread in threads:thread.start()
+    for thread in threads:thread.join(timeout=10)
+    assert all(not thread.is_alive()for thread in threads)and not errors,errors
+    assert len(report['actual_core_wires'])==len(expected)==128 and len(report['actual_core_wire_attempts'])==128
+    assert not report['actual_core_wire_failures']
+    paths=[entry['original_reply_path']for entry in report['actual_core_wires']]
+    assert len(set(paths))==128 and set(expected)==set(range(128))
+    for entry in report['actual_core_wires']:
+        row=expected[entry['sequence']];path=Path(entry['original_reply_path']);raw=path.read_bytes()
+        assert raw==row['raw']and entry['sha256']==base.sha(raw)and entry['bytes']==len(raw)
+        assert entry['params']=={'label':row['label']}and entry['key']==row['key']and entry['revision']==row['revision']
+        assert entry['capture_state']=='captured'and entry['capture_complete']is True
+        assert path.stat().st_mode&0o777==0o600
+    checks.extend(['16-real-threads-128-unique-exclusive-files','original-opaque-bytes-size-SHA-and-request-association',
+        'request-snapshot-survives-caller-mutation','all-file-controls-joined-and-mode600'])
+    # A pre-existing path must survive, and a failed slot must never be reused.
+    conflict=output/'preexisting';conflict.mkdir(mode=0o700);old=conflict/'wire-reply-0.json';sentinel=b'preexisting immutable control';old.write_bytes(sentinel)
+    collision={};writer=WireEvidenceRecorder(conflict,collision);call=FixedCall('file-control-only',{'label':'collision'},'unit-collision',1)
+    slot=writer.begin(call)
+    try:writer.finish(slot,b'new opaque bytes must not overwrite')
+    except FileExistsError:pass
+    else:raise AssertionError('Pre-existing original file overwritten')
+    assert old.read_bytes()==sentinel and not collision['actual_core_wires']
+    assert len(collision['actual_core_wire_failures'])==1 and collision['actual_core_wire_failures'][0]['capture_complete']is False
+    following=writer.finish(writer.begin(call),b'second original unit payload')
+    assert following['sequence']==1 and Path(following['original_reply_path']).read_bytes()==b'second original unit payload'
+    checks.extend(['preexisting-file-never-overwritten-and-failure-retained','failed-sequence-consumed-next-file-has-unique1'])
+    # A genuine partial file remains evidence when an actual IO action raises.
+    class PartialFailure(WireEvidenceRecorder):
+        def _write(self,path,raw):
+            fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+            with os.fdopen(fd,'wb')as stream:stream.write(raw[:5])
+            raise OSError('controlled file-only failure after five actual bytes')
+    partial=output/'partial';partial.mkdir(mode=0o700);partial_report={};broken=PartialFailure(partial,partial_report)
+    slot=broken.begin(call)
+    try:broken.finish(slot,b'partial original unit bytes')
+    except OSError:pass
+    else:raise AssertionError('Injected file failure became success')
+    assert Path(slot['original_reply_path']).read_bytes()==b'parti'and not partial_report['actual_core_wires']
+    assert partial_report['actual_core_wire_failures'][0]['received_sha256']==base.sha(b'partial original unit bytes')
+    assert partial_report['actual_core_wire_failures'][0]['retained_path_exists']is True
+    checks.append('real-partial-file-and-first-IO-failure-retained-not-success')
+    # A transport exception has no original raw bytes; never invent them.
+    aborted=output/'aborted';aborted.mkdir(mode=0o700);abort_report={};abort_writer=WireEvidenceRecorder(aborted,abort_report)
+    slot=abort_writer.begin(call);abort_writer.failed(slot,TimeoutError('file-control transport marker only'),'ipc')
+    failure=abort_report['actual_core_wire_failures'][0]
+    assert failure['received_bytes']is failure['received_sha256']is None and not abort_report['actual_core_wires']
+    assert not Path(slot['original_reply_path']).exists()
+    checks.append('missing-raw-stays-unknown-no-retroactive-fabrication')
+    # File IO can call back into recording without a lock across the callback.
+    class ReentrantWriter(WireEvidenceRecorder):
+        nested=False
+        def _write(self,path,raw):
+            if not self.nested:
+                self.nested=True
+                self.finish(self.begin(FixedCall('file-control-only',{'label':'nested'},'unit-nested',1)),b'opaque nested control')
+            super()._write(path,raw)
+    nested=output/'nested';nested.mkdir(mode=0o700);nested_report={};nested_writer=ReentrantWriter(nested,nested_report)
+    nested_writer.finish(nested_writer.begin(call),b'opaque outer control')
+    assert len(nested_report['actual_core_wires'])==2 and len({v['original_reply_path']for v in nested_report['actual_core_wires']})==2
+    checks.append('no-recorder-lock-across-file-callback-reentrancy')
+    # Deterministic file-only regression for the original len(list) allocator.
+    # These opaque inputs are not either missing Root/Core reply.
+    old_dir=output/'old-race-control';old_dir.mkdir(mode=0o700);old_rows=[];old_errors=[];old_barrier=threading.Barrier(2)
+    def unsafe_file_control(index):
+        path=old_dir/('wire-reply-'+str(len(old_rows))+'.json')
+        try:
+            old_barrier.wait(timeout=5)
+            with path.open('xb')as stream:stream.write(('opaque old allocator control '+str(index)).encode())
+            old_rows.append({'path':str(path),'index':index})
+        except BaseException as error:old_errors.append({'type':type(error).__name__,'path':str(path)})
+    old_threads=[threading.Thread(target=unsafe_file_control,args=(i,))for i in range(2)]
+    for thread in old_threads:thread.start()
+    for thread in old_threads:thread.join(timeout=10)
+    assert all(not thread.is_alive()for thread in old_threads)
+    assert len(old_rows)==len(old_errors)==1 and old_errors[0]['type']=='FileExistsError'
+    assert Path(old_rows[0]['path']).read_bytes()==('opaque old allocator control '+str(old_rows[0]['index'])).encode()
+    checks.append('original-len-list-race-deterministically-fails-one-inert-file-writer')
+    # The actual wrapper calls IPC after begin released its lock, and finish
+    # writes files outside metadata locking; inspect exact current source AST.
+    import ast
+    tree=ast.parse(Path(__file__).read_text())
+    driver=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    observed=next(n for n in ast.walk(driver)if isinstance(n,ast.ClassDef)and n.name=='ObservedHost')
+    wire=next(n for n in observed.body if isinstance(n,ast.FunctionDef)and n.name=='wire')
+    assert not any(isinstance(n,(ast.With,ast.AsyncWith))for n in ast.walk(wire))
+    checks.append('actual-IPC-wrapper-never-holds-recorder-lock')
+    return {'status':'passed','count':len(checks),'checks':checks,'threads':16,'parallel_files':128,
+        'dimension':'actual concurrent/exclusive file IO only; opaque unit bytes, no Core/reply success/IPC/product/Provider simulation',
+        'parallel':report,'preexisting':collision,'partial':partial_report,'aborted':abort_report,'nested':nested_report,
+        'old_race_file_control':{'recorded':old_rows,'expected_failures':old_errors,'not_Core_data':True},
+        'original_Root_missing_second_raw':'not reconstructed; original FAIL remains unchanged'}
+
 def runtime_driver(args, output):
     """Real built UI / authenticated Core15 / generated processes, never a mock.
 
@@ -716,20 +878,17 @@ def runtime_driver(args, output):
         log=(output/'daemon.log').open('xb')
         daemon=subprocess.Popen([str(binary)],env={**os.environ,'BATON_RUNTIME_DIR':str(runtime)},stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
         wait(lambda:((runtime/'session.token').is_file(),(runtime/'batond.sock').exists(),daemon.poll()),lambda v:v[0]and v[1]and v[2]is None)
-        report['actual_core_wires']=[];wire_bytes=0
+        wire_recorder=WireEvidenceRecorder(output,report)
         class ObservedHost(base.PrivateHost):
             def wire(self,call):
-                nonlocal wire_bytes
-                require(len(report['actual_core_wires'])<2048,'Bounded actual Core observation count exceeded')
-                value,raw=super().wire(call)
-                # Always preserve original bytes before any proposal/result check.
-                capacity=os.statvfs(output);require(capacity.f_bavail*capacity.f_frsize>=200*1024*1024+len(raw),'Retain200MiB evidence guard')
-                path=output/('wire-reply-'+str(len(report['actual_core_wires']))+'.json')
-                with path.open('xb')as writer:writer.write(raw)
-                path.chmod(0o600);wire_bytes+=len(raw)
-                report['actual_core_wires'].append({'method':call.method,'params':call.params,'key':call.key,'revision':call.revision,
-                    'original_reply_path':str(path),'sha256':base.sha(raw),'bytes':len(raw)})
-                require(wire_bytes<=16*1024*1024,'Bounded original Core reply evidence exceeded16MiB')
+                slot=wire_recorder.begin(call)
+                # No recorder lock covers IPC/callbacks. Send exactly the same
+                # immutable request snapshot that the original reply records.
+                request=FixedCall(slot['method'],slot['params'],slot['key'],slot['revision'])
+                try:value,raw=super().wire(request)
+                except BaseException as error:
+                    wire_recorder.failed(slot,error,'ipc');raise
+                wire_recorder.finish(slot,raw)
                 return value,raw
         host=ObservedHost(runtime);token=host.token
         def approve(method,params,kind,key):
@@ -1193,6 +1352,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     modes=parser.add_mutually_exclusive_group()
     modes.add_argument('--self-check',action='store_true')
+    modes.add_argument('--wire-recording-self-check',action='store_true')
     modes.add_argument('--run',action='store_true')
     parser.add_argument('--case',choices=['normal','lost-start','cancel'],default='normal')
     parser.add_argument('--tools',type=Path)
@@ -1201,6 +1361,9 @@ def main():
     parser.add_argument('--chromium',default='/usr/bin/chromium')
     parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args();out=args.output.resolve();out.mkdir(parents=True,exist_ok=False);out.chmod(0o700)
+    if args.wire_recording_self_check:
+        value=wire_recording_self_check(out);value['harness_sha256']=base.sha(Path(__file__).read_bytes())
+        base.write_private_json(out/'wire-recording-check.json',value);print(json.dumps({'status':value['status'],'count':value['count'],'threads':value['threads'],'parallel_files':value['parallel_files']}));return 0
     if args.run:
         require(args.tools is not None and args.manifest is not None and args.frontend is not None)
         try:return runtime_driver(args,out)
