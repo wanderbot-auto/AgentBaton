@@ -1,3 +1,11 @@
+# PR18 首轮真实 CI 失败与当前修复 — 2026-10-29T18:39:14.923292+00:00
+
+PR[18](https://github.com/wanderbot-auto/AgentBaton/pull/18) draft/open/unmerged，head79d73e3，CI实际checkout17334580、base/main653679d。Environment40929728562仅Ubuntu通过；双Mac在canonical临时根夹具同断言失败。纯夹具ee58修复已独审并整合，ab0093c实际完整84项基础设施测试通过，生产workflow/隐私守卫未改，新MacCI未跑。
+
+Product40929728669四项均失败：Rust和双Mac先因当前Store schema15却expect14的admission夹具受阻，后续集成/Native/构建/打包未验收；UI的data预览取消落到实际verified，8checks通过但取消覆盖不足，exit2保留（copy cancelled+joined单独通过）。Core及Desktop分头修复，不能用本地通过转签这些CI；完整130未完成。详见[原始失败映射](factory-child-goal-integration/PR18_FIRST_CI_FAILURES.json)。
+
+WSI2a独立新只读IPC已通过11 Core选定单元与4真实UnixIPC测试（sourcec2bef0bf），另树Node873/51files、type/build已通过，Native尚未运行；不混入Factory PR18。原角色/Grant/unknown/超时/费用/生产/私人Provider/新费用/签名/许可/formalApprove边界不变。以下保留旧检查点。
+
 # 当前取消全链路已通过，进入精确 CI — 2026-10-29T18:18:35.262134+00:00
 
 准确2d12dff：UI901项/52文件、类型检查、构建均通过；真实取消20.525s，CG01/02/04/06四项通过、3PNG、cleanuptrue。成功取消后的丢回包以同key/payload/CAS显式恢复，原实际stop与共享两attempt账本闭合；最终只读取消历史保留。Root实际看final04，其余两张只核hash。此前STALE、最终历史卸载、未知续接guard及夹具Clippy失败都保留，不能相互转签。

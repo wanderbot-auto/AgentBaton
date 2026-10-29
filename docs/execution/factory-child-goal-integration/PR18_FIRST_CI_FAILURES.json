@@ -1,0 +1,66 @@
+{
+  "at": "2026-10-29T18:39:14.923292+00:00",
+  "PR": "https://github.com/wanderbot-auto/AgentBaton/pull/18",
+  "state": "draft/open/unmerged",
+  "head": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
+  "base": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
+  "actual_CI_checkout": "17334580ec1af21a9f63bf313c39b0a88c1bcc49",
+  "Environment": {
+    "run": 40929728562,
+    "ubuntu-24.04": "passed",
+    "macos-15": {
+      "job": 123644651065,
+      "result": "failed",
+      "test": "test_child_goal_ci_evidence.ChildGoalProjectionTests.test_private_ci_driver_and_projection_failures_still_attempt_all_cases",
+      "reason": "output path is compared lexically to a noncanonical fixture root although workflow resolves RUNNER_TEMP; two subtest failures, 82 total",
+      "raw_log_sha256": "2920b445461bca404f0b67c99f3f37693e43cae5a72876be74932f4fb9fed123"
+    },
+    "macos-15-intel": {
+      "job": 123644651045,
+      "result": "failed",
+      "reason": "same test/assertion; job metadata verified, no separate full raw Intel log read"
+    }
+  },
+  "Product": {
+    "run": 40929728669,
+    "Rust": {
+      "job": 123644652442,
+      "result": "failed",
+      "test": "real_admission_profile_and_post_reservation_input_drift_remain_guarded",
+      "file": "crates/core/tests/admission_performance.rs:105",
+      "reason": "fresh Store current schema actual15 vs stale expected14; rest of target not exercised"
+    },
+    "macos-15": {
+      "job": 123644652418,
+      "result": "failed",
+      "reason": "same actual15 expected14 admission fixture; subsequent Native/WebView/Owner/build/package not reached"
+    },
+    "macos-15-intel": {
+      "job": 123644652461,
+      "result": "failed",
+      "reason": "same actual15 expected14 admission fixture; subsequent Native/WebView/Owner/build/package not reached"
+    },
+    "UI": {
+      "job": 123644652347,
+      "result": "failed / exit2 coverage incomplete",
+      "artifact": 12922296687,
+      "archive_bytes": 5221897,
+      "archive_sha256": "63af47043e3ac747c26e45bf420022963a9592236af4313d147af587314a2ced",
+      "report_sha256": "f51e5e608323ee477495665ff55e3d08717d17cdddda002fa3117b2f9f5330f9",
+      "report_members_verified": 57,
+      "checked": "archive paths/count/size/type bounded; only data-workspaces/report.json read",
+      "actual": "8 checks passed. Preview cancellation requested but actual terminal verified: no cooperative preview-cancel hit. Copy cancellation separately reached cancelled with joined worker. Later UI workflows not run."
+    }
+  },
+  "repairs": {
+    "canonical_temp": "ee58cc8 test-only independently ready; Root integrated b013f40+docsab0093c, full84 infrastructure tests passed0.752s atab0093c wrapper0.923s log01c0f38e79a7c32f2133d4ce4f76f3f31d7984554ae9d171a1916bd4ef6d4650; workflow/projector/harness unchanged. NewMacCI not run.",
+    "schema15_admission": "Core author diagnosing precise current-schema assumptions, no mass replacement of historical14 or future16 controls",
+    "data_preview": "Desktop diagnosing retained actual race report; verified completion cannot be labelled cancellation; no new product hook approved"
+  },
+  "limits": [
+    "Seven checks are not passed; no merge or new installers",
+    "Prior local2d cancellation/901 tests and baa129 are exact separate evidence, not this CI success",
+    "Full130/WPs remain incomplete; source-only WSI2a continues separately",
+    "No formal GitHub Approve, new account, credential, spend, production/signing/license expansion"
+  ]
+}
