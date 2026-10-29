@@ -411,11 +411,18 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         p["snapshot"]["run_binding"]["factory_origin"],
         before["origin"]
     );
-    assert!(p["snapshot"]["candidate_receipts"]
+    let current_candidates = details["candidates"]
         .as_array()
         .unwrap()
         .iter()
-        .all(|c| c["plan_revision"] == 2));
+        .filter(|c| c["plan_revision"] == 2)
+        .cloned()
+        .collect::<Vec<_>>();
+    assert_eq!(current_candidates.len(), 1);
+    assert_eq!(
+        p["snapshot"]["candidate_receipts"],
+        json!(current_candidates)
+    );
     let decision = finalize(&runtime, &p, "rework-exact-second-owner-consent");
     assert_eq!(decision["task_accepted"], true);
     let final_factory = wait_until(
