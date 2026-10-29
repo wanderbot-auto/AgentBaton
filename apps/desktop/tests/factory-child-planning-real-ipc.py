@@ -221,6 +221,69 @@ def verify_plan(view, scope, task_id):
     assert ref['revision'] == view['proposal']['revision'] == view['proposal']['expected_revision'] + 1
 
 
+def verify_exact_recovery(original, recovered, scope, task_id):
+    """Compare the immutable business receipt, not fresh transport UUIDs.
+
+    Envelope revision is the current journal cursor, not the plan receipt
+    sequence. Require it to cover the receipt and never regress on recovery.
+    """
+    for trace in (original, recovered):
+        assert trace['method'] == 'factory_child_plans.submit'
+        assert type(trace['key']) is str and KEY.fullmatch(trace['key'])
+        assert safe_integer(trace['revision'], 1)
+        params = trace['params']
+        assert type(params) is dict and set(params) == {'scope_id','task_id','plan_json','expected_plan_revision'}
+        assert params['scope_id'] == scope['id'] and params['task_id'] == task_id
+        assert type(params['plan_json']) is str and safe_integer(params['expected_plan_revision'])
+        envelope = trace['response']
+        assert type(envelope) is dict and set(envelope) == {'request_id','result','revision','warnings'}
+        assert type(envelope['request_id']) is str
+        assert str(uuid.UUID(envelope['request_id'])) == envelope['request_id']
+        assert safe_integer(envelope['revision'], 1) and exact_json(envelope['warnings'], [])
+        verify_plan(envelope['result'], scope, task_id)
+        view = envelope['result']
+        assert view['plan_json'] == params['plan_json']
+        assert view['reference']['revision'] == params['expected_plan_revision'] + 1
+        assert envelope['revision'] >= view['reference']['receipt_sequence']
+    assert exact_json(original['params'], recovered['params'])
+    assert exact_json(original['key'], recovered['key']) and exact_json(original['revision'], recovered['revision'])
+    assert exact_json(original['response']['result'], recovered['response']['result'])
+    assert recovered['response']['revision'] >= original['response']['revision']
+    return {'original_request_id':original['response']['request_id'],
+        'recovered_request_id':recovered['response']['request_id'],
+        'original_journal_cursor':original['response']['revision'],
+        'recovered_journal_cursor':recovered['response']['revision'],
+        'immutable_reference':original['response']['result']['reference'],
+        'complete_result_typed_equal':True,'exact_request_key_params_CAS':True}
+
+
+def record_http_abort(report, method, stage, error, clean=str):
+    event = {'stage':stage,'method':method,'type':type(error).__name__,'message':clean(error)}
+    reads = base.READS | {'factory_child_plans.context','factory_child_plans.get','factory_child_plans.list'}
+    if isinstance(error, (BrokenPipeError, ConnectionResetError)) and stage == 'response_body' and method in reads:
+        report['readonly_aborts'].append(event)
+    else:
+        report['http_unexpected_errors'].append(event)
+
+
+def seal_runtime_report(report, daemon_complete, identities_complete, http_complete, clean=str):
+    """Final decision only after handlers and all cleanup have completed."""
+    if report['http_unexpected_errors']:
+        base.note_failure(report, AssertionError('Unexpected HTTP handler errors after join'), 'http_final_error_check', clean)
+    complete = all(value is True for value in (daemon_complete, identities_complete, http_complete))
+    report['cleanup_complete'] = complete and report['status'] == 'passed' and not report.get('failure')
+    if not report['cleanup_complete']:
+        report['status'] = 'failed_or_interrupted'
+    return runtime_exit(report)
+
+
+def runtime_exit(report):
+    # Defense in depth: a late error must never produce exit0 even if a caller
+    # accidentally skips the final seal or presents an old cleanup flag.
+    return 0 if (report['status'] == 'passed' and report.get('cleanup_complete') is True
+        and not report.get('failure') and not report['http_unexpected_errors']) else 1
+
+
 def next_raw(view, goal):
     p = copy.deepcopy(view['proposal']); p['revision'] += 1; p['expected_revision'] += 1
     p['nodes'][0]['goal'] = goal
@@ -307,6 +370,98 @@ def fixture_self_check(path):
         'actual_fixture_pin':pin,'dimension':'pure checks of Core-author actual recorded MCP/IPC DTOs plus synthetic corruption; NO new Core/UI/browser execution'}
 
 
+def review_self_check(path):
+    """Finite receipt/late-cleanup controls; no Core or browser execution."""
+    raw, pin = base.bounded_file(path, MAX_WIRE, path.parent)
+    fixture = json.loads(raw, object_pairs_hook=unique_object); scope = fixture['scope']
+    # Derive a full synthetic Owner receipt from the recorded same-model view.
+    # This modified object is NOT represented as an actually stored Owner row.
+    view = copy.deepcopy(fixture['rows'][0]); task_id = view['reference']['task_id']
+    view.update(caller_task_id=task_id,caller_session_id=None,caller_attempt_id=None,caller_fencing_token=None)
+    original = {'method':'factory_child_plans.submit','key':'exact-recovery-control','revision':scope['revision'],
+        'params':{'scope_id':scope['id'],'task_id':task_id,'plan_json':view['plan_json'],
+            'expected_plan_revision':view['reference']['revision']-1},
+        'response':{'request_id':'11111111-1111-4111-8111-111111111111','result':view,
+            'revision':view['reference']['receipt_sequence']+10,'warnings':[]}}
+    recovered=copy.deepcopy(original);recovered['response']['request_id']='22222222-2222-4222-8222-222222222222'
+    checks=[]
+    for label,cursor_add in [('same-result-new-request-id',0),('same-result-forward-journal-cursor',1)]:
+        changed=copy.deepcopy(recovered);changed['response']['revision']+=cursor_add
+        result=verify_exact_recovery(original,changed,scope,task_id)
+        assert result['complete_result_typed_equal'] is True
+        assert result['original_request_id']!=result['recovered_request_id']
+        checks.append(label)
+    def put(path,value):
+        def mutate(row):
+            target=row
+            for key in path[:-1]:target=target[key]
+            target[path[-1]]=value
+        return mutate
+    changes=[
+        ('key',put(['key'],'new-key')),
+        ('request-CAS',put(['revision'],scope['revision']+1)),
+        ('request-CAS-bool',put(['revision'],True)),
+        ('method',put(['method'],'factory_runs.start')),
+        ('request-raw',put(['params','plan_json'],view['plan_json']+' ')),
+        ('expected-plan-CAS',put(['params','expected_plan_revision'],99)),
+        ('expected-plan-CAS-bool',put(['params','expected_plan_revision'],False)),
+        ('business-raw',put(['response','result','plan_json'],view['plan_json']+' ')),
+        ('business-ref-id',put(['response','result','reference','id'],'foreign')),
+        ('business-ref-revision',put(['response','result','reference','revision'],99)),
+        ('business-ref-sequence',put(['response','result','reference','receipt_sequence'],1)),
+        ('business-plan-digest',put(['response','result','reference','plan_digest'],'0'*64)),
+        ('business-raw-hash',put(['response','result','reference','raw_sha256'],'0'*64)),
+        ('business-authority',put(['response','result','authority_kind'],'foreign')),
+        ('business-scope-digest',put(['response','result','scope_digest'],'0'*64)),
+        ('business-policy-digest',put(['response','result','planning_policy_digest'],'0'*64)),
+        ('business-proposal-bool-alias',put(['response','result','proposal','schema_version'],True)),
+        ('business-proposal-float-alias',put(['response','result','proposal','schema_version'],1.0)),
+        ('business-caller',put(['response','result','caller_task_id'],'foreign')),
+        ('business-planning-only',put(['response','result','planning_only'],1)),
+        ('business-dispatched',put(['response','result','dispatched'],True)),
+        ('business-accepted',put(['response','result','task_accepted'],True)),
+        ('envelope-bool-cursor',put(['response','revision'],True)),
+        ('envelope-regressed-cursor',put(['response','revision'],original['response']['revision']-1)),
+        ('envelope-before-receipt',put(['response','revision'],view['reference']['receipt_sequence']-1)),
+        ('envelope-warnings',put(['response','warnings'],['unexpected'])),
+        ('envelope-warning-type',put(['response','warnings'],{})),
+        ('envelope-bad-request-id',put(['response','request_id'],'not-a-UUID')),
+        ('envelope-extra-field',put(['response','error'],None)),
+    ]
+    for label,mutate in changes:
+        bad=copy.deepcopy(recovered);mutate(bad)
+        try:verify_exact_recovery(original,bad,scope,task_id)
+        except (AssertionError,ValueError):pass
+        else:raise AssertionError('Recovery corruption accepted: '+label)
+        checks.append('reject:'+label)
+    def fresh():return {'status':'passed','http_unexpected_errors':[],'readonly_aborts':[]}
+    report=fresh()
+    record_http_abort(report,'factory_child_plans.submit','response_body',BrokenPipeError('synthetic late mutation abort'))
+    assert seal_runtime_report(report,True,True,True)==1
+    assert report['status']=='failed_or_interrupted' and report['cleanup_complete'] is False
+    assert report['http_unexpected_errors'] and report['failure']['stage']=='http_final_error_check'
+    assert runtime_exit(report)==1
+    checks.append('postjoin-mutation-error-report-and-exit-fail')
+    report=fresh();report['cleanup_complete']=True
+    report['http_unexpected_errors'].append('synthetic error after an earlier good flag')
+    assert runtime_exit(report)==1
+    checks.append('stale-good-flag-cannot-hide-late-error')
+    report=fresh();record_http_abort(report,'factory_child_plans.get','response_body',BrokenPipeError('synthetic readonly body abort'))
+    assert len(report['readonly_aborts'])==1 and not report['http_unexpected_errors']
+    assert seal_runtime_report(report,True,True,True)==0
+    checks.append('defined-readonly-body-abort-separate')
+    report=fresh();record_http_abort(report,'factory_child_plans.get','core_call',BrokenPipeError('synthetic Core socket failure'))
+    assert seal_runtime_report(report,True,True,True)==1
+    checks.append('readonly-core-socket-failure-not-UI-body-abort')
+    report=fresh();report['http']=[{'actual_committed_reply_deliberately_dropped':True}]
+    assert seal_runtime_report(report,True,True,True)==0
+    checks.append('intentional-CP08-drop-is-not-unexpected-error')
+    report=fresh();assert seal_runtime_report(report,True,True,False)==1
+    checks.append('unjoined-HTTP-never-passes')
+    return {'status':'passed','count':len(checks),'checks':checks,'actual_fixture_pin':pin,
+        'dimension':'pure finite recovery/cleanup controls using a synthetic Owner receipt derived from recorded Core model; NO Core/browser/socket/thread execution'}
+
+
 def runtime_driver(args, output, manifest):
     from playwright.sync_api import expect, sync_playwright
     raw_daemon = args.tools / 'batond'; raw_cli = args.tools / 'baton'
@@ -326,7 +481,7 @@ def runtime_driver(args, output, manifest):
         'support_sha256': sha(BASE_PATH.read_bytes()), 'candidate': manifest, 'frontend_assets': assets,
         'harness_git_head': subprocess.check_output(['git','rev-parse','HEAD'],cwd=Path(__file__).resolve().parents[3],text=True).strip(),
         'checks': [], 'screenshots': [], 'http': [], 'private_owner_reviews': [], 'cleanup': [],
-        'http_unexpected_errors': [], 'observations': {}, 'cleanup_complete': False,
+        'http_unexpected_errors': [], 'readonly_aborts': [], 'observations': {}, 'cleanup_complete': False,
         'not_claimed': ['OS Native Owner dialog', 'macOS', 'real Provider/model', 'child Goal execution',
             'new workspace authority', 'TaskAccepted', 'complete fault matrix', 'full product completion']}
     temporary = tempfile.TemporaryDirectory(prefix='baton-child-plan-browser-')
@@ -423,7 +578,7 @@ def runtime_driver(args, output, manifest):
             def log_message(self, *_): pass
             def list_directory(self, _): self.send_error(403); return None
             def do_POST(self):
-                identity = id(self)
+                identity = id(self); stage = 'headers'; call = None
                 with lock: active[identity] = 'headers'
                 try:
                     if self.path != '/__test_child_plan_ipc': self.send_error(404); return
@@ -439,6 +594,7 @@ def runtime_driver(args, output, manifest):
                     trace = {'method': call.method, 'params': call.params, 'key': call.key, 'revision': call.revision,
                         'browser_request_sha256': sha(raw), 'response_complete': False, 'host_observed_utc_ms':int(time.time()*1000)}
                     with lock: report['http'].append(trace); active[identity] = call.method
+                    stage = 'core_call'
                     value, reply = host.wire(call)
                     assert len(reply) <= MAX_WIRE
                     path = output / ('core-reply-' + uuid.uuid4().hex + '.json')
@@ -449,12 +605,13 @@ def runtime_driver(args, output, manifest):
                         assert not value.get('error'), value
                         trace['actual_committed_reply_deliberately_dropped'] = True
                         self.close_connection = True; self.connection.shutdown(socket.SHUT_RDWR); return
+                    stage = 'response_headers'
                     self.send_response(200); self.send_header('Content-Type', 'application/json')
-                    self.send_header('Content-Length', str(len(reply))); self.end_headers(); self.wfile.write(reply)
+                    self.send_header('Content-Length', str(len(reply))); self.end_headers()
+                    stage = 'response_body'; self.wfile.write(reply)
                     trace['response_complete'] = True
                 except (BrokenPipeError, ConnectionResetError) as error:
-                    if active.get(identity) not in base.READS | {'factory_child_plans.context', 'factory_child_plans.get', 'factory_child_plans.list'}:
-                        report['http_unexpected_errors'].append(clean(error))
+                    record_http_abort(report, call.method if call else None, stage, error, clean)
                 except BaseException as error:
                     report['http_unexpected_errors'].append(clean(error)); self.send_error(502)
                 finally:
@@ -654,8 +811,8 @@ def runtime_driver(args, output, manifest):
             expect(root_region.get_by_text('Submission outcome unknown.', exact=False)).to_have_count(0)
             expect(root_region.get_by_text('Current plan head: r4', exact=False)).to_be_visible()
             recovered = [r for r in report['http'] if r['method'] == 'factory_child_plans.submit' and r['key'] == lost[0]['key']]
-            assert len(recovered) == 2 and recovered[0]['params'] == recovered[1]['params']
-            assert recovered[0]['revision'] == recovered[1]['revision'] and recovered[1]['response'] == recovered[0]['response']
+            assert len(recovered) == 2
+            report['observations']['exact_key_recovery_receipt'] = verify_exact_recovery(recovered[0], recovered[1], scope, task['id'])
             assert fingerprint_db(runtime) == before_recovery
             conflict = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], 'planJson': raw4 + ' ',
                 'expectedPlanRevision': 3, 'expectedRevision': scope['revision'], 'idempotencyKey': lost[0]['key']})
@@ -778,13 +935,11 @@ def runtime_driver(args, output, manifest):
             assert {str(p.relative_to(frontend)):sha(p.read_bytes()) for p in sorted(frontend.rglob('*')) if p.is_file()} == assets
             assert sha(args.manifest.read_bytes()) == report['candidate_manifest_sha256']
         except BaseException as error: fail('frozen_inputs_changed',error)
-        report['cleanup_complete'] = daemon_complete and identities_complete and http_complete and not report.get('failure')
-        if not report['cleanup_complete']: report['status'] = 'failed_or_interrupted'
         base.cleanup_call(report, 'private_temporary_fixture_cleanup', temporary.cleanup, clean)
-        if report.get('failure'): report['status'] = 'failed_or_interrupted'; report['cleanup_complete'] = False
+        seal_runtime_report(report, daemon_complete, identities_complete, http_complete, clean)
         base.write_private_json(output / 'report.json', json.loads(clean(json.dumps(report))))
     print(json.dumps({'status': report['status'], 'checks': len(report['checks']), 'screenshots': len(report['screenshots']), 'report': str(output / 'report.json')}))
-    return 0 if report['status'] == 'passed' and report['cleanup_complete'] else 1
+    return runtime_exit(report)
 
 
 def main():
@@ -792,12 +947,13 @@ def main():
     parser.add_argument('--self-check', action='store_true')
     parser.add_argument('--run', action='store_true')
     parser.add_argument('--fixture-self-check', type=Path)
+    parser.add_argument('--review-self-check', type=Path)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--tools', type=Path)
     parser.add_argument('--frontend', type=Path)
     parser.add_argument('--manifest', type=Path)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
-    args = parser.parse_args(); assert sum([args.self_check,args.run,bool(args.fixture_self_check)]) <= 1
+    args = parser.parse_args(); assert sum([args.self_check,args.run,bool(args.fixture_self_check),bool(args.review_self_check)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False); output.chmod(0o700)
     if args.self_check:
         value = self_check(); value.update(harness_sha256=sha(Path(__file__).read_bytes()), support_sha256=sha(BASE_PATH.read_bytes()))
@@ -805,6 +961,9 @@ def main():
     if args.fixture_self_check:
         value=fixture_self_check(args.fixture_self_check.resolve(strict=True));value['harness_sha256']=sha(Path(__file__).read_bytes())
         base.write_private_json(output/'fixture-check.json',value);print(json.dumps(value));return 0
+    if args.review_self_check:
+        value=review_self_check(args.review_self_check.resolve(strict=True));value['harness_sha256']=sha(Path(__file__).read_bytes())
+        base.write_private_json(output/'review-check.json',value);print(json.dumps(value));return 0
     if not args.run:
         base.write_private_json(output / 'NOT_RUN.json', {'actual_runtime': 'not_run',
             'pending': ['Root reviewed harness', 'fixed schema14 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
