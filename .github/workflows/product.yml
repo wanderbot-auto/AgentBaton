@@ -22,6 +22,12 @@ jobs:
           python-version: '3.12'
       - run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
       - run: cargo fmt --all -- --check
+      - name: Build genuine schema14 history for the required migration gate
+        run: |
+          set -euo pipefail
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
       - name: Workspace tests with actual generated native-wire capture
         env:
           RUST_TEST_THREADS: '1'
@@ -38,6 +44,14 @@ jobs:
           AGENTBATON_TEST_SCHEMA_CAPTURE="$GITHUB_WORKSPACE/artifacts/provider-contract/wire.ndjson" cargo test --workspace --locked
           python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS"
           unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION AGENTBATON_CHILD_GOAL_COMPANION
+      - name: Migrate genuine nonempty schema14 history with corruption and rollback controls
+        env:
+          AGENTBATON_ACTUAL_SCHEMA14_FIXTURE: ${{ runner.temp }}/agentbaton-legacy14-fixture
+          RUST_TEST_THREADS: '1'
+        run: |
+          set -euo pipefail
+          cargo test --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- --nocapture --test-threads=1
+          cargo clippy --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- -D warnings
       - name: Validate captured messages against hash-pinned official native schema
         run: |
           set -euo pipefail
@@ -53,6 +67,42 @@ jobs:
           AGENTBATON_OWNER_FIXTURE_DAEMON: ${{ github.workspace }}/target/debug/batond
         run: python3 apps/desktop/src-tauri/tests/test_native_owner_dialog.py
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Retain bounded migration metadata without private history
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, re, shutil
+          temporary = pathlib.Path(os.environ['RUNNER_TEMP'])
+          output = pathlib.Path('artifacts/provider-contract/legacy-migration')
+          output.mkdir(parents=True, exist_ok=True)
+          def digest(value):
+              return isinstance(value, str) and re.fullmatch('[0-9a-f]{64}', value) is not None
+          def load(path):
+              if not path.is_file():
+                  return None
+              assert not path.is_symlink() and path.stat().st_size <= 4194304
+              return json.loads(path.read_text())
+          build = load(temporary / 'agentbaton-legacy14-build/frozen/source-build-manifest.json')
+          fixture = load(temporary / 'agentbaton-legacy14-fixture/manifest.json')
+          summary = {'dimension': 'Linux genuine14 source build/history and explicit15 migration target; Mac legacy migration NOT_RUN', 'build_record_available': build is not None, 'fixture_record_available': fixture is not None, 'private_history_uploaded': False}
+          if build is not None:
+              summary['source_build'] = {k: build.get(k) for k in ['contract', 'status', 'schema', 'platform', 'builder_sha256']}
+              summary['source_build']['source'] = {k: build.get('source', {}).get(k) for k in ['commit', 'tree', 'archive_sha256', 'compiled_source_clean']}
+              summary['source_build']['binaries'] = build.get('binaries', {})
+              summary['source_build']['toolchain'] = build.get('toolchain', {})
+              summary['source_build']['build_exit'] = build.get('build', {}).get('exit_code')
+          if fixture is not None:
+              counts = fixture.get('counts', {})
+              assert isinstance(counts, dict) and all(isinstance(k, str) and type(v) is int and v >= 0 for k, v in counts.items())
+              summary['fixture'] = {k: fixture.get(k) for k in ['status', 'schema', 'origin', 'source_commit', 'source_mode', 'daemon_exit', 'forced_kill', 'runtime_cleanup']}
+              assert digest(fixture.get('database_sha256')) or fixture.get('status') != 'passed'
+              summary['fixture']['database_sha256'] = fixture.get('database_sha256')
+              summary['fixture']['counts'] = counts
+          (output / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          log = temporary / 'agentbaton-legacy14-build/build.log'
+          if log.is_file() and not log.is_symlink() and log.stat().st_size <= 4194304:
+              shutil.copyfile(log, output / 'historical-source-build.log')
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
