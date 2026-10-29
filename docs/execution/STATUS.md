@@ -1,3 +1,15 @@
+## 当前精确 CI 与持续实现检查点 — 2026-10-29T02:58:06.016877+00:00
+
+PR16 head a2201fe2729eddb0d76bf3995667d3692126ee0f，实际 CI 检出7f359dc8807e4d11f8e2dedbf4b0a5cc83c81f16/tree520d7aab6abdd4d659d0a9d301d9e28bdfffafd2。Environment40806943416三平台完整链均通过（各Python34/Node4/environmentRust2/Clippy），原bb343的45/46旧测试失败仍保留。Product40806944290的Rust通过593unique+7doctests；UI失败于command-timeout进程观察器的完整有界argv断言。现有报告缺失败PID/argv长度/NUL/前后身份，不能判断底层原因或声明产品deadline失败。11完整UI流109checks/69PNG，失败流2checks/1PNG，合111记录/70PNG，不是完整114通过。双Mac仍由现有监测器核验，终态/新安装包未据此断言。独立Environment封存及Linux失败审查见goal-graph-integration/CI_A2201；不将旧bb343的Product通过/双DMG移作新提交证明。
+
+Graph仅测试观察器新增诊断，原≤1024/NUL/5s/1500ms/身份与产品期限保持。70a冻结schema12二进制与本轮生产一文件有差异，其单次本地诊断5checks/1PNG通过但未复现CI失败，明确不是精确a220回归。后续受控进程负控、因果修复及精确新CI继续，不放宽断言或无变化盲重跑。
+
+Factory独立分支eb77第四full实际421outerPASS/1FAIL，nested1另计：旧普通会话测试被真正输入漂移安全检查INPUT_CHANGED拒绝，不能证明预算耗尽。test-only5c9已保留精确dirty负控，并新增批准前合法忽略输出的cap1真实耗尽RESOURCE_LIMIT/零新增副作用/低层AUTH_REQUIRED，以及cap2真实普通运行/stop/reap/原root与project累计attempt2 active0无退款；3定向通过。独审44d96799/e9a98032及合成检查通过，生产46不变，Root合入6d666ed3后精确源码8c1c84db启动第五full Rust→Clippy→fmt；尚在执行，不标绿。原四次full失败与本轮两次前置fixture失败均保留；最初第五启动守卫因作者与合成源码hash不同拒绝，发生在Cargo前，后经双方机械合成证明后仅冻结准确8c，不接受多hash。
+
+下一完整产品纵切child_planning已在隔离稀疏分支开始Core真实持久版本计划/窄scoped MCP实现，复用同GoalPlan验证模型与原Grant；完整Native planning policy与UI历史接线待冻结DTO后并行。旧Scope不升级，child_goal_execution/create_workspace尚未实现，后续完整需求继续。不是新的模型调用或权限批准。
+
+本轮安全fetch确认main仍a1be94d26d10bb245bb35eb50226b82012c967da，OWNER001/002 ACK，无003。130需求/27决定/WP01–14保持完整，整体未完成；无formalApprove/merge、生产、真实产品Provider身份调用、额外费用资源、签名公证或许可证扩权。以下为历史。
+
 ## 当前 Environment 必需检查修复检查点 — 2026-10-29T02:17:57.285615+00:00
 
 准确bb343be5bb0403e995a97441ce16670c03bd0f33 / checkout1a7682e60354d4a80200ea487725edfc99068a4c / treef85f9e19513d1ecfd85a058e5f6fd14ba4ed1123：Product40799957452四项全部成功，双Mac真实Owner/readonly/defaultbuild/releaseaudit/developmentpackage完成；50新PNG逐张独审，真实双DMG SHA与签名状态见goal-graph-integration/DEVELOPMENT_DELIVERY_BB343.md。ARM ad-hoc/Intel未签名、均未公证；DMG未做人工安装/默认App实机验收，最低OS/真实Provider/远程/完整Factory13未验。
