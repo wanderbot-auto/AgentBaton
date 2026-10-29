@@ -1,0 +1,5 @@
+# Shared Native review limits compile fix
+
+Priority interruption of Native15 work; no Native15 source/tree was created. Root's actual Native14 Owner build at62518def138d7c831d9f9cc4fbe59ea6478f59c9 failed101 before any test ran. The test-only mirrored presentation function referenced three missing constants. Fix only their authorized shared visibility/view/import, preserve the existing numeric definitions, production formatter, all16 Rust tests, default-feature separation and release refusal. No Cargo/Node/Core/browser is executed by this author. Root owns the compile/retest lease.
+
+ADR: keep one value definition in private native_parent. Change only the three constants' visibility to pub(super), expose native-smoke-only public const aliases referring to those exact definitions through lib.rs, and import that readonly view from the separate test binary. Do not use pub use on restricted items (E0364), copy numbers, include the entire parent module/duplicate15 tests, expose methods/IPC or add runtime permissions. Default features do not compile the view; native-smoke release compile_error remains byte-identical.
