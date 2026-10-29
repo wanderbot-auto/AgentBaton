@@ -131,6 +131,10 @@ def main():
               'provider': 'generated_local_acp_no_model_or_credentials',
               'forced_kill': False, 'requests': [], 'private_reviews': [],
               'not_claimed': ['macOS', 'native dialog', 'real Provider', 'TaskAccepted', 'product completion', 'active worker recovery']}
+    report['tool_metadata_before'] = {n: {'mode': oct(stat.S_IMODE((frozen/n).stat().st_mode)), 'bytes': (frozen/n).stat().st_size} for n in HASHES}
+    report['argv'] = [str(frozen/'batond')]
+    report['working_directory'] = str(Path.cwd())
+    assert shutil.disk_usage(output).free >= 200*1024*1024, 'Preserve coordinator free-space guard'
     daemon = None
     try:
         with retained_private_runtime(report) as root:
@@ -145,6 +149,13 @@ def main():
                 try:
                     wait(lambda: ((runtime / 'session.token').is_file(), (runtime / 'batond.sock').exists(), daemon.poll()), lambda r: r[0] and r[1] and r[2] is None)
                     assert stat.S_IMODE((runtime / 'session.token').stat().st_mode) == 0o600
+                    with sqlite3.connect((runtime/'baton.sqlite3').as_uri()+'?mode=ro',uri=True) as probe:
+                        probe.execute('PRAGMA query_only=ON')
+                        assert probe.execute('PRAGMA user_version').fetchone()[0] == 14
+                        assert not probe.execute('PRAGMA foreign_key_check').fetchall()
+                        assert probe.execute('SELECT count(*) FROM goal_scopes').fetchone()[0] == 0
+                        assert probe.execute('SELECT count(*) FROM factory_scopes').fetchone()[0] == 0
+                        report['actual_initial_probe'] = {'schema':14,'goal_scopes':0,'factory_scopes':0,'foreign_keys':'clean','query_only':True}
                     token = (runtime / 'session.token').read_text()
                     def call(method, params, key=None, revision=None, allow_error=False):
                         request = {'api_version': 1, 'request_id': str(uuid.uuid4()), 'method': method, 'params': params}
@@ -253,6 +264,8 @@ def main():
     finally:
         for name,digest in HASHES.items():
             assert sha((frozen/name).read_bytes()) == digest, 'Original frozen tool changed'
+        report['tool_metadata_after'] = {n: {'mode': oct(stat.S_IMODE((frozen/n).stat().st_mode)), 'bytes': (frozen/n).stat().st_size} for n in HASHES}
+        assert report['tool_metadata_before'] == report['tool_metadata_after']
         (output/'manifest.json').write_text(json.dumps(report,indent=2)+'\n')
         (output/'manifest.json').chmod(0o600)
     assert report['status'] == 'passed'
