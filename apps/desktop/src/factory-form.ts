@@ -3,9 +3,9 @@ import type { ExecutionGrant } from './session-api';
 import { safeInteger, type GoalBudget } from './goal-api';
 import type { ArtifactRequirement } from './validation-api';
 import type { FactorySelection } from './factory-types';
-import { factoryBudget, factoryHash, factoryId, factoryRelative, factorySelectionShape, factoryChildPolicyShape } from './factory-guards';
+import { factoryBudget, factoryHash, factoryId, factoryRelative, factorySelectionShape, factoryChildPolicyShape, factoryChildExecutionPolicyShape } from './factory-guards';
 export type FactoryBudgetForm={ [K in keyof GoalBudget]:string };
-export interface FactoryForm { grantId:string; connections:string[]; workspaces:string[]; inputs:string; outputs:string; recipients:string; maxDepth:string; maxChildren:string; maxNodes:string; ttlMs:string; delegate:boolean; resume:boolean; root:FactoryBudgetForm; project:FactoryBudgetForm; planning?:boolean; planningNodes?:string; planningRevisions?:string; planningBytes?:string; planningValidators?:string; planningWritable?:string; planningCriteria?:string }
+export interface FactoryForm { grantId:string; connections:string[]; workspaces:string[]; inputs:string; outputs:string; recipients:string; maxDepth:string; maxChildren:string; maxNodes:string; ttlMs:string; delegate:boolean; resume:boolean; root:FactoryBudgetForm; project:FactoryBudgetForm; planning?:boolean; planningNodes?:string; planningRevisions?:string; planningBytes?:string; planningValidators?:string; planningWritable?:string; planningCriteria?:string; execution?:boolean; executionNodes?:string; executionTotalRuns?:string; executionRoot?:FactoryBudgetForm; executionProject?:FactoryBudgetForm }
 const budget=():FactoryBudgetForm=>({attempts:'3',parallel:'1',runtime_ms:'120000',output_bytes:'8388608',children:'1',reworks:'0',tokens:'',cost_microunits:''});
 export const newFactoryForm=():FactoryForm=>({grantId:'',connections:[],workspaces:[],inputs:'',outputs:'',recipients:'',maxDepth:'1',maxChildren:'1',maxNodes:'2',ttlMs:'300000',delegate:true,resume:true,root:budget(),project:budget()});
 const number=(raw:string,min=0,max=Number.MAX_SAFE_INTEGER)=>{if(!/^\d+$/.test(raw))throw new Error('Use bounded whole numbers');const value=Number(raw);if(!safeInteger(value,min,max))throw new Error('Use bounded safe whole numbers');return value;};
@@ -30,6 +30,12 @@ export function parseFactorySelection(form:FactoryForm,task:Task,grant:Execution
   const policy={max_nodes:number(form.planningNodes??'16',1,256),max_revisions:number(form.planningRevisions??'16',1,256),max_plan_bytes:number(form.planningBytes??'65536',1,262144),outputs:result.outputs.map(artifact=>({artifact,validators:refs.get(artifact.artifact_id)??[]})),writable_prefixes:(form.planningWritable??'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean),owner_acceptance_criteria:form.planningCriteria??''};
   if(!factoryChildPolicyShape(policy))throw new Error('Provide the complete bounded child-planning policy and exact writable paths');
   result.capabilities.child_planning=true;result.child_planning_policy=policy;
+ }
+ if(form.execution){
+  if(!form.planning||!result.child_planning_policy||!safeInteger(grant.scope.max_children,1)||!safeInteger(grant.scope.max_depth,0))throw new Error('The original Grant has no child execution ceiling; planning alone grants no execution');
+  const policy={max_nodes:number(form.executionNodes??'2',1,Math.min(256,result.child_planning_policy.max_nodes,grant.scope.max_children+1)),max_runs_per_task:1,max_total_runs:number(form.executionTotalRuns??'1',1,1000),root_budget:parseBudget(form.executionRoot??form.root),project_budget:parseBudget(form.executionProject??form.project),require_owner_acceptance:true};
+  if(!factoryChildExecutionPolicyShape(policy,result,grant))throw new Error('Fit the independently approved planning, Factory and original Grant ceilings; remaining capacity is checked by Core');
+  result.capabilities.child_goal_execution=true;result.child_goal_execution_policy=policy;
  }
  if(!factorySelectionShape(result)||result.connection_ids.length>4||result.workspace_ids.length!==1||result.inputs.length<1||result.inputs.length>16||result.outputs.length<1||result.outputs.length>16||result.recipients.length>64||result.max_depth<1||result.max_depth>32||result.max_total_nodes<2||result.max_total_nodes>1000||result.max_children<1||result.max_children>=result.max_total_nodes||result.ttl_ms>3600000||!result.capabilities.delegate_task||!result.capabilities.resume_parent_as_new_attempt)throw new Error('This Factory stage requires bounded existing-workspace delegation and new-attempt handoff');
  const all=[...result.inputs,...result.outputs];if(new Set(all.map(a=>a.artifact_id)).size!==all.length||all.some(a=>a.max_bytes>67108864))throw new Error('Artifact IDs must be unique and each selected file bounded to 64 MiB');

@@ -1,7 +1,6 @@
 import type { Task } from './api';
-import type { GoalScope } from './goal-api';
 import type { Language } from './i18n';
-import type { GraphArtifactReference,GraphRunDetails } from './goal-graph-types';
+import type { GraphArtifactReference,GraphRunDetails,GraphEvidenceContext } from './goal-graph-types';
 import { graphTaskAcceptanceMatchesTask } from './goal-graph-guards';
 import { graphGraphLabel } from './goal-graph-labels';
 import { goalGraphMessages } from './goal-graph-i18n';
@@ -12,7 +11,7 @@ export function GoalGraphArtifact({value,language}:{value:GraphArtifactReference
 }
 // Read-only presentation. Shape/freshness/action gates live at the caller;
 // no artifact path is opened or sent back as authority from this component.
-export function GoalGraphExecutionHistory({view,language,task,scope}:{view:GraphRunDetails;language:Language;task?:Task;scope?:GoalScope}){
+export function GoalGraphExecutionHistory({view,language,task,scope}:{view:GraphRunDetails;language:Language;task?:Task;scope?:GraphEvidenceContext}){
   const t=goalGraphMessages[language],count=(value:number|null)=>value===null?t.notMeasured:String(value);
   const accepted=view.graph_contract_version===1&&view.task_accepted===true&&view.run.task_accepted===true&&view.run.state==='accepted'&&!!task&&!!scope&&graphTaskAcceptanceMatchesTask(view.task_acceptance,task,scope,view);
   return <section data-testid="goal-graph-history" data-run-id={view.run.id} className="goal-graph-history" aria-label={t.history}>

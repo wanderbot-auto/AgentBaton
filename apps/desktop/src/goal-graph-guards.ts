@@ -1,6 +1,6 @@
 import { taskHasAcceptanceProjection,type Task } from './api';
 import { safeInteger, utf8Bytes, type GoalScope } from './goal-api';
-import type { GraphArtifactReference, GraphRunSummary, GraphRunDetails, GraphOwnerDecisionResult,GraphTaskAcceptance } from './goal-graph-types';
+import type { GraphArtifactReference, GraphRunSummary, GraphRunDetails, GraphOwnerDecisionResult,GraphTaskAcceptance,GraphEvidenceContext } from './goal-graph-types';
 export const graphRunStates=['queued','running','cancel_requested','cancelled','awaiting_acceptance','blocked','failed','outcome_unknown','accepted'];
 export const graphNodeStates=['not_started','reserved','running','stopping','capturing','candidate','validating','validated','awaiting_owner','accepted','rejected','failed','cancelled','outcome_unknown'];
 export const graphAcceptanceStates=['not_applicable','pending','validated','accepted','rejected','stale','unknown'];
@@ -59,7 +59,7 @@ export function graphArtifactPrecision(value:unknown):boolean {
   const root=value.root,pin=value.file_pin;
   return safeInteger(root.device)&&safeInteger(root.inode)&&['device','inode','bytes'].every(key=>safeInteger(pin[key]))&&['uid','gid','mode'].every(key=>safeInteger(pin[key],0,4294967295))&&['mtime','ctime'].every(key=>safeInteger(pin[key],Number.MIN_SAFE_INTEGER))&&['mtime_nsec','ctime_nsec'].every(key=>safeInteger(pin[key],0,999999999));
 }
-export function graphArtifactShape(x:unknown,scope:GoalScope):x is GraphArtifactReference {
+export function graphArtifactShape(x:unknown,scope:GraphEvidenceContext):x is GraphArtifactReference {
   if(!object(x)||!id(x.candidate_id)||!id(x.artifact_id)||!id(x.contract_id)||!id(x.producer_node_id)||!id(x.producer_attempt_id)||!hash(x.sha256)||!safeInteger(x.bytes,0,67108864)||!relative(x.relative_path)||!safeInteger(x.writer_epoch)||scope.outputs[x.artifact_id]!==x.contract_id)return false;
   // JavaScript may round a Rust u64 before comparison or display. Such a
   // projection cannot support artifact trust or an Owner action. Native/Core
@@ -67,12 +67,12 @@ export function graphArtifactShape(x:unknown,scope:GoalScope):x is GraphArtifact
   const root=x.root,pin=x.file_pin;
   return graphArtifactPrecision(x)&&object(root)&&text(root.canonical_root,4096)&&root.canonical_root.startsWith('/')&&object(root.kind)&&['directory','git'].includes(root.kind.kind)&&object(pin)&&pin.bytes===x.bytes;
 }
-export function graphSummaryShape(x:unknown,task:Task,scope?:GoalScope):x is GraphRunSummary {
+export function graphSummaryShape(x:unknown,task:Task,scope?:GraphEvidenceContext):x is GraphRunSummary {
   if(!object(x)||x.graph_contract_version!==1||!safeInteger(x.ledger_revision)||typeof x.task_accepted!=='boolean'||!object(x.run))return false;
   const r=x.run;
   return id(r.id)&&id(r.scope_id)&&id(r.root_grant_id)&&r.task_id===task.id&&r.project_id===task.project_id&&safeInteger(r.plan_revision,1)&&hash(r.plan_digest)&&safeInteger(r.revision,1)&&text(r.state,128)&&typeof r.cancel_requested==='boolean'&&typeof r.task_accepted==='boolean'&&r.task_accepted===x.task_accepted&&text(r.created_at,128)&&text(r.updated_at,128)&&(!scope||r.scope_id===scope.id&&r.root_grant_id===scope.root_grant_id)&&(r.state!=='cancel_requested'&&r.state!=='cancelled'||r.cancel_requested)&&(!r.task_accepted||r.state==='accepted'&&!r.cancel_requested)&&(r.state!=='accepted'||r.task_accepted);
 }
-export function graphDetailsShape(value:unknown,task:Task,scope:GoalScope):value is GraphRunDetails {
+export function graphDetailsShape(value:unknown,task:Task,scope:GraphEvidenceContext):value is GraphRunDetails {
   if(!object(value)||!graphSummaryShape(value,task,scope))return false;
   const x:Record<string,any>=value;
   if(!Array.isArray(x.nodes)||!Array.isArray(x.candidates)||!Array.isArray(x.validations)||!Array.isArray(x.owner_decisions)||!x.nodes.length||x.nodes.length>65536||[x.candidates,x.validations,x.owner_decisions].some(rows=>rows.length>65536)||utf8Bytes(JSON.stringify(x))>4194304)return false;

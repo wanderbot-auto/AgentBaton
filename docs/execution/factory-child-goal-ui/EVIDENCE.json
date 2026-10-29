@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "base": "981a7514ec4ee5776854f09b0aeaa0c22664503a",
+  "branch": "codex/factory-child-goal-ui",
+  "authority_main": "3fd60f354236ddc5ab0ea2f7665428a8496f4a64",
+  "owner_ack": [
+    "OWNER-001",
+    "OWNER-002"
+  ],
+  "approval": "AB-START-001",
+  "wire_source": "2a3d6ae",
+  "requirements": {
+    "AB-TSK-003": "UI preserves original Grant and independent execution-policy bounds; enforcement proof belongs to Core",
+    "AB-TSK-004": "exact key/payload/CAS reconciliation controls planned; no automatic unknown replay",
+    "AB-TSK-005": "bounded node/run limits and complete actual ancestry; no fanout authority from UI",
+    "AB-TSK-009": "real saved-plan start/Graph progress/Owner decisions/advance connected to fixed bridges",
+    "AB-TSK-011": "initial immutable and current adopted saved references plus original plan text",
+    "AB-TSK-012": "root/project limits displayed; remaining accounting checked by Core and never reset by UI",
+    "AB-SEC-002": "five fixed Owner commands; no generic RPC/shell/SQL/finalize route",
+    "AB-SEC-003": "no scoped/private credentials handled by renderer; backend expiry/session-fence proof not established here",
+    "AB-SEC-005": "untrusted text uses React escaped text/pre, not HTML/script execution",
+    "AB-SEC-010": "Native/Core materialize origin and approve recipient/input/workspace bindings; frontend cannot self-attest"
+  },
+  "validation": {
+    "typecheck": "not_run_CPU_window_not_granted",
+    "existing_733_UI_tests": "not_run_this_leaf",
+    "new_mock_controls": "source_authored_not_run_CPU_window_not_granted",
+    "build": "not_run",
+    "real_Core15_IPC": "not_run_Core_WIP",
+    "browser": "not_run_Root_owns_CPU",
+    "native_and_Mac": "not_run",
+    "real_Provider": "not_authorized_not_run"
+  },
+  "formal_approval": false,
+  "complete_design_acceptance": false,
+  "source_validation": {
+    "at": "2026-10-29T07:14:25.621412+00:00",
+    "command": "git diff --check",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "scope": "whitespace only; not TS syntax or product tests"
+  }
+}
