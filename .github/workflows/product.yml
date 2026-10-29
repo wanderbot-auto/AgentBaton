@@ -92,7 +92,7 @@ jobs:
               return subprocess.check_output(['git', *args], text=True).strip()
           assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
           candidate = {
-              'schema': 13,
+              'schema': 14,
               'git_head': git('rev-parse', 'HEAD'),
               'git_tree': git('rev-parse', 'HEAD^{tree}'),
               'dirty': False,
