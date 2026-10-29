@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "source_commit": "8028043fb1407d45b8253336c7c68d741d8cdb48",
+  "base": "be12ec41bc9700d116381994cf787064e30e2ddb",
+  "requirements": [
+    "AB-TSK-004",
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-VAL-003",
+    "AB-VAL-007"
+  ],
+  "changed_source": {
+    "path": "crates/core/tests/factory_scope.rs",
+    "sha256": "65b4fa5f20c3c5514832b9120b5cbfb76e59ba17b068decaa583fa21456122ed"
+  },
+  "old_real_failure": {
+    "path": "/workspace/.onboarding/pr18-headbe-failures/rust.log",
+    "sha256": "f8534b3abc35f632b0f41e088c807668781e050f3cdc51dd983cd6010928230b",
+    "actualcheckout": "70e9596 (parent report)",
+    "expected": "CAPABILITY_UNSUPPORTED",
+    "actual": "INVALID_REQUEST",
+    "field": "not printed; do not claim original dynamic field attribution",
+    "suite": "factory_scope 10 passed/1 failed; preceding runtime25 passed/102.52s is separate"
+  },
+  "source_semantics": {
+    "child_planning=true/policy=None": "CAPABILITY_UNSUPPORTED",
+    "child_goal_execution=true/policy=None": "INVALID_REQUEST",
+    "create_workspace=true": "CAPABILITY_UNSUPPORTED",
+    "complete_planning+execution_true+execution_policy_None": "INVALID_REQUEST",
+    "unapproved_connection": "AUTH_REQUIRED"
+  },
+  "side_effect_state": "not_started for every actual proposal-refusal subcase",
+  "negative_subcases": {
+    "Store_proposal_refusals": 5,
+    "strict_DTO_refusal": 1
+  },
+  "Rust_test_functions": 11,
+  "new_Rust_tests_executed": 0,
+  "static_checks": {
+    "only_authorized_test_file_changed": true,
+    "all_other_fixture_and_test_bytes_equal": true,
+    "test_names_and_count_unchanged": true,
+    "duration_literals_unchanged": true,
+    "old_bad_connection_code_and_forged_caller_rejection_kept": true,
+    "old_factory_proposal_zero_assertion_kept": true,
+    "snapshot_read_only_query_only": true,
+    "no_additional_calls_outside_fixed_test": true
+  },
+  "artifact": {
+    "path": "/workspace/.onboarding/factory-capability-negative-contract/STATIC_CHECKS.json",
+    "sha256": "f58eabffa73ea32314338ae9464730506190c7c3fe94ea018b1fa752020be52f"
+  },
+  "actual_commands": [
+    {
+      "argv": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "crates/core/tests/factory_scope.rs"
+      ],
+      "env": {
+        "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+      },
+      "exit": 0,
+      "scope": "standalone parser/formatter only"
+    },
+    {
+      "argv": [
+        "rustfmt",
+        "--check",
+        "--edition",
+        "2021",
+        "crates/core/tests/factory_scope.rs"
+      ],
+      "env": {
+        "RUSTUP_HOME": "/workspace/.toolchains/rustup"
+      },
+      "exit": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "command": "inline Python immutable-base/source invariant checks",
+      "exit": 0
+    }
+  ],
+  "classification_correction": "Root initial generic missing-policy INVALID_REQUEST inference was withdrawn after exact production-source review; planning retains existing explicit CAPABILITY_UNSUPPORTED",
+  "not_run": [
+    "Cargo/compilation/Clippy",
+    "scope target",
+    "Actor/Provider/browser",
+    "CI/Mac"
+  ],
+  "production_or_permission_change": false,
+  "claims_excluded": [
+    "production error fix",
+    "CI field attribution not in log",
+    "actual new scope target PASS",
+    "new cross-project runtime proof",
+    "Factory runtime/Mac acceptance"
+  ]
+}

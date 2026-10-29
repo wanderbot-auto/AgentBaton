@@ -1,0 +1,11 @@
+# Progress
+
+Verified original Product40947058067 successor exactbe12 failure input supplied by Root: rust.log SHA f8534b3abc35f632b0f41e088c807668781e050f3cdc51dd983cd6010928230b. Retained in place. Factory runtime25 PASS102.52s preceded factory_scope10 PASS1 FAIL; no causal conclusion about prior rework/55s is inferred. Old assertion expected CAPABILITY_UNSUPPORTED and received INVALID_REQUEST; original field was not printed.
+
+Reading exactbe12 limits revealed distinct existing contracts: child_planning=true without policy remains explicit CAPABILITY_UNSUPPORTED; child_goal_execution boolean/policy-presence mismatch is INVALID_REQUEST; create_workspace remains CAPABILITY_UNSUPPORTED. Root withdrew the initial inference that every missing policy should be INVALID_REQUEST and approved this source-accurate matrix. This patch does not change production to match a test.
+
+The original test now uses exact per-field codes, with not_started assertions. A fully populated plan-only policy with execution capability true but execution policy absent also strictly requires INVALID_REQUEST/not_started. The original bad connection AUTH_REQUIRED and forged-caller DTO rejection are retained and strengthened with snapshots, as is the final zero Factory proposal count. Historical test name includes cross_project; this leaf does not invent an additional cross-project runtime result or claim one was executed. All other11-test-file fixture/test code is byte-identical outside this single function.
+
+After each of five Store proposal negatives plus one DTO rejection, compare the entire generated database's typed raw rows, rowids and table identities against the original snapshot. This includes events/sqlite_sequence, idempotency/proposals, Task/Grant/connection/workspace permission records and every Factory run/handle/ledger table. Snapshot uses a separate SQLite read-only/query_only connection and does not open another Store, approve, dispatch or change production behavior. No physical SQLite-file or OS side-effect proof is claimed from this row comparison.
+
+Standalone rustfmt formatting/check, git diff --check and pure Python source-invariant checks passed. No Cargo, Rust typecheck/test/Clippy, Actor, Provider, browser or Mac/CI run occurred; these new assertions are NOT_RUN. Old real failure is not reclassified as success.

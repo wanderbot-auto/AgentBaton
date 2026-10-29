@@ -43,6 +43,8 @@ struct ReworkReadReconciliation {
     phase: &'static str,
     scope_expires_at_ms: i64,
     calls: u64,
+    method_calls: [u64; 3],
+    method_elapsed_ms: [u64; 3],
     retry_budget: u8,
     errors: Vec<Value>,
     evidence: PathBuf,
@@ -92,6 +94,8 @@ impl ReworkReadReconciliation {
         json!({"phase":self.phase,"method":method,"stage":stage,"call_number":self.calls,
             "wall_ms":wall_ms,"scenario_elapsed_ms":self.origin.elapsed().as_millis(),
             "call_elapsed_ms":started.elapsed().as_millis(),
+            "method_calls":{"factory_runs.get":self.method_calls[0],"factory_child_goals.list":self.method_calls[1],"factory_child_goals.get":self.method_calls[2]},
+            "method_total_elapsed_ms":{"factory_runs.get":self.method_elapsed_ms[0],"factory_child_goals.list":self.method_elapsed_ms[1],"factory_child_goals.get":self.method_elapsed_ms[2]},
             "observation_remaining_ms":self.deadline.saturating_duration_since(now).as_millis(),
             "observation_overdue_ms":now.saturating_duration_since(self.deadline).as_millis(),
             "approved_scope_remaining_ms":self.scope_expires_at_ms.saturating_sub(wall_ms),
@@ -121,6 +125,13 @@ impl ReworkReadReconciliation {
                 "the original observation deadline cannot be renewed by reconciliation; phase={} method={method} calls={}", self.phase, self.calls
             );
             self.calls += 1;
+            let method_index = match method {
+                "factory_runs.get" => 0,
+                "factory_child_goals.list" => 1,
+                "factory_child_goals.get" => 2,
+                _ => unreachable!("the existing readonly whitelist was checked above"),
+            };
+            self.method_calls[method_index] = self.method_calls[method_index].saturating_add(1);
             self.record_observation(&self.observation(
                 method,
                 "request_begin",
@@ -128,11 +139,14 @@ impl ReworkReadReconciliation {
                 None,
             ));
             let started = Instant::now();
-            match call(runtime, json!({"method":method,"params":params})) {
+            let reply = call(runtime, json!({"method":method,"params":params}));
+            // Keep the original response deadline sample before accounting/I/O.
+            let received_before_deadline = Instant::now() < self.deadline;
+            self.method_elapsed_ms[method_index] = self.method_elapsed_ms[method_index]
+                .saturating_add(u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX));
+            match reply {
                 Ok(reply) => {
-                    // Sample the original condition before diagnostic disk I/O.
                     // Recording cannot extend or turn a late reply into success.
-                    let received_before_deadline = Instant::now() < self.deadline;
                     let mut observed =
                         self.observation(method, "response_received", started, Some(&reply));
                     observed["received_before_original_deadline"] = json!(received_before_deadline);
@@ -180,6 +194,8 @@ fn readonly_reconciliation_whitelist_rejects_writes_and_other_bindings() {
         phase: "whitelist_control",
         scope_expires_at_ms: 0,
         calls: 0,
+        method_calls: [0; 3],
+        method_elapsed_ms: [0; 3],
         retry_budget: 2,
         errors: vec![],
         evidence: PathBuf::new(),
@@ -586,6 +602,8 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         phase: "wait_rework_awaiting_owner",
         scope_expires_at_ms: scope["expires_at_ms"].as_i64().unwrap(),
         calls: 0,
+        method_calls: [0; 3],
+        method_elapsed_ms: [0; 3],
         retry_budget: 2,
         errors: vec![],
         evidence: evidence.clone(),
@@ -600,64 +618,92 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
         )
     );
     let before = loop {
-        let factory = reads.call(
-            &runtime,
-            "factory_runs.get",
-            json!({"scope_id":scope["id"]}),
-        );
-        assert_eq!(factory["run"]["scope_id"], scope["id"]);
-        if let Some(child) = factory["tasks"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .find(|t| !t["parent_task_id"].is_null())
-        {
-            assert_eq!(child["parent_task_id"], scope["root_task_id"]);
-            assert_eq!(child["factory_scope_id"], scope["id"]);
-            let task = child["task_id"].as_str().unwrap().to_owned();
-            if let Some(old) = &reads.child {
-                assert_eq!(old, &task);
-            } else {
-                reads.child = Some(task);
+        // Discover immutable addresses once, not authority. Every later read
+        // still goes through the same authenticated server query/whitelist.
+        if reads.child.is_none() {
+            let factory = reads.call(
+                &runtime,
+                "factory_runs.get",
+                json!({"scope_id":scope["id"]}),
+            );
+            assert_eq!(factory["run"]["scope_id"], scope["id"]);
+            if let Some(child) = factory["tasks"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|t| !t["parent_task_id"].is_null())
+            {
+                assert_eq!(child["parent_task_id"], scope["root_task_id"]);
+                assert_eq!(child["factory_scope_id"], scope["id"]);
+                reads.child = Some(child["task_id"].as_str().unwrap().to_owned());
             }
+        }
+        if let Some(child) = reads.child.clone() {
             let list = reads.call(
                 &runtime,
                 "factory_child_goals.list",
-                json!({"scope_id":scope["id"],"task_id":child["task_id"],"goal_run_id":null}),
+                json!({"scope_id":scope["id"],"task_id":child,"goal_run_id":null}),
             );
             if let Some(summary) = list.as_array().unwrap().first() {
                 assert_eq!(summary["factory_scope_id"], scope["id"]);
-                assert_eq!(summary["task_id"], child["task_id"]);
+                assert_eq!(summary["task_id"], child);
+                assert_eq!(summary["parent_task_id"], scope["root_task_id"]);
+                assert_eq!(summary["factory_root_task_id"], scope["root_task_id"]);
+                assert_eq!(summary["plan"]["scope_id"], scope["id"]);
+                assert_eq!(summary["plan"]["run_id"], summary["factory_run_id"]);
+                assert_eq!(summary["plan"]["task_id"], child);
+                assert_eq!(summary["goal"]["run"]["task_id"], child);
+                assert_eq!(
+                    summary["plan"]["revision"],
+                    summary["goal"]["run"]["plan_revision"]
+                );
+                assert_eq!(
+                    summary["plan"]["plan_digest"],
+                    summary["goal"]["run"]["plan_digest"]
+                );
                 let goal = summary["goal"]["run"]["id"].as_str().unwrap().to_owned();
                 if let Some(old) = &reads.goal {
                     assert_eq!(old, &goal);
                 } else {
                     reads.goal = Some(goal);
                 }
-                let view=reads.call(&runtime,"factory_child_goals.get",json!({"scope_id":scope["id"],"task_id":child["task_id"],"goal_run_id":summary["goal"]["run"]["id"]}));
-                assert_eq!(view["details"]["run"]["id"], summary["goal"]["run"]["id"]);
-                assert_eq!(view["details"]["run"]["task_id"], child["task_id"]);
                 assert_ne!(
-                    view["summary"]["goal"]["run"]["state"], "outcome_unknown",
-                    "unknown must never become an automatic rework: {view}"
+                    summary["goal"]["run"]["state"], "outcome_unknown",
+                    "unknown must never become an automatic rework: {summary}"
                 );
-                if view["details"]["nodes"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .any(|n| {
-                        n["plan_revision"] == 2
-                            && n["node"]["id"] == "owner-report"
-                            && n["state"] == "awaiting_owner"
-                    })
+                // A summary is only a readiness gate. Reconstruct the full
+                // validated history after revision2 reaches the Owner stage;
+                // it never substitutes for the original full-view assertions.
+                if summary["plan"]["revision"] == 2
+                    && summary["goal"]["run"]["state"] == "awaiting_acceptance"
                 {
-                    break view;
+                    let view=reads.call(&runtime,"factory_child_goals.get",json!({"scope_id":scope["id"],"task_id":child,"goal_run_id":summary["goal"]["run"]["id"]}));
+                    assert_eq!(view["details"]["run"]["id"], summary["goal"]["run"]["id"]);
+                    assert_eq!(view["details"]["run"]["task_id"], child);
+                    assert_eq!(view["summary"]["plan"], summary["plan"]);
+                    assert_ne!(
+                        view["summary"]["goal"]["run"]["state"], "outcome_unknown",
+                        "unknown must never become an automatic rework: {view}"
+                    );
+                    if view["details"]["nodes"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .any(|n| {
+                            n["plan_revision"] == 2
+                                && n["node"]["id"] == "owner-report"
+                                && n["state"] == "awaiting_owner"
+                        })
+                    {
+                        break view;
+                    }
                 }
             }
         }
         assert!(
             Instant::now() < until,
-            "failed Validator did not produce the same-Graph joined rework: {factory}; stderr={:?}",
+            "failed Validator did not produce the same-Graph joined rework; child_bound={} goal_bound={} stderr={:?}",
+            reads.child.is_some(), reads.goal.is_some(),
             fs::read_to_string(workspace_root.join("reports/fixture-stderr.txt"))
         );
         std::thread::sleep(Duration::from_millis(10));

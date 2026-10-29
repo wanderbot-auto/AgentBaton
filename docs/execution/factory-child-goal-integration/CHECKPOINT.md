@@ -110,3 +110,13 @@ At2d12: actual UI901/52/type/build passed; browser cancel20.525s/CG01,02,04,06/t
 ## Bounded observation and strict shared-meter repair 2026-10-29T20:59:42.058612+00:00
 
 See OBSERVATION_SHARED_METER_RESULTS.json: local Factory25 and four actual Linux browser cases passed, existing compiled tool/frontend attribution preserved. Remote3b Product4 failures remain; new CI required, no55s renewal/root-cause or Mac/package acceptance inferred. WSI16 continues separately.
+
+
+## Exact be12 terminal CI
+
+See BE12_CI_RESULTS.json. Environment3/UI1PASS; Rustscope10/1 failure after Factory25PASS; both Mac original55s observation failed with exact phase/method clocks, still-unexpired scope. No new installer; fixture-only observation reduction under implementation, original deadlines and final acceptance assertions retained. Scope8028 source review closed/Root11PASS; no newCI transfer.
+
+
+## Source5744 and8028 local integration
+
+POLLING_AND_CAPABILITY_RESULTS.json records exact25 Factory/11scope passes, original deadlines/final assertions, independent reviews, fmt/Clippy/infra and preserved capacity stops. Filtered/profile repetitions do not add unique cases or prove performance improvement. New exactsevenCI and bothMac remain mandatory; no current15 installer. Schema16 actualUI/core/browser work continues independently.
