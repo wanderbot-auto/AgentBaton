@@ -1,0 +1,140 @@
+{
+  "source_commit": "9c81ea53422ebd55337076e9d8c450a2c726c1c0",
+  "previous_source": "d250d3bd20d8295f238974c4c2f64564ffbdd735",
+  "Core_contract": "4ffb21000030a3f82580f5a9c14ed40056bb13a0",
+  "raw_directory": "/workspace/.onboarding/factory-child-goal-native/reworks",
+  "source_snapshot_sha256": "e949183575d47eaca9b15ed99087cd4c4c777dbc4cf4f74fe2d94be67e8a702f",
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "bytes": 77010,
+    "sha256": "f97ac724f3cb69faabf76242a774fcc4d138379ef452f5f6e55d753ef9692f38",
+    "members": 24,
+    "all_regular_safe_paths": true,
+    "all_members_roundtrip_byte_equal": true,
+    "inner_manifest_sha256": "5d3e3f462b2cccea94afc716058f3fe02c958b8dec3ef5855b0a407c15066cbf"
+  },
+  "actual_commands": [
+    {
+      "name": "source-26-vectors38",
+      "argv": [
+        "python",
+        "-B",
+        "/workspace/.onboarding/factory-child-goal-native/reworks/check_source.py"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native",
+      "start_UTC": "2026-10-29T08:13:29.533247+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "source-26-vectors38.stdout",
+        "bytes": 123,
+        "sha256": "e6b1dd5d32a51d077566c2b4c4b8ab7ea4e7c5d35676332d94a2cde6987376d5"
+      },
+      "stderr": {
+        "path": "source-26-vectors38.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "rustfmt",
+      "argv": [
+        "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "apps/desktop/src-tauri/src/approval.rs",
+        "apps/desktop/src-tauri/src/lib.rs"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native",
+      "start_UTC": "2026-10-29T08:13:37.616277+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "rustfmt.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "rustfmt.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "diffcheck",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "4775b3f2ca7281d621879f46ec93ecf20063304e",
+        "9c81ea53422ebd55337076e9d8c450a2c726c1c0"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native",
+      "start_UTC": "2026-10-29T08:13:38.110942+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "diffcheck.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "diffcheck.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "cumulative-diffcheck",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "2a3d6ae88f93fa074ada32973ed7a400cf500e89",
+        "9c81ea53422ebd55337076e9d8c450a2c726c1c0"
+      ],
+      "cwd": "/workspace/.worktrees/factory-child-goal-native",
+      "start_UTC": "2026-10-29T08:13:38.117449+00:00",
+      "exit": 0,
+      "stdout": {
+        "path": "cumulative-diffcheck.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "cumulative-diffcheck.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "actual_checks": {
+    "static_source_checks": 26,
+    "independent_arithmetic_specification_vectors": 38,
+    "scope": "These are source/model checks, not Rust or authority/runtime execution."
+  },
+  "preservation": {
+    "all67_existing_approval_tests_byte_equal": true,
+    "all14_bridge_tests_and_lib_bytes_equal": true,
+    "all_other_existing_functions_byte_equal": true,
+    "old_d250_records_byte_equal": true,
+    "captured_source_before_after_equal": true
+  },
+  "new_Rust_test_sources": [
+    "explicit_reworks_complete_layers_round_trip_without_changing_original_grant",
+    "reworks_cancel_at_each_full_review_page_or_final_never_finalizes",
+    "reworks_layer_mismatch_attempt_or_planning_boundary_never_prompts",
+    "reworks_legacy_planning_only_and_missing_execution_binding_cannot_upgrade",
+    "reworks_project_bound_has_no_extra_native_thousand_cap_and_types_are_exact"
+  ],
+  "new_Rust_test_execution": "NOT_RUN",
+  "prior13_new_Rust_test_execution": "NOT_RUN",
+  "not_run": [
+    "Rust unit/type/Clippy",
+    "Core15/schema15/IPC/shared ledger/actual reworks",
+    "Node/browser",
+    "Native macOS/AppKit",
+    "CI",
+    "Provider",
+    "packages"
+  ],
+  "integration_constraint": "Retain later Root c0a shared const bridge; integrate deltas, not whole old files. New independent review and current Core15/Mac execution still required."
+}
