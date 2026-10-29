@@ -349,6 +349,23 @@ def self_check():
     assert "'submit_child_plan','execute_child_goal','advance_child_goal'" in program
     assert "time.monotonic()+15" in program and "mcp_servers':[]" in program
     checks.extend(['generated-MCP7-Graph-no-MCP-source-compiled','original-bounded15s-parent-gate-retained'])
+    checks.extend(upfront_work_budget_self_check(program))
+    reservation_line="    work['reservation']['runtime_ms']=4000\n"
+    assert program.count(reservation_line)==1
+    copied="    owner=copy.deepcopy(work);owner.update("
+    mutants={
+        'old-normal-Work1000':program.replace(reservation_line,"    work['reservation']['runtime_ms']=1000\n"),
+        'Owner-copied-after-Work4000':program.replace(reservation_line,'').replace(copied,reservation_line+copied),
+        'raw-mutated-at-submit':program.replace("'plan_json':original,'expected_plan_revision':0","'plan_json':original+' ','expected_plan_revision':0"),
+        'Work-mutated-after-raw':program.replace(reservation_line,'').replace("    saved=tool('submit_child_plan'",reservation_line+"    saved=tool('submit_child_plan'"),
+    }
+    for name,mutated in mutants.items():
+        assert mutated!=program
+        try:upfront_work_budget_self_check(mutated)
+        except AssertionError:pass
+        else:raise AssertionError(name)
+        checks.append('pure-upfront-source-refuses:'+name)
+
     return {'status':'passed','count':len(checks),'checks':checks,
         'dimension':'pure Python fixed-boundary and fake-query-return controls; NO Core/SQLite migration/browser/OS approval/process execution'}
 
@@ -358,6 +375,78 @@ def self_check():
 EXEC_PLAN_HELPER = planning.PLAN_HELPER.replace(
     "'side_effect':'advisory_read_only','write_set':[]",
     "'side_effect':'workspace_write','write_set':[{'kind':'workspace','path':p}for p in ctx['edit_context']['writable_prefixes']]")
+
+
+def upfront_work_budget_self_check(program):
+    """Pure execution of local plan-construction AST only; no tool/process call.
+
+    Inspect the actual generated submit/digest statements without faking their
+    result. The actual backend saved reference still has to prove that digest.
+    """
+    import ast
+    checks=[];tree=ast.parse(program)
+    helper=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='child_plan')
+    candidates=[n for n in ast.walk(tree)if isinstance(n,ast.If)and ast.unparse(n.test)=="stage == 'parent-initial'"and
+        any(isinstance(v,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='p'for t in v.targets)for v in n.body)]
+    assert len(candidates)==1
+    body=candidates[0].body
+    def assignment(name):
+        return next(i for i,n in enumerate(body)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id==name for t in n.targets))
+    first,submit=assignment('p'),assignment('saved')
+    block=body[first:submit]
+    child_budget={'attempts':2,'parallel':1,'runtime_ms':5000,'output_bytes':4096,'children':1,'reworks':0,'tokens':None,'cost_microunits':None}
+    ctx={'execution_bindings':[{'connection_id':'connection','workspace_id':'workspace'}],
+        'outputs':{'report-child':'output:report-child'},'contracts':{'output:report-child':['factory-child-owner-review']},
+        'inputs':{'input':{'contract_id':'input:input','sha256':'a'*64}},
+        'goal':{'task_id':'child','goal':'原文中文 🧪'},'scope_revision':1,
+        'program_sha256':{'connection':'b'*64},'edit_context':{'writable_prefixes':['reports/report-child.txt']},
+        'required_acceptance_rules':['factory-child-owner-review'],'budget':child_budget}
+    original_ctx=copy.deepcopy(ctx)
+    namespace={'ctx':ctx,'copy':copy,'json':json}
+    exec(compile(ast.fix_missing_locations(ast.Module(body=[helper],type_ignores=[])),'<pure-existing-plan-helper>','exec'),namespace)
+    exec(compile(ast.fix_missing_locations(ast.Module(body=block,type_ignores=[])),'<pure-generated-plan-construction>','exec'),namespace)
+    work,owner=namespace['p']['nodes']
+    assert work['id']=='fixed-work'and owner['id']=='owner-report'
+    assert work['reservation']['runtime_ms']==4000 and owner['reservation']['runtime_ms']==1000
+    checks.append('actual-generated-Work4000-Owner1000-before-submit')
+    assert work['reservation']is not owner['reservation']
+    assert work['reservation']['runtime_ms']+owner['reservation']['runtime_ms']==child_budget['runtime_ms']==5000
+    assert work['budget']['runtime_ms']==owner['budget']['runtime_ms']==5000 and ctx==original_ctx
+    checks.append('child5000-envelope-not-raised-or-mutated')
+    reserve=next(i for i,n in enumerate(body)if isinstance(n,ast.Assign)and ast.unparse(n.targets[0])=="work['reservation']['runtime_ms']")
+    assert assignment('owner')<reserve<assignment('original')<submit
+    checks.append('Owner-copied-before-Work-reservation-and-raw-fixed-before-tool')
+    delegate=body[assignment('child')].value
+    assert isinstance(delegate,ast.Call)and isinstance(delegate.args[0],ast.Constant)and delegate.args[0].value=='delegate_task'
+    params=delegate.args[1];declared=next(v for k,v in zip(params.keys,params.values)if isinstance(k,ast.Constant)and k.value=='budget')
+    assert ast.literal_eval(declared)==child_budget
+    checks.append('actual-delegate-child5000-and-other-caps-unchanged')
+    original=namespace['original'];raw=original.encode('utf-8');fixed_digest=base.sha(raw)
+    assert json.loads(original)==namespace['p']and original.endswith('\n')and '原文中文 🧪'in original
+    assert base.sha(json.dumps(namespace['p'],ensure_ascii=False,indent=2).encode()+b'\n')==fixed_digest
+    checks.append('original-lossless-UTF8-raw-and-SHA-fixed-before-submit')
+    request=body[submit].value
+    assert isinstance(request,ast.Call)and ast.unparse(request.func)=='tool'and request.args[0].value=='submit_child_plan'
+    fields=request.args[1]
+    submitted_raw=next(v for k,v in zip(fields.keys,fields.values)if k.value=='plan_json')
+    assert isinstance(submitted_raw,ast.Name)and submitted_raw.id=='original'
+    digest_guard=body[submit+1]
+    expected=ast.parse("assert saved['plan_json']==original and saved['reference']['raw_sha256']==hashlib.sha256(original.encode()).hexdigest()").body[0]
+    assert ast.dump(digest_guard,include_attributes=False)==ast.dump(expected,include_attributes=False)
+    checks.append('real-submission-uses-fixed-raw-and-keeps-backend-digest-guard')
+    driver=next(n for n in ast.parse(Path(__file__).read_text()).body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    budget=next(n.value for n in ast.walk(driver)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='budget'for t in n.targets))
+    assert ast.literal_eval(budget)['runtime_ms']==30000
+    grants=[n for n in ast.walk(driver)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='approve'and n.args and isinstance(n.args[0],ast.Constant)and n.args[0].value=='grants.propose']
+    assert len(grants)==1
+    grant_fields=grants[0].args[1];maximum=next(v for k,v in zip(grant_fields.keys,grant_fields.values)if k.value=='max_duration_ms')
+    assert isinstance(maximum,ast.Constant)and type(maximum.value)is int and maximum.value==30000
+    selections=[n for n in ast.walk(driver)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='selection'for t in n.targets)]
+    assert len(selections)==1
+    ttl=next(v for k,v in zip(selections[0].value.keys,selections[0].value.values)if k.value=='ttl_ms')
+    assert isinstance(ttl,ast.Constant)and type(ttl.value)is int and ttl.value==30000
+    checks.append('actual-Grant-Scope-root-project30000-envelopes-not-raised')
+    return checks
 
 
 def generated_acp():
@@ -411,6 +500,7 @@ def generated_acp():
      'required_inputs':[{'goal_task_id':ctx['goal']['task_id'],'artifact_id':'report-child','contract_id':ctx['outputs']['report-child'],
       'source':{'kind':'node','node_id':work['id'],'candidate_for_validation':True}}],
      'required_validators':ctx['required_acceptance_rules'],'side_effect':'advisory_read_only','write_set':[],'idempotency_key':'owner-child-report-once'})
+    work['reservation']['runtime_ms']=4000
     p['nodes'].append(owner);original=json.dumps(p,ensure_ascii=False,indent=2)+'\n'
     saved=tool('submit_child_plan',{'task_id':child['task_id'],'plan_json':original,'expected_plan_revision':0,'idempotency_key':'child-goal-plan-one'})
     assert saved['plan_json']==original and saved['reference']['raw_sha256']==hashlib.sha256(original.encode()).hexdigest()
