@@ -1320,6 +1320,16 @@ pub(super) fn verify_confirmed_failure(db: &Connection, r: &GoalRun) -> Result<V
         json!({"goal_run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"failure_refs":proof.failure_refs,"failure_receipt_sequence":seq,"failure_proof_digest":sha(&proof)?,"journal_cursor":proof.receipt_cursor,"all_graph_attempts_stopped":true,"unknown_effects":false}),
     )
 }
+/// Readonly projection of this derived Graph's accepted, fully stopped history.
+/// A Factory planner's own stop (or an Accepted label) is not this proof.
+pub(crate) fn accepted_stop(db: &Connection, id: &str) -> Result<bool> {
+    let r = run(db, id)?;
+    if !marked_run(db, id)? || !r.task_accepted || r.state != "accepted" {
+        return Err(denied());
+    }
+    capability(db, &r)?;
+    Ok(graph::stopped_graph(db, &r)?.is_some())
+}
 impl Store {
     pub(crate) fn confirm_factory_child_goal_failure(&mut self, id: &str) -> Result<bool> {
         let tx = self

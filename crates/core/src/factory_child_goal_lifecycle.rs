@@ -178,6 +178,7 @@ impl Store {
             || b.handle.cancel_requested
             || !matches!(b.handle.state.as_str(), "waiting_child" | "waiting_goal")
             || !planner_stop_confirmed(&tx, &b)?
+            || !crate::goal_store::factory_child_goal_accepted_stop(&tx, goal_id)?
         {
             return Err(denied());
         }
@@ -185,6 +186,10 @@ impl Store {
         // earlier Factory output snapshot or its pre-Graph bytecount.
         b.handle.state = "result_available".into();
         b.handle.result_available = true;
+        // Derived Graph all-history stop proof above is distinct from the
+        // original planner's stop. Project it before fixing the child result
+        // and joining its parent; do not fabricate a Factory worker receipt.
+        b.handle.confirmed_stop = true;
         b.child_goal_recovery = None;
         b.result = Some(FactoryTaskResult {
             task: b.handle.clone(),
