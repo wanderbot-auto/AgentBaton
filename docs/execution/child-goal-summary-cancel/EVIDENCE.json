@@ -1,0 +1,288 @@
+{
+  "recorded_at": "2026-10-29T17:52:08.254088+00:00",
+  "production_commit": "60432209aa6394e1a3755f1953726395309581f3",
+  "source_commit": "1e185b35fba0a6918621c071fddb1f126f2dae59",
+  "base": "8c178088d7213f625695a9d31a5b6d31cc342a42",
+  "requirements": [
+    "AB-TSK-009",
+    "AB-TSK-011"
+  ],
+  "status": "INDEPENDENT_SOURCE_REVIEWED_ROOT_TYPES_NODE_BUILD_PASS_REAL_CANCEL_NOT_RUN",
+  "original_report_sha256": "dfafe28c7c67c4ff577392c3767a0001cc233d7a21bc98e7b7dda46873d3e5d1",
+  "original_actual_result": "FAIL",
+  "original_runtime_seconds_Root_reported": 39.574,
+  "identity_capture_ms": 1793293093524,
+  "node_settled": {
+    "sequence": 58,
+    "at": "2026-10-29T16:58:22.382022907Z",
+    "state": "outcome_unknown",
+    "actual_runtime_ms": 10000,
+    "stop_confirmed": true,
+    "task_accepted": false
+  },
+  "cancel_request": {
+    "sequence": 60,
+    "at": "2026-10-29T16:58:23.315701566Z",
+    "after_settled_unknown_ns": 933678659,
+    "response_state": "outcome_unknown",
+    "cancel_requested": true,
+    "explicit_samekey_payload_CAS_receipt_recovery_verified": true,
+    "cancelled": false
+  },
+  "finite_timeline": [
+    {
+      "http_index": 100,
+      "method": "factory_child_goals.start",
+      "reply_file_mtime_ns": 1793293090850180048,
+      "response_complete": true,
+      "goal_state": "queued",
+      "goal_revision": 1,
+      "cancel_requested": false,
+      "task_accepted": false
+    },
+    {
+      "http_index": 128,
+      "method": "factory_child_goals.get",
+      "reply_file_mtime_ns": 1793293097664889343,
+      "response_complete": true,
+      "goal_state": "running",
+      "goal_revision": 2,
+      "cancel_requested": false,
+      "task_accepted": false
+    },
+    {
+      "http_index": 136,
+      "method": "factory_child_plans.get",
+      "reply_file_mtime_ns": 1793293098933804682,
+      "response_complete": true
+    },
+    {
+      "http_index": 137,
+      "method": "factory_scopes.get",
+      "reply_file_mtime_ns": 1793293099262545396,
+      "response_complete": true
+    },
+    {
+      "http_index": 146,
+      "method": "factory_child_goals.list",
+      "reply_file_mtime_ns": 1793293100417488808,
+      "response_complete": true
+    },
+    {
+      "http_index": 147,
+      "method": "factory_child_plans.context",
+      "reply_file_mtime_ns": 1793293100818417211,
+      "response_complete": true
+    },
+    {
+      "http_index": 160,
+      "method": "factory_child_plans.get",
+      "reply_file_mtime_ns": 1793293102445258144,
+      "response_complete": true
+    },
+    {
+      "http_index": 161,
+      "method": "factory_child_goals.get",
+      "reply_file_mtime_ns": 1793293102545541537,
+      "response_complete": true,
+      "goal_state": "outcome_unknown",
+      "goal_revision": 3,
+      "cancel_requested": false,
+      "task_accepted": false
+    },
+    {
+      "http_index": 164,
+      "method": "factory_child_plans.get",
+      "reply_file_mtime_ns": 1793293102579454989,
+      "response_complete": true
+    },
+    {
+      "http_index": 172,
+      "method": "factory_scopes.get",
+      "reply_file_mtime_ns": 1793293102955893774,
+      "response_complete": true
+    },
+    {
+      "http_index": 173,
+      "method": "factory_runs.get",
+      "reply_file_mtime_ns": 1793293102959500673,
+      "response_complete": true
+    },
+    {
+      "http_index": 174,
+      "method": "system.snapshot",
+      "reply_file_mtime_ns": 1793293102960466433,
+      "response_complete": true
+    },
+    {
+      "http_index": 175,
+      "method": "grants.list",
+      "reply_file_mtime_ns": 1793293102961909731,
+      "response_complete": true
+    },
+    {
+      "http_index": 176,
+      "method": "factory_child_goals.list",
+      "reply_file_mtime_ns": 1793293103009974327,
+      "response_complete": true
+    },
+    {
+      "http_index": 177,
+      "method": "factory_child_plans.context",
+      "reply_file_mtime_ns": 1793293103045505427,
+      "response_complete": true
+    },
+    {
+      "http_index": 178,
+      "method": "factory_child_plans.get",
+      "reply_file_mtime_ns": 1793293103080536170,
+      "response_complete": true
+    },
+    {
+      "http_index": 179,
+      "method": "factory_child_goals.get",
+      "reply_file_mtime_ns": 1793293103204327267,
+      "response_complete": true,
+      "goal_state": "outcome_unknown",
+      "goal_revision": 3,
+      "cancel_requested": false,
+      "task_accepted": false
+    },
+    {
+      "http_index": 180,
+      "method": "factory_child_plans.get",
+      "reply_file_mtime_ns": 1793293103238987728,
+      "response_complete": true
+    },
+    {
+      "http_index": 181,
+      "method": "factory_child_goals.cancel",
+      "reply_file_mtime_ns": 1793293103395080889,
+      "response_complete": false,
+      "goal_state": "outcome_unknown",
+      "goal_revision": 4,
+      "cancel_requested": true,
+      "task_accepted": false
+    },
+    {
+      "http_index": 191,
+      "method": "factory_child_goals.cancel",
+      "reply_file_mtime_ns": 1793293103831219781,
+      "response_complete": true,
+      "goal_state": "outcome_unknown",
+      "goal_revision": 4,
+      "cancel_requested": true,
+      "task_accepted": false
+    }
+  ],
+  "fix_boundaries": {
+    "same_original_summary_scope_family_Task_list_floors_checks": true,
+    "live_start_advance_Owner_intent_API_and_result_guards_unchanged": true,
+    "cancel_only_summary_read_no_plan_raw_Origin_Owner_loading": true,
+    "known_start_ACK_yield_only_exact_receipt_and_fresh_summary": true,
+    "unknown_pending_start_or_Owner_never_yield": true,
+    "explicit_unknown_cancel_recovery_original_key_payload_CAS": true,
+    "operation_key_write_release_ownership": true,
+    "cancel_requested_not_confirmed_stop_Unknown_not_Cancelled": true,
+    "no_harness_budget_deadline_or_Core_Native_protocol_change": true
+  },
+  "source_map": {
+    "apps/desktop/src/FactoryChildGoals.test.tsx": {
+      "sha256": "5ee8614f5c05b2316982cd63fc7d14cd7ee29e5ebe269408d339d687b28a3cd9",
+      "bytes": 43001,
+      "git_blob": "83d28fe9161286e466da8d4e42f9fb13a5cf3ff8"
+    },
+    "apps/desktop/src/FactoryChildGoals.tsx": {
+      "sha256": "5dc16c93552fb1f1bcd8beb9bc35abd43d62f7e12209f86ea1da0730d47ec62c",
+      "bytes": 28139,
+      "git_blob": "ac492e10485b9d2fe5a659ec00b93656d9a97bf9"
+    }
+  },
+  "new_deferred_mock_tests": 21,
+  "independent_review": {
+    "status": "SOURCE_READY_FOR_ROOT_TESTS",
+    "production_commit": "60432209aa6394e1a3755f1953726395309581f3",
+    "corrected_test_commit": "1e185b35fba0a6918621c071fddb1f126f2dae59",
+    "static_model_checks": 43,
+    "exit": 0,
+    "diff_check_exit": 0,
+    "report": "/workspace/.onboarding/child-goal-summary-cancel-604322-independent-review/REVIEW.md",
+    "report_sha256": "ea6de37fdcd1e2553d5142020bdabd99420d98cc0f2d3993edf86f8d78aa9fd4",
+    "manifest_sha256": "86b3b5add42dba1521ed167a2bae335fbe3d9621a7b0585241b62143db96b3cc",
+    "reviewer_executed_Node_Core_browser": false
+  },
+  "Root_actual_execution": {
+    "root_recorded_source": "61dd0c9c6193c547ac102dd6da6cc12be7acaceb",
+    "candidate": "1e185b35fba0a6918621c071fddb1f126f2dae59",
+    "commands": [
+      {
+        "source": "61dd0c9c6193c547ac102dd6da6cc12be7acaceb",
+        "command": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "exit": 0,
+        "seconds": 1.172746600001119,
+        "log_sha256": "642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e"
+      },
+      {
+        "source": "61dd0c9c6193c547ac102dd6da6cc12be7acaceb",
+        "command": [
+          "npm",
+          "run",
+          "test"
+        ],
+        "exit": 0,
+        "seconds": 30.047076096001547,
+        "log_sha256": "af7ec8851aa7914b4d7a50199a514a1ea4ff02f070fb96abd566b405b30c0dcd"
+      },
+      {
+        "source": "61dd0c9c6193c547ac102dd6da6cc12be7acaceb",
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "seconds": 1.4822701929952018,
+        "log_sha256": "6aafd0d231aa28a6a38cc84f1b879aadab04354d17a4c34c06f984caa90c6e8e"
+      }
+    ],
+    "relevant_Git_blob_maps": {
+      "apps/desktop/src/FactoryChildGoals.tsx": {
+        "sha256": "5dc16c93552fb1f1bcd8beb9bc35abd43d62f7e12209f86ea1da0730d47ec62c",
+        "bytes": 28139,
+        "root_and_candidate_Git_blob_match": true
+      },
+      "apps/desktop/src/FactoryChildGoals.test.tsx": {
+        "sha256": "5ee8614f5c05b2316982cd63fc7d14cd7ee29e5ebe269408d339d687b28a3cd9",
+        "bytes": 43001,
+        "root_and_candidate_Git_blob_match": true
+      }
+    },
+    "typecheck": 0,
+    "Node_tests": 872,
+    "Node_test_files": 51,
+    "Node_exit": 0,
+    "build": 0,
+    "reviewer_executed_commands": false,
+    "evidence_limit": "Read recorded Root commands/logs and compared fixed Git blobs; no separate live worktree hash snapshot supplied in this directory. New actual cancellation/browser still NOT_RUN."
+  },
+  "actual_new_browser_Core_stop_join": "NOT_RUN",
+  "source_type_correction": {
+    "old": "604322 test directly assigned readonly GoalRun.id",
+    "new": "1e185 builds malformed reply using immutable spreads",
+    "executed_typecheck_failure": false
+  },
+  "originals_preserved": {
+    "filecount": 669,
+    "raw_wire_SHAcount": 409,
+    "capturefail": 0,
+    "capture_rejection": 0,
+    "published_DB_RPC_Grant_files": false
+  },
+  "source_pure_finite_audit_exit": 0,
+  "reviewer_Node_Cargo_browser_Actor": "NOT_RUN",
+  "independent_directory": "/workspace/.onboarding/child-goal-summary-cancel"
+}
