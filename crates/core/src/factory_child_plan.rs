@@ -965,6 +965,20 @@ impl Store {
             ));
         }
         let policy = host_policy(&s, &b)?;
+        // Factory output approvals name exact regular-file destinations. A
+        // file spelling must not become an authority prefix for descendants.
+        let allowed_writes = &policy.workspaces[&b.request.workspace_id].writable_prefixes;
+        if raw
+            .nodes
+            .iter()
+            .flat_map(|n| &n.write_set)
+            .any(|w| match w {
+                WriteTarget::Workspace { path } => !allowed_writes.contains(path),
+                WriteTarget::External { .. } => true,
+            })
+        {
+            return Err(denied());
+        }
         let (digest, _) = goal_plan::validate_factory_child_plan(
             &context.goal,
             s.revision,

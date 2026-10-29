@@ -291,6 +291,11 @@ fn child_plan_bad_raw_permission_references_cycles_cas_and_unsafe_numbers_leave_
     let mut missing_outputs = base.clone();
     missing_outputs.nodes[0].outputs.clear();
     cases.push(missing_outputs);
+    for path in ["output/unauthorized-child", "other-output"] {
+        let mut widened_write = base.clone();
+        widened_write.nodes[0].write_set = vec![WriteTarget::Workspace { path: path.into() }];
+        cases.push(widened_write);
+    }
 
     let mut p = base.clone();
     p.acceptance_rules.clear();
