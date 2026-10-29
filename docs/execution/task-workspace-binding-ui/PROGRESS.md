@@ -13,3 +13,12 @@ Static follow-up8366: fixed Core resolver explicitly refuses archived projects. 
 Light Python source assertions and git diffcheck0 verify allowed5files, exactly4fixed APIs, no generic bridge/numeric FS coercion, App inverse byte-equal, CSS prior prefix and protected Core/wire/Projects/DataWorkspaces bytes unchanged. These are not TypeScript parser/type or execution proof.
 
 Typecheck,24 mock component cases, full existing test suite, build, actual IPC/browser/Native remain NOT_RUN. Independent review and Root actual tests are next; no product execution or cleanup result claimed.
+
+
+## Review follow-up 422dd195c83c7f5b28e1a967a5dec00f3c243f30
+
+Independent source review identified a P2 in the earlier8366/fbc path: after a successful FS identity observation, same-key revalidation could return INPUT_CHANGED/not_started while stored Task binding remained identical. Catch retained saved.observed; later ordinary TaskGet/Projects refresh could display it as revalidated again. This is a source-reachable invalidated-proof issue, not a claimed executed component/browser failure. Original source and sealed phase evidence are retained.
+
+Fix only invalidates saved.observed plus mounted displayed observation in perform.catch. It does not change pending keys, full original payload, receipt, CAS, uncertain recovery or Core behavior. Added1 exact same-key success→FS failure→Task-only refresh remains stored-only→new explicit successful identity check restores proof regression. Original24test specs remain byte unchanged; total25 declared, all NOT_RUN. Python inverse/source checks and diff0 only.
+
+Archived-history confusion in review used old fbc:8366 already avoids resolver on archived projects. Active-project cancelled/unknown/accepted records remain subject to real resolver's non-draft blocked result, and new prepare also requires Task.state=draft. No test-shaped permission bypass or global Unknown exception added. Root owns Node/type/build/browser validation.
