@@ -795,7 +795,7 @@ def wire_recording_self_check(output):
     assert len(nested_report['actual_core_wires'])==2 and len({v['original_reply_path']for v in nested_report['actual_core_wires']})==2
     checks.append('no-recorder-lock-across-file-callback-reentrancy')
     # Deterministic file-only regression for the original len(list) allocator.
-    # These opaque inputs are not either missing Root/Core reply.
+    # These unit inputs are unrelated to the original Root/Core replies.
     old_dir=output/'old-race-control';old_dir.mkdir(mode=0o700);old_rows=[];old_errors=[];old_barrier=threading.Barrier(2)
     def unsafe_file_control(index):
         path=old_dir/('wire-reply-'+str(len(old_rows))+'.json')
@@ -822,6 +822,7 @@ def wire_recording_self_check(output):
     checks.append('actual-IPC-wrapper-never-holds-recorder-lock')
     return {'status':'passed','count':len(checks),'checks':checks,'threads':16,'parallel_files':128,
         'dimension':'actual concurrent/exclusive file IO only; opaque unit bytes, no Core/reply success/IPC/product/Provider simulation',
+        'actual_runtime':'not_run','backend_invoked':False,
         'parallel':report,'preexisting':collision,'partial':partial_report,'aborted':abort_report,'nested':nested_report,
         'old_race_file_control':{'recorded':old_rows,'expected_failures':old_errors,'not_Core_data':True},
         'original_Root_missing_second_raw':'not reconstructed; original FAIL remains unchanged'}
@@ -1366,7 +1367,7 @@ def main():
     args=parser.parse_args();out=args.output.resolve();out.mkdir(parents=True,exist_ok=False);out.chmod(0o700)
     if args.wire_recording_self_check:
         value=wire_recording_self_check(out);value['harness_sha256']=base.sha(Path(__file__).read_bytes())
-        base.write_private_json(out/'wire-recording-check.json',value);print(json.dumps({'status':value['status'],'count':value['count'],'threads':value['threads'],'parallel_files':value['parallel_files']}));return 0
+        base.write_private_json(out/'wire-recording-check.json',value);print(json.dumps({'status':value['status'],'count':value['count'],'threads':value['threads'],'parallel_files':value['parallel_files'],'actual_runtime':value['actual_runtime']}));return 0
     if args.run:
         require(args.tools is not None and args.manifest is not None and args.frontend is not None)
         try:return runtime_driver(args,out)
