@@ -97,6 +97,9 @@ impl QueryProof {
 struct OwnedGoalReadDelta {
     project_budget: String,
     root_budget: String,
+    initial_counter_limits: [u64; 2],
+    project_attempt_count: u64,
+    root_attempt_count: u64,
     root_task: String,
     task: String,
     intent_row: String,
@@ -111,10 +114,20 @@ impl QueryProof {
         let current = Self::capture_bounded(db, self.sql, self.args.clone(), remaining)?;
         let mut expected = self.rows.clone();
         if self.sql=="SELECT json_array(total_limit,parallel_limit,consumed,active) AS value FROM budgets WHERE scope=?1" && self.args.len()==1 && (self.args[0]==delta.project_budget || self.args[0]==delta.root_budget) {
-            if expected.len()!=1{return Err(changed());}
-            let old:Vec<u64>=serde_json::from_str(&expected[0]).map_err(|_|changed())?;
-            if old.len()!=4 || old[2]>=old[0] || old[3]>=old[1] {return Err(changed());}
-            expected[0]=encode(&[old[0],old[1],old[2].checked_add(1).ok_or_else(limited)?,old[3].checked_add(1).ok_or_else(limited)?])?;
+            if expected.is_empty() {
+                // Generic session admission may create this counter for the
+                // first time. The strict preflight saw absence; permit only
+                // its exact original-Grant initializer plus this own increment,
+                // with no prior/foreign attempt history to reset or ignore.
+                let attempts=if self.args[0]==delta.project_budget {delta.project_attempt_count}else{delta.root_attempt_count};
+                if attempts!=1 || delta.initial_counter_limits.contains(&0) {return Err(changed());}
+                expected.push(encode(&[delta.initial_counter_limits[0],delta.initial_counter_limits[1],1,1])?);
+            } else {
+                if expected.len()!=1{return Err(changed());}
+                let old:Vec<u64>=serde_json::from_str(&expected[0]).map_err(|_|changed())?;
+                if old.len()!=4 || old[2]>=old[0] || old[3]>=old[1] {return Err(changed());}
+                expected[0]=encode(&[old[0],old[1],old[2].checked_add(1).ok_or_else(limited)?,old[3].checked_add(1).ok_or_else(limited)?])?;
+            }
         }else if self.sql=="SELECT json_array(d.id,d.state,d.document,a.binding) AS value FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE a.task_id=?1 ORDER BY d.id" && self.args==[delta.root_task.clone()] && delta.task==delta.root_task {
             let id=|row:&str|->Result<String>{let v:serde_json::Value=decode(row)?;Ok(v[0].as_str().ok_or_else(changed)?.to_owned())};
             let added=id(&delta.intent_row)?;
@@ -208,9 +221,24 @@ fn owned_goal_delta(
         return Err(changed());
     }
     let intent_row:String=db.query_row("SELECT json_array(d.id,d.state,d.document,a.binding) FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE d.id=?1",[p.intent_id()],|row|row.get(0)).map_err(db_error)?;
+    let grant = crate::policy::checked_lineage(db, &scope.root_grant_id)?;
+    if grant != scope.bindings.approved_grant
+        || grant.parent_id.is_some()
+        || grant.root_grant_id != grant.id
+    {
+        return Err(changed());
+    }
+    let project_attempt_count:u64=db.query_row("SELECT count(DISTINCT a.id) FROM attempts a JOIN tasks t ON t.id=a.task_id WHERE json_extract(t.document,'$.project_id')=?1",[&scope.project_id],|row|row.get(0)).map_err(db_error)?;
+    let root_attempt_count:u64=db.query_row("SELECT count(DISTINCT a.id) FROM attempts a WHERE a.root_task_id=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':') OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?2)",rusqlite::params![scope.root_task_id,scope.root_grant_id],|row|row.get(0)).map_err(db_error)?;
     Ok(OwnedGoalReadDelta {
         project_budget: format!("project:{}", scope.project_id),
         root_budget: format!("root:{}", scope.root_task_id),
+        initial_counter_limits: [
+            u64::from(grant.scope.max_attempts),
+            u64::from(grant.scope.max_concurrency),
+        ],
+        project_attempt_count,
+        root_attempt_count,
         root_task: scope.root_task_id.clone(),
         task: r.task_id.clone(),
         intent_row,
@@ -2194,6 +2222,9 @@ mod child_goal_admission_tests {
         OwnedGoalReadDelta {
             project_budget: "project:p".into(),
             root_budget: "root:r".into(),
+            initial_counter_limits: [8, 4],
+            project_attempt_count: 2,
+            root_attempt_count: 2,
             root_task: "r".into(),
             task: "r".into(),
             intent_row: "[\"own\",\"prepared\",\"fixed intent bytes\",\"fixed binding bytes\"]"
@@ -2202,6 +2233,74 @@ mod child_goal_admission_tests {
     }
     fn check(p: &QueryProof, db: &Connection, d: &OwnedGoalReadDelta) -> Result<()> {
         p.recheck_owned_goal(db, d, &mut (4_194_304, 100_000))
+    }
+    #[test]
+    fn first_own_counter_initializer_keeps_original_limits_and_refuses_history_or_foreign_deltas() {
+        // Synthetic SQLite projection only. Real constructor authority and
+        // first Owner admission use the separate actual Store path controls.
+        for key in ["project:p", "root:r"] {
+            let db = db();
+            db.execute("DELETE FROM budgets WHERE scope=?1", [key])
+                .unwrap();
+            let proof = QueryProof::capture(&db, COUNTERS, vec![key.into()]).unwrap();
+            assert!(proof.rows.is_empty());
+            let mut own = delta();
+            own.project_attempt_count = 1;
+            own.root_attempt_count = 1;
+            db.execute("INSERT INTO budgets VALUES(?1,8,4,1,1)", [key])
+                .unwrap();
+            check(&proof, &db, &own).unwrap();
+            for (name, sql) in [
+                (
+                    "wrong_total",
+                    "UPDATE budgets SET total_limit=9 WHERE scope=?1",
+                ),
+                (
+                    "wrong_parallel",
+                    "UPDATE budgets SET parallel_limit=3 WHERE scope=?1",
+                ),
+                (
+                    "extra_consumed",
+                    "UPDATE budgets SET consumed=2 WHERE scope=?1",
+                ),
+                ("extra_active", "UPDATE budgets SET active=2 WHERE scope=?1"),
+                (
+                    "missing_own_increment",
+                    "UPDATE budgets SET consumed=0,active=0 WHERE scope=?1",
+                ),
+                ("missing_counter", "DELETE FROM budgets WHERE scope=?1"),
+            ] {
+                db.execute_batch("SAVEPOINT projection_fault").unwrap();
+                db.execute(sql, [key]).unwrap();
+                assert_eq!(
+                    check(&proof, &db, &own).unwrap_err().code,
+                    "INPUT_CHANGED",
+                    "{name}"
+                );
+                db.execute_batch("ROLLBACK TO projection_fault;RELEASE projection_fault")
+                    .unwrap();
+            }
+            for attempts in [0, 2] {
+                let mut foreign = delta();
+                foreign.project_attempt_count = attempts;
+                foreign.root_attempt_count = attempts;
+                assert_eq!(
+                    check(&proof, &db, &foreign).unwrap_err().code,
+                    "INPUT_CHANGED",
+                    "attempt history={attempts}"
+                );
+            }
+            let mut wrong_limits = delta();
+            wrong_limits.project_attempt_count = 1;
+            wrong_limits.root_attempt_count = 1;
+            wrong_limits.initial_counter_limits = [7, 4];
+            assert_eq!(
+                check(&proof, &db, &wrong_limits).unwrap_err().code,
+                "INPUT_CHANGED"
+            );
+            check(&proof, &db, &own).unwrap();
+            assert_eq!(db.query_row("SELECT json_array(total_limit,parallel_limit,consumed,active) FROM budgets WHERE scope='root:foreign'",[],|r|r.get::<_,String>(0)).unwrap(),"[8,4,0,0]");
+        }
     }
     #[test]
     fn exact_own_counter_delta_retains_limits_and_rejects_extra_missing_or_double_charge() {
