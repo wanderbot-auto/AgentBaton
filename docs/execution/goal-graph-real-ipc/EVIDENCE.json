@@ -350,7 +350,7 @@
   "limits": [
     "Latest code160e0a0/source9b1b includes only diagnosed fixture corrections; Root final five-mode replay in progress. Author controls are not Core/browser/TaskAccepted runs.",
     "Root current Owner actual6/3 passed for c432/3be. Root initial Integrity had report-writing shadow bug with original first exception unknown; second Integrity report correctly refused expired10s private Grant and is FAILED, despite earlier stages having genuine evidence. Preserve both.",
-    "Integrity fixture lifetime increase10→30s was explicit Root-directed test-fixture correction; no product/Goal runtime/Node/command/observer/cleanup threshold was relaxed.",
+    "Integrity fixture lifetime increase10\u219230s was explicit Root-directed test-fixture correction; no product/Goal runtime/Node/command/observer/cleanup threshold was relaxed.",
     "37 actual packet controls plus generated program5 and static58/15/9/35 are separately attributed. The provider unit failure is preserved as a labelled observed summary, not fabricated original log.",
     "Raw original observation string is authoritative; only known display observation_json is stripped. Full original Values, SQL raw digests, complete Owner snapshots, FD pins and cumulative budgets retained; no universal reencoding or field stripping.",
     "No product/Core/UI/Native/old5/lock/CI/STATUS/Cargo/target changes or private model credentials/accounts/fees/remote actions; no author Chromium/daemon run in this review repair. All failed and historical output directories remain.",
@@ -369,10 +369,10 @@
   "schema_plan_candidate": {
     "status": "sent_to_Core_for_confirmation_not_executed",
     "nodes": [
-      "Work external input→report",
+      "Work external input\u2192report",
       "Validate report candidate with exact approved deterministic rule",
       "Owner1 report current candidate/validation",
-      "Summary consumes accepted report→distinct summary",
+      "Summary consumes accepted report\u2192distinct summary",
       "Owner2 summary current candidate"
     ],
     "reason_for_Owner2": "Connection requires output and each host_policy output requires goal-owner-review; cannot weaken Summary acceptance or call deterministic validation GoalAcceptance",
@@ -747,7 +747,7 @@
         "bytes": 131329
       },
       "cause": "old immediate get raced browser first plan store and Core correctly returned NOT_FOUND; real goal_plans.propose succeeded afterward",
-      "fix": "readonly goal_plans.list waits empty→matching revision within original15s, then same exact whole proposal/state/dispatched assertions; no timeout/acceptance reduction"
+      "fix": "readonly goal_plans.list waits empty\u2192matching revision within original15s, then same exact whole proposal/state/dispatched assertions; no timeout/acceptance reduction"
     },
     "Root_prior_runs_preserved": [
       {
@@ -818,7 +818,7 @@
       "bytes": 1540
     },
     "bootstrap": "Real generated account-free legacy Goal on actually copied Data Workspace; stopped source process; approve additional Native integrity/data/command definition but never execute its old per-attempt policy; cancel old candidate; create NEW Task/Scope in SAME project/root grant/workspace; keep project attempts/ledger. No candidate backfill or DB writes.",
-    "positive_scope": "W→V→Owner1→dependent Summary→Owner2; Data producer owns report/table+script+environment three outputs with all required rules, Summary owns fourth output. Private Graphcap explicitly lists exact approved definition digest and subject-rebinding restrictions.",
+    "positive_scope": "W\u2192V\u2192Owner1\u2192dependent Summary\u2192Owner2; Data producer owns report/table+script+environment three outputs with all required rules, Summary owns fourth output. Private Graphcap explicitly lists exact approved definition digest and subject-rebinding restrictions.",
     "planned_accounting_assertions": {
       "all_positive_cases": {
         "total_attempts": 4,
@@ -975,7 +975,7 @@
     "provider_failure_log_limit": "The original failed provider-self-check command was not shell-redirected; original stderr exists in tool transcript, the file is an explicitly labelled observation summary, not a claimed original raw log. Source90b is preserved for exact reproduction.",
     "independent_static_source_ready": "data_native_integration_review confirmed7d80 exact37+5 PASS, c3e exact two identifier replacements/zero output AST stores/compile PASS, fd exact one conditional expression replacement/compile PASS and no remaining blocking finding. Final independent artifact sealing is owned by reviewer; no fictitious report hash.",
     "output_path_fix": "owner_only_driver output:Path was shadowed by for-loop output dict. Rename only loop binding to scoped_output; AST confirms zero output Store sites. Preserve original failed directory; original first exception was obscured and remains unknown.",
-    "fixture_grant_fix": "Root explicitly directed Integrity private initial Grant10s→30s to match existing Data/Command lifetime after actual expiry rejection. GoalScope/runtime10000ms, node budget5000/reservation4000ms, command1500/500/512x2, observation/cleanup limits unchanged; pure Owner600000ms unchanged.",
+    "fixture_grant_fix": "Root explicitly directed Integrity private initial Grant10s\u219230s to match existing Data/Command lifetime after actual expiry rejection. GoalScope/runtime10000ms, node budget5000/reservation4000ms, command1500/500/512x2, observation/cleanup limits unchanged; pure Owner600000ms unchanged.",
     "new_actual_runs_by_author": 0,
     "Root_runs": "Read actual reports below; six-mode final rerun remains Root-owned. These controls are not runtime acceptance.",
     "shared_budget_correction": {
@@ -1601,5 +1601,56 @@
     ],
     "independent": "Root assigned data_native_integration_review and sourceACK pending, no inferredsignoff",
     "remaining": "originalCI blocker requiresnewexactCI; noextraChrome/Cargo or product/Mac/model/packageclaim"
+  },
+  "pending_empty_argv_7f83": {
+    "base": "7f83c66652a40a9d01e995b45ce270abd44fbdde",
+    "source_commit": "79bbf4e8ab69d0e24800f1c49c356673c2a8e4bc",
+    "source_sha256": "2066f54bc6f0a0d3cf6add7885caa53fb322c28478c714846ebf5f9c04a76955",
+    "tree": "/workspace/.worktrees/goal-graph-empty-argv",
+    "actual_CI_sealed_directory": "/workspace/.onboarding/pr16-7f83-linux-review",
+    "CI_status": "UI_FAILED_Rust_SUCCESS",
+    "CI_failure_identity": {
+      "pid": 10200,
+      "ppid": 9949,
+      "start_ticks": "20524",
+      "states": [
+        "R",
+        "R",
+        "R"
+      ],
+      "raw_len": 0,
+      "NUL": false,
+      "separate_later_sleep_pid": 10207
+    },
+    "specific_kernel_mechanism": "unproven",
+    "ADR": "PLAN.md pending-empty section",
+    "controls": {
+      "new_ownfork_injectedempty_realexec_and_negatives": {
+        "command": "python3 /workspace/.onboarding/goal-graph-empty-argv/controls.py",
+        "exit": 0,
+        "count": 17,
+        "result": "/workspace/.onboarding/goal-graph-empty-argv/controls.json"
+      },
+      "author_replay_Popen": {
+        "exit": 0,
+        "count": 13,
+        "result": "/workspace/.onboarding/goal-graph-empty-argv/compatibility/controls.json"
+      },
+      "capacity_backend": {
+        "exit": 0,
+        "count": 4,
+        "result": "/workspace/.onboarding/goal-graph-empty-argv/compatibility/guard-controls.json"
+      },
+      "mechanical": "/workspace/.onboarding/goal-graph-empty-argv/mechanical-preservation.json"
+    },
+    "not_run": [
+      "newsource browser/Core",
+      "newCI",
+      "Mac",
+      "Cargo"
+    ],
+    "review": "pending independent result; followup tool agent thread limit failure recorded",
+    "thresholds": "5s phase original absolute now enforced before exact accept; Core1500ms/cleanup500ms unchanged",
+    "evidence_directory": "/workspace/.onboarding/goal-graph-empty-argv"
   }
 }
