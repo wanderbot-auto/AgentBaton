@@ -2179,5 +2179,61 @@
     "production_change": false,
     "scope": "Linux generated post-read synthetic stall only; not kernel interruption, Mac or complete Factory acceptance",
     "lease": "returned to parent before docs"
+  },
+  "admission_schema_expectation_checkpoint": {
+    "snapshot_path": "artifacts/factory-runtime-core/admission-schema-expectation.json",
+    "snapshot_sha256": "f4d074762ce8a2e410d6434ec0bc5cbae1ee7f8b22e5e88b3a6b23de2f01b876",
+    "snapshot": {
+      "source_commit": "ff2872e6b6134791fa51e1e95314adbaf6d74e67",
+      "test_path": "crates/core/tests/admission_performance.rs",
+      "before_sha256": "5b7f7a2475ae47727160736660c0435a944949728be40599e788b607da833459",
+      "after_sha256": "d24ded513e3e3d8d3e361c1178d9b4d3d4d8cff7a427e85743c2b8029eb96bce",
+      "mechanical_difference": "one strict current-Store schema expected12 to13; no assertion removed or broadened",
+      "cargo_run_at_fix": false,
+      "prior_actual_full_failure": {
+        "commit": "8532b2adee5e2de872621674ebbe606822e25f3a",
+        "command": "cargo test --workspace --locked",
+        "environment": "TEST_DEBUG0/DEV_DEBUG unset/JOBS2/INC0/serial/offline",
+        "exit_code": 101,
+        "unique_outer_passed": 150,
+        "unique_outer_failed": 1,
+        "nested_child_passed_not_added": 1,
+        "doctests_not_reached": true,
+        "clippy_not_run": true,
+        "fmt_preliminary_pass": true,
+        "references": {
+          "/workspace/.onboarding/factory-root-rust-regression/BEFORE.json": "984be1da8a3f3ccea1aa8554e3e7895638828012a94aa093d34f879999fde446",
+          "/workspace/.onboarding/factory-root-rust-regression/AFTER.json": "8aa14e3067c7d049bb717ca3217bf4b5080baea92797e312c45585556ea50f68",
+          "/workspace/.onboarding/factory-root-rust-regression/RESULT.json": "471e857e35576d475d46b9c7098e912e2250b163838f99ed7cb4f7b117cd55e2",
+          "/workspace/.onboarding/factory-root-rust-regression/MANIFEST.json": "127c7ae1e0c2e37fa5a4fd603369ea78d6e5748c0541b239a15406a7817c30c5",
+          "/workspace/.onboarding/factory-root-rust-regression/workspace-tests.log": "64fa36a759d499e2be2186c12d04b1e49a2f56e24e47a7cdbca3eea68d12fca9",
+          "/workspace/.onboarding/factory-root-rust-regression/workspace-tests-result.json": "c779055e770c85d41759b7d5f11f782d357911a7313a63f6e747dfc9b9ea9c55"
+        }
+      },
+      "static_other_current_expectations_not_changed": {
+        "fresh": [
+          "crates/core/tests/command_validation.rs:101",
+          "crates/core/tests/data_workspaces.rs:356",
+          "crates/core/tests/sessions_ipc.rs:3007"
+        ],
+        "post_upgrade_current": [
+          "crates/core/tests/migration_v5.rs:32",
+          "crates/core/tests/migration_v6.rs:48",
+          "crates/core/tests/migration_v7.rs:88",
+          "crates/core/tests/command_validation_migration.rs:66",
+          "crates/core/tests/data_workspace_migration.rs:52",
+          "crates/core/tests/goal_store_migration.rs:63",
+          "crates/core/tests/goal_runtime_migration.rs:43",
+          "crates/core/tests/goal_graph_migration.rs:56"
+        ],
+        "historical12_preserved": [
+          "factory_migration.rs prior schema12 fixture",
+          "factory_migration.rs pre-v13 backup user_version12",
+          "factory_migration.rs failed migration rollback user_version12",
+          "goal_graph.rs intermediate migration user_version12"
+        ]
+      },
+      "scope": "admission fixture only; broader paths not authorized in this narrow followup; parent notified"
+    }
   }
 }
