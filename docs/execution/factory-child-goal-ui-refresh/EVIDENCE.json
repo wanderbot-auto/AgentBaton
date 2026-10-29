@@ -1,0 +1,135 @@
+{
+  "recorded_at": "2026-10-29T15:53:21.926637+00:00",
+  "source_commit": "39d4da91a6fea48fee0979f9eb7f5bd2934b9bc1",
+  "base": "80f733eff599a71a33fda6cbe438301c7c0c05e1",
+  "requirements": [
+    "AB-TSK-009",
+    "AB-TSK-011"
+  ],
+  "authorization": "AB-START-001; ACK OWNER-001/002; Root scoped leaf only",
+  "status": "SOURCE_IMPLEMENTED_UNCOMPILED_UNTESTED_PENDING_INDEPENDENT_REVIEW",
+  "source_before": {
+    "FactoryChildGoals.tsx": {
+      "sha256": "0a6a372ab22618eac551284c512652ac87931d8f4caa311e264e0ffc2b707e96",
+      "bytes": 24042
+    },
+    "FactoryChildPlans.tsx": {
+      "sha256": "25bf29bafeb5be76a8353ee6940ac7701ba1798269523322bf75619ea00714f9",
+      "bytes": 11122
+    },
+    "FactoryRuntime.tsx": {
+      "sha256": "cece77ebf3606282d82dee6025e5975864439aa15b6052aed85178bb88d0e396",
+      "bytes": 19544
+    },
+    "FactoryChildGoals.test.tsx": {
+      "sha256": "2e0de2d90c4e1d0580b0f02ecf42bc70fdbc9fa71b4c5848354eacf5c87c04ca",
+      "bytes": 18262
+    }
+  },
+  "source_after": {
+    "FactoryChildGoals.tsx": {
+      "sha256": "3dda8d7f83dbde849b9185e70bd218724b9ee4b6895e5be45eacfb19ceeccf42",
+      "bytes": 24657,
+      "mode": "0o600"
+    },
+    "FactoryChildPlans.tsx": {
+      "sha256": "778405268164f038383154a2a139a810e0f5d8024d0b2f59c24bd9702cd2a2ed",
+      "bytes": 11789,
+      "mode": "0o600"
+    },
+    "FactoryRuntime.tsx": {
+      "sha256": "e1dd4c3cb40612c7223e5035282058b20769a952e11a5ae0ca955457914010e2",
+      "bytes": 20235,
+      "mode": "0o600"
+    },
+    "FactoryChildGoals.test.tsx": {
+      "sha256": "a769dc897b44c881de8eeba8720855cb40afaf71ac99edc8d6acb13a455d5687",
+      "bytes": 23901,
+      "mode": "0o600"
+    },
+    "FactoryRuntime.refresh.test.tsx": {
+      "sha256": "72d46c43ded1c93f63e57cd2e51929e29ea5fc0241d836424032ea7393f98c99",
+      "bytes": 6245,
+      "mode": "0o600"
+    },
+    "FactoryChildPlans.refresh.test.tsx": {
+      "sha256": "4bb7a7cc2647c509cd8a91877cab1935710af8045ebcd1b1f028ce058ad78225",
+      "bytes": 5644,
+      "mode": "0o600"
+    }
+  },
+  "original_terminal_run": {
+    "original_report_sha256": "28a141995f1da9d2523a3ab9deae575a4f8b780fc111eae17aacfc11de739602",
+    "actual_original_result": "FAIL",
+    "original_checks": 2,
+    "original_pngs": 3,
+    "original_cleanup_complete": false,
+    "raw_wire_count": 259,
+    "raw_capture_failures": 0,
+    "raw_capture_rejections": 0,
+    "child_goal_start_HTTP_count": 0
+  },
+  "originals_preserved": {
+    "count": 495,
+    "hash_size_mode_unchanged": true,
+    "raw_DB_RPC_Grant_copied": false
+  },
+  "finite_observations": {
+    "act_read_finite": {
+      "scope_revision": 1,
+      "scope_revoked": false,
+      "original_grant_revision": 2,
+      "grant_revoked": false,
+      "child_state": "draft",
+      "spec_revision": 1,
+      "factory_revision": 3,
+      "factory_state": "waiting_child",
+      "plan_revision": 1,
+      "plan_same_complete_saved_view": true,
+      "history_rows": 0,
+      "scope_expired_at_failure_png": false
+    },
+    "DOM": {
+      "stale_alert": true,
+      "exact_start_button_enabled_again_at_failure": true
+    },
+    "timing": {
+      "basis": "original receipt file mtimes; not instrumentation of React props or monotonic clock",
+      "start_screenshot_ms": 1793287944226,
+      "child_refresh_final_reply_ms": 1793287944777,
+      "parent_refresh_reply_times_ms": [
+        1793287944824,
+        1793287944849,
+        1793287944874,
+        1793287944904,
+        1793287944964
+      ]
+    },
+    "cause_scope": "Original code conflates parent read-only polling busy with authority invalid: parent refresh clears fresh/runFresh, then unchanged-object child-plan reload clears fresh/loading; act refresh rechecks live(parentReady) and returns stale without sending. Capture supports this path but did not directly instrument parentReady at the failing Instant; new deferred tests are source-written, NOT_RUN."
+  },
+  "static_checks": {
+    "git_diff_check": 0,
+    "intent_and_child_send_bytes_unchanged": true,
+    "existing_ChildGoal_tests_preserved_except_act_import": true,
+    "UI_cache_cleared_on_failed_read_disconnect_or_write": true,
+    "no_new_IPC_fields": true
+  },
+  "new_tests": {
+    "child_Goal_deferred": 13,
+    "FactoryRuntime_provenance": 5,
+    "FactoryChildPlans_provenance": 4,
+    "all": "NOT_RUN"
+  },
+  "not_run": [
+    "typecheck",
+    "focused Node tests",
+    "full Node tests",
+    "build",
+    "new browser normal/lost-start/cancel",
+    "Core/Actor/Cargo",
+    "Native OS/Provider",
+    "package/CI"
+  ],
+  "next_execution_owner": "Root after Config independent review",
+  "independent_directory": "/workspace/.onboarding/factory-child-goal-ui-refresh"
+}
