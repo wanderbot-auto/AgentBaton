@@ -1,7 +1,9 @@
 # Checkpoint
 
-Worktree `/workspace/.worktrees/factory-ci-schema13`, branch `codex/factory-ci-schema13`, lastcommit435ac7b6dfc8810646109c414c244cb403a12954. Five allowed sourcefiles remain uncommitted WIP with hashes inEVIDENCE. Preserveasync lookup and all12existingflows. Current source adds3Factorycases; each runsindependently and anyfailed exit propagatesfinalfailure.
+Worktree `/workspace/.worktrees/factory-ci-schema13`, branch `codex/factory-ci-schema13`. Frozen source commit `98bc23ee10529ed290eaaaa68412e4e3ff971aef`; base `8c6ea33c493d1936dfe7521d1bb96f0e410319ad`. The earlier checkpoint is `00c26dc6658ab4658b3d7e1d500a05193762fb5a`. Subsequent records contain no source changes.
 
-Evidence `/workspace/.onboarding/factory-ci-schema13-validation/`: actualparentAST/harnesscompile, typed13+old12/future14+rawtoolhash+Native9field negatives,77passed/1existingdependencyfailure. Overallstaticexit1 intentionally preserves13.0Factorydriver bug; originalauthor owns fix. Infra15pins/bashsyntax/diff0. Runtime15flows/Core/Cargo/browser/macOS/CI not_run. NoSTATUS/bootstrap/test_native_owner_dialog.py or other unapprovedsource touched.
+Authored paths: product workflow, Goal execution/Graph/Data harnesses and native macOS smoke shell. Integration-only path: Factory driver copied from `744bf29d255b618c54a905dff72a784942903f83`. No Core, locks, STATUS/bootstrap, permissions, runners, timeouts, action pins or Native Grant source changed.
 
-Pause this movingWIP immediately when newNativeGrant revision freezes for independentP2closure. Afterward integrate/receive originaldriver typedfix only underRoot authorization, rerun necessary dependentguard controls, finalizeownrecords and arrangeanother reviewer. Do not claimready or triggerCI while requirednegative fails.
+Evidence is portable in `EVIDENCE.tar.gz`, with full per-member size/hash mapping in `EVIDENCE_ARCHIVE_MANIFEST.json`. Final finite check exit0/81 controls; historical exit1/77 controls and schema13.0 failure remain. All old77 names are present in the final81. Infrastructure, bash syntax and cumulative diff checks exit0. See EVIDENCE.json for exact command records and limits.
+
+Next: another agent independently reviews the source, preservation checks and archive. Root owns integration into the current Factory branch, actual Core/browser and CI execution, plus the separate wrong-start-CAS correction. Do not claim these three Factory modes have actually passed, weaken STALE expectations, or reuse unrelated runtime results as this source's proof. No push or CI trigger has occurred.

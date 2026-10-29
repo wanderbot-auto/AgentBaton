@@ -1,80 +1,140 @@
 {
-  "state": "paused WIP again for independent NativeGrant1839P2closure;77pass+driver13.0 requiredfailure retained",
+  "state": "source frozen; author finite controls passed; independent review and actual runtime pending",
   "base": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
-  "branch": "codex/factory-ci-schema13",
-  "last_commit": "435ac7b6dfc8810646109c414c244cb403a12954",
+  "source_commit": "98bc23ee10529ed290eaaaa68412e4e3ff971aef",
+  "checkpoint_commit": "00c26dc6658ab4658b3d7e1d500a05193762fb5a",
   "lookup_source_pick": "65f7fd26bec8a88307178a69381389de6188efaa",
-  "wip_files": [
+  "lookup_local_commit": "435ac7b6dfc8810646109c414c244cb403a12954",
+  "source_map": {
+    "base": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+    "source_commit": "98bc23ee10529ed290eaaaa68412e4e3ff971aef",
+    "branch": "codex/factory-ci-schema13",
+    "files": [
+      {
+        "path": ".github/workflows/product.yml",
+        "bytes": 11868,
+        "sha256": "36d344cb70fecd592bf271193282e2f1aec45b8706f90894b8541e584f91c8a4",
+        "authorship": "this CI wiring leaf"
+      },
+      {
+        "path": "apps/desktop/tests/goal-execution-real-ipc.py",
+        "bytes": 65368,
+        "sha256": "9a42f13fbf64a8e4cc6d6f6eff2bc5013d115155e665da6e937d6e15c5dd1830",
+        "authorship": "this CI wiring leaf"
+      },
+      {
+        "path": "apps/desktop/tests/goal-graph-real-ipc.py",
+        "bytes": 154851,
+        "sha256": "7fed69d086aef2c5aab8cbf5fb5b1d3234b79de01edf90e66e0ef9d8b5ad9b7c",
+        "authorship": "this CI wiring leaf"
+      },
+      {
+        "path": "apps/desktop/tests/data-workspace-real-ipc.py",
+        "bytes": 55756,
+        "sha256": "20da2b9f4fbfba6448ed2fb7a844189b9adc851d43a0ac90d621a34109a3c92e",
+        "authorship": "this CI wiring leaf"
+      },
+      {
+        "path": "scripts/native-macos-smoke.sh",
+        "bytes": 5422,
+        "sha256": "792692232e1949248c1790e75dc3d2b21dc81988a392956208f5cdd0723c038b",
+        "authorship": "this CI wiring leaf"
+      },
+      {
+        "path": "apps/desktop/tests/factory-real-ipc.py",
+        "bytes": 107724,
+        "sha256": "4aa84fb34529e6712923e5783e7824d3965adbce7742ca8386b22a9d45264162",
+        "authorship": "integration-only reviewed upstream driver"
+      }
+    ],
+    "driver_source": "744bf29d255b618c54a905dff72a784942903f83",
+    "driver_prerequisite_chain": [
+      "851698b899bae10968a0862013693f8dfd723648",
+      "202c997e15977bbd1a8ab32da9c2f9f0b41a8e19",
+      "22cc7b5edef843b88d7ca2b6e952319e4f4c9334",
+      "744bf29d255b618c54a905dff72a784942903f83"
+    ],
+    "driver_root_integration": "c23ee5be2519ca9141d4f2961022e790654425b7"
+  },
+  "historical_required_failure": {
+    "command_record": "command.json",
+    "results": "results.json",
+    "exit": 1,
+    "passed_controls": 77,
+    "failure": "old Factory driver accepted schema13.0; retained verbatim"
+  },
+  "final_finite_checks": {
+    "command_record": "integrated-744/command.json",
+    "results": "integrated-744/results.json",
+    "exit": 0,
+    "passed_controls": 81,
+    "old_77_retained": true,
+    "four_added": "Factory rejects float13.0, boolTrue, string13, null",
+    "failure_count": 0
+  },
+  "other_actual_commands": [
     {
-      "path": ".github/workflows/product.yml",
-      "bytes": 11868,
-      "sha256": "36d344cb70fecd592bf271193282e2f1aec45b8706f90894b8541e584f91c8a4"
+      "tag": "infrastructure",
+      "argv": [
+        "python3",
+        "scripts/validate_infrastructure.py"
+      ],
+      "cwd": "/workspace/.worktrees/factory-ci-schema13",
+      "exit": 0,
+      "stdout_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "utc": "2026-10-29T00:00:29.460863+00:00"
     },
     {
-      "path": "apps/desktop/tests/goal-execution-real-ipc.py",
-      "bytes": 65368,
-      "sha256": "9a42f13fbf64a8e4cc6d6f6eff2bc5013d115155e665da6e937d6e15c5dd1830"
+      "tag": "shell-syntax",
+      "argv": [
+        "bash",
+        "-n",
+        "scripts/native-macos-smoke.sh"
+      ],
+      "cwd": "/workspace/.worktrees/factory-ci-schema13",
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "utc": "2026-10-29T00:00:29.463214+00:00"
     },
     {
-      "path": "apps/desktop/tests/goal-graph-real-ipc.py",
-      "bytes": 154851,
-      "sha256": "7fed69d086aef2c5aab8cbf5fb5b1d3234b79de01edf90e66e0ef9d8b5ad9b7c"
-    },
-    {
-      "path": "apps/desktop/tests/data-workspace-real-ipc.py",
-      "bytes": 55756,
-      "sha256": "20da2b9f4fbfba6448ed2fb7a844189b9adc851d43a0ac90d621a34109a3c92e"
-    },
-    {
-      "path": "scripts/native-macos-smoke.sh",
-      "bytes": 5422,
-      "sha256": "792692232e1949248c1790e75dc3d2b21dc81988a392956208f5cdd0723c038b"
+      "tag": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "8c6ea33c493d1936dfe7521d1bb96f0e410319ad"
+      ],
+      "cwd": "/workspace/.worktrees/factory-ci-schema13",
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "utc": "2026-10-29T00:00:29.472501+00:00"
     }
   ],
-  "actual_commands": [
-    "source-onlycherry-pick65f7",
-    "actualparent/harnessASTcompile",
-    "YAML/subprocesspreservation",
-    "finite77controls",
-    "staticinfra15pins",
-    "bashsyntax",
-    "diffcheck"
-  ],
-  "tests_run": [
-    {
-      "command": "check_static.py",
-      "exit": 1,
-      "passed_controls": 77,
-      "required_dependency_failures": [
-        {
-          "path": "apps/desktop/tests/factory-real-ipc.py",
-          "case": "schema13.0 accepted",
-          "owner": "originalFactorydriver author; no concurrent edit"
-        }
-      ]
-    },
-    {
-      "command": "infrastructure",
-      "exit": 0
-    },
-    {
-      "command": "bash -n",
-      "exit": 0
-    },
-    {
-      "command": "git diff --check",
-      "exit": 0
-    }
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "bytes": 9441,
+    "sha256": "302a4303e47281ba1de613bd79a4b44589cd613c31b17d34c631d557d7060ecd"
+  },
+  "archive_manifest": "EVIDENCE_ARCHIVE_MANIFEST.json",
+  "scope_boundaries": [
+    "Python AST compile and schema guards on generated bytes; no generated binary executed",
+    "Empty in-memory SQLite version assertions only; no migration or live Core proof",
+    "Factory aggregate AST exercised with recording fake subprocesses; not actual Factory flows",
+    "All original workflow metadata except approved frontend build/runtime run blocks unchanged from lookup baseline",
+    "Original 12 flows retained; new Factory cases use independent outputs and aggregate nonzero",
+    "Native nine-field readonly postcheck uses existing native-run.py function and compares actual NativeSmoke13 field names"
   ],
   "not_run": [
-    "real Core13/browser15-flow execution",
-    "Cargo/Rust/macOS/CI",
-    "independent code review",
-    "typedFactorydriver dependency regression after author fix"
+    "Core/Cargo/browser execution",
+    "actual 15 UI flows and actual Factory normal/cancel/unknown",
+    "macOS/AppKit/Native execution",
+    "CI/PR/push",
+    "independent review of this authored wiring"
   ],
-  "known_followup": "factory-real-ipc.py existing preflight schema==13 lacks exact-int check; typed negative matrix must check it after resume; path not edited/authorized",
-  "no_other_owned_scripts_changed": true,
-  "pause_reason": "RootprioritynewNative1839c6c fixedsource independentclosure",
-  "at_utc": "2026-10-28T23:06:59.967181+00:00",
-  "evidence_directory": "/workspace/.onboarding/factory-ci-schema13-validation"
+  "separate_known_runtime_issue": "Root/Core actual wrong-start-CAS failure is a separate runtime fix; finite wiring checks do not resolve or waive it",
+  "permissions_unchanged": true,
+  "at_utc": "2026-10-29T00:01:40.297140+00:00"
 }
