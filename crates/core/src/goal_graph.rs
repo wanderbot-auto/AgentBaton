@@ -3170,6 +3170,16 @@ pub(super) fn prompt_validation_contracts(
     Ok(json!(contracts))
 }
 
+pub(super) fn verify_pending_factory_validator(
+    db: &Connection,
+    r: &GoalRun,
+    n: &RuntimeNode,
+    attempt: &str,
+    intent: &str,
+) -> Result<()> {
+    validators::verify_pending_factory_validator(db, r, n, attempt, intent)
+}
+
 #[cfg(test)]
 mod proposal_size_tests {
     use super::*;
@@ -3218,14 +3228,4 @@ mod proposal_size_tests {
             "ordinary UUID alone would incorrectly pass the old control-id bound"
         );
     }
-}
-
-pub(super) fn verify_pending_factory_validator(
-    db: &Connection,
-    r: &GoalRun,
-    n: &RuntimeNode,
-    attempt: &str,
-    intent: &str,
-) -> Result<()> {
-    validators::verify_pending_factory_validator(db, r, n, attempt, intent)
 }

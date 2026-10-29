@@ -1,3 +1,10 @@
+fn expect_refusal<T>(result: std::result::Result<T, crate::CoreError>, message: &str) -> crate::CoreError {
+    match result {
+        Err(error) => error,
+        Ok(_) => panic!("{message}"),
+    }
+}
+
 // Actual approved Core/SQLite derived authority records and deliberate raw-row
 // fault controls. No Provider, process join, OS dialog or migration claim.
 use super::*;
@@ -155,46 +162,51 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
         };
         source_error(
             "fixed_get",
+            expect_refusal(
             f.store
-                .get_factory_child_goal(&goal_query(&s, &g))
-                .err()
-                .expect("fixed Factory get needs its real issuer"),
+                .get_factory_child_goal(&goal_query(&s, &g)),
+                "fixed Factory get needs its real issuer",
+            ),
         );
         source_error(
             "legacy_get",
+            expect_refusal(
             f.store
-                .get_goal_run(&g.goal.run.id)
-                .err()
-                .expect("derived source never becomes legacy"),
+                .get_goal_run(&g.goal.run.id),
+                "derived source never becomes legacy",
+            ),
         );
         source_error(
             "graph_details",
+            expect_refusal(
             f.store
-                .goal_graph_details(&g.goal.run.id)
-                .err()
-                .expect("shared Graph details validates the complete issuer"),
+                .goal_graph_details(&g.goal.run.id),
+                "shared Graph details validates the complete issuer",
+            ),
         );
         source_error(
             "legacy_cancel",
+            expect_refusal(
             f.store
                 .cancel_goal_run(
                     &g.goal.run.id,
                     g.goal.run.revision,
                     "issuer-not-legacy-cancel",
-                )
-                .err()
-                .expect("no legacy cancel"),
+                ),
+                "no legacy cancel",
+            ),
         );
         source_error(
             "native_cancel",
+            expect_refusal(
             f.store
                 .cancel_goal_graph_with_stops(
                     &g.goal.run.id,
                     g.goal.run.revision,
                     "issuer-not-native-cancel",
-                )
-                .err()
-                .expect("no native cancel"),
+                ),
+                "no native cancel",
+            ),
         );
         let native_advance = crate::goal_store::GoalPlanAdvance {
             run_id: g.goal.run.id.clone(),
@@ -203,25 +215,27 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
         };
         source_error(
             "legacy_advance",
+            expect_refusal(
             f.store
                 .advance_goal_plan(
                     &native_advance,
                     g.goal.run.revision,
                     "issuer-not-legacy-advance",
-                )
-                .err()
-                .expect("no legacy advance"),
+                ),
+                "no legacy advance",
+            ),
         );
         source_error(
             "native_advance",
+            expect_refusal(
             f.store
                 .advance_goal_graph_plan(
                     &native_advance,
                     g.goal.run.revision,
                     "issuer-not-native-advance",
-                )
-                .err()
-                .expect("no native advance"),
+                ),
+                "no native advance",
+            ),
         );
         let request = FactoryChildGoalSubmission {
             task_id: s.root_task_id.clone(),
@@ -236,10 +250,11 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
         };
         source_error(
             "fixed_advance",
+            expect_refusal(
             f.store
-                .advance_factory_child_goal(&advance, s.revision, "issuer-fixed-advance")
-                .err()
-                .expect("fixed advance needs real source before revision import"),
+                .advance_factory_child_goal(&advance, s.revision, "issuer-fixed-advance"),
+                "fixed advance needs real source before revision import",
+            ),
         );
         let owner = crate::goal_store::GraphNodeApprovalSelection {
             run_id: g.goal.run.id.clone(),
@@ -249,10 +264,11 @@ fn missing_or_corrupt_derived_provenance_cannot_fall_back_to_legacy_or_mint_muta
         };
         source_error(
             "owner",
+            expect_refusal(
             f.store
-                .propose_goal_node_acceptance(&owner, g.goal.run.revision, "issuer-owner-proposal")
-                .err()
-                .expect("Owner needs real source before candidate/decision"),
+                .propose_goal_node_acceptance(&owner, g.goal.run.revision, "issuer-owner-proposal"),
+                "Owner needs real source before candidate/decision",
+            ),
         );
         // Present corrupt rows stay excluded from legacy list. Missing rows
         // still marked Factory in their scope must fail closed, not be listed
