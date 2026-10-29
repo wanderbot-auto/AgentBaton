@@ -113,7 +113,7 @@ pub struct FactoryChildGoalAdvance {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct FactoryChildGoalView {
+pub struct FactoryChildGoalSummary {
     pub authority_kind: String,
     pub factory_scope_id: String,
     pub factory_run_id: String,
@@ -123,6 +123,36 @@ pub struct FactoryChildGoalView {
     pub plan: FactoryChildPlanRef,
     pub execution_policy_digest: String,
     pub goal: crate::goal_store::GraphRunSummary,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalView {
+    pub summary: FactoryChildGoalSummary,
+    pub details: crate::goal_store::GraphRunDetails,
+}
+/// Fixed scoped adoption request: caller identity and Factory scope are supplied
+/// by the private credential, never by Agent parameters.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalAdvanceSubmission {
+    pub goal_run_id: String,
+    pub request: FactoryChildGoalSubmission,
+    pub expected_goal_run_revision: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FactoryChildGoalOriginView {
+    pub factory_scope_id: String,
+    pub factory_scope_digest: String,
+    pub factory_run_id: String,
+    pub factory_root_task_id: String,
+    pub parent_task_id: Option<String>,
+    pub ancestors: Vec<String>,
+    pub original_native_approval_id: String,
+    pub root_grant_id: String,
+    pub root_grant_revision: u64,
+    pub initial_plan: FactoryChildPlanRef,
+    pub execution_binding: FactoryChildGoalExecutionBinding,
 }
 /// Narrow selection within existing Factory artifacts/connections/workspaces.
 /// This uses Goal's exact output/validator references, never a second plan DSL.

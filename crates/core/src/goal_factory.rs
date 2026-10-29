@@ -1,7 +1,7 @@
 //! Explicit Factory issuer for the existing Graph scheduler. No native Goal
 //! proposal is invented. Every private token is re-derived from durable proofs.
 use super::*;
-use crate::factory::{FactoryChildGoalView, FactoryChildPlanRef, FactoryGoalSource};
+use crate::factory::{FactoryChildGoalSummary, FactoryChildPlanRef, FactoryGoalSource};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -299,7 +299,7 @@ impl Store {
         caller: Option<(String, String, String, u64)>,
         key_id: &str,
         action_payload: &str,
-    ) -> Result<FactoryChildGoalView> {
+    ) -> Result<FactoryChildGoalSummary> {
         key(key_id)?;
         let selected = source.plans.last().ok_or_else(changed)?;
         let execution = source
@@ -502,7 +502,8 @@ impl Store {
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
-        if let Some(old) = replay::<FactoryChildGoalView>(&tx, &namespace, key_id, action_payload)?
+        if let Some(old) =
+            replay::<FactoryChildGoalSummary>(&tx, &namespace, key_id, action_payload)?
         {
             checked_record(&tx, &old.goal.run.id)?;
             return Ok(old);
@@ -609,7 +610,7 @@ impl Store {
             ],
         )
         .map_err(db_error)?;
-        let view = FactoryChildGoalView {
+        let view = FactoryChildGoalSummary {
             authority_kind: "factory_child_goal_execution_v1".into(),
             factory_scope_id: source.scope.id.clone(),
             factory_run_id: source.factory_run.id.clone(),
