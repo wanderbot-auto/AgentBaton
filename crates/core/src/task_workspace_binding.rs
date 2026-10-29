@@ -185,6 +185,9 @@ fn bounded(raw: Option<String>) -> Result<String> {
     })
 }
 fn task_from(db: &Connection, id: &str) -> Result<Task> {
+    if id.is_empty() || id.len() > 128 {
+        return Err(changed());
+    }
     let raw:Option<Option<String>>=db.query_row("SELECT CASE WHEN length(CAST(document AS BLOB))<=262144 THEN document END FROM tasks WHERE id=?1",[id],|row|row.get(0)).optional().map_err(db_error)?;
     let task: Task =
         decode(&bounded(raw.ok_or_else(|| {
@@ -393,6 +396,21 @@ fn workspace_from(db: &Connection, binding: &TaskWorkspaceBinding) -> Result<Man
     }
     Ok(workspace)
 }
+fn verify_bound_rows(
+    db: &Connection,
+    task: &Task,
+    binding: &TaskWorkspaceBinding,
+    workspace: &ManagedWorkspace,
+) -> Result<()> {
+    original_receipt(db, binding)?;
+    if encode(&task_from(db, &task.id)?)? != encode(task)?
+        || encode(&workspace_from(db, binding)?)? != encode(workspace)?
+    {
+        return Err(changed());
+    }
+    Ok(())
+}
+
 fn check_idle(db: &Connection, workspace_id: &str) -> Result<()> {
     let busy:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM workspace_leases WHERE resource=?1 AND holder!='') OR EXISTS(SELECT 1 FROM sessions WHERE workspace_id=?1 AND state NOT IN('stopped','failed')) OR EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=?1)",[workspace_id],|row|row.get(0)).map_err(db_error)?;
     if busy {
@@ -446,8 +464,8 @@ fn fresh_view(
 
 #[derive(Debug)]
 enum WorkspaceReservation {
-    Existing(TaskWorkspaceBindingView),
-    Pending(TaskWorkspaceReservationReceipt),
+    Existing(Box<TaskWorkspaceBindingView>),
+    Pending(Box<TaskWorkspaceReservationReceipt>),
 }
 
 impl Store {
@@ -458,21 +476,51 @@ impl Store {
         key: &str,
     ) -> Result<TaskWorkspaceBindingView> {
         let receipt = match self.reserve_task_git_workspace(request, root, key)? {
-            WorkspaceReservation::Existing(view) => return Ok(view),
-            WorkspaceReservation::Pending(receipt) => receipt,
+            WorkspaceReservation::Existing(view) => return Ok(*view),
+            WorkspaceReservation::Pending(receipt) => *receipt,
         };
-        // This is the only production FS call. Replay and startup never call it.
-        let created = agentbaton_workspaces::create_isolated(
-            &receipt.source_pin.canonical_root,
-            &receipt.managed_root,
-            &receipt.workspace_id,
-            &receipt.source_pin.head,
-        );
+        let created = self.checkout_task_workspace(&receipt);
         self.finish_task_workspace(&receipt, created.ok())
             .map_err(|mut error| {
                 error.side_effect_state = "unknown".into();
                 error
             })
+    }
+
+    fn checkout_task_workspace(
+        &self,
+        receipt: &TaskWorkspaceReservationReceipt,
+    ) -> Result<WorkspaceIdentity> {
+        // Recheck after the durable reservation and immediately before the sole
+        // filesystem call. These observations are not an OS sandbox/atomic FS lock.
+        let task = task_from(&self.conn, &receipt.task_id)?;
+        let binding = task.code_workspace_binding.as_ref().ok_or_else(changed)?;
+        if binding.receipt != *receipt
+            || binding.state != TaskWorkspaceBindingState::Pending
+            || task.revision != receipt.reserved_task_revision
+            || task.state != TaskState::Draft
+        {
+            return Err(changed());
+        }
+        original_receipt(&self.conn, binding)?;
+        let source = source_from(&self.conn, &task, receipt)?;
+        let workspace = workspace_from(&self.conn, binding)?;
+        if workspace.state != "creating"
+            || workspace.identity.is_some()
+            || workspace.base_revision != receipt.source_pin.head
+            || managed_root(&receipt.managed_root, &source.canonical_root)? != receipt.managed_root
+        {
+            return Err(changed());
+        }
+        check_idle(&self.conn, &workspace.id)?;
+        // The only production create. Replay and startup do not call this helper.
+        agentbaton_workspaces::create_isolated(
+            &source.canonical_root,
+            &receipt.managed_root,
+            &receipt.workspace_id,
+            &receipt.source_pin.head,
+        )
+        .map_err(|_| unknown())
     }
 
     fn reserve_task_git_workspace(
@@ -510,7 +558,7 @@ impl Store {
             }
             let view = fresh_view(&tx, &task, binding)?;
             tx.rollback().map_err(db_error)?;
-            return Ok(WorkspaceReservation::Existing(view));
+            return Ok(WorkspaceReservation::Existing(Box::new(view)));
         }
         if task.code_workspace_binding.is_some() {
             return Err(conflict());
@@ -638,8 +686,9 @@ impl Store {
         .map_err(db_error)?;
         save_task(&tx, &task)?;
         event(&tx, &task, "task.workspace_preparation_reserved", &binding)?;
+        verify_bound_rows(&tx, &task, &binding, &workspace)?;
         tx.commit().map_err(db_error)?;
-        Ok(WorkspaceReservation::Pending(receipt))
+        Ok(WorkspaceReservation::Pending(Box::new(receipt)))
     }
     fn finish_task_workspace(
         &mut self,
@@ -694,6 +743,7 @@ impl Store {
         finalize_workspace_row(&tx, &workspace)?;
         save_task(&tx, &task)?;
         event(&tx, &task, "task.workspace_preparation_finished", &binding)?;
+        verify_bound_rows(&tx, &task, &binding, &workspace)?;
         tx.commit().map_err(db_error)?;
         if !valid {
             return Err(unknown());
@@ -709,7 +759,7 @@ impl Store {
                 .transaction_with_behavior(TransactionBehavior::Immediate)
                 .map_err(db_error)?;
             let rows: Vec<String> = {
-                let mut stmt=tx.prepare("SELECT CASE WHEN length(CAST(document AS BLOB))<=262144 THEN document END FROM tasks WHERE json_extract(document,'$.code_workspace_binding.state')='pending' LIMIT 100").map_err(db_error)?;
+                let mut stmt=tx.prepare("SELECT CASE WHEN length(CAST(id AS BLOB))<=128 THEN id END FROM tasks WHERE json_extract(document,'$.code_workspace_binding.state')='pending' LIMIT 100").map_err(db_error)?;
                 let values = stmt
                     .query_map([], |row| row.get::<_, Option<String>>(0))
                     .map_err(db_error)?
@@ -724,8 +774,8 @@ impl Store {
                 tx.commit().map_err(db_error)?;
                 return Ok(());
             }
-            for raw in rows {
-                let mut task: Task = decode(&raw)?;
+            for id in rows {
+                let mut task = task_from(&tx, &id)?;
                 let mut b = task.code_workspace_binding.clone().ok_or_else(changed)?;
                 original_receipt(&tx, &b)?;
                 if task.id != b.receipt.task_id
@@ -782,7 +832,7 @@ pub(crate) fn recover_for_workspace(
     workspace: &ManagedWorkspace,
 ) -> Result<()> {
     let rows: Vec<String> = {
-        let mut stmt=tx.prepare("SELECT CASE WHEN length(CAST(document AS BLOB))<=262144 THEN document END FROM tasks WHERE json_extract(document,'$.code_workspace_binding.receipt.workspace_id')=?1 LIMIT 2").map_err(db_error)?;
+        let mut stmt=tx.prepare("SELECT CASE WHEN length(CAST(id AS BLOB))<=128 THEN id END FROM tasks WHERE json_extract(document,'$.code_workspace_binding.receipt.workspace_id')=?1 LIMIT 2").map_err(db_error)?;
         let values = stmt
             .query_map([&workspace.id], |row| row.get::<_, Option<String>>(0))
             .map_err(db_error)?
@@ -799,7 +849,7 @@ pub(crate) fn recover_for_workspace(
     if rows.len() != 1 {
         return Err(changed());
     }
-    let mut task: Task = decode(&rows[0])?;
+    let mut task = task_from(tx, &rows[0])?;
     let mut binding = task.code_workspace_binding.clone().ok_or_else(changed)?;
     original_receipt(tx, &binding)?;
     if task.id != binding.receipt.task_id
@@ -879,3 +929,7 @@ pub(crate) fn migrate(db: &mut Connection, version: u32) -> Result<()> {
         .map_err(db_error)?;
     tx.commit().map_err(db_error)
 }
+
+#[cfg(test)]
+#[path = "task_workspace_binding_tests.rs"]
+mod tests;
