@@ -3,7 +3,7 @@ use crate::registry::ManagedWorkspace;
 use crate::storage::{db_error, decode, encode, Store, TaskState};
 use crate::{CoreError, Result};
 use agentbaton_workspaces::{inspect, WorkspaceError, WorkspaceIdentity, WorkspaceKind};
-use rusqlite::{Connection, Transaction, TransactionBehavior};
+use rusqlite::{params, Connection, Transaction, TransactionBehavior};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
@@ -234,6 +234,26 @@ impl Store {
         let project = self.get_project(&task.project_id)?;
         if project.id != task.project_id || project.revision == 0 {
             return Err(changed());
+        }
+        // Registry stores these pins separately as canonical path/decimal u64 TEXT.
+        // A same-ID document alone must not redirect even a preparation read.
+        let (root, device, inode): (Option<String>, Option<String>, Option<String>) = tx
+            .query_row(
+                "SELECT CASE WHEN length(CAST(root AS BLOB))<=?2 THEN root END,CASE WHEN length(CAST(device AS BLOB))<=20 THEN device END,CASE WHEN length(CAST(inode AS BLOB))<=20 THEN inode END FROM projects WHERE id=?1",
+                params![task.project_id, MAX_DOCUMENT_BYTES],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .map_err(db_error)?;
+        let expected_device = project.identity.device.to_string();
+        let expected_inode = project.identity.inode.to_string();
+        if root.as_deref() != project.identity.canonical_root.to_str()
+            || root.is_none()
+            || device.as_deref() != Some(expected_device.as_str())
+            || inode.as_deref() != Some(expected_inode.as_str())
+        {
+            let mut error = changed();
+            error.details_ref = Some("code-workspace-project-pin".into());
+            return Err(error);
         }
         if project.revision != request.expected_project_revision {
             return Err(CoreError::new(

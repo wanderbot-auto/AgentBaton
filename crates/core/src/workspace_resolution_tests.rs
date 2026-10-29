@@ -474,3 +474,87 @@ fn cancelled_task_is_blocked_and_request_cannot_inject_authority_fields() {
     assert_eq!(result.reason, CodeWorkspacePreparationReason::TaskNotDraft);
     assert!(result.preparation_key.is_none());
 }
+
+#[test]
+fn project_document_and_relational_source_pins_must_agree_before_inspection() {
+    for case in [
+        "document_only",
+        "root_column",
+        "device_column",
+        "inode_column",
+    ] {
+        let f = Fixture::new(false);
+        let foreign = f.root.path().join("other-real-directory");
+        fs::create_dir(&foreign).unwrap();
+        fs::write(foreign.join("foreign-input.txt"), "different source\n").unwrap();
+        let foreign_identity = inspect(&foreign).unwrap();
+        match case {
+            "document_only" => {
+                // Same real Project ID/revision, but only the document is redirected.
+                // The previous resolver would inspect this other valid Directory.
+                let mut document = f.project.clone();
+                document.identity = foreign_identity.clone();
+                f.store
+                    .conn
+                    .execute(
+                        "UPDATE projects SET document=?1 WHERE id=?2",
+                        params![encode(&document).unwrap(), f.project.id],
+                    )
+                    .unwrap();
+            }
+            "root_column" => {
+                f.store
+                    .conn
+                    .execute(
+                        "UPDATE projects SET root=?1 WHERE id=?2",
+                        params![
+                            foreign_identity.canonical_root.to_str().unwrap(),
+                            f.project.id
+                        ],
+                    )
+                    .unwrap();
+            }
+            "device_column" => {
+                let different = if f.project.identity.device == 0 {
+                    "1"
+                } else {
+                    "0"
+                };
+                f.store
+                    .conn
+                    .execute(
+                        "UPDATE projects SET device=?1 WHERE id=?2",
+                        params![different, f.project.id],
+                    )
+                    .unwrap();
+            }
+            _ => {
+                let different = if f.project.identity.inode == 0 {
+                    "1"
+                } else {
+                    "0"
+                };
+                f.store
+                    .conn
+                    .execute(
+                        "UPDATE projects SET inode=?1 WHERE id=?2",
+                        params![different, f.project.id],
+                    )
+                    .unwrap();
+            }
+        }
+        let foreign_before = files(&foreign);
+        let error = resolve_unchanged(&f, &f.request()).unwrap_err();
+        assert_eq!(error.code, "INPUT_CHANGED", "{case}");
+        assert_eq!(error.side_effect_state, "not_started", "{case}");
+        assert_eq!(
+            error.details_ref.as_deref(),
+            Some("code-workspace-project-pin"),
+            "{case}"
+        );
+        assert!(
+            foreign_before == files(&foreign),
+            "foreign source was changed"
+        );
+    }
+}
