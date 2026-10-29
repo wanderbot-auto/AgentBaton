@@ -37,10 +37,10 @@
   "artifact_manifest": "NATIVE_COMPOSITION_MANIFEST.json",
   "sidecar_copy_incident": "SIDECAR_COPY_CORRECTION.json",
   "not_run": [
-    "Root new CAS candidate normal/cancel/unknown composed execution",
-    "Factory macOS/AppKit/default release audit/installers",
-    "Full workspace and full Factory failure/budget/unknown/recovery regression",
-    "Live product Provider/accounts and approved remote hosts"
+    "New completeRust after historicalfixture construction repair",
+    "FactorymacOS13/OSOwner/defaultrelease/audit/installers",
+    "Childplanning/childGoal/workspacecreation/fullfault-recovery/Readyrequestqueue-deadline/legacybudgetmatrix",
+    "LiveproductProvider/privateaccounts/approvedremotehosts"
   ],
   "authority": "AB-START-001 unchanged; no formalApprove/merge/production/private credential/new fee/signing/license grant",
   "composed_Node": {
@@ -242,5 +242,92 @@
     "independent_controls": 87,
     "scope": "Finite/static only; no actual Core/browser/Native/workflow/threeFlow acceptance. Exact744 source preserved, async ack followup pending.",
     "Root_import_tool_error": "First local import assumed files map but manifest files is list; AttributeError preserved in tool history, zero writes, corrected list traversal; no product check failed."
+  },
+  "latest_local_checkpoint": {
+    "recorded_at": "2026-10-29T01:12:17.258675+00:00",
+    "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+    "current_integration": "6b623afa3a88e6a62592006e360cfbb9d7a02e88",
+    "Factory_actual": {
+      "cases": 3,
+      "checks": 12,
+      "PNG": 6,
+      "all_exit0": true,
+      "source_inputs_unchanged": true
+    },
+    "legacy_actual": {
+      "flows": 12,
+      "checks": 114,
+      "PNG": 70,
+      "all_exit0": true,
+      "source_inputs_unchanged": true
+    },
+    "review_imports": "FINAL_LOCAL_REVIEW_IMPORTS.json",
+    "fullRust_failures": {
+      "archive": "FULL_RUST_ORIGINAL_FAILURES.tar.gz",
+      "sha256": "a3a91c48b8a50b1f0785ea53277d4be93b1c1a7cae0c9f9b0508457312999203",
+      "members": 27,
+      "scope": "Original accurate fullRust failures, top-level logs/runners/sourcehash records only; no private generated databases/credentials",
+      "first": {
+        "source": "8532b2adee5e2de872621674ebbe606822e25f3a",
+        "outer_pass": 150,
+        "outer_fail": 1,
+        "nested_pass_separate": 1,
+        "failure": "Fresh current expected schema12 but actual13",
+        "docs": "not_run",
+        "Clippy": "not_run",
+        "fmt": "initial passed"
+      },
+      "second": {
+        "source": "6b623afa3a88e6a62592006e360cfbb9d7a02e88",
+        "outer_pass": 170,
+        "outer_fail": 1,
+        "nested_pass_separate": 1,
+        "failure": "Store::open returned INTERNAL_ERROR/unknown during constructed-schema7 reopen; static fixture residualFactorytables diagnosis, exactSQLiteengine text not captured",
+        "docs": "not_run",
+        "Clippy": "not_run",
+        "fmt": "not_run"
+      },
+      "profile": "TEST_DEBUG0 only removes DWARF; serial/jobs2/offline/sharedtarget, original product/test thresholds unchanged; not CIdefaultdebug2"
+    },
+    "next_fixture_source": "cabf5a3cd9eca2ce2ea4c5a6b0d78c46f1c5ed53: newtargeted3PASS,indepreview/fullrunpending",
+    "full_product": "incomplete",
+    "metadata_checks": {
+      "directory": "LOCAL15_METADATA_CHECKS",
+      "results": [
+        {
+          "command": [
+            "python",
+            "scripts/verify_bootstrap_manifest.py"
+          ],
+          "exit": 0,
+          "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+        },
+        {
+          "command": [
+            "python",
+            "scripts/validate_design.py"
+          ],
+          "exit": 0,
+          "log_sha256": "e187dca12ec7537c820e546e057f190a14bd4b653396cb169f5626fdf03e5810"
+        },
+        {
+          "command": [
+            "python",
+            "scripts/validate_infrastructure.py"
+          ],
+          "exit": 0,
+          "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+        },
+        {
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "exit": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
   }
 }

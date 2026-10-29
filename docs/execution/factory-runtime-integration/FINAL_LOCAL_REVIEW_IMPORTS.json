@@ -1,0 +1,62 @@
+[
+  {
+    "label": "DRIVER_52EE_REVIEW",
+    "source_directory": "/workspace/.onboarding/factory-browser-independent-review/revision-52ee7ab9",
+    "report_sha256": "b36e5900fb8a8a8d32a895b9be550e77b2c4f05ca15dd1e848b3e01ff57bb1d3",
+    "manifest_sha256": "3412bd453cbe3080a0cfca20efb2746eeea9881c3ed9aafae6d2ee2165d240e3",
+    "archive": "DRIVER_52EE_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "454948998374f0ea8ec377a9414919e8ce78388b8de01de6f5cfb7a913af7f16",
+    "regular_members": 45,
+    "uncompressed_bytes": 836752,
+    "all_members_roundtrip_verified": true,
+    "limitations": "Exact declared evidence only; independent source/hash/record review does not mean independently rerun product, Mac, live Provider or full Design acceptance."
+  },
+  {
+    "label": "BROWSER_DB949_52EE_REVIEW",
+    "source_directory": "/workspace/.onboarding/runtime-db949-52ee",
+    "report_sha256": "0868e8656ef801a13265dc5f954534c24fa76424583a685edc6d40d306c02384",
+    "manifest_sha256": "cbc28760bd63d57d04932d380757383f445519c3ffe64930e41b6d062773e632",
+    "archive": "BROWSER_DB949_52EE_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "65c4aa3fe26fa002c292bae85b6a1efd54dc5572a1156b840f3e9cdf729259b9",
+    "regular_members": 39,
+    "uncompressed_bytes": 2055783,
+    "all_members_roundtrip_verified": true,
+    "limitations": "Exact declared evidence only; independent source/hash/record review does not mean independently rerun product, Mac, live Provider or full Design acceptance."
+  },
+  {
+    "label": "LARGE_DATA_READ_REVIEW",
+    "source_directory": "/workspace/AgentBaton/.onboarding/factory-large-data-read-review",
+    "report_sha256": "69f2b3b2fe2a26846ed82075b5caad65340e37f8c33519cc524a94c2c1ab1bfa",
+    "manifest_sha256": "96799b8ca995610a851c7c0b95cd37018517e4faea90ac6caa5b450e460d041e",
+    "archive": "LARGE_DATA_READ_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "95e4036e1cc72d91fe134137eefa257144ab7881805927292d84e0da81f58412",
+    "regular_members": 181,
+    "uncompressed_bytes": 2324571,
+    "all_members_roundtrip_verified": true,
+    "limitations": "Exact declared evidence only; independent source/hash/record review does not mean independently rerun product, Mac, live Provider or full Design acceptance."
+  },
+  {
+    "label": "SCHEMA13_LEGACY_REVIEW",
+    "source_directory": "/workspace/.onboarding/factory-schema13-legacy-independent-review",
+    "report_sha256": "b4a6d78fb5895a9ad14a525c35fa49d5518caf6baac4b05b869b26949ecf0a37",
+    "manifest_sha256": "4f2a892f9f4d71aa700ba9cecae990b0e670767fb5062d205405af960a3d6496",
+    "archive": "SCHEMA13_LEGACY_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "3389059fc487bbe0fa2cb8dc82e528b253d644a5a7cfb33e9903233a65dc04dd",
+    "regular_members": 180,
+    "uncompressed_bytes": 21345483,
+    "all_members_roundtrip_verified": true,
+    "limitations": "Exact declared evidence only; independent source/hash/record review does not mean independently rerun product, Mac, live Provider or full Design acceptance."
+  },
+  {
+    "label": "SCHEMA13_FIXTURE_REVIEW",
+    "source_directory": "/workspace/AgentBaton/.onboarding/factory-schema13-fixture-review",
+    "report_sha256": "f18ffb34dcd4049962e902ce0809f1b1983a8e633e8451a2a7fa810299dc3061",
+    "manifest_sha256": "be5e8f2ded04d34d4a28d30aaa2c4012401d0ec3024d8dddf6d0477ff592e366",
+    "archive": "SCHEMA13_FIXTURE_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "44882ab188eed506cf41c12951817195b9779caedb561557b0b8c92f2922e43d",
+    "regular_members": 31,
+    "uncompressed_bytes": 873396,
+    "all_members_roundtrip_verified": true,
+    "limitations": "Exact declared evidence only; independent source/hash/record review does not mean independently rerun product, Mac, live Provider or full Design acceptance."
+  }
+]

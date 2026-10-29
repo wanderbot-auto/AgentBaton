@@ -1,0 +1,5 @@
+{
+  "old": "563cbc2ed667e50750093afc2a7ee18c3047934e59e2239d3ea5b23b0f740270",
+  "new": "3802cf22e37a0a2b53d4fb46f6025b482806d5db8a31fb051e18f49e75cb0ba1",
+  "scope": "Factorybranch STATUS-only rebaseline, other92/checkerunchanged; PR16CI60 guard separate branch not borrowed"
+}

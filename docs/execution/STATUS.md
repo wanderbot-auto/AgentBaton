@@ -1,3 +1,15 @@
+## 当前 Factory 本地集成检查点 — 2026-10-29T01:12:17.258675+00:00
+
+本地codex/factory-runtime-integration current6b623af；实际15flow执行源8abb5cac8f7842a3286b27cc48583ee07b609f0b、生产等价db949/46源、原始工具2f5/577、UI40b在Root72c84构建，均逐hash核对；不冒称cleanCIbuild。真实Factorynormal/cancel/unknown三路径合12checks6PNG、原12schema13flow114checks70PNG全部通过，输入源码不变。两组独审分别0868e865/cbc28760、b4a6d78f/4f2a892f，rawreply/nonces/receipts/root-projectmeters/6-2-2原identitygone已核；cancel的已验证adoptedPID由testcontrollerwait，不夸Core全后代join。未新增Grant/TaskAccepted，unknown不自动重放。原失败全部保留，见FINAL_LOCAL_REVIEW_IMPORTS与旧archives。
+
+三项tests-only大Data16MiB/真实首64KiB停顿cancel/revoke/ScopeTTL4000均通过，heldactive1/lease1/threadalive，release后才回包/join/真实ownedreap，已独审；非kernel可中断/Mac/全树隔离证明。编译器仅postrun身份、临时strippedtool非现存重hash等局限保留，125原artifact已入无损archive。
+
+完整Rust两次尚失败：8532先150outerPASS/1FAIL(nested1另计)因current12期待；reviewed13fixtureversion对齐后6b623准确重跑170outerPASS/1FAIL(nested1另计)，历史schema7fixture残留Factory表而Storeopen报INTERNAL_ERROR，未保留具体engine文本不伪造。两轮source1283tracked前后一致、原完整日志/失败与未跑后续docs/Clippy均保存于FULL_RUST_ORIGINAL_FAILURES。cabf新fixture构造guard与原Goalcase定向3PASS，独审/合入/新全套待完成，不把partial当fullgreen。共享debug188f系合法DEBUG0编译产物，冻结2f5/577原样。
+
+Factory无远端PR/推送/新Mac包；childplanning/childGoal/workspacecreation/完整排队期限、预算恢复/故障矩阵及Mac13仍open。独立PR16远端C6准确5success+ARMbundleFAIL+Intel45mincancel，双Mac真正Owner通过且50PNG全看；defaultreleaseaudit/packages均skip。其本地helpermove/CI60+严格validator companion已独审、Rustcheck/fmt0，Rootd0c01ba最终集成审查中，未新push/CI。main最新a1be94d2、OWNER001/002ACK无003。
+
+保持130需求原ID/status/WP、27决定及完整获批目标；仅增加partial真实证据，没有产品完成百分比或全量验收。实际产品Provider/私人身份、新费用/资源、生产、签名公证及最终许可证仍关闭；无formalApprove/合入。以下均历史记录，不能覆盖本段。
+
 ## 当前检查点 — 2026-10-29T00:06:47.690858+00:00
 
 Factory本地codex/factory-runtime-integration：当前执行源38f8cd60d91d9cd1c7a5215ab720b60400ca81c8，包含Core db949cb（历史265036c记录）、UI40b、Native13与driver744。新CAS修复13unit+1真实IPC、build/Clippy/fmt和独立有限review已封存；Root逐一核46生产源/1测试/2工具。原6cdf候选保留，normalized6347保留真实WIPbuild身份，不冒称cleanCIbuild。Root新实际normal于00:02:51UTC exit1，2checks/2PNG、源/输入哈希不变、cleanupfalse。正确保存STALE_REVISION/not_started/rev13；随后terminalget早于UIstartHTTPack而NOT_FOUND，later单独快照runstarting/rev19。两个时刻不混同，无重试求绿。作者正修严格唯一request/ack顺序，并共享原15s阶段截止时间；新组合cancel/unknown未运行。完整原日志/实际报告/截图、CAS源码和独审均在factory-runtime-integration/OWNER_CAS_REVIEW_*与BROWSER_CAS_NORMAL_ASYNC_FAILURE*。

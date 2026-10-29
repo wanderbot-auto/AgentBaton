@@ -1164,6 +1164,20 @@
           "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
           "status": "partial historical dimension, no current combined acceptance",
           "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
         }
       ],
       "coverage": "partial"
@@ -1362,6 +1376,20 @@
           "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
           "status": "partial historical dimension, no current combined acceptance",
           "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
         }
       ]
     },
@@ -1564,6 +1592,20 @@
           "actual_failure": "docs/execution/factory-runtime-integration/BROWSER_CAS_NORMAL_ASYNC_FAILURE.json",
           "status": "partial; whole requirement remains open",
           "limits": "No full Factory/recovery/fault/largeI/O/Mac/liveProvider acceptance."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
         }
       ]
     },
@@ -1873,6 +1915,20 @@
           "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
           "status": "partial historical dimension, no current combined acceptance",
           "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
         }
       ]
     },
@@ -2085,6 +2141,20 @@
           "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
           "status": "partial historical dimension, no current combined acceptance",
           "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
         }
       ]
     },
@@ -3651,6 +3721,20 @@
           "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
           "status": "partial",
           "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
         }
       ],
       "coverage": "partial"
@@ -5624,6 +5708,20 @@
           "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
           "status": "partial historical dimension, no current combined acceptance",
           "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
         }
       ]
     },
@@ -6099,6 +6197,20 @@
           "actual_failure": "docs/execution/factory-runtime-integration/BROWSER_CAS_NORMAL_ASYNC_FAILURE.json",
           "status": "partial; whole requirement remains open",
           "limits": "No full Factory/recovery/fault/largeI/O/Mac/liveProvider acceptance."
+        },
+        {
+          "slice": "Exact integrated Factory generated scoped MCP normal/cancel/unknown and schema13 legacy compatibility",
+          "runtime_source": "8abb5cac8f7842a3286b27cc48583ee07b609f0b",
+          "production_source_equivalent": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "compiled_base": "c3e5473 WIP individuallyhashed46; notcleanCIbuild",
+          "driver": "52ee7ab93b4238ea2c642dbb19f58a9930e21e38",
+          "UI_component": "40b435b4ca32eb816ad4ebd9f6cba5821463e4d7",
+          "UI_actual_build": "72c84ef89c9a276681f4f10f3322c7028b239f07",
+          "Factory_cases": "3actualPASS12checks6PNG/cleanuptrue,3or1attempt/parent-child-newparent/strictCASHistorical/unknownnoautoReplay; noTaskAccepted/newGrant",
+          "legacy": "12actualschema13flows114checks70PNG passed",
+          "evidence": "docs/execution/factory-runtime-integration/FINAL_LOCAL_REVIEW_IMPORTS.json",
+          "status": "partial localLinux/generatedprotocol/privateOwner dimension",
+          "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
         }
       ]
     },
