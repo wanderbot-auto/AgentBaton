@@ -1,3 +1,13 @@
+## 当前 Factory14 完整本地规划流程 — 2026-10-29T07:18:54.488006+00:00
+
+`codex/factory-child-planning-integration` 当前实现源码 `80c70cdf`：真实 UI14/Core14 IPC run5 完整通过9项检查、4PNG、17.14秒，清理成功；6份原始计划/回执链、UI编辑、UI与Core拒绝/stale、真实r4丢回复的显式精确恢复、停止与预算均完成。独立运行证据审查进行中，不能预写为通过。该路径采用 Linux Chromium、生成 ACP/MCP5 和私有 Native审批模拟，不冒实际OS/Mac或真实Provider。
+
+Native Rust 在 `f0322aa2` 实际通过83+30+16=129项，原工具inode/权限/硬链接/SHA及源码已恢复。Python在 `62518def` 通过47项（含5真实Core），原编译101/0test与全部四轮浏览器失败保留。完整Core659+7docs仍绑定689，后续Clippy/fmt绑定f9，UI733/44绑定ea6；没有把这些虚移到新提交重跑。证据与原件见 factory-child-planning-integration/EVIDENCE.json。
+
+双Mac NativeFactoryplanning与完整规划UI流/发布testcontrol扫描已真实接入现有CI并独立静审，尚未执行Factory14远程CI；保留Environment3/checknames、原所有flow、双runner/60分钟及权限。下一步是独立组合审查、draftPR和准确七项CI/新双架构包。PR16已保护合入main3fd60f3，既有双包是schema12，不能代Factory14。最新OWNER001/002 ACK，无003。
+
+完整130需求/27决定/WP01–14未完成；schema15子GoalCore首次真实类型检查21错误后修正，0a79421再check通过但7WIP warnings/运行迁移与生命周期未完成；UI/Native15隔离推进。createworkspace仍未实现。真实产品Provider、私密身份、新费用资源、生产、签名公证与最终许可证未扩权。以下为保留历史。
+
 ## 当前已合入 Goal 基线与 Factory14 验证 — 2026-10-29
 
 PR #16 已经保护合入 main `3fd60f354236ddc5ab0ea2f7665428a8496f4a64`；实际 merge tree `1bdfa98507023b2b48f87cabeb118713dc86ec6b` 与 CI candidate `de113501` 精确相同，两者提交 ID 不同。Ready 后新 Environment40826447998 三项以及 Product40820986808 四项全部通过，独立审查已关闭，无正式 Approve。准确双架构包、SHA、签名限制见本单元 EVIDENCE.json；它们是 schema12 开发包，不是 Factory14 或全产品验收。ARM ad-hoc/Intel unsigned，无正式签名、公证、人工安装或真实产品 Provider 验证。

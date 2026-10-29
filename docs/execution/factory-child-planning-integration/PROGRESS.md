@@ -11,3 +11,9 @@ Next: new-head tools, guarded Native rerun, real UI/IPC, native OS approval, exa
 ## Accepted main and Native runtime boundary
 
 Protected main3fd60f3 has the exact tested Goal tree, no formalApprove. Factory14 ff519 actual83+30+10 Rust tests passed with exactsharedtools/source restoration. Browser run1 failed before approval/start/MCP (0checks/0PNG), with cleanupfalse retained. Current source merge keeps all298 code/config payload hashes unchanged and retains schema14 current fixtures. New d27 harness is under independent review; actual revised browser and NativeOS Factory are pending. Full requirements remain incomplete. See post_checkpoint and development_packages_schema12 in EVIDENCE.json.
+
+## Actual planning completion boundary 2026-10-29T07:18:54.488006+00:00
+
+CurrentRoot source 80c70cdf7abb8a62b9900022b363fa36b0d5bdce. Complete Linux Native combination actually passed129 unique=83lib+30smoke+16Owner atf032; original625compile101 remains. ActualPython62547 includes5realCore cases/42finite controls,0fail. ActualbuiltUI/CoreIPC run5 at80c70/compiledf032/builtUIf9 passed9checks/4PNG/17.14s withcleanuptrue and allsource/tool/asset/manifest beforeafterequal. Six raw plan revisions/real journal receipts, r3UIedit, Core+UIfailurematrix, staleCAS, actualr4lostreply/exactkey recovery and realstop/reap/budget/zeroGoal/noTaskAccepted checks passed. PrivateOwner binding/generatedACP/Linux is notOS/Mac/liveProvider. Independent run5 evidence review is inprogress; newexactCI notstartedyet. Allfourbrowserfailures and Nativecompile/disk interrupts remain.
+
+Full130 requirements and childGoal/workspace/remaining scope continue. Isolatedschema15 Coretypecheck0a79421passed with7WIP warnings; no newexecution endpoints or lifecycle completion claimed. UI15/Native15 remain isolatedsource/testing, notcurrentFactory14 acceptance.

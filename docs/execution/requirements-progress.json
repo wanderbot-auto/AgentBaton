@@ -1418,6 +1418,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -1664,6 +1675,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -1743,6 +1765,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -2459,6 +2492,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -3859,6 +3903,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -3930,6 +3985,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ],
       "coverage": "partial"
@@ -4079,6 +4145,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -4837,6 +4914,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -5028,6 +5116,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -5763,6 +5862,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -6001,6 +6111,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },
@@ -6528,6 +6649,17 @@
           "node": 733,
           "coverage": "partial",
           "limits": "Full workspace tests are combined regression, not659 unique requirements. Native first compile interrupted0tests; UI14/Core14 browser and dualMac schema14 not_run. ChildGoal/workspace not implemented."
+        },
+        {
+          "slice": "same_goal_plan_true_UI_Core14_submission_history_and_exact_lostreply_recovery",
+          "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+          "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "actual_UI_IPC_checks": 9,
+          "PNG": 4,
+          "native_Rust_unique": 129,
+          "native_Rust_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+          "coverage": "partial",
+          "limits": "Linux/generatedProvider/privateOwner simulation only; actualOSMacschema14CIpending; childGoal15/workspace/fullDesignincomplete"
         }
       ]
     },

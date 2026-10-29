@@ -1,0 +1,76 @@
+{
+  "archive_sha256": "bb25c75e066dbaa3848845a5f8f8812ab362105b65d4af1adbf17037d02ed337",
+  "members": [
+    {
+      "path": "factory-native-shared-limits-f0322/COMMAND_RESULTS.json",
+      "bytes": 1331,
+      "sha256": "85e916ffc5f219a0cf4dff5b8bedcb7296f5afb2bb9da4ed9c81a2094336f44a"
+    },
+    {
+      "path": "factory-native-shared-limits-f0322/actual-run/RESULT.json",
+      "bytes": 1589,
+      "sha256": "f254a8114503d9e051775bbe7e861c8a0f5ea7426f49632af0bc519198309361"
+    },
+    {
+      "path": "factory-native-shared-limits-f0322/actual-run/native-0.log",
+      "bytes": 23049,
+      "sha256": "efe537d7be848e82f0a1fc84be6966e1ac227196df7d3e0770e2a26a74dacea7"
+    },
+    {
+      "path": "factory-native-shared-limits-f0322/actual-run/native-1.log",
+      "bytes": 3820,
+      "sha256": "041a871100a25cfa8a54003aa0ee4e356afae83736c4b5128cd30ae4c13d7753"
+    },
+    {
+      "path": "factory-native-shared-limits-f0322/frozen/manifest.json",
+      "bytes": 1766,
+      "sha256": "4b88db663a792282e26b770c439cad2d31e728d933102ecbc329c9532a84b751"
+    },
+    {
+      "path": "factory-child-planning-native-62518-actual/PYTHON_RESULT.json",
+      "bytes": 426,
+      "sha256": "67ef1fb5bbcff38aa7fc601ccd477c3853e9bd2279f29625442442c32f45a29f"
+    },
+    {
+      "path": "factory-child-planning-native-62518-actual/PYTHON_INVOCATION_POSTNOTE.json",
+      "bytes": 757,
+      "sha256": "65003df7c25bef70e071cdbfaca3f8e82974d68b1fd7c53fb94226c7bce2ed43"
+    },
+    {
+      "path": "factory-child-planning-native-62518-actual/actual-run/RESULT.json",
+      "bytes": 942,
+      "sha256": "3a1deefb6953c9e9515188c549e15c2e2b45b98408165505197fa69f55ec0fd2"
+    },
+    {
+      "path": "factory-child-planning-native-62518-actual/actual-run/native-0.log",
+      "bytes": 1817,
+      "sha256": "1f512a9335aeba5c1d59e027aed457ac4fb2e688726bafe53f571fea4c78a843"
+    },
+    {
+      "path": "factory-child-planning-real-browser/run5-start.json",
+      "bytes": 809,
+      "sha256": "c29c2e49f7e8d9ce8a01a04fa1763635d11193c595148688a054e06317e72ea1"
+    },
+    {
+      "path": "factory-child-planning-real-browser/run5-result.json",
+      "bytes": 7997,
+      "sha256": "a9e41d94f5fa41b7d1f30532629b04f041053a91904a3f2e47690f28a60390e6"
+    },
+    {
+      "path": "factory-child-planning-real-browser/combined-runtime-manifest-run5.json",
+      "bytes": 1562,
+      "sha256": "2d7c73e58de3bff5c6e07887f23725bb4c19b70eaa4ae047ded28a0977869717"
+    },
+    {
+      "path": "factory-child-planning-real-browser/run5-stdout.log",
+      "bytes": 141,
+      "sha256": "71b655086fb55c7a21534385bf0d1de8407e328d3c70e38b1c4c25faa390f95b"
+    },
+    {
+      "path": "factory-child-planning-real-browser/run5-stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "excludes": "No private DB, live credential contents, frozen ELF or installer. Full local raw UI report/rows/PNGs are preserved and independently reviewed separately."
+}

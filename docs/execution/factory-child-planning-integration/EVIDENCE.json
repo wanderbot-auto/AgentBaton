@@ -119,5 +119,74 @@
     "human_install_defaultlaunch": "not_run",
     "full_factory14_or_full_design_acceptance": false,
     "independent_merge_review_sha256": "98245529dd89acb46a1f72c457195559408dd8789ec744e03126b2d84fe773e5"
+  },
+  "latest_runtime_checkpoint": {
+    "at": "2026-10-29T07:18:54.488006+00:00",
+    "root_source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+    "Native": {
+      "source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+      "library": 83,
+      "smoke": 30,
+      "owner_controller": 16,
+      "unique_total": 129,
+      "new_planning8_and_controller6_already_in_totals": true,
+      "all_exit_codes": 0,
+      "exact_inode_mode_nlink_sha_source_restore": true,
+      "review_sha256": "c3264c1ff77e7a0b16c82abc6b415fc34a125eb63bdf360ce4ef037755dd19d6"
+    },
+    "Python": {
+      "source": "62518def138d7c831d9f9cc4fbe59ea6478f59c9",
+      "passed": 47,
+      "real_Core_cases": 5,
+      "finite_cases": 42,
+      "exit": 0,
+      "env_record": "Actualtoolcall and retrospective POSTNOTE, not original separately persisted env snapshot/execattestation"
+    },
+    "actual_UI_IPC": {
+      "source": "80c70cdf7abb8a62b9900022b363fa36b0d5bdce",
+      "compiled_Core_source": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+      "built_UI_source": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
+      "harness_source": "c89d2379f91a2f2529a63f5f88e2f9ba314fbcf0",
+      "harness_sha256": "5308b2d9168aa8cfa102b997d434409051e81941c6070dc5abee3f2e6d156e16",
+      "run": 5,
+      "exit": 0,
+      "seconds": 17.140609741210938,
+      "checks_passed": 9,
+      "PNG": 4,
+      "cleanup_complete": true,
+      "tracked_source_head_status_tools_assets_manifest_equal": true,
+      "features": [
+        "explicit full planning policy approval via private simulatedNative binding and actualCore",
+        "generatedACP real scoped MCP5 root/child revisions1/2 and resumedparent livehandoff",
+        "exact raw history get and real structured UIrootr3",
+        "fourUI+Core denial classes and atomic zeroeffects",
+        "staleCAS refusal",
+        "actual committedrootr4 replydrop, readonlyreconciliation/noautomutation, explicitexactkey/CAS/rawreceipt recover, changedpayload conflict",
+        "6rawrevisions+realjournal receipts/originalGrantchildren0/3attemptsactive0/leases0/Goal0/TaskAccepted0",
+        "3trueStopreap events/6boundidentitiesgone/HTTPandhandlerjoins/temporarycleanup"
+      ],
+      "limits": [
+        "LinuxChromium actualbuiltUI/UnixIPC and generatedProvider only",
+        "privateOwner binding simulation, not actualOS approval",
+        "not Mac schema14 or realproductProvider"
+      ],
+      "raw_originals": "/workspace/.onboarding/factory-child-planning-real-browser/run5",
+      "independent_evidence_review": "in_progress data_core_resume; no fabricated finalreview"
+    },
+    "CI": {
+      "new_browser_wiring_review": "56ae82c7fb6956d1e3f25675c133cee16c53a949f541e1b3bf378f461b6f47d9",
+      "new_MacOwner_wiring_review": "ed1390e9753bfa140e8247e480ce417f1290fbf465682828a55213a0ae0b259c",
+      "new_release_audit_review": "46a9eb04171ace415a8a473d7ec221da8d6f0915337c2fdfe06e1d32672f5544",
+      "productchecks": "not_run forFactory14; draftPRnext",
+      "Environment3": "unchanged requirednames, newexactCIpending"
+    },
+    "preserved_failures": [
+      "all4earlierfullworkspace failures and firstCore14fixture failure",
+      "689strictClippy101 then f9 neutralaliasfixed",
+      "Nativef9diskguard-15/0tests",
+      "Native625fiveE0425/101/0tests then sharedlimitsfix",
+      "browserrun1exactlabel+closedengine,run2nestedsummary,run3nestedalert,run4badSQLcolumn: alloverallfailed/cleanupfalse retained"
+    ],
+    "complete_product": false
   }
 }
