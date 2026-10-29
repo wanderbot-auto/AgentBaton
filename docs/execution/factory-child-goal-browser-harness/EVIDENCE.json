@@ -112,5 +112,11 @@
     "Root exclusive browser execution window for all3 actual cases"
   ],
   "evidence_directory": "/workspace/.onboarding/factory-child-goal-browser-work-reservation",
-  "whole_product_completion": false
+  "whole_product_completion": false,
+  "prior_full_source_evidence": {
+    "path": "docs/execution/factory-child-goal-browser-harness/HISTORICAL_SOURCE_0FB_EVIDENCE.json",
+    "sha256": "212bb36435e280119f5b1a2c3c8a2c77b9c0a56d67739d8e6cdddf8389665980",
+    "source_commit": "0fb50feb072c8d3af17d22bb616718a5f0e45394",
+    "preserved": "Original source corrections, Grant0→3 explicit Native fixture contract, 274 pure controls, full limits and pending real dimensions; not current actual browser acceptance"
+  }
 }
