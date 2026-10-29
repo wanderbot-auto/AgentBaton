@@ -851,6 +851,134 @@ async fn factory_child_plans_submit(
     .await
 }
 
+// Fixed Owner child-Goal routes. The inner request uses Core's frozen typed
+// snake_case DTO; it is not an authorization/caller/token or method selector.
+fn factory_child_goal_start_frame(
+    scope_id: &str,
+    request: &agentbaton_core::factory::FactoryChildGoalSubmission,
+    expected_revision: u64,
+    key: &str,
+) -> Value {
+    json!({"method":"factory_child_goals.start","params":{"scope_id":scope_id,"request":request},"expected_revision":expected_revision,"idempotency_key":key})
+}
+fn factory_child_goal_get_frame(scope_id: &str, task_id: &str, goal_run_id: Option<&str>) -> Value {
+    json!({"method":"factory_child_goals.get","params":{"scope_id":scope_id,"task_id":task_id,"goal_run_id":goal_run_id}})
+}
+fn factory_child_goal_list_frame(scope_id: &str, task_id: &str) -> Value {
+    json!({"method":"factory_child_goals.list","params":{"scope_id":scope_id,"task_id":task_id,"goal_run_id":null}})
+}
+fn factory_child_goal_cancel_frame(
+    scope_id: &str,
+    task_id: &str,
+    goal_run_id: &str,
+    expected_goal_run_revision: u64,
+    expected_revision: u64,
+    key: &str,
+) -> Value {
+    json!({"method":"factory_child_goals.cancel","params":{"scope_id":scope_id,"task_id":task_id,"goal_run_id":goal_run_id,"expected_goal_run_revision":expected_goal_run_revision},"expected_revision":expected_revision,"idempotency_key":key})
+}
+fn factory_child_goal_advance_frame(
+    scope_id: &str,
+    goal_run_id: &str,
+    request: &agentbaton_core::factory::FactoryChildGoalSubmission,
+    expected_goal_run_revision: u64,
+    expected_revision: u64,
+    key: &str,
+) -> Value {
+    json!({"method":"factory_child_goals.advance_plan","params":{"scope_id":scope_id,"goal_run_id":goal_run_id,"request":request,"expected_goal_run_revision":expected_goal_run_revision},"expected_revision":expected_revision,"idempotency_key":key})
+}
+#[tauri::command]
+async fn factory_child_goals_start(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    request: agentbaton_core::factory::FactoryChildGoalSubmission,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_child_goal_start_frame(&scope_id, &request, expected_revision, &idempotency_key),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_child_goals_get(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    task_id: String,
+    goal_run_id: Option<String>,
+) -> Result<Value, String> {
+    let response = call(
+        &runtime,
+        factory_child_goal_get_frame(&scope_id, &task_id, goal_run_id.as_deref()),
+        false,
+    )
+    .await?;
+    approval::check_factory_child_goal_view(response, &scope_id, &task_id, goal_run_id.as_deref())
+}
+#[tauri::command]
+async fn factory_child_goals_list(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    task_id: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_child_goal_list_frame(&scope_id, &task_id),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_child_goals_cancel(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    task_id: String,
+    goal_run_id: String,
+    expected_goal_run_revision: u64,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_child_goal_cancel_frame(
+            &scope_id,
+            &task_id,
+            &goal_run_id,
+            expected_goal_run_revision,
+            expected_revision,
+            &idempotency_key,
+        ),
+        false,
+    )
+    .await
+}
+#[tauri::command]
+async fn factory_child_goals_advance_plan(
+    runtime: tauri::State<'_, Runtime>,
+    scope_id: String,
+    goal_run_id: String,
+    request: agentbaton_core::factory::FactoryChildGoalSubmission,
+    expected_goal_run_revision: u64,
+    expected_revision: u64,
+    idempotency_key: String,
+) -> Result<Value, String> {
+    call(
+        &runtime,
+        factory_child_goal_advance_frame(
+            &scope_id,
+            &goal_run_id,
+            &request,
+            expected_goal_run_revision,
+            expected_revision,
+            &idempotency_key,
+        ),
+        false,
+    )
+    .await
+}
+
 #[tauri::command]
 async fn goal_graph_run_approve(
     runtime: tauri::State<'_, Runtime>,
@@ -1378,6 +1506,11 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         factory_child_plans_get,
         factory_child_plans_list,
         factory_child_plans_submit,
+        factory_child_goals_start,
+        factory_child_goals_get,
+        factory_child_goals_list,
+        factory_child_goals_cancel,
+        factory_child_goals_advance_plan,
         goal_graph_run_approve,
         goal_graph_runs_list,
         goal_graph_runs_get,
@@ -1646,5 +1779,70 @@ mod factory_bridge_tests {
         assert!(frame.get("caller").is_none());
         assert!(frame.get("token").is_none());
         assert!(frame["params"].get("approved").is_none());
+    }
+    fn child_goal_request_fixture() -> agentbaton_core::factory::FactoryChildGoalSubmission {
+        serde_json::from_value(json!({"task_id":"child","plan":{"id":"saved","scope_id":"factory","run_id":"factory-run","task_id":"child","revision":2,"plan_digest":"a".repeat(64),"raw_sha256":"b".repeat(64),"receipt_sequence":12},"expected_factory_run_revision":9})).unwrap()
+    }
+    #[test]
+    fn child_goal_fixed_frames_preserve_three_separate_cas_values_original_key_and_inner_snake_case(
+    ) {
+        let request = child_goal_request_fixture();
+        assert_eq!(
+            factory_child_goal_start_frame("factory", &request, 7, "same-key"),
+            json!({"method":"factory_child_goals.start","params":{"scope_id":"factory","request":request},"expected_revision":7,"idempotency_key":"same-key"})
+        );
+        assert_eq!(
+            factory_child_goal_advance_frame("factory", "goal-run", &request, 4, 7, "same-key"),
+            json!({"method":"factory_child_goals.advance_plan","params":{"scope_id":"factory","goal_run_id":"goal-run","request":request,"expected_goal_run_revision":4},"expected_revision":7,"idempotency_key":"same-key"})
+        );
+        assert_eq!(
+            factory_child_goal_cancel_frame("factory", "child", "goal-run", 4, 7, "same-key"),
+            json!({"method":"factory_child_goals.cancel","params":{"scope_id":"factory","task_id":"child","goal_run_id":"goal-run","expected_goal_run_revision":4},"expected_revision":7,"idempotency_key":"same-key"})
+        );
+    }
+    #[test]
+    fn child_goal_read_routes_have_explicit_nullable_run_and_no_cas_or_mutation_key() {
+        assert_eq!(
+            factory_child_goal_get_frame("factory", "child", None),
+            json!({"method":"factory_child_goals.get","params":{"scope_id":"factory","task_id":"child","goal_run_id":null}})
+        );
+        assert_eq!(
+            factory_child_goal_get_frame("factory", "child", Some("run")),
+            json!({"method":"factory_child_goals.get","params":{"scope_id":"factory","task_id":"child","goal_run_id":"run"}})
+        );
+        assert_eq!(
+            factory_child_goal_list_frame("factory", "child"),
+            json!({"method":"factory_child_goals.list","params":{"scope_id":"factory","task_id":"child","goal_run_id":null}})
+        );
+    }
+    #[test]
+    fn child_goal_typed_request_does_not_accept_authority_caller_tokens_or_float_revisions() {
+        for key in [
+            "approved",
+            "token",
+            "caller",
+            "root_grant_id",
+            "scope_id",
+            "execution_binding",
+        ] {
+            let mut value = json!(child_goal_request_fixture());
+            value[key] = json!(true);
+            assert!(
+                serde_json::from_value::<agentbaton_core::factory::FactoryChildGoalSubmission>(
+                    value
+                )
+                .is_err()
+            );
+        }
+        for value in [json!(true), json!(1.0), json!(null)] {
+            let mut request = json!(child_goal_request_fixture());
+            request["expected_factory_run_revision"] = value;
+            assert!(
+                serde_json::from_value::<agentbaton_core::factory::FactoryChildGoalSubmission>(
+                    request
+                )
+                .is_err()
+            );
+        }
     }
 }
