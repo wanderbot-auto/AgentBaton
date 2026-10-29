@@ -12,3 +12,5 @@ Cargo and heavy builds are not currently leased to this author. No actual new ru
 Policy and old14 serialized-scope compatibility selected tests actually passed at4ffb210 (5 selected only). Next implementation remains real failure-stop/recovery/reworks/adoption and API lifecycle; no new execution acceptance claims.
 
 Next verification order: freeze source; one new check/cfgtest compile under exclusive lease; build/protect exact schema15 private tools; actual normal generated ACP chain; actual bounded failure/rework/cancel/unknown/expiry/restart and nonempty real old14 Native+Factory migration/rollback/future controls; independent review and full combination regression. Every failure remains evidence.
+
+Current5491 source library typecheck is actually green. Next cfgtest-selected6policy+1tool-schema then protected newCLI15/generated actual normal case, followed by lifecycle adversarial/migration/independent review. No Cargo lease is held.

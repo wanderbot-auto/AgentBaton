@@ -21,7 +21,7 @@
     "AB-COR-002",
     "AB-COR-007"
   ],
-  "runtime": "source_registered_not_compiled_or_runtime_verified",
+  "runtime": "source_registered_typecheck_passed_current_new_tests_not_run",
   "native": "not_run",
   "macos": "not_run",
   "provider_calls": "not_authorized_not_run",
@@ -114,7 +114,7 @@
   },
   "source_lifecycle_stage": {
     "after_source": "4ffb21000030a3f82580f5a9c14ed40056bb13a0",
-    "status": "not_compiled_not_run",
+    "status": "typecheck_passed_at5491_new_tests_not_run",
     "new_files": [
       "goal_graph_stop.rs",
       "goal_factory_adoption.rs",
@@ -137,5 +137,45 @@
         "required_env": "AGENTBATON_CHILD_GOAL_COMPANION=exact_frozen_schema15_baton"
       }
     }
+  },
+  "cargo_current": {
+    "start": "2026-10-29T08:39:31.799858+00:00",
+    "head": "5491c94cffbe40292ff977e0d9cfedcb55026c9e",
+    "cwd": "/workspace/.worktrees/factory-child-goal-core",
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "check",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--lib"
+    ],
+    "source_clean_before": true,
+    "flags": {
+      "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_BUILD_JOBS": "2",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_PROFILE_DEV_DEBUG": null,
+      "RUST_TEST_THREADS": "1"
+    },
+    "free_before": 639164416,
+    "guard_bytes": 209715200,
+    "check_only_no_bin": true,
+    "pid": 1381900,
+    "end": "2026-10-29T08:39:40.137073+00:00",
+    "wall_seconds": 8.116,
+    "exit_code": 0,
+    "disk_guard_triggered": false,
+    "minimum_free_bytes": 639160320,
+    "source_before_equals_after": true,
+    "tools_before_equals_after": true,
+    "source_clean_after": true,
+    "warnings": 1,
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/check-5",
+    "source_visibility": "/workspace/.onboarding/factory-child-goal-core/SOURCE_VISIBILITY-check-5.json",
+    "lease": "released",
+    "scope": "library typecheck only; no tests or product bins"
   }
 }
