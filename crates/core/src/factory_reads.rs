@@ -1007,7 +1007,7 @@ impl FactoryReadPlan {
         let version: u32 = connection
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version != 14 {
+        if version != 15 {
             return Err(changed());
         }
         // Match the live Actor's exact approved business rows BEFORE filesystem
@@ -1069,6 +1069,47 @@ impl FactoryReadPlan {
     }
 }
 impl FactoryReadWitness {
+    /// Derived Graph admission consumes the same request-owned, already joined
+    /// Factory I/O proof. Only bounded business rows and FD/stat/Git refs are
+    /// rechecked on the Actor; no input bytes or executable are rehashed here.
+    pub(crate) fn recheck_child_goal(
+        &self,
+        db: &rusqlite::Connection,
+        witness: &crate::data_workspaces::DataInputWitness,
+        scope: &super::FactoryScope,
+    ) -> Result<()> {
+        if !self.child_planning
+            || Instant::now() >= self.deadline
+            || self.selection != scope.selection
+            || self.companion != scope.bindings.companion.executable
+            || !witness.for_hash(&self.request_hash)
+            || serde_json::to_value(&self.bindings).map_err(|_| changed())?
+                != serde_json::to_value(&scope.bindings).map_err(|_| changed())?
+        {
+            return Err(changed());
+        }
+        self.database.recheck()?;
+        for proof in &self.proofs {
+            proof.recheck(db)?;
+        }
+        for pin in &self.pins {
+            pin.verify(false)?;
+        }
+        for tree in &self.git_trees {
+            tree.recheck()?;
+        }
+        for refs in &self.git_refs {
+            refs.recheck()?;
+        }
+        crate::policy::observe_grant_bindings(db, &scope.bindings.approved_grant)?;
+        if Instant::now() >= self.deadline {
+            return Err(CoreError::new(
+                "DEADLINE_EXCEEDED",
+                "The original joined Factory input observation expired before child Goal admission",
+            ));
+        }
+        Ok(())
+    }
     pub(crate) fn is_child_planning(&self) -> bool {
         self.child_planning
     }
@@ -1379,7 +1420,7 @@ mod tests {
             };
             let selection = FactoryScopeSelection {
                 child_planning_policy: None,
-            child_goal_execution_policy: None,
+                child_goal_execution_policy: None,
                 root_task_id: task.id,
                 expected_task_revision: task.revision,
                 grant_id: grant.id,

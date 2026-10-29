@@ -13,6 +13,8 @@ use uuid::Uuid;
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct TaskBinding {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    child_goal_run_id: Option<String>,
     handle: FactoryTaskHandle,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     planning_spec_revision: Option<u64>,
@@ -341,6 +343,7 @@ impl Store {
             depth: 0,
         };
         let b = TaskBinding {
+            child_goal_run_id: None,
             planning_spec_revision: s
                 .selection
                 .capabilities
@@ -788,6 +791,7 @@ impl Store {
             result_available: false,
         };
         let child = TaskBinding {
+            child_goal_run_id: None,
             planning_spec_revision: caller
                 .scope
                 .selection
@@ -1354,6 +1358,7 @@ impl Store {
                     b.handle.state.as_str(),
                     "queued" | "blocked_on_live_parent" | "resuming"
                 ) && b.session_id.is_none()
+                    && b.child_goal_run_id.is_none()
                     && !b.handle.cancel_requested
             }) {
                 let mut b = b.clone();
@@ -1447,7 +1452,7 @@ impl Store {
                 |row| row.get(0),
             )
             .map_err(db_error)?;
-        let can_wait = normal && children > 0;
+        let can_wait = normal && (children > 0 || b.child_goal_run_id.is_some());
         if normal && (!missing || can_wait) {
             b.handle.state = if can_wait {
                 "waiting_child"
@@ -2192,3 +2197,7 @@ pub(crate) use child_goal::{
 pub(crate) use child_goal::source_is_current as factory_goal_source_is_current;
 
 pub(crate) use child_goal::ancestor_budgets as child_goal_ancestor_budgets;
+
+pub(crate) use child_goal::verify_target_request as verify_child_goal_target_request;
+
+pub(crate) use child_goal::mark_queued as mark_child_goal_queued;

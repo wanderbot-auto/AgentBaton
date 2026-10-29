@@ -417,7 +417,15 @@ impl Store {
             .map_err(db_error)?;
         let mut task: Task =
             decode(&raw.ok_or_else(|| CoreError::new("NOT_FOUND", "Task does not exist"))?)?;
-        if factory.is_none() && crate::factory::is_factory_task(&tx, &task.id)? {
+        let factory_goal_root = goal
+            .as_ref()
+            .map(|context| crate::goal_store::factory_goal_session_root(&tx, context, &task.id))
+            .transpose()?
+            .flatten();
+        if factory.is_none()
+            && factory_goal_root.is_none()
+            && crate::factory::is_factory_task(&tx, &task.id)?
+        {
             return Err(CoreError::new(
                 "AUTH_REQUIRED",
                 "Factory descendants require their private Factory dispatch context",
@@ -426,7 +434,7 @@ impl Store {
         let canonical_root = if let Some(context) = factory.as_ref() {
             context.root_task_id().to_owned()
         } else {
-            task.id.clone()
+            factory_goal_root.unwrap_or_else(|| task.id.clone())
         };
         if task.revision != expected_revision {
             return Err(CoreError::new(

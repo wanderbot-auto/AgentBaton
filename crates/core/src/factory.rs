@@ -470,6 +470,7 @@ pub(crate) fn companion_path() -> crate::Result<std::path::PathBuf> {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub struct FactoryRecordCounts {
+    pub child_goal_runs: u64,
     pub child_plan_heads: u64,
     pub child_plan_revisions: u64,
     pub scopes: u64,
@@ -512,3 +513,7 @@ pub(crate) use runtime::{
 pub(crate) use runtime::factory_goal_source_is_current;
 
 pub(crate) use runtime::child_goal_ancestor_budgets;
+
+pub(crate) use runtime::verify_child_goal_target_request;
+
+pub(crate) use runtime::mark_child_goal_queued;

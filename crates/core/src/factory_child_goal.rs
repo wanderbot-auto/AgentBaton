@@ -171,7 +171,6 @@ pub(crate) struct FactoryGoalSource {
     pub(crate) factory_run: FactoryRun,
     pub(crate) task: crate::storage::Task,
     pub(crate) parent_task_id: Option<String>,
-    pub(crate) depth: u32,
     pub(crate) ancestors: Vec<String>,
     pub(crate) request: FactoryDelegateRequest,
     pub(crate) plans: Vec<FactoryChildPlanView>,
@@ -286,6 +285,7 @@ impl Store {
         check_child_capacity(
             &self.conn,
             &scope,
+            &request.task_id,
             head.proposal.nodes.len().saturating_sub(1) as u32,
         )?;
         let task = Self::factory_child_read_task(&self.conn, &request.task_id)?;
@@ -294,7 +294,6 @@ impl Store {
             factory_run: current_run,
             task,
             parent_task_id: lineage.parent_task_id,
-            depth: lineage.depth,
             ancestors,
             request: target.request,
             plans,
@@ -305,7 +304,12 @@ impl Store {
 
 /// Count all already-created Factory children, original delegated Grants and
 /// nested Graph nodes together; repeated nested scopes do not reset capacity.
-fn check_child_capacity(db: &Connection, scope: &FactoryScope, requested: u32) -> Result<()> {
+fn check_child_capacity(
+    db: &Connection,
+    scope: &FactoryScope,
+    task_id: &str,
+    requested: u32,
+) -> Result<()> {
     let root_factory:u32=db.query_row("SELECT count(*) FROM factory_task_lineage l JOIN factory_scopes s ON s.id=l.scope_id WHERE s.root_grant_id=?1 AND l.parent_task_id IS NOT NULL",[&scope.root_grant_id],|r|r.get(0)).map_err(db_error)?;
     let project_factory:u32=db.query_row("SELECT count(*) FROM factory_task_lineage l JOIN factory_scopes s ON s.id=l.scope_id WHERE s.project_id=?1 AND l.parent_task_id IS NOT NULL",[&scope.project_id],|r|r.get(0)).map_err(db_error)?;
     let root_grants:u32=db.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND json_extract(document,'$.root_grant_id')=?1",[&scope.root_grant_id],|r|r.get(0)).map_err(db_error)?;
@@ -316,7 +320,7 @@ fn check_child_capacity(db: &Connection, scope: &FactoryScope, requested: u32) -
             |r| r.get(0),
         )
         .map_err(db_error)?;
-    let (root_graph,project_graph):(u32,u32)=db.query_row("SELECT COALESCE(sum(CASE WHEN s.root_grant_id=?1 THEN g.node_count-1 ELSE 0 END),0),COALESCE(sum(CASE WHEN s.project_id=?2 THEN g.node_count-1 ELSE 0 END),0) FROM factory_child_goal_runs g JOIN factory_scopes s ON s.id=g.factory_scope_id",params![scope.root_grant_id,scope.project_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+    let (root_graph,project_graph):(u32,u32)=db.query_row("SELECT COALESCE(sum(CASE WHEN g.root_grant_id=?1 THEN g.children ELSE 0 END),0),COALESCE(sum(CASE WHEN g.project_id=?2 THEN g.children ELSE 0 END),0) FROM (SELECT r.id,r.project_id,json_extract(r.document,'$.root_grant_id') root_grant_id,max(count(DISTINCT n.node_id)-1,0) children FROM goal_runs r JOIN goal_run_nodes n ON n.run_id=r.id GROUP BY r.id) g",params![scope.root_grant_id,scope.project_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
     let root = root_factory
         .checked_add(root_grants)
         .and_then(|n| n.checked_add(root_graph))
@@ -328,6 +332,16 @@ fn check_child_capacity(db: &Connection, scope: &FactoryScope, requested: u32) -
         .and_then(|n| n.checked_add(requested))
         .ok_or_else(limited)?;
     let policy = approved_binding(scope)?;
+    for (ancestor, budget) in ancestor_budgets(db, scope, task_id)? {
+        let (created,nested):(u32,u32)=db.query_row("WITH RECURSIVE family(task_id,depth) AS (SELECT ?1,0 UNION ALL SELECT l.task_id,f.depth+1 FROM factory_task_lineage l JOIN family f ON l.parent_task_id=f.task_id WHERE l.scope_id=?2 AND f.depth<32) SELECT max((SELECT count(DISTINCT task_id)-1 FROM family),0),COALESCE((SELECT sum(children) FROM (SELECT r.id,max(count(DISTINCT n.node_id)-1,0) children FROM goal_runs r JOIN goal_run_nodes n ON n.run_id=r.id WHERE r.task_id IN (SELECT task_id FROM family) GROUP BY r.id)),0)",params![ancestor,scope.id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+        if created
+            .checked_add(nested)
+            .and_then(|n| n.checked_add(requested))
+            .is_none_or(|n| n > budget.children)
+        {
+            return Err(limited());
+        }
+    }
     if root > scope.bindings.approved_grant.scope.max_children
         || root > policy.policy.root_budget.children
         || project > policy.policy.project_budget.children
@@ -449,6 +463,7 @@ pub(crate) fn source_is_current(db: &Connection, source: &FactoryGoalSource) -> 
     check_child_capacity(
         db,
         &scope,
+        &source.task.id,
         source
             .plans
             .last()
@@ -473,4 +488,54 @@ pub(crate) fn ancestor_budgets(
             Ok((id, b.request.budget))
         })
         .collect()
+}
+
+pub(crate) fn verify_target_request(
+    db: &Connection,
+    scope: &FactoryScope,
+    task_id: &str,
+    expected: &FactoryDelegateRequest,
+) -> Result<()> {
+    let r = run(db, &scope.id)?;
+    let b = binding(db, &r.id, task_id)?;
+    if encode(&b.request)? != encode(expected)?
+        || b.scope_id != scope.id
+        || b.grant_id != scope.root_grant_id
+    {
+        return Err(changed());
+    }
+    Ok(())
+}
+
+/// Called inside the same transaction as the Graph provenance. The current
+/// Factory process retains its real lease/reservation until its normal owned
+/// stop; this marker merely prevents the other scheduler launching this target.
+pub(crate) fn mark_queued(
+    db: &Connection,
+    source: &FactoryGoalSource,
+    goal_run_id: &str,
+) -> Result<()> {
+    let mut r = run(db, &source.scope.id)?;
+    let mut b = binding(db, &r.id, &source.task.id)?;
+    if b.child_goal_run_id.is_some() {
+        return Err(CoreError::new(
+            "CONFIG_CONFLICT",
+            "The target already has a child Goal; adopt its saved plan on the same run",
+        ));
+    }
+    b.child_goal_run_id = Some(goal_run_id.into());
+    if b.session_id.is_none() {
+        b.handle.state = "waiting_goal".into();
+    }
+    b.handle.revision = b.handle.revision.checked_add(1).ok_or_else(limited)?;
+    save_binding(db, &mut b)?;
+    if r.active_session_id.is_none() {
+        r.state = "waiting_child".into();
+    }
+    save_run(
+        db,
+        &mut r,
+        "factory.child_goal_queued",
+        json!({"task_id":source.task.id,"goal_run_id":goal_run_id,"provider_started":false,"stop_confirmed":false,"task_accepted":false}),
+    )
 }

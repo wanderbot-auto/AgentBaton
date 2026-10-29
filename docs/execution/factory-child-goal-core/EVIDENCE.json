@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "source_implementation_in_progress",
+  "status": "NOT_COMPLETE_source_WIP",
   "baseline": "1097980c",
   "protected_main": "a1be94d",
   "owner_inbox_ack": [
@@ -21,8 +21,8 @@
     "AB-COR-002",
     "AB-COR-007"
   ],
-  "cargo": "not_run_no_lease",
-  "runtime": "private source wiring_in_progress_not_exposed",
+  "cargo": "single_check_only_lease_granted_result_pending",
+  "runtime": "not_operational_IPC_MCP_execution_not_registered",
   "native": "not_run",
   "macos": "not_run",
   "provider_calls": "not_authorized_not_run",
@@ -47,5 +47,8 @@
     "exact cancel and append-only adoption",
     "Rust/migration/generated ACP/IPC normal and failure execution",
     "independent final review"
-  ]
+  ],
+  "latest_public_wire_contract": "2a3d6ae",
+  "factory_record_counts": 12,
+  "new_counter": "child_goal_runs"
 }

@@ -26,6 +26,10 @@ struct DerivedRecord {
     origin: FactoryGoalOrigin,
     scope_record_digest: String,
     initial_run: GoalRun,
+    target_request: crate::factory::FactoryDelegateRequest,
+    action_namespace: String,
+    action_key: String,
+    request_sha256: String,
     snapshot: Value,
     caller_task_id: String,
     caller_session_id: Option<String>,
@@ -106,6 +110,12 @@ fn checked_record(db: &Connection, id: &str) -> Result<DerivedRecord> {
         &record.origin.ancestors,
         record.origin.parent_task_id.as_deref(),
     )?;
+    crate::factory::verify_child_goal_target_request(
+        db,
+        &s,
+        &record.initial_run.task_id,
+        &record.target_request,
+    )?;
     let e:Option<Option<String>>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE sequence=?1",[sql_num(seq)?],|r|r.get(0)).optional().map_err(db_error)?;
     let e: Event = decode(&e.flatten().ok_or_else(denied)?)?;
     if e.aggregate_id != id
@@ -120,6 +130,20 @@ fn checked_record(db: &Connection, id: &str) -> Result<DerivedRecord> {
         || seq <= plan.reference.receipt_sequence
     {
         return Err(denied());
+    }
+    let (payload, result) =
+        idempotency_entry(db, &record.action_namespace, &record.action_key)?.ok_or_else(denied)?;
+    let result: crate::factory::FactoryChildGoalSummary = decode(&result)?;
+    if agentbaton_workspaces::validation::sha256(payload.as_bytes()) != record.request_sha256
+        || result.goal.run.id != record.run_id
+        || json!(result.goal.run) != json!(record.initial_run)
+        || result.plan != record.origin.initial_plan
+        || result.factory_scope_id != s.id
+        || result.factory_run_id != record.origin.factory_run_id
+        || result.task_id != record.initial_run.task_id
+        || result.execution_policy_digest != record.origin.execution_policy_digest
+    {
+        return Err(changed());
     }
     let native_conflict:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM goal_graph_capabilities WHERE run_id=?1) OR EXISTS(SELECT 1 FROM approval_proposals WHERE id=?1)",[id],|r|r.get(0)).map_err(db_error)?;
     if native_conflict {
@@ -181,6 +205,20 @@ pub(super) fn live_scope(
     let record = checked_record(db, &r.id)?;
     capability(db, r)?;
     crate::factory::live_child_goal_scope(db, &record.origin.factory_scope_id, &r.task_id, data)?;
+    let factory_scope =
+        crate::factory::checked_child_goal_scope(db, &record.origin.factory_scope_id)?;
+    let witness = data.ok_or_else(|| {
+        err(
+            "WORKSPACE_BUSY",
+            "A derived child Goal requires its exact request's joined Factory I/O observation",
+        )
+    })?;
+    witness
+        .factory
+        .as_ref()
+        .ok_or_else(denied)?
+        .recheck_child_goal(db, witness, &factory_scope)?;
+
     let scope: ScopeRecord = raw(db, "goal_scopes", &r.scope_id)?;
     let task: Task = raw(db, "tasks", &r.task_id)?;
     if scope.revoked
@@ -476,12 +514,23 @@ impl Store {
             dispatched: false,
         };
         let snapshot = json!({"graph_contract_version":1,"factory_origin":origin,"scope":recorded_scope_view(&record)?,"root_grant":record.refs.grant_after,"existing_connection":connection_summary(&record.refs)?,"plan":plan_view,"definition_reuse":graph::definition_permissions(&record)?,"execution":"factory_child_goal_graph_v1_existing_workspace","allow_in_scope_plan_revisions":true,"new_workspace_authority":false,"enforcement":{"filesystem_sandbox":false,"network_sandbox":false,"output_quota":false},"subject_rebinding":{"mode":"this_run_current_plan_owned_producer_only","requires_owned_stop_and_capture":true,"allows_legacy_candidate_backfill":false},"budgets":{"root":execution.policy.root_budget,"project":execution.policy.project_budget},"io_limits":{"max_total_artifact_bytes":16777216,"max_artifact_refs":64,"cancel_requires_actual_join":true,"timeout_without_join_is_unknown":true},"native_factory_approval_id":source.scope.approval_id});
+        let caller_task = caller
+            .as_ref()
+            .map_or(source.task.id.clone(), |c| c.0.clone());
+        let namespace = format!(
+            "factory:{}:child-goal:{}:{}",
+            source.scope.id, caller_task, source.task.id
+        );
         let mut derived = DerivedRecord {
             run_id: run_id.clone(),
             scope_id: scope_id.clone(),
             origin,
             scope_record_digest: sha(&record)?,
             initial_run: initial.clone(),
+            target_request: source.request.clone(),
+            action_namespace: namespace.clone(),
+            action_key: key_id.into(),
+            request_sha256: agentbaton_workspaces::validation::sha256(action_payload.as_bytes()),
             snapshot,
             caller_task_id: caller
                 .as_ref()
@@ -494,10 +543,6 @@ impl Store {
         if encode(&derived)?.len() > MAX_STORED_BYTES as usize {
             return Err(limited());
         }
-        let namespace = format!(
-            "factory:{}:child-goal:{}:{}",
-            source.scope.id, derived.caller_task_id, source.task.id
-        );
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -578,6 +623,7 @@ impl Store {
             )
             .map_err(db_error)?;
         }
+        crate::factory::mark_child_goal_queued(&tx, &source, &run_id)?;
         let digest = commitment(&derived)?;
         let event = Event {
             sequence: 0,
@@ -634,8 +680,8 @@ impl Store {
         {
             return Err(limited());
         }
-        checked_record(&tx, &run_id)?;
         remember(&tx, &namespace, key_id, action_payload, &view)?;
+        checked_record(&tx, &run_id)?;
         tx.commit().map_err(db_error)?;
         Ok(view)
     }
@@ -809,4 +855,112 @@ pub(super) fn reserve_ancestors(
         }
     }
     Ok(())
+}
+
+/// Permit only a privately constructed Goal dispatch context whose durable
+/// Factory issuer matches this exact target. Ordinary/native-Goal sessions do
+/// not gain a Factory bypass merely because the target has a similar label.
+pub(crate) fn session_root(
+    db: &Connection,
+    context: &GoalDispatchContext,
+    task_id: &str,
+) -> Result<Option<String>> {
+    if !marked_run(db, &context.run.id)? {
+        return Ok(None);
+    }
+    let authority = checked_record(db, &context.run.id)?;
+    let current = run(db, &context.run.id)?;
+    if current.task_id != task_id
+        || current.task_id != context.run.task_id
+        || current.scope_id != context.run.scope_id
+        || current.revision != context.run.revision
+        || current.plan_revision != context.run.plan_revision
+        || current.plan_digest != context.run.plan_digest
+        || current.root_grant_id != context.run.root_grant_id
+        || current.cancel_requested
+        || !matches!(current.state.as_str(), "queued" | "running")
+    {
+        return Err(denied());
+    }
+    crate::factory::child_goal_policy_live(db, &authority.origin.factory_scope_id, task_id)?;
+    Ok(Some(authority.origin.root_task_id))
+}
+
+fn summary(db: &Connection, id: &str) -> Result<FactoryChildGoalSummary> {
+    let record = checked_record(db, id)?;
+    let goal = run(db, id)?;
+    capability(db, &goal)?;
+    Ok(FactoryChildGoalSummary {
+        authority_kind: "factory_child_goal_execution_v1".into(),
+        factory_scope_id: record.origin.factory_scope_id,
+        factory_run_id: record.origin.factory_run_id,
+        factory_root_task_id: record.origin.root_task_id,
+        parent_task_id: record.origin.parent_task_id,
+        task_id: goal.task_id.clone(),
+        plan: record.origin.initial_plan,
+        execution_policy_digest: record.origin.execution_policy_digest,
+        goal: GraphRunSummary {
+            graph_contract_version: 1,
+            task_accepted: goal.task_accepted,
+            run: goal,
+            ledger_revision: sequence(db)?,
+        },
+    })
+}
+impl Store {
+    pub fn list_factory_child_goals(
+        &self,
+        query: &crate::factory::FactoryChildGoalQuery,
+    ) -> Result<Vec<FactoryChildGoalSummary>> {
+        if query.goal_run_id.is_some() {
+            return Err(invalid());
+        }
+        key(&query.scope_id)?;
+        key(&query.task_id)?;
+        crate::factory::checked_child_goal_scope(&self.conn, &query.scope_id)?;
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(goal_run_id)+octet_length(task_id)),0),COALESCE(max(octet_length(document)),0) FROM factory_child_goal_runs WHERE factory_scope_id=?1 AND task_id=?2",params![query.scope_id,query.task_id],1,MAX_STORED_BYTES)?;
+        let mut q=self.conn.prepare("SELECT goal_run_id FROM factory_child_goal_runs WHERE factory_scope_id=?1 AND task_id=?2 ORDER BY rowid").map_err(db_error)?;
+        let ids = q
+            .query_map(params![query.scope_id, query.task_id], |r| {
+                r.get::<_, String>(0)
+            })
+            .map_err(db_error)?;
+        let mut values = Vec::new();
+        for id in ids {
+            values.push(summary(&self.conn, &id.map_err(db_error)?)?);
+        }
+        if encode(&json!({"request_id":"\0".repeat(128),"result":values,"revision":u64::MAX,"warnings":[]}))?.len()>MAX_STORED_BYTES as usize{return Err(limited());}
+        Ok(values)
+    }
+    pub fn get_factory_child_goal(
+        &self,
+        query: &crate::factory::FactoryChildGoalQuery,
+    ) -> Result<crate::factory::FactoryChildGoalView> {
+        key(&query.scope_id)?;
+        key(&query.task_id)?;
+        let id=match &query.goal_run_id {
+            Some(id)=>id.clone(),
+            None=>self.conn.query_row("SELECT goal_run_id FROM factory_child_goal_runs WHERE factory_scope_id=?1 AND task_id=?2 ORDER BY rowid DESC LIMIT 1",params![query.scope_id,query.task_id],|r|r.get(0)).optional().map_err(db_error)?.ok_or_else(||err("NOT_FOUND","No saved child Goal run exists for this target"))?,
+        };
+        let summary = summary(&self.conn, &id)?;
+        if summary.factory_scope_id != query.scope_id || summary.task_id != query.task_id {
+            return Err(denied());
+        }
+        let details = self.goal_graph_details(&id)?;
+        let origin = origin_view(&self.conn, &details.run)?.ok_or_else(denied)?;
+        let view = crate::factory::FactoryChildGoalView {
+            summary,
+            origin,
+            details,
+        };
+        if encode(
+            &json!({"request_id":"\0".repeat(128),"result":view,"revision":u64::MAX,"warnings":[]}),
+        )?
+        .len()
+            > MAX_STORED_BYTES as usize
+        {
+            return Err(limited());
+        }
+        Ok(view)
+    }
 }

@@ -1053,6 +1053,12 @@ fn policy_for_record(record: &ScopeRecord) -> Result<HostGoalPolicy> {
         None => host_policy(&record.selection, &record.refs),
     }
 }
+fn root_task(record: &ScopeRecord) -> &str {
+    record
+        .factory_origin
+        .as_ref()
+        .map_or(record.refs.task_id.as_str(), |o| o.root_task_id.as_str())
+}
 fn owner_rule(record: &ScopeRecord) -> &str {
     if record.factory_origin.is_some() {
         "factory-child-owner-review"
@@ -2436,3 +2442,5 @@ fn blocked_history_preview(
 pub(crate) use runtime::factory::verify_native_history_before_migration as verify_native_goal_history_before_factory_migration;
 
 pub(crate) use runtime::factory::budget_records as factory_goal_budget_records;
+
+pub(crate) use runtime::factory::session_root as factory_goal_session_root;

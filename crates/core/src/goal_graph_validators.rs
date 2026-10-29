@@ -328,7 +328,7 @@ impl Store {
             id: Uuid::new_v4().to_string(),
             attempt_id: Uuid::new_v4().to_string(),
             task_id: r.task_id.clone(),
-            root_task_id: r.task_id.clone(),
+            root_task_id: root_task(&record).into(),
             state: crate::execution::IntentState::Prepared,
             executor_instance: None,
             binding: binding.clone(),
@@ -364,7 +364,7 @@ impl Store {
             .map_err(db_error)?;
         for key in [
             format!("project:{}", r.project_id),
-            format!("root:{}", r.task_id),
+            format!("root:{}", root_task(&record)),
         ] {
             if tx.execute("UPDATE budgets SET consumed=consumed+1,active=active+1 WHERE scope=?1 AND consumed<total_limit AND active<parallel_limit",[key]).map_err(db_error)?!=1{return Err(err("RESOURCE_LIMIT","Shared project/root attempt budget is exhausted"));}
         }
@@ -373,7 +373,7 @@ impl Store {
             params![
                 intent.attempt_id,
                 r.task_id,
-                r.task_id,
+                root_task(&record),
                 encode(&binding)?,
                 format!(
                     "goal-validator:{}:{}:{}",
