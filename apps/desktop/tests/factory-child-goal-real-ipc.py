@@ -687,6 +687,7 @@ class WireEvidenceRecorder:
             with self._condition:
                 while True:
                     require(self._next<2048,'Bounded actual Core observation count exceeded')
+                    require(self._bytes+base.MAX_RESPONSE_BYTES<=16*1024*1024,'Known original wire capture capacity exhausted before dispatch')
                     if self._bytes+self._reserved+base.MAX_RESPONSE_BYTES<=16*1024*1024:break
                     require(self._inflight>0,'Known original wire capture capacity exhausted before dispatch')
                     remaining=deadline-time.monotonic()
