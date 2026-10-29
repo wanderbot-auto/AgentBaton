@@ -2392,7 +2392,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2575,6 +2576,14 @@
           "dimension": "Linux actual Core/Actor/generated account-free ACP and fixed Command; first Commandexit1 joined, sameGraphr2 adopted/Work candidate; no Mac/live Provider acceptance",
           "evidence": "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
           "limits": "Second Validator blocked by original child cumulative20s budget; no exit0/fresh Owner/parent-resume success. Recorded digest2PASS is separate in-memory reader regression; requirement status unchanged."
+        },
+        {
+          "slice": "Actual bounded same-Graph rework plus real UI normal/lost-reply, partial",
+          "source_head": "a9cf250292bed5bd85b34d5b9ac916c3738f04ce",
+          "rework": "Linux actual1→0/r2/Owner/TaskAccepted/parentresumePASS; one bound readonly transport retry disclosed",
+          "browser": "normala9PASS;lost-start8cPASS;cancelFAIL andnotaccepted",
+          "evidence": "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
+          "limits": "GeneratedProvider/privateOwnerfixture only; performanceopen; no newMac/liveProvider/nativeOS/full130acceptance"
         }
       ]
     },
@@ -2927,7 +2936,8 @@
         "docs/execution/command-core/REVIEW.md",
         "docs/execution/command-integration/EVIDENCE.json",
         "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
-        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3012,6 +3022,14 @@
           "dimension": "Linux actual Core/Actor/generated account-free ACP and fixed Command; first Commandexit1 joined, sameGraphr2 adopted/Work candidate; no Mac/live Provider acceptance",
           "evidence": "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
           "limits": "Second Validator blocked by original child cumulative20s budget; no exit0/fresh Owner/parent-resume success. Recorded digest2PASS is separate in-memory reader regression; requirement status unchanged."
+        },
+        {
+          "slice": "Actual bounded same-Graph rework plus real UI normal/lost-reply, partial",
+          "source_head": "a9cf250292bed5bd85b34d5b9ac916c3738f04ce",
+          "rework": "Linux actual1→0/r2/Owner/TaskAccepted/parentresumePASS; one bound readonly transport retry disclosed",
+          "browser": "normala9PASS;lost-start8cPASS;cancelFAIL andnotaccepted",
+          "evidence": "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
+          "limits": "GeneratedProvider/privateOwnerfixture only; performanceopen; no newMac/liveProvider/nativeOS/full130acceptance"
         }
       ]
     },
@@ -3386,7 +3404,8 @@
         "docs/execution/command-core/REVIEW.md",
         "docs/execution/command-integration/EVIDENCE.json",
         "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
-        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3462,6 +3481,14 @@
           "dimension": "Linux actual Core/Actor/generated account-free ACP and fixed Command; first Commandexit1 joined, sameGraphr2 adopted/Work candidate; no Mac/live Provider acceptance",
           "evidence": "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
           "limits": "Second Validator blocked by original child cumulative20s budget; no exit0/fresh Owner/parent-resume success. Recorded digest2PASS is separate in-memory reader regression; requirement status unchanged."
+        },
+        {
+          "slice": "Actual bounded same-Graph rework plus real UI normal/lost-reply, partial",
+          "source_head": "a9cf250292bed5bd85b34d5b9ac916c3738f04ce",
+          "rework": "Linux actual1→0/r2/Owner/TaskAccepted/parentresumePASS; one bound readonly transport retry disclosed",
+          "browser": "normala9PASS;lost-start8cPASS;cancelFAIL andnotaccepted",
+          "evidence": "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
+          "limits": "GeneratedProvider/privateOwnerfixture only; performanceopen; no newMac/liveProvider/nativeOS/full130acceptance"
         }
       ]
     },
@@ -5871,7 +5898,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -6065,6 +6093,14 @@
           "dimension": "Linux actual Core/Actor/generated account-free ACP and fixed Command; first Commandexit1 joined, sameGraphr2 adopted/Work candidate; no Mac/live Provider acceptance",
           "evidence": "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
           "limits": "Second Validator blocked by original child cumulative20s budget; no exit0/fresh Owner/parent-resume success. Recorded digest2PASS is separate in-memory reader regression; requirement status unchanged."
+        },
+        {
+          "slice": "Actual bounded same-Graph rework plus real UI normal/lost-reply, partial",
+          "source_head": "a9cf250292bed5bd85b34d5b9ac916c3738f04ce",
+          "rework": "Linux actual1→0/r2/Owner/TaskAccepted/parentresumePASS; one bound readonly transport retry disclosed",
+          "browser": "normala9PASS;lost-start8cPASS;cancelFAIL andnotaccepted",
+          "evidence": "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
+          "limits": "GeneratedProvider/privateOwnerfixture only; performanceopen; no newMac/liveProvider/nativeOS/full130acceptance"
         }
       ]
     },

@@ -1,3 +1,11 @@
+# 当前实际返工与浏览器结果 — 2026-10-29T17:26:14.309266+00:00
+
+真实返工7/8/9均通过：Commandexit1→同Graph r2→Commandexit0→私有Owner验收→TaskAccepted→新父attempt完成，原累计预算与原始Grant保护断言通过。runtime7独审已核；Owner写恰一次、收到回复，单次只读5158ms未知传输经绑定重查恢复，不能冒响应性能通过。最新分段实测将约4.5秒同步延迟定位到Factory预算预留，正做同事务严格读复用，尚未修完。
+
+真实正常浏览器a9通过34.151s/4checks4PNG/cleanuptrue；丢启动回复8c通过37.047s/5checks4PNG/cleanuptrue，显式samekey/payload/CAS恢复且不重复派发。取消仍失败：真实Worker到期后才发取消，正确保留unknown；正改UI只读summary停止通路，绝不把unknown当Cancelled。UI851项/类型/构建、基础设施82及校验、最新alltargets严格Clippy通过，均按准确source记录。
+
+新Native全回归、双MacCI、新15安装包及完整130/WP01–14仍未完成。下一工作区默认隔离需求调查并行，不替代实现。原到期/时限/私有产物/FIFO/类型宽等失败都保留；source2eb公开CI产物只有限摘要，私有原件不上传。main653679d/OWNER001002不变，真实Provider/私人身份/额外支出/生产/签名密钥/最终license/formalApprove仍关闭。见 [准确结果和限制](factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json)。以下保留历史。
+
 # 当前 Core 回归与真实验收边界 — 2026-10-29T15:48:15.970349+00:00
 
 准确09d106f：Core128项全通过、无跳过；工作区all-targets严格Clippy通过。旧90秒中断、124通过1失败及修复前各失败仍分别保留。

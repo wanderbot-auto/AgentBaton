@@ -74,3 +74,8 @@ UI typecheck/build and802 tests passed atd64, infrastructure71 passed at310, str
 ### 2026-10-29T15:48:15.970349+00:00 — full128 and real rework exit1→0
 
 Exact09d fullCore128PASS/0skip and strictworkspacealltargetsClippyPASS. Exact636 freshrealrework reached genuine fixedCommand1 then0/ownedstop and newOwnerproposal, but final callAUTH_REQUIRED at original expiry boundary, wholecaseFAIL. No freshOwner/parentcomplete claim; original failure preserved. Browser exactwait thenstale/noStartHTTP under separate UI diagnosis. See CORE_REGRESSION_AND_OWNER_RESULTS.json; continue full130 without new credentials/spend/production.
+
+
+### 2026-10-29T17:26:14.309266+00:00 — actual full rework and browser evidence
+
+Actualrework7/8/9 eachPASS with strict receipts and budgets; read timeout explicitly reconciled withoutwrite retry, not a performancePASS. Normal browsera9 andlost-start8c passed withcleanuptrue; cancel stillFAIL/unknown afterdeadline. UI851/type/build andintegratedinfra82 passed, strictalltargetsClippy passedat50. Sourcecancellationfastsummary andtransaction-local reservation optimization pending; fullnative/dualMac/newpackages/130 incomplete. See FULL_REWORK_AND_BROWSER_RESULTS.json.
