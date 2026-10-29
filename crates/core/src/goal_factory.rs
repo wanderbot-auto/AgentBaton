@@ -1735,7 +1735,12 @@ pub(crate) fn reserved_task_continuation(
     if task.state != TaskState::OutcomeUnknown {
         return Err(denied());
     }
-    // Reuses typed issuer/normal Factory handoff, live Grant/input metadata,
+    let issuer = checked_record(db, &r.id)?;
+    // This separate policy verifier explicitly requires the original normal
+    // Factory session/attempt and ordered internal-stop/reap/settlement chain
+    // for an Unknown task. A stable readset alone cannot establish that fact.
+    crate::factory::child_goal_policy_live(db, &issuer.origin.factory_scope_id, &r.task_id)?;
+    // Reuses typed issuer, live Grant/input metadata,
     // exact prepared intent/session/lease, reservation and ordered Node receipt.
     // The final Task write/event still precedes seal_committed_read below.
     committed_read(
