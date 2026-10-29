@@ -9,3 +9,7 @@ Next: independent review, then one Root-controlled actual same-condition run in 
 ## IPC abort phase follow-up — 2026-10-29T18:52:11.254853+00:00
 
 Follow-up source68449fecfb306b25affa05ff90e29caaa95b229b frozen. New11pure/compile2files/diff/inverse checks PASS; actual product/Node/Cargo/browser/Actor NOT_RUN. Old29a7 source and9-test seal remain immutable historical records. Evidence: /workspace/.onboarding/data-preview-browser-race/ipc-phase-follow-up. Root arranges independent closure before the one new actual same-condition browser run; no product hook or retry added.
+
+## Explicit private before-scan evidence mode — 2026-10-29T19:18:46.871868+00:00
+
+Sourcee552a37d207ff310a11b9aac6e58740a73522bba frozen for independent review; tree remains codex/data-preview-browser-race. Evidence /workspace/.onboarding/data-preview-browser-race/preview-evidence-follow-up. Original79 incomplete/exit2,29a diagnostic P2 and684 closure remain separate historical phases. Config owns the Core nondefault feature; no production/source/gate acceptance is inferred from these25 pure tests. Next Root-controlled build must use the real feature and explicit flag, prove actual ready, real cancellation/join/source-no-write, and preserve any failure. No deadline/budget raise, new keys, retry or Provider identity. This leaf does not assert current CI/macOS/130-requirement completion.

@@ -102,5 +102,71 @@
     },
     "product_Node_Cargo_browser_Actor": "NOT_RUN",
     "retained_log_sha256": "107c5c58a93f234b4eedbc7bbb493a73524fe2a57bbb091eeefd5b5404a89d38"
+  },
+  "explicit_preview_evidence_follow_up": {
+    "recorded_at_utc": "2026-10-29T19:17:20.783524+00:00",
+    "base_source": "68449fecfb306b25affa05ff90e29caaa95b229b",
+    "entire_driver_inverse_to_base": true,
+    "all_original_11_timing_tests_entire_file_byte_equal": true,
+    "new_private_file_tests": 14,
+    "pure_test_total": 25,
+    "new_cases_dimension": "private owned filesystem and extracted helper/control only; no Core/browser",
+    "compile_3_files": "PASS in memory; no imports/cache",
+    "default_mode": "no prepare/read gate branches executed; original natural race/exit2 preserved",
+    "evidence_mode": "before_scan cooperation; private ready proves exact worker/selection, not public authority",
+    "bounds": {
+      "fixture_bytes": 33554432,
+      "max_file_bytes": 67108864,
+      "max_total_bytes": 67108864,
+      "max_files": 4,
+      "Core_deadline_seconds": 30,
+      "ready_observation_seconds": 15
+    },
+    "product_Core_Node_Cargo_browser_Actor": "NOT_RUN",
+    "source_map": {
+      "apps/desktop/tests/data-workspace-real-ipc.py": {
+        "sha256": "7901a93e65a9a828703056d5a35903c6660280483688f4a5a8dd9e4a442d3b73",
+        "bytes": 67031
+      },
+      "apps/desktop/tests/test_data_preview_browser_timing.py": {
+        "sha256": "ba365a91a70f164d6aa11cbc0f7bfe07add73afe8657c64656d3c5e34565761e",
+        "bytes": 11477
+      },
+      "apps/desktop/tests/test_data_preview_evidence.py": {
+        "sha256": "0f6a8257ca4a4d28855e8c781bd85991fbba8999a8405dddf8379c3447c66b0d",
+        "bytes": 10017
+      }
+    },
+    "log_map": {
+      "timing-tests.log": {
+        "sha256": "039285a02e89d424569abf4caa1882cf4cb7cf577912ccc53ef08fae5f78aa3f",
+        "bytes": 110
+      },
+      "private-file-tests.log": {
+        "sha256": "f633ad8e738512bb7562a43fab273ab65cdc5a224925052dd0e38b5bd4931a80",
+        "bytes": 113
+      }
+    },
+    "source_commit": "e552a37d207ff310a11b9aac6e58740a73522bba",
+    "protocol": {
+      "config_filename": ".agentbaton-preview-evidence-v1.json",
+      "ready_filename": ".agentbaton-preview-evidence-ready-v1.json",
+      "ready_exact_keys": [
+        "schema_version",
+        "gate",
+        "stage",
+        "nonce",
+        "descriptor_sha256",
+        "preview_id",
+        "project_id"
+      ],
+      "stage": "before_scan",
+      "nondefault_Core_feature": "preview-evidence",
+      "ready_required_not_manifest_inferred": true,
+      "private_files_uploaded": false,
+      "direct_release_supported": false
+    },
+    "Core_peer_confirmed": "Config confirms CANCEL_REQUESTED/DEADLINE_EXCEEDED mapping and thread.join-before-preview_finished; source freeze/actual build pending",
+    "product_execution": "NOT_RUN"
   }
 }

@@ -9,3 +9,7 @@ Allowed: data-workspace-real-ipc.py, dedicated pure driver test and these four r
 ## IPC abort phase follow-up — 2026-10-29T18:52:11.254853+00:00
 
 Follow-up: independently reported IPC BrokenPipe/ConnectionReset must retain the same timing as ordinary IPC failure and must not be classified as HTTP client abort. Limit the change to observational phase markers and two distinct regression tests; retain original no-response behavior, single IPC call and all budgets/authority/outcome semantics.
+
+## Explicit private before-scan evidence mode — 2026-10-29T19:18:46.871868+00:00
+
+Root separately authorized explicit --preview-evidence adaptation for the nondefault Core test feature. Natural/default mode remains unchanged. This is private test coordination, not public IPC, Renderer authority, a production timing hook or a new permission. Root owns feature compilation/CI/actual execution; this author changes only the driver, dedicated private-file tests and these records.
