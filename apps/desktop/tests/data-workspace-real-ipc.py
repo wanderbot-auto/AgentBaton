@@ -9,6 +9,7 @@ it does not forge data, terminal states, approval or a copied directory.
 from __future__ import annotations
 
 import argparse
+import errno
 from functools import partial
 import hashlib
 import http.server
@@ -281,6 +282,7 @@ def copy_evidence_ready(runtime, gate, creation_id, project_id):
 
 def copy_evidence_cancel_commitment(terminal, completion, destination_exists):
     """Require the original real joined-copy receipt; never infer it from a gate."""
+    assert type(terminal.get('revision')) is int and 1 <= terminal['revision'] <= 18_446_744_073_709_551_615, 'Invalid copy evidence terminal revision'
     assert terminal['state'] == 'cancelled' and terminal['cancel_requested'] is True and terminal.get('contract') is None, 'Copy cancellation is not confirmed'
     assert terminal.get('io_completion') == 'worker_joined' and completion['cancelled_owned_worker_join_observed'] is True, 'Missing actual copy worker join'
     assert terminal.get('observation') is None and destination_exists is False, 'Before-copy fixture unexpectedly wrote a destination'
@@ -288,7 +290,7 @@ def copy_evidence_cancel_commitment(terminal, completion, destination_exists):
     event = completion.get('finished_event')
     sequence = completion.get('finished_sequence')
     assert type(sequence) is int and sequence > 0 and isinstance(event, dict), 'Missing original copy_finished commitment'
-    assert event.get('aggregate_id') == terminal['id'] and type(event.get('revision')) is int and event['revision'] == terminal['revision'], 'Foreign or stale copy_finished commitment'
+    assert event.get('aggregate_id') == terminal['id'] and type(event.get('revision')) is int and 1 <= event['revision'] <= 18_446_744_073_709_551_615 and event['revision'] == terminal['revision'], 'Foreign or stale copy_finished commitment'
     assert event.get('kind') == 'data_workspace.copy_finished' and event.get('source') == 'data_workspace_core', 'Wrong copy_finished producer'
     payload = event.get('payload')
     assert isinstance(payload, dict) and payload.get('state') == 'cancelled' and payload.get('cancel_requested') is True and payload.get('io_completion') == 'worker_joined', 'Unconfirmed copy_finished outcome'
@@ -296,6 +298,32 @@ def copy_evidence_cancel_commitment(terminal, completion, destination_exists):
     return {'stage': 'gated_before_copy', 'finished_sequence': sequence, 'terminal_revision': terminal['revision'],
             'worker_joined': True, 'original_copy_finished_matched': True, 'mid_copy_cancellation_claimed': False,
             'partial_copy_claimed': False, 'OS_process_reap_claimed': False}
+
+
+def copy_evidence_destination_absent(destination):
+    """Only ENOENT proves absence; dangling links and unknown errors do not."""
+    try:
+        Path(destination).lstat()
+    except FileNotFoundError as failure:
+        if failure.errno != errno.ENOENT:
+            raise
+        return True
+    return False
+
+
+def copy_evidence_persisted_revisions(runtime, terminal, completion):
+    """Do not trust numeric equality to validate raw persisted JSON types."""
+    with sqlite3.connect(f'file:{runtime / "baton.sqlite3"}?mode=ro', uri=True) as store:
+        store.execute('PRAGMA query_only=ON'); store.execute('BEGIN')
+        creation_row = store.execute('SELECT document FROM data_workspace_creations WHERE id=?', [terminal['id']]).fetchone()
+        event_row = store.execute('SELECT document FROM events WHERE sequence=?', [completion['finished_sequence']]).fetchone()
+    assert creation_row is not None and event_row is not None, 'Missing persisted copy evidence'
+    creation = json.loads(creation_row[0], object_pairs_hook=unique_object)
+    event = json.loads(event_row[0], object_pairs_hook=unique_object)
+    assert isinstance(creation, dict) and isinstance(event, dict), 'Malformed persisted copy evidence'
+    assert all(type(value.get('revision')) is int and 1 <= value['revision'] <= 18_446_744_073_709_551_615 for value in [terminal, creation, event]), 'Invalid persisted copy evidence revision'
+    assert creation['revision'] == event['revision'] == terminal['revision'], 'Persisted copy evidence revision mismatch'
+    assert creation == terminal and event == completion['finished_event'], 'Persisted copy evidence changed'
 
 
 def main():
@@ -870,7 +898,10 @@ def main():
                     retained_destination = Path(terminal['destination']).exists()
                     if copy_evidence_gate is not None:
                         assert requested, 'No actual UI copy cancellation was issued'
-                        report['observations']['copy_evidence_cancel_commitment'] = copy_evidence_cancel_commitment(terminal, completion, retained_destination)
+                        absent = copy_evidence_destination_absent(terminal['destination'])
+                        observed = copy_evidence_cancel_commitment(terminal, completion, not absent)
+                        copy_evidence_persisted_revisions(runtime, terminal, completion)
+                        report['observations']['copy_evidence_cancel_commitment'] = observed
                     refresh(panel); current = detail(panel, copy_id)
                     assert len(creation_records(projects['copy-cancel'])) == 1
                     if terminal['state'] == 'ready':
