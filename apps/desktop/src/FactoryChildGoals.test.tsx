@@ -145,7 +145,7 @@ it.each(['expired','revoked','spec','unknown'])('preserves fresh %s rejection wh
  // records; a read-only marker must never bypass an actual change.
  const next={...current,scope:structuredClone(f.scope)};
  if(changed==='revoked')next.scope.revoked=true;
- if(changed==='spec'){state.task.spec_revision=2;next.scope.bindings.root_task={...next.scope.bindings.root_task,spec_revision:2};}
+ if(changed==='spec'){state.task={...state.task,spec_revision:2};next.scope.bindings.root_task={...next.scope.bindings.root_task,spec_revision:2};}
  if(changed==='unknown'){state.task.state='outcome_unknown';next.scope.bindings.root_task={...next.scope.bindings.root_task,state:'outcome_unknown'};}
  rendered.rerender(<FactoryChildGoals {...next} parentReady={false} parentRefreshOnly parentReadIdentity="same-authority"/>);
  try{await act(async()=>release(structuredClone(f.plan)));await screen.findByRole('alert');expect(factoryChildGoalApi.start).not.toHaveBeenCalled();}
