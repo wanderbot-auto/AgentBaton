@@ -2391,7 +2391,8 @@
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
-        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2567,6 +2568,13 @@
           "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
           "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
           "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
+        },
+        {
+          "slice": "Real deterministic validation failure and same-Graph rework partial; complete rework FAILED",
+          "source_head": "360fc19153958efc5a25826d731cf6bd2ca5c487",
+          "dimension": "Linux actual Core/Actor/generated account-free ACP and fixed Command; first Commandexit1 joined, sameGraphr2 adopted/Work candidate; no Mac/live Provider acceptance",
+          "evidence": "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
+          "limits": "Second Validator blocked by original child cumulative20s budget; no exit0/fresh Owner/parent-resume success. Recorded digest2PASS is separate in-memory reader regression; requirement status unchanged."
         }
       ]
     },
@@ -2918,7 +2926,8 @@
         "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
         "docs/execution/command-core/REVIEW.md",
         "docs/execution/command-integration/EVIDENCE.json",
-        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
+        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -2996,6 +3005,13 @@
           "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
           "exact_new_mac_ci": "not_run_yet",
           "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
+        },
+        {
+          "slice": "Real deterministic validation failure and same-Graph rework partial; complete rework FAILED",
+          "source_head": "360fc19153958efc5a25826d731cf6bd2ca5c487",
+          "dimension": "Linux actual Core/Actor/generated account-free ACP and fixed Command; first Commandexit1 joined, sameGraphr2 adopted/Work candidate; no Mac/live Provider acceptance",
+          "evidence": "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
+          "limits": "Second Validator blocked by original child cumulative20s budget; no exit0/fresh Owner/parent-resume success. Recorded digest2PASS is separate in-memory reader regression; requirement status unchanged."
         }
       ]
     },
@@ -3369,7 +3385,8 @@
         "docs/execution/command-validators/NATIVE_C4F9_REVIEW.md",
         "docs/execution/command-core/REVIEW.md",
         "docs/execution/command-integration/EVIDENCE.json",
-        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md"
+        "docs/execution/command-integration/REAL_BROWSER_REVIEW.md",
+        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3438,6 +3455,13 @@
           "native_linux": "11default+6explicitfeatureunits pass; no actual LinuxGUI",
           "exact_new_mac_ci": "not_run_yet",
           "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
+        },
+        {
+          "slice": "Real deterministic validation failure and same-Graph rework partial; complete rework FAILED",
+          "source_head": "360fc19153958efc5a25826d731cf6bd2ca5c487",
+          "dimension": "Linux actual Core/Actor/generated account-free ACP and fixed Command; first Commandexit1 joined, sameGraphr2 adopted/Work candidate; no Mac/live Provider acceptance",
+          "evidence": "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
+          "limits": "Second Validator blocked by original child cumulative20s budget; no exit0/fresh Owner/parent-resume success. Recorded digest2PASS is separate in-memory reader regression; requirement status unchanged."
         }
       ]
     },
@@ -5846,7 +5870,8 @@
         "docs/execution/factory-child-planning-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
-        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -6033,6 +6058,13 @@
           "dimension": "real Core/generated ACP scoped MCP/UI IPC and both real Mac native; not live Provider or manual packaged install",
           "evidence": "docs/execution/factory-child-goal-integration/EVIDENCE.json",
           "limits": "partial only; child Goal execution, workspace creation and remaining full-product requirements continue"
+        },
+        {
+          "slice": "Real deterministic validation failure and same-Graph rework partial; complete rework FAILED",
+          "source_head": "360fc19153958efc5a25826d731cf6bd2ca5c487",
+          "dimension": "Linux actual Core/Actor/generated account-free ACP and fixed Command; first Commandexit1 joined, sameGraphr2 adopted/Work candidate; no Mac/live Provider acceptance",
+          "evidence": "docs/execution/factory-child-goal-integration/REWORK_DIGEST_AND_MIGRATION_RESULTS.json",
+          "limits": "Second Validator blocked by original child cumulative20s budget; no exit0/fresh Owner/parent-resume success. Recorded digest2PASS is separate in-memory reader regression; requirement status unchanged."
         }
       ]
     },

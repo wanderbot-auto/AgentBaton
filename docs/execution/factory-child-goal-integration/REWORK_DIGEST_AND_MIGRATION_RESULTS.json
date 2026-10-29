@@ -90,7 +90,7 @@
       }
     ],
     "status": "FAILED",
-    "observed": "Same Graph revision2 adopted, revision2 Work candidate; event133 RESOURCE_LIMIT before second Validator. Original receipts retained; complete flow not passed. First Command exit code still being independently diagnosed.",
+    "observed": "Same Graph revision2 adopted, revision2 Work candidate; first real fixed Command exited1 with process_started, joined worker, leader reaped and stdout/stderr EOF. Event133 RESOURCE_LIMIT prevented second Validator. Child runtime18372 + next reservation4000 exceeds original20000; root/project each20021+4000 remain below30000. Complete flow FAILED; second Command exit0/Owner acceptance/parent resume NOT_RUN.",
     "tool_restore": "guard2 original normal Cargo CLI inode, all aliases and metadata restored exactly",
     "private_original_retained": true
   },
