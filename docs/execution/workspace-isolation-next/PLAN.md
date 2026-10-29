@@ -77,3 +77,7 @@ Factory/childGoal是后续独立权限合同：当前 `selection.workspace_ids.l
 独审F1发现同ID/revision的Project.document可单独被替换为另一个真实Directory身份，而projects.root/device/inode仍是旧pin；只检查document与FS会返回错误准备引用。这是只读准备引用一致性缺口，不是已证明的执行授权绕过。修复在同一Deferred snapshot、inspect之前精确交叉检查关系root与document canonical_root、关系device/inode与原u64十进制TEXT。root读取上限262144字节，device/inode各20字节，超限或不一致返回INPUT_CHANGED/not_started及固定code-workspace-project-pin，不修复数据库。
 
 新增1个真实Store测试函数源含4case：document-only转向另一个实际Directory、root列、device列、inode列漂移；各断言该固定guardref、所有表/源/managed内容与foreign目录不变。原9函数字节保留，合计10函数仍NOT_COMPILED/NOT_RUN。无DDL、IPC、Native、Factory权限或默认任务入口改变。独审仅source-ready后由Root受控运行临时Git/SQLite夹具，不需要bins、Native、Provider或真实用户项目。
+
+## WSI-1受控实际测试完成（Root执行）
+
+Root在精确docs/source head `5c70c314d22f55396c6d5905a89742b0f54bec50` 运行原targeted lib命令，10函数PASS/0failed/0ignored，test3.54s，wrapper25.261956s；这包括F1新1fn/4cases。源码时间点NOT_RUN记录保持历史，不回写dedee/e87。只读resolver的该Store/Git/Directory测试分片已实际通过；strict Clippy/完整回归、IPC/Native/TS、WSI-2/3默认Task链与Mac仍待后续独立工作单元。下一只读wire合同先提出给Root确认，不在本leaf写IPC或UI。

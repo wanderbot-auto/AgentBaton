@@ -41,3 +41,9 @@ Root已确认四字段和Rust可见性合同，WSI-1源现供独审；当前Core
 作者实际检查：选择性rustfmt applied/check exit0；git diff --cached --check exit0；有限Python逆改恢复整个旧resolver字节且旧9test为完整前缀，exit0。它们不是编译或产品测试。
 
 GoalLegacy独立定向复审已给SOURCE_READY_FOR_ROOT_CONTROLLED_TESTS，16 standalone SQLite内存精确SELECT/比较控exit0，明确不是Store/Rust。新REVIEW/MANIFEST见EVIDENCE；旧dedee BLOCKED seal不变。当前10个Rust测试函数仍NOT_COMPILED/NOT_RUN，等待Root受控targeted与后续必要Clippy。WSI-2/3/defaultTask UI、真实IPC、Mac均未实现/未验，不将源准备或源审通过计作AB-PRJ需求完成。
+
+## Root实际targeted结果（不覆盖历史NOT_RUN）
+
+Root在 `5c70c314d22f55396c6d5905a89742b0f54bec50` 实际运行 `cargo test --offline --locked -p agentbaton-core --lib workspace_resolution::tests -- --nocapture --test-threads=1`：10PASS/0failed/0ignored/128filtered，test3.54s，wrapper25.261956s，exit0。执行者是Root，作者本轮只读核RESULTS、原log SHA、source before/after和工具hash清单，未另跑Cargo。四个normal-debug/frozen15工具SHA前后相同，证明该次lib测试未替换它们。
+
+当前最新状态为WSI1_TARGETED_STORE_TESTS_PASS；此前NOT_COMPILED/NOT_RUN和dedee源码阻塞保留为各自时点事实。不能扩为完整Core/Clippy/Actor/Native/真实IPC/默认任务UI/Mac通过。下一只读resolve wire建议准备中，尚未实现。

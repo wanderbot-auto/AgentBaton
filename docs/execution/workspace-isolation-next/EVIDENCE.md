@@ -80,3 +80,11 @@ lib SHA仍为上文84d11315，无模块/wire变更。关系pin使用CASE有界�
 实际作者命令：选择性rustfmt两文件applied、同参数--check exit0；git diff --cached --check exit0；Python静态逆改将新import与pin块去除后整个resolver与parent逐字相等，tests旧9fn整文件为新文件前缀，exit0。这些只是有限源检查。未运行Cargo、用户项目Git、Node、Actor、Provider、Native或新工具链安装。
 
 新独审目录 `.onboarding/workspace-isolation-wsi1-independent-review/revision-7a04d67a`：REVIEW SHA `3606846a596cc831c55fe7825b604e8e120caa52a098c21563612af0def7c73d`，MANIFEST SHA `d352bafe651642bdb2d2f7736b3f8328994f9eb3658590f0d1883f2fe03bef46`。独审16个standalone SQLite内存精确SQL/比较有限控exit0，原resolver inverse/旧9test保持均通过，限定SOURCE_READY_FOR_ROOT_CONTROLLED_TESTS。它没有执行真实Store/Rust，不能将16加到10测试或移签产品。后续Root真实targeted结果必须另记录准确源码/命令/计数；当前完整默认Task隔离/WSI-2/3/UI/真实IPC/Mac仍未验。
+
+## Root实际WSI-1 lib测试：10PASS（精确5c70c314）
+
+执行者Root，源码head `5c70c314d22f55396c6d5905a89742b0f54bec50`，源码leaf仍7a04。原件目录 `/workspace/.onboarding/workspace-isolation-wsi1-targeted1`。实际命令：`/workspace/.toolchains/cargo/bin/cargo test --offline --locked -p agentbaton-core --lib workspace_resolution::tests -- --nocapture --test-threads=1`。RESULTS.json记录exit0、wrapper25.261956398986513s、minimum_free_bytes442630144、interruption=null；原Rust结果10passed/0failed/0ignored/0measured/128filtered/test3.54s。不是0selected、不是累计历史计数，F1新test函数也实际ok。编译日志test-profile阶段21.69s，不与wrapper或test时长互相替代。
+
+command-0.log SHA-256 `0bd8fe867596acde75ea463cd772dec8a7288f86aa44534cdca3f6e473e831af`；作者本次Python只读实核该SHA==RESULTS声明、SOURCE_BEFORE.json==SOURCE_AFTER.json、TOOLS_BEFORE_AFTER.json的before==after且equal=true，exit0。工具清单包含normal-debug baton/batond与fresh15frozen baton/batond四路径：各CLI SHA `0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f`，各daemon SHA `5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984` 前后不变。仅lib测试，没有把这些工具当WSI新IPC可执行产物。
+
+该结果验证真实临时Store/Git/Directory测试断言，包括F1四坏row变体及零写快照。它不是Actor/Provider、默认Task准备/分配、IPC/Native/TS、Mac或完整Core验收。原源冻结时NOT_RUN和dedee BLOCKED仍属真实历史；strict Clippy与完整产品需求仍待后续。

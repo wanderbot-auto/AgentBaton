@@ -18,3 +18,9 @@
 - 独审新revision source-ready：`.onboarding/workspace-isolation-wsi1-independent-review/revision-7a04d67a`；REVIEW `3606846a596cc831c55fe7825b604e8e120caa52a098c21563612af0def7c73d`；MANIFEST `d352bafe651642bdb2d2f7736b3f8328994f9eb3658590f0d1883f2fe03bef46`。仅源审与16有限SQLite控，不是Rust测试。
 - NOT_COMPILED/NOT_RUN：10个Rust函数、Clippy、真实IPC/UI/Mac。Root可受控运行workspace_resolution::tests；只用测试TempDir Git/SQLite，无bins/Native/真实用户Git操作，作者不占Cargo/共享target。若Root得到真实结果，另记准确集成SHA/命令，不能回写旧dedee为通过。
 - 恢复实际git status确认clean且已有7a04，不重复实现/重建工作树；本轮仅补四记录。下一依赖仍WSI-2/3默认隔离接线，完整130项范围/27决定与权限限制不变。
+
+## Root实际运行后检查点
+
+- 已验证head：`5c70c314d22f55396c6d5905a89742b0f54bec50`（源仍7a04）；Root targeted lib 10PASS/0skip，exit0，test3.54s，wrapper25.261956s；log SHA `0bd8fe867596acde75ea463cd772dec8a7288f86aa44534cdca3f6e473e831af`。
+- 原件：`/workspace/.onboarding/workspace-isolation-wsi1-targeted1/{RESULTS.json,command-0.log,SOURCE_BEFORE.json,SOURCE_AFTER.json,TOOLS_BEFORE_AFTER.json}`。作者只读复核source清单前后全同与四工具SHA前后全同；没有运行bins/Native/用户Git或产品。
+- 源7a04和四字段内部合同不变；本次仅追加四docs。历史NOT_RUN/旧BLOCKED不抹去。严格Clippy、完整回归、真实IPC/TS/Native与Mac仍未运行；WSI-2/3/default task行为尚未完成。下一步先向Root给出一个固定只读IPC与FS-u64十进制字符串wire建议，待其确认后另leaf实现。
