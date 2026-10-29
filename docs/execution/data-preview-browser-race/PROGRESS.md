@@ -1,0 +1,9 @@
+# Progress
+
+Original PR18 Product40929728669/UIjob123644652347 failed with8checks passed but incomplete_race_coverage/exit2: preview start returned checking/r1; two list pairs (product ACK refresh, then driver manual refresh) still reported checking, but actual cancel returned verified/r2 and was dropped. Its persisted start-to-finish interval was approximately103.13ms. The report contains no dispatch/Actor-arrival monotonic timestamps, so sha2 optimization/CPU causality is not established. Actual copy cancellation and joined-worker evidence passed and are untouched.
+
+Source29a7c98 removes the one redundant preview-cancel refresh, preserving the existing ACK and exact button actionability wait. Accepted HTTP calls record handler entry and synchronous Unix IPC before/after times, including the failure path. Preview click-call before/after boundaries survive actionability exceptions. All times use time.monotonic_ns in the same Python process. Click boundaries include Playwright waiting and are not DOM event timestamps; IPC boundaries are not Actor-arrival/execution timestamps.
+
+Nine pure driver tests execute the extracted actual HTTP handler with in-memory requests and sentinel replies: response identity/timing,32concurrent requests, rejected origins/fields, IPC exception timing, dropped verified response preservation, one failed click without retry, no extra pre-click refresh and unchanged verified→unrun/exit2 semantics. They are transport/control tests, not Core or browser cancellation proof. They passed twice (initial0.018s, retained-log0.019s). Both files compile in memory; diffcheck and exact whole-driver inverse to79PASS.
+
+No actual browser, daemon, Node or Cargo run. Removing the extra roundtrip shrinks the race but cannot guarantee cooperative cancellation. The original8PASS/exit2 remains intact; a new verified terminal must still produce incomplete coverage, not cancellation success.

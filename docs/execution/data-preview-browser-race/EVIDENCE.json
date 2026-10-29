@@ -1,0 +1,66 @@
+{
+  "recorded_at_utc": "2026-10-29T18:47:04.172379+00:00",
+  "source": "29a7c98b43476cb32deb4379fe0ff22577093f4f",
+  "base": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
+  "original_report_sha256": "f51e5e608323ee477495665ff55e3d08717d17cdddda002fa3117b2f9f5330f9",
+  "original_status": "incomplete_race_coverage",
+  "original_checks_passed": 8,
+  "source_audit": {
+    "recorded_at_utc": "2026-10-29T18:46:02.398783+00:00",
+    "base": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
+    "whole_driver_inverse_to_original": true,
+    "bounds_unchanged": {
+      "fixture_bytes": 33554432,
+      "selection_max_file_bytes": 67108864,
+      "selection_max_total_bytes": 67108864,
+      "selection_max_files": 4,
+      "Core_IO_deadline_seconds": 30,
+      "driver_terminal_observation_seconds": 35
+    },
+    "whole_inverse_preserves": [
+      "owner_fixture",
+      "existing_ACK_refresh",
+      "all_normal_copy_cancel_drift_code",
+      "samekey_replay",
+      "drop_remount",
+      "terminal_worker_join",
+      "verified_unrun_exit2",
+      "source_unchanged_assertions",
+      "all_production_components_Core_and_CI"
+    ],
+    "compile": "PASS2 files; in memory, no imports/cache",
+    "private_files_copied": false,
+    "product_execution": "NOT_RUN",
+    "source_map": {
+      "apps/desktop/tests/data-workspace-real-ipc.py": {
+        "sha256": "a62210952ae87e64c8466305391e56d7684a25bdeb933cb42962e67f7558b2f8",
+        "bytes": 57532
+      },
+      "apps/desktop/tests/test_data_preview_browser_timing.py": {
+        "sha256": "0adadde2c7225ececf743e1f33fffcdc56b45f0284775f49757f67a79434ca1b",
+        "bytes": 9306
+      }
+    }
+  },
+  "pure_driver_tests": {
+    "command": [
+      "python3",
+      "-B",
+      "apps/desktop/tests/test_data_preview_browser_timing.py"
+    ],
+    "initial_exit": 0,
+    "initial_count": 9,
+    "initial_seconds": 0.018,
+    "retained_log_exit": 0,
+    "retained_log_count": 9,
+    "retained_log_seconds": 0.019,
+    "retained_log_sha256": "b1e2df9be5b3e954c2d2d25efcf39cb02fe4e10735e67c33a5bb9488485289d7",
+    "dimension": "actual extracted Python handler; in-memory transport sentinels; no business success DTO claim"
+  },
+  "diff_check": "PASS",
+  "browser_Node_Cargo_Core_Actor": "NOT_RUN",
+  "original_verified_not_promoted": true,
+  "cancel_hit_guaranteed": false,
+  "production_hook_added": false,
+  "private_raw_files_copied": false
+}
