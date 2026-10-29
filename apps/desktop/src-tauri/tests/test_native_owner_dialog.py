@@ -840,23 +840,91 @@ class FactoryPlanningControls(unittest.TestCase):
     def test_real_core_factory_preparation_is_schema14_complete_and_never_finalizes_target(self):
         daemon = Path(os.environ['AGENTBATON_OWNER_FIXTURE_DAEMON']).resolve()
         self.assertTrue((daemon.parent / 'baton').is_file(), 'Use matching same-head14 tools, not an old companion')
+
+        def observe_tool(path):
+            before = path.lstat()
+            if not runner.stat.S_ISREG(before.st_mode):
+                raise AssertionError('Fixture tool must be a regular file, not a symlink or special file')
+            digest, size = runner.hashlib.sha256(), 0
+            descriptor = os.open(path, os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0))
+            try:
+                opened = os.fstat(descriptor)
+                fields = ('st_dev', 'st_ino', 'st_nlink', 'st_mode', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+                if any(getattr(before, field) != getattr(opened, field) for field in fields):
+                    raise AssertionError('Fixture tool changed before reading')
+                while chunk := os.read(descriptor, 65536):
+                    digest.update(chunk)
+                    size += len(chunk)
+                after = os.fstat(descriptor)
+                live = path.lstat()
+                if (size != before.st_size or any(getattr(before, field) != getattr(after, field) for field in fields)
+                        or any(getattr(before, field) != getattr(live, field) for field in fields)):
+                    raise AssertionError('Fixture tool changed during reading')
+                return {'path': str(path), 'canonical': str(path.resolve(strict=True)), 'device': before.st_dev,
+                        'inode': before.st_ino, 'nlink': before.st_nlink, 'mode': runner.stat.S_IMODE(before.st_mode),
+                        'bytes': size, 'sha256': digest.hexdigest()}
+            finally:
+                os.close(descriptor)
+
+        def prepare_tools(raw_daemon, directory):
+            # Match run_factory's existing private sibling-tool semantics. Cargo
+            # may hardlink target/debug to deps; the production nlink1 guard stays.
+            sources = {'batond': raw_daemon, 'baton': raw_daemon.parent / 'baton'}
+            before = {name: observe_tool(path) for name, path in sources.items()}
+            directory.mkdir(mode=0o700)
+            directory = directory.resolve(strict=True)
+            for name, path in sources.items():
+                destination = directory / name
+                with path.open('rb') as reader, destination.open('xb') as writer:
+                    for chunk in iter(lambda: reader.read(65536), b''):
+                        writer.write(chunk)
+                destination.chmod(0o500)
+            copied = {name: observe_tool(directory / name) for name in sources}
+            after = {name: observe_tool(path) for name, path in sources.items()}
+            if before != after:
+                raise AssertionError('Original Cargo/frozen tool inode/link/mode/hash changed')
+            if runner.stat.S_IMODE(directory.stat().st_mode) != 0o700:
+                raise AssertionError('Private sibling tool directory must be0700')
+            for name in sources:
+                if (copied[name]['sha256'] != before[name]['sha256'] or copied[name]['bytes'] != before[name]['bytes']
+                        or copied[name]['nlink'] != 1 or copied[name]['mode'] != 0o500
+                        or copied[name]['canonical'] != str(directory / name)):
+                    raise AssertionError('Private tool copy must retain exact bytes,0500,nlink1,canonical path')
+            return directory, {'source_before': before, 'source_after_copy': after, 'copied': copied}
+
         with tempfile.TemporaryDirectory() as temporary:
-            output = Path(temporary)
-            with runner.bootstrap(daemon, output, factory_planning=True) as generated:
-                proposal, invoke = runner.prepare_factory(generated)
-                before = runner.factory_database(generated['runtime'], proposal['id'])
-                fixture, pages, contexts = runner.factory_fixture(proposal, invoke, generated['runtime'], output, before, self.source(), 'cancel')
-                self.assertIsNone(runner.factory_pending_error(before, fixture, before))
-                self.assertEqual(before['grants'][0]['scope']['max_duration_ms'], 300000)
-                self.assertEqual(before['grants'][0]['scope']['max_children'], 0)
-                self.assertEqual(before['counts']['factory_scopes'], 0)
-                self.assertEqual(len(before['counts']), 30)
-                self.assertGreater(len(pages), 2)
-                self.assertEqual(contexts[-1]['outer_final'], True)
-                self.assertEqual(proposal['snapshot']['bindings']['child_planning']['policy'], invoke['selection']['child_planning_policy'])
-                self.assertFalse(any(row['method'] == 'approvals.finalize' and row['params'] == {'proposal_id': proposal['id']} for row in generated['client'].transcript))
-                print('REAL_CORE_FACTORY_NATIVE_FIXTURE=' + runner.json.dumps({'fixture': fixture, 'before': before, 'dimension': 'actual Core preparation only; NO Native OS and NO Factory finalize'}))
-            self.assertTrue(runner.json.loads((output / 'daemon-cleanup.json').read_text())['ok'])
+            output = Path(temporary).resolve(strict=True)
+            installed, tool_record = prepare_tools(daemon, output / 'private-tools')
+            runner.save(output / 'fixture-tools.json', tool_record)
+            bootstrap_output = output / 'bootstrap'
+            bootstrap_output.mkdir(mode=0o700)
+            original_failure = None
+            try:
+                with runner.bootstrap(installed / 'batond', bootstrap_output, factory_planning=True) as generated:
+                    proposal, invoke = runner.prepare_factory(generated)
+                    before = runner.factory_database(generated['runtime'], proposal['id'])
+                    fixture, pages, contexts = runner.factory_fixture(proposal, invoke, generated['runtime'], output, before, self.source(), 'cancel')
+                    self.assertIsNone(runner.factory_pending_error(before, fixture, before))
+                    self.assertEqual(before['grants'][0]['scope']['max_duration_ms'], 300000)
+                    self.assertEqual(before['grants'][0]['scope']['max_children'], 0)
+                    self.assertEqual(before['counts']['factory_scopes'], 0)
+                    self.assertEqual(len(before['counts']), 30)
+                    self.assertGreater(len(pages), 2)
+                    self.assertEqual(contexts[-1]['outer_final'], True)
+                    self.assertEqual(proposal['snapshot']['bindings']['child_planning']['policy'], invoke['selection']['child_planning_policy'])
+                    self.assertFalse(any(row['method'] == 'approvals.finalize' and row['params'] == {'proposal_id': proposal['id']} for row in generated['client'].transcript))
+                    print('REAL_CORE_FACTORY_NATIVE_FIXTURE=' + runner.json.dumps({'fixture': fixture, 'before': before, 'dimension': 'actual Core preparation only; NO Native OS and NO Factory finalize'}))
+                self.assertTrue(runner.json.loads((bootstrap_output / 'daemon-cleanup.json').read_text())['ok'])
+            except BaseException as error:
+                original_failure = {'type': type(error).__name__, 'message': str(error)}
+                raise
+            finally:
+                tool_record['original_failure'] = original_failure
+                tool_record['source_after_test'] = {name: observe_tool(Path(info['path'])) for name, info in tool_record['source_before'].items()}
+                tool_record['copied_after_test'] = {name: observe_tool(installed / name) for name in tool_record['copied']}
+                runner.save(output / 'fixture-tools.json', tool_record)
+                self.assertEqual(tool_record['source_before'], tool_record['source_after_test'])
+                self.assertEqual(tool_record['copied'], tool_record['copied_after_test'])
 
 
 class FactoryEvidenceClosureControls(unittest.TestCase):
