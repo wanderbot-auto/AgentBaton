@@ -1,0 +1,77 @@
+{
+  "archive": "NATIVE_LINUX_LOCAL.tar.gz",
+  "sha256": "bff6cf1563b94bf9bcffe870e62d192e8147b082ddc45d6c51f9356823ada7a5",
+  "bytes": 89080,
+  "members": [
+    {
+      "path": "SUMMARY.json",
+      "bytes": 2003,
+      "sha256": "b4efa2db64405abe967a071ea9df91ea0ac42a30c3904eb68999194735b30cf5"
+    },
+    {
+      "path": "PREPARE_COMMANDS.json",
+      "bytes": 996,
+      "sha256": "990c0f32a461094272db3ed69136f2ac8ae2ccca604f84281cb3ebf25770fcdf"
+    },
+    {
+      "path": "NORMAL_TOOLS_BEFORE.json",
+      "bytes": 1213,
+      "sha256": "3c7006fa59c3bdff09cfafc248e5a9e3b2d57c9764b04364c90435953e8886b5"
+    },
+    {
+      "path": "NORMAL_TOOLS_AFTER.json",
+      "bytes": 531,
+      "sha256": "44b2907ce9cfe5d23a9b40febfec20c8a4e10dae38547746d06cd77fdeb6c710"
+    },
+    {
+      "path": "prepare-0.log",
+      "bytes": 677,
+      "sha256": "b94a59da89de129ae29fbf1923bdd1b330e622793ca7307d16f3a3dde3897ef7"
+    },
+    {
+      "path": "prepare-1.log",
+      "bytes": 1619,
+      "sha256": "cac176008bbc1da9fe18d3c35416a492c6bb77eab0721b351f4fe5d72f61f259"
+    },
+    {
+      "path": "run_native_guarded.py",
+      "bytes": 12750,
+      "sha256": "1de0967affd20c544cd888cefe36c9c9431c623a5355a1b851b748cc1ae2232c"
+    },
+    {
+      "path": "frozen/manifest.json",
+      "bytes": 1809,
+      "sha256": "e7e74de65d4c26aa0ba4e8028107f170d66b1c3ce9595e31cedb4cd12e434af9"
+    },
+    {
+      "path": "actual-run/BEFORE.json",
+      "bytes": 212063,
+      "sha256": "42271997df01e71139c6721d55609e37ce131a2e01278a7519298a0121d5c4f0"
+    },
+    {
+      "path": "actual-run/ENVIRONMENT.json",
+      "bytes": 814,
+      "sha256": "2beb97dbbd3863e0239878b1013b85746b1b5cc9cddd036a1b9ccd24b2e070b3"
+    },
+    {
+      "path": "actual-run/COMMANDS.json",
+      "bytes": 1240,
+      "sha256": "1cf80bd9f48e59b5f6d6bf1e76b2ed44f517f64958b4b34e7b714d525f2f7a87"
+    },
+    {
+      "path": "actual-run/RESULT.json",
+      "bytes": 1603,
+      "sha256": "95dacc081abc76b85a83ddaf2ee82d1f9c74ff612dddfe87ea8248d45e4f0855"
+    },
+    {
+      "path": "actual-run/native-0.log",
+      "bytes": 26990,
+      "sha256": "5eafd77d09f00243f8f553ff5c3854b333e63b4307673ebf8d2d4476b0ff5a1b"
+    },
+    {
+      "path": "actual-run/native-1.log",
+      "bytes": 3820,
+      "sha256": "d78b2f68d7cc5c6b6fd2a2c4954029aff45d10b26d3e9e0db4942b8d68df95a8"
+    }
+  ]
+}

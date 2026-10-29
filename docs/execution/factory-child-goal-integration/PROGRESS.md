@@ -11,3 +11,9 @@ UI efc9ecc and Core6ff merged with exact file equality. Native121b657 merged wit
 Real migration run1 on Core5491: 4 PASS, 2 FAIL, 0 ignored. One failure reveals a real Native Graph capability relational-column/document mismatch accepted by migration; Core160761fc is the untested narrow correction. The other is a backup-file helper that counted WAL/SHM as backups; source-only test correction c3e8334 retains all real rejection assertions. The six tests were actually run, not skipped; both failure copies and exact ELF/logs remain private and retained.
 
 Core6ff check and three SQLite phase tests passed, but independent source review confirmed the later duration call still needs a separate, tightly bound committed-read phase. Do not rerun the full normal chain until that fix is reviewed.
+
+## Actual integrated Native Rust boundary
+
+At Root a07a7f9, same-head workspace tools were built (23.53s, exit0) and privately frozen/probed as exact15/twelve zero tables (1.50s, exit0). Guarded Linux Native Rust actually passed101 library +30 smoke +16 Owner controller =147 unique,0 ignored, exit0. This includes18 new policy/bridge cases. Source and normal debug tool inode/mode/nlink/SHA/aliases were restored after tests; temporary sidecar links removed.
+
+The normal tools were deliberately rebuilt from prior2a15 to a07a15 before the Native test, with old bytes retained separately. The frozen14 and private2a inputs remain separate. No claim of new real macOS/OS dialog, live Provider, browser execution15 or successful child Goal runtime is made. Portable raw logs, tool/source records and runner are in NATIVE_LINUX_LOCAL.tar.gz; independent evidence review is pending.
