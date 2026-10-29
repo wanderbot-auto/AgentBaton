@@ -1,0 +1,16 @@
+{
+  "archive": "BROWSER_CAS_NORMAL_ASYNC_FAILURE.tar.gz",
+  "sha256": "bc4e1a4ce754fb505eaa751b19de564636d7a2af1c46df78b3d422a1e5183f9b",
+  "members": 11,
+  "case": "reviewed-db949-744-normal",
+  "source": "38f8cd60d91d9cd1c7a5215ab720b60400ca81c8",
+  "core": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+  "driver": "744bf29d255b618c54a905dff72a784942903f83",
+  "exit": 1,
+  "checks": 2,
+  "pngs": 2,
+  "cleanup_complete": false,
+  "source_and_inputs_unchanged": true,
+  "actual_wrong_start_CAS": "STALE_REVISION/not_started/revision13",
+  "failure": "Immediate terminal query received NOT_FOUND/revision13 before actual UI start HTTP reply; later separately captured running/starting revision19. Pre-failure diagnostics at sequence13 is not later state. No whole lifecycle success/cleanup inferred."
+}

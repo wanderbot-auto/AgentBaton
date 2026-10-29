@@ -1,3 +1,13 @@
+## 当前检查点 — 2026-10-29T00:06:47.690858+00:00
+
+Factory本地codex/factory-runtime-integration：当前执行源38f8cd60d91d9cd1c7a5215ab720b60400ca81c8，包含Core db949cb（历史265036c记录）、UI40b、Native13与driver744。新CAS修复13unit+1真实IPC、build/Clippy/fmt和独立有限review已封存；Root逐一核46生产源/1测试/2工具。原6cdf候选保留，normalized6347保留真实WIPbuild身份，不冒称cleanCIbuild。Root新实际normal于00:02:51UTC exit1，2checks/2PNG、源/输入哈希不变、cleanupfalse。正确保存STALE_REVISION/not_started/rev13；随后terminalget早于UIstartHTTPack而NOT_FOUND，later单独快照runstarting/rev19。两个时刻不混同，无重试求绿。作者正修严格唯一request/ack顺序，并共享原15s阶段截止时间；新组合cancel/unknown未运行。完整原日志/实际报告/截图、CAS源码和独审均在factory-runtime-integration/OWNER_CAS_REVIEW_*与BROWSER_CAS_NORMAL_ASYNC_FAILURE*。
+
+历史0ef/851 normal和unknown各4checks/2PNG通过、原identitygone；cancel2checks/2PNG失败且原companionZombie，未借后续修复改写。四历史执行已无损归档BROWSER_PRE_CAS_RUNTIME_EVIDENCE，41成员逐字roundtrip。Core既有Owner读取和共享ledger有限修复/27affected以及独立review记录保留，不借历史053Native106或UI643/41证明当前Mac。Core独占现有Cargo/CPU窗口，正续既有tests-only受控blocked-read工作；这是Linux合成I/Ostall验证，尚无运行结论。Factory schema13CI source98bc23e/records1f6c69已冻结，81finite检查通过，独审正在封存，不等真实三flow通过。尚无FactoryPR/推送/安装包。
+
+独立PR16已正常推送headc6f6b3c2be18ecc339f1cba6a9603657739e4cd4，Product40790894775/Environment40790894815。三个Environment成功，Product仍运行；API mergecandidate e963523c04b27d99d44a7893b161b5180b9818e3/tree32b2747d4541b7f09d05cf21332f6232b081d8a5，实际检出待job原log，不借API候选冒称实际。旧fb7五成功/双Mac测试关联断言失败保留；没有本轮新安装包/合入，PR16仍draft。main最近安全fetch a1be94d2，OWNER001/002ACK无003。
+
+需求表保持130ID/原status/WP不变，只增加明确partial/历史/失败证据维度。完整v0.2、27决定、WP01–14未完成，继续可执行范围。实际产品Provider账号/模型调用、私人凭据、额外费用/资源/主机、生产发布、正式签名/公证及最终许可证仍关闭；无formalApprove。以下均为历史检查点，不能覆盖本段。
+
 ## 当前 Factory 本地集成检查点 — 2026-10-28 22:49 UTC
 
 本地分支 codex/factory-runtime-integration，最新实际测试源 fc5b08340ec8f5137d240e9b18c8d2602c1a8de1；尚未创建 Factory PR 或推送。Core0ef、UI40b（643/41/type/build）及 Native13 叶子已组合。早期 Core053 的 Linux Native106项通过记录保留，不借成当前 Core或macOS通过。

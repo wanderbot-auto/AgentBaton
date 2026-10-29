@@ -1151,6 +1151,19 @@
           "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
           "status": "partial",
           "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Historical Factory generated parent-child-new-parent and malformed-ACP outcome observations",
+          "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+          "integration": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+          "driver": "851698b899bae10968a0862013693f8dfd723648",
+          "dimension": "actual Linux built UI/Unix IPC/generated ACP/private fixed MCP, not Mac/live model/human Owner",
+          "normal": "4checks2PNG passed,3attempts/6originalidentities gone/active0/noTaskAccepted/no newGrant",
+          "unknown": "4checks2PNG passed,outcome_unknown/noautoReplay/confirmedownedstop/2identitiesgone",
+          "cancellation": "failed2checks2PNG, companion stillZombie, cleanupfalse; later controller-reaper correction separately source-reviewed but current combinedruntime not yet accepted",
+          "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
+          "status": "partial historical dimension, no current combined acceptance",
+          "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
         }
       ],
       "coverage": "partial"
@@ -1336,6 +1349,19 @@
           "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
           "status": "partial",
           "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Historical Factory generated parent-child-new-parent and malformed-ACP outcome observations",
+          "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+          "integration": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+          "driver": "851698b899bae10968a0862013693f8dfd723648",
+          "dimension": "actual Linux built UI/Unix IPC/generated ACP/private fixed MCP, not Mac/live model/human Owner",
+          "normal": "4checks2PNG passed,3attempts/6originalidentities gone/active0/noTaskAccepted/no newGrant",
+          "unknown": "4checks2PNG passed,outcome_unknown/noautoReplay/confirmedownedstop/2identitiesgone",
+          "cancellation": "failed2checks2PNG, companion stillZombie, cleanupfalse; later controller-reaper correction separately source-reviewed but current combinedruntime not yet accepted",
+          "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
+          "status": "partial historical dimension, no current combined acceptance",
+          "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
         }
       ]
     },
@@ -1526,6 +1552,18 @@
           "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
           "status": "partial",
           "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Factory new start rejects stale CAS before owner-read worker; exact historical replay stays read-only",
+          "source": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "integration": "38f8cd60d91d9cd1c7a5215ab720b60400ca81c8",
+          "author_dimension": "13 owner-read units and1actual generated ACP/MCP Data OwnerIPC; build/Clippy/fmt",
+          "independent_dimension": "limited source/hash review47sources15evidence2tools, not independently rerun Rust",
+          "root_actual_dimension": "new source/raw2f5/577+744 driver observed STALE_REVISION/not_started/rev13; normal later failed asynchronous UI ack order,2checks2PNG/cleanupfalse",
+          "evidence": "docs/execution/factory-runtime-integration/OWNER_CAS_REVIEW_IMPORT.json",
+          "actual_failure": "docs/execution/factory-runtime-integration/BROWSER_CAS_NORMAL_ASYNC_FAILURE.json",
+          "status": "partial; whole requirement remains open",
+          "limits": "No full Factory/recovery/fault/largeI/O/Mac/liveProvider acceptance."
         }
       ]
     },
@@ -1822,6 +1860,19 @@
           "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
           "status": "partial",
           "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Historical Factory generated parent-child-new-parent and malformed-ACP outcome observations",
+          "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+          "integration": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+          "driver": "851698b899bae10968a0862013693f8dfd723648",
+          "dimension": "actual Linux built UI/Unix IPC/generated ACP/private fixed MCP, not Mac/live model/human Owner",
+          "normal": "4checks2PNG passed,3attempts/6originalidentities gone/active0/noTaskAccepted/no newGrant",
+          "unknown": "4checks2PNG passed,outcome_unknown/noautoReplay/confirmedownedstop/2identitiesgone",
+          "cancellation": "failed2checks2PNG, companion stillZombie, cleanupfalse; later controller-reaper correction separately source-reviewed but current combinedruntime not yet accepted",
+          "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
+          "status": "partial historical dimension, no current combined acceptance",
+          "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
         }
       ]
     },
@@ -2021,6 +2072,19 @@
           "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
           "status": "partial",
           "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Historical Factory generated parent-child-new-parent and malformed-ACP outcome observations",
+          "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+          "integration": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+          "driver": "851698b899bae10968a0862013693f8dfd723648",
+          "dimension": "actual Linux built UI/Unix IPC/generated ACP/private fixed MCP, not Mac/live model/human Owner",
+          "normal": "4checks2PNG passed,3attempts/6originalidentities gone/active0/noTaskAccepted/no newGrant",
+          "unknown": "4checks2PNG passed,outcome_unknown/noautoReplay/confirmedownedstop/2identitiesgone",
+          "cancellation": "failed2checks2PNG, companion stillZombie, cleanupfalse; later controller-reaper correction separately source-reviewed but current combinedruntime not yet accepted",
+          "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
+          "status": "partial historical dimension, no current combined acceptance",
+          "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
         }
       ]
     },
@@ -5547,6 +5611,19 @@
           "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
           "status": "partial",
           "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Historical Factory generated parent-child-new-parent and malformed-ACP outcome observations",
+          "source": "0efda24e092e630d84e227d06d43b38442672ffe",
+          "integration": "8c6ea33c493d1936dfe7521d1bb96f0e410319ad",
+          "driver": "851698b899bae10968a0862013693f8dfd723648",
+          "dimension": "actual Linux built UI/Unix IPC/generated ACP/private fixed MCP, not Mac/live model/human Owner",
+          "normal": "4checks2PNG passed,3attempts/6originalidentities gone/active0/noTaskAccepted/no newGrant",
+          "unknown": "4checks2PNG passed,outcome_unknown/noautoReplay/confirmedownedstop/2identitiesgone",
+          "cancellation": "failed2checks2PNG, companion stillZombie, cleanupfalse; later controller-reaper correction separately source-reviewed but current combinedruntime not yet accepted",
+          "evidence": "docs/execution/factory-runtime-integration/BROWSER_PRE_CAS_RUNTIME_IMPORT.json",
+          "status": "partial historical dimension, no current combined acceptance",
+          "limits": "Root newdb949/744 normal2/2failed on asyncUIack; cancel/unknown newcombination not_run; fullbudget/recovery/largeIOMac/liveProvider open."
         }
       ]
     },
@@ -6010,6 +6087,18 @@
           "evidence": "docs/execution/factory-runtime-integration/EVIDENCE.json",
           "status": "partial",
           "remaining": "Core053 findings/next fixes independent review, actual composed UI/IPC, mixed ledgers/unknown/recovery/full regression, both macOS/live Provider dimensions remain"
+        },
+        {
+          "slice": "Factory new start rejects stale CAS before owner-read worker; exact historical replay stays read-only",
+          "source": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+          "integration": "38f8cd60d91d9cd1c7a5215ab720b60400ca81c8",
+          "author_dimension": "13 owner-read units and1actual generated ACP/MCP Data OwnerIPC; build/Clippy/fmt",
+          "independent_dimension": "limited source/hash review47sources15evidence2tools, not independently rerun Rust",
+          "root_actual_dimension": "new source/raw2f5/577+744 driver observed STALE_REVISION/not_started/rev13; normal later failed asynchronous UI ack order,2checks2PNG/cleanupfalse",
+          "evidence": "docs/execution/factory-runtime-integration/OWNER_CAS_REVIEW_IMPORT.json",
+          "actual_failure": "docs/execution/factory-runtime-integration/BROWSER_CAS_NORMAL_ASYNC_FAILURE.json",
+          "status": "partial; whole requirement remains open",
+          "limits": "No full Factory/recovery/fault/largeI/O/Mac/liveProvider acceptance."
         }
       ]
     },

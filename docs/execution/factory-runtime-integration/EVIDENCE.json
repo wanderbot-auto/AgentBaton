@@ -65,7 +65,7 @@
     "test_only_bounds": "c3e547308e549afc5bede12513686c9b2635998f",
     "driver": "744bf29d255b618c54a905dff72a784942903f83",
     "integration": "c23ee5be2519ca9141d4f2961022e790654425b7",
-    "CAS_fix": "existing WIP author13units+1actualIPC pass; frozen commit and independent review pending; not integrated"
+    "CAS_fix": "db949cb+docs265036c merged38f8, independently source-reviewed and Root46source/1test/2tool hashes bound"
   },
   "first_actual_browser": {
     "evidence": "BROWSER_NORMAL_FIRST_FAILURE.json",
@@ -84,7 +84,7 @@
     "source": "fc5b08340ec8f5137d240e9b18c8d2602c1a8de1",
     "remaining": "new observer failure; normal/cancel/unknown acceptance remains open"
   },
-  "current_checkpoint_at": "2026-10-29T00:00:54.899040+00:00",
+  "current_checkpoint_at": "2026-10-29T00:05:21.040066+00:00",
   "current_core_followup_historical": {
     "source": "0efda24e092e630d84e227d06d43b38442672ffe",
     "integration": "8cbe754a89c52cd828cff59930c8a7f98a96e44e",
@@ -161,5 +161,72 @@
     "Product": 40790894775,
     "Environment": 40790894815,
     "state": "in_progress; not Factory13 CI"
+  },
+  "CAS_review_import": {
+    "archive": "OWNER_CAS_REVIEW_EVIDENCE.tar.gz",
+    "sha256": "d715fafc332e2bf6455abe72025ca9f5c1759aa3a830614572a9a2e29b5ca6cb",
+    "members": 70,
+    "uncompressed_bytes": 2052958,
+    "review_sha256": "d40fcf1edbbc1ed8ec1835879dc880e10e8c137c4162c32a5195994542000fcd",
+    "review_manifest_sha256": "e51204efb638b9640e207a5d2a95d796afb9788d2b09c218b540a9cc1d89aba5",
+    "normalized_candidate_sha256": "6347f559145a0a21f39b3ca585825da6625e4591dd60a9f9e76fdb06c77f0be0",
+    "source_equivalent_commit": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+    "limitations": "Independent source/hash review, not independently executed runtime. Historical old-test ELF is retained locally and hash-bound in original manifest, deliberately omitted from this text/source evidence archive; raw tools also separate."
+  },
+  "latest_actual_normal": {
+    "archive": "BROWSER_CAS_NORMAL_ASYNC_FAILURE.tar.gz",
+    "sha256": "bc4e1a4ce754fb505eaa751b19de564636d7a2af1c46df78b3d422a1e5183f9b",
+    "members": 11,
+    "case": "reviewed-db949-744-normal",
+    "source": "38f8cd60d91d9cd1c7a5215ab720b60400ca81c8",
+    "core": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+    "driver": "744bf29d255b618c54a905dff72a784942903f83",
+    "exit": 1,
+    "checks": 2,
+    "pngs": 2,
+    "cleanup_complete": false,
+    "source_and_inputs_unchanged": true,
+    "actual_wrong_start_CAS": "STALE_REVISION/not_started/revision13",
+    "failure": "Immediate terminal query received NOT_FOUND/revision13 before actual UI start HTTP reply; later separately captured running/starting revision19. Pre-failure diagnostics at sequence13 is not later state. No whole lifecycle success/cleanup inferred."
+  },
+  "current_action": "driver ack strict single original first-phase15s deadline fix/review; Core exclusive synthetic blocked-read tests",
+  "CAS_metadata_checks": {
+    "commands": [
+      {
+        "command": [
+          "python",
+          "scripts/verify_bootstrap_manifest.py"
+        ],
+        "exit": 0,
+        "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+      },
+      {
+        "command": [
+          "python",
+          "scripts/validate_design.py"
+        ],
+        "exit": 0,
+        "log_sha256": "82ef4af5ab07a662eec3889a65dbdfe8992014b11f0494af978f186683c0c24c"
+      },
+      {
+        "command": [
+          "python",
+          "scripts/validate_infrastructure.py"
+        ],
+        "exit": 0,
+        "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "directory": "CAS_STATIC_CHECKS",
+    "scope": "current STATUS/bootstrap93/requirements130 metadata and infrastructure; not product reexecution"
   }
 }

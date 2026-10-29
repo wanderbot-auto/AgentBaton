@@ -1,0 +1,11 @@
+{
+  "archive": "OWNER_CAS_REVIEW_EVIDENCE.tar.gz",
+  "sha256": "d715fafc332e2bf6455abe72025ca9f5c1759aa3a830614572a9a2e29b5ca6cb",
+  "members": 70,
+  "uncompressed_bytes": 2052958,
+  "review_sha256": "d40fcf1edbbc1ed8ec1835879dc880e10e8c137c4162c32a5195994542000fcd",
+  "review_manifest_sha256": "e51204efb638b9640e207a5d2a95d796afb9788d2b09c218b540a9cc1d89aba5",
+  "normalized_candidate_sha256": "6347f559145a0a21f39b3ca585825da6625e4591dd60a9f9e76fdb06c77f0be0",
+  "source_equivalent_commit": "db949cb57d6fbcec5a47f1b2da8c271d29b1732e",
+  "limitations": "Independent source/hash review, not independently executed runtime. Historical old-test ELF is retained locally and hash-bound in original manifest, deliberately omitted from this text/source evidence archive; raw tools also separate."
+}
