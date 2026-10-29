@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "F1_corrected_SourceReady_for_controlled_Rust_NOT_RUN",
+  "status": "6b01173 exact modern SQLite collision test correction; Root prior target 5pass1fail; new Rust NOT_RUN",
   "base": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
   "source": "a3e831ca01c88c05c59b9de090dcf174f355436b",
   "branch": "codex/factory-schema15-admission-regression",
@@ -258,5 +258,20 @@
       "not_Rust_runtime": true
     },
     "actual_Rust_Store_CI": "NOT_RUN"
+  },
+  "caller_error_variant_followup": {
+    "source": "6b01173",
+    "prior_actual_source": "0b5a88a",
+    "prior_actual_target": "command_validation_migration",
+    "prior_actual_result": {
+      "passed": 5,
+      "failed": 1
+    },
+    "prior_log": "/workspace/.onboarding/schema15-selected-real-regression1/command_validation_migration/command.log",
+    "prior_log_sha256": "90597e6aaf3f3c9c82d955d58882619b5c1915399fc3df7818917d7b014bb67e",
+    "exact_match": "SQLITE_ERROR1 + fixed collision message; SqlInputError additionally exact remaining CREATE statement and offset13",
+    "unchanged": "inner14/reached + full logical/mainfile/FK/autocommit assertions; inverse helper/production/genuine14",
+    "system_sqlite_C_API": "owned inert :memory: CREATE collision code1/message/offset13; not Rust",
+    "new_rust": "NOT_RUN"
   }
 }
