@@ -114,5 +114,18 @@
   "evidence_directory": "/workspace/.onboarding/factory-cancelled-history-ui",
   "raw_DB_RPC_Grant_copied": false,
   "Native_macOS_real_Provider": "NOT_RUN",
-  "screenshots": "not visually re-reviewed; original hashes retained"
+  "screenshots": "not visually re-reviewed; original hashes retained",
+  "follow_up_supported_continuation": {
+    "recorded_at_utc": "2026-10-29T18:12:03.606088+00:00",
+    "source_commit": "6b8c6dbfd43dec16ae9a3119280f7eb7f98cdfb7",
+    "previous_tests_byte_preserved": 28,
+    "new_independent_negative_cases": 1,
+    "total_source_cases": 29,
+    "runtime_delta": "factoryRunSupported(v.run) additionally required for derivedCancelled",
+    "python_inverse": "PASS",
+    "diff_check": "PASS",
+    "Node_types_build_browser_Core_Native": "NOT_RUN",
+    "previous_seal_immutable": true,
+    "evidence_directory": "/workspace/.onboarding/factory-cancelled-history-ui/revision-6b8c6db"
+  }
 }

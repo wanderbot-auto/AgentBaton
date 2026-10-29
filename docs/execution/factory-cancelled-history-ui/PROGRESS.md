@@ -7,3 +7,7 @@ Wires197/204/255 show Factory cancelled/r7 with no active task/session, a joined
 Source ac03b997623036a1313dd64f810a03a6e9b8cc0d adds a separate scope-aware terminal cancellation read branch. It requires the complete validated execution Scope, exact cancelled/requested run, null active references, all stopped handles and waiting parents, plus all original complete-root/lineage/duplicate/foreign/terminal checks. Only a non-root cancelled/no-result/requested derived child can use the null-attempt exception. An unconfirmed null-attempt child in a cancelled execution read is rejected. Original three-argument behavior and accepted-result behavior remain intact. No permission to launch or retry is introduced.
 
 Added 28 synthetic guard/component cases, including deferred parent refresh, live/expired/revoked readonly display and contradictory/foreign/unknown/unjoined negative controls. These new tests have not been executed.
+
+## Supported continuation follow-up — 2026-10-29T18:12:03.606088+00:00
+
+Review found a P2 in ac03: factoryRunShape accepts a nonempty future context_continuation, while derivedCancelled did not require factoryRunSupported. Fixed by adding that predicate. Added an independent negative whose scalar shape is valid but continuation is unsupported. All original28 tests are byte-preserved; new total29 source cases. No actual Node result is claimed.
