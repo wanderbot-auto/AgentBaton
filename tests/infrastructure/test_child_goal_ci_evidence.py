@@ -130,20 +130,27 @@ class ChildGoalProjectionTests(unittest.TestCase):
                 with mock.patch.object(P.os,operation,side_effect=OSError(SECRET)),self.assertRaises(OSError):P.publish(path,{'status':'passed'})
                 self.assertFalse(path.exists());self.assertTrue(path.with_name('summary.json.pending').exists())
 
-    def test_private_ci_driver_and_projection_failures_still_attempt_all_cases(self):
-        import subprocess
-        import sys
+    def _private_ci_program(self,canonical=True):
         source=(ROOT/'.github/workflows/product.yml').read_text().split('          import os\n',1)[1].split('\n          PY',1)[0]
-        program=compile(ast.parse('import os\n'+textwrap.dedent(source)),'<pure CGCI private orchestration>','exec')
+        if not canonical:
+            # Negative control: removing production canonicalization must fail
+            # the same exact private-root assertion, rather than widening it.
+            pin="pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True)"
+            self.assertEqual(source.count(pin),1)
+            source=source.replace(pin,"pathlib.Path(os.environ['RUNNER_TEMP'])")
+        return compile(ast.parse('import os\n'+textwrap.dedent(source)),'<pure CGCI private orchestration>','exec')
+
+    def _assert_private_ci_cases(self,program,alias=False):
         class Calls:
             CalledProcessError=subprocess.CalledProcessError;SubprocessError=subprocess.SubprocessError;STDOUT=subprocess.STDOUT
-            def __init__(self,root,fail):self.root=root;self.fail=fail;self.seen=[]
+            def __init__(self,root,fail):self.root=root.resolve(strict=True);self.fail=fail;self.seen=[]
             def run(self,argv,**kwargs):
                 self_outer.assertTrue(kwargs['check']);self_outer.assertEqual(kwargs['stderr'],self.STDOUT)
                 kwargs['stdout'].write(SECRET.encode())
                 case=argv[argv.index('--case')+1];driver='factory-child-goal-real-ipc.py'in argv[1];self.seen.append((driver,case))
                 output=Path(argv[argv.index('--output')+1])
                 if driver:
+                    self_outer.assertEqual(output,self.root/'agentbaton-child-goal-ci'/case,'canonical private case root')
                     self_outer.assertTrue(output.is_relative_to(self.root/'agentbaton-child-goal-ci'))
                     output.mkdir(mode=0o700);(output/'runtime.raw.sqlite3').write_text(SECRET)
                 else:
@@ -152,12 +159,17 @@ class ChildGoalProjectionTests(unittest.TestCase):
                 if self.fail and (not driver or case!='lost-start'):raise self.CalledProcessError(7,argv)
         self_outer=self
         for fail in [False,True]:
-            with self.subTest(fail=fail),tempfile.TemporaryDirectory()as tmp:
-                previous=Path.cwd();root=Path(tmp);calls=Calls(root,fail)
+            with self.subTest(fail=fail,alias=alias),tempfile.TemporaryDirectory()as tmp:
+                previous=Path.cwd();root=Path(tmp)/'real';root.mkdir(mode=0o700)
+                runner_temp=root
+                if alias:
+                    runner_temp=Path(tmp)/'runner-temp-alias';runner_temp.symlink_to(root,target_is_directory=True)
+                    self.assertNotEqual(runner_temp,runner_temp.resolve(strict=True))
+                calls=Calls(root,fail)
                 try:
                     os.chdir(root)
                     scope={'pathlib':__import__('pathlib'),'subprocess':calls,'sys':sys,'json':json,'frontend':Path('frontend'),'planning_manifest':Path('manifest'),'chromium':'same-reviewed-chromium'}
-                    with mock.patch.dict(os.environ,{'RUNNER_TEMP':str(root)}):
+                    with mock.patch.dict(os.environ,{'RUNNER_TEMP':str(runner_temp)}):
                         if fail:
                             with self.assertRaises(SystemExit)as error:exec(program,scope)
                             self.assertNotIn(SECRET,str(error.exception));self.assertTrue(all(c in str(error.exception)for c in P.CASES))
@@ -167,6 +179,28 @@ class ChildGoalProjectionTests(unittest.TestCase):
                     self.assertTrue(all(p.is_dir()or p.name=='summary.json'for p in public))
                     self.assertTrue(all(SECRET not in p.read_text()for p in public if p.is_file()))
                     self.assertEqual((root/'agentbaton-child-goal-ci').stat().st_mode&0o777,0o700)
+                    for case in P.CASES:
+                        for phase in ['driver','projection']:
+                            self.assertEqual((root/'agentbaton-child-goal-ci'/(case+'.'+phase+'.log')).stat().st_mode&0o777,0o600)
                 finally:os.chdir(previous)
+
+    def test_private_ci_driver_and_projection_failures_still_attempt_all_cases(self):
+        self._assert_private_ci_cases(self._private_ci_program())
+
+    def test_runner_temp_symlink_alias_keeps_all_cases_under_canonical_private_root(self):
+        self._assert_private_ci_cases(self._private_ci_program(),alias=True)
+
+    def test_unresolved_runner_temp_alias_is_rejected_by_private_root_assertion(self):
+        # subTest normally records assertions instead of propagating them;
+        # replay with an independent result so both fail modes are observable.
+        outer=self
+        class UnresolvedAlias(unittest.TestCase):
+            _private_ci_program=ChildGoalProjectionTests._private_ci_program
+            _assert_private_ci_cases=ChildGoalProjectionTests._assert_private_ci_cases
+            def runTest(self):self._assert_private_ci_cases(self._private_ci_program(canonical=False),alias=True)
+        result=unittest.TestResult();UnresolvedAlias().run(result)
+        outer.assertEqual(result.testsRun,1);outer.assertEqual(len(result.errors),0)
+        outer.assertEqual(len(result.failures),2)
+        outer.assertTrue(all('canonical private case root'in message for _,message in result.failures))
 
 if __name__=='__main__':unittest.main()
