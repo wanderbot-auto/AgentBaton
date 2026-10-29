@@ -484,12 +484,21 @@ def fixed_form_control(container, caption, tag):
 
 def capture_browser_failure(browser, output, report, clean=str):
     if browser is None:return
+    try:page=browser.contexts[0].pages[0]
+    except BaseException as error:
+        report['failure_capture_error']=clean(error);return
     try:
-        pages=browser.contexts[0].pages
-        if pages:
-            path=output/'failure-current-ui.png';pages[0].screenshot(path=str(path))
-            report['screenshots'].append({'path':str(path),'sha256':sha(path.read_bytes())})
+        path=output/'failure-current-ui.png';page.screenshot(path=str(path))
+        report['screenshots'].append({'path':str(path),'sha256':sha(path.read_bytes())})
     except BaseException as error:report['failure_capture_error']=clean(error)
+    try:
+        raw=clean(page.content()).encode('utf-8')
+        assert len(raw)<=4*MAX_WIRE,'Controlled failure DOM exceeds4MiB capture cap'
+        path=output/'failure-current-ui.html'
+        with path.open('xb')as writer:writer.write(raw)
+        report['failure_dom']={'path':str(path),'sha256':sha(raw),'bytes':len(raw),
+            'dimension':'controlled generated-fixture UI DOM; not Native OS evidence','redaction':'generated Owner token replaced if present'}
+    except BaseException as error:report['failure_dom_capture_error']=clean(error)
 
 
 def close_browser_engine(browser, playwright, report, clean=str):
@@ -551,6 +560,9 @@ def locator_self_check(previous_report, output):
         def screenshot(self,path):
             if not state['active']:raise RuntimeError('Event loop is closed! synthetic old ordering')
             state['events'].append('capture');Path(path).write_bytes(b'synthetic unit bytes, NOT an actual browser PNG')
+        def content(self):
+            if not state['active']:raise RuntimeError('Event loop is closed! synthetic old ordering')
+            state['events'].append('capture_dom');return '<p>synthetic unit DOM, NOT a browser capture</p>'
     class Browser:
         contexts=[SimpleNamespace(pages=[Page()])]
         def close(self):assert state['active'];state['events'].append('close')
@@ -563,7 +575,7 @@ def locator_self_check(previous_report, output):
     state.update(active=True,events=[]);current={'screenshots':[],'status':'failed_or_interrupted'}
     capture_browser_failure(Browser(),output,current)
     close_browser_engine(Browser(),Engine(),current)
-    assert state['events']==['capture','close','stop'] and len(current['screenshots'])==1
+    assert state['events']==['capture','capture_dom','close','stop'] and len(current['screenshots'])==1
     assert 'failure_capture_error' not in current and 'failure' not in current
     checks.append('capture-and-close-before-engine-stop')
     state.update(active=True,events=[])
@@ -624,12 +636,97 @@ def summary_self_check(previous_report):
     assert len([e for e in pending.findall('./p[@role="alert"]')if e.text.startswith('Submission outcome unknown.')])==1
     checks.append('pending-text-two-render-sites-one-alert-model')
     source=ast.unparse(fn)
-    assert "expect(root_region.get_by_role('alert').filter(has_text='Submission outcome unknown.')).to_contain_text('Submission outcome unknown.')" in source
+    pending_calls=[n for n in ast.walk(fn)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='to_contain_text'and n.args and isinstance(n.args[0],ast.Constant)and n.args[0].value=='Submission outcome unknown.']
+    assert len(pending_calls)==1 and ':scope > p[role="alert"]' in ast.unparse(pending_calls[0])
     checks.append('actual-runtime-pending-assertion-is-unique-alert')
     assert "fixed_form_control(root_region, 'Complete GoalPlan JSON draft', 'textarea')" in source
     checks.append('actual-runtime-draft-uses-exact-static-field-check')
     return {'status':'passed','count':len(checks),'checks':checks,'previous_actual_report_pin':pin,
         'dimension':'actual prior browser failure plus finite XML descendant/direct-child model and source AST; NO new browser/Core/IPC execution'}
+
+
+def alert_self_check(previous_report, output):
+    """Observed parent-error versus nested-editor warning, no browser retry."""
+    import ast
+    import xml.etree.ElementTree as ET
+    raw,pin=base.bounded_file(previous_report,4*MAX_WIRE,previous_report.parent)
+    previous=json.loads(raw,object_pairs_hook=unique_object)
+    assert previous['harness_sha256']=='94a72464698468d1196a786df9650a72c11f991f441aa9e9206de7a48a75bae5'
+    assert [c['id']for c in previous['checks']]==['CP01','CP02','CP03','CP04','CP05']
+    assert 'strict mode violation' in previous['failure']['message'] and 'resolved to 2 elements' in previous['failure']['message']
+    assert 'Plan submission refused: limit' in previous['failure']['message']
+    assert 'The JSON draft or latest stored version changed.' in previous['failure']['message']
+    assert len(previous['screenshots'])==4 and previous['cleanup_complete'] is False
+    checks=['actual-run3-refusal-plus-editor-warning-failure-preserved']
+    tree=ET.fromstring('<section><p role="alert">Plan submission refused: limit</p><details><summary>editor</summary><p role="alert">The JSON draft or latest stored version changed.</p></details><p role="alert">History changed while editing.</p></section>')
+    assert len(tree.findall('.//p[@role="alert"]'))==3
+    checks.append('old-descendant-all-alerts-is-ambiguous-model')
+    def exact_refusal(node):
+        candidates=[e for e in node.findall('./p[@role="alert"]')if re.search(r'^Plan submission refused(?::|\s|$)',e.text or '')]
+        assert len(candidates)==1
+        return candidates[0]
+    assert exact_refusal(tree).text=='Plan submission refused: limit'
+    checks.append('direct-refusal-only-despite-editor-and-stale-warnings')
+    absent=copy.deepcopy(tree);absent.remove(absent.find('./p'))
+    nested=copy.deepcopy(absent);nested.find('./details/p').text='Plan submission refused: nested-only'
+    duplicate=copy.deepcopy(tree);ET.SubElement(duplicate,'p',role='alert').text='Plan submission refused: second'
+    foreign=copy.deepcopy(tree);foreign.find('./p').text='Plan submission refusedness'
+    for label,bad in [('no-root-refusal',absent),('nested-only-refusal',nested),('duplicate-root-refusals',duplicate),('foreign-prefix',foreign)]:
+        try:exact_refusal(bad)
+        except AssertionError:pass
+        else:raise AssertionError('Missing or ambiguous refusal accepted: '+label)
+        checks.append('reject:'+label)
+    fn=next(n for n in ast.parse(Path(__file__).read_text()).body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    exact_calls=[n for n in ast.walk(fn)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='to_contain_text'and n.args and isinstance(n.args[0],ast.Constant)and n.args[0].value=='Plan submission refused']
+    assert len(exact_calls)==1
+    source=ast.unparse(exact_calls[0])
+    assert ':scope > p[role="alert"]' in source and '^Plan submission refused' in source
+    assert 'get_by_role' not in source and '.nth(' not in source
+    checks.append('actual-runtime-uses-unique-direct-refusal-alert')
+    unknown=ET.fromstring('<section><p role="alert">Submission outcome unknown. Read history.</p><p>Submission outcome unknown. Read history.</p><details><p role="alert">The JSON draft changed.</p></details><p role="alert">History changed while editing.</p></section>')
+    def exact_unknown(node):
+        rows=[e for e in node.findall('./p[@role="alert"]')if re.search(r'^Submission outcome unknown\.(?:\s|$)',e.text or '')]
+        assert len(rows)==1;return rows[0]
+    assert exact_unknown(unknown).text.startswith('Submission outcome unknown.')
+    checks.append('direct-unknown-only-with-pending-stale-and-editor-warning')
+    nested_unknown=ET.fromstring('<section><details><p role="alert">Submission outcome unknown. Nested only.</p></details></section>')
+    duplicate_unknown=copy.deepcopy(unknown);ET.SubElement(duplicate_unknown,'p',role='alert').text='Submission outcome unknown. duplicate'
+    for label,bad in [('nested-only-unknown',nested_unknown),('duplicate-root-unknown',duplicate_unknown)]:
+        try:exact_unknown(bad)
+        except AssertionError:pass
+        else:raise AssertionError('Missing or ambiguous unknown accepted:'+label)
+        checks.append('reject:'+label)
+    cleared=ET.fromstring('<section><details><p role="alert">The JSON draft changed.</p></details></section>')
+    assert len(cleared.findall('./p[@role="alert"]'))==0 and len(cleared.findall('.//p[@role="alert"]'))==1
+    checks.append('cleared-root-errors-do-not-erase-legitimate-nested-warning')
+    source=ast.unparse(fn)
+    assert "expect(root_region.get_by_text('Submission outcome unknown.', exact=False)).to_have_count(0)" in source
+    assert "expect(root_region.locator(':scope > p[role=\"alert\"]')).to_have_count(0)" in source
+    assert not any(isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='get_by_role'and n.args and isinstance(n.args[0],ast.Constant)and n.args[0].value=='alert' for n in ast.walk(fn))
+    checks.append('original-global-pending-zero-retained-plus-direct-error-zero')
+    from types import SimpleNamespace
+    class FakePage:
+        def __init__(self,dom,bad_screenshot=False):self.dom=dom;self.bad_screenshot=bad_screenshot
+        def screenshot(self,path):
+            if self.bad_screenshot:raise RuntimeError('synthetic screenshot failure')
+            Path(path).write_bytes(b'synthetic unit bytes, NOT a browser PNG')
+        def content(self):return self.dom
+    def capture_case(name,page,clean=str):
+        directory=output/name;directory.mkdir(mode=0o700)
+        browser=SimpleNamespace(contexts=[SimpleNamespace(pages=[page])]);result={'screenshots':[]}
+        capture_browser_failure(browser,directory,result,clean);return result
+    bounded=capture_case('unit-redacted-dom',FakePage('<p>generated-token-unit</p>'),lambda value:str(value).replace('generated-token-unit','[redacted]'))
+    saved=Path(bounded['failure_dom']['path']).read_text();assert 'generated-token-unit' not in saved and '[redacted]' in saved
+    checks.append('bounded-controlled-DOM-redacts-generated-token')
+    over=capture_case('unit-overlimit-dom',FakePage('x'*(4*MAX_WIRE+1)))
+    assert len(over['screenshots'])==1 and 'failure_dom_capture_error' in over and 'failure_dom' not in over
+    assert not (output/'unit-overlimit-dom/failure-current-ui.html').exists()
+    checks.append('overlimit-DOM-refused-without-file-screenshot-retained')
+    independent=capture_case('unit-independent-dom',FakePage('<p>synthetic preserved DOM</p>',True))
+    assert 'failure_capture_error' in independent and independent['failure_dom']['bytes']>0 and independent['screenshots']==[]
+    checks.append('screenshot-failure-does-not-suppress-DOM-artifact')
+    return {'status':'passed','count':len(checks),'checks':checks,'previous_actual_report_pin':pin,
+        'dimension':'actual prior failure plus finite XML nested/direct-alert model and source AST; NO new browser/Core/IPC execution'}
 
 
 def runtime_driver(args, output, manifest):
@@ -945,7 +1042,7 @@ def runtime_driver(args, output, manifest):
             before = fingerprint_db(runtime); n = sum(r['method'] == 'factory_child_plans.submit' for r in report['http'])
             text = json.dumps(invalid, indent=2); draft.fill(text)
             root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
-            expect(root_region.get_by_role('alert')).to_contain_text('Plan submission refused')
+            expect(root_region.locator(':scope > p[role="alert"]').filter(has_text=re.compile(r'^Plan submission refused(?::|\s|$)'))).to_contain_text('Plan submission refused')
             assert sum(r['method'] == 'factory_child_plans.submit' for r in report['http']) == n
             reply = http_call('factory_child_plans_submit', {'scopeId': scope['id'], 'taskId': task['id'], 'planJson': text,
                 'expectedPlanRevision': 3, 'expectedRevision': scope['revision'], 'idempotencyKey': 'negative-' + label})
@@ -966,7 +1063,7 @@ def runtime_driver(args, output, manifest):
         raw4 = next_raw(stored, 'Actual lost-response UI revision four')
         draft.fill(raw4); faults['drop_next_submit'] = True
         root_region.get_by_role('button', name='Store next plan revision', exact=True).click()
-        expect(root_region.get_by_role('alert').filter(has_text='Submission outcome unknown.')).to_contain_text('Submission outcome unknown.')
+        expect(root_region.locator(':scope > p[role="alert"]').filter(has_text=re.compile(r'^Submission outcome unknown\.(?:\s|$)'))).to_contain_text('Submission outcome unknown.')
         lost = [r for r in report['http'] if r.get('actual_committed_reply_deliberately_dropped')]
         assert len(lost) == 1 and lost[0]['params']['plan_json'] == raw4
         assert lost[0]['host_observed_utc_ms']<min(scope['expires_at_ms'],grant['expires_at_ms'])
@@ -979,6 +1076,7 @@ def runtime_driver(args, output, manifest):
         before_recovery = fingerprint_db(runtime)
         root_region.get_by_role('button', name='Recover the exact plan submission', exact=True).click()
         expect(root_region.get_by_text('Submission outcome unknown.', exact=False)).to_have_count(0)
+        expect(root_region.locator(':scope > p[role="alert"]')).to_have_count(0)
         expect(root_region.get_by_text('Current plan head: r4', exact=False)).to_be_visible()
         recovered = [r for r in report['http'] if r['method'] == 'factory_child_plans.submit' and r['key'] == lost[0]['key']]
         assert len(recovered) == 2
@@ -1114,12 +1212,13 @@ def main():
     parser.add_argument('--review-self-check', type=Path)
     parser.add_argument('--locator-self-check', type=Path)
     parser.add_argument('--summary-self-check', type=Path)
+    parser.add_argument('--alert-self-check', type=Path)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--tools', type=Path)
     parser.add_argument('--frontend', type=Path)
     parser.add_argument('--manifest', type=Path)
     parser.add_argument('--chromium', default='/usr/bin/chromium')
-    args = parser.parse_args(); assert sum([args.self_check,args.run,bool(args.fixture_self_check),bool(args.review_self_check),bool(args.locator_self_check),bool(args.summary_self_check)]) <= 1
+    args = parser.parse_args(); assert sum([args.self_check,args.run,bool(args.fixture_self_check),bool(args.review_self_check),bool(args.locator_self_check),bool(args.summary_self_check),bool(args.alert_self_check)]) <= 1
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False); output.chmod(0o700)
     if args.self_check:
         value = self_check(); value.update(harness_sha256=sha(Path(__file__).read_bytes()), support_sha256=sha(BASE_PATH.read_bytes()))
@@ -1136,6 +1235,9 @@ def main():
     if args.summary_self_check:
         value=summary_self_check(args.summary_self_check.resolve(strict=True));value['harness_sha256']=sha(Path(__file__).read_bytes())
         base.write_private_json(output/'summary-check.json',value);print(json.dumps(value));return 0
+    if args.alert_self_check:
+        value=alert_self_check(args.alert_self_check.resolve(strict=True),output);value['harness_sha256']=sha(Path(__file__).read_bytes())
+        base.write_private_json(output/'alert-check.json',value);print(json.dumps(value));return 0
     if not args.run:
         base.write_private_json(output / 'NOT_RUN.json', {'actual_runtime': 'not_run',
             'pending': ['Root reviewed harness', 'fixed schema14 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})

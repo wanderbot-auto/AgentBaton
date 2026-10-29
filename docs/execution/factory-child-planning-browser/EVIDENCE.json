@@ -1,28 +1,32 @@
 {
-  "status": "actual_run2_partial3checks_overall_failed_corrected_static118_waiting_review",
-  "source_commit": "b55fbf71267289a5da41ebf5e2de64f4598a9baf",
-  "source_sha256": "94a72464698468d1196a786df9650a72c11f991f441aa9e9206de7a48a75bae5",
+  "status": "actual_run3_partial5checks_overall_failed_corrected_static134_waiting_review",
+  "source_commit": "ba0f7e8e9ea778b37f092809eeacf9340cce4c16",
+  "source_sha256": "c1fc95300144eda6d227f34925dbfa78d0f0504fc992b4c4be2cbb1ec3cc7157",
   "snapshot": {
-    "path": "/workspace/.onboarding/factory-child-planning-browser/summary-fix/SOURCE_SNAPSHOT.json",
-    "sha256": "71d6adfe2dba26d3446cc40a0fd7a29799a688a61e5146f0534fb7b74b27f920"
+    "path": "/workspace/.onboarding/factory-child-planning-browser/alert-fix/SOURCE_SNAPSHOT.json",
+    "sha256": "21ae89cfd7bc46043547fa480aff974670dc4e53a012d4ea1d04aea9697ad7e2"
   },
-  "actual_run2": {
-    "source_head": "506512d077dd7430ac848e4e345999562550cc55",
+  "actual_run3": {
+    "source_head": "981a7514ec4ee5776854f09b0aeaa0c22664503a",
     "compiled_tools_source": "ff5191afa76f9b5612558cd8960a7c9a572b2521",
     "frontend_built_source": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
-    "harness_source_sha256": "613ebf871d5d98510cddd5dfad5e595a69f0186ac4ad47d21ac7aab28487adeb",
+    "harness_source_sha256": "94a72464698468d1196a786df9650a72c11f991f441aa9e9206de7a48a75bae5",
     "exitcode": 1,
     "checks": [
       "CP01",
       "CP02",
-      "CP03"
+      "CP03",
+      "CP04",
+      "CP05"
     ],
-    "PNG": 2,
+    "PNG": 4,
     "cleanup_complete": false,
     "owned_identities_observed_gone": 6,
+    "actual_UI_root_revision3_sequence": 59,
     "not_reached": [
-      "UI new revisions3/4",
-      "plan/Core negative matrix",
+      "Core negative HTTP matrix",
+      "stale head",
+      "UI revision4",
       "lost-response recovery",
       "normal final turn/join/ledger active0 and6row assertion"
     ]
@@ -34,78 +38,169 @@
     "recorded_DTO_pure": 11,
     "replay_cleanup_pure": 37,
     "locator_lifecycle_pure": 15,
-    "summary_remaining_locators_pure": 9,
-    "total_distinct_pure": 118,
+    "summary_pure": 9,
+    "systematic_alerts_DOM_pure": 16,
+    "total_distinct_pure": 134,
     "diff_exit": 0
   },
+  "preserved_author_script_failures": [
+    "SYNTAX_FAILURE.json + failing WIP source (inline tool transcript, not raw stderr)",
+    "RECEIPT_AUDIT_FIRST_FAILURE.json (wrong raw-document sequence assumption; SQL mirror correction)"
+  ],
   "previous_checkpoint_preserved_in_Git_and_snapshot": {
-    "status": "actual_run1_failed_before_approval_corrected_static109_waiting_review",
-    "source_commit": "d27be8fe506ac7455b2ac9c000a7e072acaf8a8c",
-    "source_sha256": "613ebf871d5d98510cddd5dfad5e595a69f0186ac4ad47d21ac7aab28487adeb",
+    "status": "actual_run2_partial3checks_overall_failed_corrected_static118_waiting_review",
+    "source_commit": "b55fbf71267289a5da41ebf5e2de64f4598a9baf",
+    "source_sha256": "94a72464698468d1196a786df9650a72c11f991f441aa9e9206de7a48a75bae5",
     "snapshot": {
-      "path": "/workspace/.onboarding/factory-child-planning-browser/locator-fix/SOURCE_SNAPSHOT.json",
-      "sha256": "8a8ac1c57abefaca5b5e6089bc0d51ecebe9acbbcc39c3b9365e09aaa20cba45"
+      "path": "/workspace/.onboarding/factory-child-planning-browser/summary-fix/SOURCE_SNAPSHOT.json",
+      "sha256": "71d6adfe2dba26d3446cc40a0fd7a29799a688a61e5146f0534fb7b74b27f920"
     },
-    "actual_run1": {
-      "dimension": "actual built UI/fixed HTTP/private generated resources + Core UnixIPC, FAILED before Factory approval/start",
-      "source_head": "ff5191afa76f9b5612558cd8960a7c9a572b2521",
-      "harness_source_sha256": "20bcfb1a4dfc77b15ad70ab1586ce38f94b38ae857e1b66f25c4df21e28da0e5",
+    "actual_run2": {
+      "source_head": "506512d077dd7430ac848e4e345999562550cc55",
+      "compiled_tools_source": "ff5191afa76f9b5612558cd8960a7c9a572b2521",
+      "frontend_built_source": "f9a7e0cd81c2e106e723c083e8c9b0a16fa33e2b",
+      "harness_source_sha256": "613ebf871d5d98510cddd5dfad5e595a69f0186ac4ad47d21ac7aab28487adeb",
       "exitcode": 1,
-      "checks": 0,
-      "PNG": 0,
-      "cleanup_complete": false
+      "checks": [
+        "CP01",
+        "CP02",
+        "CP03"
+      ],
+      "PNG": 2,
+      "cleanup_complete": false,
+      "owned_identities_observed_gone": 6,
+      "not_reached": [
+        "UI new revisions3/4",
+        "plan/Core negative matrix",
+        "lost-response recovery",
+        "normal final turn/join/ledger active0 and6row assertion"
+      ]
     },
     "new_corrected_runtime": "not_run",
     "executed_on_new_source": {
       "syntax_exit": 0,
       "boundary_pure": 46,
       "recorded_DTO_pure": 11,
-      "review_pure": 37,
+      "replay_cleanup_pure": 37,
       "locator_lifecycle_pure": 15,
-      "total_distinct_pure": 109,
+      "summary_remaining_locators_pure": 9,
+      "total_distinct_pure": 118,
       "diff_exit": 0
     },
     "previous_checkpoint_preserved_in_Git_and_snapshot": {
-      "status": "review_fixes_authored_pure94_pass_runtime_not_run",
-      "source_commit": "0e1a4145e33f9cadf9f4da9095690b2fe293e578",
-      "source_sha256": "20bcfb1a4dfc77b15ad70ab1586ce38f94b38ae857e1b66f25c4df21e28da0e5",
+      "status": "actual_run1_failed_before_approval_corrected_static109_waiting_review",
+      "source_commit": "d27be8fe506ac7455b2ac9c000a7e072acaf8a8c",
+      "source_sha256": "613ebf871d5d98510cddd5dfad5e595a69f0186ac4ad47d21ac7aab28487adeb",
       "snapshot": {
-        "path": "/workspace/.onboarding/factory-child-planning-browser/review-fix/SOURCE_SNAPSHOT.json",
-        "sha256": "360899748e907d4791c6e7c0d448d8ddb94d91ac4754b14d1f271779cc134770"
+        "path": "/workspace/.onboarding/factory-child-planning-browser/locator-fix/SOURCE_SNAPSHOT.json",
+        "sha256": "8a8ac1c57abefaca5b5e6089bc0d51ecebe9acbbcc39c3b9365e09aaa20cba45"
       },
-      "corrections": {
-        "R1": "full typed business receipt/exact request, separate UUID+monotone current journal cursor",
-        "R2": "after-join/cleanup unexpected error seal + defensive exit; narrow readonly body abort classification"
+      "actual_run1": {
+        "dimension": "actual built UI/fixed HTTP/private generated resources + Core UnixIPC, FAILED before Factory approval/start",
+        "source_head": "ff5191afa76f9b5612558cd8960a7c9a572b2521",
+        "harness_source_sha256": "20bcfb1a4dfc77b15ad70ab1586ce38f94b38ae857e1b66f25c4df21e28da0e5",
+        "exitcode": 1,
+        "checks": 0,
+        "PNG": 0,
+        "cleanup_complete": false
       },
-      "executed": {
+      "new_corrected_runtime": "not_run",
+      "executed_on_new_source": {
         "syntax_exit": 0,
         "boundary_pure": 46,
         "recorded_DTO_pure": 11,
         "review_pure": 37,
-        "total_distinct_pure": 94,
+        "locator_lifecycle_pure": 15,
+        "total_distinct_pure": 109,
         "diff_exit": 0
       },
-      "old_counterexamples": {
-        "directory": "/workspace/.onboarding/factory-child-planning-browser/review-fix/old-control",
-        "kind": "exact-source AST finite counterexamples",
-        "count": 2,
-        "probe_exit": 0,
-        "meaning": "both original defects confirmed, NOT runtime execution/PASS"
-      },
-      "original_checkpoint_unchanged_in_Git_and_snapshot": {
-        "status": "source_prepared_static_pass_runtime_not_run",
-        "base": "ead1f468546694e0852205a66416432d8be1a4c2",
-        "source_commit": "49bcf16b15968fe5b81961852df1fa12dd406ffc",
-        "source_sha256": "6100ba1d3aecab214fe31c9537a2b8adcb9f90be51640e7364773e48049273df",
+      "previous_checkpoint_preserved_in_Git_and_snapshot": {
+        "status": "review_fixes_authored_pure94_pass_runtime_not_run",
+        "source_commit": "0e1a4145e33f9cadf9f4da9095690b2fe293e578",
+        "source_sha256": "20bcfb1a4dfc77b15ad70ab1586ce38f94b38ae857e1b66f25c4df21e28da0e5",
         "snapshot": {
-          "path": "/workspace/.onboarding/factory-child-planning-browser/SOURCE_SNAPSHOT.json",
-          "sha256": "3a10c697bd3db5fc08217ea7732823f48c5716357922e7643b8332a5b802b36b"
+          "path": "/workspace/.onboarding/factory-child-planning-browser/review-fix/SOURCE_SNAPSHOT.json",
+          "sha256": "360899748e907d4791c6e7c0d448d8ddb94d91ac4754b14d1f271779cc134770"
+        },
+        "corrections": {
+          "R1": "full typed business receipt/exact request, separate UUID+monotone current journal cursor",
+          "R2": "after-join/cleanup unexpected error seal + defensive exit; narrow readonly body abort classification"
         },
         "executed": {
           "syntax_exit": 0,
           "boundary_pure": 46,
           "recorded_DTO_pure": 11,
+          "review_pure": 37,
+          "total_distinct_pure": 94,
           "diff_exit": 0
+        },
+        "old_counterexamples": {
+          "directory": "/workspace/.onboarding/factory-child-planning-browser/review-fix/old-control",
+          "kind": "exact-source AST finite counterexamples",
+          "count": 2,
+          "probe_exit": 0,
+          "meaning": "both original defects confirmed, NOT runtime execution/PASS"
+        },
+        "original_checkpoint_unchanged_in_Git_and_snapshot": {
+          "status": "source_prepared_static_pass_runtime_not_run",
+          "base": "ead1f468546694e0852205a66416432d8be1a4c2",
+          "source_commit": "49bcf16b15968fe5b81961852df1fa12dd406ffc",
+          "source_sha256": "6100ba1d3aecab214fe31c9537a2b8adcb9f90be51640e7364773e48049273df",
+          "snapshot": {
+            "path": "/workspace/.onboarding/factory-child-planning-browser/SOURCE_SNAPSHOT.json",
+            "sha256": "3a10c697bd3db5fc08217ea7732823f48c5716357922e7643b8332a5b802b36b"
+          },
+          "executed": {
+            "syntax_exit": 0,
+            "boundary_pure": 46,
+            "recorded_DTO_pure": 11,
+            "diff_exit": 0
+          },
+          "runtime_checks": {
+            "CP01": "not_run",
+            "CP02": "not_run",
+            "CP03": "not_run",
+            "CP04": "not_run",
+            "CP05": "not_run",
+            "CP06": "not_run",
+            "CP07": "not_run",
+            "CP08": "not_run",
+            "CP09": "not_run"
+          },
+          "actual_fixture": {
+            "path": "/workspace/.onboarding/factory-child-planning-core/actual-scoped-planning-r7.json",
+            "sha256": "c572871caa9ecfe7868f137058a556cba1eaa7964efc01314b081724612ba411",
+            "bytes": 149485,
+            "meaning": "Core author recorded fixture, pure verification only in this unit"
+          },
+          "failed_commands": [],
+          "preserved_initial_iterations": [
+            "/workspace/.onboarding/factory-child-planning-browser/initial-pure-controls",
+            "/workspace/.onboarding/factory-child-planning-browser/strict-pure-controls",
+            "/workspace/.onboarding/factory-child-planning-browser/actual-dto-pure-controls",
+            "/workspace/.onboarding/factory-child-planning-browser/live-handshake-pure-controls"
+          ],
+          "native_OS": "not_run",
+          "macOS": "not_run",
+          "Cargo": "not_run",
+          "browser": "not_run",
+          "Node": "not_run",
+          "real_Provider_model": "not_run",
+          "locks_Core_Native_UI_existing_harness": "unchanged",
+          "requirements": [
+            "AB-TSK-009",
+            "AB-TSK-011",
+            "AB-TSK-003",
+            "AB-TSK-004",
+            "AB-TSK-005",
+            "AB-TSK-012",
+            "AB-SEC-002",
+            "AB-SEC-003",
+            "AB-SEC-005",
+            "AB-SEC-010",
+            "AB-COR-002",
+            "AB-COR-007"
+          ]
         },
         "runtime_checks": {
           "CP01": "not_run",
@@ -118,83 +213,53 @@
           "CP08": "not_run",
           "CP09": "not_run"
         },
-        "actual_fixture": {
-          "path": "/workspace/.onboarding/factory-child-planning-core/actual-scoped-planning-r7.json",
-          "sha256": "c572871caa9ecfe7868f137058a556cba1eaa7964efc01314b081724612ba411",
-          "bytes": 149485,
-          "meaning": "Core author recorded fixture, pure verification only in this unit"
-        },
-        "failed_commands": [],
-        "preserved_initial_iterations": [
-          "/workspace/.onboarding/factory-child-planning-browser/initial-pure-controls",
-          "/workspace/.onboarding/factory-child-planning-browser/strict-pure-controls",
-          "/workspace/.onboarding/factory-child-planning-browser/actual-dto-pure-controls",
-          "/workspace/.onboarding/factory-child-planning-browser/live-handshake-pure-controls"
+        "not_run": [
+          "browser",
+          "actual new Unix IPC flow",
+          "Native OS dialog",
+          "Mac",
+          "Cargo",
+          "Node",
+          "real Provider/model",
+          "full product acceptance"
         ],
-        "native_OS": "not_run",
-        "macOS": "not_run",
-        "Cargo": "not_run",
-        "browser": "not_run",
-        "Node": "not_run",
-        "real_Provider_model": "not_run",
-        "locks_Core_Native_UI_existing_harness": "unchanged",
-        "requirements": [
-          "AB-TSK-009",
-          "AB-TSK-011",
-          "AB-TSK-003",
-          "AB-TSK-004",
-          "AB-TSK-005",
-          "AB-TSK-012",
-          "AB-SEC-002",
-          "AB-SEC-003",
-          "AB-SEC-005",
-          "AB-SEC-010",
-          "AB-COR-002",
-          "AB-COR-007"
-        ]
+        "product_existing_helpers_UI_Native_locks": "unchanged"
       },
-      "runtime_checks": {
-        "CP01": "not_run",
-        "CP02": "not_run",
-        "CP03": "not_run",
-        "CP04": "not_run",
-        "CP05": "not_run",
-        "CP06": "not_run",
-        "CP07": "not_run",
-        "CP08": "not_run",
-        "CP09": "not_run"
-      },
-      "not_run": [
-        "browser",
-        "actual new Unix IPC flow",
-        "Native OS dialog",
-        "Mac",
-        "Cargo",
-        "Node",
+      "existing_helpers_product_UI_Core_Native_locks": "unchanged",
+      "not_claimed": [
+        "successful UI flow",
+        "Factory MCP5 in run1",
+        "new revision submission in run1",
+        "complete expected-workflow cleanup",
+        "OS Native dialog",
         "real Provider/model",
+        "Mac",
         "full product acceptance"
-      ],
-      "product_existing_helpers_UI_Native_locks": "unchanged"
+      ]
     },
     "existing_helpers_product_UI_Core_Native_locks": "unchanged",
     "not_claimed": [
-      "successful UI flow",
-      "Factory MCP5 in run1",
-      "new revision submission in run1",
-      "complete expected-workflow cleanup",
-      "OS Native dialog",
-      "real Provider/model",
-      "Mac",
-      "full product acceptance"
+      "successful full UI flow",
+      "UI revisions3/4",
+      "response-drop recovery",
+      "normal final stop/join active0",
+      "6revisions final SQL audit",
+      "OSNative/Mac",
+      "real model/Provider",
+      "full product completion"
     ]
   },
-  "existing_helpers_product_UI_Core_Native_locks": "unchanged",
+  "existing_support_product_UI_Core_Native_locks": "unchanged",
+  "explicitly_modified_harness_helpers": [
+    "capture_browser_failure (bounded independent DOM diagnostic)",
+    "locator_self_check (fake content/order)",
+    "summary_self_check (actual-source guard)"
+  ],
   "not_claimed": [
     "successful full UI flow",
-    "UI revisions3/4",
-    "response-drop recovery",
-    "normal final stop/join active0",
-    "6revisions final SQL audit",
+    "real Core negative HTTP matrix in run3",
+    "UI r4/response-drop recovery",
+    "normal final stop/join active0/sixrows",
     "OSNative/Mac",
     "real model/Provider",
     "full product completion"
