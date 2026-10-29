@@ -266,6 +266,24 @@ fn child_plan_original_raw_revisions_cas_exact_replay_and_refs_never_mint_execut
         "CONFIG_CONFLICT"
     );
     assert_eq!(f.store.sequence().unwrap(), seq);
+    // A damaged private database may violate a foreign key; reject its raw
+    // oversized head before allocating the TEXT, even in that state.
+    f.store
+        .conn
+        .execute_batch("PRAGMA foreign_keys=OFF")
+        .unwrap();
+    f.store
+        .conn
+        .execute(
+            "UPDATE factory_child_plan_heads SET revision_id=?1 WHERE scope_id=?2",
+            rusqlite::params!["oversized".repeat(600000), s.id],
+        )
+        .unwrap();
+    assert_eq!(
+        f.store.get_factory_child_plan(&query(&s)).unwrap_err().code,
+        "RESOURCE_LIMIT"
+    );
+    assert_eq!(f.store.sequence().unwrap(), seq);
 }
 #[test]
 fn child_plan_bad_raw_permission_references_cycles_cas_and_unsafe_numbers_leave_no_partial_rows_or_events(

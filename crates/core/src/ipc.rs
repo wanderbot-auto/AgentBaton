@@ -1303,6 +1303,11 @@ impl Daemon {
                 if !scope.revoked
                     && i128::from(scope.expires_at_ms)
                         > time::OffsetDateTime::now_utc().unix_timestamp_nanos() / 1_000_000
+                    && !(request.method == "factory_child_plans.context"
+                        && matches!(
+                            self.store.get_factory_run(scope_id)?.run.state.as_str(),
+                            "cancelled" | "blocked" | "completed" | "outcome_unknown"
+                        ))
                 {
                     ids.extend(scope.selection.workspace_ids);
                 }

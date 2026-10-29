@@ -35,8 +35,48 @@ fn old() -> (tempfile::TempDir, PathBuf, String) {
             .unwrap()
             + "\n";
     db.execute("UPDATE tasks SET document=?1", [&raw]).unwrap();
+    // Recorded original Grant/shared-meter rows contain no child-planning
+    // capability. Preserve historical usage, including active reservations;
+    // this migration fixture does not claim to recover their original workers.
+    let prior: serde_json::Value = serde_json::from_str(include_str!(
+        "fixtures/factory_actual_legacy_ledger_rows.json"
+    ))
+    .unwrap();
+    for g in prior["tables"]["execution_grants"].as_array().unwrap() {
+        let _: agentbaton_core::policy::ExecutionGrant =
+            serde_json::from_str(g["document"].as_str().unwrap()).unwrap();
+        db.execute(
+            "INSERT INTO execution_grants(id,project_id,parent_id,document) VALUES(?1,?2,?3,?4)",
+            rusqlite::params![
+                g["id"].as_str(),
+                g["project_id"].as_str(),
+                g["parent_id"].as_str(),
+                g["document"].as_str()
+            ],
+        )
+        .unwrap();
+    }
+    for b in prior["tables"]["budgets"].as_array().unwrap() {
+        db.execute("INSERT INTO budgets(scope,total_limit,parallel_limit,consumed,active) VALUES(?1,?2,?3,?4,?5)",rusqlite::params![b["scope"].as_str(),b["total_limit"].as_i64(),b["parallel_limit"].as_i64(),b["consumed"].as_i64(),b["active"].as_i64()]).unwrap();
+    }
+    for l in prior["tables"]["goal_ledgers"].as_array().unwrap() {
+        db.execute(
+            "INSERT INTO goal_ledgers(scope,document) VALUES(?1,?2)",
+            rusqlite::params![l["scope"].as_str(), l["document"].as_str()],
+        )
+        .unwrap();
+    }
     drop(db);
     (d, p, raw)
+}
+fn original_metadata(db: &Connection) -> Vec<String> {
+    [
+        "SELECT json_group_array(json_array(id,project_id,parent_id,document)) FROM (SELECT * FROM execution_grants ORDER BY id)",
+        "SELECT json_group_array(json_array(scope,total_limit,parallel_limit,consumed,active)) FROM (SELECT * FROM budgets ORDER BY scope)",
+        "SELECT json_group_array(json_array(scope,document)) FROM (SELECT * FROM goal_ledgers ORDER BY scope)",
+        "SELECT json_group_array(json_array(sequence,document)) FROM (SELECT * FROM events ORDER BY sequence)",
+        "SELECT json_group_array(json_array(scope,key,payload,result)) FROM (SELECT * FROM idempotency ORDER BY scope,key)",
+    ].iter().map(|sql|db.query_row(sql,[],|r|r.get(0)).unwrap()).collect()
 }
 fn backups(p: &Path) -> Vec<PathBuf> {
     fs::read_dir(p)
@@ -54,8 +94,10 @@ fn backups(p: &Path) -> Vec<PathBuf> {
 #[test]
 fn schema13_upgrade_keeps_raw_history_and_private_backup_and_adds_no_authority() {
     let (d, p, raw) = old();
+    let original = original_metadata(&Connection::open(&p).unwrap());
     drop(Store::open(&p).unwrap());
     let db = Connection::open(&p).unwrap();
+    assert_eq!(original_metadata(&db), original);
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
@@ -92,6 +134,7 @@ fn schema13_upgrade_keeps_raw_history_and_private_backup_and_adds_no_authority()
         0o600
     );
     let backup = Connection::open(&b[0]).unwrap();
+    assert_eq!(original_metadata(&backup), original);
     assert_eq!(
         backup
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
@@ -112,10 +155,12 @@ fn schema13_upgrade_keeps_raw_history_and_private_backup_and_adds_no_authority()
 fn child_plan_migration_collision_rolls_back_both_tables_and_preserves_old_bytes() {
     let (d, p, raw) = old();
     let db = Connection::open(&p).unwrap();
+    let original = original_metadata(&db);
     db.execute_batch("CREATE TABLE factory_child_plan_heads(sentinel BLOB);INSERT INTO factory_child_plan_heads VALUES(x'00ff');").unwrap();
     drop(db);
     assert_eq!(Store::open(&p).err().unwrap().code, "INTERNAL_ERROR");
     let db = Connection::open(&p).unwrap();
+    assert_eq!(original_metadata(&db), original);
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),

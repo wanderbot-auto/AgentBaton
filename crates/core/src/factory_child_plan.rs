@@ -438,10 +438,12 @@ fn row(
     Ok(view)
 }
 fn head(db: &Connection, scope_id: &str, task_id: &str) -> Result<Option<FactoryChildPlanView>> {
-    let h:Option<(String,String,i64)>=db.query_row("SELECT revision_id,run_id,revision FROM factory_child_plan_heads WHERE scope_id=?1 AND task_id=?2",params![scope_id,task_id],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).optional().map_err(db_error)?;
+    let h:Option<(Option<String>,Option<String>,i64)>=db.query_row("SELECT CASE WHEN octet_length(revision_id)<=128 THEN revision_id END,CASE WHEN octet_length(run_id)<=128 THEN run_id END,revision FROM factory_child_plan_heads WHERE scope_id=?1 AND task_id=?2",params![scope_id,task_id],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).optional().map_err(db_error)?;
     match h {
         None => Ok(None),
         Some((id, run_id, rev)) => {
+            let id = id.ok_or_else(limited)?;
+            let run_id = run_id.ok_or_else(limited)?;
             let v = row(
                 db,
                 scope_id,
