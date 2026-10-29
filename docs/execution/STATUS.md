@@ -1,3 +1,11 @@
+## 当前真实迁移通过与执行链失败 — 2026-10-29T10:39:43.400867+00:00
+
+main653679d/PR17 是已保护集成的准确 schema14，原七项成功不移给新15。当前 feature codex/factory-child-goal-integration 已整合审过的 private post-read phase、来源一致性及排队/终态状态门。准确817类型通过；include注释编译失败原件保留，comment-only01修后16项定向通过。新真实固定14源码重建及非空旧库生成已成功并独立核验；准确01新来源14→15迁移6函数/10案例全通过、零跳过，原4/2失败不抹。
+
+当前真正阻塞是准确01的第二轮真实child Goal：父进程停止/回收到事件40后未调度工作节点，实际测试27.04s/总43.865s失败，90s/200MiB守卫未触。未到Owner/TaskAccepted；root自身第二case未运行。失败DB/进程证据/ELF保留，Actor已join；仅事后数据库不能确定原因，作者和独立reviewer继续有限诊断，不放宽TTL/预算/输入/CAS/权限。新post-reservationphase尚未运行到，不能冒通过或归因。
+
+此前147 Native Rust/47PythonOwner及双Mac14开发包仍按其各自准确源码与维度保留。新15浏览器、双Mac、完整回归/故障恢复/返工及新CI未验证。CI产物metadata另有独审发现的未类型化字典透传风险，Root0ab已改有限字段和8负控，待复核；未发生实际数据泄露，不公开私有旧库/能力/RPC。最新 main inbox仅001/002ACK。完整130需求及权限边界保持，未标产品完成。详见 [当前证据](factory-child-goal-integration/LOCAL_SCHEMA15_EVIDENCE.json) 和 [检查点](factory-child-goal-integration/CHECKPOINT.md)。以下历史原样保留。
+
 ## 当前子 Goal 集成与真实测试 — 2026-10-29T09:40:17.225888+00:00
 
 main653679d 是 PR17 保护合入、七项准确成功的 schema14 树，OWNER001/002 已 ACK。当前 codex/factory-child-goal-integration 已在远端保存 dbd6bcc 工作检查点，新增本地9d64b86记录147项 Native 实测；尚未建立下一 PR/新CI。不会把原七项绿移给 schema15。

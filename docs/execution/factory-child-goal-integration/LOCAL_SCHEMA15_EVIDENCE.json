@@ -1,0 +1,260 @@
+{
+  "recorded_at": "2026-10-29T10:39:43.400867+00:00",
+  "root_source": "01a193eb7114548df62100ba897e404b03cc4a1f",
+  "new_legacy_source14": {
+    "builder": {
+      "command": [
+        "python3",
+        "scripts/prepare-legacy-migration-fixture.py",
+        "--repository",
+        "/workspace/.worktrees/factory-runtime-integration",
+        "--output",
+        "/workspace/.onboarding/factory-child-goal-legacy-rebuild-root-run1/build",
+        "--target-dir",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target",
+        "--cargo",
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "--rustc",
+        "/workspace/.toolchains/cargo/bin/rustc"
+      ],
+      "source": "3e584bfe387b24afc5471ae2fafba7c12699c943",
+      "exit": 0,
+      "seconds": 17.015620808000676,
+      "minimum_free_bytes": 621703168,
+      "interruption": null,
+      "builder_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual_build_log_sha256": "7a07b62f9d02ad500f734200317f4fb6bdd0707628cd165788974b6685809211",
+      "normal_tools_after": {
+        "batond": {
+          "sha256": "1c835dcd2b925baeb2f0131b225c1047bdc89c4452417a302fae34a133c4cf73",
+          "inode": 1063545,
+          "mode": "0o700",
+          "nlink": 2
+        },
+        "baton": {
+          "sha256": "d90cf23761b83dc7eeeb92291b411a573e9cfb6ecde3750bc3bb376d2fe66797",
+          "inode": 1048738,
+          "mode": "0o700",
+          "nlink": 2
+        }
+      },
+      "dimension": "Actual Linux source14 build/private pair/probe only; no schema15 migration/runtime/Mac claim",
+      "time": "2026-10-29T10:05:26.174388+00:00"
+    },
+    "producer": {
+      "source": "3e584bfe387b24afc5471ae2fafba7c12699c943",
+      "command": [
+        "python3",
+        "crates/core/tests/fixtures/child_goal_legacy_migration/generate.py",
+        "--frozen",
+        "/workspace/.onboarding/factory-child-goal-legacy-rebuild-root-run1/build/frozen",
+        "--build-manifest",
+        "/workspace/.onboarding/factory-child-goal-legacy-rebuild-root-run1/build/frozen/source-build-manifest.json",
+        "--repository",
+        "/workspace/.worktrees/factory-runtime-integration",
+        "--output",
+        "/workspace/.onboarding/factory-child-goal-legacy-rebuild-root-run1/fixture"
+      ],
+      "exit": 0,
+      "seconds": 3.804066655022325,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "private_fixture_uploaded": false,
+      "schema15_migration": "NOT_RUN",
+      "at": "2026-10-29T10:08:16.568649+00:00",
+      "observed_summary": {
+        "status": "passed",
+        "schema": 14,
+        "origin": "actual_frozen_schema14_core_rpc",
+        "source_commit": "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701",
+        "database_sha256": "30c329f5c8f3baf3aa4a57948def0c961b297174c3b72778338f54247195d444",
+        "counts": {
+          "goal_scopes": 1,
+          "goal_runs": 1,
+          "goal_graph_capabilities": 1,
+          "factory_scopes": 1,
+          "factory_runs": 1,
+          "factory_child_plan_revisions": 1,
+          "factory_child_plan_heads": 1
+        },
+        "daemon_exit": 0,
+        "forced_kill": false,
+        "runtime_cleanup": "removed_after_successful_owned_join_and_backup",
+        "provenance_kind": "reviewed_source_build"
+      },
+      "manifest_sha256": "f36d592596dac1904a24f835254e9de26064bb0e5f2ddc5f2064495b6cbdc8d5"
+    },
+    "independent_review_sha256": "1f0c64c672b839467e8fc9619ddf3fde649b46485b83a4669a2565331f55f878",
+    "manifest_sha256": "c54e53cf1c387ef13f5d69b86147970070ef192104aa52886865de5e9f837da3",
+    "raw_database_rpc_and_capabilities_published": false
+  },
+  "typecheck": {
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "check",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--lib"
+    ],
+    "source": "81792e7e0eed223a7b7bd5fac6685012b6328833",
+    "exit": 0,
+    "seconds": 7.505781826999737,
+    "minimum_sampled_free_bytes": 588488704,
+    "interruption": null,
+    "log_sha256": "856907b18b52cb64b402f774f7c5ec8aa84696edc8957d047a5896fcfd9ba2c7"
+  },
+  "original_test_compile_failure": {
+    "source": "81792e7e0eed223a7b7bd5fac6685012b6328833",
+    "exit": 101,
+    "tests_reached": 0,
+    "cause": "E0753 two inner doc comments in include fixture; exact logs retained",
+    "fix": "861c043e comment-only, cherry-picked01a193e"
+  },
+  "selected_core_units": {
+    "source": "01a193eb7114548df62100ba897e404b03cc4a1f",
+    "production_source_equal_to_checked81792": true,
+    "delta_from81792": "two include-fixture doc comment markers only; assertions unchanged",
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--lib",
+      "child_goal_",
+      "--",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "exit": 0,
+    "seconds": 25.526426435011672,
+    "interruption": null,
+    "log_sha256": "2e603bd07bd883e443c0ce1eec450f9cfb9b6c403b92746625aa37b032b7493b",
+    "passed": 16,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 91,
+    "actual_test_seconds": 9.55
+  },
+  "actual_migration": {
+    "source": "01a193eb7114548df62100ba897e404b03cc4a1f",
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--features",
+      "actual-legacy-migration-tests",
+      "--test",
+      "factory_child_goal_legacy_migration",
+      "--",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "private_fixture": "/workspace/.onboarding/factory-child-goal-legacy-rebuild-root-run1/fixture",
+    "fixture_provenance": "reviewed_source_build actual f03214; new input hash30c329, not oldrun2 fixture",
+    "original_hashes_before_after_equal": {
+      "actual-schema14.sqlite3": "30c329f5c8f3baf3aa4a57948def0c961b297174c3b72778338f54247195d444",
+      "manifest.json": "f36d592596dac1904a24f835254e9de26064bb0e5f2ddc5f2064495b6cbdc8d5",
+      "source-build-manifest.json": "3eb3747deab64c3e5644fe76d05929da3c01d738f26e6b0746f13de398739960"
+    },
+    "exit": 0,
+    "seconds": 19.82552051098901,
+    "interruption": null,
+    "log_sha256": "9e1bb3066d2125fe866ff0d31ebf4809c9a64361fe53a4d28da5952bdbfb70c6",
+    "dimension": "Actual Linux15 Store migration of real nonempty14 with historical Native/Factory proof; not active recovery/Mac/live Provider",
+    "test_functions_passed": 6,
+    "logical_cases": 10,
+    "failed": 0,
+    "ignored": 0,
+    "actual_test_seconds": 1.86,
+    "independent_evidence_review": "pending",
+    "old_actual233_4pass_2fail_preserved": true
+  },
+  "same_head15_pair": [
+    {
+      "source": "01a193eb7114548df62100ba897e404b03cc4a1f",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "build",
+        "--offline",
+        "--workspace",
+        "--locked",
+        "--bins"
+      ],
+      "exit": 0,
+      "seconds": 20.118919314991217,
+      "interruption": null,
+      "log_sha256": "d2b76ed312ce5b2bc3e48223ed9c5c44af0f697a0048bb44dbb906fc03b21770"
+    },
+    {
+      "source": "01a193eb7114548df62100ba897e404b03cc4a1f",
+      "command": [
+        "python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--source",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+        "--output",
+        "/workspace/.onboarding/factory-child-goal-integrated-normal-tools01/frozen",
+        "--evidence",
+        "/workspace/.onboarding/factory-child-goal-integrated-normal-tools01/probe"
+      ],
+      "exit": 0,
+      "seconds": 1.5017462569812778,
+      "interruption": null,
+      "log_sha256": "209d3f9b7a5c0701de7bc5b8ae74d3899b9183dd7d508b4eff9227345c4da8e1"
+    }
+  ],
+  "actual_runtime2": {
+    "commands": [
+      {
+        "source": "01a193eb7114548df62100ba897e404b03cc4a1f",
+        "case": "actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "child_goal_runtime::actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume",
+          "--",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 101,
+        "seconds": 43.86533575100475,
+        "minimum_sampled_free_bytes": 300105728,
+        "interruption": null,
+        "log_sha256": "6234a9d65d99b8a699b909b11a67b46f837759136e07e5159ac10aae9d1eb263",
+        "test_summaries": [
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 21 filtered out; finished in 27.04s"
+        ]
+      }
+    ],
+    "overall": "FAILED",
+    "child_case": "0pass1fail,27.04s actualtest,43.865s compile+runtime",
+    "root_self_case": "NOT_RUN because first case failed",
+    "original90s_and200MiB_guards_hit": false,
+    "original_source_and_tools_restored_or_unchanged": true,
+    "actor_cleanup": "owned thread joined successfully; private raw DB and generated provider stderr retained",
+    "last_event_sequence": 40,
+    "goal_nodes_not_started": 2,
+    "goal_advance_intents": 0,
+    "post_reservation_phase": "NOT_REACHED; no actualpass/fail conclusion for that phase",
+    "actual_observed": "parent internal stop35/supervisor stopped38/factory stopped40; Factory waiting_child,targetwaiting_goal; noWorker/Owner/TaskAccepted",
+    "cause": "not uniquely determined from retained postcleanup evidence; bounded observational debug trace being implemented",
+    "diagnosis_review_sha256": "bc66ad04bd10a41aa97886fb0ba3c296a959e57124f1af2474be75263970ad13",
+    "diagnosis_manifest_sha256": "660c268f86bcdab5430a30de3390e187763e31f3f9e3a7f21f3d76cecf7e4348"
+  },
+  "ci": "new source NOT_RUN; no nextPR yet; original main14 seven checks not transferred",
+  "remaining": "Complete real lifecycle, cancellation/rework/recovery and negative matrices, true browser flows, full regression, exact CI and dualMac15; full130 goal incomplete"
+}
