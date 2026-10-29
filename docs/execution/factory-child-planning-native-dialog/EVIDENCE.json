@@ -406,7 +406,14 @@
     "independent_MANIFEST_sha256": "59267a6320be9cc506c2759298830476d8bf3707f465c102d387e59df98c4705"
   },
   "independent_fix_review": {
-    "status": "6002 source-ready notification received; actual42pure+7metadata/order controls reported by independent reviewer, report separately sealed by reviewer",
+    "status": "SOURCE_READY_RUNTIME_PENDING; both P2 evidence gaps closed on6002",
+    "REVIEW_path": "/workspace/.onboarding/factory-child-planning-native-dialog-independent-review/revision-6002b10/REVIEW.md",
+    "REVIEW_sha256": "24bf0ed2e37ea3639e33be0bf6cb1650b12323a89dc5894359c688b223b006d0",
+    "MANIFEST_path": "/workspace/.onboarding/factory-child-planning-native-dialog-independent-review/revision-6002b10/MANIFEST.json",
+    "MANIFEST_sha256": "3a8beaa84ab93ef514104a2cecf1da7cbd3e74228da226bbb7dd1cc4ad4d1eb5",
+    "reviewer_actual_pure_python": 42,
+    "reviewer_additional_metadata_order_controls": 7,
+    "old6_result_only_cases_detected_in_both_pending_and_approved_guards": true,
     "actual_Core_Rust_OS": "NOT_RUN; no compiler/build provenance claimed from metadata"
   },
   "actual_test_dimensions": {
