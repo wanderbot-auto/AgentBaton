@@ -249,7 +249,7 @@ fn owned_goal_delta(
         0
     };
     let root_attempt_count: u64 = if needs_initializer {
-        db.query_row("SELECT count(DISTINCT a.id) FROM attempts a WHERE a.root_task_id=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':') OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?2)",rusqlite::params![scope.root_task_id,scope.root_grant_id],|row|row.get(0)).map_err(db_error)?
+        db.query_row("SELECT count(DISTINCT a.id) FROM attempts a WHERE a.root_task_id=?1 OR a.task_id=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':') OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?2)",rusqlite::params![scope.root_task_id,scope.root_grant_id],|row|row.get(0)).map_err(db_error)?
     } else {
         0
     };
