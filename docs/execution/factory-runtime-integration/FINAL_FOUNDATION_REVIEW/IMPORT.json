@@ -1,0 +1,15 @@
+{
+  "independent_foundation_source": "1f325d80561ea48301f5f72b2ecf4c7c9745efb9",
+  "review_sha256": "1d2f88f97d47a0f8d474c73c6da7eaa308c6c658c462fb39441a0a5ab451756d",
+  "archive_sha256": "06a12a00f98d8539c6e535b316f41b61bd6240828a1301673195a37f3f8c4b6a",
+  "regular_members": 35,
+  "all_roundtrip": true,
+  "reviewed_observer_fix": "79bbf4e8ab69d0e24800f1c49c356673c2a8e4bc",
+  "applied_observer_delta_exactly_equal": true,
+  "reviewed_delta_sha256": "31fce594c7a785b53125822a13f428fb709043bc366c21308eb6f50437ee2f2b",
+  "current_schema": 13,
+  "current_harness_wholefile_sha256": "8fc6bcaa124d432ee4d851bbffe0da3c7add88cfa512a9df6b7bde23161ba16a",
+  "not_goal_wholefile_sha": "2066 appliesGoal12 wholefile; onlypatchedhelper/regionidentical,Factoryharnesssurroundingstrict13 preserved",
+  "Core_payload_unchanged_from_actual645source6d": true,
+  "no_newCI_claim": "barebranchpush only; PR/accurateCI afterfull14ready/sharedUIcauserepair; noformalApprove/merge"
+}
