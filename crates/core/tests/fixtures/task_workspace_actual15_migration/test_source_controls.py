@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import uuid
 from unittest import mock
 
 REPO=Path(__file__).resolve().parents[5]
@@ -119,5 +120,59 @@ class SourceControls(unittest.TestCase):
         self.assertIn('SELECT rowid,*',source);self.assertIn('code_workspace_binding',source)
         self.assertIn('#[derive(PartialEq)]',source);self.assertNotIn('derive(Debug',source)
         self.assertNotIn('assert_eq!(before.rows',source);self.assertIn('VERSION_UNSUPPORTED',source)
+
+    def test_query_only_wal_backup_sidecars_are_preserved_but_not_counted_as_databases(self):
+        # Owned SQLite primitive only, not a genuine15 migration run.
+        source=(REPO/'crates/core/tests/task_workspace_actual15_migration.rs').read_text()
+        section=source.split('fn backups(root: &Path)',1)[1].split('struct Retained',1)[0]
+        self.assertNotIn('.contains(".pre-v16-")',section)
+        for guard in ['starts_with("actual.pre-v16-")','ends_with(".sqlite3")',
+                      'uuid::Uuid::parse_str(id)','uuid.get_version_num(), 4',
+                      'fs::canonicalize(p).unwrap(), *p','private_read(p, 16_777_216)']:
+            self.assertIn(guard,section)
+        with tempfile.TemporaryDirectory()as tmp:
+            root=Path(tmp).resolve();name='actual.pre-v16-'+str(uuid.uuid4())+'.sqlite3';path=root/name
+            with sqlite3.connect(path)as db:
+                self.assertEqual(db.execute('PRAGMA journal_mode=WAL').fetchone()[0],'wal')
+                db.execute('CREATE TABLE preserved(raw BLOB)');db.execute("INSERT INTO preserved VALUES(x'00ff')")
+            db.close();path.chmod(0o600)
+            with sqlite3.connect(path.as_uri()+'?mode=ro',uri=True)as readonly:
+                readonly.execute('PRAGMA query_only=ON')
+                self.assertEqual(readonly.execute('SELECT hex(raw) FROM preserved').fetchone(),('00FF',))
+                entries={p.name for p in root.iterdir()}
+                self.assertTrue({name,name+'-wal',name+'-shm'}<=entries)
+                self.assertEqual(len([n for n in entries if '.pre-v16-'in n]),3)
+                actual=[p for p in root.iterdir()if p.name.startswith('actual.pre-v16-')and p.name.endswith('.sqlite3')]
+                self.assertEqual(actual,[path]);self.assertTrue(H.read_regular(actual[0],1_048_576))
+                # A second real backup still counts: the predicate must not
+                # simply collapse everything sharing the prefix into one.
+                second=root/('actual.pre-v16-'+str(uuid.uuid4())+'.sqlite3');second.write_bytes(b'inert counter');second.chmod(0o600)
+                self.assertEqual(len([p for p in root.iterdir()if p.name.startswith('actual.pre-v16-')and p.name.endswith('.sqlite3')]),2)
+                self.assertTrue({name+'-wal',name+'-shm'}<={p.name for p in root.iterdir()})
+            readonly.close()
+
+    def test_fk_negative_copy_is_actually_corrupt_after_enforcement_is_restored(self):
+        source=(REPO/'crates/core/tests/task_workspace_actual15_migration.rs').read_text()
+        section=source.split('fn genuine15_foreign_key_corruption_is_rejected_without_erasing_unknown_rows()',1)[1].split('#[test]',1)[0]
+        positions=[section.index(text)for text in ['clean_fk(&db)',
+            'pragma_update(None, "foreign_keys", false)','INSERT INTO managed_workspaces',
+            'pragma_update(None, "foreign_keys", true)','prepare("PRAGMA foreign_key_check")',
+            'assert_eq!(violations.len(), 1)','drop(db)','reject_unchanged(&f, "INPUT_CHANGED")']]
+        self.assertEqual(positions,sorted(positions))
+        with sqlite3.connect(':memory:')as db:
+            db.executescript('PRAGMA foreign_keys=ON;CREATE TABLE projects(id TEXT PRIMARY KEY);CREATE TABLE workspaces(id TEXT PRIMARY KEY,project_id TEXT REFERENCES projects(id));')
+            with self.assertRaises(sqlite3.IntegrityError)as failure:
+                db.execute("INSERT INTO workspaces VALUES('negative','missing')")
+            self.assertEqual(failure.exception.sqlite_errorcode,787)
+            db.rollback();self.assertEqual(db.execute('SELECT count(*) FROM workspaces').fetchone(),(0,))
+            db.execute('PRAGMA foreign_keys=OFF');self.assertEqual(db.execute('PRAGMA foreign_keys').fetchone(),(0,))
+            db.execute("INSERT INTO workspaces VALUES('negative','missing')");db.commit()
+            db.execute('PRAGMA foreign_keys=ON');self.assertEqual(db.execute('PRAGMA foreign_keys').fetchone(),(1,))
+            self.assertEqual(db.execute('PRAGMA foreign_key_check').fetchall(),[('workspaces',1,'projects',0)])
+            self.assertEqual(db.execute('SELECT count(*) FROM workspaces').fetchone(),(1,))
+            # Restoring enforcement does not repair/erase the old orphan, and
+            # newly attempted orphans remain forbidden.
+            with self.assertRaises(sqlite3.IntegrityError):db.execute("INSERT INTO workspaces VALUES('second','missing')")
+            self.assertEqual(db.execute('SELECT count(*) FROM workspaces').fetchone(),(1,))
 
 if __name__=='__main__':unittest.main(verbosity=2)

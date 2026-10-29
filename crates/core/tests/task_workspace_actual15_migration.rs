@@ -162,10 +162,23 @@ fn backups(root: &Path) -> Vec<PathBuf> {
         .map(Result::unwrap)
         .map(|r| r.path())
         .filter(|p| {
-            p.file_name()
+            // A query-only SQLite connection can still create -wal/-shm
+            // sidecars. Preserve those files, but count actual backup DBs.
+            let name = p.file_name().unwrap().to_str().unwrap();
+            if !name.starts_with("actual.pre-v16-") || !name.ends_with(".sqlite3") {
+                return false;
+            }
+            let id = name
+                .strip_prefix("actual.pre-v16-")
                 .unwrap()
-                .to_string_lossy()
-                .contains(".pre-v16-")
+                .strip_suffix(".sqlite3")
+                .unwrap();
+            let uuid = uuid::Uuid::parse_str(id).expect("Backup name must contain a UUID");
+            assert_eq!(uuid.to_string(), id);
+            assert_eq!(uuid.get_version_num(), 4);
+            assert_eq!(fs::canonicalize(p).unwrap(), *p);
+            private_read(p, 16_777_216);
+            true
         })
         .collect();
     paths.sort();
@@ -659,7 +672,38 @@ fn genuine15_corrupt_task_validation_rejects_preserving_all_old_rows_version_and
 fn genuine15_foreign_key_corruption_is_rejected_without_erasing_unknown_rows() {
     let f = fixture();
     let db = Connection::open(&f.db).unwrap();
-    db.execute("INSERT INTO managed_workspaces(id,project_id,document,state,idempotency_key,payload,root) VALUES('corrupt-copy','missing-project','{}','creating','negative','{}','/unopened-negative-only')",[]).unwrap();
+    clean_fk(&db);
+    // Only the disposable negative copy is corrupted. New rusqlite
+    // connections enforce FKs by default; restore enforcement before handing
+    // the retained orphan to the unchanged production Store::open checks.
+    db.pragma_update(None, "foreign_keys", false).unwrap();
+    assert!(!db
+        .pragma_query_value(None, "foreign_keys", |r| r.get::<_, bool>(0))
+        .unwrap());
+    assert_eq!(db.execute("INSERT INTO managed_workspaces(id,project_id,document,state,idempotency_key,payload,root) VALUES('corrupt-copy','missing-project','{}','creating','negative','{}','/unopened-negative-only')",[]).unwrap(), 1);
+    db.pragma_update(None, "foreign_keys", true).unwrap();
+    assert!(db
+        .pragma_query_value(None, "foreign_keys", |r| r.get::<_, bool>(0))
+        .unwrap());
+    let violations: Vec<(String, i64, String, i64)> = db
+        .prepare("PRAGMA foreign_key_check")
+        .unwrap()
+        .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))
+        .unwrap()
+        .map(Result::unwrap)
+        .collect();
+    assert_eq!(violations.len(), 1);
+    assert_eq!(violations[0].0, "managed_workspaces");
+    assert_eq!(violations[0].2, "projects");
+    assert_eq!(
+        db.query_row(
+            "SELECT rowid FROM managed_workspaces WHERE id='corrupt-copy'",
+            [],
+            |r| r.get::<_, i64>(0)
+        )
+        .unwrap(),
+        violations[0].1
+    );
     drop(db);
     reject_unchanged(&f, "INPUT_CHANGED");
 }
