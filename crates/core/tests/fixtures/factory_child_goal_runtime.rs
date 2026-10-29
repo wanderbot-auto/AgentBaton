@@ -255,12 +255,17 @@ fn actual_generated_child_goal(root_self: bool, deadline_probe: bool) {
                             ("SELECT count(*) FROM workspace_leases WHERE holder!=''", 0),
                             ("SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'", 0),
                         ] { assert_eq!(db.query_row(sql,[],|row|row.get::<_,i64>(0)).unwrap(),expected,"{sql}"); }
+                        let stopped_count:i64=db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.source')='baton_supervisor' AND json_extract(document,'$.aggregate_id')=?1",[work["session_id"].as_str().unwrap()],|row|row.get(0)).unwrap();
                         let (reason,reaped,never_started):(String,bool,bool)=db.query_row("SELECT json_extract(document,'$.payload.reason'),json_extract(document,'$.payload.process_reaped'),json_extract(document,'$.payload.no_process_started') FROM events WHERE json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.source')='baton_supervisor' AND json_extract(document,'$.aggregate_id')=?1",[work["session_id"].as_str().unwrap()],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?))).unwrap();
                         let ended:i64=db.query_row("SELECT count(*) FROM events WHERE json_extract(document,'$.kind')='session.turn_ended' AND json_extract(document,'$.aggregate_id')=?1",[work["session_id"].as_str().unwrap()],|row|row.get(0)).unwrap();
                         // Save stage observations before assertions, including
                         // failures. Old failed runs without a marker record do
                         // not acquire a retrospectively invented held stage.
-                        fs::write(evidence.join("deadline-stage.json"),serde_json::to_vec_pretty(&json!({"provider_hold_marker_observed":hold_reached,"stop_reason":reason,"process_reaped":reaped,"never_started":never_started,"actual_runtime_ms":work["actual_runtime_ms"],"original_reservation_ms":1000,"turns_ended":ended,"phase":"post-owned-Actor-cleanup"})).unwrap()).unwrap();
+                        fs::write(evidence.join("deadline-stage.json"),serde_json::to_vec_pretty(&json!({"provider_hold_marker_observed":hold_reached,"stop_reason":reason,"stopped_receipts":stopped_count,"process_reaped":reaped,"never_started":never_started,"actual_runtime_ms":work["actual_runtime_ms"],"original_reservation_ms":1000,"turns_ended":ended,"phase":"post-owned-Actor-cleanup"})).unwrap()).unwrap();
+                        assert_eq!(
+                            stopped_count, 1,
+                            "exactly one authoritative owned stopped receipt is required"
+                        );
                         assert!(
                             reaped && !never_started,
                             "a real owned process must be reaped, not a synthetic stopped label"
