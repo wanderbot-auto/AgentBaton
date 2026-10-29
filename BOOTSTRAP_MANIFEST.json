@@ -59,7 +59,7 @@
     "scripts/doctor.py": "b8e0d7e89220f0233557d51be25ff18af64bc4705b10d8e4e22ae5a14210857e",
     "scripts/setup-dev.sh": "086a5e80e22f516fb77169817b8ffc868787ed39cc1d0556e4d9c61576ecb346",
     "scripts/validate_design.py": "23427936c31e292b46ea6596d0523873e31e26962a71ca27041654ed3965b850",
-    "scripts/validate_infrastructure.py": "cd3c3f922c0e173a9242b59255763057c12991a7a9965c58f6fdf6ee6ced704e",
+    "scripts/validate_infrastructure.py": "b0482a35fc4febee972fb8fa8b9e1e829924d35f9c52b1493d3b7b3edf30f83e",
     "scripts/verify_bootstrap_manifest.py": "993445b8e0927778b5f8eccf0aa9846ed8bf5e75fd60ec244eaabe676d5a3b0f",
     "specs/README.md": "263e7df1bed214eeabf81e1bb74ef55e5cd4243ecc24a7cc3f2e5af0c074cfb2",
     "specs/decisions.json": "b2877fb2494e992764aa75f7b3303a5ee81d20bdb52953af7d040281541fa11a",
