@@ -103,5 +103,64 @@
     "Root STATUS",
     "credentials/accounts/permissions"
   ],
-  "next": "independent review; Root Cargo registration; controlled old15 generation; exact integrated16 mandatory target and native CI"
+  "next": "independent review; Root Cargo registration; controlled old15 generation; exact integrated16 mandatory target and native CI",
+  "current_source_commit": "74ac5507b63ce82d8a3afba5fe051721d9f1098f",
+  "revisions": [
+    {
+      "source_commit": "74ac5507b63ce82d8a3afba5fe051721d9f1098f",
+      "kind": "source_only_test_fixture_correction",
+      "root_actual_predecessor_run": {
+        "source": "1ebf9e9092b278fd2dda54b876d68f29bf03feeb",
+        "input": "/workspace/.onboarding/task-workspace-actual15-input1",
+        "result": "FAIL",
+        "passed": 3,
+        "failed": 2,
+        "skipped": 0,
+        "log": "/workspace/.onboarding/task-workspace-actual15-consumer-run2/command.log",
+        "log_sha256": "1079c1fe55af0b7b396dd940b7768f410fb368513938a431a69532b0069affa4",
+        "failures": [
+          "FK-negative INSERT failed787 before Store::open",
+          "final backup count3 versus1 because wal/shm matched substring; no schema-cookie assertion failure"
+        ]
+      },
+      "source_guard": {
+        "baseline": "207b0a4d9fc3dbf8c456dacb90767a4720dce954",
+        "only_consumer_regions": [
+          "backups",
+          "genuine15_foreign_key_corruption_is_rejected_without_erasing_unknown_rows"
+        ],
+        "inverse_whole_file_equal": true,
+        "other_four_test_functions_and_reject_unchanged_exact_unchanged": true,
+        "producer_helper_exact_unchanged": true,
+        "changed_source_paths": [
+          "crates/core/tests/fixtures/task_workspace_actual15_migration/test_source_controls.py",
+          "crates/core/tests/task_workspace_actual15_migration.rs"
+        ],
+        "source_sha256": {
+          "crates/core/tests/fixtures/task_workspace_actual15_migration/test_source_controls.py": "f96446958b6a86d716c83429c10f971c9da1cdcd9f5c0b484af602103b4014d1",
+          "crates/core/tests/task_workspace_actual15_migration.rs": "4e21eef627aa37b693adfecb0adf36fa478b03096e292109d3f6b94cd1158db4"
+        },
+        "rust_tests": "NOT_COMPILED/NOT_RUN",
+        "private_originals": "read only immutable queries; hash/stat unchanged"
+      },
+      "pure": {
+        "command": "python3 -B -m unittest discover -s crates/core/tests/fixtures/task_workspace_actual15_migration -p test_source_controls.py -v",
+        "exit": 0,
+        "tests": 13,
+        "seconds": 0.076,
+        "log_sha256": "492ab5e1c68a90c68dc0b6cb8ac8928992d2a019ba105d9ecf8fa229bfadd44b"
+      },
+      "read_only_diagnosis_sha256": "61a0df40ea9ac05055834c35dac7fecef8fe66d827b7007a6fe99c3cea547a70",
+      "actual_corrected_rust": "NOT_COMPILED/NOT_RUN",
+      "independent_review": "PENDING",
+      "unchanged": [
+        "producer/helper",
+        "Core/schema",
+        "Cargo/locks",
+        "workflow",
+        "genuine14",
+        "original genuine input/failure DB and sidecars"
+      ]
+    }
+  ]
 }
