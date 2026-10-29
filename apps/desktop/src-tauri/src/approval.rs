@@ -1382,6 +1382,7 @@ fn factory_budget(value: &Value) -> bool {
         && factory_safe(&value["runtime_ms"], 1, 604800000)
         && factory_safe(&value["output_bytes"], 1, 9_007_199_254_740_991)
         && factory_safe(&value["children"], 0, 1000)
+        && factory_safe(&value["reworks"], 0, 1000)
         && factory_safe(
             &value["reworks"],
             0,
@@ -4600,10 +4601,10 @@ mod factory_tests {
         ));
     }
     #[test]
-    fn reworks_project_bound_has_no_extra_native_thousand_cap_and_types_are_exact() {
+    fn reworks_project_keeps_general_thousand_cap_and_types_are_exact() {
         let (mut selection, mut proposal) = reworks_fixture();
-        selection["project_budget"]["attempts"] = json!(100000);
-        selection["project_budget"]["reworks"] = json!(99999);
+        selection["project_budget"]["attempts"] = json!(1001);
+        selection["project_budget"]["reworks"] = json!(1000);
         selection["child_goal_execution_policy"]["project_budget"] =
             selection["project_budget"].clone();
         sync_reworks_snapshot(&selection, &mut proposal);
@@ -4612,6 +4613,8 @@ mod factory_tests {
             &selection
         ));
         for bad in [
+            json!(1001),
+            json!(99999),
             json!(100000),
             json!(-1),
             json!(true),
@@ -4620,6 +4623,10 @@ mod factory_tests {
             Value::Null,
         ] {
             let mut s = selection.clone();
+            // Isolate the general1000 cap from the independent attempts−1
+            // bound:1001 must still fail even with100000 available attempts.
+            s["project_budget"]["attempts"] = json!(100000);
+            s["child_goal_execution_policy"]["project_budget"]["attempts"] = json!(100000);
             s["project_budget"]["reworks"] = bad.clone();
             s["child_goal_execution_policy"]["project_budget"]["reworks"] = bad;
             assert!(!factory_selection_matches(&s));
