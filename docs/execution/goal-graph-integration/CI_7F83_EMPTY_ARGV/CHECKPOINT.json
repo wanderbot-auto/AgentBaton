@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-29T03:58:11.912835+00:00",
+  "old_failed_source": "7f83c66652a40a9d01e995b45ce270abd44fbdde",
+  "old_actual_checkout": "dce5739705d6b265de51fe52948e1b1c2371ea2a",
+  "Product": 40812118373,
+  "Environment": 40812118369,
+  "actual_failure": "stableprivatechild10200 PPID9949 start20524 stateR before/after/error,raw0/NULfalse/e3b0. Latercleanup10207notbackfilled. Notoversized/zombie; exactkernelphaseunproven",
+  "fixed_source": "79bbf4e8ab69d0e24800f1c49c356673c2a8e4bc",
+  "fixed_harness_sha256": "2066f54bc6f0a0d3cf6add7885caa53fb322c28478c714846ebf5f9c04a76955",
+  "source_records": "8bc0070949790369c83e468fcc5e64af93c09612",
+  "independent_archive": {
+    "sha256": "991d650acd64c44b2cf7f4be0a2e79c4a0b132a96767f749e5f923db2340f6d1",
+    "bytes": 298518,
+    "members": 38,
+    "all_roundtrip": true
+  },
+  "old_originals": "pr16-7f83-linux-review originalUI/ProviderZIP+logs preserved; completeZIP members streamed/inventoried, no duplicate19MB expansion",
+  "tests": "author17+13+4 and independent17+13+4+extra7 all0; realclockpermanentemptyoriginal5s failure, ownchildwait/gone; no newbrowser/Core run",
+  "acceptance": "empty pending neveraccepted; nonempty1024/NUL/start/PPID/PGID remain; one original5s absolute rejects late,Core1500 unchanged;cleanup separate",
+  "next": "single normal newsource push, old7f83Mac maycancelviaunchanged workflowconcurrency and willbe recorded as cancellation nottestfailure; newexact7checks required",
+  "authority": "noformalApprove/merge/redacceptance/realProvider/spend/signing/production"
+}

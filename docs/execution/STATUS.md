@@ -1,3 +1,13 @@
+## 当前 Command timeout 观察器因果修复 — 2026-10-29T03:58:11.912835+00:00
+
+PR16旧7f83/actualdce5739的Environment三项/Rust通过，UI再次失败，双Mac截至03:54仍进行中（ARM已通过Native/readonly/Owner、Intel尚Core/native）。本轮原报告给出真实私有child10200、PPID9949、start20524，前/读后/失败后均live R同身份，但cmdline读取0字节；不是超长或已观察Z，cleanup另见10207sleep不得倒填同PID。Linuxv6.8源码说明liveexec阶段有可能返回0，但该CI具体内核机制未证。
+
+新源码79bbf4e/2066f54b仅把这种stable-owned空读取标pending且acceptedfalse并继续原观测；真正command仍要求完整非空≤1024/NUL/相同PPID/start/独立PGID。该case仅一次原5s绝对截止，返回exact前也拒迟到；Core1500ms、全局wait、其它flow/断言不变，cleanup默认None不冒按时证据。独审3571dcbc/00fed411 source-ready；17+13+4及独立extra7控制全通过，实际永久注入空值在原5s失败、late拒绝、所有自有childwait/gone。控制里的注入空读不冒自然kernel复现，旧CI失败与原控制历史全留。新source需要自己完整七CI，当前未合入或formalApprove。
+
+Factoryfoundation1f已645unique+7docs/fullClippy/fmt证据独审，Corepayload等价6d，最终集成1d2f88f9/19c5c57c通过；下一childplanning14源码分支继续。UI P2 fixed da382/733Node/type/build通过，独审原11neg与合法childshape复放闭合中；Native8Rust尚未编译，CI14guard升级745baac待独审；Core5库测试仅实际Core/SQLite+direct测试线程workerbody，无daemonworkerjoin证明，真实ACP/MCP/Actor、CLI14/迁移测试正进入执行。不得把这些替代schema14真实IPC、Native/Mac或完整130验收。
+
+main最近a1be94/OWNER001002ACK无003，完整130/27/WP01–14未完成。原a220真实双开发包及SHA仍可用，均无正式签名/公证/人工安装；真实Provider/私人身份、额外费用资源主机、生产与最终许可证保持关闭。以下为历史检查点。
+
 ## 当前诊断候选与精确 CI 终态 — 2026-10-29T03:22:04.300888+00:00
 
 PR16远端被测a2201fe2729eddb0d76bf3995667d3692126ee0f/actual7f359dc8807e4d11f8e2dedbf4b0a5cc83c81f16/tree520d7aab6abdd4d659d0a9d301d9e28bdfffafd2：Environment40806943416完整三项成功，Product40806944290的Rust及双Mac成功、UI失败，总6success/1fail；Product总体failure，不能合入。双Mac均完成真实Core/native/readonly/Owner/defaultbuild/releaseaudit/开发打包；Apple Silicon与Intel本次真实包及各自签名、SHA和人工未验项目见goal-graph-integration/DEVELOPMENT_DELIVERY_A2201.md，不能作Factory13或整个产品验收。原a220 UI firstcause仍未确认，不能把70a本地5checks/1PNG通过倒填。
