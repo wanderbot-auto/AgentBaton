@@ -10,7 +10,10 @@ def rework_plan(ctx, revision):
  checks=[rule for rule in ctx['contracts']['output:report']if rule not in owners];assert len(checks)==1 and checks[0].startswith('command:')
  candidate={'goal_task_id':ctx['goal']['task_id'],'artifact_id':'report','contract_id':'output:report','source':{'kind':'node','node_id':work['id'],'candidate_for_validation':True}}
  validator=copy.deepcopy(work)
- validator.update({'id':'validate-report','kind':'validate','goal':'Run the same approved exact grep command on this owned candidate','dependencies':[work['id']],'executor':{'kind':'validator','rule_id':checks[0]},'outputs':[],'required_inputs':[candidate],'required_validators':checks,'side_effect':'advisory_read_only','write_set':[],'reservation':{'runtime_ms':2000,'output_bytes':1024,'tokens':None,'cost_microunits':None},'idempotency_key':'fixed-validator'})
+ # Initial plan allocation includes normalization and fixed command+cleanup,
+ # not just the approved executable's 1000ms wall + 500ms cleanup interval.
+ # Both freshly submitted versions declare this before their first admission.
+ validator.update({'id':'validate-report','kind':'validate','goal':'Run the same approved exact grep command on this owned candidate','dependencies':[work['id']],'executor':{'kind':'validator','rule_id':checks[0]},'outputs':[],'required_inputs':[candidate],'required_validators':checks,'side_effect':'advisory_read_only','write_set':[],'reservation':{'runtime_ms':4000,'output_bytes':1024,'tokens':None,'cost_microunits':None},'idempotency_key':'fixed-validator'})
  owner=copy.deepcopy(validator)
  owner.update({'id':'owner-report','kind':'owner_approval','goal':'Review the repaired complete report after deterministic validation','dependencies':[work['id'],validator['id']],'executor':{'kind':'owner','rule_id':owners[0]},'required_validators':owners,'reservation':{'runtime_ms':1000,'output_bytes':1024,'tokens':None,'cost_microunits':None},'idempotency_key':'fixed-owner'})
  p['nodes']=[work,validator,owner]
