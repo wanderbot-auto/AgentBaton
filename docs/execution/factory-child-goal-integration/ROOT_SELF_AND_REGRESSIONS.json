@@ -1,0 +1,153 @@
+{
+  "recorded_at": "2026-10-29T13:28:46.900356+00:00",
+  "exact_source_head": "1e0150dafd0d745d7d2a70eccd158d9a13116269",
+  "results": {
+    "root_self": {
+      "source": "1e0150dafd0d745d7d2a70eccd158d9a13116269",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::actual_factory_root_goal_owned_stop_owner_acceptance_completes_without_cancel_or_resume",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 23.76837800699286,
+      "minimum_free_bytes": 1043595264,
+      "interruption": null,
+      "log_sha256": "4b91fa2fae8f0fe733e749b2fbb28870814be2245c937886f7930fa255001a2c",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 7.07s"
+      ]
+    },
+    "child_parent_resume": {
+      "source": "1e0150dafd0d745d7d2a70eccd158d9a13116269",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 8.327041479002219,
+      "minimum_free_bytes": 1046814720,
+      "interruption": null,
+      "log_sha256": "ce385aeb437e5d7040161614a767debb34b743c4525d36d142bc59056dc795d9",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 8.23s"
+      ]
+    },
+    "original_one_second_timeout": {
+      "source": "1e0150dafd0d745d7d2a70eccd158d9a13116269",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::actual_factory_child_goal_one_second_deadline_retains_unknown_without_replay_or_refund",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 5.112080966006033,
+      "minimum_free_bytes": 1044967424,
+      "interruption": null,
+      "log_sha256": "461ced1f778968220befe2066d0dd9662792bb2a345ddc0ca0e7e127db3f6490",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 5.00s"
+      ]
+    },
+    "recorded_stop_semantics": {
+      "source": "1e0150dafd0d745d7d2a70eccd158d9a13116269",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "actual_recorded_parent_yield_requires_normal_ordered_joined_same_attempt_not_unknown_run",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 0.10095588798867539,
+      "minimum_free_bytes": 1047875584,
+      "interruption": null,
+      "log_sha256": "1f8fa8367c3489dc92669ddab43ee0ce2e9a056cef9c1f517a30ddff9919dc74",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 118 filtered out; finished in 0.01s"
+      ]
+    }
+  },
+  "dimension": "Three distinct actual Actor/generated local ACP+MCP/private Owner process cases; recorded-stop SQLite unit separate. Not OS/native/live model proof.",
+  "root_self_independent_audit": {
+    "report": "ea5b064a021264daafefa3e3fa47e2ce792d3e25718f49fe84ec7124fbfed1eb",
+    "manifest": "ca8157d9d2dbfb468190c196b4b907c0914aa9d5b64085a5bdd9ed69ed14d570",
+    "scope": "author-run evidence verified, no independent process rerun"
+  },
+  "authority": "Global Draft/Running dispatch gate unchanged. Specific normal Factory handoff must be authenticated before private same-transaction TaskRunning projection. Original8a incomplete-source review remains BLOCKED;04 explicit policy correction applied.",
+  "owner_first_counter": "Old legal absent-counter test291c0b0 still actualFAIL;8dd/625 candidates not integrated because independent history completeness findings still open.",
+  "browser_first_actual": {
+    "source": "1e0150dafd0d745d7d2a70eccd158d9a13116269",
+    "command": [
+      "python3",
+      "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "--run",
+      "--case",
+      "normal",
+      "--tools",
+      "/workspace/.onboarding/factory-root-self-known-handoff-preflight1/frozen",
+      "--manifest",
+      "/workspace/.onboarding/factory-child-goal-browser-1e0150/manifest.json",
+      "--frontend",
+      "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+      "--output",
+      "/workspace/.onboarding/factory-child-goal-browser-1e0150/normal"
+    ],
+    "exit": 1,
+    "seconds": 6.160104325012071,
+    "minimum_free_bytes": 1043079168,
+    "interruption": null,
+    "log_sha256": "1b3e86d39a628fb136080dc10a25fdf7d1a038ca5c9a65a368a09f0270c332a1",
+    "report_sha256": "d411ab6ea191dc541a4e22adccc754c2dc39b4d22ca9babf759504e79f195a23",
+    "status": "failed_or_interrupted",
+    "checks": 1,
+    "screenshots": 2,
+    "cleanup_complete": false,
+    "source_tools_assets_before_after_equal": true,
+    "guard_scope": "180s external test controller only; original product Grant/Scope/runtime and per-stage15s unchanged",
+    "dimensions": "actual React/Linux Chromium/authenticated Unix Core15/generated ACP+MCP/private Owner fixture; not OS dialog or real Provider account"
+  },
+  "browser_failure": "Exact preapproval fixture expected one lease, actual0 before any sessions. Product work never started; all other count checks match. Source0a corrects to exact0, preserves zero execution and old failure evidence; actual retry pending. Daemon0/HTTPjoined but cleanup_completefalse and pre-start cleanup secondary retained.",
+  "full_product": "incomplete",
+  "mac15_ci_real_provider": "not_run"
+}

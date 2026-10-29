@@ -1,3 +1,11 @@
+## 同一提交的真实 Core 三路径已通过 — 2026-10-29T13:28:46.900356+00:00
+
+准确1e0150d：Rootself 1通过/7.07s、child＋父恢复1通过/8.23s、原1000ms超时负例1通过/5.00s，分别独立进程/零跳过；同head recorded stop语义单元1通过/0.01s（15SQL故障＋3伪handle变体，非新进程）。Rootself确为Root TaskAccepted/Factorycomplete/无额外恢复，原8a缺正常停止语义证明已通过04补齐且独审；全局Unknown派发门不放宽。Rootself运行证据独立只读核验通过，完整旧失败与source审查拒绝保留。
+
+真实浏览器normal首跑准确1e为FAIL（6.16s/1check/2PNG）：审批后尚无工作，fixture错期待lease1而实际0；其余执行域全零、Daemon正常退出、HTTP已join。原NOTFOUND prestart cleanup/空identity覆盖secondary及cleanup_completefalse仍保留，原0700环境/DB/截图未删。0a窄修精确lease0已独审，实际新目录重跑随后执行，不借Core绿冒UI绿。Owner-first首次counter旧控真实FAIL未闭，候选8dd/625因历史完整性问题尚未导入。
+
+见 [准确Core结果及浏览器失败](ROOT_SELF_AND_REGRESSIONS.json)。新native profile全回归、真实Validator失败有界返工、macOS15全CI和开发包/完整130验收仍未完成。权限不变，继续可执行研发。
+
 ## 当前完整子 Goal 正常链与超时负例通过 — 2026-10-29T13:04:21.684375+00:00
 
 准确84023b1的原完整childGoal case实际1通过/0失败/0跳过（7.53s，含编译总9.028s）。冻结工具8fd与测试源的生产内容逐字相同，仅fixture/docs变化已穷尽核对，不声称新二进制构建。真实82事件连通计划→Worker回收→候选→私有Owner验收→child TaskAccepted→父新attempt恢复→Factorycompleted，3会话全部停、零active intent/lease；原Factory绑定Grant完整不变。独立审查只读核原运行证据，并非独立重跑。父generic Task不是TaskAccepted，不把Factory完成冒整Goal/产品验收。
