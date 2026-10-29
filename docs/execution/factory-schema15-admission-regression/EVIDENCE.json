@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "status": "source_frozen_RUST_NOT_RUN",
+  "base": "79d73e3e56e07a3c96fbfb0962415fda5ee8e05f",
+  "source": "8d7fd644597bb9f5a61a435df39e61722c4717d9",
+  "branch": "codex/factory-schema15-admission-regression",
+  "tree": "/workspace/.worktrees/factory-schema15-admission-regression",
+  "requirements_context": [
+    "AB-COR-002",
+    "AB-COR-007",
+    "AB-SEC-003"
+  ],
+  "scope": "testfixture/currentversion regressionmaintenance only, no productcapability change",
+  "leaves": [
+    "bb45b7a2835abe694f2e660c639d6cc306f6609a",
+    "6abadd496427ed0b495a537f2bcd04f8cfea08d4",
+    "b2b21eace6cc45fabce4ecfe9a1b4b2f66650002",
+    "8d7fd644597bb9f5a61a435df39e61722c4717d9"
+  ],
+  "original_actualCI": [
+    {
+      "platform": "rust",
+      "path": "/workspace/.onboarding/pr18-head79-product-failures/rust.log",
+      "bytes": 61978,
+      "sha256": "c892d1fb1b1b627104fc6f2b0b550140d1f63d55e3318ea66a0f3893c1180383",
+      "actual_failure": "early currentStore15 vs fixture14; later admission/drift not reached"
+    },
+    {
+      "platform": "arm",
+      "path": "/workspace/.onboarding/pr18-head79-product-failures/arm.log",
+      "bytes": 109273,
+      "sha256": "c75b92534436b9cb69b789785ec69c5176bc0d756abb104690e12ac6cd2c0ec9",
+      "actual_failure": "early currentStore15 vs fixture14; later admission/drift not reached"
+    },
+    {
+      "platform": "intel",
+      "path": "/workspace/.onboarding/pr18-head79-product-failures/intel.log",
+      "bytes": 127796,
+      "sha256": "7f00c1866d3a69cddf595b04386cadcaf5f8d8e98b901a70f590b23be99c796d",
+      "actual_failure": "early currentStore15 vs fixture14; later admission/drift not reached"
+    }
+  ],
+  "scan": {
+    "test_files": 50,
+    "changed_Rust_tests": 17,
+    "current_assertions": 16,
+    "future_probe_files": 9,
+    "other_Rust_Cargo_locks_equal": true,
+    "true14_legacy_blob": "31a4b8a730fc6dc52b6873f4a9c9d2ce991ae44a",
+    "remaining14_classification": [
+      {
+        "path": "crates/core/tests/command_validation_migration.rs",
+        "line": 311,
+        "source": "            \"old_current14\" => connection.execute_batch(\"PRAGMA user_version=14;\").unwrap(),",
+        "classification": "strict15 inverse refuses old14 input, deliberate negative"
+      },
+      {
+        "path": "crates/core/tests/factory_child_goal_legacy_migration.rs",
+        "line": 57,
+        "source": "    assert_eq!(m[\"schema\"], 14);",
+        "classification": "genuine14 manifest/input/rollback/backup; wholefile unchanged"
+      },
+      {
+        "path": "crates/core/tests/factory_child_goal_legacy_migration.rs",
+        "line": 167,
+        "source": "    assert_eq!(p[\"schema\"], 14);",
+        "classification": "genuine14 manifest/input/rollback/backup; wholefile unchanged"
+      },
+      {
+        "path": "crates/core/tests/factory_child_goal_legacy_migration.rs",
+        "line": 274,
+        "source": "    assert_eq!(manifest[\"schema\"], 14);",
+        "classification": "genuine14 manifest/input/rollback/backup; wholefile unchanged"
+      },
+      {
+        "path": "crates/core/tests/factory_child_goal_legacy_migration.rs",
+        "line": 287,
+        "source": "    assert_eq!(manifest[\"actual_initial_probe\"][\"schema\"], 14);",
+        "classification": "genuine14 manifest/input/rollback/backup; wholefile unchanged"
+      },
+      {
+        "path": "crates/core/tests/factory_child_goal_legacy_migration.rs",
+        "line": 348,
+        "source": "    assert_eq!(version(&db), 14);",
+        "classification": "genuine14 manifest/input/rollback/backup; wholefile unchanged"
+      },
+      {
+        "path": "crates/core/tests/factory_child_goal_legacy_migration.rs",
+        "line": 516,
+        "source": "    assert_eq!(version(&after), 14);",
+        "classification": "genuine14 manifest/input/rollback/backup; wholefile unchanged"
+      },
+      {
+        "path": "crates/core/tests/factory_child_goal_legacy_migration.rs",
+        "line": 597,
+        "source": "    assert_eq!(version(&backup), 14);",
+        "classification": "genuine14 manifest/input/rollback/backup; wholefile unchanged"
+      },
+      {
+        "path": "crates/core/tests/fixtures/factory_large_data_gate.rs",
+        "line": 360,
+        "source": "            Ok(json!({\"scope_id\":row.get::<_,String>(0)?,\"session_id\":row.get::<_,String>(1)?,\"attempt_id\":row.get::<_,String>(2)?,\"fencing_token\":row.get::<_,i64>(3)?,\"handle_expires_at_ms\":row.get::<_,i64>(4)?,\"handle_revoked\":row.get::<_,bool>(5)?,\"credenti",
+        "classification": "SQL columnindex14, not schema"
+      },
+      {
+        "path": "crates/core/tests/fixtures/pre_factory_schema.rs",
+        "line": 132,
+        "source": "PRAGMA user_version=14;\")?;",
+        "classification": "explicit generated intermediate target14, not currentStore expectation"
+      },
+      {
+        "path": "crates/core/tests/sessions_ipc.rs",
+        "line": 1451,
+        "source": "    assert_eq!(current[\"nodes\"][0][\"actual_output_bytes\"], 14);",
+        "classification": "actual artifact bytes14, not schema"
+      },
+      {
+        "path": "crates/core/tests/sessions_ipc.rs",
+        "line": 2706,
+        "source": "        assert_eq!(nodes[1][\"actual_output_bytes\"], 14);",
+        "classification": "actual artifact bytes14, not schema"
+      }
+    ]
+  },
+  "preserved": [
+    "production/locks/workflows/permissions",
+    "realNative14inputmanifest/rawbackup/rollback/future16",
+    "alladmission/drift/intent/task/marker/ownedstop/attempt/activebudget assertions",
+    "alloldmigration raw/BLOB/backup/refusal assertions; onlyexact2knownNativeFKDDL intentionnormalized infullschemaoracle"
+  ],
+  "new_inverse": "strict15/exact12emptyFactoryDDL+objects/knownNative2DDL/index; reverseonly2FKs; rowid/rawallcolumns/index/incomingrefs; pre/postFK/atomicrollback/restoreflags; ownsynthetic testDBonly",
+  "written_tests": "modified targets plus1newemptyinversepositive and12inversefailurevariants; RustNOT_RUN",
+  "actual_static": {
+    "rustfmt": "PASS standalonesourceonly",
+    "git_diff_check": "PASS",
+    "source_scan": "PASS",
+    "synthetic_SQL_controls": {
+      "dimension": "synthetic schema-only SQLite controls of exact extracted helperDDL plus modeledguard order; NOT Rust/Store/nativeapproval/runtime",
+      "python_sqlite_version": "3.53.1",
+      "compatibility": [],
+      "cases": [
+        {
+          "case": "nonemptyNative_shape_preserve_fk0",
+          "passed": true
+        },
+        {
+          "case": "nonemptyNative_shape_preserve_fk1",
+          "passed": true
+        },
+        {
+          "case": "nonempty_factory",
+          "passed": true
+        },
+        {
+          "case": "nonempty_derived",
+          "passed": true
+        },
+        {
+          "case": "missing_oldtable",
+          "passed": true
+        },
+        {
+          "case": "missing_newtable",
+          "passed": true
+        },
+        {
+          "case": "wrong12",
+          "passed": true
+        },
+        {
+          "case": "wrong14",
+          "passed": true
+        },
+        {
+          "case": "unknown_factory_column",
+          "passed": true
+        },
+        {
+          "case": "unknown_factory_index",
+          "passed": true
+        },
+        {
+          "case": "unknown_native_column",
+          "passed": true
+        },
+        {
+          "case": "unknown_native_index",
+          "passed": true
+        },
+        {
+          "case": "late_collision",
+          "passed": true
+        },
+        {
+          "case": "post_restore_native_id_orphan",
+          "passed": true
+        }
+      ],
+      "count": 14,
+      "passed": true,
+      "helper_sha256": "bd2bb692cd5630f3a00dca465dc12bf22ca32f4c9ad5e4782c956d918bc3a6e8",
+      "no_private_DB_copied": true
+    },
+    "limits": "exacthelperDDL+modeledguards over inertreferentialrows; not Store/Nativeapproval/Provider/actualmigration runtime"
+  },
+  "not_run": [
+    "Cargo/check/Clippy",
+    "admission/Rustalltargets",
+    "actualStoreinverse/migrations",
+    "realNodeorCoreActor",
+    "newCI/Mac/Provider"
+  ],
+  "evidence_paths": [
+    "/workspace/.onboarding/factory-schema15-admission-regression/SOURCE_SCAN.json",
+    "/workspace/.onboarding/factory-schema15-admission-regression/FIXTURE_SQL_CONTROLS.json"
+  ]
+}
