@@ -16,3 +16,6 @@ Further source-only hardening: Native run provenance is now shared by migration,
 
 
 Before second real compile: original planning proposals remain valid metadata even when incomplete for execution. The distinct execution constructor requires explicit Owner nodes consuming every selected output and explicit matching validator nodes for all required approved definitions, rather than guessing checks or accepting a Work-only planning declaration. Still source-only/unexposed pending complete wiring and actual tests.
+
+
+Latest actual check-only PASS:0a79421,check-4,7unused warnings remain, explicit lease released. No runtime/Node/Mac results. Continue full fixed IPC/MCP plus exact parent/Graph stop/accept/result/cancel/adoption wiring, write real normal/failure tests, then request a new exclusive execution window. Do not substitute old14 tools or original SQL-only controls for schema15 Rust execution.

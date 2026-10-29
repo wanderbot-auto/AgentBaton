@@ -21,21 +21,6 @@
     "AB-COR-002",
     "AB-COR-007"
   ],
-  "cargo": {
-    "source": "e363569d0d397ed07de5e7403f978fc496741e18",
-    "result": "failed",
-    "exit_code": 101,
-    "wall_seconds": 8.085,
-    "errors": 21,
-    "evidence": "/workspace/.onboarding/factory-child-goal-core/check-3",
-    "setup_failures": [
-      "check-1",
-      "check-2"
-    ],
-    "source_and_old_tool_metadata_unchanged": true,
-    "lease": "released",
-    "source_fixes": "not_recompiled"
-  },
   "runtime": "not_operational_IPC_MCP_execution_not_registered",
   "native": "not_run",
   "macos": "not_run",
@@ -64,5 +49,41 @@
   ],
   "latest_public_wire_contract": "2a3d6ae",
   "factory_record_counts": 12,
-  "new_counter": "child_goal_runs"
+  "new_counter": "child_goal_runs",
+  "cargo_failures": {
+    "source": "e363569d0d397ed07de5e7403f978fc496741e18",
+    "result": "failed",
+    "exit_code": 101,
+    "wall_seconds": 8.085,
+    "errors": 21,
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/check-3",
+    "setup_failures": [
+      "check-1",
+      "check-2"
+    ],
+    "source_and_old_tool_metadata_unchanged": true,
+    "lease": "released",
+    "source_fixes": "not_recompiled"
+  },
+  "cargo": {
+    "source": "0a79421fd7c427acf225b82d8f8f949418239e0f",
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "check",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--lib"
+    ],
+    "result": "passed",
+    "exit_code": 0,
+    "wall_seconds": 7.581,
+    "warnings": 7,
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/check-4",
+    "source_and_shared_tools_unchanged": true,
+    "frozen_private14_tools_match_original_manifest": "/workspace/.onboarding/factory-child-goal-core/FROZEN14_TOOLS_AFTER-check-4.json",
+    "lease": "released",
+    "scope": "typecheck_only_no_tests_no_new_binaries"
+  }
 }
