@@ -56,7 +56,9 @@ describe('Task code workspace component / mocked fixed daemon transport only', (
     expect(screen.getByText('Filesystem identity revalidated')).toBeVisible(); expect(screen.getByText(/not execution authorization/)).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Prepare isolated Git workspace for this task' })).not.toBeInTheDocument();
     await user.click(screen.getByText('Binding and receipt details', { selector: 'summary' }));
-    expect(screen.getByText('/managed/' + f.view('x').binding.receipt.workspace_id)).toBeVisible(); expect(screen.getByText('Original Task revision')).toBeVisible(); expect(screen.getByText('Current Task revision')).toBeVisible();
+    expect(screen.getByText('Managed workspace', { selector: 'dt' }).nextElementSibling).toHaveTextContent('/managed/' + f.view('x').binding.receipt.workspace_id);
+    expect(screen.getByText('Observed workspace root', { selector: 'dt' }).nextElementSibling).toHaveTextContent('/managed/' + f.view('x').binding.receipt.workspace_id);
+    expect(screen.getByText('Original Task revision')).toBeVisible(); expect(screen.getByText('Current Task revision')).toBeVisible();
   });
   it('retains lost request across remount and requires a successful explicit task read before exact same-key replay', async () => {
     const user = userEvent.setup(), f = fixture(); setup(f); vi.mocked(api.workspacesPrepareTaskGit).mockRejectedValue(new Error('reply lost'));
