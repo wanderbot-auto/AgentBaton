@@ -1,3 +1,11 @@
+## 当前 Foundation13 与新准确 CI — 2026-10-29T03:30:38.015548+00:00
+
+本分支codex/factory-runtime-integration已合Goal诊断/Nativehelper/CI60到44d87fdb，后续faea4a2仅更新4unitrecords/130需求partial证据和真实新包记录。Core、Coretests、Cargo与6d666ed3完整645unique+7docs/fullClippy/fmt通过的payload完全相同；这是源码等价维度，未把新合成SHA冒为重跑645。NativeOwner strictjson/type/CAS保留、schema仅当前13，实际Python30含原schema13bootstrap、Python34/Node4及三static通过。独立最终合成审查正在安排，尚未Factorypush/PR/新CI。
+
+PR16已普通push新7f83c66652a40a9d01e995b45ce270abd44fbdde，Product40812118373与Environment40812118369实际已启动，结果未知；旧a220完整终态6success/1UIFail不能复用。旧a220双Mac真实开发包/新SHA/签名/10目视40hash-only截图及原件已完整封存381members，SHAf082b21971eea3780dd30090c3a9c561774c54340761d395d271b568c469b4da；正式签名与人工安装未验。原UI原因仍未确认，新Graph只保留原断言和期限添加私有进程诊断。
+
+下一child_planning Core/Native/UI均实际代码：Core14类型check2通过，真实新tests待运行；UI703Node/type/build0，Native8新增Rusttests未编译，分别独审/集成进行中。不得把这些标为实际schema14IPC或Mac通过。旧false scope不升级、childGoal执行及workspacecreation仍未实现。130/27/WP01–14总目标保持完整，main最近a1be94/OWNER001002ACK；无formalApprove/受保护合并、生产、真实产品Provider身份、额外费用资源或主机、签名公证、最终许可证扩权。以下为已保留历史。
+
 ## 当前 Factory 完整本地回归与后续实现 — 2026-10-29T03:16:19.776661+00:00
 
 Factory foundation准确源码6d666ed3a52ad14889440b84a903c58e050fa24c已实际完整通过645unique outer tests/0fail/0ignored及7文档测试，另5nested均重叠不叠加；workspace tests586.21s、fullClippy13.01s、fmt1.0s均0。57sessions含dirty拒绝/真正耗尽零新增副作用/剩余额度真实普通运行三项共享budget，18Factory含受控16MiB读取取消/撤销/TTL、原Grant父子接力/真实stop与mixed原root/project计数，均通过。1308tracked前后等、原4redirect准确清理、原shared188f/577和CAS2f5均保持；独审bf880188/470be657逐件核157证据和raw唯一645计数。仅Linux TEST_DEBUG0/root workspace，不计Native workspace/Mac/真实Provider或完整130验收；四旧full失败150/170/224/421各1FAIL原件保留。
