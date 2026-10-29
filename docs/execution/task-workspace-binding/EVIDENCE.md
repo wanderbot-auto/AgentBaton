@@ -48,3 +48,19 @@ Python sqlite3仅 `:memory:` 原语控制：自建最小tasks/child表、FK开�
 新源 `2f0b9b3ff50cf8414526989b867e120d7d9fc831`（parent461）仅source_from和fresh_view中4个已有binding GitKind转换追加map_err changed，拒绝成INPUT_CHANGED。初次prepare Directory路径仍unsupported；None、receipt、SQL、CAS、lease、唯一FS分支、所有13+1测试/允许码全部原样。新module SHA `266a7359c4248d124f929db7117b8f64af788a2c0d971eabd01a644b2023e254`，其余7源码保持前表SHA。作者实际Python四表达式逆改整个module逐字等461、两个测试文件原字节等461、单文件修改范围核验与选择性rustfmt --check/git diffcheck exit0；新源未编译/运行，等待原reviewer与Root重验。
 
 原2b源独审REVIEW SHA `ba77b1c5736a9a6a3b879d02c2edc19bb969749cb967060f2f218be45ecc529c`、MANIFEST `1c3a30fd48b807a67567f29b0579763b44dddd7e9e3bb1649f7d717dd01a2c89`，目录`.onboarding/task-workspace-binding-independent-review/revision-2b9080a`，24静态/7SQLite selector原语控是有限源码结论，不能覆盖其后真实12/1失败或直接签新源。
+
+## Root精确0d6a034重验：13unit+公开1integration通过，Clippy101
+
+三原件都使用source `0d6a034785ffd3d47ca781b2ec41a5036567bb40`，RESULT.json/command.log；作者只读实核log SHA与RESULT.source，不重复Cargo。
+
+| `.onboarding/`目录 | 实际结果 | command.log SHA-256 |
+| --- | --- | --- |
+| task-workspace-binding-core-units2 | cargo test --offline --locked -p agentbaton-core --lib task_workspace_binding -- --nocapture --test-threads=1；13PASS/0failed/0ignored/139filtered；test9.33s/wrapper26.774188971s/exit0 | 9c6e3bd0719315e9e29c5ba5d69da2226c4e2fd48ce16ae382891b3b64113b57 |
+| task-workspace-binding-public-contract1 | cargo test --offline --locked -p agentbaton-core --test task_workspace_binding -- --nocapture --test-threads=1；1PASS/0failed/0ignored/0filtered；test0.82s/wrapper16.540144127s/exit0 | da05de309401f7950071f087b753fe6511fb1d94eeca8fab71d423f2efb3d59b |
+| task-workspace-binding-strict-clippy1 | cargo clippy --offline --locked -p agentbaton-core --lib --test task_workspace_binding -- -D warnings；2type_complexity/exit101/wrapper8.621165110s | 4d1af9d1ce1c860767b4a0383691a20eddfde5f701e5386bf2a74f433414c0a3 |
+
+每RESULT均source_head_and_tracked_unchanged=true/frozen_tools_unchanged=true，为Root执行记录；作者未据此称新16 daemon已构建。13/1是两个真实Rust测试target，不把内部raw variants、SQLite原语/静态控相加。它们确实覆盖原replaced/source-head/cleared-binding函数通过，但不是Actor/真实Provider/Native/Mac或genuine旧15应用数据库证明。
+
+Clippy唯一两处在模块202/384行原Option<(Option<String>...)>与Option<(String...Option<String>)>。源 `4d4631842ac8aa298f7717a89669160f97d9a690` 定义同型ProjectPinRow/ManagedBindingRow、两处引用alias；无allow、无SQL/参数/错误码/语义/13+1断言变更。展开两alias+去定义后整个文件逐字恢复0d6；选择性rustfmt --check、git diffcheck与测试byte-preservation实际0。首次checker只处理单行声明而rustfmt折行，assert失败后仅修改checker边界重放0，未改生产求绿。当前moduleSHA `5aa76ce8e535f2bf6fc5d26aeaa520136d417149df6d087c7f18b2796817b7ba`，其它7源码沿前表不变；新alias lint/编译未运行。
+
+2f定向独审SOURCE_READY_FOR_ROOT_CONTROLLED_RETEST在`.onboarding/task-workspace-binding-independent-review/revision-2f0b9b3` REVIEWa0315c1acc32baeb233ab1f0a7cf0a827787d2828c061607fc474eb04e828059 / MANIFESTb483e45b8cd6591f0065960448287e2209eff5b7fe6397cfa4c9d414dba2fca3，11静态控，与Root后续实际结果分维度。新4d alias已交同reviewer，不预写其结论。

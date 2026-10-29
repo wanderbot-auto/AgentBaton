@@ -23,3 +23,9 @@
 唯一失败在replaced_workspace_and_cleared_binding_history_cannot_reassign_or_repeat_creation首replaced变体；fresh_view把当前普通Directory转Git pin时用了首次capability错误。源2f0b9b3只修已有绑定重验四个类型漂移错误分类为INPUT_CHANGED；初次Directory拒绝路径未改，所有测试/原期待码保持。作者只实核原log SHA、四表达式逆改和格式，不重复Cargo/运行失败ELF。
 
 原13unit中的12个通过是实际Store/Git/SQLite测试，包括受控v15形状；它仍不是genuine旧15应用迁移证明。未通过的函数不能算完成其后两个variant。新源复审与Root重验待完成，原12/1失败和失败ELF保留。
+
+## Root真实重验通过与独立lint失败
+
+精确0d6a034：13unit全部通过/0ignored/test9.33s/wrapper26.774188971s；公开Rust integration1通过/0ignored/test0.82s/wrapper16.540144127s。failed函数三个循环variant此次已完整返回成功，原first-run12/1与ELF保留；仍不能将controlled-v15-shape当genuine旧15生产者。
+
+同源strictClippy实际101/wrapper8.621165110s，唯一两处type_complexity在旧模块202与384行的Option tuple。作者source4d46318仅两命名alias+两局部类型替换，原SQL/params/所有guard/error与13+1测试不动，禁止allow或降lint。类型展开全文件逆改等0d6/格式检查0，作者未Cargo。最初inverse脚本按未格式化单行alias移除而失败，修checker的多行block边界后0；不是产品失败或放宽验收。当前独审/新lint待执行，其它重型验证不冒通过。

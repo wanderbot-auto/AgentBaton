@@ -45,3 +45,7 @@ Task当前revision只需不倒退到reserved之前，不能永久等于历史res
 Root在461e250909fec726d421a9367fd70f639a627dfb实际编译并运行13 unit：12PASS/1FAIL/0ignored/test8.17s，exit101。失败是已绑定Git工作区被真实rename保留、原路径变普通Directory后的错误码：应INPUT_CHANGED却返回首次Directory准备才适用的CAPABILITY_UNSUPPORTED；拒绝本身未绕过，但错误分类有误。原测试未改允许码/断言，后两个循环variant不能据此次中断声称已运行。
 
 修复源 `2f0b9b3ff50cf8414526989b867e120d7d9fc831` 仅在已有binding的source_from/fresh_view四个GitKind转换将类型漂移映射INPUT_CHANGED；首次Directory准备仍CAPABILITY_UNSUPPORTED。lease/source/物理pin/unknown/FS规则与全部13+1测试源不变。新源等待独审及Root重验，不将旧12PASS直接移签。
+
+## 实际重验13+1通过，严格lint待alias修复重验
+
+Root精确0d6a034实际13unit PASS/test9.33s/wrapper26.774189s，公开Rust contract1 PASS/test0.82s/wrapper16.540144s；原12/1不覆盖。之后同源strictClippy --lib --test task_workspace_binding exit101，只报两个Option多元tuple类型complexity。新源 `4d4631842ac8aa298f7717a89669160f97d9a690` 命名ProjectPinRow/ManagedBindingRow，展开后整模块等0d6；无SQL/错误/守卫/门限/测试变化，等待独审与Root精确lint。没有Native/Mac/genuine旧15或公共IPC新通过。
