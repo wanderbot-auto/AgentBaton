@@ -10,16 +10,104 @@
   "approval": "AB-START-001",
   "wire_source": "4ffb21000030a3f82580f5a9c14ed40056bb13a0",
   "requirements": {
-    "AB-TSK-003": "UI preserves original Grant and independent execution-policy bounds; enforcement proof belongs to Core",
-    "AB-TSK-004": "exact key/payload/CAS reconciliation controls planned; no automatic unknown replay",
-    "AB-TSK-005": "bounded node/run limits and complete actual ancestry; no fanout authority from UI",
-    "AB-TSK-009": "real saved-plan start/Graph progress/Owner decisions/advance connected to fixed bridges",
-    "AB-TSK-011": "initial immutable and current adopted saved references plus original plan text",
-    "AB-TSK-012": "root/project limits displayed; remaining accounting checked by Core and never reset by UI",
-    "AB-SEC-002": "five fixed Owner commands; no generic RPC/shell/SQL/finalize route",
-    "AB-SEC-003": "no scoped/private credentials handled by renderer; backend expiry/session-fence proof not established here",
-    "AB-SEC-005": "untrusted text uses React escaped text/pre, not HTML/script execution",
-    "AB-SEC-010": "Native/Core materialize origin and approve recipient/input/workspace bindings; frontend cannot self-attest"
+    "AB-TSK-003": {
+      "implemented": [
+        "factory-form.ts",
+        "factory-guards.ts"
+      ],
+      "tests": [
+        "factory-child-goal.test.ts originalGrant/u32/false/independent binding controls"
+      ],
+      "dimension": "UI preflight/mock_verified; actual Core authority enforcement not established here"
+    },
+    "AB-TSK-004": {
+      "implemented": [
+        "FactoryChildGoals.tsx exact intent/key/CAS hold and explicit recovery across remount"
+      ],
+      "tests": [
+        "FactoryChildGoals.test.tsx lost reply/remount/historical receipt without rollback"
+      ],
+      "dimension": "mock_verified; whole WebView process restart intent persistence not claimed"
+    },
+    "AB-TSK-005": {
+      "implemented": [
+        "factory-child-goal.ts typed complete ancestry",
+        "factory-guards.ts bounded nodes/runs/budgets"
+      ],
+      "tests": [
+        "factory-child-goal.test.ts ancestry cycles/foreign refs/second run/bounds"
+      ],
+      "dimension": "UI consistency/mock_verified; Core fanout accounting remains separate"
+    },
+    "AB-TSK-009": {
+      "implemented": [
+        "FactoryChildGoals.tsx actual five fixed bridges/Graph/Owner/plan adoption"
+      ],
+      "tests": [
+        "FactoryChildGoals.test.tsx start/adopt/cancel/denial/Owner/acceptance projection"
+      ],
+      "dimension": "implementation+mock_verified; automatic failed-Graph recovery remains Core WIP and UI gate closed"
+    },
+    "AB-TSK-011": {
+      "implemented": [
+        "FactoryChildPlans.tsx existing editor integration",
+        "FactoryChildGoals.tsx initial/adopted refs and complete original raw plan"
+      ],
+      "tests": [
+        "factory-child-goal.test.ts exact current nodes/raw refs",
+        "FactoryChildGoals.test.tsx newer saved adoption retains history"
+      ],
+      "dimension": "mock_verified; raw hash checked via WebCrypto, no plan normalization sent as authority"
+    },
+    "AB-TSK-012": {
+      "implemented": [
+        "FactoryChildGoalPolicyForm.tsx",
+        "factory-form.ts",
+        "factory-guards.ts conditional matching shared reworks"
+      ],
+      "tests": [
+        "factory-child-goal.test.ts old hard0/new explicit bounded matching/no second run"
+      ],
+      "dimension": "UI preflight/mock_verified; actual common ledger/ancestor counters are Core-owned not measured here"
+    },
+    "AB-SEC-002": {
+      "implemented": [
+        "factory-api.ts five exact Owner commands and existing fixed goal_node approve/reject"
+      ],
+      "tests": [
+        "factory-child-goal-api.test.ts exact args/no generic route"
+      ],
+      "dimension": "mock_transport_verified; Native/Core enforcement remains separate"
+    },
+    "AB-SEC-003": {
+      "implemented": [
+        "FactoryChildGoals.tsx expiry/revoke freshness and authenticated history; no scoped credential handling in renderer"
+      ],
+      "tests": [
+        "FactoryChildGoals.test.tsx revoke/read/cancel guards"
+      ],
+      "dimension": "partial_UI_only; actual expired/cross-session MCP credential denial is not verified"
+    },
+    "AB-SEC-005": {
+      "implemented": [
+        "FactoryChildGoals.tsx React escaped pre/text rendering"
+      ],
+      "tests": [
+        "FactoryChildGoals.test.tsx untrusted HTML stays text"
+      ],
+      "dimension": "mock_component_verified; no browser or Native security acceptance claimed"
+    },
+    "AB-SEC-010": {
+      "implemented": [
+        "factory-child-goal.ts mandatory server origin and complete stored refs",
+        "FactoryChildGoals.tsx no caller-authority/origin submission"
+      ],
+      "tests": [
+        "factory-child-goal.test.ts typed origin/missing/foreign binding",
+        "factory-child-goal-api.test.ts reference-only args"
+      ],
+      "dimension": "UI consistency/mock_verified; actual recipient/input/identity authority checked by Core not self-attested frontend"
+    }
   },
   "validation": {
     "typecheck": "5414490 PASS",
