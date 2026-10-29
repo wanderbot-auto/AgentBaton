@@ -201,6 +201,9 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     f.selection.project_budget.output_bytes = 12288;
     f.selection.root_budget.children = 6;
     f.selection.project_budget.children = 6;
+    // The new case's upfront root child ceiling must fit its full Factory
+    // node envelope (the unchanged baseline fixture has only four nodes).
+    f.selection.max_total_nodes = 7;
     f.selection.root_budget.reworks = 1;
     f.selection.project_budget.reworks = 1;
     let original_base_grant = f.store.get_grant(&f.selection.grant_id).unwrap();
