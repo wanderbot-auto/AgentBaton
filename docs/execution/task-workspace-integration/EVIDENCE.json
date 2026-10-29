@@ -5,8 +5,8 @@
   "source_freeze_for_session_tests_and_new_tools": "e313b98f886160c680b40a04ff33d3a1d00a9d4e",
   "base_main": "653679db60d5c68f7e3c5b5e146ef58aed10de23",
   "parent_PR": "https://github.com/wanderbot-auto/AgentBaton/pull/18",
-  "parent_exact_remote_head": "72735c2f34f5e7d582eb8913a047b993b7d48e5d",
-  "parent_state": "draft/unmerged; Environment3/Rust+UI success; dualMac original55s rework fails, no new package",
+  "parent_exact_remote_head": "7acabad023ae32801b7dbd3b5f687d6b199c0118",
+  "parent_state": "draft/unmerged; exactnextCI40971954724/40971954667 running, priora8665fail retained",
   "requirements": [
     "AB-PRJ-002",
     "AB-PRJ-003",
@@ -551,7 +551,6 @@
     "Historical capacity stops/zero-test filter remain retained and not counted passed"
   ],
   "pending": [
-    "Finite Task browser CI projection and private driver-output staging before exact CI",
     "Exact schema16 full CI, native frame/Mac both architectures, release control isolation, installers/hash/sign/manual verification",
     "Protected merge of parent PR18 before dependent integration; exact review/check requirements remain",
     "Full130/WP01-14 including default isolated coding dispatch, child isolation, validated adoption/remote scope remains open"
@@ -560,7 +559,7 @@
   "not_additive": "Counts include overlapping subsets and different source snapshots; no fabricated overall sum or percentage",
   "actual_browser_five": "docs/execution/task-workspace-integration/ACTUAL_FIVE_BROWSER_RESULTS.json",
   "actual_browser_five_status": "passed7.020026s/5checks/6PNG at6c0908 harness withcompiledFE/Coree313; noMac/native/Provider/sessionexecution",
-  "CI_privacy_P2": "Raw private Taskdriver output currently inside upload tree; safe finite projection fix required, no schema16 CI run claimed",
+  "CI_privacy_P2": "Closed in bf241projector/012wrapper andactualretainedfiveflowprojection; original findings/counterexamples retained, exactCI16pending",
   "CI_private_output_correction": {
     "original_P2_review_sha256": "c85baa6d03c7cefe95c536c66be9053c20d30ffe43ee68bc6e49b741a2b2901a",
     "original_projector_source": "7fbd32b6a68f4ca8a4c6f7b4460f11a56074a04d",
@@ -571,5 +570,12 @@
     "Root_CI_wrapper_controls": "7 actual-YAML extracted function inert subprocess exit controls passed; validates exactcandidatehash private tools copy500/source755 unchanged/nlink1, private600 logs and finally projector failhard; no product/CI run",
     "Root_CI_wrapper_review": "pending fixed wholecommit independent review",
     "publication": "Driver/rawreport/stdout/stderr only RUNNER_TEMP; only finite metadata+six validated fixed PNG from projector enter old public path; no raw DB/HTTP/error/IDs copied"
+  },
+  "latest_post_parent_composed_results": "docs/execution/task-workspace-integration/POST_PARENT_COMPOSED_RESULTS.json",
+  "latest_counts_by_dimension": {
+    "Factory_Runtime": 26,
+    "full_infrastructure": 166,
+    "Node_prior995": "e313 retained, sourcebytesEqual proof; notcurrentheadreplay",
+    "actual_browser_prior5": "builtCore/frontend e313+driver6c, notnewCI"
   }
 }

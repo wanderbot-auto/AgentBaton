@@ -1,3 +1,9 @@
+# schema16组合回归通过，保存依赖草稿等待真实CI — 2026-10-29T23:25:30.430636+00:00
+
+准确c1 schema16真实Factory26PASS82.97s、strict allworkspace alltargetsClippy/fmt通过；40event控制整合后c961完整infra166PASS。真16已join输入投影有效但关联失败事件unknown，不编造观测；Task真实五场景/六图与995Node仍归e313/6c，private500工具/PNG/绝对路径CI投影独审并真实原报告过滤通过。原所有失败、稀疏物化问题、测试发现错误和版本期望窄修均保留，见[当前组合证据](task-workspace-integration/POST_PARENT_COMPOSED_RESULTS.json)。
+
+PR19 draft依赖Parent7ac，尚无schema16 exactCI/native/Mac/开发包通过；Parent下一Env40971954724/Product40971954667在跑，原a866 Rustblocked14/ARMfailed16/Intelblocked10原因待新有限事件证据。main653679d/OWNER001/002ACK，无新授权；完整130/defaultisolation/childworkspace/adoption/remote范围未缩减仍待完成。以下历史保留。
+
 # schema16依赖整合继续，真实26项核心流程通过 — 2026-10-29T23:17:31.887728+00:00
 
 本地整合Parent7ac新有限事件字段，保留exact16投影守卫与拒旧15/future17控制。原c1 schema16真实Factory26PASS82.97s/全workspace严格Clippy/fmt/149infra独立记录；40event新增纯控组合待复核，不移签原结果。Task五真实UI场景/6PNG、995Node归e313/6c；private500工具/绝对路径及finitePNG publication源独审闭合。

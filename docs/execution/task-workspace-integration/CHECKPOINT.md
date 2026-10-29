@@ -17,3 +17,8 @@
 ## CI私有边界修订已整合、未推送
 
 Root接线改为RUNNER_TEMP private logs和exactcandidatehash的single-link500工具副本；不chmod原Cargo target。有限Task投影bf241有界PNG修订待独审，随后Root真实报告/六PNG投影与CI函数全量边界审。原7fbd PNG不合法接受反例保留，旧29/新33纯控不加总。PR19仍draft依赖18；parent a866新Environment双Mac3fail/28errors正在fixturealias诊断，Product尚在跑，不能转签/重触取消。
+
+
+## Parent7ac与完整本地组合核验
+
+2026-10-29T23:25:30.430636+00:00：已合Parent7ac且保exact16 guard；actualFactory26PASS82.97s(含编译100.284s)/alltargetsstrictClippy14.357s/fmt通过c1，新40event纯控制整合后全infra166PASS c961。真16已join四文件同bytescopy collector有效postjoin，observed失败事件仍unknown不假造。Taskbf有限PNG/012private500+绝对输出接线独审、真实原报告/六图过滤通过，不冒新browser/CI。原完整149两次2fails2errors、166两次2/1FAIL保留：已恢复Git精确MD/JSON+修oldextractor+精确16assert，未放宽guard/忽略检查。详见POST_PARENT_COMPOSED_RESULTS.json。下一保存PR19新head，parent7ac七CI待结果；schema16 native/Mac/包未跑，完整130保持未完。

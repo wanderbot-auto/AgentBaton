@@ -12,3 +12,8 @@ fmt/strict alltargets Clippy/infra93在各自较早source通过，详见EVIDENCE
 ## 新五场景实际通过
 
 2026-10-29T22:31:20.443289+00:00：Root在6c0908执行新5场景7.020026s/六PNG、清理/回收完整；compiledCore和前端均e313，四次[2,1,2,1]执行对话框freshTask/defaultownbinding，0Grant/session，原B01-04全保。Root看过05桌面/06手机。独审09074a源与纯检查，不冒独立重跑。新发现CI rawprivate-output上传边界P2在修，不阻本地事实但阻CI候选。PR19草稿依赖PR18，未合入；完整130和Mac16/Native未完成。详见ACTUAL_FIVE_BROWSER_RESULTS.json。
+
+
+## Parent7ac与完整本地组合核验
+
+2026-10-29T23:25:30.430636+00:00：已合Parent7ac且保exact16 guard；actualFactory26PASS82.97s(含编译100.284s)/alltargetsstrictClippy14.357s/fmt通过c1，新40event纯控制整合后全infra166PASS c961。真16已join四文件同bytescopy collector有效postjoin，observed失败事件仍unknown不假造。Taskbf有限PNG/012private500+绝对输出接线独审、真实原报告/六图过滤通过，不冒新browser/CI。原完整149两次2fails2errors、166两次2/1FAIL保留：已恢复Git精确MD/JSON+修oldextractor+精确16assert，未放宽guard/忽略检查。详见POST_PARENT_COMPOSED_RESULTS.json。下一保存PR19新head，parent7ac七CI待结果；schema16 native/Mac/包未跑，完整130保持未完。

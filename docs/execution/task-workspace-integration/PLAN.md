@@ -8,3 +8,8 @@
 4. 本地回归、独审、依赖合入后精确schema16七CI和双Mac开发包；通过保护规则后集成。
 
 真实Provider/远程身份/签名等缺失仅阻塞对应验证。完整130持续，不据此声明全部需求完成。
+
+
+## Parent7ac与完整本地组合核验
+
+2026-10-29T23:25:30.430636+00:00：已合Parent7ac且保exact16 guard；actualFactory26PASS82.97s(含编译100.284s)/alltargetsstrictClippy14.357s/fmt通过c1，新40event纯控制整合后全infra166PASS c961。真16已join四文件同bytescopy collector有效postjoin，observed失败事件仍unknown不假造。Taskbf有限PNG/012private500+绝对输出接线独审、真实原报告/六图过滤通过，不冒新browser/CI。原完整149两次2fails2errors、166两次2/1FAIL保留：已恢复Git精确MD/JSON+修oldextractor+精确16assert，未放宽guard/忽略检查。详见POST_PARENT_COMPOSED_RESULTS.json。下一保存PR19新head，parent7ac七CI待结果；schema16 native/Mac/包未跑，完整130保持未完。
