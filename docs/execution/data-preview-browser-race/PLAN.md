@@ -13,3 +13,7 @@ Follow-up: independently reported IPC BrokenPipe/ConnectionReset must retain the
 ## Explicit private before-scan evidence mode — 2026-10-29T19:18:46.871868+00:00
 
 Root separately authorized explicit --preview-evidence adaptation for the nondefault Core test feature. Natural/default mode remains unchanged. This is private test coordination, not public IPC, Renderer authority, a production timing hook or a new permission. Root owns feature compilation/CI/actual execution; this author changes only the driver, dedicated private-file tests and these records.
+
+## Absolute ready deadline review follow-up — 2026-10-29T19:24:21.032282+00:00
+
+Independent review requires the new ready observation to reject a result read after its fixed15s deadline. Use one dedicated absolute-deadline helper only in that gate path; do not change the old global wait, natural-race handling, Core30s, budgets or write behavior. Retain prior counterexample and all25 earlier test bytes.

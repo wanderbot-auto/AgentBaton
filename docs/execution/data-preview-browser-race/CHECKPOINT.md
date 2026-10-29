@@ -13,3 +13,7 @@ Follow-up source68449fecfb306b25affa05ff90e29caaa95b229b frozen. New11pure/compi
 ## Explicit private before-scan evidence mode — 2026-10-29T19:18:46.871868+00:00
 
 Sourcee552a37d207ff310a11b9aac6e58740a73522bba frozen for independent review; tree remains codex/data-preview-browser-race. Evidence /workspace/.onboarding/data-preview-browser-race/preview-evidence-follow-up. Original79 incomplete/exit2,29a diagnostic P2 and684 closure remain separate historical phases. Config owns the Core nondefault feature; no production/source/gate acceptance is inferred from these25 pure tests. Next Root-controlled build must use the real feature and explicit flag, prove actual ready, real cancellation/join/source-no-write, and preserve any failure. No deadline/budget raise, new keys, retry or Provider identity. This leaf does not assert current CI/macOS/130-requirement completion.
+
+## Absolute ready deadline review follow-up — 2026-10-29T19:24:21.032282+00:00
+
+Source11ab56b4bd0798b3c071db48d3333410c0e84f68 frozen; author evidence /workspace/.onboarding/data-preview-browser-race/preview-ready-deadline-follow-up. Prior e552 source/25pure/sourceNOTRUN and independent deadline counterexample remain immutable. Native reviewer has fixed source for narrow closure. Real feature+flag/Core/browser integration remains NOT_RUN; Root owns subsequent review/execution and failure retention. No retry/newkey/release hook or policy increase.

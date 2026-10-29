@@ -168,5 +168,65 @@
     },
     "Core_peer_confirmed": "Config confirms CANCEL_REQUESTED/DEADLINE_EXCEEDED mapping and thread.join-before-preview_finished; source freeze/actual build pending",
     "product_execution": "NOT_RUN"
+  },
+  "absolute_ready_deadline_follow_up": {
+    "recorded_at_utc": "2026-10-29T19:23:28.849844+00:00",
+    "base_source": "e552a37d207ff310a11b9aac6e58740a73522bba",
+    "entire_driver_inverse_to_base": true,
+    "original_25_tests_both_files_entire_byte_equal": true,
+    "new_deadline_test_count": 11,
+    "total_pure_test_count": 36,
+    "compile_4_files": "PASS in memory; no imports/cache",
+    "global_wait_and_natural_race": "whole-driver inverse unchanged",
+    "deadline": "single absolute15 seconds; before pump/read and before successful return; missing/partial retries share deadline",
+    "original_counterprobe": {
+      "DEADLINE_RESULT.json": {
+        "sha256": "8b3840aec5cae795535261d360d87968a612fe178badfc949918b20d12b868f1",
+        "bytes": 341
+      },
+      "deadline_probe.py": {
+        "sha256": "0c7b22192528df381187638808046939ba15042efb1dec2833972713c06a2937",
+        "bytes": 1756
+      }
+    },
+    "source_map": {
+      "apps/desktop/tests/data-workspace-real-ipc.py": {
+        "sha256": "992426b6a666b484e2a964bcc77d5e33df05b7b9fb48c3cfc00edc9ba782c85a",
+        "bytes": 67877
+      },
+      "apps/desktop/tests/test_data_preview_browser_timing.py": {
+        "sha256": "ba365a91a70f164d6aa11cbc0f7bfe07add73afe8657c64656d3c5e34565761e",
+        "bytes": 11477
+      },
+      "apps/desktop/tests/test_data_preview_evidence.py": {
+        "sha256": "0f6a8257ca4a4d28855e8c781bd85991fbba8999a8405dddf8379c3447c66b0d",
+        "bytes": 10017
+      },
+      "apps/desktop/tests/test_data_preview_evidence_deadline.py": {
+        "sha256": "39fb024352e2d6ef4dffe96eecf97b9cf60a18ca775678357e464bc5091b48e3",
+        "bytes": 6112
+      }
+    },
+    "logs": {
+      "timing-tests.log": {
+        "sha256": "293eda1681e8fb9f72107b88b85eb61f4e2e3e338d5c4536b6ccd3315262eb6c",
+        "bytes": 110
+      },
+      "private-file-tests.log": {
+        "sha256": "b287d0d1d60d3c3d4629e9139a735eefeb89b6d695d48d00e70404daa6a8692a",
+        "bytes": 113
+      },
+      "deadline-tests.log": {
+        "sha256": "0adb4bb2fc99792d5812c425591f723bd2f2510012b129bcb0f611abbffe1fff",
+        "bytes": 110
+      }
+    },
+    "actual_Core_Node_Cargo_Actor_browser": "NOT_RUN",
+    "test_dimension": "controlled clock + private owned actual marker/functions, not actual OS scheduling failure",
+    "source_commit": "11ab56b4bd0798b3c071db48d3333410c0e84f68",
+    "old_e552_reviewer_finding": "controlled clock only; not actual product failure",
+    "late_observation_rejected": true,
+    "hard_OS_IO_interruption_claimed": false,
+    "Core_budget_and_natural_race_unchanged": true
   }
 }
