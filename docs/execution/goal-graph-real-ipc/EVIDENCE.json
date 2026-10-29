@@ -1363,5 +1363,243 @@
       "limits_changed": false,
       "author_visual_inspection": "Viewed original PNG: Blocked/task acceptance pending; Validate Failed, both Owners and Summary Not started; candidate1/check1/Ownerdecisions0. Linux Chromium only."
     }
+  },
+  "private_argv_diagnostics_a220": {
+    "entered_tree_head": "bd64120a81a8bbd933847e8a36cbc965f08c9e57",
+    "baseline_source_commit": "a94140ebebf22624899b8b815d868f2971bb51f4",
+    "baseline_source_sha256": "4bc91fde76a61c4fdb829f3844f06cca20f94238add92d5b60bedb0edd00adc5",
+    "current_source_commit": "a2a401e3f2b7de95e9bddcd688bcc4ef1578f9d1",
+    "current_source_sha256": "a054989b5a20972f332312c3bb7ddf9e87e0ca17181448c4a405459451105ed1",
+    "status": "diagnostic_only_frozen_independent_review_pending_originalCIcause_unproven",
+    "originalCI": {
+      "head": "a2201fe2729eddb0d76bf3995667d3692126ee0f",
+      "checkout": "7f359dc8807e4d11f8e2dedbf4b0a5cc83c81f16",
+      "run": 40806944290,
+      "job": 123228044786,
+      "status": "failed_or_interrupted",
+      "checks": 2,
+      "PNG": 1,
+      "failure": {
+        "type": "AssertionError",
+        "message": "Complete bounded private argv required",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/runner/work/AgentBaton/AgentBaton/apps/desktop/tests/goal-graph-real-ipc.py\", line 1512, in owner_only_driver\n    command_identity = wait(lambda: owned_command_child(daemon.pid, observer_samples), lambda p: p is not None, seconds=5)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/AgentBaton/AgentBaton/apps/desktop/tests/goal-graph-real-ipc.py\", line 1202, in wait\n    value = read()\n            ^^^^^^\n  File \"/home/runner/work/AgentBaton/AgentBaton/apps/desktop/tests/goal-graph-real-ipc.py\", line 1512, in <lambda>\n    command_identity = wait(lambda: owned_command_child(daemon.pid, observer_samples), lambda p: p is not None, seconds=5)\n                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/AgentBaton/AgentBaton/apps/desktop/tests/goal-graph-real-ipc.py\", line 854, in owned_command_child\n    assert len(raw) <= 1024 and raw.endswith(b'\\0'), 'Complete bounded private argv required'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Complete bounded private argv required\n"
+      },
+      "report": {
+        "path": "/workspace/.onboarding/pr16-a2201-linux-review/ui-artifact/goal-graph-command-timeout/report.json",
+        "sha256": "5afc26189bbf8f10cc3567272927d2ae1be29a2646fa9869e2953bf2766faf39",
+        "bytes": 527711
+      },
+      "review": {
+        "path": "/workspace/.onboarding/pr16-a2201-linux-review/REVIEW.md",
+        "sha256": "ad41f21b1535d941dddae5a2b162f1c7818dde1cf9707d3fc7dfb8db4b89a2b1",
+        "bytes": 8419
+      },
+      "cause": "unproven: no failingPID/rawlength/NUL in oldreport; latercleanupPID not backdated"
+    },
+    "changes": "boundedprivatePPIDidentitymetadata/rawlen/trailingNUL/SHA+separatelytimedaftererror only, no acceptancechange",
+    "strict_preserved": "1024/NUL/8192metadata/4096stat/5sobserver/1500mscommand/500mscleanup/foreignargvdeny/identityPGID/exceptionfail",
+    "real_singlecase": {
+      "attribution": "author actualrun specificallyallowed Root70a diagnostics, not exacta220CI",
+      "result": {
+        "command": [
+          "/workspace/AgentBaton/artifacts/browser-venv/bin/python",
+          "/workspace/.worktrees/goal-graph-real-ipc/apps/desktop/tests/goal-graph-real-ipc.py",
+          "--validation-case",
+          "command-timeout",
+          "--batond",
+          "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond",
+          "--candidate-manifest",
+          "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/manifest.json",
+          "--frontend",
+          "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist",
+          "--output",
+          "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/evidence"
+        ],
+        "cwd": "/workspace/.worktrees/goal-graph-real-ipc",
+        "source_commit": "a2a401e3f2b7de95e9bddcd688bcc4ef1578f9d1",
+        "started_utc": "2026-10-29T02:54:34.043659+00:00",
+        "inputs": {
+          "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/batond": "40322bff82aa8ec0f1c019e5d723f42694a6266bcaa27b153f535d0d21dbadcd",
+          "/workspace/.worktrees/goal-validation-graph/artifacts/goal-validation-graph/candidate-70a48d416631/manifest.json": "c9fe6d7a517b15baf1386fc6111bc7413983c22e9f299c35ece242afdea9ba06",
+          "/workspace/.worktrees/goal-graph-real-ipc/apps/desktop/tests/goal-graph-real-ipc.py": "a054989b5a20972f332312c3bb7ddf9e87e0ca17181448c4a405459451105ed1",
+          "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist/index.html": "a91ec9ba22205a07e7c0e285ffe77ed67e5d731c7e6fb7edf04b50d658d29450",
+          "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist/assets/index-mnnXGu7H.css": "785c729e596607549ed99b807d29608310cf49dc4660f473492ffc17a27647ac",
+          "/workspace/.worktrees/goal-graph-integration/apps/desktop/dist/assets/index-CbM2OhF1.js": "ca70891148fb3da167ee7219e2b0b4dcf867390cc9b3b81241b15256f6db4626"
+        },
+        "limits": "original5000msobserver/1500mscommand/500mscleanup,1024Bargv+NUL",
+        "scope": "single real Linux UI/UnixIPC generatedfixture observerdiagnosis; Core70a differs from a220 only goal_validator_io.rs among51production inputs; NOT exacta220 regression",
+        "runner_pid": 1157433,
+        "exitcode": 0,
+        "ended_utc": "2026-10-29T02:54:41.488621+00:00",
+        "inputs_unchanged": true,
+        "runner_log_sha256": "47feb1e5317a50d0634f83d248177e153fd824329989f891b79b1f15d44b980f"
+      },
+      "report": {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/evidence/report.json",
+        "sha256": "72ff78e0a746c34132e72244692bd4b471308d29258ce46e3df6bae3654f00cf",
+        "bytes": 871852
+      },
+      "checks": 5,
+      "PNG": 1,
+      "failure_reproduced": false,
+      "browser_window_ended": "2026-10-29T02:54:41.488621+00:00",
+      "cleanup": "daemon0/gone HTTPthreadfalse handlers[] command+2generatedgone noSignals",
+      "Core_compare": "51Core/CLI/daemon productioninput paths, onehashdiff goal_validator_io.rs undercfgtest; still70a notexacta220candidate",
+      "same_non_test_prefix": true,
+      "screenshot_actually_viewed": true
+    },
+    "author_controls": {
+      "Popen_identity_replay": 13,
+      "synthetic_backend_boundary": 4,
+      "realfork_short": 6,
+      "realfork_padded": 7,
+      "source_results": [
+        {
+          "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/controls.json",
+          "sha256": "bcb2a8b60e43e99d359555cadf7b120574b75793ca05422779ee502dd318dc13",
+          "bytes": 15077
+        },
+        {
+          "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/guard-controls.json",
+          "sha256": "b553cea01d7e25c5c773f9c2ecb6a0a8e2165ad68289629278dc56fdd0dfacbf",
+          "bytes": 3508
+        },
+        {
+          "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/short.json",
+          "sha256": "c5da016254cdfd0a640c110a650589fef16e5e4159912c0551a73a8d3c87e1d4",
+          "bytes": 8961
+        },
+        {
+          "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/padded.json",
+          "sha256": "1b5bd7f2ce09b1391fc111cd34ce90c66f1bdc68e2b8e67c5ce67d33b91663cb",
+          "bytes": 9614
+        }
+      ],
+      "explicit_qualifiers": [
+        "allthisroundauthorreplay, inheritedJSON reviewer label not independentexecution",
+        "paddedpreexec failure realownprocess; emptyreadnegative explicitlymocked, neither proves CIcause",
+        "wrapperoldhistoricalsnapshotpathfailure recorded, allownchildrenfinallyreaped",
+        "realpreexecCLOEXEC handshake thenexeccorrectsleep, allonlyownPIDcleanup"
+      ]
+    },
+    "artifacts": [
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/before.json",
+        "sha256": "2a504d72aa891bbb7f249cfa8b706764e42533e85972d115db7dfe599937449f",
+        "bytes": 2149
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/evidence/01-five-node-command-timeout-blocked-before-owner.png",
+        "sha256": "ade751e1b9df5e1c892afc58a36f9c09a2cab8f53de4e1e8332ff886eb3b330e",
+        "bytes": 119882
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/evidence/daemon.log",
+        "sha256": "4feaffdd785146a954804cf461be66eb3d3c85a0afb70459a2bb7bf5878a8158",
+        "bytes": 57
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/evidence/report.json",
+        "sha256": "72ff78e0a746c34132e72244692bd4b471308d29258ce46e3df6bae3654f00cf",
+        "bytes": 871852
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/result.json",
+        "sha256": "feee0f3c44148c3a5be6c9045924bd6fd7b009dfacc6b636c889fa3588377fce",
+        "bytes": 2361
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/runner.log",
+        "sha256": "47feb1e5317a50d0634f83d248177e153fd824329989f891b79b1f15d44b980f",
+        "bytes": 199
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/70a-single-run/running.json",
+        "sha256": "52f13819f728286c47d1b7771478ddd8d3915892560554ad6666ea38352f4478",
+        "bytes": 74
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/controls.py",
+        "sha256": "ab3f0b4dd361c63689324dd86c769cfd01c4073ec66b70a89729d657acc3eba5",
+        "bytes": 4043
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/padded.json",
+        "sha256": "1b5bd7f2ce09b1391fc111cd34ce90c66f1bdc68e2b8e67c5ce67d33b91663cb",
+        "bytes": 9614
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/padded.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/padded.stdout",
+        "sha256": "c492d0a31ef3d7cbbeaf52e8d9e792a380f3d3794bc3a1f237083c2f7b813c8f",
+        "bytes": 37
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/lifecycle-controls/short.json",
+        "sha256": "c5da016254cdfd0a640c110a650589fef16e5e4159912c0551a73a8d3c87e1d4",
+        "bytes": 8961
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls/controls.py",
+        "sha256": "59f6b76adb1001853842337b4ed9b15d1070836830fac7fb1c2c3eaedfdb6a49",
+        "bytes": 3735
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls/guard-controls.json",
+        "sha256": "c7653d9004f15c541c766aa1c8bb36c3e4e30f187e4f779b1b4f318ab6cd2530",
+        "bytes": 3508
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls/guard_controls.py",
+        "sha256": "d2643baeafdf3855ca237d6e356b686862f01965ea92cf7cbef2a1b5bfe05e66",
+        "bytes": 2696
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls/source.py",
+        "sha256": "faf698d9f960b09f1702d34850d17ed7de92e019362ed023d1ae2ce6354243aa",
+        "bytes": 6910
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls/wrapper-failure.json",
+        "sha256": "f6b23f83ac0e1351278b455039e6f69563f776540717ff87e8d7adcde3d9c871",
+        "bytes": 355
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/__pycache__/source.cpython-312.pyc",
+        "sha256": "6547cb058c2b9c578bfcce1bb2dc4cf74683fc00f4caf6cbadd982d8768d5684",
+        "bytes": 204872
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/controls.json",
+        "sha256": "bcb2a8b60e43e99d359555cadf7b120574b75793ca05422779ee502dd318dc13",
+        "bytes": 15077
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/controls.py",
+        "sha256": "472406cc8e79988f2e266e952a2eff67ef242fbcbfb335462e9f502be8dc9773",
+        "bytes": 3869
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/guard-controls.json",
+        "sha256": "b553cea01d7e25c5c773f9c2ecb6a0a8e2165ad68289629278dc56fdd0dfacbf",
+        "bytes": 3508
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/guard_controls.py",
+        "sha256": "213c89653e2f9aefb6c3ee310118b6a136421d8a35beea3e909c2eb0d3fb23b0",
+        "bytes": 2714
+      },
+      {
+        "path": "/workspace/.onboarding/goal-graph-observer-argv-diagnostics/own-controls-fixed/source.py",
+        "sha256": "a054989b5a20972f332312c3bb7ddf9e87e0ca17181448c4a405459451105ed1",
+        "bytes": 156324
+      }
+    ],
+    "independent": "Root assigned data_native_integration_review and sourceACK pending, no inferredsignoff",
+    "remaining": "originalCI blocker requiresnewexactCI; noextraChrome/Cargo or product/Mac/model/packageclaim"
   }
 }
