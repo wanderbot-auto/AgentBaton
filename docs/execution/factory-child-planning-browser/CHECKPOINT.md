@@ -26,3 +26,13 @@ The static checkpoint above describes preserved source49bc. Current source is `0
 `/workspace/.onboarding/factory-child-planning-browser/review-fix/old-control` preserves the original source and independent probes. On that original source both counterexamples were confirmed; this is a finite AST demonstration, not an actual Core/browser failure. The original 57-green snapshot is immutable at the path above.
 
 `review-fix/final-static/commands.json` binds final syntax, boundary46, recorded DTO11, review37 and diff checks, all exit0. Current total94 is not 57+94. No Cargo/Node/browser/actual IPC was run; no lease or runtime process is held. The new `--review-self-check <actual-r7.json>` mode starts nothing and labels its synthetic receipt controls explicitly. Root and the original reviewer received this fixed source for independent semantic replay. Actual runtime remains unrun; do not accept the full flow from these pure passes.
+
+## Current checkpoint after actual run1
+
+Current source `d27be8fe506ac7455b2ac9c000a7e072acaf8a8c`, script SHA `613ebf871d5d98510cddd5dfad5e595a69f0186ac4ad47d21ac7aab28487adeb`. Only this harness changes; original support scripts keep e478/19d31 SHA values, product/UI/Native/Core/locks unchanged.
+
+The sole actual run on integrated ff519 returned1 before Factory approval. Its report SHA is `d37eba27d69e43c32c288d0b46797fa493e987dd85b454d79ea158f253b700b6`;0checks/0PNG and cleanup_complete=false are preserved. All normal/error/unknown/MCP5/planning write checks remain unexecuted, even though initial resource creation and authenticated fixed resource reads were real. Do not claim complete cleanup of an unexecuted expected parent/child workflow merely because the daemon exited0.
+
+New static records: `/workspace/.onboarding/factory-child-planning-browser/locator-fix/final-static/commands.json` and `AST_NORMALIZATION.json`. Final109 pure checks +syntax/diff passed on the exact current source; no Cargo/Node/browser/daemon was started by this correction's harness modes. `--locator-self-check <old-run1-report>` explicitly labels the finite models and synthetic capture. Old57/94/source snapshots and actual failure logs are unchanged.
+
+Root owns integration and any new browser authorization. Next: original reviewer verifies fixed field uniqueness, explicit browser lifecycle, unchanged routing/caps/cleanup and exact AST normalization; Root then integrates source/docs, updates the harness SHA/source identity in a new combined manifest while preserving the tools' actual compiledff and frontend builtf9 attribution, and selects a new exclusive output directory. Do not overwrite run1, extend deadlines or retry unchanged source. No active process/lease is held by this static checkpoint.
