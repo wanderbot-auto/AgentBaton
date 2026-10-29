@@ -527,7 +527,7 @@ fn actual14_missing_or_wrong_native_capability_proposal_cannot_fallback() {
 
 #[test]
 fn actual14_corrupt_native_result_capability_or_ordered_receipt_is_rejected() {
-    for mutation in ["result", "capability", "receipt"] {
+    for mutation in ["result", "capability", "receipt", "relational_version"] {
         let (_dir, path, manifest) = fixture();
         let db = Connection::open(&path).unwrap();
         match mutation {
@@ -556,6 +556,48 @@ fn actual14_corrupt_native_result_capability_or_ordered_receipt_is_rejected() {
             "capability" => {
                 db.execute("UPDATE goal_graph_capabilities SET document='{}'", [])
                     .unwrap();
+            }
+            "relational_version" => {
+                let run_id = manifest["native_graph_run_id"].as_str().unwrap();
+                let original: String = db
+                    .query_row(
+                        "SELECT document FROM goal_graph_capabilities WHERE run_id=?1",
+                        [run_id],
+                        |r| r.get(0),
+                    )
+                    .unwrap();
+                assert_eq!(
+                    serde_json::from_str::<Value>(&original).unwrap()["version"],
+                    1
+                );
+                // The original schema has CHECK(version=1). Only this private
+                // corruption copy bypasses the SQLite writer CHECK, without
+                // changing DDL. Restore it before the production Store opens;
+                // the real Native approval/result/document remain untouched.
+                db.execute_batch("PRAGMA ignore_check_constraints=ON")
+                    .unwrap();
+                assert_eq!(
+                    db.execute(
+                        "UPDATE goal_graph_capabilities SET version=2 WHERE run_id=?1",
+                        [run_id]
+                    )
+                    .unwrap(),
+                    1
+                );
+                db.execute_batch("PRAGMA ignore_check_constraints=OFF")
+                    .unwrap();
+                let after: String = db
+                    .query_row(
+                        "SELECT document FROM goal_graph_capabilities WHERE run_id=?1",
+                        [run_id],
+                        |r| r.get(0),
+                    )
+                    .unwrap();
+                assert_eq!(
+                    agentbaton_workspaces::validation::sha256(original.as_bytes()),
+                    agentbaton_workspaces::validation::sha256(after.as_bytes())
+                );
+                assert!(fk_errors(&db).is_empty());
             }
             "receipt" => {
                 // Mutate the original receipt, not a synthetic new authority.
