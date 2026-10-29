@@ -1661,7 +1661,9 @@ fn committed_read(
     raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.payload.attempt_id')=?2",params![r.id,attempt],1,MAX_STORED_BYTES)?;
     let (reserved_sequence,event_raw):(i64,String)=db.query_row("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.node_reserved' AND json_extract(document,'$.payload.attempt_id')=?2",params![r.id,attempt],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
     let e: Event = decode(&event_raw)?;
-    if e.source != "goal_core"
+    if reserved_sequence <= 0
+        || e.sequence != u64::try_from(reserved_sequence).map_err(|_| changed())?
+        || e.source != "goal_core"
         || e.aggregate_id != r.id
         || e.kind != "goal.node_reserved"
         || e.revision != r.revision
