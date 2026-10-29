@@ -188,10 +188,10 @@ fn failed_data_migration_rolls_back_new_table_and_version_without_deleting_unkno
     );
 }
 #[test]
-fn future_v13_database_is_refused_without_changing_its_raw_bytes() {
+fn future_v14_database_is_refused_without_changing_its_raw_bytes() {
     let (_directory, database) = private_database();
     let connection = Connection::open(&database).unwrap();
-    connection.execute_batch("CREATE TABLE sentinel(raw BLOB);INSERT INTO sentinel VALUES(x'00ff');PRAGMA user_version=13;").unwrap();
+    connection.execute_batch("CREATE TABLE sentinel(raw BLOB);INSERT INTO sentinel VALUES(x'00ff');PRAGMA user_version=14;").unwrap();
     drop(connection);
     let before = fs::read(&database).unwrap();
     assert_eq!(

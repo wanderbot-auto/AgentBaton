@@ -145,10 +145,10 @@ fn migration9_failure_rolls_back_schema_and_preserves_unknown_goal_named_table()
     assert_eq!(backups(dir.path()).len(), 1);
 }
 #[test]
-fn actual_future_schema13_is_rejected_without_modifying_bytes() {
+fn actual_future_schema14_is_rejected_without_modifying_bytes() {
     let (_dir, db, _) = schema8();
     let c = Connection::open(&db).unwrap();
-    c.execute_batch("PRAGMA user_version=13;").unwrap();
+    c.execute_batch("PRAGMA user_version=14;").unwrap();
     drop(c);
     let before = fs::read(&db).unwrap();
     assert_eq!(Store::open(&db).err().unwrap().code, "VERSION_UNSUPPORTED");

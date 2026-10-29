@@ -138,11 +138,11 @@ fn graph_schema12_collision_rolls_back_all_new_tables_and_retains_unknown_data()
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn schema13_is_refused_without_modifying_any_bytes_or_creating_backup() {
+fn schema14_is_refused_without_modifying_any_bytes_or_creating_backup() {
     let (d, path, _) = old();
     Connection::open(&path)
         .unwrap()
-        .execute_batch("PRAGMA user_version=13")
+        .execute_batch("PRAGMA user_version=14")
         .unwrap();
     let before = fs::read(&path).unwrap();
     assert_eq!(

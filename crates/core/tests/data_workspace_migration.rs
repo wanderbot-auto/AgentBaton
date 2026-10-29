@@ -127,10 +127,10 @@ fn schema10_migration_collision_rolls_back_every_new_table_and_preserves_unknown
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema13_is_refused_without_touching_bytes_or_creating_migration_backup() {
+fn future_schema14_is_refused_without_touching_bytes_or_creating_migration_backup() {
     let (d, path, _) = version9();
     let db = Connection::open(&path).unwrap();
-    db.execute_batch("PRAGMA user_version=13;").unwrap();
+    db.execute_batch("PRAGMA user_version=14;").unwrap();
     drop(db);
     let before = fs::read(&path).unwrap();
     assert_eq!(

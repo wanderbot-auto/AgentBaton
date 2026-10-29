@@ -134,11 +134,11 @@ fn schema11_collision_rolls_back_all_runtime_tables_without_deleting_unknown_row
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema13_is_refused_without_modification_or_migration_backup() {
+fn future_schema14_is_refused_without_modification_or_migration_backup() {
     let (d, path, _) = schema10();
     Connection::open(&path)
         .unwrap()
-        .execute_batch("PRAGMA user_version=13")
+        .execute_batch("PRAGMA user_version=14")
         .unwrap();
     let before = fs::read(&path).unwrap();
     assert_eq!(
