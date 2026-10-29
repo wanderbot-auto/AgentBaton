@@ -1,0 +1,140 @@
+{
+  "recorded_at": "2026-10-29T12:15:59.971767+00:00",
+  "source_head": "646bf7d37a5bc88a7c5581919372de046c93248e",
+  "preflight": [
+    {
+      "source": "646bf7d37a5bc88a7c5581919372de046c93248e",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib"
+      ],
+      "exit": 0,
+      "seconds": 11.834282141004223,
+      "minimum_free_bytes": 561393664,
+      "interruption": null,
+      "log_sha256": "702c116ac9f7d7a66c97adc6b6e4155cb0ebd0a7b3bd9cce769439aac0b51b64",
+      "summaries": []
+    },
+    {
+      "source": "646bf7d37a5bc88a7c5581919372de046c93248e",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "goal_diagnostics",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 18.85574575897772,
+      "minimum_free_bytes": 495173632,
+      "interruption": null,
+      "log_sha256": "5c48689cbe4fd39124b0678c6c8e878abc552487c5ed8bf33928ca2c0d0e93f0",
+      "summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 110 filtered out; finished in 0.01s"
+      ]
+    },
+    {
+      "source": "646bf7d37a5bc88a7c5581919372de046c93248e",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--bins",
+        "-vv"
+      ],
+      "exit": 0,
+      "seconds": 20.957419857004425,
+      "minimum_free_bytes": 313929728,
+      "interruption": null,
+      "log_sha256": "b882634b3fbf11324a2d2e508f7624094884b4039f02ac2420434a3b1f4ad2ca",
+      "summaries": []
+    },
+    {
+      "source": "646bf7d37a5bc88a7c5581919372de046c93248e",
+      "command": [
+        "python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--source",
+        "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target/debug",
+        "--output",
+        "/workspace/.onboarding/factory-child-goal-budget-diag-preflight1/frozen",
+        "--evidence",
+        "/workspace/.onboarding/factory-child-goal-budget-diag-preflight1/probe"
+      ],
+      "exit": 0,
+      "seconds": 1.2033432610041928,
+      "minimum_free_bytes": 314130432,
+      "interruption": null,
+      "log_sha256": "68e0d157f9845c5ab5c54e9f50b92ff8a9dbf8ddd885d83a1c8d6cd788dfbd27",
+      "summaries": []
+    }
+  ],
+  "runtime": {
+    "source": "646bf7d37a5bc88a7c5581919372de046c93248e",
+    "command": [
+      "/workspace/.toolchains/cargo/bin/cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "factory_runtime_ipc",
+      "-vv",
+      "child_goal_runtime::actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume",
+      "--",
+      "--exact",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "exit": 101,
+    "seconds": 32.807631927978946,
+    "minimum_free_bytes": 308580352,
+    "interruption": null,
+    "log_sha256": "700ba5ca4d6eeb7c8a807c896a18ac38e82ef2dab3ddea21d72326336f4740b3",
+    "summaries": [
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 21 filtered out; finished in 16.83s"
+    ]
+  },
+  "diagnosis": {
+    "static_reason_tag": 8,
+    "static_reason": "Factory-derived Goal reservation lacks its exact atomic node/attempt receipt",
+    "meter_before": 1,
+    "meter_observed": 1,
+    "runtime_output_known": true,
+    "token_cost_limits": null,
+    "prospective_count_mismatch": false,
+    "normal_chain": "failed",
+    "root_self": "not_run",
+    "actor_cleanup": "joined_ok",
+    "source_cause": "Exact receipt SQL compares JSON text. Actual event writer uses Value sorted keys, but reservation parameter used struct field order; equal typed values can compare unequal. Narrow encoding fix and real writer regression pending."
+  },
+  "trace_sha256": "53c4315ae4b10ae6ec24bbfeeee2783e982bc208c51bae33aa71566d58eac83e",
+  "private_evidence_policy": "Do not publish raw DB, RPC, generated grants, absolute private runtime identities or ELF. Retained privately.",
+  "new_ci_mac": "not_run",
+  "independent_reviews": [
+    {
+      "seal": "goal-budget-diagnostics-737-937-independent-review",
+      "review_sha256": "4ff0c8d4703cb57f1532496e2cef514f0b11efec2b707871922e02b164c0463e",
+      "manifest_sha256": "c210e014beff5b575951d64c86c05f5396030fc6d37f1b63d5ec2dd5b328bfec"
+    },
+    {
+      "seal": "factory-child-goal-sha2-opt3-build-runtime-independent-review",
+      "review_sha256": "836a54ad406333610b64f34c781a6616534d2db97ee979de7898cb282b809b4c",
+      "manifest_sha256": "5721ab65cdee759b6f73af3001d7421e98bd2e246a1cb908cc1aa928b84c8097"
+    }
+  ]
+}

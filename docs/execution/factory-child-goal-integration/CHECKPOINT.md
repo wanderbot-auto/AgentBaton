@@ -1,3 +1,7 @@
+## Fixed-layer diagnostic actual failure
+
+Exact646bf7d: typecheck PASS, diagnostic units3PASS, same-head bins/probe PASS. Real child chain FAILED0/1/test16.83s/total32.8076s/no guard; tag8 identifies exact receipt binding, not unknown measured runtime/output or count mismatch. Field-order mismatch in JSON text is source+SQLite-confirmed; one-parameter encoding correction and real writer positive/negative regression pending. Original failed DB/stderr/ELF retained and Actor joined. Full chain/root-self/browser/Mac/newCI remain unpassed. See BUDGET_DIAGNOSTIC_RESULT.json.
+
 ## Actual optimized SHA-256 and budget boundary — 2026-10-29T12:06:44.197047+00:00
 
 Root exact0469863 built with actual sha2 opt-level3/debug assertions on. Full CLI remains86,731,728 bytes; complete verification measured51ms SHA update/finalize and72ms read/hash. No integrity check, permission, budget or timeout changed. Initial prepare stopped at the disk guard before probe; retained failure and exact-hash owned-staging recovery followed by unchanged-helper probe PASS are recorded separately.
