@@ -67,7 +67,7 @@ pub(crate) mod goal_reservation_fault_fixture {
     impl Drop for Guard {
         fn drop(&mut self) {
             FAULT.with(|slot| {
-                slot.borrow_mut().take();
+                let _ = slot.borrow_mut().take();
             });
         }
     }
