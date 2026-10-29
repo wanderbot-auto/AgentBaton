@@ -493,6 +493,149 @@ def verify_attempt_budgets(rows, task_id, project_id, expected_attempts, expecte
         assert type(row['active']) is int and row['active'] == expected_active, ('Exact observed active count required', row, expected_active)
 
 
+
+def verify_legacy_factory_shared_budget(db, scope, grant, run, expected_attempts):
+    """Terminal isolated-fixture proof: shared meters are not Goal authority.
+
+    Only goal_ledgers may be populated. Every other legacy Goal table, including
+    immutable Goal-grant history, stays empty. Read-only; no missing/unknown
+    usage is substituted with zero and no cumulative attempt is refunded.
+    """
+    def exact(left, right):
+        assert support.exact_json_value(left, right), 'Typed source snapshot mismatch'
+    def number(value, minimum=0):
+        assert type(value) is int and minimum <= value <= 18446744073709551615
+        return value
+    def document(raw):
+        assert type(raw) is str and len(raw.encode()) <= 1_048_576
+        value = json.loads(raw, object_pairs_hook=unique_object)
+        assert type(value) is dict
+        return value
+    def rows(table):
+        cursor = db.execute('SELECT * FROM "' + table + '"')
+        result = [dict(zip([c[0] for c in cursor.description], row)) for row in cursor]
+        assert len(result) <= 128
+        return result
+    assert type(expected_attempts) is int and 1 <= expected_attempts <= 3
+    assert scope['selection']['capabilities']['child_goal_execution'] is False
+    exact(scope['bindings']['approved_grant'], grant)
+    assert scope['root_grant_id'] == grant['id'] == grant['root_grant_id']
+    assert grant['parent_id'] is None and grant['scope']['max_children'] == 0
+    assert run['scope_id'] == scope['id'] and run['root_task_id'] == scope['root_task_id']
+    assert run['project_id'] == scope['project_id'] == grant['project_id']
+    assert run['state'] in {'completed', 'cancelled', 'outcome_unknown'}
+    assert run['active_session_id'] is None
+    for table in sorted(support.LEGACY_GOAL_TABLES):
+        if table != 'goal_ledgers':
+            assert db.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0] == 0, ('Unexpected Goal authority/history', table)
+    grants = rows('execution_grants')
+    assert len(grants) == 1 and grants[0]['id'] == grant['id']
+    exact(document(grants[0]['document']), grant)
+    scopes = rows('factory_scopes'); runs = rows('factory_runs')
+    assert len(scopes) == len(runs) == 1
+    exact(document(scopes[0]['document']), scope)
+    exact(document(runs[0]['document']), run)
+    reservations = rows('factory_budget_reservations')
+    attempts = rows('attempts'); factory_attempts = rows('factory_attempts')
+    sessions = rows('sessions'); intents = rows('dispatch_intents')
+    assert all(len(group) == expected_attempts for group in [reservations, attempts, factory_attempts, sessions, intents])
+    def indexed(group, key):
+        result = {r[key]: r for r in group}
+        assert len(result) == len(group)
+        return result
+    by_attempt = indexed(attempts, 'id'); by_factory = indexed(factory_attempts, 'attempt_id')
+    by_session = indexed(sessions, 'id'); by_intent = indexed(intents, 'attempt_id')
+    lineage = indexed(rows('factory_task_lineage'), 'task_id')
+    events = [(number(seq, 1), document(raw)) for seq, raw in db.execute('SELECT sequence,document FROM events ORDER BY sequence')]
+    runtime = output = 0
+    for row in reservations:
+        r = document(row['document']); aid = r['attempt_id']; sid = r['session_id']
+        assert row['attempt_id'] == aid and row['scope_id'] == r['scope_id'] == scope['id']
+        assert row['root_task_id'] == r['root_task_id'] == scope['root_task_id']
+        assert row['project_id'] == r['project_id'] == scope['project_id']
+        assert r['authority_kind'] == 'factory_task' and r['run_id'] == run['id']
+        assert r['root_grant_id'] == grant['id'] and r['settled'] is True
+        assert r['measurement_scope'] == 'selected_artifacts_no_validator_streams'
+        assert r['filesystem_total_bytes'] is None and r['provider_message_capture_complete'] is False
+        number(r['captured_provider_message_bytes'])
+        reservation = r['reservation']
+        assert set(reservation) == {'runtime_ms', 'output_bytes', 'tokens', 'cost_microunits'}
+        number(reservation['runtime_ms'], 1); number(reservation['output_bytes'])
+        assert reservation['tokens'] is reservation['cost_microunits'] is None
+        assert number(r['queued_ms']) < reservation['runtime_ms']
+        runtime += number(r['actual_runtime_ms']); output += number(r['actual_output_bytes'])
+        a = by_attempt[aid]; f = by_factory[aid]; session = by_session[sid]; intent = by_intent[aid]
+        sd = document(session['document']); fd = document(f['document'])
+        assert a['task_id'] == f['task_id'] == session['task_id'] == r['task_id']
+        assert a['root_task_id'] == f['root_task_id'] == scope['root_task_id']
+        assert f['scope_id'] == scope['id'] and f['run_id'] == run['id'] and f['session_id'] == sid
+        assert fd['attempt_id'] == aid and fd['session_id'] == sid
+        # Core json_set with rusqlite bool parameters stores JSON integers.
+        assert type(fd['stop_confirmed']) is int and fd['stop_confirmed'] == 1
+        assert type(fd['never_started']) is int and fd['never_started'] == 0
+        exact(document(f['reservation']), reservation)
+        assert sd['id'] == sid and sd['attempt_id'] == aid and sd['intent_id'] == intent['id']
+        assert sd['task_id'] == r['task_id'] and session['state'] == sd['state'] == 'stopped'
+        assert session['grant_id'] == session['root_grant_id'] == grant['id']
+        assert session['project_id'] == scope['project_id'] and intent['state'] == 'stopped'
+        assert session['workspace_id'] in scope['selection']['workspace_ids']
+        assert session['connection_id'] in scope['selection']['connection_ids']
+        intent_document = document(intent['document'])
+        assert intent_document['id'] == intent['id'] and intent_document['attempt_id'] == aid
+        assert intent_document['task_id'] == r['task_id'] and intent_document['root_task_id'] == scope['root_task_id']
+        assert intent_document['state'] == 'stopped'
+        binding = document(a['binding'])
+        exact(intent_document['binding'], binding)
+        assert binding['policy_revision'] == grant['id'] + ':' + str(grant['revision'])
+        assert binding['workspace_id'] == session['workspace_id'] and binding['connection_id'] == session['connection_id']
+        approved_connection = next(c for c in scope['bindings']['connections'] if c['id'] == session['connection_id'])
+        for key in ['environment_id', 'identity_ref', 'host_id', 'capability_snapshot_id']:
+            assert binding[key] == approved_connection[key]
+        assert binding['config_revision'] == approved_connection['config_revision']
+        assert r['ancestors'][0] == r['task_id'] and r['ancestors'][-1] == scope['root_task_id']
+        assert len(r['ancestors']) == len(set(r['ancestors']))
+        for index, ancestor in enumerate(r['ancestors']):
+            link = lineage[ancestor]
+            assert link['root_task_id'] == scope['root_task_id'] and link['scope_id'] == scope['id']
+            assert link['parent_task_id'] == (r['ancestors'][index + 1] if index + 1 < len(r['ancestors']) else None)
+        approved_workspace = next(w for w in scope['bindings']['workspaces'] if w['id'] == session['workspace_id'])
+        assert binding['input_revision'] == approved_workspace['base_revision']
+        stopped = [(seq, e) for seq, e in events if e['kind'] == 'session.stopped' and e['aggregate_id'] == sid]
+        settled = [(seq, e) for seq, e in events if e['kind'] == 'shared_budget.session_settled' and e['aggregate_id'] == sid]
+        assert len(stopped) == len(settled) == 1 and stopped[0][0] < settled[0][0]
+        assert stopped[0][1]['source'] == 'baton_supervisor'
+        assert stopped[0][1]['payload']['process_reaped'] is True
+        assert stopped[0][1]['payload']['no_process_started'] is False
+        assert settled[0][1]['source'] == 'budget_core'
+        exact(settled[0][1]['payload'], {'attempt_id': aid, 'stopped': True, 'never_started': False,
+            'runtime_ms': r['actual_runtime_ms'], 'selected_artifact_bytes': r['actual_output_bytes'],
+            'measurement_scope': r['measurement_scope'], 'filesystem_total_bytes': None, 'task_accepted': False})
+    # These fixtures never take a failed preflight branch; do not hide a charge.
+    assert not any(e['kind'] == 'factory.preflight_finished' for _, e in events)
+    keys = {'project:' + scope['project_id']: scope['selection']['project_budget'],
+        'root-grant:' + grant['id']: scope['selection']['root_budget']}
+    meters = rows('goal_ledgers')
+    assert len(meters) == 2 and {r['scope'] for r in meters} == set(keys)
+    for row in meters:
+        meter = document(row['document'])
+        assert set(meter) == {'limits', 'observed_attempts', 'runtime_ms', 'output_bytes', 'tokens', 'cost_microunits'}
+        exact(meter['limits'], keys[row['scope']])
+        assert number(meter['observed_attempts'], 1) == expected_attempts
+        assert number(meter['runtime_ms']) == runtime and number(meter['output_bytes']) == output
+        assert meter['tokens'] is meter['cost_microunits'] is None
+        assert runtime <= meter['limits']['runtime_ms'] and output <= meter['limits']['output_bytes']
+    budgets = rows('budgets')
+    verify_attempt_budgets(budgets, scope['root_task_id'], scope['project_id'], expected_attempts)
+    for row in budgets:
+        limits = scope['selection']['project_budget' if row['scope'].startswith('project:') else 'root_budget']
+        assert type(row['total_limit']) is int and row['total_limit'] == limits['attempts']
+        assert type(row['parallel_limit']) is int and row['parallel_limit'] == limits['parallel']
+    return {'shared_meter_rows': 2, 'observed_attempts': expected_attempts,
+        'active': 0, 'runtime_ms': runtime, 'selected_artifact_bytes': output,
+        'structural_goal_tables_empty': True, 'goal_grant_revisions_empty': True,
+        'filesystem_total_bytes': None, 'provider_message_capture_complete': False}
+
+
 def confirmed_start_response(entries, scope, project_id, task_id):
     """No run query until the unique real browser start has a valid Core receipt."""
     if not entries:
@@ -956,6 +1099,11 @@ def runtime_driver(args, output, attribution, prepared):
                 return collect_started_records(runtime, workspace, scope, record_context, verified_records, output, controller_reaper)
             observe_records = observe
             assert host.result('sessions.list', {}) == []
+            with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
+                db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
+                for table in sorted(support.LEGACY_GOAL_TABLES):
+                    assert db.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0] == 0, ('Approval must not initialize Goal authority or meters', table)
+                db.rollback()
             stale, _ = host.wire(FixedCall('factory_runs.start', {'scope_id': scope['id']}, 'factory:wrong-cas', scope['revision'] + 1))
             report['observations']['actual_wrong_start_CAS_refusal'] = stale
             assert stale['error']['code'] == 'STALE_REVISION' and host.result('sessions.list', {}) == []
@@ -1118,13 +1266,16 @@ def runtime_driver(args, output, attribution, prepared):
                         assert len({r['owned_provider']['pid'] for r in parent}) == 2
                         assert parent[0]['request']['task_id'] == parent[1]['request']['task_id'] == task['id']
                     with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
+                        db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
                         report['observations']['actual_sqlite_schema'] = db.execute('PRAGMA user_version').fetchone()[0]
                         assert report['observations']['actual_sqlite_schema'] == 15
                         counts = support.current_factory_counts(db)
                         report['observations']['factory_record_counts'] = counts
                         assert counts['child_goal_runs'] == counts['child_plan_heads'] == counts['child_plan_revisions'] == 0
-                        for table in sorted(support.LEGACY_GOAL_TABLES):
-                            assert db.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0] == 0
+                        report['observations']['legacy_goal_table_counts'] = {table: db.execute(
+                            'SELECT count(*) FROM "' + table + '"').fetchone()[0] for table in sorted(support.LEGACY_GOAL_TABLES)}
+                        report['observations']['shared_goal_meters'] = verify_legacy_factory_shared_budget(
+                            db, scope, grant, detail['run'], 3 if args.case == 'normal' else 1)
                         attempts = db.execute('SELECT count(*) FROM factory_attempts').fetchone()[0]
                         assert attempts == (3 if args.case == 'normal' else 1)
                         assert db.execute('SELECT count(*) FROM execution_grants').fetchone()[0] == 1

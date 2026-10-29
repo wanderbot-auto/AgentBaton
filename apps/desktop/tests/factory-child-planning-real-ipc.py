@@ -1201,6 +1201,8 @@ def runtime_driver(args, output, manifest):
             budget_rows = [dict(zip(['scope', 'consumed', 'active'], r)) for r in db.execute('SELECT scope,consumed,active FROM budgets')]
             base.verify_attempt_budgets(budget_rows, task['id'], project['id'], 3)
             report['observations']['actual_budgets'] = budget_rows
+            report['observations']['shared_goal_meters'] = base.verify_legacy_factory_shared_budget(
+                db, scope, grant, details['run'], 3)
             owned_stops = [json.loads(r[0]) for r in db.execute("SELECT document FROM events WHERE json_extract(document,'$.kind')='session.stopped'")]
             assert len([e for e in owned_stops if e['payload'].get('process_reaped') is True and e['payload'].get('no_process_started') is False]) == 3
             db.rollback()
@@ -1208,6 +1210,8 @@ def runtime_driver(args, output, manifest):
             'sha256': sha((source_root / 'input.txt').read_bytes()), 'mtime_ns': (source_root / 'input.txt').stat().st_mtime_ns}
         final_state = fingerprint_db(runtime)
         for name in sorted(base.support.LEGACY_GOAL_TABLES):
+            if name == 'goal_ledgers':
+                continue  # Exact shared meters proved above; no structural Goal exemption.
             assert final_state[name] == after_approval[name], ('Unexpected Goal dispatch', name)
         assert not errors and not report['http_unexpected_errors'], (errors, report['http_unexpected_errors'])
         assert sha(Path(__file__).read_bytes()) == sha(source)
