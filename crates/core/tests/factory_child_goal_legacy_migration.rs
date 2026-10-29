@@ -16,6 +16,157 @@ use std::{
 
 type Rows = BTreeMap<String, Vec<Vec<Value>>>;
 
+fn digest(value: &Value) -> bool {
+    value.as_str().is_some_and(|v| {
+        v.len() == 64
+            && v.bytes()
+                .all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c))
+    })
+}
+
+fn verify_tool_provenance(source: &Path, manifest: &Value) {
+    if manifest.get("provenance_kind").is_none() {
+        // Preserve the original immutable local input: do not relabel a fresh
+        // CI build as this original Linux pair.
+        assert_eq!(
+            manifest["binaries"]["batond"],
+            "1c835dcd2b925baeb2f0131b225c1047bdc89c4452417a302fae34a133c4cf73"
+        );
+        assert_eq!(
+            manifest["binaries"]["baton"],
+            "d90cf23761b83dc7eeeb92291b411a573e9cfb6ecde3750bc3bb376d2fe66797"
+        );
+        return;
+    }
+    assert_eq!(manifest["provenance_kind"], "reviewed_source_build");
+    let path = source.join("source-build-manifest.json");
+    let info = fs::symlink_metadata(&path).unwrap();
+    assert!(info.is_file() && !info.file_type().is_symlink());
+    assert_eq!(info.permissions().mode() & 0o777, 0o600);
+    assert!(info.len() > 0 && info.len() <= 4_194_304);
+    let raw = fs::read(&path).unwrap();
+    let hash = agentbaton_workspaces::validation::sha256(&raw);
+    assert_eq!(hash, manifest["source_build_manifest_sha256"]);
+    assert_eq!(hash, manifest["frozen_manifest_sha256"]);
+    let m: Value = serde_json::from_slice(&raw).unwrap();
+    assert_eq!(m["contract"], "agentbaton.schema14-source-build.v1");
+    assert_eq!(m["status"], "passed");
+    assert_eq!(m["schema"], 14);
+    assert_eq!(
+        m["platform"], "linux",
+        "Mac reproduction is a separate unverified dimension"
+    );
+    assert_eq!(
+        m["source"]["commit"],
+        "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701"
+    );
+    assert_eq!(
+        m["source"]["tree"],
+        "93ce75df286770a9f196994ed9f5c9a11528cc5e"
+    );
+    assert_eq!(
+        m["source"]["repository"],
+        "https://github.com/wanderbot-auto/AgentBaton.git"
+    );
+    assert_eq!(m["source"]["compiled_source_clean"], true);
+    assert!(digest(&m["source"]["archive_sha256"]));
+    assert_eq!(
+        m["builder_sha256"],
+        agentbaton_workspaces::validation::sha256(include_bytes!(
+            "../../../scripts/prepare-legacy-migration-fixture.py"
+        ))
+    );
+    for name in [
+        "Cargo.toml",
+        "Cargo.lock",
+        "crates/core/Cargo.toml",
+        "apps/daemon/Cargo.toml",
+        "apps/cli/Cargo.toml",
+    ] {
+        assert!(digest(&m["source"]["files_sha256"][name]));
+    }
+    let b = &m["build"];
+    assert_eq!(b["exit_code"], 0);
+    assert_eq!(b["packages"], json!(["batond", "baton"]));
+    assert_eq!(b["features"], json!([]));
+    assert_eq!(b["default_features"], true);
+    assert_eq!(
+        b["lockfile_sha256"],
+        m["source"]["files_sha256"]["Cargo.lock"]
+    );
+    let argv = b["argv"].as_array().unwrap();
+    assert_eq!(argv.len(), 9);
+    assert_eq!(
+        &argv[1..],
+        &[
+            json!("build"),
+            json!("--locked"),
+            json!("-j"),
+            json!("2"),
+            json!("--bin"),
+            json!("batond"),
+            json!("--bin"),
+            json!("baton")
+        ]
+    );
+    for name in ["cargo", "rustc"] {
+        assert!(!m["toolchain"][name].as_str().unwrap().is_empty());
+    }
+    let p = &m["probe"];
+    assert_eq!(p["schema"], 14);
+    assert_eq!(p["query_only"], true);
+    assert_eq!(p["foreign_key_errors"], json!([]));
+    let names = [
+        "goal_scopes",
+        "goal_runs",
+        "goal_graph_capabilities",
+        "factory_scopes",
+        "factory_runs",
+        "factory_task_lineage",
+        "factory_delegations",
+        "factory_task_bindings",
+        "factory_attempts",
+        "factory_scoped_handles",
+        "factory_handoffs",
+        "factory_budget_reservations",
+        "factory_child_plan_heads",
+        "factory_child_plan_revisions",
+    ];
+    assert_eq!(p["counts"].as_object().unwrap().len(), names.len());
+    for name in names {
+        assert_eq!(p["counts"][name], 0);
+    }
+    for (key, value) in [
+        ("snapshot_api_version", 1),
+        ("snapshot_sequence", 0),
+        ("cli_exit", 0),
+        ("daemon_wait_exit", 0),
+    ] {
+        assert_eq!(p[key], value);
+    }
+    assert_eq!(p["sigterm_sent"], true);
+    assert_eq!(p["forced_kill"], false);
+    assert_eq!(p["identity_gone_after_join"], true);
+    for name in ["batond", "baton"] {
+        let binary = &m["binaries"][name];
+        assert!(digest(&binary["sha256"]));
+        assert_eq!(binary["sha256"], manifest["binaries"][name]);
+        assert_eq!(binary["mode"], "0o500");
+        assert_eq!(binary["nlink"], 1);
+        assert!(binary["bytes"]
+            .as_u64()
+            .is_some_and(|n| n > 0 && n <= 134_217_728));
+        assert_eq!(
+            binary["bytes"],
+            manifest["tool_metadata_before"][name]["bytes"]
+        );
+    }
+    assert_eq!(
+        manifest["tool_metadata_before"],
+        manifest["tool_metadata_after"]
+    );
+}
+
 struct FixtureDir(Option<tempfile::TempDir>);
 impl FixtureDir {
     fn path(&self) -> &Path {
@@ -83,14 +234,7 @@ fn fixture() -> (FixtureDir, PathBuf, Value) {
         manifest["source_commit"],
         "f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701"
     );
-    assert_eq!(
-        manifest["binaries"]["batond"],
-        "1c835dcd2b925baeb2f0131b225c1047bdc89c4452417a302fae34a133c4cf73"
-    );
-    assert_eq!(
-        manifest["binaries"]["baton"],
-        "d90cf23761b83dc7eeeb92291b411a573e9cfb6ecde3750bc3bb376d2fe66797"
-    );
+    verify_tool_provenance(&source, &manifest);
     assert_ne!(
         manifest["native_goal_grant_id"],
         manifest["factory_grant_id"]
@@ -250,11 +394,7 @@ fn reject_unchanged(path: &Path) {
         ddl,
         "Failed migration must roll back schema"
     );
-    assert_eq!(
-        rows(&after),
-        data,
-        "Failed migration must not erase rejected proof"
-    );
+    assert!(rows(&after) == data, "Failed migration changed rejected proof; inspect retained private database without publishing its rows");
 }
 
 #[test]
@@ -289,12 +429,11 @@ fn actual_nonempty_native_and_factory14_history_survives_store15_and_private_bac
     assert_eq!(version(&after), 15);
     assert!(fk_errors(&after).is_empty());
     let mut new_rows = rows(&after);
-    assert_eq!(
-        new_rows.remove("factory_child_goal_runs"),
-        Some(vec![]),
-        "Migration cannot upgrade historical Factory scopes to execution authority"
+    assert!(
+        new_rows.remove("factory_child_goal_runs") == Some(vec![]),
+        "Historical Factory cannot gain execution authority; inspect retained private evidence"
     );
-    assert_eq!(new_rows,original,"Fixture terminal/joined precondition means recovery has no active work to alter; every old raw JSON, ID, result, capability and event must survive");
+    assert!(new_rows == original,"Terminal/joined original raw rows must survive; inspect retained private database without publishing its rows");
     let new_cap_fk: Vec<(String, String)> = {
         let mut s=after.prepare("SELECT \"table\",\"from\" FROM pragma_foreign_key_list('goal_graph_capabilities') ORDER BY id").unwrap();
         let values = s
@@ -321,11 +460,7 @@ fn actual_nonempty_native_and_factory14_history_survives_store15_and_private_bac
     );
     let backup = Connection::open(&saved[0]).unwrap();
     assert_eq!(version(&backup), 14);
-    assert_eq!(
-        rows(&backup),
-        original,
-        "Pre-v15 SQLite backup retains actual original14 rows, not recovered15 rows"
-    );
+    assert!(rows(&backup) == original, "Pre-v15 backup must retain original14 rows; inspect retained private database without publishing its rows");
     assert!(fk_errors(&backup).is_empty());
     drop(after);
     drop(Store::open(&path).unwrap());
@@ -451,6 +586,9 @@ fn actual14_fixture_relabeled_future16_is_refused_before_backup_or_recovery() {
     assert_eq!(error.code, "VERSION_UNSUPPORTED");
     let db = Connection::open(&path).unwrap();
     assert_eq!(version(&db), 16);
-    assert_eq!(rows(&db), before);
+    assert!(
+        rows(&db) == before,
+        "Future database changed; inspect retained private database without publishing its rows"
+    );
     assert!(backups(dir.path()).is_empty());
 }

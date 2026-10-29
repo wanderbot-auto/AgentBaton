@@ -22,6 +22,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import types
 import uuid
 
 SOURCE = 'f0322aa2a098c50ebc86e2fc5d52c3f62cb1c701'
@@ -96,26 +97,60 @@ def source_function(path, name, namespace):
     return sha(raw)
 
 
+def finish_report(report, frozen, hashes, output, completed, source_build):
+    try:
+        for name,digest in hashes.items():
+            assert sha((frozen/name).read_bytes()) == digest, 'Original frozen tool changed'
+            if source_build:
+                assert (frozen/name).stat().st_nlink == 1 and stat.S_IMODE((frozen/name).stat().st_mode) == 0o500
+        report['tool_metadata_after'] = {n: {'mode': oct(stat.S_IMODE((frozen/n).stat().st_mode)), 'bytes': (frozen/n).stat().st_size} for n in hashes}
+        assert report['tool_metadata_before'] == report['tool_metadata_after']
+        report['status'] = 'passed' if completed else 'failed_or_interrupted'
+    except BaseException:
+        report['status'] = 'failed_or_interrupted'
+        raise
+    finally:
+        (output/'manifest.json').write_text(json.dumps(report,indent=2)+'\n')
+        (output/'manifest.json').chmod(0o600)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--frozen', type=Path, required=True)
     p.add_argument('--repository', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--build-manifest', type=Path, help='Explicit reviewed source-build contract; absent keeps the original pinned f032 Linux pair')
     args = p.parse_args()
     frozen = args.frozen.resolve(strict=True)
     repo = args.repository.resolve(strict=True)
     output = args.output.resolve()
     output.mkdir(mode=0o700, parents=True, exist_ok=False)
-    original_manifest = bounded(frozen / 'manifest.json')
-    manifest = json.loads(original_manifest)
-    assert manifest['git_head'] == SOURCE and manifest['schema'] == 14
-    assert manifest['binaries'] == HASHES
+    builder_source = repo / 'scripts/prepare-legacy-migration-fixture.py'
+    if args.build_manifest is not None:
+        build_manifest = args.build_manifest.resolve(strict=True)
+        assert build_manifest.parent == frozen and not args.build_manifest.is_symlink()
+        original_manifest = bounded(build_manifest)
+        builder = types.ModuleType('reviewed_legacy_builder')
+        builder.__file__ = str(builder_source)
+        exec(compile(bounded(builder_source),str(builder_source),'exec'),builder.__dict__)
+        manifest = json.loads(original_manifest)
+        hashes = builder.validate_build_manifest(manifest)
+        assert manifest['builder_sha256'] == sha(bounded(builder_source))
+    else:
+        original_manifest = bounded(frozen / 'manifest.json')
+        manifest = json.loads(original_manifest)
+        assert manifest['git_head'] == SOURCE and manifest['schema'] == 14
+        assert manifest['binaries'] == HASHES
+        hashes = HASHES
     # These are the sole actual Core executables. Verify before any spawn and
     # after shutdown; never rewrite, strip or build the original pair.
-    for name, digest in HASHES.items():
+    for name, digest in hashes.items():
         info = (frozen / name).lstat()
         assert stat.S_ISREG(info.st_mode) and info.st_mode & 0o111 and not info.st_mode & 0o022
         assert sha((frozen / name).read_bytes()) == digest
+        if args.build_manifest is not None:
+            assert stat.S_IMODE(info.st_mode) == 0o500 and info.st_nlink == 1
+            assert info.st_size == manifest['binaries'][name]['bytes']
     ns = {'copy': copy, 'sha': sha}
     source_hashes = {}
     graph_source = repo / 'apps/desktop/tests/goal-graph-real-ipc.py'
@@ -125,17 +160,23 @@ def main():
     source_hashes[str(child_source.relative_to(repo))] = source_function(child_source, 'child_plan', ns)
     report = {'status': 'failed_or_interrupted', 'schema': 14,
               'origin': 'actual_frozen_schema14_core_rpc', 'source_commit': SOURCE,
-              'frozen_manifest_sha256': sha(original_manifest), 'binaries': HASHES,
+              'frozen_manifest_sha256': sha(original_manifest), 'binaries': hashes,
               'generator_sha256': sha(Path(__file__).read_bytes()), 'plan_constructor_sources': source_hashes,
               'native_owner': 'trusted_private_host_fixture_not_os_dialog',
               'provider': 'generated_local_acp_no_model_or_credentials',
               'forced_kill': False, 'requests': [], 'private_reviews': [],
               'not_claimed': ['macOS', 'native dialog', 'real Provider', 'TaskAccepted', 'product completion', 'active worker recovery']}
-    report['tool_metadata_before'] = {n: {'mode': oct(stat.S_IMODE((frozen/n).stat().st_mode)), 'bytes': (frozen/n).stat().st_size} for n in HASHES}
+    if args.build_manifest is not None:
+        report['provenance_kind'] = 'reviewed_source_build'
+        report['source_build_manifest_sha256'] = sha(original_manifest)
+        (output/'source-build-manifest.json').write_bytes(original_manifest)
+        (output/'source-build-manifest.json').chmod(0o600)
+    report['tool_metadata_before'] = {n: {'mode': oct(stat.S_IMODE((frozen/n).stat().st_mode)), 'bytes': (frozen/n).stat().st_size} for n in hashes}
     report['argv'] = [str(frozen/'batond')]
     report['working_directory'] = str(Path.cwd())
     assert shutil.disk_usage(output).free >= 200*1024*1024, 'Preserve coordinator free-space guard'
     daemon = None
+    completed = False
     try:
         with retained_private_runtime(report) as root:
             runtime = root / 'r'; runtime.mkdir(mode=0o700)
@@ -265,14 +306,11 @@ def main():
                     destination.touch(mode=0o600,exist_ok=False)
                     with sqlite3.connect(destination) as backup: db.backup(backup)
                 report['database_sha256'] = sha(destination.read_bytes())
-                report['status'] = 'passed'
+        # Includes successful exit from both the log and runtime cleanup
+        # contexts. A cleanup exception cannot publish a passed fixture.
+        completed = True
     finally:
-        for name,digest in HASHES.items():
-            assert sha((frozen/name).read_bytes()) == digest, 'Original frozen tool changed'
-        report['tool_metadata_after'] = {n: {'mode': oct(stat.S_IMODE((frozen/n).stat().st_mode)), 'bytes': (frozen/n).stat().st_size} for n in HASHES}
-        assert report['tool_metadata_before'] == report['tool_metadata_after']
-        (output/'manifest.json').write_text(json.dumps(report,indent=2)+'\n')
-        (output/'manifest.json').chmod(0o600)
+        finish_report(report,frozen,hashes,output,completed,args.build_manifest is not None)
     assert report['status'] == 'passed'
 
 

@@ -41,3 +41,9 @@ FAIL1: wrong Native capability FK source accepted. `goal_graph_capabilities.run_
 FAIL2: positive migration reached final reopen backup-count assertion after passing raw original rows, original14 backup and FK checks, then counted3vs1. Our helper included open backup SQLite `-wal/-shm`; narrow `.sqlite3` extension filtering is corrected, not rerun. Original failed `/tmp/legacy14-sQyTlh` is retained. This test is still FAIL.
 
 Private complete log/provenance `/workspace/.onboarding/factory-child-goal-legacy-tests/migration-run1/`. Window released; no automatic retry. Core fix/new independent run, CI integration/rebuild manifest, active/unknown recovery and actual derived-source corruption remain open. No overall migration/product pass.
+
+## New CI producer source checks (not actual build/migration)
+
+`python3 -B crates/core/tests/fixtures/child_goal_legacy_migration/test_source_builder.py -v`: **8pure tests PASS**,0.004s. Finite controls cover complete metadata without any allowed subprocess, source/tree/lock/features mismatch, nonzero/forced/unjoined probe refusal, malformed/linked tools, bounded archive paths/link refusal, cleanup failure and final frozen-tool guard failure retaining failed status. Synthetic metadata is explicitly labelled and never used as a real DB/approval/build record.
+
+Python AST checks for builder/generator/generated ACP and standalone rustfmt: PASS. Read-only f032 Git manifest inspection confirms actual package names batond/baton and in-crates include dependencies. New builder itself, fetch/archive/build/probe, source-build generator mode, updated Rust consumer compile and six migration tests: **NOT_RUN**. Original run2 source-build is not claimed; it remains the fixed frozen Linux pair with its original recorded hash. Root/Cargo source-only feature gate is implemented; actual CI mandatory invocation is PENDING Root review/integration. Linux source-build proof cannot stand in for Mac.
