@@ -214,17 +214,20 @@ fn queued_never_started_goal_can_save_and_explicitly_adopt_new_head_without_new_
 fn queued_label_cannot_repair_unknown_goal_factory_run_stop_claim_or_missing_issuer() {
     let (mut f, s, g) = queued();
     let before = unchanged_execution(&f);
+    observation(&mut f, &s);
+    let context = f.store.factory_child_planning_context(&query(&s)).unwrap();
+    let next = update(&s, &execution_plan(&context, 2));
     for sql in [
         "UPDATE goal_runs SET state='outcome_unknown',document=json_set(document,'$.state','outcome_unknown')",
         "UPDATE factory_runs SET state='outcome_unknown',document=json_set(document,'$.state','outcome_unknown')",
         "UPDATE factory_task_bindings SET document=json_set(document,'$.handle.confirmed_stop',json('true'))",
         "DELETE FROM factory_child_goal_runs",
     ] {
+        observation(&mut f,&s);
         f.store.conn.execute_batch("SAVEPOINT corrupt").unwrap();
         f.store.conn.execute_batch(sql).unwrap();
-        observation(&mut f,&s);
         let seq=f.store.sequence().unwrap();
-        assert!(f.store.factory_child_planning_context(&query(&s)).is_err(),"{sql}");
+        assert!(f.store.submit_factory_child_plan(&next,s.revision,"refused-queued-mutation").is_err(),"{sql}");
         assert_eq!(f.store.sequence().unwrap(),seq);
         f.store.data_input=None;
         f.store.conn.execute_batch("ROLLBACK TO corrupt;RELEASE corrupt").unwrap();
