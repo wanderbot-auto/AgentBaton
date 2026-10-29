@@ -3395,7 +3395,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        14
+        15
     );
     assert!(db
         .query_row(
@@ -3754,8 +3754,8 @@ impl GraphOwnerGrantClock {
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
         assert_eq!(
-            version, 14,
-            "This Factory integration fixture must link exact schema14"
+            version, 15,
+            "This Factory integration fixture must link exact schema15"
         );
         let raw: String = db
             .query_row(
