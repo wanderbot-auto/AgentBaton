@@ -1293,6 +1293,15 @@ impl Store {
             self.reconcile_factory_child_goals(&id)?;
             let s = scope(&self.conn, &id)?;
             let mut r = run(&self.conn, &id)?;
+            // Reconciliation can complete a root-target Graph by projecting
+            // its exact already-accepted history. Never reinterpret that
+            // terminal result as a new live-admission failure and cancel it.
+            if matches!(
+                r.state.as_str(),
+                "completed" | "cancelled" | "blocked" | "outcome_unknown"
+            ) {
+                continue;
+            }
             let authorized = base_live(&self.conn, &s).is_ok();
             let all = bindings(&self.conn, &r)?;
             if r.cancel_requested || !authorized {
