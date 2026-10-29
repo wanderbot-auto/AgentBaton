@@ -85,7 +85,7 @@ export function factoryDetailsShape(v:FactoryRunDetails,task:Task,scopeId:string
   // Terminal cancellation is a read projection, not a provider attempt or a
   // permission to dispatch. Require the whole reported subtree to be stopped.
   if(derivedScope&&v.run.state==='cancelled'&&v.tasks.some(t=>t?.attempt_id===null&&t.confirmed_stop!==true))return false;
-  const derivedCancelled=derivedScope&&v.run.state==='cancelled'&&v.run.cancel_requested&&v.run.active_task_id===null&&v.run.active_session_id===null&&v.tasks.every(t=>t?.confirmed_stop===true)&&v.waiting_relations.every(r=>r?.parent_stop_confirmed===true);
+  const derivedCancelled=derivedScope&&factoryRunSupported(v.run)&&v.run.state==='cancelled'&&v.run.cancel_requested&&v.run.active_task_id===null&&v.run.active_session_id===null&&v.tasks.every(t=>t?.confirmed_stop===true)&&v.waiting_relations.every(r=>r?.parent_stop_confirmed===true);
   const ids=new Set<string>();
   for(const t of v.tasks){
     if(!t||!factoryId(t.task_id)||ids.has(t.task_id)||t.root_task_id!==task.id||t.factory_scope_id!==scopeId||!safeInteger(t.revision,1)||!text(t.state,128)||!(t.attempt_id===null||factoryId(t.attempt_id))||typeof t.cancel_requested!=='boolean'||typeof t.confirmed_stop!=='boolean'||typeof t.result_available!=='boolean'||(t.task_id===task.id?t.parent_task_id!==null:!factoryId(t.parent_task_id))||typeof t.delegation_id!=='string'||(t.task_id!==task.id&&!factoryId(t.delegation_id)))return false;

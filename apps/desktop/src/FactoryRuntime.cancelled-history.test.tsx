@@ -8,7 +8,7 @@ import { factoryApi } from './factory-api';
 import { api } from './api';
 import { sessionApi } from './session-api';
 import { factoryMessages } from './factory-i18n';
-import { factoryScopeShape,factoryDetailsShape,factoryCanCancel } from './factory-guards';
+import { factoryScopeShape,factoryDetailsShape,factoryCanCancel,factoryRunShape,factoryRunSupported } from './factory-guards';
 import type { FactoryRunDetails } from './factory-types';
 vi.mock('./FactoryChildPlans',()=>({FactoryChildPlans:(p:{target:{task_id:string;attempt_id:string|null}})=><output data-testid="cancelled-child-slot" data-task={p.target.task_id} data-attempt={p.target.attempt_id??'none'}/> }));
 vi.mock('./factory-api',()=>({factoryApi:{approve:vi.fn(),get:vi.fn(),list:vi.fn(),revoke:vi.fn(),start:vi.fn(),run:vi.fn(),cancel:vi.fn()}}));
@@ -36,6 +36,11 @@ describe('cancelled derived-child history is structural, never execution authori
   expect(factoryDetailsShape(f.detail,f.currentRoot,f.scope.id)).toBe(false);
   expect(factoryDetailsShape(f.detail,f.currentRoot,f.scope.id,f.scope)).toBe(true);
   expect(f.child.attempt_id).toBeNull();expect(f.child.result_available).toBe(false);expect(factoryCanCancel(f.detail.run)).toBe(false);
+ });
+ it('rejects a future continuation contract even when the cancelled DTO has valid scalar shape',async()=>{
+  const f=await cancelledHistory();f.detail.run.context_continuation='foreign_future_continuation';
+  expect(factoryRunShape(f.detail.run,f.currentRoot,f.scope.id)).toBe(true);expect(factoryRunSupported(f.detail.run)).toBe(false);
+  expect(factoryDetailsShape(f.detail,f.currentRoot,f.scope.id,f.scope)).toBe(false);noWrites();
  });
  it.each(['live','expired','revoked'])('retains %s cancelled history without start/approval/cancel writes',async mode=>{
   const f=await cancelledHistory(),user=userEvent.setup(),clock=vi.spyOn(Date,'now');
