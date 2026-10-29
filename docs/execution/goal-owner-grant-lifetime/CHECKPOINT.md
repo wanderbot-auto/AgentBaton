@@ -1,0 +1,9 @@
+# Checkpoint
+
+Source commit5dc9b195e0d4fc21e06cd66ea7db27e32e545131; sessions_ipc.rs SHA432b0f8dda5b997e694b842ee07ed13c4395c5a28686d04db97df1492c953b1e. NORMALIZATION.json proves removing only new diagnostics/negative control/fixed-budget assertions, unwrapping the identical finalize request and restoring the target30s literal to10s produces the entire original source byte-for-byte, SHA227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b. All other54 original test bodies and shared constructors/helpers/thresholds are unchanged. No production fix or relaxed expiry behavior was introduced.
+
+Raw logs, source snapshots, all phase artifacts, exact command environments/results and original CI references are under `/workspace/.onboarding/goal-owner-grant-lifetime`. EVIDENCE binds the final snapshot. The earlier author message/snapshot10.64s expiry harness typo is explicitly corrected to raw10.63s, with its original snapshot retained; wrapper11.01s is distinct. No rerun was made for that correction.
+
+The original Intel absolute clock is missing: this is a fixture lifetime separation supported by local real phase clocks/strict expiry denial and the CI elapsed hypothesis, not proof of the historical Mac cause or Linux reproduction. Fresh exact Intel/ARM CI must recheck these phases. No Intel Native/readonly/Owner/package proof is borrowed from skipped downstream steps or ARM.
+
+The diagnostic's strict schema12 check belongs to this exact PR16 base and detects shared-target cache confusion. Any later schema13/14 product integration must advance it explicitly to that version rather than widen12|13|14 or modify historical migration inputs. Direct rustfmt was applied to this test source; final Cargo fmt/Clippy and whole-suite regressions remain pending. Cargo/CPU lease returned after new30s normal, no active owned build/test/product process remains. No push or other-tree source write.
