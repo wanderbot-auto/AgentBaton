@@ -47,6 +47,20 @@ def digest(value):
     return isinstance(value, str) and len(value) == 64 and all(c in '0123456789abcdef' for c in value)
 
 
+def publish_private_json(path, value):
+    candidate = path.with_name(path.name + '.pending')
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
+    with os.fdopen(os.open(candidate, flags, 0o600), 'wb') as stream:
+        os.fchmod(stream.fileno(), 0o600)
+        stream.write((json.dumps(value,indent=2)+'\n').encode())
+        stream.flush()
+        os.fsync(stream.fileno())
+    # No fallible permission/close operation follows publication. A failed
+    # prepare/flush/close/rename retains the private candidate, not a passed
+    # final-name record consumable by the next gate.
+    os.replace(candidate, path)
+
+
 def validate_build_manifest(m):
     """Finite metadata contract; never a substitute for an actual build/probe."""
     require(type(m) is dict and m.get('contract') == CONTRACT and m.get('status') == 'passed', 'Incomplete source-build record')
@@ -220,8 +234,7 @@ def main():
         report['status']='failed_or_interrupted'
         raise
     finally:
-        (frozen/'source-build-manifest.json').write_text(json.dumps(report,indent=2)+'\n')
-        (frozen/'source-build-manifest.json').chmod(0o600)
+        publish_private_json(frozen/'source-build-manifest.json',report)
 
 
 if __name__=='__main__':

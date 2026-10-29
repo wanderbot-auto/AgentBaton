@@ -14,4 +14,6 @@ New source-only Linux builder/explicit buildmanifest mode/independent Rust consu
 
 Additional requested version-column negative is source-prepared in the existing corrupt-proof function. Six functions now cover10 logical cases: four proof corruptions, two issuer cases and four singletons. All updated cases are NOT_RERUN; original wrong-issuer assertion/failed copies remain intact. No extra genuine run exists for isolated relational-run_id mismatch; that specific regression remains a coverage gap.
 
+Final manifest publication follow-up is source-fixed: private pending0600 preparation/flush/close precedes atomic final-name publish; no fallible chmod after publish; pending build manifests are refused by generator. Both permission and rename failure controls preserve pending only. Pure suite is now10PASS; actual builder/updated migration remain NOT_RUN, awaiting independent re-review.
+
 Next: Root reviews builder contract and fixed Core160 provenance fix, integrates only with authorization, then allocates fresh exact build/probe and six-test windows. Do not self-run or alter old failure DBs. CI mandatory integration, Mac true14 rebuild/migration, active/unknown recovery and actual derived-source corruption remain separate gaps. No full migration, real Provider/account/model/OS Native dialog/macOS or whole-product completion claim.

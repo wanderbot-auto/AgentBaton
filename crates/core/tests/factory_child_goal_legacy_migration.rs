@@ -96,6 +96,7 @@ fn verify_tool_provenance(source: &Path, manifest: &Value) {
     );
     let argv = b["argv"].as_array().unwrap();
     assert_eq!(argv.len(), 9);
+    assert!(Path::new(argv[0].as_str().unwrap()).is_absolute());
     assert_eq!(
         &argv[1..],
         &[

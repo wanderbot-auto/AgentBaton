@@ -110,8 +110,14 @@ def finish_report(report, frozen, hashes, output, completed, source_build):
         report['status'] = 'failed_or_interrupted'
         raise
     finally:
-        (output/'manifest.json').write_text(json.dumps(report,indent=2)+'\n')
-        (output/'manifest.json').chmod(0o600)
+        path=output/'manifest.json'
+        candidate=output/'manifest.json.pending'
+        flags=os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW
+        with os.fdopen(os.open(candidate,flags,0o600),'wb') as stream:
+            os.fchmod(stream.fileno(),0o600)
+            stream.write((json.dumps(report,indent=2)+'\n').encode())
+            stream.flush();os.fsync(stream.fileno())
+        os.replace(candidate,path)
 
 
 def main():
@@ -128,7 +134,7 @@ def main():
     builder_source = repo / 'scripts/prepare-legacy-migration-fixture.py'
     if args.build_manifest is not None:
         build_manifest = args.build_manifest.resolve(strict=True)
-        assert build_manifest.parent == frozen and not args.build_manifest.is_symlink()
+        assert build_manifest.parent == frozen and build_manifest.name == 'source-build-manifest.json' and not args.build_manifest.is_symlink()
         original_manifest = bounded(build_manifest)
         builder = types.ModuleType('reviewed_legacy_builder')
         builder.__file__ = str(builder_source)

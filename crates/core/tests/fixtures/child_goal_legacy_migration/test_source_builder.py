@@ -106,5 +106,29 @@ class PureSourceBuildContract(unittest.TestCase):
             with self.assertRaises(AssertionError):generator.finish_report(report,frozen,{'batond':'0'*64,'baton':'0'*64},output,True,False)
             self.assertEqual(json.loads((output/'manifest.json').read_text())['status'],'failed_or_interrupted')
 
+    def test_permission_or_rename_failure_never_publishes_final_passed_json(self):
+        for failing in ['fchmod','replace']:
+            with self.subTest(failing=failing),tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp);final=root/'source-build-manifest.json'
+                with mock.patch.object(builder.os,failing,side_effect=OSError('controlled publication failure')):
+                    with self.assertRaises(OSError):builder.publish_private_json(final,{'status':'passed','dimension':'pure control only'})
+                self.assertFalse(final.exists());self.assertTrue(final.with_name(final.name+'.pending').is_file())
+            with self.subTest(generator=failing),tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp);frozen=root/'frozen';frozen.mkdir();output=root/'output';output.mkdir()
+                for n in ['batond','baton']:(frozen/n).write_bytes(b'pure metadata');(frozen/n).chmod(0o500)
+                hashes={n:generator.sha((frozen/n).read_bytes()) for n in ['batond','baton']}
+                report={'status':'failed_or_interrupted','dimension':'pure publication control only','tool_metadata_before':{n:{'mode':'0o500','bytes':(frozen/n).stat().st_size} for n in hashes}}
+                with mock.patch.object(generator.os,failing,side_effect=OSError('controlled publication failure')):
+                    with self.assertRaises(OSError):generator.finish_report(report,frozen,hashes,output,True,False)
+                self.assertFalse((output/'manifest.json').exists());self.assertTrue((output/'manifest.json.pending').is_file())
+
+    def test_unpublished_build_candidate_is_not_a_generator_input(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);frozen=root/'frozen';frozen.mkdir();pending=frozen/'source-build-manifest.json.pending';pending.write_text('{}')
+            argv=['generate.py','--frozen',str(frozen),'--build-manifest',str(pending),'--repository',str(ROOT),'--output',str(root/'output')]
+            with mock.patch.object(generator.sys,'argv',argv),mock.patch.object(generator.subprocess,'Popen',side_effect=AssertionError('No Core process allowed')):
+                with self.assertRaises(AssertionError):generator.main()
+            self.assertFalse((root/'output/manifest.json').exists())
+
 
 if __name__=='__main__':unittest.main()
