@@ -1676,6 +1676,9 @@ impl Store {
             return Ok(v);
         }
         let mut r: ScopeRecord = raw(&tx, "goal_scopes", id)?;
+        if runtime::factory::marked_scope(&tx, id)? {
+            return Err(err("AUTH_REQUIRED","Use the fixed Factory child Goal cancel route; a derived scope is not a native Goal approval"));
+        }
         stored_scope_view(&tx, id)?;
         if r.revision != revision {
             return Err(err(

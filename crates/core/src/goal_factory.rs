@@ -79,6 +79,28 @@ fn checked_record(db: &Connection, id: &str) -> Result<DerivedRecord> {
         || record.run_id != id
         || record.initial_run.id != id
         || record.initial_run.scope_id != record.scope_id
+        || scope.approval_id != s.approval_id
+        || scope.id != record.scope_id
+        || scope.refs.task_id != record.initial_run.task_id
+        || scope.refs.project_id != s.project_id
+        || scope.refs.grant_before != s.bindings.approved_grant
+        || scope.refs.grant_after != s.bindings.approved_grant
+        || scope.scope_digest != record.origin.planning_policy_digest
+        || scope.selection.max_nodes != execution.policy.max_nodes
+        || scope.selection.root_budget != execution.policy.root_budget
+        || scope.selection.project_budget != execution.policy.project_budget
+        || scope.selection.new_max_children != s.bindings.approved_grant.scope.max_children
+        || scope.selection.new_max_depth
+            != s.bindings
+                .approved_grant
+                .scope
+                .max_depth
+                .checked_sub(
+                    u32::try_from(record.origin.ancestors.len().saturating_sub(1))
+                        .map_err(|_| changed())?,
+                )
+                .ok_or_else(changed)?
+        || scope.refs.task_goal != record.target_request.goal
         || record.initial_run.root_grant_id != s.root_grant_id
         || record.initial_run.project_id != s.project_id
         || record.origin.root_task_id != s.root_task_id
@@ -293,38 +315,7 @@ pub(crate) fn verify_native_history_before_migration(db: &Connection) -> Result<
     while let Some(row) = rows.next().map_err(db_error)? {
         let id: Option<String> = row.get(0).map_err(db_error)?;
         let r = run(db, &id.ok_or_else(limited)?)?;
-        let graph = graph::is_graph_run(db, &r.id)?;
-        let (proposal, result) = native_confirmation(
-            db,
-            &r.id,
-            if graph {
-                "goal_graph_execution"
-            } else {
-                "goal_execution"
-            },
-        )?;
-        let initial = if graph {
-            graph::checked_capability(db, &r)?;
-            result["run"].clone()
-        } else {
-            result
-        };
-        if initial["id"] != r.id
-            || initial["scope_id"] != r.scope_id
-            || initial["task_id"] != r.task_id
-            || initial["project_id"] != r.project_id
-            || initial["root_grant_id"] != r.root_grant_id
-            || proposal.snapshot["plan"]["digest"] != initial["plan_digest"]
-            || proposal.snapshot["plan"]["proposal"]["revision"] != initial["plan_revision"]
-        {
-            return Err(changed());
-        }
-        let digest = sha(&proposal.snapshot)?;
-        let (confirmed,authorized):(Option<i64>,Option<i64>)=db.query_row("SELECT (SELECT min(sequence) FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.kind')='approval.confirmed' AND json_extract(document,'$.payload.kind')=?2 AND json_extract(document,'$.payload.run_id')=?1 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3),(SELECT min(sequence) FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.run_authorized' AND json_extract(document,'$.payload.scope_id')=?4 AND json_extract(document,'$.payload.plan_digest')=?5 AND json_extract(document,'$.payload.plan_revision')=?6 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3 AND json_extract(document,'$.payload.reservation_made')=0 AND json_extract(document,'$.payload.dispatched')=0)",params![r.id,proposal.kind,digest,r.scope_id,initial["plan_digest"].as_str().ok_or_else(changed)?,sql_num(initial["plan_revision"].as_u64().ok_or_else(changed)?)?],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
-        if !matches!((confirmed,authorized),(Some(a),Some(b)) if a>0&&b>a) {
-            return Err(denied());
-        }
-        verify_plan_advances(db, &r, &proposal, &initial, authorized.ok_or_else(denied)?)?;
+        verify_native_run(db, &r, graph::is_graph_run(db, &r.id)?)?;
     }
     Ok(())
 }
@@ -518,10 +509,17 @@ impl Store {
         let caller_task = caller
             .as_ref()
             .map_or(source.task.id.clone(), |c| c.0.clone());
-        let namespace = format!(
-            "factory:{}:child-goal:{}:{}",
-            source.scope.id, caller_task, source.task.id
-        );
+        let namespace = if caller.is_some() {
+            format!(
+                "factory:{}:scoped:{}:{}:child-goal:start",
+                source.scope.id, caller_task, source.task.id
+            )
+        } else {
+            format!(
+                "factory:{}:owner:{}:child-goal:start",
+                source.scope.id, source.task.id
+            )
+        };
         let mut derived = DerivedRecord {
             run_id: run_id.clone(),
             scope_id: scope_id.clone(),
@@ -939,6 +937,7 @@ impl Store {
     ) -> Result<crate::factory::FactoryChildGoalView> {
         key(&query.scope_id)?;
         key(&query.task_id)?;
+        crate::factory::checked_child_goal_scope(&self.conn, &query.scope_id)?;
         let id=match &query.goal_run_id {
             Some(id)=>id.clone(),
             None=>self.conn.query_row("SELECT goal_run_id FROM factory_child_goal_runs WHERE factory_scope_id=?1 AND task_id=?2 ORDER BY rowid DESC LIMIT 1",params![query.scope_id,query.task_id],|r|r.get(0)).optional().map_err(db_error)?.ok_or_else(||err("NOT_FOUND","No saved child Goal run exists for this target"))?,
@@ -964,4 +963,42 @@ impl Store {
         }
         Ok(view)
     }
+}
+
+pub(super) fn verify_native_run(db: &Connection, r: &GoalRun, graph: bool) -> Result<()> {
+    if marked_run(db, &r.id)? {
+        return Err(denied());
+    }
+    let (proposal, result) = native_confirmation(
+        db,
+        &r.id,
+        if graph {
+            "goal_graph_execution"
+        } else {
+            "goal_execution"
+        },
+    )?;
+    let initial = if graph {
+        graph::checked_capability(db, &r)?;
+        result["run"].clone()
+    } else {
+        result
+    };
+    if initial["id"] != r.id
+        || initial["scope_id"] != r.scope_id
+        || initial["task_id"] != r.task_id
+        || initial["project_id"] != r.project_id
+        || initial["root_grant_id"] != r.root_grant_id
+        || proposal.snapshot["plan"]["digest"] != initial["plan_digest"]
+        || proposal.snapshot["plan"]["proposal"]["revision"] != initial["plan_revision"]
+    {
+        return Err(changed());
+    }
+    let digest = sha(&proposal.snapshot)?;
+    let (confirmed,authorized):(Option<i64>,Option<i64>)=db.query_row("SELECT (SELECT min(sequence) FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='local_owner_confirmation' AND json_extract(document,'$.kind')='approval.confirmed' AND json_extract(document,'$.payload.kind')=?2 AND json_extract(document,'$.payload.run_id')=?1 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3),(SELECT min(sequence) FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='goal_core' AND json_extract(document,'$.kind')='goal.run_authorized' AND json_extract(document,'$.payload.scope_id')=?4 AND json_extract(document,'$.payload.plan_digest')=?5 AND json_extract(document,'$.payload.plan_revision')=?6 AND json_extract(document,'$.payload.execution_snapshot_digest')=?3 AND json_extract(document,'$.payload.reservation_made')=0 AND json_extract(document,'$.payload.dispatched')=0)",params![r.id,proposal.kind,digest,r.scope_id,initial["plan_digest"].as_str().ok_or_else(changed)?,sql_num(initial["plan_revision"].as_u64().ok_or_else(changed)?)?],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+    if !matches!((confirmed,authorized),(Some(a),Some(b)) if a>0&&b>a) {
+        return Err(denied());
+    }
+    verify_plan_advances(db, &r, &proposal, &initial, authorized.ok_or_else(denied)?)?;
+    Ok(())
 }

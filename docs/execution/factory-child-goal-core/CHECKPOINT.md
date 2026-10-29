@@ -10,3 +10,6 @@ Pre-check WIP freeze: shared ancestor accounting projects existing Goal attempt 
 
 
 Post-check source fixes pending verification: do not claim compile pass. Check-3:e363569,21 errors; check-only Cargo lease formally RELEASED, old tools unchanged. Host policy is deliberately non-Deserialize; reconstruct it from original trusted Factory rows instead of widening that boundary. Restore exact source check before proceeding to integration. Five written Rust tests include actual recorded14Scope canonical roundtrip/digest; NOT_RUN. No new execution endpoints exposed, complete lifecycle remains unfinished.
+
+
+Further source-only hardening: Native run provenance is now shared by migration, legacy readers and recovery before mutation; derived missing/conflicting provenance cannot fall back. Derived source also checks exact original Factory approval/Grant/root/project/max-depth/budgets and immutable target request, not just its self-consistent document digest. Owner/scoped start key namespaces are separate. Generic Native Goal-scope revoke refuses derived scopes to preserve their immutable initial provenance. These changes have not been compiled or executed after check-3.

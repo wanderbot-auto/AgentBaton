@@ -1711,6 +1711,12 @@ impl Store {
                 .transaction_with_behavior(TransactionBehavior::Immediate)
                 .map_err(db_error)?;
             let mut r = run(&tx, &id)?;
+            if graph::is_graph_run(&tx, &r.id)? {
+                graph::checked_capability(&tx, &r)?;
+            } else {
+                factory::verify_native_run(&tx, &r, false)?;
+            }
+
             r.state = "outcome_unknown".into();
             let nodes = node_records(&tx, &id)?;
             if nodes

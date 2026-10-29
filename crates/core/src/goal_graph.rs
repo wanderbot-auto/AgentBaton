@@ -203,11 +203,8 @@ pub(super) fn require_legacy_run(db: &Connection, id: &str) -> Result<()> {
     if is_graph_run(db, id)? {
         return Err(err("CAPABILITY_UNSUPPORTED", "This is a versioned graph run; legacy candidate-only methods cannot read, replay or mutate its authority"));
     }
-    let (_, result) = native_confirmation(db, id, "goal_execution")?;
-    if result["id"] != id {
-        return Err(changed());
-    }
-    Ok(())
+    let r = run(db, id)?;
+    factory::verify_native_run(db, &r, false)
 }
 
 /// Distinct runtime authority value: this is never a fabricated proposal.
