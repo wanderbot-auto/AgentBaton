@@ -217,6 +217,13 @@ jobs:
           npm run typecheck
           npm test
           npm run build
+      - name: Build genuine native schema14 history for the required migration gate
+        run: |
+          set -euo pipefail
+          # Freeze the original native14 pair before normal15 overwrites target.
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
+          python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$CARGO_TARGET_DIR" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
+          python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
       - name: Core and native host tests
         env:
           # Each fixture owns real Git/SQLite/process work. Keep the original
@@ -239,6 +246,14 @@ jobs:
           cargo build --release --locked --bin batond --bin baton
           bash scripts/prepare-desktop-sidecars.sh
           cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml
+      - name: Migrate genuine native schema14 history with corruption and rollback controls
+        env:
+          AGENTBATON_ACTUAL_SCHEMA14_FIXTURE: ${{ runner.temp }}/agentbaton-legacy14-fixture
+          RUST_TEST_THREADS: '1'
+        run: |
+          set -euo pipefail
+          cargo test --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- --nocapture --test-threads=1
+          cargo clippy --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- -D warnings
       - name: Actual macOS WebView and daemon lifecycle acceptance
         run: |
           set -euo pipefail
@@ -254,6 +269,9 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/native-owner-dialog-smoke.py --kind factory_planning --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --companion target/debug/baton --output artifacts/native-smoke/factory-planning-owner-dialog
+      - name: Retain bounded native migration metadata without private history
+        if: always()
+        run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/native-smoke/legacy-migration
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
