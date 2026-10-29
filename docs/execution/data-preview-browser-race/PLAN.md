@@ -21,3 +21,7 @@ Independent review requires the new ready observation to reject a result read af
 ## Actual two-column event schema correction — 2026-10-29T19:42:40.268881+00:00
 
 Actual gated run exposed an author SQL/schema error in the new readonly preview commitment query. Correct only that function to read the real events(sequence,document) layout and add an inert SQLite regression using that exact table layout; preserve cancel/stop/terminal/order/CAS/source conditions, all old tests and original failed run. No product execution by this author.
+
+## Independent before-copy gate and subsequent boundary review — 2026-10-29T20:07:15.136819+00:00
+
+Root authorized an independent before-copy gate in the same nondefault/release-forbidden Core evidence feature. Explicit --preview-evidence now prepares separate preview and copy configs; default no-flag natural behavior is unchanged. Copy gate must match the actually Owner-approved creation after snapshot/managedroot verification, then original UIrefresh/cancel/CAS and readonly original completion receipt. No release/Renderer/public IPC authority, limit change or partial/midcopy claim. Subsequent source-review P2s require strict positive u64 raw revisions and genuine lstat absence only in this new copy-evidence path.

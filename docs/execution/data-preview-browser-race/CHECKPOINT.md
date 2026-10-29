@@ -21,3 +21,7 @@ Source11ab56b4bd0798b3c071db48d3333410c0e84f68 frozen; author evidence /workspac
 ## Actual two-column event schema correction — 2026-10-29T19:42:40.268881+00:00
 
 Fix-only source d39e78626694abd97a3ad32197f307f6415bffea frozen; /workspace/.onboarding/data-preview-browser-race/event-document-follow-up holds source/schema map, original failure finite attribution and pure logs. Root392 driver was byte-identical to the old11ab driver, confirming original failure source. Old gated run is still wholeFAIL; actual ready observation does not establish completion. Root controls subsequent review and one new output/run; no retry/timeout/budget/gate weakening or private DB/RPC/Grant copy.
+
+## Independent before-copy gate and subsequent boundary review — 2026-10-29T20:07:15.136819+00:00
+
+Current source630ff6445e5382ae01416b91f580eea2485943c5; initial copy sourcecd57963d82abf47e89a0f1eff2eb8fc3907eda10; actual run3 Root9cfcc94a54ff82d7dd8da1490ab137380c50eb08. Root owns all heavy execution and source integration. Current tree source frozen, no Rootwrites/product reruns by this author. Evidence layers: copy-evidence-follow-up retains initial63pure/static protocol/actualrun3 finite verification; copy-boundaries-follow-up retains new73pure/P2fix source audit. Old failures/counterexamples remain immutable. Next Root-controlled independent closure/import/tests/newactualrun; do not transfer run3PASS to630 or infer cleanup/macOS/CI/complete130requirements. Source/core/limits/permission/CAS/unknown/Owner and default release behavior remain bounded as before.
