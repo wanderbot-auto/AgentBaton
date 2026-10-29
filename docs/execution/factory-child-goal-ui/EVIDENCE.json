@@ -8,7 +8,7 @@
     "OWNER-002"
   ],
   "approval": "AB-START-001",
-  "wire_source": "2a3d6ae",
+  "wire_source": "4ffb21000030a3f82580f5a9c14ed40056bb13a0",
   "requirements": {
     "AB-TSK-003": "UI preserves original Grant and independent execution-policy bounds; enforcement proof belongs to Core",
     "AB-TSK-004": "exact key/payload/CAS reconciliation controls planned; no automatic unknown replay",
@@ -22,14 +22,47 @@
     "AB-SEC-010": "Native/Core materialize origin and approve recipient/input/workspace bindings; frontend cannot self-attest"
   },
   "validation": {
-    "typecheck": "not_run_CPU_window_not_granted",
-    "existing_733_UI_tests": "not_run_this_leaf",
-    "new_mock_controls": "source_authored_not_run_CPU_window_not_granted",
-    "build": "not_run",
+    "typecheck": "5414490 PASS",
+    "existing_733_UI_tests": "all retained, byte-identical original44 files, PASS within802",
+    "new_mock_controls": "69 PASS at5414490",
+    "build": "5414490 PASS, advisory636.54kB warning retained",
     "real_Core15_IPC": "not_run_Core_WIP",
     "browser": "not_run_Root_owns_CPU",
     "native_and_Mac": "not_run",
-    "real_Provider": "not_authorized_not_run"
+    "real_Provider": "not_authorized_not_run",
+    "stages": [
+      {
+        "source_commit": "43723e1cdb988551ceb2d834fdeecd9959f71fb2",
+        "typecheck": "FAIL TS2540 in new readonly test; log retained"
+      },
+      {
+        "source_commit": "76d2d229bb7edd43eef0d6486da1f8a9b060c5e9",
+        "typecheck": "PASS",
+        "focused": 51,
+        "full": 784,
+        "build": "PASS"
+      },
+      {
+        "source_commit": "e3d8d638d16abb932823a3640a4dd35e558d28c9",
+        "typecheck": "PASS",
+        "focused": 56,
+        "full": 789,
+        "build": "PASS",
+        "max_workers": 2
+      },
+      {
+        "source_commit": "54144907902288aaa50bb633c4374b7c8f9e8ddf",
+        "typecheck": "PASS",
+        "focused": 69,
+        "full": 802,
+        "old_cases": 733,
+        "new_cases": 69,
+        "old_test_files_byte_equal": 44,
+        "build": "PASS",
+        "max_workers": 2
+      }
+    ],
+    "evidence_dir": "/workspace/.onboarding/factory-child-goal-ui-validation"
   },
   "formal_approval": false,
   "complete_design_acceptance": false,
@@ -40,5 +73,11 @@
     "stdout": "",
     "stderr": "",
     "scope": "whitespace only; not TS syntax or product tests"
-  }
+  },
+  "node_cpu_window": "returned; no pending Node command",
+  "known_limits": [
+    "failed Graph adoption remains closed until authoritative failed-source/stop/join eligibility chain freezes",
+    "Core15 lifecycle/MCP registration still WIP; Node/mock success is not end-to-end proof"
+  ],
+  "recorded_at": "2026-10-29T08:04:57.742556+00:00"
 }
