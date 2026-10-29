@@ -1,0 +1,670 @@
+#!/usr/bin/env python3
+"""Private built-App/Chromium -> fixed HTTP -> real schema16 Owner Unix IPC.
+
+No Provider, approval, generic RPC, fake success, or public evidence projection.
+Only --run starts processes. Default preflight exits 2 (runtime NOT_RUN).
+All output is private generated-fixture evidence, never an upload allowlist.
+"""
+from __future__ import annotations
+import argparse
+import hashlib
+import http.server
+import json
+import os
+from pathlib import Path
+import re
+import signal
+import socket
+import sqlite3
+import stat
+import subprocess
+import tempfile
+import threading
+import time
+import uuid
+from functools import partial
+
+MAX_BODY = 32_768
+MAX_REPLY = 4_194_304
+MAX_SAFE = 9_007_199_254_740_991
+BASE = '840334e2507c7b2b39e89917b491e75c1ca3de18'
+ENDPOINT = '/__test_task_workspace'
+SELECTION_KEYS = {'task_id', 'expected_task_revision', 'expected_spec_revision',
+                  'expected_project_revision', 'host_id', 'expected_source_pin', 'preparation_key'}
+PIN_KEYS = {'canonical_root', 'device', 'inode', 'common_dir', 'head'}
+READS = {'system_snapshot': 'system.snapshot', 'projects_list': 'projects.list',
+         'connections_list': 'connections.list', 'sessions_list': 'sessions.list'}
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def unique(pairs):
+    out = {}
+    for key, value in pairs:
+        if key in out:
+            raise ValueError('Duplicate JSON key')
+        out[key] = value
+    return out
+
+
+def decode(raw):
+    return json.loads(raw, object_pairs_hook=unique,
+                      parse_constant=lambda _: (_ for _ in ()).throw(ValueError('Nonfinite JSON')))
+
+
+def exact(a, b):
+    if type(a) is not type(b):
+        return False
+    if isinstance(a, dict):
+        return a.keys() == b.keys() and all(exact(a[k], b[k]) for k in a)
+    if isinstance(a, list):
+        return len(a) == len(b) and all(exact(x, y) for x, y in zip(a, b))
+    return a == b
+
+
+def integer(value, minimum=1):
+    return type(value) is int and minimum <= value <= MAX_SAFE
+
+
+def require(value, message='Fixed fixture boundary refused'):
+    if not value:
+        raise ValueError(message)
+
+
+def private_json(path, value):
+    raw = (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'wb') as stream:
+        stream.write(raw)
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def file_digest(path, limit=134_217_728):
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, 'rb') as stream:
+        before = os.fstat(stream.fileno())
+        require(stat.S_ISREG(before.st_mode) and 0 < before.st_size <= limit)
+        h = hashlib.sha256()
+        while block := stream.read(1_048_576):
+            h.update(block)
+        after = os.fstat(stream.fileno())
+        require((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns) ==
+                (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns))
+        return {'sha256': h.hexdigest(), 'bytes': before.st_size, 'mode': stat.S_IMODE(before.st_mode)}
+
+
+def assets(frontend):
+    require(frontend.is_dir() and not frontend.is_symlink())
+    paths = sorted(frontend.rglob('*'))
+    require(len(paths) <= 4096 and not any(p.is_symlink() for p in paths))
+    rows = {str(p.relative_to(frontend)): file_digest(p, 64 * 1024 * 1024)
+            for p in paths if p.is_file()}
+    require('index.html' in rows and sum(v['bytes'] for v in rows.values()) <= 64 * 1024 * 1024)
+    return rows
+
+
+class Boundary:
+    """Finite fixture scope; never chooses an RPC method from browser text."""
+    def __init__(self, project, tasks, source_pin):
+        self.project = project
+        self.tasks = {task['id']: task for task in tasks}
+        self.pin = source_pin
+        self.resolved = {}
+        self.writes = {}
+        self.lock = threading.Lock()
+
+    def route(self, command, args):
+        require(type(command) is str and type(args) is dict)
+        if command in READS:
+            require(args == {})
+            return READS[command], {}, None, None
+        if command == 'events_subscribe':
+            require(set(args) == {'cursor', 'limit'} and integer(args['cursor'], 0)
+                    and type(args['limit']) is int and args['limit'] == 100)
+            return 'events.subscribe', dict(args), None, None
+        if command == 'tasks_get':
+            require(set(args) == {'taskId'} and args['taskId'] in self.tasks)
+            return 'tasks.get', {'task_id': args['taskId']}, None, None
+        if command == 'workspaces_resolve':
+            require(set(args) == {'selection'})
+            s = args['selection']
+            require(type(s) is dict and set(s) == {'task_id', 'expected_task_revision',
+                                                'expected_project_revision', 'host_id'})
+            require(s['task_id'] in self.tasks and s['host_id'] == 'local')
+            task = self.tasks[s['task_id']]
+            require(integer(s['expected_task_revision']) and s['expected_task_revision'] == task['revision'])
+            require(integer(s['expected_project_revision']) and s['expected_project_revision'] == self.project['revision'])
+            return 'workspaces.resolve', dict(s), None, None
+        if command != 'workspaces_prepare_task_git':
+            raise PermissionError('Command not in fixed bridge')
+        require(set(args) == {'selection', 'idempotencyKey'})
+        s, key = args['selection'], args['idempotencyKey']
+        require(type(s) is dict and set(s) == SELECTION_KEYS)
+        require(s['task_id'] in self.tasks and s['host_id'] == 'local')
+        require(type(key) is str and bool(re.fullmatch(r'[A-Za-z0-9:._-]{1,256}', key)))
+        require(type(s['expected_source_pin']) is dict and set(s['expected_source_pin']) == PIN_KEYS
+                and exact(s['expected_source_pin'], self.pin))
+        require(all(integer(s[k]) for k in ('expected_task_revision', 'expected_spec_revision', 'expected_project_revision')))
+        require(type(s['preparation_key']) is str and bool(re.fullmatch(r'code-prep:[0-9a-f]{64}', s['preparation_key'])))
+        with self.lock:
+            old = self.writes.get(s['task_id'])
+            if old is not None:
+                # No upgraded Task CAS, alternative key, or changed recovery body.
+                require(key == old['key'] and exact(s, old['selection']))
+            else:
+                p = self.resolved.get(s['task_id'])
+                require(p is not None and p['state'] == 'needs_git_workspace')
+                require(s['expected_task_revision'] == p['task_revision']
+                        and s['expected_spec_revision'] == p['spec_revision']
+                        and s['expected_project_revision'] == p['project_revision']
+                        and s['preparation_key'] == p['preparation_key'])
+                self.writes[s['task_id']] = {'key': key, 'selection': decode(json.dumps(s))}
+        params = {k: v for k, v in s.items() if k != 'expected_task_revision'}
+        return 'workspaces.prepare_task_git', params, key, s['expected_task_revision']
+
+    def observe(self, method, params, reply):
+        if 'error' in reply:
+            return
+        result = reply['result']
+        if method == 'workspaces.resolve':
+            require(result['execution_authorized'] is False and result['creates_workspace'] is False)
+            require(result['task_id'] == params['task_id'])
+            with self.lock:
+                self.resolved[params['task_id']] = result
+        if method == 'workspaces.prepare_task_git':
+            require(result['identity_revalidated'] is True and result['execution_authorized'] is False)
+            require(result['binding']['state'] == 'ready')
+            require(result['original_receipt']['task_id'] == params['task_id'])
+
+
+def parse_http(raw, headers, origin):
+    require(headers.get('Origin') == origin and headers.get('Host') == origin.removeprefix('http://'))
+    require(headers.get('Content-Type') == 'application/json')
+    require(0 < len(raw) <= MAX_BODY)
+    body = decode(raw)
+    require(type(body) is dict and set(body) <= {'command', 'args'} and 'command' in body)
+    return body['command'], body.get('args', {})
+
+
+def db_image(runtime):
+    """All relational rows, including empty tables, sequence and FK state; never export DB bytes."""
+    with sqlite3.connect(f'file:{runtime / "baton.sqlite3"}?mode=ro', uri=True, timeout=3) as db:
+        db.execute('PRAGMA query_only=ON')
+        db.execute('BEGIN')
+        require(db.execute('PRAGMA user_version').fetchone()[0] == 16)
+        names = [r[0] for r in db.execute("SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name")]
+        rows = {}
+        for name in names:
+            require(bool(re.fullmatch(r'[A-Za-z0-9_]+', name)))
+            data = db.execute('SELECT * FROM "' + name + '"').fetchall()
+            require(len(data) <= 10_000)
+            rows[name] = sorted(repr(row) for row in data)
+        require(not db.execute('PRAGMA foreign_key_check').fetchall())
+        return rows
+
+
+def no_execution(runtime):
+    rows = db_image(runtime)
+    for name in ('connections', 'execution_grants', 'attempts', 'dispatch_intents', 'sessions',
+                 'workspace_leases', 'budgets', 'factory_scopes', 'factory_runs', 'approval_proposals'):
+        require(name in rows and rows[name] == [], 'Unexpected execution/authority row')
+    return {'schema': 16, 'no_execution_or_grants': True,
+            'table_counts': {k: len(v) for k, v in rows.items()}}
+
+
+def source_image(source, git):
+    # Registered source content/index/HEAD, excluding legitimate linked-worktree metadata.
+    rows = {}
+    for p in sorted(source.rglob('*')):
+        rel = str(p.relative_to(source))
+        if rel == '.git' or rel.startswith('.git/'):
+            continue
+        require(not p.is_symlink())
+        rows[rel] = 'directory' if p.is_dir() else file_digest(p)['sha256']
+    rows['git:index'] = file_digest(source / '.git/index')['sha256']
+    rows['git:HEAD'] = git('rev-parse', 'HEAD')
+    rows['git:status'] = git('status', '--porcelain=v1', '--untracked-files=all')
+    return rows
+
+
+def seal_status(report):
+    checks = report.get('checks', [])
+    good = (report.get('flow_complete') is True and not report.get('failure')
+            and len(checks) == 4 and {c.get('id') for c in checks} == {'WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04'}
+            and all(c.get('status') == 'passed' for c in checks))
+    good = good and not report['http_errors'] and not report['page_errors']
+    good = good and report['cleanup'].get('complete') is True
+    report['status'] = 'passed' if good else 'failed'
+    return 0 if good else 1
+
+
+def preflight(args):
+    require(args.batond and args.candidate_manifest and args.frontend and args.frontend_build_record)
+    binary = args.batond.resolve(strict=True)
+    companion = binary.with_name('baton')
+    manifest_path = args.candidate_manifest.resolve(strict=True)
+    require(manifest_path.stat().st_size <= 2_097_152)
+    manifest = decode(manifest_path.read_bytes())
+    require(type(manifest.get('schema')) is int and manifest['schema'] == 16)
+    require(manifest.get('source_head', manifest.get('git_head')) == BASE, 'Frozen Core must match declared840 baseline')
+    tools = {name: file_digest(path) for name, path in [('batond', binary), ('baton', companion)]}
+    require(all(os.access(path, os.X_OK) for path in (binary, companion)))
+    for name in tools:
+        require(manifest['binaries'][name] == tools[name]['sha256'])
+    frontend = args.frontend.resolve(strict=True)
+    build_raw = args.frontend_build_record.resolve(strict=True).read_bytes()
+    require(len(build_raw) <= 1_048_576)
+    build = decode(build_raw)
+    require(build.get('source') == BASE and type(build.get('exit')) is int and build['exit'] == 0
+            and build.get('source_head_and_tracked_unchanged') is True
+            and build.get('command') == ['npm', '--prefix', 'apps/desktop', 'run', 'build'])
+    return binary, frontend, {'manifest_sha256': sha(manifest_path.read_bytes()), 'tools': tools,
+                              'frontend_assets': assets(frontend), 'compiled_core_source_head': manifest.get('source_head', manifest.get('git_head')),
+                              'frontend_build_head': build['source'], 'frontend_build_record_sha256': sha(build_raw)}
+
+
+def run(args, binary, frontend, attribution, output):
+    # Playwright import is deliberately below preflight/default/pure-control paths.
+    from playwright.sync_api import sync_playwright, expect
+    report = {'status': 'failed_or_interrupted', 'baseline': BASE, 'inputs': attribution,
+              'harness_sha256': sha(Path(__file__).read_bytes()), 'checks': [], 'screenshots': [],
+              'scenarios': {name: 'NOT_RUN' for name in ('WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04')},
+              'http': [], 'http_errors': [], 'readonly_aborts': [], 'page_errors': [], 'cleanup': {},
+              'not_run': ['macOS Native/WebView/OS Owner dialog', 'Provider/Agent/session',
+                          'startup crash recovery', 'Grant/admission/rework'],
+              'privacy': 'private generated fixture evidence; not an artifact upload projection'}
+    daemon = server = thread = browser = engine = None
+    server_started = False
+    temp = tempfile.TemporaryDirectory(prefix='bw-', dir='/tmp')
+    root = Path(temp.name).resolve()
+    root.chmod(0o700)
+    runtime, source = root / 'r', root / 's'
+    runtime.mkdir(mode=0o700)
+    source.mkdir(mode=0o700)
+    log_path = output / 'daemon.log'
+    log = log_path.open('xb')
+    os.chmod(log_path, 0o600)
+    stage = 'daemon_start'
+    failure_kind = None
+    event_pump = lambda: None
+
+    def wait(read, accept, seconds=15):
+        end = time.monotonic() + seconds
+        while True:
+            event_pump()
+            value = read()
+            require(time.monotonic() <= end, 'Bounded observation deadline')
+            if accept(value):
+                return value
+            time.sleep(.02)
+
+    def ipc(method, params, key=None, revision=None):
+        request = {'api_version': 1, 'request_id': str(uuid.uuid4()), 'token': token,
+                   'method': method, 'params': params}
+        if key is not None:
+            request['idempotency_key'] = key
+        if revision is not None:
+            request['expected_revision'] = revision
+        raw = json.dumps(request).encode() + b'\n'
+        require(len(raw) <= MAX_BODY)
+        with socket.socket(socket.AF_UNIX) as sock:
+            sock.settimeout(5)
+            sock.connect(str(runtime / 'batond.sock'))
+            sock.sendall(raw)
+            with sock.makefile('rb') as response:
+                raw = response.readline(MAX_REPLY + 1)
+        require(len(raw) <= MAX_REPLY and raw.endswith(b'\n'))
+        return decode(raw)
+
+    def result(method, params, key=None, revision=None):
+        reply = ipc(method, params, key, revision)
+        require('error' not in reply, 'Real Core fixture request refused')
+        return reply['result']
+
+    def passed(check_id, name, **data):
+        report['checks'].append({'id': check_id, 'name': name, 'status': 'passed', **data})
+        report['scenarios'][check_id] = 'passed'
+
+    def cleanup_action(name, action):
+        try:
+            report['cleanup'][name] = action()
+        except BaseException as error:
+            report['cleanup'][name] = {'failed': type(error).__name__}
+            report.setdefault('failure', {'stage': name, 'kind': type(error).__name__})
+
+    try:
+        daemon = subprocess.Popen([str(binary)], env={**os.environ, 'BATON_RUNTIME_DIR': str(runtime)},
+                                  stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        report['daemon_pid'] = daemon.pid
+        report['runtime'] = {'canonical': True, 'mode': stat.S_IMODE(runtime.stat().st_mode),
+                             'socket_utf8_bytes': len(str(runtime / 'batond.sock').encode())}
+        require(report['runtime']['mode'] == 0o700)
+        wait(lambda: (runtime / 'session.token').is_file() and (runtime / 'batond.sock').exists()
+             and daemon.poll() is None, bool, 10)
+        token = (runtime / 'session.token').read_text()
+        require(stat.S_IMODE((runtime / 'session.token').stat().st_mode) == 0o600)
+        socket_info = (runtime / 'batond.sock').lstat()
+        require(stat.S_ISSOCK(socket_info.st_mode) and stat.S_IMODE(socket_info.st_mode) == 0o600)
+        require(len(str(runtime / 'batond.sock').encode()) < 104)
+        stage = 'private_owner_fixture'
+        env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+        env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null', GIT_TERMINAL_PROMPT='0', GIT_NO_LAZY_FETCH='1')
+
+        def git(*argv):
+            proc = subprocess.run(['git', '-C', str(source), '-c', 'user.name=Fixture',
+                                   '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', '-c', 'maintenance.auto=false', '-c', 'gc.auto=0', *argv],
+                                  env=env, capture_output=True, text=True, timeout=5, check=True)
+            return proc.stdout.strip()
+
+        (source / 'input.txt').write_bytes(b'committed source\n')
+        (source / 'empty').mkdir()
+        git('init', '-q', '--initial-branch=main')
+        git('add', 'input.txt')
+        git('commit', '-qm', 'generated local fixture')
+        (source / 'input.txt').write_bytes(b'dirty source must survive\n')
+        (source / 'untracked.txt').write_bytes(b'untracked source must survive\n')
+        project = result('projects.import', {'path': str(source), 'name': 'Generated isolated workspace fixture'}, 'fixture-project')
+        tasks = [result('tasks.create', {'project_id': project['id'], 'goal': f'Workspace isolation fixture {i}'}, f'fixture-task-{i}') for i in (1, 2)]
+        baseline_source = source_image(source, git)
+        p = result('workspaces.resolve', {'task_id': tasks[0]['id'], 'expected_task_revision': tasks[0]['revision'],
+                                         'expected_project_revision': project['revision'], 'host_id': 'local'})
+        s = p['source']
+        pin = {k: s[k] for k in ('canonical_root', 'device', 'inode')}
+        pin.update(common_dir=s['kind']['common_dir'], head=s['kind']['head'])
+        boundary = Boundary(project, tasks, pin)
+        boundary.observe('workspaces.resolve', {'task_id': tasks[0]['id']}, {'result': p})
+        require(pin['canonical_root'] == str(source)
+                and pin['device'] == str(source.stat().st_dev)
+                and pin['inode'] == str(source.stat().st_ino)
+                and pin['head'] == git('rev-parse', 'HEAD'))
+        no_execution(runtime)
+        drop = {'task': tasks[1]['id'], 'done': False}
+
+        class Server(http.server.ThreadingHTTPServer):
+            daemon_threads = False
+            block_on_close = True
+            def handle_error(self, *_):
+                report['http_errors'].append({'stage': 'unexpected_handler_exception'})
+
+        class Handler(http.server.SimpleHTTPRequestHandler):
+            def log_message(self, *_):
+                pass
+
+            def do_GET(self):
+                # Serve only frozen assets, never a directory listing or source/runtime path.
+                rel = self.path.split('?', 1)[0]
+                if rel != '/' and rel.lstrip('/') not in attribution['frontend_assets']:
+                    self.send_error(404)
+                    return
+                super().do_GET()
+
+            def do_POST(self):
+                method = None
+                phase = 'decode'
+                self.connection.settimeout(5)
+                try:
+                    require(self.path == ENDPOINT)
+                    require(len(self.headers.get_all('Content-Length', [])) == 1
+                            and not self.headers.get_all('Transfer-Encoding'))
+                    n = self.headers.get('Content-Length', '')
+                    require(bool(re.fullmatch(r'[1-9][0-9]{0,5}', n)) and int(n) <= MAX_BODY)
+                    command, values = parse_http(self.rfile.read(int(n)), self.headers, origin)
+                    method, params, key, revision = boundary.route(command, values)
+                except (ValueError, PermissionError, KeyError, TypeError):
+                    self.send_error(403)
+                    return
+                entry = {'method': method, 'phase': 'core_call', 'reply_complete': False,
+                         'task_id': params.get('task_id'),
+                         'request_sha256': sha(json.dumps({'method': method, 'params': params, 'key': key, 'revision': revision}, sort_keys=True).encode())}
+                report['http'].append(entry)
+                try:
+                    response = ipc(method, params, key, revision)
+                    entry['reply_sha256'] = sha(json.dumps(response, sort_keys=True).encode())
+                    boundary.observe(method, params, response)
+                    entry['result'] = 'error' if 'error' in response else 'result'
+                    if 'error' in response:
+                        entry['error_code'] = response['error']['code']
+                        entry['side_effect_state'] = response['error']['side_effect_state']
+                    if method == 'workspaces.prepare_task_git' and params['task_id'] == drop['task'] and not drop['done']:
+                        require('error' not in response and response['result']['binding']['state'] == 'ready')
+                        drop['done'] = True
+                        entry['phase'] = 'intentional_post_commit_response_drop'
+                        entry['receipt_sha256'] = sha(json.dumps(response['result']['original_receipt'], sort_keys=True).encode())
+                        # Deliberate real transport loss, after actual Core commit; no fake reply.
+                        self.close_connection = True
+                        self.connection.shutdown(socket.SHUT_RDWR)
+                        return
+                    raw = json.dumps(response).encode()
+                    require(len(raw) <= MAX_REPLY)
+                    phase = 'headers'
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(raw)))
+                    self.end_headers()
+                    phase = 'response_body'
+                    self.wfile.write(raw)
+                    self.wfile.flush()
+                    entry['reply_complete'] = True
+                    entry['phase'] = 'complete'
+                except (BrokenPipeError, ConnectionResetError) as error:
+                    if method != 'workspaces.prepare_task_git' and phase == 'response_body':
+                        report['readonly_aborts'].append({'method': method, 'phase': phase, 'kind': type(error).__name__})
+                    else:
+                        report['http_errors'].append({'method': method, 'phase': phase, 'kind': type(error).__name__})
+                except BaseException as error:
+                    report['http_errors'].append({'method': method, 'phase': phase, 'kind': type(error).__name__})
+                    self.close_connection = True
+
+        server = Server(('127.0.0.1', 0), partial(Handler, directory=str(frontend)))
+        origin = f'http://127.0.0.1:{server.server_port}'
+        thread = threading.Thread(target=server.serve_forever, name='private-workspace-http')
+        thread.start()
+        server_started = True
+        stage = 'built_ui'
+        engine = sync_playwright().start()
+        browser = engine.chromium.launch(executable_path=args.chromium, headless=True, args=['--disable-dev-shm-usage'])
+        report['browser_version'] = browser.version
+        context = browser.new_context(viewport={'width': 1440, 'height': 1100}, locale='en-US')
+        context.add_init_script("""localStorage.setItem('agentbaton.language','en');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{const r=await fetch('/__test_task_workspace',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!r.ok)throw Error('Private fixed bridge refused');return r.json();}};""")
+        context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(origin + '/') else route.abort())
+        page = context.new_page()
+        page.set_default_timeout(15_000)
+        page.on('pageerror', lambda _: report['page_errors'].append({'kind': 'uncaught_browser_error'}))
+        event_pump = lambda: page.evaluate('0')
+        page.goto(origin)
+        expect(page.get_by_text('Local daemon connected', exact=True)).to_be_visible()
+
+        def open_task(task):
+            page.get_by_test_id('task-card').filter(has_text=task['goal']).click()
+            page.locator('#tab-details').click()
+            panel = page.get_by_test_id('task-code-workspace')
+            require(not panel.evaluate('(e)=>e.open'))
+            panel.locator(':scope > summary').click()
+            expect(panel.locator('section')).to_have_attribute('aria-busy', 'false')
+            return panel
+
+        def click(panel, label):
+            button = panel.get_by_role('button', name=label, exact=True)
+            expect(button).to_be_visible()
+            expect(button).to_be_enabled()
+            button.click()
+
+        def shot(name, panel):
+            panel.scroll_into_view_if_needed()
+            path = output / (name + '.png')
+            page.screenshot(path=str(path), full_page=True)
+            os.chmod(path, 0o600)
+            report['screenshots'].append({'name': path.name, 'sha256': file_digest(path, 32*1024*1024)['sha256'],
+                                          'viewport': page.viewport_size, 'visual_review': 'NOT_RUN by author; Root must inspect original PNG'})
+
+        stage = 'normal_first_task'
+        panel = open_task(tasks[0])
+        click(panel, 'Prepare isolated Git workspace for this task')
+        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_be_visible()
+        t1 = result('tasks.get', {'task_id': tasks[0]['id']})
+        b1 = t1['code_workspace_binding']
+        require(b1['state'] == 'ready' and t1['state'] == 'draft'
+                and not t1.get('acceptance_ref') and not t1.get('acceptance_sequence'))
+        w1 = Path(b1['managed_pin']['canonical_root'])
+        require((w1 / 'input.txt').read_bytes() == b'committed source\n')
+        require(source_image(source, git) == baseline_source)
+        shot('01-first-task-ready-desktop', panel)
+        passed('WSI-B01', 'normal real UI binds first Task without source dirty/index/content changes', task_id=tasks[0]['id'])
+        page.get_by_role('button', name='Back to tasks', exact=True).click()
+        stage = 'second_task_post_commit_transport_loss'
+        panel = open_task(tasks[1])
+        click(panel, 'Prepare isolated Git workspace for this task')
+        expect(panel.get_by_text('Request outcome unknown. Check the current Task, then explicitly recover the same request. No automatic retry or new key is used.', exact=True)).to_be_visible()
+        require(drop['done'])
+        t2 = result('tasks.get', {'task_id': tasks[1]['id']})
+        b2 = t2['code_workspace_binding']
+        require(t2['state'] == 'draft' and not t2.get('acceptance_ref') and not t2.get('acceptance_sequence'))
+        require(b2['state'] == 'ready' and b1['receipt']['workspace_id'] != b2['receipt']['workspace_id'])
+        before_replay = db_image(runtime)
+        click(panel, 'Check workspace preparation')
+        expect(panel.get_by_text('Stored binding only; filesystem identity has not been revalidated by this read.', exact=True)).to_be_visible()
+        expect(panel.get_by_role('button', name='Recover the exact preparation', exact=True)).to_be_enabled()
+        click(panel, 'Recover the exact preparation')
+        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_be_visible()
+        require(db_image(runtime) == before_replay, 'Exact replay created rows/events or changed existing receipt')
+        t2_after = result('tasks.get', {'task_id': tasks[1]['id']})
+        require(exact(t2, t2_after))
+        w2 = Path(b2['managed_pin']['canonical_root'])
+        require(w1 != w2 and w1.is_dir() and w2.is_dir())
+        require(all((w / '.git').is_file() and (w / 'input.txt').read_bytes() == b'committed source\n'
+                    and not (w / 'untracked.txt').exists() for w in (w1, w2)))
+        counts = db_image(runtime)
+        require(len(counts['tasks']) == 2 and len(counts['managed_workspaces']) == 2)
+        (w1 / 'own-output.txt').write_bytes(b'only Task one')
+        require(not (w2 / 'own-output.txt').exists() and not (source / 'own-output.txt').exists())
+        require(source_image(source, git) == baseline_source)
+        writes = [e for e in report['http'] if e['method'] == 'workspaces.prepare_task_git']
+        require(writes[1]['request_sha256'] == writes[2]['request_sha256']
+                and writes[1]['task_id'] == tasks[1]['id'] == writes[2]['task_id'])
+        require(len(writes) == 3 and sum(e['phase'] == 'intentional_post_commit_response_drop' for e in writes) == 1)
+        require(all(e['reply_complete'] or e['phase'] == 'intentional_post_commit_response_drop' for e in writes))
+        shot('02-second-task-exact-recovered-desktop', panel)
+        passed('WSI-B02', 'actual Core success then HTTP response loss; TaskGet and original-key/payload replay preserve all rows',
+               task_id=tasks[1]['id'], distinct_task_workspaces=True)
+        page.get_by_role('button', name='Back to tasks', exact=True).click()
+        stage = 'filesystem_drift_and_proof_invalidation'
+        panel = open_task(tasks[0])
+        # Cached prior proof may remain on remount; explicit fresh action verifies before fault injection.
+        click(panel, 'Revalidate the original binding')
+        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_be_visible()
+        retained = w1.with_name(w1.name + '-retained-fixture')
+        w1.rename(retained)
+        w1.mkdir(mode=0o700)  # actual replacement, not a SQL identity/candidate forgery
+        drift_image = db_image(runtime)
+        click(panel, 'Revalidate the original binding')
+        expect(panel.get_by_role('alert')).to_contain_text('Workspace preparation failed.')
+        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_have_count(0)
+        click(panel, 'Check workspace preparation')
+        expect(panel.get_by_text('Stored binding only; filesystem identity has not been revalidated by this read.', exact=True)).to_be_visible()
+        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_have_count(0)
+        require(db_image(runtime) == drift_image)
+        error = [e for e in report['http'] if e['method'] == 'workspaces.prepare_task_git'][-1]
+        require(error['result'] == 'error' and error['error_code'] == 'INPUT_CHANGED'
+                and error['side_effect_state'] == 'not_started' and error['reply_complete'])
+        require(source_image(source, git) == baseline_source)
+        shot('03-drift-invalidates-proof-desktop', panel)
+        page.set_viewport_size({'width': 390, 'height': 844})
+        expect(panel.get_by_text('Stored binding only; filesystem identity has not been revalidated by this read.', exact=True)).to_be_visible()
+        shot('04-drift-history-mobile', panel)
+        require(page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), 'Mobile horizontal overflow')
+        passed('WSI-B03', 'real replaced worktree refuses revalidation; subsequent Task-only refresh cannot recreate fresh proof')
+        stage = 'http_permission_negatives'
+        before = db_image(runtime)
+        for command in ('approvals_finalize', 'projects_import', 'tasks_create', 'sessions_create', 'workspaces_create', 'dispatch', 'generic_rpc'):
+            status = page.evaluate("""async command => (await fetch('/__test_task_workspace',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args:{}})})).status""", command)
+            require(status == 403)
+        require(db_image(runtime) == before)
+        passed('WSI-B04', 'fixed browser bridge denies approval/create/session/generic writes without durable changes')
+        report['no_execution'] = no_execution(runtime)
+        report['binding_receipt_hashes'] = [sha(json.dumps(b['receipt'], sort_keys=True).encode()) for b in (b1, b2)]
+        require(not report['http_errors'] and not report['page_errors'])
+        report['flow_complete'] = True
+    except BaseException as error:
+        failure_kind = type(error).__name__
+        report.setdefault('failure', {'stage': stage, 'kind': failure_kind})
+        # No exception text/trace or full RPC/DB exported. Preserve actual protocol code only.
+        if browser is not None:
+            try:
+                shot('failure-desktop', panel)
+            except BaseException as capture_error:
+                report['failure_capture'] = type(capture_error).__name__
+        if daemon is not None and daemon.poll() is None:
+            try:
+                report['failure_table_counts'] = {k: len(v) for k, v in db_image(runtime).items()}
+            except BaseException as diagnostic_error:
+                report['failure_diagnostic'] = type(diagnostic_error).__name__
+    finally:
+        if browser is not None:
+            cleanup_action('browser_close', lambda: browser.close())
+        if engine is not None:
+            cleanup_action('playwright_stop', lambda: engine.stop())
+        if server is not None:
+            if server_started:
+                cleanup_action('http_shutdown', lambda: server.shutdown())
+            cleanup_action('http_close_and_handlers_join', lambda: server.server_close())
+        if thread is not None:
+            def join_http():
+                thread.join(5)
+                require(not thread.is_alive(), 'HTTP serve thread failed to join')
+                return {'thread_alive_after_join': thread.is_alive()}
+            cleanup_action('http_thread', join_http)
+        if daemon is not None:
+            def stop_daemon():
+                # Popen retains this child identity; no global scans/signals/adoption or Provider children.
+                if daemon.poll() is not None:
+                    daemon.wait(timeout=5)
+                    raise AssertionError('Daemon exited before controlled stop; own child reaped')
+                daemon.send_signal(signal.SIGTERM)
+                try:
+                    code = daemon.wait(timeout=10)
+                except subprocess.TimeoutExpired:
+                    daemon.kill()
+                    daemon.wait(timeout=5)
+                    raise AssertionError('SIGTERM join failed; own child killed/reaped, run remains failed')
+                require(code == 0, 'Daemon graceful stop returned nonzero')
+                return {'pid': daemon.pid, 'wait_exitcode': code, 'popen_reaped': daemon.returncode is not None}
+            cleanup_action('daemon_stop', stop_daemon)
+        cleanup_action('log_close', lambda: log.close())
+        cleanup_action('tools_after', lambda: {
+            name: file_digest(path) for name, path in [('batond', binary), ('baton', binary.with_name('baton'))]})
+        cleanup_action('assets_after', lambda: assets(frontend))
+        if report['cleanup'].get('tools_after') != attribution['tools'] or report['cleanup'].get('assets_after') != attribution['frontend_assets']:
+            report.setdefault('failure', {'stage': 'input_hashes_changed', 'kind': 'AssertionError'})
+        cleanup_action('temporary_cleanup', lambda: temp.cleanup())
+        report['cleanup']['complete'] = not any(isinstance(v, dict) and 'failed' in v for v in report['cleanup'].values())
+        # Final decision occurs after *all* handler joins, browser/daemon waits, tool checks and directory cleanup.
+        code = seal_status(report)
+        private_json(output / 'report.json', report)
+    return code
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--batond', type=Path)
+    p.add_argument('--candidate-manifest', type=Path)
+    p.add_argument('--frontend', type=Path)
+    p.add_argument('--frontend-build-record', type=Path)
+    p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--chromium', default='/usr/bin/chromium')
+    p.add_argument('--run', action='store_true')
+    args = p.parse_args()
+    output = args.output.absolute()
+    output.mkdir(mode=0o700, parents=True, exist_ok=False)
+    require(stat.S_IMODE(output.stat().st_mode) == 0o700)
+    binary, frontend, attribution = preflight(args)
+    if not args.run:
+        private_json(output / 'preflight.json', {'status': 'NOT_RUN', 'reason': '--run required', 'inputs': attribution})
+        return 2
+    return run(args, binary, frontend, attribution, output)
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
