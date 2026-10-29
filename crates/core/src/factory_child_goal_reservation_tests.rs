@@ -576,7 +576,7 @@ fn budget_history_reuse_preserves_values_and_rechecks_each_new_invocation() {
     assert_eq!(serde_json::to_value(project().unwrap()).unwrap(), original);
 
     for (label, sql, code) in [
-        ("origin_changed_after_prior_read", "UPDATE factory_child_goal_runs SET record_digest='foreign-history-digest'", "INPUT_CHANGED"),
+        ("origin_changed_after_prior_read", "UPDATE factory_child_goal_runs SET record_digest=(CASE substr(record_digest,1,1) WHEN '0' THEN '1' ELSE '0' END)||substr(record_digest,2)", "INPUT_CHANGED"),
         ("usage_changed_after_prior_read", "UPDATE goal_run_reservations SET document=json_set(document,'$.actual_runtime_ms',1)", "BUDGET_UNKNOWN"),
         ("node_state_changed_after_prior_read", "UPDATE goal_run_nodes SET state='foreign-state',document=json_set(document,'$.state','foreign-state') WHERE attempt_id IS NOT NULL", "INPUT_CHANGED"),
         ("session_binding_changed_after_prior_read", "UPDATE sessions SET document=json_set(document,'$.task_id','foreign-history-task')", "INPUT_CHANGED"),
