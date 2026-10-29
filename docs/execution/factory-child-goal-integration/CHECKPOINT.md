@@ -115,3 +115,8 @@ See OBSERVATION_SHARED_METER_RESULTS.json: local Factory25 and four actual Linux
 ## Exact be12 terminal CI
 
 See BE12_CI_RESULTS.json. Environment3/UI1PASS; Rustscope10/1 failure after Factory25PASS; both Mac original55s observation failed with exact phase/method clocks, still-unexpired scope. No new installer; fixture-only observation reduction under implementation, original deadlines and final acceptance assertions retained. Scope8028 source review closed/Root11PASS; no newCI transfer.
+
+
+## Source5744 and8028 local integration
+
+POLLING_AND_CAPABILITY_RESULTS.json records exact25 Factory/11scope passes, original deadlines/final assertions, independent reviews, fmt/Clippy/infra and preserved capacity stops. Filtered/profile repetitions do not add unique cases or prove performance improvement. New exactsevenCI and bothMac remain mandatory; no current15 installer. Schema16 actualUI/core/browser work continues independently.

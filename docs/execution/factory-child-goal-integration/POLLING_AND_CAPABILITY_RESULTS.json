@@ -1,0 +1,288 @@
+{
+  "recorded_at": "2026-10-29T21:50:26.746081+00:00",
+  "tested_root_source": "fef00b417ff5dc2320e4e0c15a5674689a85422e",
+  "fixture_source": "5744fcb7234809f4e32ebe3bd2d77bcc483d01fd",
+  "scope_contract_source": "8028043fb1407d45b8253336c7c68d741d8cdb48",
+  "unchanged_contract": "original55s observation /60s Grant/30s runtime/5s RPC/60s Actor/10ms sleep/2 reconciliation retries/three exact readonly whitelist methods; all original final acceptance assertions",
+  "reviews": {
+    "polling": "4292160413e6afea8c5bd1aab2e99ddbf984c84802571c02c0c995a1b29565c3",
+    "polling_manifest": "75d1ab37c35c563dbf86528745b75f64d870bc301b3734f2f1b8eb3b2f8045e9",
+    "scope": "fdfa98a5ddf325c5230ac62e504817491b8b2da22808d63f1d7de3e88781482e",
+    "scope_manifest": "85ed078865203338d7c28a0cab37d4ed034288b886b751593c1a573af62949d4"
+  },
+  "actual_commands": [
+    {
+      "record": "pr18-factory-capability-contract1",
+      "source": "037670d4114e4cbd8a4cac260c98b215c6e9c368",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_scope",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 24.063436697993893,
+      "minimum_free_bytes": 219340800,
+      "interruption": null,
+      "log_sha256": "ffca97138f3bfef37c17386975298b081a2e3f477ecf2bb0ce74be53f67bed75",
+      "summaries": [
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.35s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-factory-capability-clippy1",
+      "source": "037670d4114e4cbd8a4cac260c98b215c6e9c368",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_scope",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 0.3013497010106221,
+      "minimum_free_bytes": 219328512,
+      "interruption": null,
+      "log_sha256": "0a00f77fbfa92dae52e08a3bed6a08b3e2658bc19b86249a70c2729db04c27ac",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-polling-actual1",
+      "source": "fef00b417ff5dc2320e4e0c15a5674689a85422e",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--nocapture"
+      ],
+      "exit": -15,
+      "seconds": 13.438778100011405,
+      "minimum_free_bytes": 155951104,
+      "interruption": "external_capacity_time_or_log_bound",
+      "log_sha256": "076c161d6606fe774fd9ccd40242693e5f801b3f830cb310b2e5e4a3b10d37d4",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-polling-actual2",
+      "source": "fef00b417ff5dc2320e4e0c15a5674689a85422e",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 51.739264053001534,
+      "minimum_free_bytes": 204959744,
+      "interruption": null,
+      "log_sha256": "1e653b06c81fc87b51181ea6f8ba4b754f2b4cb431d819628f36ce729bb6c70b",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 34.30s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-polling-stage-profile1",
+      "source": "fef00b417ff5dc2320e4e0c15a5674689a85422e",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "env",
+        "AGENTBATON_GOAL_DIAGNOSTICS=1",
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 35.602882499981206,
+      "minimum_free_bytes": 196227072,
+      "interruption": null,
+      "log_sha256": "8b04da0de63127d7141ab2f7f2acaa5fd231f1c79ef565137a8055e2c681a380",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 35.47s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-rework-polling-full-factory1",
+      "source": "fef00b417ff5dc2320e4e0c15a5674689a85422e",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 89.56067142699612,
+      "minimum_free_bytes": 187674624,
+      "interruption": null,
+      "log_sha256": "7e5027bdd854c0d843b7a35bcc0ebc5d5c75861a71a2df8f46ba98598906fde3",
+      "summaries": [
+        "test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 89.42s"
+      ],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-polling-format1",
+      "source": "fef00b417ff5dc2320e4e0c15a5674689a85422e",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.1032624809886329,
+      "minimum_free_bytes": 187666432,
+      "interruption": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-polling-workspace-clippy1",
+      "source": "fef00b417ff5dc2320e4e0c15a5674689a85422e",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 11.849051077006152,
+      "minimum_free_bytes": 187518976,
+      "interruption": null,
+      "log_sha256": "0ce992ab10bf2f0eba6b76265149cd7b67de47337a9d559ce04055ebbe0d9c87",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-polling-infrastructure1",
+      "source": "fef00b417ff5dc2320e4e0c15a5674689a85422e",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": -15,
+      "seconds": 0.0015419169794768095,
+      "minimum_free_bytes": 156839936,
+      "interruption": "external_capacity_time_or_log_bound",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    },
+    {
+      "record": "pr18-polling-infrastructure2",
+      "source": "fef00b417ff5dc2320e4e0c15a5674689a85422e",
+      "root": "/workspace/.worktrees/factory-runtime-integration",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 0,
+      "seconds": 1.1028743119968567,
+      "minimum_free_bytes": 240902144,
+      "interruption": null,
+      "log_sha256": "9d5f1e536b41cb17bbdcdcdc12f7da4e230f8167a4455563f790d1aeef4c36ea",
+      "summaries": [],
+      "source_head_and_tracked_unchanged": true,
+      "frozen_tools_unchanged": true,
+      "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+    }
+  ],
+  "previous_remote": "be12 actualcheckout70e9596 Environment3/UI1PASS, Rustscope10/1 and bothMac rework55sFAIL, laterMac gatesSKIPPED; BE12_CI_RESULTS.json retained",
+  "limits": [
+    "Unique new Factory group is25; filtered singles and debugprofile are not extra25 tests",
+    "Local34.30 and35.47 do not establish improvement against previous32.71 or solve Mac failure",
+    "Three fixed-method cumulative RTT includes Actor waiting; throttled debugstage samples are not a complete CPU profile and nested intervals cannot be added",
+    "Fixture-only polling reduces repeated discovery/full history reconstruction; no production performance/authority change",
+    "Next exact sevenCI/Mac/native/releaseaudit/packages required; no new installer yet",
+    "Whole130 still partial; no formalApprove/Provider/account/spend/production/sign/license action"
+  ]
+}

@@ -1,3 +1,9 @@
+# PR18 新候选已完成本地复核，准备准确七 CI — 2026-10-29T21:50:26.746081+00:00
+
+当前远程be12仍旧终态Env3/UI1PASS、Rustscope/双Mac返工FAIL；本地sourcefef00b4整合已独审8028精确负控与5744观察去冗余。Root实际scope11PASS9.35s、完整Factory25PASS89.42s；single34.30/profile35.47只作诊断不重复计数、不证明优于旧32.71。原55/60/30/5/60与10ms/retry2/白名单和全部Owner、Validator、同Graph、parent/预算最终断言保持。fmt/全workspace alltargets严格Clippy/infra84通过；编译容量中断及一次纯检查外部容量中断均保留，不算产品测试失败或通过。详见[新候选本地证据](factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json)。下一准确七CI/实际双Mac/native/releaseaudit/新开发包未跑，PR仍draft，完整130未完成。
+
+schema16隔离分支持续：Core156、前端967/type/build、真实旧15五项/旧14六项分别通过；新helper真实旧15input2五项再验通过。真实TaskUI/Core16/Chromium四项通过并有桌面/手机PNG，含两Task隔离、真实提交后丢HTTP原键恢复、真实FS漂移与旧proof失效、拒通用/审批/会话写且无新authority；compiledCore/前端840与browserdriver40d/3008分别归属，不转签Native。Source/P2/CI expectedhead与构建实测接线均独审；Linux桌面Rust check初缺sysroot配置、修环境后被150MiB保留阈值中断，未编译完成，不作Native/Mac通过。已复用工具链、无损保留缓存与失败证据，继续其他已批验证。main653679d/OWNER001/002ACK，无003；权限边界全保。以下保留历史。
+
 # PR18 准确 be12 CI 终态：Environment 与 UI 通过，Rust/双 Mac 失败 — 2026-10-29T21:23:38.990411+00:00
 
 headbe12ec4／实际checkout70e9596／main653679d，Environment40954313788三项通过；Product40954313798的UI通过。Rust Factoryruntime25通过102.52s（含返工），后scope旧负控10/1失败：actualINVALID_REQUEST vs CAPABILITY_UNSUPPORTED。精确test-only8028窄修已独审并Root实际11PASS/Clippy，未转签新CI。

@@ -1220,7 +1220,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1453,7 +1454,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -1493,7 +1498,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -1734,7 +1740,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -1769,7 +1779,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Local persisted grant/session/worker fixture scope; full router/delegation/workflow acceptance remains.",
@@ -1848,7 +1859,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -2433,7 +2448,8 @@
         "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -2650,7 +2666,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -3006,7 +3026,8 @@
         "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3125,7 +3146,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -3503,7 +3528,8 @@
         "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen.",
@@ -3613,7 +3639,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -3989,7 +4019,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Native-host owner proposal scope, fail-closed enforcement and redacted adapter previews; no OS sandbox/native identity claim."
@@ -4177,7 +4208,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -4200,7 +4235,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [],
       "verified_slices": [
@@ -4284,7 +4320,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -4396,7 +4436,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Integrity-only receipt/native policy and trusted-host localCAS primitive; no approved code/numerical validator, globalTaskAccepted, exposedautomaticadoption, remotePR/push orproductiondelivery acceptance. RealMac/newnativeDialog/fullgoal remainopen."
@@ -4467,7 +4508,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -5201,7 +5246,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
@@ -5260,7 +5306,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -5435,7 +5485,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -5486,7 +5537,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -6066,7 +6121,8 @@
         "docs/execution/factory-child-goal-integration/FULL_REWORK_AND_BROWSER_RESULTS.json",
         "docs/execution/factory-child-goal-integration/BUDGET_REUSE_AND_CANCEL_HISTORY_RESULTS.json",
         "docs/execution/factory-child-goal-integration/CANCELLED_HISTORY_ACCEPTANCE.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
@@ -6294,7 +6350,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -6339,7 +6399,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -6567,7 +6628,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
@@ -6993,7 +7058,8 @@
         "docs/execution/factory-child-goal-integration/EVIDENCE.json",
         "docs/execution/factory-child-goal-integration/SHA2_RUNTIME_RESULT.json",
         "docs/execution/factory-child-goal-integration/NORMAL_AND_TIMEOUT_RESULTS.json",
-        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json"
+        "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
+        "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json"
       ],
       "limitations": [],
       "data_workspace_contribution": {
@@ -7129,7 +7195,11 @@
         "evidence": "docs/execution/factory-child-goal-integration/OBSERVATION_SHARED_METER_RESULTS.json",
         "local": "Factory25/strictClippy/infra84PASS; 3legacy+planning actual browserPASS at9d9 using compiled0c78/frontend2d",
         "remote": "3b exactEnvironment3PASS/Product4FAIL remains; newcandidate NOT_RUN",
-        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial"
+        "limits": "Unchanged55s rework deadline; local passes do not prove remote root cause or fix; exact new Mac/native/installers pending; requirement remains partial",
+        "latest_source": "5744+8028 atRootfef00b4",
+        "latest_evidence": "docs/execution/factory-child-goal-integration/POLLING_AND_CAPABILITY_RESULTS.json",
+        "latest_local": "25Factory/11scopePASS+fmt/strictworkspaceClippy/infra84; no unique double-count or Mac/performance claim",
+        "latest_remote": "be12 Env3/UI1PASS, Rustscope/dualMac reworkFAIL; newcandidate CI NOT_RUN"
       }
     },
     {
