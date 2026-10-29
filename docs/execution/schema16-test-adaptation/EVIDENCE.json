@@ -32,5 +32,16 @@
   "manifest_sha256": "26c751dfdafd6134644365c2e3a5cf694b0058ab6b6b3d6e686fbc428838857b",
   "external_directory": "/workspace/.onboarding/schema16-test-adaptation",
   "failure_retained": "first-checker-failure: own Python checker predicate failure, corrected; not product failure",
-  "protected_source_bytes_equal": true
+  "protected_source_bytes_equal": true,
+  "narrow_task_array_revision": {
+    "source_commit": "e57a99f6f5fc15bfd10f2ba577ee15f0aa836f75",
+    "static_checks": 8,
+    "Rust_variants_source_only": 31,
+    "Rust_execution": "NOT_RUN",
+    "prior_checks_not_relabelled": true,
+    "archive": "TASK_ARRAY_EVIDENCE.tar.gz",
+    "archive_sha256": "62b537c17b7417b58df3d79e98cd784f8528e0c40e691400d77a2ba3d803bb57",
+    "manifest_sha256": "739e01f0982cfcdd880eb76e033f64a640e4af91a22131e844bee9f2838ce201",
+    "roundtrip_verified": true
+  }
 }
