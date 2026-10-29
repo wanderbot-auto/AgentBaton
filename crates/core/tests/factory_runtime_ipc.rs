@@ -1512,6 +1512,10 @@ fn actual_data_copy_owner_scope_and_scoped_mcp_parent_child_parent_use_fresh_pri
 fn actual_data_scoped_four_methods_fail_closed_after_input_drift_but_owner_stop_still_joins() {
     run_data_mode("input_drift");
 }
+#[test]
+fn actual_data_factory_wrong_start_revision_is_stale_before_read_worker_or_intent() {
+    run_data_mode("wrong_start_revision");
+}
 fn run_data_mode(mode: &str) {
     use agentbaton_core::ipc::call;
     use serde_json::Value;
@@ -1726,10 +1730,69 @@ fn run_data_mode(mode: &str) {
             .unwrap(),
         0
     );
+    let start_key = if mode == "wrong_start_revision" {
+        "wrong-cas-must-not-consume-key"
+    } else {
+        "data-factory-run"
+    };
+    if mode == "wrong_start_revision" {
+        let seq: i64 = check_db
+            .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        let wrong=call(&runtime,json!({"method":"factory_runs.start","params":{"scope_id":scope["id"]},"expected_revision":scope["revision"].as_u64().unwrap()+1,"idempotency_key":start_key})).unwrap();
+        eprintln!(
+            "ACTUAL_FACTORY_WRONG_CAS code={} side_effect_state={} revision={}",
+            wrong["error"]["code"], wrong["error"]["side_effect_state"], wrong["revision"]
+        );
+        let bytes = serde_json::to_vec_pretty(&wrong).unwrap();
+        let name = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
+            "../../artifacts/factory-runtime-core/wrong-start-cas-response-{}.json",
+            sha256(&bytes)
+        ));
+        fs::write(name, bytes).unwrap();
+        assert_eq!(wrong["error"]["code"], "STALE_REVISION", "{wrong}");
+        assert_eq!(wrong["error"]["side_effect_state"], "not_started");
+        assert_eq!(
+            check_db
+                .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| r
+                    .get::<_, i64>(0))
+                .unwrap(),
+            seq
+        );
+        for table in [
+            "factory_runs",
+            "factory_attempts",
+            "factory_task_lineage",
+            "factory_task_bindings",
+            "factory_budget_reservations",
+            "dispatch_intents",
+        ] {
+            assert_eq!(
+                check_db
+                    .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
+                        .get::<_, i64>(0))
+                    .unwrap(),
+                0,
+                "wrong CAS mutated {table}"
+            );
+        }
+        assert_eq!(
+            check_db
+                .query_row(
+                    "SELECT count(*) FROM idempotency WHERE key=?1",
+                    [start_key],
+                    |r| r.get::<_, i64>(0)
+                )
+                .unwrap(),
+            0
+        );
+    }
     let start = rpc(
         "factory_runs.start",
         json!({"scope_id":scope["id"]}),
-        Some("data-factory-run"),
+        Some(start_key),
         scope["revision"].as_u64(),
     );
     assert_eq!(start["state"], "queued");
@@ -1873,6 +1936,39 @@ fn run_data_mode(mode: &str) {
     };
     save_runtime_diagnostics(&runtime.join("baton.sqlite3"), &workspace);
     assert_eq!(final_run["run"]["state"], "completed", "{final_run}");
+    if mode == "wrong_start_revision" {
+        fs::remove_file(installed.join("baton")).unwrap();
+        let seq: i64 = check_db
+            .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        let replay = rpc(
+            "factory_runs.start",
+            json!({"scope_id":scope["id"]}),
+            Some(start_key),
+            scope["revision"].as_u64(),
+        );
+        assert_eq!(
+            replay, start,
+            "same-key history must be exact, not an execution retry or latest-state substitution"
+        );
+        assert_eq!(
+            check_db
+                .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| r
+                    .get::<_, i64>(0))
+                .unwrap(),
+            seq
+        );
+        assert_eq!(
+            check_db
+                .query_row("SELECT count(*) FROM factory_attempts", [], |r| r
+                    .get::<_, i64>(0))
+                .unwrap(),
+            3
+        );
+    }
+
     assert_eq!(final_run["tasks"].as_array().unwrap().len(), 2);
     assert_eq!(
         fs::read_to_string(workspace.join("reports/mcp-stages.txt")).unwrap(),
