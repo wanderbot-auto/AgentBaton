@@ -53,7 +53,7 @@ fn actual_schema11_upgrade_keeps_raw_old_rows_private_backup_and_no_graph_author
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        13
     );
     assert_eq!(
         db.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -138,11 +138,11 @@ fn graph_schema12_collision_rolls_back_all_new_tables_and_retains_unknown_data()
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn schema13_is_refused_without_modifying_any_bytes_or_creating_backup() {
+fn schema14_is_refused_without_modifying_any_bytes_or_creating_backup() {
     let (d, path, _) = old();
     Connection::open(&path)
         .unwrap()
-        .execute_batch("PRAGMA user_version=13")
+        .execute_batch("PRAGMA user_version=14")
         .unwrap();
     let before = fs::read(&path).unwrap();
     assert_eq!(

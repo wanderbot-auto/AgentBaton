@@ -105,3 +105,17 @@ The final selected directories are read_gate_cancel-803e571213fe123051362871bec6
 All production sources/raw tools remain equal to the immutable CAS manifest6cdfc423d2c15c5f91087350fa9742123bfdf58a1f88eca3434502f75cb5cd01; no binary rebuild was required. Original0ef/6c/1cfa/12e/CAS immutable directories and permanent stash ref da4ae89c6e71928e3cdc527ee875ce67ea113fb6 remain intact. No locks, schema, public DTO, product environment flag, native/UI, workflows, shared status, gate or remote changed. Cargo/CPU was explicitly returned to Root before documentation; no further compilation or heavy work is active.
 
 Pending: independent limited test review, authorized original ReadyRequest queue-deadline control, larger preflight/capture/journal/unknown fault matrix, current full regressions and actual supported-platform CI. These three synthetic Linux cases do not certify kernel interruption, arbitrary descendant cleanup or Task/Git acceptance.
+
+
+## Admission schema expectation checkpoint
+
+Source `ff2872e6b6134791fa51e1e95314adbaf6d74e67` is a single-file/single-literal test-only correction in crates/core/tests/admission_performance.rs. Snapshot `artifacts/factory-runtime-core/admission-schema-expectation.json`, SHA256 `f4d074762ce8a2e410d6434ec0bc5cbae1ee7f8b22e5e88b3a6b23de2f01b876`, binds old/new source hashes, actual failed Root regression logs/manifest and untouched current/historical findings. Reversing only the literal reproduces the old file byte-for-byte. No assertion set, production schema, source guard, input fixture, budget or deadline changed.
+
+No Cargo/cc/test/build was run for this patch. Parent retains the lease and will arrange independent review, authorized remaining current-version fixture alignment and a new exact complete regression. The Root8532 tree was not changed. Current tools and immutable CAS candidates retain their separately documented provenance; this commit does not rebuild them or claim CI/native/Mac/full Factory acceptance.
+
+
+## Complete strict schema13 fixture checkpoint
+
+Exact source head `116506ace23a073f1f60b1968110258aa4a8a0df`, layered after ff2872e6b6134791fa51e1e95314adbaf6d74e67 and7805973e8b9dab881d6035c98b441a78b0c813b7. The13-file source footprint relative to dac6 is fully described by `artifacts/factory-runtime-core/schema13-fixture-source-snapshot.json`, SHA256 `c6dab030c94865afe87423ef0360a1cdd0e73c207336e861108b312689ceb9ab`. All13 files normalize byte-identically to their original version after only declared changes (12 current assertions,7 future SQL inputs,6 matching function names,1 diagnostic); all production hashes remain unchanged. Raw assertions, table/column/events/actor/CAS/permission/timing/input/backup/rollback checks were not edited.
+
+No Cargo, cc, test, fmt invocation, build or tool overwrite occurred in this followup. Parent retains the only lease. Root8532 source tree and failed run remain unchanged; current snapshots and historical12 statements are distinguished. Next: independent source review, integrate this exact test-only correction set, then run a new full workspace regression in a separate log directory using the parent's approved profile and disk guard. The prior failed directory must remain immutable. Any different failure requires preserving it and reporting the exact kind before another fix. No CI/native/Mac/full Factory or task acceptance is claimed.

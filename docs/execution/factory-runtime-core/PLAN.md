@@ -27,3 +27,13 @@ Before any new Factory Owner start read plan, projection, descriptor/image looku
 Use only a Linux generated fixture shared library, loaded through the explicit environment of this test's own standalone daemon. No Cargo/rustc/Host/other-daemon/Provider injection, public RPC, product flag or production changes. The interposer matches the selected private regular-file device/inode/size, UID,0600/single-link identity while the fixture retains its original FD. It pauses only after a real65536-byte read and uses a private marker/release with10s test-failure bound. Keep original cancellation/deadline/resource semantics and distinguish approved Scope expiry from the original queued ReadyRequest deadline.
 
 Exercise independent Ownercancel, Ownerrevoke without later Ownercancel, and actual approved4000ms Scope expiry without later Ownercancel. While the original read is held, require Owner reads/control responses, an unfinished original request/thread and unreleased attempt/lease. After explicit fixture release, require the original nonce's refusal, actual worker exit/join and original owned leader reap before final active0/lease0, with consumed1 and no child. Preserve bounded original-daemon SIGTERM cleanup and all failed attempts; do not infer complete descendant containment or interrupted kernel I/O.
+
+
+## Admission current-schema fixture correction
+
+Following the actual full workspace failure, update only admission_performance's exact current Store schema expectation12→13. Keep every admission/Git dirty/path/performance guard, input, budget and timeout unchanged. Classify all other12 matches before editing: original pre-v13 fixtures/backups/rollback/intermediate migration steps retain12; genuine current-version expectations elsewhere require separately scoped integration updates. Do not rerun a known stale suite or modify Root's source tree in this limited task.
+
+
+## Complete schema13 test expectation alignment
+
+The integration owner expanded the narrow followup to13 explicit test files: admission_performance, command_validation, data_workspaces, sessions_ipc, migration_v5/v6/v7, command_validation_migration, data_workspace_migration, goal_store_migration, goal_runtime_migration, goal_graph_migration and storage tests. Change only12 completed/fresh current Store expectations12→strict13; change7 future-refusal SQL inputs13→14 and their6 versioned test names plus1 same-site diagnostic. Preserve original old-schema migration inputs, intermediate migration PRAGMA12, pre-v13 backups/rollback12, unknown99, raw-byte and every other assertion. Freeze exact source/normalization for independent review before another full suite. No Cargo lease is held by this author.

@@ -63,7 +63,7 @@ fn real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_a
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        13
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
@@ -141,10 +141,10 @@ fn command_migration_failure_rolls_back_tables_and_version_retains_unknown_data(
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema13_refused_without_touching_bytes() {
+fn future_schema14_refused_without_touching_bytes() {
     let (_d, p) = fixture();
     let c = Connection::open(&p).unwrap();
-    c.execute_batch("PRAGMA user_version=13;").unwrap();
+    c.execute_batch("PRAGMA user_version=14;").unwrap();
     drop(c);
     let raw = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");
