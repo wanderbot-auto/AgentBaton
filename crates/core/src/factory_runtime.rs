@@ -656,7 +656,9 @@ impl Store {
             || request.output_artifact_ids.is_empty()
             || request.output_artifact_ids.len() > 16
             || !request.budget.narrower(&caller.task.request.budget)
-            || request.budget.reworks != 0
+            || (request.budget.reworks != 0
+                && (!caller.scope.selection.capabilities.child_goal_execution
+                    || caller.scope.bindings.child_goal_execution.is_none()))
             || request.budget.tokens.is_some()
             || request.budget.cost_microunits.is_some()
         {
@@ -2203,3 +2205,5 @@ pub(crate) use child_goal::verify_target_request as verify_child_goal_target_req
 pub(crate) use child_goal::mark_queued as mark_child_goal_queued;
 
 pub(crate) use child_goal::expected_policy as expected_child_goal_policy;
+
+pub(crate) use child_goal::latest_plan_ref as latest_child_goal_plan_ref;

@@ -804,6 +804,9 @@ fn checked_runtime_scope_at(
 }
 // This metadata can only pause scheduling; it cannot authorize a new plan.
 fn adopted_plan_is_current_head(db: &Connection, r: &GoalRun) -> Result<bool> {
+    if !factory::adopted_head_is_current(db, r)? {
+        return Ok(false);
+    }
     db.query_row("SELECT EXISTS(SELECT 1 FROM goal_plan_heads WHERE scope_id=?1 AND revision=?2 AND digest=?3)",params![r.scope_id,sql_num(r.plan_revision)?,r.plan_digest],|row|row.get(0)).map_err(db_error)
 }
 fn local_goal_slot_is_occupied(db: &Connection) -> Result<bool> {

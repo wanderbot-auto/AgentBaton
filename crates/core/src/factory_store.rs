@@ -182,8 +182,8 @@ pub(super) fn limits(selection: &FactoryScopeSelection, grant: &ExecutionGrant) 
                 .max_duration_ms
                 .saturating_mul(u64::from(grant.scope.max_attempts))
         || selection.root_budget.children > selection.max_total_nodes - 1
-        || selection.root_budget.reworks != 0
-        || selection.project_budget.reworks != 0
+        || (!selection.capabilities.child_goal_execution
+            && (selection.root_budget.reworks != 0 || selection.project_budget.reworks != 0))
         || selection.root_budget.tokens.is_some()
         || selection.root_budget.cost_microunits.is_some()
         || selection.project_budget.tokens.is_some()

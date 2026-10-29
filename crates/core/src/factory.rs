@@ -519,3 +519,5 @@ pub(crate) use runtime::verify_child_goal_target_request;
 pub(crate) use runtime::mark_child_goal_queued;
 
 pub(crate) use runtime::expected_child_goal_policy;
+
+pub(crate) use runtime::latest_child_goal_plan_ref;

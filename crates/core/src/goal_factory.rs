@@ -268,7 +268,11 @@ pub(super) fn live_scope(
     }
     let approved = approved_scope(db, &task, &scope)?;
     let (_, plan) = current_plan(db, &r.scope_id, &approved)?;
-    if require_head && (plan.digest != r.plan_digest || plan.proposal.revision != r.plan_revision) {
+    if require_head
+        && (plan.digest != r.plan_digest
+            || plan.proposal.revision != r.plan_revision
+            || !adopted_head_is_current(db, r)?)
+    {
         return Err(err(
             "STALE_REVISION",
             "Factory child Goal must explicitly adopt its saved head",
@@ -1035,4 +1039,172 @@ fn require_complete_plan(record: &ScopeRecord, plan: &GoalPlanProposal) -> Resul
         }
     }
     Ok(())
+}
+
+impl Store {
+    pub(crate) fn factory_child_goal_start_replay(
+        &self,
+        start: &crate::factory::FactoryChildGoalStart,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<Option<FactoryChildGoalSummary>> {
+        key(key_id)?;
+        crate::factory::checked_child_goal_scope(&self.conn, &start.scope_id)?;
+        let namespace = format!(
+            "factory:{}:owner:{}:child-goal:start",
+            start.scope_id, start.request.task_id
+        );
+        let original: Option<FactoryChildGoalSummary> =
+            replay(&self.conn, &namespace, key_id, &encode(&(revision, start))?)?;
+        if let Some(old) = &original {
+            checked_record(&self.conn, &old.goal.run.id)?;
+        }
+        Ok(original)
+    }
+    pub fn start_factory_child_goal(
+        &mut self,
+        start: &crate::factory::FactoryChildGoalStart,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<FactoryChildGoalSummary> {
+        if let Some(old) = self.factory_child_goal_start_replay(start, revision, key_id)? {
+            return Ok(old);
+        }
+        let source = self.prepare_factory_goal_source(&start.scope_id, &start.request, revision)?;
+        self.create_factory_child_graph(source, None, key_id, &encode(&(revision, start))?)
+    }
+    /// Both Graph candidate reads and original Factory inputs are processed in
+    /// the same existing bounded data worker. Historical exact-key recovery
+    /// bypasses fresh I/O but can never create a new execution action.
+    pub(crate) fn prepare_factory_goal_read_for_request(
+        &self,
+        method: &str,
+        params: &Value,
+        revision: Option<u64>,
+        key_id: Option<&str>,
+        raw_request: &str,
+    ) -> Result<Option<crate::factory::FactoryReadPlan>> {
+        if method == "factory_child_goals.start" {
+            let start: crate::factory::FactoryChildGoalStart =
+                serde_json::from_value(params.clone()).map_err(|_| invalid())?;
+            if self
+                .factory_child_goal_start_replay(
+                    &start,
+                    revision.ok_or_else(invalid)?,
+                    key_id.ok_or_else(invalid)?,
+                )?
+                .is_some()
+            {
+                return Ok(None);
+            }
+            return self
+                .prepare_factory_child_goal_read(
+                    &start.scope_id,
+                    &start.request.task_id,
+                    raw_request,
+                    true,
+                )
+                .map(Some);
+        }
+        let run_id = match method {
+            "goal_graph_runs.dispatch" => {
+                let dispatch: GoalRunDispatch =
+                    serde_json::from_value(params.clone()).map_err(|_| invalid())?;
+                if let (Some(revision), Some(key)) = (revision, key_id) {
+                    if !marked_run(&self.conn, &dispatch.run_id)? {
+                        return Ok(None);
+                    }
+                    let current = run(&self.conn, &dispatch.run_id)?;
+                    graph::checked_capability(&self.conn, &current)?;
+                    let payload = encode(&json!({"intent":dispatch,"expected_revision":revision}))?;
+                    if replay::<Value>(
+                        &self.conn,
+                        &format!("goal-run:{}:advance", dispatch.run_id),
+                        key,
+                        &payload,
+                    )?
+                    .is_some()
+                    {
+                        return Ok(None);
+                    }
+                }
+                Some(dispatch.run_id)
+            }
+            "goal_node_approvals.propose" => {
+                let selection: GraphNodeApprovalSelection =
+                    serde_json::from_value(params.clone()).map_err(|_| invalid())?;
+                if let (Some(revision), Some(key)) = (revision, key_id) {
+                    if self
+                        .node_proposal_replay(&selection, revision, key)?
+                        .is_some()
+                    {
+                        return Ok(None);
+                    }
+                }
+                Some(selection.run_id)
+            }
+            "approvals.finalize" | "approvals.decline" => {
+                #[derive(Deserialize)]
+                #[serde(deny_unknown_fields)]
+                struct ProposalReference {
+                    proposal_id: String,
+                }
+                let selection: ProposalReference =
+                    serde_json::from_value(params.clone()).map_err(|_| invalid())?;
+                key(&selection.proposal_id)?;
+                let exists: bool = self
+                    .conn
+                    .query_row(
+                        "SELECT EXISTS(SELECT 1 FROM approval_proposals WHERE id=?1)",
+                        [&selection.proposal_id],
+                        |r| r.get(0),
+                    )
+                    .map_err(db_error)?;
+                if !exists {
+                    return Ok(None);
+                }
+                let proposal: ApprovalProposal =
+                    super::super::raw(&self.conn, "approval_proposals", &selection.proposal_id)?;
+                if proposal.kind != "goal_node_acceptance" || proposal.consumed {
+                    return Ok(None);
+                }
+                Some(
+                    proposal.snapshot["run_binding"]["run_id"]
+                        .as_str()
+                        .ok_or_else(changed)?
+                        .to_owned(),
+                )
+            }
+            _ => None,
+        };
+        let Some(id) = run_id else { return Ok(None) };
+        if !marked_run(&self.conn, &id)? {
+            return Ok(None);
+        }
+        let record = checked_record(&self.conn, &id)?;
+        self.prepare_factory_child_goal_read(
+            &record.origin.factory_scope_id,
+            &record.initial_run.task_id,
+            raw_request,
+            false,
+        )
+        .map(Some)
+    }
+}
+
+pub(super) fn adopted_head_is_current(db: &Connection, r: &GoalRun) -> Result<bool> {
+    if !marked_run(db, &r.id)? {
+        return Ok(true);
+    }
+    let record = checked_record(db, &r.id)?;
+    let latest = crate::factory::latest_child_goal_plan_ref(
+        db,
+        &record.origin.factory_scope_id,
+        &r.task_id,
+    )?;
+    // Later saved planning versions pause old dispatch. Their execution still
+    // requires the separate exact append-only adoption action, never this read.
+    Ok(latest.as_ref() == Some(&record.origin.initial_plan)
+        && r.plan_revision == record.origin.initial_plan.revision
+        && r.plan_digest == record.origin.initial_plan.plan_digest)
 }

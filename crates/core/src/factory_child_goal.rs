@@ -35,6 +35,11 @@ pub(crate) fn policy_limits(
         || policy.root_budget.parallel == 0
         || policy.root_budget.runtime_ms == 0
         || policy.root_budget.output_bytes == 0
+        || policy.root_budget.reworks != selection.root_budget.reworks
+        || policy.project_budget.reworks != selection.project_budget.reworks
+        || policy.root_budget.reworks > policy.root_budget.attempts.saturating_sub(1)
+        || policy.project_budget.reworks > policy.project_budget.attempts.saturating_sub(1)
+        || policy.root_budget.reworks > planning.max_revisions.saturating_sub(1)
         || policy.root_budget.children > grant.scope.max_children
         || policy.root_budget.attempts > grant.scope.max_attempts
         || policy.root_budget.parallel > grant.scope.max_concurrency
@@ -565,4 +570,32 @@ pub(crate) fn expected_policy(
     policy.root_budget = intersect_budget(&target.request.budget, &execution.policy.root_budget);
     policy.project_budget = execution.policy.project_budget.clone();
     Ok(policy)
+}
+
+impl Store {
+    pub(crate) fn prepare_factory_child_goal_read(
+        &self,
+        scope_id: &str,
+        task_id: &str,
+        raw: &str,
+        starting: bool,
+    ) -> Result<crate::factory::FactoryReadPlan> {
+        let scope = checked_scope(&self.conn, scope_id)?;
+        let r = run(&self.conn, scope_id)?;
+        let target = binding(&self.conn, &r.id, task_id)?;
+        if starting {
+            child_plan::mutable_target(&self.conn, &scope, &target)?;
+        } else {
+            policy_live(&self.conn, scope_id, task_id)?;
+        }
+        self.prepare_factory_child_plan_read(&scope, raw)
+    }
+}
+
+pub(crate) fn latest_plan_ref(
+    db: &Connection,
+    scope_id: &str,
+    task_id: &str,
+) -> Result<Option<FactoryChildPlanRef>> {
+    child_plan::latest_reference(db, scope_id, task_id)
 }
