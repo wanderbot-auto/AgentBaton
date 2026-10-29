@@ -11,6 +11,15 @@ use std::time::{Duration, Instant};
 mod approval;
 mod native_parent;
 
+// Read-only limits shared with the feature-gated Native test binary. The
+// default application exports no test view; all values have one definition.
+#[cfg(feature = "native-smoke")]
+pub mod native_review_test_limits {
+    pub const REVIEW_MESSAGE_BYTES: usize = super::native_parent::REVIEW_MESSAGE_BYTES;
+    pub const REVIEW_ROW_ENCODED_BYTES: usize = super::native_parent::REVIEW_ROW_ENCODED_BYTES;
+    pub const REVIEW_ROWS_PER_PAGE: usize = super::native_parent::REVIEW_ROWS_PER_PAGE;
+}
+
 struct Runtime {
     directory: PathBuf,
 }
