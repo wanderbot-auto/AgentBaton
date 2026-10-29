@@ -32,6 +32,205 @@ fn wait_until(
     }
 }
 
+// Preserve the original RunningDaemon Drop (including panic unwind) first.
+// Only then record this generated fixture's stable main-file/no-sidecar
+// observation. This is not a live SQLite snapshot or process-tree stop proof.
+struct ReworkRetainedDaemon(Option<RunningDaemon>, (u64, u64, u32));
+impl Drop for ReworkRetainedDaemon {
+    fn drop(&mut self) {
+        let Some(running) = self.0.take() else { return };
+        let db = running.db.clone();
+        let evidence = running.evidence.clone();
+        drop(running);
+        let checked = (|| -> std::io::Result<bool> {
+            let read_private = |path: &Path, cap: u64| -> std::io::Result<Vec<u8>> {
+                use std::io::Read;
+                let mut file = fs::OpenOptions::new()
+                    .read(true)
+                    .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
+                    .open(path)?;
+                let before = file.metadata()?;
+                let stamp = |m: &fs::Metadata| {
+                    (
+                        m.dev(),
+                        m.ino(),
+                        m.mode(),
+                        m.uid(),
+                        m.nlink(),
+                        m.len(),
+                        m.mtime(),
+                        m.mtime_nsec(),
+                        m.ctime(),
+                        m.ctime_nsec(),
+                    )
+                };
+                if !before.is_file()
+                    || before.nlink() != 1
+                    || before.uid() != self.1 .2
+                    || !matches!(before.mode() & 0o777, 0o600 | 0o644)
+                    || before.len() == 0
+                    || before.len() > cap
+                {
+                    return Err(std::io::ErrorKind::InvalidData.into());
+                }
+                let mut raw = Vec::new();
+                Read::by_ref(&mut file)
+                    .take(cap + 1)
+                    .read_to_end(&mut raw)?;
+                if raw.len() as u64 != before.len()
+                    || stamp(&before) != stamp(&file.metadata()?)
+                    || stamp(&before) != stamp(&fs::symlink_metadata(path)?)
+                {
+                    return Err(std::io::ErrorKind::InvalidData.into());
+                }
+                Ok(raw)
+            };
+            let absent = || {
+                [db.clone(), evidence.join("runtime.raw.sqlite3")]
+                    .iter()
+                    .all(|base| {
+                        ["-wal", "-shm", "-journal"].iter().all(|suffix| {
+                            let mut path = base.as_os_str().to_owned();
+                            path.push(suffix);
+                            matches!(fs::symlink_metadata(PathBuf::from(path)),Err(e)
+                            if e.kind()==std::io::ErrorKind::NotFound)
+                        })
+                    })
+            };
+            let cleanup: Value = serde_json::from_slice(&read_private(
+                &evidence.join("owned-cleanup.json"),
+                16384,
+            )?)?;
+            if cleanup["joined"] != true || cleanup["daemon_result"] != "ok" || !absent() {
+                return Ok(false);
+            }
+            let before = fs::symlink_metadata(&db)?;
+            if (before.dev(), before.ino(), before.uid()) != self.1 {
+                return Ok(false);
+            }
+            let source = read_private(&db, 16 * 1024 * 1024)?;
+            let copied = read_private(&evidence.join("runtime.raw.sqlite3"), 16 * 1024 * 1024)?;
+            let after = fs::symlink_metadata(&db)?;
+            Ok(absent()
+                && (
+                    before.dev(),
+                    before.ino(),
+                    before.len(),
+                    before.mtime(),
+                    before.mtime_nsec(),
+                    before.ctime(),
+                    before.ctime_nsec(),
+                ) == (
+                    after.dev(),
+                    after.ino(),
+                    after.len(),
+                    after.mtime(),
+                    after.mtime_nsec(),
+                    after.ctime(),
+                    after.ctime_nsec(),
+                )
+                && source == copied
+                && cleanup["raw_db_bytes"] == copied.len() as u64
+                && cleanup["raw_db_sha256"] == sha256(&copied))
+        })();
+        // A diagnostic failure must not replace the original assertion panic.
+        let consistent = matches!(checked, Ok(true));
+        let record = json!({"contract":"rework-post-join-main-file.v1",
+            "main_file_copy_consistent":consistent,
+            "status":if consistent{"observed_consistent"}else{"incomplete"},
+            "snapshot_time":"post_owned_shutdown_not_deadline_instant",
+            "not_a_general_sqlite_snapshot_or_process_stop_proof":true});
+        let saved = (|| -> std::io::Result<()> {
+            use std::io::Write;
+            let raw = serde_json::to_vec(&record)?;
+            let mut file = fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .mode(0o600)
+                .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
+                .open(evidence.join("post-shutdown-snapshot.json"))?;
+            file.write_all(&raw)
+        })();
+        if saved.is_err() {
+            eprintln!("REWORK_SNAPSHOT status=incomplete code=SNAPSHOT_RECEIPT_NOT_SAVED");
+        }
+    }
+}
+
+// Finite diagnostic projection only. IDs, messages and raw list items never
+// enter public evidence. Revision1's failed Validator is expected rework input;
+// revision2 must still reach the original full-view Owner assertions below.
+fn rework_list_progress(result: &Value) -> Value {
+    let Some(items) = result.as_array() else {
+        return json!({"summary_count":null,"failure_code":"REWORK_LIST_INVALID"});
+    };
+    if items.is_empty() {
+        return json!({"summary_count":0,"failure_code":null});
+    }
+    if items.len() != 1 {
+        return json!({"summary_count":items.len(),"failure_code":"REWORK_LIST_INVALID"});
+    }
+    let head = &items[0];
+    let run = &head["goal"]["run"];
+    let plan_revision = head["plan"]["revision"].as_u64();
+    let run_plan_revision = run["plan_revision"].as_u64();
+    let state = run["state"].as_str().filter(|state| {
+        matches!(
+            *state,
+            "queued"
+                | "running"
+                | "awaiting_acceptance"
+                | "blocked"
+                | "failed"
+                | "cancel_requested"
+                | "cancelled"
+                | "outcome_unknown"
+                | "accepted"
+                | "completed"
+        )
+    });
+    let task_accepted = head["goal"]["task_accepted"].as_bool();
+    let run_task_accepted = run["task_accepted"].as_bool();
+    let cancel_requested = run["cancel_requested"].as_bool();
+    let digest_matches = head["plan"]["plan_digest"]
+        .as_str()
+        .zip(run["plan_digest"].as_str())
+        .map(|(a, b)| a == b);
+    let failure = if !matches!(plan_revision, Some(1 | 2))
+        || state.is_none()
+        || plan_revision != run_plan_revision
+        || digest_matches != Some(true)
+        || run["revision"].as_u64().is_none()
+        || task_accepted.is_none()
+        || run_task_accepted.is_none()
+        || cancel_requested.is_none()
+    {
+        Some("REWORK_LIST_INVALID")
+    } else if state == Some("outcome_unknown") {
+        Some("REWORK_OUTCOME_UNKNOWN")
+    } else if task_accepted == Some(true)
+        || run_task_accepted == Some(true)
+        || matches!(state, Some("accepted" | "completed"))
+    {
+        Some("REWORK_EARLY_ACCEPTANCE")
+    } else if plan_revision == Some(2)
+        && (cancel_requested == Some(true)
+            || matches!(
+                state,
+                Some("blocked" | "failed" | "cancel_requested" | "cancelled")
+            ))
+    {
+        Some("REWORK_REVISION2_TERMINAL")
+    } else {
+        None
+    };
+    json!({"summary_count":1,"plan_revision":plan_revision,
+        "run_plan_revision":run_plan_revision,"run_revision":run["revision"].as_u64(),
+        "run_state":state,"task_accepted":task_accepted,
+        "run_task_accepted":run_task_accepted,"cancel_requested":cancel_requested,
+        "plan_digest_matches":digest_matches,"failure_code":failure})
+}
+
 // Only this scenario's fixed, already-bound readonly observations may recover
 // from a transport failure. In particular this never retries an Owner write.
 struct ReworkReadReconciliation {
@@ -106,7 +305,10 @@ impl ReworkReadReconciliation {
             "run_completed":run_state.map(|state|state=="completed"),
             "run_outcome_unknown":run_state.map(|state|state=="outcome_unknown"),
             "plan_revision":result.and_then(|v|v.pointer("/summary/plan/revision")).and_then(Value::as_u64),
-            "node_count":result.and_then(|v|v.pointer("/details/nodes")).and_then(Value::as_array).map(Vec::len)})
+            "node_count":result.and_then(|v|v.pointer("/details/nodes")).and_then(Value::as_array).map(Vec::len),
+            "list_progress":if method=="factory_child_goals.list" {
+                result.map(rework_list_progress)
+            } else {None}})
     }
     fn record_observation(&self, value: &Value) {
         let raw = serde_json::to_vec_pretty(value).unwrap();
@@ -156,6 +358,11 @@ impl ReworkReadReconciliation {
                         "readonly response arrived after the original observation deadline; scalars={observed}"
                     );
                     assert!(reply.get("error").is_none(), "{reply}");
+                    if method == "factory_child_goals.list" {
+                        let progress = rework_list_progress(&reply["result"]);
+                        assert!(progress["failure_code"].is_null(),
+                            "unexpected rework progress before Owner acceptance; scalars={progress}");
+                    }
                     return reply["result"].clone();
                 }
                 Err(error) => {
@@ -181,6 +388,47 @@ impl ReworkReadReconciliation {
             }
         }
     }
+}
+
+#[test]
+fn rework_list_progress_distinguishes_revision1_recovery_and_revision2_terminal() {
+    let mut summary = json!({"id":"not-public","plan":{"revision":1,"plan_digest":"same"},
+        "goal":{"task_accepted":false,"run":{"plan_revision":1,"plan_digest":"same",
+            "revision":9,"state":"failed","task_accepted":false,"cancel_requested":false}}});
+    let first = rework_list_progress(&json!([summary]));
+    assert!(first["failure_code"].is_null());
+    assert_eq!(first["run_state"], "failed");
+    assert!(!serde_json::to_string(&first)
+        .unwrap()
+        .contains("not-public"));
+    summary["plan"]["revision"] = json!(2);
+    summary["goal"]["run"]["plan_revision"] = json!(2);
+    for state in [
+        "blocked",
+        "failed",
+        "cancel_requested",
+        "cancelled",
+        "completed",
+        "outcome_unknown",
+        "accepted",
+    ] {
+        summary["goal"]["run"]["state"] = json!(state);
+        let projected = rework_list_progress(&json!([summary]));
+        assert!(projected["failure_code"].is_string(), "{state}");
+    }
+    for state in ["queued", "running", "awaiting_acceptance"] {
+        summary["goal"]["run"]["state"] = json!(state);
+        assert!(rework_list_progress(&json!([summary]))["failure_code"].is_null());
+    }
+    summary["goal"]["run"]["state"] = json!("arbitrary-private-message");
+    let invalid = rework_list_progress(&json!([summary]));
+    assert_eq!(invalid["failure_code"], "REWORK_LIST_INVALID");
+    assert!(invalid["run_state"].is_null());
+    assert_eq!(
+        rework_list_progress(&json!({}))["failure_code"],
+        "REWORK_LIST_INVALID"
+    );
+    assert_eq!(rework_list_progress(&json!([]))["summary_count"], 0);
 }
 
 #[test]
@@ -477,13 +725,17 @@ fn actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_ow
     fs::create_dir_all(&evidence).unwrap();
     fs::set_permissions(&evidence, fs::Permissions::from_mode(0o700)).unwrap();
     fs::write(evidence.join("started.json"),serde_json::to_vec_pretty(&json!({"dimension":"generated ACP/real scoped MCP/Core actor; no model or OS dialog","test_source_sha256":sha256(include_bytes!("factory_child_goal_rework.rs")),"provider_source_sha256":sha256(include_bytes!("factory_child_goal_rework_acp.py")),"companion_sha256":companion_sha,"upfront_shared_attempts":8,"upfront_reworks":1,"max_plan_revisions":2})).unwrap()).unwrap();
-    let running = RunningDaemon {
-        stop,
-        thread: Some(std::thread::spawn(move || daemon.run(workerstop))),
-        db: f.path.clone(),
-        workspace: workspace_root.clone(),
-        evidence: evidence.clone(),
-    };
+    let original_db = fs::symlink_metadata(&f.path).unwrap();
+    let running = ReworkRetainedDaemon(
+        Some(RunningDaemon {
+            stop,
+            thread: Some(std::thread::spawn(move || daemon.run(workerstop))),
+            db: f.path.clone(),
+            workspace: workspace_root.clone(),
+            evidence: evidence.clone(),
+        }),
+        (original_db.dev(), original_db.ino(), original_db.uid()),
+    );
     let snapshot = mixed_call(&runtime, json!({"method":"system.snapshot","params":{}}));
     let p = mixed_call(
         &runtime,

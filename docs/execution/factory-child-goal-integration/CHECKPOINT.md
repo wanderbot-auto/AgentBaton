@@ -120,3 +120,18 @@ See BE12_CI_RESULTS.json. Environment3/UI1PASS; Rustscope10/1 failure after Fact
 ## Source5744 and8028 local integration
 
 POLLING_AND_CAPABILITY_RESULTS.json records exact25 Factory/11scope passes, original deadlines/final assertions, independent reviews, fmt/Clippy/infra and preserved capacity stops. Filtered/profile repetitions do not add unique cases or prove performance improvement. New exactsevenCI and bothMac remain mandatory; no current15 installer. Schema16 actualUI/core/browser work continues independently.
+
+
+## 准确727 CI终态 · 2026-10-29T22:21:34.361300+00:00
+
+head72735c2／实际checkoutb17a004／main653679d：Environment40961152800三项、Product40961152550的Rust/UI通过；ARM与Intel均在原55s返工观察门槛失败(21/1，182.13s/201.06s)。late list分别210ms/361ms，授权仍余955ms/960ms，零fullget；现有投影缺数组进度，尚不能确定节点状态或共同根因。保留原期限和断言，补有界进度与安全post-join投影；不上传原始DB。后续Native/构建/包跳过，无15安装包。详见HEAD727_CI_RESULTS.json；旧be12/3b失败不覆盖。
+
+
+## Root实际诊断回归与下一CI
+
+2026-10-29T22:42:51.936548+00:00：准确3faa单返工1PASS34.39s、完整Factory26PASS91.45s/无忽略，新增projection unit使原25变26；target strictClippy通过。collector51723两P2闭合独审；Root实际22pure、真实保留输入同bytes-copy CLI投影通过，仅postjoin有限诊断非产品PASS。完整infra106/fmt通过a740。新CI接线两引号SyntaxError被独审前置截住，c4修复12边界mock通过；原错误保留、未推。详见PROGRESS_DIAGNOSTICS_RESULTS.json。原727双Mac失败与原55/60/30/5/60保持；下一准确七CI与Mac/native/build/package未跑，PR18仍draft，不声称根因解决。
+
+
+## a866准确Environment失败与夹具窄修
+
+2026-10-29T22:51:55.625910+00:00：Env40967949761 Ubuntu过/双Mac106项3fail28errors，actualcheckout9937、开var errno20保留；Product40967949766当时四项仍跑，不push取消。Fixture正例canonical root窄修1e720/Root65d已独审16f55b，普通/受控alias同23过，Root全infra107过；collector/Rust/原22方法与链接负例字节保留。新Mac未跑，见A866_ENVIRONMENT_AND_ALIAS_FIX.json。

@@ -84,6 +84,18 @@ jobs:
       - name: Retain bounded migration metadata without private history
         if: always()
         run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/provider-contract/legacy-migration
+      - name: Retain finite rework progress without private runtime data
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, sys
+          output = pathlib.Path('artifacts/provider-contract')
+          output.mkdir(parents=True, exist_ok=True)
+          assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
+          fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+          with os.fdopen(fd, 'wb') as report:
+              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -435,6 +447,18 @@ jobs:
       - name: Retain bounded native migration metadata without private history
         if: always()
         run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/native-smoke/legacy-migration
+      - name: Retain finite rework progress without private runtime data
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, sys
+          output = pathlib.Path('artifacts/native-smoke')
+          output.mkdir(parents=True, exist_ok=True)
+          assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
+          fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+          with os.fdopen(fd, 'wb') as report:
+              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

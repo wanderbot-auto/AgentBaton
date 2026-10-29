@@ -1,0 +1,54 @@
+{
+  "recorded_at": "2026-10-29T22:51:55.625910+00:00",
+  "remote_head": "a866f21eaff167b7d90a4c723f55f938ceec03fd",
+  "actual_CI_checkout": "9937cd446f38fc65d1cb0c236574401238cca248",
+  "checkout_evidence": "Environment ARM completed checkout log lines105/108; not actualmainmerge",
+  "Environment": {
+    "run": 40967949761,
+    "ubuntu": "success",
+    "arm": "failure",
+    "intel": "failure",
+    "mac_test_count": 106,
+    "mac_failures": 3,
+    "mac_errors": 28,
+    "error_observed": "OSError20 opening var under ancestorNOFOLLOW; exact logs preserve full context"
+  },
+  "Product": {
+    "run": 40967949766,
+    "status_at_recording": "all4 inprogress at last read; no product result inferred fromEnvironment"
+  },
+  "logs": {
+    "arm": "2b3e8eec48fc92550438f8b48726c5a2d3e07056e5fe8e3600ed632c1322ac47",
+    "intel": "d31fcb253a67ee2e9f18f154363bed77195758e2b8ed5d89b950d9c4f4a48660"
+  },
+  "fixture_fix_author_source": "1e720725b482732d413aa0818431abe436ea25c8",
+  "fixture_fix_Root_source": "65d64d01898ece7e8e12379f0a6494a13cf0c732",
+  "change": "Only own syntheticfixture temp root.resolve(strict=True) plus1 aliaspositive/direct-aliasnegative control. Production collector/Rust andalloriginal22 test methods unchanged. No guard loosening.",
+  "Root_actual_infrastructure107": {
+    "source": "65d64d01898ece7e8e12379f0a6494a13cf0c732",
+    "root": "/workspace/.worktrees/factory-runtime-integration",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/infrastructure",
+      "-p",
+      "test_*.py"
+    ],
+    "exit": 0,
+    "seconds": 1.0023792120045982,
+    "minimum_free_bytes": 229318656,
+    "interruption": null,
+    "log_sha256": "1b43db68672e2c0c6b55aa278afc0d191656a5f410af5c70e94d63cb4e013b83",
+    "summaries": [],
+    "source_head_and_tracked_unchanged": true,
+    "frozen_tools_unchanged": true,
+    "profile": "dev/testdebug0; debug assertions default on unless command explicitly overrides; explicit command features only; dimension limited to command"
+  },
+  "independent_review_sha256": "16f55b698ad63f53462780795ab1098bbb259e6d51ac8c949305bc3f439db740",
+  "independent_manifest_sha256": "9341dd1609b3026d17b749e1bd5f237d5e7628be696cc59db17bdc192d2a1f59",
+  "independent_results": "Old controlledalias positive1FAIL/exit1; new23 distinct ordinary andsame23 aliasPASS, not46; noMac execution",
+  "next": "Do notpushcancelactiveProduct. Retain currentexactrun; nextcandidate must rerunactualMac gates after source reviewed. No newMac success/installer claim."
+}

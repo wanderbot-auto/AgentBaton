@@ -1,3 +1,9 @@
+# 依赖分支整合：真实五场景与有界返工诊断 — 2026-10-29T22:56:01.688233+00:00
+
+PR19本地整合父分支de786，保留两侧执行历史。Task五场景真实PASS/6PNG与995Node按e313/6c归属；有限投影Root真实报告+六原图通过、33pure通过，bf源与012CIwrapper独审闭合，原P2和相对路径错误保留。新父collector仍schema15，接下来只在schema16分支精确适配并测试拒旧15/future17；此集成未算通过。
+
+上一读取a866/checkout9937：EnvironmentUbuntu过/双Mac失败，ProductUI过/Rust25PASS1FAIL，双Mac仍跑。新state捕获r2blocked，语义/原因正查，不放宽验收；Rootalways输入绝对路径修订独审中，Fixturealias窄修独审及Root107过，新Mac未跑。完整130/双Mac16/native/新包仍未验收，所有授权边界不变。以下历史均保留。
+
 # Task 真实五场景通过，CI私有边界修订待验 — 2026-10-29T22:48:55.020958+00:00
 
 Root6c0908实际5checks/6PNG/7.020026s，四次[2,1,2,1]选择对应自己工作区，窗口6TaskGet、原4场景全保、0Grant/session、DB全行和源不变；Core/前端同源e313，995Node/40target/type/build单列源归属。独审09074a closed。见[真实五场景证据](task-workspace-integration/ACTUAL_FIVE_BROWSER_RESULTS.json)。
@@ -9,6 +15,21 @@ Task rawprivate日志公开上传P2正修：Root改RUNNER_TEMP输出和单link50
 e313 Session修复的40针对性、全前端995/55files、type/build通过；同源Core/CLI实编与私有schema16空库/CLI/SIGTERM probe通过。P2旧Task时序独审闭合。历史840/3008四场景真实UI/UnixIPC通过，新增第五场景正在实现，不移签。Core156、strict inverse7、真14六项/真15 input2五项、前端和CI源码独审按各自准确source记录，见[集成证据](task-workspace-integration/EVIDENCE.json)。
 
 依赖PR18 accurate727 Env3/Rust/UI通过而双Mac返工观察失败，后续桌面/构建/包skipped；原55/60/30/5/60不改。schema16 exactCI/Mac/native/包尚未通过。完整130、默认coding隔离/child绑定/验收合入/remote等保留未完范围；OWNER001/002ACK/main653679d，无新授权，无生产/凭据/付费/正式Approve操作。以下保留历史。
+
+
+# PR18 新有界诊断完成本地回归，待准确CI — 2026-10-29T22:42:51.936548+00:00
+
+准确3faa单返工1PASS34.39s、完整Factory26PASS91.45s，target严格Clippy通过；collector51723独审闭合两P2，Root22pure与真实保留输入postjoin有限投影通过。fmt/infra106通过。原55/60/30/5/60和完整验收断言保持；不声称根因已修复或性能改善。CI引号SyntaxError被前置独审截住、c4两行修正及12mock边界通过，保留原证据。见[精确结果](factory-child-goal-integration/PROGRESS_DIAGNOSTICS_RESULTS.json)。
+
+远程PR18仍727/draft，Env3/Rust/UI通过但双Mac返工失败，后续Native/构建/包skipped，无新15安装包；下一准确七CI待推。隔离PR19草稿依赖18，真实5场景/6PNG7.020026s已过，含[2,1,2,1]四步选择与6TaskGet、零Grant/session/数据库源不变；995前端/40target/type/build和同源e313工具分开记录。新发现Task CI私有日志整树上传P2，正改finite projection，尚未CI16。完整130/WP01-14/Native双Mac16/新包未完成。main653679d/OWNER001/002 ACK，无003；所有费用、身份、Provider、生产、签名、许可证、formalApprove边界保持。以下保留历史。
+
+# PR18 准确727：Rust/UI和Environment通过，双Mac返工失败 — 2026-10-29T22:21:34.361300+00:00
+
+head72735c2／实际checkoutb17a004／main653679d：Environment40961152800三项、Product40961152550的Rust/UI通过；ARM与Intel均在原55s返工观察门槛失败(21/1，182.13s/201.06s)。late list分别210ms/361ms，授权仍余955ms/960ms，零fullget；现有投影缺数组进度，尚不能确定节点状态或共同根因。保留原期限和断言，补有界进度与安全post-join投影；不上传原始DB。后续Native/构建/包跳过，无15安装包。详见HEAD727_CI_RESULTS.json；旧be12/3b失败不覆盖。
+
+隔离schema16继续：Session新P2时序修复独审闭合，针对40、完整Node995/55files、type/build实际通过e313；新第五个真UI/IPC对话框默认绑定验收在实现中，不把原4场景当新场景通过。Native/Mac16与完整130仍未验收。main653679d/OWNER001/002 ACK，无新指令；所有凭据/费用/生产/签名/正式Approve边界保持。
+
+
 
 # PR18 新候选已完成本地复核，准备准确七 CI — 2026-10-29T21:50:26.746081+00:00
 
