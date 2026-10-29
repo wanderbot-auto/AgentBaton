@@ -37,3 +37,10 @@ Following the actual full workspace failure, update only admission_performance's
 ## Complete schema13 test expectation alignment
 
 The integration owner expanded the narrow followup to13 explicit test files: admission_performance, command_validation, data_workspaces, sessions_ipc, migration_v5/v6/v7, command_validation_migration, data_workspace_migration, goal_store_migration, goal_runtime_migration, goal_graph_migration and storage tests. Change only12 completed/fresh current Store expectations12→strict13; change7 future-refusal SQL inputs13→14 and their6 versioned test names plus1 same-site diagnostic. Preserve original old-schema migration inputs, intermediate migration PRAGMA12, pre-v13 backups/rollback12, unknown99, raw-byte and every other assertion. Freeze exact source/normalization for independent review before another full suite. No Cargo lease is held by this author.
+
+
+## Historical pre-Factory fixture construction
+
+Fix only the ten explicitly scoped historical fixture targets and one tests-only helper. Fresh schema13 fixture construction checks version13 and ALL nine named Factory tables empty in one transaction before any DROP; use only a fixed child-before-parent nine-table DROP and set12 as the genuine pre-Factory baseline. Missing/nonempty/wrong-version inputs fail without mutation. Keep every original historical SQL step, old input version, raw bytes, backup/rollback, CAS, permission, budget and timing assertion. Never change production migration to tolerate a mislabeled database.
+
+The existing sessions migration case uses a real Goal first, so verify actual owned stop/join, settled original reservation, consumed project/root meters and zero active/lease state before the strict empty-table inverse. Snapshot every other table's rowid and typed original values, preserving all legacy rows and raw Goal/stop/meter receipts across the projection. Do not implement production debt clearing or a generic nonempty-table deletion helper. The exact Goal path skips ordinary shared reservations; if a later fixture has a nonempty Factory reservation, STOP rather than delete it under this empty-only contract.

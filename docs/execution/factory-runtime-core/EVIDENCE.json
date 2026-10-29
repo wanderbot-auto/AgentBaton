@@ -2564,5 +2564,1127 @@
     "review": "pending independent source review",
     "lease": "parent only",
     "scope": "13 explicit test files plus own records; no production or Root-tree change"
+  },
+  "pre_factory_fixture_checkpoint": {
+    "source_commit": "cabf5a3cd9eca2ce2ea4c5a6b0d78c46f1c5ed53",
+    "snapshot_path": "artifacts/factory-runtime-core/pre-factory-source-snapshot.json",
+    "snapshot_sha256": "a8fb293421b549a0db3e8ff53d5447655d867c1ea5840057987ee2c84a7e64d5",
+    "snapshot": {
+      "source_commit": "cabf5a3cd9eca2ce2ea4c5a6b0d78c46f1c5ed53",
+      "base_commit": "b9bff3db4a736eddc42ca09f04ba8ada6e8026d8",
+      "source_files": {
+        "crates/core/tests/command_validation_migration.rs": "1063ef1dd6162299d02f5e6c994632c074de0323f37b71b5a135df7db0616543",
+        "crates/core/tests/data_workspace_migration.rs": "29da53fcaf8f24ca3960fd85c99a92a12292b276177f92fc7e85a36b5cc67487",
+        "crates/core/tests/fixtures/pre_factory_schema.rs": "a75d03c188d4bc0476524acd455951293063b416a263ac70aea6be8cef25cdd1",
+        "crates/core/tests/goal_graph_migration.rs": "684f9024718f12273e4fb6096af945e432833a20c125efe446b6607cf377bd96",
+        "crates/core/tests/goal_runtime_migration.rs": "04bf7014471a4e2e4bf307a1b50a8f247bd59e610a674bbdb1d15b6b3520280c",
+        "crates/core/tests/goal_store_migration.rs": "90dc2de827759b22d65316792eff640a62a27a030430028f5a6ed70a9c01369f",
+        "crates/core/tests/migration_v3.rs": "461a1c09d5d22939a6ed1fc4e36cdbe8a4f60fbd5c871864bd5bfed09eb6df43",
+        "crates/core/tests/migration_v5.rs": "de8291c1c3303fa026eea350115208f5b7bf353cbde1433cd3d87ee27322adf9",
+        "crates/core/tests/migration_v6.rs": "6f0e5199277743061ecf16c32d0fbe2d65b579240421b87bc81440dc67ab7a9f",
+        "crates/core/tests/migration_v7.rs": "7dde3cab3b50955aca4be93c91ecdb5e39eacdce12c788d5a6cd1b1bbf412f24",
+        "crates/core/tests/sessions_ipc.rs": "5f277bdd64d98e7cb670cc7f45047591ad1474bc73bb0adb4f381bace94ccb72"
+      },
+      "production_sources_equal_to_CAS": 46,
+      "changes": "additive test-only setup/proof; no original SQL/assertion/threshold removed or edited",
+      "normalization": {
+        "base": "b9bff3db4a736eddc42ca09f04ba8ada6e8026d8",
+        "records": {
+          "crates/core/tests/command_validation_migration.rs": {
+            "before_sha256": "79ae4b663335235314aa913ca6dd257b4af7117326a51ab17bce2591a2ebd14f",
+            "after_sha256": "1063ef1dd6162299d02f5e6c994632c074de0323f37b71b5a135df7db0616543",
+            "removed_added_helper_calls": 1,
+            "original_bytes_identical_after_removing_only_additions": true
+          },
+          "crates/core/tests/data_workspace_migration.rs": {
+            "before_sha256": "9e5f4c7fcde0057988de00a579f9f676a2a73bd944eeaf5d749c7701c04f5b8c",
+            "after_sha256": "29da53fcaf8f24ca3960fd85c99a92a12292b276177f92fc7e85a36b5cc67487",
+            "removed_added_helper_calls": 1,
+            "original_bytes_identical_after_removing_only_additions": true
+          },
+          "crates/core/tests/goal_graph_migration.rs": {
+            "before_sha256": "71a97dca393f745fa3ae49e9a9e8cf087158ff4f82b9d574552513e7192787ef",
+            "after_sha256": "684f9024718f12273e4fb6096af945e432833a20c125efe446b6607cf377bd96",
+            "removed_added_helper_calls": 1,
+            "original_bytes_identical_after_removing_only_additions": true
+          },
+          "crates/core/tests/goal_runtime_migration.rs": {
+            "before_sha256": "6117948ac3d32d5f42d0f6322fed502837546974ac45ea712c3335cb8c9c6c99",
+            "after_sha256": "04bf7014471a4e2e4bf307a1b50a8f247bd59e610a674bbdb1d15b6b3520280c",
+            "removed_added_helper_calls": 1,
+            "original_bytes_identical_after_removing_only_additions": true
+          },
+          "crates/core/tests/goal_store_migration.rs": {
+            "before_sha256": "e6a3e53688b6c81d40c3703df08e9de4f1909dccbfa90fa9ff27a0b7eee963c2",
+            "after_sha256": "90dc2de827759b22d65316792eff640a62a27a030430028f5a6ed70a9c01369f",
+            "removed_added_helper_calls": 1,
+            "original_bytes_identical_after_removing_only_additions": true
+          },
+          "crates/core/tests/migration_v3.rs": {
+            "before_sha256": "35fc2748caad7d928104d0a7789757341b01b63cbcf648b373ba5c143e71c156",
+            "after_sha256": "461a1c09d5d22939a6ed1fc4e36cdbe8a4f60fbd5c871864bd5bfed09eb6df43",
+            "removed_added_helper_calls": 2,
+            "original_bytes_identical_after_removing_only_additions": true
+          },
+          "crates/core/tests/migration_v5.rs": {
+            "before_sha256": "f9f5380ec62e4033ea327aac8c636e07071fc1fb975d9e13b7fa87f7f338740d",
+            "after_sha256": "de8291c1c3303fa026eea350115208f5b7bf353cbde1433cd3d87ee27322adf9",
+            "removed_added_helper_calls": 2,
+            "original_bytes_identical_after_removing_only_additions": true
+          },
+          "crates/core/tests/migration_v6.rs": {
+            "before_sha256": "64257fed090b85bf223f1781639e9a31eafb725654fc51c37f40e6981987b837",
+            "after_sha256": "6f0e5199277743061ecf16c32d0fbe2d65b579240421b87bc81440dc67ab7a9f",
+            "removed_added_helper_calls": 2,
+            "original_bytes_identical_after_removing_only_additions": true
+          },
+          "crates/core/tests/migration_v7.rs": {
+            "before_sha256": "a6dfe287af360cbc58c024631e04f7d4c18073bf3d2f2270f1e0f14504d81e61",
+            "after_sha256": "7dde3cab3b50955aca4be93c91ecdb5e39eacdce12c788d5a6cd1b1bbf412f24",
+            "removed_added_helper_calls": 1,
+            "original_bytes_identical_after_removing_only_additions": true
+          },
+          "crates/core/tests/sessions_ipc.rs": {
+            "before_sha256": "c3eaf79e4928171bbd47698bd495a4e799d353eb8bf04c755022ea9d98f50bf6",
+            "after_sha256": "5f277bdd64d98e7cb670cc7f45047591ad1474bc73bb0adb4f381bace94ccb72",
+            "removed_added_helper_calls": 1,
+            "original_bytes_identical_after_removing_only_additions": true
+          }
+        },
+        "helper_test_cases_added_in_single_target": 2,
+        "calls_in_fresh_constructors": 12,
+        "call_after_real_goal_stop_and_full_legacy_snapshot": 1,
+        "original_SQL_and_assertions_unchanged": true
+      },
+      "historical_DDL_control": {
+        "kind": "actual generated in-memory SQLite SQL controls, NOT Rust/helper/daemon execution",
+        "historical_schema12_commit": "e751992780a778d78edbc6b577359f9bbc3759ec",
+        "historical_DDL_modules": {
+          "crates/core/src/storage.rs": {
+            "historical_source_sha256": "ef8e84b2c1c5ea9586320a7d492c725ee4e6f78e9fde73ada8c8fe9a1bfa575e",
+            "current_source_sha256": "cf1610158d80d40cfd0dfe988cee158abdd412fd2e5cd59c3af448a51f717cbd",
+            "DDL_literals_byte_identical": true,
+            "DDL_literal_count": 7
+          },
+          "crates/core/src/execution.rs": {
+            "historical_source_sha256": "0f299dc199f3c0a3e0e8d5689298fe08d87f64956baeb82be3a4633550e3078d",
+            "current_source_sha256": "1deb328b931d6bab1d894a38b3d51e99ace1466f2a5d0910b84a6b37477d728f",
+            "DDL_literals_byte_identical": true,
+            "DDL_literal_count": 1
+          },
+          "crates/core/src/goal_store.rs": {
+            "historical_source_sha256": "358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816",
+            "current_source_sha256": "358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816",
+            "DDL_literals_byte_identical": true,
+            "DDL_literal_count": 1
+          },
+          "crates/core/src/data_workspaces.rs": {
+            "historical_source_sha256": "c4c99467228fa231d393a0ce7061cf127f7389284cda455101aa3670b1734429",
+            "current_source_sha256": "87ae5614025fb8ce7c6b94603f8f27a34f9ef651a9cafcc6d58cfe2d8887e3cb",
+            "DDL_literals_byte_identical": true,
+            "DDL_literal_count": 1
+          },
+          "crates/core/src/goal_runtime.rs": {
+            "historical_source_sha256": "3f2dcb12c7c359412ea55b77ce35dd316465fcd9c7b2f53f9a1fdda47eb26ab0",
+            "current_source_sha256": "1faa97b5ba7b9fe052e23fa889a7a84109627b374a8cfe0426b419252484de56",
+            "DDL_literals_byte_identical": true,
+            "DDL_literal_count": 1
+          },
+          "crates/core/src/goal_graph.rs": {
+            "historical_source_sha256": "80e01d81cf8ecee3c4e64a046f8413600e7448fca2ed3abdc9b8e479624be7d7",
+            "current_source_sha256": "80e01d81cf8ecee3c4e64a046f8413600e7448fca2ed3abdc9b8e479624be7d7",
+            "DDL_literals_byte_identical": true,
+            "DDL_literal_count": 1
+          }
+        },
+        "sqlite_version": "3.53.1",
+        "historical_schema_objects": [
+          [
+            "table",
+            "approval_proposals",
+            "approval_proposals",
+            "CREATE TABLE approval_proposals(id TEXT PRIMARY KEY,document TEXT NOT NULL,result TEXT)"
+          ],
+          [
+            "table",
+            "attempts",
+            "attempts",
+            "CREATE TABLE attempts(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),root_task_id TEXT NOT NULL REFERENCES tasks(id),binding TEXT NOT NULL,idempotency_key TEXT NOT NULL,UNIQUE(task_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "budgets",
+            "budgets",
+            "CREATE TABLE budgets(scope TEXT PRIMARY KEY,total_limit INTEGER NOT NULL CHECK(total_limit>0),parallel_limit INTEGER NOT NULL CHECK(parallel_limit>0),consumed INTEGER NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 0)"
+          ],
+          [
+            "table",
+            "command_validation_policies",
+            "command_validation_policies",
+            "CREATE TABLE command_validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "command_validation_runs",
+            "command_validation_runs",
+            "CREATE TABLE command_validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES command_validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),state TEXT NOT NULL CHECK(state IN('prepared','running','cancel_requested','command_passed','command_failed','outcome_unknown')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "command_workspace_fences",
+            "command_workspace_fences",
+            "CREATE TABLE command_workspace_fences(workspace_id TEXT PRIMARY KEY REFERENCES managed_workspaces(id),run_id TEXT NOT NULL UNIQUE REFERENCES command_validation_runs(id))"
+          ],
+          [
+            "table",
+            "connections",
+            "connections",
+            "CREATE TABLE connections(id TEXT PRIMARY KEY,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "data_validation_policies",
+            "data_validation_policies",
+            "CREATE TABLE data_validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "data_validation_runs",
+            "data_validation_runs",
+            "CREATE TABLE data_validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES data_validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),state TEXT NOT NULL CHECK(state IN('contract_passed','contract_failed')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "data_workspace_creations",
+            "data_workspace_creations",
+            "CREATE TABLE data_workspace_creations(id TEXT PRIMARY KEY,preview_id TEXT NOT NULL UNIQUE REFERENCES data_workspace_previews(id),project_id TEXT NOT NULL REFERENCES projects(id),workspace_id TEXT NOT NULL UNIQUE REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),state TEXT NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "data_workspace_previews",
+            "data_workspace_previews",
+            "CREATE TABLE data_workspace_previews(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(project_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "data_workspace_receipts",
+            "data_workspace_receipts",
+            "CREATE TABLE data_workspace_receipts(creation_id TEXT PRIMARY KEY REFERENCES data_workspace_creations(id),owner_sequence INTEGER NOT NULL,prepared_sequence INTEGER NOT NULL,finished_sequence INTEGER)"
+          ],
+          [
+            "table",
+            "dispatch_intents",
+            "dispatch_intents",
+            "CREATE TABLE dispatch_intents(id TEXT PRIMARY KEY,attempt_id TEXT NOT NULL UNIQUE REFERENCES attempts(id),state TEXT NOT NULL CHECK(state IN('prepared','sent','outcome_unknown','stopped')),executor_instance TEXT,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "events",
+            "events",
+            "CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT, document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "execution_grants",
+            "execution_grants",
+            "CREATE TABLE execution_grants(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id),parent_id TEXT REFERENCES execution_grants(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_external_action_journal",
+            "goal_external_action_journal",
+            "CREATE TABLE goal_external_action_journal(root_grant_id TEXT NOT NULL REFERENCES execution_grants(id),action_id TEXT NOT NULL,document TEXT NOT NULL,PRIMARY KEY(root_grant_id,action_id))"
+          ],
+          [
+            "table",
+            "goal_grant_revisions",
+            "goal_grant_revisions",
+            "CREATE TABLE goal_grant_revisions(grant_id TEXT NOT NULL REFERENCES execution_grants(id),revision INTEGER NOT NULL CHECK(revision>0),document TEXT NOT NULL,goal_approval_id TEXT REFERENCES approval_proposals(id),PRIMARY KEY(grant_id,revision))"
+          ],
+          [
+            "table",
+            "goal_graph_acceptances",
+            "goal_graph_acceptances",
+            "CREATE TABLE goal_graph_acceptances(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),task_revision INTEGER NOT NULL,run_id TEXT NOT NULL REFERENCES goal_runs(id),plan_revision INTEGER NOT NULL CHECK(plan_revision>0),document TEXT NOT NULL,UNIQUE(task_id,task_revision))"
+          ],
+          [
+            "table",
+            "goal_graph_candidates",
+            "goal_graph_candidates",
+            "CREATE TABLE goal_graph_candidates(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,plan_revision INTEGER NOT NULL CHECK(plan_revision>0),attempt_id TEXT NOT NULL REFERENCES attempts(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_graph_capabilities",
+            "goal_graph_capabilities",
+            "CREATE TABLE goal_graph_capabilities(run_id TEXT PRIMARY KEY REFERENCES goal_runs(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),version INTEGER NOT NULL CHECK(version=1),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_graph_jobs",
+            "goal_graph_jobs",
+            "CREATE TABLE goal_graph_jobs(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,plan_revision INTEGER NOT NULL CHECK(plan_revision>0),state TEXT NOT NULL,attempt_id TEXT REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_graph_owner_decisions",
+            "goal_graph_owner_decisions",
+            "CREATE TABLE goal_graph_owner_decisions(id TEXT PRIMARY KEY,approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,plan_revision INTEGER NOT NULL CHECK(plan_revision>0),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_graph_validations",
+            "goal_graph_validations",
+            "CREATE TABLE goal_graph_validations(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,plan_revision INTEGER NOT NULL CHECK(plan_revision>0),attempt_id TEXT NOT NULL REFERENCES attempts(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_ledgers",
+            "goal_ledgers",
+            "CREATE TABLE goal_ledgers(scope TEXT PRIMARY KEY,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_node_evidence",
+            "goal_node_evidence",
+            "CREATE TABLE goal_node_evidence(scope_id TEXT NOT NULL REFERENCES goal_scopes(id),node_id TEXT NOT NULL,document TEXT NOT NULL,PRIMARY KEY(scope_id,node_id))"
+          ],
+          [
+            "table",
+            "goal_plan_heads",
+            "goal_plan_heads",
+            "CREATE TABLE goal_plan_heads(scope_id TEXT PRIMARY KEY REFERENCES goal_scopes(id),plan_id TEXT NOT NULL UNIQUE,revision INTEGER NOT NULL CHECK(revision>0),digest TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_plan_proposals",
+            "goal_plan_proposals",
+            "CREATE TABLE goal_plan_proposals(id TEXT PRIMARY KEY,scope_id TEXT NOT NULL REFERENCES goal_scopes(id),plan_id TEXT NOT NULL,revision INTEGER NOT NULL,document TEXT NOT NULL,digest TEXT NOT NULL,UNIQUE(scope_id,revision))"
+          ],
+          [
+            "table",
+            "goal_plan_revisions",
+            "goal_plan_revisions",
+            "CREATE TABLE goal_plan_revisions(scope_id TEXT NOT NULL REFERENCES goal_scopes(id),plan_id TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>0),previous_digest TEXT,digest TEXT NOT NULL,document TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(scope_id,revision))"
+          ],
+          [
+            "table",
+            "goal_run_nodes",
+            "goal_run_nodes",
+            "CREATE TABLE goal_run_nodes(run_id TEXT NOT NULL REFERENCES goal_runs(id),plan_revision INTEGER NOT NULL CHECK(plan_revision>0),node_id TEXT NOT NULL,ordinal INTEGER NOT NULL,state TEXT NOT NULL,session_id TEXT REFERENCES sessions(id),attempt_id TEXT REFERENCES attempts(id),document TEXT NOT NULL,PRIMARY KEY(run_id,plan_revision,node_id))"
+          ],
+          [
+            "table",
+            "goal_run_reservations",
+            "goal_run_reservations",
+            "CREATE TABLE goal_run_reservations(attempt_id TEXT PRIMARY KEY REFERENCES attempts(id),run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,parent_node_id TEXT,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_runs",
+            "goal_runs",
+            "CREATE TABLE goal_runs(id TEXT PRIMARY KEY REFERENCES approval_proposals(id),scope_id TEXT NOT NULL REFERENCES goal_scopes(id),project_id TEXT NOT NULL REFERENCES projects(id),task_id TEXT NOT NULL REFERENCES tasks(id),revision INTEGER NOT NULL CHECK(revision>0),state TEXT NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_scopes",
+            "goal_scopes",
+            "CREATE TABLE goal_scopes(id TEXT PRIMARY KEY REFERENCES approval_proposals(id),task_id TEXT NOT NULL REFERENCES tasks(id),root_grant_id TEXT NOT NULL REFERENCES execution_grants(id),revision INTEGER NOT NULL CHECK(revision>0),revoked INTEGER NOT NULL CHECK(revoked IN(0,1)),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "idempotency",
+            "idempotency",
+            "CREATE TABLE idempotency(scope TEXT NOT NULL, key TEXT NOT NULL, payload TEXT NOT NULL, result TEXT NOT NULL, PRIMARY KEY(scope,key))"
+          ],
+          [
+            "table",
+            "managed_workspaces",
+            "managed_workspaces",
+            "CREATE TABLE managed_workspaces(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id),document TEXT NOT NULL,state TEXT NOT NULL CHECK(state IN('creating','ready','outcome_unknown')),idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,root TEXT UNIQUE NOT NULL,UNIQUE(project_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "projects",
+            "projects",
+            "CREATE TABLE projects(id TEXT PRIMARY KEY,document TEXT NOT NULL,device TEXT NOT NULL,inode TEXT NOT NULL,root TEXT UNIQUE NOT NULL,UNIQUE(device,inode))"
+          ],
+          [
+            "table",
+            "session_runtime_snapshots",
+            "session_runtime_snapshots",
+            "CREATE TABLE session_runtime_snapshots(session_id TEXT PRIMARY KEY REFERENCES sessions(id),attempt_id TEXT NOT NULL UNIQUE REFERENCES attempts(id),config_revision TEXT NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "session_turns",
+            "session_turns",
+            "CREATE TABLE session_turns(id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES sessions(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(session_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "sessions",
+            "sessions",
+            "CREATE TABLE sessions(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),project_id TEXT NOT NULL REFERENCES projects(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),connection_id TEXT NOT NULL REFERENCES connections(id),grant_id TEXT NOT NULL REFERENCES execution_grants(id),root_grant_id TEXT NOT NULL REFERENCES execution_grants(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(task_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "tasks",
+            "tasks",
+            "CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "validation_policies",
+            "validation_policies",
+            "CREATE TABLE validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "validation_runs",
+            "validation_runs",
+            "CREATE TABLE validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),state TEXT NOT NULL CHECK(state IN('integrity_passed','failed')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "workspace_leases",
+            "workspace_leases",
+            "CREATE TABLE workspace_leases(resource TEXT PRIMARY KEY REFERENCES managed_workspaces(id),holder TEXT NOT NULL,fencing_token INTEGER NOT NULL,expires_at INTEGER NOT NULL)"
+          ],
+          [
+            "trigger",
+            "command_fence_attempt",
+            "attempts",
+            "CREATE TRIGGER command_fence_attempt BEFORE INSERT ON attempts WHEN EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=json_extract(NEW.binding,'$.workspace_id')) BEGIN SELECT RAISE(ABORT,'command workspace remains fenced'); END"
+          ],
+          [
+            "trigger",
+            "command_fence_lease_insert",
+            "workspace_leases",
+            "CREATE TRIGGER command_fence_lease_insert BEFORE INSERT ON workspace_leases WHEN EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=NEW.resource) BEGIN SELECT RAISE(ABORT,'command workspace remains fenced'); END"
+          ],
+          [
+            "trigger",
+            "command_fence_lease_update",
+            "workspace_leases",
+            "CREATE TRIGGER command_fence_lease_update BEFORE UPDATE ON workspace_leases WHEN EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=NEW.resource) BEGIN SELECT RAISE(ABORT,'command workspace remains fenced'); END"
+          ],
+          [
+            "trigger",
+            "graph_fence_lease_insert",
+            "workspace_leases",
+            "CREATE TRIGGER graph_fence_lease_insert BEFORE INSERT ON workspace_leases WHEN EXISTS(SELECT 1 FROM goal_graph_jobs WHERE workspace_id=NEW.resource AND state IN('prepared','running','cancel_requested','outcome_unknown')) BEGIN SELECT RAISE(ABORT,'graph workspace remains fenced'); END"
+          ],
+          [
+            "trigger",
+            "graph_fence_lease_update",
+            "workspace_leases",
+            "CREATE TRIGGER graph_fence_lease_update BEFORE UPDATE ON workspace_leases WHEN EXISTS(SELECT 1 FROM goal_graph_jobs WHERE workspace_id=NEW.resource AND state IN('prepared','running','cancel_requested','outcome_unknown')) BEGIN SELECT RAISE(ABORT,'graph workspace remains fenced'); END"
+          ]
+        ],
+        "schema13_objects": [
+          [
+            "table",
+            "approval_proposals",
+            "approval_proposals",
+            "CREATE TABLE approval_proposals(id TEXT PRIMARY KEY,document TEXT NOT NULL,result TEXT)"
+          ],
+          [
+            "table",
+            "attempts",
+            "attempts",
+            "CREATE TABLE attempts(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),root_task_id TEXT NOT NULL REFERENCES tasks(id),binding TEXT NOT NULL,idempotency_key TEXT NOT NULL,UNIQUE(task_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "budgets",
+            "budgets",
+            "CREATE TABLE budgets(scope TEXT PRIMARY KEY,total_limit INTEGER NOT NULL CHECK(total_limit>0),parallel_limit INTEGER NOT NULL CHECK(parallel_limit>0),consumed INTEGER NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 0)"
+          ],
+          [
+            "table",
+            "command_validation_policies",
+            "command_validation_policies",
+            "CREATE TABLE command_validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "command_validation_runs",
+            "command_validation_runs",
+            "CREATE TABLE command_validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES command_validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),state TEXT NOT NULL CHECK(state IN('prepared','running','cancel_requested','command_passed','command_failed','outcome_unknown')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "command_workspace_fences",
+            "command_workspace_fences",
+            "CREATE TABLE command_workspace_fences(workspace_id TEXT PRIMARY KEY REFERENCES managed_workspaces(id),run_id TEXT NOT NULL UNIQUE REFERENCES command_validation_runs(id))"
+          ],
+          [
+            "table",
+            "connections",
+            "connections",
+            "CREATE TABLE connections(id TEXT PRIMARY KEY,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "data_validation_policies",
+            "data_validation_policies",
+            "CREATE TABLE data_validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "data_validation_runs",
+            "data_validation_runs",
+            "CREATE TABLE data_validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES data_validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),state TEXT NOT NULL CHECK(state IN('contract_passed','contract_failed')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "data_workspace_creations",
+            "data_workspace_creations",
+            "CREATE TABLE data_workspace_creations(id TEXT PRIMARY KEY,preview_id TEXT NOT NULL UNIQUE REFERENCES data_workspace_previews(id),project_id TEXT NOT NULL REFERENCES projects(id),workspace_id TEXT NOT NULL UNIQUE REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),state TEXT NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "data_workspace_previews",
+            "data_workspace_previews",
+            "CREATE TABLE data_workspace_previews(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(project_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "data_workspace_receipts",
+            "data_workspace_receipts",
+            "CREATE TABLE data_workspace_receipts(creation_id TEXT PRIMARY KEY REFERENCES data_workspace_creations(id),owner_sequence INTEGER NOT NULL,prepared_sequence INTEGER NOT NULL,finished_sequence INTEGER)"
+          ],
+          [
+            "table",
+            "dispatch_intents",
+            "dispatch_intents",
+            "CREATE TABLE dispatch_intents(id TEXT PRIMARY KEY,attempt_id TEXT NOT NULL UNIQUE REFERENCES attempts(id),state TEXT NOT NULL CHECK(state IN('prepared','sent','outcome_unknown','stopped')),executor_instance TEXT,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "events",
+            "events",
+            "CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT, document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "execution_grants",
+            "execution_grants",
+            "CREATE TABLE execution_grants(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id),parent_id TEXT REFERENCES execution_grants(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "factory_attempts",
+            "factory_attempts",
+            "CREATE TABLE factory_attempts(session_id TEXT PRIMARY KEY REFERENCES sessions(id),attempt_id TEXT NOT NULL UNIQUE REFERENCES attempts(id),scope_id TEXT NOT NULL REFERENCES factory_scopes(id),run_id TEXT NOT NULL REFERENCES factory_runs(id),task_id TEXT NOT NULL REFERENCES tasks(id),root_task_id TEXT NOT NULL REFERENCES tasks(id),reservation TEXT NOT NULL,state TEXT NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "factory_budget_reservations",
+            "factory_budget_reservations",
+            "CREATE TABLE factory_budget_reservations(attempt_id TEXT PRIMARY KEY REFERENCES attempts(id),scope_id TEXT REFERENCES factory_scopes(id),root_task_id TEXT NOT NULL REFERENCES tasks(id),project_id TEXT NOT NULL REFERENCES projects(id),document TEXT NOT NULL,CHECK(COALESCE((scope_id IS NULL AND json_extract(document,'$.authority_kind')='legacy_shared_session') OR (scope_id IS NOT NULL AND json_extract(document,'$.authority_kind')='factory_task'),0)))"
+          ],
+          [
+            "table",
+            "factory_delegations",
+            "factory_delegations",
+            "CREATE TABLE factory_delegations(id TEXT PRIMARY KEY,scope_id TEXT NOT NULL REFERENCES factory_scopes(id),run_id TEXT NOT NULL REFERENCES factory_runs(id),parent_task_id TEXT NOT NULL REFERENCES tasks(id),child_task_id TEXT NOT NULL UNIQUE REFERENCES tasks(id),grant_id TEXT NOT NULL REFERENCES execution_grants(id),state TEXT NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "factory_handoffs",
+            "factory_handoffs",
+            "CREATE TABLE factory_handoffs(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES factory_runs(id),parent_task_id TEXT NOT NULL REFERENCES tasks(id),child_task_id TEXT NOT NULL REFERENCES tasks(id),parent_session_id TEXT NOT NULL REFERENCES sessions(id),child_attempt_id TEXT REFERENCES attempts(id),state TEXT NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "factory_runs",
+            "factory_runs",
+            "CREATE TABLE factory_runs(id TEXT PRIMARY KEY,scope_id TEXT NOT NULL UNIQUE REFERENCES factory_scopes(id),root_task_id TEXT NOT NULL REFERENCES tasks(id),project_id TEXT NOT NULL REFERENCES projects(id),revision INTEGER NOT NULL CHECK(revision>0),state TEXT NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "factory_scoped_handles",
+            "factory_scoped_handles",
+            "CREATE TABLE factory_scoped_handles(id TEXT PRIMARY KEY,scope_id TEXT NOT NULL REFERENCES factory_scopes(id),session_id TEXT NOT NULL UNIQUE REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),task_id TEXT NOT NULL REFERENCES tasks(id),token_digest TEXT NOT NULL UNIQUE,expires_at_ms INTEGER NOT NULL,revoked INTEGER NOT NULL CHECK(revoked IN(0,1)),fencing_token INTEGER NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "factory_scopes",
+            "factory_scopes",
+            "CREATE TABLE factory_scopes(id TEXT PRIMARY KEY REFERENCES approval_proposals(id),root_task_id TEXT NOT NULL REFERENCES tasks(id),project_id TEXT NOT NULL REFERENCES projects(id),root_grant_id TEXT NOT NULL REFERENCES execution_grants(id),revision INTEGER NOT NULL CHECK(revision>0),revoked INTEGER NOT NULL CHECK(revoked IN(0,1)),owner_sequence INTEGER NOT NULL REFERENCES events(sequence),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "factory_task_bindings",
+            "factory_task_bindings",
+            "CREATE TABLE factory_task_bindings(task_id TEXT NOT NULL REFERENCES tasks(id),scope_id TEXT NOT NULL REFERENCES factory_scopes(id),run_id TEXT NOT NULL REFERENCES factory_runs(id),grant_id TEXT NOT NULL REFERENCES execution_grants(id),state TEXT NOT NULL,document TEXT NOT NULL,PRIMARY KEY(run_id,task_id))"
+          ],
+          [
+            "table",
+            "factory_task_lineage",
+            "factory_task_lineage",
+            "CREATE TABLE factory_task_lineage(task_id TEXT PRIMARY KEY REFERENCES tasks(id),root_task_id TEXT NOT NULL REFERENCES tasks(id),parent_task_id TEXT REFERENCES tasks(id),scope_id TEXT NOT NULL REFERENCES factory_scopes(id),delegation_id TEXT,depth INTEGER NOT NULL CHECK(depth>=0),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_external_action_journal",
+            "goal_external_action_journal",
+            "CREATE TABLE goal_external_action_journal(root_grant_id TEXT NOT NULL REFERENCES execution_grants(id),action_id TEXT NOT NULL,document TEXT NOT NULL,PRIMARY KEY(root_grant_id,action_id))"
+          ],
+          [
+            "table",
+            "goal_grant_revisions",
+            "goal_grant_revisions",
+            "CREATE TABLE goal_grant_revisions(grant_id TEXT NOT NULL REFERENCES execution_grants(id),revision INTEGER NOT NULL CHECK(revision>0),document TEXT NOT NULL,goal_approval_id TEXT REFERENCES approval_proposals(id),PRIMARY KEY(grant_id,revision))"
+          ],
+          [
+            "table",
+            "goal_graph_acceptances",
+            "goal_graph_acceptances",
+            "CREATE TABLE goal_graph_acceptances(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),task_revision INTEGER NOT NULL,run_id TEXT NOT NULL REFERENCES goal_runs(id),plan_revision INTEGER NOT NULL CHECK(plan_revision>0),document TEXT NOT NULL,UNIQUE(task_id,task_revision))"
+          ],
+          [
+            "table",
+            "goal_graph_candidates",
+            "goal_graph_candidates",
+            "CREATE TABLE goal_graph_candidates(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,plan_revision INTEGER NOT NULL CHECK(plan_revision>0),attempt_id TEXT NOT NULL REFERENCES attempts(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_graph_capabilities",
+            "goal_graph_capabilities",
+            "CREATE TABLE goal_graph_capabilities(run_id TEXT PRIMARY KEY REFERENCES goal_runs(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),version INTEGER NOT NULL CHECK(version=1),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_graph_jobs",
+            "goal_graph_jobs",
+            "CREATE TABLE goal_graph_jobs(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,plan_revision INTEGER NOT NULL CHECK(plan_revision>0),state TEXT NOT NULL,attempt_id TEXT REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_graph_owner_decisions",
+            "goal_graph_owner_decisions",
+            "CREATE TABLE goal_graph_owner_decisions(id TEXT PRIMARY KEY,approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,plan_revision INTEGER NOT NULL CHECK(plan_revision>0),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_graph_validations",
+            "goal_graph_validations",
+            "CREATE TABLE goal_graph_validations(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,plan_revision INTEGER NOT NULL CHECK(plan_revision>0),attempt_id TEXT NOT NULL REFERENCES attempts(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_ledgers",
+            "goal_ledgers",
+            "CREATE TABLE goal_ledgers(scope TEXT PRIMARY KEY,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_node_evidence",
+            "goal_node_evidence",
+            "CREATE TABLE goal_node_evidence(scope_id TEXT NOT NULL REFERENCES goal_scopes(id),node_id TEXT NOT NULL,document TEXT NOT NULL,PRIMARY KEY(scope_id,node_id))"
+          ],
+          [
+            "table",
+            "goal_plan_heads",
+            "goal_plan_heads",
+            "CREATE TABLE goal_plan_heads(scope_id TEXT PRIMARY KEY REFERENCES goal_scopes(id),plan_id TEXT NOT NULL UNIQUE,revision INTEGER NOT NULL CHECK(revision>0),digest TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_plan_proposals",
+            "goal_plan_proposals",
+            "CREATE TABLE goal_plan_proposals(id TEXT PRIMARY KEY,scope_id TEXT NOT NULL REFERENCES goal_scopes(id),plan_id TEXT NOT NULL,revision INTEGER NOT NULL,document TEXT NOT NULL,digest TEXT NOT NULL,UNIQUE(scope_id,revision))"
+          ],
+          [
+            "table",
+            "goal_plan_revisions",
+            "goal_plan_revisions",
+            "CREATE TABLE goal_plan_revisions(scope_id TEXT NOT NULL REFERENCES goal_scopes(id),plan_id TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>0),previous_digest TEXT,digest TEXT NOT NULL,document TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(scope_id,revision))"
+          ],
+          [
+            "table",
+            "goal_run_nodes",
+            "goal_run_nodes",
+            "CREATE TABLE goal_run_nodes(run_id TEXT NOT NULL REFERENCES goal_runs(id),plan_revision INTEGER NOT NULL CHECK(plan_revision>0),node_id TEXT NOT NULL,ordinal INTEGER NOT NULL,state TEXT NOT NULL,session_id TEXT REFERENCES sessions(id),attempt_id TEXT REFERENCES attempts(id),document TEXT NOT NULL,PRIMARY KEY(run_id,plan_revision,node_id))"
+          ],
+          [
+            "table",
+            "goal_run_reservations",
+            "goal_run_reservations",
+            "CREATE TABLE goal_run_reservations(attempt_id TEXT PRIMARY KEY REFERENCES attempts(id),run_id TEXT NOT NULL REFERENCES goal_runs(id),node_id TEXT NOT NULL,parent_node_id TEXT,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_runs",
+            "goal_runs",
+            "CREATE TABLE goal_runs(id TEXT PRIMARY KEY REFERENCES approval_proposals(id),scope_id TEXT NOT NULL REFERENCES goal_scopes(id),project_id TEXT NOT NULL REFERENCES projects(id),task_id TEXT NOT NULL REFERENCES tasks(id),revision INTEGER NOT NULL CHECK(revision>0),state TEXT NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "goal_scopes",
+            "goal_scopes",
+            "CREATE TABLE goal_scopes(id TEXT PRIMARY KEY REFERENCES approval_proposals(id),task_id TEXT NOT NULL REFERENCES tasks(id),root_grant_id TEXT NOT NULL REFERENCES execution_grants(id),revision INTEGER NOT NULL CHECK(revision>0),revoked INTEGER NOT NULL CHECK(revoked IN(0,1)),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "idempotency",
+            "idempotency",
+            "CREATE TABLE idempotency(scope TEXT NOT NULL, key TEXT NOT NULL, payload TEXT NOT NULL, result TEXT NOT NULL, PRIMARY KEY(scope,key))"
+          ],
+          [
+            "table",
+            "managed_workspaces",
+            "managed_workspaces",
+            "CREATE TABLE managed_workspaces(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id),document TEXT NOT NULL,state TEXT NOT NULL CHECK(state IN('creating','ready','outcome_unknown')),idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,root TEXT UNIQUE NOT NULL,UNIQUE(project_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "projects",
+            "projects",
+            "CREATE TABLE projects(id TEXT PRIMARY KEY,document TEXT NOT NULL,device TEXT NOT NULL,inode TEXT NOT NULL,root TEXT UNIQUE NOT NULL,UNIQUE(device,inode))"
+          ],
+          [
+            "table",
+            "session_runtime_snapshots",
+            "session_runtime_snapshots",
+            "CREATE TABLE session_runtime_snapshots(session_id TEXT PRIMARY KEY REFERENCES sessions(id),attempt_id TEXT NOT NULL UNIQUE REFERENCES attempts(id),config_revision TEXT NOT NULL,document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "session_turns",
+            "session_turns",
+            "CREATE TABLE session_turns(id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES sessions(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(session_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "sessions",
+            "sessions",
+            "CREATE TABLE sessions(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),project_id TEXT NOT NULL REFERENCES projects(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),connection_id TEXT NOT NULL REFERENCES connections(id),grant_id TEXT NOT NULL REFERENCES execution_grants(id),root_grant_id TEXT NOT NULL REFERENCES execution_grants(id),state TEXT NOT NULL,document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(task_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "tasks",
+            "tasks",
+            "CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "validation_policies",
+            "validation_policies",
+            "CREATE TABLE validation_policies(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES tasks(id),session_id TEXT NOT NULL REFERENCES sessions(id),attempt_id TEXT NOT NULL REFERENCES attempts(id),workspace_id TEXT NOT NULL REFERENCES managed_workspaces(id),approval_id TEXT NOT NULL UNIQUE REFERENCES approval_proposals(id),document TEXT NOT NULL)"
+          ],
+          [
+            "table",
+            "validation_runs",
+            "validation_runs",
+            "CREATE TABLE validation_runs(id TEXT PRIMARY KEY,policy_id TEXT NOT NULL REFERENCES validation_policies(id),task_id TEXT NOT NULL REFERENCES tasks(id),state TEXT NOT NULL CHECK(state IN('integrity_passed','failed')),document TEXT NOT NULL,idempotency_key TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(policy_id,idempotency_key))"
+          ],
+          [
+            "table",
+            "workspace_leases",
+            "workspace_leases",
+            "CREATE TABLE workspace_leases(resource TEXT PRIMARY KEY REFERENCES managed_workspaces(id),holder TEXT NOT NULL,fencing_token INTEGER NOT NULL,expires_at INTEGER NOT NULL)"
+          ],
+          [
+            "trigger",
+            "command_fence_attempt",
+            "attempts",
+            "CREATE TRIGGER command_fence_attempt BEFORE INSERT ON attempts WHEN EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=json_extract(NEW.binding,'$.workspace_id')) BEGIN SELECT RAISE(ABORT,'command workspace remains fenced'); END"
+          ],
+          [
+            "trigger",
+            "command_fence_lease_insert",
+            "workspace_leases",
+            "CREATE TRIGGER command_fence_lease_insert BEFORE INSERT ON workspace_leases WHEN EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=NEW.resource) BEGIN SELECT RAISE(ABORT,'command workspace remains fenced'); END"
+          ],
+          [
+            "trigger",
+            "command_fence_lease_update",
+            "workspace_leases",
+            "CREATE TRIGGER command_fence_lease_update BEFORE UPDATE ON workspace_leases WHEN EXISTS(SELECT 1 FROM command_workspace_fences WHERE workspace_id=NEW.resource) BEGIN SELECT RAISE(ABORT,'command workspace remains fenced'); END"
+          ],
+          [
+            "trigger",
+            "graph_fence_lease_insert",
+            "workspace_leases",
+            "CREATE TRIGGER graph_fence_lease_insert BEFORE INSERT ON workspace_leases WHEN EXISTS(SELECT 1 FROM goal_graph_jobs WHERE workspace_id=NEW.resource AND state IN('prepared','running','cancel_requested','outcome_unknown')) BEGIN SELECT RAISE(ABORT,'graph workspace remains fenced'); END"
+          ],
+          [
+            "trigger",
+            "graph_fence_lease_update",
+            "workspace_leases",
+            "CREATE TRIGGER graph_fence_lease_update BEFORE UPDATE ON workspace_leases WHEN EXISTS(SELECT 1 FROM goal_graph_jobs WHERE workspace_id=NEW.resource AND state IN('prepared','running','cancel_requested','outcome_unknown')) BEGIN SELECT RAISE(ABORT,'graph workspace remains fenced'); END"
+          ]
+        ],
+        "factory_increment_tables": [
+          "factory_scoped_handles",
+          "factory_handoffs",
+          "factory_attempts",
+          "factory_budget_reservations",
+          "factory_delegations",
+          "factory_task_bindings",
+          "factory_task_lineage",
+          "factory_runs",
+          "factory_scopes"
+        ],
+        "legacy_DDL_exact_after_inverse": true,
+        "foreign_keys_ON_positive": true,
+        "unknown_sentinel_raw_bytes_preserved": "00ffdeadbeef",
+        "negative_controls": [
+          {
+            "variant": "nonempty_legacy_reservation",
+            "observed_mirror_error": "nonempty Factory table refuses all drops",
+            "database_serialized_bytes_equal": true,
+            "all_objects_equal": true
+          },
+          {
+            "variant": "missing_table",
+            "observed_mirror_error": "no such table: factory_scoped_handles",
+            "database_serialized_bytes_equal": true,
+            "all_objects_equal": true
+          },
+          {
+            "variant": "wrong_version",
+            "observed_mirror_error": "strict current version guard",
+            "database_serialized_bytes_equal": true,
+            "all_objects_equal": true
+          }
+        ],
+        "scope": "only empty schema13 increment; no authority/data deletion for nonempty databases",
+        "sessions_ipc": "not fresh, but actual Goal uses its existing Goal reservation: Factory9 are empty. Existing targeted case verified owned stop, consumed meter and43 original legacy tables unchanged, no receipt row deletion. No generic old ordinary-session compatibility claim.",
+        "annotation_correction": {
+          "original_artifact_sha256": "67d2d33f9e61929c308b632f98dfca3cb50e4db8f2af4d34e3db203b5f61a1aa",
+          "original_sessions_note_was_wrong_static_inference": "not fresh: actual Goal creates shared legacy reservation; not eligible for empty-table helper",
+          "basis": "sessions.rs Goal context skips ordinary shared reservation; actual existing Goal test passed with strict Factory9-empty checks, zero Factory shared rows and43 legacy tables unchanged",
+          "SQL_controls_rerun": false,
+          "SQL_DDL_and_positive_negative_results_unchanged": true
+        }
+      },
+      "targeted_results": {
+        "new_helper_tests": {
+          "count": 2,
+          "passed": 2,
+          "harness_seconds": 0.02,
+          "result": {
+            "command": [
+              "cargo",
+              "test",
+              "--locked",
+              "-p",
+              "agentbaton-core",
+              "--test",
+              "command_validation_migration",
+              "fixture_inverse_",
+              "--",
+              "--nocapture"
+            ],
+            "exit_code": 0,
+            "seconds": 0.5,
+            "interruption": null,
+            "log_sha256": "34b65ba7c56140d30fbc3dacc606b2d29eb4c102cee1b2bfa219d57e9c3dadbf",
+            "environment": {
+              "CARGO_PROFILE_TEST_DEBUG": "0",
+              "CARGO_INCREMENTAL": "0",
+              "CARGO_BUILD_JOBS": "2",
+              "RUST_TEST_THREADS": "1",
+              "CARGO_NET_OFFLINE": "true",
+              "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target"
+            },
+            "DEV_DEBUG": "unset"
+          }
+        },
+        "existing_actual_Goal_migration": {
+          "count": 1,
+          "passed": 1,
+          "harness_seconds": 1.2,
+          "result": {
+            "command": [
+              "cargo",
+              "test",
+              "--locked",
+              "-p",
+              "agentbaton-core",
+              "--test",
+              "sessions_ipc",
+              "actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_hashes_or_authority",
+              "--",
+              "--exact",
+              "--nocapture"
+            ],
+            "exit_code": 0,
+            "seconds": 3.5,
+            "interruption": null,
+            "log_sha256": "fd724dfef629afa3a7d75f33fe3c4151d4e68d45358bdde804b92bb3b0fe7bf3",
+            "environment": {
+              "CARGO_PROFILE_TEST_DEBUG": "0",
+              "CARGO_INCREMENTAL": "0",
+              "CARGO_BUILD_JOBS": "2",
+              "RUST_TEST_THREADS": "1",
+              "CARGO_NET_OFFLINE": "true",
+              "CARGO_TARGET_DIR": "/workspace/.worktrees/validation-integration/apps/desktop/src-tauri/target"
+            },
+            "DEV_DEBUG": "unset"
+          }
+        },
+        "rustfmt_direct_check": "PASS; no Cargo fmt/build invoked outside3 targeted tests",
+        "clippy": "NOT_RUN at this source",
+        "fullworkspace": "NOT_RUN at this source"
+      },
+      "original_actual_Goal_projection": {
+        "path": "artifacts/goal-validation-graph/generated-pre-factory-goal-projection-05692dc71deb8efd69ab9d898e19c6b132928eb1a5aebba09990c454546b94ec.json",
+        "sha256": "05692dc71deb8efd69ab9d898e19c6b132928eb1a5aebba09990c454546b94ec",
+        "raw_receipts": {
+          "attempt_id": "d070ba09-eb41-4e39-8f8e-9cae76a48212",
+          "complete_old_session_budget_upgrade_compatibility": "not_established",
+          "deleted_receipt_rows": 0,
+          "factory_shared_rows_before": 0,
+          "goal_run_id": "64f60adb-d79d-4cf6-b5fd-0df595885f3e",
+          "kind": "test_only_empty_factory_historical_projection",
+          "legacy_tables_compared": [
+            "approval_proposals",
+            "attempts",
+            "budgets",
+            "command_validation_policies",
+            "command_validation_runs",
+            "command_workspace_fences",
+            "connections",
+            "data_validation_policies",
+            "data_validation_runs",
+            "data_workspace_creations",
+            "data_workspace_previews",
+            "data_workspace_receipts",
+            "dispatch_intents",
+            "events",
+            "execution_grants",
+            "goal_external_action_journal",
+            "goal_grant_revisions",
+            "goal_graph_acceptances",
+            "goal_graph_candidates",
+            "goal_graph_capabilities",
+            "goal_graph_jobs",
+            "goal_graph_owner_decisions",
+            "goal_graph_validations",
+            "goal_ledgers",
+            "goal_node_evidence",
+            "goal_plan_heads",
+            "goal_plan_proposals",
+            "goal_plan_revisions",
+            "goal_run_nodes",
+            "goal_run_reservations",
+            "goal_runs",
+            "goal_scopes",
+            "idempotency",
+            "managed_workspaces",
+            "projects",
+            "session_runtime_snapshots",
+            "session_turns",
+            "sessions",
+            "sqlite_sequence",
+            "tasks",
+            "validation_policies",
+            "validation_runs",
+            "workspace_leases"
+          ],
+          "raw_goal_node": "{\"node\":{\"id\":\"produce-report\",\"parent_id\":null,\"kind\":\"work\",\"goal\":\"goal-report\",\"dependencies\":[],\"workspace_id\":\"65b37332-c0cc-43bf-8efb-021c61172103\",\"executor\":{\"kind\":\"connection\",\"binding\":{\"connection_id\":\"f5a8107a-3920-40d1-8388-6e180781c741\",\"environment_id\":\"9447d847-44e0-44b9-becd-c68997b78bed\",\"identity_ref\":\"unknown:f5a8107a-3920-40d1-8388-6e180781c741\",\"host_id\":\"local\",\"workspace_id\":\"65b37332-c0cc-43bf-8efb-021c61172103\",\"config_revision\":\"4481ae016e33ae1436ee8ab7f0002f0a764e8db2f9c215cb09ff08a5dce05a7e\",\"input_revision\":\"0885bac9cb8ade5aab668d007adaff5e763dfb3c\",\"capability_snapshot_id\":\"client-no-tools:f5a8107a-3920-40d1-8388-6e180781c741\",\"policy_revision\":\"5f054a0d-d40a-4f99-b83e-008919e23974:2\"},\"program_sha256\":\"378d714e7123e5bd51346415c1056a65aee8bd45730676d4e713b15d74cab1ea\"},\"recipients\":[],\"required_inputs\":[{\"goal_task_id\":\"cca5dcf1-6fa3-42b9-8624-abac449af227\",\"artifact_id\":\"fixed-input\",\"contract_id\":\"input:fixed-input\",\"source\":{\"kind\":\"approved_external\",\"sha256\":\"8ba8496a2525ae171ffd104d632dede6ef418d9b95962a9d88e2fcdbc8d48d24\"}}],\"outputs\":[{\"artifact_id\":\"report\",\"contract_id\":\"output:report\"}],\"required_validators\":[\"goal-owner-review\"],\"side_effect\":\"workspace_write\",\"write_set\":[{\"kind\":\"workspace\",\"path\":\"reports/report.txt\"}],\"budget\":{\"attempts\":1,\"parallel\":1,\"runtime_ms\":5000,\"output_bytes\":2048,\"children\":0,\"reworks\":0,\"tokens\":null,\"cost_microunits\":null},\"reservation\":{\"runtime_ms\":4000,\"output_bytes\":2048,\"tokens\":null,\"cost_microunits\":null},\"retry\":{\"max_attempts\":1,\"max_reworks\":0,\"retry_classes\":[]},\"idempotency_key\":\"produce-report-once\",\"external_action_id\":null},\"plan_revision\":1,\"state\":\"candidate\",\"session_id\":\"874e6a11-390f-475e-8a94-f6c7968a2709\",\"attempt_id\":\"d070ba09-eb41-4e39-8f8e-9cae76a48212\",\"started_at_ms\":1793235952604,\"stop_confirmed\":true,\"actual_runtime_ms\":101,\"actual_output_bytes\":12,\"tokens\":null,\"cost_microunits\":null}",
+          "raw_goal_reservation": "{\"run_id\":\"64f60adb-d79d-4cf6-b5fd-0df595885f3e\",\"node_id\":\"produce-report\",\"plan_revision\":1,\"ancestors\":[\"produce-report\"],\"reservation\":{\"runtime_ms\":4000,\"output_bytes\":2048,\"tokens\":null,\"cost_microunits\":null},\"settled\":true,\"actual_runtime_ms\":101,\"actual_output_bytes\":12,\"tokens\":null,\"cost_microunits\":null}",
+          "raw_goal_run": "{\"id\":\"64f60adb-d79d-4cf6-b5fd-0df595885f3e\",\"scope_id\":\"796c5d4c-3791-4a03-86bb-f0b3aaccf5f5\",\"project_id\":\"cfc9e93e-6e79-4371-bd2f-0c9169489ad8\",\"task_id\":\"cca5dcf1-6fa3-42b9-8624-abac449af227\",\"root_grant_id\":\"5f054a0d-d40a-4f99-b83e-008919e23974\",\"plan_revision\":1,\"plan_digest\":\"e39e414bd909701c9fc1c2230efc099d881273189717391f2ffb58f252a5ab14\",\"revision\":3,\"state\":\"awaiting_acceptance\",\"cancel_requested\":false,\"task_accepted\":false,\"created_at\":\"2026-10-29T01:05:52.539285871Z\",\"updated_at\":\"2026-10-29T01:05:52.715527717Z\"}",
+          "raw_legacy_meter_receipts": [
+            [
+              "project:cfc9e93e-6e79-4371-bd2f-0c9169489ad8",
+              "{\"limits\":{\"attempts\":2,\"parallel\":1,\"runtime_ms\":10000,\"output_bytes\":8192,\"children\":1,\"reworks\":0,\"tokens\":null,\"cost_microunits\":null},\"observed_attempts\":1,\"runtime_ms\":101,\"output_bytes\":12,\"tokens\":null,\"cost_microunits\":null}"
+            ],
+            [
+              "root-grant:5f054a0d-d40a-4f99-b83e-008919e23974",
+              "{\"limits\":{\"attempts\":2,\"parallel\":1,\"runtime_ms\":10000,\"output_bytes\":8192,\"children\":1,\"reworks\":0,\"tokens\":null,\"cost_microunits\":null},\"observed_attempts\":1,\"runtime_ms\":101,\"output_bytes\":12,\"tokens\":null,\"cost_microunits\":null}"
+            ]
+          ],
+          "raw_owned_stop_receipt": "{\"sequence\":0,\"event_id\":\"db246c6d-410e-43d1-a7f2-a80216070c2d\",\"aggregate_id\":\"874e6a11-390f-475e-8a94-f6c7968a2709\",\"revision\":7,\"kind\":\"session.stopped\",\"occurred_at\":\"2026-10-29T01:05:52.710517587Z\",\"payload\":{\"no_process_started\":false,\"process_reaped\":true,\"reason\":\"cancelled\",\"task_accepted\":false},\"source\":\"baton_supervisor\"}",
+          "server_shutdown_joined": true,
+          "session_id": "874e6a11-390f-475e-8a94-f6c7968a2709"
+        }
+      },
+      "historical_failures": {
+        "first_root_full": "8532:150unique_outerPASS+1FAIL+nested1separate, stale schema12 expectation",
+        "second_root_full": "6b623:170unique_outerPASS+1FAIL+nested1separate, Store::open INTERNAL_ERROR on mislabeled schema7 fixture with remaining Factory tables; SQLite cause inferred statically, not actual captured API diagnostic",
+        "new_helper_compile": "FAIL101 explicit query type inference, saved pre-fix source/log",
+        "negative_fixture_first_runtime": "1PASS1FAIL: incomplete row rejected byFK787 before helper; injection now explicitly corrupts only new negative connection with FKOFF then restoresON before helper rejection",
+        "source_setup": "first direct rustfmt omitted RUSTUP_HOME and failed read-only default home; transcribed tool output retained; corrected direct fmt passed",
+        "normalization_setup": "first proof script counted appended helper positive call too; corrected script strips appended tests before original-site count; all10 old bodies byte-identical",
+        "sessions_static_annotation": "Original ddl-control-result.json prematurely inferred actual Goal had a Factory legacy row. This was not a runtime observation. Corrected annotation report preserves old artifact and identifies sessions.rs else-if goal.is_none guard plus actual targeted case proving zero; no receipt DELETE was added."
+      },
+      "external_original_logs": {
+        "/workspace/.onboarding/factory-root-rust-regression/RESULT.json": "471e857e35576d475d46b9c7098e912e2250b163838f99ed7cb4f7b117cd55e2",
+        "/workspace/.onboarding/factory-root-rust-regression/MANIFEST.json": "127c7ae1e0c2e37fa5a4fd603369ea78d6e5748c0541b239a15406a7817c30c5",
+        "/workspace/.onboarding/factory-root-rust-regression/workspace-tests.log": "64fa36a759d499e2be2186c12d04b1e49a2f56e24e47a7cdbca3eea68d12fca9",
+        "/workspace/.onboarding/factory-root-rust-regression/AFTER.json": "8aa14e3067c7d049bb717ca3217bf4b5080baea92797e312c45585556ea50f68",
+        "/workspace/.onboarding/factory-root-rust-regression-schema13/RESULT.json": "8d5992d9102a8c6e0576a12babe54536b8feaf2253cf7ed4d18c7c53188a93cc",
+        "/workspace/.onboarding/factory-root-rust-regression-schema13/MANIFEST.json": "cce713e35d3183d2703f3fe6915bd00ee489b1964d6bb045e6ad8138a9c89147",
+        "/workspace/.onboarding/factory-root-rust-regression-schema13/workspace-tests.log": "777a42fcac56ec8ac7373a65ad8b8a9b526a1e2ba91f19d26b8316a7b7209850",
+        "/workspace/.onboarding/factory-root-rust-regression-schema13/AFTER.json": "b68c8355245fe3ac4bd18776b98ae82bf478081504ae3af337956cfd604623ae"
+      },
+      "artifacts": {
+        "artifacts/factory-runtime-core/pre-factory-fixtures/before-targeted-source.json": {
+          "sha256": "4349931224ed5f179530238f732387d61d308b695ffedd513172662d7a518f52",
+          "bytes": 1406
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/command-validation-before-inference-fix.rs": {
+          "sha256": "87e2e479b6c503fa31c3eb7abfa9359697695bf3bdd4cb4286860417300fcff7",
+          "bytes": 9281
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/command-validation-before-negative-fk-fix.rs": {
+          "sha256": "a9f9636b5bc70ab191819ba004cdb94aed7849e1223fab3b67a5fae3ec653b1a",
+          "bytes": 9401
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/ddl-control-result.json": {
+          "sha256": "67d2d33f9e61929c308b632f98dfca3cb50e4db8f2af4d34e3db203b5f61a1aa",
+          "bytes": 38837
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/ddl-control.log": {
+          "sha256": "cd701c5e9bd450067212ed32c6354e51bc673f4b2c672f149309d98b663306f2",
+          "bytes": 145
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/ddl_control.py": {
+          "sha256": "aa12bea839c4ee060156174bc2cf66f24a8ed8db1c194c773af37f75a10ad6a7",
+          "bytes": 5450
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/final-fmt-check.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/final-fmt-exit.json": {
+          "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01",
+          "bytes": 16
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/format-before-targeted.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/format-corrected-exit.json": {
+          "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01",
+          "bytes": 16
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/format-corrected.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/format-inference-fix.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/format-initial-tool-output.json": {
+          "sha256": "cbdf363feebccc61064f14e273593790a077b4a6af7c895bfa93f96fce5f11c5",
+          "bytes": 439
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/format-negative-injection-fix.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/format-special-goal.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/historical12-ddl.json": {
+          "sha256": "e7eee23f21ab2a236591f78a3ff21d80706bf09f9b51f846c009e4b8d1bea943",
+          "bytes": 12225
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/normalize_original_tests.py": {
+          "sha256": "2cd12ca1c9e030971edeb4b955a252f8566168441d768535746f9b81bb3e507d",
+          "bytes": 1972
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/original-test-byte-normalization.json": {
+          "sha256": "9cd97def08ba481274d0dc6f8e0b11d1b3bf808e51d9f1154ff8cade0f3024ab",
+          "bytes": 3714
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted-goal-first-result.json": {
+          "sha256": "493409e8259fd149609642e5f03d6742cab0c9219020c00bd1768305009293f5",
+          "bytes": 729
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted-goal-first.log": {
+          "sha256": "fd724dfef629afa3a7d75f33fe3c4151d4e68d45358bdde804b92bb3b0fe7bf3",
+          "bytes": 966
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted-helper-first-result.json": {
+          "sha256": "d124bea7669bf2d25bcf8399bf87f5d7bf61d6c1bbbe5db073bb76d25e06987f",
+          "bytes": 653
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted-helper-first.log": {
+          "sha256": "1e1417f5f8e879f06bb9c817e2efbc2292c1c96bd3582415a51138b6f641bd1b",
+          "bytes": 4960
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted-helper-second-result.json": {
+          "sha256": "dbfdd466dc722cbb503cafd66c7e232dfa92656ea9db9c01c89c00ddfeed6618",
+          "bytes": 653
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted-helper-second.log": {
+          "sha256": "75ac36a0683e5d4c9922e78031f6edcc1d6db974098b8c6b556786f068cd5f18",
+          "bytes": 1271
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted-helper-third-result.json": {
+          "sha256": "43bbd08e26af1e21fd14ca2870cd1606bc17a9ed9ae66874f6f0ded8a57bb0d6",
+          "bytes": 651
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted-helper-third.log": {
+          "sha256": "34b65ba7c56140d30fbc3dacc606b2d29eb4c102cee1b2bfa219d57e9c3dadbf",
+          "bytes": 652
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted_runner.py": {
+          "sha256": "8c3dcf47f747b67a8b85c442e98f2c86b55fe0b41e42c0510cf9bdf20cd2da64",
+          "bytes": 1977
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted_runner_second.py": {
+          "sha256": "f2f027fa8df88aae290b398a6ef2357b58699279a641bb872a4f8181ab27b836",
+          "bytes": 1978
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/targeted_runner_third.py": {
+          "sha256": "2af47110d995bdbea4605a022e077b3e921e43d2103038beeda4fc541e6b70b8",
+          "bytes": 1977
+        },
+        "artifacts/goal-validation-graph/generated-pre-factory-goal-projection-05692dc71deb8efd69ab9d898e19c6b132928eb1a5aebba09990c454546b94ec.json": {
+          "sha256": "05692dc71deb8efd69ab9d898e19c6b132928eb1a5aebba09990c454546b94ec",
+          "bytes": 5753
+        },
+        "artifacts/goal-runtime-core/generated-goal-execution-abbe0fc34959216f60d8cdc76895ff61d55d7ad4d6d9ad3f385046222b162454.json": {
+          "sha256": "abbe0fc34959216f60d8cdc76895ff61d55d7ad4d6d9ad3f385046222b162454",
+          "bytes": 10974
+        },
+        "artifacts/factory-runtime-core/pre-factory-fixtures/ddl-control-result-corrected-annotation.json": {
+          "sha256": "9eeabcabf7c27082652af9567ce0064b826e7d17d35c6a848b002c745ed1c9a5",
+          "bytes": 39583
+        }
+      },
+      "lease": "returned to parent after3 targeted tests/directfmt; no active Cargo/test process",
+      "not_claimed": [
+        "full current workspace success",
+        "complete old ordinary-session budget upgrade compatibility",
+        "permission to remove nonempty Factory/legacy receipts",
+        "production cleanup API",
+        "Native/Mac/TaskAccepted/Git acceptance"
+      ],
+      "followup": "independent source/evidence review then parent exact new full Rust regression, preserving both original failed directories"
+    },
+    "targeted_unique_tests": 3,
+    "counting": "two new helper tests, one existing actual Goal case; SQL controls and failed/intermediate executions separate",
+    "production_change": false,
+    "lease": "returned to parent",
+    "remaining": "independent review, exact full current regression and full old ordinary-session migration compatibility",
+    "timing_correction": {
+      "path": "artifacts/factory-runtime-core/pre-factory-fixtures/final-helper-timing-correction.json",
+      "sha256": "da6a0f8b36581be7715cc2d0ee5d1bf5346e3b414a3bfd984e01a53c6f53f40a",
+      "correction": {
+        "source_commit": "cabf5a3cd9eca2ce2ea4c5a6b0d78c46f1c5ed53",
+        "correction": "new_helper_tests harness_seconds is0.04 in final2PASS log;0.02 was copied from preceding1PASS1FAIL log and must not describe final run",
+        "original_snapshot_sha256": "a8fb293421b549a0db3e8ff53d5447655d867c1ea5840057987ee2c84a7e64d5",
+        "actual_final_helper_log_sha256": "34b65ba7c56140d30fbc3dacc606b2d29eb4c102cee1b2bfa219d57e9c3dadbf",
+        "actual_final_harness_seconds": 0.04,
+        "unique_passed": 2,
+        "exit_code": 0,
+        "old_snapshot_and_raw_logs_unchanged": true,
+        "tests_rerun": false
+      }
+    }
   }
 }

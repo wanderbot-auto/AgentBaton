@@ -1,3 +1,5 @@
+#[path = "fixtures/pre_factory_schema.rs"]
+mod pre_factory_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::{params, Connection};
 use std::{
@@ -25,6 +27,7 @@ fn fixture() -> (tempfile::TempDir, PathBuf) {
         .unwrap();
     drop(s);
     let c = Connection::open(&p).unwrap();
+    pre_factory_schema::remove_empty_factory_increment(&c).unwrap();
     c.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;CREATE TABLE original_blob(bytes BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=7;").unwrap();
     let raw: String = c
         .query_row("SELECT document FROM tasks WHERE id=?1", [&t.id], |r| {
@@ -149,4 +152,87 @@ fn future_schema14_refused_without_touching_bytes() {
     let raw = fs::read(&p).unwrap();
     assert_eq!(Store::open(&p).err().unwrap().code, "VERSION_UNSUPPORTED");
     assert_eq!(fs::read(&p).unwrap(), raw);
+}
+
+fn fresh_factory_fixture() -> (tempfile::TempDir, PathBuf, Connection) {
+    let directory = tempfile::Builder::new()
+        .permissions(fs::Permissions::from_mode(0o700))
+        .tempdir()
+        .unwrap();
+    let database = directory.path().join("fresh-schema13.sqlite3");
+    drop(
+        fs::OpenOptions::new()
+            .create_new(true)
+            .write(true)
+            .mode(0o600)
+            .open(&database)
+            .unwrap(),
+    );
+    drop(Store::open(&database).unwrap());
+    let connection = Connection::open(&database).unwrap();
+    (directory, database, connection)
+}
+
+#[test]
+fn fixture_inverse_removes_only_empty_factory_increment_and_preserves_legacy_schema_and_bytes() {
+    let (_directory, _database, connection) = fresh_factory_fixture();
+    connection
+        .execute_batch("CREATE TABLE fixture_unknown(raw BLOB);INSERT INTO fixture_unknown VALUES(x'00ffdeadbeef');PRAGMA foreign_keys=ON;")
+        .unwrap();
+    type SchemaObject = (String, String, String, Option<String>);
+    let before: Vec<SchemaObject> = connection
+        .prepare("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name")
+        .unwrap()
+        .query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?, row.get::<_, Option<String>>(3)?)))
+        .unwrap()
+        .map(|row| row.unwrap())
+        .filter(|row| !pre_factory_schema::FACTORY_TABLES.contains(&row.2.as_str()))
+        .collect();
+    pre_factory_schema::remove_empty_factory_increment(&connection).unwrap();
+    assert_eq!(
+        connection
+            .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
+            .unwrap(),
+        12
+    );
+    let after: Vec<SchemaObject> = connection
+        .prepare("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name")
+        .unwrap()
+        .query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?, row.get::<_, Option<String>>(3)?)))
+        .unwrap()
+        .map(|row| row.unwrap())
+        .collect();
+    assert_eq!(after, before);
+    assert_eq!(
+        connection
+            .query_row("SELECT raw FROM fixture_unknown", [], |row| row
+                .get::<_, Vec<u8>>(0))
+            .unwrap(),
+        [0, 255, 222, 173, 190, 239]
+    );
+}
+
+#[test]
+fn fixture_inverse_refuses_nonempty_missing_or_wrong_version_without_deleting_any_bytes() {
+    for variant in [
+        "nonempty_legacy_reservation",
+        "missing_table",
+        "wrong_version",
+    ] {
+        let (_directory, database, connection) = fresh_factory_fixture();
+        match variant {
+            // Deliberate malformed-data injection in this new negative fixture only;
+            // restore FK enforcement BEFORE asking the guard to reject deletion.
+            "nonempty_legacy_reservation" => connection.execute_batch("PRAGMA foreign_keys=OFF;INSERT INTO factory_budget_reservations(attempt_id,scope_id,root_task_id,project_id,document) VALUES('generated-unreconciled',NULL,'generated-root','generated-project',json_object('authority_kind','legacy_shared_session'));PRAGMA foreign_keys=ON;").unwrap(),
+            "missing_table" => connection.execute_batch("DROP TABLE factory_scoped_handles;").unwrap(),
+            "wrong_version" => connection.execute_batch("PRAGMA user_version=12;").unwrap(),
+            _ => unreachable!(),
+        }
+        let before = fs::read(&database).unwrap();
+        assert!(
+            pre_factory_schema::remove_empty_factory_increment(&connection).is_err(),
+            "{variant}"
+        );
+        assert_eq!(fs::read(&database).unwrap(), before, "{variant}");
+    }
 }

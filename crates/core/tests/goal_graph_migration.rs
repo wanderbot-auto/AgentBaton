@@ -1,3 +1,5 @@
+#[path = "fixtures/pre_factory_schema.rs"]
+mod pre_factory_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::Connection;
 use std::{
@@ -24,6 +26,7 @@ fn old() -> (tempfile::TempDir, PathBuf, String) {
             r.get(0)
         })
         .unwrap();
+    pre_factory_schema::remove_empty_factory_increment(&db).unwrap();
     db.execute_batch(DROP_GRAPH).unwrap();
     db.execute_batch(
         "CREATE TABLE original_blob(raw BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');",
