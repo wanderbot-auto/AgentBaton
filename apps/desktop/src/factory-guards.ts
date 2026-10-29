@@ -74,17 +74,22 @@ export const factoryCanCancel=(run:FactoryRun)=>factoryRunSupported(run)&&!run.c
 export const factoryRunShape=(r:FactoryRun,task:Task,scopeId:string):boolean=>!!r&&factoryId(r.id)&&r.scope_id===scopeId&&r.project_id===task.project_id&&r.root_task_id===task.id&&safeInteger(r.revision,1)&&text(r.state,128)&&typeof r.cancel_requested==='boolean'&&(r.active_task_id===null||factoryId(r.active_task_id))&&(r.active_session_id===null||factoryId(r.active_session_id))&&(r.active_session_id===null||r.active_task_id!==null)&&text(r.context_continuation,256)&&time(r.created_at)&&time(r.updated_at)&&(r.last_error===null||!!r.last_error&&text(r.last_error.code,256)&&typeof r.last_error.message==='string'&&typeof r.last_error.retryable==='boolean'&&text(r.last_error.side_effect_state,256))&&(!['cancel_requested','cancelled'].includes(r.state)||r.cancel_requested);
 /** Read structure only; this never authorizes dispatch or invents an attempt.
  * A derived Graph child can finish without launching a Factory provider. Core
- * projects its accepted/all-history-stop result onto the existing child handle.
+ * projects accepted or cancelled/all-history-stop state onto that child handle.
  * Keep legacy callers strict unless they supply the complete validated scope.
  */
 export function factoryDetailsShape(v:FactoryRunDetails,task:Task,scopeId:string,readScope?:FactoryScope):boolean {
   if(!v||!factoryRunShape(v.run,task,scopeId)||!Array.isArray(v.tasks)||v.tasks.length>100000||!Array.isArray(v.waiting_relations)||v.waiting_relations.length>100000||new TextEncoder().encode(JSON.stringify(v)).length>4194304)return false;
   if(readScope&&(!factoryScopeShape(readScope,task)||readScope.id!==scopeId))return false;
-  const derivedResults=!!readScope?.selection.capabilities.child_goal_execution&&!!readScope.bindings.child_goal_execution&&factoryRunSupported(v.run)&&!v.run.cancel_requested&&!['queued','cancel_requested','cancelled','outcome_unknown'].includes(v.run.state);
+  const derivedScope=!!readScope?.selection.capabilities.child_goal_execution&&!!readScope.bindings.child_goal_execution;
+  const derivedResults=derivedScope&&factoryRunSupported(v.run)&&!v.run.cancel_requested&&!['queued','cancel_requested','cancelled','outcome_unknown'].includes(v.run.state);
+  // Terminal cancellation is a read projection, not a provider attempt or a
+  // permission to dispatch. Require the whole reported subtree to be stopped.
+  if(derivedScope&&v.run.state==='cancelled'&&v.tasks.some(t=>t?.attempt_id===null&&t.confirmed_stop!==true))return false;
+  const derivedCancelled=derivedScope&&v.run.state==='cancelled'&&v.run.cancel_requested&&v.run.active_task_id===null&&v.run.active_session_id===null&&v.tasks.every(t=>t?.confirmed_stop===true)&&v.waiting_relations.every(r=>r?.parent_stop_confirmed===true);
   const ids=new Set<string>();
   for(const t of v.tasks){
     if(!t||!factoryId(t.task_id)||ids.has(t.task_id)||t.root_task_id!==task.id||t.factory_scope_id!==scopeId||!safeInteger(t.revision,1)||!text(t.state,128)||!(t.attempt_id===null||factoryId(t.attempt_id))||typeof t.cancel_requested!=='boolean'||typeof t.confirmed_stop!=='boolean'||typeof t.result_available!=='boolean'||(t.task_id===task.id?t.parent_task_id!==null:!factoryId(t.parent_task_id))||typeof t.delegation_id!=='string'||(t.task_id!==task.id&&!factoryId(t.delegation_id)))return false;
-    if(t.attempt_id===null&&t.confirmed_stop&&!(derivedResults&&t.task_id!==task.id&&t.parent_task_id!==null&&t.state==='result_available'&&t.result_available&&!t.cancel_requested))return false;
+    if(t.attempt_id===null&&t.confirmed_stop&&!(t.task_id!==task.id&&t.parent_task_id!==null&&((derivedResults&&t.state==='result_available'&&t.result_available&&!t.cancel_requested)||(derivedCancelled&&t.state==='cancelled'&&!t.result_available&&t.cancel_requested))))return false;
     ids.add(t.task_id);
   }
   // An empty/truncated task list cannot establish subtree closure. Each chain
