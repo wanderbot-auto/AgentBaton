@@ -1,3 +1,9 @@
+## Receipt correction and next real boundary
+
+Exact3385 normal still FAIL0/1 (test16.50s,total35.3986s,no guard), but now exact receipt check succeeds and real Worker reaches ready and a3673-byte queued Goal prompt. It then hits command-channel RESOURCE_LIMIT and the original1000ms reservation expires (actual1003ms): outcome_unknown/outputnull/ownedstoptrue, no TaskAccepted. Launch→prompt1178ms exceeds that original reservation; raw try_send variant was not retained. Do not convert unknown to success or relax runtime limits. Normal fixture initial reservation and independent1s negative are under source work.
+
+Exact52cb421: actual receipt2units PASS (3.29s tests), fresh-fixture refusal2units PASS (7.96s tests), zero ignored. Earlier wrong-filter0tests and original8173 INPUT_CHANGED0/2 are explicitly not tag8 old-regression acceptance. Four units are Store/SQLite, not process/Mac proof. The optional real Native preapproval/revoke fixture isolates receipt encoding; it does not repair the separately retained Owner-first empty-counter product boundary. All raw failures/ELFs/DBs retained. See RECEIPT_FIX_RESULT.json. New browser/Mac/CI and full130 remain incomplete.
+
 ## Actual optimized SHA-256 and budget boundary — 2026-10-29T12:06:44.197047+00:00
 
 Root exact0469863 built with actual sha2 opt-level3/debug assertions on. Full CLI remains86,731,728 bytes; complete verification measured51ms SHA update/finalize and72ms read/hash. No integrity check, permission, budget or timeout changed. Initial prepare stopped at the disk guard before probe; retained failure and exact-hash owned-staging recovery followed by unchanged-helper probe PASS are recorded separately.

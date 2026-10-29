@@ -1,3 +1,9 @@
+## Receipt correction and next real boundary
+
+Exact3385 normal still FAIL0/1 (test16.50s,total35.3986s,no guard), but now exact receipt check succeeds and real Worker reaches ready and a3673-byte queued Goal prompt. It then hits command-channel RESOURCE_LIMIT and the original1000ms reservation expires (actual1003ms): outcome_unknown/outputnull/ownedstoptrue, no TaskAccepted. Launch→prompt1178ms exceeds that original reservation; raw try_send variant was not retained. Do not convert unknown to success or relax runtime limits. Normal fixture initial reservation and independent1s negative are under source work.
+
+Exact52cb421: actual receipt2units PASS (3.29s tests), fresh-fixture refusal2units PASS (7.96s tests), zero ignored. Earlier wrong-filter0tests and original8173 INPUT_CHANGED0/2 are explicitly not tag8 old-regression acceptance. Four units are Store/SQLite, not process/Mac proof. The optional real Native preapproval/revoke fixture isolates receipt encoding; it does not repair the separately retained Owner-first empty-counter product boundary. All raw failures/ELFs/DBs retained. See RECEIPT_FIX_RESULT.json. New browser/Mac/CI and full130 remain incomplete.
+
 ## Fixed-layer diagnostic actual failure
 
 Exact646bf7d: typecheck PASS, diagnostic units3PASS, same-head bins/probe PASS. Real child chain FAILED0/1/test16.83s/total32.8076s/no guard; tag8 identifies exact receipt binding, not unknown measured runtime/output or count mismatch. Field-order mismatch in JSON text is source+SQLite-confirmed; one-parameter encoding correction and real writer positive/negative regression pending. Original failed DB/stderr/ELF retained and Actor joined. Full chain/root-self/browser/Mac/newCI remain unpassed. See BUDGET_DIAGNOSTIC_RESULT.json.
