@@ -1,0 +1,218 @@
+{
+  "recorded_at": "2026-10-29T14:50:41.251044+00:00",
+  "actual_results": {
+    "counter_compile_failure": {
+      "source": "eddc33ab21221bbc20a6a800dffdfcc9a908c6d5",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "reservation_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 12.835334224975668,
+      "minimum_free_bytes": 1978445824,
+      "interruption": null,
+      "log_sha256": "dffb84e7e34ea7e37daae7a406b658ee6f7a20f328c406a8be1394ab1b0c46ee",
+      "summaries": []
+    },
+    "counter_five_pass": {
+      "source": "8b7bf8bda22446b66b2358ef9e280e6521737acd",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "reservation_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 39.108471923012985,
+      "minimum_free_bytes": 1922334720,
+      "interruption": null,
+      "log_sha256": "0d3ba5ee44aabe79b36f38a0cab8926d8201899fa7f229f63df3aeca918fa161",
+      "summaries": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 118 filtered out; finished in 17.72s"
+      ]
+    },
+    "initializer_unit": {
+      "source": "8b7bf8bda22446b66b2358ef9e280e6521737acd",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "first_own_counter_initializer_keeps_original_limits_and_refuses_history_or_foreign_deltas",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 0.10097893700003624,
+      "minimum_free_bytes": 1936773120,
+      "interruption": null,
+      "log_sha256": "48ac24e0f52d2bf9adfaafb5dc873b21405361f1216d8250b0928c761f578882",
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 122 filtered out; finished in 0.00s"
+      ]
+    },
+    "handoff_fault_fixture_first_failure": {
+      "source": "8b7bf8bda22446b66b2358ef9e280e6521737acd",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "failure_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 10.523880231980002,
+      "minimum_free_bytes": 1976958976,
+      "interruption": null,
+      "log_sha256": "40404e9ec7e359d9b9b87de69532d2ee28e371e923b3267a2dec6fe9d51b7687",
+      "summaries": [
+        "test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 120 filtered out; finished in 10.39s"
+      ]
+    },
+    "handoff_fault_fixture_corrected": {
+      "source": "a979ac947e3be356d6ec075618bc7ddc783e9e37",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "failure_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 29.176039440004388,
+      "minimum_free_bytes": 1881690112,
+      "interruption": null,
+      "log_sha256": "e48850c2fe99c63ab9ec11d25fcd596d2935f99ddf106ff88e2500fbdf53be04",
+      "summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 120 filtered out; finished in 12.04s"
+      ]
+    },
+    "new_rework_first": {
+      "source": "7755fb669e41afe6c1df56565a3d9855ffdafcf5",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 19.950456274993485,
+      "minimum_free_bytes": 1719078912,
+      "interruption": null,
+      "log_sha256": "89ec2e2a83466201222f05e1392b7b0fd00aef6ce164aea3e1ea7741582f335c",
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 23 filtered out; finished in 1.59s"
+      ]
+    },
+    "new_rework_guarded_second": {
+      "source": "7755fb669e41afe6c1df56565a3d9855ffdafcf5",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "factory_runtime_ipc",
+        "-vv",
+        "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 14.039296389993979,
+      "minimum_free_bytes": 1636425728,
+      "interruption": null,
+      "log_sha256": "07822fc28a096e12e27d88779a304707d2c4773ecd43215a408f721c14735d17",
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 23 filtered out; finished in 13.92s"
+      ]
+    }
+  },
+  "dimension": "Core Store/SQLite units separately from generated Provider Actor/process case. No OS/Mac/live-model claim.",
+  "counter": "Five real Store tests plus one query-proof unit PASS; includes eight related-history corruption variants, originalGrant/project association, controlled late sqlite1811 rollback, other-counter unchanged and old receipt controls. No missing history reset to zero.",
+  "private_handoff_negative": "Three Store tests PASS after test-only column/document coherence correction; preserve all exact AUTH_REQUIRED/rollback assertions. cfgtest once hook excluded from normal/debug applications and release.",
+  "compiler_failure": "Originalsix u64 FromSql E0277=zero tests executed, fixed six checked i64 conversions without changing SQL or guards; all original failure artifacts retained.",
+  "new_rework_progress": "Second actual run reached true failed validation/confirmed stop, failure confirmation, one preauthorized rework charge, original planner new attempt and sameGraph r2 adoption; Actor then denied history. Actual total case FAIL, not accepted.",
+  "new_rework_diagnosis": "Read-only original seq91 confirms proof_digest computed over typed StoppedGraphFailure field order but reader compares Value sorted-object serialization; typed reconstruction matches, Value hash does not. Narrow typed-domain correction under implementation, no rewrite of old event/proof/no stop bypass.",
+  "companion_guard": "Scope IPC in in-process Rust test resolves Cargo sibling CLI nlink2; first run correctly rejected. Second run used known same-head single-link0500 temporary sibling with original inode/all aliases/mode/hash strictly restored and independently audited. Original failure remains.",
+  "browser_retry": {
+    "source": "6ee52a156717771a937d3171747ccfff3d5904a5",
+    "command": [
+      "python3",
+      "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "--run",
+      "--case",
+      "normal",
+      "--tools",
+      "/workspace/.onboarding/factory-root-self-known-handoff-preflight1/frozen",
+      "--manifest",
+      "/workspace/.onboarding/factory-child-goal-browser-lease-zero-retry1/manifest.json",
+      "--frontend",
+      "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+      "--output",
+      "/workspace/.onboarding/factory-child-goal-browser-lease-zero-retry1/normal"
+    ],
+    "exit": 1,
+    "seconds": 19.598100853996584,
+    "minimum_free_bytes": 2010976256,
+    "interruption": null,
+    "log_sha256": "7f0ca0fccc77fbd9f6b321b50d70f03342b7f2e8626d14f7391993339c5e9741",
+    "report_sha256": "32683089875c3122a5b4db24ca551c83fe9215d545fc20dc1823f2685359a648",
+    "status": "failed_or_interrupted",
+    "checks": 1,
+    "screenshots": 1,
+    "cleanup_complete": false,
+    "source_tools_assets_before_after_equal": true,
+    "guard_scope": "180s external test controller only; original product Grant/Scope/runtime and per-stage15s unchanged",
+    "dimensions": "actual React/Linux Chromium/authenticated Unix Core15/generated ACP+MCP/private Owner fixture; not OS dialog or real Provider account"
+  },
+  "browser": "Second actual attempt FAIL on concurrent raw-evidence filename collision, original first file retained and missing second raw not invented. Thread-safe recorder79 pre-dispatch capacity gap blocked; revision856 awaiting independent closure, not yet product-run.",
+  "remaining": "New typed-proof correction and sameGraph rework success, new real browser three cases, portable actual14→15 Mac gates/source review and actual execution, whole applicable regressions/CI/new dualMac packages/130 requirement acceptance.",
+  "full_product": "incomplete"
+}

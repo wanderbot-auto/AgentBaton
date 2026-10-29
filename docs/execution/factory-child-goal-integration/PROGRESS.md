@@ -1,3 +1,11 @@
+## 当前预算/交接负控通过与真实返工失败 — 2026-10-29T14:50:41.251044+00:00
+
+首次预算初始化的5项真实Store测试＋1项私有query-proof单元通过；8类历史异常、精确关联/日志晚失败回滚和其他counter不变均保留硬断言。另3项交接负控已在d413纠正测试列/doc一致性后通过，仍精确AUTH_REQUIRED与完整rollback，cfg(test)一次性注入不进应用/发布包。原6个E0277是0测试执行的编译失败，不冒5case失败；旧2/1、首次Ownercounter0/1及所有原始日志/失败ELF均保留。
+
+新增真实Command失败返工链已走到验证失败/停止确认→原规划器恢复→同Graph r2采纳，但整体仍FAIL。正常Cargo companion硬链接首拒未放宽，受控single-link副本测试后原inode/alias/mode/hash严格恢复并独审；第二轮真正触发typed proof与Value对象字段序不同的digest域自拒，正窄修，不能冒已完成返工。最新真实UI第二次尝试仍FAIL：并发回复记录器碰撞了文件名，原件保留、缺失raw不倒造；线程安全＋预派发证据容量修订856独审中，normal/lost/cancel新业务尚未通过。
+
+此前准确1e三条真实Actor正常/Rootself/1s负例仍仅绑定各自源码，不转签当前新增返工；Mac portability纯30已独审但真实Linux重编与双Mac迁移均未跑。见 [准确测试及失败边界](COUNTER_GUARDS_AND_REWORK_FAILURES.json)。完整130继续，main653679d/OWNER001002ACK无003，权限不变。
+
 ## 同一提交的真实 Core 三路径已通过 — 2026-10-29T13:28:46.900356+00:00
 
 准确1e0150d：Rootself 1通过/7.07s、child＋父恢复1通过/8.23s、原1000ms超时负例1通过/5.00s，分别独立进程/零跳过；同head recorded stop语义单元1通过/0.01s（15SQL故障＋3伪handle变体，非新进程）。Rootself确为Root TaskAccepted/Factorycomplete/无额外恢复，原8a缺正常停止语义证明已通过04补齐且独审；全局Unknown派发门不放宽。Rootself运行证据独立只读核验通过，完整旧失败与source审查拒绝保留。
