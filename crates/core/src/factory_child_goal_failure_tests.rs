@@ -72,7 +72,11 @@ fn reserved_unknown_task_without_normal_factory_handoff_cannot_be_projected_runn
             task.state = crate::storage::TaskState::OutcomeUnknown;
             db.execute("UPDATE tasks SET document=json_set(document,'$.state','outcome_unknown') WHERE id=?1",[&task.id]).unwrap();
             if variant != "missing_planner" {
-                db.execute("UPDATE factory_task_bindings SET document=json_set(document,'$.handle.state','waiting_child','$.handle.confirmed_stop',json('true'),'$.stop_reason','completed_turn_handoff') WHERE task_id=?1",[&task.id]).unwrap();
+                // Keep the relational/document binding coherent so this
+                // deliberately fake stop reaches the original normal-handoff
+                // semantic verifier, not an earlier column/doc mismatch.
+                db.execute("UPDATE factory_task_bindings SET state='waiting_child',document=json_set(document,'$.handle.state','waiting_child','$.handle.confirmed_stop',json('true'),'$.stop_reason','completed_turn_handoff') WHERE task_id=?1",[&task.id]).unwrap();
+                assert!(db.query_row("SELECT state=json_extract(document,'$.handle.state') FROM factory_task_bindings WHERE task_id=?1",[&task.id],|row|row.get::<_,bool>(0)).unwrap());
             }
             if variant == "goal_session_is_not_factory_planner" {
                 let (session,attempt):(String,String)=db.query_row("SELECT id,json_extract(document,'$.attempt_id') FROM sessions WHERE task_id=?1",[&task.id],|r|Ok((r.get(0)?,r.get(1)?))).unwrap();
