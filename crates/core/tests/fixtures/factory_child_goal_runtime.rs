@@ -253,6 +253,13 @@ fn actual_generated_child_goal(root_self: bool) {
         );
         std::thread::sleep(Duration::from_millis(10));
     };
+    assert_eq!(final_run["run"]["cancel_requested"], false);
+    if root_self {
+        assert_eq!(final_run["tasks"].as_array().unwrap().len(), 1);
+        assert_eq!(final_run["tasks"][0]["task_id"], scope.root_task_id);
+        assert_eq!(final_run["tasks"][0]["result_available"], true);
+        assert_eq!(final_run["tasks"][0]["cancel_requested"], false);
+    }
     assert_eq!(
         fs::read_to_string(workspace.join("reports/mcp-stages.txt")).unwrap(),
         if root_self {
@@ -274,6 +281,18 @@ fn actual_generated_child_goal(root_self: bool) {
         15
     );
     for (sql,expected) in [("SELECT count(*) FROM factory_child_goal_runs",1),("SELECT count(*) FROM factory_attempts",if root_self {1}else{2}),("SELECT count(*) FROM goal_run_reservations",1),("SELECT count(*) FROM goal_graph_capabilities",0),("SELECT count(*) FROM dispatch_intents WHERE state!='stopped'",0),("SELECT count(*) FROM workspace_leases WHERE holder!=''",0),("SELECT count(*) FROM tasks WHERE json_extract(document,'$.state')='accepted'",1),("SELECT count(*) FROM attempts WHERE root_task_id!=(SELECT root_task_id FROM factory_scopes LIMIT 1)",0)]{assert_eq!(db.query_row(sql,[],|row|row.get::<_,i64>(0)).unwrap(),expected,"{sql}");}
+    if root_self {
+        let root_result: String = db.query_row("SELECT json_extract(document,'$.result.acceptance_state') FROM factory_task_bindings WHERE task_id=?1",[&scope.root_task_id],|row|row.get(0)).unwrap();
+        assert_eq!(root_result, "task_accepted");
+        let task_state: String = db
+            .query_row(
+                "SELECT json_extract(document,'$.state') FROM tasks WHERE id=?1",
+                [&scope.root_task_id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(task_state, "accepted");
+    }
     let stored_grant: serde_json::Value = serde_json::from_str(
         &db.query_row(
             "SELECT document FROM execution_grants WHERE id=?1",
