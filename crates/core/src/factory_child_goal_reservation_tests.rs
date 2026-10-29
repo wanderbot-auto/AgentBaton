@@ -268,6 +268,146 @@ fn owner_first_counter_initializer_rolls_back_when_session_launch_journal_fails(
 }
 
 #[test]
+fn first_counter_constructor_refuses_related_attempt_or_orphan_session_or_intent_history_atomically(
+) {
+    // Real approvals/queued Goal, then deliberate raw historical corruption.
+    // No successful legacy attempt, stop, join or new authority is fabricated.
+    for case in [
+        "root_attempt",
+        "project_foreign_root_attempt",
+        "root_orphan_session",
+        "project_orphan_session",
+        "root_foreign_intent_document",
+    ] {
+        let (mut f, s, g) = queued();
+        assert_eq!(
+            f.store
+                .conn
+                .query_row(
+                    "SELECT count(*) FROM budgets WHERE scope=?1",
+                    [format!("root:{}", s.root_task_id)],
+                    |r| r.get::<_, i64>(0)
+                )
+                .unwrap(),
+            0
+        );
+        let other = f
+            .store
+            .create_registered(
+                &s.project_id,
+                "Unmapped raw-history negative only",
+                "foreign-history-task",
+            )
+            .unwrap();
+        if case.starts_with("project_") {
+            f.store
+                .conn
+                .execute(
+                    "DELETE FROM budgets WHERE scope=?1",
+                    [format!("project:{}", s.project_id)],
+                )
+                .unwrap();
+        }
+        if case.contains("orphan_session") {
+            let task = if case.starts_with("project_") {
+                &other.id
+            } else {
+                &s.root_task_id
+            };
+            let raw = json!({"id":"orphan-history-session","task_id":task,"project_id":s.project_id,"grant_id":s.root_grant_id,"attempt_id":"missing-history-attempt","state":"failed"});
+            f.store.conn.execute("INSERT INTO sessions VALUES('orphan-history-session',?1,?2,?3,?4,?5,?5,'failed',?6,'raw-orphan-history','{}')",rusqlite::params![task,s.project_id,s.selection.workspace_ids[0],s.selection.connection_ids[0],s.root_grant_id,raw.to_string()]).unwrap();
+        } else {
+            let foreign = case != "root_attempt";
+            let task = if foreign { &other.id } else { &s.root_task_id };
+            f.store.conn.execute("INSERT INTO attempts VALUES('raw-history-attempt',?1,?1,'{}','raw-history-only')",[task]).unwrap();
+            if case == "root_foreign_intent_document" {
+                let raw = json!({"id":"raw-history-intent","attempt_id":"raw-history-attempt","task_id":other.id,"root_task_id":s.root_task_id,"state":"stopped","binding":{}});
+                f.store.conn.execute("INSERT INTO dispatch_intents VALUES('raw-history-intent','raw-history-attempt','stopped',NULL,?1)",[raw.to_string()]).unwrap();
+            }
+        }
+        assert!(!f
+            .store
+            .conn
+            .prepare("PRAGMA foreign_key_check")
+            .unwrap()
+            .exists([])
+            .unwrap());
+        let before = unchanged_execution(&f);
+        let task_before: String = f
+            .store
+            .conn
+            .query_row(
+                "SELECT document FROM tasks WHERE id=?1",
+                [&s.root_task_id],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let run_before: String = f
+            .store
+            .conn
+            .query_row(
+                "SELECT document FROM goal_runs WHERE id=?1",
+                [&g.goal.run.id],
+                |r| r.get(0),
+            )
+            .unwrap();
+        f.raw = format!("history guard {case} {}", uuid::Uuid::new_v4());
+        let read = f
+            .store
+            .prepare_factory_child_goal_read(&s.id, &s.root_task_id, &f.raw, false)
+            .unwrap();
+        f.store.data_input = Some(f.observe(read));
+        let seq = f.store.sequence().unwrap();
+        let context=f.store.goal_dispatch_context(&crate::goal_store::GoalRunDispatch{run_id:g.goal.run.id.clone(),expected_ledger_revision:seq},g.goal.run.revision).unwrap().expect("fixture must reach actual private node selection, not an earlier permission/busy refusal");
+        let error = f.store.create_goal_session(context).unwrap_err();
+        assert_eq!(error.code, "INPUT_CHANGED", "{case}");
+        assert_eq!(error.details_ref.as_deref(),Some("factory-goal-initial-counter-history"),"must hit actual constructor attribution guard, not an earlier input/permission/resource failure: {case}");
+        assert_eq!(f.store.sequence().unwrap(), seq, "{case}");
+        assert_eq!(unchanged_execution(&f), before, "{case}");
+        assert_eq!(
+            f.store
+                .conn
+                .query_row(
+                    "SELECT document FROM tasks WHERE id=?1",
+                    [&s.root_task_id],
+                    |r| r.get::<_, String>(0)
+                )
+                .unwrap(),
+            task_before,
+            "{case}"
+        );
+        assert_eq!(
+            f.store
+                .conn
+                .query_row(
+                    "SELECT document FROM goal_runs WHERE id=?1",
+                    [&g.goal.run.id],
+                    |r| r.get::<_, String>(0)
+                )
+                .unwrap(),
+            run_before,
+            "{case}"
+        );
+        assert_eq!(
+            f.store
+                .conn
+                .query_row("SELECT count(*) FROM goal_run_reservations", [], |r| r
+                    .get::<_, i64>(0))
+                .unwrap(),
+            0,
+            "{case}"
+        );
+        assert!(!f
+            .store
+            .conn
+            .prepare("PRAGMA foreign_key_check")
+            .unwrap()
+            .exists([])
+            .unwrap());
+    }
+}
+
+#[test]
 fn exact_core_written_reservation_receipt_is_not_rejected_for_json_object_field_order() {
     let (f, s, g) = reserved();
     let rows =

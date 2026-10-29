@@ -100,6 +100,11 @@ struct OwnedGoalReadDelta {
     initial_counter_limits: [u64; 2],
     project_attempt_count: u64,
     root_attempt_count: u64,
+    project_session_count: u64,
+    root_session_count: u64,
+    project_intent_count: u64,
+    root_intent_count: u64,
+    expected_session_count: u64,
     root_task: String,
     task: String,
     intent_row: String,
@@ -120,7 +125,14 @@ impl QueryProof {
                 // its exact original-Grant initializer plus this own increment,
                 // with no prior/foreign attempt history to reset or ignore.
                 let attempts=if self.args[0]==delta.project_budget {delta.project_attempt_count}else{delta.root_attempt_count};
-                if attempts!=1 || delta.initial_counter_limits.contains(&0) {return Err(changed());}
+                let sessions=if self.args[0]==delta.project_budget {delta.project_session_count}else{delta.root_session_count};
+                let intents=if self.args[0]==delta.project_budget {delta.project_intent_count}else{delta.root_intent_count};
+                if attempts!=1 || sessions!=delta.expected_session_count || intents!=1 {
+                    let mut error=changed();
+                    error.details_ref=Some("factory-goal-initial-counter-history".into());
+                    return Err(error);
+                }
+                if delta.initial_counter_limits.contains(&0) {return Err(changed());}
                 expected.push(encode(&[delta.initial_counter_limits[0],delta.initial_counter_limits[1],1,1])?);
             } else {
                 if expected.len()!=1{return Err(changed());}
@@ -146,6 +158,8 @@ fn owned_goal_delta(
     db: &Connection,
     scope: &super::FactoryScope,
     p: &crate::goal_store::GoalReservationRead<'_>,
+    initial_project_counter: bool,
+    initial_root_counter: bool,
 ) -> Result<OwnedGoalReadDelta> {
     let r = p.run();
     let node = p.node();
@@ -221,6 +235,7 @@ fn owned_goal_delta(
         return Err(changed());
     }
     let intent_row:String=db.query_row("SELECT json_array(d.id,d.state,d.document,a.binding) FROM dispatch_intents d JOIN attempts a ON a.id=d.attempt_id WHERE d.id=?1",[p.intent_id()],|row|row.get(0)).map_err(db_error)?;
+    let needs_initializer = initial_project_counter || initial_root_counter;
     let grant = crate::policy::checked_lineage(db, &scope.root_grant_id)?;
     if grant != scope.bindings.approved_grant
         || grant.parent_id.is_some()
@@ -228,8 +243,39 @@ fn owned_goal_delta(
     {
         return Err(changed());
     }
-    let project_attempt_count:u64=db.query_row("SELECT count(DISTINCT a.id) FROM attempts a JOIN tasks t ON t.id=a.task_id WHERE json_extract(t.document,'$.project_id')=?1",[&scope.project_id],|row|row.get(0)).map_err(db_error)?;
-    let root_attempt_count:u64=db.query_row("SELECT count(DISTINCT a.id) FROM attempts a WHERE a.root_task_id=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':') OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?2)",rusqlite::params![scope.root_task_id,scope.root_grant_id],|row|row.get(0)).map_err(db_error)?;
+    let project_attempt_count: u64 = if needs_initializer {
+        db.query_row("SELECT count(DISTINCT a.id) FROM attempts a JOIN tasks t ON t.id=a.task_id WHERE json_extract(t.document,'$.project_id')=?1",[&scope.project_id],|row|row.get(0)).map_err(db_error)?
+    } else {
+        0
+    };
+    let root_attempt_count: u64 = if needs_initializer {
+        db.query_row("SELECT count(DISTINCT a.id) FROM attempts a WHERE a.root_task_id=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':') OR EXISTS(SELECT 1 FROM sessions s WHERE json_extract(s.document,'$.attempt_id')=a.id AND s.root_grant_id=?2)",rusqlite::params![scope.root_task_id,scope.root_grant_id],|row|row.get(0)).map_err(db_error)?
+    } else {
+        0
+    };
+    // Sessions are not FK-linked to their document attempt_id. Count related
+    // history independently so an orphan/legacy row cannot disappear merely
+    // because no attempts row maps it. Intent history is likewise independent.
+    let project_session_count: u64 = if needs_initializer {
+        db.query_row("SELECT count(*) FROM sessions WHERE project_id=?1 OR json_extract(document,'$.project_id')=?1",[&scope.project_id],|row|row.get(0)).map_err(db_error)?
+    } else {
+        0
+    };
+    let root_session_count: u64 = if needs_initializer {
+        db.query_row("SELECT count(*) FROM sessions s WHERE s.root_grant_id=?1 OR s.task_id=?2 OR json_extract(s.document,'$.task_id')=?2 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?1 AND g.id=json_extract(s.document,'$.grant_id'))",rusqlite::params![scope.root_grant_id,scope.root_task_id],|row|row.get(0)).map_err(db_error)?
+    } else {
+        0
+    };
+    let project_intent_count: u64 = if needs_initializer {
+        db.query_row("SELECT count(DISTINCT d.id) FROM dispatch_intents d LEFT JOIN attempts a ON a.id=d.attempt_id WHERE EXISTS(SELECT 1 FROM tasks t WHERE json_extract(t.document,'$.project_id')=?1 AND (t.id=a.task_id OR t.id=json_extract(d.document,'$.task_id')))",[&scope.project_id],|row|row.get(0)).map_err(db_error)?
+    } else {
+        0
+    };
+    let root_intent_count: u64 = if needs_initializer {
+        db.query_row("SELECT count(DISTINCT d.id) FROM dispatch_intents d LEFT JOIN attempts a ON a.id=d.attempt_id WHERE a.root_task_id=?1 OR json_extract(d.document,'$.root_task_id')=?1 OR EXISTS(SELECT 1 FROM execution_grants g WHERE json_extract(g.document,'$.root_grant_id')=?2 AND (substr(json_extract(a.binding,'$.policy_revision'),1,length(g.id)+1)=g.id||':' OR substr(json_extract(d.document,'$.binding.policy_revision'),1,length(g.id)+1)=g.id||':'))",rusqlite::params![scope.root_task_id,scope.root_grant_id],|row|row.get(0)).map_err(db_error)?
+    } else {
+        0
+    };
     Ok(OwnedGoalReadDelta {
         project_budget: format!("project:{}", scope.project_id),
         root_budget: format!("root:{}", scope.root_task_id),
@@ -239,6 +285,11 @@ fn owned_goal_delta(
         ],
         project_attempt_count,
         root_attempt_count,
+        project_session_count,
+        root_session_count,
+        project_intent_count,
+        root_intent_count,
+        expected_session_count: u64::from(p.session().is_some()),
         root_task: scope.root_task_id.clone(),
         task: r.task_id.clone(),
         intent_row,
@@ -1302,7 +1353,16 @@ impl FactoryReadWitness {
         scope: &super::FactoryScope,
         phase: &crate::goal_store::GoalReservationRead<'_>,
     ) -> Result<()> {
-        let delta = owned_goal_delta(db, scope, phase)?;
+        let missing = |key: &str| {
+            self.proofs.iter().any(|p| p.sql=="SELECT json_array(total_limit,parallel_limit,consumed,active) AS value FROM budgets WHERE scope=?1" && p.args.len()==1 && p.args[0]==key && p.rows.is_empty())
+        };
+        let delta = owned_goal_delta(
+            db,
+            scope,
+            phase,
+            missing(&format!("project:{}", scope.project_id)),
+            missing(&format!("root:{}", scope.root_task_id)),
+        )?;
         self.recheck_child_goal_phase(db, witness, scope, Some(&delta))
     }
     fn recheck_child_goal_phase(
@@ -2225,6 +2285,11 @@ mod child_goal_admission_tests {
             initial_counter_limits: [8, 4],
             project_attempt_count: 2,
             root_attempt_count: 2,
+            project_session_count: 1,
+            root_session_count: 1,
+            project_intent_count: 1,
+            root_intent_count: 1,
+            expected_session_count: 1,
             root_task: "r".into(),
             task: "r".into(),
             intent_row: "[\"own\",\"prepared\",\"fixed intent bytes\",\"fixed binding bytes\"]"
@@ -2288,6 +2353,25 @@ mod child_goal_admission_tests {
                     check(&proof, &db, &foreign).unwrap_err().code,
                     "INPUT_CHANGED",
                     "attempt history={attempts}"
+                );
+            }
+            for (sessions, intents, expected_sessions) in
+                [(0, 1, 1), (2, 1, 1), (1, 0, 1), (1, 2, 1), (1, 1, 0)]
+            {
+                let mut unmapped = delta();
+                unmapped.project_attempt_count = 1;
+                unmapped.root_attempt_count = 1;
+                unmapped.project_session_count = sessions;
+                unmapped.root_session_count = sessions;
+                unmapped.project_intent_count = intents;
+                unmapped.root_intent_count = intents;
+                unmapped.expected_session_count = expected_sessions;
+                assert_eq!(
+                    check(&proof, &db, &unmapped)
+                        .unwrap_err()
+                        .details_ref
+                        .as_deref(),
+                    Some("factory-goal-initial-counter-history")
                 );
             }
             let mut wrong_limits = delta();
