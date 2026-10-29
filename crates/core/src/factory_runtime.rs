@@ -1362,6 +1362,15 @@ impl Store {
                 }
                 continue;
             }
+            // Reconciliation may just have discovered an unknown/blocked
+            // outcome in this same tick. Preserve cancellation/expiry cleanup
+            // above, but never admit another sibling from that run below.
+            if matches!(
+                r.state.as_str(),
+                "cancelled" | "blocked" | "outcome_unknown"
+            ) {
+                continue;
+            }
             if let Some(session_id) = r.active_session_id.clone() {
                 let session = self.get_session(&session_id)?;
                 let mut b = binding(&self.conn, &r.id, &session.task_id)?;
