@@ -802,5 +802,17 @@
       "directory": "ROOT_BUNDLE_STATIC_CHECKS",
       "scope": "Bootstrap93/design/infrastructure+diff; no new product/runtime execution"
     }
+  },
+  "final_d0_integration_review": {
+    "subject": "d0c01baa5729fa90bcc0354791f297646019da9a",
+    "tree": "6ed6c7b5738f4f3ba90f41d8f02d00721de29871",
+    "report_sha256": "51c246ab59b46d2aa750dca71216f2f05b310562f026141e1a31438fb39f037d",
+    "manifest_sha256": "01556a1c9a575f4efa9f892a49938d49b6ec5c8bb2d6150d942c54c04be17004",
+    "archive": "FINAL_D0_INTEGRATION_REVIEW_EVIDENCE.tar.gz",
+    "archive_sha256": "e5353c50581edde59e5a7856afedb8c0a65c272cf833c407e9631fd04e3a894f",
+    "members": 39,
+    "all_members_Root_revalidated": true,
+    "verdict": "source-ready limited source/records/static, no mustfix; not formalApprove/newCI/Macbuild/defaultaudit/installers/fullDesign",
+    "source_STATUS_unchanged_after_review": true
   }
 }
