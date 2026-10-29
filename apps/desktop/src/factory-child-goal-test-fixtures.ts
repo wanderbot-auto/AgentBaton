@@ -3,7 +3,7 @@ import { childPlanningFixture } from './factory-child-plan-test-fixtures';
 import type { FactoryChildGoalExecutionPolicy, FactoryChildGoalView, FactoryChildGoalSummary, FactoryChildPlanView } from './factory-types';
 import type { GraphRunDetails, GraphArtifactReference } from './goal-graph-types';
 import type { GoalPlanNode } from './goal-api';
-export async function childGoalFixture(owner=false){
+export async function childGoalFixture(owner=true){
  const f=childPlanningFixture();f.grant.scope.max_children=3;f.grant.scope.max_depth=3;
  const policy:FactoryChildGoalExecutionPolicy={max_nodes:4,max_runs_per_task:1,max_total_runs:2,root_budget:{...f.selection.root_budget},project_budget:{...f.selection.project_budget},require_owner_acceptance:true};
  f.selection.capabilities.child_goal_execution=true;f.selection.child_goal_execution_policy=policy;

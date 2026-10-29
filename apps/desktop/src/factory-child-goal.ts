@@ -51,3 +51,18 @@ export function childGoalPlanMatchesGraph(v:FactoryChildGoalView,plan:{reference
 export function childGoalSavedReferencesMatch(v:FactoryChildGoalView,initial:{reference:FactoryChildPlanRef},adopted:{reference:FactoryChildPlanRef;proposal:{nodes:unknown[]}}):boolean {
  return childGoalRefSame(v.origin.initial_plan,initial.reference)&&childGoalRefSame(v.summary.plan,adopted.reference)&&childGoalPlanMatchesGraph(v,adopted);
 }
+/** Planning metadata remains savable without dispatch. Execution requires real
+ * graph nodes consuming every approved output candidate, not just rule names. */
+export function childGoalExecutionPlanReady(plan:{proposal:{nodes:import('./goal-api').GoalPlanNode[]}},c:FactoryChildPlanningContext):boolean {
+ const nodes=plan.proposal.nodes,producers=new Map<string,string>();
+ if(!nodes.length||!Object.keys(c.outputs).length)return false;
+ for(const node of nodes)for(const output of node.outputs)producers.set(output.artifact_id,node.id);
+ return Object.entries(c.outputs).every(([artifact,contract])=>{
+  const producer=producers.get(artifact),rules=c.contracts[contract];
+  if(!producer||!Array.isArray(rules)||!rules.length||!rules.some(rule=>c.edit_context.rule_executors[rule]==='owner'))return false;
+  return rules.every(rule=>{
+   const kind=c.edit_context.rule_executors[rule];if(kind!=='owner'&&kind!=='validator')return false;
+   return nodes.some(node=>node.kind===(kind==='owner'?'owner_approval':'validate')&&node.executor.kind===kind&&node.executor.rule_id===rule&&node.required_inputs.some(input=>input.goal_task_id===c.goal.task_id&&input.artifact_id===artifact&&input.contract_id===contract&&input.source.kind==='node'&&input.source.node_id===producer&&input.source.candidate_for_validation===true));
+  });
+ });
+}

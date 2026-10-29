@@ -4,7 +4,7 @@ import { sessionApi, type ExecutionGrant } from './session-api';
 import { factoryApi, factoryChildGoalApi, factoryChildPlanApi } from './factory-api';
 import { factoryDetailsShape, factoryRunSupported, factorySame, factoryScopeShape } from './factory-guards';
 import { childContextShape, childViewShape, verifyChildRaw } from './factory-child-plan';
-import { childGoalEvidenceContext, childGoalHistoryShape, childGoalOriginShape, childGoalRefSame, childGoalPlanMatchesGraph, childGoalSavedReferencesMatch, childGoalReferenceShape, childGoalScopeFingerprint, childGoalSummaryMeetsFloor, childGoalSummaryShape, childGoalViewShape } from './factory-child-goal';
+import { childGoalEvidenceContext, childGoalHistoryShape, childGoalOriginShape, childGoalRefSame, childGoalExecutionPlanReady, childGoalPlanMatchesGraph, childGoalSavedReferencesMatch, childGoalReferenceShape, childGoalScopeFingerprint, childGoalSummaryMeetsFloor, childGoalSummaryShape, childGoalViewShape } from './factory-child-goal';
 import { goalGraphApi } from './goal-graph-api';
 import { graphCanAdvanceView, graphCanReviewOwner, graphDecisionShape, graphDetailsMeetFloor, graphReceiptFitsFloor, graphRunCanCancel, graphRunPolling, graphViewConsistent } from './goal-graph-guards';
 import { GoalGraphExecutionHistory } from './GoalGraphExecutionHistory';
@@ -99,7 +99,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
  const cancelDisabled=capacity||!connected||!summaryFresh||busy||loading||!!pending;
  const live=(v:Snapshot)=>v.task.spec_revision===v.context.goal.spec_revision&&current.current.parentReady&&!v.scope.revoked&&v.scope.expires_at_ms>Date.now()&&!!v.grant&&!v.grant.revoked&&v.grant.revision===v.scope.root_grant_revision&&v.grant.expires_at_ms>Date.now()&&v.grant.scope.max_children>0&&factoryRunSupported(v.family.run)&&!v.family.run.cancel_requested&&!['cancelled','outcome_unknown'].includes(v.family.run.state)&&!v.target.cancel_requested&&taskAllowsExecution(v.task);
  const selected=current.current.selected;
- const sameHead=!!data?.head&&!!selected&&childGoalRefSame(selected.reference,data.head.reference)&&selected.proposal.nodes.length<=(data.scope.bindings.child_goal_execution?.policy.max_nodes??0);
+ const sameHead=!!data?.head&&!!selected&&childGoalRefSame(selected.reference,data.head.reference)&&selected.proposal.nodes.length<=(data.scope.bindings.child_goal_execution?.policy.max_nodes??0)&&childGoalExecutionPlanReady(selected,data.context);
  const canStart=!disabled&&!!data&&live(data)&&sameHead&&data.rows.length===0;
  const canAdvance=!disabled&&!!data?.view&&live(data)&&sameHead&&graphCanAdvanceView(data.view.details)&&selected!.reference.revision>data.view.summary.plan.revision;
  function intent(kind:Intent['kind'],v:Snapshot,plan:FactoryChildPlanView|null,nodeId:string|null=null):Intent{
@@ -134,7 +134,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
   if(disabled||saved.pending)return;
   const chosen=current.current.selected,original=data?.view;const next=await refresh();if(!next||saved.pending||writing.current)return;
   if(kind==='start'||kind==='advance'){
-   if(!live(next)||!chosen||!current.current.selected||!childGoalRefSame(chosen.reference,current.current.selected.reference)||!next.head||!childGoalRefSame(chosen.reference,next.head.reference)||!childGoalReferenceShape(chosen.reference,next.scope,next.target,next.family)||!childViewShape(chosen,next.context,next.scope)||chosen.proposal.nodes.length>(next.scope.bindings.child_goal_execution?.policy.max_nodes??0)){setError(t.stale);return;}
+   if(!live(next)||!chosen||!current.current.selected||!childGoalRefSame(chosen.reference,current.current.selected.reference)||!next.head||!childGoalRefSame(chosen.reference,next.head.reference)||!childGoalReferenceShape(chosen.reference,next.scope,next.target,next.family)||!childViewShape(chosen,next.context,next.scope)||chosen.proposal.nodes.length>(next.scope.bindings.child_goal_execution?.policy.max_nodes??0)||!childGoalExecutionPlanReady(chosen,next.context)){setError(t.stale);return;}
    await verifyChildRaw(chosen);
    if(kind==='start'&&next.rows.length!==0||kind==='advance'&&(!next.view||!graphCanAdvanceView(next.view.details)||chosen.reference.revision<=next.view.summary.plan.revision))return;
    await send(intent(kind,next,chosen),next);
@@ -161,6 +161,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
   <button type="button" disabled={!connected||busy||loading} onClick={()=>void refresh()}>{t.refresh}</button>
   {error&&<p role="alert">{error}</p>}{pending&&<><p role="status">{pending.unknown?t.pending:t.ack}</p>{pending.unknown&&<button type="button" disabled={!connected||!(pending.kind==='cancel'?summaryFresh:fresh)||loading||busy||capacity||!pending.reconciled||!(pending.kind==='cancel'?summary:data)} onClick={()=>{const proof=pending.kind==='cancel'?summary:data;if(proof)void send(pending,proof);}}>{t.recover}</button>}</>}{paused&&<p>{t.paused}</p>}
   <details><summary>{t.selected}</summary>{selected?<><pre>{JSON.stringify(selected.reference,null,2)}</pre><pre aria-label={t.raw}>{selected.plan_json}</pre></>:<p>{t.stale}</p>}</details>
+  {data&&selected&&!childGoalExecutionPlanReady(selected,data.context)&&<p role="status">{t.incomplete}</p>}
   <button type="button" className="primary" disabled={!canStart} onClick={()=>void act('start')}>{t.start}</button><button type="button" disabled={!canAdvance} onClick={()=>void act('advance')}>{t.advance}</button>
   {summary&&!summary.rows.length&&<p>{t.empty}</p>}
   {summary&&<details open><summary>{t.history}</summary><ol>{summary.rows.map(row=><li key={row.goal.run.id}><span>{graphGraphLabel(row.goal.run.state,language)} · {row.goal.run.id} · r{row.goal.run.revision}</span><pre>{JSON.stringify(row.plan,null,2)}</pre><button type="button" disabled={disabled} onClick={()=>{choice.current=row.goal.run.id;void refresh();}}>{t.inspect}</button>{graphRunCanCancel(row.goal)&&<button type="button" disabled={cancelDisabled} onClick={()=>void cancel(row.goal.run.id)}>{t.cancel}</button>}</li>)}</ol></details>}
@@ -168,6 +169,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    <details><summary>{t.scope}</summary><pre>{JSON.stringify({id:data.scope.id,approval_id:data.scope.approval_id,contract_digest:data.scope.contract_digest,selection:data.scope.selection},null,2)}</pre></details>
    <details><summary>{t.origin}</summary><dl className="goal-graph-facts"><dt>{t.approval}</dt><dd>{view.origin.original_native_approval_id}</dd><dt>{t.rootTask}</dt><dd>{view.origin.factory_root_task_id}</dd><dt>{t.parent}</dt><dd>{view.origin.parent_task_id??'—'} · {view.origin.ancestors.join(' ← ')}</dd><dt>{t.grantRef}</dt><dd>{view.origin.root_grant_id} · r{view.origin.root_grant_revision}</dd><dt>{t.digest}</dt><dd>{view.origin.factory_scope_digest} · {view.summary.execution_policy_digest}</dd></dl><pre>{JSON.stringify(view.origin,null,2)}</pre><details><summary>{t.binding}</summary><pre>{JSON.stringify(view.origin.execution_binding,null,2)}</pre></details></details>
    <details><summary>{t.initial}</summary><pre>{JSON.stringify(view.origin.initial_plan,null,2)}</pre><pre aria-label={t.initial}>{data.initial?.plan_json}</pre></details><details><summary>{t.adopted}</summary><pre>{JSON.stringify(view.summary.plan,null,2)}</pre><pre aria-label={t.adopted}>{data.adopted?.plan_json}</pre></details>
+   {view.details.run.state==='failed'&&(data.scope.bindings.child_goal_execution?.policy.root_budget.reworks??0)>0&&<p>{t.failedGate}</p>}
    <GoalGraphExecutionHistory view={view.details} language={language} task={data.task} scope={childGoalEvidenceContext(view.summary,data.context)}/>
    <details><summary>{t.details}</summary><pre>{JSON.stringify({...view.details,validations:view.details.validations.map(item=>item.observation_json===undefined?item:(({observation:_derived,...rest})=>rest)(item))},null,2)}</pre></details>
    {view.details.nodes.filter(node=>node.plan_revision===view.details.run.plan_revision&&node.node.kind==='owner_approval'&&node.state==='awaiting_owner').map(node=><div className="goal-graph-actions" key={node.node.id}><span>{node.node.goal}</span><button type="button" disabled={disabled||!live(data)||!graphCanReviewOwner(view.details,node)} onClick={()=>void act('owner',node.node.id)}>{t.owner}</button><button type="button" disabled={disabled||!live(data)||!graphCanReviewOwner(view.details,node)} onClick={()=>void act('reject',node.node.id)}>{t.reject}</button></div>)}
