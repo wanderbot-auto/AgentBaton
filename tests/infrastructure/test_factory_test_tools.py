@@ -21,7 +21,8 @@ IDENTITY = {'git_head': 'a' * 40, 'git_tree': 'b' * 40, 'tracked_clean': True}
 
 class FactoryTestToolTests(unittest.TestCase):
     def setUp(self):
-        self.temporary = tempfile.TemporaryDirectory(prefix='factory-tool-guards-')
+        # Cleanup controls must reach cleanup even when macOS defaults to a long /var/folders path.
+        self.temporary = tempfile.TemporaryDirectory(prefix='factory-tool-guards-', dir='/tmp')
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name).resolve()
         self.source = self.root / 'source'
@@ -168,6 +169,15 @@ class FactoryTestToolTests(unittest.TestCase):
         with self.assertRaises(ProcessLookupError):
             os.kill(child.pid, 0)
         self.assertTrue((self.evidence / 'probe-stderr.log').exists())
+
+    def test_long_canonical_probe_path_fails_before_process_start(self):
+        runtime = self.root / ('x' * 104)
+        runtime.mkdir(mode=0o700)
+        self.assertGreater(len(str(runtime / 'batond.sock').encode('utf-8')), 103)
+        with mock.patch.object(TOOLS.tempfile, 'TemporaryDirectory', return_value=contextlib.nullcontext(str(runtime))), mock.patch.object(TOOLS.subprocess, 'Popen') as spawn, self.assertRaisesRegex(ValueError, 'short Unix socket'):
+            TOOLS.probe(self.source, self.evidence)
+        spawn.assert_not_called()
+        self.assertEqual(runtime.stat().st_mode & 0o777, 0o700)
 
     def test_forced_kill_cannot_be_success(self):
         # A protocol-shaped mock reaches cleanup ONLY to test rejection. No Core
