@@ -219,6 +219,7 @@ fn backups(dir: &Path) -> Vec<PathBuf> {
                 .unwrap()
                 .to_string_lossy()
                 .contains("pre-v15-")
+                && p.extension().is_some_and(|v| v == "sqlite3")
         })
         .collect()
 }
