@@ -173,6 +173,73 @@ fn fresh_factory_fixture() -> (tempfile::TempDir, PathBuf, Connection) {
     (directory, database, connection)
 }
 
+// No Debug implementation: a failed equality must not dump raw fixture rows.
+type FixtureSchemaObject = (String, String, String, Option<String>);
+type FixtureTableRows = (String, Vec<Vec<rusqlite::types::Value>>);
+#[derive(PartialEq)]
+struct FixtureLogicalSnapshot {
+    schema: Vec<FixtureSchemaObject>,
+    rows: Vec<FixtureTableRows>,
+    pragmas: Vec<(&'static str, rusqlite::types::Value)>,
+    autocommit: bool,
+}
+
+fn fixture_logical_snapshot(connection: &Connection) -> FixtureLogicalSnapshot {
+    let schema: Vec<FixtureSchemaObject> = connection
+        .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
+        .unwrap()
+        .query_map([], |row| {
+            Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+        })
+        .unwrap()
+        .map(|row| row.unwrap())
+        .collect();
+    let mut rows = Vec::new();
+    for (_, name, _, _) in schema.iter().filter(|row| row.0 == "table") {
+        // All tables in these isolated fixtures have rowids. Include internal
+        // sqlite_sequence too, and quote even the generated identifiers.
+        let quoted = format!("\"{}\"", name.replace('"', "\"\""));
+        let mut statement = connection
+            .prepare(&format!("SELECT rowid,* FROM {quoted} ORDER BY rowid"))
+            .unwrap();
+        let columns = statement.column_count();
+        let data = statement
+            .query_map([], |row| {
+                (0..columns)
+                    .map(|column| row.get::<_, rusqlite::types::Value>(column))
+                    .collect::<rusqlite::Result<Vec<_>>>()
+            })
+            .unwrap()
+            .map(|row| row.unwrap())
+            .collect();
+        rows.push((name.clone(), data));
+    }
+    let pragmas = [
+        "user_version",
+        "schema_version",
+        "application_id",
+        "foreign_keys",
+        "journal_mode",
+        "defer_foreign_keys",
+        "query_only",
+        "synchronous",
+    ]
+    .into_iter()
+    .map(|name| {
+        let value = connection
+            .pragma_query_value(None, name, |row| row.get::<_, rusqlite::types::Value>(0))
+            .unwrap();
+        (name, value)
+    })
+    .collect();
+    FixtureLogicalSnapshot {
+        schema,
+        rows,
+        pragmas,
+        autocommit: connection.is_autocommit(),
+    }
+}
+
 #[test]
 fn fixture_inverse_restores_native_identity_fks_and_preserves_other_schema_and_bytes() {
     let (_directory, _database, connection) = fresh_factory_fixture();
@@ -327,12 +394,24 @@ fn fixture_inverse_refuses_nonempty_missing_or_wrong_version_without_deleting_an
                 .exists([])
                 .unwrap());
         }
+        // Main-file bytes alone miss committed WAL changes. Read the entire
+        // logical database on this same connection after variant setup.
+        assert!(connection.is_autocommit(), "{variant}");
+        let logical_before = fixture_logical_snapshot(&connection);
         let before = fs::read(&database).unwrap();
         assert!(
             pre_factory_schema::remove_empty_factory_increment(&connection).is_err(),
             "{variant}"
         );
-        assert_eq!(fs::read(&database).unwrap(), before, "{variant}");
+        let logical_after = fixture_logical_snapshot(&connection);
+        assert!(
+            logical_after == logical_before,
+            "logical rollback: {variant}"
+        );
+        assert!(
+            fs::read(&database).unwrap() == before,
+            "main-file rollback: {variant}"
+        );
         assert!(connection.is_autocommit(), "{variant}");
         assert!(
             connection
@@ -341,4 +420,71 @@ fn fixture_inverse_refuses_nonempty_missing_or_wrong_version_without_deleting_an
             "{variant}"
         );
     }
+}
+
+#[test]
+fn fixture_inverse_caller_failure_rolls_back_complete_wal_database_and_pragmas() {
+    let (_directory, database, connection) = fresh_factory_fixture();
+    connection.execute_batch("CREATE TABLE fixture_caller_collision(raw BLOB);INSERT INTO fixture_caller_collision VALUES(x'00ffdeadbeef');PRAGMA foreign_keys=ON;").unwrap();
+    assert_eq!(
+        connection
+            .pragma_query_value::<String, _>(None, "journal_mode", |r| r.get(0))
+            .unwrap(),
+        "wal"
+    );
+    let logical_before = fixture_logical_snapshot(&connection);
+    let before = fs::read(&database).unwrap();
+    let foreign_keys: bool = connection
+        .pragma_query_value(None, "foreign_keys", |r| r.get(0))
+        .unwrap();
+    connection
+        .pragma_update(None, "foreign_keys", false)
+        .unwrap();
+    let mut reached_caller_ddl = false;
+    let mut inner_version = None;
+    let generated = (|| -> rusqlite::Result<()> {
+        let transaction = connection.unchecked_transaction()?;
+        pre_factory_schema::remove_empty_child_goal_increment(&transaction)?;
+        let version: u32 = transaction.pragma_query_value(None, "user_version", |r| r.get(0))?;
+        inner_version = Some(version);
+        if version != 14 {
+            return Err(rusqlite::Error::InvalidQuery);
+        }
+        reached_caller_ddl = true;
+        transaction.execute_batch("DROP TABLE factory_child_plan_heads;DROP TABLE factory_child_plan_revisions;PRAGMA user_version=13;CREATE TABLE fixture_caller_collision(sentinel TEXT);")?;
+        transaction.commit()
+    })();
+    let restored = connection.pragma_update(None, "foreign_keys", foreign_keys);
+    assert_eq!(
+        inner_version,
+        Some(14),
+        "inner inverse must complete before the caller fault"
+    );
+    assert!(
+        reached_caller_ddl,
+        "must test the caller's late failure, not an early guard"
+    );
+    assert!(
+        matches!(&generated, Err(rusqlite::Error::SqliteFailure(_, Some(message))) if message == "table fixture_caller_collision already exists"),
+        "expected the fixed caller DDL collision"
+    );
+    restored.unwrap();
+    let logical_after = fixture_logical_snapshot(&connection);
+    assert!(
+        logical_after == logical_before,
+        "caller failure must restore all logical history"
+    );
+    assert!(
+        fs::read(&database).unwrap() == before,
+        "caller failure must preserve main-file bytes"
+    );
+    assert!(connection.is_autocommit());
+    assert!(connection
+        .pragma_query_value::<bool, _>(None, "foreign_keys", |r| r.get(0))
+        .unwrap());
+    assert!(!connection
+        .prepare("PRAGMA foreign_key_check")
+        .unwrap()
+        .exists([])
+        .unwrap());
 }
