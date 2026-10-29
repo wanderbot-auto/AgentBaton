@@ -35,3 +35,7 @@ Native新1frame unit证明固定四字段、无write envelope/自动daemon/审�
 当前追加test-only叶 `e7f976b3aaaf9a97d5a64dca3d46e736d98547e0`；生产8文件中所有production字节仍12d，唯一差异是api.test.ts新增1个测试声明，覆盖JSON解码LF/CR/U+2028/U+2029在device/inode/head/key后的拒绝。独审最初静态认为JS无m的$可在终止符前匹配，作者与独审分别在内建V8实际反证并撤回；没有旧失败，未修改合法production正则来迎合误报。TS测试仍NOT_RUN。
 
 Root已真实复验精确基线f38的Core lib strictClippy0与WSI1 targeted10PASS；这只闭合继承的Path借用修复，不是新端点/API/角色测试通过。新WSI2a仍需上述全部独审/实际测试。
+
+## Root实际验证分片（精确c2bef0bf）
+
+Root已串行执行Core11选定lib测试（旧WSI1十项+新serializer一项）、四项真实Unix IPC、Node全873/51files、typecheck/build全部通过。新Native frame unit仍未编译/运行；没有Native GUI、完整Factory集成、新Mac或远程CI通过声明。原source-time NOT_RUN记录保持历史。下一依赖为Root绑定严格lint与Native测试，再独立默认Git工作区持久Task绑定合同；不在此leaf编码WSI3接口或扩Factory权限。

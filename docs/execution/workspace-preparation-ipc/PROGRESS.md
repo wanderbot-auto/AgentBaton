@@ -15,3 +15,11 @@
 新增test-only e7f976b，生产保持12d全字节。审查提出的末尾$缺口被内建V8实际拒绝结果反证，config独审独立12项同样全false并明确撤回P2；旧冻结源没有该真实FAIL。未提交的正则修改已全部恢复，仅保留JSON.parse终止符负控源码。此有限VM实验非Node、非TS suite，不能称产品/API通过。
 
 Root在f38实际libClippy0/7.916621s、targeted10PASS/test3.41s/wrapper19.945067s；作者仅核两原log SHA。原00f lint FAIL继续保留；原WSI1工作树未因记录而改动。WSI2a的4IPC/1wire/1Native/TS全部未运行。
+
+## Root实际结果：Linux Core/Unix IPC/Node通过
+
+精确head c2bef0bfbf2f0ae92d2a29c2e9b6bb3221fb0dbb，由Root执行：Core选定11PASS/0skip/test3.43s/wrapper22.662015s；真实Unix IPC4PASS/0skip/test0.97s/wrapper15.442594s；npm typecheck0、full873PASS/51files/exit0、build0。作者只读核五原log SHA、两Core source before/after、四工具前后同与Factory当前三asset匹配记录，不重复运行。
+
+复用Root已有109锁定Node依赖，两个package文件逐字同，无安装或锁修改；临时依赖link由Root移除。Root报告Factory dist三asset前后同，作者核现字节匹配其记录；本树新build不替换Factorydist。build有原chunk>500kB非致命提示，不据此降验收或扩大重构。
+
+当前分维度：Core选定与真实Unix IPC、Node/type/build实际通过；新Native frame unit及Native编译/OSdialog、全量Factory集成、新Mac、准确新CI均未运行。旧NOT_RUN及误报撤回保留，不把873加到Rust计数，也不把Node作为OS证明。

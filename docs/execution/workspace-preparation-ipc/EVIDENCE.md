@@ -49,3 +49,23 @@ Root source `f38d3f838021bb346581e4decf3130bfa5e31d67`：
 | `.onboarding/workspace-isolation-wsi1-targeted2` | cargo test --offline --locked -p agentbaton-core --lib workspace_resolution::tests -- --nocapture --test-threads=1；10PASS/0failed/0ignored/128filtered，test3.41s，wrapper19.945066626s，exit0 | 5c72509755afb7af6d6f51ed019a2fc8c947b0b21bb04efc38cdf19e4a45425d |
 
 作者本轮Python只读核各RESULTS source/exit与command-0.log SHA全部匹配，exit0，没有重跑。该证据闭合旧WSI1 Path借用修复的准确运行绑定；原00f真实Clippy失败不抹，不能移签成12d/e7f新IPC/Native/TS已通过。原树未改，Root其它Factory运行仍独立。
+
+## Root实际WSI2a验证：精确c2bef0bfbf2f0ae92d2a29c2e9b6bb3221fb0dbb
+
+以下均执行者Root，作者本轮只读核原件；不覆盖上文源码时点NOT_RUN。
+
+| 原件目录 / command-0.log或指定log | 实际命令与结果 | log SHA-256 |
+| --- | --- | --- |
+| `.onboarding/workspace-preparation-ipc-core-units1` | cargo test --offline --locked -p agentbaton-core --lib workspace_resolution -- --nocapture --test-threads=1；11PASS/0failed/0ignored/128filtered，test3.43s/wrapper22.662015228s/exit0 | 5b601eb7446683735b7ee25207b9baaadc12f173bc8c3fb4954f6e570f7dcd57 |
+| `.onboarding/workspace-preparation-ipc-real-ipc1` | cargo test --offline --locked -p agentbaton-core --test workspace_preparation_ipc -- --nocapture --test-threads=1；4PASS/0failed/0ignored/0filtered，test0.97s/wrapper15.442593641s/exit0 | 1e9d0f42df5316118ea8ccf004ab47ce5ab13c95c5915d4fc9c3598c3744600a |
+| `.onboarding/workspace-preparation-ipc-ui-regression1/typecheck.log` | npm run typecheck；exit0/wrapper1.106595024s | 642536308317e611561144cad25fb98c96caafe3b35d43f613b546901ea6d74e |
+| 同目录test.log | npm run test；873PASS/51files，Vitest27.73s/wrapper28.338356642s/exit0 | c353ceb56f562775a2078f9df0a7e58948ece91d2bbd86ee2ca5ff83fcb80368 |
+| 同目录build.log | npm run build（tsc --noEmit && vite build）；exit0/wrapper1.337511184s | 8561612b4c14eaa11eed9bf4c136796d31d36e8c3bdbe63f46d8b1bc3728aba4 |
+
+Core11含旧10与exactuint serializer1；四IPC是新实际生成TempDir/Unix daemon而非mock。Node full计数不与Rust或测试内部变体相加。作者Python实核五RESULTS source/exit、五log SHA、Core两个SOURCE_BEFORE==AFTER、TOOLS_BEFORE_AFTER四工具before==after且equal=true，exit0。CLI0c36b0d8d0eb01143e3a176e383ee15147443940a721712501dca146b083170f/daemon5f6e31504ad7e94c4c29cbe550da20506432be4a1034c8059e6ddf4b2bea3984各normaldebug与frozen路径保持不变。
+
+Node RESULTS记录复用已有109 locked依赖，两个package文件精确同字节，未安装/更新；Root的临时link已移除。ROOT_FACTORY_UI_ASSETS_UNCHANGED.json记录既有Factorydist index dd038a1fa7399173448c65111c5d55741b1fb23f794051e2c194fd52f4061a90、CSS bdb1e006f25f8d0d3b0c9651badc4faf61f04358c6bbb74e2d5a09e797f32944、JS4e58b7ddfd542e46455ca2d92161c71dbefbf540b2c5833368eced2130acec0f；Root报告前后不变，作者实核当前三文件SHA匹配该记录，未假称另有未提供的before快照。
+
+独审最终SOURCE_READY_FOR_ROOT_SERIAL_TESTS REVIEW SHA `11623c5a27ef7f060f1c12a0432e4d080da4a5ab6340f08872b53511435d1d47`、MANIFEST `dd35bb01bdcf0b73c252b5a54f037d4c8d0fffdf3665608d5018765070ad8e8f`，目录`.onboarding/workspace-preparation-ipc-12d0-independent-review`。其25静态+64内建V8有限控与此Root实际Node/Rust证据分开，不重复计数。
+
+仍NOT_RUN：新Native frame unit/Native编译、OSNative/真人Owner、完整Factory新组合、新Mac/安装与远程CI；WSI3持久Task绑定/未知恢复尚未实现。当前源码只读接口已获选定Linux验证，不能据此完成AB-PRJ-005。
