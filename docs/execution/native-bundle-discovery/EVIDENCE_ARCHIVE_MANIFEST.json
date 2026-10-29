@@ -1,0 +1,360 @@
+{
+  "source_commit": "9c3850d40d78d2317142f604043fd0aaaceb2aa7",
+  "archive": {
+    "path": "EVIDENCE.tar.gz",
+    "bytes": 114701,
+    "sha256": "8b868b7c094950ddf7c57d18f939ae824da3d7c18dc8de5de56efd534478475e"
+  },
+  "payload_members": 57,
+  "total_members": 58,
+  "internal_manifest": {
+    "path": "MEMBERS.json",
+    "bytes": 11096,
+    "sha256": "b45738b6f6f4c6fe8b58d0992f63b8c95651dba7ccea2dd15857c9a9ca3cc53c"
+  },
+  "roundtrip": "all members byte-equal, regular only, no symlink/traversal/duplicate",
+  "members": [
+    {
+      "path": "after-command.json",
+      "bytes": 257,
+      "sha256": "fbecd029334c2b2abfeeecf289081c24646ce0adf8b1e8b3727c6a782e03b068",
+      "mode": "0600"
+    },
+    {
+      "path": "after-metadata.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "after-metadata.stdout",
+      "bytes": 5186,
+      "sha256": "18d5dbdaaeeb5ffceba6cd161be2dd0364021a874178cca1184f29b887aacfcf",
+      "mode": "0600"
+    },
+    {
+      "path": "before-command.json",
+      "bytes": 257,
+      "sha256": "fbecd029334c2b2abfeeecf289081c24646ce0adf8b1e8b3727c6a782e03b068",
+      "mode": "0600"
+    },
+    {
+      "path": "before-metadata.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "before-metadata.stdout",
+      "bytes": 5186,
+      "sha256": "18d5dbdaaeeb5ffceba6cd161be2dd0364021a874178cca1184f29b887aacfcf",
+      "mode": "0600"
+    },
+    {
+      "path": "check_move.py",
+      "bytes": 4521,
+      "sha256": "f4b77e39b84d13f1ffa1ee1cf35da4139025c2022b9bca986ed1b9ba73ba5b8f",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-before-command.json",
+      "bytes": 571,
+      "sha256": "0e24fb33178e193a30635667c2fc27b21b529bc0a19fc5b26ac4bf39812b89ee",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-before.stderr",
+      "bytes": 2480,
+      "sha256": "5bbbded4e877db700a869d99da8f94d7c6d8057913e1cdf645c18308259b3042",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-before.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-fixture/Cargo.toml",
+      "bytes": 217,
+      "sha256": "bd17c072f871d249ea18ab42e0428ea87431121beb1233ba77eee55f814f385f",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-fixture/src/bin/native_owner_dialog/controller.rs",
+      "bytes": 36,
+      "sha256": "12e3b19fad57c88ffff17e3f8b75e6b75ace37c83e6a061b8f38165e5af8d629",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-fixture/src/bin/smoke.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-fixture/src/main.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-fixture/target/release/discovery-fixture",
+      "bytes": 50,
+      "sha256": "361e5bf7371044600823052c1543f312eb9151c64a731b5f71d7c513718783fa",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-fixture/tauri.conf.json",
+      "bytes": 201,
+      "sha256": "3b7edc0491dc317268cb2633b0924d27a54bbf264ce2f2d30c795b1a2bfaaa27",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-tag.json",
+      "bytes": 379,
+      "sha256": "4fa458ba29684cf08a415185382df989c8bdd973a90697fa1980a8bd402d8e3f",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-version-command.json",
+      "bytes": 141,
+      "sha256": "deaad5e6eb74d07bf7698426d30f069196a8a78f4d5d20eb3fd2677f5b0ce0e7",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-version.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "cli-version.stdout",
+      "bytes": 17,
+      "sha256": "9b3bfd97bdbbb1caca492a182482702522f4861cac9c38b60655010daaf0a7e3",
+      "mode": "0600"
+    },
+    {
+      "path": "command-context.json",
+      "bytes": 508,
+      "sha256": "29bb07d69fa72a215df4702b8c3be4e820aac6ee53cf67fe5e5ad36b6cc7c04a",
+      "mode": "0600"
+    },
+    {
+      "path": "diff-command.json",
+      "bytes": 175,
+      "sha256": "2a483147a2191bf531b5d391012df407be66327a9ceb4b9668d65d20b46b0ad2",
+      "mode": "0600"
+    },
+    {
+      "path": "diff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "diff.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-cli-after.stderr",
+      "bytes": 535,
+      "sha256": "6d6b88ef2240667e00adfe27da73981c3139a80160265a2887393731fd231298",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-cli-after.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-cli-before.stderr",
+      "bytes": 1358,
+      "sha256": "593414a6b9cf5142814d251cef7a032b6ecf81d2fdce0ccbcf964afb6b2aeb39",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-cli-before.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-cli-commands.json",
+      "bytes": 1232,
+      "sha256": "be983f5f7da9656cda994771ec3bac7d210efdbcb4c1973ef708ad84ebf0406e",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-cli-package-inspection.json",
+      "bytes": 862,
+      "sha256": "e0f441f995743fc3dc86bff4825c8e005455da966571deaa6ea479ea2497a946",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/Cargo.toml",
+      "bytes": 375,
+      "sha256": "e3728a646822b8aefe97a124ce9de15b2d983899e99d551f33435ea8d1e4cecf",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/src/bin/native_owner_dialog_smoke.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/src/bin/native_smoke.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/src/main.rs",
+      "bytes": 13,
+      "sha256": "536e506bb90914c243a12b397b9a998f85ae2cbd9ba02dfd03a9e155ca5ca0f4",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/src/native_owner_dialog_test/controller.rs",
+      "bytes": 34,
+      "sha256": "7b4133388a5a7e01b41a437533d412f341ea15d78a44e520864e7507568a4bd5",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/target/release/agentbaton-desktop",
+      "bytes": 45,
+      "sha256": "944e6957c460901aa0b9b59f04f5292ed6a9b4bf14a885ba99b092812634381f",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/target/release/bundle/deb/Discovery Fixture_0.1.0_amd64/control/control",
+      "bytes": 192,
+      "sha256": "96313799dd4c37fb43d66f4bc7ceaf4759c2efedad3c3de16b1c8acc646f03b3",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/target/release/bundle/deb/Discovery Fixture_0.1.0_amd64/control/md5sums",
+      "bytes": 144,
+      "sha256": "3438f56f3093002eb61d6fd28225cffcfe3a497d10520e87b0f8210c2a2780df",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/target/release/bundle/deb/Discovery Fixture_0.1.0_amd64/control.tar.gz",
+      "bytes": 353,
+      "sha256": "27c112e7159c83c274a1fc408024161da03d695455282bcb37bef07994cb2502",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/target/release/bundle/deb/Discovery Fixture_0.1.0_amd64/data/usr/bin/agentbaton-desktop",
+      "bytes": 45,
+      "sha256": "944e6957c460901aa0b9b59f04f5292ed6a9b4bf14a885ba99b092812634381f",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/target/release/bundle/deb/Discovery Fixture_0.1.0_amd64/data/usr/share/applications/Discovery Fixture.desktop",
+      "bytes": 165,
+      "sha256": "d2ca7a12a817e214775be14f2db657957df906b82f47cdbe439f223565229359",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/target/release/bundle/deb/Discovery Fixture_0.1.0_amd64/data.tar.gz",
+      "bytes": 348,
+      "sha256": "ae0df4f43787a48f1a9dd95ab628e8791b74dc31f4608098089960cd3390b853",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/target/release/bundle/deb/Discovery Fixture_0.1.0_amd64/debian-binary",
+      "bytes": 4,
+      "sha256": "d526eb4e878a23ef26ae190031b4efd2d58ed66789ac049ea3dbaf74c9df7402",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/target/release/bundle/deb/Discovery Fixture_0.1.0_amd64.deb",
+      "bytes": 894,
+      "sha256": "a303a0a1e6714bb1e388ed37c679f82155243dd5f925cbb24d0601b4e9306efc",
+      "mode": "0600"
+    },
+    {
+      "path": "exact-shape-cli-fixture/tauri.conf.json",
+      "bytes": 201,
+      "sha256": "3b7edc0491dc317268cb2633b0924d27a54bbf264ce2f2d30c795b1a2bfaaa27",
+      "mode": "0600"
+    },
+    {
+      "path": "finite-command.json",
+      "bytes": 289,
+      "sha256": "20d527dc909fde973b16aab3ce5b6082cb3b6f855c28683ad66d74aa496d51e8",
+      "mode": "0600"
+    },
+    {
+      "path": "finite-results.json",
+      "bytes": 1909,
+      "sha256": "ff8b58bb2e10583357c06c29b1765c65543a2bde733cbf55c0de7b92e22bc9d9",
+      "mode": "0600"
+    },
+    {
+      "path": "finite.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    {
+      "path": "finite.stdout",
+      "bytes": 1909,
+      "sha256": "ff8b58bb2e10583357c06c29b1765c65543a2bde733cbf55c0de7b92e22bc9d9",
+      "mode": "0600"
+    },
+    {
+      "path": "generated-fixtures-map.json",
+      "bytes": 4779,
+      "sha256": "dc4e73f5a0d72492c49ccf3d70a5ac02d7ac71589f2971324dd4ecbd18b4b9c6",
+      "mode": "0600"
+    },
+    {
+      "path": "mechanical-move.json",
+      "bytes": 875,
+      "sha256": "c33ed4e39a5dbdcf5b6d19b45c9aa1cc46900ad333cfc9488a9e276cf6a50f59",
+      "mode": "0600"
+    },
+    {
+      "path": "official-source-fetch.json",
+      "bytes": 816,
+      "sha256": "487334a4dc4782a239ba031ea0af7ac60d7700b1a2b4a75ac4e66ca008c59f42",
+      "mode": "0600"
+    },
+    {
+      "path": "original-arm-job.log.gz",
+      "bytes": 80526,
+      "sha256": "ca139256ac73d473de829645063587110e87776f290f5f65aff21600f2bcaae8",
+      "mode": "0600"
+    },
+    {
+      "path": "pinned-manifest.rs",
+      "bytes": 16945,
+      "sha256": "12ecab656f01a83141280c96d6e89d7af74ccbf71ef4a3be767499268ff6f375",
+      "mode": "0600"
+    },
+    {
+      "path": "pinned-rust.rs",
+      "bytes": 59595,
+      "sha256": "0efada2885cdb6fb1e74832a2704dcbd7e22627709944968740bd8dca8d863ed",
+      "mode": "0600"
+    },
+    {
+      "path": "protected-map.json",
+      "bytes": 1583,
+      "sha256": "ad9e691bb284157efe69a26eebaef891d737f582e952030f31c191ac1019a1aa",
+      "mode": "0600"
+    },
+    {
+      "path": "source-map.json",
+      "bytes": 1087,
+      "sha256": "50eb1534748c6fd512fd19ae3053eb0542a0ab278745d38df440b78129b2877f",
+      "mode": "0600"
+    }
+  ]
+}
