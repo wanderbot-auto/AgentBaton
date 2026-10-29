@@ -1,3 +1,9 @@
+## 双 Mac 旧候选终态与修复候选推进 — 2026-10-29T08:16:11.748853+00:00
+
+PR17 head9ac / Product40834973094 的双Mac已全部终态成功，Intel于08:12:25UTC结束。实际Native WebView、Grant和Factoryplanning审批、默认应用构建、testcontrol扫描及开发包已执行；原件各一次收取并在独立离线核验。ARM DMG SHA636e71706763a0f08c47bdd5079683e7f0abf8afee7f14fd0e3770535b416ccb，Intel4a76ad193aa43bcc5bb67320cc8382d6cc1d1dfd7f325635371d5c8dd63038a7。签名/页图等最终报告尚待封存，不冒人工安装或正式签名。
+
+旧候选整体仍失败：Environment两Mac夹具早守卫、Rust47中一项companion拒绝、UI私有进程观察器失败均原样保留。修复候选只有已独审的短路径夹具/私有单link工具夹具和严格argv首次失败诊断，生产权限守卫未变。等待旧Mac结束的条件已满足，现在一次普通sourcepush触发全新准确七检查；旧Mac通过不直接移给新提交。无formalApprove或保护合入。完整130需求继续，schema15隔离WIP不混此候选。以下保留前次真实时间点。
+
 ## 当前 PR17 首轮远程结果与候选修复 — 2026-10-29T08:05:23.438761+00:00
 
 草稿 PR17 head `9ac06f7`，准确检出 `4593668` / tree `205f01a`。Environment Ubuntu通过、两Mac失败于49项中的3个私有运行时夹具提前守卫。Product Rust工作区659＋7通过（2个nested不加），Native报告34通过，Owner47一项companion安全守卫错误，Clippy未执行。UI原15路径126检查/76PNG通过，新planning在2检查/2PNG后因8KiB/NUL进程观察守卫失败；首次PID/长度/状态未保存，不猜测原因。ARM产品job已实际成功且原件已一次采齐，离线验包中；Intel最后仍运行，不称双架构通过。

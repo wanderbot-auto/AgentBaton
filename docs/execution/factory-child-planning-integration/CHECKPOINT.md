@@ -23,3 +23,7 @@ Full130 requirements and childGoal/workspace/remaining scope continue. Isolateds
 PR17 head9ac actual4593668/tree205f: EnvironmentUbuntuPASS/Mac2FAIL in49tests3earlyfixtureguard errors; Rust659+7workspacePASS(2nestedexcluded),NativeRunner34PASS,Owner47oneerror/ClippySKIPPED; UIold15flows126checks76PNGpass plusnewplanning2/2FAIL original8KiB/NULargvguard. FirstPID/length/state missing, so no guessedrootcause. ARM ProductactualSUCCESS original artifacts acquired once/offlineauditpending; Intel lastinprogress. No protectedmerge.
 
 Currentlocal source6753768 contains reviewedshortfixturef6,strictdiagnostic7dc andprivate-singlelinkfixture038/de4. Productionguards andoldnegatives unchanged; local100Bpathreplay old3errors→new0/full50PASS, samebytes sharedhardlinkdenied→ownedcopyaccepted/full47PASS. CIhistoricalFDmetadata missing andlocalstatnotborrowed. Newcandidate notpushed untiloldMacjobsfinish, toavoidautomaticcancel. Newexactall7CIstillrequired. Localrun5sealed25263631 andsourcecombined1dae9c67 are Linux/structural evidence, notremotegreen orfullproductcompletion.
+
+## Oldcandidate dualMac terminal 2026-10-29T08:16:11.748853+00:00
+
+Both9ac MacProduct lanes actuallySUCCESS; overalloldcandidateFAILbecauseEnvMac/Rust/UI remainred. OriginalMaclog/native/devZIP onceacquired, finalsealpending; candidatefixesmaynowordinarypushwithoutcancellingoldjobs. Allnewexact7checksrequired, noformalApprove/merge/production.

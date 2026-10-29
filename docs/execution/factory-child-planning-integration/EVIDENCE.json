@@ -202,14 +202,17 @@
     "Environment": "UbuntuPASS,ARMandIntelFAIL:49tests3errors beforeintendedstopnegative dueprivate-runtimeguard;actualhistoricalinputpathnotlogged",
     "Rust": "workspace659+7PASS,2nestedexcluded;NativeRunner34PASS;Owner47=46PASS1ERRORcompanionguard;ClippySKIPPED",
     "UI": "Node733/44PASS;old15flows126checks76PNGpass;childplanning2checks2PNGFAILcombined8KiB/NULargvguard,firstPID/length/stateunknown;total128recordedchecks78imagesNOTfullpass",
-    "ARM": "APIterminalSUCCESS,originalnative/devZIPlogcollectedonce,offlineauditinprogress;nohash/signatureclaimyet",
-    "Intel": "lastknownCore/nativeinprogress,notterminal",
+    "ARM": "terminalSUCCESS;newactualNativeWebView/Grant/Factoryplanning/defaultbuild/releaseaudit/package passed; offlineauditpassed, finalsealedreportpending",
+    "Intel": "terminalSUCCESS08:12:25UTC;NativeWebView/Grant/Factoryplanning/defaultbuild/releaseaudit/package passed,originalonceacquired;finalsealedreportpending",
     "Linux_independent_review_sha256": "81aa37fd2a93df134c6c54257da0cd187b698cef8dbff2a28060483b656d92bb",
-    "source_not_ready_merge": true
+    "source_not_ready_merge": true,
+    "overall": "FAILED:EnvMac2,RustandUI;dualMacsuccessisnotall7green",
+    "ARM_DMG_SHA256": "636e71706763a0f08c47bdd5079683e7f0abf8afee7f14fd0e3770535b416ccb",
+    "Intel_DMG_SHA256": "4a76ad193aa43bcc5bb67320cc8382d6cc1d1dfd7f325635371d5c8dd63038a7"
   },
   "PR17_local_candidate_fixes": {
     "head": "675376800b65d1d48120b754c4568373f1b6974d",
-    "not_pushed_while_oldMac_running": true,
+    "not_pushed_while_oldMac_running": "Held untilbothMacactualterminalSUCCESS;oneordinarysourcepushnowauthorizedbyoriginalscope",
     "short_runtime_fixture": {
       "commit": "f6a31a27d7be737ab86a5f07f91363e293d9b436",
       "change": "Testsetup uses shortcanonical /tmp,original49 retained plus1 longpathpreSpawnnegative",
