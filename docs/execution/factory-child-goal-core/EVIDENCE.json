@@ -22,8 +22,30 @@
     "AB-COR-007"
   ],
   "cargo": "not_run_no_lease",
-  "runtime": "not_implemented_yet",
+  "runtime": "private source wiring_in_progress_not_exposed",
   "native": "not_run",
   "macos": "not_run",
-  "provider_calls": "not_authorized_not_run"
+  "provider_calls": "not_authorized_not_run",
+  "draft_contract": "9900fbc plus current source checkpoint",
+  "sqlite_ddl_controls": {
+    "result": "passed",
+    "count": 6,
+    "evidence": "/workspace/.onboarding/factory-child-goal-core/migration-ddl-controls.json",
+    "input_native_goal_scopes": 0,
+    "input_native_goal_runs": 0,
+    "does_not_prove": "Rust Store migration, native Goal provenance, derived Graph runtime"
+  },
+  "rust_policy_tests": {
+    "written": 4,
+    "status": "not_run"
+  },
+  "pending": [
+    "IPC/MCP fixed entry points",
+    "Factory ancestor reservation/settlement",
+    "real parent owned-stop/lease handoff",
+    "Graph result and parent resume",
+    "exact cancel and append-only adoption",
+    "Rust/migration/generated ACP/IPC normal and failure execution",
+    "independent final review"
+  ]
 }

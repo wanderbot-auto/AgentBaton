@@ -2,6 +2,9 @@
 //! scope/plan constructors stay private and cannot be populated from IPC labels.
 use super::*;
 
+#[path = "goal_factory.rs"]
+pub(super) mod factory;
+
 #[path = "goal_graph.rs"]
 mod graph;
 pub(crate) use graph::{
@@ -295,12 +298,7 @@ PRAGMA user_version=11;").map_err(db_error)?;
     Ok(())
 }
 fn connection_summary(refs: &GoalRefs) -> Result<Value> {
-    let id = refs
-        .grant_after
-        .scope
-        .connection_ids
-        .first()
-        .ok_or_else(changed)?;
+    let id = refs.connection["id"].as_str().ok_or_else(changed)?;
     let binding = refs
         .grant_after
         .connection_bindings
@@ -566,14 +564,14 @@ impl Store {
         key(task_id)?;
         raw_collection_budget(
             &self.conn,
-            "SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE task_id=?1 AND NOT EXISTS(SELECT 1 FROM goal_graph_capabilities g WHERE g.run_id=goal_runs.id)",
+            "SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(id)+octet_length(scope_id)+octet_length(project_id)+octet_length(task_id)+octet_length(state)),0),COALESCE(max(octet_length(document)),0) FROM goal_runs WHERE task_id=?1 AND NOT EXISTS(SELECT 1 FROM goal_graph_capabilities g WHERE g.run_id=goal_runs.id) AND NOT EXISTS(SELECT 1 FROM factory_child_goal_runs f WHERE f.goal_run_id=goal_runs.id)",
             [task_id],
             256,
             MAX_STORED_BYTES,
         )?;
         let mut q = self
             .conn
-            .prepare("SELECT id FROM goal_runs WHERE task_id=?1 AND NOT EXISTS(SELECT 1 FROM goal_graph_capabilities g WHERE g.run_id=goal_runs.id) ORDER BY rowid DESC LIMIT 257")
+            .prepare("SELECT id FROM goal_runs WHERE task_id=?1 AND NOT EXISTS(SELECT 1 FROM goal_graph_capabilities g WHERE g.run_id=goal_runs.id) AND NOT EXISTS(SELECT 1 FROM factory_child_goal_runs f WHERE f.goal_run_id=goal_runs.id) ORDER BY rowid DESC LIMIT 257")
             .map_err(db_error)?;
         let ids = q
             .query_map([task_id], |r| r.get::<_, String>(0))
@@ -683,7 +681,7 @@ pub(crate) fn permits_continuing_task(
     db: &Connection,
     intent: &crate::execution::DispatchIntent,
 ) -> Result<bool> {
-    db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_nodes n JOIN sessions s ON s.id=n.session_id JOIN goal_runs r ON r.id=n.run_id WHERE json_extract(s.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping')) OR EXISTS(SELECT 1 FROM goal_graph_jobs j JOIN goal_run_nodes n ON n.attempt_id=j.attempt_id AND n.run_id=j.run_id JOIN goal_runs r ON r.id=j.run_id JOIN goal_graph_capabilities c ON c.run_id=r.id WHERE json_extract(j.document,'$.job_kind')='validator' AND json_extract(j.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping'))",params![intent.id,intent.task_id],|r|r.get(0)).map_err(db_error)
+    db.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_nodes n JOIN sessions s ON s.id=n.session_id JOIN goal_runs r ON r.id=n.run_id WHERE json_extract(s.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping')) OR EXISTS(SELECT 1 FROM goal_graph_jobs j JOIN goal_run_nodes n ON n.attempt_id=j.attempt_id AND n.run_id=j.run_id JOIN goal_runs r ON r.id=j.run_id WHERE (EXISTS(SELECT 1 FROM goal_graph_capabilities c WHERE c.run_id=r.id) OR EXISTS(SELECT 1 FROM factory_child_goal_runs f WHERE f.goal_run_id=r.id)) AND json_extract(j.document,'$.job_kind')='validator' AND json_extract(j.document,'$.intent_id')=?1 AND r.task_id=?2 AND r.state='running' AND n.state IN('reserved','running','stopping'))",params![intent.id,intent.task_id],|r|r.get(0)).map_err(db_error)
 }
 
 fn checked_runtime_scope(
@@ -699,6 +697,9 @@ fn checked_runtime_scope_at(
     data: Option<&crate::data_workspaces::DataInputWitness>,
     require_head: bool,
 ) -> Result<(ScopeRecord, ApprovedGoalScope)> {
+    if factory::marked_run(db, &r.id)? {
+        return factory::live_scope(db, r, data, require_head);
+    }
     let graph = graph::is_graph_run(db, &r.id)?;
     let kind = if graph {
         "goal_graph_execution"
@@ -1410,7 +1411,8 @@ impl Store {
         let mut stop = Vec::new();
         for mut r in self.active_goal_runs()? {
             let task = self.get(&r.task_id)?;
-            let revoked = crate::policy::checked_lineage(&self.conn, &r.root_grant_id).is_err();
+            let revoked = crate::policy::checked_lineage(&self.conn, &r.root_grant_id).is_err()
+                || !factory::run_live(&self.conn, &r.id)?;
             let cancel = r.cancel_requested
                 || r.state == "blocked"
                 || revoked

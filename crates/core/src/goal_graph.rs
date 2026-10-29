@@ -186,6 +186,9 @@ pub struct GraphExecutionSnapshot {
 /// Presence is enough to reject a legacy interpretation, never to grant graph
 /// authority. Positive graph access separately verifies its immutable capability.
 pub(super) fn is_graph_run(db: &Connection, id: &str) -> Result<bool> {
+    if factory::marked_run(db, id)? {
+        return Ok(true);
+    }
     key(id)?;
     db.query_row(
         "SELECT EXISTS(SELECT 1 FROM goal_graph_capabilities WHERE run_id=?1)",
@@ -198,9 +201,30 @@ pub(super) fn require_legacy_run(db: &Connection, id: &str) -> Result<()> {
     if is_graph_run(db, id)? {
         return Err(err("CAPABILITY_UNSUPPORTED", "This is a versioned graph run; legacy candidate-only methods cannot read, replay or mutate its authority"));
     }
+    let (_, result) = native_confirmation(db, id, "goal_execution")?;
+    if result["id"] != id {
+        return Err(changed());
+    }
     Ok(())
 }
 
+/// Distinct runtime authority value: this is never a fabricated proposal.
+pub(super) enum GraphAuthorityIssuer {
+    NativeGoal { approval_id: String },
+    FactoryScope { scope_id: String },
+}
+pub(super) struct GraphAuthority {
+    pub(super) issuer: GraphAuthorityIssuer,
+    pub(super) snapshot: Value,
+}
+impl GraphAuthority {
+    fn approval_id(&self) -> &str {
+        match &self.issuer {
+            GraphAuthorityIssuer::NativeGoal { approval_id } => approval_id,
+            GraphAuthorityIssuer::FactoryScope { scope_id } => scope_id,
+        }
+    }
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct GraphCapability {
@@ -209,7 +233,10 @@ struct GraphCapability {
     approval_id: String,
     snapshot_digest: String,
 }
-pub(super) fn checked_capability(db: &Connection, r: &GoalRun) -> Result<ApprovalProposal> {
+pub(super) fn checked_capability(db: &Connection, r: &GoalRun) -> Result<GraphAuthority> {
+    if factory::marked_run(db, &r.id)? {
+        return factory::capability(db, r);
+    }
     raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+octet_length(run_id)+octet_length(approval_id)),0),COALESCE(max(octet_length(document)),0) FROM goal_graph_capabilities WHERE run_id=?1",[&r.id],1,MAX_STORED_BYTES)?;
     let stored: Option<Option<String>> = db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM goal_graph_capabilities WHERE run_id=?1",[&r.id],|row|row.get(0)).optional().map_err(db_error)?;
     let cap: GraphCapability = decode(&stored.ok_or_else(denied)?.ok_or_else(limited)?)?;
@@ -242,7 +269,10 @@ pub(super) fn checked_capability(db: &Connection, r: &GoalRun) -> Result<Approva
         return Err(denied());
     }
     verify_plan_advances(db, r, &p, initial, authorized.ok_or_else(denied)?)?;
-    Ok(p)
+    Ok(GraphAuthority {
+        issuer: GraphAuthorityIssuer::NativeGoal { approval_id: p.id },
+        snapshot: p.snapshot,
+    })
 }
 
 pub(super) fn persist_capability(db: &Connection, p: &ApprovalProposal) -> Result<()> {
@@ -294,7 +324,9 @@ PRAGMA user_version=12;").map_err(db_error)?;
     }
     Ok(())
 }
-fn definition_permissions(record: &ScopeRecord) -> Result<Vec<GraphDefinitionReusePermission>> {
+pub(super) fn definition_permissions(
+    record: &ScopeRecord,
+) -> Result<Vec<GraphDefinitionReusePermission>> {
     let mut definitions = Vec::new();
     for validator in &record.refs.validators {
         let action = match validator.reference.kind {
@@ -441,8 +473,8 @@ impl Store {
     }
     pub fn list_goal_graph_runs(&self, task_id: &str) -> Result<Vec<GraphRunSummary>> {
         key(task_id)?;
-        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(r.document)+octet_length(r.id)+octet_length(g.document)),0),COALESCE(max(octet_length(r.document)),0) FROM goal_runs r JOIN goal_graph_capabilities g ON g.run_id=r.id WHERE r.task_id=?1",[task_id],256,MAX_STORED_BYTES)?;
-        let mut q=self.conn.prepare("SELECT r.id FROM goal_runs r JOIN goal_graph_capabilities g ON g.run_id=r.id WHERE r.task_id=?1 ORDER BY r.rowid DESC LIMIT 257").map_err(db_error)?;
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(r.document)+octet_length(r.id)+COALESCE(octet_length(g.document),0)+COALESCE(octet_length(f.document),0)),0),COALESCE(max(octet_length(r.document)),0) FROM goal_runs r LEFT JOIN goal_graph_capabilities g ON g.run_id=r.id LEFT JOIN factory_child_goal_runs f ON f.goal_run_id=r.id WHERE (g.run_id IS NOT NULL OR f.goal_run_id IS NOT NULL) AND r.task_id=?1",[task_id],256,MAX_STORED_BYTES)?;
+        let mut q=self.conn.prepare("SELECT r.id FROM goal_runs r LEFT JOIN goal_graph_capabilities g ON g.run_id=r.id LEFT JOIN factory_child_goal_runs f ON f.goal_run_id=r.id WHERE (g.run_id IS NOT NULL OR f.goal_run_id IS NOT NULL) AND r.task_id=?1 ORDER BY r.rowid DESC LIMIT 257").map_err(db_error)?;
         let ids = q
             .query_map([task_id], |r| r.get::<_, String>(0))
             .map_err(db_error)?
@@ -1544,10 +1576,10 @@ fn rules_satisfied(
     without_owner: bool,
 ) -> bool {
     node.required_validators.iter().all(|rule| {
-        if rule == INPUT_RULE {
+        if rule == input_rule(record) {
             return true;
         } // Capture committed exact approved input SHA values.
-        if rule == OWNER_RULE {
+        if rule == owner_rule(record) {
             return without_owner
                 || refs.iter().all(|a| {
                     owners.iter().any(|o| {
@@ -1932,7 +1964,7 @@ fn node_acceptance_snapshot(
     let ready = graph_ready_node(db, r, &nodes, &candidates)?.ok_or_else(denied)?;
     if ready.node.id != s.node_id
         || ready.node.kind != NodeKind::OwnerApproval
-        || !matches!(&ready.node.executor,Executor::Owner{rule_id} if rule_id==OWNER_RULE)
+        || !matches!(&ready.node.executor,Executor::Owner{rule_id} if rule_id==owner_rule(&record))
     {
         return Err(denied());
     }
@@ -1971,9 +2003,12 @@ fn node_acceptance_snapshot(
         },
         node: ready.node.clone(),
         criterion: GraphCriterionBinding {
-            rule_id: OWNER_RULE.into(),
+            rule_id: owner_rule(&record).into(),
             criterion_text: record.selection.owner_acceptance_criteria.clone(),
-            criterion_digest: sha(&(OWNER_RULE, &record.selection.owner_acceptance_criteria))?,
+            criterion_digest: sha(&(
+                owner_rule(&record),
+                &record.selection.owner_acceptance_criteria
+            ))?,
             artifact_ids: refs.iter().map(|a| a.artifact_id.clone()).collect()
         },
         candidate_refs: refs,
@@ -2194,7 +2229,7 @@ impl Store {
             plan_revision: r.plan_revision,
             plan_digest: r.plan_digest.clone(),
             node_id: n.node.id.clone(),
-            rule_id: OWNER_RULE.into(),
+            rule_id: owner_rule(&record).into(),
             criterion_digest: p.snapshot["criterion"]["criterion_digest"]
                 .as_str()
                 .ok_or_else(changed)?
@@ -2343,9 +2378,9 @@ pub(super) fn verify_intrinsic_node(db: &Connection, r: &GoalRun, n: &RuntimeNod
 }
 impl Store {
     fn reconcile_graph_frontiers(&mut self) -> Result<()> {
-        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(r.id)+octet_length(r.document)+octet_length(g.document)),0),COALESCE(max(octet_length(r.document)),0) FROM goal_runs r JOIN goal_graph_capabilities g ON g.run_id=r.id WHERE r.state IN('queued','running','awaiting_acceptance')",[],256,MAX_STORED_BYTES)?;
+        raw_collection_budget(&self.conn,"SELECT count(*),COALESCE(sum(octet_length(r.id)+octet_length(r.document)+COALESCE(octet_length(g.document),0)+COALESCE(octet_length(f.document),0)),0),COALESCE(max(octet_length(r.document)),0) FROM goal_runs r LEFT JOIN goal_graph_capabilities g ON g.run_id=r.id LEFT JOIN factory_child_goal_runs f ON f.goal_run_id=r.id WHERE (g.run_id IS NOT NULL OR f.goal_run_id IS NOT NULL) AND r.state IN('queued','running','awaiting_acceptance')",[],256,MAX_STORED_BYTES)?;
         let ids = {
-            let mut q=self.conn.prepare("SELECT r.id FROM goal_runs r JOIN goal_graph_capabilities g ON g.run_id=r.id WHERE r.state IN('queued','running','awaiting_acceptance') ORDER BY r.rowid").map_err(db_error)?;
+            let mut q=self.conn.prepare("SELECT r.id FROM goal_runs r LEFT JOIN goal_graph_capabilities g ON g.run_id=r.id LEFT JOIN factory_child_goal_runs f ON f.goal_run_id=r.id WHERE (g.run_id IS NOT NULL OR f.goal_run_id IS NOT NULL) AND r.state IN('queued','running','awaiting_acceptance') ORDER BY r.rowid").map_err(db_error)?;
             let rows = q
                 .query_map([], |row| row.get::<_, String>(0))
                 .map_err(db_error)?
@@ -2534,7 +2569,10 @@ fn maybe_accept_task(
         input_revision: record.refs.workspace.base_revision.clone(),
         workspace_id: record.refs.workspace.id.clone(),
         capability_digest: sha(&checked_capability(db, r)?.snapshot)?,
-        criterion_digest: sha(&(OWNER_RULE, &record.selection.owner_acceptance_criteria))?,
+        criterion_digest: sha(&(
+            owner_rule(&record),
+            &record.selection.owner_acceptance_criteria,
+        ))?,
         artifact_refs: refs,
         validation_ids: validations
             .iter()
@@ -2860,7 +2898,7 @@ fn node_acceptance_state(
             .node
             .required_validators
             .iter()
-            .any(|v| v != OWNER_RULE && v != INPUT_RULE)
+            .any(|v| v != owner_rule(record) && v != input_rule(record))
             && rules_satisfied(&record, &n.node, &refs, validations, owners, true)
         {
             "validated"

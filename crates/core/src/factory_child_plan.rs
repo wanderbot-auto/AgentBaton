@@ -158,7 +158,7 @@ fn approved_binding(s: &FactoryScope) -> Result<&FactoryChildPlanningBinding> {
     }
     Ok(b)
 }
-fn host_policy(s: &FactoryScope, b: &TaskBinding) -> Result<HostGoalPolicy> {
+pub(super) fn host_policy(s: &FactoryScope, b: &TaskBinding) -> Result<HostGoalPolicy> {
     let binding = approved_binding(s)?;
     let p = &binding.policy;
     let w = s
@@ -347,7 +347,7 @@ fn stored_budget(db: &Connection, scope_id: &str, task_id: &str) -> Result<()> {
     }
     Ok(())
 }
-fn row(
+pub(super) fn row(
     db: &Connection,
     scope_id: &str,
     task_id: &str,
@@ -472,7 +472,7 @@ pub(super) fn latest_reference(
 ) -> Result<Option<FactoryChildPlanRef>> {
     Ok(head(db, scope_id, task_id)?.map(|v| v.reference))
 }
-fn mutable_target(db: &Connection, s: &FactoryScope, b: &TaskBinding) -> Result<()> {
+pub(super) fn mutable_target(db: &Connection, s: &FactoryScope, b: &TaskBinding) -> Result<()> {
     base_live(db, s)?;
     let current = binding(db, &b.run_id, &b.handle.task_id)?;
     if current.handle.revision != b.handle.revision
@@ -511,7 +511,7 @@ fn mutable_target(db: &Connection, s: &FactoryScope, b: &TaskBinding) -> Result<
     require_planning_task_state(db, s, b, &task)?;
     Ok(())
 }
-fn require_planning_task_state(
+pub(super) fn require_planning_task_state(
     db: &Connection,
     s: &FactoryScope,
     b: &TaskBinding,

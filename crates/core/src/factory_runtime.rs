@@ -2173,6 +2173,20 @@ pub(super) fn child_planning_limits(
 
 #[path = "factory_child_goal.rs"]
 mod child_goal;
-pub(super) use child_goal::{policy_limits as child_goal_limits, resolve_binding as resolve_child_goal_binding};
+pub(super) use child_goal::{
+    policy_limits as child_goal_limits, resolve_binding as resolve_child_goal_binding,
+};
 
 pub(super) use child_goal::migrate as migrate_child_goals;
+
+pub(crate) use child_goal::{
+    checked_scope as checked_child_goal_scope, live_scope as live_child_goal_scope,
+    FactoryGoalSource,
+};
+
+pub(crate) use child_goal::{
+    checked_plan as checked_child_goal_plan, policy_live as child_goal_policy_live,
+    verify_lineage as verify_child_goal_lineage,
+};
+
+pub(crate) use child_goal::source_is_current as factory_goal_source_is_current;

@@ -58,7 +58,7 @@ fn live_definition(
     db: &Connection,
     record: &ScopeRecord,
     rule: &str,
-    p: &ApprovalProposal,
+    p: &GraphAuthority,
 ) -> Result<ResolvedValidator> {
     let def = record
         .refs
@@ -105,7 +105,7 @@ fn normalized_io(
     producer: &GraphCandidateReceipt,
     refs: &[GraphArtifactReference],
     def: &ResolvedValidator,
-    p: &ApprovalProposal,
+    p: &GraphAuthority,
     reservation: &AttemptReservation,
 ) -> Result<PreparedGoalValidator> {
     if refs.is_empty()
@@ -246,7 +246,7 @@ fn normalized_io(
         }
     };
     Ok(PreparedGoalValidator {
-        approval_id: p.id.clone(),
+        approval_id: p.approval_id().into(),
         definition_revision: def.digest.clone(),
         subject,
         workspace: record.refs.workspace.identity.clone().ok_or_else(changed)?,

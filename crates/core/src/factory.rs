@@ -471,3 +471,11 @@ pub(crate) use capture::{FactoryCapture, FactoryCapturePlan};
 #[path = "factory_reads.rs"]
 mod reads;
 pub(crate) use reads::{FactoryReadControl, FactoryReadPlan, FactoryReadWatch, FactoryReadWitness};
+
+pub(crate) use runtime::{checked_child_goal_scope, live_child_goal_scope, FactoryGoalSource};
+
+pub(crate) use runtime::{
+    checked_child_goal_plan, child_goal_policy_live, verify_child_goal_lineage,
+};
+
+pub(crate) use runtime::factory_goal_source_is_current;

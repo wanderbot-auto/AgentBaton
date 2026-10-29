@@ -24,8 +24,7 @@ pub(super) fn policy_limits(
             .max_children
             .checked_add(1)
             .is_none_or(|v| policy.max_nodes > v)
-        || policy.max_runs_per_task == 0
-        || policy.max_runs_per_task > 256
+        || policy.max_runs_per_task != 1
         || policy.max_total_runs == 0
         || policy.max_total_runs > selection.max_total_nodes
         || policy.max_runs_per_task > policy.max_total_runs
@@ -116,6 +115,7 @@ pub(crate) fn migrate(db: &mut Connection, version: u32) -> Result<()> {
     if current != 14 {
         return Err(changed());
     }
+    crate::goal_store::verify_native_goal_history_before_factory_migration(db)?;
     let foreign_keys: bool = db
         .pragma_query_value(None, "foreign_keys", |row| row.get(0))
         .map_err(db_error)?;
@@ -163,4 +163,299 @@ PRAGMA user_version=15;").map_err(db_error)?;
         (Err(error), _) => Err(error),
         (Ok(()), result) => result,
     }
+}
+
+/// Private host proof: never Deserialize, never accepted from renderer/Agent JSON.
+pub(crate) struct FactoryGoalSource {
+    pub(crate) scope: FactoryScope,
+    pub(crate) factory_run: FactoryRun,
+    pub(crate) task: crate::storage::Task,
+    pub(crate) parent_task_id: Option<String>,
+    pub(crate) depth: u32,
+    pub(crate) ancestors: Vec<String>,
+    pub(crate) request: FactoryDelegateRequest,
+    pub(crate) plans: Vec<FactoryChildPlanView>,
+    pub(crate) host_policy: crate::goal_plan::HostGoalPolicy,
+}
+
+pub(crate) fn checked_scope(db: &Connection, id: &str) -> Result<FactoryScope> {
+    let scope = scope(db, id)?;
+    approved_binding(&scope)?;
+    Ok(scope)
+}
+pub(crate) fn live_scope(
+    db: &Connection,
+    scope_id: &str,
+    task_id: &str,
+    input: Option<&crate::data_workspaces::DataInputWitness>,
+) -> Result<()> {
+    let scope = checked_scope(db, scope_id)?;
+    live_with_input(db, &scope, input)?;
+    let run = run(db, scope_id)?;
+    let target = binding(db, &run.id, task_id)?;
+    if run.cancel_requested
+        || matches!(
+            run.state.as_str(),
+            "outcome_unknown" | "cancelled" | "blocked" | "completed"
+        )
+        || target.handle.cancel_requested
+        || target.scope_id != scope_id
+    {
+        return Err(denied());
+    }
+    Ok(())
+}
+impl Store {
+    pub(crate) fn prepare_factory_goal_source(
+        &self,
+        scope_id: &str,
+        request: &FactoryChildGoalSubmission,
+        scope_revision: u64,
+    ) -> Result<FactoryGoalSource> {
+        let scope = checked_scope(&self.conn, scope_id)?;
+        let execution = approved_binding(&scope)?;
+        let current_run = run(&self.conn, scope_id)?;
+        if scope.revision != scope_revision
+            || current_run.revision != request.expected_factory_run_revision
+        {
+            return Err(CoreError::new(
+                "STALE_REVISION",
+                "Factory scope/run changed before child Goal admission",
+            ));
+        }
+        let target = binding(&self.conn, &current_run.id, &request.task_id)?;
+        child_plan::mutable_target(&self.conn, &scope, &target)?;
+        self.require_factory_child_plan_observation(&scope)?;
+        let query = FactoryChildPlanQuery {
+            scope_id: scope_id.into(),
+            task_id: request.task_id.clone(),
+            plan_revision: None,
+        };
+        let head = self.get_factory_child_plan(&query)?;
+        if head.reference != request.plan
+            || request.plan.scope_id != scope_id
+            || request.plan.run_id != current_run.id
+            || request.plan.task_id != request.task_id
+        {
+            return Err(CoreError::new(
+                "STALE_REVISION",
+                "Execute only the exact currently saved child plan reference",
+            ));
+        }
+        if head.proposal.nodes.len() > execution.policy.max_nodes as usize {
+            return Err(limited());
+        }
+        let lineage = lineage(&self.conn, &request.task_id)?;
+        let ancestors = ancestry(&self.conn, &request.task_id)?;
+        let mut host_policy = child_plan::host_policy(&scope, &target)?;
+        host_policy.max_nodes = execution.policy.max_nodes;
+        host_policy.max_depth = scope
+            .bindings
+            .approved_grant
+            .scope
+            .max_depth
+            .checked_sub(lineage.depth)
+            .ok_or_else(denied)?;
+        // Retain the fixed target's own ceiling as well as shared root/project limits.
+        host_policy.root_budget =
+            intersect_budget(&target.request.budget, &execution.policy.root_budget);
+        host_policy.project_budget = execution.policy.project_budget.clone();
+        let refs = self.list_factory_child_plans(&query)?;
+        let mut plans = Vec::with_capacity(refs.len());
+        for reference in refs {
+            if reference.revision > head.reference.revision {
+                return Err(changed());
+            }
+            let plan = self.get_factory_child_plan(&FactoryChildPlanQuery {
+                scope_id: scope_id.into(),
+                task_id: request.task_id.clone(),
+                plan_revision: Some(reference.revision),
+            })?;
+            if plan.reference != reference {
+                return Err(changed());
+            }
+            plans.push(plan);
+        }
+        if plans.last().map(|p| &p.reference) != Some(&request.plan) {
+            return Err(changed());
+        }
+        let (runs, own):(u32,u32)=self.conn.query_row("SELECT count(*),COALESCE(sum(task_id=?2),0) FROM factory_child_goal_runs WHERE factory_scope_id=?1",params![scope_id,request.task_id],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
+        if runs >= execution.policy.max_total_runs || own >= execution.policy.max_runs_per_task {
+            return Err(limited());
+        }
+        check_child_capacity(
+            &self.conn,
+            &scope,
+            head.proposal.nodes.len().saturating_sub(1) as u32,
+        )?;
+        let task = Self::factory_child_read_task(&self.conn, &request.task_id)?;
+        Ok(FactoryGoalSource {
+            scope,
+            factory_run: current_run,
+            task,
+            parent_task_id: lineage.parent_task_id,
+            depth: lineage.depth,
+            ancestors,
+            request: target.request,
+            plans,
+            host_policy,
+        })
+    }
+}
+
+/// Count all already-created Factory children, original delegated Grants and
+/// nested Graph nodes together; repeated nested scopes do not reset capacity.
+fn check_child_capacity(db: &Connection, scope: &FactoryScope, requested: u32) -> Result<()> {
+    let root_factory:u32=db.query_row("SELECT count(*) FROM factory_task_lineage l JOIN factory_scopes s ON s.id=l.scope_id WHERE s.root_grant_id=?1 AND l.parent_task_id IS NOT NULL",[&scope.root_grant_id],|r|r.get(0)).map_err(db_error)?;
+    let project_factory:u32=db.query_row("SELECT count(*) FROM factory_task_lineage l JOIN factory_scopes s ON s.id=l.scope_id WHERE s.project_id=?1 AND l.parent_task_id IS NOT NULL",[&scope.project_id],|r|r.get(0)).map_err(db_error)?;
+    let root_grants:u32=db.query_row("SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND json_extract(document,'$.root_grant_id')=?1",[&scope.root_grant_id],|r|r.get(0)).map_err(db_error)?;
+    let project_grants: u32 = db
+        .query_row(
+            "SELECT count(*) FROM execution_grants WHERE parent_id IS NOT NULL AND project_id=?1",
+            [&scope.project_id],
+            |r| r.get(0),
+        )
+        .map_err(db_error)?;
+    let (root_graph,project_graph):(u32,u32)=db.query_row("SELECT COALESCE(sum(CASE WHEN s.root_grant_id=?1 THEN g.node_count-1 ELSE 0 END),0),COALESCE(sum(CASE WHEN s.project_id=?2 THEN g.node_count-1 ELSE 0 END),0) FROM factory_child_goal_runs g JOIN factory_scopes s ON s.id=g.factory_scope_id",params![scope.root_grant_id,scope.project_id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+    let root = root_factory
+        .checked_add(root_grants)
+        .and_then(|n| n.checked_add(root_graph))
+        .and_then(|n| n.checked_add(requested))
+        .ok_or_else(limited)?;
+    let project = project_factory
+        .checked_add(project_grants)
+        .and_then(|n| n.checked_add(project_graph))
+        .and_then(|n| n.checked_add(requested))
+        .ok_or_else(limited)?;
+    let policy = approved_binding(scope)?;
+    if root > scope.bindings.approved_grant.scope.max_children
+        || root > policy.policy.root_budget.children
+        || project > policy.policy.project_budget.children
+        || root > scope.selection.root_budget.children
+        || project > scope.selection.project_budget.children
+    {
+        return Err(CoreError::new("RESOURCE_LIMIT", "Original shared root/project child capacity is exhausted; a nested Graph cannot reset it"));
+    }
+    Ok(())
+}
+
+pub(crate) fn checked_plan(
+    db: &Connection,
+    reference: &FactoryChildPlanRef,
+) -> Result<FactoryChildPlanView> {
+    let plan = child_plan::row(
+        db,
+        &reference.scope_id,
+        &reference.task_id,
+        reference.revision,
+    )?;
+    if plan.reference != *reference {
+        return Err(changed());
+    }
+    Ok(plan)
+}
+pub(crate) fn verify_lineage(
+    db: &Connection,
+    s: &FactoryScope,
+    task_id: &str,
+    ancestors: &[String],
+    parent: Option<&str>,
+) -> Result<()> {
+    let l = lineage(db, task_id)?;
+    let r = run(db, &s.id)?;
+    let b = binding(db, &r.id, task_id)?;
+    if l.factory_scope_id != s.id
+        || l.root_task_id != s.root_task_id
+        || l.parent_task_id.as_deref() != parent
+        || ancestry(db, task_id)? != ancestors
+        || b.scope_id != s.id
+        || b.run_id != r.id
+        || b.grant_id != s.root_grant_id
+    {
+        return Err(changed());
+    }
+    Ok(())
+}
+pub(crate) fn policy_live(db: &Connection, scope_id: &str, task_id: &str) -> Result<()> {
+    let s = checked_scope(db, scope_id)?;
+    base_live(db, &s)?;
+    let r = run(db, scope_id)?;
+    let b = binding(db, &r.id, task_id)?;
+    if r.cancel_requested
+        || matches!(
+            r.state.as_str(),
+            "cancelled" | "outcome_unknown" | "blocked" | "completed"
+        )
+        || b.handle.cancel_requested
+    {
+        return Err(denied());
+    }
+    let task = Store::factory_child_read_task(db, task_id)?;
+    if task.project_id != s.project_id
+        || b.planning_spec_revision != Some(task.spec_revision)
+        || task.goal != b.request.goal
+        || matches!(
+            task.state,
+            TaskState::CancelRequested | TaskState::Cancelled | TaskState::Accepted
+        )
+    {
+        return Err(changed());
+    }
+    child_plan::require_planning_task_state(db, &s, &b, &task)
+}
+
+fn intersect_budget(
+    a: &crate::goal_plan::BudgetLimits,
+    b: &crate::goal_plan::BudgetLimits,
+) -> crate::goal_plan::BudgetLimits {
+    crate::goal_plan::BudgetLimits {
+        attempts: a.attempts.min(b.attempts),
+        parallel: a.parallel.min(b.parallel),
+        runtime_ms: a.runtime_ms.min(b.runtime_ms),
+        output_bytes: a.output_bytes.min(b.output_bytes),
+        children: a.children.min(b.children),
+        reworks: a.reworks.min(b.reworks),
+        tokens: None,
+        cost_microunits: None,
+    }
+}
+pub(crate) fn source_is_current(db: &Connection, source: &FactoryGoalSource) -> Result<()> {
+    let scope = checked_scope(db, &source.scope.id)?;
+    let current_run = run(db, &scope.id)?;
+    let target = binding(db, &current_run.id, &source.task.id)?;
+    child_plan::mutable_target(db, &scope, &target)?;
+    if scope.revision != source.scope.revision
+        || scope.contract_digest != source.scope.contract_digest
+        || current_run.revision != source.factory_run.revision
+        || encode(&target.request)? != encode(&source.request)?
+        || ancestry(db, &source.task.id)? != source.ancestors
+        || lineage(db, &source.task.id)?.parent_task_id != source.parent_task_id
+    {
+        return Err(changed());
+    }
+    let latest =
+        child_plan::latest_reference(db, &scope.id, &source.task.id)?.ok_or_else(changed)?;
+    if source.plans.last().map(|p| &p.reference) != Some(&latest) {
+        return Err(CoreError::new(
+            "STALE_REVISION",
+            "Saved child plan head changed before execution commit",
+        ));
+    }
+    let binding = approved_binding(&scope)?;
+    let (runs,own):(u32,u32)=db.query_row("SELECT count(*),COALESCE(sum(task_id=?2),0) FROM factory_child_goal_runs WHERE factory_scope_id=?1",params![scope.id,source.task.id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
+    if runs >= binding.policy.max_total_runs || own >= binding.policy.max_runs_per_task {
+        return Err(limited());
+    }
+    check_child_capacity(
+        db,
+        &scope,
+        source
+            .plans
+            .last()
+            .ok_or_else(changed)?
+            .proposal
+            .nodes
+            .len()
+            .saturating_sub(1) as u32,
+    )
 }
