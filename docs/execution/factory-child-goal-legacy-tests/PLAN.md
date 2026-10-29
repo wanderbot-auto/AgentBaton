@@ -10,3 +10,23 @@ Allowed files: new `crates/core/tests/factory_child_goal_legacy_migration.rs`, i
 4. Record separate active/unknown recovery and derived-issuer cases as outstanding until backed by actual input/execution. Review independently, fix, and return isolated commit to coordinator. No overall product completion claim.
 
 There is no public migration-only entry point. This suite deliberately calls Store::open, which performs migration and legitimate recovery. Its immutable-history fixture requires terminal joined work and expects zero recovery changes. The pre-v15 backup proves original14 raw history separately. It does not claim an independent DDL-only execution or active-worker recovery evidence.
+
+## Dedicated target integration (PENDING, coordinator owns Cargo/CI)
+
+The six tests have no ignore/skip/missing-input success path. They consume only an explicit private0700 `AGENTBATON_ACTUAL_SCHEMA14_FIXTURE` directory, require original source/pair hashes, real initial14 probe, clean joined processes, actual nonempty proofs, data SHA and foreign keys. Original generated DB/RPC/capabilities are not committed or public-uploaded.
+
+Coordinator approved adding the following to `crates/core/Cargo.toml`; this agent does not edit that excluded manifest:
+
+```toml
+[features]
+actual-legacy-migration-tests = []
+
+[[test]]
+name = "factory_child_goal_legacy_migration"
+path = "tests/factory_child_goal_legacy_migration.rs"
+required-features = ["actual-legacy-migration-tests"]
+```
+
+Ordinary suites then explicitly report these six as NOT_RUN; they are not included in ordinary659+7 counts. A separate required CI step must generate genuine14 input and run this exact target with the feature and private fixture env. Until the Cargo gate is installed, do not integrate this automatically discovered target into ordinary runs without its input. CI integration is PENDING; this is not permission to omit the migration gate from acceptance.
+
+Rebuilding f032 on another platform/path/toolchain produces new measured hashes. The current generator pins the actual original Linux f032 pair, so CI source-build provenance/manifest contract must be separately integrated and reviewed by the coordinator. New build hashes cannot be relabelled as the original frozen hashes. No CI reproducibility success is currently claimed.

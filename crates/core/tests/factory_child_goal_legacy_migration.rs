@@ -39,8 +39,21 @@ impl Drop for FixtureDir {
 }
 
 fn fixture() -> (FixtureDir, PathBuf, Value) {
-    let source =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/child_goal_legacy_migration");
+    let source = PathBuf::from(std::env::var_os("AGENTBATON_ACTUAL_SCHEMA14_FIXTURE")
+        .expect("Explicit private actual14 fixture is required; run the dedicated migration target after generating it"));
+    let info = fs::symlink_metadata(&source).unwrap();
+    assert!(info.is_dir() && !info.file_type().is_symlink());
+    assert_eq!(info.permissions().mode() & 0o777, 0o700);
+    let source = source.canonicalize().unwrap();
+    for (name, maximum) in [
+        ("manifest.json", 4_194_304),
+        ("actual-schema14.sqlite3", 16_777_216),
+    ] {
+        let info = fs::symlink_metadata(source.join(name)).unwrap();
+        assert!(info.is_file() && !info.file_type().is_symlink());
+        assert_eq!(info.permissions().mode() & 0o777, 0o600);
+        assert!(info.len() > 0 && info.len() <= maximum);
+    }
     let manifest: Value = serde_json::from_slice(
         &fs::read(source.join("manifest.json"))
             .expect("Generate and retain the real schema14 fixture first"),
@@ -59,6 +72,11 @@ fn fixture() -> (FixtureDir, PathBuf, Value) {
     );
     assert_eq!(manifest["daemon_exit"], 0);
     assert_eq!(manifest["forced_kill"], false);
+    assert_eq!(manifest["actual_initial_probe"]["schema"], 14);
+    assert_eq!(manifest["actual_initial_probe"]["goal_scopes"], 0);
+    assert_eq!(manifest["actual_initial_probe"]["factory_scopes"], 0);
+    assert_eq!(manifest["actual_initial_probe"]["foreign_keys"], "clean");
+    assert_eq!(manifest["actual_initial_probe"]["query_only"], true);
     let owned = manifest["owned_processes"].as_array().unwrap();
     assert!(owned.len() >= 2 && owned.iter().all(|p| p["gone_after_join"] == true));
     assert_eq!(
@@ -116,6 +134,11 @@ fn fixture() -> (FixtureDir, PathBuf, Value) {
     }
     let pending: i64 = db.query_row("SELECT count(*) FROM goal_runs WHERE state IN ('queued','running','cancel_requested','outcome_unknown')", [], |r|r.get(0)).unwrap();
     assert_eq!(pending, 0, "This immutable-history fixture must have joined terminal workers; active recovery is a separate case");
+    let legacy_factory: i64 = db.query_row("SELECT count(*) FROM factory_scopes WHERE json_extract(document,'$.selection.capabilities.child_goal_execution')=0 AND json_type(document,'$.selection.child_goal_execution_policy') IS NULL", [], |r|r.get(0)).unwrap();
+    assert!(
+        legacy_factory > 0,
+        "Actual14 Factory scope has no child Goal execution authority"
+    );
     for kind in ["goal", "goal_graph_execution", "factory"] {
         let count: i64 = db.query_row("SELECT count(*) FROM approval_proposals WHERE json_extract(document,'$.kind')=?1 AND json_extract(document,'$.consumed')=1", [kind], |r|r.get(0)).unwrap();
         assert!(count > 0, "Missing real consumed {kind} approval");
@@ -325,6 +348,10 @@ fn actual14_migration_collision_rolls_back_without_losing_proof() {
 fn actual14_orphan_scope_is_rejected_without_disabling_native_capability_fks() {
     let (_dir, path, _) = fixture();
     let db = Connection::open(&path).unwrap();
+    // Intentionally corrupt this private negative-test copy, never the real14
+    // generator/input or production Store connection. Store::open must reject
+    // it under its unchanged integrity validation.
+    db.execute_batch("PRAGMA foreign_keys=OFF").unwrap();
     db.execute(
         "UPDATE goal_scopes SET root_grant_id='missing-original-grant'",
         [],
@@ -341,6 +368,7 @@ fn actual14_missing_or_wrong_native_capability_proposal_cannot_fallback() {
         let (_dir, path, manifest) = fixture();
         let db = Connection::open(&path).unwrap();
         if missing {
+            db.execute_batch("PRAGMA foreign_keys=OFF").unwrap();
             db.execute(
                 "UPDATE goal_graph_capabilities SET approval_id='missing-native-approval'",
                 [],
