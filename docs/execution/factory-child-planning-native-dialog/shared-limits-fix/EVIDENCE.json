@@ -1,0 +1,225 @@
+{
+  "source_commit": "c0a31a0da116694a95dd00036bc46c8ddc528463",
+  "result": {
+    "source": "c0a31a0da116694a95dd00036bc46c8ddc528463",
+    "source_files": {
+      "apps/desktop/src-tauri/src/native_parent.rs": "15387d3493af707f9e50b019dc04fe7b6e7b0d95bc68623791a875123a80e9da",
+      "apps/desktop/src-tauri/src/lib.rs": "f1e2d4ab47173789d93bc96c12eb85523e752b5ee6057677851aa923e2f599b5",
+      "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs": "84da1569a85766573a3593e8691308c36f54a28ac9bd0d35fb14e1c891114544"
+    },
+    "source_before_after_equal": true,
+    "commands": [
+      {
+        "argv": [
+          "python",
+          "-B",
+          "/workspace/.onboarding/factory-child-planning-native-dialog/shared-limits-fix/check_shared_limits.py"
+        ],
+        "cwd": "/workspace/.worktrees/factory-child-planning-native-dialog",
+        "start_UTC": "2026-10-29T06:43:50.863597+00:00",
+        "exit": 0,
+        "stdout": "mechanical16.stdout",
+        "stdout_sha256": "61c9d590cdd236cb61e719db68bbe35584c01422b96e582f4c071ecd22d34426",
+        "stderr": "mechanical16.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/workspace/.toolchains/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustfmt",
+          "--edition",
+          "2021",
+          "--check",
+          "apps/desktop/src-tauri/src/native_parent.rs",
+          "apps/desktop/src-tauri/src/lib.rs",
+          "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs"
+        ],
+        "cwd": "/workspace/.worktrees/factory-child-planning-native-dialog",
+        "start_UTC": "2026-10-29T06:43:50.910645+00:00",
+        "exit": 0,
+        "stdout": "rustfmt.stdout",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "rustfmt.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check",
+          "c0a31a0da116694a95dd00036bc46c8ddc528463^",
+          "c0a31a0da116694a95dd00036bc46c8ddc528463"
+        ],
+        "cwd": "/workspace/.worktrees/factory-child-planning-native-dialog",
+        "start_UTC": "2026-10-29T06:43:51.166365+00:00",
+        "exit": 0,
+        "stdout": "diffcheck.stdout",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "diffcheck.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "own_execution": "static/Python source inspection + standalone Rustfmt only; no Cargo/Node/Core/browser",
+    "Root_prior_Rust": {
+      "head": "62518def138d7c831d9f9cc4fbe59ea6478f59c9",
+      "exit": 101,
+      "tests_executed": 0,
+      "missing_constant_diagnostics": 5,
+      "original_inode_mode_nlink_sha_restored": true
+    },
+    "Root_prior_Python": {
+      "head": "62518def138d7c831d9f9cc4fbe59ea6478f59c9",
+      "entire_tests": 47,
+      "actual_Core_cases_included": 5,
+      "unittest_seconds": 8.247,
+      "exit": 0,
+      "log_sha256": "4e2d26d8b279f3c0598a1bb28348d5abf32b5529ab37b2227910ab2dc295a7e8",
+      "dimension": "Root actual run, not independently executed by this author; two Python source files byte-equal current; does not prove Rust/AppKit/current const view"
+    }
+  },
+  "mechanical_checks": {
+    "base": "6002b10f7d0522791efef05a3461d7e6d68bb99b",
+    "checks": [
+      {
+        "name": "single_production_definition:REVIEW_MESSAGE_BYTES",
+        "passed": true
+      },
+      {
+        "name": "single_production_definition:REVIEW_ROW_ENCODED_BYTES",
+        "passed": true
+      },
+      {
+        "name": "single_production_definition:REVIEW_ROWS_PER_PAGE",
+        "passed": true
+      },
+      {
+        "name": "parent_only_visibility_changes_full_bytes",
+        "passed": true
+      },
+      {
+        "name": "lib_only_view_addition_full_bytes",
+        "passed": true
+      },
+      {
+        "name": "view_cfg_native_smoke_only",
+        "passed": true
+      },
+      {
+        "name": "alias_references_same_definition:REVIEW_MESSAGE_BYTES",
+        "passed": true
+      },
+      {
+        "name": "alias_references_same_definition:REVIEW_ROW_ENCODED_BYTES",
+        "passed": true
+      },
+      {
+        "name": "alias_references_same_definition:REVIEW_ROWS_PER_PAGE",
+        "passed": true
+      },
+      {
+        "name": "no_public_use_E0364",
+        "passed": true
+      },
+      {
+        "name": "no_methods_or_ipc_or_numeric_copy",
+        "passed": true
+      },
+      {
+        "name": "native_smoke_release_refusal_unchanged",
+        "passed": true
+      },
+      {
+        "name": "controller_only_import_full_bytes",
+        "passed": true
+      },
+      {
+        "name": "original10_new6_Rust_tests_untouched",
+        "passed": true
+      },
+      {
+        "name": "Python_exact625:scripts/native-owner-dialog-smoke.py",
+        "passed": true
+      },
+      {
+        "name": "Python_exact625:apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+        "passed": true
+      }
+    ],
+    "count": 16,
+    "new_Rust_compilation_tests": "NOT_RUN",
+    "own_Cargo_Core_Node_browser": "NOT_RUN"
+  },
+  "archive": {
+    "path": "docs/execution/factory-child-planning-native-dialog/shared-limits-fix/EVIDENCE.tar.gz",
+    "bytes": 13547,
+    "sha256": "e11be654b62041d161c0e608178db9f0c4e56756ceebd219a278c5e2a655ed31",
+    "members": 16,
+    "roundtrip": true,
+    "symlinks": 0
+  },
+  "manifest_sha256": "5162770dfa16fb45cacf34cb0d5726eba68cd0e3c66f7069dee724ce6be93e61",
+  "members": {
+    "CHECKS.json": {
+      "bytes": 1706,
+      "sha256": "9a584ff18ab045cc4fd49a9f69cb0140fd394aad8f4d0514b6412961715241f4"
+    },
+    "RESULT.json": {
+      "bytes": 3222,
+      "sha256": "610bb271263ebc45e92df5b64c10e5ded1af223a16ee842099d1c3bea575ae19"
+    },
+    "Root625-PYTHON_RESULT.json": {
+      "bytes": 426,
+      "sha256": "67ef1fb5bbcff38aa7fc601ccd477c3853e9bd2279f29625442442c32f45a29f"
+    },
+    "Root625-native-compile-failed.log": {
+      "bytes": 1817,
+      "sha256": "1f512a9335aeba5c1d59e027aed457ac4fb2e688726bafe53f571fea4c78a843"
+    },
+    "Root625-native-result.json": {
+      "bytes": 942,
+      "sha256": "3a1deefb6953c9e9515188c549e15c2e2b45b98408165505197fa69f55ec0fd2"
+    },
+    "Root625-python47.log": {
+      "bytes": 64179,
+      "sha256": "4e2d26d8b279f3c0598a1bb28348d5abf32b5529ab37b2227910ab2dc295a7e8"
+    },
+    "check_shared_limits.py": {
+      "bytes": 2798,
+      "sha256": "1e0eb51b5920fe9df74535c0ce8af5fbf8a0c8c045dff4a156b572ca9f1b8321"
+    },
+    "checks-first.log": {
+      "bytes": 33,
+      "sha256": "61c9d590cdd236cb61e719db68bbe35584c01422b96e582f4c071ecd22d34426"
+    },
+    "collect.py": {
+      "bytes": 2993,
+      "sha256": "4acc7cd30c365544ef72655ba1b958c540581ca822058decde6b289cabaa30ce"
+    },
+    "diffcheck.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "diffcheck.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "mechanical16.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "mechanical16.stdout": {
+      "bytes": 33,
+      "sha256": "61c9d590cdd236cb61e719db68bbe35584c01422b96e582f4c071ecd22d34426"
+    },
+    "rustfmt.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "rustfmt.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "new_Rust16_type_Clippy_AppKit_Mac": "NOT_RUN",
+  "Root_Cargo_Core_Node_browser": "NOT_EXECUTED_BY_THIS_AUTHOR",
+  "authority": "Root explicitly authorized necessary three-file readonly const bridge; no new runtime permissions"
+}
