@@ -122,5 +122,24 @@
     "new_paid_resources": false,
     "signing_credentials": false,
     "final_license": false
+  },
+  "integration_wip": {
+    "root_source": "a57d647e49190fa795f655ed102c0ad29275370a",
+    "UI": "23 source/docs files exactly equal reviewed efc9ecc; merge b75485e",
+    "Core": "31 source/docs files exactly equal6ffaa242; merge d4ec4aa; check+3 SQLite phase units PASS at author6ff, normal lifecycle NOT passed",
+    "Native": "17 files equal reviewed121b657 except preserved accepted feature-gated shared-limit const block in lib; merge a57d647; no Native15 Rust run",
+    "CI": "current candidate manifest/tools path schema15 and explicit private companion for new childGoal test; static infrastructure validator PASS; actual new CI NOT_RUN",
+    "legacy_actual_migration_run1": {
+      "source": "23314cbacbb16304e8873d68a6385a33f8ff69e4",
+      "core_baseline": "5491c94cffbe40292ff977e0d9cfedcb55026c9e",
+      "passed": 4,
+      "failed": 2,
+      "ignored": 0,
+      "exit": 101,
+      "failure1": "Real Native graph capability relational approval_id inconsistent with typed document was accepted; separate production source fix160761fc not yet tested",
+      "failure2": "Test backup enumeration included WAL/SHM; helper fixc3e8334, original failed DB retained",
+      "evidence": "local .onboarding/factory-child-goal-legacy-tests/migration-run1; private raw DB/token not published"
+    },
+    "at": "2026-10-29T09:21:12.188352+00:00"
   }
 }

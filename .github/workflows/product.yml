@@ -30,13 +30,14 @@ jobs:
           mkdir -p artifacts/provider-contract
           # Planning integration tests require matching normal tools before tests.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema14-tools"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema15-tools"
           export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+          export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           cargo build --workspace --locked --bins
           python3 scripts/prepare-factory-test-tools.py --source "$CARGO_TARGET_DIR/debug" --output "$AGENTBATON_FACTORY_TEST_TOOLS" --evidence artifacts/provider-contract/factory-test-tools
           AGENTBATON_TEST_SCHEMA_CAPTURE="$GITHUB_WORKSPACE/artifacts/provider-contract/wire.ndjson" cargo test --workspace --locked
           python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS"
-          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION
+          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION AGENTBATON_CHILD_GOAL_COMPANION
       - name: Validate captured messages against hash-pinned official native schema
         run: |
           set -euo pipefail
@@ -100,7 +101,7 @@ jobs:
               return subprocess.check_output(['git', *args], text=True).strip()
           assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
           candidate = {
-              'schema': 14,
+              'schema': 15,
               'git_head': git('rev-parse', 'HEAD'),
               'git_tree': git('rev-parse', 'HEAD^{tree}'),
               'dirty': False,
@@ -208,13 +209,14 @@ jobs:
           set -euo pipefail
           # Planning integration tests require matching normal tools before tests.
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema14-tools"
+          export AGENTBATON_FACTORY_TEST_TOOLS="$RUNNER_TEMP/agentbaton-schema15-tools"
           export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+          export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
           cargo build --workspace --locked --bins
           python3 scripts/prepare-factory-test-tools.py --source "$CARGO_TARGET_DIR/debug" --output "$AGENTBATON_FACTORY_TEST_TOOLS" --evidence artifacts/native-smoke/factory-test-tools
           cargo test --workspace --locked -- --show-output
           python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS"
-          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION
+          unset CARGO_TARGET_DIR AGENTBATON_FACTORY_TEST_TOOLS AGENTBATON_CHILD_PLAN_COMPANION AGENTBATON_CHILD_GOAL_COMPANION
           cargo build --locked --bin batond --bin baton
           python3 scripts/smoke-local-product.py
           cargo build --release --locked --bin batond --bin baton
