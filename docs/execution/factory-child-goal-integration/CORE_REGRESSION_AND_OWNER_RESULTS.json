@@ -1,0 +1,211 @@
+{
+  "recorded_at": "2026-10-29T15:48:15.970349+00:00",
+  "core_lib": {
+    "results": [
+      {
+        "source": "09d106f2c6875d085d560a30ff27164291c26128",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "",
+          "--",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 0,
+        "seconds": 108.36347355501493,
+        "minimum_free_bytes": 848592896,
+        "interruption": null,
+        "log_sha256": "300065c3d23f8288401c9c6b05a322fc503649f5c2539c75734ce8a567e42e4d",
+        "summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 127 filtered out; finished in 0.00s",
+          "test result: ok. 128 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 89.55s"
+        ]
+      }
+    ],
+    "unique_suite": "128 passed,0failed,0ignored; nested one-test FIFO subprocess is not a 129th unique case",
+    "source": "09d106f2c6875d085d560a30ff27164291c26128",
+    "earlier": "regression1 interrupted90s; regression2 actual124PASS1FAIL stale schema fixture, preserved.34d targeted negative1PASS before full128."
+  },
+  "strict_workspace": [
+    {
+      "source": "09d106f2c6875d085d560a30ff27164291c26128",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 15.964006894995691,
+      "minimum_free_bytes": 903487488,
+      "interruption": null,
+      "log_sha256": "80f8f27ef98b8d6664bc6b1d529700d003f1bf852fef828050971426508459e9",
+      "summaries": []
+    }
+  ],
+  "queue_units": [
+    {
+      "source": "e9cf4aaa2de1743e094696c81740d22f54e70c4c",
+      "command": [
+        "/workspace/.toolchains/cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "factory_queue_deadline_tests",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 17.567421600979287,
+      "minimum_free_bytes": 1074548736,
+      "interruption": null,
+      "log_sha256": "7ad4c8fceac18d45d942d975ded1a589e4ddac10c5e2f93df1654346f5772cc2",
+      "summaries": [
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 124 filtered out; finished in 0.03s"
+      ]
+    }
+  ],
+  "rework4": {
+    "results": [
+      {
+        "source": "80f733eff599a71a33fda6cbe438301c7c0c05e1",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "-vv",
+          "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+          "--",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 101,
+        "seconds": 48.22557810298167,
+        "minimum_free_bytes": 894349312,
+        "interruption": null,
+        "log_sha256": "eb322941e4e3a9215c0820dd1bb186a58198c3e602bc89ef4eca563942bef829",
+        "summaries": [
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 23 filtered out; finished in 29.30s"
+        ]
+      }
+    ],
+    "whole_status": "FAILED",
+    "bounded_observation": "First real Commandexit1. Second Validator reserved4000, settled3134 with preflightDEADLINE_EXCEEDED and no process/exit.4000-3134=866 is derived, not guard instant measurement.Original rework limit blocks another repair.",
+    "independent_review_sha256": "1b87e86d4f28c8fff5f8b5abfc672d269fa21ff0a88355f2eb65ed5f700a3786"
+  },
+  "rework5": {
+    "results": [
+      {
+        "source": "63638a2b4852ee1a5bebe0cfee8e8d93b2ffc1a6",
+        "command": [
+          "/workspace/.toolchains/cargo/bin/cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "factory_runtime_ipc",
+          "-vv",
+          "child_goal_runtime::rework::actual_factory_child_goal_failed_command_joined_rework_same_graph_revision_owner_and_parent_resume",
+          "--",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit": 101,
+        "seconds": 48.525605610979255,
+        "minimum_free_bytes": 643747840,
+        "interruption": null,
+        "log_sha256": "987e78af6cc436669f20955ff3ef0d7ddf9d9bf52a2d85e72275523061969166",
+        "summaries": [
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 23 filtered out; finished in 31.77s"
+        ]
+      }
+    ],
+    "whole_status": "FAILED",
+    "fresh_allocation": "Validator6000 declared before first approval. child20000/root-project30000/Command1000+500 unchanged.",
+    "actual_commands": [
+      {
+        "plan_revision": 1,
+        "exit_code": 1,
+        "process_started": true,
+        "reason": "exited",
+        "passed": false,
+        "actual_runtime_ms": 1484,
+        "stop_confirmed": true
+      },
+      {
+        "plan_revision": 2,
+        "exit_code": 0,
+        "process_started": true,
+        "reason": "exited",
+        "passed": true,
+        "actual_runtime_ms": 3141,
+        "stop_confirmed": true
+      }
+    ],
+    "owner": "Reached awaiting_owner140 and approval.proposed141; subsequent call AUTH_REQUIRED/not_started. Native finalization and parent completion not accepted.",
+    "scope_expiry_epoch_ms": 1793288628175,
+    "owner_proposal_utc": "2026-10-29T15:43:47.508780989Z",
+    "diagnosis": "Likely original approval wall window expired during finalization; author verifying precise call and timing. No changed old approval/renewal.",
+    "original_private_evidence": "retained, not published"
+  },
+  "browser_exact_wait": {
+    "results": {
+      "source": "80f733eff599a71a33fda6cbe438301c7c0c05e1",
+      "command": [
+        "python3",
+        "apps/desktop/tests/factory-child-goal-real-ipc.py",
+        "--run",
+        "--case",
+        "normal",
+        "--tools",
+        "/workspace/.onboarding/factory-recovery-queue-fixed-preflight1/frozen",
+        "--manifest",
+        "/workspace/.onboarding/factory-child-goal-browser-exact-wait1/manifest.json",
+        "--frontend",
+        "/workspace/.worktrees/factory-runtime-integration/apps/desktop/dist",
+        "--output",
+        "/workspace/.onboarding/factory-child-goal-browser-exact-wait1/normal"
+      ],
+      "exit": 1,
+      "seconds": 26.233633329014992,
+      "minimum_free_bytes": 909922304,
+      "interruption": null,
+      "log_sha256": "18df6585203168e2d2d0b8034dcb6e2f1860fc879f6aa14fe8edf27c40009125",
+      "report_sha256": "28a141995f1da9d2523a3ab9deae575a4f8b780fc111eae17aacfc11de739602",
+      "status": "failed_or_interrupted",
+      "checks": 2,
+      "screenshots": 3,
+      "cleanup_complete": false,
+      "source_tools_assets_before_after_equal": true,
+      "guard_scope": "180s external test controller only; original product Grant/Scope/runtime and per-stage15s unchanged",
+      "dimensions": "actual React/Linux Chromium/authenticated Unix Core15/generated ACP+MCP/private Owner fixture; not OS dialog or real Provider account"
+    },
+    "whole_status": "FAILED",
+    "observed": "Exact child row now reached;259 raw replies captured,0capturefailure/0rejection. Start click then t.stale/no factory_child_goals.start HTTP. UI parent polling freshness transition under diagnosis; no safety predicate removed."
+  },
+  "remaining": "Actual full rework/three browser cases/native profile regressions/exact CI dualMac/new15 installers/full130 not complete. Source928 publicartifact privacy BLOCKED_NOT_IMPORTED."
+}

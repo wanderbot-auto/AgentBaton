@@ -71,3 +71,8 @@ Two recorded digest tests passed after an earlier zero-selected filter (compile 
 ### 2026-10-29T15:20:30.454825+00:00 — actual checks and retained refusals
 
 UI typecheck/build and802 tests passed atd64, infrastructure71 passed at310, strict migration Clippy passed at2b47 after earlier failures. FullCore125 collector interrupted at90s; NOTPASS, original log/ELF retained. Browser normal at310 failed exact row before refresh completed after64 actual raw captures with0failures. NewCI928 privacy finding BLOCKED import; public finite staging pending. See UI_REGRESSION_AND_CI_BOUNDARIES.json; full130 remains incomplete.
+
+
+### 2026-10-29T15:48:15.970349+00:00 — full128 and real rework exit1→0
+
+Exact09d fullCore128PASS/0skip and strictworkspacealltargetsClippyPASS. Exact636 freshrealrework reached genuine fixedCommand1 then0/ownedstop and newOwnerproposal, but final callAUTH_REQUIRED at original expiry boundary, wholecaseFAIL. No freshOwner/parentcomplete claim; original failure preserved. Browser exactwait thenstale/noStartHTTP under separate UI diagnosis. See CORE_REGRESSION_AND_OWNER_RESULTS.json; continue full130 without new credentials/spend/production.
