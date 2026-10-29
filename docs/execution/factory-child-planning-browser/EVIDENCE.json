@@ -1,0 +1,61 @@
+{
+  "status": "source_prepared_static_pass_runtime_not_run",
+  "base": "ead1f468546694e0852205a66416432d8be1a4c2",
+  "source_commit": "49bcf16b15968fe5b81961852df1fa12dd406ffc",
+  "source_sha256": "6100ba1d3aecab214fe31c9537a2b8adcb9f90be51640e7364773e48049273df",
+  "snapshot": {
+    "path": "/workspace/.onboarding/factory-child-planning-browser/SOURCE_SNAPSHOT.json",
+    "sha256": "3a10c697bd3db5fc08217ea7732823f48c5716357922e7643b8332a5b802b36b"
+  },
+  "executed": {
+    "syntax_exit": 0,
+    "boundary_pure": 46,
+    "recorded_DTO_pure": 11,
+    "diff_exit": 0
+  },
+  "runtime_checks": {
+    "CP01": "not_run",
+    "CP02": "not_run",
+    "CP03": "not_run",
+    "CP04": "not_run",
+    "CP05": "not_run",
+    "CP06": "not_run",
+    "CP07": "not_run",
+    "CP08": "not_run",
+    "CP09": "not_run"
+  },
+  "actual_fixture": {
+    "path": "/workspace/.onboarding/factory-child-planning-core/actual-scoped-planning-r7.json",
+    "sha256": "c572871caa9ecfe7868f137058a556cba1eaa7964efc01314b081724612ba411",
+    "bytes": 149485,
+    "meaning": "Core author recorded fixture, pure verification only in this unit"
+  },
+  "failed_commands": [],
+  "preserved_initial_iterations": [
+    "/workspace/.onboarding/factory-child-planning-browser/initial-pure-controls",
+    "/workspace/.onboarding/factory-child-planning-browser/strict-pure-controls",
+    "/workspace/.onboarding/factory-child-planning-browser/actual-dto-pure-controls",
+    "/workspace/.onboarding/factory-child-planning-browser/live-handshake-pure-controls"
+  ],
+  "native_OS": "not_run",
+  "macOS": "not_run",
+  "Cargo": "not_run",
+  "browser": "not_run",
+  "Node": "not_run",
+  "real_Provider_model": "not_run",
+  "locks_Core_Native_UI_existing_harness": "unchanged",
+  "requirements": [
+    "AB-TSK-009",
+    "AB-TSK-011",
+    "AB-TSK-003",
+    "AB-TSK-004",
+    "AB-TSK-005",
+    "AB-TSK-012",
+    "AB-SEC-002",
+    "AB-SEC-003",
+    "AB-SEC-005",
+    "AB-SEC-010",
+    "AB-COR-002",
+    "AB-COR-007"
+  ]
+}
