@@ -434,7 +434,7 @@ mod tests {
             assert!(line.contains(&format!("count={phase} code=none")));
             assert!(line.len() <= MAX_LINE);
         }
-        for phase in 1..=4 {
+        for phase in 1..=8 {
             let line = trace
                 .record(
                     "factory_admission_phase",

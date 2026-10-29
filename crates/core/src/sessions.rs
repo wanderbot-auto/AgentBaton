@@ -403,6 +403,8 @@ impl Store {
         goal: Option<crate::goal_store::GoalDispatchContext>,
         factory: Option<crate::factory::FactoryDispatchContext>,
     ) -> Result<ManagedSession> {
+        #[cfg(debug_assertions)]
+        let mut factory_phase_clock = factory.as_ref().map(|_| Instant::now());
         let (task_id, workspace_id, connection_id, grant_id, expected_revision, key) = request;
         key_valid(key)?;
         let payload = encode(
@@ -506,6 +508,17 @@ impl Store {
                 "Selected executable changed; register and approve it again",
             )
         })?;
+        #[cfg(debug_assertions)]
+        if let Some(clock) = factory_phase_clock.as_mut() {
+            crate::ipc::goal_diagnostics::emit(
+                "factory_admission_phase",
+                Some(clock.elapsed()),
+                [false; 6],
+                5,
+                None,
+            );
+            *clock = Instant::now();
+        }
         let busy:i64=tx.query_row("SELECT count(*) FROM sessions WHERE workspace_id=?1 AND state NOT IN('stopped','failed')",[workspace_id],|r|r.get(0)).map_err(db_error)?;
         let lease: Option<(String, i64)> = tx
             .query_row(
@@ -704,6 +717,17 @@ impl Store {
             }
         }
         if let Some(context) = factory.as_ref() {
+            #[cfg(debug_assertions)]
+            if let Some(clock) = factory_phase_clock.as_mut() {
+                crate::ipc::goal_diagnostics::emit(
+                    "factory_admission_phase",
+                    Some(clock.elapsed()),
+                    [false; 6],
+                    6,
+                    None,
+                );
+                *clock = Instant::now();
+            }
             crate::factory::reserve_factory_session(
                 &tx,
                 context,
@@ -711,6 +735,17 @@ impl Store {
                 &intent.binding,
                 self.data_input.as_ref(),
             )?;
+            #[cfg(debug_assertions)]
+            if let Some(clock) = factory_phase_clock.as_mut() {
+                crate::ipc::goal_diagnostics::emit(
+                    "factory_admission_phase",
+                    Some(clock.elapsed()),
+                    [false; 6],
+                    7,
+                    None,
+                );
+                *clock = Instant::now();
+            }
         } else if goal.is_none() {
             Store::reserve_ordinary_shared_budget(&tx, &session, &grant, &canonical_root)?;
         }
@@ -740,6 +775,16 @@ impl Store {
             )?;
         }
         tx.commit().map_err(db_error)?;
+        #[cfg(debug_assertions)]
+        if let Some(clock) = factory_phase_clock {
+            crate::ipc::goal_diagnostics::emit(
+                "factory_admission_phase",
+                Some(clock.elapsed()),
+                [false; 6],
+                8,
+                None,
+            );
+        }
         Ok(session)
     }
     pub fn send_session(
