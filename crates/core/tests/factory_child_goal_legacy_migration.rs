@@ -553,7 +553,7 @@ fn actual_nonempty_native_and_factory14_history_survives_store15_and_private_bac
     let details = store
         .goal_graph_details(manifest["native_graph_run_id"].as_str().unwrap())
         .unwrap();
-    assert_eq!(details.task_accepted, false);
+    assert!(!details.task_accepted);
     drop(store);
     let after = Connection::open(&path).unwrap();
     assert_eq!(version(&after), 15);
