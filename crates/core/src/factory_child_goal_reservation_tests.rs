@@ -276,12 +276,18 @@ fn first_counter_constructor_refuses_related_attempt_or_orphan_session_or_intent
         "root_attempt",
         "root_attempt_task_mismatch",
         "project_foreign_root_attempt",
+        "project_grant_task_attempt",
         "root_orphan_session",
         "project_orphan_session",
         "root_foreign_intent_document",
         "root_foreign_intent_task_document",
     ] {
-        let (mut f, s, g) = queued();
+        let grant_project_case = case == "project_grant_task_attempt";
+        let (mut f, s, g) = if grant_project_case {
+            queue_fixture(execution_fixture_with_root_budget(true))
+        } else {
+            queued()
+        };
         assert_eq!(
             f.store
                 .conn
@@ -291,7 +297,7 @@ fn first_counter_constructor_refuses_related_attempt_or_orphan_session_or_intent
                     |r| r.get::<_, i64>(0)
                 )
                 .unwrap(),
-            0
+            if grant_project_case { 1 } else { 0 }
         );
         let other = f
             .store
@@ -301,6 +307,28 @@ fn first_counter_constructor_refuses_related_attempt_or_orphan_session_or_intent
                 "foreign-history-task",
             )
             .unwrap();
+        let foreign_binding = if grant_project_case {
+            // A genuinely approved DIFFERENT root Grant still belongs to this
+            // shared project. Raw-corrupt only the historical Task's project
+            // and retained attempt; never manufacture successful execution.
+            let p = f
+                .store
+                .propose_grant(
+                    &s.project_id,
+                    &s.selection.workspace_ids[0],
+                    &s.selection.connection_ids[0],
+                    4,
+                    1,
+                    30000,
+                    "other-native-history-grant",
+                )
+                .unwrap();
+            let grant = f.store.finalize_proposal(&p.id, p.revision).unwrap();
+            f.store.conn.execute("UPDATE tasks SET document=json_set(document,'$.project_id','foreign-project-raw-corruption') WHERE id=?1",[&other.id]).unwrap();
+            json!({"policy_revision":format!("{}:{}",grant["id"].as_str().unwrap(),grant["revision"].as_u64().unwrap())}).to_string()
+        } else {
+            "{}".into()
+        };
         if case.starts_with("project_") {
             f.store
                 .conn
@@ -329,7 +357,7 @@ fn first_counter_constructor_refuses_related_attempt_or_orphan_session_or_intent
             } else {
                 &other.id
             };
-            f.store.conn.execute("INSERT INTO attempts VALUES('raw-history-attempt',?1,?2,'{}','raw-history-only')",rusqlite::params![task,root]).unwrap();
+            f.store.conn.execute("INSERT INTO attempts VALUES('raw-history-attempt',?1,?2,?3,'raw-history-only')",rusqlite::params![task,root,foreign_binding]).unwrap();
             if case.starts_with("root_foreign_intent") {
                 let raw = json!({"id":"raw-history-intent","attempt_id":"raw-history-attempt","task_id":if case=="root_foreign_intent_task_document"{&s.root_task_id}else{&other.id},"root_task_id":if case=="root_foreign_intent_task_document"{&other.id}else{&s.root_task_id},"state":"stopped","binding":{}});
                 f.store.conn.execute("INSERT INTO dispatch_intents VALUES('raw-history-intent','raw-history-attempt','stopped',NULL,?1)",[raw.to_string()]).unwrap();
