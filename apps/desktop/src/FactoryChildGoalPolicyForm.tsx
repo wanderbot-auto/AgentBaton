@@ -7,7 +7,7 @@ import { factoryMessages } from './factory-i18n';
 import { safeInteger } from './goal-api';
 export function FactoryChildGoalPolicyForm({form,grant,language,onChange}:{form:FactoryForm;grant:ExecutionGrant|undefined;language:Language;onChange:Dispatch<SetStateAction<FactoryForm>>}){
  const t=childGoalMessages[language],limits=factoryMessages[language].limits;
- const ceiling=grant&&safeInteger(grant.scope.max_children,0,1000)?grant.scope.max_children:null;
+ const ceiling=grant&&safeInteger(grant.scope.max_children,0,4294967294)?grant.scope.max_children:null;
  function budget(which:'executionRoot'|'executionProject'){
   const fallback=which==='executionRoot'?'root':'project',values=form[which]??form[fallback];
   return <fieldset><legend>{which==='executionRoot'?t.root:t.project}</legend><div className="factory-fields">{(Object.keys(values) as (keyof FactoryBudgetForm)[]).map(field=><label key={field}>{limits[field]}<input inputMode="numeric" value={values[field]} onChange={e=>onChange(f=>({...f,[which]:{...(f[which]??f[fallback]),[field]:e.target.value}}))}/></label>)}</div></fieldset>;
