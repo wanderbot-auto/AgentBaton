@@ -1274,6 +1274,7 @@ impl FactoryReadPlan {
             data_input: Some(witness),
             graph_input: None,
             graph_capture_clocks: Default::default(),
+            factory_recovery_queue_epochs: Vec::new(),
             factory_read_control: Some(control),
         };
         let workspace = read_workspace(&reader.conn, &self.selection.workspace_ids[0])?;
