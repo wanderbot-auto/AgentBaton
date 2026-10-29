@@ -480,6 +480,7 @@ impl Store {
             return Err(changed());
         }
         require_output_mappings(&record.selection, plan.proposal())?;
+        require_complete_plan(&record, plan.proposal())?;
         require_metered_capabilities(plan.proposal())?;
         let timestamp = now()?;
         let initial = GoalRun {
@@ -1000,5 +1001,38 @@ pub(super) fn verify_native_run(db: &Connection, r: &GoalRun, graph: bool) -> Re
         return Err(denied());
     }
     verify_plan_advances(db, &r, &proposal, &initial, authorized.ok_or_else(denied)?)?;
+    Ok(())
+}
+
+/// A saved planning proposal may be partial. Execution is a distinct action and
+/// must contain the approved deterministic checks plus actual Owner nodes for
+/// every selected goal output; missing nodes cannot be inferred or auto-passed.
+fn require_complete_plan(record: &ScopeRecord, plan: &GoalPlanProposal) -> Result<()> {
+    for output in &record.selection.outputs {
+        let accepts = plan.nodes.iter().any(|node| {
+            node.kind == NodeKind::OwnerApproval
+                && matches!(&node.executor,Executor::Owner{rule_id} if rule_id==owner_rule(record))
+                && node.required_inputs.iter().any(|i| {
+                    i.artifact_id == output.artifact.artifact_id
+                        && matches!(i.source, InputSource::Node { .. })
+                })
+        });
+        if !accepts {
+            return Err(err("INVALID_REQUEST","Child Goal execution requires an explicit Owner acceptance node consuming each approved output candidate; plan-only declarations do not accept results"));
+        }
+        for reference in &output.validators {
+            let definition = record
+                .refs
+                .validators
+                .iter()
+                .find(|v| v.reference == *reference)
+                .ok_or_else(changed)?;
+            if !plan.nodes.iter().any(|node|node.kind==NodeKind::Validate
+                && matches!(&node.executor,Executor::Validator{rule_id} if rule_id==&definition.rule_id)
+                && node.required_inputs.iter().any(|i|i.artifact_id==output.artifact.artifact_id && matches!(i.source,InputSource::Node{..}))) {
+                return Err(err("INVALID_REQUEST","Child Goal execution requires the exact approved validator nodes; references alone do not perform checks"));
+            }
+        }
+    }
     Ok(())
 }
