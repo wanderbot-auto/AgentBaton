@@ -131,7 +131,11 @@ class ChildGoalProjectionTests(unittest.TestCase):
                 self.assertFalse(path.exists());self.assertTrue(path.with_name('summary.json.pending').exists())
 
     def _private_ci_program(self,canonical=True):
-        source=(ROOT/'.github/workflows/product.yml').read_text().split('          import os\n',1)[1].split('\n          PY',1)[0]
+        lines=(ROOT/'.github/workflows/product.yml').read_text().splitlines()
+        starts=[index for index,line in enumerate(lines[:-1])
+                if line == '          import os' and lines[index+1].startswith('          child_goal_private = ')]
+        self.assertEqual(len(starts),1,'Select the actual top-level child-Goal orchestration block')
+        source='\n'.join(lines[starts[0]+1:]).split('\n          PY',1)[0]
         if not canonical:
             # Negative control: removing production canonicalization must fail
             # the same exact private-root assertion, rather than widening it.
