@@ -3,6 +3,9 @@
 use super::*;
 use crate::goal_store::{GoalOutputSelection, GoalScopeSelection};
 fn execution_fixture() -> (Fixture, FactoryScope) {
+    execution_fixture_with_root_budget(false)
+}
+fn execution_fixture_with_root_budget(root_budget_from_native: bool) -> (Fixture, FactoryScope) {
     let mut f = Fixture::new();
     let project = f.store.get(&f.selection.root_task_id).unwrap().project_id;
     let p = f
@@ -20,14 +23,17 @@ fn execution_fixture() -> (Fixture, FactoryScope) {
     let grant = f.store.finalize_proposal(&p.id, p.revision).unwrap();
     f.selection.grant_id = grant["id"].as_str().unwrap().into();
     f.selection.expected_grant_revision = grant["revision"].as_u64().unwrap();
-    let separate = f
-        .store
-        .create_registered(
-            &project,
-            "Separately approve original Grant child/depth ceilings",
-            "separate-native-scope",
-        )
-        .unwrap();
+    let separate = if root_budget_from_native {
+        f.store.get(&f.selection.root_task_id).unwrap()
+    } else {
+        f.store
+            .create_registered(
+                &project,
+                "Separately approve original Grant child/depth ceilings",
+                "separate-native-scope",
+            )
+            .unwrap()
+    };
     let p = f
         .store
         .propose_goal_scope(
@@ -60,6 +66,14 @@ fn execution_fixture() -> (Fixture, FactoryScope) {
         )
         .unwrap();
     f.store.finalize_proposal(&p.id, p.revision).unwrap();
+    if root_budget_from_native {
+        // Real Native approval establishes the original root counter. Revoke
+        // that scope before deriving a separate Factory scope for this task;
+        // no active-scope uniqueness guard or Grant ceiling is bypassed.
+        f.store
+            .revoke_goal_scope(&p.id, 1, "prior-native-root-revoke")
+            .unwrap();
+    }
     f.selection.expected_grant_revision =
         f.store.get_grant(&f.selection.grant_id).unwrap().revision;
     f.selection.capabilities.child_goal_execution = true;
@@ -102,7 +116,11 @@ fn execution_plan(context: &FactoryChildPlanningContext, revision: u64) -> GoalP
     p
 }
 fn queued() -> (Fixture, FactoryScope, FactoryChildGoalSummary) {
-    let (mut f, s) = execution_fixture();
+    queue_fixture(execution_fixture())
+}
+fn queue_fixture(
+    (mut f, s): (Fixture, FactoryScope),
+) -> (Fixture, FactoryScope, FactoryChildGoalSummary) {
     observation(&mut f, &s);
     let c = f.store.factory_child_planning_context(&query(&s)).unwrap();
     let p = execution_plan(&c, 1);

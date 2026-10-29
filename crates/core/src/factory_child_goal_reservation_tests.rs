@@ -4,7 +4,20 @@
 use super::*;
 
 fn reserved() -> (Fixture, FactoryScope, FactoryChildGoalSummary) {
-    let (mut f, s, g) = queued();
+    let (mut f, s, g) = queue_fixture(execution_fixture_with_root_budget(true));
+    // This test isolates receipt matching with counters established by real
+    // earlier Native approval. The distinct Owner-first absent-counter phase
+    // boundary is not hidden by fabricated counter rows or claimed covered.
+    let root_counter: (i64, i64) = f
+        .store
+        .conn
+        .query_row(
+            "SELECT consumed,active FROM budgets WHERE scope=?1",
+            [format!("root:{}", s.root_task_id)],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert_eq!(root_counter, (0, 0));
     f.raw = format!("actual direct reservation {}", uuid::Uuid::new_v4());
     let read = f
         .store
