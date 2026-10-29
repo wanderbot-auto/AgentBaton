@@ -953,6 +953,22 @@ impl Store {
         if actual_inputs != expected_inputs {
             return Err(changed());
         }
+        let expected_outputs: BTreeSet<_> = b.request.output_artifact_ids.iter().cloned().collect();
+        let actual_outputs: BTreeSet<_> = raw
+            .nodes
+            .iter()
+            .flat_map(|n| &n.outputs)
+            .map(|o| o.artifact_id.clone())
+            .collect();
+        if actual_outputs != expected_outputs
+            || raw
+                .nodes
+                .iter()
+                .flat_map(|n| &n.outputs)
+                .any(|o| context.outputs.get(&o.artifact_id) != Some(&o.contract_id))
+        {
+            return Err(denied());
+        }
         if raw.nodes.iter().any(|n| {
             n.budget.tokens.is_some()
                 || n.budget.cost_microunits.is_some()

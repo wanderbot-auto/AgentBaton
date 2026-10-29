@@ -291,6 +291,14 @@ fn child_plan_bad_raw_permission_references_cycles_cas_and_unsafe_numbers_leave_
     let mut missing_outputs = base.clone();
     missing_outputs.nodes[0].outputs.clear();
     cases.push(missing_outputs);
+    let mut unapproved_output_alias = base.clone();
+    unapproved_output_alias.nodes[0]
+        .outputs
+        .push(PlannedOutput {
+            artifact_id: "unapproved-extra".into(),
+            contract_id: base.nodes[0].outputs[0].contract_id.clone(),
+        });
+    cases.push(unapproved_output_alias);
     for path in ["output/unauthorized-child", "other-output"] {
         let mut widened_write = base.clone();
         widened_write.nodes[0].write_set = vec![WriteTarget::Workspace { path: path.into() }];
@@ -323,10 +331,12 @@ fn child_plan_bad_raw_permission_references_cycles_cas_and_unsafe_numbers_leave_
     p.expected_revision = 1;
     cases.push(p);
     for (i, p) in cases.iter().enumerate() {
-        assert!(f
-            .store
-            .submit_factory_child_plan(&update(&s, p), s.revision, &format!("negative-{i}"))
-            .is_err());
+        assert!(
+            f.store
+                .submit_factory_child_plan(&update(&s, p), s.revision, &format!("negative-{i}"))
+                .is_err(),
+            "unexpected acceptance of negative case {i}: {p:?}"
+        );
         assert_eq!(f.store.sequence().unwrap(), seq);
     }
     let raw = update(&s, &base);
