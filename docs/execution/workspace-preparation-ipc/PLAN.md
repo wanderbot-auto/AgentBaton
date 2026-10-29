@@ -29,3 +29,9 @@ Native新1frame unit证明固定四字段、无write envelope/自动daemon/审�
 ## 可逆ADR
 
 使用独立只读Owner方法与专用lossless wire类型，保持既有registry API字节兼容。新接口不授予执行权、不扩Factory角色、不增加表或通用管理层；FS身份在JS只展示/保留为opaque文本，真正身份/授权仍Core fresh比较。接默认UI前先完成该真实边界；不借读取接口自动复制目录、初始化Git、创建Grant或绕Native确认。真实Provider/账户、Host、额外费用、生产、签名与许可证仍关闭。
+
+## 源冻结后有限审查澄清
+
+当前追加test-only叶 `e7f976b3aaaf9a97d5a64dca3d46e736d98547e0`；生产8文件中所有production字节仍12d，唯一差异是api.test.ts新增1个测试声明，覆盖JSON解码LF/CR/U+2028/U+2029在device/inode/head/key后的拒绝。独审最初静态认为JS无m的$可在终止符前匹配，作者与独审分别在内建V8实际反证并撤回；没有旧失败，未修改合法production正则来迎合误报。TS测试仍NOT_RUN。
+
+Root已真实复验精确基线f38的Core lib strictClippy0与WSI1 targeted10PASS；这只闭合继承的Path借用修复，不是新端点/API/角色测试通过。新WSI2a仍需上述全部独审/实际测试。

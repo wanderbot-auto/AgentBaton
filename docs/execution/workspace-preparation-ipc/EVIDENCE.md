@@ -32,3 +32,20 @@ Python只读有限静态核验exit0：移除新增wire块与测试登记后整�
 - TS API新增传输/正向个人GitDirectoryblocked/candidate；unsafe revision、canonical FS decimal/type/max、额外字段、选择错配、授权false/state/candidate负控。测试是mock invoke的adapter合同，未来运行也不能当真实IPC/Mac。
 
 真实Unix IPC/类型/Clippy/build/Native/Mac与默认Task UI仍待Root资源窗口及独立review。当前只可记录source implemented，不能记录产品slice verified、所有130需求完成或新增开发包。旧WSI1 dedee BLOCKED/7a源审/Root10PASS/00f Clippy FAIL/3e借用修复证据继续保留在原四记录，不重复执行或移签。
+
+## e7f追加覆盖与被撤回的静态归因
+
+独审曾推断12d正则$可接受末尾行分隔符。作者内建functions.exec V8实际执行exact旧decimal/head两个pattern与LF/CR/U+2028/U+2029（8项）的test均false；独审config独立执行旧decimal/head/preparation_key三个pattern×4终止符（12项）也均false，并撤回P2。无m的ECMAScript行为与该静态推断不同。没有old runtime FAIL、没有Node/TS产品执行；不把该有限实验扩大为完整guard证明。曾在WIP替换三regex，反证后全部逐字恢复12d，未提交任何生产regex改动。
+
+仅test-only leaf `e7f976b3aaaf9a97d5a64dca3d46e736d98547e0`（parentf146四docs）增加api.test.ts的JSON.parse真实分隔符负控，覆盖device/inode/head/key16个变体的同一测试声明。其它原测试和全部production不变，测试尚未执行。api.test当前SHA `2b8c33fb96dc01c82c562e9bf989c3589ea83e4f99a5d0363f68fbd76a25b294`；原12d SHA表保留历史，其余7文件SHA仍相同。
+
+## 继承基线f38的Root实际复验（不是WSI2a验收）
+
+Root source `f38d3f838021bb346581e4decf3130bfa5e31d67`：
+
+| 原件目录 | 实际命令/结果 | 原log SHA-256 |
+| --- | --- | --- |
+| `.onboarding/workspace-isolation-wsi1-lib-clippy2` | cargo clippy --offline --locked -p agentbaton-core --lib -- -D warnings；exit0，wrapper7.916620766s | 3a9c11275f4c6bea4fb4ff4029d6542f57b00b0d328f2b1efffd85ea6f01df32 |
+| `.onboarding/workspace-isolation-wsi1-targeted2` | cargo test --offline --locked -p agentbaton-core --lib workspace_resolution::tests -- --nocapture --test-threads=1；10PASS/0failed/0ignored/128filtered，test3.41s，wrapper19.945066626s，exit0 | 5c72509755afb7af6d6f51ed019a2fc8c947b0b21bb04efc38cdf19e4a45425d |
+
+作者本轮Python只读核各RESULTS source/exit与command-0.log SHA全部匹配，exit0，没有重跑。该证据闭合旧WSI1 Path借用修复的准确运行绑定；原00f真实Clippy失败不抹，不能移签成12d/e7f新IPC/Native/TS已通过。原树未改，Root其它Factory运行仍独立。
