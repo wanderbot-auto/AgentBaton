@@ -1,0 +1,11 @@
+# 恢复规划 attempt 的排队计量起点
+
+状态：工程决定，源码候选04273d2 +9ae9f3c已独立审查为source-ready并整合；真实修复运行待验证。
+
+真实360fc19返工失败保留于REWORK_DIGEST_AND_MIGRATION_RESULTS.json。首个固定命令实际退出1并回收，同Graph成功采用r2；第二Validator因原child累计20秒上限拒绝。原恢复planner计费12,325ms，其中沿用的6,979ms旧delegation排队时钟包含已独立计费的Graph阶段。原child从未在该旧排队阶段启动Factory planner。
+
+新恢复attempt在prepare_factory_goal_recovery入口取得单调时间，覆盖事务等待、全部授权/停止校验、后续真实排队及preflight。只有原事务成功提交后才发布私有瞬时(task,round,time)通知；Daemon采用更高的可信round建立该新attempt时钟。同round、旧round及普通重放保持原钟。失败事务不发布通知，Scope/Grant原到期时间、20秒child上限与已有实际费用保持原值。
+
+通知有界且仅在同进程内使用。重启后走既有OutcomeUnknown恢复，撤销旧handle并等待对账，不利用丢失时钟自动重试。该时间通知不授予权限、不序列化为IPC字段或持久能力。
+
+验证要求：三个确定性Instant测试覆盖旧Graph间隔、新准备时间、真实后续等待、旧round/重复及其他task；重新编译并运行原真实返工用例，仍要求真实exit1→sameGraph r2→真实exit0→新Owner验收→父attempt恢复，保留所有预算/失败断言。测试通过与否另附准确提交和证据，本文不作完成证明。
