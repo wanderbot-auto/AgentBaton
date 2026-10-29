@@ -1,0 +1,22 @@
+{
+  "subject_source": "2ceaa608d87b20e20e72068e4a143ab8e4126e48",
+  "actual_checkout": "a5814094549314187c46ffbe05601fd3945a0c72",
+  "actual_tree": "cf8692c159a635d0d147d170c3c62f3e90f65d21",
+  "Product": 40815168930,
+  "Environment": 40815168923,
+  "actual_checks": "6success1IntelCoreFAIL. UI114/70 includingtimeout5, Rust593+7, Env3complete; ARMdefaultbuild/audit/package success; Intel54pass1FAIL ownerGrant expired/revoked atfinalize, laternative/buildskipped/noIntelpackage",
+  "hypothesis_limit": "originalIntel noabsoluteclock; approx13.528s caseelapsed supports fixturelifetimehypothesis notexactcauseproof",
+  "fix_source": "5dc9b195e0d4fc21e06cd66ea7db27e32e545131",
+  "fix_records": "99c50a656f43cd6f41a80d102b1e4e1fce20b277",
+  "actual_targeted": "old10normal6.34/new30normal6.28samecase; original10realexpirednegative10.63sec exactDenied/notstarted0effects, total2unique cases; liveclockexpiry notrenewed/Graph10k/node5k/res4k preserved",
+  "source_scope": "onlytargetnormalfixture initialNativeGrant30 not10, original55testcases/54othersandproductioncodeunchanged, newexpirynegative+readonlytrace",
+  "independent_review_archive": {
+    "sha256": "de7b8e52e9bca99960ef25e4e8854e37393bd538ab5dec0196c4a732fd3978a3",
+    "regular_members": 23,
+    "roundtrip": true
+  },
+  "current_local_fmt": "workspacecargo fmt checkactual0; full56/Clippy/newMacNOT_RUN until newCI",
+  "last_dual_packages": "a220 genuineboth;2ce ARM only SHA39366db2bcb9c448f2e3966871c762052efcfb386a1a731a09040d0a0af4e061/adhoc;noIntel",
+  "old_full_local_2ce_archive": "pr16-2ceaa-review/EVIDENCE.tar.gz SHA6cc8be60fbae37a996e0dc492b20ba74c2f77eb8da97c997a8bcbafdbc551cc9 20715827B/247members;thiscompactreviewcopiedrawIntellog+verdicts/manifests,notoriginal7ZIP/installerbytes",
+  "next": "one newaccuratePR16CI; noformalApprove/redmerge/release/signing/modelspend"
+}

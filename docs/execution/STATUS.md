@@ -1,3 +1,13 @@
+## 当前 Intel Goal Owner 夹具生命周期修复 — 2026-10-29T04:58:53.992904+00:00
+
+PR16旧2ceaa608/实际a5814094/treecf8692c1：最终6success/1IntelCorefailure。UI真实12flow114checks70PNG含原timeout完整5通过，Rust593unique+7doc、3Env完整链通过；ARM完成Native/readonly/Owner/defaultbuild/audit/开发包，Intel在normalGraphOwner最后finalize遭Grant revoked/expired拒绝（54pass1fail/notstarted），随后Native/Owner/build全部skipped，无Intel包，不可合入。原报告/原log/schema12sourceSHA均保留，GoalOwnerGrant具体Mac绝对时序未记录，不把约13.528s估算写成确证根因。a220仍最近真实双架构安装包对。
+
+新固定5dc9b195测试专用正常fixture初次NativeGrant批准30s，原Graph/root/project10k、node5k、reservation4k与全部旧断言不变；原55case/54其它body逆归一完整227d3fcb相同，新增原10s真实expiry负控仍精确PERMISSION_DENIED/not_started、0attempt/key/effects。原10正常6.34与新30正常6.28是同一个用例的两版，不叠算；另expiry10.63，共2unique targeted。真实readonlyphase显示expiry从不续期、原Grant无parent/revokedfalse、UTCmono偏差0–1ms；不是生产权限/预算放宽或接受expired为成功。独审a4956d1c/5fbbe37b source-ready；Root同sourceworkspacefmtcheck0。full56/Clippy/新准确七CI和双Mac尚未跑，本地所有runtime维度不替代新候选。
+
+Factoryfoundation远端1d0fef1保全645+7/Clippy/fmt与源等价证据，未创建FactoryPR。childplanning14真实Actor/MCP父子修订链已有旧修订通过，当前Core6+MCP2/richmigration3通过但最新工具/Directorycase/Native38/full14矩阵仍未完；四P2原审查保留、输入输出精确及元数据/错绑防御逐项闭合，不能拼签不同源码。UI733/独立原11neg闭合、Native14/CI14leaf静态独审不冒真实IPC/Mac。
+
+main最近a1be94/OWNER001002ACK无003，130/27/WP01–14整体未完成。无formalApprove/merge/生产/真实产品Provider身份或费用/新资源主机/签名公证/最终许可证扩权。以下均为历史。
+
 ## 当前 Command timeout 观察器因果修复 — 2026-10-29T03:58:11.912835+00:00
 
 PR16旧7f83/actualdce5739的Environment三项/Rust通过，UI再次失败，双Mac截至03:54仍进行中（ARM已通过Native/readonly/Owner、Intel尚Core/native）。本轮原报告给出真实私有child10200、PPID9949、start20524，前/读后/失败后均live R同身份，但cmdline读取0字节；不是超长或已观察Z，cleanup另见10207sleep不得倒填同PID。Linuxv6.8源码说明liveexec阶段有可能返回0，但该CI具体内核机制未证。

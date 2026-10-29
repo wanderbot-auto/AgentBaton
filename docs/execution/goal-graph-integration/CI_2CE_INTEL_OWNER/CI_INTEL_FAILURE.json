@@ -1,0 +1,265 @@
+{
+  "at": "2026-10-29T04:27:24.921554+00:00",
+  "head": "2ceaa608d87b20e20e72068e4a143ab8e4126e48",
+  "actualcheckout": "a5814094549314187c46ffbe05601fd3945a0c72",
+  "job": 123254765347,
+  "conclusion": "failure",
+  "phase": "Core and native host tests",
+  "test": "actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input",
+  "primary_reported_error": {
+    "method": "approvals.finalize",
+    "code": "PERMISSION_DENIED",
+    "message": "Execution grant or an ancestor is revoked or expired",
+    "side_effect_state": "not_started"
+  },
+  "panic_location": "crates/core/tests/sessions_ipc.rs:65:5",
+  "suite_result": "54 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 572.72s",
+  "exit_code": 101,
+  "downstream": "readonly/Owner/default build/default release audit/packaging/upload skipped; no Intel native/development artifact in terminal artifact API",
+  "actual_cause_beyond_original_error": "not determined here; no timeout/approval/policy changes authorized",
+  "source": {
+    "path": "failure-source-snapshot/crates/core/tests/sessions_ipc.rs",
+    "sha256": "227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b",
+    "matches_actual_GRAPH_BUILD_SOURCES": true
+  },
+  "rawlog_sha256": "1be4907c5cef11be606e6354ae950610091a391eda77b5785b45bef9e81c5c72",
+  "exact_original_lines": [
+    {
+      "line": 1618,
+      "text": "2026-10-29T04:17:34.1467490Z test actual_goal_temporary_global_slot_waits_without_intents_then_executes_after_owned_completion ... ok"
+    },
+    {
+      "line": 1619,
+      "text": "2026-10-29T04:17:44.9765870Z test actual_goal_timeout_and_malformed_terminal_never_replay_or_become_task_acceptance ... ok"
+    },
+    {
+      "line": 1620,
+      "text": "2026-10-29T04:17:57.7477710Z test actual_goal_two_roots_share_project_consumption_and_third_root_cannot_reset_it ... ok"
+    },
+    {
+      "line": 1621,
+      "text": "2026-10-29T04:18:21.3167040Z test actual_graph_command_cancel_and_definition_revocation_join_the_owned_child_and_block_downstream ... ok"
+    },
+    {
+      "line": 1622,
+      "text": "2026-10-29T04:18:33.9546190Z test actual_graph_command_wall_timeout_reaps_without_owner_or_acceptance ... ok"
+    },
+    {
+      "line": 1623,
+      "text": "2026-10-29T04:19:02.9884300Z test actual_graph_data_contract_passes_before_owner_and_summary_but_is_not_scientific_acceptance ... ok"
+    },
+    {
+      "line": 1624,
+      "text": "2026-10-29T04:19:13.4900810Z test actual_graph_data_range_failure_never_unlocks_owner_or_dependent_summary ... ok"
+    },
+    {
+      "line": 1625,
+      "text": "2026-10-29T04:19:40.8724730Z test actual_graph_fixed_command_observation_is_charged_without_recounting_checked_producer_bytes ... ok"
+    },
+    {
+      "line": 1626,
+      "text": "2026-10-29T04:19:51.7294520Z test actual_graph_fixed_concurrent_review_keeps_other_kinds_setup_and_corrupt_authority_refused ... ok"
+    },
+    {
+      "line": 1627,
+      "text": "2026-10-29T04:20:04.7453030Z test actual_graph_hard_shared_attempt_limit_keeps_bootstrap_usage_and_blocks_summary_after_owner ... ok"
+    },
+    {
+      "line": 1628,
+      "text": "2026-10-29T04:20:23.5545940Z test actual_graph_integrity_validator_is_a_charged_owned_attempt_before_owner_and_summary ... ok"
+    },
+    {
+      "line": 1629,
+      "text": "2026-10-29T04:20:35.1703970Z test actual_graph_interrupted_validator_snapshot_is_unknown_fenced_and_never_automatically_replayed ... ok"
+    },
+    {
+      "line": 1630,
+      "text": "2026-10-29T04:20:48.6983210Z test actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input ... FAILED"
+    },
+    {
+      "line": 1631,
+      "text": "2026-10-29T04:20:54.7720560Z test actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_executor_is_connected ... ok"
+    },
+    {
+      "line": 1632,
+      "text": "2026-10-29T04:21:23.1971260Z test actual_graph_temporary_global_slot_and_pending_head_require_explicit_adoption_without_replay ... ok"
+    },
+    {
+      "line": 1633,
+      "text": "2026-10-29T04:21:29.4531330Z test actual_graph_work_captures_owned_versioned_sha_without_task_acceptance ... ok"
+    },
+    {
+      "line": 1634,
+      "text": "2026-10-29T04:22:17.2255030Z test actual_last_owner_rechecks_all_original_products_and_never_accepts_changed_cancelled_or_revoked_graph ... ok"
+    },
+    {
+      "line": 1635,
+      "text": "2026-10-29T04:22:22.1262480Z test actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_hashes_or_authority ... ok"
+    },
+    {
+      "line": 1978,
+      "text": "2026-10-29T04:23:42.5040210Z failures:"
+    },
+    {
+      "line": 1979,
+      "text": "2026-10-29T04:23:42.5040650Z "
+    },
+    {
+      "line": 1980,
+      "text": "2026-10-29T04:23:42.5042210Z ---- actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input stdout ----"
+    },
+    {
+      "line": 1981,
+      "text": "2026-10-29T04:23:42.5069130Z GRAPH_BUILD_SOURCES {\"core_command_validation.rs\":\"804cede65389ea44810e4646a668d05dac056e0c71069640b5cb9cb55aef14e2\",\"data_workspace_workers.rs\":\"9865e28dcf01c82d2a95c4b5df6c11f0fe88ac39eade6ff37c593631aec74fa5\",\"data_workspaces.rs\":\"c4c99467228fa231d393a0ce7061cf127f7389284cda455101aa3670b1734429\",\"execution.rs\":\"0f299dc199f3c0a3e0e8d5689298fe08d87f64956baeb82be3a4633550e3078d\",\"goal_evidence.rs\":\"d786d708aef63e82bdf081a2f5fd5314f184f7f1e7b7b81512d114b74ab1f802\",\"goal_graph.rs\":\"80e01d81cf8ecee3c4e64a046f8413600e7448fca2ed3abdc9b8e479624be7d7\",\"goal_graph_validators.rs\":\"969b6941f6827a9460144d329986c6d0f75d9a99b9856ae204bcc073cb157820\",\"goal_runtime.rs\":\"3f2dcb12c7c359412ea55b77ce35dd316465fcd9c7b2f53f9a1fdda47eb26ab0\",\"goal_store.rs\":\"358d61e166c80b7c85903f34f0bffac63dc841039f42e3257833c75812e7b816\",\"goal_validator_io.rs\":\"bae0720b9324dbd2634f05b39dd42d472da652480288ab9e621b65c44b286f57\",\"ipc.rs\":\"3fc6fcfe382fde2e2f5c6afb2f5a56e8421d7b47031923ade0cb44a354391654\",\"sessions.rs\":\"0e5ebc08c7894ab9ffb667b9106a3dadce1fe05837c753d1de73662711d52fc2\",\"storage.rs\":\"ef8e84b2c1c5ea9586320a7d492c725ee4e6f78e9fde73ada8c8fe9a1bfa575e\",\"tests/sessions_ipc.rs\":\"227d3fcb499969d81ae3777ff3f72441b0aea7096f8452fa15492ce22c0b245b\",\"workspaces_command_validation.rs\":\"76a5eeaa2a1822b40d206af63ec32d643da9278e502e72c82da510d62cf8184e\"}"
+    },
+    {
+      "line": 1982,
+      "text": "2026-10-29T04:23:42.5087950Z GRAPH_PIPELINE first owned capture and owner-ready observed"
+    },
+    {
+      "line": 1983,
+      "text": "2026-10-29T04:23:42.5090400Z GRAPH_PIPELINE exact Owner proposal persisted"
+    },
+    {
+      "line": 1984,
+      "text": "2026-10-29T04:23:42.5549970Z GRAPH_PIPELINE private Owner decision committed"
+    },
+    {
+      "line": 1985,
+      "text": "2026-10-29T04:23:42.5560480Z FIXTURE_RPC_FAILURE method=\"approvals.finalize\" idempotency_key=\"proposal:\\\"78f2647f-c9e9-4284-bad0-4383b68d1f12\\\"\" elapsed_ms=460 response={\"error\":{\"code\":\"PERMISSION_DENIED\",\"details_ref\":null,\"message\":\"Execution grant or an ancestor is revoked or expired\",\"retryable\":false,\"side_effect_state\":\"not_started\"},\"request_id\":\"d1a60f06-039b-4a82-a632-bf6d7e6bcc7b\",\"revision\":68,\"warnings\":[]}"
+    },
+    {
+      "line": 1986,
+      "text": "2026-10-29T04:23:42.5565550Z "
+    },
+    {
+      "line": 1987,
+      "text": "2026-10-29T04:23:42.5567970Z thread 'actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input' (187571) panicked at crates/core/tests/sessions_ipc.rs:65:5:"
+    },
+    {
+      "line": 1988,
+      "text": "2026-10-29T04:23:42.5574070Z {\"error\":{\"code\":\"PERMISSION_DENIED\",\"details_ref\":null,\"message\":\"Execution grant or an ancestor is revoked or expired\",\"retryable\":false,\"side_effect_state\":\"not_started\"},\"request_id\":\"d1a60f06-039b-4a82-a632-bf6d7e6bcc7b\",\"revision\":68,\"warnings\":[]}"
+    },
+    {
+      "line": 1989,
+      "text": "2026-10-29T04:23:42.5578340Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+    },
+    {
+      "line": 1990,
+      "text": "2026-10-29T04:23:42.5579500Z "
+    },
+    {
+      "line": 1991,
+      "text": "2026-10-29T04:23:42.5579520Z "
+    },
+    {
+      "line": 1992,
+      "text": "2026-10-29T04:23:42.5585110Z failures:"
+    },
+    {
+      "line": 1993,
+      "text": "2026-10-29T04:23:42.5586910Z     actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input"
+    },
+    {
+      "line": 1994,
+      "text": "2026-10-29T04:23:42.5588200Z "
+    },
+    {
+      "line": 1995,
+      "text": "2026-10-29T04:23:42.5589720Z test result: FAILED. 54 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 572.72s"
+    },
+    {
+      "line": 1996,
+      "text": "2026-10-29T04:23:42.5591030Z "
+    },
+    {
+      "line": 1997,
+      "text": "2026-10-29T04:23:42.5719770Z ##[error]Process completed with exit code 101."
+    },
+    {
+      "line": 1998,
+      "text": "2026-10-29T04:23:42.7036950Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+    },
+    {
+      "line": 1999,
+      "text": "2026-10-29T04:23:42.7038650Z with:"
+    },
+    {
+      "line": 2000,
+      "text": "2026-10-29T04:23:42.7039740Z   name: native-webview-macos-15-intel-a5814094549314187c46ffbe05601fd3945a0c72"
+    },
+    {
+      "line": 2001,
+      "text": "2026-10-29T04:23:42.7041120Z   path: artifacts/native-smoke/"
+    },
+    {
+      "line": 2002,
+      "text": "2026-10-29T04:23:42.7041890Z   if-no-files-found: warn"
+    },
+    {
+      "line": 2003,
+      "text": "2026-10-29T04:23:42.7042430Z   retention-days: 14"
+    },
+    {
+      "line": 2004,
+      "text": "2026-10-29T04:23:42.7042890Z   compression-level: 6"
+    },
+    {
+      "line": 2005,
+      "text": "2026-10-29T04:23:42.7043540Z   overwrite: false"
+    },
+    {
+      "line": 2006,
+      "text": "2026-10-29T04:23:42.7044170Z   include-hidden-files: false"
+    },
+    {
+      "line": 2007,
+      "text": "2026-10-29T04:23:42.7044920Z ##[endgroup]"
+    },
+    {
+      "line": 2008,
+      "text": "2026-10-29T04:23:45.5486410Z (node:39280) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead."
+    },
+    {
+      "line": 2009,
+      "text": "2026-10-29T04:23:45.5489680Z (Use `node --trace-deprecation ...` to show where the warning was created)"
+    },
+    {
+      "line": 2010,
+      "text": "2026-10-29T04:23:45.5544680Z ##[warning]No files were found with the provided path: artifacts/native-smoke/. No artifacts will be uploaded."
+    },
+    {
+      "line": 2011,
+      "text": "2026-10-29T04:23:45.6202920Z Post job cleanup."
+    },
+    {
+      "line": 2012,
+      "text": "2026-10-29T04:23:45.8698000Z [command]/usr/local/bin/git version"
+    },
+    {
+      "line": 2013,
+      "text": "2026-10-29T04:23:45.8891840Z git version 2.55.0"
+    },
+    {
+      "line": 2014,
+      "text": "2026-10-29T04:23:45.8958700Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/317df196-6a2d-4239-9610-ff61a5298208/.gitconfig'"
+    },
+    {
+      "line": 2015,
+      "text": "2026-10-29T04:23:45.8987000Z Temporarily overriding HOME='/Users/runner/work/_temp/317df196-6a2d-4239-9610-ff61a5298208' before making global git config changes"
+    },
+    {
+      "line": 2016,
+      "text": "2026-10-29T04:23:45.8990490Z Adding repository directory to the temporary git global config as a safe directory"
+    },
+    {
+      "line": 2017,
+      "text": "2026-10-29T04:23:45.9002030Z [command]/usr/local/bin/git config --global --add safe.directory /Users/runner/work/AgentBaton/AgentBaton"
+    },
+    {
+      "line": 2018,
+      "text": "2026-10-29T04:23:45.9223810Z [command]/usr/local/bin/git config --local --name-only --get-regexp core\\.sshCommand"
+    }
+  ],
+  "local_reproduction": "not_run; no Cargo or product processes"
+}
