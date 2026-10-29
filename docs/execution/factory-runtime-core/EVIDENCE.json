@@ -3670,6 +3670,21 @@
     "counting": "two new helper tests, one existing actual Goal case; SQL controls and failed/intermediate executions separate",
     "production_change": false,
     "lease": "returned to parent",
-    "remaining": "independent review, exact full current regression and full old ordinary-session migration compatibility"
+    "remaining": "independent review, exact full current regression and full old ordinary-session migration compatibility",
+    "timing_correction": {
+      "path": "artifacts/factory-runtime-core/pre-factory-fixtures/final-helper-timing-correction.json",
+      "sha256": "da6a0f8b36581be7715cc2d0ee5d1bf5346e3b414a3bfd984e01a53c6f53f40a",
+      "correction": {
+        "source_commit": "cabf5a3cd9eca2ce2ea4c5a6b0d78c46f1c5ed53",
+        "correction": "new_helper_tests harness_seconds is0.04 in final2PASS log;0.02 was copied from preceding1PASS1FAIL log and must not describe final run",
+        "original_snapshot_sha256": "a8fb293421b549a0db3e8ff53d5447655d867c1ea5840057987ee2c84a7e64d5",
+        "actual_final_helper_log_sha256": "34b65ba7c56140d30fbc3dacc606b2d29eb4c102cee1b2bfa219d57e9c3dadbf",
+        "actual_final_harness_seconds": 0.04,
+        "unique_passed": 2,
+        "exit_code": 0,
+        "old_snapshot_and_raw_logs_unchanged": true,
+        "tests_rerun": false
+      }
+    }
   }
 }
