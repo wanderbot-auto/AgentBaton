@@ -40,6 +40,39 @@ use std::{
 use time::OffsetDateTime;
 use uuid::Uuid;
 
+// Unit-test-only, one-shot fault injection at the exact atomic boundary. No
+// product build, feature, IPC request or Provider can install this callback.
+#[cfg(test)]
+pub(crate) mod goal_reservation_fault_fixture {
+    use super::{Connection, Task};
+    type Fault = Box<dyn FnOnce(&Connection, &mut Task)>;
+    std::thread_local! {
+        static FAULT: std::cell::RefCell<Option<Fault>> = std::cell::RefCell::new(None);
+    }
+    pub(crate) struct Guard(std::marker::PhantomData<std::rc::Rc<()>>);
+    pub(crate) fn install(fault: impl FnOnce(&Connection, &mut Task) + 'static) -> Guard {
+        FAULT.with(|slot| {
+            let mut slot = slot.borrow_mut();
+            assert!(slot.is_none(), "no nested reservation fault fixture");
+            *slot = Some(Box::new(fault));
+        });
+        Guard(std::marker::PhantomData)
+    }
+    pub(super) fn apply(db: &Connection, task: &mut Task) {
+        let fault = FAULT.with(|slot| slot.borrow_mut().take());
+        if let Some(fault) = fault {
+            fault(db, task);
+        }
+    }
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            FAULT.with(|slot| {
+                slot.borrow_mut().take();
+            });
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProviderConnection {
@@ -653,6 +686,8 @@ impl Store {
                 self.data_input.as_ref(),
                 self.graph_input.as_ref(),
             )?;
+            #[cfg(test)]
+            goal_reservation_fault_fixture::apply(&tx, &mut task);
             if task.state == TaskState::OutcomeUnknown
                 && crate::goal_store::reserved_factory_goal_task_continuation(
                     &tx,
