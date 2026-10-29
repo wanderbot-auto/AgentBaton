@@ -98,6 +98,7 @@ impl Trace {
         let at = millis(now.saturating_duration_since(self.start));
         let valid = match stage {
             "input_read_issued" => 3,
+            "provider_prompt_failure" => 7,
             "companion_read_hash"
             | "companion_sha256"
             | "mcp_external_recheck"
@@ -154,6 +155,8 @@ fn allowed_stage(stage: &str) -> bool {
             | "goal_meter_before"
             | "goal_meter_observed"
             | "goal_budget_denied"
+            | "provider_prompt_failure"
+            | "dispatch_task_rejected"
             | "factory_tick_begin"
             | "factory_tick_end"
             | "goal_tick_begin"
@@ -265,6 +268,16 @@ pub(crate) fn budget_reason_tag(message: Option<&str>) -> usize {
         _ => 0,
     }
 }
+pub(crate) fn provider_failure_tag(kind: agentbaton_providers::transport::FailureKind) -> usize {
+    use agentbaton_providers::transport::FailureKind;
+    match kind {
+        FailureKind::Timeout => 1,
+        FailureKind::Protocol => 2,
+        FailureKind::Closed => 3,
+        FailureKind::Io => 4,
+        _ => 0,
+    }
+}
 pub(crate) struct FlushOnDrop;
 impl FlushOnDrop {
     pub(crate) fn enter() -> Self {
@@ -293,6 +306,33 @@ impl Drop for FlushOnDrop {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn provider_failure_tags_are_fixed_and_never_include_payloads() {
+        use agentbaton_providers::transport::FailureKind;
+        for (kind, tag) in [
+            (FailureKind::Timeout, 1),
+            (FailureKind::Protocol, 2),
+            (FailureKind::Closed, 3),
+            (FailureKind::Io, 4),
+            (FailureKind::BinaryChanged, 0),
+        ] {
+            assert_eq!(provider_failure_tag(kind), tag);
+        }
+        let now = Instant::now();
+        let mut trace = Trace::new(now);
+        let line = trace
+            .record(
+                "provider_prompt_failure",
+                now,
+                Some(Duration::from_millis(1000)),
+                [true, true, true, false, false, false],
+                1,
+                "none",
+            )
+            .unwrap();
+        assert!(line.contains("flags=111000 valid=7 count=1"));
+        assert!(line.len() <= MAX_LINE);
+    }
     #[test]
     fn budget_reason_tags_accept_only_fixed_static_messages() {
         assert_eq!(

@@ -1813,7 +1813,26 @@ fn run_worker_inner(
                     turn_completed = Some(state);
                 }
                 Ok(None) => {}
-                Err(_) => break "provider_protocol_or_timeout_failure",
+                Err(error) => {
+                    #[cfg(debug_assertions)]
+                    crate::ipc::goal_diagnostics::emit(
+                        "provider_prompt_failure",
+                        Some(started.elapsed()),
+                        [
+                            error.kind == agentbaton_providers::transport::FailureKind::Timeout,
+                            started.elapsed() >= duration,
+                            pending,
+                            false,
+                            false,
+                            false,
+                        ],
+                        crate::ipc::goal_diagnostics::provider_failure_tag(error.kind),
+                        None,
+                    );
+                    // Preserve the original public reason/state and deadline.
+                    let _ = error;
+                    break "provider_protocol_or_timeout_failure";
+                }
             }
         } else {
             std::thread::sleep(Duration::from_millis(5));
