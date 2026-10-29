@@ -3,12 +3,15 @@
 use super::*;
 #[path = "goal_evidence.rs"]
 mod evidence;
+#[path = "goal_graph_stop.rs"]
+mod stop;
 #[path = "goal_graph_validators.rs"]
 mod validators;
 pub use evidence::{
     GraphArtifactReference, GraphCandidateReceipt, GraphInputBinding, GraphOwnerDecision,
     GraphValidationReceipt, GRAPH_CONTRACT_VERSION, MAX_GRAPH_REVIEW_BYTES,
 };
+pub(super) use stop::{stopped_failure, stopped_graph};
 pub(crate) use validators::PreparedGraphValidation;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

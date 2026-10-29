@@ -158,3 +158,45 @@ fn recorded_schema14_factory_scope_roundtrips_without_new_authority_or_fresh_cou
         .unwrap()
         .contains("child_goal_runs"));
 }
+
+#[test]
+fn complete_execution_reworks_are_matching_bounded_and_never_raise_original_attempts() {
+    let (_, scope) = fixture();
+    let mut s = selected(&scope);
+    s.root_budget.reworks = 1;
+    s.project_budget.reworks = 1;
+    let p = s.child_goal_execution_policy.as_mut().unwrap();
+    p.root_budget.reworks = 1;
+    p.project_budget.reworks = 1;
+    let resolved = resolve(&s, &scope).unwrap().unwrap();
+    assert_eq!(resolved.policy.root_budget.reworks, 1);
+    let mut bad = s.clone();
+    bad.root_budget.reworks = 0;
+    assert!(resolve(&bad, &scope).is_err());
+    let mut bad = s.clone();
+    bad.child_goal_execution_policy
+        .as_mut()
+        .unwrap()
+        .root_budget
+        .reworks = bad.root_budget.attempts;
+    bad.root_budget.reworks = bad.root_budget.attempts;
+    assert!(resolve(&bad, &scope).is_err());
+    let mut bad = s.clone();
+    bad.child_planning_policy.as_mut().unwrap().max_revisions = 1;
+    assert!(resolve(&bad, &scope).is_err());
+    let mut bad = s.clone();
+    bad.child_goal_execution_policy
+        .as_mut()
+        .unwrap()
+        .root_budget
+        .attempts = scope.bindings.approved_grant.scope.max_attempts + 1;
+    bad.root_budget.attempts = scope.bindings.approved_grant.scope.max_attempts + 1;
+    assert!(resolve(&bad, &scope).is_err());
+    // The generic Goal budget upper bound still applies to project reworks,
+    // even though its separate attempts ceiling permits100000.
+    s.project_budget.attempts = 100000;
+    s.project_budget.reworks = 1001;
+    let p = s.child_goal_execution_policy.as_mut().unwrap();
+    p.project_budget = s.project_budget.clone();
+    assert!(resolve(&s, &scope).is_err());
+}

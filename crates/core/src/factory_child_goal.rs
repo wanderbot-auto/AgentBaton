@@ -172,6 +172,7 @@ PRAGMA user_version=15;").map_err(db_error)?;
 
 /// Private host proof: never Deserialize, never accepted from renderer/Agent JSON.
 pub(crate) struct FactoryGoalSource {
+    pub(crate) existing_goal_run_id: Option<String>,
     pub(crate) scope: FactoryScope,
     pub(crate) factory_run: FactoryRun,
     pub(crate) task: crate::storage::Task,
@@ -215,6 +216,24 @@ impl Store {
         scope_id: &str,
         request: &FactoryChildGoalSubmission,
         scope_revision: u64,
+    ) -> Result<FactoryGoalSource> {
+        self.prepare_factory_goal_source_kind(scope_id, request, scope_revision, None)
+    }
+    pub(crate) fn prepare_factory_goal_adoption_source(
+        &self,
+        scope_id: &str,
+        request: &FactoryChildGoalSubmission,
+        scope_revision: u64,
+        goal_run_id: &str,
+    ) -> Result<FactoryGoalSource> {
+        self.prepare_factory_goal_source_kind(scope_id, request, scope_revision, Some(goal_run_id))
+    }
+    fn prepare_factory_goal_source_kind(
+        &self,
+        scope_id: &str,
+        request: &FactoryChildGoalSubmission,
+        scope_revision: u64,
+        existing: Option<&str>,
     ) -> Result<FactoryGoalSource> {
         let scope = checked_scope(&self.conn, scope_id)?;
         let execution = approved_binding(&scope)?;
@@ -284,17 +303,30 @@ impl Store {
             return Err(changed());
         }
         let (runs, own):(u32,u32)=self.conn.query_row("SELECT count(*),COALESCE(sum(task_id=?2),0) FROM factory_child_goal_runs WHERE factory_scope_id=?1",params![scope_id,request.task_id],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
-        if runs >= execution.policy.max_total_runs || own >= execution.policy.max_runs_per_task {
-            return Err(limited());
-        }
-        check_child_capacity(
-            &self.conn,
-            &scope,
-            &request.task_id,
-            head.proposal.nodes.len().saturating_sub(1) as u32,
-        )?;
+        let requested = if let Some(id) = existing {
+            let exact:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM factory_child_goal_runs WHERE goal_run_id=?1 AND factory_scope_id=?2 AND factory_run_id=?3 AND task_id=?4)",params![id,scope_id,current_run.id,request.task_id],|row|row.get(0)).map_err(db_error)?;
+            if !exact || own != 1 {
+                return Err(denied());
+            }
+            let mut fresh = 0u32;
+            for node in &head.proposal.nodes {
+                let prior:bool=self.conn.query_row("SELECT EXISTS(SELECT 1 FROM goal_run_nodes WHERE run_id=?1 AND node_id=?2)",params![id,node.id],|row|row.get(0)).map_err(db_error)?;
+                if !prior {
+                    fresh = fresh.checked_add(1).ok_or_else(limited)?;
+                }
+            }
+            fresh
+        } else {
+            if runs >= execution.policy.max_total_runs || own >= execution.policy.max_runs_per_task
+            {
+                return Err(limited());
+            }
+            head.proposal.nodes.len().saturating_sub(1) as u32
+        };
+        check_child_capacity(&self.conn, &scope, &request.task_id, requested)?;
         let task = Self::factory_child_read_task(&self.conn, &request.task_id)?;
         Ok(FactoryGoalSource {
+            existing_goal_run_id: existing.map(str::to_owned),
             scope,
             factory_run: current_run,
             task,
@@ -460,24 +492,35 @@ pub(crate) fn source_is_current(db: &Connection, source: &FactoryGoalSource) -> 
             "Saved child plan head changed before execution commit",
         ));
     }
-    let binding = approved_binding(&scope)?;
+    let approved = approved_binding(&scope)?;
+    let plan = &source.plans.last().ok_or_else(changed)?.proposal;
     let (runs,own):(u32,u32)=db.query_row("SELECT count(*),COALESCE(sum(task_id=?2),0) FROM factory_child_goal_runs WHERE factory_scope_id=?1",params![scope.id,source.task.id],|r|Ok((r.get(0)?,r.get(1)?))).map_err(db_error)?;
-    if runs >= binding.policy.max_total_runs || own >= binding.policy.max_runs_per_task {
-        return Err(limited());
-    }
-    check_child_capacity(
-        db,
-        &scope,
-        &source.task.id,
-        source
-            .plans
-            .last()
-            .ok_or_else(changed)?
-            .proposal
-            .nodes
-            .len()
-            .saturating_sub(1) as u32,
-    )
+    let requested = if let Some(id) = &source.existing_goal_run_id {
+        let exact:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM factory_child_goal_runs WHERE goal_run_id=?1 AND factory_scope_id=?2 AND factory_run_id=?3 AND task_id=?4)",params![id,scope.id,current_run.id,source.task.id],|row|row.get(0)).map_err(db_error)?;
+        if !exact || own != 1 {
+            return Err(denied());
+        }
+        let mut fresh = 0u32;
+        for node in &plan.nodes {
+            let exists: bool = db
+                .query_row(
+                    "SELECT EXISTS(SELECT 1 FROM goal_run_nodes WHERE run_id=?1 AND node_id=?2)",
+                    params![id, node.id],
+                    |row| row.get(0),
+                )
+                .map_err(db_error)?;
+            if !exists {
+                fresh = fresh.checked_add(1).ok_or_else(limited)?;
+            }
+        }
+        fresh
+    } else {
+        if runs >= approved.policy.max_total_runs || own >= approved.policy.max_runs_per_task {
+            return Err(limited());
+        }
+        plan.nodes.len().saturating_sub(1) as u32
+    };
+    check_child_capacity(db, &scope, &source.task.id, requested)
 }
 
 pub(crate) fn ancestor_budgets(
@@ -598,4 +641,132 @@ pub(crate) fn latest_plan_ref(
     task_id: &str,
 ) -> Result<Option<FactoryChildPlanRef>> {
     child_plan::latest_reference(db, scope_id, task_id)
+}
+
+impl Store {
+    pub(crate) fn prepare_factory_scoped_child_goal_read(
+        &self,
+        handle: &str,
+        token: &str,
+        task_id: &str,
+        raw: &str,
+    ) -> Result<crate::factory::FactoryReadPlan> {
+        let caller = self.authenticate_factory_base(handle, token)?.0;
+        approved_binding(&caller.scope)?;
+        let target = authorized_target(&self.conn, &caller, task_id)?;
+        child_plan::mutable_target(&self.conn, &caller.scope, &target)?;
+        self.prepare_factory_child_plan_read(&caller.scope, raw)
+    }
+    pub(crate) fn factory_execute_child_goal(
+        &mut self,
+        caller: FactoryCaller,
+        p: &FactoryChildGoalSubmission,
+        key_id: &str,
+    ) -> Result<FactoryToolOutcome> {
+        approved_binding(&caller.scope)?;
+        authorized_target(&self.conn, &caller, &p.task_id)?;
+        let identity = (
+            caller.task.handle.task_id.clone(),
+            caller.session.id.clone(),
+            caller.session.attempt_id.clone(),
+            caller.session.fencing_token,
+        );
+        let payload = encode(&(caller.scope.revision, p))?;
+        let namespace = format!(
+            "factory:{}:scoped:{}:{}:child-goal:start",
+            caller.scope.id, identity.0, p.task_id
+        );
+        let result = if let Some(old) =
+            self.factory_child_goal_action_replay(&namespace, key_id, &payload)?
+        {
+            old
+        } else {
+            let source =
+                self.prepare_factory_goal_source(&caller.scope.id, p, caller.scope.revision)?;
+            self.create_factory_child_graph(source, Some(identity), key_id, &payload)?
+        };
+        Ok(FactoryToolOutcome {
+            result: json!(result),
+            stops: vec![],
+        })
+    }
+    pub(crate) fn factory_advance_child_goal(
+        &mut self,
+        caller: FactoryCaller,
+        p: &FactoryChildGoalAdvanceSubmission,
+        key_id: &str,
+    ) -> Result<FactoryToolOutcome> {
+        approved_binding(&caller.scope)?;
+        authorized_target(&self.conn, &caller, &p.request.task_id)?;
+        let identity = (
+            caller.task.handle.task_id.clone(),
+            caller.session.id.clone(),
+            caller.session.attempt_id.clone(),
+            caller.session.fencing_token,
+        );
+        let request = FactoryChildGoalAdvance {
+            scope_id: caller.scope.id.clone(),
+            goal_run_id: p.goal_run_id.clone(),
+            request: p.request.clone(),
+            expected_goal_run_revision: p.expected_goal_run_revision,
+        };
+        let result = self.advance_factory_child_goal_as(
+            &request,
+            caller.scope.revision,
+            key_id,
+            Some(identity),
+        )?;
+        Ok(FactoryToolOutcome {
+            result: json!(result),
+            stops: vec![],
+        })
+    }
+}
+
+/// Historical scoped caller provenance. It proves the original actual Factory
+/// session/attempt/handle-ready chain without renewing or requiring a now-dead
+/// credential. New calls separately require current authentication/lease/TTL.
+pub(crate) fn verify_caller(
+    db: &Connection,
+    s: &FactoryScope,
+    run_id: &str,
+    target: &str,
+    caller: (&str, Option<&str>, Option<&str>, Option<u64>),
+    before: u64,
+) -> Result<()> {
+    let (task, session, attempt, fence) = caller;
+    let (session, attempt, fence) = match (session, attempt, fence) {
+        (None, None, None) if task == target => return Ok(()),
+        (Some(s), Some(a), Some(f)) => (s, a, f),
+        _ => return Err(denied()),
+    };
+    if !ancestry(db, target)?.iter().any(|id| id == task) {
+        return Err(denied());
+    }
+    let b = binding(db, run_id, task)?;
+    let raw:Option<String>=db.query_row("SELECT CASE WHEN octet_length(document)<=1048576 THEN document END FROM sessions WHERE id=?1",[session],|row|row.get(0)).map_err(db_error)?;
+    let actual: ManagedSession = decode(&raw.ok_or_else(limited)?)?;
+    let columns:bool=db.query_row("SELECT task_id=?2 AND project_id=?3 AND workspace_id=?4 AND root_grant_id=?5 FROM sessions WHERE id=?1",params![session,task,s.project_id,b.request.workspace_id,s.root_grant_id],|row|row.get(0)).map_err(db_error)?;
+    let owned:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM factory_attempts WHERE session_id=?1 AND attempt_id=?2 AND scope_id=?3 AND run_id=?4 AND task_id=?5 AND root_task_id=?6)",params![session,attempt,s.id,run_id,task,s.root_task_id],|row|row.get(0)).map_err(db_error)?;
+    if !columns
+        || !owned
+        || actual.id != session
+        || actual.task_id != task
+        || actual.project_id != s.project_id
+        || actual.attempt_id != attempt
+        || actual.grant_id != s.root_grant_id
+        || actual.workspace_id != b.request.workspace_id
+        || actual.connection_id != b.request.connection_id
+        || actual.fencing_token != fence
+    {
+        return Err(changed());
+    }
+    let prepared:Option<i64>=db.query_row("SELECT e.sequence FROM events e JOIN factory_scoped_handles h ON h.id=json_extract(e.document,'$.payload.handle_id') WHERE octet_length(e.document)<=1048576 AND json_extract(e.document,'$.aggregate_id')=?1 AND json_extract(e.document,'$.kind')='factory.scoped_handle_prepared' AND json_extract(e.document,'$.source')='factory_core' AND json_extract(e.document,'$.payload.attempt_id')=?2 AND json_extract(e.document,'$.payload.scope_id')=?3 AND h.scope_id=?3 AND h.session_id=?1 AND h.attempt_id=?2 AND h.task_id=?4 AND h.fencing_token=?5 ORDER BY e.sequence LIMIT 1",params![session,attempt,s.id,task,i64::try_from(fence).map_err(|_|changed())?],|row|row.get(0)).optional().map_err(db_error)?;
+    let reserved:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='factory.attempt_reserved' AND json_extract(document,'$.source')='factory_core' AND json_extract(document,'$.payload.task_id')=?2 AND json_extract(document,'$.payload.session_id')=?3 AND json_extract(document,'$.payload.attempt_id')=?4 AND json_extract(document,'$.payload.root_task_id')=?5 ORDER BY sequence LIMIT 1",params![run_id,task,session,attempt,s.root_task_id],|row|row.get(0)).optional().map_err(db_error)?;
+    let ready:Option<i64>=db.query_row("SELECT sequence FROM events WHERE octet_length(document)<=1048576 AND json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.ready' AND json_extract(document,'$.source')='provider_runtime' ORDER BY sequence LIMIT 1",[session],|row|row.get(0)).optional().map_err(db_error)?;
+    if !matches!((reserved,prepared,ready),(Some(a),Some(b),Some(c)) if a>0&&a<b&&b<c&&c<i64::try_from(before).map_err(|_|changed())?)
+    {
+        return Err(denied());
+    }
+    Ok(())
 }

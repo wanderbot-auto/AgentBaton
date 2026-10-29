@@ -2,6 +2,9 @@
 //! proposal is invented. Every private token is re-derived from durable proofs.
 use super::*;
 use crate::factory::{FactoryChildGoalSummary, FactoryChildPlanRef, FactoryGoalSource};
+#[path = "goal_factory_adoption.rs"]
+mod adoption;
+use adoption::adopted_plan;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -168,6 +171,19 @@ fn checked_record(db: &Connection, id: &str) -> Result<DerivedRecord> {
     {
         return Err(changed());
     }
+    crate::factory::verify_child_goal_caller(
+        db,
+        &s,
+        &record.origin.factory_run_id,
+        &record.initial_run.task_id,
+        (
+            &record.caller_task_id,
+            record.caller_session_id.as_deref(),
+            record.caller_attempt_id.as_deref(),
+            record.caller_fencing_token,
+        ),
+        seq,
+    )?;
     let native_conflict:bool=db.query_row("SELECT EXISTS(SELECT 1 FROM goal_graph_capabilities WHERE run_id=?1) OR EXISTS(SELECT 1 FROM approval_proposals WHERE id=?1)",[id],|r|r.get(0)).map_err(db_error)?;
     if native_conflict {
         return Err(changed());
@@ -187,16 +203,7 @@ pub(super) fn capability(db: &Connection, r: &GoalRun) -> Result<graph::GraphAut
     {
         return Err(changed());
     }
-    if r.plan_revision != record.initial_run.plan_revision
-        || r.plan_digest != record.initial_run.plan_digest
-    {
-        // Explicit Factory adoption will verify its own ordered receipt chain;
-        // native Goal advances never stand in for Factory plan adoption.
-        return Err(err(
-            "AUTH_REQUIRED",
-            "Factory child Goal plan adoption requires its exact Factory receipt chain",
-        ));
-    }
+    adopted_plan(db, r, &record)?;
     Ok(graph::GraphAuthority {
         issuer: graph::GraphAuthorityIssuer::FactoryScope {
             scope_id: record.origin.factory_scope_id,
@@ -335,6 +342,9 @@ impl Store {
         action_payload: &str,
     ) -> Result<FactoryChildGoalSummary> {
         key(key_id)?;
+        if source.existing_goal_run_id.is_some() {
+            return Err(denied());
+        }
         let selected = source.plans.last().ok_or_else(changed)?;
         let execution = source
             .scope
@@ -642,6 +652,20 @@ impl Store {
         tx.execute("INSERT INTO events(document) VALUES(?1)", [encode(&event)?])
             .map_err(db_error)?;
         derived.receipt_sequence = sequence(&tx)?;
+        crate::factory::verify_child_goal_caller(
+            &tx,
+            &source.scope,
+            &source.factory_run.id,
+            &source.task.id,
+            (
+                &derived.caller_task_id,
+                derived.caller_session_id.as_deref(),
+                derived.caller_attempt_id.as_deref(),
+                derived.caller_fencing_token,
+            ),
+            derived.receipt_sequence,
+        )?;
+
         tx.execute(
             "INSERT INTO factory_child_goal_runs VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12)",
             params![
@@ -894,6 +918,10 @@ fn summary(db: &Connection, id: &str) -> Result<FactoryChildGoalSummary> {
     let record = checked_record(db, id)?;
     let goal = run(db, id)?;
     capability(db, &goal)?;
+    if goal.state == "failed" {
+        verify_confirmed_failure(db, &goal)?;
+    }
+    let plan = adopted_plan(db, &goal, &record)?;
     Ok(FactoryChildGoalSummary {
         authority_kind: "factory_child_goal_execution_v1".into(),
         factory_scope_id: record.origin.factory_scope_id,
@@ -901,7 +929,7 @@ fn summary(db: &Connection, id: &str) -> Result<FactoryChildGoalSummary> {
         factory_root_task_id: record.origin.root_task_id,
         parent_task_id: record.origin.parent_task_id,
         task_id: goal.task_id.clone(),
-        plan: record.origin.initial_plan,
+        plan,
         execution_policy_digest: record.origin.execution_policy_digest,
         goal: GraphRunSummary {
             graph_contract_version: 1,
@@ -1106,6 +1134,27 @@ impl Store {
                 )
                 .map(Some);
         }
+        if method == "factory_child_goals.advance_plan" {
+            let p: crate::factory::FactoryChildGoalAdvance =
+                serde_json::from_value(params.clone()).map_err(|_| invalid())?;
+            let namespace = format!(
+                "factory:{}:owner:{}:child-goal:advance",
+                p.scope_id, p.request.task_id
+            );
+            if self
+                .factory_child_goal_action_replay(
+                    &namespace,
+                    key_id.ok_or_else(invalid)?,
+                    &encode(&(revision.ok_or_else(invalid)?, &p))?,
+                )?
+                .is_some()
+            {
+                return Ok(None);
+            }
+            return self
+                .prepare_factory_child_goal_read(&p.scope_id, &p.request.task_id, raw_request, true)
+                .map(Some);
+        }
         let run_id = match method {
             "goal_graph_runs.dispatch" => {
                 let dispatch: GoalRunDispatch =
@@ -1204,7 +1253,296 @@ pub(super) fn adopted_head_is_current(db: &Connection, r: &GoalRun) -> Result<bo
     )?;
     // Later saved planning versions pause old dispatch. Their execution still
     // requires the separate exact append-only adoption action, never this read.
-    Ok(latest.as_ref() == Some(&record.origin.initial_plan)
-        && r.plan_revision == record.origin.initial_plan.revision
-        && r.plan_digest == record.origin.initial_plan.plan_digest)
+    Ok(latest.as_ref() == Some(&adopted_plan(db, r, &record)?))
+}
+
+/// A `failed` label alone never authorizes a new planner attempt or adoption.
+/// Recompute its exact private all-stop evidence even on readonly/history paths.
+pub(super) fn verify_confirmed_failure(db: &Connection, r: &GoalRun) -> Result<Value> {
+    if !marked_run(db, &r.id)? || r.state != "failed" {
+        return Err(denied());
+    }
+    let proof = graph::stopped_failure(db, r)?.ok_or_else(denied)?;
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.factory_failure_confirmed' AND json_extract(document,'$.payload.plan_revision')=?2",params![r.id,sql_num(r.plan_revision)?],1,MAX_STORED_BYTES)?;
+    let (seq,raw):(i64,String)=db.query_row("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.factory_failure_confirmed' AND json_extract(document,'$.payload.plan_revision')=?2",params![r.id,sql_num(r.plan_revision)?],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
+    let e: Event = decode(&raw)?;
+    if e.kind != "goal.factory_failure_confirmed"
+        || e.aggregate_id != r.id
+        || e.source != "goal_core"
+        || e.revision != r.revision
+        || e.payload["proof"] != json!(proof)
+        || e.payload["proof_digest"] != sha(&proof)?
+        || e.payload["plan_revision"] != r.plan_revision
+        || e.payload["plan_digest"] != r.plan_digest
+        || seq <= sql_num(proof.receipt_cursor)?
+    {
+        return Err(denied());
+    }
+    Ok(
+        json!({"goal_run_id":r.id,"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"failure_refs":proof.failure_refs,"failure_receipt_sequence":seq,"failure_proof_digest":sha(&proof)?,"journal_cursor":proof.receipt_cursor,"all_graph_attempts_stopped":true,"unknown_effects":false}),
+    )
+}
+impl Store {
+    pub(crate) fn confirm_factory_child_goal_failure(&mut self, id: &str) -> Result<bool> {
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let mut r = run(&tx, id)?;
+        if !marked_run(&tx, id)? {
+            return Ok(false);
+        }
+        let confirmed:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.factory_failure_confirmed' AND json_extract(document,'$.payload.plan_revision')=?2)",params![r.id,sql_num(r.plan_revision)?],|row|row.get(0)).map_err(db_error)?;
+        if confirmed {
+            verify_confirmed_failure(&tx, &r)?;
+            return Ok(true);
+        }
+        let Some(proof) = graph::stopped_failure(&tx, &r)? else {
+            return Ok(false);
+        };
+        // A joined outcome may still have exceeded an ancestor budget. Such
+        // retained overruns do not become permission to start a fresh attempt.
+        refuse_retained_overrun(&tx, &r.root_grant_id, &r.project_id)?;
+        r.state = "failed".into();
+        let revision = r.plan_revision;
+        let digest = r.plan_digest.clone();
+        save_run(
+            &tx,
+            &mut r,
+            "goal.factory_failure_confirmed",
+            json!({"plan_revision":revision,"plan_digest":digest,"proof":proof,"proof_digest":sha(&proof)?,"task_accepted":false,"reservation_refunded":false}),
+        )?;
+        tx.commit().map_err(db_error)?;
+        Ok(true)
+    }
+}
+
+impl Store {
+    pub(crate) fn factory_child_goal_failure_context(&self, id: &str) -> Result<Value> {
+        let r = run(&self.conn, id)?;
+        checked_record(&self.conn, id)?;
+        let mut context = verify_confirmed_failure(&self.conn, &r)?;
+        context["plan"] = json!(summary(&self.conn, id)?.plan);
+        context["observations_ref"] = json!(format!("factory_child_goals.get:{id}"));
+        Ok(context)
+    }
+}
+
+/// Shared rework accounting is event-backed like existing Native Goal advances.
+/// Reserving a Factory recovery cycle consumes it once, before any new planner
+/// attempt; later adoption must reference this same receipt, never charge twice.
+pub(crate) fn reserve_rework(db: &Connection, id: &str) -> Result<Value> {
+    let r = run(db, id)?;
+    let source = checked_record(db, id)?;
+    let proof = verify_confirmed_failure(db, &r)?;
+    let original = crate::factory::checked_child_goal_scope(db, &source.origin.factory_scope_id)?;
+    let exec = original
+        .bindings
+        .child_goal_execution
+        .as_ref()
+        .ok_or_else(denied)?;
+    let existing:Option<i64>=db.query_row("SELECT sequence FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.factory_rework_reserved' AND json_extract(document,'$.payload.plan_revision')=?2 ORDER BY sequence LIMIT 1",params![id,sql_num(r.plan_revision)?],|row|row.get(0)).optional().map_err(db_error)?;
+    if existing.is_some() {
+        return rework_receipt(db, &r, &source, &proof);
+    }
+    for (project, key, ceiling) in [
+        (
+            true,
+            r.project_id.as_str(),
+            exec.policy.project_budget.reworks,
+        ),
+        (
+            false,
+            r.root_grant_id.as_str(),
+            exec.policy.root_budget.reworks,
+        ),
+    ] {
+        if shared_reworks(db, project, key)? >= ceiling {
+            return Err(err(
+                "RESOURCE_LIMIT",
+                "The original cumulative shared rework allowance is exhausted",
+            ));
+        }
+    }
+    for (ancestor, budget) in
+        crate::factory::child_goal_ancestor_budgets(db, &original, &r.task_id)?
+    {
+        let used:u32=db.query_row("SELECT count(*) FROM events e JOIN factory_child_goal_runs f ON f.goal_run_id=json_extract(e.document,'$.aggregate_id') WHERE json_extract(e.document,'$.kind')='goal.factory_rework_reserved' AND json_extract(e.document,'$.source')='goal_core' AND EXISTS(SELECT 1 FROM json_each(json_extract(f.document,'$.origin.ancestors')) WHERE value=?1)",[&ancestor],|row|row.get(0)).map_err(db_error)?;
+        if used >= budget.reworks {
+            return Err(err(
+                "RESOURCE_LIMIT",
+                "An original Factory ancestor rework allowance is exhausted",
+            ));
+        }
+    }
+    event(
+        db,
+        id,
+        r.revision,
+        "goal.factory_rework_reserved",
+        json!({"plan_revision":r.plan_revision,"plan_digest":r.plan_digest,"factory_scope_id":source.origin.factory_scope_id,"task_id":r.task_id,"root_grant_id":r.root_grant_id,"project_id":r.project_id,"ancestors":source.origin.ancestors,"execution_policy_digest":source.origin.execution_policy_digest,"failure_receipt_sequence":proof["failure_receipt_sequence"],"failure_proof_digest":proof["failure_proof_digest"],"cumulative_consumption_reset":false,"reservation_refunded":false,"planner_attempt_started":false}),
+    )?;
+    rework_receipt(db, &r, &source, &proof)
+}
+pub(super) fn shared_reworks(db: &Connection, project: bool, id: &str) -> Result<u32> {
+    db.query_row("SELECT count(*) FROM events e JOIN goal_runs g ON g.id=json_extract(e.document,'$.aggregate_id') WHERE json_extract(e.document,'$.source')='goal_core' AND (json_extract(e.document,'$.kind')='goal.factory_rework_reserved' OR (json_extract(e.document,'$.kind')='goal.run_plan_advanced' AND json_extract(e.document,'$.payload.rework')=1)) AND ((?1=1 AND g.project_id=?2) OR (?1=0 AND json_extract(g.document,'$.root_grant_id')=?2))",params![project,id],|row|row.get(0)).map_err(db_error)
+}
+fn rework_receipt(
+    db: &Connection,
+    r: &GoalRun,
+    source: &DerivedRecord,
+    proof: &Value,
+) -> Result<Value> {
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)),0),COALESCE(max(octet_length(document)),0) FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.factory_rework_reserved' AND json_extract(document,'$.payload.plan_revision')=?2",params![r.id,sql_num(r.plan_revision)?],1,MAX_STORED_BYTES)?;
+    let (seq,raw):(i64,String)=db.query_row("SELECT sequence,document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='goal.factory_rework_reserved' AND json_extract(document,'$.payload.plan_revision')=?2",params![r.id,sql_num(r.plan_revision)?],|row|Ok((row.get(0)?,row.get(1)?))).map_err(db_error)?;
+    let e: Event = decode(&raw)?;
+    if e.aggregate_id != r.id
+        || e.source != "goal_core"
+        || e.kind != "goal.factory_rework_reserved"
+        || e.payload["plan_revision"] != r.plan_revision
+        || e.payload["plan_digest"] != r.plan_digest
+        || e.payload["factory_scope_id"] != source.origin.factory_scope_id
+        || e.payload["task_id"] != r.task_id
+        || e.payload["root_grant_id"] != r.root_grant_id
+        || e.payload["project_id"] != r.project_id
+        || e.payload["ancestors"] != json!(source.origin.ancestors)
+        || e.payload["execution_policy_digest"] != source.origin.execution_policy_digest
+        || e.payload["failure_receipt_sequence"] != proof["failure_receipt_sequence"]
+        || e.payload["failure_proof_digest"] != proof["failure_proof_digest"]
+        || seq
+            <= proof["failure_receipt_sequence"]
+                .as_i64()
+                .ok_or_else(changed)?
+    {
+        return Err(denied());
+    }
+    let mut context = proof.clone();
+    context["rework_receipt_sequence"] = json!(seq);
+    context["rework_receipt_digest"] = json!(sha(&e)?);
+    context["plan"] = json!(adopted_plan(db, r, source)?);
+    Ok(context)
+}
+pub(crate) fn verify_planner_recovery(db: &Connection, id: &str, context: &Value) -> Result<()> {
+    let r = run(db, id)?;
+    let source = checked_record(db, id)?;
+    let proof = verify_confirmed_failure(db, &r)?;
+    if rework_receipt(db, &r, &source, &proof)? != *context {
+        return Err(changed());
+    }
+    Ok(())
+}
+
+/// Called in the caller's transaction. Requesting stop does not consume a fake
+/// join; even sessionless/capture jobs retain cancellation until real evidence.
+pub(crate) fn request_stop(db: &Connection, id: &str) -> Result<(bool, Vec<String>)> {
+    let mut r = run(db, id)?;
+    checked_record(db, id)?;
+    capability(db, &r)?;
+    if r.task_accepted || r.state == "accepted" {
+        return Ok((graph::stopped_graph(db, &r)?.is_some(), vec![]));
+    }
+    if !r.cancel_requested {
+        r.cancel_requested = true;
+        if r.state != "outcome_unknown" {
+            r.state = "cancel_requested".into();
+        }
+        save_run(
+            db,
+            &mut r,
+            "goal.factory_cancel_requested",
+            json!({"reservation_refunded":false,"worker_joined":false,"task_accepted":false}),
+        )?;
+    }
+    let mut stops = Vec::new();
+    raw_collection_budget(db,"SELECT count(*),COALESCE(sum(octet_length(document)+COALESCE(octet_length(session_id),0)),0),COALESCE(max(octet_length(document)),0) FROM goal_run_nodes WHERE run_id=?1",[id],65536,MAX_GOAL_PLAN_BYTES as i64)?;
+    let plans = bounded_plan_history(db, &r.scope_id)?;
+    for plan in &plans {
+        let exists: bool = db
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM goal_run_nodes WHERE run_id=?1 AND plan_revision=?2)",
+                params![id, sql_num(plan.proposal.revision)?],
+                |row| row.get(0),
+            )
+            .map_err(db_error)?;
+        if !exists {
+            continue;
+        }
+        for n in node_records_at(db, &r, plan.proposal.revision, &plan.digest, plan)? {
+            if !n.stop_confirmed {
+                if let Some(session) = n.session_id {
+                    stops.push(session);
+                }
+            }
+        }
+    }
+    let stopped = graph::stopped_graph(db, &r)?.is_some();
+    if stopped && r.state != "cancelled" {
+        r.state = "cancelled".into();
+        save_run(
+            db,
+            &mut r,
+            "goal.factory_cancel_confirmed",
+            json!({"all_graph_attempts_stopped":true,"reservation_refunded":false,"task_accepted":false}),
+        )?;
+    }
+    Ok((stopped, stops))
+}
+impl Store {
+    pub(crate) fn cancel_factory_child_goal_with_stops(
+        &mut self,
+        p: &crate::factory::FactoryChildGoalCancel,
+        revision: u64,
+        key_id: &str,
+    ) -> Result<(FactoryChildGoalSummary, Vec<String>)> {
+        key(key_id)?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(db_error)?;
+        let namespace = format!(
+            "factory:{}:owner:{}:child-goal:cancel",
+            p.scope_id, p.task_id
+        );
+        let payload = encode(&(revision, p))?;
+        if let Some(old) = replay::<FactoryChildGoalSummary>(&tx, &namespace, key_id, &payload)? {
+            checked_record(&tx, &p.goal_run_id)?;
+            return Ok((old, vec![]));
+        }
+        let source = checked_record(&tx, &p.goal_run_id)?;
+        let scope = crate::factory::checked_child_goal_scope(&tx, &p.scope_id)?;
+        let r = run(&tx, &p.goal_run_id)?;
+        if scope.revision != revision || r.revision != p.expected_goal_run_revision {
+            return Err(err(
+                "STALE_REVISION",
+                "Factory scope or child Goal changed before cancellation",
+            ));
+        }
+        if source.origin.factory_scope_id != p.scope_id || r.task_id != p.task_id || r.task_accepted
+        {
+            return Err(denied());
+        }
+        // Stop is allowed after expiry/revoke, but the exact historical issuer
+        // and CAS are still mandatory. No fresh Provider or I/O worker starts.
+        let (_, stops) = request_stop(&tx, &p.goal_run_id)?;
+        let receipt = summary(&tx, &p.goal_run_id)?;
+        remember(&tx, &namespace, key_id, &payload, &receipt)?;
+        tx.commit().map_err(db_error)?;
+        Ok((receipt, stops))
+    }
+}
+
+impl Store {
+    pub(crate) fn factory_child_goal_action_replay(
+        &self,
+        namespace: &str,
+        key_id: &str,
+        payload: &str,
+    ) -> Result<Option<FactoryChildGoalSummary>> {
+        let old: Option<FactoryChildGoalSummary> = replay(&self.conn, namespace, key_id, payload)?;
+        if let Some(old) = &old {
+            let r = run(&self.conn, &old.goal.run.id)?;
+            capability(&self.conn, &r)?;
+        }
+        Ok(old)
+    }
 }

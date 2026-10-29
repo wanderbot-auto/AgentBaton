@@ -2427,3 +2427,6 @@ fn run_data_mode(mode: &str) {
         );
     }
 }
+
+#[path = "fixtures/factory_child_goal_runtime.rs"]
+mod child_goal_runtime;

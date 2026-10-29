@@ -587,6 +587,11 @@ impl Daemon {
             "factory_child_plans.get"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildPlanQuery=params(r.params)?;Ok(json!(self.store.get_factory_child_plan(&p)?))}
             "factory_child_plans.list"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildPlanQuery=params(r.params)?;Ok(json!(self.store.list_factory_child_plans(&p)?))}
             "factory_child_plans.submit"=>{let p:crate::factory::FactoryChildPlanUpdate=params(r.params)?;Ok(json!(self.store.submit_factory_child_plan(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "factory_child_goals.start"=>{let p:crate::factory::FactoryChildGoalStart=params(r.params)?;Ok(json!(self.store.start_factory_child_goal(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "factory_child_goals.get"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildGoalQuery=params(r.params)?;Ok(json!(self.store.get_factory_child_goal(&p)?))}
+            "factory_child_goals.list"=>{if r.expected_revision.is_some()||r.idempotency_key.is_some(){return Err(invalid())}let p:crate::factory::FactoryChildGoalQuery=params(r.params)?;Ok(json!(self.store.list_factory_child_goals(&p)?))}
+            "factory_child_goals.advance_plan"=>{let p:crate::factory::FactoryChildGoalAdvance=params(r.params)?;Ok(json!(self.store.advance_factory_child_goal(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?))}
+            "factory_child_goals.cancel"=>{let p:crate::factory::FactoryChildGoalCancel=params(r.params)?;let (receipt,stops)=self.store.cancel_factory_child_goal_with_stops(&p,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;for id in stops{self.supervisor.cancel(&id);}Ok(json!(receipt))}
             "factory_scopes.get"=>{let p:FactoryScopeId=params(r.params)?;Ok(json!(self.store.get_factory_scope(&p.scope_id)?))}
             "factory_scopes.list"=>{let p:FactoryRootTaskId=params(r.params)?;Ok(json!(self.store.list_factory_scopes(&p.root_task_id)?))}
             "factory_scopes.revoke"=>{let p:FactoryScopeId=params(r.params)?;let record=self.store.revoke_factory_scope(&p.scope_id,r.expected_revision.ok_or_else(invalid)?,&r.idempotency_key.ok_or_else(invalid)?)?;self.data_workers.cancel_factory(&p.scope_id);Ok(json!(record))}
@@ -1283,6 +1288,61 @@ impl Daemon {
         }
         let mut ids = Vec::new();
         match request.method.as_str() {
+            "factory_child_goals.start" | "factory_child_goals.advance_plan" => {
+                let (scope, task, namespace, payload) = if request.method
+                    == "factory_child_goals.start"
+                {
+                    let p: crate::factory::FactoryChildGoalStart = params(request.params.clone())?;
+                    (
+                        p.scope_id.clone(),
+                        p.request.task_id.clone(),
+                        format!(
+                            "factory:{}:owner:{}:child-goal:start",
+                            p.scope_id, p.request.task_id
+                        ),
+                        serde_json::to_string(&(
+                            request.expected_revision.ok_or_else(invalid)?,
+                            &p,
+                        ))
+                        .map_err(|_| invalid())?,
+                    )
+                } else {
+                    let p: crate::factory::FactoryChildGoalAdvance =
+                        params(request.params.clone())?;
+                    (
+                        p.scope_id.clone(),
+                        p.request.task_id.clone(),
+                        format!(
+                            "factory:{}:owner:{}:child-goal:advance",
+                            p.scope_id, p.request.task_id
+                        ),
+                        serde_json::to_string(&(
+                            request.expected_revision.ok_or_else(invalid)?,
+                            &p,
+                        ))
+                        .map_err(|_| invalid())?,
+                    )
+                };
+                if self
+                    .store
+                    .factory_child_goal_action_replay(
+                        &namespace,
+                        request.idempotency_key.as_deref().ok_or_else(invalid)?,
+                        &payload,
+                    )?
+                    .is_some()
+                {
+                    return Ok(vec![]);
+                }
+                let _ = task;
+                ids.extend(
+                    self.store
+                        .get_factory_scope(&scope)?
+                        .selection
+                        .workspace_ids,
+                );
+            }
+
             "factory_child_plans.context" | "factory_child_plans.submit" => {
                 let scope_id = request
                     .params
@@ -1660,27 +1720,37 @@ impl Daemon {
         raw: &str,
     ) -> Result<Option<crate::factory::FactoryReadPlan>> {
         let request: Request = serde_json::from_str(raw).map_err(|_| invalid())?;
-        if request.token != self.token
-            || request.api_version != API_VERSION
-            || !matches!(
-                request.method.as_str(),
-                "factory_scopes.propose"
-                    | "factory_runs.start"
-                    | "approvals.finalize"
-                    | "factory_child_plans.context"
-                    | "factory_child_plans.submit"
-            )
-        {
+        if request.token != self.token || request.api_version != API_VERSION {
             return Ok(None);
         }
-        let plan = self.store.prepare_factory_owner_read(
+        let derived = self.store.prepare_factory_goal_read_for_request(
             &request.method,
             &request.params,
             request.expected_revision,
             request.idempotency_key.as_deref(),
             raw,
-            None,
         )?;
+        let plan = if derived.is_some() {
+            derived
+        } else if matches!(
+            request.method.as_str(),
+            "factory_scopes.propose"
+                | "factory_runs.start"
+                | "approvals.finalize"
+                | "factory_child_plans.context"
+                | "factory_child_plans.submit"
+        ) {
+            self.store.prepare_factory_owner_read(
+                &request.method,
+                &request.params,
+                request.expected_revision,
+                request.idempotency_key.as_deref(),
+                raw,
+                None,
+            )?
+        } else {
+            None
+        };
         if plan.is_some() {
             if (!plan.as_ref().is_some_and(|p| p.is_child_planning())
                 && (self.supervisor.has_workers()
@@ -1773,6 +1843,8 @@ impl Daemon {
                             | "get_task_result"
                             | "cancel_task"
                             | "submit_child_plan"
+                            | "execute_child_goal"
+                            | "advance_child_goal"
                     )
                 {
                     return Err(CoreError::new(
@@ -1789,6 +1861,24 @@ impl Daemon {
                         &request.handle_id,
                         &request.scoped_token,
                         &p,
+                        &job.raw,
+                    )?)
+                } else if matches!(
+                    request.method.as_str(),
+                    "execute_child_goal" | "advance_child_goal"
+                ) {
+                    let task = if request.method == "execute_child_goal" {
+                        params::<crate::factory::FactoryChildGoalSubmission>(request.params)?
+                            .task_id
+                    } else {
+                        params::<crate::factory::FactoryChildGoalAdvanceSubmission>(request.params)?
+                            .request
+                            .task_id
+                    };
+                    Some(self.store.prepare_factory_scoped_child_goal_read(
+                        &request.handle_id,
+                        &request.scoped_token,
+                        &task,
                         &job.raw,
                     )?)
                 } else {
@@ -2128,6 +2218,8 @@ impl Daemon {
                     | "get_task_result"
                     | "cancel_task"
                     | "submit_child_plan"
+                    | "execute_child_goal"
+                    | "advance_child_goal"
             )
         {
             return json!({"request_id":id,"error":CoreError::new("AUTH_REQUIRED","Scoped Factory callers cannot access owner approval, configuration or arbitrary IPC"),"revision":0,"warnings":[]});
@@ -2173,6 +2265,28 @@ impl Daemon {
                 }
                 let p: crate::factory::FactoryChildPlanSubmission = params(request.params)?;
                 self.store.factory_submit_child_plan(
+                    caller,
+                    &p,
+                    &request.idempotency_key.ok_or_else(invalid)?,
+                )
+            }
+            "execute_child_goal" => {
+                if request.expected_revision.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::factory::FactoryChildGoalSubmission = params(request.params)?;
+                self.store.factory_execute_child_goal(
+                    caller,
+                    &p,
+                    &request.idempotency_key.ok_or_else(invalid)?,
+                )
+            }
+            "advance_child_goal" => {
+                if request.expected_revision.is_some() {
+                    return Err(invalid());
+                }
+                let p: crate::factory::FactoryChildGoalAdvanceSubmission = params(request.params)?;
+                self.store.factory_advance_child_goal(
                     caller,
                     &p,
                     &request.idempotency_key.ok_or_else(invalid)?,

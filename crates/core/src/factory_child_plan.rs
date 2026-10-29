@@ -518,6 +518,14 @@ pub(super) fn require_planning_task_state(
     if task.state != TaskState::OutcomeUnknown {
         return Ok(());
     }
+    require_normal_factory_handoff(db, s, b, task)
+}
+pub(super) fn require_normal_factory_handoff(
+    db: &Connection,
+    s: &FactoryScope,
+    b: &TaskBinding,
+    task: &crate::storage::Task,
+) -> Result<()> {
     let current_run = run(db, &s.id)?;
     if current_run.cancel_requested
         || !matches!(

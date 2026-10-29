@@ -603,6 +603,9 @@ impl Store {
         graph: bool,
     ) -> Result<(GoalRun, bool)> {
         key(key_id)?;
+        if graph && factory::marked_run(&self.conn, id)? {
+            return Err(denied());
+        }
         if graph {
             graph::checked_capability(&self.conn, &run(&self.conn, id)?)?;
         } else {
@@ -2034,6 +2037,9 @@ impl Store {
         graph: bool,
     ) -> Result<GoalRun> {
         key(key_id)?;
+        if factory::marked_run(&self.conn, &p.run_id)? {
+            return Err(denied());
+        }
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)
@@ -2092,7 +2098,7 @@ impl Store {
                     record.selection.root_budget.reworks,
                 ),
             ] {
-                let used:u32=tx.query_row("SELECT count(*) FROM events e JOIN goal_runs g ON g.id=json_extract(e.document,'$.aggregate_id') WHERE octet_length(e.document)<=1048576 AND json_extract(e.document,'$.kind')='goal.run_plan_advanced' AND json_extract(e.document,'$.source')='goal_core' AND json_extract(e.document,'$.payload.rework')=1 AND ((?1=1 AND g.project_id=?2) OR (?1=0 AND json_extract(g.document,'$.root_grant_id')=?2))",params![project,id],|row|row.get(0)).map_err(db_error)?;
+                let used = factory::shared_reworks(&tx, project, id)?;
                 if used >= max {
                     return Err(err(
                         "RESOURCE_LIMIT",

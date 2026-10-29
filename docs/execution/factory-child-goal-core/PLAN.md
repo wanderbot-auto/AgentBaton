@@ -10,3 +10,5 @@ Baseline 1097980c, explicit owner AB-START-001. Latest protected main a1be94d an
 Cargo and heavy builds are not currently leased to this author. No actual new runtime or tests claimed.
 
 Policy and old14 serialized-scope compatibility selected tests actually passed at4ffb210 (5 selected only). Next implementation remains real failure-stop/recovery/reworks/adoption and API lifecycle; no new execution acceptance claims.
+
+Next verification order: freeze source; one new check/cfgtest compile under exclusive lease; build/protect exact schema15 private tools; actual normal generated ACP chain; actual bounded failure/rework/cancel/unknown/expiry/restart and nonempty real old14 Native+Factory migration/rollback/future controls; independent review and full combination regression. Every failure remains evidence.

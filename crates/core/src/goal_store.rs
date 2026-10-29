@@ -2461,3 +2461,10 @@ pub(crate) use runtime::factory::verify_native_history_before_migration as verif
 pub(crate) use runtime::factory::budget_records as factory_goal_budget_records;
 
 pub(crate) use runtime::factory::session_root as factory_goal_session_root;
+
+pub(crate) use runtime::factory::{
+    reserve_rework as reserve_factory_child_goal_rework,
+    verify_planner_recovery as verify_factory_child_goal_recovery,
+};
+
+pub(crate) use runtime::factory::request_stop as request_factory_child_goal_stop;

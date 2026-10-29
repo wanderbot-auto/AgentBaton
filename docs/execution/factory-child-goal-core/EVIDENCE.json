@@ -21,7 +21,7 @@
     "AB-COR-002",
     "AB-COR-007"
   ],
-  "runtime": "not_operational_IPC_MCP_execution_not_registered",
+  "runtime": "source_registered_not_compiled_or_runtime_verified",
   "native": "not_run",
   "macos": "not_run",
   "provider_calls": "not_authorized_not_run",
@@ -65,13 +65,13 @@
     "scope": "Core SQLite/Native finalizer plus direct bounded worker body; no daemon/Provider/MCP/child Graph runtime"
   },
   "pending": [
-    "IPC/MCP fixed entry points",
-    "Factory ancestor reservation/settlement",
-    "real parent owned-stop/lease handoff",
-    "Graph result and parent resume",
-    "exact cancel and append-only adoption",
-    "Rust/migration/generated ACP/IPC normal and failure execution",
-    "independent final review"
+    "current-source check/cfgtest compile",
+    "actual generated ACP/MCP/Graph/Owner/parent-resume normal chain",
+    "bounded failure/planner recovery/same-run adoption real controls",
+    "cancel/revoke/expiry/unknown/restart/ancestor budget real controls",
+    "nonempty actual Native Goal+Factory14 migration raw-before-recovery/FK/rollback/future16 controls",
+    "Native15 compile/real IPC and UI15 actual runtime fixtures",
+    "independent review/full integration/CI/macOS"
   ],
   "latest_public_wire_contract": "2a3d6ae",
   "factory_record_counts": 12,
@@ -111,5 +111,31 @@
     "frozen_private14_tools_match_original_manifest": "/workspace/.onboarding/factory-child-goal-core/FROZEN14_TOOLS_AFTER-check-4.json",
     "lease": "released",
     "scope": "typecheck_only_no_tests_no_new_binaries"
+  },
+  "source_lifecycle_stage": {
+    "after_source": "4ffb21000030a3f82580f5a9c14ed40056bb13a0",
+    "status": "not_compiled_not_run",
+    "new_files": [
+      "goal_graph_stop.rs",
+      "goal_factory_adoption.rs",
+      "factory_child_goal_lifecycle.rs",
+      "tests/fixtures/factory_child_goal_runtime.rs"
+    ],
+    "new_test_entries": {
+      "child_goal_policy_tests": {
+        "written": 6,
+        "current_source_run": false,
+        "earlier4ff_selected5": "retained_only_at_4ff"
+      },
+      "child_goal_contract_tests": {
+        "written": 1,
+        "run": false
+      },
+      "child_goal_runtime::actual_factory_child_goal_scoped_execute_owned_stop_owner_acceptance_parent_resume": {
+        "written": 1,
+        "run": false,
+        "required_env": "AGENTBATON_CHILD_GOAL_COMPANION=exact_frozen_schema15_baton"
+      }
+    }
   }
 }
