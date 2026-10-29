@@ -1,3 +1,9 @@
+# Task 真实五场景通过，CI私有边界修订待验 — 2026-10-29T22:48:55.020958+00:00
+
+Root6c0908实际5checks/6PNG/7.020026s，四次[2,1,2,1]选择对应自己工作区，窗口6TaskGet、原4场景全保、0Grant/session、DB全行和源不变；Core/前端同源e313，995Node/40target/type/build单列源归属。独审09074a closed。见[真实五场景证据](task-workspace-integration/ACTUAL_FIVE_BROWSER_RESULTS.json)。
+
+Task rawprivate日志公开上传P2正修：Root改RUNNER_TEMP输出和单link500工具副本(原Cargo不动)，projector bf241修gAMA/IDAT反例并保留失败；源码集成但独审/实际projection/CI16未完成。PR19草稿依赖PR18，未合入。PR18新a866 EnvUbuntu过/双Mac新增collector测试失败，Product在跑，原727双Mac返工失败仍保留；不放宽路径guard/55s/权限。完整130/WP01-14/双Mac16/native/新包未完成，main653679d/OWNER001/002ACK，无新授权。以下保留历史。
+
 # Task 工作区与只读执行选择：局部真实验证继续 — 2026-10-29T22:23:32.173082+00:00
 
 e313 Session修复的40针对性、全前端995/55files、type/build通过；同源Core/CLI实编与私有schema16空库/CLI/SIGTERM probe通过。P2旧Task时序独审闭合。历史840/3008四场景真实UI/UnixIPC通过，新增第五场景正在实现，不移签。Core156、strict inverse7、真14六项/真15 input2五项、前端和CI源码独审按各自准确source记录，见[集成证据](task-workspace-integration/EVIDENCE.json)。
