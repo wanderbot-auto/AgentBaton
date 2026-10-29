@@ -579,7 +579,7 @@ def runtime_driver(args, output, manifest):
             child_region.locator('details').filter(has=page.get_by_text('Immutable plan revisions', exact=True)).locator('summary').click()
             child_region.get_by_role('button', name=re.compile(r'^r1 · ')).click()
             child_region.locator('details').filter(has=page.get_by_text('Selected recorded revision: r1', exact=True)).locator('summary').click()
-            recorded = child_region.get_by_label('Original stored plan text', exact=True).inner_text()
+            recorded = child_region.get_by_label('Original stored plan text', exact=True).text_content()
             actual_child_one = host.result('factory_child_plans.get', {'scope_id': scope['id'], 'task_id': child_id, 'plan_revision': 1})
             assert recorded == actual_child_one['plan_json']
             shot('02-real-child-ref-history-original-plan', child_region)
