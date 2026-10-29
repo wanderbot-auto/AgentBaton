@@ -1050,7 +1050,7 @@ pub(super) fn verify_native_run(db: &Connection, r: &GoalRun, graph: bool) -> Re
         },
     )?;
     let initial = if graph {
-        graph::checked_capability(db, &r)?;
+        graph::checked_capability(db, r)?;
         result["run"].clone()
     } else {
         result
@@ -1070,7 +1070,7 @@ pub(super) fn verify_native_run(db: &Connection, r: &GoalRun, graph: bool) -> Re
     if !matches!((confirmed,authorized),(Some(a),Some(b)) if a>0&&b>a) {
         return Err(denied());
     }
-    verify_plan_advances(db, &r, &proposal, &initial, authorized.ok_or_else(denied)?)?;
+    verify_plan_advances(db, r, &proposal, &initial, authorized.ok_or_else(denied)?)?;
     Ok(())
 }
 

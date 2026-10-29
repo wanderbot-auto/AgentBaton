@@ -648,12 +648,12 @@ impl ApprovedGoalScope {
         task: &Task,
         grant: &ExecutionGrant,
         policy: HostGoalPolicy,
-        approval: &str,
-        approval_revision: u64,
+        approval: (&str, u64),
         planning_digest: &str,
         expires_at_ms: i64,
         now_ms: i64,
     ) -> PlanResult<Self> {
+        let (approval, approval_revision) = approval;
         if !id(approval)
             || approval_revision != 1
             || !hash(planning_digest)
