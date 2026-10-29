@@ -1,3 +1,5 @@
+#[path = "fixtures/pre_factory_schema.rs"]
+mod pre_factory_schema;
 use agentbaton_core::storage::Store;
 use rusqlite::Connection;
 use std::{fs, os::unix::fs::PermissionsExt, path::PathBuf};
@@ -16,6 +18,7 @@ fn schema10() -> (tempfile::TempDir, PathBuf, String) {
             r.get(0)
         })
         .unwrap();
+    pre_factory_schema::remove_empty_factory_increment(&db).unwrap();
     db.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;CREATE TABLE original_blob(raw BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=10;").unwrap();
     (d, path, raw)
 }

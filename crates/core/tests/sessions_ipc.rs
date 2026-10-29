@@ -1,4 +1,6 @@
 //! Real generated fixture child only. No vendor executable, identity, model or network is invoked.
+#[path = "fixtures/pre_factory_schema.rs"]
+mod pre_factory_schema;
 use agentbaton_core::ipc::{call, Daemon};
 use serde_json::{json, Value};
 use std::{
@@ -3037,6 +3039,138 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
     let raw_node: String = db
         .query_row("SELECT document FROM goal_run_nodes", [], |r| r.get(0))
         .unwrap();
+    // This is an explicit test-only historical projection after real Goal
+    // execution and server join, never production cleanup or meter forgiveness.
+    assert_eq!(stopped["nodes"].as_array().unwrap().len(), 1);
+    let node = &stopped["nodes"][0];
+    assert_eq!(node["stop_confirmed"], true);
+    let session_id = node["session_id"].as_str().unwrap();
+    let attempt_id = node["attempt_id"].as_str().unwrap();
+    let (session_state, intent_state): (String, String) = db.query_row(
+        "SELECT s.state,d.state FROM sessions s JOIN dispatch_intents d ON d.attempt_id=?2 WHERE s.id=?1 AND json_extract(s.document,'$.attempt_id')=d.attempt_id",
+        rusqlite::params![session_id,attempt_id], |row| Ok((row.get(0)?,row.get(1)?)),
+    ).unwrap();
+    assert_eq!(
+        (session_state.as_str(), intent_state.as_str()),
+        ("stopped", "stopped")
+    );
+    let stop_receipt: String = db.query_row(
+        "SELECT document FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.kind')='session.stopped' AND json_extract(document,'$.source')='baton_supervisor' AND json_extract(document,'$.payload.process_reaped')=1 AND json_extract(document,'$.payload.no_process_started')=0",
+        [session_id], |row|row.get(0),
+    ).unwrap();
+    let original_reservation: String = db
+        .query_row(
+            "SELECT document FROM goal_run_reservations WHERE attempt_id=?1",
+            [attempt_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let reservation: Value = serde_json::from_str(&original_reservation).unwrap();
+    assert_eq!(reservation["settled"], true);
+    assert_eq!(reservation["run_id"], run["id"]);
+    assert_eq!(reservation["actual_output_bytes"], 12);
+    let actual_runtime = reservation["actual_runtime_ms"].as_u64().unwrap();
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM workspace_leases WHERE holder!=''",
+            [],
+            |row| row.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row("SELECT COALESCE(sum(active),0) FROM budgets", [], |row| row
+            .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row(
+            "SELECT consumed FROM budgets WHERE scope=?1",
+            [format!("project:{}", f.project["id"].as_str().unwrap())],
+            |row| row.get::<_, i64>(0)
+        )
+        .unwrap(),
+        1
+    );
+    let mut meter_receipts = Vec::new();
+    for key in [
+        format!("project:{}", f.project["id"].as_str().unwrap()),
+        format!(
+            "root-grant:{}",
+            stopped["run"]["root_grant_id"].as_str().unwrap()
+        ),
+    ] {
+        let raw: String = db
+            .query_row(
+                "SELECT document FROM goal_ledgers WHERE scope=?1",
+                [&key],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let meter: Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(meter["observed_attempts"], 1);
+        assert_eq!(meter["runtime_ms"], actual_runtime);
+        assert_eq!(meter["output_bytes"], 12);
+        meter_receipts.push((key, raw));
+    }
+    // Goal-owned sessions use their existing Goal reservation, not an ordinary
+    // shared reservation. If this premise changes, STOP instead of deleting it.
+    assert_eq!(
+        db.query_row(
+            "SELECT count(*) FROM factory_budget_reservations",
+            [],
+            |row| row.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0,
+        "nonempty shared receipts require a separately reviewed historical projection"
+    );
+    type LegacyTableRows = (String, Vec<Vec<rusqlite::types::Value>>);
+    let legacy_snapshot = || -> Vec<LegacyTableRows> {
+        let names: Vec<String> = db
+            .prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+            .unwrap()
+            .query_map([], |row| row.get::<_, String>(0))
+            .unwrap()
+            .map(|row| row.unwrap())
+            .filter(|name| !pre_factory_schema::FACTORY_TABLES.contains(&name.as_str()))
+            .collect();
+        names
+            .into_iter()
+            .map(|name| {
+                let mut statement = db
+                    .prepare(&format!(
+                        "SELECT rowid,* FROM \"{}\" ORDER BY rowid",
+                        name.replace('"', "\"\"")
+                    ))
+                    .unwrap();
+                let columns = statement.column_count();
+                let rows = statement
+                    .query_map([], |row| {
+                        (0..columns)
+                            .map(|column| row.get::<_, rusqlite::types::Value>(column))
+                            .collect::<rusqlite::Result<Vec<_>>>()
+                    })
+                    .unwrap()
+                    .map(|row| row.unwrap())
+                    .collect();
+                (name, rows)
+            })
+            .collect()
+    };
+    let before_projection = legacy_snapshot();
+    pre_factory_schema::remove_empty_factory_increment(&db).unwrap();
+    assert_eq!(legacy_snapshot(),before_projection,"the historical projection must not rewrite any legacy row, including counters and consumed meters");
+    let evidence = json!({"kind":"test_only_empty_factory_historical_projection","goal_run_id":run["id"],"session_id":session_id,"attempt_id":attempt_id,"server_shutdown_joined":true,"raw_goal_run":raw_run,"raw_goal_node":raw_node,"raw_goal_reservation":original_reservation,"raw_owned_stop_receipt":stop_receipt,"raw_legacy_meter_receipts":meter_receipts,"legacy_tables_compared":before_projection.iter().map(|row|row.0.clone()).collect::<Vec<_>>(),"factory_shared_rows_before":0,"deleted_receipt_rows":0,"complete_old_session_budget_upgrade_compatibility":"not_established"});
+    let bytes = serde_json::to_vec_pretty(&evidence).unwrap();
+    let hash = agentbaton_workspaces::validation::sha256(&bytes);
+    std::fs::write(
+        graph_artifact_path(format!("generated-pre-factory-goal-projection-{hash}.json")),
+        bytes,
+    )
+    .unwrap();
     db.execute_batch("DROP TRIGGER graph_fence_lease_insert; DROP TRIGGER graph_fence_lease_update; DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;PRAGMA user_version=11;").unwrap();
     drop(db);
     let store = agentbaton_core::storage::Store::open(&path).unwrap();
