@@ -685,7 +685,7 @@ class WireEvidenceRecorder:
         entry={**slot,'capture_state':'failed','stage':stage,'error_type':type(error).__name__,'error':str(error),
             'received_sha256':base.sha(raw)if raw is not None else None,
             'received_bytes':len(raw)if raw is not None else None,
-            'retained_path_exists':Path(slot['original_reply_path']).exists(),'capture_complete':False}
+            'retained_path_exists':os.path.lexists(slot['original_reply_path']),'capture_complete':False}
         with self._lock:
             slot['capture_state']='failed';self.report['actual_core_wire_failures'].append(entry)
 
@@ -735,6 +735,7 @@ def wire_recording_self_check(output):
     assert all(not thread.is_alive()for thread in threads)and not errors,errors
     assert len(report['actual_core_wires'])==len(expected)==128 and len(report['actual_core_wire_attempts'])==128
     assert not report['actual_core_wire_failures']
+    assert recorder._bytes==sum(len(row['raw'])for row in expected.values())
     paths=[entry['original_reply_path']for entry in report['actual_core_wires']]
     assert len(set(paths))==128 and set(expected)==set(range(128))
     for entry in report['actual_core_wires']:
@@ -747,12 +748,14 @@ def wire_recording_self_check(output):
         'request-snapshot-survives-caller-mutation','all-file-controls-joined-and-mode600'])
     # A pre-existing path must survive, and a failed slot must never be reused.
     conflict=output/'preexisting';conflict.mkdir(mode=0o700);old=conflict/'wire-reply-0.json';sentinel=b'preexisting immutable control';old.write_bytes(sentinel)
+    old_pin=(old.stat().st_ino,old.stat().st_size,old.stat().st_mtime_ns,old.stat().st_mode)
     collision={};writer=WireEvidenceRecorder(conflict,collision);call=FixedCall('file-control-only',{'label':'collision'},'unit-collision',1)
     slot=writer.begin(call)
     try:writer.finish(slot,b'new opaque bytes must not overwrite')
     except FileExistsError:pass
     else:raise AssertionError('Pre-existing original file overwritten')
     assert old.read_bytes()==sentinel and not collision['actual_core_wires']
+    assert old_pin==(old.stat().st_ino,old.stat().st_size,old.stat().st_mtime_ns,old.stat().st_mode)
     assert len(collision['actual_core_wire_failures'])==1 and collision['actual_core_wire_failures'][0]['capture_complete']is False
     following=writer.finish(writer.begin(call),b'second original unit payload')
     assert following['sequence']==1 and Path(following['original_reply_path']).read_bytes()==b'second original unit payload'
