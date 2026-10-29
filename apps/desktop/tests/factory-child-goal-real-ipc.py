@@ -303,6 +303,13 @@ def self_check():
         'tables':{table:{'count':PREAPPROVAL_COUNTS.get(table,0),'sha256':'a'*64}for table in PREAPPROVAL_ZERO_TABLES|PREAPPROVAL_COUNTS.keys()|{'events'}},
         'sequence':1,'active_workspace_leases':0,'active_dispatch_intents':0}
     verify_approval_did_not_execute(snapshot);checks.append('pure-approval-zero-execution-domain-positive')
+    assert PREAPPROVAL_COUNTS['workspace_leases']==0
+    checks.append('pre-start-workspace-lease-table-exactly-zero')
+    premature=copy.deepcopy(snapshot);premature['tables']['workspace_leases']['count']=1
+    try:verify_approval_did_not_execute(premature)
+    except Refusal:pass
+    else:raise AssertionError('Lease row exists before any explicit start')
+    checks.append('pre-start-one-inactive-lease-row-refused')
     for table in sorted(PREAPPROVAL_ZERO_TABLES):
         bad=copy.deepcopy(snapshot);bad['tables'][table]['count']=1
         try:verify_approval_did_not_execute(bad)
@@ -620,7 +627,7 @@ def collect_graph_records(runtime,workspace,scope,context,verified,output):
 
 
 PREAPPROVAL_COUNTS = {'factory_scopes':2,'goal_scopes':1,'goal_grant_revisions':2,
-    'goal_ledgers':2,'execution_grants':1,'workspace_leases':1,'budgets':2}
+    'goal_ledgers':2,'execution_grants':1,'workspace_leases':0,'budgets':2}
 PREAPPROVAL_ZERO_TABLES = (frozenset(support.FACTORY_RECORD_TABLES.values())|support.LEGACY_GOAL_TABLES|
     {'attempts','sessions','dispatch_intents'}) - PREAPPROVAL_COUNTS.keys()
 
