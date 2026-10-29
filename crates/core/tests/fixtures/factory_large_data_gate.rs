@@ -10,6 +10,7 @@ pub(super) struct ReadGate {
     library: PathBuf,
     artifacts: PathBuf,
     held: Option<std::fs::File>,
+    started: Instant,
 }
 fn write_private(path: &Path, bytes: &[u8]) {
     let mut file = fs::OpenOptions::new()
@@ -22,6 +23,7 @@ fn write_private(path: &Path, bytes: &[u8]) {
 }
 impl ReadGate {
     pub(super) fn compile(base: &Path, mode: &str, daemon: &Path, raw_daemon: &Path) -> Self {
+        let started = Instant::now();
         let root = base.join("generated-read-gate");
         fs::create_dir(&root).unwrap();
         fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
@@ -58,7 +60,7 @@ impl ReadGate {
             .output()
             .unwrap();
         let artifacts = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../artifacts/factory-runtime-core/large-data-read-shim")
+            .join("../../artifacts/factory-runtime-core/large-data-read-diagnostics-20261029")
             .join(format!("{mode}-{}", sha256(body.as_bytes())));
         fs::create_dir_all(&artifacts).unwrap();
         write_private(&artifacts.join("generated-gate.c"), body.as_bytes());
@@ -82,7 +84,117 @@ impl ReadGate {
             library,
             artifacts,
             held: None,
+            started,
         }
+    }
+    pub(super) fn phase(
+        &self,
+        name: &str,
+        runtime: &Path,
+        scope: Option<&serde_json::Value>,
+        extra: serde_json::Value,
+    ) {
+        let began = Instant::now();
+        let epoch_ms = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis();
+        let mut state = Vec::new();
+        let database = runtime.join("baton.sqlite3");
+        if database.exists() {
+            let observe = || -> rusqlite::Result<Vec<serde_json::Value>> {
+                let db = Connection::open_with_flags(
+                    &database,
+                    rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+                )?;
+                db.busy_timeout(Duration::from_millis(20))?;
+                let mut query = db.prepare(
+                    "SELECT 'factory_scopes',id,CASE WHEN octet_length(document)<=65536 THEN document END FROM factory_scopes
+                     UNION ALL SELECT 'factory_runs',id,CASE WHEN octet_length(document)<=65536 THEN document END FROM factory_runs
+                     UNION ALL SELECT 'factory_task_bindings',task_id,CASE WHEN octet_length(document)<=65536 THEN document END FROM factory_task_bindings
+                     UNION ALL SELECT 'sessions',id,CASE WHEN octet_length(document)<=65536 THEN document END FROM sessions
+                     UNION ALL SELECT 'tasks',id,CASE WHEN octet_length(document)<=65536 THEN document END FROM tasks
+                     UNION ALL SELECT 'execution_grants',id,CASE WHEN octet_length(document)<=65536 THEN document END FROM execution_grants
+                     UNION ALL SELECT 'connections',id,CASE WHEN octet_length(document)<=65536 THEN document END FROM connections
+                     UNION ALL SELECT 'managed_workspaces',id,CASE WHEN octet_length(document)<=65536 THEN document END FROM managed_workspaces
+                     UNION ALL SELECT 'projects',id,CASE WHEN octet_length(document)<=65536 THEN document END FROM projects
+                     UNION ALL SELECT 'dispatch_intents',id,CASE WHEN octet_length(document)<=65536 THEN document END FROM dispatch_intents
+                     UNION ALL SELECT 'workspace_leases',resource,json_object('holder',holder,'fencing_token',fencing_token,'expires_at_ms',expires_at) FROM workspace_leases
+                     UNION ALL SELECT 'factory_scoped_handles',id,json_object('scope_id',scope_id,'session_id',session_id,'attempt_id',attempt_id,'fencing_token',fencing_token,'expires_at_ms',expires_at_ms,'revoked',revoked) FROM factory_scoped_handles LIMIT 33",
+                )?;
+                let rows = query
+                    .query_map([], |row| {
+                        Ok((
+                            row.get::<_, String>(0)?,
+                            row.get::<_, String>(1)?,
+                            row.get::<_, Option<String>>(2)?,
+                        ))
+                    })?
+                    .collect::<rusqlite::Result<Vec<_>>>()?;
+                assert!(
+                    rows.len() <= 32,
+                    "diagnostics refuse an unexpected large fixture, never truncate"
+                );
+                Ok(rows
+                    .into_iter()
+                    .map(|(table, id, raw)| {
+                        let mut selected = serde_json::Map::new();
+                        if let Some(raw) = raw {
+                            selected
+                                .insert("document_sha256".into(), json!(sha256(raw.as_bytes())));
+                            let document: serde_json::Value = serde_json::from_str(&raw).unwrap();
+                            for key in [
+                                "revision",
+                                "state",
+                                "revoked",
+                                "expires_at_ms",
+                                "fencing_token",
+                                "attempt_id",
+                                "intent_id",
+                                "session_id",
+                                "active_session_id",
+                                "cancel_requested",
+                                "spec_revision",
+                                "turn_state",
+                                "holder",
+                                "last_error",
+                            ] {
+                                if let Some(value) = document.get(key) {
+                                    selected.insert(key.into(), value.clone());
+                                }
+                            }
+                            if let Some(handle) = document.get("handle") {
+                                selected
+                                    .insert("task_handle_state".into(), handle["state"].clone());
+                                selected.insert(
+                                    "task_handle_revision".into(),
+                                    handle["revision"].clone(),
+                                );
+                                selected.insert(
+                                    "task_handle_confirmed_stop".into(),
+                                    handle["confirmed_stop"].clone(),
+                                );
+                            }
+                        } else {
+                            selected.insert("oversize_not_read".into(), json!(true));
+                        }
+                        json!({"table":table,"id":id,"observed":selected})
+                    })
+                    .collect())
+            };
+            match observe() {
+                Ok(rows) => state = rows,
+                Err(error) => state.push(json!({"observation_error":error.to_string()})),
+            }
+        }
+        let expires = scope.and_then(|scope| scope["expires_at_ms"].as_i64());
+        let record = json!({"stage":name,"fixture_elapsed_ms":self.started.elapsed().as_millis(),"epoch_ms":epoch_ms,"scope_id":scope.map(|scope|scope["id"].clone()),"scope_revision":scope.map(|scope|scope["revision"].clone()),"scope_expires_at_ms":expires,"scope_remaining_ms_at_phase":expires.map(|deadline|i128::from(deadline)-i128::try_from(epoch_ms).unwrap()),"source_deadlines":{"client_socket_read_timeout_ms":5000,"actor_ReadyRequest_budget_ms":60000,"owned_DataIO_budget_ms":30000,"actor_and_worker_exact_Instant":"not observable over wire; source constants only, never relabel client timeout as scope expiry"},"trusted_state":state,"extra":extra,"diagnostic_observation_ms":began.elapsed().as_millis()});
+        let bytes = serde_json::to_vec_pretty(&record).unwrap();
+        // No request or credential document is ever serialized. The credential-
+        // bearing handle table is read only through explicit public metadata;
+        // token/token_digest are never selected.
+        assert!(!String::from_utf8_lossy(&bytes).contains("scoped_token"));
+        write_private(&self.artifacts.join(format!("phase-{name}.json")), &bytes);
     }
     pub(super) fn configure_own_daemon(&self, command: &mut Command) {
         // Process-local Command environment only, never std::env::set_var.
@@ -186,12 +298,16 @@ pub(super) fn run_inflight_case(
 ) {
     let until = Instant::now() + Duration::from_secs(5);
     while !workspace.join("reports/pin-ready").exists() {
+        if Instant::now() >= until {
+            gate.phase("owned_marker_timeout",runtime,Some(scope),json!({"fixture_stderr":fs::read_to_string(workspace.join("reports/fixture-stderr.txt")).ok()}));
+        }
         assert!(
             Instant::now() < until,
             "actual generated MCP parent did not become ready"
         );
         std::thread::sleep(Duration::from_millis(5));
     }
+    gate.phase("owned_marker_ready",runtime,Some(scope),json!({"owned_initial_mcp_status":fs::read_to_string(workspace.join("reports/pin-ready")).ok()}));
     let credential_path = fs::read_dir(runtime.join("factory-scoped-handles"))
         .unwrap()
         .next()
@@ -200,17 +316,134 @@ pub(super) fn run_inflight_case(
         .path();
     let credential: serde_json::Value =
         serde_json::from_slice(&fs::read(credential_path).unwrap()).unwrap();
+    gate.phase(
+        "credential_ready",
+        runtime,
+        Some(scope),
+        json!({"handle_id":credential["handle_id"]}),
+    );
     let raw = json!({"api_version":1,"request_id":"controlled-large-data-original-nonce","handle_id":credential["handle_id"],"scoped_token":credential["scoped_token"],"method":"get_task_status","params":{"task_id":scope["root_task_id"]}});
-    let before = super::scoped_request(runtime, raw.clone());
+    // The generated Provider already issued this same real, authenticated MCP
+    // GET before pin-ready. Preserve its exact reply instead of repeating a
+    // needless16MiB setup read that can consume the approved four-second TTL.
+    let marker: serde_json::Value =
+        serde_json::from_slice(&fs::read(workspace.join("reports/pin-ready")).unwrap()).unwrap();
+    assert_eq!(marker["method"], "get_task_status");
+    let original_text = marker["original_scoped_response_text"].as_str().unwrap();
+    let before: serde_json::Value = serde_json::from_str(original_text).unwrap();
     assert!(
         before.get("error").is_none(),
         "must first prove the real handle/witness works: {before}"
     );
+    assert_eq!(
+        marker["original_mcp_response_frame"]["result"]["content"][0]["text"],
+        original_text
+    );
+    assert!(uuid::Uuid::parse_str(before["request_id"].as_str().unwrap()).is_ok());
+    assert_eq!(before["result"]["factory_scope_id"], scope["id"]);
+    assert_eq!(before["result"]["root_task_id"], scope["root_task_id"]);
+    assert_eq!(before["result"]["task_id"], scope["root_task_id"]);
+    let began = marker["initial_get_begin_epoch_ms"].as_i64().unwrap();
+    let returned = marker["initial_get_response_epoch_ms"].as_i64().unwrap();
+    assert!(began <= returned && returned - began < 5000);
+    assert!(returned < scope["expires_at_ms"].as_i64().unwrap());
+    let db = Connection::open_with_flags(
+        runtime.join("baton.sqlite3"),
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+    )
+    .unwrap();
+    let caller = db.query_row(
+        "SELECT h.scope_id,h.session_id,h.attempt_id,h.fencing_token,h.expires_at_ms,h.revoked,h.token_digest,s.task_id,s.project_id,s.state,json_extract(s.document,'$.fencing_token'),l.holder,l.fencing_token,b.document,c.revision,c.revoked,json_extract(c.document,'$.expires_at_ms'),t.document,json_extract(s.document,'$.revision'),l.expires_at,s.workspace_id,s.connection_id,s.grant_id FROM factory_scoped_handles h JOIN sessions s ON s.id=h.session_id JOIN workspace_leases l ON l.resource=s.workspace_id JOIN factory_task_bindings b ON b.scope_id=h.scope_id AND b.task_id=s.task_id JOIN factory_scopes c ON c.id=h.scope_id JOIN tasks t ON t.id=s.task_id WHERE h.id=?1",
+        [credential["handle_id"].as_str().unwrap()], |row| {
+            let binding: serde_json::Value = serde_json::from_str(&row.get::<_,String>(13)?).unwrap();
+            let task: serde_json::Value = serde_json::from_str(&row.get::<_,String>(17)?).unwrap();
+            Ok(json!({"scope_id":row.get::<_,String>(0)?,"session_id":row.get::<_,String>(1)?,"attempt_id":row.get::<_,String>(2)?,"fencing_token":row.get::<_,i64>(3)?,"handle_expires_at_ms":row.get::<_,i64>(4)?,"handle_revoked":row.get::<_,bool>(5)?,"credential_sha256":row.get::<_,String>(6)?,"task_id":row.get::<_,String>(7)?,"project_id":row.get::<_,String>(8)?,"session_state":row.get::<_,String>(9)?,"session_fencing_token":row.get::<_,i64>(10)?,"lease_holder":row.get::<_,String>(11)?,"lease_fencing_token":row.get::<_,i64>(12)?,"task_handle":binding["handle"],"scope_revision":row.get::<_,i64>(14)?,"scope_revoked":row.get::<_,bool>(15)?,"scope_expires_at_ms":row.get::<_,i64>(16)?,"task_revision":task["revision"],"task_spec_revision":task["spec_revision"],"task_state":task["state"],"task_goal_sha256":sha256(task["goal"].as_str().unwrap().as_bytes()),"session_revision":row.get::<_,i64>(18)?,"lease_expires_at_ms":row.get::<_,i64>(19)?,"workspace_id":row.get::<_,String>(20)?,"connection_id":row.get::<_,String>(21)?,"grant_id":row.get::<_,String>(22)?}))
+        },
+    ).unwrap();
+    assert_eq!(caller["scope_id"], scope["id"]);
+    assert_eq!(caller["scope_revision"], scope["revision"]);
+    assert_eq!(caller["scope_expires_at_ms"], scope["expires_at_ms"]);
+    assert_eq!(caller["scope_revoked"], false);
+    assert_eq!(caller["handle_revoked"], false);
+    assert_eq!(caller["handle_expires_at_ms"], scope["expires_at_ms"]);
+    assert_eq!(
+        caller["credential_sha256"],
+        sha256(credential["scoped_token"].as_str().unwrap().as_bytes())
+    );
+    assert_eq!(caller["task_id"], scope["root_task_id"]);
+    assert_eq!(caller["project_id"], scope["project_id"]);
+    assert_eq!(caller["session_state"], "running");
+    assert_eq!(caller["task_state"], "running");
+    assert_eq!(
+        caller["task_spec_revision"],
+        scope["bindings"]["root_task"]["spec_revision"]
+    );
+    assert_eq!(
+        caller["task_goal_sha256"],
+        sha256(
+            scope["bindings"]["root_task"]["goal"]
+                .as_str()
+                .unwrap()
+                .as_bytes()
+        )
+    );
+    assert!(
+        caller["task_revision"].as_u64().unwrap()
+            >= scope["selection"]["expected_task_revision"]
+                .as_u64()
+                .unwrap()
+    );
+    assert!(caller["session_revision"].as_u64().unwrap() > 0);
+    assert_eq!(
+        caller["workspace_id"],
+        scope["selection"]["workspace_ids"][0]
+    );
+    assert_eq!(
+        caller["connection_id"],
+        scope["selection"]["connection_ids"][0]
+    );
+    assert_eq!(caller["grant_id"], scope["selection"]["grant_id"]);
+    assert_eq!(caller["attempt_id"], before["result"]["attempt_id"]);
+    assert_eq!(caller["task_handle"], before["result"]);
+    assert_eq!(caller["lease_holder"], caller["session_id"]);
+    assert_eq!(caller["lease_fencing_token"], caller["fencing_token"]);
+    assert_eq!(caller["session_fencing_token"], caller["fencing_token"]);
+    gate.phase("owned_initial_get_verified",runtime,Some(scope),json!({"original_scoped_response_text":original_text,"original_mcp_response_frame":marker["original_mcp_response_frame"],"provider_get_begin_epoch_ms":began,"provider_get_response_epoch_ms":returned,"trusted_caller":caller,"product_authority_from_this_marker":false}));
+    drop(db);
     gate.arm(&workspace.join("inputs/input.txt"));
+    gate.phase(
+        "armed",
+        runtime,
+        Some(scope),
+        json!({"actual_gate_entered":false}),
+    );
     let _cleanup = ReleaseOnFailure(gate);
+    let controlled_begin_ms = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
+    if mode == "read_gate_expiry" {
+        assert!(
+            scope["expires_at_ms"].as_i64().unwrap() > i64::try_from(controlled_begin_ms).unwrap()
+        );
+        assert!(
+            i128::from(scope["expires_at_ms"].as_i64().unwrap())
+                < i128::try_from(controlled_begin_ms + 5000).unwrap()
+        );
+    }
+    gate.phase("controlled_get_begin",runtime,Some(scope),json!({"request_id":"controlled-large-data-original-nonce","client_deadline_epoch_ms":controlled_begin_ms+5000,"initial_validity_proof_request_id":before["request_id"]}));
     let target = runtime.to_path_buf();
     let pending = std::thread::spawn(move || super::scoped_request(&target, raw));
     let entered = gate.entered(daemon_id);
+    if mode == "read_gate_expiry" {
+        assert!(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis()<u128::try_from(scope["expires_at_ms"].as_i64().unwrap()).unwrap(),"must enter actual64KiB read before approved Scope expiry, never count expired/Ready setup as inflight");
+    }
+    gate.phase(
+        "entered",
+        runtime,
+        Some(scope),
+        json!({"actual_read_observation":entered}),
+    );
     let thread_path = PathBuf::from(format!(
         "/proc/{daemon_id}/task/{}",
         entered["tid"].as_u64().unwrap()

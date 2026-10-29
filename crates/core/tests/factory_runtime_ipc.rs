@@ -1609,6 +1609,10 @@ fn run_data_mode(mode: &str) {
     } else {
         None
     };
+    #[cfg(target_os = "linux")]
+    if let Some(gate) = &read_gate {
+        gate.phase("source",&runtime,None,json!({"dataset_bytes":input_limit,"input_source":source.join("input.txt"),"input_sha256":sha256(&before)}));
+    }
     let mut command = Command::new(installed.join("batond"));
     command
         .env_clear()
@@ -1629,6 +1633,15 @@ fn run_data_mode(mode: &str) {
         );
         assert!(daemon.0.try_wait().unwrap().is_none());
         std::thread::sleep(Duration::from_millis(5));
+    }
+    #[cfg(target_os = "linux")]
+    if let Some(gate) = &read_gate {
+        gate.phase(
+            "daemon_ready",
+            &runtime,
+            None,
+            json!({"daemon_id":daemon.0.id()}),
+        );
     }
     let rpc = |method: &str, params: Value, key: Option<&str>, rev: Option<u64>| -> Value {
         let mut request = json!({"method":method,"params":params});
@@ -1699,9 +1712,17 @@ fn run_data_mode(mode: &str) {
     let provider = base.join("generated-data-factory-acp");
     // Connection/workspace IDs are filled only once returned by Core; provider
     // code reads the approved task prompt for workspace and managed MCP config.
-    let body = ACP_FACTORY
+    let mut body = ACP_FACTORY
         .replace("status_connection", "data_connection")
         .replace("status_workspace", "data_workspace");
+    if mode.starts_with("read_gate_") {
+        // Keep the original real MCP reply verbatim. This is fixture evidence,
+        // never a product authorization or a reusable private Data witness.
+        body=body.replace("result=json.loads(mcp.stdout.readline());assert 'error' not in result,result", "result=json.loads(mcp.stdout.readline());assert 'error' not in result,result\n global last_mcp_response_frame\n last_mcp_response_frame=result");
+        body=body.replace("actual=json.loads(result['content'][0]['text']);assert 'error' not in actual,actual", "actual=json.loads(result['content'][0]['text']);assert 'error' not in actual,actual\n if name=='get_task_status':\n  global initial_scoped_response_text,initial_scoped_mcp_frame\n  initial_scoped_response_text=result['content'][0]['text']\n  initial_scoped_mcp_frame=last_mcp_response_frame");
+        body=body.replace("status=tool('get_task_status',{'task_id':c['task_id']});assert status['task_id']==c['task_id']", "import time\n  initial_scoped_begin_ms=int(time.time()*1000)\n  status=tool('get_task_status',{'task_id':c['task_id']});assert status['task_id']==c['task_id']\n  initial_scoped_response_ms=int(time.time()*1000)");
+        body=body.replace("open('reports/pin-ready','w').write('generated safe gate')", "open('reports/pin-ready','w').write(json.dumps({'provider_pid':os.getpid(),'initial_get_begin_epoch_ms':initial_scoped_begin_ms,'initial_get_response_epoch_ms':initial_scoped_response_ms,'task_id':status['task_id'],'task_revision':status['revision'],'task_state':status['state'],'method':'get_task_status','original_scoped_response_text':initial_scoped_response_text,'original_mcp_response_frame':initial_scoped_mcp_frame}))");
+    }
     // Fixture-only, nonsecret host-generated identifier; it grants no rights.
     let connection_label = base.join("generated-connection-label.txt");
     fs::write(&provider, body.replace("mcp=None;mid=0", &format!("data_connection=open({0}).read() if os.path.exists({0}) else ''\ndata_workspace={1}\nfixture_mode={2}\nmcp=None;mid=0",serde_json::to_string(&connection_label).unwrap(),copied["workspace_id"],serde_json::to_string(if mode=="input_drift"||mode.starts_with("read_gate_"){"pin_drift"}else{"normal"}).unwrap()))).unwrap();
@@ -1744,6 +1765,15 @@ fn run_data_mode(mode: &str) {
     let grant = approve(&p, "trusted-data-grant-owner");
     let budget = json!({"attempts":8,"parallel":1,"runtime_ms":30000,"output_bytes":12288,"children":3,"reworks":0,"tokens":null,"cost_microunits":null});
     let selection = json!({"root_task_id":task["id"],"expected_task_revision":task["revision"],"grant_id":grant["id"],"expected_grant_revision":grant["revision"],"connection_ids":[connection["id"]],"workspace_ids":[copied["workspace_id"]],"inputs":[{"artifact_id":"input","relative_path":"inputs/input.txt","max_bytes":input_limit,"expected_sha256":sha256(&before)}],"outputs":[{"artifact_id":"report","relative_path":"reports/report.txt","max_bytes":4096,"expected_sha256":null}],"recipients":[],"max_depth":2,"max_children":2,"max_total_nodes":4,"root_budget":budget,"project_budget":budget,"ttl_ms":if mode=="read_gate_expiry"{4000}else{30000},"capabilities":{"delegate_task":true,"resume_parent_as_new_attempt":true,"child_planning":false,"child_goal_execution":false,"create_workspace":false}});
+    #[cfg(target_os = "linux")]
+    if let Some(gate) = &read_gate {
+        gate.phase(
+            "scope_propose_begin",
+            &runtime,
+            None,
+            json!({"scope_ttl_ms":selection["ttl_ms"]}),
+        );
+    }
     let proposal = rpc(
         "factory_scopes.propose",
         selection.clone(),
@@ -1751,7 +1781,25 @@ fn run_data_mode(mode: &str) {
         None,
     );
     assert_eq!(proposal["kind"], "factory");
+    #[cfg(target_os = "linux")]
+    if let Some(gate) = &read_gate {
+        gate.phase(
+            "scope_finalize_begin",
+            &runtime,
+            None,
+            json!({"proposal_id":proposal["id"],"proposal_revision":proposal["revision"]}),
+        );
+    }
     let scope = approve(&proposal, "trusted-factory-owner");
+    #[cfg(target_os = "linux")]
+    if let Some(gate) = &read_gate {
+        gate.phase(
+            "scope_finalize_response",
+            &runtime,
+            Some(&scope),
+            json!({"contract_digest":scope["contract_digest"]}),
+        );
+    }
     let check_db = Connection::open(runtime.join("baton.sqlite3")).unwrap();
     let sequence: i64 = check_db
         .query_row("SELECT COALESCE(max(sequence),0) FROM events", [], |r| {
@@ -1846,6 +1894,15 @@ fn run_data_mode(mode: &str) {
             0
         );
     }
+    #[cfg(target_os = "linux")]
+    if let Some(gate) = &read_gate {
+        gate.phase(
+            "start_begin",
+            &runtime,
+            Some(&scope),
+            json!({"scope_revision":scope["revision"]}),
+        );
+    }
     let start = rpc(
         "factory_runs.start",
         json!({"scope_id":scope["id"]}),
@@ -1855,6 +1912,7 @@ fn run_data_mode(mode: &str) {
     assert_eq!(start["state"], "queued");
     #[cfg(target_os = "linux")]
     if let Some(gate) = &mut read_gate {
+        gate.phase("start_response",&runtime,Some(&scope),json!({"run_id":start["id"],"run_state":start["state"],"run_revision":start["revision"]}));
         assert_eq!(scope["project_id"], project["id"]);
         large_data_gate::run_inflight_case(
             gate,

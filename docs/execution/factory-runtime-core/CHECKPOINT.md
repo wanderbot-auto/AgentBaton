@@ -131,3 +131,12 @@ Cargo/CPU was explicitly returned to Root after the two new helper tests and one
 
 
 Timing erratum: final helper2PASS harness duration is0.04s, confirmed from raw log34b65ba7…; the frozen snapshot a8fb2934… mistakenly copied0.02s from the preceding1PASS1FAIL run. Preserve both original artifacts. Supplement artifacts/factory-runtime-core/pre-factory-fixtures/final-helper-timing-correction.json SHA256 da6a0f8b36581be7715cc2d0ee5d1bf5346e3b414a3bfd984e01a53c6f53f40a corrects only that duration; source/test counts/exits/Goal1.20s are unchanged, no rerun.
+
+
+## Initial scoped-read phase checkpoint
+
+Diagnostic source `9da248ca828972cefbcf15c89a62e77973146eea` and fixed source `6130bc85e2432cb0f79fff8c80467c8573f3c36c` change only the original runtime IPC fixture and large-read helper. Snapshot `artifacts/factory-runtime-core/large-data-phase-source-snapshot.json` SHA256 `6cef0e04107b0ee2a5b27e1e32819b08e53a11be3183e6686be5c7916dfb5bd4` binds both measured old probes,132 artifacts including original instrumented ELF, exact fixed2file hashes and fixed3branch outcomes/Clippy/fmt. The old4s failure has no arm/entered marker and is never counted as in-flight coverage; fixed4s has an actual entered observation before expiry. Raw token is never persisted; only permitted SHA is compared/recorded in host caller evidence, and public phase projection excludes credential-bearing data.
+
+The complete real MCP GET response is retained verbatim and strictly checked; the product never consumes its marker as authority. First proof and next controlled request are distinct real requests with distinct original request IDs; no private witness, queue deadline or mutation key is reused/reset. The controlled request still must pass actual fresh authorization and hashing and cannot be admitted from an expired/foreign proof. Measured clock exhaustion led to deduplicating setup, not weakening4s policy, reducing data or inflating deadlines.
+
+No Cargo/cc/test/daemon process remains; lease explicitly returned to Root before this records commit. No full workspace/native/Mac/default-debug2 CI result is attributed to this new source. Next: independent source/evidence review, integrate exact fixed source and then one new complete regression. Remaining kernel interruption/escaped descendant guarantees and full Factory/product acceptance remain unestablished. Preserve all old candidates, failed directories, source and binaries; do not retroactively relabel them.
