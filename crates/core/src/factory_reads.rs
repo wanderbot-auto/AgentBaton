@@ -1937,6 +1937,12 @@ mod tests {
         let f = Fixture::new();
         let plan = f.plan();
         let sequence = f.store.sequence().unwrap();
+        let original_version: u32 = f
+            .store
+            .conn
+            .pragma_query_value(None, "user_version", |r| r.get(0))
+            .unwrap();
+        assert_eq!(original_version, 15);
         let readonly = plan
             .database
             .open_readonly(Instant::now() + Duration::from_secs(30))
@@ -1951,7 +1957,7 @@ mod tests {
         assert!(readonly
             .execute("INSERT INTO events(document) VALUES('{}')", [])
             .is_err());
-        assert!(readonly.execute_batch("PRAGMA user_version=15;").is_err());
+        assert!(readonly.execute_batch("PRAGMA user_version=16;").is_err());
         assert!(readonly
             .execute_batch("CREATE TABLE cannot_create(value TEXT);")
             .is_err());
@@ -1961,7 +1967,7 @@ mod tests {
                 .conn
                 .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
                 .unwrap(),
-            14
+            original_version
         );
     }
     #[test]
