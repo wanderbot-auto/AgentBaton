@@ -60,7 +60,7 @@ fn actual_schema8_upgrade_preserves_raw_rows_and_private_reopenable_backup() {
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        13
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))

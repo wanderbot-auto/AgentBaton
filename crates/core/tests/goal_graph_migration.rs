@@ -53,7 +53,7 @@ fn actual_schema11_upgrade_keeps_raw_old_rows_private_backup_and_no_graph_author
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        13
     );
     assert_eq!(
         db.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))

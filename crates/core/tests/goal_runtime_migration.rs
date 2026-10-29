@@ -40,7 +40,7 @@ fn schema10_upgrade_preserves_original_rows_in_private_logical_backup_without_se
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        13
     );
     assert_eq!(
         db.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))

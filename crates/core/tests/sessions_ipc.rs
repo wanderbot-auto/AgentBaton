@@ -3004,7 +3004,7 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        13
     );
     assert!(db
         .query_row(

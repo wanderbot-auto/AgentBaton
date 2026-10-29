@@ -85,7 +85,7 @@ fn real_v6_upgrade_keeps_raw_documents_and_blobs_in_private_reopenable_backup() 
         connection
             .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        13
     );
     assert_eq!(
         connection

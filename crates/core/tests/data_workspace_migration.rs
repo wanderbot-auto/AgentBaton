@@ -49,7 +49,7 @@ fn actual_schema9_upgrade_has_private_exact_old_bytes_backup_and_does_not_seed_m
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        13
     );
     assert_eq!(
         db.query_row("SELECT raw FROM original_blob", [], |r| r

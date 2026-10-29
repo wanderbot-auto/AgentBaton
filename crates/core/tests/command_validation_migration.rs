@@ -63,7 +63,7 @@ fn real_schema7_upgrade_has_private_reopenable_backup_preserving_raw_documents_a
     assert_eq!(
         c.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        12
+        13
     );
     assert_eq!(
         c.query_row("SELECT document FROM tasks", [], |r| r.get::<_, String>(0))
