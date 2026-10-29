@@ -141,7 +141,7 @@ class FixedBoundaryTests(unittest.TestCase):
 
     def test_late_handler_browser_cleanup_failure_never_keeps_passed(self):
         good = {'flow_complete': True, 'http_errors': [], 'page_errors': [], 'cleanup': {'complete': True},
-                'checks': [{'id': f'WSI-B0{i}', 'status': 'passed'} for i in range(1, 5)]}
+                'checks': [{'id': f'WSI-B0{i}', 'status': 'passed'} for i in range(1, 6)]}
         self.assertEqual(h.seal_status(good), 0)
         for change in ({'http_errors': [{'stage': 'late_writer_failure'}]},
                        {'failure': {'stage': 'browser_close'}}, {'cleanup': {'complete': False}},
@@ -499,6 +499,81 @@ class ExpectedSourceHeadTests(unittest.TestCase):
             self.assertEqual(record['inputs']['expected_source_head'], head)
             self.assertEqual(record['inputs']['compiled_core_source_head'], head)
             self.assertEqual(record['inputs']['frontend_build_head'], head)
+
+
+class ExecutionDialogTests(unittest.TestCase):
+    def test_success_requires_all_five_exact_checks_and_refuses_historical_four(self):
+        base = {'flow_complete': True, 'http_errors': [], 'page_errors': [], 'cleanup': {'complete': True},
+                'checks': [{'id': f'WSI-B0{i}', 'status': 'passed'} for i in range(1, 6)]}
+        self.assertEqual(h.seal_status(copy.deepcopy(base)), 0)
+        for checks in (base['checks'][:4], base['checks'][1:], base['checks'] + [base['checks'][0]],
+                       base['checks'][:4]+[{'id': 'WSI-B04', 'status': 'passed'}],
+                       base['checks'][:4]+[{'id': 'WSI-B05', 'status': 'failed'}],
+                       base['checks'][:4]+[{'id': 'WSI-B06', 'status': 'passed'}]):
+            report = copy.deepcopy(base)
+            report['checks'] = copy.deepcopy(checks)
+            self.assertEqual(h.seal_status(report), 1)
+            self.assertEqual(report['status'], 'failed')
+
+    def test_only_fixture_project_workspace_and_grant_reads_are_added(self):
+        boundary = h.Boundary({'id': 'project-one'}, [{'id': 'task-one'}], {})
+        for command, method in [('workspaces_list', 'workspaces.list'), ('grants_list', 'grants.list')]:
+            self.assertEqual(boundary.route(command, {'projectId': 'project-one'}),
+                             (method, {'project_id': 'project-one'}, None, None))
+            for args in ({}, {'projectId': 'foreign'}, {'projectId': 'project-one', 'idempotencyKey': 'key'},
+                         {'projectId': 'project-one', 'expectedRevision': 1}, {'projectId': 'project-one', 'path': '/other'}):
+                with self.assertRaises((ValueError, KeyError)):
+                    boundary.route(command, args)
+        self.assertEqual(boundary.writes, {})
+        for command in ('grants_create', 'grants_propose', 'approvals_finalize', 'sessions_create', 'generic_rpc'):
+            with self.assertRaises(PermissionError):
+                boundary.route(command, {})
+
+    def fixture_task(self, task_id='task-one', workspace='workspace-one'):
+        return {'id': task_id, 'revision': 3, 'spec_revision': 1, 'project_id': 'project-one', 'state': 'draft',
+                'code_workspace_binding': {'receipt': {'task_id': task_id, 'workspace_id': workspace}}}
+
+    def delivered(self, task):
+        return {'method': 'tasks.get', 'task_id': task['id'], 'result': 'result', 'phase': 'complete',
+                'reply_complete': True, 'task_projection': h.task_read_projection(task)}
+
+    def test_fresh_dialog_read_must_be_after_open_complete_and_for_exact_current_task(self):
+        task = self.fixture_task()
+        entry = self.delivered(task)
+        self.assertIsNone(h.confirmed_dialog_task_read([entry], 1, task))
+        self.assertIsNone(h.confirmed_dialog_task_read([], 0, task))
+        for field, value in [('reply_complete', False), ('phase', 'response_body')]:
+            pending = copy.deepcopy(entry)
+            pending[field] = value
+            self.assertIsNone(h.confirmed_dialog_task_read([pending], 0, task))
+        self.assertEqual(h.confirmed_dialog_task_read([entry], 0, task), h.task_read_projection(task))
+        self.assertIsNone(h.confirmed_dialog_task_read([self.delivered(self.fixture_task('task-two', 'workspace-two'))], 0, task))
+        for changed in (dict(entry, result='error'), dict(entry, task_projection={'task_id': 'task-one'})):
+            with self.assertRaises(ValueError):
+                h.confirmed_dialog_task_read([changed], 0, task)
+        for field, value in [('revision', 2), ('state', 'running')]:
+            changed = copy.deepcopy(task)
+            changed[field] = value
+            with self.assertRaises(ValueError):
+                h.confirmed_dialog_task_read([self.delivered(changed)], 0, task)
+        changed = self.fixture_task(workspace='workspace-two')
+        with self.assertRaises(ValueError):
+            h.confirmed_dialog_task_read([self.delivered(changed)], 0, task)
+
+    def test_task_projection_is_typed_and_two_task_same_window_reads_never_share_binding(self):
+        one, two = self.fixture_task(), self.fixture_task('task-two', 'workspace-two')
+        entries = [self.delivered(one)]
+        self.assertIsNone(h.confirmed_dialog_task_read(entries, 0, two))
+        entries.append(self.delivered(two))
+        proof = h.confirmed_dialog_task_read(entries, 1, two)
+        self.assertEqual(proof['workspace_id'], 'workspace-two')
+        for bad in (dict(one, revision=True), dict(one, revision=3.0), dict(one, spec_revision=False)):
+            with self.assertRaises(ValueError):
+                h.task_read_projection(bad)
+        bad = copy.deepcopy(one)
+        bad['code_workspace_binding']['receipt']['task_id'] = 'foreign'
+        with self.assertRaises(ValueError):
+            h.task_read_projection(bad)
 
 
 if __name__ == '__main__':

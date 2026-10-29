@@ -126,6 +126,10 @@ class Boundary:
             require(set(args) == {'cursor', 'limit'} and integer(args['cursor'], 0)
                     and type(args['limit']) is int and args['limit'] == 100)
             return 'events.subscribe', dict(args), None, None
+        if command in ('workspaces_list', 'grants_list'):
+            require(set(args) == {'projectId'} and args['projectId'] == self.project['id'])
+            method = 'workspaces.list' if command == 'workspaces_list' else 'grants.list'
+            return method, {'project_id': self.project['id']}, None, None
         if command == 'tasks_get':
             require(set(args) == {'taskId'} and args['taskId'] in self.tasks)
             return 'tasks.get', {'task_id': args['taskId']}, None, None
@@ -371,10 +375,38 @@ def source_image(source, git):
     return rows
 
 
+
+def task_read_projection(task):
+    require(type(task) is dict and type(task.get('id')) is str
+            and integer(task.get('revision')) and integer(task.get('spec_revision')))
+    binding = task.get('code_workspace_binding')
+    workspace_id = None
+    if binding is not None:
+        require(type(binding) is dict and type(binding.get('receipt')) is dict)
+        require(binding['receipt']['task_id'] == task['id'])
+        workspace_id = binding['receipt']['workspace_id']
+        require(type(workspace_id) is str)
+    return {'task_id': task['id'], 'revision': task['revision'], 'workspace_id': workspace_id,
+            'task_sha256': sha(json.dumps(task, sort_keys=True).encode())}
+
+
+def confirmed_dialog_task_read(entries, start, task):
+    """Require a new, fully delivered real TaskGet; never infer from snapshot/old UI state."""
+    relevant = [entry for entry in entries[start:] if entry['method'] == 'tasks.get' and entry['task_id'] == task['id']]
+    if not relevant:
+        return None
+    latest = relevant[-1]
+    if latest.get('reply_complete') is not True or latest.get('phase') != 'complete':
+        return None
+    require(latest.get('result') == 'result' and exact(latest.get('task_projection'), task_read_projection(task)),
+            'Fresh dialog TaskGet does not match current real Task/binding')
+    return latest['task_projection']
+
+
 def seal_status(report):
     checks = report.get('checks', [])
     good = (report.get('flow_complete') is True and not report.get('failure')
-            and len(checks) == 4 and {c.get('id') for c in checks} == {'WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04'}
+            and len(checks) == 5 and {c.get('id') for c in checks} == {'WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04', 'WSI-B05'}
             and all(c.get('status') == 'passed' for c in checks))
     good = good and not report['http_errors'] and not report['page_errors']
     good = good and report['cleanup'].get('complete') is True
@@ -421,7 +453,7 @@ def run(args, binary, frontend, attribution, output):
     from playwright.sync_api import sync_playwright, expect
     report = {'status': 'failed_or_interrupted', 'baseline': BASE, 'inputs': attribution,
               'harness_sha256': sha(Path(__file__).read_bytes()), 'checks': [], 'screenshots': [],
-              'scenarios': {name: 'NOT_RUN' for name in ('WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04')},
+              'scenarios': {name: 'NOT_RUN' for name in ('WSI-B01', 'WSI-B02', 'WSI-B03', 'WSI-B04', 'WSI-B05')},
               'http': [], 'http_errors': [], 'readonly_aborts': [], 'page_errors': [], 'cleanup': {},
               'not_run': ['macOS Native/WebView/OS Owner dialog', 'Provider/Agent/session',
                           'startup crash recovery', 'Grant/admission/rework'],
@@ -575,6 +607,10 @@ def run(args, binary, frontend, attribution, output):
                     response = ipc(method, params, key, revision)
                     entry['reply_sha256'] = sha(json.dumps(response, sort_keys=True).encode())
                     boundary.observe(method, params, response)
+                    if method == 'tasks.get' and 'error' not in response:
+                        require(response['result']['id'] == params['task_id']
+                                and response['result']['project_id'] == project['id'])
+                        entry['task_projection'] = task_read_projection(response['result'])
                     entry['result'] = 'error' if 'error' in response else 'result'
                     if 'error' in response:
                         entry['error_code'] = response['error']['code']
@@ -700,6 +736,85 @@ def run(args, binary, frontend, attribution, output):
         shot('02-second-task-exact-recovered-desktop', panel)
         passed('WSI-B02', 'actual Core success then HTTP response loss; TaskGet and original-key/payload replay preserve all rows',
                task_id=tasks[1]['id'], distinct_task_workspaces=True)
+        stage = 'task_bound_execution_dialog_selection'
+        dialog_before = db_image(runtime)
+        dialog_start = len(report['http'])
+        report['execution_dialog_reads'] = []
+
+        def open_execution():
+            start = len(report['http'])
+            button = page.get_by_test_id('task-thread').locator('.thread-back').get_by_role('button', name='Execution & approval', exact=True)
+            expect(button).to_be_visible()
+            expect(button).to_be_enabled()
+            button.click()
+            dialog = page.get_by_role('dialog', name='Execution & approval', exact=True)
+            expect(dialog).to_be_visible()
+            return dialog, start
+
+        def verify_dialog(dialog, start, current_task, other_workspace):
+            proof = wait(lambda: confirmed_dialog_task_read(report['http'], start, current_task), lambda value: value is not None)
+            workspace_id = current_task['code_workspace_binding']['receipt']['workspace_id']
+            require(workspace_id != other_workspace and proof['workspace_id'] == workspace_id)
+            expect(dialog.locator('#session-task')).to_have_value(current_task['id'])
+            expect(dialog.locator('#session-project')).to_have_value(project['id'])
+            expect(dialog.locator('#session-workspace')).to_have_value(workspace_id)
+            expect(dialog.locator('#session-workspace')).to_be_disabled()
+            expect(dialog.get_by_text('The task’s stored binding locates this workspace.', exact=False)).to_be_visible()
+            expect(dialog.get_by_text('Stored binding is not fresh filesystem evidence or execution permission. Native Owner confirmation and the Core’s current admission checks still apply.', exact=False)).to_be_visible()
+            expect(dialog.locator('#session-connection')).to_have_value('')
+            expect(dialog.locator('#session-connection option')).to_have_count(1)
+            expect(dialog.locator('#session-grant')).to_have_value('')
+            expect(dialog.locator('#session-grant option')).to_have_count(1)
+            expect(dialog.get_by_role('button', name='Create bounded execution grant', exact=True)).to_be_disabled()
+            expect(dialog.get_by_role('button', name='Create managed session', exact=True)).to_be_disabled()
+            expect(dialog.get_by_role('alert')).to_have_count(0)
+            report['execution_dialog_reads'].append(proof)
+
+        # Task2 opens from its actual thread, with no App refresh forced to
+        # upgrade the parent snapshot. The dialog must fetch the latest Task.
+        dialog, read_start = open_execution()
+        verify_dialog(dialog, read_start, t2_after, b1['receipt']['workspace_id'])
+        dialog.locator('#session-workspace').scroll_into_view_if_needed()
+        shot('05-task2-bound-execution-desktop', dialog)
+        # Switch the real Task selector in this same mounted dialog; do not
+        # preserve Task2's workspace for Task1 or authorize either recipient.
+        read_start = len(report['http'])
+        dialog.locator('#session-task').select_option(tasks[0]['id'])
+        verify_dialog(dialog, read_start, t1, b2['receipt']['workspace_id'])
+        read_start = len(report['http'])
+        dialog.locator('#session-task').select_option(tasks[1]['id'])
+        verify_dialog(dialog, read_start, t2_after, b1['receipt']['workspace_id'])
+        dialog.get_by_role('button', name='Close', exact=True).click()
+        expect(dialog).to_have_count(0)
+        # Also exercise initialTaskId from Task1's own thread on a new mount.
+        page.get_by_role('button', name='Back to tasks', exact=True).click()
+        panel = open_task(tasks[0])
+        dialog, read_start = open_execution()
+        verify_dialog(dialog, read_start, t1, b2['receipt']['workspace_id'])
+        page.set_viewport_size({'width': 390, 'height': 844})
+        expect(dialog.locator('#session-workspace')).to_have_value(b1['receipt']['workspace_id'])
+        dialog.locator('#session-workspace').scroll_into_view_if_needed()
+        shot('06-task1-bound-execution-mobile', dialog)
+        dialog.get_by_role('button', name='Close', exact=True).click()
+        expect(dialog).to_have_count(0)
+        page.set_viewport_size({'width': 1440, 'height': 1100})
+        require(db_image(runtime) == dialog_before, 'Dialog reads changed durable rows/events')
+        require(source_image(source, git) == baseline_source)
+        require(all(entry['method'] in {*READS.values(), 'events.subscribe', 'tasks.get', 'workspaces.resolve', 'workspaces.list', 'grants.list'}
+                    for entry in report['http'][dialog_start:]), 'Execution dialog attempted a write')
+        no_execution(runtime)
+        require([proof['task_id'] for proof in report['execution_dialog_reads']]
+                == [tasks[1]['id'], tasks[0]['id'], tasks[1]['id'], tasks[0]['id']])
+        require([proof['workspace_id'] for proof in report['execution_dialog_reads']]
+                == [b2['receipt']['workspace_id'], b1['receipt']['workspace_id'], b2['receipt']['workspace_id'], b1['receipt']['workspace_id']])
+        passed('WSI-B05', 'real execution dialogs fetch each bound Task and select only its workspace without Grant/session',
+               confirmed_selection_steps=len(report['execution_dialog_reads']),
+               completed_task_get_responses=sum(entry['method'] == 'tasks.get' and entry.get('reply_complete') is True
+                                                for entry in report['http'][dialog_start:]), execution_authorized=False)
+        # Restore exactly the selected Task2/panel/desktop state at the original
+        # B02->B03 boundary. The original drift and negative checks stay intact.
+        page.get_by_role('button', name='Back to tasks', exact=True).click()
+        panel = open_task(tasks[1])
         page.get_by_role('button', name='Back to tasks', exact=True).click()
         stage = 'filesystem_drift_and_proof_invalidation'
         panel = open_task(tasks[0])
