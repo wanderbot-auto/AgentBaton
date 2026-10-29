@@ -2242,6 +2242,18 @@ impl Daemon {
             match receiver.try_recv() {
                 Ok(response) => {
                     #[cfg(debug_assertions)]
+                    if response["error"]["code"] == "BUDGET_UNKNOWN" {
+                        goal_diagnostics::emit(
+                            "goal_budget_denied",
+                            None,
+                            [false; 6],
+                            goal_diagnostics::budget_reason_tag(
+                                response["error"]["message"].as_str(),
+                            ),
+                            Some("BUDGET_UNKNOWN"),
+                        );
+                    }
+                    #[cfg(debug_assertions)]
                     self.trace_goal_stage(
                         "goal_pending_reply",
                         None,

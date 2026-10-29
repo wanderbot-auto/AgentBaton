@@ -103,7 +103,8 @@ impl Trace {
             | "mcp_external_recheck"
             | "mcp_provider_verify"
             | "factory_query_check"
-            | "factory_git_snapshot" => 0,
+            | "factory_git_snapshot"
+            | "goal_budget_denied" => 0,
             _ => 63,
         };
         let line=format!("AB_GOAL_DIAG stage={stage} wall_ms={} at_ms={at} elapsed_ms={} flags={}{}{}{}{}{} valid={valid} count={count} code={code}\n",self.wall_ms,elapsed.map(millis).unwrap_or(0),u8::from(flags[0]),u8::from(flags[1]),u8::from(flags[2]),u8::from(flags[3]),u8::from(flags[4]),u8::from(flags[5]));
@@ -150,6 +151,9 @@ fn allowed_stage(stage: &str) -> bool {
             | "mcp_provider_verify"
             | "factory_query_check"
             | "factory_git_snapshot"
+            | "goal_meter_before"
+            | "goal_meter_observed"
+            | "goal_budget_denied"
             | "factory_tick_begin"
             | "factory_tick_end"
             | "goal_tick_begin"
@@ -242,6 +246,25 @@ pub(crate) fn method_tag(raw: &str) -> usize {
         _ => 0,
     }
 }
+// Classify only exact existing static diagnostics. Never render any message,
+// raw wire text, scope identifier or error detail into the scalar trace.
+pub(crate) fn budget_reason_tag(message: Option<&str>) -> usize {
+    match message {
+        Some("Historical actual runtime is unknown") => 1,
+        Some("Historical actual output is unknown") => 2,
+        Some("Provider token/cost usage or bounded reservation is unavailable") => 3,
+        Some("Ancestor token/cost usage or reservation is unknown or exceeds its finite bound") => 4,
+        Some("Shared reservation origin or measurement scope is inconsistent; no missing history was treated as zero") => 5,
+        Some("Shared reservation is not bound to the actual session/attempt/root") => 6,
+        Some("Factory-derived accounting differs from its exact joined/unknown node evidence") => 7,
+        Some("Factory-derived Goal reservation lacks its exact atomic node/attempt receipt") => 8,
+        Some("Factory ancestor runtime is unknown") => 9,
+        Some("Factory ancestor output is unknown") => 10,
+        Some("The original shared runtime observation is unknown; do not reset it with a new session/root") => 11,
+        Some("An ancestor has unknown runtime") => 12,
+        _ => 0,
+    }
+}
 pub(crate) struct FlushOnDrop;
 impl FlushOnDrop {
     pub(crate) fn enter() -> Self {
@@ -270,6 +293,42 @@ impl Drop for FlushOnDrop {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn budget_reason_tags_accept_only_fixed_static_messages() {
+        assert_eq!(
+            budget_reason_tag(Some("Historical actual runtime is unknown")),
+            1
+        );
+        assert_eq!(
+            budget_reason_tag(Some("Historical actual output is unknown")),
+            2
+        );
+        assert_eq!(
+            budget_reason_tag(Some(
+                "Shared reservation is not bound to the actual session/attempt/root"
+            )),
+            6
+        );
+        assert_eq!(
+            budget_reason_tag(Some("private-token-shaped-user-error")),
+            0
+        );
+        assert_eq!(budget_reason_tag(None), 0);
+        let now = Instant::now();
+        let mut trace = Trace::new(now);
+        let line = trace
+            .record(
+                "goal_budget_denied",
+                now,
+                None,
+                [false; 6],
+                budget_reason_tag(Some("private-token-shaped-user-error")),
+                "BUDGET_UNKNOWN",
+            )
+            .unwrap();
+        assert!(!line.contains("private-token"));
+        assert!(line.contains("valid=0 count=0"));
+    }
     #[test]
     fn repeated_ticks_keep_bounded_late_stage_tail_instead_of_spending_global_budget() {
         let start = Instant::now();

@@ -980,6 +980,31 @@ fn reserve_meter(
     active: &[&ReservationRecord],
 ) -> Result<()> {
     let mut m = meter(db, key_id, limits, before_count)?;
+    #[cfg(debug_assertions)]
+    {
+        let flags = [
+            m.runtime_ms.is_some(),
+            m.output_bytes.is_some(),
+            m.tokens.is_some(),
+            m.cost_microunits.is_some(),
+            key_id.starts_with("project:"),
+            before_count > m.observed_attempts,
+        ];
+        crate::goal_diagnostics::emit(
+            "goal_meter_before",
+            None,
+            flags,
+            before_count as usize,
+            None,
+        );
+        crate::goal_diagnostics::emit(
+            "goal_meter_observed",
+            None,
+            flags,
+            m.observed_attempts as usize,
+            None,
+        );
+    }
     let runtime = m
         .runtime_ms
         .ok_or_else(|| err("BUDGET_UNKNOWN", "Historical actual runtime is unknown"))?;
