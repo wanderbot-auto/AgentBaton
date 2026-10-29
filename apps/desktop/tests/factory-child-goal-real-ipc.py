@@ -709,7 +709,7 @@ class WireEvidenceRecorder:
             raise
 
     def failed(self,slot,error,stage,raw=None):
-        entry={**slot,'capture_state':'failed','stage':stage,'error_type':type(error).__name__,'error':str(error),
+        details={'capture_state':'failed','stage':stage,'error_type':type(error).__name__,'error':str(error),
             'received_sha256':base.sha(raw)if raw is not None else None,
             'received_bytes':len(raw)if raw is not None else None,
             'retained_path_exists':os.path.lexists(slot['original_reply_path']),'capture_complete':False}
@@ -717,7 +717,7 @@ class WireEvidenceRecorder:
             if not slot['reservation_settled']:
                 self._reserved-=slot['reserved_response_bytes'];self._inflight-=1;slot['reservation_settled']=True
             self._pending_writes-=slot['pending_write_bytes'];slot['pending_write_bytes']=0
-            slot['capture_state']='failed';self.report['actual_core_wire_failures'].append(entry);self._condition.notify_all()
+            slot['capture_state']='failed';self.report['actual_core_wire_failures'].append({**slot,**details});self._condition.notify_all()
 
     def _write(self,path,raw):
         fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
@@ -872,6 +872,7 @@ def wire_recording_self_check(output):
     else:raise AssertionError('Known low disk dispatched')
     assert marker['calls']==0 and low._reserved==low._inflight==0 and low_report['actual_core_wire_failures'][0]['stage']=='capacity_pre_dispatch'
     assert not low_report['actual_core_wires']and not list(low_dir.iterdir())
+    assert low_report['actual_core_wire_failures'][0]['reservation_settled']is True and low_report['actual_core_wire_failures'][0]['pending_write_bytes']==0
     checks.append('known-low-disk-refused-before-backend-marker0-and-reservation-released')
     assert base.MAX_RESPONSE_BYTES==4*1024*1024
     assert all(row['reserved_response_bytes']==base.MAX_RESPONSE_BYTES and row['capacity_checked_before_dispatch']is True for row in report['actual_core_wire_attempts'])
