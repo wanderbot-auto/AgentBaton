@@ -69,7 +69,7 @@ function FactoryPanel({task,language,connected,open}:Props&{open:boolean}){
      const v=await factoryApi.run(value.id);
      if(!factoryRunShape(v?.run,task,value.id))throw new Error(t.invalid);
      advanceRunFloor(nextRuns,v.run);
-     const valid=factoryDetailsShape(v,task,value.id);
+     const valid=factoryDetailsShape(v,task,value.id,value);
      return {scopeId:value.id,run:v.run,detail:valid?v:null,read:true,closed:valid&&factoryRunSupported(v.run)&&['completed','cancelled'].includes(v.run.state),problem:valid?'':t.invalid};
     }catch(e){
      if(e instanceof DaemonError&&e.code==='NOT_FOUND'&&e.sideEffectState==='not_started'&&!saved.runs.has(value.id))return {scopeId:value.id,run:null,detail:null,read:true,closed:true,problem:''};

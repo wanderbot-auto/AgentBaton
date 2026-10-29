@@ -49,7 +49,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    const [scope,family,all,grants]=await Promise.all([factoryApi.get(p.scope.id),factoryApi.run(p.scope.id),api.snapshot(),sessionApi.grantsList(p.scope.project_id)]);
    if(!mounted.current||stamp!==epoch.current)return null;
    const root=all.tasks.find(task=>task.id===scope.root_task_id),task=all.tasks.find(task=>task.id===p.target.task_id);
-   if(!root||!task||!factoryScopeShape(scope,root)||childGoalScopeFingerprint(scope)!==saved.scope||childGoalScopeFingerprint(p.scope)!==saved.scope||scope.revision<saved.scopeRevision||!factoryDetailsShape(family,root,scope.id)||family.run.id!==p.run.id||family.run.revision<saved.factoryRevision||task.revision<saved.taskRevision||task.revision===saved.taskRevision&&saved.taskFingerprint!==JSON.stringify(task))throw new Error(t.invalid);
+   if(!root||!task||!factoryScopeShape(scope,root)||childGoalScopeFingerprint(scope)!==saved.scope||childGoalScopeFingerprint(p.scope)!==saved.scope||scope.revision<saved.scopeRevision||!factoryDetailsShape(family,root,scope.id,scope)||family.run.id!==p.run.id||family.run.revision<saved.factoryRevision||task.revision<saved.taskRevision||task.revision===saved.taskRevision&&saved.taskFingerprint!==JSON.stringify(task))throw new Error(t.invalid);
    const target=family.tasks.find(task=>task.task_id===p.target.task_id);
    if(!target||target.parent_task_id!==p.target.parent_task_id||target.root_task_id!==scope.root_task_id||!scope.bindings.child_goal_execution||!Array.isArray(grants))throw new Error(t.invalid);
    const rows=await factoryChildGoalApi.list(scope.id,target.task_id);
