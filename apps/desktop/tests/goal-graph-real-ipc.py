@@ -45,7 +45,7 @@ READ_ONLY_HTTP_METHODS = frozenset({'system.snapshot', 'projects.list', 'connect
     'workspaces.list', 'grants.list', 'goal_scopes.list', 'goal_scopes.get', 'goal_plans.get', 'goal_plans.list',
     'goal_plans.ready_preview', 'goal_graph_runs.list', 'goal_graph_runs.get', 'goal_runs.list', 'events.subscribe'})
 PENDING_DEPENDENCIES = (
-    'Root-frozen updated schema14 binary/manifest and new composed Graph UI assets',
+    'Root-frozen updated schema15 binary/manifest and new composed Graph UI assets',
     'Actual current Graph Owner and Integrity/Data/Command five-node browser runs plus Data-range/Command-timeout negative runs',
     'Independent review plus remaining drift, unknown, cancellation, ledger/CAS, explicit rejection and transport-drop matrix',
 )
@@ -668,9 +668,46 @@ for line in sys.stdin:
 '''
 
 
+LEGACY_GOAL_TABLES = frozenset({
+    'goal_scopes', 'goal_plan_heads', 'goal_plan_revisions', 'goal_plan_proposals',
+    'goal_runs', 'goal_run_nodes', 'goal_run_reservations', 'goal_node_evidence',
+    'goal_graph_capabilities', 'goal_graph_jobs', 'goal_graph_candidates',
+    'goal_graph_validations', 'goal_graph_owner_decisions', 'goal_graph_acceptances',
+    'goal_grant_revisions', 'goal_ledgers', 'goal_external_action_journal',
+})
+
+
+FACTORY_RECORD_TABLES = {
+    'child_goal_runs': 'factory_child_goal_runs',
+    'child_plan_heads': 'factory_child_plan_heads',
+    'child_plan_revisions': 'factory_child_plan_revisions',
+    'scopes': 'factory_scopes', 'runs': 'factory_runs',
+    'task_lineage': 'factory_task_lineage', 'task_bindings': 'factory_task_bindings',
+    'delegations': 'factory_delegations', 'attempts': 'factory_attempts',
+    'scoped_handles': 'factory_scoped_handles', 'handoffs': 'factory_handoffs',
+    'budget_reservations': 'factory_budget_reservations',
+}
+
+
+def current_factory_counts(db):
+    """Global private-fixture counts, not root-filtered authority or Core receipts.
+
+    Exact current schema and all12 tables are mandatory. Missing/unknown DB
+    state raises; no absent table, failed query or NULL count becomes zero.
+    """
+    schema = db.execute('PRAGMA user_version').fetchone()[0]
+    assert type(schema) is int and schema == 15
+    counts = {}
+    for key, table in FACTORY_RECORD_TABLES.items():
+        value = db.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0]
+        assert type(value) is int and 0 <= value <= SAFE_INTEGER
+        counts[key] = value
+    return counts
+
+
 def verify_candidate(binary: Path, manifest_raw: bytes) -> dict:
     manifest = json.loads(manifest_raw)
-    assert type(manifest.get('schema')) is int and manifest.get('schema') == 14, 'Only an explicit frozen schema14 binary may execute Graph'
+    assert type(manifest.get('schema')) is int and manifest.get('schema') == 15, 'Only an explicit frozen schema15 binary may execute Graph'
     entry = manifest['binaries']['batond']
     expected = entry['sha256'] if isinstance(entry, dict) else entry
     assert re.fullmatch('[0-9a-f]{64}', expected) and sha(binary.read_bytes()) == expected
@@ -742,7 +779,8 @@ def verify_validation_receipt(runtime: Path, detail: dict, definition: dict, cas
     assert observed_subject['task_id'] != definition['task_id'] and observed_subject['attempt_id'] != definition['attempt_id']
     with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 14
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 15
+        assert current_factory_counts(db)['child_goal_runs'] == 0
         raw = db.execute('SELECT document FROM goal_graph_validations WHERE id=?', [receipt['id']]).fetchone()[0]
         original_validation_receipt(view, json.loads(raw, object_pairs_hook=unique_object))
         job_state, origin_raw = db.execute('SELECT state,document FROM goal_graph_jobs WHERE id=?', [node['job_id']]).fetchone()
@@ -1147,7 +1185,7 @@ def driver_self_check() -> dict:
     check('no deterministic validation falsely included', not any(x['kind'] == 'validate' for x in revised['nodes']))
     compile(VALIDATION_ACP, '<generated-graph-acp>', 'exec')
     check('generated ACP syntax', True)
-    for schema in [11, 12, 13, 15, 13.0, 14.0, True, '13', '14', None]:
+    for schema in [11, 12, 13, 14, 16, 13.0, 14.0, 15.0, True, '13', '14', '15', None]:
         try:
             verify_candidate(Path('/must-not-read-a-binary'), json.dumps({'schema': schema}).encode())
         except AssertionError:
@@ -1182,7 +1220,7 @@ def driver_self_check() -> dict:
 
 
 def owner_only_driver(args, output: Path) -> int:
-    """Runnable real driver. Every receipt comes from the supplied Core12.
+    """Runnable real driver. Every receipt comes from the supplied exact schema15 Core.
 
     Owner-only is deliberately separate from pending deterministic Validate and
     negative Graph scenarios. An old acceptance projection fails strict checks.
@@ -1201,7 +1239,7 @@ def owner_only_driver(args, output: Path) -> int:
         from playwright.sync_api import expect, sync_playwright
     except (AssertionError, OSError, ValueError, KeyError, ImportError) as failure:
         refusal = {'status': 'preflight_refused', 'actual_runtime': 'not_run',
-            'harness_sha256': sha(Path(__file__).read_bytes()), 'schema_required': 14,
+            'harness_sha256': sha(Path(__file__).read_bytes()), 'schema_required': 15,
             'failure': {'type': type(failure).__name__, 'message': str(failure)},
             'no_process_token_read_or_listener': True}
         (output / 'preflight-refusal.json').write_text(json.dumps(refusal, indent=2) + '\n')
@@ -1666,7 +1704,8 @@ def owner_only_driver(args, output: Path) -> int:
                         passed('real private Owner decisions and declared checks gate dependent Summary and all-required TaskAccepted with canonical fresh projections')
                         with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
                             db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-                            assert db.execute('PRAGMA user_version').fetchone()[0] == 14
+                            assert db.execute('PRAGMA user_version').fetchone()[0] == 15
+                            assert current_factory_counts(db)['child_goal_runs'] == 0
                             event_rows = db.execute('SELECT sequence,document FROM events ORDER BY sequence LIMIT 4097').fetchall()
                             assert len(event_rows) <= 4096 and all(len(raw.encode()) <= MAX_GRAPH_REVIEW_BYTES for _, raw in event_rows)
                             events = [(seq, json.loads(raw)) for seq, raw in event_rows]
@@ -1893,7 +1932,7 @@ def main():
     parser.add_argument('--chromium', default='/usr/bin/chromium')
     args = parser.parse_args()
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
-    attribution = {'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'schema_required': 14}
+    attribution = {'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'schema_required': 15}
     assert sum([args.self_check, args.driver_self_check, args.transport_self_check, args.validation_self_check, args.provider_self_check, args.packet_self_check, args.owner_only, bool(args.validation_case)]) <= 1, 'Choose one explicit mode'
     assert args.packet_self_check or not args.packet, 'Actual packet inputs are only for the pure packet check'
     if args.packet_self_check:
@@ -1929,16 +1968,16 @@ def main():
     if args.owner_only or args.validation_case:
         return owner_only_driver(args, output)
     # Full five-node/negative matrix remains pending. Only explicit --owner-only
-    # invokes the separate real four-node driver, with a schema14 preflight.
+    # invokes the separate real four-node driver, with a schema15 preflight.
     report = {**attribution, 'status': 'pending_dependencies', 'actual_runtime': 'not_run',
               'pending': list(PENDING_DEPENDENCIES), 'no_successful_graph_execution_or_acceptance_claimed': True}
     if args.candidate_manifest is not None:
         raw = args.candidate_manifest.resolve(strict=True).read_bytes(); manifest = json.loads(raw)
         report['manifest_sha256'] = hashlib.sha256(raw).hexdigest()
-        if type(manifest.get('schema')) is not int or manifest.get('schema') != 14:
-            report['refusal'] = 'Older schema binary is not exact Graph14 execution evidence'
+        if type(manifest.get('schema')) is not int or manifest.get('schema') != 15:
+            report['refusal'] = 'Older schema binary is not exact Graph15 execution evidence'
         else:
-            report['manifest_schema'] = 14
+            report['manifest_schema'] = 15
     (output / 'pending-runtime.json').write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps({'status': report['status'], 'actual_runtime': report['actual_runtime'], 'pending': report['pending']}))
     return 2

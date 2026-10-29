@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Schema14 built UI / fixed Owner bridges / actual Unix IPC / generated MCP5.
+"""Schema15 built UI / fixed Owner bridges / actual Unix IPC / generated MCP5.
 
 No OS Owner dialog, real model, account or generic Owner HTTP bridge. Running
 without --run records NOT_RUN. --self-check starts no listener or subprocess.
@@ -42,7 +42,7 @@ ID = re.compile(r'[A-Za-z0-9._:-]{1,128}')
 KEY = re.compile(r'[A-Za-z0-9:_-]{1,128}')
 CHILD_COMMANDS = frozenset({'factory_child_plans_context', 'factory_child_plans_get',
     'factory_child_plans_list', 'factory_child_plans_submit'})
-# Only this newly imported, private module instance uses schema14 prompt fields.
+# Only this newly imported, private module instance uses schema15 prompt fields.
 # No existing file/module object used by another harness is changed.
 base.REQUEST_FIELDS = base.REQUEST_FIELDS | {'child_planning_context'}
 
@@ -185,14 +185,18 @@ def fingerprint_db(runtime):
     """Readonly, bounded exact rows; no Store::open/migration/recovery."""
     with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
         db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 14
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 15
         names = {v[0] for v in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-        fixed = {'execution_grants', 'managed_workspaces', 'goal_scopes', 'goal_plans', 'goal_runs',
-            'goal_graph_runs', 'tasks', 'attempts', 'sessions', 'factory_attempts', 'factory_runs',
+        fixed = {'execution_grants', 'managed_workspaces', 'tasks', 'attempts', 'sessions', 'factory_attempts', 'factory_runs',
             'factory_child_plan_heads', 'factory_child_plan_revisions', 'budgets', 'workspace_leases',
-            'factory_budget_reservations', 'factory_ledgers', 'idempotency', 'events'}
+            'factory_budget_reservations', 'goal_ledgers', 'idempotency', 'events'}
+        fixed |= base.support.LEGACY_GOAL_TABLES
+        fixed |= set(base.support.FACTORY_RECORD_TABLES.values())
+        assert fixed <= names, ('Missing required current tables', sorted(fixed - names))
+        counts = base.support.current_factory_counts(db)
+        assert counts['child_goal_runs'] == 0, 'Planning-only scope cannot dispatch a derived Goal'
         rows = {}; total = 0
-        for name in sorted(names & fixed):
+        for name in sorted(fixed):
             count = db.execute('SELECT count(*) FROM "' + name + '"').fetchone()[0]
             assert count <= 1024
             values = db.execute('SELECT * FROM "' + name + '" ORDER BY rowid').fetchall()
@@ -806,12 +810,12 @@ def runtime_driver(args, output, manifest):
     assert sum(p.stat().st_size for p in asset_paths if p.is_file())<=64*1024*1024
     assets = {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(asset_paths) if p.is_file()}
     assert (frontend / 'index.html').is_file() and len(assets) <= 4096
-    assert assets == manifest['frontend_assets'], 'Root-provided exact built schema14 frontend required'
+    assert assets == manifest['frontend_assets'], 'Root-provided exact built schema15 frontend required'
     for name, path in [('batond', raw_daemon), ('baton', raw_cli)]:
         assert sha(path.read_bytes()) == manifest['binaries'][name]
-    assert type(manifest['schema']) is int and manifest['schema'] == 14
+    assert type(manifest['schema']) is int and manifest['schema'] == 15
     assert re.fullmatch('[a-f0-9]{40}',manifest['source_head']) and re.fullmatch('[a-f0-9]{40}',manifest['compiled_core_source_head'])
-    report = {'status': 'failed_or_interrupted', 'schema_required': 14, 'harness_sha256': sha(source), 'candidate_manifest_sha256': sha(args.manifest.read_bytes()),
+    report = {'status': 'failed_or_interrupted', 'schema_required': 15, 'harness_sha256': sha(source), 'candidate_manifest_sha256': sha(args.manifest.read_bytes()),
         'support_sha256': sha(BASE_PATH.read_bytes()), 'candidate': manifest, 'frontend_assets': assets,
         'harness_git_head': subprocess.check_output(['git','rev-parse','HEAD'],cwd=Path(__file__).resolve().parents[3],text=True).strip(),
         'checks': [], 'screenshots': [], 'http': [], 'private_owner_reviews': [], 'cleanup': [],
@@ -859,7 +863,7 @@ def runtime_driver(args, output, manifest):
                 'authority': 'private generated fixture, NOT OS Native approval'})
             return host.result('approvals.finalize', {'proposal_id': proposal['id']},
                 'proposal:' + proposal['id'], proposal['revision'])
-        connection = resource('connections.propose', {'name': 'Generated schema14 MCP5', 'provider': 'custom_acp',
+        connection = resource('connections.propose', {'name': 'Generated schema15 MCP5', 'provider': 'custom_acp',
             'executable': str(provider), 'arguments': ['--fixture-settings', str(settings)]}, 'connection', 'planning:connection')
         cid = connection['id']
         rows = wait(lambda: host.result('connections.list', {}), lambda rows: any(c['id'] == cid and c['probe_state'] == 'ready' for c in rows))
@@ -1015,6 +1019,8 @@ def runtime_driver(args, output, manifest):
         expect(panel.get_by_role('button', name='Start approved Factory run', exact=True)).to_be_enabled()
         assert scope is not None and host.result('sessions.list', {}) == []
         after_approval = fingerprint_db(runtime)
+        assert all(after_approval[name]['count'] == 0 for name in base.support.LEGACY_GOAL_TABLES)
+        assert after_approval['factory_child_goal_runs']['count'] == 0
         assert after_approval['factory_attempts']['count'] == after_approval['factory_runs']['count'] == 0
         assert after_approval['execution_grants']['count'] == 1
         passed('CP01', 'Actual UI complete policy -> private simulated Native review -> actual Core approval, no spawn/no Grant delegation')
@@ -1201,8 +1207,8 @@ def runtime_driver(args, output, manifest):
         assert git('status', '--porcelain') == '' and source_before == {'head': git('rev-parse', 'HEAD'),
             'sha256': sha((source_root / 'input.txt').read_bytes()), 'mtime_ns': (source_root / 'input.txt').stat().st_mtime_ns}
         final_state = fingerprint_db(runtime)
-        for name in ['goal_scopes', 'goal_plans', 'goal_runs', 'goal_graph_runs']:
-            if name in after_approval: assert final_state[name] == after_approval[name], ('Unexpected Goal dispatch', name)
+        for name in sorted(base.support.LEGACY_GOAL_TABLES):
+            assert final_state[name] == after_approval[name], ('Unexpected Goal dispatch', name)
         assert not errors and not report['http_unexpected_errors'], (errors, report['http_unexpected_errors'])
         assert sha(Path(__file__).read_bytes()) == sha(source)
         passed('CP09', 'Six raw revisions bind independent real journal receipts; original Grant children0, exactly3 attempts, active0, no new Goal/TaskAccepted/workspace, source unchanged')
@@ -1217,7 +1223,7 @@ def runtime_driver(args, output, manifest):
             def final_diagnostics():
                 info, _ = base.diagnostic_snapshot(runtime, workspace, output, token)
                 report['observations']['final_diagnostics'] = info
-                assert info['complete'] is True and info['schema'] == 14
+                assert info['complete'] is True and info['schema'] == 15
             base.cleanup_call(report, 'readonly_final_diagnostics', final_diagnostics, clean)
         close_browser_engine(browser,playwright,report,clean)
         http_complete = True
@@ -1311,7 +1317,7 @@ def main():
         base.write_private_json(output/'sql-check.json',value);print(json.dumps(value));return 0
     if not args.run:
         base.write_private_json(output / 'NOT_RUN.json', {'actual_runtime': 'not_run',
-            'pending': ['Root reviewed harness', 'fixed schema14 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
+            'pending': ['Root reviewed harness', 'fixed schema15 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser CPU lease']})
         return 2
     assert args.tools and args.frontend and args.manifest
     manifest = json.loads(args.manifest.read_bytes(), object_pairs_hook=unique_object)
