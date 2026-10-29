@@ -418,6 +418,22 @@ def self_check():
         else:raise AssertionError(name)
         checks.append('pure-exact-child-wait-refuses:'+name)
 
+    checks.extend(lost_start_observation_self_check(source))
+    recovery_line="            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled(timeout=15000);recover.click()\n"
+    assert source.count(recovery_line)==1
+    for name,replacement in {
+        'implicit-default5s':recovery_line.replace('(timeout=15000)','()'),
+        'expanded16s':recovery_line.replace('timeout=15000','timeout=16000'),
+        'zero-observation':recovery_line.replace('timeout=15000','timeout=0'),
+        'inexact-recovery-locator':recovery_line.replace('exact=True','exact=False'),
+        'click-before-enabled':recovery_line.replace('expect(recover).to_be_enabled(timeout=15000);recover.click()','recover.click();expect(recover).to_be_enabled(timeout=15000)'),
+    }.items():
+        mutated=source.replace(recovery_line,replacement);assert mutated!=source
+        try:lost_start_observation_self_check(mutated)
+        except AssertionError:pass
+        else:raise AssertionError(name)
+        checks.append('pure-lost-start-observation-refuses:'+name)
+
     return {'status':'passed','count':len(checks),'checks':checks,
         'dimension':'pure Python fixed-boundary and fake-query-return controls; NO Core/SQLite migration/browser/OS approval/process execution'}
 
@@ -445,6 +461,26 @@ def exact_child_wait_self_check(source):
     assert not any(isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='count'and
         isinstance(n.func.value,ast.Name)and n.func.value.id=='task_item'for n in ast.walk(runtime))
     return ['pure-runtime-exact-child-locator-eventual-one-original15s']
+
+
+def lost_start_observation_self_check(source):
+    """AST-only: complete one readonly reconciliation before explicit recovery.
+
+    The original15s UI observation stage is separate from every production
+    deadline and from an unknown write. This never runs Playwright or Core.
+    """
+    import ast
+    runtime=next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef)and n.name=='runtime_driver')
+    branches=[n for n in ast.walk(runtime)if isinstance(n,ast.If)and ast.unparse(n.test)=="args.case == 'lost-start'"]
+    assert len(branches)==1
+    body=branches[0].body
+    indices=[i for i,n in enumerate(body)if isinstance(n,ast.Assign)and
+        any(isinstance(t,ast.Name)and t.id=='recover'for t in n.targets)]
+    assert len(indices)==1
+    expected=ast.parse("recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True)\n"
+        'expect(recover).to_be_enabled(timeout=15000)\nrecover.click()\n').body
+    assert [ast.dump(n,include_attributes=False)for n in body[indices[0]:indices[0]+3]]==[ast.dump(n,include_attributes=False)for n in expected]
+    return ['pure-lost-start-exact-recovery-after-bounded15s-read-observation']
 
 
 # Kept separate from all old4/5-tool generated programs. Every replacement is
@@ -1275,7 +1311,7 @@ def runtime_driver(args, output):
             assert fault['used'];expect(goal_panel.get_by_role('status').filter(has_text='Outcome unknown')).to_be_visible()
             assert len([r for r in report['http']if r['method']=='factory_child_goals.start'])==1
             goal_panel.get_by_role('button',name='Refresh child Goal execution',exact=True).click()
-            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled();recover.click()
+            recover=goal_panel.get_by_role('button',name='Recover the exact child Goal request',exact=True);expect(recover).to_be_enabled(timeout=15000);recover.click()
             calls=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and r.get('response_complete')],lambda v:len(v)==1)
             recovered=calls[0];assert (recovered['params'],recovered['key'],recovered['revision'])==(started['params'],started['key'],started['revision'])
             assert support.exact_json_value(recovered['response']['result'],initial)
