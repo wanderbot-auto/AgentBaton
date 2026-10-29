@@ -75,7 +75,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import os, pathlib, subprocess, sys
-          output = pathlib.Path('artifacts/provider-contract)
+          output = pathlib.Path('artifacts/provider-contract')
           output.mkdir(parents=True, exist_ok=True)
           assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
           fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
@@ -339,7 +339,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import os, pathlib, subprocess, sys
-          output = pathlib.Path('artifacts/native-smoke)
+          output = pathlib.Path('artifacts/native-smoke')
           output.mkdir(parents=True, exist_ok=True)
           assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
           fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
